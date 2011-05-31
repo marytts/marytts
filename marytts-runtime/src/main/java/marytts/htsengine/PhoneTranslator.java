@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2007 DFKI GmbH.
+ * Copyright 2011 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 package marytts.htsengine;
 
 

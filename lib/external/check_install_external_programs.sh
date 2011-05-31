@@ -1,4 +1,5 @@
-# Copyright 2007 DFKI GmbH.
+#!/bin/bash
+# Copyright 2011 DFKI GmbH.
 # All Rights Reserved.  Use is subject to license terms.
 #
 # This file is part of MARY TTS.
@@ -18,7 +19,7 @@
 # HMMVoice creation for MARY 4.0 - Checking and installing external programs
 # more information in: http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0
 # 
-# Created by Marcela Charfuelan (DFKI) Thu Dec 10 17:27:35 CET 2009
+# Created by Marcela Charfuelan (DFKI) Mon May 16 15:05:07 CEST 2011
 # use:
 #   ./check_install_external_programs.sh [-check|-install][additional paths]
 
@@ -281,48 +282,48 @@ if which HHEd > /dev/null; then
          echo "suggested commands:"
          root=$MARY_BASE/lib/external
          echo "  mkdir -p $root/sw"
-         echo "  cp HTK-3.4.tar.gz $root/sw"
-         echo "  cp HDecode-3.4.tar.gz $root/sw"
+         echo "  cp HTK-3.4.1.tar.gz $root/sw"
+         echo "  cp HDecode-3.4.1.tar.gz $root/sw"
          echo "  cd $root/sw"
          echo "  mkdir HTS-patch"
          echo "  cd HTS-patch"
-         echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2"
-         echo "  tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2"
+         echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2"
+         echo "  tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2"
          echo "  cd .."
-         echo "  tar -zxf HTK-3.4.tar.gz"
-         echo "  tar -zxf HDecode-3.4.tar.gz"
+         echo "  tar -zxf HTK-3.4.1.tar.gz"
+         echo "  tar -zxf HDecode-3.4.1.tar.gz"
          echo "  cd htk"
-         echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch ."
-         echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch"     
+         echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch ."
+         echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch"     
          echo "  ./configure --prefix=$root/ MAXSTRLEN=2048"
          echo "  make"
          echo "  make install"
          echo "The previous commands will be executed, it assumes that the files:"
-         echo "  HTK-3.4.tar.gz"
-         echo "  HDecode-3.4.tar.gz "
+         echo "  HTK-3.4.1.tar.gz"
+         echo "  HDecode-3.4.1.tar.gz "
          echo "are in the current directory. continue (y/n)?"
          read choice
          if [ $choice = "y" ] ; then
-           if [ -f HTK-3.4.tar.gz ] && [ -f HDecode-3.4.tar.gz ] ; then 
+           if [ -f HTK-3.4.1.tar.gz ] && [ -f HDecode-3.4.1.tar.gz ] ; then 
              echo "Installing HTK..."
              echo "sources will be compiled in: $root/sw"
              echo "binaries will be installed in $root/bin"
              echo
              mkdir -p $root/sw
-             cp HTK-3.4.tar.gz $root/sw
-             cp HDecode-3.4.tar.gz $root/sw
+             cp HTK-3.4.1.tar.gz $root/sw
+             cp HDecode-3.4.1.tar.gz $root/sw
              cd $root/sw
              mkdir -p HTS-patch
              cd HTS-patch
-             wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2
-             tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2
+             wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2
+             tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2
              cd ..
-             tar -zxf HTK-3.4.tar.gz
-             tar -zxf HDecode-3.4.tar.gz
+             tar -zxf HTK-3.4.1.tar.gz
+             tar -zxf HDecode-3.4.1.tar.gz
              cd htk
-             cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch .
+             cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch .
              echo "applying HTS patch"
-             patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch
+             patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch
              ./configure --prefix=$root MAXSTRLEN=2048
              make
              make install
@@ -334,9 +335,9 @@ if which HHEd > /dev/null; then
              echo "HTK (htk and hdecode) successfully installed in: $root/bin"
              echo
           else
-            echo "file: HTK-3.4.tar.gz and/or HDecode-3.4.tar.gz not found"
-            echo "download or copy HTK-3.4.tar.gz and HDecode-3.4.tar.gz in the current directory"
-            echo "HTK 3.4 and HDecode-3.4.tar.gz can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
+            echo "file: HTK-3.4.1.tar.gz and/or HDecode-3.4.1.tar.gz not found"
+            echo "download or copy HTK-3.4.1.tar.gz and HDecode-3.4.1.tar.gz in the current directory"
+            echo "HTK 3.4 and HDecode-3.4.1.tar.gz can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
             echo 
           fi
       else
@@ -350,54 +351,54 @@ if which HHEd > /dev/null; then
   fi
 else    
     echo "HTK 3.4 and HDecode do not exist"
-    echo "HTK 3.4 and HDecode-3.4.tar.gz can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
+    echo "HTK 3.4 and HDecode-3.4.1.tar.gz can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
     echo "once HTK has been downloaded, apply the HTS patch, compile and install:"
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
-      echo "  cp HTK-3.4.tar.gz $root/sw"
-      echo "  cp HDecode-3.4.tar.gz $root/sw"
+      echo "  cp HTK-3.4.1.tar.gz $root/sw"
+      echo "  cp HDecode-3.4.1.tar.gz $root/sw"
       echo "  cd $root/sw"
       echo "  mkdir HTS-patch"
       echo "  cd HTS-patch"
-      echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2"
-      echo "  tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2"
+      echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2"
+      echo "  tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2"
       echo "  cd .."
-      echo "  tar -zxf HTK-3.4.tar.gz"
-      echo "  tar -zxf HDecode-3.4.tar.gz"
+      echo "  tar -zxf HTK-3.4.1.tar.gz"
+      echo "  tar -zxf HDecode-3.4.1.tar.gz"
       echo "  cd htk"
-      echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch ."
-      echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch"     
+      echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch ."
+      echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch"     
       echo "  ./configure --prefix=$root/ MAXSTRLEN=2048"
       echo "  make"
       echo "  make install"
       echo "The previous commands will be executed, it assumes that the files:"
-      echo "  HTK-3.4.tar.gz"
-      echo "  HDecode-3.4.tar.gz "
+      echo "  HTK-3.4.1.tar.gz"
+      echo "  HDecode-3.4.1.tar.gz "
       echo "are in the current directory. continue (y/n)?"
       read choice
       if [ $choice = "y" ] ; then
-        if [ -f HTK-3.4.tar.gz ] && [ -f HDecode-3.4.tar.gz ] ; then 
+        if [ -f HTK-3.4.1.tar.gz ] && [ -f HDecode-3.4.1.tar.gz ] ; then 
           echo "Installing HTK..."
           echo "sources will be compiled in: $root/sw"
           echo "binaries will be installed in $root/bin"
           echo
           mkdir -p $root/sw
-          cp HTK-3.4.tar.gz $root/sw
-          cp HDecode-3.4.tar.gz $root/sw
+          cp HTK-3.4.1.tar.gz $root/sw
+          cp HDecode-3.4.1.tar.gz $root/sw
           cd $root/sw
           mkdir -p HTS-patch
           cd HTS-patch
-          wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2
-          tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2
+          wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2
+          tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2
           cd ..
-          tar -zxf HTK-3.4.tar.gz
-          tar -zxf HDecode-3.4.tar.gz
+          tar -zxf HTK-3.4.1.tar.gz
+          tar -zxf HDecode-3.4.1.tar.gz
           cd htk
-          cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch .
+          cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch .
           echo "applying HTS patch"
-          patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch
+          patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch
           ./configure --prefix=$root MAXSTRLEN=2048
           make
           make install
@@ -409,8 +410,8 @@ else
           echo "HTK (htk and hdecode) successfully installed in: $root/bin"
           echo
        else
-          echo "file: HTK-3.4.tar.gz and/or HDecode-3.4.tar.gz not found"
-          echo "download or copy HTK-3.4.tar.gz in the current directory"
+          echo "file: HTK-3.4.1.tar.gz and/or HDecode-3.4.1.tar.gz not found"
+          echo "download or copy HTK-3.4.1.tar.gz in the current directory"
           echo "HTK 3.4 can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
           echo
           exit 
@@ -437,15 +438,15 @@ if which hts_engine > /dev/null; then
     echo
 else
     echo "hts_engine does not exist"
-    echo "it can be download from: http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz "
+    echo "it can be download from: http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz "
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz"
-      echo "  tar -zxf hts_engine_API-1.01.tar.gz"
-      echo "  cd hts_engine_API-1.01"
+      echo "  wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz"
+      echo "  tar -zxf hts_engine_API-1.04.tar.gz"
+      echo "  cd hts_engine_API-1.04"
       echo "  ./configure --prefix=$root"
       echo "  make"
       echo "  make install"
@@ -457,9 +458,9 @@ else
         echo "binaries will be installed in $root/bin"
         mkdir -p $root/sw
         cd $root/sw
-        wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz
-        tar -zxf hts_engine_API-1.01.tar.gz
-        cd hts_engine_API-1.01
+        wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz
+        tar -zxf hts_engine_API-1.04.tar.gz
+        cd hts_engine_API-1.04
         ./configure --prefix=$root
         make
         make install
@@ -493,15 +494,15 @@ if which mgcep > /dev/null; then
     else
       echo "SPTK gmm does not exist, SPTK version < 3.2" 
       echo "SPTK installed but probably an older version, please install SPTK 3.2"
-      echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz "
+      echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz "
       if [ $option = "-install" ] ; then
         echo "suggested commands:"
         root=$MARY_BASE/lib/external
         echo "  mkdir -p $root/sw"
         echo "  cd $root/sw"
-        echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz"
-        echo "  tar -zxvf SPTK-3.2.tar.gz"
-        echo "  cd SPTK-3.2"
+        echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz"
+        echo "  tar -zxvf SPTK-3.4.tar.gz"
+        echo "  cd SPTK-3.4"
         echo "  ./configure --prefix=$root"
         echo "  make"
         echo "  make install"
@@ -510,9 +511,9 @@ if which mgcep > /dev/null; then
         if [ $choice = "y" ] ; then
           mkdir -p $root/sw
           cd $root/sw
-          wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz
-          tar -zxvf SPTK-3.2.tar.gz
-          cd SPTK-3.2
+          wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz
+          tar -zxvf SPTK-3.4.tar.gz
+          cd SPTK-3.4
           ./configure --prefix=$root
           make
           make install
@@ -528,16 +529,16 @@ if which mgcep > /dev/null; then
       fi
     fi
 else
-    echo "SPTK-3.2 does not exist" 
-    echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz "
+    echo "SPTK-3.4 does not exist" 
+    echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz "
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz"
-      echo "  tar -zxvf SPTK-3.2.tar.gz"
-      echo "  cd SPTK-3.2"
+      echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz"
+      echo "  tar -zxvf SPTK-3.4.tar.gz"
+      echo "  cd SPTK-3.4"
       echo "  ./configure --prefix=$root"
       echo "  make"
       echo "  make install"
@@ -546,9 +547,9 @@ else
       if [ $choice = "y" ] ; then
         mkdir -p $root/sw
         cd $root/sw
-        wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz
-        tar -zxvf SPTK-3.2.tar.gz
-        cd SPTK-3.2
+        wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz
+        tar -zxvf SPTK-3.4.tar.gz
+        cd SPTK-3.4
         ./configure --prefix=$root
         make
         make install

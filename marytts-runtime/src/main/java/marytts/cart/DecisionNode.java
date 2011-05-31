@@ -388,12 +388,12 @@ public abstract class DecisionNode extends Node
                 returnNode = daughters[1];
             }
             if (TRACE) {
-                System.out.print(feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, val));
+                System.out.print("    " + feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, value) + " == " +
+                        featureDefinition.getFeatureValueAsString(featureIndex, val) );
                 if (val == value)
-                    System.out.print(" == ");
+                    System.out.println(" YES ");
                 else
-                    System.out.print(" != ");
-                System.out.println(featureDefinition.getFeatureValueAsString(featureIndex, value));
+                    System.out.println(" NO ");
             }
             return returnNode;
         }

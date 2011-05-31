@@ -1,51 +1,66 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.tools.voiceimport;
 
 import java.io.File;
@@ -61,7 +76,7 @@ import marytts.util.io.General;
  * This program was modified from previous version to:
  * 1. copy $MARY_BASE/lib/external/hts directory to the voice building directory
  * 2. check again that all the external necessary programs are installed.
- * 3. check as before that wav and text directories exist and make convertions:
+ * 3. check as before that wav and text directories exist and make conversions:
  *    voiceDir/wav -> voiceDir/hts/data/raw 
  *    userProvidedDir/utts (festival format) -> voiceDir/text (one file per transcription)
  *    userProvidedDir/raw move to voiceDir/hts/data/raw
@@ -72,8 +87,9 @@ import marytts.util.io.General;
 public class HMMVoiceDataPreparation extends VoiceImportComponent{
     private DatabaseLayout db;
     private String name = "HMMVoiceDataPreparation";
-    public final String USERRAWDIR = name + ".userRawDirectory";
-    public final String USERUTTDIR = name + ".userUttDirectory";        
+    public final String ADAPTSCRIPTS  = name + ".adaptScripts";
+    public final String USERRAWDIR    = name + ".userRawDirectory";
+    public final String USERUTTDIR    = name + ".userUttDirectory";        
     private String marybase; 
     private String voiceDir;
     private String soxPath;
@@ -96,7 +112,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        if (props == null){
            props = new TreeMap<String,String>();           
            props.put(USERRAWDIR, "");
-           props.put(USERUTTDIR, "");           
+           props.put(USERUTTDIR, "");
+           props.put(ADAPTSCRIPTS, "false");          
        }
        return props;
        }
@@ -104,7 +121,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();                
         props2Help.put(USERRAWDIR, "raw files directory, user provided directory (default empty)");
-        props2Help.put(USERUTTDIR, "utterance directory (transcriptions in festival format), user provided directory (default empty)");        
+        props2Help.put(USERUTTDIR, "utterance directory (transcriptions in festival format), user provided directory (default empty)");   
+        props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: speaker adaptation/adaptive scripts.  "); 
     }
 
        
@@ -116,35 +134,44 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     public boolean compute() throws Exception{
        boolean raw = false;
        boolean text = false;
+       boolean wav = false;
        marybase   = db.getProp(db.MARYBASE); 
        voiceDir   = db.getProp(db.ROOTDIR);
        soxPath    = db.getExternal(db.SOXPATH);
-       sep        = System.getProperty("file.separator");
+       sep        = System.getProperty("file.separator");       
        dataDir    = voiceDir + "hts" + sep + "data" + sep;
        scriptsDir = dataDir + "scripts" + sep;
+       
+       // For both speaker indep. or adapt scripts the programs are the same
+       // check again that all the external necessary programs are installed.
+       System.out.println("\nHMMVoiceDataPreparation:\nChecking paths of external programs");
+       if( !checkExternalPaths() )
+           return false;
+
  
+       if(getProp(ADAPTSCRIPTS).contentEquals("false")) { 
+                 
        // 1. copy from $MARY_TTS/lib/external/hts directory in the voice building directory
        String sourceFolder = marybase + sep + "lib" + sep + "external" + sep + "hts";
        String htsFolder = voiceDir + sep + "hts";
        FileUtils.copyFolderRecursive(sourceFolder, htsFolder, false);
-       
-       // 2. check again that all the external necessary programs are installed.
-       System.out.println("\nHMMVoiceDataPreparation:\nChecking paths of external programs");
-       if( !checkExternalPaths() )
-           return false;
-       
-       // 3. check as before that wav, raw and text directories exist and are in the correct place     
-       System.out.println("\nChecking directories and files for running HTS training scripts...");
+              
+       // 2. check as before that wav, raw and text directories exist and are in the correct place     
+       System.out.println("\nChecking wav/raw and text directories and files for running HTS speaker independent training scripts...");
                             
        // default locations of directories:
        String wavDirName  = voiceDir + "wav";           
        String textDirName = voiceDir + "text";
        String rawDirName  = dataDir + "raw";
+       String uttsDirName = dataDir + "utts";
        
-       // 3.1 check raw and wav files:
+       // 2.1 check raw and wav files:
        String userRawDirName = getProp(USERRAWDIR);  
        if( existWithFiles(rawDirName) ) {
          raw = true;
+         // the raw files should be the same as in wav file, if wav file empty convert from raw --> wav
+         if( !existWithFiles(wavDirName))
+           convertRaw2Wav(rawDirName, wavDirName);             
        } else {
          // check if the user has provided a raw directory  
          if( !userRawDirName.equals("") ) {
@@ -177,9 +204,12 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
          }
        } 
        
-       // 3.2 check text files:
+       // 2.2 check text files:
        if( existWithFiles(textDirName) ) {
          text = true;
+       } else if( existWithFiles(uttsDirName) ) {
+           convertUtt2Text(uttsDirName, textDirName);
+           text = true;             
        } else {   
          // check if the user has provided a utterance directory
          String userUttDirName = getProp(USERUTTDIR);
@@ -191,18 +221,64 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
              text = true;
            } else
              System.out.println("User provided utterance directory: " + userUttDirName + " does not exist or does not contain files\n");
-         } else                
-           System.out.println("\nThere are no text files in " + textDirName);  
+         } else {
+           System.out.println("\nThere are no text files in " + textDirName);
+           text = false;
+         }
        }
        
        if( raw && text ){
          System.out.println("\nHMMVoiceDataPreparation finished:\n" +
-                "HTS scripts copied in current voice building directory\n" +
+                "HTS speaker independent scripts copied in current voice building directory --> hts\n" +
                 "wav/raw and text directories in place.");  
          return true;
        }
        else
          return false;
+       
+       } else {  // ADAPTSCRIPTS == true
+           
+           // Here it is checked that the raw files are in data/raw, wav, phonelab and phonefeatures must be 
+           // provided by the user...
+           // 1. copy from $MARY_TTS/lib/external/hts-adapt directory in the voice building directory
+           String sourceFolder = marybase + sep + "lib" + sep + "external" + sep + "hts-adapt";
+           String htsFolder = voiceDir + sep + "hts";          
+           FileUtils.copyFolderRecursive(sourceFolder, htsFolder, false);
+           
+           
+           // 2. check as before that wav, raw and text directories exist and are in the correct place     
+           //System.out.println("\nChecking raw directory for running HTS adaptive training scripts...");
+
+           File dirSpeakersRaw = new File(dataDir + "/raw");
+           
+           String[] speakers;
+           if(dirSpeakersRaw.exists() && dirSpeakersRaw.list().length > 0){ 
+               speakers = dirSpeakersRaw.list();
+               for(int i=0; i<speakers.length; i++){
+                 File dirSpeakerRaw = new File(dataDir + "/raw/" + speakers[i]);
+                 if(dirSpeakerRaw.exists() && dirSpeakerRaw.list().length > 0  ){
+                   raw = true;
+                 } else {
+                   System.out.println("Error: directory " + voiceDir + "/raw/" + speakers[i] + " does not contain files." );
+                   raw = false;
+                   break;
+                 }
+               }
+           } else {            
+               System.out.println("Error: directory " + voiceDir + "/raw does not contain files." );
+               raw = false;
+           }
+           
+           if( raw){
+               System.out.println("\nHMMVoiceDataPreparation finished:\n" +
+                      "HTS adapt scripts copied in current voice building directory --> hts\n" +
+                      "raw directory in place.");  
+               return true;
+             }
+             else
+               return false;
+           
+       }
        
     }
     
@@ -274,6 +350,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     }
 
     private void convertRaw2Wav(String rawDirName, String wavDirName) {
+        String Fs = db.getProperty(db.SAMPLINGRATE);
         String cmdLine;
         String raw2wavCmd   = scriptsDir + "raw2wav.sh";
         System.out.println("Converting raw files to wav from: " + rawDirName + "  to: " + wavDirName);
@@ -282,7 +359,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
             wavDir.mkdir();
         cmdLine = "chmod +x " + raw2wavCmd;
         General.launchProc(cmdLine, "raw2wav", voiceDir);
-        cmdLine = raw2wavCmd + " " + soxPath + " " + rawDirName + " " + wavDirName ;
+        cmdLine = raw2wavCmd + " " + soxPath + " " + rawDirName + " " + wavDirName + " " + Fs;
         General.launchProc(cmdLine, "raw2wav", voiceDir);  
     }
     

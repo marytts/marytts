@@ -130,13 +130,14 @@ public CART[] load(int numStates, String treeFileName, String pdfFileName, Featu
          * for mgc,str,mag: pdf[numStates][numPdfs][    1     ][2*vectorSize]; 
          * for joinModel  : pdf[   1     ][numPdfs][    1     ][2*vectorSize]; 
          * for lf0        : pdf[numStates][numPdfs][numStreams][     4      ]
+         * for gv-switch  : pdf[   1     ][  1    ][    1     ][     1      ]
          * ------------------------------------------------------------------
          * - numPdf       : corresponds to the unique leaf node id.
          * - 2*vectorSize : means that mean and variance are in the same vector.
          * - 4 in lf0     : means 0: mean, 1: variance, 2: voiced weight and 
          *                  3: unvoiced weight
          * ------------------------------------------------------------------ */
-        double pdf[][][][];     
+        double pdf[][][][];
         pdf = loadPdfs(numStates, pdfFileName);
                
         assert featDefinition != null : "Feature Definition was not set";
@@ -368,7 +369,8 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
     double vw, uvw;
     int vsize;
     int numPdf[];
-    int numStream; 
+    int numStream;
+    int numMSDFlag;  /* MSD: Multi stream dimensions: in case of lf0 for example*/
     double pdf[][][][]= null;  // pdf[numState][numPdf][stream][vsize];
        
     try {  
@@ -382,10 +384,15 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         logger.info("loadPdfs reading: " + pdfFileName);
         
       /* read the number of states & the number of pdfs (leaf nodes) */
-      /* read the number of HMM states, this number is the same for all pdf's. */        
-        numState = data_in.readInt();
-        vectorSize = numState;
+      /* read the number of HMM states, this number is the same for all pdf's. */  
+        
+        numMSDFlag = data_in.readInt();
+        numStream = data_in.readInt();  
+        vectorSize = data_in.readInt();
+        //---vectorSize = numState;
         //System.out.println("loadPdfs: nstate = " + nstate);
+        
+        numState = numStream;
         
         /* check number of states */
         if( numState < 0 )
@@ -403,12 +410,14 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         /* only one vector. */
         /* 2*nstate because the vector size for duration is the number of states */
         pdf = new double[1][numDurPdf][1][2*numState];  // just one state and one stream
-        
+        vsize = (2 * numState);
         /* read pdfs (mean & variance) */
+        // NOTE: Here (hts_engine v1.04) the order is different as before, here mean and variance are saved consecutively
         for ( i = 0; i < numDurPdf; i++){
-          for ( j = 0; j < (2 * numState); j++) {
-              pdf[0][i][0][j] = data_in.readFloat();
-              //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durPdf[i][j]);
+          for ( j = 0; j < numState; j++) {
+              pdf[0][i][0][j] = data_in.readFloat();           // read mean      
+              pdf[0][i][0][j+numState] = data_in.readFloat();  // read variance  
+              //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + pdf[0][i][0][j]);              
           }
         }  
         data_in.close (); 
@@ -420,8 +429,13 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
       logger.info("loadPdfs reading: " + pdfFileName);
         /* read the number of streams for f0 modeling */
-      lf0Stream  = data_in.readInt();
-      vectorSize = lf0Stream;
+      //lf0Stream  = data_in.readInt();
+      //vectorSize = lf0Stream;
+      numMSDFlag = data_in.readInt();
+      numStream = data_in.readInt();  
+      vectorSize = data_in.readInt();
+
+      lf0Stream = numStream;
         //System.out.println("loadPdfs: lf0stream = " + lf0stream);
       
         if( lf0Stream < 0 )
@@ -435,7 +449,7 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
            logger.info("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
            if( numPdf[i] < 0 )
            throw new Exception("loadPdfs: #lf0 pdf at state " + i + " must be positive value.");
-           //System.out.println("nlf0pdf[" + i + "] = " + nlf0pdf[i]);
+           //System.out.println("nlf0pdf[" + i + "] = " + numPdf[i]);
            /* Now i know the size of pdfs for lf0 [#states][#leaves][#streams][lf0_vectorsize] */
            /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
            /* so i can allocate memory for lf0pdf[][][] */
@@ -447,9 +461,13 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
           for( j=0; j<numPdf[i]; j++){     
               for( k=0; k<lf0Stream; k++ ){
                   for( l=0; l<4; l++){
-                    pdf[i][j][k][l] = data_in.readFloat();
-                    //System.out.println("pdf["+i+ "]["+j+"]["+k+"]["+l+"] =" + pdf[i][j][k][l]);
+                    pdf[i][j][k][l] = data_in.readFloat();                    
+                    //System.out.format("pdf[%d][%d][%d][%d]=%f\n", i,j,k,l,pdf[i][j][k][l]);
                   }
+                  //System.out.format("\n");
+                  // NOTE: Here (hts_engine v1.04) the order seem to be the same as before
+                  /*    pdf[i][j][k][0];  mean */
+                  /*    pdf[i][j][k][1];  vari */
                   vw  = pdf[i][j][k][2]; /* voiced weight */
                   uvw = pdf[i][j][k][3]; /* unvoiced weight */
                   if (vw<0.0 || uvw<0.0 || vw+uvw<0.99 || vw+uvw>1.01 )
@@ -470,10 +488,15 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
       logger.info("loadPdfs reading: " + pdfFileName);
       /* read vector size for spectrum */
     
-      numStream = 1;   // just one stream for mgc, str, mag. This is just to have only one 
+      //numStream = 1;   // just one stream for mgc, str, mag. This is just to have only one 
                        // type of pdf vector for all posible pdf's 
-      vsize = data_in.readInt();
-      vectorSize = vsize;
+      //vsize = data_in.readInt();
+      //vectorSize = vsize;
+      numMSDFlag = data_in.readInt();
+      numStream = data_in.readInt();  
+      vectorSize = data_in.readInt();
+
+      vsize = vectorSize;
       //System.out.println("loadPdfs: vsize = " + vsize);
       
       if( vsize < 0 )
@@ -497,9 +520,16 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         /* are allocated in only one vector. */
         for(i=0; i< numState; i++){
           for( j=0; j<numPdf[i]; j++){        
-              for( k=0; k<(2*vsize); k++ ){
+              /*for( k=0; k<(2*vsize); k++ ){
                   pdf[i][j][0][k] = data_in.readFloat();  // [0] corresponds to stream, in this case just one.
                   //System.out.println("pdf["+ i + "][" + j + "][0][" + k + "] =" + pdf[i][j][0][k]);
+              }*/
+              // NOTE: Here (hts_engine v1.04) the order is different as before, here mean and variance are saved consecutively
+              //       so now the pdf contains: mean[0], vari[0], mean[1], vari[1], etc...
+              for( k=0; k<vsize; k++ ){
+                  pdf[i][j][0][k] = data_in.readFloat();  // [0] corresponds to stream, in this case just one.
+                  //System.out.println("pdf["+ i + "][" + j + "][0][" + k + "] =" + pdf[i][j][0][k]);
+                  pdf[i][j][0][k+vsize] = data_in.readFloat();
               }
           }
         }

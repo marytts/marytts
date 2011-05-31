@@ -1,51 +1,66 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
@@ -82,15 +97,15 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String LF0           = name+".makeLF0";
     public final String STR           = name+".makeSTR";
     public final String CMPMARY       = name+".makeCMPMARY";
-    public final String GVMARY        = name+".makeGV";
     public final String LABELMARY     = name+".makeLABELMARY";
     public final String QUESTIONSMARY = name+".makeQUESTIONSMARY";
     public final String LIST          = name+".makeLIST";
     public final String SCP           = name+".makeSCP";
     public final String questionsFile    = name+".questionsFile";
-    public String allophonesFile         = name+".allophonesFile";
+    public final String questionsUttFile = name+".questionsUttFile";
+    public final String allophonesFile   = name+".allophonesFile";
     public final String featureListFile  = name+".featureListFile";
-    public final String featureListMapFile  = name+".featureListMapFile";
+    public final String featureListMapFile = name+".featureListMapFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
     public final String ADAPTSCRIPTS     = name+".adaptScripts";
     private FilenameFilter featFileFilter;
@@ -113,14 +128,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(MGC, "1");
            props.put(LF0, "1");
            props.put(STR, "1");
-           props.put(CMPMARY, "1");
-           props.put(GVMARY, "1");
+           props.put(CMPMARY, "1");           
            props.put(LABELMARY, "1");
            props.put(QUESTIONSMARY, "1");
            props.put(LIST, "1");
            props.put(SCP, "1");
            props.put(questionsFile, "hts/data/questions/questions_qst001.hed");
-           
+           props.put(questionsUttFile, "hts/data/questions/questions_utt_qst001.hed");
            props.put(allophonesFile, db.getProp(db.ALLOPHONESET));
            props.put(featureListFile, "mary/hmmFeatures.txt");
            props.put(featureListMapFile, "mary/hmmFeaturesMap.txt");
@@ -136,13 +150,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(MGC, "Extracting MGC or MGC-LSP coefficients from raw audio.");
         props2Help.put(LF0, "Extracting log f0 sequence from raw audio.");        
         props2Help.put(STR, "Extracting strengths from 5 filtered bands from raw audio.");
-        props2Help.put(CMPMARY, "Composing training data files from mgc, lf0 and str files.");
-        props2Help.put(GVMARY, "Calculating GV and saving in Mary format.");
+        props2Help.put(CMPMARY, "Composing training data files from mgc, lf0 and str files.");       
         props2Help.put(LABELMARY, "Extracting monophone and fullcontext labels from phonelab and phonefeature files.");
         props2Help.put(QUESTIONSMARY, "Creating questions .hed file.");
         props2Help.put(LIST, "Generating a fullcontext model list occurred in the training data.");
         props2Help.put(SCP, "Generating a trainig data script.");
         props2Help.put(questionsFile, "Name of the file that will contain the questions (This file will be created).");
+        props2Help.put(questionsUttFile, "Name of the file that will contain the questions for context dependent GV (This file will be created).");
         props2Help.put(allophonesFile, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
         props2Help.put(featureListFile, "A file that contains additional context features used for training HMMs, normally it" +
         " should be a subset of mary/features.txt. This file is automatically created by the HMMVoiceFeatureSelection component.");
@@ -206,13 +220,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           
           // If the directories at leas contain files                 
           cmdLine = "cd " + voiceDir + "hts/data\nmake cmp-mary\n";
-          General.launchBatchProc(cmdLine, "", voiceDir);
-      }
-      if( Integer.parseInt(getProp(GVMARY)) == 1 ){
-          cmdLine = "cd " + voiceDir + "hts/data\nmake gv-mary\n";
-          General.launchBatchProc(cmdLine, "", voiceDir);
-          // also execute HTS gv to avoid problems when running the training script
-          cmdLine = "cd " + voiceDir + "hts/data\nmake gv\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       
@@ -336,7 +343,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             dirQuestions.mkdir();  
 
         FileWriter out = new FileWriter(voiceDir + getProp(questionsFile));
-        int i;
+        int i, j;
         String phon;
         
         // Check if there are tricky phones
@@ -349,41 +356,42 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         System.out.println("Generating questions file: " + voiceDir + getProp(questionsFile));
                 
         // Get feature definition, whatever context feature file used for training can be used here. 
-        // select a featureListFile from phonefeatures, it will be used to get the feature definition
-        
+        // select a featureListFile from phonefeatures, it will be used to get the feature definition      
         FeatureDefinition feaDef;
         String feaExample;
         File dirFea = new File(db.getProp(db.PHONEFEATUREDIR));
-        String[] dirFeaList = dirFea.list(featFileFilter);
-        if(dirFea.exists() && dirFeaList.length > 0){
-            if(getProp(ADAPTSCRIPTS).contentEquals("false")){
+        String[] dirFeaList;
+        if(getProp(ADAPTSCRIPTS).contentEquals("false")){
+          dirFeaList = dirFea.list(featFileFilter);
+          if(dirFea.exists() && dirFeaList.length > 0){           
               feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
               System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);
-            } else {
-              File dirFeaSpeaker = new File(db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0]);
-              if(dirFeaSpeaker.exists() && (dirFeaList = dirFeaSpeaker.list()).length > 0){
-                feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
-                System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);  
-              } else {
-                  throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
-                  " check phonefeatures directory, it seems empty!"); 
-              }
-            }
-            Scanner context = new Scanner(new BufferedReader(new FileReader(feaExample)));
-            String strContext="";
-            System.out.println("FeatureDefinition extracted from context file example: " + feaExample);
-            while (context.hasNext()) {
-              strContext += context.nextLine(); 
-              strContext += "\n";
-            }
-            context.close();
-            feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false); 
+          } else {
+              throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
+                                     " check phonefeatures directory, it seems empty!");           
+          }   
         } else {
-           // trow exception if there is no phonefeature files
-           // at this point it should be a phonefeatures directory with *.pfeats files
-           throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
-                                  " check phonefeatures directory, it seems empty!");           
-       }     
+          dirFeaList = dirFea.list();
+          File dirFeaSpeaker = new File(db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0]);
+          String[] dirFeaListSpeaker = dirFeaSpeaker.list(featFileFilter);
+          if(dirFeaSpeaker.exists() && dirFeaListSpeaker.length > 0){
+            feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0] + "/" + dirFeaListSpeaker[0];
+            System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);  
+          } else {
+            throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
+                  " check phonefeatures directory, it seems empty!"); 
+          }
+        }
+        Scanner context = new Scanner(new BufferedReader(new FileReader(feaExample)));
+        String strContext="";
+        System.out.println("FeatureDefinition extracted from context file example: " + feaExample);
+        while (context.hasNext()) {
+           strContext += context.nextLine(); 
+           strContext += "\n";
+        }
+        context.close();
+        feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false); 
+          
         
         
         // list of additional context features used for training
@@ -566,7 +574,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         if(feaDef.hasFeature("ph_cvox"))
           writePhonologicalFeatures("cvox", val_cvox, mary_cvox, out);
        
-        // Questions for other features, the additional features used for trainning.
+        // Questions for other features, the additional features used for training.
         String hmmfea, hmmfeaAlias;
         int hmmfeaValInt;
         Iterator ite = hmmFeatureList.entrySet().iterator();
@@ -591,7 +599,61 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         out.close();
         System.out.println("Created question file: " + voiceDir + getProp(questionsFile) + "\n");
+        
+        // we need to put in this file questions for number of syls and words in a Utterance and num phrases in a Utterance.
+        // in Mary: 
+        //    one sentence can contain one or more phrases
+        //    one phrase contains one or more words
+        //  HTS-festival                 Mary
+        //Num-Syls_in_Utterance    -> (not available, can be added in: marytts.features and the feature processors in there...)
+        //Num-Words_in_Utterance   -> sentence_numwords
+        //Num-Phrases_in_Utterance -> sentence_numphrases  
+        //                            phrase_numsyls 
+        //                            phrase_numwords    
+        FileWriter outUtt = new FileWriter(voiceDir + getProp(questionsUttFile));
+        System.out.println("Generating questions utterance file for GV: " + voiceDir + getProp(questionsUttFile));
+        System.out.println("Features used:");
+        String hmmFeasForGv[] = {"phrase_numsyls", "phrase_numwords", "sentence_numwords", "sentence_numphrases"};
+        
+        // the folowing in case we need to add alias for the hmmFeasFor Gv
+        int numFeaGv = 0;
+        String prefixGv = "fgv";
+        String hmmFeatureListMapFile = voiceDir + getProp(featureListMapFile);
+        FileWriter outFeaMap = new FileWriter(hmmFeatureListMapFile, true);
+        
+        
+        for(i=0; i<hmmFeasForGv.length; i++){
+          fea = hmmFeasForGv[i];
+          System.out.println("  " + fea);  
+          hmmfeaAlias = hmmFeatureList.get(fea);
+          // if the feature for utterance question is NOT in the hmmFeatureList, then there is not yet an alias for this feature
+          // here we will added first to the hmmFeatureList assigning an alias
+          if(hmmfeaAlias == null) {
+            // Check if the feature exist
+            if(feaDef.hasFeature(fea) ){
+              hmmfeaAlias = prefixGv + Integer.toString(numFeaGv);  
+              hmmFeatureList.put(fea, hmmfeaAlias);  
+              System.out.println("  Added to featureList = " + fea + "  " + hmmfeaAlias);
+              numFeaGv++;
+              outFeaMap.append(fea + " " + hmmfeaAlias + "\n");
+            }
+            else{
+              throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
+            }                
+          }           
+          String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea)); 
+          // write the feature value as string
+          for(j=0; j<val_fea.length; j++){
+            outUtt.write("QS \"" + hmmfeaAlias + "=" + val_fea[j] + "\" \t{*|" + hmmfeaAlias + "=" + val_fea[j] + "|*}\n");
+          }
+          outUtt.write("\n");
+        }         
+        outUtt.close();
+        outFeaMap.close();
+        System.out.println("Created question file for GV: " + voiceDir + getProp(questionsUttFile) + "\n");
     }
+    
+     
     
     
     private void writePhonologicalFeatures(String fea, String fval[], HashMap<String, Set<String>> mary_fea, FileWriter out)
@@ -771,6 +833,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         System.out.println("\n Making labels:");
         String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        String hmmFeatureListMapFile = voiceDir + getProp(featureListMapFile);
         
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
@@ -800,36 +863,47 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             throw new Exception("Error: directory " + voiceDir + "/phonefeatures/" + speakers[0] + " does not contain files." );  
         }
         
-        Scanner context = new Scanner(new BufferedReader(new FileReader(voiceDir + "/phonefeatures/" + feaFilesSpeaker[0])));
+        Scanner context = new Scanner(new BufferedReader(new FileReader(voiceDir + "/phonefeatures/" + speakers[0] + "/" + feaFilesSpeaker[0])));
         String strContext="";
-        System.out.println("FeatureDefinition extracted from context file: " + voiceDir + "/phonefeatures/" + feaFilesSpeaker[0]);
+        System.out.println("FeatureDefinition extracted from context file: " + voiceDir + "/phonefeatures/" + speakers[0] + "/"  + feaFilesSpeaker[0]);
         while (context.hasNext()) {
           strContext += context.nextLine(); 
           strContext += "\n";
         }
         context.close();
         FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-        
+
+
         // list of context features used for creating HTS context features --> features used for training HMMs
-        // Since the features are provided by the user, it should be checked that the features exist
-        //Set <String> hmmFeatureList = new HashSet<String>(); 
+        // Since the features are provided by the user, it should be checked that the features exist        
         Map<String, String> hmmFeatureList = new HashMap<String, String>();
+        FileWriter outFeaMap = new FileWriter(hmmFeatureListMapFile);
+        
         Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
-        String fea;
+        String fea, feaAlias;
         System.out.println("The following are other context features used for training Hmms: ");
         String prefix = "f";
         int numFea = 0;
         while (feaList.hasNext()) {
           fea = feaList.nextLine();
+          if (fea.trim().length() == 0) {
+              break;
+          }
           // Check if the feature exist
           if( feaDef.hasFeature(fea)){
-              hmmFeatureList.put(fea, prefix + Integer.toString(numFea));
-            System.out.println("  " + fea);
+            feaAlias = prefix + Integer.toString(numFea);  
+            hmmFeatureList.put(fea, feaAlias);
+            System.out.println("  " + fea + "  " + feaAlias);
+            // we need to keep this maping in a file
+            outFeaMap.write(fea + " " + feaAlias + "\n");
+            numFea++;
           }
           else
             throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
         }
         feaList.close();
+        outFeaMap.close();
+        // Save now features and alias in hmmFeaturesMap, this map should be used again as the trickiPhones, when reading the trees        
         System.out.println("The previous context features were extracted from file: " + hmmFeatureListFile);
         
         
@@ -852,7 +926,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             System.out.println("\nCreating a /hts/data/labels/full directory");  
             fullDir.mkdir();
         }      
-        // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
+        // gen directory should contain one subdirectory for each voice
         File genDir = new File(voiceDir + "/hts/data/labels/gen");
         if(!genDir.exists()){
           System.out.println("\nCreating a /hts/data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
@@ -918,13 +992,12 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "hts/data/labels/mono/" + speakers[j] + "\"\n");
         
           // Copy 10 files in gen directory to test with htsengine
-          // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
           System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
           String cmdLine;
           for (int i=0; i<10; i++) {
             basename = StringUtils.getFileName(feaFilesSpeaker[i]);
             FileUtils.copy(voiceDir + "hts/data/labels/full/" + speakers[j] + "/" + basename + ".lab" , 
-                           voiceDir + "hts/data/labels/gen/"  + speakers[j] + "/" + "gen_" + basename + ".lab");
+                           voiceDir + "hts/data/labels/gen/"  + speakers[j] + "/" + basename + ".lab");
           }
         }
         

@@ -1,51 +1,66 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 
 package marytts.htsengine;
 
@@ -70,7 +85,7 @@ public class CartTreeSet {
     
     private CART[] durTree;   // CART trees for duration 
     private CART[] lf0Tree;   // CART trees for log F0 
-    private CART[] mcpTree;   // CART trees for spectrum 
+    private CART[] mgcTree;   // CART trees for spectrum 
     private CART[] strTree;   // CART trees for strengths 
     private CART[] magTree;   // CART trees for Fourier magnitudes
     
@@ -97,7 +112,7 @@ public class CartTreeSet {
         // Check if there are tricky phones, and create a PhoneTranslator object
         PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
              
-        /* DUR, LF0 and MCP are required as minimum for generating voice. 
+        /* DUR, LF0 and Mgc are required as minimum for generating voice. 
         * The duration tree has only one state.
         * The size of the vector in duration is the number of states. */
         if(htsData.getTreeDurFile() != null){
@@ -110,8 +125,8 @@ public class CartTreeSet {
           lf0Stream = htsReader.getVectorSize();
         }
         
-        if( htsData.getTreeMcpFile() != null){
-          mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef, phTranslator);
+        if( htsData.getTreeMgcFile() != null){
+          mgcTree = htsReader.load(numStates, htsData.getTreeMgcFile(), htsData.getPdfMgcFile(), featureDef, phTranslator);
           mcepVsize = htsReader.getVectorSize();
         }
         
@@ -199,7 +214,7 @@ public class CartTreeSet {
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-        //System.out.println("   state: " + s + " dur=" + m.getDur(s) + "  dd=" + dd);               
+        //System.out.format("   state=%d  dur=%d  dd=%f  mean=%f  vari=%f \n", s, m.getDur(s), dd, meanVector[s], varVector[s]);               
         m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }
@@ -223,8 +238,9 @@ public class CartTreeSet {
       Node node;
       for(s=0; s<numStates; s++) {          
         node = lf0Tree[s].interpretToNode(fv, 1);
-        if ( node instanceof PdfLeafNode ) {       
-          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());
+        if ( node instanceof PdfLeafNode ) { 
+          //System.out.format("  state=%d  node_index=%d \n", s, ((PdfLeafNode)node).getUniqueLeafId());
+          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());         
           m.setLf0Variance(s, ((PdfLeafNode)node).getVariance());
         } else 
             throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");       
@@ -234,29 +250,31 @@ public class CartTreeSet {
         else
             m.setVoiced(s,false);       
       }
+      //m.printLf0Mean();
     }
       
     
     /***
-     * Searches fv in mcpTree CART[] set of trees, per state, and fill the information in the
+     * Searches fv in mgcTree CART[] set of trees, per state, and fill the information in the
      * HTSModel m.
      * @param m HTSModel where mean and variances per state are copied          
      * @param fv context feature vector
      * @param featureDef Feature definition
      * @throws Exception
      */
-    public void searchMcpInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
+    public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
       throws Exception {     
       int s;
       Node node;
       for(s=0; s<numStates; s++) {         
-        node = mcpTree[s].interpretToNode(fv, 1);       
+        node = mgcTree[s].interpretToNode(fv, 1);       
         if ( node instanceof PdfLeafNode ) {       
-          m.setMcepMean(s,((PdfLeafNode)node).getMean());
+          m.setMcepMean(s,((PdfLeafNode)node).getMean());         
           m.setMcepVariance(s, ((PdfLeafNode)node).getVariance());
         } else
-            throw new Exception("searchMcpInCartTree: The node must be a PdfLeafNode");
+            throw new Exception("searchMgcInCartTree: The node must be a PdfLeafNode");
       }
+      //m.printMcepMean();
     }
     
     /***

@@ -201,8 +201,13 @@ public class HMMModel extends Model {
             um.addUttModel(new HTSModel(cart.getNumStates()));            
             m = um.getUttModel(i);
             /* this function also sets the phone name, the phone between - and + */
-            m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
+            m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));   
             
+            /* Check if context-dependent gv (gv without sil) */
+            if( htsData.getUseContextDependentGV() ){ 
+            if(m.getPhoneName().contentEquals("_"))
+                m.setGvSwitch(false);
+            }
             /* increment number of models in utterance model */
             um.setNumModel(um.getNumModel()+1);
             /* update number of states */
@@ -351,7 +356,11 @@ public class HMMModel extends Model {
             m = um.getUttModel(i);
             /* this function also sets the phone name, the phone between - and + */
             m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
-            
+            /* Check if context-dependent gv (gv without sil) */
+            if( htsData.getUseContextDependentGV() ){ 
+              if(m.getPhoneName().contentEquals("_"))
+                m.setGvSwitch(false);
+            }
             /* increment number of models in utterance model */
             um.setNumModel(um.getNumModel()+1);
             /* update number of states */
