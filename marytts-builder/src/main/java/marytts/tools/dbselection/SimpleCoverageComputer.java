@@ -52,6 +52,7 @@ public class SimpleCoverageComputer {
 		ArrayList<String> lines = new ArrayList<String>();
 		String line;
 		while ((line = in.readLine()) != null) {
+			if (line.trim().isEmpty()) continue;
 			lines.add(line);
 		}
 		System.out.println("Computing coverage features for "+lines.size()+" sentences from "+args[0]+"...");
