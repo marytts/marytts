@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class UnitLabel {
@@ -147,11 +148,10 @@ public class UnitLabel {
     public static void writeLabFile(UnitLabel[] ulab, String outFile)
     throws IOException
     {
-        DecimalFormat formatter = new DecimalFormat("#0.000000");
         PrintWriter pw = new PrintWriter(new FileWriter(outFile));
         pw.println("#");
         for(int i=0; i<ulab.length; i++){
-            pw.println(formatter.format(ulab[i].getEndTime())+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
+            pw.printf(Locale.US, "%.6f %d %s\n", ulab[i].getEndTime(), ulab[i].getUnitIndex(), ulab[i].getUnitName());
         }
         pw.flush();
         pw.close();
