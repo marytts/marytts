@@ -20,6 +20,7 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,8 +93,13 @@ public class JPhonemiser extends InternalModule
         allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
         // userdict is optional
         String userdictFilename = MaryProperties.getFilename(userdictProperty); // may be null
-        if (userdictFilename != null)
-            userdict = readLexicon(userdictFilename);
+        if (userdictFilename != null) {
+        	if (new File(userdictFilename).exists()) {
+        		userdict = readLexicon(userdictFilename);
+        	} else {
+        		logger.info("User dictionary '"+userdictFilename+"' for locale '"+getLocale()+"' does not exist. Ignoring.");
+        	}
+        }
         InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
         lexicon = new FSTLookup(lexiconStream, lexiconProperty);
         InputStream ltsStream = MaryProperties.needStream(ltsProperty);

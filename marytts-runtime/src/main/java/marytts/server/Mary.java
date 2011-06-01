@@ -235,22 +235,32 @@ public class Mary {
                 + System.getProperty("os.arch") + ", " + System.getProperty("os.version")
                 + ")");
         logger.debug("MARY_BASE: "+MaryProperties.maryBase());
-        StringBuilder installedMsg = new StringBuilder();
-        for (String filename : new File(MaryProperties.maryBase()+"/installed").list()) {
-            if (installedMsg.length() > 0) {
-                installedMsg.append(", ");
+        String[] installedFilenames = new File(MaryProperties.maryBase()+"/installed").list();
+        if (installedFilenames == null) {
+        	logger.debug("The installed/ folder does not exist.");
+        } else {
+            StringBuilder installedMsg = new StringBuilder();
+            for (String filename : installedFilenames) {
+                if (installedMsg.length() > 0) {
+                    installedMsg.append(", ");
+                }
+                installedMsg.append(filename);
             }
-            installedMsg.append(filename);
+            logger.debug("Content of installed/ folder: "+installedMsg);
         }
-        logger.debug("Content of installed/ folder: "+installedMsg);
-        StringBuilder confMsg = new StringBuilder();
-        for (String filename : new File(MaryProperties.maryBase()+"/conf").list()) {
-            if (confMsg.length() > 0) {
-                confMsg.append(", ");
+        String[] confFilenames = new File(MaryProperties.maryBase()+"/conf").list();
+        if (confFilenames == null) {
+        	logger.debug("The conf/ folder does not exist.");
+        } else {
+            StringBuilder confMsg = new StringBuilder();
+            for (String filename : confFilenames) {
+                if (confMsg.length() > 0) {
+                    confMsg.append(", ");
+                }
+                confMsg.append(filename);
             }
-            confMsg.append(filename);
+            logger.debug("Content of conf/ folder: "+confMsg);
         }
-        logger.debug("Content of conf/ folder: "+confMsg);
         logger.debug("Full dump of system properties:");
         for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
             logger.debug(key + " = " + System.getProperties().get(key));

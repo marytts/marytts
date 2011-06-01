@@ -22,6 +22,7 @@ package marytts.language.te;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,8 +94,13 @@ public class JPhonemiser extends InternalModule
         allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
         // userdict is optional
         String userdictFilename = MaryProperties.getFilename(userdictProperty);
-        if (userdictFilename != null)
-            userdict = readLexicon(userdictFilename);
+        if (userdictFilename != null) {
+        	if (new File(userdictFilename).exists()) {
+        		userdict = readLexicon(userdictFilename);
+        	} else {
+        		logger.info("User dictionary '"+userdictFilename+"' for locale '"+getLocale()+"' does not exist. Ignoring.");
+        	}
+        }
         InputStream utf8toit3mapStream = MaryProperties.needStream(utf8toit3mapProperty);
         lts = new TeluguLTS(utf8toit3mapStream);
     }
