@@ -4,7 +4,7 @@
 Compile
 -------
 
-MARY TTS builds with Maven; tested with 2.2.1 and 3.0.1. If it is not installed
+MARY TTS builds with Maven 3.0.x. If it is not installed
 on your system, you can get it from here: http://maven.apache.org/download.html
 
 
@@ -25,3 +25,13 @@ Compiling the MARY system itself can be done using
     mvn install
 
 in the top-level folder. This will compile the system, run all unit and integration tests, package the system to the extent possible, and install it in your local maven repository.
+
+
+Run
+---
+
+After a successful compile, you should find a ready-to-run unpacked install of the MARY TTS server system in target/marytts-<VERSION>. Run the server as 
+
+	target/marytts-<VERSION>/bin/maryserver.sh
+	
+Then connect to it with your browser at http://localhost:59125
