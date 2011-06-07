@@ -1,2 +1,0 @@
-Main-Class: de.dfki.lt.mary.client.MaryExpertInterface
-Class-Path: bmsi.jar xerces.jar gnu-regexp.jar

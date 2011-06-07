@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu accent="last" orig="Pro7">
+<t>
+Pro
+</t>
+<t>
+Sieben
+</t>
+</mtu>
+</s>
+</p>
+</maryxml>

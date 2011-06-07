@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<s>
+<t pos="VB">
+Welcome
+</t>
+<t pos="TO">
+to
+</t>
+<t pos="DT">
+the
+</t>
+<t pos="NN">
+world
+</t>
+<t pos="IN">
+of
+</t>
+<t pos="NN">
+speech
+</t>
+<t pos="NN">
+synthesis
+</t>
+<t pos=".">
+!
+</t>
+</s>
+</p>
+</maryxml>

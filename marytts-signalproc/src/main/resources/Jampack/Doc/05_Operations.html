@@ -1,0 +1,163 @@
+<html>
+<head>
+<title> The Jampack Owners Manual: Matrix Operations</title>
+</head>
+
+<body bgcolor=white>
+<h2> Matrix Operations </h2>
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>.
+
+<h3> Contents </h3>
+<dl>
+   <dt> <a href="#plus"> The Plus suite </a>
+   <dt> <a href="#minus"> The Minus suite  </a>
+   <dt> <a href="#times"> The Times suite </a>
+   <dt> <a href="#h"> The H suite </a>
+</dl>
+
+<p> Core matrices in Jampack participate in the core matrix
+operations.  They are: addition, subtraction, multiplication by a
+scalar, matrix multiplication, and (conjugate) transposition.  Jampack
+provides four suites of static methods (Plus, Minus, Times, and H) to
+perform these operations.  The core matrix operations are implemented
+for all combinations of the core matrix classes.  Most of these
+methods have the generic name "o" and are distinguished from one
+another by the types in their argument lists.
+
+
+
+
+<h3> <a name="plus"></a> The Plus suite </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="05_Operations.html"> Top of section</a>.
+
+<p>The Plus suite implements matrix-matrix addition.  The methods all
+throw a JampackException for nonconformity of dimensions.
+
+<blockquote>
+<dl>
+   <dt> public static Zmat o(Zmat A, Zmat B)
+      <dd> Returns A + B.
+
+   <p><dt> public static Zmat o(Zmat A, Zdiagmat D)
+      <dd> Returns A + D.
+
+   <p><dt> public static Zmat o(Zdiagmat D, Zmat B)
+      <dd> Returns D + B.
+
+   <p><dt> public static Zdiagmat 
+           o(Zdiagmat D<sub>1</sub>, Zdiagmat D<sub>2</sub> )
+      <dd> Returns D<sub>1</sub> + D<sub>2</sub>.
+</dl>
+</blockquote>
+
+<h3> <a name="minus"></a> The Minus suite </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="05_Operations.html"> Top of section</a>.
+
+<p>The Minus suite implements unary minus and matrix-matrix
+subtraction.  The methods for matrix-matrix subtraction throw a
+JampackException for nonconformity of dimensions.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat o(Zmat A)
+      <dd> Returns -A.
+
+   <p><dt> public static Zdiagmat o(Zdiagmat D)
+      <dd> Returns -D.
+
+   <p><dt> public static Zmat o(Zmat A, Zmat B)
+      <dd> Returns A - B.
+
+   <p><dt> public static Zmat o(Zmat A, Zdiagmat D)
+      <dd> Returns A - D.
+
+   <p><dt> public static Zmat o(Zdiagmat D, Zmat B)
+      <dd> Returns D - B.
+
+   <p><dt> public static Zdiagmat
+           o(Zdiagmat D<sub>1</sub>, Zdiagmat D<sub>2</sub> )
+      <dd> Returns D<sub>1</sub> - D<sub>2</sub>.
+</dl>
+</blockquote>
+
+<h3> <a name="times"></a> The Times suite<br> </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="05_Operations.html"> Top of section</a>.
+
+
+<p> The Times suite implements scalar-matrix and matrix-matrix
+multiplication.  The methods for matrix-matrix multiplication throw a
+Jampack exception for nonconformity of dimensions.  Two special
+methods (Times.aha and Times.aah) return A<sup>H</sup>A and
+AA<sup>H</sup> as a Zpsdmat.
+
+<blockquote>
+<dl>
+   <dt> public static Zmat o(Z z, Zmat A)
+      <dd> Returns zA.
+
+   <p><dt> public static Zdiagmat o(Z z, Zdiagmat D)
+      <dd> Returns zD.
+
+   <p><dt> public static Zmat o(Zmat A, Zmat B)
+      <dd> Returns AB.
+
+   <p><dt> public static Zmat o(Zdiagmat D, Zmat A)
+      <dd> Returns DA.
+
+   <p><dt> public static Zmat o(Zmat A, Zdiagmat D)
+      <dd> Returns AD.
+
+   <p><dt> public static Zdiagmat
+           o(Zdiagmat D<sub>1</sub>, Zdiagmat D<sub>2</sub>)
+      <dd> Returns D<sub>1</sub>D<sub>2</sub>.
+
+   <p><dt> public static Zpsdmat aha(Zmat A)
+      <dd> Returns A<sup>H</sup>A.
+
+   <p><dt> public static Zpsdmat aah(Zmat A)
+      <dd> Returns AA<sup>H</sup>.
+</dl>
+</blockquote>
+
+<h3> <a name="h"></a> The H suite </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="05_Operations.html"> Top of section</a>.
+
+<p>The H suite implements the conjugate transpose of a matrix.
+It has two generic methods.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat o(Zmat A)
+      <dd> Returns A<sup>H</sup>.
+
+   <p><dt> public static Zdiagmat o(Zdiagmat D)
+      <dd> Returns D<sup>H</sup>.
+</dl>
+</blockquote>
+
+<p>The method trans computes the transpose of a Zmat.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat trans(Zmat A)
+      <dd> Returns A<sup>T</sup>.
+</dl>
+</blockquote>
+
+</body>
+</html>
+
+

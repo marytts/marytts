@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<voice name="de7">
+<s>
+<phrase>
+<t accent="L+H*" g2p_method="lexicon" pos="NN" sampa="'li:-b@" syn_attach="1" syn_phrase="_">
+Liebe
+</t>
+<mtu accent="first" orig="Sprach-Synthese">
+<t accent="!H*" g2p_method="lexicon" pos="VVFIN" sampa="'SpRa:x" syn_attach="1" syn_phrase="_">
+Sprach
+</t>
+<t g2p_method="lexicon" pos="NN" sampa="zYn-'te:-z@" syn_attach="1" syn_phrase="_">
+Synthese
+</t>
+</mtu>
+<t pos="$." syn_attach="2" syn_phrase="_">
+!
+</t>
+<boundary breakindex="6" tone="L-%"/>
+</phrase>
+</s>
+</voice>
+</maryxml>

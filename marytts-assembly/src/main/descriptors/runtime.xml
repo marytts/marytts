@@ -1,0 +1,51 @@
+<component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
+  
+  <fileSets>
+    <!-- Files from the parent project -->
+    <fileSet>
+      <directory>${project.basedir}/..</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>LICENSE*</include>
+        <include>gpl-3.0.txt</include>
+        <include>lgpl-3.0.txt</include>
+        <include>lib/voices/**/*</include>
+        <include>user-dictionaries/*</include>
+      </includes>
+    </fileSet>
+    <!-- General, non-executable files for release -->
+    <fileSet>
+      <directory>src/release</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>README*</include>
+        <include>doc/examples/**/*</include>
+      </includes>
+    </fileSet>
+    
+    <!-- Executable scripts: -->
+    <fileSet>
+      <directory>src/release</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>bin/*</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+  </fileSets>
+  
+  <dependencySets><!-- Copy over jar files -->
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>/lib</outputDirectory>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+      <includes>
+        <include>${project.groupId}:marytts-server:jar:jar-with-dependencies</include>
+        <include>${project.groupId}:marytts-lang-*</include>
+        <include>${project.groupId}:voice-*</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</component>

@@ -1,0 +1,226 @@
+<html>
+<head>
+<title> The Jampack Owners Manual: Linear Systems</title>
+</head>
+
+<body bgcolor=white>
+<h2> Linear Systems </h2>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>.
+
+<h3> Contents </h3>
+<dl>
+   <dt> <a href="#inverses"> Inverses and linear systems </a>
+   <dt> <a href="#solve"> The Solve suite </a>
+</dl>
+
+In many applications one must solve linear systems of the form
+
+<blockquote>
+AX = B,
+</blockquote>
+
+where A is a nonsingular matrix.  The Solve suite contains static
+methods for solving this and related systems.  Before describing these
+methods, we will first discuss the use of inverses to solve systems.
+
+<h3><a name="inverses"></a> Inverses and linear systems </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="06_Linsys.html"> Top of section</a>.
+
+<p>The solution of the system AX = B can be written in the form X=
+A<sup>-1</sup>B.  This suggests the following algorithm.
+
+<blockquote>
+<dl>
+   <p><dt> 1. Compute C = A<sup>-1</sup>
+   <p><dt> 2. Compute X = CB
+</dl>
+</blockquote>
+
+This algorithm can be implement in Jampack as follows.
+
+<blockquote>
+<pre>
+Zmat C = Inv.o(A);
+Zmat X  = Times.o(C, B);
+</pre>
+</blockquote>
+
+Or more succinctly:
+<blockquote>
+<pre>
+Zmat X  = Times.o(Inv.o(A), B);
+</pre>
+</blockquote>
+
+On the other hand, we can also solve the problem using the
+function aib from the Solve suite.
+
+<blockquote>
+<pre>
+Zmat X = Solve.aib(A, B);
+</pre>
+</blockquote>
+
+The question is: Which is better?
+
+<p>Without going into details, the method used by Solve is better
+for two reasons.
+
+<blockquote>
+<dl>
+   <p><dt> 1. It is faster.
+   <p><dt> 2. It is numerically more stable.
+</dl>
+</blockquote>
+
+For these reasons we recommend that the Jampack user substitute an
+appropriate Solve method for an explicit inverse wherever possible.
+
+For example, suppose that we have a formula of the form
+
+<blockquote>
+S = A<sub>22</sub> - 
+         A<sub>12</sub>*A<sub>11</sub><sup>-1</sup>*A<sub>12</sub>.
+</blockquote>
+
+Instead of computing an inverse and using the standard matrix
+functions to compute the matrix S, we can recognize that the matrix
+A<sub>11</sub><sup>-1</sup>*A<sub>12</sub> is the solution of the
+system A<sub>11</sub>*X=A<sub>12</sub>.  Hence if we write
+
+<blockquote>
+S = A<sub>22</sub> - A<sub>12</sub>*X,
+</blockquote>
+
+we have the following algorithm
+
+<blockquote>
+<pre>
+Zmat X = Solve.aib(A11, A12);
+Zmat S = Minus.o(A22, Times.o(A12, X));
+</pre>
+</blockquote>
+
+In most instances when a matrix inverse appears in a formula, it can
+be replaced with an appropriate Solve method.
+
+<h3><a name="solve"></a> The Solve suite </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="06_Linsys.html"> Top of section</a>.
+
+<p>In spite of the large number of individual routines in Solve, the
+class methods can be described in a couple of tables.  (For a complete
+listing of the calling sequences see the <a href="Jampack.Solve.html">
+Java documentation</a> or the <a href="../Solve.java"> raw code</a>.)
+
+<p>First, the Solve suite solves four kinds of linear systems
+involving a nonsingular matrix A.  The following table gives the names
+of the Solve methods, the systems they solve, and where the names come
+from.
+
+<p>
+<center>
+<table border>
+<tr>
+   <td> aib(A, B) </td> 
+   <td> AX = B </td> 
+   <td> A Inverse B </td>
+<tr>
+   <td> ahib(A, B) </td>
+   <td> A<sup>H</sup>X = B </td> 
+   </td> <td> A<sup>H</sup> Inverse B </td>
+<tr>
+   <td> bai(B, A) </td> 
+   <td> XA = B </td> 
+   <td> B Inverse A </td>
+<tr>
+   <td> bahi(B, A) </td>
+   <td> XA<sup>H</sup> = B </td> 
+   <td> B A<sup>H</sup> Inverse  </td>
+</table>
+</center>
+<br>
+
+(Ironically, although we have deprecated the use of inverses in
+solving systems, we have used them to generate the names for our
+methods.  A foolish consistency is the hobgoblin of petty minds.)
+
+<p>The second table lists the classes that each of four functions
+supports. The matrix B is always a Zmat, so we need only list
+the possible classes of A.
+
+<p>
+<center>
+<table border>
+<tr>
+  <td> aib
+  <td> Zmat   </td>
+  <td> Zltmat </td>
+  <td> Zutmat </td>
+  <td> Zpsdmat </td>
+<tr>
+  <td> ahib
+  <td> Zmat   </td>
+  <td> Zltmat </td>
+  <td> Zutmat </td>
+  <td>        </td>
+<tr>
+  <td> bai
+  <td> Zmat   </td>
+  <td> Zltmat </td>
+  <td> Zutmat </td>
+  <td> Zpsdmat </td>
+<tr>
+  <td> bahi
+  <td> Zmat   </td>
+  <td> Zltmat </td>
+  <td> Zutmat </td>
+  <td>        </td>
+</table>
+</center>
+
+<p>The methods ahib and bahi are not implemented Zpsdmats.  This is
+natural, since positive definite matrices are Hermitian and the two
+routines are therefore redundant.  Note that it is perfectly possible
+to call ahib and bahi with a Zpsdmat for the first argument; however,
+it will be treated as if the argument were a Zmat.
+
+<p>In all the Solve methods the user is responsible for insuring that
+the matrix in question is nonsingular.  If the matrix is singular or
+nearly singular, the methods may throw a JampackException.  Owing to
+rounding error, however, there is no guarantee that they will.  A
+later version of Jampack will implement condition estimators to help
+the user decide on the quality of a system.
+
+
+<p>The Solve suite shows the powers of tag classes.  Triangular
+systems can be solved much faster than general systems.  Consequently,
+if a triangular matrix is properly tagged, Solve will automatically
+take advantage of its triangularity.
+
+<p>Solve also takes full advantage of the history feature.  Specifically,
+to solve a general system, the Solve routines require a Zludpp
+decomposition, which is expensive to compute.  However, once it
+has been computed, it is put on the history list and can be reused.
+Thus in the sequence
+
+<blockquote>
+<pre>
+while (!converged){
+   x = Solve.aib(A, x);
+   x = Times.o(1/Norm.fro(x), x);
+   ...
+}
+</pre>
+</blockquote>
+
+the first iteration of the loop will be expensive but the subsequent
+interations will be cheap (unless A is altered in the latter part of
+the loop).
