@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- This file contains the rules for the prediction of GToBI tones(symbolic representation of accents and intonational boundaries) for German which are applied in the prosody module of the MARY text-to-ppeech synthesis system.
+ The rules are read at program start. The meaning of the rules is described in the accompanying comments.
+The rules are only applied if there is no user input specifying accents and boundaries.
+Available linguistic informations that can be used in the rules are:
+type of punctuation, text of a token, number of following/preceding tokens/words, prosodic position(prenuclear, postnuclear or nuclear position), end of vorfeld(only relevant for languages with Vorfeld(German)), end of paragraph, sentence type and every arbitrary MaryXML attribute like pos(part of speech), syn_phrase(chunk phrases), given(givenness of a token), contrast(contrastiveness of a token) etc.
+
+The file contains four parts: 
+a) definitions: definitions of (locally defined or external) lists that are needed for the prosody prediction rules
+b) accent position rules: rules that determine for every token in a sentence, if it will receive a tone accent, a force accent or if it doesn't receive any accent.
+c) accent shape rules: rules that determine the accent type (a concrete GToBI accent) for every token receiving an accent according to the rules in b))
+d) boundary rules: rules that determine position, break index and tone of minor and major boundaries
+
+Every rule contains an arbitrary number of conditions and exactly one "action"
+statement(obligatory), which defines the consequence of the rule that will be applied if every condition is satisfied. 
+The action statement defines either the value of the accent attribute (in case -->
+<!-- of accentposition and accentshape rules, f.e. accent="tone" for the -->
+<!-- accentposition part, or accent="L+H*" for the accentshape part) or the value of break index and tone of a boundary (in case of boundaries rules, f.e. bi="4" tone="H-").
+
+Types of possible conditions that can be used right now:
+a) condition with tag "attributes","nextAttributes","nextPlusXAttributes"(X is an arbitrary number),"previousAttributes","previousMinusXAttributes": 
+defines MaryXML attributes and values that are required for the application of a rule
+Example: <rule>
+           <attributes pos="NN"/>
+	   <nextAttributes pos="NN"/>
+	   <action accent=""/>
+         </rule>
+Values can also be negated or contain a reference to a list.
+Example: <attributes pos="!NN"/>
+         <attributes pos="INLIST:pos_tonal_accent"/>
+Special attribute values are ""(value of attribute doesn't matter, but attribute has to be present) and "!" (attribute must not be present). If there isn't any token at the specified position, then the condition is not satisfied.
+
+b) condition with tag "folTokens" or "prevTokens" and attribute "num": defines the number of tokens that must follow or precede the current token (not only words, also punctuation marks).
+Possible values are: "X"(X is an arbitrary number), "X+"(at least X), "X-"(not more than X)
+Example: for a rule that should be applied only at the end of a sentence:
+<folTokens num="0"/>
+
+c) condition with tag "folWords" or "prevWords" and attribute "num": defines the number of tokens that must follow or precede the current token (only words, no punctuation marks).
+Possible values are: "X"(X is an arbitrary number), "X+"(at least X), "X-"(not more than X)
+
+d) condition with tag "sentence" and attribute "type": defines the required sentence type for the application of the rule.
+Possible values are: "decl", "excl", "interrog", "interrogW", "interrogYN" and their negations.
+
+e) condition with tag "text","nextText","nextPlusXText","previousText","previousMinusXText" and attribute "word": determines the required text of a token.
+Possible values are a word and a reference to a local or external list and their negations.
+Example: <nextPlus3Text word="INLIST:lib/modules/de/prosody/accentedWords.txt"/>
+
+f) condition with tag "prosodicPosition" and attribute "type": determines the position of a token with respect to the nucleus. Only available in the accentshape rule part.
+Possible values are "prenuclear", "postnuclear", "nuclearParagraphFinal" and "nuclearNonParagraphFinal" and their negation.
+
+g) condition with tag "specialPosition" and attribute "type":  
+Possible values are only: "enfofpar"(end of paragraph), "vorfeld", "endofvorfeld" and their negations.
+-->
+
+<tobipredparams>
+
+<definitions>
+  <!-- list of part of speechs that don't receive an accent (function words)-->
+  <list name="pos_no_accent" items="ADV:APPR:APPRART:APPO:APZR:ART:KOUI:KOUS:KON:KOKOM:PDAT:PIS:PIAT:PIDAT:PPER:PPOSAT:PRELS:PRELAT:PRF:PWS:PWAT:PWAV:PROAV:PTKZU:PTKVZ:PTKANT:PTKA:SGML:SPELL:VAFIN:VAIMP:VAINF:VAPP:XY"/>
+  
+  <!-- list of part of speechs that receive an accent(content words) -->
+  <list name="pos_tonal_accent" items="ADJA:ADJD:CARD:FM:ITJ:NN:NE:ORD:PDS:PPOSS:PTKNEG:TRUNC"/>
+  
+  <!-- list of part of speech of verbs that can receive a force accent in postnuclear position -->
+  <list name="pos_force_accent"  items="VVFIN:VVIMP:VVINF:VVIZU:VVPP:VMFIN:VMINF:VMPP"/>
+  
+  <!-- reference to externally defined FST that determines which verbs get accentuated -->
+  <list name="accented_verbs" file="accentedVerbs.fst"/>
+  
+  <!-- list of part of speechs for punctuation (used in boundary rules)-->
+  <list name="pos_punctuation" items="$.:$,:$("/>
+  
+  <!-- list of part of speechs for all kinds of verbs (used in accentposition rule)-->
+  <list name="pos_verbs" items="VVFIN:VAFIN:VMFIM:VVINF:VAINF:VMINF:VVPP:VAPP:VMPP:VVIMP:VAIMP:VVIZU"/>
+  
+  <!-- list of part of speechs of verbs that can be the most embedded verb in
+  a sequence of verbs (used in accentposition rule)-->
+  <list name="pos_embeddedverbs" items="VVINF:VAINF:VMINF:VVPP:VAPP:VMPP"/>
+
+  <list name="anrede" items="Herr:Herrn:Frau:Fräulein:Monsieur:Madame:Mister:Miss:Misses"/>
+
+  <!-- list of chunk phrases that trigger a minor boundary preceding them -->
+  <list name="bi2_phrases" items="AP:CAP:NP:CNP:PP:CPP"/>
+  
+  <!-- list of conjunctive phrases (used in boundary rules)-->
+  <list name="conj_phrases" items="CNP:CAP"/>
+
+   <!-- external file which contains focus words (f.e. "nur", "ausschliesslich"); focus words often trigger an accent on the following word -->
+  <list name="focus_words" file="focusWords.txt"/>
+
+  <!-- pronouns that get an acccent if they are preceded by a focus word -->
+  <list name="focus_pronouns" items="PPER:PDS:PPOSS:PRF"/>
+
+  <!-- the following information should always be present if the language is similar to German -->
+
+  <!-- help for determination of sentence type -->
+  <!-- if pos of first word in sentence is a finite verb, it is a yes-no-question -->
+  <list name="firstPosInQuestionYN" items="VVFIN:VMFIN:VAFIN"/>
+
+  <!-- if pos of first word in sentence is PWS,PWAT or PWAV, it is a wh-question -->
+  <list name="firstPosInQuestionW" items="PWS:PWAT:PWAV"/>
+
+  <!-- only for languages with Vorfeld (f.e. German) -->
+  <!-- the end of Vorfeld and begin of Mittelfeld is marked by the first finite verb in sentence -->
+  <list name="beginOfMittelfeld" items="VVFIN:VMFIN:VAFIN"/>
+
+  <!-- if the first word in sentence has one of the part of speech values in the following list, the sentence has no Vorfeld -->
+  <list name="noVorfeld" items="VVFIN:VMFIN:VAFIN:PW:KOUS"/>
+
+
+  <!-- the following information should always be present -->
+
+  <!-- default accents for user input, f.e. preferred-accent-shape="rising" -->
+  <list name="rising_accents" items="L+H*"/>
+  <list name="falling_accents" items="H+L*"/>
+  <list name="alternating_accents" items="L*:H*"/>
+
+  <!-- default boundary tones for user input, f.e. preferred-boundary-type="high" -->
+  <list name="high_major_boundary" items="H-%"/>
+  <list name="low_major_boundary" items="L-%"/>
+  <list name="high_minor_boundary" items="H-"/>
+  <list name="low_minor_boundary" items="L-"/>
+
+  <!-- default boundary tones for user input tone="unknown" -->
+  <list name="default_IP_midOfSent" items="H-%"/>
+  <list name="default_ip" items="H-"/>
+  <list name="default_IP_endOfSent" items="L-%"/>
+  <list name="default_IP_endOfInterrogSent" items="H-%"/>
+</definitions>
+
+<!-- the accentposition rules determine if a token gets a tone accent, a force accent or if it doesn't receive any accent -->
+<accentposition>
+
+  <rule> <!-- if the word "Herr" is followed by a name, it doesn't get an accent (f.e. "Herr Mueller") -->
+    <text word="INLIST:anrede"/>
+    <nextAttributes pos="NE"/>
+    <action accent=""/>
+  </rule>
+
+  <rule> <!-- a given noun ( a word that was already mentioned in the current -->
+<!-- paragraph) in the vorfeld or at the end of the vorfeld gets accentuated -->
+<!-- simple NP-->
+    <attributes given="+"/>
+    <attributes pos="NN"/>
+    <specialPosition type="vorfeld"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule>
+    <attributes given="+"/>
+    <attributes pos="NN"/>
+    <specialPosition type="endofvorfeld"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- a given word gets deaccentuated -->
+    <attributes given="+"/>
+    <action accent=""/>
+  </rule>
+
+  <rule> <!-- a word that is used in a contrastive sense receives an accent -->
+    <attributes contrast="+"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- if a NN is followed by another NN, it doesn't get an accent (f.e. "eine Tonne Reis") -->
+    <attributes pos="NN"/>
+    <nextAttributes pos="NN"/>
+    <action accent=""/>
+  </rule>
+
+  <rule> <!-- list of words that usually receive an accent(content words) -->
+    <attributes pos="INLIST:pos_tonal_accent"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- a fronted VVPP receives an accent -->
+    <prevWords num="0"/>
+    <attributes pos="VVPP"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- a finite verb in the middle of the sentence doesn't get an accent -->
+    <attributes pos="VVFIN"/>
+    <nextAttributes pos="!$."/>
+    <nextAttributes pos="!$,"/>
+    <nextAttributes pos="!KON"/>
+    <action accent=""/>
+  </rule>
+
+  <rule> <!-- in a sequence of verbs, the most embedded verb gets an accent -->
+    <attributes pos="INLIST:pos_embeddedverbs"/>
+    <previousAttributes pos="!INLIST:pos_embeddedverbs"/>
+    <nextAttributes pos="INLIST:pos_verbs"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- externally defined FST that determines which verbs get an accent -->
+    <attributes pos="INLIST:pos_verbs"/>
+    <text word="INLIST:accented_verbs"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- some pronouns with preceding focus word get an accent (f.e. "nur er(L+H*)") -->
+    <previousText word="INLIST:focus_words"/>
+    <attributes pos="INLIST:focus_pronouns"/>
+    <nextAttributes pos="!KON"/>
+    <nextAttributes pos="!$,"/>
+    <action accent="tone"/>
+  </rule>
+
+  <rule> <!-- list of words that usually don't receive an accent (function words) -->
+    <attributes pos="INLIST:pos_no_accent"/>
+    <action accent=""/>
+  </rule>
+
+  <rule> <!-- list of words that receive a force accent in postnuclear position(suggested by Stefan Baumann) -->
+    <attributes pos="INLIST:pos_force_accent"/>
+    <action accent="force"/>
+  </rule>
+
+  <rule> <!-- that's the default: no accent -->
+    <action accent=""/>
+  </rule>
+</accentposition>
+
+<!-- the accentshape rules determine the type of accent for words with accent="tone" or "force" -->
+<accentshape>
+  <rule> <!-- contrastive accent -->
+    <attributes contrast="+"/>
+    <attributes accent="tone"/>
+    <action accent="L+^H*"/>
+  </rule>
+
+  <rule> <!-- a fronted VVPP receives a H* accent -->
+    <prevWords num="0"/>
+    <attributes pos="VVPP"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+
+  <rule> <!-- avoid two L+H* accents one after another; the first accent is changed to H* in this case -->
+    <nextAttributes accent="L+H*"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+
+  <rule> <!-- prenuclear accent in declarative sentence -->
+    <sentence type="decl"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="L+H*"/>
+  </rule>
+
+  <rule> <!-- nuclear accent in declarative sentence, not at end of paragraph -->
+    <sentence type="decl"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+
+  <rule> <!-- nuclear accent in declarative sentence, at end of paragraph -->
+    <sentence type="decl"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H+L*"/>
+  </rule>
+
+  <rule> <!-- prenuclear accent in exclamative sentence -->
+    <sentence type="excl"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="L+H*"/>
+  </rule>
+
+  <rule> <!-- nuclear accent in exclamative sentence, not at end of paragraph -->
+    <sentence type="excl"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="^H*"/>
+  </rule>
+
+  <rule> <!-- nuclear accent in exclamative sentence, at end of paragraph -->
+    <sentence type="excl"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="^H*"/>
+  </rule>
+
+  <rule> <!-- prenuclear accent in interrogative sentence -->
+    <sentence type="interrog"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="L+H*"/>
+  </rule>
+
+  <rule> <!-- nuclear accent in interrogative sentence, not at end of paragraph -->
+    <sentence type="interrog"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="L*"/>
+  </rule>
+  
+  <rule> <!-- nuclear accent in interrogative sentence, at end of paragraph -->
+    <sentence type="interrog"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="L*"/>
+  </rule>
+  
+  <rule> <!-- prenuclear accent in yes-no question -->
+    <sentence type="interrogYN"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="L+H*"/>
+  </rule>
+  
+  <rule> <!-- nuclear accent in yes-no question, not at end of paragraph -->
+    <sentence type="interrogYN"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="L*"/>
+  </rule>
+  
+  <rule> <!-- nuclear accent in yes-no question, at end of paragraph -->
+    <sentence type="interrogYN"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="L*"/>
+  </rule>
+  
+  <rule> <!-- prenuclear accent in wh-question -->
+    <sentence type="interrogW"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="L+H*"/>
+  </rule>
+  
+  <rule> <!-- nuclear accent in wh-question, not at end of paragraph -->
+    <sentence type="interrogW"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+  
+  <rule> <!-- nuclear accent in wh-question, at end of paragraph -->
+    <sentence type="interrogW"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+  
+  <rule> <!-- catchall rule in case none of the others fired -->
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+  
+  <rule> <!-- force accent in postnuclear position -->
+    <prosodicPosition type="postnuclear"/>
+    <attributes accent="force"/>
+    <action accent="*"/>
+  </rule>
+</accentshape>
+
+<!-- the boundaries rules determine if a boundary has to be inserted after the current token; the rules also determine break index and boundary tone -->
+<boundaries>
+  
+  <rule> <!-- if there is a punctuation mark at the beginning of sentence, no boundary will be inserted after it-->
+    <prevTokens num="0"/>
+    <attributes pos="INLIST:pos_punctuation"/>
+    <action bi="0"/>
+  </rule>
+
+  <rule> <!-- major boundary at end after declarative sentence at end of paragraph -->
+    <sentence type="decl"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="L-%"/>
+  </rule>
+  
+  <rule> <!-- major boundary at end of exclamative sentence at end of paragraph -->
+    <sentence type="excl"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="L-%"/>
+  </rule>
+  
+  <rule> <!-- major boundary at end of interrogative sentence at end of paragraph -->
+    <sentence type="interrog"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="H-%"/>
+  </rule>
+
+  <rule> <!-- major boundary at end of yes-no question at end of paragraph -->
+    <sentence type="interrogYN"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="H-%"/>
+  </rule>
+
+  <rule> <!-- major boundary at end of wh-question at end of paragraph -->
+    <sentence type="interrogW"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="H-%"/>
+  </rule>
+
+  <rule> <!-- major boundary at end of declarative sentence, not at end of paragraph -->
+    <sentence type="decl"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="L-%"/>
+  </rule>
+
+  <rule> <!-- major boundary at end of exclamative sentence, not at end of paragraph -->
+    <sentence type="excl"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="L-%"/>
+  </rule>
+  
+  <rule> <!-- major boundary at end of interrogative sentence, not at end of paragraph -->
+    <sentence type="interrog"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="H-%"/>
+  </rule>
+  
+  <rule> <!-- major boundary at end of yes-no question, not at end of paragraph -->
+    <sentence type="interrogYN"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="H-%"/>
+  </rule>
+  
+  <rule> <!-- major boundary at end of wh-question, not at end of paragraph -->
+    <sentence type="interrogW"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="H-%"/>
+  </rule>
+
+  <rule> <!-- major boundary after a $,-punctuation mark in the middle of the sentence -->
+    <attributes pos="$,"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="4" tone="H-%"/>
+  </rule>
+
+  
+  <rule> <!-- major boundary after a $.-punctuation mark in the middle of the sentence, 
+              only if following token is not a $. punctuation mark -->
+    <attributes pos="$."/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <text word="!."/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="4" tone="H-%"/>
+  </rule>
+  
+  <rule> <!-- one minor boundary after two $( in the middle of the sentence -->
+    <attributes pos="$("/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="$("/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+
+
+  <rule> <!-- minor boundary after $( in the middle of the sentence -->
+    <attributes pos="$("/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+
+
+  <rule> <!-- minor boundary at end of Vorfeld, if there are at least 1 following and 3 preceding token, token is not a conjunction, the preceding token is no punctuation mark and the verb is not followed by a punctuation mark -->
+    <specialPosition type="endofvorfeld"/> 
+    <sentence type="decl"/>
+    <attributes pos="!KON"/>
+    <folWords num="2+"/>
+    <prevWords num="2+"/>
+    <nextPlus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+  
+  <rule> <!-- before KON, but not in a coordinate adjective or noun phrase -->
+    <nextAttributes pos="KON" syn_phrase="!INLIST:conj_phrases"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+  
+  <rule> <!-- minor boundary with bi=2 before the beginning of an AP, NP, PP, CNP, CAP or CPP(=bi2_phrases) -->
+    <nextAttributes syn_attach="1" syn_phrase="INLIST:bi2_phrases"/>
+    <action bi="2"/>
+  </rule>
+  
+  <rule> <!-- minor boundary with bi=2 before KON in a coordinate noun or adjective phrase -->
+    <nextAttributes pos="KON" syn_phrase="INLIST:conj_phrases"/>
+    <action bi="2"/>
+  </rule>
+</boundaries>
+</tobipredparams>

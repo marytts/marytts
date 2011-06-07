@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<t>
+Mehr
+</t>
+<t>
+Info
+</t>
+<t>
+unter
+</t>
+<mtu accent="last" orig="www.dfki.de">
+<prosody rate="-20%">
+<phonology precision="precise">
+<mtu accent="last" orig="www">
+<t accent="unknown">
+w
+</t>
+<t accent="unknown">
+w
+</t>
+<t accent="unknown">
+w
+</t>
+</mtu>
+</phonology>
+</prosody>
+<mtu accent="last" orig="dfki">
+<t ph="de:-?Ef-ka:-'?i:">
+DFKI
+</t>
+</mtu>
+<t accent="unknown">
+d
+</t>
+<t accent="unknown">
+e
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<t>
+.
+</t>
+</s>
+</p>
+</maryxml>

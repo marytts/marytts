@@ -1,0 +1,244 @@
+<html>
+<head>
+<title> Jampack: A Java Matrix Package </title>
+</head>
+
+<body bgcolor=white>
+<center>
+<h1> JAMPACK<br> 
+<font size=+1> A JAVA PACKAGE FOR  MATRIX COMPUTATIONS</font> </h1>
+G. W. Stewart
+<p>
+<a href="http://www.cs.umd.edu/">
+Department of Computer Science</a><br>
+<a href="http://www.umiacs.umd.edu/">
+Institute for Advanced Computer Studies</a><br>
+University of Maryland<br><br>
+<a href="http://math.nist.gov/mcsd/">
+Mathematical and Computations Sciences Division</a><br>
+NIST
+<p> <a href="mailto:stewart@cs.umd.edu">
+stewart@cs.umd.edu
+</a><br>
+<a href="http://www.cs.umd.edu/~stewart/">
+http://www.cs.umd.edu/~stewart/</a>
+</center>
+
+<h3> Contents </h3>
+<dl>
+   <dt> <a href="#intro"> Introduction</a>
+   <dt> <a href="#goals"> Goals</a>
+   <dt> <a href="#status"> Current Status</a>
+   <dt> <a href="#getting"> Obtaining Jampack</a>
+   <dt> <a href="#feedback"> Feedback</a>
+</dl>
+
+<h2> <a name="intro"></a> Introduction</h2>
+
+<p>Jampack (JAva Matrix PACKage) is a collection of cooperating classes
+designed to perform matrix computations in Java applications.
+The current version of the Jampack is preliminary and incomplete.
+It is being released to see if there is enough interest to continue
+its development.
+
+<p> Jampack was developed by the author at NIST and the University of
+Maryland.  A sibling matrix package, Jama, has also been developed at
+NIST and <a href="http://www.mathworks.com/">Mathworks</a>.  The two
+packages arose from the need to evaluate alternate designs for the
+implementation of matrices in Java.  Jama is based on a single matrix 
+class within a strictly object-oriented framework.  Jampack uses
+a more open approach that lends itself to extension by the user.  As 
+it turns out, for the casual user the packages differ principally in 
+the syntax of the matrix operations.  I hope you will take the time 
+to look at <a href="http://math.nist.gov/javanumerics/jama/">Jama</a>
+along with Jampack.  There is much to be learned from both packages.
+
+<p>The following is a summary of the goals and status of the package.
+For further details see the 
+<a  href="Doc/00_Manual.html">
+Jampack Owner's Manual</a> or the <a href="Doc/Package-Jampack.html">
+Javadoc documentation</a>.
+
+<h2><a name="goals"></a> Goals </h2>
+
+<p>Jampack was designed with the following considerations in mind.
+<ol>
+
+<li> <b> User friendliness.</b> To the casual user Jampack is an
+   object oriented package, consisting of classes of matrices and
+   classes of methods (called suites) to manipulate matrices.  The
+   user who wants only to implement a few formulas (e.g, to solve a
+   least squares problem) can do so without taking a course in matrix
+   computations.
+
+<p><li> <b>Expert friendliness.</b> Jampack provides implementations of
+   the the transformations the advanced user needs to implement
+   features not in the package.  In particular, Jampack supplies
+   methods for generating and applying plane rotations and Householder
+   transformations.
+
+<p><li> <b>Efficiency.</b> Jampack routines are (or will be)
+   moderately efficient.  Jampack makes no claim to compete with
+   high-performance matrix packages.
+   
+
+<p><li> <b>Openness.</b> In the Jampack view, implementations of
+   matrix processes should not be hidden.  Instead, each user,
+   according to his or her abilities, should be encouraged to look
+   under the hood and even tinker with the code.  This is the reason
+   why Jampack has an Owner's Manual while other packages have User's
+   Guides.
+
+<p><li> <b>Extensibility.</b> Jampack was created to be open ended.
+   By segregating matrix operations and functions into suites of
+   methods that perform related tasks, Jampack makes it easy to add new
+   features.  Just put the appropriate method in the appropriate
+   suite.  Or if the feature is sufficiently novel, start a new suite.
+
+<p><li> <b>Growth.</b> If the package catches on, it is hoped that its
+   users will contribute to the growth of the package under the
+   supervision an review committee.
+</ol>
+
+<h2 ><a name="status"></a> Current Status </h2>
+
+<p>Jampack is not yet a mature package.  It does not have all the
+features that a reasonable matrix package should have (for example
+Jampack does not do determinants).  The code has only been lightly
+tested and certainly has bugs.  Many of the basic operations are soft
+coded--that is, they use other Jampack methods to perform the
+operation, a process that usually requires the creation of matrices to
+hold intermediate results.  Finally, there are probably
+inconsistencies and infelicities built into the design of the package
+itself.
+
+<p>Which is to say that one should use Jampack cautiously.  The time
+has not yet come to make it a critical part of an application: things
+are too likely to change.  But the package can still do a lot.  The
+following is a list of what Jampack has and has not.
+
+<ol>
+
+<p><li> <b>Complex matrices.</b> A virtue of Jampack is that it fully
+   supports complex matrices.  A failing is that there are only
+   complex matrices.  It was felt that the design should proceed from
+   the more general to the less general to avoid painting the package
+   into a corner.  The implementation of real matrices is the first
+   thing on the agenda for extending Jampack
+
+<p><li> <b>Indexing.</b> In books on matrix computations, the
+   beginning element of a matrix is its (1,1)-element.  Other
+   disciplines have other conventions.  For example, in queueing
+   theory matrices often begin with a (0,0)-element.  Jampack allows
+   the index of the base element to be set at the beginning of an
+   application by the user.
+
+<p><li> <b>Matrix classes.</b> Jampack currently has two matrix
+   classes for general matrices (Zmat) and diagonal matrices
+   (Zdiagmat).  The class Zmat has subclasses for triangular and
+   positive semidefinite matrices.  It is planned to add band matrices
+   and (much later) sparse matrices.
+
+<p><li> <b>Operation suites</b> Jampack segregates its operations in
+   suites.  Here is a list with links to the Owner's Manual.
+
+<blockquote><pre>
+   Plus, Minus, Times, H, Solve, Inv, Norm,
+   Trace, Eye, Block, Merge, Rand, Print.
+</pre></blockquote>
+
+   Obviously, there is much to add to this list.
+
+<p><li> <b>Decompositions.</b> Jampack has a basic complement of
+   matrix decompositions--i.e, factorizations of matrices.  A
+   decompositions in Jampack is implemented by a class whose members
+   are the factors of the of the decomposition.  The decomposition is
+   computed by the initializer of the decomposition class.  Jampack
+   currently supports the following decompositions.
+
+   <p><ol>
+      <li> The Pivoted LU decomposition
+      <li> The Cholesky decomposition
+      <li> The QR decomposition
+      <li> The eigendecompostition of a symmetric matrix
+      <li> The singular value decomposition
+      <li> Hessenberg form
+      <li> The Schur Decomposition
+      <li> The eigendecompostition of a general matrix
+   </ol>
+
+
+<p><li> <b>History.</b> Some applications have loops that repeatedly
+   use a decomposition of an unchanging matrix.  To avoid having to
+   recompute the decomposition at each iteration of the loop, Jampack
+   saves it for reuse on a history list in the matrix in question.
+   The mechanics for turning on and off this option are not completely
+   specified.
+
+<p><li> <b>Transformations.</b> Jampack has two Suites, Rot and House, for
+   generating and applying plane rotations and Householder
+   transformations.  In addition it has suites for pivoting and
+   permuting rows and columns of a matrix.
+
+<p><li> <b>Test programs.</b> The current version of Jampack comes
+   with the test programs used to help debug the package.  These
+   largely uncommented programs do not represent the thorough testing
+   required of finished software.  But they may be of use to those who
+   want to extend the package.
+
+<p><li> <b>Storage allocation.</b></li> Jampack uses the Java storage
+   allocator to maintain its matrices.  For example the Jampack
+   statement
+
+<blockquote> <pre>
+C = Times.o(A,B);
+</pre> </blockquote>
+
+   creates a new instance of a matrix class to hold the product of A
+   and B.  In a tight loop, this statement could stress the garbage
+   collector.  Under considerations are extensions like
+
+<blockquote> <pre>
+Times.o(A, B, C);
+</blockquote> </pre>
+
+   where the user furnishes a matrix C of appropriate dimensions to
+   receive the product of A and B.  </body> </html>
+
+<h2> <a name="getting"></a> Obtaining Jampack </h2>
+
+To obtain and install Jampack, download <a href="../Jampack.tar.gz">
+Jampack.tar.gz </a> or <a href=../Jampack.zip> Jampack.zip </a> to a
+directory in your Java CLASSPATH and expand it to produce the
+directory Jampack.  You are now ready to go.
+
+Jampack can also be obtained by anonymous ftp at thales.cs.umd.edu
+in pub/Jampack or at gams.nist.gov in pub/Jampack.
+
+This document can be found at both NIST and the University of Maryland:
+<blockquote>
+ftp://thales.cs.umd:/pub/Jampack/Jampack/AboutJampack.html <br>
+ftp://gams.nist.gov:/pub/Jampack/Jampack/AboutJampack.html
+</blockquote>
+
+
+<h2> <a name="feedback"></a> Feedback </h2>
+
+The purpose of this release is to see if it generates enough
+enthusiasm to justify continued development of Jampack.  Your
+comments and suggestion will decide the matter.  I encourage you to
+write me directly or contribute to the discussion group <a
+href="mailto:jampack@nist.gov"> jampack@nist.gov</a>.  To subscribe to
+the group send email to <a href="mailto:listproc@nist.gov">
+listproc@nist.gov</a> with the test 
+
+<blockquote>
+ subscribe jampack your-email-address 
+</blockquote>
+
+in the body.  Past contributions will be saved in a <a
+href="http://www.nist.gov/itl/div896/emaildir/jampack/maillist.html">
+public repository</a> where they may be browsed.
+
+
+

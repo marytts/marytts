@@ -1,0 +1,42 @@
+<allophones name="sampa" xml:lang="tr"
+		features="vheight vfront vrnd ctype cplace cvox">
+	<silence ph="_"/>
+
+	<vowel ph="I" vheight="1" vfront="1" vrnd="-"/>
+	<vowel ph="y" vheight="1" vfront="1" vrnd="+"/> <!-- high front rounded -->
+	<vowel ph="e" vheight="2" vfront="1" vrnd="-"/>
+	<vowel ph="@'" vheight="2" vfront="1" vrnd="+"/> <!-- mid front rounded -->
+	<vowel ph="a" vheight="3" vfront="3" vrnd="-"/>
+	<vowel ph="o" vheight="2" vfront="3" vrnd="+"/>
+	<vowel ph="u" vheight="1" vfront="3" vrnd="+"/>
+	<vowel ph="@" vheight="1" vfront="3" vrnd="-"/> <!-- high back unrounded -->
+
+	<consonant ph="G"/> <!-- lengthen previous vowel, no own identity -->
+
+
+	<consonant ph="p" ctype="s" cplace="l" cvox="-"/>
+	<consonant ph="b" ctype="s" cplace="l" cvox="+"/>
+	<consonant ph="t" ctype="s" cplace="a" cvox="-"/>
+	<consonant ph="d" ctype="s" cplace="a" cvox="+"/>
+	<consonant ph="k" ctype="s" cplace="v" cvox="-"/>
+	<consonant ph="g" ctype="s" cplace="v" cvox="+"/>
+
+	<consonant ph="tS" ctype="a" cplace="p" cvox="-"/>
+	<consonant ph="dZ" ctype="a" cplace="p" cvox="+"/>
+
+	<consonant ph="s" ctype="f" cplace="a" cvox="-"/>
+	<consonant ph="z" ctype="f" cplace="a" cvox="+"/>
+	<consonant ph="S" ctype="f" cplace="p" cvox="-"/>
+	<consonant ph="f" ctype="f" cplace="b" cvox="-"/>
+	<consonant ph="v" ctype="f" cplace="b" cvox="+"/>
+	<consonant ph="h" ctype="f" cplace="g" cvox="-"/>
+	<consonant ph="Z" ctype="f" cplace="p" cvox="+"/>
+
+	<consonant ph="l" ctype="l" cplace="p" cvox="+"/> <!-- dark l -->
+	<consonant ph="L" ctype="l" cplace="a" cvox="+"/> <!-- light l -->
+	<consonant ph="m" ctype="n" cplace="l" cvox="+"/>
+	<consonant ph="n" ctype="n" cplace="a" cvox="+"/>
+	<consonant ph="r" ctype="t" cplace="a" cvox="+"/> <!-- alveolar trill -->
+	<consonant ph="j" ctype="r" cplace="p" cvox="+"/> <!-- palatal approximant -->
+
+</allophones>

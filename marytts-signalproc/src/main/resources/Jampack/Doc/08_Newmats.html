@@ -1,0 +1,259 @@
+<html>
+<head>
+<title> The Jampack Owners Manual: New Matrices</title>
+</head>
+
+<body bgcolor=white>
+<h2> New Matrices </h2>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>.
+
+<h3> Contents </h3>
+<dl>
+   <dt> <a href="#eye"> Identity matrices (the Eye suite) </a>
+   <dt> <a href="#block"> Partitioning matrices (the Block suite) </a>
+   <dt> <a href="#merge"> Concatenating matrices (the Merge suite) </a>
+   <dt> <a href="#rand"> Random matrices (the Randu and Randn suites) </a>
+</dl>
+
+<p>Although the core matrix classes have constructors to generate new
+matrices, there are other ways of forming matrices.  The suites in
+this section all generate new matrices, sometimes from old matrices,
+sometimes from scratch.
+
+<h3> <a name="eye"></a> Identity matrices (the Eye suite) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="08_Newmats.html"> Top of section</a>.
+
+
+<p>The Eye suite has two methods: one to generate an identity
+matrix and one to generate a matrix with a leading identity matrix.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat o(int n)
+      <dd> Returns an identity matrix of order n.
+
+   <p><dt> public static Zmat o(int m, int n)
+      <dd> Returns an mxn matrix with ones on its main diagonal
+           and zeros on its off diagonals.
+</dl>
+</blockquote>
+
+
+<h3> <a name="block"></a> Partitioning matrices (the Block suite) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="08_Newmats.html"> Top of section</a>.
+
+<p> In many applications it is necessary to work with the blocks
+of a partitioned matrix; e.g.,
+
+<blockquote>
+<pre>
+A = | A<sub>00</sub> A<sub>01</sub> A<sub>02</sub> |
+    | A<sub>10</sub> A<sub>11</sub> A<sub>12</sub> |
+</pre>
+</blockquote>
+
+If A is a Zmat, any particular A<sub>ij</sub> can be obtained by using
+A.get.  But this procedure is unwieldy when all the submatrices of a
+partition are needed.  The block suite provides a method for gathering
+all the matrices of the partition into a block matrix.
+
+<p>Specifically, in Jampack a <i>block Zmat</i> is a two-dimensional
+array of Zmats.  The Zmats in a block Zmat are not arbitrary but
+must satisfy two conformity conditions.
+
+<blockquote>
+<dl>
+   <p><dt> For each i the blocks B[i][j] must have the same number
+        of rows.
+
+   <p><dt> For each j the blocks B[i][j] must have the same number
+           of columns
+</dl>
+</blockquote>
+
+These conditions insure that a block Zmat represents a partition of a
+larger Zmat.
+
+<p>A partition of a matrix A can be specified by two arrays of
+integers.  Specifically, if ii[] and jj[] are integer arrays
+of lengths m and n respectively with
+
+<blockquote>
+bx &lt;= ii[0] < ii[1] < ... < ii[m] &lt;= rx + 1
+</blockquote>
+
+and
+
+<blockquote>
+bx &lt;= jj[0] < jj[1] < ... < jj[n] &lt;= cx + 1,
+</blockquote>
+
+then the arrays specify an mxn block matrix whose (i,j)-block is
+<code>A.get(ii[i], ii[i+1]-1, jj[j], jj[j+1]-1)</code>.
+This is the block matrix
+that is returned by the single method of the class Block.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat[][] o(Zmat A, int ii[], int jj[])
+      <dd> Returns the block matrix whose (i,j)-block is
+           <blockquote>
+           <code>A.get(ii[i], ii[i+1]-1, jj[j], jj[j+1]-1)</code>.
+           </blockquote>
+           Throws JampackException for illegal ii or jj.
+</dl>
+</blockquote>
+
+
+<h3> <a name="merge"></a> Concatenating matrices (the Merge suite) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="08_Newmats.html"> Top of section</a>.
+
+
+<p>In many applications it is necessary to merge matrices to form a
+single matrix.  For example, given the matrices B00, B01, B10, and
+B11, we may want to form the matrix
+
+<blockquote>
+<pre>
+A = | B00 B01 |
+    | B10 B11 |
+</pre>
+</blockquote>
+
+(the B's are called <i> blocks </i> of A).  Of course the blocks must
+conform for the assembly to be successful.  Specifically,
+
+<blockquote>
+<dl>
+   <dt> B00 and B01 must have the same number of rows.
+   <dt> B10 and B11 must have the same number of rows.
+   <dt> B00 and B10 must have the same number of columns.
+   <dt> B01 and B11 must have the same number of columns.
+</dl>
+</blockquote>
+
+<p>The Merge suite contains methods to merge blocks into larger
+matrices.  For the basic routine the blocks are contained in
+an array of Zmats.
+
+<blockquote>
+<dl>
+   <p><dt> public static Zmat o(Zmat[][] B)
+      <dd> If B has m rows and n columns, this method 
+           returns the Zmat
+           <pre>
+           | B[0][0]   ... B[0][n-1]   |
+           |    .             .        |
+           |    .             .        |
+           |    .             .        |
+           | B[m-1][0] ... B[m-1][n-1] |
+           </pre>
+           Throws a JampackExcption for nonconformity.
+</dl>
+</blockquote>
+
+In many applications one has to merge only a few matrices, in which
+case it is unwieldy to create the block matrix B.  For this reason,
+the Merge suite has a number of special methods which are fed the
+blocks to be merged directly.  For example, the method
+
+<blockquote>
+<pre>
+o23(B00, B01, B02,
+    B10, B11, B12)
+</pre>
+</blockquote>
+
+produces the matrix
+
+<blockquote>
+<pre>
+| B00 B01 B02 |
+| B10 B11 B12 |
+</pre>
+</blockquote>
+
+Here is a list of the current methods of this form.  The names have
+the form omn, where m and n are the dimensions of the block matrix.
+The arguments are all Zmats.
+
+<blockquote>
+<dl>
+   <p><dt> <pre>public static Zmat o12(B00, B01) </pre>
+   <p><dt> <pre>public static Zmat o21(B00,
+                       B10)</pre>
+   <p><dt> <pre>public static Zmat o22(B00, B01,
+                       B10, B11)</pre>
+   <p><dt> <pre>public static Zmat o13(B00, B01, B02)</pre>
+   <p><dt> <pre>public static Zmat o31(B00,
+                       B10,
+                       B20) </pre>
+   <p><dt> <pre>public static Zmat o23(B00, B01, B02,
+                       B10, B11, B12)</pre>
+   <p><dt> <pre>public static Zmat o32(B00, B01,
+                       B10, B11,
+                       B20, B21) </pre>
+   <p><dt> <pre>public static Zmat o33(B00, B01, B02
+                       B10, B11, B12,
+                       B20, B21, B22) </pre>
+</dl>
+</blockquote>
+
+<h3> <a name="rand"></a> Random matrices (the Rand suite) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="08_Newmats.html"> Top of section</a>.
+
+
+<p>Jampack has a suite of functions for generating (pseudo) random
+matrices as well as other objects (e.g. arrays of doubles, Z1s, etc.)
+Two kinds of distributions are supported.  Methods whose names begin
+with "u" return object with uniform random entries in the interval
+[0,1].  Methods whose names begin with "n" return objects with normal
+random entries having mean zero and standard deviation one.
+
+<blockquote>
+<dl>
+   <p><dt> public static double ud(), nd()
+      <dd> Returns a random double.
+
+   <p><dt> public static double[] udary(int n), ndary(int n)
+      <dd> Returns a one-dimensional array of length n
+           consisting of random doubles.
+
+   <p><dt> public static double[][] udary(int m, int n), ndary(int m, int n)
+      <dd> Returns an mxn two-dimensional array of random doubles.
+
+   <p><dt> public static Z uz(), nz()
+      <dd> Returns a random Z, i.e., a Z whose real and
+           imaginary parts are random.
+
+   <p><dt> public static Z1 uz1(int n), nz1(int n)
+      <dd> Returns a random Z1 of length n.
+
+   <p><dt> public static Zmat uzmat(int m, int n), nzmat(int m, int n)
+      <dd> Returns a random mxn Zmat.
+</dl>
+</blockquote>
+
+<p>The suite has a method to set the seed of the random number
+generator.
+
+<blockquote>
+<dl>
+   <p><dt> public static void setSeed(long seed)
+      <dd> Sets the seed of the random number generator to seed.
+</dl>
+</blockquote>

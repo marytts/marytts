@@ -1,0 +1,26 @@
+ByteValuedFeatureProcessors
+phone 0 @ @U A AI D E EI I N O OI S T U V Z _ aU b d dZ f g h i j k l m n p r r= s t tS u v w z {
+next_phone 0 @ @U A AI D E EI I N O OI S T U V Z _ aU b d dZ f g h i j k l m n p r r= s t tS u v w z {
+selection_prosody 0 stressed pre-nuclear nuclear finalHigh finalLow final
+ShortValuedFeatureProcessors
+ContinuousFeatureProcessors
+
+h @ 0
+@ l 0
+l @U pre-nuclear
+@U w pre-nuclear
+w r= nuclear
+r= l nuclear
+l d nuclear
+d _ nuclear
+_ _ 0
+
+24 1 0
+1 28 0
+28 2 2
+2 39 2
+39 33 3
+33 28 3
+28 20 3
+20 17 3
+17 17 0
