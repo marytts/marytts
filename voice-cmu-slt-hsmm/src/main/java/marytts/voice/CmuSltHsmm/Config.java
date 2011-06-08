@@ -23,8 +23,8 @@ import marytts.config.VoiceConfig;
 import marytts.exceptions.MaryConfigurationException;
 
 
-public class CmuSltHsmmConfig extends VoiceConfig {
-	public CmuSltHsmmConfig() throws MaryConfigurationException {
-		super(CmuSltHsmmConfig.class.getResourceAsStream("cmu-slt-hsmm.config"));
+public class Config extends VoiceConfig {
+	public Config() throws MaryConfigurationException {
+		super(Config.class.getResourceAsStream("voice.config"));
 	}
 }

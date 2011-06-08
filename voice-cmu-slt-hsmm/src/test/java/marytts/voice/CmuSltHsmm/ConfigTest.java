@@ -33,24 +33,24 @@ import org.junit.Test;
  * @author marc
  *
  */
-public class CmuSltHsmmConfigTest {
+public class ConfigTest {
 	private static final String voiceName = "cmu-slt-hsmm";
 
 	@Test
 	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new CmuSltHsmmConfig();
+		MaryConfig m = new Config();
 		assertFalse(m.isMainConfig());
 	}
 
 	@Test
 	public void isVoiceConfig() throws MaryConfigurationException {
-		MaryConfig m = new CmuSltHsmmConfig();
+		MaryConfig m = new Config();
 		assertTrue(m.isVoiceConfig());
 	}
 	
 	@Test
 	public void hasRightName() throws MaryConfigurationException {
-		VoiceConfig m = new CmuSltHsmmConfig();
+		VoiceConfig m = new Config();
 		assertEquals(voiceName, m.getName());
 	}
 
