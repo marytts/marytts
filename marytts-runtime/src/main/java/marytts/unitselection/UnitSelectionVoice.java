@@ -79,7 +79,7 @@ public class UnitSelectionVoice extends Voice {
     public UnitSelectionVoice(String name, Locale locale, AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, Gender gender)
     throws MaryConfigurationException
     {
-        super(new String[] {name}, locale, dbAudioFormat, synthesizer, gender);
+        super(name, locale, dbAudioFormat, synthesizer, gender);
 
         try {
             this.name = name;

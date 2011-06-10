@@ -142,7 +142,7 @@ public class Voice
     private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
 
 
-    private List<String> names; // all the names under which this voice is known
+    private String voiceName;
     private Locale locale;
     private AudioFormat dbAudioFormat = null;
     private WaveformSynthesizer synthesizer;
@@ -159,15 +159,13 @@ public class Voice
     protected FeatureFileReader f0ContourFeatures;
     protected Map<String, Model> acousticModels;
     
-    public Voice(String[] nameArray, Locale locale, 
+    public Voice(String name, Locale locale, 
                  AudioFormat dbAudioFormat,
                  WaveformSynthesizer synthesizer,
                  Gender gender)
     throws MaryConfigurationException
     {
-        this.names = new ArrayList<String>();
-        for (int i=0; i<nameArray.length; i++)
-            names.add(nameArray[i]);
+        this.voiceName = name;
         this.locale = locale;
         this.dbAudioFormat = dbAudioFormat;
         this.synthesizer = synthesizer;
@@ -247,7 +245,7 @@ public class Voice
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, null, "duration", null, null, null, "boundaries"));
+            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, voiceName, null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -256,7 +254,7 @@ public class Voice
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
 
-                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data"); // not used for hmm models
                 String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
 
                 // the following are null if not defined; this is handled in the Model constructor:
@@ -276,12 +274,12 @@ public class Voice
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
@@ -290,15 +288,15 @@ public class Voice
                     // and they use the same dataFile, then let them be the same instance:
                     // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
                     if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
-                            && modelDataFileName.equals(getDurationModel().getDataFileName())) {
+                            && voiceName.equals(getDurationModel().getVoiceName())) {
                         model = getDurationModel();
                         ((HMMModel)model).setPredictDurAndF0(true);  
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
-                            && modelDataFileName.equals(getF0Model().getDataFileName())) {
+                            && voiceName.equals(getF0Model().getVoiceName())) {
                         model = getF0Model();
                         ((HMMModel)model).setPredictDurAndF0(true);
                     } else {
-                        model = new HMMModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;
@@ -418,10 +416,10 @@ public class Voice
     }
     
 
-    public boolean hasName(String name) { return names.contains(name); }
+    public boolean hasName(String aName) { return voiceName.equals(aName); }
     /** Return the name of this voice. If the voice has several possible names,
      * the first one is returned. */
-    public String getName() { return (String) names.get(0); }
+    public String getName() { return voiceName; }
     /** Returns the return value of <code>getName()</code>. */
     public String toString() { return getName(); }
     public Locale getLocale() { return locale; }

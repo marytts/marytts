@@ -121,7 +121,7 @@ public class GVModelSet {
   public double[] getGVcovInvMag(){ return gvcovInvMag; }
   
   
-  public void loadGVModelSet(HMMData htsData, FeatureDefinition featureDef, String trickyPhones) throws Exception {
+  public void loadGVModelSet(HMMData htsData, FeatureDefinition featureDef) throws IOException {
     
     /* allocate memory for the arrays and load the data from file */
     int numMSDFlag, numStream, vectorSize, numDurPdf;
@@ -131,42 +131,33 @@ public class GVModelSet {
         
     /* Here global variance vectors are loaded from corresponding files */
     int m, i,nmix;
-    try { 
-     if(htsData.getUseGV()){
-      // GV for Mgc             
-      if( (gvFile=htsData.getPdfMgcGVFile()) != null)
-        loadGvFromFile(gvFile, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
-   
-      // GV for Lf0
-      if( (gvFile=htsData.getPdfLf0GVFile()) != null)
-        loadGvFromFile(gvFile, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
+    if(htsData.getUseGV()){
+        // GV for Mgc             
+        if( (gvFile=htsData.getPdfMgcGVFile()) != null)
+          loadGvFromFile(gvFile, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
+     
+        // GV for Lf0
+        if( (gvFile=htsData.getPdfLf0GVFile()) != null)
+          loadGvFromFile(gvFile, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
 
-      // GV for Str   
-      if( (gvFile=htsData.getPdfStrGVFile()) != null)
-        loadGvFromFile(gvFile, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());      
-   
-      // GV for Mag  
-      if( (gvFile=htsData.getPdfMagGVFile()) != null)
-        loadGvFromFile(gvFile, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());  
-      
-      // gv-switch
-     // if( (gvFile=htsData.getSwitchGVFile()) != null)
-     //   loadSwitchGvFromFile(gvFile, featureDef, trickyPhones);      
-      
-    } 
-
-      } catch (FileNotFoundException e) {
-          logger.debug("GVModelSet: " + e.getMessage());
-          throw new FileNotFoundException("GVModelSet: " + e.getMessage());
-      } catch (IOException e) {
-          logger.debug("GVModelSet: " + e.getMessage());
-          throw new IOException("GVModelSet: " + e.getMessage());
+        // GV for Str   
+        if( (gvFile=htsData.getPdfStrGVFile()) != null)
+          loadGvFromFile(gvFile, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());      
+     
+        // GV for Mag  
+        if( (gvFile=htsData.getPdfMagGVFile()) != null)
+          loadGvFromFile(gvFile, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());  
+        
+        // gv-switch
+       // if( (gvFile=htsData.getSwitchGVFile()) != null)
+       //   loadSwitchGvFromFile(gvFile, featureDef, trickyPhones);      
+        
       } 
 
   }
   
   
-  private void loadGvFromFile(String gvFile, String par, boolean gradientMethod, double gvWeight) throws Exception {
+  private void loadGvFromFile(String gvFile, String par, boolean gradientMethod, double gvWeight) throws IOException {
           
     int numMSDFlag, numStream, vectorSize, numDurPdf;
     DataInputStream data_in;
@@ -202,7 +193,7 @@ public class GVModelSet {
   }  
   
   private void readBinaryFile(DataInputStream data_in, double mean[], double ivar[], int vectorSize, boolean gradientMethod, double gvWeight)
-  throws Exception {
+  throws IOException {
       int i;
       double var;
       if(gradientMethod){
@@ -222,12 +213,12 @@ public class GVModelSet {
   
  
   
-  public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, String trickyPhones)
+  public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, PhoneTranslator trickyPhones)
   throws Exception {
    
    //featDef = featDefinition;
    //phTrans = phoneTranslator;
-   PhoneTranslator phTrans = new PhoneTranslator(trickyPhones);      
+   PhoneTranslator phTrans = trickyPhones;      
       
    int i, j, length, state, feaIndex;
    BufferedReader s = null;

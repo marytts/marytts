@@ -36,9 +36,9 @@ import org.w3c.dom.Element;
  * 
  */
 public class BoundaryModel extends Model {
-    public BoundaryModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+    public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName,
             String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
-        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
 
     @Override

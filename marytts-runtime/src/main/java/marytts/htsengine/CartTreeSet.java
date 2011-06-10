@@ -64,10 +64,13 @@
 
 package marytts.htsengine;
 
+import java.io.IOException;
+
 import marytts.cart.CART;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;
@@ -106,11 +109,10 @@ public class CartTreeSet {
     
     
     /** Loads all the CART trees */
-    public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, String trickyPhones) throws Exception {
-      try {
-        
+    public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones) 
+    throws IOException, MaryConfigurationException {
         // Check if there are tricky phones, and create a PhoneTranslator object
-        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
+        PhoneTranslator phTranslator = trickyPhones;
              
         /* DUR, LF0 and Mgc are required as minimum for generating voice. 
         * The duration tree has only one state.
@@ -139,30 +141,21 @@ public class CartTreeSet {
           magTree = htsReader.load(numStates, htsData.getTreeMagFile(), htsData.getPdfMagFile(), featureDef, phTranslator);
           magVsize = htsReader.getVectorSize();
         }
-        
-      } catch (Exception e) {
-        throw new Exception("LoadTreeSet failed: ", e);
-      
-      }
-        
     }
     
-    /** Loads duration CART */
-    public void loadDurationTree(String treeDurFile, String pdfDurFile, FeatureDefinition featureDef, String trickyPhones) throws Exception {
-      try {
+    /** Loads duration CART 
+     * @throws MaryConfigurationException 
+     * @throws IOException */
+    public void loadDurationTree(String treeDurFile, String pdfDurFile, FeatureDefinition featureDef, PhoneTranslator trickyPhones) throws IOException, MaryConfigurationException  {
         
         // Check if there are tricky phones, and create a PhoneTranslator object
-        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
+        PhoneTranslator phTranslator = trickyPhones;
              
         /* The duration tree has only one state.
         * The size of the vector in duration is the number of states. */  
         durTree = htsReader.load(1, treeDurFile, pdfDurFile, featureDef, phTranslator);  
         numStates = htsReader.getVectorSize();
-                
-      } catch (Exception e) {
-        throw new Exception("LoadTreeSet failed: ", e);
-      
-      }
+
         
     }
   

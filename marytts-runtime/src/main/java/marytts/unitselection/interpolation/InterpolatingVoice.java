@@ -59,7 +59,7 @@ public class InterpolatingVoice extends Voice {
     public InterpolatingVoice(InterpolatingSynthesizer is, String name)
     throws MaryConfigurationException
     {
-        super(new String[] {name}, null, null, is, null);
+        super(name, null, null, is, null);
         if (isInterpolatingVoiceName(name)) {
             String[] parts = name.split("\\s+");
             firstVoice = Voice.getVoice(parts[0]);

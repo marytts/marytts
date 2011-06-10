@@ -267,54 +267,6 @@ public class HTSVocoder {
     } /* method initVocoder */
     
     
-    /** Initialisation for mixed excitation : it loads the filter taps are read from 
-     * MixFilterFile specified in the configuration file. */
-    private void initMixedExcitation_old(HMMData htsData) 
-    throws Exception {
-        
-        numM = htsData.getNumFilters();
-        orderM = htsData.getOrderFilters();
-        h = new double[numM][orderM];
-        xpulseSignal = new double[orderM];
-        xnoiseSignal = new double[orderM];
-        String line;
-        
-        /* get the filter coefficients */
-        Scanner s = null;
-        int i,j;
-        try {
-            s = new Scanner(new BufferedReader(new FileReader(htsData.getMixFiltersFile())));
-            s.useLocale(Locale.US);
-
-            while ( s.hasNext("#") ) {  /* skip comment lines */
-                line = s.nextLine();
-                //System.out.println("comment: " + line ); 
-            }
-            for(i=0; i<numM; i++){
-                for(j=0; j<orderM; j++) {                  
-                    if (s.hasNextDouble()) {
-                        h[i][j] = s.nextDouble();
-                        //System.out.println("h["+i+"]["+j+"]="+h[i][j]);
-                    }
-                    else{
-                        logger.debug("initMixedExcitation: not enough fiter taps in file = " + htsData.getMixFiltersFile());
-                        throw new Exception("initMixedExcitation: not enough fiter taps in file = " + htsData.getMixFiltersFile());
-                    }
-                }
-            }
-            
-        } catch (FileNotFoundException e) {
-            logger.debug("initMixedExcitation: " + e.getMessage());
-            throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
-        } finally {
-            s.close();
-        }   
-
-        /* initialise xp_sig and xn_sig */
-        for(i=0; i<orderM; i++)
-          xpulseSignal[i] = xnoiseSignal[i] = 0;    
-        
-    } /* method initMixedExcitation */
 
     
     /** 
@@ -1835,9 +1787,9 @@ public class HTSVocoder {
            htsData.setUseMixExc(true);
            strFile  = args[ind++];
            strVsize  = Integer.parseInt(args[ind++]);
-           htsData.setMixFiltersFile(args[ind++]);
+           FileInputStream mixedFiltersStream = new FileInputStream(args[ind++]);
            htsData.setNumFilters(Integer.parseInt(args[ind++]));           
-           htsData.readMixedExcitationFiltersFile();
+           htsData.readMixedExcitationFilters(mixedFiltersStream);
            htsData.setPdfStrFile("");
        } else {
            htsData.setUseMixExc(false);

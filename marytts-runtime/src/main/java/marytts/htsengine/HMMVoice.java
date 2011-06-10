@@ -68,8 +68,10 @@ import java.util.Locale;
 
 import javax.sound.sampled.AudioFormat;
 
+import marytts.config.MaryConfig;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
+import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -82,99 +84,12 @@ public class HMMVoice extends Voice {
     
    /** 
     * constructor */ 
-    public HMMVoice(String[] nameArray, Locale locale, 
+    public HMMVoice(String voiceName, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender,
-            int samplingRate, int framePeriod,
-            String alpha, String gamma, String logGain, String beta,
-            String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
-            String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-            boolean useAcousticModels, boolean useMixExc, boolean useFourierMag, 
-            boolean useGV, boolean useContextDependentGV, String gvMethod, 
-            int maxMgcGvIter, int maxLf0GvIter, int maxStrGvIter, 
-            String gvWeightMgc, String gvWeightLf0, String gvWeightStr,  
-            String Fgvf, String Fgvm, String Fgvs, String Fgva, 
-            String FeaFile, String trickyPhonesFile,
-            String Fif, int nFilters) throws Exception {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
-        
-       if(samplingRate>0)
-         this.htsData.setRate(samplingRate);
-       if(framePeriod>0)
-         this.htsData.setFperiod(framePeriod);
-       if(alpha != null) 
-         this.htsData.setAlpha(Double.parseDouble(alpha));
-       if(gamma != null)
-         this.htsData.setStage(Integer.parseInt(gamma));
-       if(logGain != null)
-         this.htsData.setUseLogGain(Boolean.valueOf(logGain).booleanValue());
-       if(beta != null)
-         this.htsData.setBeta(Double.parseDouble(beta));
+            Gender gender) throws Exception {
+    	super(voiceName, locale, dbAudioFormat, synthesizer, gender);
 
-       this.htsData.setFeatureDefinition(FeaFile);
-       this.htsData.setTreeDurFile(Ftd);  
-       this.htsData.setTreeLf0File(Ftf);           
-       this.htsData.setTreeMgcFile(Ftm);
-       this.htsData.setTreeStrFile(Fts);
-       this.htsData.setTreeMagFile(Fta);
-
-       this.htsData.setPdfDurFile(Fmd);
-       this.htsData.setPdfLf0File(Fmf);        
-       this.htsData.setPdfMgcFile(Fmm);
-       this.htsData.setPdfStrFile(Fms);
-       this.htsData.setPdfMagFile(Fma);
-
-       //this.htsData.setUseAcousticModels(Boolean.valueOf(useAcousticModels).booleanValue());
-       this.htsData.setUseAcousticModels(useAcousticModels);
-       this.htsData.setUseMixExc(useMixExc);
-       this.htsData.setUseFourierMag(useFourierMag);
-       this.htsData.setUseGV(useGV);
-       if(useGV){
-         this.htsData.setUseContextDepenendentGV(useContextDependentGV);
-         this.htsData.setGvMethod(gvMethod);
-         // Number of iteration for GV
-         if(maxMgcGvIter > 0)
-           this.htsData.setMaxMgcGvIter(maxMgcGvIter);
-         if(maxLf0GvIter > 0)
-           this.htsData.setMaxLf0GvIter(maxLf0GvIter);
-         if(maxStrGvIter > 0)
-           this.htsData.setMaxStrGvIter(maxLf0GvIter);
-         // weights for GV
-         if(gvWeightMgc != null) 
-             this.htsData.setGvWeightMgc(Double.parseDouble(gvWeightMgc));
-         if(gvWeightLf0 != null) 
-             this.htsData.setGvWeightLf0(Double.parseDouble(gvWeightLf0));
-         if(gvWeightStr != null) 
-             this.htsData.setGvWeightStr(Double.parseDouble(gvWeightStr));
-         // GV pdf files: mean and variance (diagonal covariance)
-         this.htsData.setPdfLf0GVFile(Fgvf);        
-         this.htsData.setPdfMgcGVFile(Fgvm);
-         this.htsData.setPdfStrGVFile(Fgvs);
-         this.htsData.setPdfMagGVFile(Fgva);
-       } 
-       
-            
-       /* Example context feature file in TARGETFEATURES format */
-       this.htsData.setFeaFile(FeaFile);
-       
-       /* trickyPhones file if any*/
-       this.htsData.setTrickyPhonesFile(trickyPhonesFile);
-
-       /* Configuration for mixed excitation */
-       if(Fif != null){
-         this.htsData.setMixFiltersFile(Fif); 
-         this.htsData.setNumFilters(nFilters);
-         logger.info("Loading Mixed Excitation Filters File:");
-         this.htsData.readMixedExcitationFiltersFile();
-       }
-
-       /* Load TreeSet in CARTs. */
-       logger.info("Loading Tree Set in CARTs:");
-       this.htsData.loadCartTreeSet();
-       
-       /* Load GV ModelSet gv*/
-       logger.info("Loading GV Model Set:");
-       this.htsData.loadGVModelSet();
+    	htsData.initHMMData(voiceName);
        
    }
    

@@ -63,7 +63,7 @@ public class MbrolaVoice extends Voice
             String missingDiphonesPath) 
     throws MaryConfigurationException
     {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
+        super(nameArray[0], locale, dbAudioFormat, synthesizer, gender);
         
         this.topStart = topStart;
         this.topEnd = topEnd;

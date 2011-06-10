@@ -33,6 +33,7 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -162,9 +163,9 @@ public class JoinModeller extends VoiceImportComponent
         PhoneTranslator contextTranslator = null;
         // Check if there are tricky phones          
         if( HMMVoiceMakeData.checkTrickyPhones(getProp(ALLOPHONESFILE), getProp(TRICKYPHONESFILE)) )        
-            contextTranslator = new PhoneTranslator(getProp(TRICKYPHONESFILE));
+            contextTranslator = new PhoneTranslator(new FileInputStream(getProp(TRICKYPHONESFILE)));
         else
-            contextTranslator = new PhoneTranslator(""); 
+            contextTranslator = new PhoneTranslator(null); 
         
         
         featureList = new Vector<String>(); 
@@ -447,10 +448,10 @@ public class JoinModeller extends VoiceImportComponent
             String allophonesFile = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
             // Check if there are tricky phones          
             if( ! (HMMVoiceMakeData.checkTrickyPhones(allophonesFile, trickyPhonesFile) ) )
-                trickyPhonesFile = "";
+                trickyPhonesFile = null;
              
             // Check if there are tricky phones, and create a PhoneTranslator object
-            PhoneTranslator phTranslator = new PhoneTranslator(trickyPhonesFile);
+            PhoneTranslator phTranslator = new PhoneTranslator(new FileInputStream(trickyPhonesFile));
   
             CART[] joinTree = null;
             HTSCARTReader htsReader = new HTSCARTReader();

@@ -22,6 +22,7 @@ package marytts.cart;
 import java.util.ArrayList;
 import java.util.List;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 
@@ -487,7 +488,7 @@ public abstract class LeafNode extends Node {
          * @param idx, a unique index number
          * @param pdf, pdf[numStreams][2*vectorSize] 
          */
-        public PdfLeafNode(int idx, double pdf[][]) throws Exception
+        public PdfLeafNode(int idx, double pdf[][]) throws MaryConfigurationException
         {
           super();
           this.setUniqueLeafId(idx);
@@ -521,7 +522,7 @@ public abstract class LeafNode extends Node {
            }      
           }
           } else {
-              throw new Exception("PdfLeafNode: pdf vector is null for index=" + idx);  
+              throw new MaryConfigurationException("PdfLeafNode: pdf vector is null for index=" + idx);  
           }
           
         }

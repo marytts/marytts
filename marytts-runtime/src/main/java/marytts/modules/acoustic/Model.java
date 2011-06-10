@@ -49,6 +49,11 @@ public abstract class Model {
     protected String dataFile;
 
     /**
+     * The voice with which this model is associated
+     */
+    protected String voiceName;
+    
+    /**
      * The attribute into which the predicted acoustic feature should be written.
      */
     protected String targetAttributeName;
@@ -100,9 +105,10 @@ public abstract class Model {
      * @param applyTo
      *            key of Element Lists to which to apply values; "segments" by default
      */
-    protected Model(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+    protected Model(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName,
             String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
         this.featureManager = featureManager;
+        this.voiceName = voiceName;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
         if (targetAttributeFormat == null) {
@@ -269,6 +275,14 @@ public abstract class Model {
         return dataFile;
     }
 
+    /**
+     * 
+     * @return the name of the voice that this model is associated with
+     */
+    public String getVoiceName() {
+    	return voiceName;
+    }
+    
     /**
      * @return the featureName
      */

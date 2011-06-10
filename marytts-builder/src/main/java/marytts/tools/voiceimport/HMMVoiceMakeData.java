@@ -65,6 +65,7 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -349,9 +350,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
         if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
-           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+           phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
-           phTranslator = new PhoneTranslator(""); 
+           phTranslator = new PhoneTranslator(null); 
         
         System.out.println("Generating questions file: " + voiceDir + getProp(questionsFile));
                 
@@ -709,9 +710,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
         if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
-           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+           phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
-           phTranslator = new PhoneTranslator(""); 
+           phTranslator = new PhoneTranslator(null); 
                 
         // Get feature definition, whatever context feature file used for training can be passed here.
         // here we take the first in the feaFiles list.
@@ -838,9 +839,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
         if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
-           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+           phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
-           phTranslator = new PhoneTranslator(""); 
+           phTranslator = new PhoneTranslator(null); 
         
         // Get the speakers directories
         File dirSpeakersFea = new File(voiceDir + "/phonefeatures");
