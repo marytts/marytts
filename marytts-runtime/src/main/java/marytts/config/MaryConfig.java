@@ -22,9 +22,11 @@ package marytts.config;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -33,6 +35,8 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.server.MaryProperties;
+import marytts.util.io.PropertiesAccessor;
 
 /**
  * @author marc
@@ -181,6 +185,20 @@ public abstract class MaryConfig {
 	
 	public Properties getProperties() {
 		return props;
+	}
+	
+	/**
+	 * Convenience access to this config's properties.
+	 * @param systemPropertiesOverride whether to use system properties in priority if they exist.
+	 * If true, any property requested from this properties accessor will first be looked up
+	 * in the system properties, and only if it is not defined there, it will be looked up
+	 * in this config's properties.
+	 * @return
+	 */
+	public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
+		Map<String, String> maryBaseMap = new HashMap<String, String>();
+		maryBaseMap.put("MARY_BASE", MaryProperties.maryBase());
+		return new PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap);
 	}
 	
 	/**

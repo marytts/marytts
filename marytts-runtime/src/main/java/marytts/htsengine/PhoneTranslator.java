@@ -22,8 +22,12 @@ package marytts.htsengine;
 
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,10 +54,11 @@ public class PhoneTranslator {
  
     // When creating a phoneTranslator object a trickyPhonesFile can be provided
     // so the phone aliases are loaded. 
-    public PhoneTranslator(String trickyPhonesFile) throws FileNotFoundException 
+    public PhoneTranslator(InputStream trickyPhonesStream) throws IOException 
     {
-      if(trickyPhonesFile != null && !trickyPhonesFile.contentEquals("") )
-        loadTrickyPhones(trickyPhonesFile);
+    	if (trickyPhonesStream != null) {
+    		loadTrickyPhones(trickyPhonesStream);
+    	}
     }
     
     public void setContextFeatureFile(String str){ contextFeatureFile = str; }
@@ -174,30 +179,25 @@ public class PhoneTranslator {
     
     
     
-    private void loadTrickyPhones(String fileName) throws FileNotFoundException{
-        
-        Scanner aliasList = null;
-        try {
-          aliasList = new Scanner(new BufferedReader(new FileReader(fileName)));
-          String line;
-          logger.info("loading tricky phones from file: " + fileName);
-          while (aliasList.hasNext()) {
-            line = aliasList.nextLine();
-            String[] ph = line.split(" ");
-          
-            trickyPhones.put(ph[0], ph[1]);
-            actualPhones.put(ph[1], ph[0]);
-            logger.info("  " + ph[0] + " -->  " + ph[1]);  
-            
-          }
-          if (aliasList != null) { 
-            aliasList.close();
-          }       
-        } catch (FileNotFoundException e) {
-            logger.debug("loadTrickyPhones:  " + e.getMessage());
-             throw new FileNotFoundException();
-        }              
-    }
+	private void loadTrickyPhones(InputStream trickyStream) throws IOException {
+
+		Scanner aliasList = null;
+		aliasList = new Scanner(new BufferedReader(new InputStreamReader(trickyStream, "UTF-8")));
+		String line;
+		logger.debug("loading tricky phones");
+		while (aliasList.hasNext()) {
+			line = aliasList.nextLine();
+			String[] ph = line.split(" ");
+
+			trickyPhones.put(ph[0], ph[1]);
+			actualPhones.put(ph[1], ph[0]);
+			logger.info("  " + ph[0] + " -->  " + ph[1]);
+
+		}
+		if (aliasList != null) {
+			aliasList.close();
+		}
+	}
     
     /** Translation table for labels which are incompatible with HTK or shell filenames
      * See common_routines.pl in HTS training.
@@ -341,12 +341,11 @@ public class PhoneTranslator {
           
       }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         
       PhoneTranslator phTrans;
       String oriLab, alias, ori;
-      try {
-        phTrans = new PhoneTranslator("/project/mary/marcela/HMM-voices/turkish/mary/trickyPhones.txt");  
+        phTrans = new PhoneTranslator(new FileInputStream("/project/mary/marcela/HMM-voices/turkish/mary/trickyPhones.txt"));  
         
         oriLab = "@'";
         alias = phTrans.replaceTrickyPhones(oriLab);  
@@ -359,12 +358,6 @@ public class PhoneTranslator {
         ori = phTrans.replaceBackTrickyPhones(alias);
         System.out.println("oriLab=" + oriLab + "  alias=" + alias + "  ori=" + ori);
         
-        
-        
-      } catch (FileNotFoundException e) {
-          System.out.println("PhoneTranslator:  " + e.getMessage());
-      }  
-             
     }
 
 } /* class StringTranslator*/

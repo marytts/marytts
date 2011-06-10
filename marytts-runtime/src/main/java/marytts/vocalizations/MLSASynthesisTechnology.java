@@ -19,6 +19,7 @@
  */
 package marytts.vocalizations;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -74,10 +75,10 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
             htsData = new HMMData(); 
             htsData.setUseMixExc(true);
             htsData.setUseFourierMag(false);  /* use Fourier magnitudes for pulse generation */
-            htsData.setMixFiltersFile(mixedExcitationFile);
+            FileInputStream mixedFiltersStream = new FileInputStream(mixedExcitationFile);
             htsData.setNumFilters(5);
             htsData.setOrderFilters(48);
-            htsData.readMixedExcitationFiltersFile();
+            htsData.readMixedExcitationFilters(mixedFiltersStream);
             htsData.setPdfStrFile("");
             //                                                                   [min][max]
             htsData.setF0Std(1.0);  // variable for f0 control, multiply f0      [1.0][0.0--5.0]

@@ -19,6 +19,7 @@
  */
 package marytts.unitselection.select;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import marytts.cart.CART;
@@ -111,7 +112,7 @@ public class JoinModelCost implements JoinCostFunction
         int numStates = 1;  // just one state in the joinModeller
         
         // Check if there are tricky phones, and create a PhoneTranslator object
-        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhonesFile);
+        PhoneTranslator phTranslator = new PhoneTranslator(new FileInputStream(trickyPhonesFile));
         
         try {
             //joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);

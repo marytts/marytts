@@ -66,6 +66,7 @@ import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.cart.LeafNode.PdfLeafNode;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
 import marytts.util.MaryUtils;
@@ -88,24 +89,24 @@ public class HTSCARTReader
     
     public int getVectorSize(){ return vectorSize; }
     
-/**
- * Load the cart from the given file
- * @param nummStates
- *            number of states in the HTS model, it will create one cart tree per state.
- * @param treefileName
- *            the HTS tree text file, example tree-mgc.inf.
- * @param pdfFileName
- *            the corresponding HTS pdf binary file, example mgc.pdf.
- * @param featDefinition
- *            the feature definition
- * @param CART[]
- *            Fills this array of CART trees, one per state.
- * @return the size of the mean and variance vectors on the leaves.
- * @throws IOException
- *             if a problem occurs while loading
- */
-public CART[] load(int numStates, String treeFileName, String pdfFileName, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
-       throws Exception {
+	/**
+	 * Load the cart from the given file
+	 * @param nummStates
+	 *            number of states in the HTS model, it will create one cart tree per state.
+	 * @param treefileName
+	 *            the HTS tree text file, example tree-mgc.inf.
+	 * @param pdfFileName
+	 *            the corresponding HTS pdf binary file, example mgc.pdf.
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param CART[]
+	 *            Fills this array of CART trees, one per state.
+	 * @return the size of the mean and variance vectors on the leaves.
+	 * @throws IOException
+	 *             if a problem occurs while loading
+	 */
+	public CART[] load(int numStates, String treeFileName, String pdfFileName, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
+	throws IOException, MaryConfigurationException {
         
         featDef = featDefinition;
         //phTrans = phoneTranslator;
@@ -142,46 +143,40 @@ public CART[] load(int numStates, String treeFileName, String pdfFileName, Featu
                
         assert featDefinition != null : "Feature Definition was not set";
             
-        try {   
-          /* read lines of tree-*.inf fileName */ 
-          s = new BufferedReader(new InputStreamReader(new FileInputStream(treeFileName)));
-          logger.info("load: reading " + treeFileName);
+
+      /* read lines of tree-*.inf fileName */ 
+      s = new BufferedReader(new InputStreamReader(new FileInputStream(treeFileName)));
+      logger.info("load: reading " + treeFileName);
+      
+      // skip questions section
+      while((line = s.readLine()) != null) {
+          if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
+      }
+      
+      while((line = s.readLine()) != null) {            
+        if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
+          aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
+          state = Integer.parseInt(aux);
+          // loads one cart tree per state
+          treeSet[state-2].setRootNode(loadStateTree(s, pdf[state-2]));
           
-          // skip questions section
-          while((line = s.readLine()) != null) {
-              if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
-          }
+          // Now count all data once, so that getNumberOfData()
+          // will return the correct figure.
+          if (treeSet[state-2].getRootNode() instanceof DecisionNode)
+              ((DecisionNode)treeSet[state-2].getRootNode()).countData();
+        
+          logger.info("load: CART[" + (state-2) + "], total number of nodes in this CART: " + treeSet[state-2].getNumNodes());            
+        }         
+      } /* while */  
+      if (s != null)
+        s.close();
+      
+      /* check that the tree was correctly loaded */
+      if( treeSet.length == 0 ) {
+        throw new IOException("LoadTreeSet: error no trees loaded from  " + treeFileName);   
+      }
           
-          while((line = s.readLine()) != null) {            
-            if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
-              aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
-              state = Integer.parseInt(aux);
-              // loads one cart tree per state
-              treeSet[state-2].setRootNode(loadStateTree(s, pdf[state-2]));
-              
-              // Now count all data once, so that getNumberOfData()
-              // will return the correct figure.
-              if (treeSet[state-2].getRootNode() instanceof DecisionNode)
-                  ((DecisionNode)treeSet[state-2].getRootNode()).countData();
-            
-              logger.info("load: CART[" + (state-2) + "], total number of nodes in this CART: " + treeSet[state-2].getNumNodes());            
-            }         
-          } /* while */  
-          if (s != null)
-            s.close();
-          
-          /* check that the tree was correctly loaded */
-          if( treeSet.length == 0 ) {
-            logger.debug("LoadTreeSet: error no trees loaded from " + treeFileName);  
-            throw new Exception("LoadTreeSet: error no trees loaded from  " + treeFileName);   
-          }
-          
-          
-        } catch (FileNotFoundException e) {
-            logger.debug("FileNotFoundException: " + e.getMessage());
-            throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
-        }
-          
+
             
         return treeSet;
        
@@ -191,7 +186,7 @@ public CART[] load(int numStates, String treeFileName, String pdfFileName, Featu
  * @param s    : text scanner of the whole tree-*.inf file
  * @param pdf  : the pdfs for this state, pdf[numPdfs][numStreams][2*vectorSize]
  */
-private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception {
+private Node loadStateTree(BufferedReader s, double pdf[][][]) throws IOException, MaryConfigurationException {
     
   Node rootNode=null;
   Node lastNode=null;
@@ -227,12 +222,12 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
         } else if (buf.contentEquals("0"))
           id = 0;  
         else
-          throw new Exception("LoadStateTree: line does not start with a decision node (-id), line=" +  aux);   
+          throw new MaryConfigurationException("LoadStateTree: line does not start with a decision node (-id), line=" +  aux);   
         // 1. find the node in the tree, it has to be already created.
         node = findDecisionNode(rootNode,id);
         
         if(node == null)
-            throw new Exception("LoadStateTree: Node not found, index = " +  buf); 
+            throw new MaryConfigurationException("LoadStateTree: Node not found, index = " +  buf); 
         else {             
           /* 2: gets question name and question name val */
           buf = sline.nextToken();
@@ -295,7 +290,7 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
     } /* while there is another line and the line does not contain }*/
   }  /* if not "{" */
   
-  logger.info("loadStateTree: loaded CART contains " + (ndec+1) + " Decision nodes and " + nleaf + " Leaf nodes.");
+  logger.debug("loadStateTree: loaded CART contains " + (ndec+1) + " Decision nodes and " + nleaf + " Leaf nodes.");
   return rootNode;
   
 } /* method loadTree() */
@@ -362,7 +357,7 @@ private Node findDecisionNode(Node node, int numId){
 *   ...
 *   4 byte float mean, variance, voiced, unvoiced (4 floats): stream 1..S, leaf 1..L, state N   
 */
-private double [][][][] loadPdfs(int numState, String pdfFileName) throws Exception {
+private double [][][][] loadPdfs(int numState, String pdfFileName) throws IOException, MaryConfigurationException {
     
     DataInputStream data_in;
     int i, j, k, l, numDurPdf, lf0Stream;
@@ -373,15 +368,14 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
     int numMSDFlag;  /* MSD: Multi stream dimensions: in case of lf0 for example*/
     double pdf[][][][]= null;  // pdf[numState][numPdf][stream][vsize];
        
-    try {  
-    
+ 
     // TODO: how to make this loading more general, different files have different formats. Right now the way
     //       of loading depends on the name of the file, I need to change that!
     if(pdfFileName.contains("dur.pdf") || pdfFileName.contains("joinModeller.pdf")) {    
       /*________________________________________________________________*/
       /*-------------------- load pdfs for duration --------------------*/ 
         data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(pdfFileName)));
-        logger.info("loadPdfs reading: " + pdfFileName);
+        logger.debug("loadPdfs reading: " + pdfFileName);
         
       /* read the number of states & the number of pdfs (leaf nodes) */
       /* read the number of HMM states, this number is the same for all pdf's. */  
@@ -396,12 +390,12 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         
         /* check number of states */
         if( numState < 0 )
-        throw new Exception("loadPdfs: #HMM states must be positive value.");
+        throw new MaryConfigurationException("loadPdfs: #HMM states must be positive value.");
       
          
         /* read the number of duration pdfs */
         numDurPdf = data_in.readInt();
-        logger.info("loadPdfs: numPdf[state:0]=" + numDurPdf);
+        logger.debug("loadPdfs: numPdf[state:0]=" + numDurPdf);
         
         /* Now we know the number of duration pdfs and the vector size which is */
         /* the number of states in each HMM. Here the vector size is 2*nstate because*/
@@ -427,7 +421,7 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         /*____________________________________________________________________*/
         /*-------------------- load pdfs for Log F0 --------------*/
         data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
-      logger.info("loadPdfs reading: " + pdfFileName);
+      logger.debug("loadPdfs reading: " + pdfFileName);
         /* read the number of streams for f0 modeling */
       //lf0Stream  = data_in.readInt();
       //vectorSize = lf0Stream;
@@ -439,16 +433,16 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         //System.out.println("loadPdfs: lf0stream = " + lf0stream);
       
         if( lf0Stream < 0 )
-        throw new Exception("loadPdfs:  #stream for log f0 part must be positive value.");
+        throw new MaryConfigurationException("loadPdfs:  #stream for log f0 part must be positive value.");
         
         /* read the number of pdfs for each state position */
         pdf = new double[numState][][][];
         numPdf = new int[numState];
         for(i=0; i< numState; i++){
            numPdf[i] = data_in.readInt();
-           logger.info("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
+           logger.debug("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
            if( numPdf[i] < 0 )
-           throw new Exception("loadPdfs: #lf0 pdf at state " + i + " must be positive value.");
+           throw new MaryConfigurationException("loadPdfs: #lf0 pdf at state " + i + " must be positive value.");
            //System.out.println("nlf0pdf[" + i + "] = " + numPdf[i]);
            /* Now i know the size of pdfs for lf0 [#states][#leaves][#streams][lf0_vectorsize] */
            /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
@@ -471,7 +465,7 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
                   vw  = pdf[i][j][k][2]; /* voiced weight */
                   uvw = pdf[i][j][k][3]; /* unvoiced weight */
                   if (vw<0.0 || uvw<0.0 || vw+uvw<0.99 || vw+uvw>1.01 )
-                  throw new Exception("loadPdfs: voiced/unvoiced weights must be within 0.99 to 1.01.");
+                  throw new MaryConfigurationException("loadPdfs: voiced/unvoiced weights must be within 0.99 to 1.01.");
               }
           }
         }
@@ -485,7 +479,7 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
       /*___________________________________________________________________________*/
       /*-------------------- load pdfs for mgc, str or mag ------------------------*/
       data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
-      logger.info("loadPdfs reading: " + pdfFileName);
+      logger.debug("loadPdfs reading: " + pdfFileName);
       /* read vector size for spectrum */
     
       //numStream = 1;   // just one stream for mgc, str, mag. This is just to have only one 
@@ -500,16 +494,16 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
       //System.out.println("loadPdfs: vsize = " + vsize);
       
       if( vsize < 0 )
-         throw new Exception("loadPdfs: vector size of pdf must be positive."); 
+         throw new MaryConfigurationException("loadPdfs: vector size of pdf must be positive."); 
         
         /* Now we need the number of pdf's for each state */
       pdf = new double[numState][][][];
       numPdf = new int[numState];
       for(i=0; i< numState; i++){
          numPdf[i] = data_in.readInt();
-         logger.info("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
+         logger.debug("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
          if( numPdf[i] < 0 )
-             throw new Exception("loadPdfs: #pdf at state " + i + " must be positive value.");
+             throw new MaryConfigurationException("loadPdfs: #pdf at state " + i + " must be positive value.");
            //System.out.println("nmceppdf[" + i + "] = " + nmceppdf[i]);
            /* Now i know the size of mceppdf[#states][#leaves][vectorsize] */
            /* so i can allocate memory for mceppdf[][][] */
@@ -536,11 +530,7 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws Except
         data_in.close (); 
         data_in=null;
 
-      }      
-    } catch (Exception e) {
-       logger.debug("loadPdfs: " + e.getMessage());
-       throw new Exception("loadPdfs: " + e.getMessage());
-    } 
+      }
     
     return pdf;
     
@@ -572,7 +562,7 @@ public static void main(String[] args) throws IOException, InterruptedException{
     int vSize;
     
     // Check if there are tricky phones, and create a PhoneTranslator object
-    PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
+    PhoneTranslator phTranslator = new PhoneTranslator(new FileInputStream(trickyPhones));
     
     HTSCARTReader htsReader = new HTSCARTReader(); 
     try {

@@ -68,16 +68,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 
+import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
+import marytts.util.FeatureUtils;
 import marytts.util.MaryUtils;
+import marytts.util.io.PropertiesAccessor;
 
 import org.apache.log4j.Logger;
 
@@ -185,16 +192,12 @@ public class HMMData {
     private GVModelSet gv = new GVModelSet();
 
 	/** Variables for mixed excitation */
-	private String mixFiltersFile; /* this file contains the filter taps for mixed excitation */
 	private int numFilters;
 	private int orderFilters;
     private double mixFilters[][];      /* filters for mixed excitation */
-	 
-    /** Example CONTEXTFEATURE file in MARY format */
-    private String feaFile;
-    
+	     
     /** tricky phones file if generated during training of HMMs. */
-    private String trickyPhonesFile;
+    private PhoneTranslator trickyPhones;
 	
 	public int getRate() { return rate; }
 	public int getFperiod() { return fperiod; } 
@@ -249,10 +252,7 @@ public class HMMData {
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
     public String getPdfMagGVFile() { return pdfMagGVFile; }
     public String getSwitchGVFile() { return switchGVFile; }
-    public String getFeaFile() { return feaFile; }
-    public String getTrickyPhonesFile() { return trickyPhonesFile; }
 	
-	public String getMixFiltersFile() { return mixFiltersFile; } 
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
     public double [][] getMixFilters(){ return mixFilters; }
@@ -299,20 +299,7 @@ public class HMMData {
     public void setTreeMgcFile(String str) { treeMgcFile = str; }  
     public void setTreeStrFile(String str) { treeStrFile = str; } 
     public void setTreeMagFile(String str) { treeMagFile = str; }  
-    public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phone features */
-    throws Exception                                     
-    { 
-        Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
-        String strContext="";
-        while (context.hasNext()) {
-          strContext += context.nextLine(); 
-          strContext += "\n";
-        }
-        context.close();
-        //System.out.println(strContext);
-        feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-          
-    }
+    
     
     public void setPdfDurFile(String str) { pdfDurFile = str; }   
     public void setPdfLf0File(String str) { pdfLf0File = str; }   
@@ -343,232 +330,167 @@ public class HMMData {
     public void setSwitchGVFile(String str) { switchGVFile = str; }
     
     
-    public void setFeaFile(String str) { feaFile = str; }
-    public void setTrickyPhonesFile(String str) { trickyPhonesFile = str; }
-    
-    public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
     public void setNumFilters(int val){ numFilters = val; }
     public void setOrderFilters(int val){ orderFilters = val; }
      
-    public void loadCartTreeSet() throws Exception { cart.loadTreeSet(this, feaDef, trickyPhonesFile); } 
+    public void loadCartTreeSet() throws IOException, MaryConfigurationException {
+    	cart.loadTreeSet(this, feaDef, trickyPhones);
+    } 
       
-    public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this, feaDef, trickyPhonesFile); } 
+    public void loadGVModelSet() throws IOException {
+    	gv.loadGVModelSet(this, feaDef);
+    } 
 	
-	/** Reads from configuration file all the data files in this class 
-     * this method is used when running HTSengine stand alone. */
-	public void initHMMData(String voice, String marybase, String configFile) throws Exception{		
-        
-      Properties props = new Properties();
-      
-      try {
-          FileInputStream fis = new FileInputStream( marybase+"conf/"+configFile );
-          props.load( fis );
-          fis.close();          
-          if( props.getProperty( "voice." + voice + ".samplingRate" ) != null)
-            rate = Integer.parseInt(props.getProperty( "voice." + voice + ".samplingRate" ));
-          if( props.getProperty( "voice." + voice + ".framePeriod" ) != null)
-            fperiod = Integer.parseInt(props.getProperty( "voice." + voice + ".framePeriod" ));
-          if( props.getProperty( "voice." + voice + ".alpha" ) != null)
-            alpha = Double.parseDouble(props.getProperty( "voice." + voice + ".alpha" ));
-          if( props.getProperty( "voice." + voice + ".gamma" ) != null)
-            stage = Integer.parseInt(props.getProperty( "voice." + voice + ".gamma" ));
-          if( props.getProperty( "voice." + voice + ".logGain" ) != null)
-            useLogGain = Boolean.valueOf(props.getProperty( "voice." + voice + ".logGain" )).booleanValue();  
-          if( props.getProperty( "voice." + voice + ".beta" ) != null)
-            beta = Double.parseDouble(props.getProperty( "voice." + voice + ".beta" ));
-                  
-          treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-          treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);          
-          treeMgcFile = props.getProperty( "voice." + voice + ".Ftm" ).replace("MARY_BASE", marybase);
-          if( props.getProperty( "voice." + voice + ".Fts" ) != null)
-            treeStrFile = props.getProperty( "voice." + voice + ".Fts" ).replace("MARY_BASE", marybase);
-          if( props.getProperty( "voice." + voice + ".Fta" ) != null)
-            treeMagFile = props.getProperty( "voice." + voice + ".Fta" ).replace("MARY_BASE", marybase);
-          
-          pdfDurFile = props.getProperty( "voice." + voice + ".Fmd" ).replace("MARY_BASE", marybase);
-          pdfLf0File = props.getProperty( "voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);           
-          pdfMgcFile = props.getProperty( "voice." + voice + ".Fmm" ).replace("MARY_BASE", marybase);
-          if( props.getProperty( "voice." + voice + ".Fms" ) != null)
-            pdfStrFile = props.getProperty( "voice." + voice + ".Fms" ).replace("MARY_BASE", marybase);
-          if( props.getProperty( "voice." + voice + ".Fma" ) != null)
-            pdfMagFile = props.getProperty( "voice." + voice + ".Fma" ).replace("MARY_BASE", marybase);
-          
-          if( props.getProperty( "voice." + voice + ".useAcousticModels" ) != null)
-            useAcousticModels = Boolean.valueOf(props.getProperty( "voice." + voice + ".useAcousticModels" )).booleanValue();
-         
-          if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
-            useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();
-          if( props.getProperty( "voice." + voice + ".useFourierMag" ) != null)
-            useFourierMag = Boolean.valueOf(props.getProperty( "voice." + voice + ".useFourierMag" )).booleanValue();
-          
-          if( props.getProperty( "voice." + voice + ".useGV" ) != null)
-            useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
-          
-          if(useGV){
-            if( props.getProperty( "voice." + voice + ".useContextDependentGV" ) != null )
-              useContextDependentGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useContextDependentGV" )).booleanValue();
-            
-            if( props.getProperty( "voice." + voice + ".gvMethod" ) != null ){
-                String sval = props.getProperty( "voice." + voice + ".gvMethod" );
-                setGvMethod(sval);  
-            }
-            // Number of iteration for GV Gradient method
-            if( props.getProperty( "voice." + voice + ".maxMgcGvIter" ) != null )
-              maxMgcGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMgcGvIter" ));           
-            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
-              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
-            if( props.getProperty( "voice." + voice + ".maxStrGvIter" ) != null )
-              maxStrGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxStrGvIter" ));
-            if( props.getProperty( "voice." + voice + ".maxMagGvIter" ) != null )
-              maxMagGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMagGvIter" ));
-            // weights for GV
-            if( props.getProperty( "voice." + voice + ".gvWeightMgc" ) != null )
-              gvWeightMgc = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightMgc" ));
-            if( props.getProperty( "voice." + voice + ".gvWeightLf0" ) != null )
-              gvWeightLf0 = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightLf0" ));
-            if( props.getProperty( "voice." + voice + ".gvWeightStr" ) != null )
-              gvWeightStr = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightStr" ));            
-            // GV pdf files: mean and variance (diagonal covariance)            
-            if( props.getProperty( "voice." + voice + ".Fgvm" ) != null)
-              pdfMgcGVFile = props.getProperty( "voice." + voice + ".Fgvm" ).replace("MARY_BASE", marybase);
-            if( props.getProperty( "voice." + voice + ".Fgvf" ) != null)
-              pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);
-            if( props.getProperty( "voice." + voice + ".Fgvs" ) != null)
-              pdfStrGVFile = props.getProperty( "voice." + voice + ".Fgvs" ).replace("MARY_BASE", marybase);
-            if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
-              pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
-            if( props.getProperty( "voice." + voice + ".FgvSwitch" ) != null)
-              switchGVFile = props.getProperty( "voice." + voice + ".FgvSwitch" ).replace("MARY_BASE", marybase);
-                       
-          }
- 
-          /* Example context feature file in MARY format */
-          feaFile = props.getProperty( "voice." + voice + ".FeaFile" ).replace("MARY_BASE", marybase);
-          
-          /* trickyPhones file, if any. If aliases for tricky phones were used during the training of HMMs
-           * then these aliases are in this file, if no aliases were used then the string is empty.
-           * This file will be used during the loading of HMM trees, so aliases of tricky phone are aplied back. */
-          if( props.getProperty( "voice." + voice + ".trickyPhonesFile" ) != null)
-            trickyPhonesFile = props.getProperty( "voice." + voice + ".trickyPhonesFile" ).replace("MARY_BASE", marybase);
-          else
-            trickyPhonesFile = "";
-          
-          /* Configuration for mixed excitation */
-          if( treeStrFile != null ) {
-            mixFiltersFile = props.getProperty( "voice." + voice + ".Fif" ).replace("MARY_BASE", marybase); 
-            numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
-            logger.info("Loading Mixed Excitation Filters File:");
-            readMixedExcitationFiltersFile();
-          }
-          
-          props.clear();
-          
-      } 
-      catch (IOException e) {
-          logger.debug("Caught IOException: " +  e.getMessage());
-	  }	catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error on configuration file, missing files or components...");
-      }
-      
-      try {
-        /* Load TreeSet ts and ModelSet ms for current voice*/
-        logger.info("Loading Tree Set in CARTs:");
-        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */ 
-        cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
-        
-        logger.info("Loading GV Model Set:");
-        gv.loadGVModelSet(this, feaDef, trickyPhonesFile);
-      
-        /* Load (un-commented) context feature list from featureListFile */
-        logger.info("Loading Feature List:");
-        //readFeatureList(featureList, featureListFile);
-      }
-      catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...");
-      }
-   		
+    
+    
+    public void initHMMData(PropertiesAccessor p, String voiceName) 
+    throws IOException, MaryConfigurationException {
+    	logger.debug("Reached new initHMMData");
+    	String prefix = "voice."+voiceName;
+    	rate = p.getInteger(prefix+".samplingRate", rate);
+    	fperiod = p.getInteger(prefix+".framePeriod", fperiod);
+    	alpha = p.getDouble(prefix+".alpha", alpha);
+    	stage = p.getInteger(prefix+".gamma", stage);
+    	useLogGain = p.getBoolean(prefix+".logGain", useLogGain);
+    	beta =  p.getDouble(prefix+".beta", beta);
+    	
+    	treeDurFile = p.getProperty(prefix+".Ftd");     /* Tree DUR */
+    	treeLf0File = p.getProperty(prefix+".Ftf");     /* Tree LF0 */
+        treeMgcFile = p.getProperty(prefix+".Ftm");     /* Tree MCP */
+    	treeStrFile = p.getProperty(prefix+".Fts");     /* Tree STR */
+    	treeMagFile = p.getProperty(prefix+".Fta");     /* Tree MAG */
+
+        pdfDurFile = p.getProperty(prefix+".Fmd");     /* Model DUR */
+    	pdfLf0File = p.getProperty(prefix+".Fmf");     /* Model LF0 */
+    	pdfMgcFile = p.getProperty(prefix+".Fmm");     /* Model MCP */
+    	pdfStrFile = p.getProperty(prefix+".Fms");     /* Model STR */
+    	pdfMagFile = p.getProperty(prefix+".Fma");     /* Model MAG */        
+
+        useAcousticModels = p.getBoolean(prefix+".useAcousticModels"); /* use AcousticModeller, so prosody modification is enabled */
+        useMixExc = p.getBoolean(prefix+".useMixExc");         /* Use Mixed excitation */
+        useFourierMag = p.getBoolean(prefix+".useFourierMag");     /* Use Fourier magnitudes for pulse generation*/
+
+        useGV = p.getBoolean(prefix+".useGV");             /* Use Global Variance in parameter generation */
+        if(useGV) {
+        	useContextDependentGV = p.getBoolean(prefix+".useContextDependentGV"); /* Use context-dependent GV, (gv without sil)*/
+        	String gvMethod = p.getProperty(prefix+".gvMethod");     /* GV method: gradient or derivative (default gradient)*/ 
+        	setGvMethod(gvMethod);
+
+        	// Number of iteration for GV
+            maxMgcGvIter = p.getInteger(prefix+".maxMgcGvIter", maxMgcGvIter);  /* Max number of iterations for MGC gv optimisation */
+        	maxLf0GvIter = p.getInteger(prefix+".maxLf0GvIter", maxLf0GvIter);  /* Max number of iterations for LF0 gv optimisation */
+        	maxStrGvIter = p.getInteger(prefix+".maxStrGvIter", maxStrGvIter);  /* Max number of iterations for STR gv optimisation */
+
+        	// weights for GV
+        	gvWeightMgc = p.getDouble(prefix+".gvWeightMgc", gvWeightMgc);  /* GV weight for mgc between 0.0-2.0 default 1.0*/
+        	gvWeightLf0 = p.getDouble(prefix+".gvWeightLf0", gvWeightLf0);  /* GV weight for lf0 between 0.0-2.0 default 1.0*/
+        	gvWeightStr = p.getDouble(prefix+".gvWeightStr", gvWeightStr);  /* GV weight for str between 0.0-2.0 default 1.0*/
+
+        	// GV pdf files: mean and variance (diagonal covariance)
+        	pdfLf0GVFile = p.getProperty(prefix+".Fgvf");     /* GV Model LF0 */
+        	pdfMgcGVFile = p.getProperty(prefix+".Fgvm");     /* GV Model MCP */
+        	pdfStrGVFile = p.getProperty(prefix+".Fgvs");     /* GV Model STR */
+        	pdfMagGVFile = p.getProperty(prefix+".Fgva");     /* GV Model MAG */
+        } 
+
+    	/* targetfeatures file, for testing */
+    	/* Example context feature file in TARGETFEATURES format */
+    	InputStream featureStream = p.getStream(prefix+".FeaFile");
+    	feaDef = FeatureUtils.readFeatureDefinition(featureStream);
+    	
+        /* trickyPhones file if any*/
+        trickyPhones = new PhoneTranslator(p.getStream(prefix+".trickyPhonesFile"));  /* tricky phones file, if any*/
+
+        /* Configuration for mixed excitation */
+        InputStream mixFiltersStream = p.getStream(prefix+".Fif");      /* Filter coefficients file for mixed excitation*/
+        if (mixFiltersStream != null) {
+        	numFilters = p.getInteger(prefix+".in");       /* Number of filters */
+        	logger.debug("Loading Mixed Excitation Filters File:");
+        	readMixedExcitationFilters(mixFiltersStream);
+        }
+
+       /* Load TreeSet in CARTs. */
+       logger.debug("Loading Tree Set in CARTs:");
+       loadCartTreeSet();
+       
+       /* Load GV ModelSet gv*/
+       logger.debug("Loading GV Model Set:");
+       loadGVModelSet();
+
+       logger.debug("InitHMMData complete");
+    }
+    
+    
+    
+    
+    
+    
+	/**
+	 * Reads from configuration file all the data files in this class this
+	 * method is used when running HTSengine stand alone.
+	 */
+	public void initHMMData(String voice, String marybase, String configFile)
+			throws Exception {
+
+		Properties props = new Properties();
+
+		FileInputStream fis = new FileInputStream(marybase + "conf/" + configFile);
+		props.load(fis);
+		fis.close();
+		Map<String, String> maryBaseReplacer = new HashMap<String, String>();
+		maryBaseReplacer.put("MARY_BASE", marybase);
+		initHMMData(new PropertiesAccessor(props, false, maryBaseReplacer), voice);
 	}
 	
+	public void initHMMData(String voiceName) throws IOException, MaryConfigurationException {
+		initHMMData(MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true), voiceName);
+	}
  
+
     /** Reads from configuration file tree and pdf data for duration and f0 
      * this method is used by HMMModel */
-    public void initHMMData(String configFile, String targetAttributeName) 
-    throws MaryConfigurationException {     
-        
-      Properties props = new Properties();
-      
-      try {
-          FileInputStream fis = new FileInputStream( configFile );
-          props.load( fis );
-          fis.close();
-          
-          String voice = props.getProperty("name");
-          String marybase = MaryProperties.getProperty("mary.base");         
-          
-          if(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0")){                         
-              treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
+    public void initHMMDataForHMMModel(String voiceName) 
+    throws IOException, MaryConfigurationException {     
+        PropertiesAccessor p = MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true);
+        String prefix = "voice." + voiceName;
+        treeDurFile = p.getProperty(prefix + ".Ftd" );
+        pdfDurFile = p.getProperty(prefix + ".Fmd");
               
-              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);              
-          } else {
-              throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
-          }
-          
-          useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
-          if(useGV){
-            if( props.getProperty( "voice." + voice + ".useContextDependentGV" ) != null )
-              useContextDependentGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useContextDependentGV" )).booleanValue();
-                
-            if( props.getProperty( "voice." + voice + ".gvMethod" ) != null ){
-              String sval = props.getProperty( "voice." + voice + ".gvMethod" );
-              setGvMethod(sval);  
-            }
-            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
-                maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
+        treeLf0File = p.getProperty(prefix + ".Ftf" );
+        pdfLf0File = p.getProperty(prefix + ".Fmf" );
+        useGV = p.getBoolean(prefix + ".useGV");
+        if(useGV) {
+        	useContextDependentGV = p.getBoolean(prefix + ".useContextDependentGV", useContextDependentGV);
+        	if(p.getProperty(prefix + ".gvMethod" ) != null ){
+        		String sval = p.getProperty(prefix + ".gvMethod" );
+        		setGvMethod(sval);  
+        	}
+        	maxLf0GvIter = p.getInteger(prefix + ".maxLf0GvIter", maxLf0GvIter);
+        	gvWeightLf0 = p.getDouble(prefix + ".gvWeightLf0", gvWeightLf0);
             
-            if( props.getProperty( "voice." + voice + ".gvWeightLf0" ) != null )
-                gvWeightLf0 = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightLf0" ));
-            
-            pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);                    
-            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
-              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
+            pdfLf0GVFile = p.getProperty(prefix + ".Fgvf" );
+            maxLf0GvIter = p.getInteger(prefix + ".maxLf0GvIter", maxLf0GvIter);
             
             
           }
                       
           /* Example context feature file in MARY format */
-          feaFile = props.getProperty( "voice." + voice + ".FeaFile" ).replace("MARY_BASE", marybase);
+          InputStream feaStream = p.getStream(prefix + ".FeaFile" );
+          feaDef = FeatureUtils.readFeatureDefinition(feaStream);
           
           /* trickyPhones file, if any. If aliases for tricky phones were used during the training of HMMs
            * then these aliases are in this file, if no aliases were used then the string is empty.
            * This file will be used during the loading of HMM trees, so aliases of tricky phone are aplied back. */
-          if( props.getProperty( "voice." + voice + ".trickyPhonesFile" ) != null)
-            trickyPhonesFile = props.getProperty( "voice." + voice + ".trickyPhonesFile" ).replace("MARY_BASE", marybase);
-          else
-            trickyPhonesFile = "";
-                    
-          props.clear();
-      } catch (Exception e) {
-          throw new MaryConfigurationException("Problem with configuration file "+configFile+": missing files or components...", e);
-      }
+          InputStream trickyPhonesStream = p.getStream(prefix + ".trickyPhonesFile");
+          trickyPhones = new PhoneTranslator(trickyPhonesStream);
       
-      try {
-        /* Load TreeSet ts and ModelSet ms for current voice*/
-        logger.info("Loading Tree Set in CARTs:");
-        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */
-  
-        cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
+          /* Load TreeSet ts and ModelSet ms for current voice*/
+          logger.info("Loading Tree Set in CARTs:");
+          cart.loadTreeSet(this, feaDef, trickyPhones); 
         
-        logger.info("Loading GV Model Set:");
-        gv.loadGVModelSet(this, feaDef, trickyPhonesFile);
-        
-      } catch (Exception e) {
-          throw new MaryConfigurationException("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...", e);
-      }
-        
+          logger.info("Loading GV Model Set:");
+          gv.loadGVModelSet(this, feaDef);
+                
     }
 
     
@@ -577,7 +499,7 @@ public class HMMData {
     
     /** Initialisation for mixed excitation : it loads the filter taps, they are read from 
      * MixFilterFile specified in the configuration file. */
-    public void readMixedExcitationFiltersFile() throws Exception {
+    public void readMixedExcitationFilters(InputStream mixFiltersStream) throws IOException {
       String line;
       // first read the taps and then divide the total amount equally among the number of filters
       Vector<Double> taps = new Vector<Double>();
@@ -585,19 +507,16 @@ public class HMMData {
       Scanner s = null;
         int i,j;
         try {
-          s = new Scanner(new BufferedReader(new FileReader(mixFiltersFile)));
+          s = new Scanner(new BufferedReader(new InputStreamReader(mixFiltersStream, "UTF-8")));
           s.useLocale(Locale.US);
           
-          logger.debug("reading mixed excitation filters file: " + mixFiltersFile);
+          logger.debug("reading mixed excitation filters");
           while ( s.hasNext("#") ) {  /* skip comment lines */
             line = s.nextLine(); 
             //System.out.println("comment: " + line ); 
           }
           while (s.hasNextDouble())
             taps.add(s.nextDouble());      
-        } catch (FileNotFoundException e) {
-            logger.debug("initMixedExcitation: " + e.getMessage());
-            throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
         } finally {
             if (s != null) {
                 s.close();
@@ -613,7 +532,7 @@ public class HMMData {
             //System.out.println("h["+i+"]["+j+"]="+h[i][j]);
           }
         }
-        logger.debug("initMixedExcitation: loaded filter taps from file = " + mixFiltersFile);
+        logger.debug("initMixedExcitation: loaded filter taps");
         logger.debug("initMixedExcitation: numFilters = " + numFilters + "  orderFilters = " + orderFilters);
         
     } /* method readMixedExcitationFiltersFile() */

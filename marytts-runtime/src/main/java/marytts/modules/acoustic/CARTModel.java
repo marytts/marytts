@@ -38,10 +38,10 @@ import marytts.unitselection.select.Target;
 public class CARTModel extends Model {
     private DirectedGraph cart;
 
-    public CARTModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+    public CARTModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName,
             String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
             throws MaryConfigurationException {
-        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
 

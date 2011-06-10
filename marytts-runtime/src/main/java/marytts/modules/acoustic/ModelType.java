@@ -22,7 +22,7 @@ package marytts.modules.acoustic;
 
 /**
  * List of known model types as constants; can be extended but needs to mesh with Classes extending {@link Model} and switch statement in
- * {@linkplain marytts.modules.synthesis.Voice#Voice(String[], java.util.Locale, javax.sound.sampled.AudioFormat, marytts.modules.synthesis.WaveformSynthesizer, marytts.modules.synthesis.Voice.Gender)
+ * {@linkplain marytts.modules.synthesis.Voice#Voice(String, java.util.Locale, javax.sound.sampled.AudioFormat, marytts.modules.synthesis.WaveformSynthesizer, marytts.modules.synthesis.Voice.Gender)
  * <code>Voice()</code>}:
  * 
  * @author steiner

@@ -169,44 +169,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                /** When creating a HMMVoice object it should create and initialise a 
                 * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
                 
-                HMMVoice v = new HMMVoice (new String[] { voiceName },
-                    locale, format, this, gender,
-                    MaryProperties.getInteger("voice."+voiceName+".samplingRate"),
-                    MaryProperties.getInteger("voice."+voiceName+".framePeriod"),
-                    MaryProperties.getProperty("voice."+voiceName+".alpha"),
-                    MaryProperties.getProperty("voice."+voiceName+".gamma"),
-                    MaryProperties.getProperty("voice."+voiceName+".logGain"),
-                    MaryProperties.getProperty("voice."+voiceName+".beta"),
-                    MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
-                    MaryProperties.getFilename("voice."+voiceName+".Ftf"),     /* Tree LF0 */
-                    MaryProperties.getFilename("voice."+voiceName+".Ftm"),     /* Tree MCP */
-                    MaryProperties.getFilename("voice."+voiceName+".Fts"),     /* Tree STR */
-                    MaryProperties.getFilename("voice."+voiceName+".Fta"),     /* Tree MAG */
-                    MaryProperties.getFilename("voice."+voiceName+".Fmd"),     /* Model DUR */
-                    MaryProperties.getFilename("voice."+voiceName+".Fmf"),     /* Model LF0 */
-                    MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
-                    MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
-                    MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */        
-                    MaryProperties.getBoolean("voice."+voiceName+".useAcousticModels"), /* use AcousticModeller, so prosody modification is enabled */                    
-                    MaryProperties.getBoolean("voice."+voiceName+".useMixExc"),         /* Use Mixed excitation */
-                    MaryProperties.getBoolean("voice."+voiceName+".useFourierMag"),     /* Use Fourier magnitudes for pulse generation*/
-                    MaryProperties.getBoolean("voice."+voiceName+".useGV"),             /* Use Global Variance in parameter generation */
-                    MaryProperties.getBoolean("voice."+voiceName+".useContextDependentGV"), /* Use context-dependent GV, (gv without sil)*/
-                    MaryProperties.getProperty("voice."+voiceName+".gvMethod"),     /* GV method: gradient or derivative (default gradient)*/ 
-                    MaryProperties.getInteger("voice."+voiceName+".maxMgcGvIter"),  /* Max number of iterations for MGC gv optimisation */
-                    MaryProperties.getInteger("voice."+voiceName+".maxLf0GvIter"),  /* Max number of iterations for LF0 gv optimisation */
-                    MaryProperties.getInteger("voice."+voiceName+".maxStrGvIter"),  /* Max number of iterations for STR gv optimisation */
-                    MaryProperties.getProperty("voice."+voiceName+".gvWeightMgc"),  /* GV weight for mgc between 0.0-2.0 default 1.0*/
-                    MaryProperties.getProperty("voice."+voiceName+".gvWeightLf0"),  /* GV weight for lf0 between 0.0-2.0 default 1.0*/
-                    MaryProperties.getProperty("voice."+voiceName+".gvWeightStr"),  /* GV weight for str between 0.0-2.0 default 1.0*/
-                    MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
-                    MaryProperties.getFilename("voice."+voiceName+".Fgvm"),     /* GV Model MCP */
-                    MaryProperties.getFilename("voice."+voiceName+".Fgvs"),     /* GV Model STR */
-                    MaryProperties.getFilename("voice."+voiceName+".Fgva"),     /* GV Model MAG */
-                    MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
-                    MaryProperties.getFilename("voice."+voiceName+".trickyPhonesFile"),  /* tricky phones file, if any*/
-                    MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
-                    MaryProperties.getInteger("voice."+voiceName+".in"));       /* Number of filters */                    
+                HMMVoice v = new HMMVoice(voiceName, locale, format, this, gender);
                 Voice.registerVoice(v);
                
             }

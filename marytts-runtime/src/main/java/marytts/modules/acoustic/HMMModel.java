@@ -93,10 +93,13 @@ public class HMMModel extends Model {
      * 
      * @throws MaryConfigurationException  if there are missing files or problems loading trees and pdf files.
      */
-    public HMMModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public HMMModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        if(!(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0"))) {                         
+            throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
+        }
         load();
     }
 
@@ -119,8 +122,12 @@ public class HMMModel extends Model {
     protected void loadDataFile() throws IOException, MaryConfigurationException {
         if(htsData==null)
           htsData = new HMMData();
-        // the dataFile is the configuration file of the HMM voice whose hmm models will be used
-        htsData.initHMMData(dataFile, targetAttributeName);
+        // we use the configuration of the HMM voice whose hmm models will be used
+        htsData.initHMMDataForHMMModel(voiceName);
+        // Now we actually loaded too much, which will cause us problems later, so reset it to null:
+        htsData.setPdfMgcFile(null);
+        htsData.setPdfStrFile(null);
+        htsData.setPdfMagFile(null);
         cart = htsData.getCartTreeSet();                       
         fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
         predictionFeatureNames = htsData.getFeatureDefinition().getFeatureNames();

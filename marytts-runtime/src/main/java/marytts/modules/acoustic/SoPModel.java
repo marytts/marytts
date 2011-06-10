@@ -60,10 +60,10 @@ public class SoPModel extends Model {
      * 
      * @throws MaryConfigurationException  if there are missing files.
      */
-    public SoPModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public SoPModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
     
