@@ -117,47 +117,38 @@ public class CartTreeSet {
         /* DUR, LF0 and Mgc are required as minimum for generating voice. 
         * The duration tree has only one state.
         * The size of the vector in duration is the number of states. */
-        if(htsData.getTreeDurFile() != null){
-          durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef, phTranslator);  
-          numStates = htsReader.getVectorSize();
+        if(htsData.getTreeDurStream() != null) {
+        	logger.debug("Loading duration tree...");
+        	durTree = htsReader.load(1, htsData.getTreeDurStream(), htsData.getPdfDurFile(), featureDef, phTranslator);  
+        	numStates = htsReader.getVectorSize();
         }
         
-        if(htsData.getTreeLf0File() != null){
-          lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef, phTranslator);
-          lf0Stream = htsReader.getVectorSize();
+        if(htsData.getTreeLf0Stream() != null){
+        	logger.debug("Loading log F0 tree...");
+        	lf0Tree = htsReader.load(numStates, htsData.getTreeLf0Stream(), htsData.getPdfLf0File(), featureDef, phTranslator);
+        	lf0Stream = htsReader.getVectorSize();
         }
         
-        if( htsData.getTreeMgcFile() != null){
-          mgcTree = htsReader.load(numStates, htsData.getTreeMgcFile(), htsData.getPdfMgcFile(), featureDef, phTranslator);
-          mcepVsize = htsReader.getVectorSize();
+        if( htsData.getTreeMgcStream() != null){
+        	logger.debug("Loading mgc tree...");
+        	mgcTree = htsReader.load(numStates, htsData.getTreeMgcStream(), htsData.getPdfMgcFile(), featureDef, phTranslator);
+        	mcepVsize = htsReader.getVectorSize();
         }
         
         /* STR and MAG are optional for generating mixed excitation */ 
-        if( htsData.getTreeStrFile() != null){
-           strTree = htsReader.load(numStates, htsData.getTreeStrFile(), htsData.getPdfStrFile(), featureDef, phTranslator);
-           strVsize = htsReader.getVectorSize();
+        if( htsData.getTreeStrStream() != null){
+        	logger.debug("Loading str tree...");
+        	strTree = htsReader.load(numStates, htsData.getTreeStrStream(), htsData.getPdfStrFile(), featureDef, phTranslator);
+        	strVsize = htsReader.getVectorSize();
         }
-        if( htsData.getTreeMagFile() != null){
-          magTree = htsReader.load(numStates, htsData.getTreeMagFile(), htsData.getPdfMagFile(), featureDef, phTranslator);
-          magVsize = htsReader.getVectorSize();
+        if( htsData.getTreeMagStream() != null){
+        	logger.debug("Loading mag tree...");
+        	magTree = htsReader.load(numStates, htsData.getTreeMagStream(), htsData.getPdfMagFile(), featureDef, phTranslator);
+        	magVsize = htsReader.getVectorSize();
         }
     }
     
-    /** Loads duration CART 
-     * @throws MaryConfigurationException 
-     * @throws IOException */
-    public void loadDurationTree(String treeDurFile, String pdfDurFile, FeatureDefinition featureDef, PhoneTranslator trickyPhones) throws IOException, MaryConfigurationException  {
-        
-        // Check if there are tricky phones, and create a PhoneTranslator object
-        PhoneTranslator phTranslator = trickyPhones;
-             
-        /* The duration tree has only one state.
-        * The size of the vector in duration is the number of states. */  
-        durTree = htsReader.load(1, treeDurFile, pdfDurFile, featureDef, phTranslator);  
-        numStates = htsReader.getVectorSize();
 
-        
-    }
   
     /***
      * Searches fv in durTree CART[] set of trees, per state, and fill the information in the
