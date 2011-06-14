@@ -459,7 +459,7 @@ public class JoinModeller extends VoiceImportComponent
             int vectorSize = 0;
             
             try {
-                joinTree = htsReader.load(numStates, joinTreeFile, joinPdfFile, def, phTranslator);
+                joinTree = htsReader.load(numStates, new FileInputStream(joinTreeFile), joinPdfFile, def, phTranslator);
                 vectorSize = htsReader.getVectorSize();
                 
             } catch (Exception e) {

@@ -124,10 +124,6 @@ public class HMMModel extends Model {
           htsData = new HMMData();
         // we use the configuration of the HMM voice whose hmm models will be used
         htsData.initHMMDataForHMMModel(voiceName);
-        // Now we actually loaded too much, which will cause us problems later, so reset it to null:
-        htsData.setPdfMgcFile(null);
-        htsData.setPdfStrFile(null);
-        htsData.setPdfMagFile(null);
         cart = htsData.getCartTreeSet();                       
         fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
         predictionFeatureNames = htsData.getFeatureDefinition().getFeatureNames();

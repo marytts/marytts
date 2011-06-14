@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import marytts.cart.CART;
 import marytts.cart.Node;
@@ -75,15 +76,15 @@ public class JoinModelCost implements JoinCostFunction
      */
     public void init(String configPrefix) throws MaryConfigurationException
     {
-        String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
-        String joinPdfFileName = MaryProperties.needFilename(configPrefix + ".joinPdfFile");
-        String joinTreeFileName = MaryProperties.needFilename(configPrefix + ".joinTreeFile");
-        //CHECK not tested the trickyPhonesFile needs to be added into the configuration file
-        String trickyPhonesFileName = MaryProperties.needFilename(configPrefix + ".trickyPhonesFile");
         try {
-            load(joinFileName, joinPdfFileName, joinTreeFileName, trickyPhonesFileName);
+            String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
+            String joinPdfFileName = MaryProperties.needFilename(configPrefix + ".joinPdfFile");
+            InputStream joinTreeStream = MaryProperties.needStream(configPrefix + ".joinTreeFile");
+            //CHECK not tested the trickyPhonesFile needs to be added into the configuration file
+            String trickyPhonesFileName = MaryProperties.needFilename(configPrefix + ".trickyPhonesFile");
+            load(joinFileName, joinPdfFileName, joinTreeStream, trickyPhonesFileName);
         } catch (IOException ioe) {
-            throw new MaryConfigurationException("Problem loading join file "+joinFileName, ioe);
+            throw new MaryConfigurationException("Problem loading join file", ioe);
         }
     }
     
@@ -100,7 +101,7 @@ public class JoinModelCost implements JoinCostFunction
      * @param joinPdfFileName the file from which to read the Gaussian models in the leaves of the tree
      * @param joinTreeFileName the file from which to read the Tree, in HTS format.
      */
-    public void load(String joinFileName, String joinPdfFileName, String joinTreeFileName, String trickyPhonesFile)
+    public void load(String joinFileName, String joinPdfFileName, InputStream joinTreeStream, String trickyPhonesFile)
     throws IOException, MaryConfigurationException
     {
         jcf = new JoinCostFeatures(joinFileName);
@@ -116,10 +117,10 @@ public class JoinModelCost implements JoinCostFunction
         
         try {
             //joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);
-            joinTree = htsReader.load(numStates, joinTreeFileName, joinPdfFileName, featureDef, phTranslator);
+            joinTree = htsReader.load(numStates, joinTreeStream, joinPdfFileName, featureDef, phTranslator);
             
         } catch (Exception e) {
-            IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);
+            IOException ioe = new IOException("Cannot load join model trees");
             ioe.initCause(e);
             throw ioe;
         }

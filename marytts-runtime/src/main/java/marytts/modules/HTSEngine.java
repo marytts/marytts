@@ -528,11 +528,11 @@ public class HTSEngine extends InternalModule
           cart.searchMgcInCartTree(m, fv, feaDef);
 
           /* Find pdf for strengths, this function sets the pdf for each state.  */
-          if(htsData.getTreeStrFile() != null)
+          if(htsData.getTreeStrStream() != null)
             cart.searchStrInCartTree(m, fv, feaDef);
           
           /* Find pdf for Fourier magnitudes, this function sets the pdf for each state.  */
-          if(htsData.getTreeMagFile() != null)
+          if(htsData.getTreeMagStream() != null)
             cart.searchMagInCartTree(m, fv, feaDef);
           
           /* increment number of models in utterance model */

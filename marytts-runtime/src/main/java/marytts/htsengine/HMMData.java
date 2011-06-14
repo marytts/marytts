@@ -158,12 +158,13 @@ public class HMMData {
     private double durationScale = 1.0; /* less than 1.0 is faster and more than 1.0 is slower, min=0.1 max=3.0 */
 	
 	/** Tree files and TreeSet object */
-	private String treeDurFile;         /* durations tree file */
-	private String treeLf0File;         /* lf0 tree file */
-	private String treeMgcFile;         /* Mgc tree file */
-	private String treeStrFile;         /* Strengths tree file */
-	private String treeMagFile;         /* Fourier magnitudes tree file */   
-    private FeatureDefinition feaDef;   /* The feature definition is used for loading the tree using questions in MARY format */
+	private InputStream treeDurStream;         /* durations tree file */
+	private InputStream treeLf0Stream;         /* lf0 tree file */
+	private InputStream treeMgcStream;         /* Mgc tree file */
+	private InputStream treeStrStream;         /* Strengths tree file */
+	private InputStream treeMagStream;         /* Fourier magnitudes tree file */   
+    
+	private FeatureDefinition feaDef;   /* The feature definition is used for loading the tree using questions in MARY format */
     
      /** CartTreeSet contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag 
      * these are all the trees trained for a particular voice. 
@@ -215,11 +216,12 @@ public class HMMData {
     public double getLength() { return length; }
     public double getDurationScale() { return durationScale; }
     
-	public String getTreeDurFile() { return treeDurFile; } 
-	public String getTreeLf0File() { return treeLf0File; } 
-	public String getTreeMgcFile() { return treeMgcFile; }  
-	public String getTreeStrFile() { return treeStrFile; } 
-	public String getTreeMagFile() { return treeMagFile; }  
+	public InputStream getTreeDurStream() { return treeDurStream; } 
+	public InputStream getTreeLf0Stream() { return treeLf0Stream; } 
+	public InputStream getTreeMgcStream() { return treeMgcStream; }  
+	public InputStream getTreeStrStream() { return treeStrStream; } 
+	public InputStream getTreeMagStream() { return treeMagStream; }
+	
     public FeatureDefinition getFeatureDefinition() { return feaDef; }
 	
 	public String getPdfDurFile() { return pdfDurFile; }   
@@ -294,11 +296,6 @@ public class HMMData {
     public CartTreeSet getCartTreeSet() { return cart; }  
     public GVModelSet getGVModelSet() { return gv; }
  
-    public void setTreeDurFile(String str) { treeDurFile = str; } 
-    public void setTreeLf0File(String str) { treeLf0File = str; } 
-    public void setTreeMgcFile(String str) { treeMgcFile = str; }  
-    public void setTreeStrFile(String str) { treeStrFile = str; } 
-    public void setTreeMagFile(String str) { treeMagFile = str; }  
     
     
     public void setPdfDurFile(String str) { pdfDurFile = str; }   
@@ -354,11 +351,11 @@ public class HMMData {
     	useLogGain = p.getBoolean(prefix+".logGain", useLogGain);
     	beta =  p.getDouble(prefix+".beta", beta);
     	
-    	treeDurFile = p.getProperty(prefix+".Ftd");     /* Tree DUR */
-    	treeLf0File = p.getProperty(prefix+".Ftf");     /* Tree LF0 */
-        treeMgcFile = p.getProperty(prefix+".Ftm");     /* Tree MCP */
-    	treeStrFile = p.getProperty(prefix+".Fts");     /* Tree STR */
-    	treeMagFile = p.getProperty(prefix+".Fta");     /* Tree MAG */
+    	treeDurStream = p.getStream(prefix+".Ftd");     /* Tree DUR */
+    	treeLf0Stream = p.getStream(prefix+".Ftf");     /* Tree LF0 */
+        treeMgcStream = p.getStream(prefix+".Ftm");     /* Tree MCP */
+    	treeStrStream = p.getStream(prefix+".Fts");     /* Tree STR */
+    	treeMagStream = p.getStream(prefix+".Fta");     /* Tree MAG */
 
         pdfDurFile = p.getProperty(prefix+".Fmd");     /* Model DUR */
     	pdfLf0File = p.getProperty(prefix+".Fmf");     /* Model LF0 */
@@ -453,10 +450,10 @@ public class HMMData {
     throws IOException, MaryConfigurationException {     
         PropertiesAccessor p = MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true);
         String prefix = "voice." + voiceName;
-        treeDurFile = p.getProperty(prefix + ".Ftd" );
+        treeDurStream = p.getStream(prefix + ".Ftd" );
         pdfDurFile = p.getProperty(prefix + ".Fmd");
               
-        treeLf0File = p.getProperty(prefix + ".Ftf" );
+        treeLf0Stream = p.getStream(prefix + ".Ftf" );
         pdfLf0File = p.getProperty(prefix + ".Fmf" );
         useGV = p.getBoolean(prefix + ".useGV");
         if(useGV) {
