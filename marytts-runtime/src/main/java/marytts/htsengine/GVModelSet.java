@@ -69,6 +69,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
@@ -127,26 +128,26 @@ public class GVModelSet {
     int numMSDFlag, numStream, vectorSize, numDurPdf;
     double gvcov;
     DataInputStream data_in;
-    String gvFile;
+    InputStream gvStream;
         
     /* Here global variance vectors are loaded from corresponding files */
     int m, i,nmix;
     if(htsData.getUseGV()){
         // GV for Mgc             
-        if( (gvFile=htsData.getPdfMgcGVFile()) != null)
-          loadGvFromFile(gvFile, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
+        if( (gvStream=htsData.getPdfMgcGVStream()) != null)
+          loadGvFromFile(gvStream, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
      
         // GV for Lf0
-        if( (gvFile=htsData.getPdfLf0GVFile()) != null)
-          loadGvFromFile(gvFile, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
+        if( (gvStream=htsData.getPdfLf0GVStream()) != null)
+          loadGvFromFile(gvStream, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
 
         // GV for Str   
-        if( (gvFile=htsData.getPdfStrGVFile()) != null)
-          loadGvFromFile(gvFile, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());      
+        if( (gvStream=htsData.getPdfStrGVStream()) != null)
+          loadGvFromFile(gvStream, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());      
      
         // GV for Mag  
-        if( (gvFile=htsData.getPdfMagGVFile()) != null)
-          loadGvFromFile(gvFile, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());  
+        if( (gvStream=htsData.getPdfMagGVStream()) != null)
+          loadGvFromFile(gvStream, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());  
         
         // gv-switch
        // if( (gvFile=htsData.getSwitchGVFile()) != null)
@@ -157,15 +158,14 @@ public class GVModelSet {
   }
   
   
-  private void loadGvFromFile(String gvFile, String par, boolean gradientMethod, double gvWeight) throws IOException {
+  private void loadGvFromFile(InputStream gvStream, String par, boolean gradientMethod, double gvWeight) throws IOException {
           
     int numMSDFlag, numStream, vectorSize, numDurPdf;
     DataInputStream data_in;
     int m, i;
     
-    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
-    logger.info("LoadGVModelSet reading: " + gvFile);
-    logger.info("gvWeight for " + par + " = " + gvWeight);
+    data_in = new DataInputStream (new BufferedInputStream(gvStream));
+    logger.debug("LoadGVModelSet reading model of type '" + par + "' with gvWeight = " + gvWeight);
                        
     numMSDFlag = data_in.readInt();
     numStream = data_in.readInt();  

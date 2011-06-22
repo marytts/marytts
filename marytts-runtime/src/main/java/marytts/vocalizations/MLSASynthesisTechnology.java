@@ -79,7 +79,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
             htsData.setNumFilters(5);
             htsData.setOrderFilters(48);
             htsData.readMixedExcitationFilters(mixedFiltersStream);
-            htsData.setPdfStrFile("");
+            htsData.setPdfStrStream(null);
             //                                                                   [min][max]
             htsData.setF0Std(1.0);  // variable for f0 control, multiply f0      [1.0][0.0--5.0]
             htsData.setF0Mean(0.0); // variable for f0 control, add f0           [0.0][0.0--100.0]

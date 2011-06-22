@@ -52,7 +52,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +69,7 @@ import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
+import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -106,7 +106,7 @@ public class HTSCARTReader
 	 * @throws IOException
 	 *             if a problem occurs while loading
 	 */
-    public CART[] load(int numStates, InputStream treeStream, String pdfFileName, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
+    public CART[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
     throws IOException, MaryConfigurationException {
 
     	featDef = featDefinition;
@@ -140,7 +140,7 @@ public class HTSCARTReader
     	 *                  3: unvoiced weight
     	 * ------------------------------------------------------------------ */
     	double pdf[][][][];
-    	pdf = loadPdfs(numStates, pdfFileName);
+    	pdf = loadPdfs(numStates, pdfStream, fileFormat);
 
     	assert featDefinition != null : "Feature Definition was not set";
 
@@ -357,7 +357,7 @@ private Node findDecisionNode(Node node, int numId){
 *   ...
 *   4 byte float mean, variance, voiced, unvoiced (4 floats): stream 1..S, leaf 1..L, state N   
 */
-private double [][][][] loadPdfs(int numState, String pdfFileName) throws IOException, MaryConfigurationException {
+private double [][][][] loadPdfs(int numState, InputStream pdfStream, PdfFileFormat fileFormat) throws IOException, MaryConfigurationException {
     
     DataInputStream data_in;
     int i, j, k, l, numDurPdf, lf0Stream;
@@ -371,11 +371,12 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws IOExce
  
     // TODO: how to make this loading more general, different files have different formats. Right now the way
     //       of loading depends on the name of the file, I need to change that!
-    if(pdfFileName.contains("dur.pdf") || pdfFileName.contains("joinModeller.pdf")) {    
+    //  pdfFileName.contains("dur.pdf") || pdfFileName.contains("joinModeller.pdf")
+    if(fileFormat == PdfFileFormat.dur || fileFormat == PdfFileFormat.join) {    
       /*________________________________________________________________*/
       /*-------------------- load pdfs for duration --------------------*/ 
-        data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(pdfFileName)));
-        logger.debug("loadPdfs reading: " + pdfFileName);
+        data_in = new DataInputStream (new BufferedInputStream(pdfStream));
+        logger.debug("loadPdfs reading model of type " + fileFormat);
         
       /* read the number of states & the number of pdfs (leaf nodes) */
       /* read the number of HMM states, this number is the same for all pdf's. */  
@@ -417,11 +418,11 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws IOExce
         data_in.close (); 
         data_in=null;
         
-    } else if(pdfFileName.contains("lf0.pdf")) {    
+    } else if(fileFormat == PdfFileFormat.lf0) { // pdfFileName.contains("lf0.pdf")    
         /*____________________________________________________________________*/
         /*-------------------- load pdfs for Log F0 --------------*/
-        data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
-      logger.debug("loadPdfs reading: " + pdfFileName);
+        data_in = new DataInputStream (new BufferedInputStream(pdfStream));
+        logger.debug("loadPdfs reading model of type " + fileFormat);
         /* read the number of streams for f0 modeling */
       //lf0Stream  = data_in.readInt();
       //vectorSize = lf0Stream;
@@ -473,13 +474,14 @@ private double [][][][] loadPdfs(int numState, String pdfFileName) throws IOExce
         data_in.close (); 
         data_in=null;
         
-    } else if(pdfFileName.contains("mgc.pdf") || 
-              pdfFileName.contains("str.pdf") ||
-              pdfFileName.contains("mag.pdf") ) {       
+    } else if(fileFormat == PdfFileFormat.mgc || fileFormat == PdfFileFormat.str || fileFormat == PdfFileFormat.mag) {
+//    	pdfFileName.contains("mgc.pdf") || 
+//        pdfFileName.contains("str.pdf") ||
+//        pdfFileName.contains("mag.pdf") 
       /*___________________________________________________________________________*/
       /*-------------------- load pdfs for mgc, str or mag ------------------------*/
-      data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
-      logger.debug("loadPdfs reading: " + pdfFileName);
+      data_in = new DataInputStream (new BufferedInputStream(pdfStream));
+      logger.debug("loadPdfs reading model of type " + fileFormat);
       /* read vector size for spectrum */
     
       //numStream = 1;   // just one stream for mgc, str, mag. This is just to have only one 
@@ -566,7 +568,7 @@ public static void main(String[] args) throws IOException, InterruptedException{
     
     HTSCARTReader htsReader = new HTSCARTReader(); 
     try {
-      mgcTree = htsReader.load(numStates, new FileInputStream(treefile), pdffile, feaDef, phTranslator);
+      mgcTree = htsReader.load(numStates, new FileInputStream(treefile), new FileInputStream(pdffile), PdfFileFormat.dur, feaDef, phTranslator);
       vSize = htsReader.getVectorSize();
       System.out.println("loaded " + pdffile + "  vector size=" + vSize);
     } catch (Exception e) {

@@ -364,7 +364,7 @@ public class HTSVocoder {
       mixedExcitation = htsData.getUseMixExc();
       fourierMagnitudes = htsData.getUseFourierMag();
          
-      if( mixedExcitation && htsData.getPdfStrFile() != null ) {  
+      if( mixedExcitation && htsData.getPdfStrStream() != null ) {  
         numM = htsData.getNumFilters();
         orderM = htsData.getOrderFilters();
         
@@ -388,7 +388,7 @@ public class HTSVocoder {
       } else
         logger.info("HMM speech generation without mixed-excitation.");  
       
-      if( fourierMagnitudes && htsData.getPdfMagFile() != null)
+      if( fourierMagnitudes && htsData.getPdfMagStream() != null)
         logger.info("Pulse generated with Fourier Magnitudes.");
       //else
       //  logger.info("Pulse generated as a unit pulse.");
@@ -1790,7 +1790,7 @@ public class HTSVocoder {
            FileInputStream mixedFiltersStream = new FileInputStream(args[ind++]);
            htsData.setNumFilters(Integer.parseInt(args[ind++]));           
            htsData.readMixedExcitationFilters(mixedFiltersStream);
-           htsData.setPdfStrFile("");
+           htsData.setPdfStrStream(null);
        } else {
            htsData.setUseMixExc(false);
        }
@@ -1801,7 +1801,7 @@ public class HTSVocoder {
            htsData.setUseFourierMag(true);
            magFile  = args[ind++];
            magVsize  = Integer.parseInt(args[ind++]);
-           htsData.setPdfMagFile("");
+           htsData.setPdfMagStream(null);
        } else {
            htsData.setUseFourierMag(false);
        }

@@ -179,16 +179,16 @@ public class HTSParameterGeneration {
   	/* mceppst, strpst, magpst, lf0pst */
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
-    if( htsData.getPdfMgcFile() != null)
+    if( htsData.getPdfMgcStream() != null)
 	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MGC, htsData.getMaxMgcGvIter());
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
-    if( htsData.getPdfLf0File() != null)
+    if( htsData.getPdfLf0Stream() != null)
       lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxLf0GvIter());
 
     /* The following are optional in case of generating mixed excitation */
-    if( htsData.getPdfStrFile() != null)
+    if( htsData.getPdfStrStream() != null)
 	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxStrGvIter());
-    if (htsData.getPdfMagFile() != null )
+    if (htsData.getPdfMagStream() != null )
 	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxMagGvIter());
 	   
     
@@ -327,8 +327,8 @@ public class HTSParameterGeneration {
 	/* parameter generation for str */
     boolean useGV=false;
     if( strPst != null ) {
-      logger.info("Parameter generation for STR ");
-      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) ){
+      logger.debug("Parameter generation for STR ");
+      if(htsData.getUseGV() && (htsData.getPdfStrGVStream() != null) ){
         useGV = true;
         strPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());
       }
@@ -339,7 +339,7 @@ public class HTSParameterGeneration {
     useGV = false;
     if( magPst != null ) {
       logger.info("Parameter generation for MAG ");
-      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) ){
+      if(htsData.getUseGV() && (htsData.getPdfMagGVStream() != null) ){
         useGV = true;
         magPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());
       }
