@@ -57,6 +57,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.PhoneTranslator;
+import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
@@ -459,7 +460,7 @@ public class JoinModeller extends VoiceImportComponent
             int vectorSize = 0;
             
             try {
-                joinTree = htsReader.load(numStates, new FileInputStream(joinTreeFile), joinPdfFile, def, phTranslator);
+                joinTree = htsReader.load(numStates, new FileInputStream(joinTreeFile), new FileInputStream(joinPdfFile), PdfFileFormat.join, def, phTranslator);
                 vectorSize = htsReader.getVectorSize();
                 
             } catch (Exception e) {

@@ -104,6 +104,8 @@ public class HMMData {
 	public static final int MGC = 2;
 	public static final int STR = 3;
 	public static final int MAG = 4;
+	
+	public enum PdfFileFormat { dur, lf0, mgc, str, mag, join };
 
     private Logger logger = MaryUtils.getLogger("HMMData");
     
@@ -172,19 +174,19 @@ public class HMMData {
     private CartTreeSet cart = new CartTreeSet();
 	
     /** HMM pdf model files and ModelSet object */
-	private String pdfDurFile;  /* durations Pdf file */
-	private String pdfLf0File;  /* lf0 Pdf file */
-	private String pdfMgcFile;  /* Mgc Pdf file */
-	private String pdfStrFile;  /* Strengths Pdf file */
-	private String pdfMagFile;  /* Fourier magnitudes Pdf file */
+	private InputStream pdfDurStream;  /* durations Pdf file */
+	private InputStream pdfLf0Stream;  /* lf0 Pdf file */
+	private InputStream pdfMgcStream;  /* Mgc Pdf file */
+	private InputStream pdfStrStream;  /* Strengths Pdf file */
+	private InputStream pdfMagStream;  /* Fourier magnitudes Pdf file */
     
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
-    private String pdfLf0GVFile; /* lf0 GV pdf file */  
-    private String pdfMgcGVFile; /* Mgc GV pdf file */ 
-    private String pdfStrGVFile; /* Str GV pdf file */ 
-    private String pdfMagGVFile; /* Mag GV pdf file */ 
-    private String switchGVFile; /* File for allowing context dependent GV.  */ 
+    private InputStream pdfLf0GVStream; /* lf0 GV pdf file */  
+    private InputStream pdfMgcGVStream; /* Mgc GV pdf file */ 
+    private InputStream pdfStrGVStream; /* Str GV pdf file */ 
+    private InputStream pdfMagGVStream; /* Mag GV pdf file */ 
+    private InputStream switchGVStream; /* File for allowing context dependent GV.  */ 
                                  /* This file contains the phones, sil or pause, for which GV is not calculated (not used yet)*/
                                  /* this tree does not have a corresponding pdf file, because it just indicate which labels in context to avoid for GV. */
                                        
@@ -224,11 +226,11 @@ public class HMMData {
 	
     public FeatureDefinition getFeatureDefinition() { return feaDef; }
 	
-	public String getPdfDurFile() { return pdfDurFile; }   
-	public String getPdfLf0File() { return pdfLf0File; }   
-	public String getPdfMgcFile() { return pdfMgcFile; } 
-	public String getPdfStrFile() { return pdfStrFile; } 
-	public String getPdfMagFile() { return pdfMagFile; } 
+	public InputStream getPdfDurStream() { return pdfDurStream; }   
+	public InputStream getPdfLf0Stream() { return pdfLf0Stream; }   
+	public InputStream getPdfMgcStream() { return pdfMgcStream; } 
+	public InputStream getPdfStrStream() { return pdfStrStream; } 
+	public InputStream getPdfMagStream() { return pdfMagStream; } 
     
     public boolean getUseAcousticModels(){ return useAcousticModels; }
     public void setUseAcousticModels(boolean bval){ useAcousticModels = bval; }
@@ -249,11 +251,11 @@ public class HMMData {
     public double getGvWeightStr(){ return gvWeightStr; }
     public double getGvWeightMag(){ return gvWeightMag; }
     
-    public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
-    public String getPdfMgcGVFile() { return pdfMgcGVFile; } 
-    public String getPdfStrGVFile() { return pdfStrGVFile; } 
-    public String getPdfMagGVFile() { return pdfMagGVFile; }
-    public String getSwitchGVFile() { return switchGVFile; }
+    public InputStream getPdfLf0GVStream() { return pdfLf0GVStream; }   
+    public InputStream getPdfMgcGVStream() { return pdfMgcGVStream; } 
+    public InputStream getPdfStrGVStream() { return pdfStrGVStream; } 
+    public InputStream getPdfMagGVStream() { return pdfMagGVStream; }
+    public InputStream getSwitchGVStream() { return switchGVStream; }
 	
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
@@ -298,11 +300,8 @@ public class HMMData {
  
     
     
-    public void setPdfDurFile(String str) { pdfDurFile = str; }   
-    public void setPdfLf0File(String str) { pdfLf0File = str; }   
-    public void setPdfMgcFile(String str) { pdfMgcFile = str; } 
-    public void setPdfStrFile(String str) { pdfStrFile = str; } 
-    public void setPdfMagFile(String str) { pdfMagFile = str; } 
+    public void setPdfStrStream(InputStream str) { pdfStrStream = str; } 
+    public void setPdfMagStream(InputStream mag) { pdfMagStream = mag; } 
     
     public void setUseMixExc(boolean bval){ useMixExc = bval; }
     public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
@@ -320,11 +319,6 @@ public class HMMData {
     public void setGvWeightMgc(double dval){ gvWeightMgc = dval; }
     public void setGvWeightLf0(double dval){ gvWeightLf0 = dval; }
     public void setGvWeightStr(double dval){ gvWeightStr = dval; }
-    public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
-    public void setPdfMgcGVFile(String str) { pdfMgcGVFile = str; } 
-    public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
-    public void setPdfMagGVFile(String str) { pdfMagGVFile = str; }
-    public void setSwitchGVFile(String str) { switchGVFile = str; }
     
     
     public void setNumFilters(int val){ numFilters = val; }
@@ -357,11 +351,11 @@ public class HMMData {
     	treeStrStream = p.getStream(prefix+".Fts");     /* Tree STR */
     	treeMagStream = p.getStream(prefix+".Fta");     /* Tree MAG */
 
-        pdfDurFile = p.getProperty(prefix+".Fmd");     /* Model DUR */
-    	pdfLf0File = p.getProperty(prefix+".Fmf");     /* Model LF0 */
-    	pdfMgcFile = p.getProperty(prefix+".Fmm");     /* Model MCP */
-    	pdfStrFile = p.getProperty(prefix+".Fms");     /* Model STR */
-    	pdfMagFile = p.getProperty(prefix+".Fma");     /* Model MAG */        
+        pdfDurStream = p.getStream(prefix+".Fmd");     /* Model DUR */
+    	pdfLf0Stream = p.getStream(prefix+".Fmf");     /* Model LF0 */
+    	pdfMgcStream = p.getStream(prefix+".Fmm");     /* Model MCP */
+    	pdfStrStream = p.getStream(prefix+".Fms");     /* Model STR */
+    	pdfMagStream = p.getStream(prefix+".Fma");     /* Model MAG */        
 
         useAcousticModels = p.getBoolean(prefix+".useAcousticModels"); /* use AcousticModeller, so prosody modification is enabled */
         useMixExc = p.getBoolean(prefix+".useMixExc");         /* Use Mixed excitation */
@@ -384,10 +378,10 @@ public class HMMData {
         	gvWeightStr = p.getDouble(prefix+".gvWeightStr", gvWeightStr);  /* GV weight for str between 0.0-2.0 default 1.0*/
 
         	// GV pdf files: mean and variance (diagonal covariance)
-        	pdfLf0GVFile = p.getProperty(prefix+".Fgvf");     /* GV Model LF0 */
-        	pdfMgcGVFile = p.getProperty(prefix+".Fgvm");     /* GV Model MCP */
-        	pdfStrGVFile = p.getProperty(prefix+".Fgvs");     /* GV Model STR */
-        	pdfMagGVFile = p.getProperty(prefix+".Fgva");     /* GV Model MAG */
+        	pdfLf0GVStream = p.getStream(prefix+".Fgvf");     /* GV Model LF0 */
+        	pdfMgcGVStream = p.getStream(prefix+".Fgvm");     /* GV Model MCP */
+        	pdfStrGVStream = p.getStream(prefix+".Fgvs");     /* GV Model STR */
+        	pdfMagGVStream = p.getStream(prefix+".Fgva");     /* GV Model MAG */
         } 
 
     	/* targetfeatures file, for testing */
@@ -451,10 +445,10 @@ public class HMMData {
         PropertiesAccessor p = MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true);
         String prefix = "voice." + voiceName;
         treeDurStream = p.getStream(prefix + ".Ftd" );
-        pdfDurFile = p.getProperty(prefix + ".Fmd");
+        pdfDurStream = p.getStream(prefix + ".Fmd");
               
         treeLf0Stream = p.getStream(prefix + ".Ftf" );
-        pdfLf0File = p.getProperty(prefix + ".Fmf" );
+        pdfLf0Stream = p.getStream(prefix + ".Fmf" );
         useGV = p.getBoolean(prefix + ".useGV");
         if(useGV) {
         	useContextDependentGV = p.getBoolean(prefix + ".useContextDependentGV", useContextDependentGV);
@@ -465,7 +459,7 @@ public class HMMData {
         	maxLf0GvIter = p.getInteger(prefix + ".maxLf0GvIter", maxLf0GvIter);
         	gvWeightLf0 = p.getDouble(prefix + ".gvWeightLf0", gvWeightLf0);
             
-            pdfLf0GVFile = p.getProperty(prefix + ".Fgvf" );
+            pdfLf0GVStream = p.getStream(prefix + ".Fgvf" );
             maxLf0GvIter = p.getInteger(prefix + ".maxLf0GvIter", maxLf0GvIter);
             
             

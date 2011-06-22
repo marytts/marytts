@@ -73,6 +73,7 @@ import marytts.cart.io.HTSCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -119,31 +120,31 @@ public class CartTreeSet {
         * The size of the vector in duration is the number of states. */
         if(htsData.getTreeDurStream() != null) {
         	logger.debug("Loading duration tree...");
-        	durTree = htsReader.load(1, htsData.getTreeDurStream(), htsData.getPdfDurFile(), featureDef, phTranslator);  
+        	durTree = htsReader.load(1, htsData.getTreeDurStream(), htsData.getPdfDurStream(), PdfFileFormat.dur, featureDef, phTranslator);  
         	numStates = htsReader.getVectorSize();
         }
         
         if(htsData.getTreeLf0Stream() != null){
         	logger.debug("Loading log F0 tree...");
-        	lf0Tree = htsReader.load(numStates, htsData.getTreeLf0Stream(), htsData.getPdfLf0File(), featureDef, phTranslator);
+        	lf0Tree = htsReader.load(numStates, htsData.getTreeLf0Stream(), htsData.getPdfLf0Stream(), PdfFileFormat.lf0, featureDef, phTranslator);
         	lf0Stream = htsReader.getVectorSize();
         }
         
         if( htsData.getTreeMgcStream() != null){
         	logger.debug("Loading mgc tree...");
-        	mgcTree = htsReader.load(numStates, htsData.getTreeMgcStream(), htsData.getPdfMgcFile(), featureDef, phTranslator);
+        	mgcTree = htsReader.load(numStates, htsData.getTreeMgcStream(), htsData.getPdfMgcStream(), PdfFileFormat.mgc, featureDef, phTranslator);
         	mcepVsize = htsReader.getVectorSize();
         }
         
         /* STR and MAG are optional for generating mixed excitation */ 
         if( htsData.getTreeStrStream() != null){
         	logger.debug("Loading str tree...");
-        	strTree = htsReader.load(numStates, htsData.getTreeStrStream(), htsData.getPdfStrFile(), featureDef, phTranslator);
+        	strTree = htsReader.load(numStates, htsData.getTreeStrStream(), htsData.getPdfStrStream(), PdfFileFormat.str, featureDef, phTranslator);
         	strVsize = htsReader.getVectorSize();
         }
         if( htsData.getTreeMagStream() != null){
         	logger.debug("Loading mag tree...");
-        	magTree = htsReader.load(numStates, htsData.getTreeMagStream(), htsData.getPdfMagFile(), featureDef, phTranslator);
+        	magTree = htsReader.load(numStates, htsData.getTreeMagStream(), htsData.getPdfMagStream(), PdfFileFormat.mag, featureDef, phTranslator);
         	magVsize = htsReader.getVectorSize();
         }
     }
