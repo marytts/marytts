@@ -11,6 +11,7 @@
   <url>http://mary.dfki.de</url>
 
   <modules>
+    <module>marytts-dependencies</module>
     <module>marytts-common</module>
     <module>marytts-signalproc</module>
     <module>marytts-runtime</module>

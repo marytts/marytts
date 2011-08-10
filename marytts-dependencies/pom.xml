@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>marytts</artifactId>
+		<groupId>marytts</groupId>
+		<version>5.0-SNAPSHOT</version>
+	</parent>
+	<groupId>marytts</groupId>
+	<artifactId>marytts-dependencies</artifactId>
+	<name>marytts-dependencies</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.dependencyDirectory>${basedir}/dependencies</project.dependencyDirectory>
+	</properties>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.savage7.maven.plugins</groupId>
+				<artifactId>maven-external-dependency-plugin</artifactId>
+				<version>0.4</version>
+				<configuration>
+					<stagingDirectory>
+						${project.dependencyDirectory}
+					</stagingDirectory>
+					<artifactItems>
+
+						<artifactItem>
+							<groupId>com.sun.speech.freetts</groupId>
+							<artifactId>freetts</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/freetts.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>com.sun.speech.freetts</groupId>
+							<artifactId>freetts-de</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/freetts-de.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>com.sun.speech.freetts</groupId>
+							<artifactId>freetts-en_US</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/freetts-en_us.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<!-- TODO: consider http://www.epic.noaa.gov/java/sgt/#rel30 -->
+							<groupId>gov.noaa.pmel.sgt</groupId>
+							<artifactId>sgt</artifactId>
+							<version>3.0</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/sgt_v30.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<!-- TODO: consider http://sourceforge.net/projects/weka/files/weka-3-7/3.7.3/weka-3-7-3.zip/download -->
+							<groupId>nz.ac.waikato.cs.ml</groupId>
+							<artifactId>weka</artifactId>
+							<version>3.7.3</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/weka-3.7.3.jar
+							</downloadUrl>
+						</artifactItem>
+
+					</artifactItems>
+				</configuration>
+				<executions>
+					<execution>
+						<id>clean-external-dependencies</id>
+						<phase>clean</phase>
+						<goals>
+							<!-- mvn com.savage7.maven.plugins:maven-external-dependency-plugin:clean-external -->
+							<goal>clean-external</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>resolve-install-external-dependencies</id>
+						<phase>process-resources</phase>
+						<goals>
+							<!-- mvn com.savage7.maven.plugins:maven-external-dependency-plugin:resolve-external -->
+							<goal>resolve-external</goal>
+							<!-- mvn com.savage7.maven.plugins:maven-external-dependency-plugin:install-external -->
+							<goal>install-external</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>deploy-external-dependencies</id>
+						<phase>deploy</phase>
+						<goals>
+							<!-- mvn com.savage7.maven.plugins:maven-external-dependency-plugin:deploy-external -->
+							<goal>deploy-external</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
