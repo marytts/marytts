@@ -2,7 +2,7 @@
 
 
 
-all="opennlp jtok freetts sgt weka mwdumper"
+all="jtok mwdumper"
 
 ############## individual installer functions #############
 function announceAndHandleError {
@@ -10,17 +10,6 @@ function announceAndHandleError {
   echo "Installing $module files..."
   trap 'echo "installation of $module failed" 1>&2 ; exit 1' ERR
 }
-
-
-function installFreetts {
-  announceAndHandleError "freetts"
-  cd "$MARYBASE"
-  mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts.jar
-  mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts-de -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts-de.jar
-  mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts-en_us -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts-en_us.jar
-
-}
-
 
 
 function installJtok {
@@ -31,21 +20,6 @@ function installJtok {
   mvn install
 }
 
-
-
-function installSgt {
-  announceAndHandleError "sgt"
-  cd "$MARYBASE"
-  mvn install:install-file -DgroupId=gov.noaa.pmel.sgt -DartifactId=sgt -Dversion=3.0 -Dpackaging=jar -Dfile=dependencies/sgt_v30.jar -Dsources=dependencies/sgt_src_v30.jar
-}
-
-
-
-function installWeka {
-  announceAndHandleError "weka"
-  cd "$MARYBASE"
-  mvn install:install-file -DgroupId=nz.ac.waikato.cs.ml -DartifactId=weka -Dversion=3.7.3 -Dpackaging=jar -Dfile=dependencies/weka-3.7.3.jar -Dsources=dependencies/weka-3.7.3-src.jar
-}
 
 
 function installMwdumper {
@@ -75,10 +49,7 @@ echo "Will try to install the following dependencies: $deps"
 
 for dep in $deps ; do
   case "$dep" in 
-    freetts) installFreetts ;;
     jtok) installJtok ;;
-    sgt) installSgt ;;
-    weka) installWeka ;;
     mwdumper) installMwdumper ;;
     *) echo "Ignoring unknown module '$dep'" ;;
   esac 
