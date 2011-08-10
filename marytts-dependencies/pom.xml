@@ -14,7 +14,7 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.dependencyDirectory>${basedir}/dependencies</project.dependencyDirectory>
+		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>
 
 
@@ -26,7 +26,7 @@
 				<version>0.4</version>
 				<configuration>
 					<stagingDirectory>
-						${project.dependencyDirectory}
+						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
 
