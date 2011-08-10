@@ -52,7 +52,7 @@
 
 						<artifactItem>
 							<groupId>com.sun.speech.freetts</groupId>
-							<artifactId>freetts-en_US</artifactId>
+							<artifactId>freetts-en_us</artifactId>
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
