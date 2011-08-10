@@ -17,7 +17,7 @@ function installJtok {
   cd "$MARYBASE/tmp"
   svn checkout https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9.1 jtok
   cd jtok
-  mvn install
+  mvn source:jar javadoc:jar install
 }
 
 
@@ -27,7 +27,7 @@ function installMwdumper {
   cd "$MARYBASE/tmp"
   svn checkout -r 87118 http://svn.wikimedia.org/svnroot/mediawiki/trunk/mwdumper
   cd mwdumper
-  mvn install
+  mvn source:jar javadoc:jar install
 }
 
 
