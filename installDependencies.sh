@@ -11,15 +11,6 @@ function announceAndHandleError {
   trap 'echo "installation of $module failed" 1>&2 ; exit 1' ERR
 }
 
-function installOpennlp {
-  announceAndHandleError "opennlp"
-  cd "$MARYBASE/tmp"
-  svn checkout https://svn.apache.org/repos/asf/incubator/opennlp/tags/opennlp-1.5.1-incubating-rc7 opennlp
-  cd opennlp/opennlp
-  mvn install -Dmaven.test.skip=true
-}
-
-
 
 function installFreetts {
   announceAndHandleError "freetts"
@@ -84,7 +75,6 @@ echo "Will try to install the following dependencies: $deps"
 
 for dep in $deps ; do
   case "$dep" in 
-    opennlp) installOpennlp ;;
     freetts) installFreetts ;;
     jtok) installJtok ;;
     sgt) installSgt ;;
