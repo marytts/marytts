@@ -17,8 +17,8 @@ public class PraatPitchTierTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		Reader pitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001.PitchTier"), "UTF-8");
-		pt = new PraatPitchTier(pitchTierFile);
+		Reader shortPitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001_short.PitchTier"), "UTF-8");
+		pt = new PraatPitchTier(shortPitchTierFile);
 	}
 	
 	@Test
