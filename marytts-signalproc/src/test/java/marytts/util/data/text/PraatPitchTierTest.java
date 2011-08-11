@@ -14,21 +14,32 @@ import static org.junit.Assert.*;
 public class PraatPitchTierTest {
 
 	private PraatPitchTier pt;
+	private PraatPitchTier spt;
 	
 	@Before
 	public void setUp() throws Exception {
+		Reader pitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001.PitchTier"), "UTF-8");
 		Reader shortPitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001_short.PitchTier"), "UTF-8");
-		pt = new PraatPitchTier(shortPitchTierFile);
+		pt = new PraatPitchTier(pitchTierFile);
+		spt = new PraatPitchTier(shortPitchTierFile);
 	}
 	
 	@Test
 	public void canReadPitchFile() throws Exception {
+		// default format
 		assertNotNull(pt);
 		assertEquals(0, pt.getXmin(), 1.e-7);
 		assertEquals(2.52, pt.getXmax(), 1.e-7);
 		assertEquals(109, pt.getNumTargets());
 		assertEquals(pt.getNumTargets(), pt.getPitchTargets().length);
 		assertNotNull(pt.getPitchTargets()[0]);
+		// short format
+		assertNotNull(spt);
+		assertEquals(0, spt.getXmin(), 1.e-7);
+		assertEquals(2.52, spt.getXmax(), 1.e-7);
+		assertEquals(109, spt.getNumTargets());
+		assertEquals(spt.getNumTargets(), spt.getPitchTargets().length);
+		assertNotNull(spt.getPitchTargets()[0]);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -45,18 +56,30 @@ public class PraatPitchTierTest {
 
 	@Test
 	public void canWritePitchFile() throws Exception {
+		// default format
 		StringWriter sw = new StringWriter();
 		pt.writeTo(sw);
 		String newFile = sw.toString();
 		PraatPitchTier newPT = new PraatPitchTier(new StringReader(newFile));
 		assertEquals(pt.getPitchTargets().length, newPT.getPitchTargets().length);
+		// short format
+		sw = new StringWriter();
+		spt.writeTo(sw);
+		newFile = sw.toString();
+		newPT = new PraatPitchTier(new StringReader(newFile));
+		assertEquals(spt.getPitchTargets().length, newPT.getPitchTargets().length);
 	}
 	
 	@Test
 	public void canExportFrames() {
+		// default format
 		double step = 0.01;
 		double[] frames = pt.toFrames(step);
 		assertEquals((int) ((pt.getXmax()-pt.getXmin())/step+1), frames.length);
+		// short format
+		step = 0.01;
+		frames = spt.toFrames(step);
+		assertEquals((int) ((spt.getXmax()-spt.getXmin())/step+1), frames.length);
 	}
 	
 	
@@ -84,6 +107,7 @@ public class PraatPitchTierTest {
 	@Test
 	public void canImportFrames() {
 		double step = 0.01;
+		// default format
 		double[] frames = pt.toFrames(step);
 		PraatPitchTier newPT = new PraatPitchTier(pt.getXmin(), frames, step);
 		assertEquals(pt.getXmin(), newPT.getXmin(), 1.e-7);
@@ -91,6 +115,19 @@ public class PraatPitchTierTest {
 		assertEquals(newPT.getNumTargets(), newPT.getPitchTargets().length);
 		assertNotNull(newPT.getPitchTargets()[0]);
 		assertTrue(MathUtils.sumSquaredError(pt.toFrames(step), newPT.toFrames(step)) < 1.e-30);
+		// short format
+		frames = spt.toFrames(step);
+		newPT = new PraatPitchTier(spt.getXmin(), frames, step);
+		assertEquals(spt.getXmin(), newPT.getXmin(), 1.e-7);
+		assertEquals(spt.getXmax(), newPT.getXmax(), step); // xmax will be less precisely equal
+		assertEquals(newPT.getNumTargets(), newPT.getPitchTargets().length);
+		assertNotNull(newPT.getPitchTargets()[0]);
+		assertTrue(MathUtils.sumSquaredError(spt.toFrames(step), newPT.toFrames(step)) < 1.e-30);
+	}
+
+	@Test
+	public void canParseBothTextFormats() {
+		assertEquals(pt, spt);
 	}
 	
 }
