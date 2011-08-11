@@ -1880,6 +1880,7 @@ public class MathUtils {
     /**
      * Build the sum of the squared difference of all elements 
      * with the same index numbers in the arrays.
+     * Any NaN values in either a or b are ignored in computing the error.
      * @param a
      * @param b
      * @return
@@ -1892,7 +1893,9 @@ public class MathUtils {
         double sum = 0;
         for (int i=0; i<a.length; i++) {
             double delta = a[i] - b[i];
-            sum += delta*delta;
+            if (!Double.isNaN(delta)) {
+            	sum += delta*delta;
+            }
         }
         return sum;
     }
