@@ -97,6 +97,7 @@ public class BasicProsodyModifierParams implements Serializable
     //Estimate time and duration scaling factors from source and target labels and pitch contours
     //This version assumes identical source and target labels
     public BasicProsodyModifierParams(String sourcePtcFile, String sourceLabelFile, String targetPtcFile, String targetLabelFile, boolean isPitchScale, boolean isTimeScale)
+    throws IOException
     {
         PitchReaderWriter f0Src = new PitchReaderWriter(sourcePtcFile);
         Labels labSrc = new Labels(sourceLabelFile);

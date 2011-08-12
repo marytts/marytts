@@ -142,6 +142,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
 
     //For parallel training, sourceItems and targetItems should have at least map.length elements (ensured if this function is called through train)
     public WeightedCodebookFeatureCollection collectFeatures(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         WeightedCodebookFeatureCollection fcol = new WeightedCodebookFeatureCollection(wcParams, map.length);
         int i;

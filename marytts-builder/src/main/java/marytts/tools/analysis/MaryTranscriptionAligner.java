@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.InvalidDataException;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 
@@ -25,6 +26,8 @@ import org.w3c.dom.traversal.TreeWalker;
  */
 public class MaryTranscriptionAligner extends TranscriptionAligner {
 
+	private boolean insertDummyDurations = false;
+	
 	public MaryTranscriptionAligner() {
 		super(null);
 	}
@@ -38,11 +41,11 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * @param allophoneSet
-	 * @param entrySeparator
+	 * @param insertDummyDurations if true, in any inserted items, a duration of 1 millisecond will be set.
 	 */
-	public MaryTranscriptionAligner(AllophoneSet allophoneSet,
-			String entrySeparator) {
-		super(allophoneSet, entrySeparator);
+	public MaryTranscriptionAligner(AllophoneSet allophoneSet, boolean insertDummyDurations) {
+		super(allophoneSet);
+		this.insertDummyDurations = insertDummyDurations;
 	}
 
 	/**
@@ -55,41 +58,44 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	 * @param allophones the MARYXML document, in ALLOPHONES format
 	 * @param labels the sequence of label symbols to use, separated by the
 	 * entry separator as provided by getEntrySeparator().
-	 * @throws Exception if a manual label is encountered that is not in the AllophoneSet
+	 * @throws InvalidDataException if a manual label is encountered that is not in the AllophoneSet
 	 */
 	public void alignXmlTranscriptions(Document allophones, String labels)
-			throws Exception {
-			    // get all t and boundary elements
-			    NodeIterator tokenIt = MaryDomUtils.createNodeIterator(allophones, MaryXML.TOKEN, MaryXML.BOUNDARY);
-			    List<Element> tokens = new ArrayList<Element>();
-			    Element e;
-			    while ((e = (Element) tokenIt.nextNode()) != null) {
-			        tokens.add(e);
-			    }
-			    
-			    String orig = this.collectTranscription(allophones);
-			    
-			    System.out.println("Orig   : "+orig);
-			    System.out.println("Correct: "+labels);
-			    
-			    
-			    // now we align the transcriptions and split it at the delimiters
-			    String al = this.distanceAlign(orig.trim(),labels.trim()) + " ";
-			
-			    System.out.println("Alignments: "+al);
-			    String[] alignments = al.split("#");
-			    
-			    // change the transcription in xml according to the aligned one
-			    this.changeTranscriptions(allophones, alignments);
-			    
-			    // this seems as good a place as any to assert that all alignments should be in the AllophoneSet for this locale:
-			    HashSet<String> manualLabelSet = new HashSet<String>(Arrays.asList(al.trim().split("[#\\s]+")));
-			    for (String label : manualLabelSet) {
-			        if (allophoneSet.getAllophone(label) == null) {
-			            throw new Exception("Label \"" + label + "\" not found in AllophoneSet for Locale " + allophoneSet.getLocale());
-			        }
-			    }
+	throws InvalidDataException {
+		// get all t and boundary elements
+		NodeIterator tokenIt = MaryDomUtils.createNodeIterator(allophones, MaryXML.TOKEN, MaryXML.BOUNDARY);
+		List<Element> tokens = new ArrayList<Element>();
+		Element e;
+		while ((e = (Element) tokenIt.nextNode()) != null) {
+			tokens.add(e);
+		}
+
+		String orig = this.collectTranscription(allophones);
+
+		System.err.println("Orig   : "+orig);
+		System.err.println("Correct: "+labels);
+
+
+		// now we align the transcriptions and split it at the delimiters
+		String al = this.distanceAlign(orig.trim(),labels.trim()) + " ";
+
+		System.err.println("Alignments: "+al);
+		String[] alignments = al.split("#");
+
+		// change the transcription in xml according to the aligned one
+		changeTranscriptions(allophones, alignments);
+
+		if (allophoneSet == null) { // cannot verify
+			return;
+		}
+		// assert that all alignments should be in the AllophoneSet for this locale:
+		HashSet<String> manualLabelSet = new HashSet<String>(Arrays.asList(al.trim().split("[#\\s]+")));
+		for (String label : manualLabelSet) {
+			if (allophoneSet.getAllophone(label) == null) {
+				throw new InvalidDataException("Label \"" + label + "\" not found in AllophoneSet for Locale " + allophoneSet.getLocale());
 			}
+		}
+	}
 
 	/**
 	 * 
@@ -182,9 +188,12 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	                assert !prevWasBoundary;
 	                if (alignments[iAlign].trim().equals(possibleBnd)) {
 	                    // Need to insert a boundary before token
-	                    System.out.println("  inserted boundary in xml");
+	                    System.err.println("  inserted boundary in xml");
 	                    Element b = MaryXML.createElement(doc, MaryXML.BOUNDARY);
 	                    b.setAttribute("breakindex", "3");
+	                    if (insertDummyDurations) {
+	                    	b.setAttribute("duration", "1");
+	                    }
 	                    token.getParentNode().insertBefore(b, token);
 	                } else if (!alignments[iAlign].trim().equals("")) {
 	                    // one or more phones were inserted into the transcription
@@ -208,14 +217,17 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	                        Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
 	                        newPhElement.setAttribute("p", newPh[i]);
 	                        syllable.insertBefore(newPhElement, ref);
-	                        System.out.println(" inserted phone from transcription: "+newPh[i]);
+	                        System.err.println(" inserted phone from transcription: "+newPh[i]);
+	                        if (insertDummyDurations) {
+	                        	newPhElement.setAttribute("d", "1");
+	                        }
 	                    }
 	                } // else it is an empty word boundary marker
 	                iAlign++; // move beyond the marker between tokens
 	            }
 	            prevToken = token;
 	            prevWasBoundary = false;
-	            System.out.println("Ph = "+e.getAttribute("p")+", align = "+ alignments[iAlign]);
+	            System.err.println("Ph = "+e.getAttribute("p")+", align = "+ alignments[iAlign]);
 	            if (alignments[iAlign].trim().equals("")) {
 	                // Need to delete the current <ph> element
 	                Element syllable = (Element) e.getParentNode();
@@ -244,12 +256,12 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	                }
 	            }
 	        } else { // boundary
-	            System.out.println("Boundary, align = "+ alignments[iAlign]);
+	            System.err.println("Boundary, align = "+ alignments[iAlign]);
 	            if (alignments[iAlign].trim().equals(possibleBnd)) {
 	                // keep boundary
 	            } else {
 	                // delete boundary
-	                System.out.println("  deleted boundary from xml");
+	                System.err.println("  deleted boundary from xml");
 	                e.getParentNode().removeChild(e);
 	            }
 	            prevWasBoundary = true;

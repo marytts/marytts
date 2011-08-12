@@ -23,6 +23,7 @@ package marytts.tools.analysis;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -34,13 +35,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
+import marytts.signalproc.analysis.Label;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.LabelfileDoubleDataSource;
+import marytts.util.data.text.PraatPitchTier;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.string.StringUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -48,11 +54,106 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 
 /**
+ * Impose duration and/or intonation from one version of an utterance to another version.
+ * The segmental chain of both utterances can have tiny deviations but must be sufficiently similar 
+ * to allow the MaryTranscriptionAligner to match the two.
+ * The destination must be in ALLOPHONES or ACOUSTPARAMS format, i.e. have syllabic and segmental substructure in the tokens.
+ * The source can be in a number of formats.
+ *  
  * @author marc
  *
  */
 public class CopySynthesis
 {
+	AllophoneSet allophoneSet;
+	
+	/**
+	 * Provide copy synthesis functionality for documents using the given allophone set.
+	 * @param allophoneSet the allophone set to use, or null if no allophone verification is needed.
+	 */
+	public CopySynthesis(AllophoneSet allophoneSet) {
+		this.allophoneSet = allophoneSet;
+	}
+	
+	
+	/**
+	 * Make sure that the label sequence as provided in source is copied into the target document.
+	 * @param source a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 */
+	public void imposeSegments(Labels source, Document target) {
+        MaryTranscriptionAligner aligner = new MaryTranscriptionAligner(allophoneSet, true);
+        aligner.SetEnsureInitialBoundary(false);
+        String labels = StringUtils.join(aligner.getEntrySeparator(), source.getLabelSymbols());
+        aligner.alignXmlTranscriptions(target, labels);
+
+	}
+
+	/**
+	 * Make sure that the label sequence as provided in source is copied into the target document, and
+	 * that the phone and boundary durations in the target are adjusted to those in source.
+	 * @param source a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 */
+	public void imposeDurations(Labels source, Document target) {
+		imposeSegments(source, target);
+		// we trust that the following holds: (see CopySynthesisTest):
+		// assert Arrays.deepEquals(source.getLabelSymbols(), new Labels(target).getLabelSymbols());
+		// or in other words, the number of labels in source are now the same as the number of
+		// phone and boundary items in target.
+		String PHONE = "ph";
+		String BOUNDARY = "boundary";
+		NodeIterator it = DomUtils.createNodeIterator(target, PHONE, BOUNDARY);
+		
+		Element e = null;
+		double prevEndTime = 0;
+		int iSource = 0;
+		while ((e = (Element) it.nextNode()) != null) {
+			updateDurationAndEndTime(e, source.items[iSource], prevEndTime);
+			prevEndTime = source.items[iSource].time;
+			iSource++;
+		}
+	}
+	
+	private void updateDurationAndEndTime(Element e, Label label,
+			double prevEndTime) {
+		String PHONE = "ph";
+		String A_PHONE_DURATION = "d";
+		String A_PHONE_SYMBOL = "p";
+		String A_PHONE_END = "end";
+		String BOUNDARY = "boundary";
+		String A_BOUNDARY_DURATION = "duration";
+
+		assert label.time > prevEndTime;
+		double durationSeconds = label.time - prevEndTime;
+		String durationMillisString = String.valueOf((int) Math.round(1000 * durationSeconds));
+		// System.out.println("For label "+label+", setting duration "+durationSeconds+" -> "+durationMillisString);
+		if (e.getTagName().equals(PHONE)) {
+			assert label.phn.equals(e.getAttribute(A_PHONE_SYMBOL));
+			e.setAttribute(A_PHONE_DURATION, durationMillisString);
+			e.setAttribute(A_PHONE_END, String.valueOf(label.time));
+		} else {
+			assert e.getTagName().equals(BOUNDARY);
+			e.setAttribute(A_BOUNDARY_DURATION, durationMillisString);
+		}
+		
+	}
+
+	/**
+	 * Make sure that 1. the label sequence as provided in source is copied into the target document,
+	 * 2. the phone and boundary durations in the target are adjusted to those in source,
+	 * and 3. the intonation targets in the target are replaced by those in the pitchSource.
+	 * @param durationAndSegment a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param pitchSource a specification of an intonation contour.
+	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 */
+	public void imposeIntonation(Labels durationAndSegmentSource, PraatPitchTier pitchSource, Document target) {
+		throw new RuntimeException("Not yet implemented");
+	}
+	
+	
+	
+	
 
     /**
      * @param args
@@ -117,7 +218,7 @@ public class CopySynthesis
         }
         MaryTranscriptionAligner aligner = new MaryTranscriptionAligner();
         aligner.SetEnsureInitialBoundary(false);
-        String labels = aligner.readLabelFile(labFilename);
+        String labels = MaryTranscriptionAligner.readLabelFile(aligner.getEntrySeparator(), aligner.getEnsureInitialBoundary(), labFilename);
         MaryHttpClient mary = new MaryHttpClient();
         String text = FileUtils.readFileToString(new File(textFilename), "ASCII");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

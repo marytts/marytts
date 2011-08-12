@@ -204,6 +204,7 @@ public class FdpsolaAdapter {
 
     public void init(BaselineAdaptationItem inputItem, String strOutputFile,
                      double [] pscales, double [] tscales, double [] escales, double [] vscales)
+    throws IOException
     {
         //Smoothing
         smoothingFile = null;
@@ -286,11 +287,7 @@ public class FdpsolaAdapter {
             try {
                 inputAudio = AudioSystem.getAudioInputStream(new File(inputItem.audioFile));
             } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            	throw new IOException("Cannot open audio", e);
             }
 
             input = new AudioDoubleDataSource(inputAudio);

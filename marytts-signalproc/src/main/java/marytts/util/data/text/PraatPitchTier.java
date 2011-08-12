@@ -12,6 +12,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import marytts.util.dom.DomUtils;
+import marytts.util.string.StringUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.NodeIterator;
+
 /**
  * @author marc
  * 
@@ -84,6 +91,57 @@ public class PraatPitchTier implements PraatTier {
 		importFrames(frames, step);
 	}
 
+	public PraatPitchTier(Document acoustparams) {
+		this(computePitchTargets(acoustparams));
+	}
+	
+	private static PitchTarget[] computePitchTargets(Document acoustparams) {
+		ArrayList<PitchTarget> targets = new ArrayList<PitchTarget>();
+		String PHONE = "ph";
+		String A_PHONE_DURATION = "d";
+		String A_F0 = "f0";
+		String BOUNDARY = "boundary";
+		String A_BOUNDARY_DURATION = "duration";
+		NodeIterator it = DomUtils.createNodeIterator(acoustparams, PHONE, BOUNDARY);
+		Element e = null;
+		double startTime = 0;
+		double endTime = 0;
+		double duration = 0;
+		while ((e = (Element) it.nextNode()) != null) {
+			startTime = /* previous */ endTime;
+			if (e.getTagName().equals(PHONE)) {
+				duration = 0.001 * Double.parseDouble(e.getAttribute(A_PHONE_DURATION));
+				endTime = startTime + duration;
+			} else { // BOUNDARY
+				duration = 0.001 * Double.parseDouble(e.getAttribute(A_BOUNDARY_DURATION));
+				endTime = startTime + duration;
+				continue; // no f0 targets for boundaries
+			}
+			assert e.getTagName().equals(PHONE);
+			assert startTime < endTime
+			: "for phone '"+e.getAttribute("p")+"', startTime "+startTime+" is not less than endTime "+endTime;
+			String f0String = e.getAttribute(A_F0).trim();
+			if (f0String.isEmpty()) {
+				continue;
+			}
+			int[] localF0Targets = StringUtils.parseIntPairs(f0String);
+			for (int i=0, len = localF0Targets.length/2; i<len; i++) {
+				int percent = localF0Targets[2*i];
+				int hertz = localF0Targets[2*i+1];
+				double time = startTime + 0.01*percent*(endTime-startTime);
+				targets.add(new PitchTarget(time, hertz));
+			}
+		}
+		return targets.toArray(new PitchTarget[0]);
+	}
+
+	public PraatPitchTier(PitchTarget[] targets) {
+		this.targets = targets;
+		this.numTargets = targets.length;
+		this.xmin = targets[0].time;
+		this.xmax = targets[targets.length-1].time;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -103,6 +161,11 @@ public class PraatPitchTier implements PraatTier {
 	public double getXmax() {
 		return xmax;
 	}
+	
+	public void setXmax(double value) {
+		xmax = value;
+	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -112,6 +175,10 @@ public class PraatPitchTier implements PraatTier {
 	@Override
 	public double getXmin() {
 		return xmin;
+	}
+
+	public void setXmin(double value) {
+		xmin = value;
 	}
 
 	public int getNumTargets() {

@@ -32,7 +32,8 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.AlignedLabels;
 import marytts.signalproc.analysis.Labels;
-import marytts.util.data.text.XwavesLabelfileDataSource;
+import marytts.util.data.text.XwavesLabelfileReader;
+import marytts.util.string.StringUtils;
 
 
 /**
@@ -121,16 +122,16 @@ public class TranscriptionAligner
      * @throws IOException if something goes wrong with opening/reading the file
      * 
      */
-    public String readLabelFile(String trfname) throws IOException
+    public static String readLabelFile(String entrySeparator, boolean ensureInitialBoundary, String trfname) throws IOException
     {
         // reader for label file.
         BufferedReader lab = new BufferedReader(new FileReader(trfname));
         try {
             // get XwavesLabelfileDataSouce to parse Xwaves label file and store times and labels:
-            XwavesLabelfileDataSource xlds = new XwavesLabelfileDataSource(trfname);
+            XwavesLabelfileReader xlds = new XwavesLabelfileReader(trfname);
             
             // join them to a string, with entrySeparator as glue:
-            String result = xlds.joinLabelsToString(entrySeparator);
+            String result = StringUtils.join(entrySeparator, xlds.getLabelSymbols());
             
             // if Label File does not start with pause symbol, insert it
             // as well as a pause duration of zero (...)
@@ -205,7 +206,7 @@ public class TranscriptionAligner
      * @param out
      * @return
      */
-    public String distanceAlign(String in, String out ) {
+    protected String distanceAlign(String in, String out ) {
         String[] istr = in.split(Pattern.quote(entrySeparator));
         String[] ostr = out.split(Pattern.quote(entrySeparator));
         String delim = "#";
@@ -315,21 +316,9 @@ public class TranscriptionAligner
      * (rightmost) corresponding index in second.
      */
     public AlignedLabels alignLabels(Labels first, Labels second) {
-        StringBuilder in = new StringBuilder();
-        for (int i=0; i<first.items.length; i++) {
-            if (in.length() > 0) {
-                in.append(entrySeparator);
-            }
-            in.append(first.items[i].phn);
-        }
-        StringBuilder out = new StringBuilder();
-        for (int j=0; j<second.items.length; j++) {
-            if (out.length() > 0) {
-                out.append(entrySeparator);
-            }
-            out.append(second.items[j].phn);
-        }
-        String aligned = distanceAlign(in.toString(), out.toString());
+    	String firstLabels = StringUtils.join(entrySeparator, first.getLabelSymbols());
+    	String secondLabels = StringUtils.join(entrySeparator, second.getLabelSymbols());
+        String aligned = distanceAlign(firstLabels, secondLabels);
         // Now, in aligned, the hash signs separate fields corresponding to first;
         // the field contains the label symbols of second (space-separated)
         // that match this index in first.

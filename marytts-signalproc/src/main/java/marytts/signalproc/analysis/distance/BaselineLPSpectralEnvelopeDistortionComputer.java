@@ -29,6 +29,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
+import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.data.AlignLabelsUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -54,25 +55,31 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     }
     
     public double[] getDistances(String folder1, String folder2)
+    throws IOException
     {
         return getDistances(folder1, folder2, DEFAULT_WINDOWSIZE);
     }
     
     public double[] getDistances(String folder1, String folder2,  double winSizeInSeconds)
+    throws IOException
     {   
         return getDistances(folder1, folder2, winSizeInSeconds, DEFAULT_SKIPSIZE);
     }
     
     public double[] getDistances(String folder1, String folder2,  double winSizeInSeconds, double skipSizeInSeconds)
+    throws IOException
     {  
         return getDistances(folder1, folder2, winSizeInSeconds, skipSizeInSeconds, DEFAULT_FFTSIZE);
     }
+
     public double[] getDistances(String folder1, String folder2,  double winSizeInSeconds, double skipSizeInSeconds, int fftSize)
+    throws IOException
     {  
         return getDistances(folder1, folder2, winSizeInSeconds, skipSizeInSeconds, fftSize, DEFAULT_LPORDER);
     }
     
     public double[] getDistances(String folder1, String folder2,  double winSizeInSeconds, double skipSizeInSeconds, int fftSize, int lpOrder)
+    throws IOException
     {   
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
@@ -84,23 +91,28 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     }
     
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2)
+    throws IOException
     {
         return getDistances(set1, set2, DEFAULT_WINDOWSIZE);
     }
     
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, 
                                  double winSizeInSeconds)
+    throws IOException
     {
            return getDistances(set1, set2, winSizeInSeconds, DEFAULT_SKIPSIZE);
     }
     
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, 
                                  double winSizeInSeconds, double skipSizeInSeconds)
+    throws IOException
     {
         return getDistances(set1, set2, winSizeInSeconds, skipSizeInSeconds, DEFAULT_FFTSIZE);
     }
+    
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, 
                                  double winSizeInSeconds, double skipSizeInSeconds, int fftSize)
+    throws IOException
     {
         return getDistances(set1, set2, winSizeInSeconds, skipSizeInSeconds, fftSize, DEFAULT_LPORDER);
     }
@@ -108,6 +120,7 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, 
                                  double winSizeInSeconds, double skipSizeInSeconds, 
                                  int fftSize, int lpOrder)
+    throws IOException
     {
         int[] map = new int[Math.min(set1.items.length, set2.items.length)];
         for (int i=0; i<map.length; i++)
@@ -120,6 +133,7 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
                                  double winSizeInSeconds, double skipSizeInSeconds, 
                                  int fftSize, int lpOrder, 
                                  int[] map)
+    throws IOException
     {
         double[] distances = null;
         double[] tmpDistances = null;
@@ -146,11 +160,13 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     }
     
     public double[] getItemDistances(BaselineAdaptationItem item1, BaselineAdaptationItem item2, double winSizeInSeconds, double skipSizeInSeconds)
+    throws IOException
     {
         return getItemDistances(item1, item2, winSizeInSeconds, skipSizeInSeconds, DEFAULT_FFTSIZE);
     }
     
     public double[] getItemDistances(BaselineAdaptationItem item1, BaselineAdaptationItem item2, double winSizeInSeconds, double skipSizeInSeconds, int fftSize)
+    throws IOException
     {
         return getItemDistances(item1, item2, winSizeInSeconds, skipSizeInSeconds, fftSize, DEFAULT_LPORDER);
     }
@@ -158,185 +174,163 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     public double[] getItemDistances(BaselineAdaptationItem item1, BaselineAdaptationItem item2, 
                                      double winSizeInSeconds, double skipSizeInSeconds, 
                                      int fftSize, int lpOrder)
+    throws IOException
     {
         double[] frameDistances = null;
         
         //Read wav files & determine avaliable number of frames
-        AudioInputStream inputAudio1 = null;
+        AudioInputStream inputAudio1;
+        AudioInputStream inputAudio2;
         try {
-            inputAudio1 = AudioSystem.getAudioInputStream(new File(item1.audioFile));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+			inputAudio1 = AudioSystem.getAudioInputStream(new File(item1.audioFile));
+	        inputAudio2 = AudioSystem.getAudioInputStream(new File(item2.audioFile));
+		} catch (UnsupportedAudioFileException e) {
+			throw new IOException("Cannot open audio file", e);
+		}
         
-        AudioInputStream inputAudio2 = null;
-        try {
-            inputAudio2 = AudioSystem.getAudioInputStream(new File(item2.audioFile));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         
-        if (inputAudio1!=null && inputAudio2!=null)
+        int i;
+        int samplingRate1 = (int)inputAudio1.getFormat().getSampleRate();
+        int ws1 =  (int)Math.floor(winSizeInSeconds*samplingRate1+0.5);
+        int ss1 = (int)Math.floor(skipSizeInSeconds*samplingRate1+0.5);
+        AudioDoubleDataSource signal1 = new AudioDoubleDataSource(inputAudio1);
+        double[] x1 = signal1.getAllData();
+        double[] frm1 = new double[ws1];
+        int numfrm1 = (int)Math.floor((x1.length-ws1)/((double)ss1)+0.5);
+        double max1 = MathUtils.absMax(x1);
+        for (i=0; i<x1.length; i++)
+            x1[i] = x1[i]/max1*20000;
+
+        int samplingRate2 = (int)inputAudio2.getFormat().getSampleRate();
+        int ws2 =  (int)Math.floor(winSizeInSeconds*samplingRate2+0.5);
+        int ss2 = (int)Math.floor(skipSizeInSeconds*samplingRate2+0.5);
+        AudioDoubleDataSource signal2 = new AudioDoubleDataSource(inputAudio2);
+        double[] x2 = signal2.getAllData();
+        double[] frm2 = new double[ws2];
+        int numfrm2 = (int)Math.floor((x2.length-ws2)/((double)ss2)+0.5);
+        double max2 = MathUtils.absMax(x2);
+        for (i=0; i<x2.length; i++)
+            x2[i] = x2[i]/max2*20000;
+
+        if (fftSize<0)
         {
-            int i;
-            int samplingRate1 = (int)inputAudio1.getFormat().getSampleRate();
-            int ws1 =  (int)Math.floor(winSizeInSeconds*samplingRate1+0.5);
-            int ss1 = (int)Math.floor(skipSizeInSeconds*samplingRate1+0.5);
-            AudioDoubleDataSource signal1 = new AudioDoubleDataSource(inputAudio1);
-            double[] x1 = signal1.getAllData();
-            double[] frm1 = new double[ws1];
-            int numfrm1 = (int)Math.floor((x1.length-ws1)/((double)ss1)+0.5);
-            double max1 = MathUtils.absMax(x1);
-            for (i=0; i<x1.length; i++)
-                x1[i] = x1[i]/max1*20000;
+            fftSize = Math.max(SignalProcUtils.getDFTSize(samplingRate1), SignalProcUtils.getDFTSize(samplingRate2));
+            while (fftSize<ws1)
+                fftSize*=2;
+            while (fftSize<ws2)
+                fftSize*=2;
+        }
+        
+        if (lpOrder<0)
+            lpOrder = Math.max(SignalProcUtils.getLPOrder(samplingRate1), SignalProcUtils.getLPOrder(samplingRate2));
+        //
 
-            int samplingRate2 = (int)inputAudio2.getFormat().getSampleRate();
-            int ws2 =  (int)Math.floor(winSizeInSeconds*samplingRate2+0.5);
-            int ss2 = (int)Math.floor(skipSizeInSeconds*samplingRate2+0.5);
-            AudioDoubleDataSource signal2 = new AudioDoubleDataSource(inputAudio2);
-            double[] x2 = signal2.getAllData();
-            double[] frm2 = new double[ws2];
-            int numfrm2 = (int)Math.floor((x2.length-ws2)/((double)ss2)+0.5);
-            double max2 = MathUtils.absMax(x2);
-            for (i=0; i<x2.length; i++)
-                x2[i] = x2[i]/max2*20000;
+        Labels labs1 = new Labels(item1.labelFile);
+        Labels labs2 = new Labels(item2.labelFile);
 
-            if (fftSize<0)
-            {
-                fftSize = Math.max(SignalProcUtils.getDFTSize(samplingRate1), SignalProcUtils.getDFTSize(samplingRate2));
-                while (fftSize<ws1)
-                    fftSize*=2;
-                while (fftSize<ws2)
-                    fftSize*=2;
-            }
-            
-            if (lpOrder<0)
-                lpOrder = Math.max(SignalProcUtils.getLPOrder(samplingRate1), SignalProcUtils.getLPOrder(samplingRate2));
+        int count = 0;
+
+        if (labs1.items!=null && labs2.items!=null)
+        {
+            //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
+            int[][] labelMap = AlignLabelsUtils.alignLabels(labs1.items, labs2.items);
             //
 
-            Labels labs1 = new Labels(item1.labelFile);
-            Labels labs2 = new Labels(item2.labelFile);
-
-            int count = 0;
-
-            if (labs1.items!=null && labs2.items!=null)
+            if (labelMap!=null)
             {
-                //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-                int[][] labelMap = AlignLabelsUtils.alignLabels(labs1.items, labs2.items);
-                //
+                int j, labInd1, labInd2, frmInd1, frmInd2;
+                double time1, time2;
+                double startTime1, endTime1, startTime2, endTime2;
+                double[] tmpLsfs1 = null;
+                double[] tmpLsfs2 = null;
+                int x1Start, x2Start;
 
-                if (labelMap!=null)
+                labInd1 = 0;
+
+                frameDistances = new double[numfrm1];
+
+                //Find the corresponding target frame index for each source frame index
+                for (j=0; j<numfrm1; j++)
                 {
-                    int j, labInd1, labInd2, frmInd1, frmInd2;
-                    double time1, time2;
-                    double startTime1, endTime1, startTime2, endTime2;
-                    double[] tmpLsfs1 = null;
-                    double[] tmpLsfs2 = null;
-                    int x1Start, x2Start;
+                    time1 = SignalProcUtils.frameIndex2Time(j, winSizeInSeconds, skipSizeInSeconds);
 
-                    labInd1 = 0;
-
-                    frameDistances = new double[numfrm1];
-
-                    //Find the corresponding target frame index for each source frame index
-                    for (j=0; j<numfrm1; j++)
+                    while (time1>labs1.items[labInd1].time)
                     {
-                        time1 = SignalProcUtils.frameIndex2Time(j, winSizeInSeconds, skipSizeInSeconds);
-
-                        while (time1>labs1.items[labInd1].time)
+                        labInd1++;
+                        if (labInd1>labs1.items.length-1)
                         {
-                            labInd1++;
-                            if (labInd1>labs1.items.length-1)
-                            {
-                                labInd1 = labs1.items.length-1;
-                                break;
-                            }
-                        }
-
-                        if (labInd1>0 && labInd1<labs1.items.length-1) //Exclude first and last label)
-                        {
-                            labInd2 = StringUtils.findInMap(labelMap, labInd1);
-
-                            if (labInd2>=0 && labs1.items[labInd1].phn.compareTo(labs2.items[labInd2].phn)==0)
-                            {
-                                if (labInd1>0)   
-                                    startTime1 = labs1.items[labInd1-1].time;
-                                else
-                                    startTime1 = 0.0;
-
-                                if (labInd2>0) 
-                                    startTime2 = labs2.items[labInd2-1].time;
-                                else
-                                    startTime2 = 0.0;
-
-                                endTime1 = labs1.items[labInd1].time;
-                                endTime2 = labs2.items[labInd2].time;
-
-                                time2 = MathUtils.linearMap(time1, startTime1, endTime1, startTime2, endTime2);
-
-                                frmInd2 = SignalProcUtils.time2frameIndex(time2, winSizeInSeconds, skipSizeInSeconds);
-                                if (frmInd2<0)
-                                    frmInd2=0;
-                                if (frmInd2>numfrm2-1)
-                                    frmInd2=numfrm2-1;
-
-                                x1Start = (int)Math.floor(j*ss1+0.5*ws1+0.5);
-                                x2Start = (int)Math.floor(frmInd2*ss2+0.5*ws2+0.5);
-                                
-                                if (x1Start+ws1<x1.length)
-                                    System.arraycopy(x1, x1Start, frm1, 0, ws1);
-                                else
-                                {
-                                    Arrays.fill(frm1, 0.0);
-                                    System.arraycopy(x1, x1Start, frm1, 0, x1.length-x1Start);
-                                }
-
-                                if (x2Start+ws2<x2.length)
-                                    System.arraycopy(x2, x2Start, frm2, 0, ws2);
-                                else
-                                {
-                                    Arrays.fill(frm2, 0.0);
-                                    System.arraycopy(x2, x2Start, frm2, 0, x2.length-x2Start);
-                                }
-                                
-                                SignalProcUtils.addWhiteNoise(frm1, 1e-10);
-                                SignalProcUtils.addWhiteNoise(frm2, 1e-10);
-
-                                frameDistances[count] = frameDistance(frm1, frm2, fftSize, lpOrder);
-                                
-                                count++;
-                            } 
-                        }
-
-                        if (count>=frameDistances.length)
+                            labInd1 = labs1.items.length-1;
                             break;
+                        }
                     }
+
+                    if (labInd1>0 && labInd1<labs1.items.length-1) //Exclude first and last label)
+                    {
+                        labInd2 = StringUtils.findInMap(labelMap, labInd1);
+
+                        if (labInd2>=0 && labs1.items[labInd1].phn.compareTo(labs2.items[labInd2].phn)==0)
+                        {
+                            if (labInd1>0)   
+                                startTime1 = labs1.items[labInd1-1].time;
+                            else
+                                startTime1 = 0.0;
+
+                            if (labInd2>0) 
+                                startTime2 = labs2.items[labInd2-1].time;
+                            else
+                                startTime2 = 0.0;
+
+                            endTime1 = labs1.items[labInd1].time;
+                            endTime2 = labs2.items[labInd2].time;
+
+                            time2 = MathUtils.linearMap(time1, startTime1, endTime1, startTime2, endTime2);
+
+                            frmInd2 = SignalProcUtils.time2frameIndex(time2, winSizeInSeconds, skipSizeInSeconds);
+                            if (frmInd2<0)
+                                frmInd2=0;
+                            if (frmInd2>numfrm2-1)
+                                frmInd2=numfrm2-1;
+
+                            x1Start = (int)Math.floor(j*ss1+0.5*ws1+0.5);
+                            x2Start = (int)Math.floor(frmInd2*ss2+0.5*ws2+0.5);
+                            
+                            if (x1Start+ws1<x1.length)
+                                System.arraycopy(x1, x1Start, frm1, 0, ws1);
+                            else
+                            {
+                                Arrays.fill(frm1, 0.0);
+                                System.arraycopy(x1, x1Start, frm1, 0, x1.length-x1Start);
+                            }
+
+                            if (x2Start+ws2<x2.length)
+                                System.arraycopy(x2, x2Start, frm2, 0, ws2);
+                            else
+                            {
+                                Arrays.fill(frm2, 0.0);
+                                System.arraycopy(x2, x2Start, frm2, 0, x2.length-x2Start);
+                            }
+                            
+                            SignalProcUtils.addWhiteNoise(frm1, 1e-10);
+                            SignalProcUtils.addWhiteNoise(frm2, 1e-10);
+
+                            frameDistances[count] = frameDistance(frm1, frm2, fftSize, lpOrder);
+                            
+                            count++;
+                        } 
+                    }
+
+                    if (count>=frameDistances.length)
+                        break;
                 }
             }
-
-            if (count>0)
-            {
-                double[] tmpFrameDistances = new double[count];
-                System.arraycopy(frameDistances, 0, tmpFrameDistances, 0, count);
-                frameDistances = new double[count];
-                System.arraycopy(tmpFrameDistances, 0, frameDistances, 0, count);
-            }
         }
-        else
+
+        if (count>0)
         {
-            if (inputAudio1==null)
-                System.out.println("Error! Cannot open file: " + item1.audioFile);
-            
-            if (inputAudio2==null)
-                System.out.println("Error! Cannot open file: " + item2.audioFile);
+            double[] tmpFrameDistances = new double[count];
+            System.arraycopy(frameDistances, 0, tmpFrameDistances, 0, count);
+            frameDistances = new double[count];
+            System.arraycopy(tmpFrameDistances, 0, frameDistances, 0, count);
         }
 
         return frameDistances;
@@ -349,6 +343,7 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     }
     
     public void mainParametric(String srcFolder, String tgtFolder, String tfmFolder, String outputFile, String infoString)
+    throws IOException
     {  
         double[] distances1 = getDistances(tgtFolder, srcFolder);
         double[] distances2 = getDistances(tgtFolder, tfmFolder);

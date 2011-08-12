@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.util.data.text.XwavesLabelfileDataSource;
+import marytts.util.data.text.XwavesLabelfileReader;
 
 /**
  * Compute unit labels from phone labels.
@@ -126,9 +126,9 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         }
 
         // parse labFile:
-        XwavesLabelfileDataSource labFileData = new XwavesLabelfileDataSource(labFile.getPath());
+        XwavesLabelfileReader labFileData = new XwavesLabelfileReader(labFile.getPath());
         ArrayList<Double> endTimes = new ArrayList<Double>(Arrays.asList(labFileData.getTimes()));
-        ArrayList<String> labels = new ArrayList<String>(Arrays.asList(labFileData.getLabels()));
+        ArrayList<String> labels = new ArrayList<String>(Arrays.asList(labFileData.getLabelSymbols()));
 
         // ensure that each labeled interval ends after the previous one:
         ListIterator<Double> timeIterator = endTimes.listIterator();

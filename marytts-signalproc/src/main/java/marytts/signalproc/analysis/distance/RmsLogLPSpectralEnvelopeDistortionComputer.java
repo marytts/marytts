@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.analysis.distance;
 
+import java.io.IOException;
+
 
 
 /**
@@ -41,6 +43,7 @@ public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectr
     }
     
     public void mainParametricInterspeech2008(String outputFolder, String method, String emotion, String outputFilePostExtension)
+    throws IOException
     { 
         String tgtFolder = outputFolder + "target/" + emotion;
         String srcFolder = outputFolder + "source/" + emotion;
@@ -53,6 +56,7 @@ public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectr
     
     //Put source and target wav and lab files into two folders and call this function
     public void mainInterspeech2008()
+    throws IOException
     {
         String method; //"1_codebook"; "2_frame"; "3_gmm";
         String emotion; //"angry"; "happy"; "sad"; "all";
@@ -89,6 +93,7 @@ public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectr
     
     //Put source and target wav and lab files into two folders and call this function
     public void mainHmmVoiceConversion()
+    throws IOException
     {
         RmsLogLPSpectralEnvelopeDistortionComputer sdc = new RmsLogLPSpectralEnvelopeDistortionComputer();
         
@@ -130,6 +135,7 @@ public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectr
     }
     
     public static void main(String[] args)
+    throws IOException
     {
         RmsLogLPSpectralEnvelopeDistortionComputer d = new RmsLogLPSpectralEnvelopeDistortionComputer();
         

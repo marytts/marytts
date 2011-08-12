@@ -92,11 +92,9 @@ public class FestivalUtt extends AlignmentData {
             {
                 if (boundInds[i]>-1)
                 {
-                    if (i<keys.length-1)
-                        labels[i] = Labels.parseFromLines(lines, boundInds[i]+1, boundInds[i+1]-1, 2);
-                    else
-                        labels[i] = Labels.parseFromLines(lines, boundInds[i]+1, lines.length-1, 2);
-                    
+                	int fromIndex = boundInds[i]+1;
+                	int toIndex = (i<keys.length-1 ? boundInds[i+1]-1 : lines.length-1);
+                	labels[i] = createLabels(lines, fromIndex, toIndex);
                     //Shift all valuesRest by one, and put the f0 into valuesRest[0]
                     if (keys[i].compareTo("==Target==")==0)
                     {
@@ -125,6 +123,13 @@ public class FestivalUtt extends AlignmentData {
             }
         }
     }
+
+	private Labels createLabels(String[] lines, int fromIndex, int toIndex) {
+		String[] relevantLines = new String[toIndex - fromIndex + 1];
+		System.arraycopy(lines, fromIndex, relevantLines, 0, relevantLines.length);
+		Labels l = new Labels(relevantLines, 2);
+		return l;
+	}
     
     public static FestivalUtt readFestivalUttFile(String festivalUttFile)
     {
