@@ -422,7 +422,18 @@ public class MaryHttpClient extends MaryClient
         pw.close();
 
         //and InputStream from here will be body
-        return conn.getInputStream();
+        try {
+            return conn.getInputStream();
+        } catch (IOException e) {
+        	String error;
+        	try {
+        		error = FileUtils.getStreamAsString(conn.getErrorStream(), "UTF-8");
+        	} catch (IOException errE) {
+        		// ok cannot get error message, just re-throw original e
+        		throw new IOException("No detailed error message available", e);
+        	}
+    		throw new IOException("Error message from server:\n"+error, e);
+        }
 
     }
     
