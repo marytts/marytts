@@ -527,7 +527,7 @@ public class Blizzard09PostProcessor {
         }
         else
         {
-            Labels labels  = new Labels(strLabFile, LABELS_FROM_REALISED_DURATIONS_FILE);
+            Labels labels  = new Labels(strLabFile);
             //
 
             double[] y = Blizzard09PostProcessor.process(x, labels, allophones, samplingRate, absMaxOrig);

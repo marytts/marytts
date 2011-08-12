@@ -3201,7 +3201,7 @@ public class SignalProcUtils {
         int lpcOrderSrc = SignalProcUtils.getLPOrder(fsSrc);
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double[] s = signal.getAllData();
-        Labels sourceLabels = Labels.readESTLabelFile(sourceLabFile);
+        Labels sourceLabels = new Labels(sourceLabFile);
         //
         
         //File input target and LPC analysis
@@ -3210,7 +3210,7 @@ public class SignalProcUtils {
         int lpcOrderTgt = SignalProcUtils.getLPOrder(fsTgt);
         signal = new AudioDoubleDataSource(inputAudio);
         double[] t = signal.getAllData();
-        Labels targetLabels = Labels.readESTLabelFile(targetLabFile);
+        Labels targetLabels = new Labels(targetLabFile);
         //
 
         double[] sNorm = normalizeVocalTract(s, t, sourceLabels, targetLabels, windowType, windowSizeInSeconds, frameShiftInSeconds, lpcOrderSrc, fsSrc, preCoef);

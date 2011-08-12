@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.analysis.distance;
 
+import java.io.IOException;
+
 /**
  * Implements Itakura-Saito distance measure between two speech frames
  *
@@ -40,6 +42,7 @@ public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDist
     }
     
     public void mainParametricInterspeech2008(String outputFolder, String method, String emotion, String outputFilePostExtension)
+    throws IOException
     { 
         String tgtFolder = outputFolder + "target/" + emotion;
         String srcFolder = outputFolder + "source/" + emotion;
@@ -51,6 +54,7 @@ public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDist
     
     //Put source and target wav and lab files into two folders and call this function
     public void mainInterspeech2008()
+    throws IOException
     {
         String method; //"1_codebook"; "2_frame"; "3_gmm";
         String emotion; //"angry"; "happy"; "sad"; "all";
@@ -87,6 +91,7 @@ public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDist
     
     //Put source and target wav and lab files into two folders and call this function
     public void mainHmmVoiceConversion()
+    throws IOException
     {
         String baseInputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/output/final/";
         String baseOutputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/objective_test/";
@@ -126,6 +131,7 @@ public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDist
     }
     
     public static void main(String[] args)
+    throws IOException
     {
         ItakuraSaitoDistanceComputer d = new ItakuraSaitoDistanceComputer();
         

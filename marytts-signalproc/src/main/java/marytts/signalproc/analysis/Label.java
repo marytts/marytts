@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.analysis;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -34,6 +35,23 @@ public class Label {
     public String[] rest; //If the label contains more fields, get them as text
     public double[] valuesRest; //If some of the <rest> are numbers, convert them to doubles and keep
     
+    
+    /**
+     * Simple constructor for simple cases: create a label from the given end time and phone symbol.
+     * @param endTime time where the phonetic label ends, in seconds.
+     * @param phoneSymbol phonetic label, such as a phone symbol
+     */
+    public Label(double endTime, String phoneSymbol) {
+    	this(endTime, 125 /* dummy value */, phoneSymbol, Double.NEGATIVE_INFINITY, null, null);
+    }
+    
+    /**
+     * Create a new Label.
+     * @param newTime Ending time of phonetic label
+     * @param newStatus status
+     * @param newPhn phone symbol
+     * @param newll log likelihood
+     */
     public Label(double newTime, int newStatus, String newPhn, double newll)
     {
         this(newTime, newStatus, newPhn, newll, null, null);
@@ -77,7 +95,8 @@ public class Label {
     
     public Label(Label lab)
     {
-        copyFrom(lab);
+    	if (lab != null)
+    		copyFrom(lab);
     }
     
     public void copyFrom(Label lab)
@@ -115,7 +134,24 @@ public class Label {
     }
     
     public String toString() {
-        return String.format(Locale.US, "%.3f %s", time, phn);
+        return String.format(Locale.US, "%f %d %s %f", time, status, phn, ll);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+    	if (this == o) return true;
+    	if (!(o instanceof Label)) return false;
+    	Label other = (Label) o;
+    	return Math.abs(time - other.time) < 1.e-7
+    		&& status == other.status
+    		&& (phn == null && other.phn == null || phn != null && phn.equals(other.phn))
+    		&& (ll == other.ll || Double.isInfinite(ll) && Double.isInfinite(other.ll) || Double.isNaN(ll) && Double.isNaN(other.ll)) 
+    		&& Arrays.deepEquals(rest, other.rest);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return 0;
     }
 }
 

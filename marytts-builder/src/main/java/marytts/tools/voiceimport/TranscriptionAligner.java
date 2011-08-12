@@ -154,7 +154,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
             
             System.out.println(trfname);
             
-            manTransString = aligner.readLabelFile(trfname);
+            manTransString = MaryTranscriptionAligner.readLabelFile(aligner.getEntrySeparator(), aligner.getEnsureInitialBoundary(), trfname);
 
             // align transcriptions
             aligner.alignXmlTranscriptions(doc, manTransString);            

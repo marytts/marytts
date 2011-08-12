@@ -26,8 +26,13 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
@@ -45,6 +50,31 @@ public class StringUtils {
               strRet.append(s.nextElement());
           
           return strRet.toString();
+    }
+    
+    /**
+     * Join labels into string
+     * 
+     * @param glue
+     *            String inserted between the elements as they are joined
+     * @param items Strings to be joined together
+     * 
+     * @return joined String, or the empty string if items has length 0
+     * @throws NullPointerException if either glue or items or any of the items is null
+     */
+    public static String join(String glue, String[] items) {
+    	if (glue == null || items == null) {
+    		throw new NullPointerException("Null args");
+    	}
+    	if (items.length == 0) {
+    		return "";
+    	}
+        StringBuilder sb = new StringBuilder();
+        sb.append(items[0]);
+        for (int i=1; i<items.length; i++) {
+        	sb.append(glue).append(items[i]);
+        }
+        return sb.toString();
     }
     
     //Converts a String to a float
@@ -941,6 +971,39 @@ public class StringUtils {
         
         return y;
     }
+    
+    
+    /**
+     * Parse a string containing pairs of integers in brackets,
+     * and return as one array of integers.
+     * This will ignore any string content that does not match the bracket pattern.
+     * @param attribute - the string containing the bracketed expression. For example, 'f0' attribute of 'ph' element in MaryXML.
+     *        Expected format: "(5,248)(47,258)(100,433)"
+     * @return an int array with an even number of elements, such that the i'th pair can be accessed as array[2*i] and array[2*i+1],
+     * or an empty array if no bracket expressions are found.
+     * @throws NullPointerException if attribute is null.
+     */
+    public static int[] parseIntPairs(String attribute) {
+    	if (attribute == null) {
+    		throw new NullPointerException("Received null argument");
+    	}
+
+        Pattern p = Pattern.compile("(\\d+,\\d+)");
+        int[] temp = new int[attribute.length()/2]; // will definitely be more than long enough
+        // Split input with the pattern
+        Matcher m = p.matcher(attribute);
+        int i=0; // count pairs
+        while ( m.find() ) {
+            String[] f0Values = (m.group().trim()).split(",");
+            temp[2*i] = Integer.parseInt(f0Values[0]);
+            temp[2*i+1] = Integer.parseInt(f0Values[1]);
+            i++;
+        }
+        int[] result = new int[2*i];
+        System.arraycopy(temp, 0, result, 0, result.length);
+        return result;
+    }
+    
     
     public static void main(String[] args) throws Exception
     {

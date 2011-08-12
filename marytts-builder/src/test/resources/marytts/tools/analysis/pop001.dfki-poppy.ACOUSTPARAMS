@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-GB">
+<p>
+<voice name="dfki-poppy">
+<s>
+<prosody pitch="+5%" range="+20%">
+<phrase>
+<t accent="L+H*" g2p_method="lexicon" ph="' h AI" pos="UH">
+Hi
+<syllable accent="L+H*" ph="h AI" stress="1">
+<ph d="84" end="0.0843438" p="h"/>
+<ph d="321" end="0.40565678" f0="(0,394)(50,479)(100,171)" p="AI"/>
+</syllable>
+</t>
+<t pos=",">
+,
+</t>
+<boundary breakindex="4" duration="400" tone="H-L%"/>
+</phrase>
+</prosody>
+<prosody pitch="-5%" range="-20%">
+<phrase>
+<mtu orig="I'm">
+<t g2p_method="lexicon" ph="' AI" pos="PRP">
+i
+<syllable ph="AI" stress="1">
+<ph d="108" end="0.5135058" f0="(0,72)(50,280)(100,349)" p="AI"/>
+</syllable>
+</t>
+<t ph="m" pos="VBP">
+'m
+<syllable ph="m">
+<ph d="70" end="0.5830614" p="m"/>
+</syllable>
+</t>
+</mtu>
+<t accent="!H*" g2p_method="lexicon" ph="' p A - p i" pos="JJ">
+Poppy
+<syllable accent="!H*" ph="p A" stress="1">
+<ph d="82" end="0.6648843" p="p"/>
+<ph d="83" end="0.74754345" f0="(0,237)(50,188)(100,265)" p="A"/>
+</syllable>
+<syllable ph="p i">
+<ph d="108" end="0.85563046" p="p"/>
+<ph d="210" end="1.0651774" f0="(0,238)(50,168)(100,91)" p="i"/>
+</syllable>
+</t>
+<t pos=".">
+.
+</t>
+<boundary breakindex="5" duration="400" tone="L-L%"/>
+</phrase>
+</prosody>
+</s>
+</voice>
+</p>
+</maryxml>

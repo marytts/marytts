@@ -5,16 +5,26 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import marytts.util.data.text.PraatPitchTier.PitchTarget;
+import marytts.util.dom.DomUtils;
 import marytts.util.math.MathUtils;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
+
 import static org.junit.Assert.*;
 
 public class PraatPitchTierTest {
 
 	private PraatPitchTier pt;
 	private PraatPitchTier spt;
+	
+	private void assertTimesStrictlyIncreasing(PitchTarget[] targets) {
+		for (int i=1; i<targets.length; i++) {
+			assertTrue(targets[i].time>targets[i-1].time);
+		}
+	}
 	
 	@Before
 	public void setUp() throws Exception {
@@ -128,6 +138,17 @@ public class PraatPitchTierTest {
 	@Test
 	public void canParseBothTextFormats() {
 		assertEquals(pt, spt);
+	}
+	
+	
+	@Test
+	public void canCreateFromMaryXML() throws Exception {
+		Document acoustparams = DomUtils.parseDocument(getClass().getResourceAsStream("pop001.dfki-poppy-hsmm.ACOUSTPARAMS"));
+		PraatPitchTier ptM = new PraatPitchTier(acoustparams);
+		assertNotNull(ptM);
+		assertNotNull(ptM.getPitchTargets());
+		assertNotNull(ptM.toFrames(0.01));
+		assertTimesStrictlyIncreasing(ptM.getPitchTargets());
 	}
 	
 }

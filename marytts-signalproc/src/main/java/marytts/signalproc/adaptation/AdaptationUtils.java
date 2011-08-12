@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.adaptation;
 
+import java.io.IOException;
+
 import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
@@ -43,6 +45,7 @@ public class AdaptationUtils {
                                              String sourceFeatureFile, String targetFeatureFile,
                                              int vocalTractFeature, 
                                              String[] labelsToExcludeFromTraining)
+    throws IOException
     {
         IndexMap im = null;
 
@@ -149,6 +152,7 @@ public class AdaptationUtils {
                                                   String sourceFeatureFile, String targetFeatureFile,
                                                   int numNeighbours, int vocalTractFeature, 
                                                   String[] labelsToExcludeFromTraining)
+    throws IOException
     {
         IndexMap im = null;
 
@@ -254,6 +258,7 @@ public class AdaptationUtils {
                                              String sourceFeatureFile, String targetFeatureFile,
                                              int vocalTractFeature, 
                                              String[] labelsToExcludeFromTraining)
+    throws IOException
     {
         IndexMap im = null;
 
@@ -341,6 +346,7 @@ public class AdaptationUtils {
                                                   String sourceFeatureFile, String targetFeatureFile,
                                                   int numNeighbours, int vocalTractFeature, 
                                                   String[] labelsToExcludeFromTraining)
+    throws IOException
     {
         IndexMap im = null;
 

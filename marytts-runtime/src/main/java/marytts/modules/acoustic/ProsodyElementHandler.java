@@ -33,6 +33,7 @@ import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
+import marytts.util.string.StringUtils;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -433,8 +434,7 @@ public class ProsodyElementHandler {
         double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
         double fStart = fEnd - fDuration; // 'prosody' tag starting point
         double duration = lEnd - fStart;  // duaration of 'prosody' modification request
-        
-        Map<Integer, Integer> f0Map;
+
         
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i);
@@ -448,20 +448,19 @@ public class ProsodyElementHandler {
             double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
             //double localStartTime = endTime - phoneDuration;
             
-            f0Map = getPhoneF0Data(e.getAttribute("f0"));
+            int[] f0Targets = StringUtils.parseIntPairs(e.getAttribute("f0"));
             
-            Iterator<Integer> it =  f0Map.keySet().iterator();
-            while(it.hasNext()){
-                Integer percent = it.next();
-                Integer f0Value = f0Map.get(percent);
-                double partPhone = phoneDuration * (percent.doubleValue()/100.0);
+            for (int j=0, len=f0Targets.length/2; j<len; j++) {
+                int percent = f0Targets[2*j];
+                int f0Value = f0Targets[2*j+1];
+                double partPhone = phoneDuration * (percent/100.0);
                 int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * arraysize ) / (double) duration );
                 if ( placeIndex >= arraysize ) {
                     placeIndex = arraysize - 1;
                 } else if ( placeIndex < 0) {
                     placeIndex = 0;
                 }
-                contour[placeIndex] = f0Value.doubleValue();
+                contour[placeIndex] = f0Value;
             }
         }
         
@@ -550,33 +549,7 @@ public class ProsodyElementHandler {
     }
 
 
-    /**
-     * To parse 'f0' attribute and to get f0 specifications
-     * @param attribute - 'f0' attribute of 'ph' element
-     *        Expected format: "(5,248)(47,258)(100,433)"
-     * @return a HashMap which contains f0 specifications
-     *         it returns empty map if given attribute is not in expected format
-     */
-    private Map<Integer, Integer> getPhoneF0Data(String attribute) {
 
-        assert attribute != null;
-        assert !"".equals(attribute) : "given attribute should not be empty string";
-
-        Map<Integer, Integer> f0Map = new HashMap<Integer, Integer>();
-        Pattern p = Pattern.compile("(\\d+,\\d+)");
-
-        // Split input with the pattern
-        Matcher m = p.matcher(attribute);
-        while ( m.find() ) {
-            String[] f0Values = (m.group().trim()).split(",");
-            f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
-        }
-
-        //attribute.split(regex)
-        return f0Map;
-
-    }
-    
     
 
     /**

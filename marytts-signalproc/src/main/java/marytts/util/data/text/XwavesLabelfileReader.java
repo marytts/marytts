@@ -31,13 +31,16 @@ import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marytts.signalproc.analysis.Label;
+import marytts.signalproc.analysis.Labels;
+
 /**
  * A class to read and parse labels in a text file. The file format should conform to that used by ESPS Xwaves and the many other
  * labeling programs which support that format.
  * 
  * @author Ingmar Steiner
  */
-public class XwavesLabelfileDataSource {
+public class XwavesLabelfileReader {
     // main class variables (reader, times, labels, header lines)
     protected BufferedReader reader;
     protected Double[] times;
@@ -51,7 +54,7 @@ public class XwavesLabelfileDataSource {
      *            Label filename as a String
      * @throws IOException 
      */
-    public XwavesLabelfileDataSource(String filename)
+    public XwavesLabelfileReader(String filename)
     throws IOException {
         this(new FileReader(filename));
     }
@@ -63,7 +66,7 @@ public class XwavesLabelfileDataSource {
      *            Label file as a Reader
      * @throws IOException 
      */
-    public XwavesLabelfileDataSource(Reader reader)
+    public XwavesLabelfileReader(Reader reader)
     throws IOException {
         this.reader = new BufferedReader(reader);
         parseLabels();
@@ -187,8 +190,17 @@ public class XwavesLabelfileDataSource {
      * 
      * @return labels as ArrayList of Strings
      */
-    public String[] getLabels() {
+    public String[] getLabelSymbols() {
         return labels;
+    }
+    
+    public Labels getLabels() {
+    	Label[] items = new Label[labels.length];
+    	assert times.length == labels.length;
+    	for (int i=0; i<items.length; i++) {
+    		items[i] = new Label(times[i], labels[i]);
+    	}
+    	return new Labels(items);
     }
 
     /**
@@ -200,24 +212,5 @@ public class XwavesLabelfileDataSource {
         return header;
     }
 
-    /**
-     * Join labels into string
-     * 
-     * @param glue
-     *            String inserted between the elements as they are joined
-     * 
-     * @return joined String
-     */
-    public String joinLabelsToString(String glue) {
-        StringBuilder sb = new StringBuilder();
-        List<String> labelsList = Arrays.asList(labels);
-        ListIterator<String> li = labelsList.listIterator();
 
-        sb.append(li.next());
-        while (li.hasNext()) {
-            sb.append(glue);
-            sb.append(li.next());
-        }
-        return sb.toString();
-    }
 }

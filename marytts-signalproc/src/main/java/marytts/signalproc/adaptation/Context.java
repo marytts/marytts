@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.adaptation;
 
+import marytts.signalproc.analysis.Label;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.string.StringUtils;
 
@@ -274,8 +275,14 @@ public class Context {
     
     public static void main(String[] args)
     {
-        Labels labels1 = new Labels(5);
-        Labels labels2 = new Labels(5);
+    	Label[] items1 = new Label[5];
+    	Label[] items2 = new Label[5];
+    	for (int i=0; i<items1.length; i++) {
+    		items1[i] = new Label();
+    		items2[i] = new Label();
+    	}
+        Labels labels1 = new Labels(items1);
+        Labels labels2 = new Labels(items2);
         
         labels1.items[0].phn = "A";
         labels1.items[1].phn = "B";

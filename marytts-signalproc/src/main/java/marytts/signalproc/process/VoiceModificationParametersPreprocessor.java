@@ -97,6 +97,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                                                    double wsFixed, double ssFixed, 
                                                    int numfrmIn, int numfrmFixedIn, int numPeriodsIn, 
                                                    boolean isFixedRate)
+    throws IOException
     {
         super();
         
@@ -110,11 +111,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
             try {
                 inputAudioSrc = AudioSystem.getAudioInputStream(new File(sourceWavFile));
             } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            	throw new IOException("Cannot open audio "+sourceWavFile, e);
             }
             
             AudioInputStream inputAudioTgt = null;
@@ -122,11 +119,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 FileUtils.copy(targetWavFile, targetWavFile+".wav");
                 inputAudioTgt = AudioSystem.getAudioInputStream(new File(targetWavFile+".wav")); 
             } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            	throw new IOException("Cannot open audio "+targetWavFile+".wav", e);
             }
 
             if (inputAudioSrc!=null && inputAudioTgt!=null)
@@ -139,18 +132,8 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 double[] targetSignal = inputTgt.getAllData();
                 int fsTarget = (int)inputAudioTgt.getFormat().getSampleRate();
                 
-                try {
-                    inputAudioSrc.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                try {
-                    inputAudioTgt.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                inputAudioSrc.close();
+                inputAudioTgt.close();
                 FileUtils.delete(targetWavFile + ".wav");
 
                 sourceEns = SignalProcUtils.getEnergyContourRms(sourceSignal, wsFixed, ssFixed, fsSource);
@@ -225,7 +208,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                     if (((FestivalUtt)ad).keys[i].compareTo("==Segment==")==0 && durationMap==null)
                     {
                         durationMap = AlignLabelsUtils.alignLabels(sourceLabels.items, ((FestivalUtt)ad).labels[i].items);
-                        targetDurationLabels = new Labels(((FestivalUtt)ad).labels[i]);
+                        targetDurationLabels = new Labels(((FestivalUtt)ad).labels[i].items);
                     }
                     else if (((FestivalUtt)ad).keys[i].compareTo("==Target==")==0)
                         targetPitchLabels = new Labels(((FestivalUtt)ad).labels[i]);
