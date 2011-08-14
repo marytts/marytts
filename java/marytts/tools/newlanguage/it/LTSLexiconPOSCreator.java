@@ -111,8 +111,9 @@ public class LTSLexiconPOSCreator {
      * 
      * @param treeAbsolutePath
      * @throws IOException
+     * @throws MaryConfigurationException 
      */
-    public void trainPredict(String treeAbsolutePath) throws IOException {
+    public void trainPredict(String treeAbsolutePath) throws IOException, MaryConfigurationException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
