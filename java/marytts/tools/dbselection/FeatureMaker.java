@@ -779,12 +779,23 @@ public class FeatureMaker
                 //we dont have a transcription
                 //if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){
                 String pos = t.getAttribute("pos");
-                if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
+                
+                // Italian note: using OpenNLP POS tagger the punctuation POS can assume the following values: FB:FC::FF:FS
+                // So the pos.substring(0,1) field do not contain .,'`:#$
+                // Solutions:
+                // 1. first option: String (pos != FB) && (pos != FC) && (pos != FF) && (pos != FS)
+                // 2. second option: t.getTextContent() ".,'`:#$".indexOf(t.getTextContent().substring(0,1)) == -1)
+                // 3. third option: add F to indexOf (if yes go to 1 better)
+                
+                //System.out.println("pos:" + pos);
+                //System.out.println("pos.substring(0,1):" + pos.substring(0,1) + " getTextContent:" + t.getTextContent());
+                if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
                     //no transcription given -> unreliable  
                     newUsefulSentence = 2; 
                     //System.out.println("  strangeSymbols: no transcription given -> unreliable");
                 } //else punctuation -> credible
             } 
+       
             return newUsefulSentence;
         }
             
