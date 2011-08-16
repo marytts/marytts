@@ -789,7 +789,10 @@ public class FeatureMaker
                 
                 //System.out.println("pos:" + pos);
                 //System.out.println("pos.substring(0,1):" + pos.substring(0,1) + " getTextContent:" + t.getTextContent());
-                if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
+                
+                //if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
+                //if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
+                if (",.?!;".indexOf(t.getTextContent().substring(0,1)) == -1){
                     //no transcription given -> unreliable  
                     newUsefulSentence = 2; 
                     //System.out.println("  strangeSymbols: no transcription given -> unreliable");
