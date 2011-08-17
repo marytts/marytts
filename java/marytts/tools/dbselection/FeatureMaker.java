@@ -611,7 +611,14 @@ public class FeatureMaker
 					if ( (nextToken instanceof Element) ) 
 					  sentence = collectTokens(nextToken, sentence);                            
 				}
-                //System.out.println(sentence);
+                
+                // Italian addition this is used to eliminate all the sentences not ending with ".?!"
+                int sentenceLenght=sentence.toString().length();
+                if (".?!".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
+                    usefulSentence = false;
+                    //System.out.println(sentence);
+                }
+                
 				if (sentence!=null){
 					if (usefulSentence){	
 						//store sentence in sentence map
