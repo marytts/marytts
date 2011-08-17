@@ -696,7 +696,7 @@ public class FeatureMaker
                 } else {
                     String pos = ((Element)nextToken).getAttribute("pos");
                     //if (pos.startsWith("$")){
-                    if (".,'`:#$".indexOf(pos.substring(0,1)) != -1) {
+                    if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) {
                         //punctuation
                         tokenText = MaryDomUtils.tokenText((Element)nextToken);
                         //just append without whitespace
