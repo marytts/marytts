@@ -616,9 +616,8 @@ public class FeatureMaker
                 int sentenceLenght=sentence.toString().length();
                 if (".?!".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
                     usefulSentence = false;
-                    //System.out.println(sentence);
                 }
-                
+                //System.out.println(sentence);                
 				if (sentence!=null){
 					if (usefulSentence){	
 						//store sentence in sentence map
