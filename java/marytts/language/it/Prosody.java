@@ -27,6 +27,10 @@ import java.util.Locale;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.ProsodyGenericFST;
 
+/**
+ * @author Fabio Tesser
+ *
+ */
 public class Prosody extends ProsodyGenericFST {
 	
     public Prosody() throws IOException {

@@ -53,7 +53,7 @@
 	<!--<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> -->
 	<!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
 
-	--><consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
+	<consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
 	<consonant ph="ss" ctype="f" cplace="a" cvox="-" long="+" />
 	<consonant ph="SS" ctype="f" cplace="p" cvox="-" long="+" />
 	<consonant ph="vv" ctype="f" cplace="b" cvox="+" long="+" />
