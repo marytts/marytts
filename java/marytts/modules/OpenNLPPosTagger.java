@@ -68,6 +68,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Part-of-speech tagger using OpenNLP.
+ * Some changes has been done by Fabio Tesser in order to support deterministic symbols in PosTaggerME (PosTaggerMEDetSymSupport) 
  *
  * @author Marc Schr&ouml;der
  */
@@ -103,10 +104,20 @@ public class OpenNLPPosTagger extends InternalModule
         String modelFile = MaryProperties.needFilename(propertyPrefix+"model");
         String tagdict = MaryProperties.getFilename(propertyPrefix+"tagdict");
         boolean caseSensitive = MaryProperties.getBoolean(propertyPrefix+"tagdict.isCaseSensitive", true);
+        String deterministicSymbolsTagDict = MaryProperties.getFilename(propertyPrefix+"deterministic_symbols_tagdict");
+        boolean deterministicSymbols_caseSensitive = MaryProperties.getBoolean(propertyPrefix+"deterministic_symbols_tagdict.isCaseSensitive", true);
         String posMapperFile = MaryProperties.getFilename(propertyPrefix+"posMap");
 
         MaxentModel model = new SuffixSensitiveGISModelReader(new File(modelFile)).getModel();
-        if (tagdict != null) {
+        
+        if (tagdict != null  && deterministicSymbolsTagDict != null) {
+            TagDictionary dict = new POSDictionary(tagdict,caseSensitive);
+            TagDictionary deterministic_symbols_tagdict = new POSDictionary(deterministicSymbolsTagDict,deterministicSymbols_caseSensitive);
+            tagger = new PosTaggerMEDetSymSupport(model, new DefaultPOSContextGenerator(null),dict, deterministic_symbols_tagdict);
+        } else if (deterministicSymbolsTagDict != null) {
+            TagDictionary deterministic_symbols_tagdict = new POSDictionary(deterministicSymbolsTagDict,deterministicSymbols_caseSensitive);
+            tagger = new PosTaggerMEDetSymSupport(model, new DefaultPOSContextGenerator(null), deterministic_symbols_tagdict);
+        } else if (tagdict != null) {
             TagDictionary dict = new POSDictionary(tagdict,caseSensitive);
             tagger = new POSTaggerME(model, new DefaultPOSContextGenerator(null),dict);
         } else {
