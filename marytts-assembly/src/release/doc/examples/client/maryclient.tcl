@@ -19,25 +19,39 @@
 # Handling of temporary files could be improved.
 
 # TODO:
-# Create modifier sliders.
+# Create modifier sliders, for the effects.
 # Extend the query proc to make use of them.
-# Create the Help menu contents.
-# Create the actions for the Edit menu.
-# Handle obtaining different server data
-#  Can do that, but can't reset properly: how
-#  to handle the cancel button?  Where do
-#  command procedures get their scope?  Make
-#  it all global?  ghastly.
-# from the user, and resetting all the globals
-# and menus as a result.
+# Turn the Help menu into something more useful.
+# Debug the actions for the Edit menu.
+# Provide a means of getting example inputs
+# from the server.
+# Provide a means of re-loading all the
+# dynamically collected information when the
+# server is changed from the menu.  This means
+# that we need to delete the existing menu
+# entries in order to add them correctly.
 # How do we ensure temporary files are removed
 # in the event of a problem?  if {catch {}} ...?
 # Maybe leaving them around is diagnostic info?
+# Make that an option?
+# Add error handling code for network and disk
+# failures likely to beset such clients.
+# Add sensible defaults for things the user must
+# always set at startup, but these will be
+# platform spacific.  Always default to Audio
+# output for example, or is it possible that
+# people have no voices installed?
 
 
+# This is a GUI, so:
 package require Tk
+
+# We are communicating with the Mary server
+# with HTTP.
 package require http
 
+# Use the local machine in preference to the
+# one in Germany.
 set mary_tts_default_host "127.0.0.1"
 set mary_tts_default_port 59125
 
@@ -110,21 +124,26 @@ proc get_output_text {} {
   return [.io.out.output_area get 1.0 end]
 }
 
-# Pushes the query to the server and gets
-# the results back, displaying or playing
-# them.
-# Probably needs refactoring as it does
-# rather too much.
-proc generate {text_to_process} {
+# Collect the audio data from the server.
+proc collect_audio_data {text_to_process} {
   global mary_tts_host mary_tts_port
   global inputtype outputtype locales
   global audioformat voice 
   set url "http://$mary_tts_host:$mary_tts_port/process"
   # ::http::formatQuery converts a list of
-  # key value # pairs into the correct format
+  # key value pairs into the correct format
   # for http POST.
   set params [::http::formatQuery INPUT_TEXT $text_to_process INPUT_TYPE $inputtype OUTPUT_TYPE $outputtype LOCALE $locales($voice) AUDIO $audioformat VOICE $voice ]
   set result [make_query $url $params]
+  return $result
+}
+
+# Pushes the query to the server and gets
+# the results back, displaying or playing
+# them.
+proc generate_output {text_to_process} {
+  global outputtype 
+  set result [collect_audio_data $text_to_process]
   if {$outputtype eq "AUDIO"} {
     # call the platform dependent implementation.
     play $result
@@ -226,7 +245,9 @@ proc setup_globals {} {
 # A general procedure for filling in the 
 # elements of a listbox from a list.
 # At present this is unused, but it could
-# be useful later. 
+# be useful later.  [It took a while to
+# figure out so I'm not ready to kill it
+# with YAGNI.]
 proc add_listbox_items {a_var a_widget} {
   upvar $a_var var
   foreach item $var  {
@@ -268,13 +289,31 @@ proc text_file_contents {what_for} {
   return $the_text
 }
 
+
 # Save the_text to a text file specified
 # by the user, for the given reason (what_for).
-proc save_text_file {the_text, what_for} {
-  set a_file [tk_getSaveFile -title $what_for -message $what_for]
+# At the moment there is no error handling
+# for this (disk full, write protected, etc).
+proc save_text_file {the_text what_for} {
+  set a_file [tk_getSaveFile -title $what_for -parent .]
   if {$a_file != ""} {
     set a_stream [open $a_file w ]
     puts $a_stream $the_text 
+    close $a_stream
+  }
+}
+
+# Save the_data to a binary file specified
+# by the user, for the given reason (what_for),
+# a text string.
+# At the moment there is no error handling
+# for this (disk full, write protected, etc).
+proc save_binary_file {the_data what_for} {
+  set a_file [tk_getSaveFile -title $what_for -parent .]
+  if {$a_file != ""} {
+    set a_stream [open $a_file w ]
+    fconfigure $a_stream -translation binary
+    puts -nonewline $a_stream $the_data 
     close $a_stream
   }
 }
@@ -300,16 +339,50 @@ proc create_menu_file {} {
   }
 
   $fmenu add command -label "Read" -command {
-    generate [text_file_contents "File to read"]
+    generate_output [text_file_contents "File to read"]
   }
-  $fmenu add command -label "Save Input" -command { }
-  $fmenu add command -label "Save Output" -command { }
+  # How to make these disabled for now?
+  $fmenu add command -label "Save Input" -command {
+    set the_text [get_input_text]
+    save_text_file $the_text "Save Input"
+  }
+  $fmenu add command -label "Save Output" -command {
+    set the_text [get_output_text]
+    save_text_file $the_text "Save Output"
+  }
 }
 
 # Create the menu for edit operations
 proc create_menu_edit {} {
   set emenu .menus.edit.menu
-  $emenu add command -label "Select All" -command {}
+  $emenu add command -label "Select All from Input Area" -command {
+    # This code says copy the selection as well.
+    # May be wrong for some platforms, but is
+    # it more useful?
+    .io.inp.input_area tag add sel 1.0 end
+    event generate .io.inp.input_area <<copy>>
+}
+  $emenu add command -label "Select All from Output Area" -command {
+    # This code says copy the selection as well.
+    # May be wrong for some platforms, but is
+    # it more useful?
+    .io.out.output_area tag add sel 1.0 end
+    event generate .io.out.output_area <<Copy>>
+}
+  $emenu add command -label "Copy from Input Area" -command {
+    # this appears not to work. FIXME
+    event generate .io.inp.input_area <<Copy>>
+  }
+  $emenu add command -label "Copy from Output Area" -command {
+    # this appears not to work. FIXME
+    event generate .io.out.output_area <<copy>>
+  }
+  $emenu add command -label "Paste into Input Area" -command {
+    # this appears not to work. FIXME
+    event generate .io.inp.input_area <<Paste>>
+  }
+  $emenu add command -label "Insert example text into Input Area" -command {
+  }
   # Add specific editing commands here later.
   # For example, we would like to be able to 
   # add whole tags to the XML based formats,
@@ -317,12 +390,10 @@ proc create_menu_edit {} {
   # Also we need to find out what happens with
   # copy cut and paste, given that X Windows
   # is different from MS Windows.
-  # It would be useful to provide an option which
-  # allows the insertion of the default text
-  # which the server can supply for each mode.
+  # Allow example text to be inserted.
   # However, my thinking is that this should not
-  # be forced as it is in the Java application,
-  # because this can rub out edits when swtiching
+  # overwrite as it is in the Java application,
+  # because this rubs out edits when switching
   # voices, and this can be annoying when
   # exploring the system.
 }
@@ -342,22 +413,39 @@ proc create_menu_server {} {
 
 # Create the menu for Help
 proc create_menu_help {} {
-  # This clearly ought to be here, but I am
-  # not sure what docs to put in at this stage.
-  # This is all pretty much wet paint anyway,
-  # so maybe "it is too early to say".
+  # This is all pretty much "wet paint"
+  # Is there enough to merit separate menus?
   set hmenu .menus.help.menu
   $hmenu add command -label "Introduction" -command {
     tk_messageBox -message "This is a basic Tcl/Tk
 client for the MARY TTS system. Most of the options
 are reached through the menus on the top.  Some
-facilities are presently lacking.  Most of the
-interface should be self-explanatory.  In the
-File menu, Read will read a given file aloud
+facilities are presently lacking.
+
+Most of the interface should be self-explanatory.
+In the File menu, Read will read a given file aloud
 (or at least take it as input for the present
 form of processing), whereas Open will load it
 into the input area.  Save input and Save output
-refer to the contents of the text windows." -type ok
+refer to the contents of the text windows. The
+save button next to the play button will save
+the output to a file; this is assumed to be a
+text file, unless the output is audio, in which
+case it is a binary file. 
+
+The Edit menu has cut and paste facilities,
+but these don't seem to work reliably.  The
+default key bindings for text areas should
+be useable.
+
+You will need to set the input and output types
+and the audio format before pressing play.
+Code does not yet exist to figure out sensible
+defaults for your platform.
+
+This does not have support for the effects, yet.
+
+Contributions from developers welcome." -type ok
   }
   $hmenu add command -label "About" -command {}
 }
@@ -450,6 +538,7 @@ frame .io.out
 frame .controls 
 
 # Draw the controls in .io
+label .io.inp.input_label -text "Input Area"
 text .io.inp.input_area -height 10 -width 40 \
 -xscrollcommand ".io.inp.input_x set" \
 -yscrollcommand ".io.inp.input_y set" 
@@ -458,6 +547,7 @@ scrollbar .io.inp.input_x -orient horizontal \
 scrollbar .io.inp.input_y -orient vertical \
 -command ".io.inp.input_area yview"
 
+label .io.out.output_label -text "Output Area"
 text .io.out.output_area -height 10 -width 40 -state disabled \
 -xscrollcommand ".io.out.output_x set" \
 -yscrollcommand ".io.out.output_y set" 
@@ -468,19 +558,32 @@ scrollbar .io.out.output_y -orient vertical \
 
 grid .io.inp -in .io -row 1 -column 1
 grid .io.out -in .io -row 1 -column 2
-grid .io.inp.input_area -in .io.inp -row 1 -column 1
-grid .io.inp.input_y -in .io.inp -row 1 -column 2 -sticky ns
-grid .io.inp.input_x -in .io.inp -row 2 -column 1 -sticky ew
+grid .io.inp.input_label -in .io.inp -row 1 -column 1
+grid .io.inp.input_area -in .io.inp -row 2 -column 1
+grid .io.inp.input_y -in .io.inp -row 2 -column 2 -sticky ns
+grid .io.inp.input_x -in .io.inp -row 3 -column 1 -sticky ew
 
-grid .io.out.output_area -in .io.out -row 1 -column 1
-grid .io.out.output_y -in .io.out -row 1 -column 2 -sticky ns
-grid .io.out.output_x -in .io.out -row 2 -column 1 -sticky ew
+grid .io.out.output_label -in .io.out -row 1 -column 1
+grid .io.out.output_area -in .io.out -row 2 -column 1
+grid .io.out.output_y -in .io.out -row 2 -column 2 -sticky ns
+grid .io.out.output_x -in .io.out -row 3 -column 1 -sticky ew
 
 button .controls.play -text "play" -command {
-  generate [get_input_text]
+  generate_output [get_input_text]
 }
 grid .controls.play -in .controls -row 1 -column 1
 
+button .controls.save -text "save" -command {
+  global outputtype
+  set input_text [get_input_text]
+  if { $outputtype eq "AUDIO" } {
+    save_binary_file [collect_audio_data $input_text ] "Save audio file"
+  } else {
+    save_text_file [collect_audio_data $input_text ] "Save output to file"
+  }
+}
+
+grid .controls.save -in .controls -row 1 -column 2
 
 pack .menus .io .controls -in . -side top
 
@@ -515,7 +618,6 @@ if {[info exists argv0] && [file tail [info script]] eq [file tail $argv0]} {
       puts -nonewline $stream $sound
       close $stream
       # Play the file.
-      add_message "about to play $sndfile\n"
       ::twapi::play_sound $sndfile 
       # Remove the file.
       file delete $sndfile
@@ -527,7 +629,9 @@ if {[info exists argv0] && [file tail [info script]] eq [file tail $argv0]} {
   # server, which is assumed to be working.
   # Since we have options to alter this with
   # menu items, there probably needs to be
-  # some way to reload all this.
+  # some way to reload all this.  But we need
+  # to know how to delete the existing menu
+  # entries to do that.
   setup_globals
   create_radio_menu_from_list inputtype
   create_radio_menu_from_list outputtype
@@ -537,11 +641,12 @@ if {[info exists argv0] && [file tail [info script]] eq [file tail $argv0]} {
   # Note, at the moment voices holds locales,
   # gender, and voice type
 
-  # At the moment this is just diagnostic,
+  # At the moment this is just diagnostic:
+  ## add_message [ join $voices "\n"  ]
   # it tells us we have a basically working
   # system and the list of voices has been
   # picked up and manipulated correctly.
-  add_message [ join $voices "\n"  ]
+  # So it is commented out now.
 }
 
 
