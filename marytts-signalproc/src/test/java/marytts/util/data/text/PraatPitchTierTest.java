@@ -19,31 +19,37 @@ public class PraatPitchTierTest {
 
 	private PraatPitchTier pt;
 	private PraatPitchTier spt;
-	
+
 	private void assertTimesStrictlyIncreasing(PitchTarget[] targets) {
-		for (int i=1; i<targets.length; i++) {
-			assertTrue(targets[i].time>targets[i-1].time);
+		for (int i = 1; i < targets.length; i++) {
+			assertTrue(targets[i].time > targets[i - 1].time);
 		}
 	}
-	
+
 	@Before
-	public void setUp() throws Exception {
+	public void setUpDefault() throws Exception {
 		Reader pitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001.PitchTier"), "UTF-8");
-		Reader shortPitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001_short.PitchTier"), "UTF-8");
 		pt = new PraatPitchTier(pitchTierFile);
+	}
+
+	@Before
+	public void setUpShort() throws Exception {
+		Reader shortPitchTierFile = new InputStreamReader(getClass().getResourceAsStream("pop001_short.PitchTier"), "UTF-8");
 		spt = new PraatPitchTier(shortPitchTierFile);
 	}
-	
+
 	@Test
-	public void canReadPitchFile() throws Exception {
-		// default format
+	public void canReadPitchFileDefault() throws Exception {
 		assertNotNull(pt);
 		assertEquals(0, pt.getXmin(), 1.e-7);
 		assertEquals(2.52, pt.getXmax(), 1.e-7);
 		assertEquals(109, pt.getNumTargets());
 		assertEquals(pt.getNumTargets(), pt.getPitchTargets().length);
 		assertNotNull(pt.getPitchTargets()[0]);
-		// short format
+	}
+
+	@Test
+	public void canReadPitchFileShort() throws Exception {
 		assertNotNull(spt);
 		assertEquals(0, spt.getXmin(), 1.e-7);
 		assertEquals(2.52, spt.getXmax(), 1.e-7);
@@ -51,56 +57,59 @@ public class PraatPitchTierTest {
 		assertEquals(spt.getNumTargets(), spt.getPitchTargets().length);
 		assertNotNull(spt.getPitchTargets()[0]);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void chokeOnWrongFile1() throws Exception {
 		String wrong = "this is a wrong first line";
 		new PraatPitchTier(new StringReader(wrong));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void chokeOnWrongFile2() throws Exception {
 		String wrong = PraatPitchTier.FIRSTLINE + "\nthis is a wrong second line";
 		new PraatPitchTier(new StringReader(wrong));
 	}
 
 	@Test
-	public void canWritePitchFile() throws Exception {
-		// default format
+	public void canWritePitchFileDefault() throws Exception {
 		StringWriter sw = new StringWriter();
 		pt.writeTo(sw);
 		String newFile = sw.toString();
 		PraatPitchTier newPT = new PraatPitchTier(new StringReader(newFile));
 		assertEquals(pt.getPitchTargets().length, newPT.getPitchTargets().length);
-		// short format
-		sw = new StringWriter();
+	}
+
+	@Test
+	public void canWritePitchFileShort() throws Exception {
+		StringWriter sw = new StringWriter();
 		spt.writeTo(sw);
-		newFile = sw.toString();
-		newPT = new PraatPitchTier(new StringReader(newFile));
+		String newFile = sw.toString();
+		PraatPitchTier newPT = new PraatPitchTier(new StringReader(newFile));
 		assertEquals(spt.getPitchTargets().length, newPT.getPitchTargets().length);
 	}
-	
+
 	@Test
-	public void canExportFrames() {
-		// default format
+	public void canExportFramesDefault() {
 		double step = 0.01;
 		double[] frames = pt.toFrames(step);
-		assertEquals((int) ((pt.getXmax()-pt.getXmin())/step+1), frames.length);
-		// short format
-		step = 0.01;
-		frames = spt.toFrames(step);
-		assertEquals((int) ((spt.getXmax()-spt.getXmin())/step+1), frames.length);
+		assertEquals((int) ((pt.getXmax() - pt.getXmin()) / step + 1), frames.length);
 	}
-	
-	
+
+	@Test
+	public void canExportFramesShort() {
+		double step = 0.01;
+		double[] frames = spt.toFrames(step);
+		assertEquals((int) ((spt.getXmax() - spt.getXmin()) / step + 1), frames.length);
+	}
+
 	@Test
 	public void canComputeFrequency() throws Exception {
-		String simpleFile = PraatPitchTier.FIRSTLINE+"\n"+PraatPitchTier.SECONDLINE+"\n\n"
-			+"0\n3\n" // from 0 to 3 seconds
-			+"3\n" // four targets
-			+"1\n100\n" // at 1 second, 100 Hz
-			+"2\n200\n" // at 2 seconds, 200 Hz
-			+"2.5\n300\n"; // at 2.5 seconds, 300 Hz
+		String simpleFile = PraatPitchTier.FIRSTLINE + "\n" + PraatPitchTier.SECONDLINE + "\n\n";
+		simpleFile += "0\n3\n" // from 0 to 3 seconds
+				+ "3\n" // four targets
+				+ "1\n100\n" // at 1 second, 100 Hz
+				+ "2\n200\n" // at 2 seconds, 200 Hz
+				+ "2.5\n300\n"; // at 2.5 seconds, 300 Hz
 		PraatPitchTier simple = new PraatPitchTier(new StringReader(simpleFile));
 		assertTrue(Double.isNaN(simple.getFrequency(0)));
 		assertTrue(Double.isNaN(simple.getFrequency(0.99)));
@@ -113,23 +122,28 @@ public class PraatPitchTierTest {
 		assertTrue(Double.isNaN(simple.getFrequency(2.51)));
 		assertTrue(Double.isNaN(simple.getFrequency(3)));
 	}
-	
+
 	@Test
-	public void canImportFrames() {
+	public void canImportFramesDefault() {
 		double step = 0.01;
-		// default format
 		double[] frames = pt.toFrames(step);
 		PraatPitchTier newPT = new PraatPitchTier(pt.getXmin(), frames, step);
 		assertEquals(pt.getXmin(), newPT.getXmin(), 1.e-7);
-		assertEquals(pt.getXmax(), newPT.getXmax(), step); // xmax will be less precisely equal
+		assertEquals(pt.getXmax(), newPT.getXmax(), step); // xmax will be less
+															// precisely equal
 		assertEquals(newPT.getNumTargets(), newPT.getPitchTargets().length);
 		assertNotNull(newPT.getPitchTargets()[0]);
 		assertTrue(MathUtils.sumSquaredError(pt.toFrames(step), newPT.toFrames(step)) < 1.e-30);
-		// short format
-		frames = spt.toFrames(step);
-		newPT = new PraatPitchTier(spt.getXmin(), frames, step);
+	}
+
+	@Test
+	public void canImportFramesShort() {
+		double step = 0.01;
+		double[] frames = spt.toFrames(step);
+		PraatPitchTier newPT = new PraatPitchTier(spt.getXmin(), frames, step);
 		assertEquals(spt.getXmin(), newPT.getXmin(), 1.e-7);
-		assertEquals(spt.getXmax(), newPT.getXmax(), step); // xmax will be less precisely equal
+		assertEquals(spt.getXmax(), newPT.getXmax(), step); // xmax will be less
+															// precisely equal
 		assertEquals(newPT.getNumTargets(), newPT.getPitchTargets().length);
 		assertNotNull(newPT.getPitchTargets()[0]);
 		assertTrue(MathUtils.sumSquaredError(spt.toFrames(step), newPT.toFrames(step)) < 1.e-30);
@@ -139,8 +153,7 @@ public class PraatPitchTierTest {
 	public void canParseBothTextFormats() {
 		assertEquals(pt, spt);
 	}
-	
-	
+
 	@Test
 	public void canCreateFromMaryXML() throws Exception {
 		Document acoustparams = DomUtils.parseDocument(getClass().getResourceAsStream("pop001.dfki-poppy-hsmm.ACOUSTPARAMS"));
@@ -150,5 +163,5 @@ public class PraatPitchTierTest {
 		assertNotNull(ptM.toFrames(0.01));
 		assertTimesStrictlyIncreasing(ptM.getPitchTargets());
 	}
-	
+
 }
