@@ -53,7 +53,8 @@ public class SCostUnitFileWriter extends VoiceImportComponent
         return "SCostUnitFileWriter";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     throws Exception
     {
         maryDir = new File(db.getProp(db.FILEDIR));

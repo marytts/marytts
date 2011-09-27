@@ -70,7 +70,8 @@ public class PraatPitchmarker extends VoiceImportComponent
         return "PraatPitchmarker";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         tmpScript = db.getProp(db.TEMPDIR)+"script.praat";
     }

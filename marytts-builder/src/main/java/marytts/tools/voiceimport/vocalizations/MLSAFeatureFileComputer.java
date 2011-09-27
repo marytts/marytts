@@ -128,7 +128,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
      * Initialize this component
      * @throws MaryConfigurationException if there is problem with basename list
      */
-    public void initialiseComp() throws Exception {
+    @Override
+    protected void initialiseComp() throws Exception {
 
         createDirectoryifNotExists(getProp(MLSADIR));
         createDirectoryifNotExists(getProp(RAWDIR));

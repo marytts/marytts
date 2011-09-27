@@ -64,7 +64,8 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
         return "SnackF0ContourExtractor";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         scriptFileName = db.getProp(db.VOCALIZATIONSDIR)+"script.snack";
         if (!(new File(getProp(LF0DIR))).exists()) {

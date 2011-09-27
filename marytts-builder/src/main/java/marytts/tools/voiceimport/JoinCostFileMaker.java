@@ -72,7 +72,8 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         return "JoinCostFileMaker";
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         //make sure that we have a weights file
         File weightsFile = new File(getProp(WEIGHTSFILE));

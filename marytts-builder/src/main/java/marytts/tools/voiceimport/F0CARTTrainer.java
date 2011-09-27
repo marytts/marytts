@@ -92,7 +92,8 @@ public class F0CARTTrainer extends VoiceImportComponent
         return name;
     }
 
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {       
         String rootDir = db.getProp(db.ROOTDIR);
         String f0DirName = db.getProp(db.TEMPDIR);

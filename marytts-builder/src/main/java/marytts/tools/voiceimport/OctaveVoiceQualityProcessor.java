@@ -87,7 +87,8 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
         return name;
     }
 
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         scriptSnackFileName = db.getProp(db.TEMPDIR) + "snack_call.tcl";
         scriptOctaveFileName = db.getProp(db.TEMPDIR) + "octave_call.m";

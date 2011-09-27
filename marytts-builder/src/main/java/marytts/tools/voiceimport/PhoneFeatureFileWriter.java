@@ -63,7 +63,8 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
         return name;
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {        
         File unitfeatureDir = new File(getProp(FEATUREDIR));
         if (!unitfeatureDir.exists()){

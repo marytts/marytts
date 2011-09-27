@@ -41,7 +41,8 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         return "VocalizationPitchmarker";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         tmpScript = db.getProp(db.TEMPDIR)+"script.praat";
         

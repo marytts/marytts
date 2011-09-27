@@ -122,7 +122,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
        props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
    }
     
-    public void initialiseComp()
+   @Override
+   protected void initialiseComp()
     {
         progress = 0;
         locale = db.getProp(db.LOCALE);

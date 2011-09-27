@@ -62,10 +62,6 @@ public class DurationTreeTrainer extends VoiceImportComponent
     }
     
  
-    public void initialiseComp()
-    {
-    }
-    
      public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb){
         this.db = theDb;
         if (props == null){

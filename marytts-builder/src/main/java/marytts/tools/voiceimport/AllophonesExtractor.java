@@ -75,7 +75,8 @@ public class AllophonesExtractor extends VoiceImportComponent {
         return "AllophonesExtractor";
     }
 
-    public void initialiseComp() {
+    @Override
+    protected void initialiseComp() {
         locale = db.getProp(db.LOCALE);
         mary = null; // initialised only if needed
         promptAllophonesDir = new File(db.getProp(db.PROMPTALLOPHONESDIR));

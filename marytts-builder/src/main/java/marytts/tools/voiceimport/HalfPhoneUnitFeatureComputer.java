@@ -52,7 +52,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
     }
     
     @Override
-    public void initialiseComp()
+    protected void initialiseComp()
     throws Exception
     {       
         locale = db.getProp(db.LOCALE);        

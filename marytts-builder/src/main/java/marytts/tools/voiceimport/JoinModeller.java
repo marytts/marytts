@@ -58,6 +58,7 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HMMData.PdfFileFormat;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
@@ -96,7 +97,6 @@ public class JoinModeller extends VoiceImportComponent
     public final String CNVCONFFILE = "JoinModeller.cnvFile"; 
     public final String HHEDCOMMAND = "JoinModeller.hhedCommand";
     public final String FEATURELISTFILE = "JoinModeller.featureListFile";
-    public final String ALLOPHONESFILE   = "JoinModeller.allophonesFile";
     public final String TRICKYPHONESFILE = "JoinModeller.trickyPhonesFile";
     
     public JoinModeller()
@@ -121,7 +121,6 @@ public class JoinModeller extends VoiceImportComponent
            props.put(MMFFILE,filedir+"join_mmf"+maryExt);
            props.put(FULLFILE, filedir+"fullList"+maryExt);
            props.put(FEATURELISTFILE, filedir+"/mary/featureListFile.txt");
-           props.put(ALLOPHONESFILE, "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml");
            props.put(TRICKYPHONESFILE, filedir+"/mary/trickyPhones.txt");
            props.put(CXCHEDFILE, filedir+"cxc_join.hed");
            props.put(JOINTREEFILE, filedir+"join_tree.inf");
@@ -145,7 +144,6 @@ public class JoinModeller extends VoiceImportComponent
         props2Help.put(TRICKYPHONESFILE,"list of aliases for tricky phones, so HTK-HHEd command can handle them.");
         props2Help.put(CXCHEDFILE,"HTK hed file used by HHEd, load stats file, contains questions for decision tree-based context clustering and outputs result in join-tree.inf");
         props2Help.put(CNVHEDFILE,"HTK hed file used by HHEd to convert trees and mmf into hts_engine format");
-        props2Help.put(ALLOPHONESFILE, "allophones set (language dependent, an example can be found in ../openmary/lib/modules/language/...)");
         props2Help.put(TRNCONFFILE,"HTK configuration file for context clustering");
         props2Help.put(CNVCONFFILE,"HTK configuration file for converting to hts_engine format");
         props2Help.put(HHEDCOMMAND,"HTS-HTK HHEd command, HTS version minimum HTS_2.0.1");
@@ -163,7 +161,7 @@ public class JoinModeller extends VoiceImportComponent
         // for creating a contexttranslator object we need to check if there is 
         PhoneTranslator contextTranslator = null;
         // Check if there are tricky phones          
-        if( HMMVoiceMakeData.checkTrickyPhones(getProp(ALLOPHONESFILE), getProp(TRICKYPHONESFILE)) )        
+        if( HMMVoiceMakeData.checkTrickyPhones(db.getAllophoneSet(), getProp(TRICKYPHONESFILE)) )        
             contextTranslator = new PhoneTranslator(new FileInputStream(getProp(TRICKYPHONESFILE)));
         else
             contextTranslator = new PhoneTranslator(null); 
@@ -448,7 +446,7 @@ public class JoinModeller extends VoiceImportComponent
             String trickyPhonesFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files_old/trickyPhones.txt";
             String allophonesFile = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
             // Check if there are tricky phones          
-            if( ! (HMMVoiceMakeData.checkTrickyPhones(allophonesFile, trickyPhonesFile) ) )
+            if( ! (HMMVoiceMakeData.checkTrickyPhones(AllophoneSet.getAllophoneSet(allophonesFile), trickyPhonesFile) ) )
                 trickyPhonesFile = null;
              
             // Check if there are tricky phones, and create a PhoneTranslator object

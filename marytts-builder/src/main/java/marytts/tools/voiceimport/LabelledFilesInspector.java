@@ -99,7 +99,8 @@ public class LabelledFilesInspector extends VoiceImportComponent
         return "LabelledFilesInspector";
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         extractedDir = db.getProp(db.TEMPDIR);
         extractedWavDir = extractedDir+"wav/";

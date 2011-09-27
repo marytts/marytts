@@ -109,18 +109,14 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         labDir = db.getProp(db.PHONELABDIR);
     }
    
-    public final void initialiseComp()
+    @Override
+    protected final void initialiseComp()
     throws Exception
     {
         customInitialisation();
         db.initialiseComponent(featureComputer);
         
-        try {
-            pauseSymbol = AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)).getSilence().name();
-        } catch (Exception e) {
-            System.err.println("Cannot get pause symbol from allophone set -- will assume default '_'");
-            pauseSymbol = "_";
-        }
+        pauseSymbol = db.getAllophoneSet().getSilence().name();
         File unitfeatureDir = new File(featsDir);
         if (!unitfeatureDir.exists()) {
             System.out.println("Feature directory "+featsDir+" does not exist; ");

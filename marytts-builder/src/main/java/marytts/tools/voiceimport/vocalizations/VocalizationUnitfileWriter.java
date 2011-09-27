@@ -76,7 +76,8 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         return "VocalizationUnitfileWriter";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         //maryDir = new File(db.getProp(db.FILEDIR));
         

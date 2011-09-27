@@ -19,6 +19,8 @@
  */
 package marytts.tests;
 
+import java.io.File;
+
 import marytts.features.FeatureDefinition;
 import marytts.tools.voiceimport.BasenameTimelineMaker;
 import marytts.tools.voiceimport.DatabaseLayout;
@@ -43,7 +45,7 @@ public class BasenameTimelineTest {
         VoiceImportComponent[] comps = new VoiceImportComponent[2];
         comps[0] = btlm;
         comps[1] = ffw;
-        DatabaseLayout dbl = new DatabaseLayout(comps);
+        DatabaseLayout dbl = new DatabaseLayout(new File(System.getProperty("user.dir", "."), "database.config"), comps);
         UnitFileReader ufr = new UnitFileReader(ffw.getProp(ffw.UNITFILE));
         TimelineReader tlr = new TimelineReader(btlm.getProp(btlm.TIMELINEFILE));
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );

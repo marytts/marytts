@@ -59,7 +59,8 @@ public class HMMVoiceFeatureSelection extends VoiceImportComponent {
     }
     
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {      
         locale = db.getProp(db.LOCALE);           
     }

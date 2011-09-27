@@ -39,6 +39,13 @@ public abstract class VoiceImportComponent
     protected BasenameList bnl;
     protected Logger logger;
     
+    protected VoiceImportComponent() {
+        if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
+            BasicConfigurator.configure();
+        }
+        logger = MaryUtils.getLogger(getName());
+    }
+    
     protected abstract void setupHelp();
     /**
      * Initialise a voice import component:
@@ -57,10 +64,6 @@ public abstract class VoiceImportComponent
         this.props = props;
         this.bnl = bnl;
         initialiseComp();
-        if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
-            BasicConfigurator.configure();
-        }
-        logger = MaryUtils.getLogger(getName());
     }
     
     /**
@@ -70,7 +73,7 @@ public abstract class VoiceImportComponent
      * 
      * @param bnl the list of basenames
      */
-    public void initialiseComp()
+    protected void initialiseComp()
     throws Exception
     {}
         

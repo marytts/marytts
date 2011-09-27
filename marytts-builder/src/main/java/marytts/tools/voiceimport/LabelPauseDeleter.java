@@ -73,7 +73,8 @@ public class LabelPauseDeleter extends VoiceImportComponent {
            props2Help.put(PAUSETHR, "Threshold for deleting pauses from label files");
         }
         
-        public void initialiseComp()
+       @Override
+       protected void initialiseComp()
         {
            locale = db.getProp(db.LOCALE);
            this.pauseSymbol = System.getProperty("pause.symbol", "_");

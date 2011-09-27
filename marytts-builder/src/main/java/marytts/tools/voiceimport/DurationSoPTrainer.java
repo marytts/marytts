@@ -76,7 +76,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
   private final String FEATUREDIR = name+".featureDir";   
   private final String FEATUREFILE = name+".featureFile";
   private final String UNITFILE = name+".unitFile";
-  private final String ALLOPHONESFILE = name+".allophonesFile"; 
   private final String SOLUTIONSIZE = name+".solutionSize";
   private final String INTERCEPTTERM = name+".interceptTerm";
   private final String LOGDURATION = name+".logDuration";
@@ -87,7 +86,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
     return name;
   }
 
-  public void initialiseComp()
+  @Override
+  protected void initialiseComp()
   {
     this.unitlabelDir = new File(getProp(LABELDIR));
     this.unitfeatureDir = new File(getProp(FEATUREDIR));
@@ -107,7 +107,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
       props.put(LABELDIR, db.getProp(db.ROOTDIR) + "phonelab" + fileSeparator);            
       props.put(FEATUREFILE, db.getProp(db.FILEDIR) + "phoneFeatures"+db.getProp(db.MARYEXT));
       props.put(UNITFILE, db.getProp(db.FILEDIR) + "phoneUnits"+db.getProp(db.MARYEXT));
-      props.put(ALLOPHONESFILE, db.getProp(db.ALLOPHONESET));
       props.put(INTERCEPTTERM, "true");
       props.put(LOGDURATION, "true");
       props.put(SOLUTIONSIZE, "10");
@@ -123,7 +122,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
     props2Help.put(LABELDIR, "directory containing the phone labels");                
     props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
     props2Help.put(UNITFILE, "file containing all phone units");
-    props2Help.put(ALLOPHONESFILE, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
     props2Help.put(INTERCEPTTERM, "whether to include interceptTerm (b0) on the solution equation : b0 + b1X1 + .. bnXn");
     props2Help.put(LOGDURATION, "whether to use log(independent variable)");
     props2Help.put(SOLUTIONSIZE, "size of the solution, number of dependend variables");
@@ -148,10 +146,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     String[] lingFactorsConsonant;
     String[] lingFactorsPause;
       
-    AllophoneSet allophoneSet;   
-    String phoneXML = getProp(ALLOPHONESFILE);
-    System.out.println("Reading allophones set from file: " + phoneXML);
-    allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);          
+    AllophoneSet allophoneSet = db.getAllophoneSet();
     
     FeatureFileReader featureFile = FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
     UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
