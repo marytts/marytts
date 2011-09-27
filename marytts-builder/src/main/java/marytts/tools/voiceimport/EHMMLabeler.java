@@ -116,7 +116,8 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
        }
         
-        public void initialiseComp()
+       @Override
+       protected void initialiseComp()
         {
            locale = db.getProp(db.LOCALE);
            

@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.io.PropertiesAccessor;
 
@@ -156,6 +157,19 @@ public abstract class MaryConfig {
 		return configLoader;
 	}
 	
+	/**
+	 * Get the allophone set for the given locale, or null if it cannot be retrieved.
+	 * @param locale
+	 * @return the allophone set for the given locale, or null of the locale is not supported.
+	 * @throws MaryConfigurationException if the locale is supported in principle but no allophone set can be retrieved.
+	 */
+	public static AllophoneSet getAllophoneSet(Locale locale) throws MaryConfigurationException {
+		LanguageConfig lc = getLanguageConfig(locale);
+		if (lc == null) {
+			return null;
+		}
+		return lc.getAllophoneSetFor(locale);
+	}
 	
 	
 	//////////// Non-static / base class methods //////////////

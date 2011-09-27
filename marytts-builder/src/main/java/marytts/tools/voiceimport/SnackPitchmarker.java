@@ -64,7 +64,8 @@ public class SnackPitchmarker extends VoiceImportComponent
         return "SnackPitchmarker";
     }
 
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         scriptFileName = db.getProp(db.TEMPDIR)+"pm.tcl";
     }

@@ -100,7 +100,8 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         return name;
     }
 
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         scriptFileName = db.getProp(db.TEMPDIR) + "f0_formants.tcl";
     }

@@ -104,7 +104,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String SCP           = name+".makeSCP";
     public final String questionsFile    = name+".questionsFile";
     public final String questionsUttFile = name+".questionsUttFile";
-    public final String allophonesFile   = name+".allophonesFile";
     public final String featureListFile  = name+".featureListFile";
     public final String featureListMapFile = name+".featureListMapFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
@@ -136,7 +135,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(SCP, "1");
            props.put(questionsFile, "hts/data/questions/questions_qst001.hed");
            props.put(questionsUttFile, "hts/data/questions/questions_utt_qst001.hed");
-           props.put(allophonesFile, db.getProp(db.ALLOPHONESET));
            props.put(featureListFile, "mary/hmmFeatures.txt");
            props.put(featureListMapFile, "mary/hmmFeaturesMap.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
@@ -158,7 +156,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(SCP, "Generating a trainig data script.");
         props2Help.put(questionsFile, "Name of the file that will contain the questions (This file will be created).");
         props2Help.put(questionsUttFile, "Name of the file that will contain the questions for context dependent GV (This file will be created).");
-        props2Help.put(allophonesFile, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
         props2Help.put(featureListFile, "A file that contains additional context features used for training HMMs, normally it" +
         " should be a subset of mary/features.txt. This file is automatically created by the HMMVoiceFeatureSelection component.");
         props2Help.put(featureListMapFile, "A map of features, so the training is not done with long names but aliases, this file contains the names and aliases used.");
@@ -274,15 +271,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      * @param trickyFile name of the file where the tricky phone replacements are saved (full path).
      * @return true if trickyPhones.txt file is created, false otherwise.
      */
-    public static boolean checkTrickyPhones(String phoneXML, String trickyFile){
+    public static boolean checkTrickyPhones(AllophoneSet allophoneSet, String trickyFile){
         
         boolean trickyPhones = false;
         try {
             
-            AllophoneSet allophoneSet;
-          
-            System.out.println("Reading allophones set from file: " + phoneXML);
-            allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
             String lang = allophoneSet.getLocale().getLanguage();
             
             
@@ -349,7 +342,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
-        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+        if( checkTrickyPhones(db.getAllophoneSet(), voiceDir+getProp(trickyPhonesFile)) )        
            phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
            phTranslator = new PhoneTranslator(null); 
@@ -498,10 +491,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         }
         
         
-        AllophoneSet allophoneSet;
-        String phoneXML = getProp(allophonesFile);
-        System.out.println("Reading allophones set from file: " + phoneXML);
-        allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
+        AllophoneSet allophoneSet = db.getAllophoneSet();
         
         
         String phoneSeq, phonOri;         
@@ -709,7 +699,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
-        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+        if( checkTrickyPhones(db.getAllophoneSet(), voiceDir+getProp(trickyPhonesFile)) )        
            phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
            phTranslator = new PhoneTranslator(null); 
@@ -838,7 +828,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // Check if there are tricky phones
         PhoneTranslator phTranslator;  
-        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+        if( checkTrickyPhones(db.getAllophoneSet(), voiceDir+getProp(trickyPhonesFile)) )        
            phTranslator = new PhoneTranslator(new FileInputStream(voiceDir + getProp(trickyPhonesFile)));
         else
            phTranslator = new PhoneTranslator(null); 

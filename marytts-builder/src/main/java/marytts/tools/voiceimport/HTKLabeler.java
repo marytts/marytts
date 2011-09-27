@@ -155,7 +155,8 @@ public class HTKLabeler extends VoiceImportComponent {
            
        }
         
-        public void initialiseComp() 
+       @Override
+       protected void initialiseComp() 
         {
            
            dictionary = new TreeMap<String, TreeMap<String,String>>();

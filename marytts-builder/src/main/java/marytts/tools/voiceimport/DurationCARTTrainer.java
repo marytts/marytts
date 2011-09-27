@@ -76,7 +76,8 @@ public class DurationCARTTrainer extends VoiceImportComponent
         return name;
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {       
         this.unitlabelDir = new File(getProp(LABELDIR));
         this.unitfeatureDir = new File(getProp(FEATUREDIR));

@@ -90,9 +90,6 @@ public class PauseDurationTrainer extends VoiceImportComponent {
     private String fvExt = ".pfeats";
     private String labExt = ".lab";
 
-    public void initialiseComp()
-    {      
-    }
     
     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;

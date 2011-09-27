@@ -58,7 +58,8 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         return "PhoneUnitfileWriter";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     throws Exception
     {
         maryDir = new File(db.getProp(db.FILEDIR));

@@ -177,7 +177,8 @@ public class MLSAFeatureFileWriter extends VoiceImportComponent {
      * Initialize this component
      * @throws MaryConfigurationException if there is problem with basename list
      */
-    public void initialiseComp() throws Exception {
+    @Override
+    protected void initialiseComp() throws Exception {
         
         String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         createDirectoryifNotExists(timelineDir);

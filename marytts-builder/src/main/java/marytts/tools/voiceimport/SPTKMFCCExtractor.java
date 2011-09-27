@@ -73,7 +73,8 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
         return "SPTKMFCCExtractor";
     }
     
-    public void initialiseComp(){
+    @Override
+    protected void initialiseComp(){
         // sCost dir creation, if doesn't exists
         sCostDirectory = db.getProp(db.ROOTDIR)+File.separator+"sCost";
         File sCostDir =  new File(sCostDirectory);

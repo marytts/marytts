@@ -71,6 +71,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 
+import org.apache.commons.io.FileUtils;
+
 import marytts.util.io.BasenameList;
 
 
@@ -401,9 +403,7 @@ public class DatabaseImportMain extends JFrame
             }
             in.close();
         } catch (IOException e) {
-            IOException myIOE = new IOException("Problem reading list of modules");
-            myIOE.initCause(e);
-            throw myIOE;
+            throw new IOException("Problem reading list of voice import components -- importMain.config seems broken", e);
         }
         String[][] result = new String[groups.size()][];
         for (int i=0;i<groups.size();i++) {
@@ -425,7 +425,85 @@ public class DatabaseImportMain extends JFrame
    
     public static void main( String[] args ) throws Exception
     {
-        // Determine the voice building directory in the following order:
+        File voiceDir = determineVoiceBuildingDir(args);
+        if (voiceDir == null) {
+        	throw new IllegalArgumentException("Cannot determine voice building directory.");
+        }
+        File wavDir =  new File(voiceDir, "wav");
+        //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
+        assert wavDir.exists() : "no wav dir at "+wavDir.getAbsolutePath();
+        
+        /* Read the list of components */
+        File importMainConfigFile = new File(voiceDir, "importMain.config");
+        if (!importMainConfigFile.exists()) {
+        	FileUtils.copyInputStreamToFile(DatabaseImportMain.class.getResourceAsStream("importMain.config"), importMainConfigFile);
+        }
+        assert importMainConfigFile.exists();
+        
+        String[][] groups2comps = readComponentList(new FileInputStream(importMainConfigFile));
+
+        VoiceImportComponent[] components = createComponents(groups2comps);
+        
+        /* Load DatabaseLayout */
+        File configFile = new File(voiceDir, "database.config");
+
+        DatabaseLayout db = new DatabaseLayout(configFile, components);
+        if (!db.isInitialized())
+            return;
+        
+        if (args.length > 0) { // non-gui mode: arguments are expected to be component names, in order or application
+            for (String compName : args) {
+                for (VoiceImportComponent comp : components) {
+                    if (comp.getName().equals(compName)) {
+                        System.out.println("Starting "+compName);
+                        comp.compute();
+                    }
+                }
+            }
+        } else {
+            /* Display GUI */       
+            String voicename = db.getProp(db.VOICENAME);
+            DatabaseImportMain importer = 
+                new DatabaseImportMain("Database import: "+voicename, components, db,groups2comps);
+            importer.pack();
+            // Center window on screen:
+            importer.setLocationRelativeTo(null); 
+            importer.setVisible(true);
+        }
+        
+    }
+
+	/**
+	 * @param groups2comps
+	 * @return
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	private static VoiceImportComponent[] createComponents(String[][] groups2comps) 
+	throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		/* Create component classes */
+        List<VoiceImportComponent> compsList = new ArrayList<VoiceImportComponent>();
+        //loop over the groups
+        for (int i=0;i<groups2comps.length;i++) {
+            //get the components for this group
+            String[] nextComps = groups2comps[i];
+            //loop over the components (first element is group name; ignore)
+            for (int j=1;j<nextComps.length;j++) {
+                //get the class name of this component  
+                String className = nextComps[j];
+                //System.out.println(className);
+                //create a new instance of this class and store in compsList
+                compsList.add((VoiceImportComponent)Class.forName(className).newInstance());
+                //remove "de.dfki...." from class name and store in groups2comps
+                nextComps[j] = className.substring(className.lastIndexOf('.')+1);
+            }
+        }
+        return compsList.toArray(new VoiceImportComponent[compsList.size()]);
+	}
+
+	private static File determineVoiceBuildingDir(String[] args) {
+		// Determine the voice building directory in the following order:
         // 1. System property "user.dir"
         // 2. First command line argument
         // 3. current directory
@@ -460,93 +538,13 @@ public class DatabaseImportMain extends JFrame
                     voiceBuildingDir = file.getAbsolutePath(); 
             }
         }
+        System.setProperty("user.dir", voiceBuildingDir);
         if (voiceBuildingDir != null) {
-            System.setProperty("user.dir", voiceBuildingDir);
+        	return new File(voiceBuildingDir);
         } else {
-            System.err.println("Could not get a voice building directory -- exiting.");
-            System.exit(0);
+        	return null;
         }
-        File wavDir =  new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
-        //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
-        if(!wavDir.exists()){
-            int choose = JOptionPane.showOptionDialog(null,
-                    "Before beginning a new voice building, make sure that all wave files to build the voice are in 'wav' directory of your specified location.",
-                    "Could not find wave files",
-                    JOptionPane.OK_OPTION, 
-                    JOptionPane.ERROR_MESSAGE, 
-                    null,
-                    new String[] {"OK"},
-                    null);
-            System.err.println("Could not find 'wav' directory in specified voice building directory -- exiting.");
-            System.exit(0);
-        }
-        
-        /* Read the list of components */
-        String[][] groups2comps;
-        File importMainConfigFile = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"./importMain.config");
-        if (!importMainConfigFile.exists()) {
-            //create config file
-            BufferedReader configIn = new BufferedReader(new InputStreamReader(
-                                DatabaseImportMain.class.getResourceAsStream("importMain.config"),"UTF-8"));
-            PrintWriter configOut = new PrintWriter(new OutputStreamWriter(
-                                new FileOutputStream(importMainConfigFile),"UTF-8"),true);
-            String line;
-            while((line=configIn.readLine())!= null){
-                configOut.println(line);                
-            }
-            configIn.close();
-            configOut.close();
-            //read the config file
-            groups2comps = readComponentList(DatabaseImportMain.class.getResourceAsStream("importMain.config"));
-        } else {
-            groups2comps = readComponentList(new FileInputStream(importMainConfigFile));
-        }
-        /* Create component classes */
-        
-        List<VoiceImportComponent> compsList = new ArrayList<VoiceImportComponent>();
-        //loop over the groups
-        for (int i=0;i<groups2comps.length;i++) {
-            //get the components for this group
-            String[] nextComps = groups2comps[i];
-            //loop over the components (first element is group name; ignore)
-            for (int j=1;j<nextComps.length;j++) {
-                //get the class name of this component  
-                String className = nextComps[j];
-                //System.out.println(className);
-                //create a new instance of this class and store in compsList
-                compsList.add((VoiceImportComponent)Class.forName(className).newInstance());
-                //remove "de.dfki...." from class name and store in groups2comps
-                nextComps[j] = className.substring(className.lastIndexOf('.')+1);
-            }
-        }
-        VoiceImportComponent[] components = new VoiceImportComponent[compsList.size()]; 
-        components = compsList.toArray(components);
-        /* Load DatabaseLayout */
-        DatabaseLayout db = new DatabaseLayout(components);
-        if (!db.isInitialized())
-            return;
-        
-        if (args.length > 0) { // non-gui mode: arguments are expected to be component names, in order or application
-            for (String compName : args) {
-                for (VoiceImportComponent comp : compsList) {
-                    if (comp.getName().equals(compName)) {
-                        System.out.println("Starting "+compName);
-                        comp.compute();
-                    }
-                }
-            }
-        } else {
-            /* Display GUI */       
-            String voicename = db.getProp(db.VOICENAME);
-            DatabaseImportMain importer = 
-                new DatabaseImportMain("Database import: "+voicename, components, db,groups2comps);
-            importer.pack();
-            // Center window on screen:
-            importer.setLocationRelativeTo(null); 
-            importer.setVisible(true);
-        }
-        
-    }
+	}
     
    
     class ConfigButtonActionListener implements ActionListener

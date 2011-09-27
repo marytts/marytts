@@ -93,7 +93,8 @@ public class CARTBuilder extends VoiceImportComponent {
         return "CARTBuilder";
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
      {
          callWagon = Boolean.parseBoolean(db.getProp(CALLWAGON));
          wagonDirName = db.getProp(db.TEMPDIR);

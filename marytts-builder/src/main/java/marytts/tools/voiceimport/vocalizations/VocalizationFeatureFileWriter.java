@@ -110,7 +110,8 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        }
    }
    
-   public void initialiseComp()
+   @Override
+   protected void initialiseComp()
    {
        
        featureCategories = new ArrayList<String>(); // feature categories  

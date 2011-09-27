@@ -56,14 +56,10 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         return "PhoneUnitLabelComputer";
     }
     
-     public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
-         try {
-            pauseSymbol = AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)).getSilence().name();
-        } catch (Exception e) {
-            System.err.println("Cannot get pause symbol from allophone set -- will assume default '_'");
-            pauseSymbol = "_";
-        }
+    	pauseSymbol = db.getAllophoneSet().getSilence().name();
 
         this.unitlabelDir = new File(getProp(LABELDIR));
         if (!unitlabelDir.exists()){
@@ -76,10 +72,10 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         }  
     }
     
-     public SortedMap getDefaultProps(DatabaseLayout db){
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
@@ -88,7 +84,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     }
      
     protected void setupHelp(){
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         props2Help.put(LABELDIR,"directory containing the phone labels." 
                 +"Will be created if it does not exist.");
     } 

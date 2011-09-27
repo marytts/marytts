@@ -41,7 +41,8 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
         UNITFILE = "HalfPhoneUnitfileWriter.unitFile";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     throws Exception
     {
         maryDir = new File(db.getProp(db.FILEDIR));

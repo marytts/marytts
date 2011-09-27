@@ -20,6 +20,7 @@
 package marytts.tools.analysis;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.cart.impose.FeatureFileIndexingResult;
@@ -47,7 +48,7 @@ public class ListenToPreselection {
         VoiceImportComponent[] comps = new VoiceImportComponent[2];
         comps[0] = wtlm;
         comps[1] = ffw;
-        DatabaseLayout dbl = new DatabaseLayout(comps);
+        DatabaseLayout dbl = new DatabaseLayout(new File(System.getProperty("user.dir", "."), "database.config"), comps);
         UnitFileReader ufr = new UnitFileReader( ffw.getProp(ffw.UNITFILE));
         TimelineReader tlr = new TimelineReader( wtlm.getProp(wtlm.WAVETIMELINE));
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );

@@ -79,7 +79,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     throws Exception
     {      
         locale = db.getProp(db.LOCALE);   

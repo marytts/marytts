@@ -85,7 +85,8 @@ public class QualityControl extends VoiceImportComponent {
         return "QualityControl";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         File unitfeatureDir = new File(getProp(FEATUREDIR));
         if (!unitfeatureDir.exists()){

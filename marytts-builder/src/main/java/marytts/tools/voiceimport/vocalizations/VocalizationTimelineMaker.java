@@ -55,7 +55,8 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
         return "VocalizationTimelineMaker";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     {
         String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {

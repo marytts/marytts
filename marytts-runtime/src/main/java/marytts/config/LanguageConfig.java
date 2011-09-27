@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 /**
@@ -58,5 +60,9 @@ public class LanguageConfig extends MaryConfig {
 	
 	public Set<Locale> getLocales() {
 		return locales;
+	}
+	
+	protected AllophoneSet getAllophoneSetFor(Locale locale) throws MaryConfigurationException {
+		return MaryRuntimeUtils.needAllophoneSet(locale.toString()+".allophoneset");
 	}
 }

@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -38,6 +39,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 
+import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.tools.analysis.MaryTranscriptionAligner;
@@ -69,14 +71,16 @@ public class TranscriptionAligner extends VoiceImportComponent {
         return "TranscriptionAligner";
     }
     
-    public void initialiseComp()
+    @Override
+    protected void initialiseComp()
     throws ParserConfigurationException, IOException, SAXException, TransformerConfigurationException, MaryConfigurationException
     {
-        aligner = new MaryTranscriptionAligner(AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)));
+        aligner = new MaryTranscriptionAligner(db.getAllophoneSet());
         aligner.SetEnsureInitialBoundary(true);
         xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
-        if (!xmlOutDir.exists())
+        if (!xmlOutDir.exists()) {
             xmlOutDir.mkdir();
+        }
         // for parsing xml files
         dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);

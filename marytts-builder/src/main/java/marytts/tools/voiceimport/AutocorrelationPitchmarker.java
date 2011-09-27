@@ -79,10 +79,6 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
         return "AutocorrelationPitchmarker";
     }
     
-    public void initialiseComp()
-    {
-
-    }
     
     public SortedMap getDefaultProps(DatabaseLayout db){
         this.db = db;

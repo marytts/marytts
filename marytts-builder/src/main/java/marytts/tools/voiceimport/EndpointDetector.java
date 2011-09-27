@@ -63,10 +63,6 @@ public class EndpointDetector extends VoiceImportComponent
         return "EndpointDetector";
     }
 
-    public void initialiseComp()
-    {     
-
-    }
 
     public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
         this.db = theDb;

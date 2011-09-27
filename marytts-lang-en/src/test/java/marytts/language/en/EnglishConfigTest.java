@@ -74,5 +74,12 @@ public class EnglishConfigTest {
 		assertTrue(e.getLocales().contains(Locale.US));
 	}
 	
+	@Test
+	public void hasAllophoneSet() throws MaryConfigurationException {
+		LanguageConfig e = new EnglishConfig();
+		assertNotNull(e.getAllophoneSet(Locale.US));
+		assertNotNull(e.getAllophoneSet(Locale.UK));
+	}
+	
 	
 }

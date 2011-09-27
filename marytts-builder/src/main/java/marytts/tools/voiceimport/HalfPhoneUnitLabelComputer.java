@@ -43,7 +43,6 @@ import org.apache.commons.lang.ArrayUtils;
  */
 public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
 {    
-    private AllophoneSet allophoneSet;
 
     private String ENERGYBASEDTRANSIENTSPLITTING = getName() + ".energyBasedTransientSplitting";
     private boolean energyBasedTransientSplitting;
@@ -61,20 +60,15 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
         LABELDIR = "HalfPhoneUnitLabelComputer.labelDir";
     } 
         
-     public SortedMap getDefaultProps(DatabaseLayout db){
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"halfphonelab"
                         +System.getProperty("file.separator"));
            props.put(ENERGYBASEDTRANSIENTSPLITTING, "false");
        }
-        try {
-            this.allophoneSet = AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET));
-        } catch (MaryConfigurationException e) {
-            logger.debug("Could not get allophone set, phone splitting will use simple midpoints!");
-        }
        return props;
     }
     
@@ -106,7 +100,7 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
             double peakTime = Double.NaN;
             if (energyBasedTransientSplitting) {
                 try {
-                    Allophone allophone = allophoneSet.getAllophone(label);
+                    Allophone allophone = db.getAllophoneSet().getAllophone(label);
                     isTransient = allophone.isPlosive() || allophone.isAffricate();
                     if (isTransient) {
                         peakTime = getEnergyPeak(startTime, endTime);

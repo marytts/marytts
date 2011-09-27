@@ -31,14 +31,19 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.Version;
+import marytts.config.MaryConfig;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 import marytts.util.io.BasenameList;
 
@@ -52,6 +57,81 @@ import marytts.util.io.BasenameList;
  */
 public class DatabaseLayout 
 {   
+    //marybase
+    public static final String MARYBASE = "db.marybase";
+    //marybase version
+    public static final String MARYBASEVERSION = "db.marybaseversion";
+    //voicename
+    public static final String VOICENAME = "db.voicename";
+    //gender
+    public static final String GENDER = "db.gender";
+    //domain
+    public static final String DOMAIN  = "db.domain";
+    //locale
+    public static final String LOCALE = "db.locale";
+    //the sampling rate
+    public static final String SAMPLINGRATE = "db.samplingrate";
+    //root directory for the database
+    public static final String ROOTDIR = "db.rootDir";        
+    //directory for Mary config files
+    public static final String CONFIGDIR = "db.configDir";
+    //directory for Mary voice files
+    public static final String FILEDIR = "db.fileDir";
+    //mary file extension
+    public static final String MARYEXT = "db.maryExtension";  
+    //basename list file
+    public static final String BASENAMEFILE = "db.basenameFile";
+    //text file dir
+    public static final String TEXTDIR = "db.textDir";
+    //text file extension
+    public static final String TEXTEXT = "db.textExtension";  
+    //wav file dir
+    public static final String WAVDIR = "db.wavDir";
+    //wav file extension
+    public static final String WAVEXT = "db.wavExtension";
+    //phonetic label files
+    public static final String LABDIR = "db.labDir";
+    //phonetic label file extension
+    public static final String LABEXT = "db.labExtension";
+    //pitchmark file dir
+    public static final String PMDIR = "db.pmDir";
+    //pitchmark file extension
+    public static final String PMEXT = "db.pmExtension";
+    //pitch file dir
+    public static final String PTCDIR = "db.ptcDir";
+    //pitch file extension
+    public static final String PTCEXT = "db.ptcExtension";
+    //directory for temporary files
+    public static final String TEMPDIR = "db.tempDir";
+    //maryxml dir
+    public static final String MARYXMLDIR = "db.maryxmlDir";
+    //maryxml extentsion
+    public static final String MARYXMLEXT = "db.maryxmlExtension";
+    // Prompt allophones dir
+    public static final String PROMPTALLOPHONESDIR = "db.promptAllophonesDir";
+    // Allophones aligned with labels
+    public static final String ALLOPHONESDIR = "db.allophonesDir";
+    public static final String MARYSERVERHOST = "db.maryServerHost";
+    public static final String MARYSERVERPORT = "db.maryServerPort";
+    public static final String PHONELABDIR = "db.phoneLabDir";
+    public static final String PHONEFEATUREDIR = "db.phoneFeatureDir";
+    public static final String HALFPHONELABDIR = "db.halfphoneLabDir";
+    public static final String HALFPHONEFEATUREDIR = "db.halfphoneFeatureDir";
+    
+    public static final String VOCALIZATIONSDIR = "db.vocalizationsDir";
+    
+    // paths used in HMM voice creation
+    public static final String AWKPATH       = "external.awkPath";
+    public static final String PERLPATH      = "external.perlPath";
+    public static final String BCPATH        = "external.bcPath";
+    public static final String HTSPATH       = "external.htsPath";
+    public static final String HTSENGINEPATH = "external.htsEnginePath";
+    public static final String SPTKPATH      = "external.sptkPath";
+    public static final String TCLPATH       = "external.tclPath";
+    public static final String SOXPATH       = "external.soxPath";
+    public static final String EHMMPATH      = "external.ehmmPath";
+
+    
     private String configFileName;
     private SortedMap<String,String> props;
     private BasenameList bnl;
@@ -64,106 +144,48 @@ public class DatabaseLayout
     private SortedMap<String,Object/*either String or SortedMap<String,String>*/> missingProps;
     private String missingPropsHelp;
     private boolean initialized;
-    private List<String> uneditableProps;
+    private Set<String> uneditableProps = new HashSet<String>(Arrays.asList(
+    		MARYEXT,
+    		CONFIGDIR,
+            FILEDIR,
+            TEMPDIR,
+            WAVEXT
+    ));
     private Map<String,String> props2Help;
-    //marybase
-    public final String MARYBASE = "db.marybase";
-    //marybase version
-    public final String MARYBASEVERSION = "db.marybaseversion";
-    //voicename
-    public final String VOICENAME = "db.voicename";
-    //gender
-    public final String GENDER = "db.gender";
-    //domain
-    public final String DOMAIN  = "db.domain";
-    //locale
-    public final String LOCALE = "db.locale";
-    //the sampling rate
-    public final String SAMPLINGRATE = "db.samplingrate";
-    //root directory for the database
-    public final String ROOTDIR = "db.rootDir";        
-    //directory for Mary config files
-    public final String CONFIGDIR = "db.configDir";
-    //directory for Mary voice files
-    public final String FILEDIR = "db.fileDir";
-    //mary file extension
-    public final String MARYEXT = "db.maryExtension";  
-    //basename list file
-    public final String BASENAMEFILE = "db.basenameFile";
-    //text file dir
-    public final String TEXTDIR = "db.textDir";
-    //text file extension
-    public final String TEXTEXT = "db.textExtension";  
-    //wav file dir
-    public final String WAVDIR = "db.wavDir";
-    //wav file extension
-    public final String WAVEXT = "db.wavExtension";
-    //phonetic label files
-    public final String LABDIR = "db.labDir";
-    //phonetic label file extension
-    public final String LABEXT = "db.labExtension";
-    //pitchmark file dir
-    public final String PMDIR = "db.pmDir";
-    //pitchmark file extension
-    public final String PMEXT = "db.pmExtension";
-    //pitch file dir
-    public final String PTCDIR = "db.ptcDir";
-    //pitch file extension
-    public final String PTCEXT = "db.ptcExtension";
-    //directory for temporary files
-    public final String TEMPDIR = "db.tempDir";
-    //maryxml dir
-    public final String MARYXMLDIR = "db.maryxmlDir";
-    //maryxml extentsion
-    public final String MARYXMLEXT = "db.maryxmlExtension";
-    // Prompt allophones dir
-    public final String PROMPTALLOPHONESDIR = "db.promptAllophonesDir";
-    // Allophones aligned with labels
-    public final String ALLOPHONESDIR = "db.allophonesDir";
-    // Allophone set definition file
-    public final String ALLOPHONESET = "db.allophoneSet";
-    public String MARYSERVERHOST = "db.maryServerHost";
-    public String MARYSERVERPORT = "db.maryServerPort";
-    public String PHONELABDIR = "db.phoneLabDir";
-    public String PHONEFEATUREDIR = "db.phoneFeatureDir";
-    public String HALFPHONELABDIR = "db.halfphoneLabDir";
-    public String HALFPHONEFEATUREDIR = "db.halfphoneFeatureDir";
     
-    public String VOCALIZATIONSDIR = "db.vocalizationsDir";
+    // Marc, Sept/Oct 2011: The following seem important enough to instantiate directly as objects:
+    private Locale locale;
+    private AllophoneSet allophoneSet;
+    private File voiceDir;
     
-    // paths used in HMM voice creation
-    public String AWKPATH       = "external.awkPath";
-    public String PERLPATH      = "external.perlPath";
-    public String BCPATH        = "external.bcPath";
-    public String HTSPATH       = "external.htsPath";
-    public String HTSENGINEPATH = "external.htsEnginePath";
-    public String SPTKPATH      = "external.sptkPath";
-    public String TCLPATH       = "external.tclPath";
-    public String SOXPATH       = "external.soxPath";
-    public String EHMMPATH      = "external.ehmmPath";
+    
+    
+    
+    
 
-    public DatabaseLayout()
+    public DatabaseLayout(File configFile)
     throws Exception
     {
-        initialized = false;
-        initialize(new VoiceImportComponent[0]);
+        this(configFile, new VoiceImportComponent[0]);
     }
     
-    public DatabaseLayout(VoiceImportComponent[] comps)
+    public DatabaseLayout(VoiceImportComponent comp) throws Exception {
+    	this(new File(System.getProperty("user.dir", "."), "database.config"), comp);
+    }
+    
+    public DatabaseLayout(File configFile, VoiceImportComponent comp)
+    throws Exception
+    {        
+        this(configFile, new VoiceImportComponent[] { comp });      
+    }
+
+    public DatabaseLayout(File configFile, VoiceImportComponent[] comps)
     throws Exception
     {        
         initialized = false;
-        initialize(comps);
+        initialize(configFile, comps);
     }
     
-    public DatabaseLayout(VoiceImportComponent comp)
-    throws Exception
-    {        
-        initialized = false;
-        VoiceImportComponent[] comps = new VoiceImportComponent[1];
-        comps[0] = comp;
-        initialize(comps);        
-    }
     
     private void setupHelp()
     {
@@ -201,7 +223,7 @@ public class DatabaseLayout
     }
     
     
-    private void initialize(VoiceImportComponent[] theComponents)
+    private void initialize(File configFile, VoiceImportComponent[] theComponents)
     throws Exception
     {
         System.out.println("Loading database layout:");
@@ -212,18 +234,11 @@ public class DatabaseLayout
         /* initialize the help texts */
         setupHelp();
         
+        voiceDir = configFile.getParentFile();
+        
         fileSeparator = System.getProperty("file.separator");
-        /* define the uneditable props */
-        uneditableProps = new ArrayList<String>();
-        uneditableProps.add(MARYEXT);
-        uneditableProps.add(CONFIGDIR);
-        uneditableProps.add(FILEDIR);
-        uneditableProps.add(TEMPDIR);
-        uneditableProps.add(WAVEXT);
         
         /* check if there is a config file */ 
-        configFileName = System.getProperty("user.dir")+System.getProperty("file.separator")+"database.config";
-        File configFile = new File(configFileName);
         if (configFile.exists()) {
             
             System.out.println("Reading config file "+configFileName);
@@ -286,14 +301,32 @@ public class DatabaseLayout
             saveProps(configFile);
         }
         assureFileIntegrity();
+        
+        initInternalResources();
+        
         loadBasenameList();        
         initializeComps();
         
         initialized = true;
     }
     
-    
-     /**
+    /**
+     * Initialise any internal resources required given the content of the configuration file.
+     * 
+     * @throws MaryConfigurationException if the configuration settings and what is available from the classpath
+     * does not seem to match.
+     */
+     private void initInternalResources() throws MaryConfigurationException {
+    	 locale = MaryUtils.string2locale(getProp(LOCALE));
+    	 allophoneSet = MaryConfig.getAllophoneSet(locale);
+    	 if (allophoneSet == null) {
+    		 throw new MaryConfigurationException("No allophone set available for locale '"+getProp(LOCALE)
+    				 +"' -- check that the corresponding language jar is in the classpath!");
+    	 }
+    	 
+	}
+
+	/**
      * Get the names of the components
      * and store them in array
      */
@@ -697,16 +730,6 @@ public class DatabaseLayout
         someProps.put(MARYXMLEXT, ".xml"); 
         someProps.put(PROMPTALLOPHONESDIR, rootDir+"prompt_allophones"+fileSeparator);
         someProps.put(ALLOPHONESDIR, rootDir+"allophones"+fileSeparator);
-        // generate file location of allophone definition file from locale as:
-        // MARYBASE/lib/modules/en/us/lexicon/allophones.en_US.xml
-        // First normalise locale string (e.g., convert en-US to en_US)
-        String locale = MaryUtils.string2locale(getProp(LOCALE)).toString();
-        String[] localeParts = locale.split("_");
-        String allophoneSetXml = getProp(MARYBASE)+"/lib/modules/"
-            + localeParts[0].toLowerCase()
-            + ((localeParts.length > 1) ? "/"+localeParts[1].toLowerCase() : "")
-            + "/lexicon/allophones."+locale+".xml";
-        someProps.put(ALLOPHONESET, allophoneSetXml);
         someProps.put(WAVEXT, ".wav");
         someProps.put(PHONELABDIR, rootDir+"phonelab"+fileSeparator);
         someProps.put(PHONEFEATUREDIR, rootDir+"phonefeatures"+fileSeparator);
@@ -1055,7 +1078,20 @@ public class DatabaseLayout
         }
         return comps2HelpText;
     }
-        
+
+
+
+
+    public Locale getLocale() {
+    	return locale;
+    }
+    
+    public AllophoneSet getAllophoneSet() {
+    	return allophoneSet;
+    }
+
+
+
 }
 
 

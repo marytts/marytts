@@ -129,7 +129,8 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
    }
   
    
-   public void initialiseComp()
+   @Override
+   protected void initialiseComp()
    {
        minF0Values = new HashMap<String, Integer>();
        maxF0Values = new HashMap<String, Integer>();

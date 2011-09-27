@@ -142,7 +142,8 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
     /**
      * Initialize this component
      */
-    public void initialiseComp() throws Exception {
+    @Override
+    protected void initialiseComp() throws Exception {
 
         createDirectoryifNotExists(getProp(HNMANADIR));
 
