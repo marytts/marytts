@@ -132,7 +132,6 @@ public class DatabaseLayout
     public static final String EHMMPATH      = "external.ehmmPath";
 
     
-    private String configFileName;
     private SortedMap<String,String> props;
     private BasenameList bnl;
     private SortedMap<String,SortedMap<String,String>> localProps;
@@ -157,7 +156,7 @@ public class DatabaseLayout
     private Locale locale;
     private AllophoneSet allophoneSet;
     private File voiceDir;
-    
+    private File configFile;
     
     
     
@@ -227,6 +226,7 @@ public class DatabaseLayout
     throws Exception
     {
         System.out.println("Loading database layout:");
+        this.configFile = configFile;
         
         /* first, handle the components */     
         this.components = theComponents;      
@@ -241,7 +241,7 @@ public class DatabaseLayout
         /* check if there is a config file */ 
         if (configFile.exists()) {
             
-            System.out.println("Reading config file "+configFileName);
+            System.out.println("Reading config file "+configFile.getAbsolutePath());
             readConfigFile(configFile);  
             SortedMap<String,String> defaultGlobalProps = new TreeMap<String,String>();
             //get the default values for the global props
@@ -1008,7 +1008,7 @@ public class DatabaseLayout
         }       
         //finally, save everything in config file
         if (initialized) {
-            saveProps(new File(configFileName));
+            saveProps(configFile);
         }
     }
     
@@ -1022,7 +1022,7 @@ public class DatabaseLayout
             vic.setupHelp();
             if (!displayProps(defaultProps,vic.getHelpText(),"The following properties are missing:"))
                 return;
-            saveProps(new File(configFileName));
+            saveProps(configFile);
         }
         vic.initialise(bnl, localProps.get(name));
      }
