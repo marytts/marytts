@@ -20,6 +20,7 @@
 package marytts.unitselection.select;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
@@ -55,13 +56,13 @@ public interface JoinCostFunction
     /**
      * Load weights and values from the given file
      * @param joinFileName the file from which to read default weights and join cost features
-     * @param weightsFileName an optional file from which to read weights, taking precedence over
+     * @param weightStream an optional file from which to read weights, taking precedence over
      * @param precompiledCostFileName an optional file containing precompiled join costs
      * @param wSignal Relative weight of the signal-based join costs relative to the
      *                phonetic join costs computed from the target 
      */
     @Deprecated
-    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
+    public void load(String joinFileName, InputStream weightStream, String precompiledCostFileName,float wSignal)
     throws IOException, MaryConfigurationException;
     
 }

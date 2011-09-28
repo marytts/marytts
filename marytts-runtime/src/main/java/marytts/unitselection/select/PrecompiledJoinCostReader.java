@@ -35,6 +35,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,7 +102,8 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * @param dummy2 not used, just used to fulfil the join cost function interface
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName, String dummy, String dummy2, float dummy3) throws IOException, MaryConfigurationException
+    @Override
+    public void load(String fileName, InputStream dummy, String dummy2, float dummy3) throws IOException, MaryConfigurationException
     {
         /* Open the file */
         DataInputStream dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );

@@ -20,8 +20,8 @@
 package marytts.unitselection.select;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import marytts.exceptions.MaryConfigurationException;
@@ -230,25 +230,28 @@ public class FFRTargetCostFunction implements TargetCostFunction
      * @throws IOException
      * @throws MaryConfigurationException 
      */
-    public void load(String featureFileName, String weightsFile,
+    @Override
+    public void load(String featureFileName, InputStream weightsStream,
             FeatureProcessorManager featProc)
     throws IOException, MaryConfigurationException
     {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFileName);
-        load(ffr, weightsFile, featProc);
+        load(ffr, weightsStream, featProc);
     }
     
-    public void load(FeatureFileReader ffr, String weightsFile, FeatureProcessorManager featProc)
+    @Override
+    public void load(FeatureFileReader ffr, InputStream weightsStream, FeatureProcessorManager featProc)
     throws IOException
     {
         this.featureDefinition = ffr.getFeatureDefinition();
         this.featureVectors = ffr.getFeatureVectors();
-        if (weightsFile != null) {
-            MaryUtils.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
+        if (weightsStream != null) {
+            MaryUtils.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file");
             // overwrite weights from file
-            FeatureDefinition newWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true);
+            
+            FeatureDefinition newWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(weightsStream, "UTF-8")), true);
             if (!newWeights.featureEquals(featureDefinition)) {
-                throw new IOException("Weights file '"+weightsFile+"': feature definition incompatible with feature file");
+                throw new IOException("Weights file: feature definition incompatible with feature file");
             }
             featureDefinition = newWeights;
         }

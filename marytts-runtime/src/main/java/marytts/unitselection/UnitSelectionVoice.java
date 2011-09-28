@@ -34,6 +34,7 @@ package marytts.unitselection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.Locale;
@@ -76,10 +77,10 @@ public class UnitSelectionVoice extends Voice {
     protected String exampleText;
 
     
-    public UnitSelectionVoice(String name, Locale locale, AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, Gender gender)
+    public UnitSelectionVoice(String name, WaveformSynthesizer synthesizer)
     throws MaryConfigurationException
     {
-        super(name, locale, dbAudioFormat, synthesizer, gender);
+        super(name, synthesizer);
 
         try {
             this.name = name;
@@ -97,16 +98,16 @@ public class UnitSelectionVoice extends Voice {
             }
             
             FeatureProcessorManager featProcManager = FeatureRegistry.getFeatureProcessorManager(this);
-            if (featProcManager == null) featProcManager = FeatureRegistry.getFeatureProcessorManager(locale);
-            if (featProcManager == null) throw new MaryConfigurationException("No feature processor manager for voice '"+name+"' (locale "+locale+")");
+            if (featProcManager == null) featProcManager = FeatureRegistry.getFeatureProcessorManager(getLocale());
+            if (featProcManager == null) throw new MaryConfigurationException("No feature processor manager for voice '"+name+"' (locale "+getLocale()+")");
             
             // build and load targetCostFunction
             logger.debug("...loading target cost function...");
             String featureFileName = MaryProperties.needFilename(header+".featureFile");
-            String targetWeightFile = MaryProperties.getFilename(header + ".targetCostWeights");
+            InputStream targetWeightStream = MaryProperties.getStream(header + ".targetCostWeights");
             String targetCostClass = MaryProperties.needProperty(header+".targetCostClass");
             TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).newInstance();
-            targetFunction.load(featureFileName, targetWeightFile, featProcManager);
+            targetFunction.load(featureFileName, targetWeightStream, featProcManager);
             
             // build joinCostFunction
             logger.debug("...loading join cost function...");
@@ -137,8 +138,9 @@ public class UnitSelectionVoice extends Voice {
             
             logger.debug("...loading cart file...");
             //String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
-            String cartFile = MaryProperties.needFilename(header+".cartFile");
-            CART cart = (new MaryCARTReader()).load(cartFile);
+            InputStream cartStream = MaryProperties.needStream(header+".cartFile");
+            CART cart = new MaryCARTReader().loadFromStream(cartStream);
+            cartStream.close();
             //get the backtrace information
             int backtrace = MaryProperties.getInteger(header+".cart.backtrace", 100);
             
@@ -190,20 +192,23 @@ public class UnitSelectionVoice extends Voice {
             concatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
             concatenator.load(database);
             
-            
+            // TODO: this can be deleted at the same time as CARTF0Modeller
             // see if there are any voice-specific duration and f0 models to load
             f0Carts = null;
-            String leftF0CartFile = MaryProperties.getFilename(header+".f0.cart.left");
-            if (leftF0CartFile != null) {
+            InputStream leftF0CartStream = MaryProperties.getStream(header+".f0.cart.left");
+            if (leftF0CartStream != null) {
                 logger.debug("...loading f0 trees...");
                 f0Carts = new CART[3];
-                f0Carts[0] = (new MaryCARTReader()).load(leftF0CartFile);
+                f0Carts[0] = new MaryCARTReader().loadFromStream(leftF0CartStream);
+                leftF0CartStream.close();
                 // mid cart:
-                String midF0CartFile = MaryProperties.needFilename(header+".f0.cart.mid");
-                f0Carts[1] = (new MaryCARTReader()).load(midF0CartFile);
+                InputStream midF0CartStream = MaryProperties.needStream(header+".f0.cart.mid");
+                f0Carts[1] = new MaryCARTReader().loadFromStream(midF0CartStream);
+                midF0CartStream.close();
                 // right cart:
-                String rightF0CartFile = MaryProperties.needFilename(header+".f0.cart.right");
-                f0Carts[2] = (new MaryCARTReader()).load(rightF0CartFile);
+                InputStream rightF0CartStream = MaryProperties.needStream(header+".f0.cart.right");
+                f0Carts[2] = new MaryCARTReader().loadFromStream(rightF0CartStream);
+                rightF0CartStream.close();
             }
         } catch (MaryConfigurationException mce) {
             throw mce;

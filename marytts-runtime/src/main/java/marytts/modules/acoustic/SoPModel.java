@@ -23,6 +23,8 @@ package marytts.modules.acoustic;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,10 +62,10 @@ public class SoPModel extends Model {
      * 
      * @throws MaryConfigurationException  if there are missing files.
      */
-    public SoPModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
     
@@ -73,13 +75,13 @@ public class SoPModel extends Model {
      * @throws IOException if data can not be read.
      */
     @Override
-    protected void loadDataFile() throws IOException {
+    protected void loadData() throws IOException {
         sopModels = new HashMap<String, SoP>();
         String nextLine, nextType;
         String strContext="";
         Scanner s = null;
         try {
-        s = new Scanner(new BufferedReader(new FileReader(dataFile)));
+        s = new Scanner(new BufferedReader(new InputStreamReader(dataStream, "UTF-8")));
 
         // The first part contains the feature definition
         while (s.hasNext()) {
@@ -105,7 +107,7 @@ public class SoPModel extends Model {
         s.close();
         
         } catch (Exception e) {
-            throw new IOException("Error reading SoP data file: " + dataFile,  e);
+            throw new IOException("Error reading SoP data",  e);
         }
     }
 

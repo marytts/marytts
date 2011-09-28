@@ -21,6 +21,7 @@
 package marytts.modules.acoustic;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -93,10 +94,10 @@ public class HMMModel extends Model {
      * 
      * @throws MaryConfigurationException  if there are missing files or problems loading trees and pdf files.
      */
-    public HMMModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public HMMModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         if(!(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0"))) {                         
             throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
         }
@@ -119,7 +120,7 @@ public class HMMModel extends Model {
      * @throws MaryConfigurationException  if there are missing files or problems loading trees and pdf files.
      */
     @Override
-    protected void loadDataFile() throws IOException, MaryConfigurationException {
+    protected void loadData() throws IOException, MaryConfigurationException {
         if(htsData==null)
           htsData = new HMMData();
         // we use the configuration of the HMM voice whose hmm models will be used

@@ -21,6 +21,7 @@
 package marytts.modules.acoustic;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,9 +45,9 @@ import org.w3c.dom.Element;
 public abstract class Model {
 
     /**
-     * The file name from which we will read our acoustic model.
+     * The stream from which we will read our acoustic model.
      */
-    protected String dataFile;
+    protected InputStream dataStream;
 
     /**
      * The voice with which this model is associated
@@ -105,11 +106,11 @@ public abstract class Model {
      * @param applyTo
      *            key of Element Lists to which to apply values; "segments" by default
      */
-    protected Model(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName,
+    protected Model(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
             String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
         this.featureManager = featureManager;
         this.voiceName = voiceName;
-        this.dataFile = dataFileName;
+        this.dataStream = dataStream;
         this.targetAttributeName = targetAttributeName;
         if (targetAttributeFormat == null) {
             targetAttributeFormat = "%s";
@@ -135,9 +136,9 @@ public abstract class Model {
      */
     protected final void load() throws MaryConfigurationException {
         try {
-            loadDataFile();
+            loadData();
         } catch (IOException ioe) {
-            throw new MaryConfigurationException("Cannot load model file '" + dataFile + "'", ioe);
+            throw new MaryConfigurationException("Cannot load model data from stream", ioe);
         }
         setupFeatureComputer();
     }
@@ -150,14 +151,14 @@ public abstract class Model {
      * @throws MaryConfigurationException
      *             if files can be read but contain problematic content
      */
-    protected abstract void loadDataFile() throws IOException, MaryConfigurationException;
+    protected abstract void loadData() throws IOException, MaryConfigurationException;
 
     protected final void setupFeatureComputer() throws MaryConfigurationException {
         try {
             featureComputer = FeatureRegistry.getTargetFeatureComputer(featureManager, predictionFeatureNames);
         } catch (IllegalArgumentException iae) {
             throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
-                    + "The model from " + dataFile + " needs the following features:\n" + predictionFeatureNames + "\n"
+                    + "The model needs the following features:\n" + predictionFeatureNames + "\n"
                     + "The FeatureProcessorManager for locale " + featureManager.getLocale() + " ("
                     + featureManager.getClass().toString() + ") can produce the following features:\n"
                     + featureManager.listFeatureProcessorNames(), iae);
@@ -268,12 +269,6 @@ public abstract class Model {
 
     // several getters:
 
-    /**
-     * @return the dataFile name
-     */
-    public String getDataFileName() {
-        return dataFile;
-    }
 
     /**
      * 

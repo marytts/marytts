@@ -97,18 +97,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 //take the time
                 long time = System.currentTimeMillis();
                 
-                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
-                int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
-                
-                Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
-                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                        samplingRate, // samples per second
-                        16, // bits per sample
-                        1, // mono
-                        2, // nr. of bytes per frame
-                        samplingRate, // nr. of frames per second
-                        false);
-                Voice unitSelVoice = new UnitSelectionVoice(voiceName, locale, format, this, gender);
+                Voice unitSelVoice = new UnitSelectionVoice(voiceName, this);
                 logger.debug("Voice '" + unitSelVoice + "'");
                 Voice.registerVoice(unitSelVoice);    
                 long newtime = System.currentTimeMillis()-time;

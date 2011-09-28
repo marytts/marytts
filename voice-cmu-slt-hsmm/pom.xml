@@ -19,6 +19,11 @@
       <artifactId>marytts-runtime</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-en</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
     
     <dependency>
       <groupId>junit</groupId>

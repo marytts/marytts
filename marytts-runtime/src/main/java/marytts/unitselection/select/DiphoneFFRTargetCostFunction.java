@@ -20,6 +20,7 @@
 package marytts.unitselection.select;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
@@ -49,14 +50,16 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
      * to compute the features for a target at run time
      * @throws IOException
      */
-    public void load(String featureFileName, String weightsFile,
+    @Override
+    public void load(String featureFileName, InputStream weightsStream,
             FeatureProcessorManager featProc) throws IOException, MaryConfigurationException
     {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFileName);
-        load(ffr, weightsFile, featProc);
+        load(ffr, weightsStream, featProc);
     }
     
-    public void load(FeatureFileReader ffr, String weightsFile, FeatureProcessorManager featProc)
+    @Override
+    public void load(FeatureFileReader ffr, InputStream weightsStream, FeatureProcessorManager featProc)
     throws IOException
     {
         if (ffr instanceof HalfPhoneFeatureFileReader) {
@@ -64,7 +67,7 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
         } else {
             tcfForHalfphones = new FFRTargetCostFunction();
         }
-        tcfForHalfphones.load(ffr, weightsFile, featProc);
+        tcfForHalfphones.load(ffr, weightsStream, featProc);
     }
 
     
