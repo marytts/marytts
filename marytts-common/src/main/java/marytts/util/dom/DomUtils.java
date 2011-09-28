@@ -79,19 +79,30 @@ public class DomUtils
 
     // Static constructor:
     static {
-        setup();
-    }
-
-	/**
-	 * 
-	 */
-	protected static void setup() {
-		if (factory != null) return;
 		factory = DocumentBuilderFactory.newInstance();
         factory.setExpandEntityReferences(true);
         factory.setNamespaceAware(true);
-        validatingFactory = null;
-	}
+
+        validatingFactory = DocumentBuilderFactory.newInstance();
+        validatingFactory.setExpandEntityReferences(true);
+        validatingFactory.setNamespaceAware(true);
+        validatingFactory.setIgnoringElementContentWhitespace(true);
+        validatingFactory.setValidating(true);
+        try {
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+            // Specify other factory configuration settings
+            Object[] schemas = new Object[] {
+            		DomUtils.class.getResource("xml.xsd").toString(),
+            		DomUtils.class.getResource("MaryXML.xsd").toString()
+            };
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
+        } catch (Exception x) {
+            // This can happen if the parser does not support JAXP 1.2
+            logger.warn("Cannot use Schema validation -- disabling validating parser factory.");
+            validatingFactory = null;
+        }
+    }
+
 
 
     /**
