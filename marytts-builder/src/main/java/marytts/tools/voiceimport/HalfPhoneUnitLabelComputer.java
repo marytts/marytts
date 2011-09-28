@@ -28,9 +28,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -146,20 +144,20 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
         String wavDir = db.getProperty(DatabaseLayout.WAVDIR);
         String baseName = bnl.getName(basenameIndex);
         String wavExt = db.getProperty(DatabaseLayout.WAVEXT);
-        String wavFileName = wavDir + baseName + wavExt;
-        String energyFileName = unitlabelDir + baseName + energyExt;
+        File wavFile = new File(wavDir, baseName + wavExt);
+        File energyFile = new File(unitlabelDir, baseName + energyExt);
         
         // load or create energy analysis file:
         EnergyContourRms energyContourRMS;
         try {
-            energyContourRMS = EnergyContourRms.ReadEnergyFile(energyFileName);
+            energyContourRMS = EnergyContourRms.ReadEnergyFile(energyFile.getAbsolutePath());
             if (energyContourRMS.header.windowSizeInSeconds != windowSizeInSeconds || energyContourRMS.header.skipSizeInSeconds != skipSizeInSeconds) {
-                logger.debug("File header of " + energyFileName + " has unexpected parameter values! Will re-analyze...");
+                logger.debug("File header of " + energyFile.getAbsolutePath() + " has unexpected parameter values! Will re-analyze...");
                 throw new IOException();
             }
         } catch (IOException e) {
-            logger.info("Analyzing " + wavFileName + " and saving result to " + energyFileName);
-            energyContourRMS = new EnergyContourRms(wavFileName, energyFileName, windowSizeInSeconds, skipSizeInSeconds);
+            logger.info("Analyzing " + wavFile.getAbsolutePath() + " and saving result to " + energyFile.getAbsolutePath());
+            energyContourRMS = new EnergyContourRms(wavFile.getAbsolutePath(), energyFile.getAbsolutePath(), windowSizeInSeconds, skipSizeInSeconds);
         }
         
         // get energy analysis frames between startTime and endTime from energy contour:
