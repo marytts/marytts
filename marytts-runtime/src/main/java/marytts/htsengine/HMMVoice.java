@@ -84,10 +84,8 @@ public class HMMVoice extends Voice {
     
    /** 
     * constructor */ 
-    public HMMVoice(String voiceName, Locale locale, 
-            AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender) throws Exception {
-    	super(voiceName, locale, dbAudioFormat, synthesizer, gender);
+    public HMMVoice(String voiceName, WaveformSynthesizer synthesizer) throws Exception {
+    	super(voiceName, synthesizer);
 
     	htsData.initHMMData(voiceName);
        

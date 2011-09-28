@@ -153,23 +153,11 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
                 String voiceName = st.nextToken();
                 logger.debug("Voice '" + voiceName + "'");
-                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
-                int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
-                
-                Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
-                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                        samplingRate, // samples per second
-                        16, // bits per sample
-                        1, // mono
-                        2, // nr. of bytes per frame
-                        samplingRate, // nr. of frames per second
-                        false);
-                
                 
                /** When creating a HMMVoice object it should create and initialise a 
                 * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
                 
-                HMMVoice v = new HMMVoice(voiceName, locale, format, this, gender);
+                HMMVoice v = new HMMVoice(voiceName, this);
                 Voice.registerVoice(v);
                
             }

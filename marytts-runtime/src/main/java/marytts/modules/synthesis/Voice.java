@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ import javax.sound.sampled.AudioInputStream;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
+import marytts.config.MaryConfig;
+import marytts.config.VoiceConfig;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -159,6 +162,7 @@ public class Voice
     protected FeatureFileReader f0ContourFeatures;
     protected Map<String, Model> acousticModels;
     
+    @Deprecated
     public Voice(String name, Locale locale, 
                  AudioFormat dbAudioFormat,
                  WaveformSynthesizer synthesizer,
@@ -171,7 +175,46 @@ public class Voice
         this.synthesizer = synthesizer;
         this.gender = gender;
         
-        // Read settings from config file:
+        try {
+        	init();
+        } catch (Exception n) {
+        	throw new MaryConfigurationException("Cannot instantiate voice '"+voiceName+"'", n); 
+        }
+    }
+
+    public Voice(String name, WaveformSynthesizer synthesizer) throws MaryConfigurationException {
+    	this.voiceName = name;
+    	this.synthesizer = synthesizer;
+    	VoiceConfig config = MaryConfig.getVoiceConfig(voiceName);
+    	if (config == null) {
+    		throw new MaryConfigurationException("Trying to load config for voice '"+voiceName+"' but cannot find it.");
+    	}
+    	this.locale = config.getLocale();
+    	int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
+        this.dbAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                samplingRate, // samples per second
+                16, // bits per sample
+                1, // mono
+                2, // nr. of bytes per frame
+                samplingRate, // nr. of frames per second
+                false);
+    	
+        this.gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
+
+        try {
+        	init();
+        } catch (Exception n) {
+        	throw new MaryConfigurationException("Cannot instantiate voice '"+voiceName+"'", n); 
+        }
+    }
+    
+	/**
+	 * @throws MaryConfigurationException
+	 * @throws NoSuchPropertyException
+	 */
+	private void init() throws MaryConfigurationException,
+			NoSuchPropertyException, IOException {
+		// Read settings from config file:
         String header = "voice."+getName();
         this.wantToBeDefault = MaryProperties.getInteger(header+".wants.to.be.default", 0);
         try {
@@ -198,7 +241,7 @@ public class Voice
         loadAcousticModels(header);
         // initialization of FeatureProcessorManager for this voice, if needed:
         initFeatureProcessorManager();
-    }
+	}
 
     @Deprecated
     private void loadOldStyleProsodyModels(String header) throws MaryConfigurationException {
@@ -235,7 +278,7 @@ public class Voice
      * @throws MaryConfigurationException
      * @throws NoSuchPropertyException
      */
-    private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException {
+    private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
         // The feature processor manager that all acoustic models will use to predict their acoustics:
         FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
         
@@ -254,7 +297,7 @@ public class Voice
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
 
-                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data"); // not used for hmm models
+                InputStream modelDataStream = MaryProperties.getStream(header + "." + modelName + ".data"); // not used for hmm models
                 String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
 
                 // the following are null if not defined; this is handled in the Model constructor:
@@ -274,12 +317,12 @@ public class Voice
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
@@ -296,7 +339,7 @@ public class Voice
                         model = getF0Model();
                         ((HMMModel)model).setPredictDurAndF0(true);
                     } else {
-                        model = new HMMModel(symbolicFPM, voiceName, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;

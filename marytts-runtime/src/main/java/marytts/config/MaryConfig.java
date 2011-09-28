@@ -141,6 +141,11 @@ public abstract class MaryConfig {
 		return null;
 	}
 	
+	/**
+	 * Get the voice config for the given voice name, or null if there is no such voice config.
+	 * @param voiceName
+	 * @return
+	 */
 	public static VoiceConfig getVoiceConfig(String voiceName) {
 		for (MaryConfig mc : configLoader) {
 			if (mc.isVoiceConfig()) {

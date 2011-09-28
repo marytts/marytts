@@ -22,6 +22,7 @@ package marytts.modules.acoustic;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
@@ -38,10 +39,10 @@ import marytts.unitselection.select.Target;
 public class CARTModel extends Model {
     private DirectedGraph cart;
 
-    public CARTModel(FeatureProcessorManager featureManager, String voiceName, String dataFileName, String targetAttributeName,
+    public CARTModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
             String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
             throws MaryConfigurationException {
-        super(featureManager, voiceName, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
 
@@ -49,11 +50,8 @@ public class CARTModel extends Model {
      * Load CART from file for this Model
      */
     @Override
-    protected void loadDataFile() throws IOException, MaryConfigurationException {
-        this.cart = null;
-        File cartFile = new File(dataFile);
-        String cartFilePath = cartFile.getAbsolutePath();
-        cart = new DirectedGraphReader().load(cartFilePath);
+    protected void loadData() throws IOException, MaryConfigurationException {
+        cart = new DirectedGraphReader().load(dataStream);
         try {
             predictionFeatureNames = cart.getFeatureDefinition().getFeatureNames();
         } catch (NullPointerException e) {

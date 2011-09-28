@@ -20,6 +20,7 @@
 package marytts.unitselection.select;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
@@ -40,14 +41,14 @@ public interface TargetCostFunction
     /**
      * Initialise the data needed to do a target cost computation.
      * @param featureFileName name of a file containing the unit features
-     * @param weightsFile an optional weights file -- if non-null, contains
+     * @param weightsStream an optional weights file -- if non-null, contains
      * feature weights that override the ones present in the feature file.
      * @param featProc a feature processor manager which can provide feature processors
      * to compute the features for a target at run time
      * @throws IOException
      * @throws MaryConfigurationException if a configuration problem is detected while loading the data 
      */
-    public void load(String featureFileName, String weightsFile,
+    public void load(String featureFileName, InputStream weightsStream,
             FeatureProcessorManager featProc) throws IOException, MaryConfigurationException;
 
     /**
@@ -59,7 +60,7 @@ public interface TargetCostFunction
      * to compute the features for a target at run time
      * @throws IOException
      */
-    public void load(FeatureFileReader featureFileReader, String weightsFile,
+    public void load(FeatureFileReader featureFileReader, InputStream weightsStream,
             FeatureProcessorManager featProc) throws IOException;
 
     /**

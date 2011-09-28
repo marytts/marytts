@@ -89,8 +89,9 @@ public class JoinModelCost implements JoinCostFunction
         }
     }
     
+    @Override
     @Deprecated
-    public void load(String a, String b, String c, float d)
+    public void load(String a, InputStream b, String c, float d)
     {
         throw new RuntimeException("Do not use load() -- use init()");
     }
