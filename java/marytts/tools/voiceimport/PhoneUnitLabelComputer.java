@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -276,10 +277,10 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             double endTime = endTimes.get(i);
             if (midTimes != null) {
                 double midTime = midTimes.get(i);
-                unitLines.add(String.format("%f %d %s_L", midTime, unitLines.size() + 1, label));
-                unitLines.add(String.format("%f %d %s_R", endTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s_L", midTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s_R", endTime, unitLines.size() + 1, label));
             } else {
-                unitLines.add(String.format("%f %d %s", endTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s", endTime, unitLines.size() + 1, label));
             }
         }
         return (String[]) unitLines.toArray(new String[unitLines.size()]);
