@@ -67,6 +67,8 @@ public class DatabaseLayout
     public static final String GENDER = "db.gender";
     //domain
     public static final String DOMAIN  = "db.domain";
+    // Edinburgh Speech Tools
+    public static final String ESTDIR = "db.estDir";
     //locale
     public static final String LOCALE = "db.locale";
     //the sampling rate
@@ -193,6 +195,7 @@ public class DatabaseLayout
         props2Help = new TreeMap<String, String>();
         props2Help.put(BASENAMEFILE,"file containing the list of files that are used to build the voice");
         props2Help.put(DOMAIN,"general or limited");
+        props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
         props2Help.put(GENDER,"female or male");
         props2Help.put(LABDIR,"directory containing the label files. Will be created if it does not exist.");
         props2Help.put(LABEXT,"extension of the label files, default: \".lab\"");
@@ -617,44 +620,7 @@ public class DatabaseLayout
      * @param props the map of props to be filled
      */
     private boolean promptUserForBasicProps(SortedMap<String,String> basicprops){
-        //fill in the map with the prop names and value templates
-        String marybase = System.getProperty("MARYBASE");
-        if ( marybase == null ) {
-            marybase = "/path/to/marybase/";
-        }
-        basicprops.put(MARYBASE,marybase);
-        basicprops.put(MARYBASEVERSION, Version.specificationVersion());
-        String voicename = System.getProperty("VOICENAME");
-        if ( voicename == null ) {
-            voicename = "my_voice";
-        }
-        basicprops.put(VOICENAME, voicename);
-        String gender = System.getProperty("GENDER");
-        if ( gender == null ) {
-            gender = "female";
-        }
-        basicprops.put(GENDER, gender);
-        basicprops.put(DOMAIN,"general");
-        String locale = System.getProperty("LOCALE");
-        if ( locale == null ) {
-            locale = "en_US";
-        }
-        basicprops.put(LOCALE, locale);
-        basicprops.put(SAMPLINGRATE,"16000");
-        String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath()+fileSeparator;
-        basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
-        basicprops.put(WAVDIR, rootDir+"wav"+fileSeparator);
-        basicprops.put(LABDIR, rootDir+"lab"+fileSeparator);
-        basicprops.put(LABEXT,".lab");
-        basicprops.put(HALFPHONELABEXT, ".hplab");
-        basicprops.put(TEXTDIR, rootDir+"text"+fileSeparator);
-        basicprops.put(TEXTEXT,".txt");
-        basicprops.put(PMDIR, rootDir+"pm"+fileSeparator);
-        basicprops.put(PMEXT,".pm");
-        basicprops.put(PTCDIR, rootDir+"ptc"+fileSeparator);
-        basicprops.put(PTCEXT,".ptc");  
-        basicprops.put(MARYSERVERHOST, "localhost");
-        basicprops.put(MARYSERVERPORT, "59125");
+        initDefaultBasicProps(basicprops);
         
         
         StringBuilder helpText = new StringBuilder();
@@ -671,6 +637,34 @@ public class DatabaseLayout
         
         return displayProps(basicprops, helpText.toString(), "Please adjust the following settings:");
     }
+
+	/**
+	 * @param basicprops
+	 */
+	private void initDefaultBasicProps(SortedMap<String, String> basicprops) {
+        basicprops.put(MARYBASE, System.getProperty("MARYBASE", "/path/to/marybase/"));
+        basicprops.put(MARYBASEVERSION, Version.specificationVersion());
+        basicprops.put(VOICENAME, System.getProperty("VOICENAME", "my_voice"));
+        basicprops.put(GENDER, System.getProperty("GENDER", "female"));
+        basicprops.put(DOMAIN,"general");
+        basicprops.put(ESTDIR, System.getProperty("ESTDIR", "/project/mary/Festival/speech_tools/"));
+        basicprops.put(LOCALE, System.getProperty("LOCALE", "en_US"));
+        basicprops.put(SAMPLINGRATE,"16000");
+        String rootDir = voiceDir.getAbsolutePath()+fileSeparator;
+        basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
+        basicprops.put(WAVDIR, rootDir+"wav"+fileSeparator);
+        basicprops.put(LABDIR, rootDir+"lab"+fileSeparator);
+        basicprops.put(LABEXT,".lab");
+        basicprops.put(HALFPHONELABEXT, ".hplab");
+        basicprops.put(TEXTDIR, rootDir+"text"+fileSeparator);
+        basicprops.put(TEXTEXT,".txt");
+        basicprops.put(PMDIR, rootDir+"pm"+fileSeparator);
+        basicprops.put(PMEXT,".pm");
+        basicprops.put(PTCDIR, rootDir+"ptc"+fileSeparator);
+        basicprops.put(PTCEXT,".ptc");  
+        basicprops.put(MARYSERVERHOST, "localhost");
+        basicprops.put(MARYSERVERPORT, "59125");
+	}
     
     /**
      * Init the default props of the database layout
@@ -681,42 +675,7 @@ public class DatabaseLayout
     private SortedMap<String,String> initDefaultProps(SortedMap<String,String> someProps,boolean withBasicProps)
     {
         if (withBasicProps) {
-            String marybase = System.getProperty("MARYBASE");
-            if ( marybase == null ) {
-                marybase = "/path/to/marybase/";
-            }
-            someProps.put(MARYBASE, marybase);
-            String voicename = System.getProperty("VOICENAME");
-            if ( voicename == null ) {
-                voicename = "my_voice";
-            }
-            someProps.put(VOICENAME, voicename);
-            String gender = System.getProperty("GENDER");
-            if ( gender == null ) {
-                gender = "female";
-            }
-            someProps.put(GENDER, gender);
-            someProps.put(DOMAIN, "general");
-            String locale = System.getProperty("LOCALE");
-            if ( locale == null ) {
-                locale = "en_US";
-            }
-            someProps.put(LOCALE, locale);
-            someProps.put(SAMPLINGRATE, "16000");
-            String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath();
-            someProps.put(ROOTDIR, rootDir.substring(0,rootDir.length()-1));
-            someProps.put(WAVDIR, rootDir+"wav"+fileSeparator);
-            someProps.put(LABDIR, rootDir+"lab"+fileSeparator);
-            someProps.put(LABEXT,".lab");        
-            someProps.put(TEXTDIR, rootDir+"text"+fileSeparator);
-            someProps.put(TEXTEXT,".txt");
-            someProps.put(PMDIR, rootDir+"pm"+fileSeparator);
-            someProps.put(PMEXT,".pm");
-            someProps.put(PTCDIR, rootDir+"ptc"+fileSeparator);
-            someProps.put(PTCEXT,".ptc");
-            someProps.put(MARYSERVERHOST, "localhost");
-            someProps.put(MARYSERVERPORT, "59125");
-            someProps.put(MARYBASEVERSION, Version.specificationVersion());
+        	initDefaultBasicProps(someProps);
         }        
         String rootDir = getProp(ROOTDIR);
         char lastChar = rootDir.charAt(rootDir.length()-1);
@@ -1094,6 +1053,9 @@ public class DatabaseLayout
     	return allophoneSet;
     }
 
+    public File getVoiceDir() {
+    	return voiceDir;
+    }
 
 
 }

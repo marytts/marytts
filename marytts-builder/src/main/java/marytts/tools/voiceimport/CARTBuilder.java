@@ -84,7 +84,6 @@ public class CARTBuilder extends VoiceImportComponent {
     public final String READFEATURESEQUENCE = "CARTBuilder.readFeatureSequence";
     public final String MAXLEAFSIZE = "CARTBuilder.maxLeafSize";
     public final String CALLWAGON = "CARTBuilder.callWagon";
-    public final String ESTDIR = "CARTBuilder.estDir";
     
     public final String NUMPROCESSES = "CARTBuilder.numProcesses";
     
@@ -97,7 +96,7 @@ public class CARTBuilder extends VoiceImportComponent {
     protected void initialiseComp()
      {
          callWagon = Boolean.parseBoolean(db.getProp(CALLWAGON));
-         wagonDirName = db.getProp(db.TEMPDIR);
+         wagonDirName = db.getProp(DatabaseLayout.TEMPDIR);
          wagonDescFile = wagonDirName+"wagon.desc";
          wagonFeatsFile = wagonDirName+"wagon.feats";
          wagonCartFile = wagonDirName+"wagon.cart";
@@ -144,16 +143,12 @@ public class CARTBuilder extends VoiceImportComponent {
          this.db = theDb;
        if (props == null) {
            props = new TreeMap<String, String>();
-           String filedir = db.getProp(db.FILEDIR);
-           String maryext = db.getProp(db.MARYEXT);
-           props.put(ACFEATUREFILE,filedir
-                        +"halfphoneFeatures_ac"+maryext);
-           props.put(FEATURESEQFILE, db.getProp(db.CONFIGDIR)
-                        +"featureSequence.txt");
-           props.put(TOPLEVELTREEFILE, db.getProp(db.CONFIGDIR)
-                        +"topLevel.tree");
-           props.put(CARTFILE, filedir
-                        +"cart"+maryext);
+           String filedir = db.getProp(DatabaseLayout.FILEDIR);
+           String maryext = db.getProp(DatabaseLayout.MARYEXT);
+           props.put(ACFEATUREFILE,filedir+"halfphoneFeatures_ac"+maryext);
+           props.put(FEATURESEQFILE, db.getProp(DatabaseLayout.CONFIGDIR)+"featureSequence.txt");
+           props.put(TOPLEVELTREEFILE, db.getProp(DatabaseLayout.CONFIGDIR)+"topLevel.tree");
+           props.put(CARTFILE, filedir+"cart"+maryext);
            
            props.put(MCEPTIMELINE, filedir
                         +"timeline_mcep"+maryext);
@@ -162,11 +157,6 @@ public class CARTBuilder extends VoiceImportComponent {
            props.put(READFEATURESEQUENCE,"true");
            props.put(MAXLEAFSIZE,"10000000");
            props.put(CALLWAGON, "false");
-           String estdir = System.getProperty("ESTDIR");
-           if ( estdir == null ) {
-               estdir = "/project/mary/Festival/speech_tools/";
-           }
-           props.put(ESTDIR,estdir);
            props.put(NUMPROCESSES, "1");
        }
        
@@ -186,7 +176,6 @@ public class CARTBuilder extends VoiceImportComponent {
          props2Help.put(READFEATURESEQUENCE,"if \"true\", basic tree is read from feature sequence file;"
                  +" if \"false\", basic tree is read from top level tree file.");
          props2Help.put(MAXLEAFSIZE,"the maximum number of units in a leaf of the basic tree");
-         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
          props2Help.put(NUMPROCESSES, "number of wagon processes to run in parallel - bewteen 1 and the number of CPUs");
          props2Help.put(CALLWAGON, "whether to call wagon to build an acoustics-based pre-selection sub-tree for each top-level leaf");
      }
@@ -444,7 +433,7 @@ public class CARTBuilder extends VoiceImportComponent {
                         cartFile+wagonID,
                         0,
                         stop,
-                        getProp(ESTDIR));
+                        db.getProp(DatabaseLayout.ESTDIR));
                 boolean dispatched = false;
                 while (!dispatched) {
                     for (int w=0; w<numProcesses && !dispatched; w++) {

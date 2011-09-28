@@ -53,20 +53,16 @@ public class MCEPMaker extends VoiceImportComponent {
     private final String name = "MCEPMaker";
     public final String LPCDIR = name + ".lpcDir";
     public final String MCEPDIR = name + ".mcepDir";
-    public final String ESTDIR = name + ".estDir";
      
-    public final String PMDIR = "db.pmDir";
-    public final String PMEXT = "db.pmExtension";
-
-    public String getName(){
+    public String getName() {
         return name;
     }
     
-   public SortedMap getDefaultProps(DatabaseLayout db){
+   public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
        this.db = db;
        if (props == null){
-           props = new TreeMap();
-           String rootDir = db.getProp(db.ROOTDIR);
+           props = new TreeMap<String, String>();
+           String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
            
            /** Uncomment if you want to use this class for making lpcs
            props.put(LPCDIR, rootDir
@@ -76,19 +72,13 @@ public class MCEPMaker extends VoiceImportComponent {
            props.put(MCEPDIR, rootDir
                    +"mcep"
                    +System.getProperty("file.separator"));
-           String estdir = System.getProperty("ESTDIR");
-           if ( estdir == null ) {
-               estdir = "/project/mary/Festival/speech_tools/";
-           }
-           props.put(ESTDIR,estdir);
        }
        return props;
    }
    
    protected void setupHelp(){         
-       props2Help = new TreeMap();
+       props2Help = new TreeMap<String, String>();
        props2Help.put(MCEPDIR, "directory containing the mcep files");
-       props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
    }
 
     /**
@@ -182,9 +172,9 @@ public class MCEPMaker extends VoiceImportComponent {
         System.out.println("---- Correcting the pitchmarks..." );
         
         /* Ensure the existence of the target directory */
-        File dir = new File( db.getProp(PMDIR));
+        File dir = new File( db.getProp(DatabaseLayout.PMDIR));
         if (!dir.exists()) { 
-            System.out.println( "Creating the directory [" + db.getProp(PMDIR) + "]." );
+            System.out.println( "Creating the directory [" + db.getProp(DatabaseLayout.PMDIR) + "]." );
             dir.mkdir();
         }
         
@@ -193,7 +183,7 @@ public class MCEPMaker extends VoiceImportComponent {
         //for ( int f = 0; f < 1; f++ ) {
             /* Load the pitchmark file */
             //System.out.println( baseNameArray[f] );
-            String fName = db.getProp(PMDIR) + baseNameArray[f] + db.getProp(PMEXT);
+            String fName = db.getProp(DatabaseLayout.PMDIR) + baseNameArray[f] + db.getProp(DatabaseLayout.PMEXT);
             ESTTrackReader pmFileIn = new ESTTrackReader( fName );
             /* Wrap the primitive floats so that we can use vectors thereafter */
             float[] pmInPrimitive = pmFileIn.getTimes();
@@ -202,7 +192,7 @@ public class MCEPMaker extends VoiceImportComponent {
                 pmIn[i] = (Float)Array.get( pmInPrimitive, i );
             }
             /* Load the wav file */
-            fName = db.getProp(db.WAVDIR) + baseNameArray[f] + db.getProp(db.WAVEXT);
+            fName = db.getProp(DatabaseLayout.WAVDIR) + baseNameArray[f] + db.getProp(DatabaseLayout.WAVEXT);
             WavReader wf = new WavReader( fName );
             short[] w = wf.getSamples();
             Float[] pmOut = null;
@@ -216,7 +206,7 @@ public class MCEPMaker extends VoiceImportComponent {
                 throw new RuntimeException( "For utterance [" + baseNameArray[f] + "]:" , e );
             }
             /* Export the corrected pitchmarks as an EST file */
-            fName = db.getProp(PMDIR) + baseNameArray[f] + db.getProp(PMEXT);
+            fName = db.getProp(DatabaseLayout.PMDIR) + baseNameArray[f] + db.getProp(DatabaseLayout.PMEXT);
             DataOutputStream dos = null;
             try {
                 dos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( fName ) ) );
@@ -255,10 +245,10 @@ public class MCEPMaker extends VoiceImportComponent {
         
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println( "Computing Mel cepstra for [" + baseNameArray.length + "] utterances." );
-        ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
+        ESTCaller caller = new ESTCaller(db);
         caller.make_mcep( baseNameArray, 
-                db.getProp(PMDIR),
-                db.getProp(PMEXT),
+                db.getProp(DatabaseLayout.PMDIR),
+                db.getProp(DatabaseLayout.PMEXT),
                 getProp(MCEPDIR),
                 mcepExt);
         

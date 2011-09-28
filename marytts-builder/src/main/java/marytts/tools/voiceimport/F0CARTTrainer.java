@@ -79,7 +79,6 @@ public class F0CARTTrainer extends VoiceImportComponent
     public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
     public final String F0RIGHTTREEFILE = name+".f0RightTreeFile";
     public final String F0MIDTREEFILE = name+".f0MidTreeFile";
-    public final String ESTDIR = name+".estDir";
     
     public F0CARTTrainer(){
         setupHelp();
@@ -92,8 +91,8 @@ public class F0CARTTrainer extends VoiceImportComponent
     @Override
     protected void initialiseComp()
     {       
-        String rootDir = db.getProp(db.ROOTDIR);
-        String f0DirName = db.getProp(db.TEMPDIR);
+        String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
+        String f0DirName = db.getProp(DatabaseLayout.TEMPDIR);
         this.f0Dir = new File(f0DirName);
         if (!f0Dir.exists()){
             System.out.print("temp dir "+f0DirName
@@ -128,11 +127,6 @@ public class F0CARTTrainer extends VoiceImportComponent
            props.put(F0LEFTTREEFILE,filedir+"f0.left.tree");
            props.put(F0RIGHTTREEFILE,filedir+"f0.right.tree");
            props.put(F0MIDTREEFILE,filedir+"f0.mid.tree");
-           String estdir = System.getProperty("ESTDIR");
-           if ( estdir == null ) {
-               estdir = "/project/mary/Festival/speech_tools/";
-           }
-           props.put(ESTDIR,estdir);
        }
        return props;
      }
@@ -147,7 +141,6 @@ public class F0CARTTrainer extends VoiceImportComponent
          props2Help.put(F0LEFTTREEFILE,"file containing the left f0 CART. Will be created by this module");
          props2Help.put(F0RIGHTTREEFILE,"file containing the right f0 CART. Will be created by this module");
          props2Help.put(F0MIDTREEFILE,"file containing the middle f0 CART. Will be created by this module");
-         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
      }
    
 
@@ -244,11 +237,11 @@ public class F0CARTTrainer extends VoiceImportComponent
         toDesc.close();
         
         // Now, call wagon
-        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
+        WagonCaller wagonCaller = new WagonCaller(db.getProp(DatabaseLayout.ESTDIR), null);
         boolean ok;
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
-            // hardcoded path = EVIL
+            // TODO: hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+leftF0FeaturesFile.getAbsolutePath());
             try {
                 traintest.waitFor();

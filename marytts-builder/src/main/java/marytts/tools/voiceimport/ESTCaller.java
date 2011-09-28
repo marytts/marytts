@@ -58,8 +58,8 @@ public class ESTCaller
     /****************/
     
     /**
-     * Constructor which automatically finds the location of the EST speech tools
-     * from the system' s environmant variable ESTDIR
+     * Constructor which gets the location of the EST speech tools
+     * from the database layout's config settings.
      * 
      * @param newDb a database layout, please refer to the DatabaseLayout
      * class for more info.
@@ -67,39 +67,7 @@ public class ESTCaller
     public ESTCaller( DatabaseLayout newDb ) {
         
         db = newDb;
-        
-        /* Read the environment variable ESTDIR from the system: */
-        // This should probably be System.getenv("ESTDIR"), but this constructor is never used anyway.
-        String getESTDIR = System.getProperty("ESTDIR");
-        if ( getESTDIR == null ) {
-            System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
-            System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
-        }
-        else ESTDIR = getESTDIR;
-        
-        /* Check if the ESTs can be found in ESTDIR: */
-        checkEST();
-        /* (This will throw a RuntimeException if the ESTs can't be found.) */
-        
-        /* Java 5.0 compliant code below. */
-        /* pb = new ProcessBuilder( new String[]{" "} );
-         Map env = pb.environment();
-         env.put("ESTDIR", ESTDIR );
-         pb.directory( db.baseDir() );
-         pb.redirectErrorStream( true ); */
-        
-    }
-    
-    /**
-     * Constructor which specifies the location of the EST speech tools
-     * 
-     * @param newDb a database layout, please refer to the DatabaseLayout
-     * class for more info.
-     */
-    public ESTCaller( DatabaseLayout newDb, String newESTDir ) {
-        
-        db = newDb;
-        ESTDIR = newESTDir;
+        ESTDIR = db.getProp(DatabaseLayout.ESTDIR);
         
         /* Check if the ESTs can be found in ESTDIR: */
         checkEST();

@@ -68,7 +68,6 @@ public class DurationCARTTrainer extends VoiceImportComponent
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String ISHNMTIMELINE = name+".isHnmTimeline";
-    public final String ESTDIR = name+".estDir";
 
     public String getName(){
         return name;
@@ -110,11 +109,6 @@ public class DurationCARTTrainer extends VoiceImportComponent
             props.put(ISHNMTIMELINE, "false"); 
             props.put(DURTREE,db.getProp(DatabaseLayout.FILEDIR)
                     +"dur.tree");                    
-           String estdir = System.getProperty("ESTDIR");
-           if ( estdir == null ) {
-               estdir = "/project/mary/Festival/speech_tools/";
-           }
-           props.put(ESTDIR,estdir);
         }
        return props;
     }
@@ -126,7 +120,6 @@ public class DurationCARTTrainer extends VoiceImportComponent
          props2Help.put(UNITFILE, "file containing all phone units");
          props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them"); 
          props2Help.put(ISHNMTIMELINE, "file containing all wave files"); 
-         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
          props2Help.put(DURTREE,"file containing the duration CART. Will be created by this module");
      }
 
@@ -169,7 +162,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
         
         boolean ok = false;
         // Now, call wagon
-        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);        
+        WagonCaller wagonCaller = new WagonCaller(db.getProp(DatabaseLayout.ESTDIR), null);        
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
             // TODO: hardcoded path = EVIL
