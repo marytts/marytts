@@ -66,7 +66,6 @@ public class F0CARTTrainer extends VoiceImportComponent
     protected File wagonMidTreeFile;
     protected File wagonRightTreeFile;
     protected String featureExt = ".pfeats";  
-    protected String labelExt = ".lab";
     protected DatabaseLayout db = null;
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
@@ -77,8 +76,6 @@ public class F0CARTTrainer extends VoiceImportComponent
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String ISHNMTIMELINE = name+".isHnmTimeline";
-    public final String LABELDIR = name+".labelDir";
-    public final String FEATUREDIR = name+".featureDir";
     public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
     public final String F0RIGHTTREEFILE = name+".f0RightTreeFile";
     public final String F0MIDTREEFILE = name+".f0MidTreeFile";
@@ -120,28 +117,17 @@ public class F0CARTTrainer extends VoiceImportComponent
         this.db = dbl;
        if (props == null){
            props = new TreeMap<String, String>();
-           String filedir = db.getProp(db.FILEDIR);
-           String maryext = db.getProp(db.MARYEXT);
-           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                        +"phonefeatures"
-                        +System.getProperty("file.separator"));
-           props.put(LABELDIR, db.getProp(db.ROOTDIR)                        
-                        +"phonelab"
-                        +System.getProperty("file.separator"));
+           String filedir = db.getProp(DatabaseLayout.FILEDIR);
+           String maryext = db.getProp(DatabaseLayout.MARYEXT);
            props.put(STEPWISETRAINING,"false");
-           props.put(FEATUREFILE, filedir
-                        +"phoneFeatures"+maryext);
-           props.put(UNITFILE, filedir
-                        +"phoneUnits"+maryext);
-           props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                        +"timeline_waveforms"+db.getProp(db.MARYEXT));      
+           props.put(FEATUREFILE, filedir+"phoneFeatures"+maryext);
+           props.put(UNITFILE, filedir+"phoneUnits"+maryext);
+           props.put(WAVETIMELINE, db.getProp(DatabaseLayout.FILEDIR)
+                        +"timeline_waveforms"+db.getProp(DatabaseLayout.MARYEXT));      
            props.put(ISHNMTIMELINE, "false"); 
-           props.put(F0LEFTTREEFILE,filedir
-                   +"f0.left.tree");
-           props.put(F0RIGHTTREEFILE,filedir
-                   +"f0.right.tree");
-           props.put(F0MIDTREEFILE,filedir
-                   +"f0.mid.tree");
+           props.put(F0LEFTTREEFILE,filedir+"f0.left.tree");
+           props.put(F0RIGHTTREEFILE,filedir+"f0.right.tree");
+           props.put(F0MIDTREEFILE,filedir+"f0.mid.tree");
            String estdir = System.getProperty("ESTDIR");
            if ( estdir == null ) {
                estdir = "/project/mary/Festival/speech_tools/";
@@ -153,8 +139,6 @@ public class F0CARTTrainer extends VoiceImportComponent
      
      protected void setupHelp(){         
          props2Help = new TreeMap<String, String>();
-         props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
-         props2Help.put(LABELDIR, "directory containing the phone label files");
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ????????????????????????");
          props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
          props2Help.put(UNITFILE, "file containing all phone units");
@@ -358,9 +342,11 @@ public class F0CARTTrainer extends VoiceImportComponent
     private String[] align(String basename) throws IOException
     {
         BufferedReader labels = 
-            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(LABELDIR) + basename + labelExt)), "UTF-8"));
+            new BufferedReader(new InputStreamReader(new FileInputStream(
+            		new File(db.getProp(DatabaseLayout.PHONELABDIR), basename + DatabaseLayout.LABEXT)), "UTF-8"));
         BufferedReader features = 
-            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(FEATUREDIR) + basename + featureExt)), "UTF-8")); 
+            new BufferedReader(new InputStreamReader(new FileInputStream(
+            		new File(db.getProp(DatabaseLayout.PHONEFEATUREDIR), basename + featureExt)), "UTF-8")); 
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {

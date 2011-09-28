@@ -37,7 +37,6 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     
     public HalfPhoneUnitfileWriter(){
         unitlabelExt = ".hplab";
-        LABELDIR = "HalfPhoneUnitfileWriter.labelDir";
         UNITFILE = "HalfPhoneUnitfileWriter.unitFile";
     }
     
@@ -45,18 +44,18 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     protected void initialiseComp()
     throws Exception
     {
-        maryDir = new File(db.getProp(db.FILEDIR));
+        maryDir = new File(db.getProp(DatabaseLayout.FILEDIR));
         
-        samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
-        pauseSymbol = System.getProperty("pause.symbol", "pau");
+        samplingRate = Integer.parseInt(db.getProp(DatabaseLayout.SAMPLINGRATE));
+        pauseSymbol = db.getAllophoneSet().getSilence().name();
     
         unitFileName = getProp(UNITFILE);
-        unitlabelDir = new File(getProp(LABELDIR));
+        unitlabelDir = new File(db.getProp(DatabaseLayout.HALFPHONELABDIR));
         if (!unitlabelDir.exists()){
-            System.out.print(LABELDIR+" "+getProp(LABELDIR)
+            System.out.print(DatabaseLayout.HALFPHONELABDIR+" "+db.getProp(DatabaseLayout.HALFPHONELABDIR)
                     +" does not exist; ");
             if (!unitlabelDir.mkdir()){
-                throw new Error("Could not create LABELDIR");
+                throw new Exception("Could not create HALFPHONELABDIR");
             }
             System.out.print("Created successfully.\n");
         } 
@@ -64,23 +63,18 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
         db.initialiseComponent(aligner);        
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
+    public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
         this.db = db;
         if (props == null){
-            props = new TreeMap();
-            String rootDir = db.getProp(db.ROOTDIR);
-            props.put(LABELDIR, rootDir
-                    +"halfphonelab"
-                    +System.getProperty("file.separator"));
-            props.put(UNITFILE, db.getProp(db.FILEDIR)
-                    +"halfphoneUnits"+db.getProp(db.MARYEXT));           
+            props = new TreeMap<String, String>();
+            props.put(UNITFILE, db.getProp(DatabaseLayout.FILEDIR)
+                    +"halfphoneUnits"+db.getProp(DatabaseLayout.MARYEXT));           
         }
         return props;
     }
     
     protected void setupHelp(){
-        props2Help = new TreeMap();
-        props2Help.put(LABELDIR, "directory containing the halfphone labels");
+        props2Help = new TreeMap<String, String>();
         props2Help.put(UNITFILE, "file containing all halfphone units. Will be created by this module");           
     }
     

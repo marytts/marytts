@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.data.text.XwavesLabelfileReader;
 
 /**
@@ -42,15 +42,12 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
 {
     protected File phonelabelDir;
     protected File unitlabelDir;
+    protected String unitlabelExt;
     protected String pauseSymbol;
-    
-    protected String unitlabelExt = ".lab";
-    
+        
     protected DatabaseLayout db = null;
     protected int percent = 0;
     protected int basenameIndex;
-    
-    public String LABELDIR = "PhoneUnitLabelComputer.labelDir";
     
     public String getName(){
         return "PhoneUnitLabelComputer";
@@ -58,49 +55,47 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     
     @Override
     protected void initialiseComp()
+    throws Exception
     {
     	pauseSymbol = db.getAllophoneSet().getSilence().name();
 
-        this.unitlabelDir = new File(getProp(LABELDIR));
-        if (!unitlabelDir.exists()){
-            System.out.print(LABELDIR+" "+getProp(LABELDIR)
-                    +" does not exist; ");
-            if (!unitlabelDir.mkdir()){
-                throw new Error("Could not create LABELDIR");
-            }
-            System.out.print("Created successfully.\n");
-        }  
+        phonelabelDir = new File(db.getProp(DatabaseLayout.LABDIR));
+        unitlabelDir = new File(db.getProp(DatabaseLayout.PHONELABDIR));
+        unitlabelExt = db.getProp(DatabaseLayout.LABEXT);
     }
     
      public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
            props = new TreeMap<String, String>();
-           props.put(LABELDIR, db.getProp(db.ROOTDIR)
-                        +"phonelab"
-                        +System.getProperty("file.separator"));
        }
        return props;
     }
      
     protected void setupHelp(){
         props2Help = new TreeMap<String, String>();
-        props2Help.put(LABELDIR,"directory containing the phone labels." 
-                +"Will be created if it does not exist.");
     } 
     
     public boolean compute() throws Exception
     {
+        if (!phonelabelDir.exists()) {
+        	throw new IOException("No such directory: "+ phonelabelDir);
+        }
         
-        phonelabelDir = new File(db.getProp(db.LABDIR));
-        if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
+        if (!unitlabelDir.exists()) {
+            System.out.print(DatabaseLayout.PHONELABDIR+" "+db.getProp(DatabaseLayout.PHONELABDIR) + " does not exist; ");
+            if (!unitlabelDir.mkdir()) {
+                throw new Exception("Could not create PHONELABDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }
         
         System.out.println( "Computing unit labels for " 
                 + bnl.getLength() + " files." );
         System.out.println( "From phonetic label files: " 
-                + db.getProp(db.LABDIR) + "*" + db.getProp(db.LABEXT));
+                + db.getProp(DatabaseLayout.LABDIR) + "*" + db.getProp(DatabaseLayout.LABEXT));
         System.out.println( "To       unit label files: " 
-                + getProp(LABELDIR) + "*" + unitlabelExt );
+                + unitlabelDir + "*" + unitlabelExt );
         for (basenameIndex=0; basenameIndex<bnl.getLength(); basenameIndex++) {
             percent = 100*basenameIndex/bnl.getLength();
             computePhoneLabel(bnl.getName(basenameIndex));
@@ -110,9 +105,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     }
     
     public void computePhoneLabel(String baseName) throws Exception{
-        File labFile = 
-            new File( db.getProp(db.LABDIR) 
-                    + baseName + db.getProp(db.LABEXT) );
+        File labFile = new File( db.getProp(DatabaseLayout.LABDIR), baseName + db.getProp(DatabaseLayout.LABEXT) );
         if ( !labFile.exists() ) {
             System.out.println( "Utterance [" + baseName + "] does not have a phonetic label file." );
             System.out.println( "Removing this utterance from the base utterance list." );
@@ -164,8 +157,8 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         String[] unitLabelLines = toUnitLabels(labels, endTimes, midTimes);
 
         // write to phonelab file:
-        String phoneLabFileName = getProp(LABELDIR) + baseName + unitlabelExt;
-        PrintWriter out = new PrintWriter(phoneLabFileName);
+        File phoneLabFile = new File(unitlabelDir, baseName + unitlabelExt);
+        PrintWriter out = new PrintWriter(phoneLabFile);
         // header:
         for (String headerLine : labFileData.getHeader()) {
             out.println(headerLine);
@@ -193,18 +186,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         return null;
     }
 
-    /**/
-    // TODO dead code, remove?
-    private String getPhone(String line)
-    {
-        StringTokenizer st = new StringTokenizer(line.trim());
-        // The third token in each line is the label
-        if (st.hasMoreTokens()) st.nextToken();
-        if (st.hasMoreTokens()) st.nextToken();
-        if (st.hasMoreTokens()) return st.nextToken();
-        return null;
-    }
-    
+
     /**
      * Convert phone labels to unit labels. This base implementation
      * returns the phone labels; subclasses may want to override that
@@ -263,10 +245,10 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             double endTime = endTimes.get(i);
             if (midTimes != null) {
                 double midTime = midTimes.get(i);
-                unitLines.add(String.format("%f %d %s_L", midTime, unitLines.size() + 1, label));
-                unitLines.add(String.format("%f %d %s_R", endTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s_L", midTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s_R", endTime, unitLines.size() + 1, label));
             } else {
-                unitLines.add(String.format("%f %d %s", endTime, unitLines.size() + 1, label));
+                unitLines.add(String.format(Locale.US, "%f %d %s", endTime, unitLines.size() + 1, label));
             }
         }
         return (String[]) unitLines.toArray(new String[unitLines.size()]);
