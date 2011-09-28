@@ -93,6 +93,8 @@ public class DatabaseLayout
     public static final String LABDIR = "db.labDir";
     //phonetic label file extension
     public static final String LABEXT = "db.labExtension";
+    // halfphone label file extention
+    public static final String HALFPHONELABEXT = "db.hplabExtension";
     //pitchmark file dir
     public static final String PMDIR = "db.pmDir";
     //pitchmark file extension
@@ -194,6 +196,7 @@ public class DatabaseLayout
         props2Help.put(GENDER,"female or male");
         props2Help.put(LABDIR,"directory containing the label files. Will be created if it does not exist.");
         props2Help.put(LABEXT,"extension of the label files, default: \".lab\"");
+        props2Help.put(HALFPHONELABEXT,"extension of the halfphone label files, default: \".hplab\"");
         props2Help.put(LOCALE,"de, en or en_US");
         props2Help.put(MARYBASE,"directory containing the local Mary installation");
         props2Help.put(MARYBASEVERSION,"local Mary installation version");
@@ -642,7 +645,8 @@ public class DatabaseLayout
         basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
         basicprops.put(WAVDIR, rootDir+"wav"+fileSeparator);
         basicprops.put(LABDIR, rootDir+"lab"+fileSeparator);
-        basicprops.put(LABEXT,".lab");        
+        basicprops.put(LABEXT,".lab");
+        basicprops.put(HALFPHONELABEXT, ".hplab");
         basicprops.put(TEXTDIR, rootDir+"text"+fileSeparator);
         basicprops.put(TEXTEXT,".txt");
         basicprops.put(PMDIR, rootDir+"pm"+fileSeparator);

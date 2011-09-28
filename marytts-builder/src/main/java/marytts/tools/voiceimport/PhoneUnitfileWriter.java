@@ -49,10 +49,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public String LABELDIR = "PhoneUnitfileWriter.labelDir";
     public String UNITFILE = "PhoneUnitfileWriter.unitFile";
-    public String PMDIR = "db.pmDir";
-    public String PMEXT = "db.pmExtension";
     
     public String getName(){
         return "PhoneUnitfileWriter";
@@ -62,42 +59,29 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     protected void initialiseComp()
     throws Exception
     {
-        maryDir = new File(db.getProp(db.FILEDIR));
+        maryDir = new File(db.getProp(DatabaseLayout.FILEDIR));
         
-        samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
-        pauseSymbol = System.getProperty("pause.symbol", "pau");
+        samplingRate = Integer.parseInt(db.getProp(DatabaseLayout.SAMPLINGRATE));
+        pauseSymbol = db.getAllophoneSet().getSilence().name();
     
         unitFileName = getProp(UNITFILE);
-        unitlabelDir = new File(getProp(LABELDIR));
-        if (!unitlabelDir.exists()){
-            System.out.print(LABELDIR+" "+getProp(LABELDIR)
-                    +" does not exist; ");
-            if (!unitlabelDir.mkdir()){
-                throw new Error("Could not create LABELDIR");
-            }
-            System.out.print("Created successfully.\n");
-        }  
+        unitlabelDir = new File(db.getProp(DatabaseLayout.PHONELABDIR));
         aligner = new PhoneLabelFeatureAligner();
         db.initialiseComponent(aligner);        
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
+    public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
-           props = new TreeMap();
-           String rootDir = db.getProp(db.ROOTDIR);
-           props.put(LABELDIR, rootDir
-                   +"phonelab"
-                   +System.getProperty("file.separator"));
-           props.put(UNITFILE, db.getProp(db.FILEDIR)
-                   +"phoneUnits"+db.getProp(db.MARYEXT));           
+           props = new TreeMap<String, String>();
+           props.put(UNITFILE, db.getProp(DatabaseLayout.FILEDIR)
+                   +"phoneUnits"+db.getProp(DatabaseLayout.MARYEXT));           
        }
        return props;
     }
     
     protected void setupHelp(){
-        props2Help = new TreeMap();
-        props2Help.put(LABELDIR, "directory containing the phone labels");
+        props2Help = new TreeMap<String, String>();
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
     }
     
@@ -125,8 +109,8 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             /* Open the relevant pitchmark file */
-            pmFile = new ESTTrackReader(db.getProp(PMDIR)
-                    + bnl.getName(i) + db.getProp(PMEXT));
+            pmFile = new ESTTrackReader(db.getProp(DatabaseLayout.PMDIR)
+                    + bnl.getName(i) + db.getProp(DatabaseLayout.PMEXT));
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;

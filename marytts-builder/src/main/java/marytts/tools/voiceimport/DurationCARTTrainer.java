@@ -63,8 +63,6 @@ public class DurationCARTTrainer extends VoiceImportComponent
     
     private final String name = "DurationCARTTrainer";
     public final String DURTREE = name+".durTree";
-    public final String LABELDIR = name+".labelDir";
-    public final String FEATUREDIR = name+".featureDir";   
     public final String STEPWISETRAINING = name+".stepwiseTraining";
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
@@ -79,10 +77,9 @@ public class DurationCARTTrainer extends VoiceImportComponent
     @Override
     protected void initialiseComp()
     {       
-        this.unitlabelDir = new File(getProp(LABELDIR));
-        this.unitfeatureDir = new File(getProp(FEATUREDIR));
-        String rootDir = db.getProp(db.ROOTDIR);
-        String durDir = db.getProp(db.TEMPDIR);
+        this.unitlabelDir = new File(db.getProp(DatabaseLayout.PHONELABDIR));
+        this.unitfeatureDir = new File(db.getProp(DatabaseLayout.PHONEFEATUREDIR));
+        String durDir = db.getProp(DatabaseLayout.TEMPDIR);
         this.durationDir = new File(durDir);
         if (!durationDir.exists()){
             System.out.print("temp dir "+durDir
@@ -103,22 +100,15 @@ public class DurationCARTTrainer extends VoiceImportComponent
         this.db = dbl;
         if (props == null){
             props = new TreeMap<String, String>();
-            String fileSeparator = System.getProperty("file.separator");
-            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)                       
-                    +"phonefeatures"
-                    +fileSeparator);
-            props.put(LABELDIR, db.getProp(db.ROOTDIR)
-                    +"phonelab"
-                    +fileSeparator);            
             props.put(STEPWISETRAINING,"false");
-            props.put(FEATUREFILE, db.getProp(db.FILEDIR)
-                    +"phoneFeatures"+db.getProp(db.MARYEXT));
-            props.put(UNITFILE, db.getProp(db.FILEDIR)
-                    +"phoneUnits"+db.getProp(db.MARYEXT));
-            props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                    +"timeline_waveforms"+db.getProp(db.MARYEXT)); 
+            props.put(FEATUREFILE, db.getProp(DatabaseLayout.FILEDIR)
+                    +"phoneFeatures"+db.getProp(DatabaseLayout.MARYEXT));
+            props.put(UNITFILE, db.getProp(DatabaseLayout.FILEDIR)
+                    +"phoneUnits"+db.getProp(DatabaseLayout.MARYEXT));
+            props.put(WAVETIMELINE, db.getProp(DatabaseLayout.FILEDIR)
+                    +"timeline_waveforms"+db.getProp(DatabaseLayout.MARYEXT)); 
             props.put(ISHNMTIMELINE, "false"); 
-            props.put(DURTREE,db.getProp(db.FILEDIR)
+            props.put(DURTREE,db.getProp(DatabaseLayout.FILEDIR)
                     +"dur.tree");                    
            String estdir = System.getProperty("ESTDIR");
            if ( estdir == null ) {
@@ -131,8 +121,6 @@ public class DurationCARTTrainer extends VoiceImportComponent
      
      protected void setupHelp(){
          props2Help = new TreeMap<String, String>();
-         props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
-         props2Help.put(LABELDIR, "directory containing the phone labels");            
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ???????????????????????????????????????????????????????????");
          props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
          props2Help.put(UNITFILE, "file containing all phone units");
@@ -184,7 +172,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
         WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);        
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
-            // hardcoded path = EVIL
+            // TODO: hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeatsFile.getAbsolutePath());
              try {
                 traintest.waitFor();

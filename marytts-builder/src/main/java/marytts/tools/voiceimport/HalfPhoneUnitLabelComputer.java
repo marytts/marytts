@@ -20,6 +20,7 @@
 package marytts.tools.voiceimport;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,26 +57,26 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
     }
     
     public HalfPhoneUnitLabelComputer(){
-        unitlabelExt = ".hplab";
-        LABELDIR = "HalfPhoneUnitLabelComputer.labelDir";
-    } 
-        
-     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
-        this.db = db;
-       if (props == null){
-           props = new TreeMap<String, String>();
-           props.put(LABELDIR, db.getProp(db.ROOTDIR)
-                        +"halfphonelab"
-                        +System.getProperty("file.separator"));
-           props.put(ENERGYBASEDTRANSIENTSPLITTING, "false");
-       }
-       return props;
+    }
+
+    @Override
+    protected void initialiseComp() throws Exception {
+    	super.initialiseComp();
+    	unitlabelDir = new File(db.getProp(DatabaseLayout.HALFPHONELABDIR));
+        unitlabelExt = db.getProp(DatabaseLayout.HALFPHONELABEXT);
+    }
+    
+    public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
+    	this.db = db;
+    	if (props == null){
+    		props = new TreeMap<String, String>();
+    		props.put(ENERGYBASEDTRANSIENTSPLITTING, "false");
+    	}
+    	return props;
     }
     
     protected void setupHelp(){
-        props2Help = new TreeMap();
-        props2Help.put(LABELDIR,"directory containing the halfphone labels." 
-                +"Will be created if it does not exist.");
+        props2Help = new TreeMap<String, String>();
         props2Help.put(ENERGYBASEDTRANSIENTSPLITTING,
                 "Whether to analyze energy in the speech signal to determine midpoints of transient phones (plosives).");
     } 
@@ -142,11 +143,11 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
      */
     private double getEnergyPeak(double startTime, double endTime) throws IOException {
         // determine wav file name and energy analysis file name:
-        String wavDir = db.getProperty(db.WAVDIR);
+        String wavDir = db.getProperty(DatabaseLayout.WAVDIR);
         String baseName = bnl.getName(basenameIndex);
-        String wavExt = db.getProperty(db.WAVEXT);
+        String wavExt = db.getProperty(DatabaseLayout.WAVEXT);
         String wavFileName = wavDir + baseName + wavExt;
-        String energyFileName = getProp(LABELDIR) + baseName + energyExt;
+        String energyFileName = unitlabelDir + baseName + energyExt;
         
         // load or create energy analysis file:
         EnergyContourRms energyContourRMS;
