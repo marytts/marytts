@@ -49,36 +49,6 @@ import org.xml.sax.SAXException;
  */
 public class MaryDomUtils extends DomUtils
 {
-    // Static constructor:
-    static {
-        DomUtils.setup();
-        MaryDomUtils.setup2();
-    }
-
-
-	/**
-	 * 
-	 */
-	protected static void setup2() {
-        validatingFactory = DocumentBuilderFactory.newInstance();
-        validatingFactory.setExpandEntityReferences(true);
-        validatingFactory.setNamespaceAware(true);
-        validatingFactory.setIgnoringElementContentWhitespace(true);
-        validatingFactory.setValidating(true);
-        try {
-            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-            // Specify other factory configuration settings
-            Object[] schemas = new Object[] {
-            		MaryDomUtils.class.getResourceAsStream("xml.xsd"),
-            		MaryDomUtils.class.getResourceAsStream("MaryXML.xsd")
-            };
-            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
-        } catch (Exception x) {
-            // This can happen if the parser does not support JAXP 1.2
-            logger.warn("Cannot use Schema validation -- disabling validating parser factory.");
-            validatingFactory = null;
-        }
-	}
 
     /**
      * Create a new <mtu> element, inserted in the tree at the position of t

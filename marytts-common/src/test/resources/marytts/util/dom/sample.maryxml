@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<voice name="cmu-slt-hsmm">
+<s>
+<phrase>
+<boundary breakindex="2" duration="100"/>
+<t g2p_method="lexicon" ph="' D I s" pos="DT">
+This
+<syllable ph="' D I s" stress="1">
+<ph p="D"/>
+<ph p="I"/>
+<ph p="s"/>
+</syllable>
+</t>
+<t g2p_method="lexicon" ph="' I z" pos="VBZ">
+is
+<syllable ph="' I z" stress="1">
+<ph p="I"/>
+<ph p="z"/>
+</syllable>
+</t>
+<t g2p_method="lexicon" ph="@" pos="DT">
+a
+<syllable ph="@">
+<ph p="@"/>
+</syllable>
+</t>
+<t accent="L+H*" g2p_method="rules" ph="' l I b - r I - v A k s" pos="NNP">
+Librivox
+<syllable accent="L+H*" ph="' l I b" stress="1">
+<ph p="l"/>
+<ph p="I"/>
+<ph p="b"/>
+</syllable>
+<syllable ph="r I">
+<ph p="r"/>
+<ph p="I"/>
+</syllable>
+<syllable ph="v A k s">
+<ph p="v"/>
+<ph p="A"/>
+<ph p="k"/>
+<ph p="s"/>
+</syllable>
+</t>
+<t accent="!H*" g2p_method="lexicon" ph="r @ - ' k O r - d I N" pos="NN">
+recording
+<syllable ph="r @">
+<ph p="r"/>
+<ph p="@"/>
+</syllable>
+<syllable accent="!H*" ph="' k O r" stress="1">
+<ph p="k"/>
+<ph p="O"/>
+<ph p="r"/>
+</syllable>
+<syllable ph="d I N">
+<ph p="d"/>
+<ph p="I"/>
+<ph p="N"/>
+</syllable>
+</t>
+<t pos=".">
+.
+</t>
+<boundary breakindex="5" tone="L-L%"/>
+</phrase>
+</s>
+</voice>
+</p>
+</maryxml>
