@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>marytts</groupId>
+  <artifactId>voice-${VOICENAME}</artifactId>
+  <name>voice-${VOICENAME}</name>
+  <version>5.0-SNAPSHOT</version>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-runtime</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-${LANG}</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.8</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+		  <argLine>-Xms256m -Xmx512m</argLine>
+          <systemPropertyVariables>
+            <!-- The MARY installation directory, as seen from our subproject's perspective: -->
+            <mary.base>${basedir}</mary.base>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

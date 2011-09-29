@@ -840,7 +840,7 @@ public class DatabaseLayout
     {
         for (int i=0; i<components.length; i++) {
             SortedMap<String,String> nextProps = localProps.get(compNames[i]);
-            components[i].initialise(bnl,nextProps);
+            components[i].initialise(this, bnl, nextProps);
         }
     }
     
@@ -987,7 +987,7 @@ public class DatabaseLayout
                 return;
             saveProps(configFile);
         }
-        vic.initialise(bnl, localProps.get(name));
+        vic.initialise(this, bnl, localProps.get(name));
      }
     
     public BasenameList getBasenames()
@@ -1044,6 +1044,7 @@ public class DatabaseLayout
 
 
 
+    /////////// A number of useful getters of general interest /////////////////
 
     public Locale getLocale() {
     	return locale;
@@ -1055,6 +1056,34 @@ public class DatabaseLayout
 
     public File getVoiceDir() {
     	return voiceDir;
+    }
+
+    public String getXMLCompatibleLocaleString() {
+        return MaryUtils.locale2xmllang(locale);
+    }
+
+    public String getVoiceName() {
+        return getProp(VOICENAME).toLowerCase();
+    }
+
+    public File getVoiceFileDir() {
+        return new File(getProp(FILEDIR));
+    }
+
+    public String getMaryVersion() {
+        return getProp(MARYBASEVERSION);
+    }
+
+    public String getGender() {
+        return getProp(GENDER).toLowerCase();
+    }
+
+    public String getDomain() {
+        return getProp(DOMAIN).toLowerCase();
+    }
+
+    public int getSamplingRate() {
+        return Integer.parseInt(getProp(SAMPLINGRATE));
     }
 
 
