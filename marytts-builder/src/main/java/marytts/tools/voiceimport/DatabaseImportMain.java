@@ -453,12 +453,20 @@ public class DatabaseImportMain extends JFrame
         
         if (args.length > 0) { // non-gui mode: arguments are expected to be component names, in order or application
             for (String compName : args) {
+            	VoiceImportComponent component = null;
                 for (VoiceImportComponent comp : components) {
                     if (comp.getName().equals(compName)) {
-                        System.out.println("Starting "+compName);
-                        comp.compute();
+                    	component = comp;
+                    	break;
                     }
                 }
+                if (component != null) {
+                    System.out.println("Running "+compName);
+                    component.compute();
+                } else {
+                	throw new IllegalArgumentException("No such voice import component: "+compName);
+                }
+
             }
         } else {
             /* Display GUI */       
