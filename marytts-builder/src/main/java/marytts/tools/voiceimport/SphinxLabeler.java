@@ -30,7 +30,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
+import marytts.util.io.StreamGobbler;
 
 
 

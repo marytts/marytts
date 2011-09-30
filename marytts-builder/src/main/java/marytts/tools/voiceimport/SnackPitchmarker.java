@@ -28,7 +28,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.signalproc.analysis.PitchMarks;
-import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
+import marytts.util.io.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackWriter;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;

@@ -39,7 +39,7 @@ import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.VoiceQuality;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
-import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
+import marytts.util.io.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackReader;
 import marytts.util.data.audio.AudioDoubleDataSource;

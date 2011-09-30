@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="${GENDER}" locale="${LOCALE}" name="${VOICENAME}"
+        type="unit selection" version="${MARYVERSION}">
+        <description></description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="voice-${VOICENAME}-${MARYVERSION}.zip"
+            md5sum="${MD5}" size="${FILESIZE}">
+            <location href="http://mary.dfki.de/download/${MARYVERSION}/"/>
+        </package>
+        <depends language="${LANG}" version="${MARYVERSION}"/>
+    </voice>
+</marytts-install>

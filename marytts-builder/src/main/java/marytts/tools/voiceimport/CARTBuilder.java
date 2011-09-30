@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -59,6 +58,7 @@ import marytts.unitselection.data.MCepDatagram;
 import marytts.unitselection.data.MCepTimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.Datagram;
+import marytts.util.io.StreamGobbler;
 
 public class CARTBuilder extends VoiceImportComponent {
     
@@ -879,12 +879,10 @@ public class CARTBuilder extends VoiceImportComponent {
                 Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon " + arguments);
                 //collect the output
                 //read from error stream
-                StreamGobbler errorGobbler = new 
-                    StreamGobbler(p.getErrorStream(), id+" err");            
+                StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), id+" err");            
             
                 //read from output stream
-                StreamGobbler outputGobbler = new 
-                    StreamGobbler(p.getInputStream(), id+" out");        
+                StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), id+" out");        
                 //start reading from the streams
                 errorGobbler.start();
                 outputGobbler.start();
@@ -944,33 +942,6 @@ public class CARTBuilder extends VoiceImportComponent {
 
     }
     
-    static class StreamGobbler extends Thread
-    {
-        InputStream is;
-        String type;
-        
-        StreamGobbler(InputStream is, String type)
-        {
-            this.is = is;
-            this.type = type;
-        }
-        
-        public void run()
-        {
-            try
-            {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
-        }
-    }
-
     public static void main(String[] args) throws Exception
     {
         CARTBuilder cartBuilder = new CARTBuilder();
