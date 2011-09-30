@@ -945,7 +945,9 @@ public class MathUtils {
     
     public static ComplexNumber[] polar2complex(double[] amps, float[] phasesInRadian)
     {
-        assert amps.length==phasesInRadian.length;
+        if (amps.length!=phasesInRadian.length) {
+        	throw new IllegalArgumentException("Arrays must have same length, but are "+amps.length+" vs. "+phasesInRadian.length);
+        }
         
         ComplexNumber[] comps = new ComplexNumber[amps.length];
         for (int i=0; i<amps.length; i++)
@@ -954,6 +956,18 @@ public class MathUtils {
         return comps;
     }
 
+    public static ComplexNumber[] polar2complex(double[] amps, double[] phasesInRadian)
+    {
+        if (amps.length!=phasesInRadian.length) {
+        	throw new IllegalArgumentException("Arrays must have same length, but are "+amps.length+" vs. "+phasesInRadian.length);
+        }
+       
+        ComplexNumber[] comps = new ComplexNumber[amps.length];
+        for (int i=0; i<amps.length; i++)
+            comps[i] = ampPhase2ComplexNumber(amps[i], phasesInRadian[i]);
+       
+        return comps;
+    }
     public static double[] add(double[] x, double[] y)
     {
         assert x.length==y.length;
