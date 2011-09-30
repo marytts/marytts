@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import marytts.util.io.StreamGobbler;
+
 
 
 /**
@@ -169,12 +171,10 @@ public class WagonCaller
             Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon " + arguments);
             //collect the output
             //read from error stream
-            StreamGobbler errorGobbler = new 
-                StreamGobbler(p.getErrorStream(), "err");            
+            StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), "err");            
         
             //read from output stream
-            StreamGobbler outputGobbler = new 
-                StreamGobbler(p.getInputStream(), "out");        
+            StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), "out");        
             //start reading from the streams
             errorGobbler.start();
             outputGobbler.start();
@@ -188,33 +188,5 @@ public class WagonCaller
         }
     }
 
-    
-    
-    static class StreamGobbler extends Thread
-    {
-        InputStream is;
-        String type;
-        
-        StreamGobbler(InputStream is, String type)
-        {
-            this.is = is;
-            this.type = type;
-        }
-        
-        public void run()
-        {
-            try
-            {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
-        }
-    }
     
 }

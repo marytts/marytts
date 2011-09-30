@@ -12,8 +12,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+
+import marytts.util.io.StreamGobbler;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+
+import com.twmacinta.util.MD5;
 
 /**
  * @author marc
@@ -58,6 +63,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	protected File compileDir;
 	protected File mainJavaDir;
 	protected File mainResourcesDir;
+	protected File mainDescriptionsDir;
 	protected File metaInfDir;
 	protected File testJavaDir;
 	protected File libVoiceDir;
@@ -74,11 +80,44 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
+		logger.info("Creating directories");
 		createDirectories();
+		logger.info("Copying template files");
 		copyTemplateFiles();
+		logger.info("Copying voice files");
 		copyVoiceFiles();
+		logger.info("Compiling with Maven");
+		compileWithMaven();
+		logger.info("Creating component description file");
+		createComponentFile();
+		logger.info("done.");
 		
 		return true;
+	}
+
+	private void createComponentFile() throws IOException {
+		String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
+		File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
+        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
+        Map<String, String> compMap = new HashMap<String, String>();
+        compMap.put("MD5", zipFileMd5Hash);
+        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
+        StrSubstitutor compSubst = new StrSubstitutor(compMap);
+		String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
+		File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
+        copyWithVarSubstitution("component.xml", componentFile, compSubst);
+	}
+
+	private void compileWithMaven() throws IOException, InterruptedException {
+		Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
+		StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
+		StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
+		merr.start();
+		mout.start();
+		int result = maven.waitFor();
+		if (result != 0) {
+			throw new IOException("Maven compilation did not succeed -- check console for details.");
+		}
 	}
 
 	protected void createDirectories() throws IOException {
@@ -91,6 +130,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 		 mainJavaDir.mkdirs();
 		 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
 		 mainResourcesDir.mkdirs();
+		 mainDescriptionsDir = new File(compileDir.getAbsolutePath()+"/src/main/descriptors");
+		 mainDescriptionsDir.mkdirs();
 		 metaInfDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/META-INF/services");
 		 metaInfDir.mkdirs();
 		 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
@@ -127,6 +168,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	protected void copyTemplateFiles() throws IOException {
 		copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
+		copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
 		copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
 		copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
 		copyWithVarSubstitution("marytts.config.MaryConfig", new File(metaInfDir, "marytts.config.MaryConfig"));
@@ -135,9 +177,12 @@ public class VoiceCompiler extends VoiceImportComponent {
 		}
 	}
 
-	private void copyWithVarSubstitution(String resourceName, File destination) throws IOException {
+	private void copyWithVarSubstitution(String resourceName, File destination, StrSubstitutor... moreSubstitutors) throws IOException {
 		String resource = marytts.util.io.FileUtils.getStreamAsString(getClass().getResourceAsStream("templates/"+resourceName), "UTF-8");
 		String resourceWithReplacements = substitutor.replace(resource);
+		for (StrSubstitutor more : moreSubstitutors) {
+			resourceWithReplacements = more.replace(resourceWithReplacements);
+		}
 		PrintWriter out = new PrintWriter(destination, "UTF-8");
 		out.print(resourceWithReplacements);
 		out.close();
@@ -188,6 +233,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	protected Map<String, String> getVariableSubstitutionMap() {
 		Map<String, String> m = new HashMap<String, String>();
+		m.put("MARYVERSION", db.getMaryVersion());
 		m.put("VOICENAME", db.getVoiceName());
 		m.put("LOCALE", db.getLocale().toString());
 		m.put("LANG", db.getLocale().getLanguage());

@@ -28,6 +28,8 @@ import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.io.StreamGobbler;
+
 /**
  * Class to train sphinx labeler
  * 
@@ -125,33 +127,7 @@ public class SphinxTrainer extends VoiceImportComponent {
         return -1;
     }
 
-    
-    static class StreamGobbler extends Thread
-    {
-        InputStream is;
-        String type;
-        
-        StreamGobbler(InputStream is, String type)
-        {
-            this.is = is;
-            this.type = type;
-        }
-        
-        public void run()
-        {
-            try
-            {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
-        }
-    }
+ 
     
     
 }
