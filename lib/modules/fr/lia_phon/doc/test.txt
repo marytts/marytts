@@ -1,6 +1,0 @@
-Ceci est un test d'utilisation du systeme de phonetisation LIA_PHON
-qui a ete developpe au LIA par Frederic Bechet. Ce systeme permet
-de nettoyer, etiqueter, accentuer et phonetiser un texte libre.
-Un module de generation d'une prosodie minimale est egalement fournie
-afin de generer des fichiers compatibles avec le synthetiseur de
-parole MBROLA. Bonne utilisation !
