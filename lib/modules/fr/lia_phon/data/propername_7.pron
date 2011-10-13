@@ -1,0 +1,239 @@
+#
+#    --------------------------------------------------------
+#    LIA_PHON : Un systeme complet de phonetisation de textes
+#    --------------------------------------------------------
+#          
+#    Copyright (C) 2001 FREDERIC BECHET
+#
+#    ..................................................................
+#
+#    This file is part of LIA_PHON
+#
+#    LIA_PHON is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#    ..................................................................
+#
+#    Pour toute publication utilisant tout ou partie de LIA_PHON, la
+#    reference suivante doit etre inseree dans la bibliographie :
+#
+#    Bechet F., 2001, "LIA_PHON - Un systeme complet de phonetisation
+#    de textes", revue Traitement Automatique des Langues (T.A.L.)
+#    volume 42, numero 1/2001, edition Hermes
+#    ..................................................................
+#
+#    Contact :
+#              FREDERIC BECHET - LIA - UNIVERSITE D'AVIGNON
+#              AGROPARC BP1228 84911  AVIGNON  CEDEX 09  FRANCE
+#              frederic.bechet@lia.univ-avignon.fr    
+#    ..................................................................
+#
+regle(1,<l,"e","t to  ">,"ai","","Giacchetto") -> ;
+regle(2,<l,"o ce","  ">,"ooss","","Cappadoce") -> ;
+regle(3,<"l","u","c ci">,"ou","","Bertolucci") -> ;
+regle(4,<l,"z z","es">,"zz","","Abruzzes") -> ;
+regle(5,<l,"ie","  ">,"ii","","Spiggie") -> ;
+regle(6,<l,"an","  ">,"aann","","") -> ;
+regle(7,<l,"es","  ">,"","","Abruzzes") -> ;
+regle(8,<l,"on","  ">,"oonn",""," ") -> ;
+regle(9,<l,"e",C."  ">,"ai","","") -> ;
+regle(10,<l,"o",C."  ">,"oo","","Cor") -> ;
+regle(11,<l,"c c","e">,"ttch","","") -> ;
+regle(12,<l,"c c","é">,"ttch","","") -> ;
+regle(13,<l,"c c","è">,"ttch","","") -> ;
+regle(14,<l,"c ch",l1>,"kk","","Tacchella") -> ;
+regle(15,<l,"c c","i">,"ttch","","") -> ;
+regle(16,<"  ","am"," b">,"an","","Ambrosini") -> ;
+regle(17,<"  l","an"," c">,"an","","Lancia") -> ;
+regle(18,<"  m","an"," c">,"an","","Mancini") -> ;
+regle(19,<"i","an"," c">,"an","","Avianca") -> ;
+regle(20,<"  c","an"," d">,"an","","Candelario") -> ;
+regle(21,<l,"e"," ne">,"ai","","Cartagene") -> ;
+regle(22,<l,"s c","e">,"ss","","Ascene") -> ;
+regle(23,<l,"e","l l">,"ai","","Zuccarelli") -> ;
+regle(24,<l,"e"," se">,"ai","","Pavese") -> ;
+regle(25,<l,"an"," n">,"aann","","Annabella") -> ;
+regle(26,<"co l","om"," b">,"on","","Colombani") -> ;
+regle(27,<"c","am"," p">,"an","","Ocampo") -> ;
+regle(28,<l,"s c","i">,"ss","","Sciascia") -> ;
+regle(29,<l,"o"," ne">,"oo","","Vitalone") -> ;
+regle(30,<l,"an"," t">,"an","","Violante") -> ;
+regle(31,<l,"on n",l1>,"aunn","","Antonnetti") -> ;
+regle(32,<"  p","om"," p">,"on","","Pompeo") -> ;
+regle(33,<"  g","ui"," s">,"yyou","","Guiseppe") -> ;
+regle(34,<"  ","ch","ia">,"kk","","Chiara") -> ;
+regle(35,<V." ","e","  ">,"","","Erythrée") -> ;
+regle(36,<"n","e","  ">,"","","Cartagene") -> ;
+regle(37,<"s","e","  ">,"","","Pavese") -> ;
+regle(38,<"t","e","  ">,"","","Dante") -> ;
+regle(39,<"c c","o","  ">,"au","","Zucco") -> ;
+regle(40,<l,"z","  ">,"zz",""," ") -> ;
+regle(41,<l,"c c",l1>,"kk","","Accoce") -> ;
+regle(42,<l,"g g",l1>,"ddjj","","Spiggie") -> ;
+regle(43,<"c","en"," ">,"an","","Innocenti") -> ;
+regle(44,<l,"j k",l1>,"chkk",""," ") -> ;
+regle(45,<l,"e","r ">,"ai","","Monteverdi") -> ;
+regle(46,<l,"e","s ">,"ai","","Trieste") -> ;
+regle(47,<l,"o","l ">,"oo","","Solferino") -> ;
+regle(48,<l,"s h",l1>,"ch",""," ") -> ;
+regle(49,<l,"o","r ">,"oo","","Eustorgio") -> ;
+regle(50,<l,"z z",l1>,"ddzz","","Ferruzzi") -> ;
+regle(51,<l,"c","ch">,"","","") -> ;
+regle(52,<"  mi ","ch","e">,"kk","","Michelangelo") -> ;
+regle(53,<"  ","g","ia">,"ddjj","","Gianfranco") -> ;
+regle(54,<l,"sc","e">,"ss","","Scene") -> ;
+regle(55,<l,"chr",l1>,"kkrr","","") -> ;
+regle(56,<l,"sch",l1>,"sskk","","Bruschino") -> ;
+regle(57,<"  ","g","io">,"ddjj","","Giovanni") -> ;
+regle(58,<l,"sc","i">,"ss","","Sciascia") -> ;
+regle(59,<"  ","g","iu">,"ddjj","","Giuseppe") -> ;
+regle(60,<l,"ch",V>,"ttch","","") -> ;
+regle(61,<l,"qua",l1>,"kkouaa","","Pasquale") -> ;
+regle(62,<l,"an",C>,"an","","") -> ;
+regle(63,<l,"en",C>,"in","","") -> ;
+regle(64,<l,"e",C.C1>,"ai","","") -> ;
+regle(65,<l,"qu",C>,"kkou",""," ") -> ;
+regle(66,<"fa","e"," ">,"ai","","Raffaele") -> ;
+regle(67,<"  gr","u"," ">,"ou","","Grupo") -> ;
+regle(68,<l,"c","c">,"","","") -> ;
+regle(69,<l,"c","e">,"ss","","") -> ;
+regle(70,<l,"c","é">,"ss","","") -> ;
+regle(71,<l,"c","è">,"ss","","") -> ;
+regle(72,<l,"dd",l1>,"dd","","") -> ;
+regle(73,<l,"ee",l1>,"ii","","Dee") -> ;
+regle(74,<l,"c","i">,"ss","","") -> ;
+regle(75,<l,"g","e">,"jj",""," ") -> ;
+regle(76,<l,"g","é">,"jj",""," ") -> ;
+regle(77,<l,"g","è">,"jj",""," ") -> ;
+regle(78,<l,"e","h">,"ei","","") -> ;
+regle(79,<l,"é","h">,"ei","","") -> ;
+regle(80,<l,"è","h">,"ai","","") -> ;
+regle(81,<l,"ck",l1>,"kk","","") -> ;
+regle(82,<l,"ei",l1>,"ei","","Peili") -> ;
+regle(83,<"  bi","an",l>,"an","","Bianco") -> ;
+regle(84,<"  s","an",l>,"an","","Sanliurfa") -> ;
+regle(85,<"  ","an",l>,"an","","Anziani") -> ;
+regle(86,<"fr","an",l>,"an","","Franco") -> ;
+regle(87,<l,"g","i">,"jj",""," ") -> ;
+regle(88,<l,"gn",l1>,"nnyy",""," ") -> ;
+regle(89,<l,"au",l1>,"au","","Saurimo") -> ;
+regle(90,<"  qu","in",l>,"in","","Quincoro") -> ;
+regle(91,<"  c","in",l>,"in","","Cinzano") -> ;
+regle(92,<l,"ph",l1>,"ff",""," ") -> ;
+regle(93,<l,"eu",l1>,"EU","","Eustorgio") -> ;
+regle(94,<l,"mm",l1>,"mm",""," ") -> ;
+regle(95,<l,"sh",l1>,"ch",""," ") -> ;
+regle(96,<"  l","om",l>,"on","","Lombardo") -> ;
+regle(97,<l,"nn",l1>,"nn",""," ") -> ;
+regle(98,<"  ","hu",l>,"ou","","Umberto") -> ;
+regle(99,<l,"on",l1>,"on",""," ") -> ;
+regle(100,<"g","ui",l>,"ii","","Sanguinetti") -> ;
+regle(101,<"l","u","i">,"ou","","Luigi") -> ;
+regle(102,<l,"oo",l1>,"ou",""," ") -> ;
+regle(103,<l,"ey",l1>,"ei","","Seyni") -> ;
+regle(104,<l,"e",V>,"ei","","") -> ;
+regle(105,<"  m","un",l>,"ounn","","Mundiale") -> ;
+regle(106,<l,"ou",l1>,"ou",""," ") -> ;
+regle(107,<l,"rr",l1>,"rr",""," ") -> ;
+regle(108,<l,"qu",l1>,"kk",""," ") -> ;
+regle(109,<"  ","n",C>,"ainn",""," ") -> ;
+regle(110,<l,"tt",l1>,"tt",""," ") -> ;
+regle(111,<V." ","s",V1>,"zz",""," ") -> ;
+regle(112,<l,"y",V>,"yy",""," ") -> ;
+regle(113,<l,"z","z">,"dd",""," ") -> ;
+regle(114,<l," ",l1>," ","","1blanc") -> ;
+regle(115,<l,"-",l1>,"","","trait d'union") -> ;
+regle(116,<l,"_",l1>,"","","trait d'union") -> ;
+regle(117,<l,"a",l1>,"aa","","") -> ;
+regle(118,<l,"a",l1>,"aa","","matin") -> ;
+regle(119,<l,"â",l1>,"aa","","âne") -> ;
+regle(120,<l,"à",l1>,"aa","","là") -> ;
+regle(121,<"b ","b",l>,"","","bb") -> ;
+regle(122,<l,"b",l1>,"bb","","") -> ;
+regle(123,<l,"b",l1>,"bb","","ballon") -> ;
+regle(124,<l,"c",l1>,"kk","","") -> ;
+regle(125,<l,"c",l1>,"kk","","cri") -> ;
+regle(126,<l,"ç",l1>,"ss","","garçon") -> ;
+regle(127,<"d ","d",l>,"","","dd") -> ;
+regle(128,<l,"d",l1>,"dd","","") -> ;
+regle(129,<l,"d",l1>,"dd","","dur") -> ;
+regle(130,<l,"e",l1>,"ei","","") -> ;
+regle(131,<l,"ê",l1>,"ai","","fête") -> ;
+regle(132,<l,"é",l1>,"ei","","été") -> ;
+regle(133,<l,"è",l1>,"ai","","mère") -> ;
+regle(134,<l,"ë",l1>,"ai","","noël") -> ;
+regle(135,<"f ","f",l>,"","","ff") -> ;
+regle(136,<"f","f",l>,"","","ff") -> ;
+regle(137,<l,"f",l1>,"ff","","") -> ;
+regle(138,<l,"f",l1>,"ff","","fille") -> ;
+regle(139,<l,"g",l1>,"gg",""," ") -> ;
+regle(140,<l,"g",l1>,"gg","","gare") -> ;
+regle(141,<l,"h",l1>,"",""," ") -> ;
+regle(142,<l,"h",l1>,"","","herbe") -> ;
+regle(143,<l,"i",l1>,"ii",""," ") -> ;
+regle(144,<l,"i",l1>,"ii","","pitié") -> ;
+regle(145,<l,"î",l1>,"ii","","gîte") -> ;
+regle(146,<l,"ï",l1>,"ii",""," ") -> ;
+regle(147,<l,"ï",l1>,"ii","","laïc") -> ;
+regle(148,<l,"j",l1>,"jj","","joie") -> ;
+regle(149,<"k ","k",l>,"","","kk") -> ;
+regle(150,<l,"k",l1>,"kk",""," ") -> ;
+regle(151,<l,"k",l1>,"kk","","kiwi") -> ;
+regle(152,<"l ","l",l>,"","","ll") -> ;
+regle(153,<"l","l",l>,"","","ll") -> ;
+regle(154,<l,"l",l1>,"ll",""," ") -> ;
+regle(155,<l,"l",l1>,"ll","","lien") -> ;
+regle(156,<"m ","m",l>,"","","mm") -> ;
+regle(157,<l,"m",l1>,"mm",""," ") -> ;
+regle(158,<l,"m",l1>,"mm","","mère") -> ;
+regle(159,<"n ","n",l>,"","","nn") -> ;
+regle(160,<l,"n",l1>,"nn",""," ") -> ;
+regle(161,<l,"n",l1>,"nn","","nuage") -> ;
+regle(162,<l,"o",l1>,"au",""," ") -> ;
+regle(163,<l,"o",l1>,"oo","","molle") -> ;
+regle(164,<l,"ô",l1>,"au",""," ") -> ;
+regle(165,<l,"ô",l1>,"au","","poêle") -> ;
+regle(166,<l,"ö",l1>,"EU","","Reszö") -> ;
+regle(167,<"p ","p",l>,"","","pp") -> ;
+regle(168,<l,"p",l1>,"pp",""," ") -> ;
+regle(169,<l,"p",l1>,"pp","","père") -> ;
+regle(170,<l,"q",l1>,"kk",""," ") -> ;
+regle(171,<l,"q",l1>,"kk","","coq") -> ;
+regle(172,<"r ","r",l>,"","","rr") -> ;
+regle(173,<l,"r",l1>,"rr","","roi") -> ;
+regle(174,<"s ","s",l>,"","","ss") -> ;
+regle(175,<l,"s",l1>,"ss",""," ") -> ;
+regle(176,<l,"s",l1>,"ss","","soie") -> ;
+regle(177,<"t ","t",l>,"","","tt") -> ;
+regle(178,<l,"t",l1>,"tt",""," ") -> ;
+regle(179,<l,"t",l1>,"tt","","toit") -> ;
+regle(180,<"  l","u",l>,"ou","","Lucciana") -> ;
+regle(181,<"  ","u",l>,"ou","","Umberto") -> ;
+regle(182,<"gi","u",l>,"ou","","Giuseppe") -> ;
+regle(183,<l,"u",l1>,"uu",""," ") -> ;
+regle(184,<l,"u",l1>,"uu","","fumée") -> ;
+regle(185,<l,"û",l1>,"uu","","flûte") -> ;
+regle(186,<l,"ü",l1>,"ou",""," ") -> ;
+regle(187,<l,"ü",l1>,"uu","","führer") -> ;
+regle(188,<"v ","v",l>,"","","vv") -> ;
+regle(189,<l,"v",l1>,"vv",""," ") -> ;
+regle(190,<l,"v",l1>,"vv","","voile") -> ;
+regle(191,<"w ","w",l>,"","","ww") -> ;
+regle(192,<l,"w",l1>,"vv","","Warnier") -> ;
+regle(193,<l,"w",l1>,"ww",""," ") -> ;
+regle(194,<l,"x",l1>,"kkss","","taxi") -> ;
+regle(195,<V,"y",l>,"yy",""," ") -> ;
+regle(196,<l,"y",l1>,"ii",""," ") -> ;
+regle(197,<l,"y",l1>,"ii","","cycle") -> ;
+regle(198,<"z ","z",l>,"","","zz") -> ;
+regle(199,<l,"z",l1>,"zz","","zoo") -> ;

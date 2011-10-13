@@ -1,0 +1,18 @@
+#!/bin/csh -f
+
+
+# Phonetise un lexique de mots
+
+#  default value for LIA_PHON_LEX
+if ( ! $?LIA_PHON_LEX ) then
+ set LIA_PHON_LEX = lex80k
+endif
+
+$LIA_PHON_REP/bin/lia_word2pos -lextag $LIA_PHON_REP/data/lm3classe.arpa.sirlex \
+	-lexgraf $LIA_PHON_REP/data/$LIA_PHON_LEX.sirlex \
+	-pmc $LIA_PHON_REP/data/$LIA_PHON_LEX -ztrm | \
+$LIA_PHON_REP/bin/lia_retik -r $LIA_PHON_REP/data/regles_retik_hors_context | \
+$LIA_PHON_REP/bin/lia_phonetise -l -r $LIA_PHON_REP/data/french01.pron | \
+$LIA_PHON_REP/bin/lia_pprocess -r $LIA_PHON_REP/data/rule_phon.pro | \
+$LIA_PHON_REP/bin/lia_nett_phon |  grep -v "ZTRM->EXCEPTION"
+

@@ -1,0 +1,20 @@
+#!/bin/csh -f
+# Phonetise un lexique de mots en generant des variantes
+
+#  default value for LIA_PHON_LEX
+if ( ! $?LIA_PHON_LEX ) then
+ set LIA_PHON_LEX = lex80k
+endif
+
+$LIA_PHON_REP/bin/lia_word2pos -lextag $LIA_PHON_REP/data/lm3classe.arpa.sirlex \
+	-lexgraf $LIA_PHON_REP/data/$LIA_PHON_LEX.sirlex \
+	-pmc $LIA_PHON_REP/data/$LIA_PHON_LEX -ztrm -proper_name | \
+$LIA_PHON_REP/bin/lia_retik -r $LIA_PHON_REP/data/regles_retik_hors_context | \
+$LIA_PHON_REP/bin/lia_liaison $LIA_PHON_REP/data/regles_liaison_hors_context.pro3 \
+	$LIA_PHON_REP/data/h_aspi.sirlex | \
+$LIA_PHON_REP/bin/lia_phonetise -l -r $LIA_PHON_REP/data/french01_var.pron | \
+$LIA_PHON_REP/bin/lia_remonte_liaison_variante | \
+$LIA_PHON_REP/bin/lia_pprocess -r $LIA_PHON_REP/data/rule_phon.pro  | \
+$LIA_PHON_REP/bin/lia_genevari -r $LIA_PHON_REP/data/rule_variante_lex.pro | \
+$LIA_PHON_REP/bin/lia_expand_phon
+

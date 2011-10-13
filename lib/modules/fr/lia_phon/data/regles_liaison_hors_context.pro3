@@ -1,0 +1,65 @@
+#
+#    --------------------------------------------------------
+#    LIA_PHON : Un systeme complet de phonetisation de textes
+#    --------------------------------------------------------
+#
+#    Copyright (C) 2001 FREDERIC BECHET
+#
+#    ..................................................................
+#
+#    This file is part of LIA_PHON
+#
+#    LIA_PHON is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#    ..................................................................
+#
+#    Pour toute publication utilisant tout ou partie de LIA_PHON, la
+#    reference suivante doit etre inseree dans la bibliographie :
+#
+#    Bechet F., 2001, "LIA_PHON - Un systeme complet de phonetisation
+#    de textes", revue Traitement Automatique des Langues (T.A.L.)
+#    volume 42, numero 1/2001, edition Hermes
+#    ..................................................................
+#
+#    Contact :
+#              FREDERIC BECHET - LIA - UNIVERSITE D'AVIGNON
+#              AGROPARC BP1228 84911  AVIGNON  CEDEX 09  FRANCE
+#              frederic.bechet@lia.univ-avignon.fr
+#    ..................................................................
+#
+/*  Regles concernant la gestion des liaisons hors contexte pour variante  */
+
+
+/*  Liaisons Interdites  */
+
+liaison(29,<m1,<g2.a,c2>,m3,m4>,"||"," ","apres consonne non generatrice")->
+        classe(a,Consonne_Non_Generatrice) {a::1};
+
+liaison(30,<m1,<"et",c2>,m3,m4>,"||"," ","apres et")-> ;
+
+liaison(32,<m1,<g2."es","V2S">,m3,m4>,"||"," ","apres les verbes V2S sauf es")->
+        different(g2,["es"]);
+
+liaison(35,<m1,<"hors",c2>,m3,m4>,"||"," ","apres hors")->;
+
+liaison(36,<m1,<"vers",c2>,m3,m4>,"||"," ","apres vers")->;
+
+liaison(37,<m1,<g2,c2>,m3,m4>,"||"," ","apres prep polysyllabique sauf avant,devant,après")->
+        ou_bien_debut(c2,["PREP"])
+        polysyllabique(g2)
+        different(g2,["avant","devant","après"]);
+
+liaison(76,<m1,<g2,c2>,m3,m4>,"",l,"Dans tous les autres cas c'est facultatif")->
+	liaison_facultative(g2,l);
+;

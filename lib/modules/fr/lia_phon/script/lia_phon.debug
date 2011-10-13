@@ -1,0 +1,14 @@
+#!/bin/csh -f
+
+if ( $#argv != 1 ) then
+ echo 'Syntax: lia_phon.debug <debug file>
+ exit
+endif
+
+$LIA_PHON_REP/bin/lia_retik -r $LIA_PHON_REP/data/regles_retik | tee $1.retik | \
+$LIA_PHON_REP/bin/lia_liaison $LIA_PHON_REP/data/regles_l.pro3 $LIA_PHON_REP/data/h_aspi.sirlex | tee $1.liaison | \
+$LIA_PHON_REP/bin/lia_phonetise -l | tee $1.phon | \
+$LIA_PHON_REP/bin/lia_pprocess -r $LIA_PHON_REP/data/rule_phon.pro | tee $1.postp | \
+$LIA_PHON_REP/bin/lia_nett_phon  | \
+$LIA_PHON_REP/bin/lia_patch
+ 

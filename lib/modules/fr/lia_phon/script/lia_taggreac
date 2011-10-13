@@ -1,0 +1,34 @@
+#!/bin/csh -f
+# Lancement du tagger QuickTagg + reaccentueur
+
+# $1 = '-reacc' or nothing
+
+#  default value for LIA_PHON_LEX
+if ( ! $?LIA_PHON_LEX ) then
+ set LIA_PHON_LEX = lex80k
+endif
+
+
+if ( $#argv == 1 ) then
+ if ( "$1" == "-reacc" ) then
+  set LEXFILE = $LIA_PHON_LEX.acc
+  set OPT_PMC = "-remplace"
+ else
+  echo 'Error: '$1' is an unknown option ....'
+  echo 'The only option accepted here is: -reacc'
+  exit
+ endif
+else
+ set LEXFILE = $LIA_PHON_LEX
+ set OPT_PMC = ""
+endif
+
+$LIA_PHON_REP/bin/lia_quicktagg \
+	-lextag $LIA_PHON_REP/data/lm3classe.arpa.sirlex \
+	-morpho $LIA_PHON_REP/data/model_morpho \
+	-lexgraf $LIA_PHON_REP/data/$LEXFILE.sirlex \
+	-pmc $LIA_PHON_REP/data/$LEXFILE \
+	-ml $LIA_PHON_REP/data/lm3classe.arpa | \
+$LIA_PHON_REP/bin/lia_rajoute_lemme_ecg $LIA_PHON_REP/data/$LEXFILE.sirlex \
+	$LIA_PHON_REP/data/lm3classe.arpa.sirlex $LIA_PHON_REP/data/$LEXFILE $OPT_PMC
+

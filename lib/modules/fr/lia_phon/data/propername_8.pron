@@ -1,0 +1,231 @@
+#
+#    --------------------------------------------------------
+#    LIA_PHON : Un systeme complet de phonetisation de textes
+#    --------------------------------------------------------
+#          
+#    Copyright (C) 2001 FREDERIC BECHET
+#
+#    ..................................................................
+#
+#    This file is part of LIA_PHON
+#
+#    LIA_PHON is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#    ..................................................................
+#
+#    Pour toute publication utilisant tout ou partie de LIA_PHON, la
+#    reference suivante doit etre inseree dans la bibliographie :
+#
+#    Bechet F., 2001, "LIA_PHON - Un systeme complet de phonetisation
+#    de textes", revue Traitement Automatique des Langues (T.A.L.)
+#    volume 42, numero 1/2001, edition Hermes
+#    ..................................................................
+#
+#    Contact :
+#              FREDERIC BECHET - LIA - UNIVERSITE D'AVIGNON
+#              AGROPARC BP1228 84911  AVIGNON  CEDEX 09  FRANCE
+#              frederic.bechet@lia.univ-avignon.fr    
+#    ..................................................................
+#
+regle(1,<l,"ceau ses cu",l1>,"ttchaaauttchaisskkou","","Ceausescu") -> ;
+regle(2,<"d","eusz","  ">,"eiouch","","Tadeusz") -> ;
+regle(3,<"  ","ge"," len">,"ggei","","Gelendgik") -> ;
+regle(4,<l,"in"," tro">,"in","","Introvigne") -> ;
+regle(5,<l,"hoi","  ">,"ooyy","","Sukhoi") -> ;
+regle(6,<"ra","ch"," ma">,"kk","","Rachmaninov") -> ;
+regle(7,<"l","e"," vaï">,"eu","","Levaï") -> ;
+regle(8,<"da","e nin",l>,"nnin","","Daeninckx") -> ;
+regle(9,<"k","us tu",l>,"oussttou","","Kusturica") -> ;
+regle(10,<l,"aï","  ">,"aayy","","Levaï") -> ;
+regle(11,<"i","an","  ">,"an","","") -> ;
+regle(12,<"t","an","  ">,"an","","Kazakstan") -> ;
+regle(13,<"y","an","  ">,"an","","") -> ;
+regle(14,<l,"an","  ">,"aann","","") -> ;
+regle(15,<l,"aw","  ">,"aaww","","Bronislaw") -> ;
+regle(16,<l,"oï","  ">,"ooyy","","Bolchoï") -> ;
+regle(17,<l,"e",C."  ">,"ai","","Sver") -> ;
+regle(18,<l,"o",C."  ">,"oo","","Svor") -> ;
+regle(19,<"  sk","an"," ".C>,"an","","Skandia") -> ;
+regle(20,<"vi gn","e","  ">,"","","Introvigne") -> ;
+regle(21,<"i c","e","  ">,"","","Katowice") -> ;
+regle(22,<"è n","e","  ">,"","","Démosthène") -> ;
+regle(23,<"i n","e","  ">,"","","Pine") -> ;
+regle(24,<"s m","e","  ">,"","","Karaïsme") -> ;
+regle(25,<"k","e","  ">,"","","Ladbroke") -> ;
+regle(26,<V,"e","  ">,"","","Abae") -> ;
+regle(27,<l,"e","  ">,"ei","","") -> ;
+regle(28,<"lar","s","  ">,"ss","","Lars") -> ;
+regle(29,<"it","s","  ">,"ss","","Ovits") -> ;
+regle(30,<C,"s","  ">,"","","Kosovars") -> ;
+regle(31,<l,"u","  ">,"ou","","Aikomu") -> ;
+regle(32,<"co de","v","  ">,"vv","","Codev") -> ;
+regle(33,<"e","v","  ">,"ff",""," ") -> ;
+regle(34,<"o","v","  ">,"ff",""," ") -> ;
+regle(35,<l,"c k",l1>,"kk","","") -> ;
+regle(36,<"sk","u"," b">,"ou","","Skubi") -> ;
+regle(37,<l,"s h",l1>,"ch",""," ") -> ;
+regle(38,<l,"s z",l1>,"zz",""," ") -> ;
+regle(39,<l,"z s",l1>,"zz","","Jozsef") -> ;
+regle(40,<l,"ee","h">,"ii","","") -> ;
+regle(41,<l,"han",l1>,"an","","Afghan") -> ;
+regle(42,<l,"o","ck">,"oo","","Enock") -> ;
+regle(43,<l,"gu","e">,"gg",""," ") -> ;
+regle(44,<l,"gu","é">,"gg",""," ") -> ;
+regle(45,<l,"gu","è">,"gg",""," ") -> ;
+regle(46,<"  ".C,"ai",C1>,"ai","","Vaisselski") -> ;
+regle(47,<l,"gu","i">,"gg",""," ") -> ;
+regle(48,<"  sk","an",C>,"an","","Skand") -> ;
+regle(49,<l,"an",C>,"an","","") -> ;
+regle(50,<"t","o","ws">,"oo","","Poniatowski") -> ;
+regle(51,<l,"e",C.C1>,"ai","","") -> ;
+regle(52,<l,"e",C.V>,"ei","","") -> ;
+regle(53,<l,"qu",C>,"kkou",""," ") -> ;
+regle(54,<l,"c","e">,"ss","","") -> ;
+regle(55,<l,"c","é">,"ss","","") -> ;
+regle(56,<l,"c","è">,"ss","","") -> ;
+regle(57,<l,"dd",l1>,"dd","","") -> ;
+regle(58,<"  ","ai",l>,"aayy","","Aikomu") -> ;
+regle(59,<l,"ch",l1>,"ch","","") -> ;
+regle(60,<l,"e","f">,"ai","","Heftic") -> ;
+regle(61,<l,"c","i">,"ss","","") -> ;
+regle(62,<l,"ff",l1>,"ff","","") -> ;
+regle(63,<l,"g","e">,"jj",""," ") -> ;
+regle(64,<l,"g","é">,"jj",""," ") -> ;
+regle(65,<l,"g","è">,"jj",""," ") -> ;
+regle(66,<l,"e","h">,"ei","","") -> ;
+regle(67,<l,"e","h">,"ei","","") -> ;
+regle(68,<l,"é","h">,"ei","","") -> ;
+regle(69,<l,"ck",l1>,"kk","","") -> ;
+regle(70,<"le x","an",l>,"an","","Alexandre") -> ;
+regle(71,<"  k","an",l>,"an","","Kandinsky") -> ;
+regle(72,<"  ","an",l>,"an","","Antonov") -> ;
+regle(73,<"fr","an",l>,"an","","Frantisek") -> ;
+regle(74,<l,"g","i">,"jj",""," ") -> ;
+regle(75,<l,"en",l1>,"ainn","","") -> ;
+regle(76,<l,"j","i">,"jj",""," ") -> ;
+regle(77,<l,"gn",l1>,"nnyy",""," ") -> ;
+regle(78,<l,"jk",l1>,"chkk",""," ") -> ;
+regle(79,<l,"o","f">,"oo","","Trof") -> ;
+regle(80,<l,"o","f">,"oo",""," ") -> ;
+regle(81,<l,"au",l1>,"aaoo","","Niklaus") -> ;
+regle(82,<l,"e","r">,"ai",""," ") -> ;
+regle(83,<l,"ph",l1>,"ff",""," ") -> ;
+regle(84,<l,"eu",l1>,"EU","","Peut") -> ;
+regle(85,<l,"ay",l1>,"ei","","Lovanxay") -> ;
+regle(86,<l,"o","l">,"oo","","Sokola") -> ;
+regle(87,<l,"sh",l1>,"ch",""," ") -> ;
+regle(88,<l,"o","l">,"oo","","Sokol") -> ;
+regle(89,<l,"c","y">,"ss","","") -> ;
+regle(90,<l,"on",l1>,"on",""," ") -> ;
+regle(91,<l,"cz",l1>,"kkss","","Czeka") -> ;
+regle(92,<"sta ","ë",C>,"","","Staël") -> ;
+regle(93,<l,"e",V>,"ei","","") -> ;
+regle(94,<l,"e","z">,"ai","","Jezdimir") -> ;
+regle(95,<l,"g","y">,"jj",""," ") -> ;
+regle(96,<l,"o","r">,"oo",""," ") -> ;
+regle(97,<"  r","o","s">,"oo","","Rostock") -> ;
+regle(98,<"ko ","s","o">,"ss","","kosovar") -> ;
+regle(99,<l,"v","l">,"vv",""," ") -> ;
+regle(100,<l,"ou",l1>,"ou",""," ") -> ;
+regle(101,<l,"o","v">,"oo","","Trov") -> ;
+regle(102,<l,"o","v">,"oo",""," ") -> ;
+regle(103,<l,"qu",l1>,"kk",""," ") -> ;
+regle(104,<l,"ss",l1>,"ss",""," ") -> ;
+regle(105,<"  ","n",C>,"ainn",""," ") -> ;
+regle(106,<l,"tt",l1>,"tt",""," ") -> ;
+regle(107,<l,"v","r">,"vv",""," ") -> ;
+regle(108,<V." ","s",V1>,"zz","","Asian") -> ;
+regle(109,<V,"s",V1>,"ss",""," ") -> ;
+regle(110,<l,"sz",l1>,"zz",""," ") -> ;
+regle(111,<l,"y",V>,"yy",""," ") -> ;
+regle(112,<l," ",l1>," ","","1blanc") -> ;
+regle(113,<l,"-",l1>,"","","trait d'union") -> ;
+regle(114,<l,"_",l1>,"","","trait d'union") -> ;
+regle(115,<l,"a",l1>,"aa","","") -> ;
+regle(116,<l,"a",l1>,"aa","","matin") -> ;
+regle(117,<l,"â",l1>,"aa","","âne") -> ;
+regle(118,<l,"à",l1>,"aa","","là") -> ;
+regle(119,<"b ","b",l>,"","","bb") -> ;
+regle(120,<l,"b",l1>,"bb","","ballon") -> ;
+regle(121,<l,"ç",l1>,"ss","","garçon") -> ;
+regle(122,<l,"c",l1>,"kk","","cri") -> ;
+regle(123,<"d ","d",l>,"","","dd") -> ;
+regle(124,<l,"d",l1>,"dd","","") -> ;
+regle(125,<l,"d",l1>,"dd","","dur") -> ;
+regle(126,<l,"e",l1>,"ei","","") -> ;
+regle(127,<l,"ê",l1>,"ai","","fête") -> ;
+regle(128,<l,"ë",l1>,"ai","","noël") -> ;
+regle(129,<l,"è",l1>,"ai","","mère") -> ;
+regle(130,<l,"é",l1>,"ei","","été") -> ;
+regle(131,<l,"e",l1>,"ee","","Bouchery") -> ;
+regle(132,<"f ","f",l>,"","","ff") -> ;
+regle(133,<l,"f",l1>,"ff","","") -> ;
+regle(134,<l,"f",l1>,"ff","","fille") -> ;
+regle(135,<l,"g",l1>,"gg",""," ") -> ;
+regle(136,<l,"g",l1>,"gg","","gare") -> ;
+regle(137,<l,"h",l1>,"",""," ") -> ;
+regle(138,<l,"h",l1>,"","","herbe") -> ;
+regle(139,<l,"i",l1>,"ii",""," ") -> ;
+regle(140,<l,"ï",l1>,"ii",""," ") -> ;
+regle(141,<l,"î",l1>,"ii","","gîte") -> ;
+regle(142,<l,"ï",l1>,"ii","","laïc") -> ;
+regle(143,<l,"i",l1>,"ii","","pitié") -> ;
+regle(144,<l,"j",l1>,"jj","","joie") -> ;
+regle(145,<"k ","k",l>,"","","kk") -> ;
+regle(146,<l,"k",l1>,"kk",""," ") -> ;
+regle(147,<l,"k",l1>,"kk","","kiwi") -> ;
+regle(148,<"l","l",l>,"","","Kvitfjell") -> ;
+regle(149,<l,"l",l1>,"ll","","lien") -> ;
+regle(150,<"m ","m",l>,"","","mm") -> ;
+regle(151,<l,"m",l1>,"mm",""," ") -> ;
+regle(152,<l,"m",l1>,"mm","","mère") -> ;
+regle(153,<"n ","n",l>,"","","nn") -> ;
+regle(154,<l,"n",l1>,"nn",""," ") -> ;
+regle(155,<l,"n",l1>,"nn","","nuage") -> ;
+regle(156,<l,"o",l1>,"au",""," ") -> ;
+regle(157,<l,"ô",l1>,"au",""," ") -> ;
+regle(158,<l,"ô",l1>,"au","","poêle") -> ;
+regle(159,<l,"ö",l1>,"EU","","Reszö") -> ;
+regle(160,<l,"o",l1>,"oo","","molle") -> ;
+regle(161,<"p ","p",l>,"","","pp") -> ;
+regle(162,<l,"p",l1>,"pp",""," ") -> ;
+regle(163,<l,"p",l1>,"pp","","père") -> ;
+regle(164,<l,"q",l1>,"kk",""," ") -> ;
+regle(165,<l,"q",l1>,"kk","","coq") -> ;
+regle(166,<"r ","r",l>,"","","rr") -> ;
+regle(167,<l,"r",l1>,"rr",""," ") -> ;
+regle(168,<l,"r",l1>,"rr","","roi") -> ;
+regle(169,<"s ","s",l>,"","","ss") -> ;
+regle(170,<l,"s",l1>,"ss",""," ") -> ;
+regle(171,<l,"s",l1>,"ss","","soie") -> ;
+regle(172,<"t ","t",l>,"","","tt") -> ;
+regle(173,<l,"t",l1>,"tt",""," ") -> ;
+regle(174,<l,"t",l1>,"tt","","toit") -> ;
+regle(175,<l,"u",l1>,"uu",""," ") -> ;
+regle(176,<l,"ü",l1>,"ou",""," ") -> ;
+regle(177,<l,"u",l1>,"uu","","fumée") -> ;
+regle(178,<l,"û",l1>,"uu","","flûte") -> ;
+regle(179,<l,"ü",l1>,"uu","","führer") -> ;
+regle(180,<"v ","v",l>,"","","vv") -> ;
+regle(181,<l,"v",l1>,"vv",""," ") -> ;
+regle(182,<l,"v",l1>,"vv","","voile") -> ;
+regle(183,<"w ","w",l>,"","","ww") -> ;
+regle(184,<l,"w",l1>,"vv",""," ") -> ;
+regle(185,<l,"w",l1>,"ww",""," ") -> ;
+regle(186,<l,"w",l1>,"vv","","Warnier") -> ;
+regle(187,<l,"x",l1>,"kkss","","taxi") -> ;
+regle(188,<l,"y",l1>,"ii","","cycle") -> ;
+regle(189,<"r ","z",l>,"","","Andrzej") -> ;
+regle(190,<"r","z",l>,"","","Krzysztof") -> ;
+regle(191,<l,"z",l1>,"zz","","zoo") -> ;

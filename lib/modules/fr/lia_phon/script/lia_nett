@@ -1,0 +1,16 @@
+#!/bin/csh -f
+# Lance la chaine de traitement, passant du texte brut au texte nettoye
+# avec un mot par ligne et en traitant les expressions numeriques
+
+#  default value for LIA_PHON_LEX
+if ( ! $?LIA_PHON_LEX ) then
+ set LIA_PHON_LEX = lex80k
+endif
+
+
+$LIA_PHON_REP/bin/lia_tokenize $LIA_PHON_REP/data/$LIA_PHON_LEX.tab | \
+$LIA_PHON_REP/bin/lia_sentence $LIA_PHON_REP/data/list_chif_virgule.tab | \
+$LIA_PHON_REP/bin/lia_nett_capital $LIA_PHON_REP/data/$LIA_PHON_LEX.tab | \
+$LIA_PHON_REP/bin/lia_nomb2alpha $LIA_PHON_REP/data/list_chif_virgule.tab | \
+$LIA_PHON_REP/bin/lia_unmotparligne
+

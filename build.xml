@@ -276,6 +276,21 @@ THIS SOFTWARE.
 	      </manifest>
 	    </jar>
 	  </target>
+	  
+	  <!-- French language modules -->
+	  <target name="mary-fr.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-fr.jar"
+	         basedir="${src}"
+		 includes="marytts/language/fr/**/*.class
+			   marytts/language/fr/**/*
+			   marytts/language/fr/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
 
 
   <!-- Commenting out the Tibetan component until we have a voice for it --> 
@@ -294,7 +309,7 @@ THIS SOFTWARE.
     </jar>
   </target-->
 
-  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar,mary-ru.jar"/>
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar,mary-ru.jar,mary-fr.jar"/>
 
 
 
@@ -593,6 +608,13 @@ THIS SOFTWARE.
         <param name="lang-fullname" value="Russian"/>
       </antcall>
     </target>
+    
+    <target name="fr-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="fr"/>
+        <param name="lang-fullname" value="French"/>
+      </antcall>
+    </target>
 
 	<!-- Installable voice zip files for the component installer -->
     <target name="default-voice-package" depends="jars">
@@ -639,6 +661,7 @@ THIS SOFTWARE.
 		te-package,
 		tr-package,
 		ru-package,
+		fr-package,
 		cmu-slt-hsmm-package" />
 	
 	 

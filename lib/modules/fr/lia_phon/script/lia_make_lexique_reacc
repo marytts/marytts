@@ -1,0 +1,41 @@
+#!/bin/csh -f
+#
+# Transforme un lexique union (ex : lexique_union7) en une
+# ressource pour le tagger/reaccentueur
+#
+# parametres :
+#              $1 = lexique union avec lemme
+#	       $2 = fichier ML arpa sur les classes
+
+if ( $#argv < 1 ) then
+ echo 'Syntax: make_lexique_reacc.csh <lex union+lemm> <ML arpa sur les classes>'
+else
+
+ echo Production du lexique accent/sans accent
+ $LIA_PHON_REP/bin/lia_eclate_lexique_union < $1 > $1.compte
+ $LIA_PHON_REP/bin/lia_eclate_lexique_union < $1 | $LIA_PHON_REP/bin/lia_produit_lex_reacc > $1.acc.compte
+
+ echo Production du lexique de classes
+ $LIA_PHON_REP/bin/lia_extract_lex_from_arpa < $2 > $2.sirlex
+ $LIA_PHON_REP/bin/lia_compile_ml $2.sirlex $2 log_10 3g -dicho
+
+ foreach i ( $1 $1.acc )
+
+  echo Production du lexique de graphie
+  cut -f1 $i.compte | sort -u > $i.graf
+  $LIA_PHON_REP/bin/lia_rajoute_code < $i.graf > $i.sirlex
+  $LIA_PHON_REP/bin/lia_compile_lexique $i.sirlex
+
+  echo Compilation du modele pmc
+  $LIA_PHON_REP/bin/lia_compile_pmc $i.sirlex $2.sirlex $i.compte lemme log_10 $i
+
+  echo Nettoyage
+  rm $i.compte $i.sirlex
+
+ end
+
+ rm $2.sirlex
+ echo Termine
+
+endif
+

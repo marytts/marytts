@@ -1,0 +1,174 @@
+#
+#    --------------------------------------------------------
+#    LIA_PHON : Un systeme complet de phonetisation de textes
+#    --------------------------------------------------------
+#          
+#    Copyright (C) 2001 FREDERIC BECHET
+#
+#    ..................................................................
+#
+#    This file is part of LIA_PHON
+#
+#    LIA_PHON is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+#    ..................................................................
+#
+#    Pour toute publication utilisant tout ou partie de LIA_PHON, la
+#    reference suivante doit etre inseree dans la bibliographie :
+#
+#    Bechet F., 2001, "LIA_PHON - Un systeme complet de phonetisation
+#    de textes", revue Traitement Automatique des Langues (T.A.L.)
+#    volume 42, numero 1/2001, edition Hermes
+#    ..................................................................
+#
+#    Contact :
+#              FREDERIC BECHET - LIA - UNIVERSITE D'AVIGNON
+#              AGROPARC BP1228 84911  AVIGNON  CEDEX 09  FRANCE
+#              frederic.bechet@lia.univ-avignon.fr    
+#    ..................................................................
+#
+regle(1,<l,"o",C.C1."  ">,"oo","","Bangkokt") -> ;
+regle(2,<l,"ai","  ">,"aayy","","Kwai") -> ;
+regle(3,<"k","an","  ">,"an","","Arakan") -> ;
+regle(4,<"ya ","hu","  ">,"ou","","Netanyahu") -> ;
+regle(5,<"  ".C,"un","  ">,"oenn","","Sun") -> ;
+regle(6,<l,"o",C."  ">,"oo","","Bangkok") -> ;
+regle(7,<l,"an"," g">,"an","","Rangoun") -> ;
+regle(8,<"  k","un"," d">,"ounn","","Kunda") -> ;
+regle(9,<V,"e","  ">,"","","Takie") -> ;
+regle(10,<l,"e","t ">,"ai","","Viet") -> ;
+regle(11,<l,"s h",l1>,"ch","","Yasushi") -> ;
+regle(12,<l,"o","l ">,"oo","","Goldorak") -> ;
+regle(13,<l,"o","m ">,"oo","","Norodom") -> ;
+regle(14,<l,"o o",l1>,"ou",""," ") -> ;
+regle(15,<l,"o","r ">,"oo","","Gordorak") -> ;
+regle(16,<l,"i y",l1>,"iiyy","","Lodongiyn") -> ;
+regle(17,<l,"ee","h">,"ii","","") -> ;
+regle(18,<l,"an","g">,"an","","Pyongyang") -> ;
+regle(19,<"  ","hyu",l>,"yyyou","","Hyundai") -> ;
+regle(20,<l,"gu",V>,"gg","","Tenguiz") -> ;
+regle(21,<l,"qu",C>,"kkou",""," ") -> ;
+regle(22,<l,"ae",l1>,"ei","","Daewoo") -> ;
+regle(23,<l,"c","e">,"ss","","") -> ;
+regle(24,<l,"c","é">,"ss","","") -> ;
+regle(25,<l,"c","è">,"ss","","") -> ;
+regle(26,<l,"dd",l1>,"dd","","") -> ;
+regle(27,<l,"ch",l1>,"ch","","") -> ;
+regle(28,<l,"c","i">,"ss","","") -> ;
+regle(29,<l,"g","e">,"jj","","Oge") -> ;
+regle(30,<l,"e","h">,"ei","","") -> ;
+regle(31,<l,"é","h">,"ei","","") -> ;
+regle(32,<l,"è","h">,"ai","","") -> ;
+regle(33,<l,"ck",l1>,"kk","","") -> ;
+regle(34,<l,"an",l1>,"aann","","") -> ;
+regle(35,<l,"g","i">,"jj","","Ogi") -> ;
+regle(36,<l,"en",l1>,"ainn","","Chenda") -> ;
+regle(37,<l,"oe",l1>,"oe","","Koering") -> ;
+regle(38,<l,"gn",l1>,"nnyy",""," ") -> ;
+regle(39,<l,"jk",l1>,"chkk",""," ") -> ;
+regle(40,<"  ","n","h">,"nn","","Nhan") -> ;
+regle(41,<l,"au",l1>,"au","","Aung") -> ;
+regle(42,<l,"ph",l1>,"ff",""," ") -> ;
+regle(43,<l,"ay",l1>,"ei","","Limay") -> ;
+regle(44,<l,"eu",l1>,"EU","","Tchounkeu") -> ;
+regle(45,<"  ","sh",l>,"ch","","Shirai") -> ;
+regle(46,<l,"on",l1>,"on",""," ") -> ;
+regle(47,<l,"oo",l1>,"ou",""," ") -> ;
+regle(48,<l,"e",V>,"ei","","") -> ;
+regle(49,<"  r","un",l>,"un","","Rungis") -> ;
+regle(50,<"x","un",l>,"ounn","","Sixun") -> ;
+regle(51,<l,"ou",l1>,"ou",""," ") -> ;
+regle(52,<l,"qu",l1>,"kkww",""," ") -> ;
+regle(53,<"  ","n",C>,"ainn",""," ") -> ;
+regle(54,<l,"tt",l1>,"tt",""," ") -> ;
+regle(55,<V." ","s",V1>,"zz",""," ") -> ;
+regle(56,<V,"s",V1>,"zz",""," ") -> ;
+regle(57,<l,"y",V>,"yy","","Young") -> ;
+regle(58,<l," ",l1>," ","","1blanc") -> ;
+regle(59,<l,"-",l1>,"","","trait d'union") -> ;
+regle(60,<l,"_",l1>,"","","trait d'union") -> ;
+regle(61,<l,"a",l1>,"aa","","") -> ;
+regle(62,<l,"a",l1>,"aa","","matin") -> ;
+regle(63,<l,"â",l1>,"aa","","âne") -> ;
+regle(64,<l,"à",l1>,"aa","","là") -> ;
+regle(65,<"b ","b",l>,"","","bb") -> ;
+regle(66,<l,"b",l1>,"bb","","") -> ;
+regle(67,<l,"b",l1>,"bb","","ballon") -> ;
+regle(68,<l,"c",l1>,"kk","","") -> ;
+regle(69,<l,"ç",l1>,"ss","","garçon") -> ;
+regle(70,<l,"c",l1>,"kk","","cri") -> ;
+regle(71,<"d ","d",l>,"","","dd") -> ;
+regle(72,<l,"d",l1>,"dd","","") -> ;
+regle(73,<l,"d",l1>,"dd","","dur") -> ;
+regle(74,<l,"e",l1>,"ei","","") -> ;
+regle(75,<l,"ê",l1>,"ai","","fête") -> ;
+regle(76,<l,"ë",l1>,"ai","","noël") -> ;
+regle(77,<l,"è",l1>,"ai","","mère") -> ;
+regle(78,<l,"é",l1>,"ei","","été") -> ;
+regle(79,<"f ","f",l>,"","","ff") -> ;
+regle(80,<l,"f",l1>,"ff","","") -> ;
+regle(81,<l,"f",l1>,"ff","","fille") -> ;
+regle(82,<l,"g",l1>,"gg","","gare") -> ;
+regle(83,<l,"h",l1>,"",""," ") -> ;
+regle(84,<l,"h",l1>,"","","herbe") -> ;
+regle(85,<l,"i",l1>,"ii",""," ") -> ;
+regle(86,<l,"ï",l1>,"ii",""," ") -> ;
+regle(87,<l,"î",l1>,"ii","","gîte") -> ;
+regle(88,<l,"ï",l1>,"ii","","laïc") -> ;
+regle(89,<l,"i",l1>,"ii","","pitié") -> ;
+regle(90,<l,"j",l1>,"jj","","joie") -> ;
+regle(91,<"k ","k",l>,"","","kk") -> ;
+regle(92,<l,"k",l1>,"kk",""," ") -> ;
+regle(93,<l,"k",l1>,"kk","","kiwi") -> ;
+regle(94,<l,"l",l1>,"ll",""," ") -> ;
+regle(95,<l,"l",l1>,"ll","","lien") -> ;
+regle(96,<"m ","m",l>,"","","mm") -> ;
+regle(97,<l,"m",l1>,"mm",""," ") -> ;
+regle(98,<l,"m",l1>,"mm","","mère") -> ;
+regle(99,<"n ","n",l>,"","","nn") -> ;
+regle(100,<l,"n",l1>,"nn",""," ") -> ;
+regle(101,<l,"n",l1>,"nn","","nuage") -> ;
+regle(102,<l,"o",l1>,"au",""," ") -> ;
+regle(103,<l,"ô",l1>,"au","","poêle") -> ;
+regle(104,<l,"ö",l1>,"EU","","Reszö") -> ;
+regle(105,<"p ","p",l>,"","","pp") -> ;
+regle(106,<l,"p",l1>,"pp",""," ") -> ;
+regle(107,<l,"p",l1>,"pp","","père") -> ;
+regle(108,<l,"q",l1>,"kk",""," ") -> ;
+regle(109,<l,"q",l1>,"kk","","coq") -> ;
+regle(110,<"r ","r",l>,"","","rr") -> ;
+regle(111,<l,"r",l1>,"rr",""," ") -> ;
+regle(112,<l,"r",l1>,"rr","","roi") -> ;
+regle(113,<"s ","s",l>,"","","ss") -> ;
+regle(114,<"s","s",l>,"","","ss") -> ;
+regle(115,<l,"s",l1>,"ss",""," ") -> ;
+regle(116,<l,"s",l1>,"ss","","soie") -> ;
+regle(117,<"t ","t",l>,"","","tt") -> ;
+regle(118,<l,"t",l1>,"tt",""," ") -> ;
+regle(119,<l,"t",l1>,"tt","","toit") -> ;
+regle(120,<l,"u",l1>,"uu",""," ") -> ;
+regle(121,<l,"ü",l1>,"ou",""," ") -> ;
+regle(122,<l,"u",l1>,"uu","","fumée") -> ;
+regle(123,<l,"û",l1>,"uu","","flûte") -> ;
+regle(124,<l,"ü",l1>,"uu","","führer") -> ;
+regle(125,<"v ","v",l>,"","","vv") -> ;
+regle(126,<l,"v",l1>,"vv",""," ") -> ;
+regle(127,<l,"v",l1>,"vv","","voile") -> ;
+regle(128,<"w ","w",l>,"","","ww") -> ;
+regle(129,<l,"w",l1>,"ww",""," ") -> ;
+regle(130,<l,"w",l1>,"vv","","Warnier") -> ;
+regle(131,<l,"x",l1>,"kkss","","taxi") -> ;
+regle(132,<l,"y",l1>,"ii","","cycle") -> ;
+regle(133,<"z ","z",l>,"","","zz") -> ;
+regle(134,<l,"z",l1>,"zz","","zoo") -> ;

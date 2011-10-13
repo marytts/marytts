@@ -1,0 +1,26 @@
+#!/bin/csh -f
+
+# Lance la chaine de traitement complete d'un texte
+
+# $1,$2,$3 = '-reacc' or '-syllabe' or '-liaison'
+
+set REACC = ""
+set SYLLA = ""
+set LIAISON = ""
+
+if ( "$1" == "-reacc" || "$2" == "-reacc" || "$3" == "-reacc" ) then
+ set REACC = "-reacc"
+endif
+if ( "$1" == "-syllabe" || "$2" == "-syllabe" || "$3" == "-syllabe" ) then
+ set SYLLA = "-s"
+endif
+if ( "$1" == "-liaison" || "$2" == "-liaison" || "$3" == "-liaison" ) then
+ set LIAISON = "-liaison"
+endif
+
+# dos to unix conversion (when necessary)
+tr -d "\r" | \
+$LIA_PHON_REP/script/lia_nett | \
+$LIA_PHON_REP/script/lia_taggreac $REACC | \
+$LIA_PHON_REP/script/lia_phon $SYLLA $LIAISON
+
