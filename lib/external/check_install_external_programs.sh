@@ -287,14 +287,14 @@ if which HHEd > /dev/null; then
          echo "  cd $root/sw"
          echo "  mkdir HTS-patch"
          echo "  cd HTS-patch"
-         echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2"
-         echo "  tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2"
+         echo "  wget http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2"
+         echo "  tar -jxvf HTS-2.2_for_HTK-3.4.1.tar.bz2"
          echo "  cd .."
          echo "  tar -zxf HTK-3.4.1.tar.gz"
          echo "  tar -zxf HDecode-3.4.1.tar.gz"
          echo "  cd htk"
-         echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch ."
-         echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch"     
+         echo "  cp $root/sw/HTS-patch/HTS-2.2_for_HTK-3.4.1.patch ."
+         echo "  patch -p1 -d . < HTS-2.2_for_HTK-3.4.1.patch"     
          echo "  ./configure --prefix=$root/ MAXSTRLEN=2048"
          echo "  make"
          echo "  make install"
@@ -315,15 +315,15 @@ if which HHEd > /dev/null; then
              cd $root/sw
              mkdir -p HTS-patch
              cd HTS-patch
-             wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2
-             tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2
+             wget http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2
+             tar -jxvf HTS-2.2_for_HTK-3.4.1.tar.bz2
              cd ..
              tar -zxf HTK-3.4.1.tar.gz
              tar -zxf HDecode-3.4.1.tar.gz
              cd htk
-             cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch .
+             cp $root/sw/HTS-patch/HTS-2.2_for_HTK-3.4.1.patch .
              echo "applying HTS patch"
-             patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch
+             patch -p1 -d . < HTS-2.2_for_HTK-3.4.1.patch
              ./configure --prefix=$root MAXSTRLEN=2048
              make
              make install
@@ -362,14 +362,14 @@ else
       echo "  cd $root/sw"
       echo "  mkdir HTS-patch"
       echo "  cd HTS-patch"
-      echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2"
-      echo "  tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2"
+      echo "  wget http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2"
+      echo "  tar -jxvf HTS-2.2_for_HTK-3.4.1.tar.bz2"
       echo "  cd .."
       echo "  tar -zxf HTK-3.4.1.tar.gz"
       echo "  tar -zxf HDecode-3.4.1.tar.gz"
       echo "  cd htk"
-      echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch ."
-      echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch"     
+      echo "  cp $root/sw/HTS-patch/HTS-2.2_for_HTK-3.4.1.patch ."
+      echo "  patch -p1 -d . < HTS-2.2_for_HTK-3.4.1.patch"     
       echo "  ./configure --prefix=$root/ MAXSTRLEN=2048"
       echo "  make"
       echo "  make install"
@@ -390,15 +390,15 @@ else
           cd $root/sw
           mkdir -p HTS-patch
           cd HTS-patch
-          wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.1.tar.bz2
-          tar -jxvf HTS-2.1_for_HTK-3.4.1.tar.bz2
+          wget http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2
+          tar -jxvf HTS-2.2_for_HTK-3.4.1.tar.bz2
           cd ..
           tar -zxf HTK-3.4.1.tar.gz
           tar -zxf HDecode-3.4.1.tar.gz
           cd htk
-          cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.1.patch .
+          cp $root/sw/HTS-patch/HTS-2.2_for_HTK-3.4.1.patch .
           echo "applying HTS patch"
-          patch -p1 -d . < HTS-2.1_for_HTK-3.4.1.patch
+          patch -p1 -d . < HTS-2.2_for_HTK-3.4.1.patch
           ./configure --prefix=$root MAXSTRLEN=2048
           make
           make install
