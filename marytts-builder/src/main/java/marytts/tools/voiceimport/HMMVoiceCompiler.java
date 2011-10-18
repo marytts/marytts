@@ -8,30 +8,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.SortedMap;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-
-import marytts.util.io.StreamGobbler;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
-
-import com.twmacinta.util.MD5;
 
 
 /**
  * @author marc, marcela
  *
  */
-public class HMMVoiceCompiler extends VoiceImportComponent {
-
-	public static final String COMPILEDIR = "VoiceCompiler.compileDir";
+public class HMMVoiceCompiler extends VoiceCompiler {
 	
     // constants to access filenames in database component properties and organize file list:
 	
@@ -93,14 +82,6 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
     /** Mapping in case of using alias names for extra features during training */
     Map<String,String> actualFeatureNames = new HashMap<String, String>();
 
-	protected StrSubstitutor substitutor;
-	protected File compileDir;
-	protected File mainJavaDir;
-	protected File mainResourcesDir;
-	protected File mainDescriptionsDir;
-	protected File metaInfDir;
-	protected File testJavaDir;
-	protected File libVoiceDir;
 	
 	/**
 	 * 
@@ -108,12 +89,13 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
 	public HMMVoiceCompiler() {
 	}
 
-	/* (non-Javadoc)
-	 * @see marytts.tools.voiceimport.VoiceImportComponent#compute()
+
+	/**
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
 	@Override
-	public boolean compute() throws Exception {
-
+	protected void mapFeatures() throws IOException, FileNotFoundException {
 		// First find a features file example
 		getFeatureFileExample();
 		System.out.println("featuresFileExample=" + featuresFileExample + "\nfeaturesFileExampleLocation=" + featuresFileExampleLocation);
@@ -121,7 +103,7 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
         // Before setting the tree files, we need to check if they contain aliases for the extra features used for training
         // if so there must be a file mary/hmmFeaturesMap.txt which has to be used to convert back the feature names
         // Check if features map was used
-		String rootDir = db.getProp(db.ROOTDIR);
+		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
         System.out.println("Checking if aliases for extra features used for training were used: checking if file exist -->" + rootDir + getProp(hmmFeaturesMapFile));
         //File featuresMap = new File(rootDir + getProp(hmmFeaturesMapFile));
         File featuresMap = new File(rootDir + "mary/hmmFeaturesMap.txt");
@@ -139,74 +121,18 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
           replaceBackFeatureNames(rootDir + treeLf0File);
           replaceBackFeatureNames(rootDir + treeMcpFile);
           replaceBackFeatureNames(rootDir + treeStrFile);
-        }        
-        
-		logger.info("Creating directories");
-		createDirectories();
-		logger.info("Copying template files");
-		copyTemplateFiles();
-		logger.info("Copying voice files");
-		copyVoiceFiles();
-		logger.info("Compiling with Maven");
-		compileWithMaven();
-		logger.info("Creating component description file");
-		createComponentFile();
-		logger.info("done.");
-		
-		return true;
+        }
 	}
 
-	private void createComponentFile() throws IOException {
-		String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
-		File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
-        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
-        Map<String, String> compMap = new HashMap<String, String>();
-        compMap.put("MD5", zipFileMd5Hash);
-        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
-        StrSubstitutor compSubst = new StrSubstitutor(compMap);
-		String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
-		File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
-        copyWithVarSubstitution("component.xml", componentFile, compSubst);
-	}
-
-	private void compileWithMaven() throws IOException, InterruptedException {
-		Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
-		StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
-		StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
-		merr.start();
-		mout.start();
-		int result = maven.waitFor();
-		if (result != 0) {
-			throw new IOException("Maven compilation did not succeed -- check console for details.");
-		}
-	}
-
-	protected void createDirectories() throws IOException {
-		 if (compileDir.exists()) {
-			 FileUtils.deleteDirectory(compileDir);
-		 }
-		 compileDir.mkdir();
-		 String packageName = toPackageName(db.getVoiceName());
-		 mainJavaDir = new File(compileDir.getAbsolutePath()+"/src/main/java/marytts/voice/"+packageName);
-		 mainJavaDir.mkdirs();
-		 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
-		 mainResourcesDir.mkdirs();
-		 mainDescriptionsDir = new File(compileDir.getAbsolutePath()+"/src/main/descriptors");
-		 mainDescriptionsDir.mkdirs();
-		 metaInfDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/META-INF/services");
-		 metaInfDir.mkdirs();
-		 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
-		 testJavaDir.mkdirs();
-
-	}
-	
-	protected boolean isHmmVoice() {
-		return true;
+	@Override
+	protected boolean isUnitSelectionVoice() {
+		return false;
 	}
 	
 
+	@Override
 	protected void copyVoiceFiles() throws IOException {
-		if (!isHmmVoice()) {
+		if (isUnitSelectionVoice()) {
 			throw new IllegalStateException("This method should only be called for hmm voices");
 		}		
 		
@@ -220,81 +146,20 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
 		}
 	}
 
-	protected void copyTemplateFiles() throws IOException {
-		copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
-		copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));			
-		copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));				
-		copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
-		copyWithVarSubstitution("marytts.config.MaryConfig", new File(metaInfDir, "marytts.config.MaryConfig"));
-		if (isHmmVoice()) {
-			copyWithVarSubstitution("hsmm-voice.config", new File(mainResourcesDir, "voice.config"));
-		}
-	}
 
-	private void copyWithVarSubstitution(String resourceName, File destination, StrSubstitutor... moreSubstitutors) throws IOException {
-		String resource = marytts.util.io.FileUtils.getStreamAsString(getClass().getResourceAsStream("templates/"+resourceName), "UTF-8");
-		String resourceWithReplacements = substitutor.replace(resource);
-		for (StrSubstitutor more : moreSubstitutors) {
-			resourceWithReplacements = more.replace(resourceWithReplacements);
-		}
-		PrintWriter out = new PrintWriter(destination, "UTF-8");
-		out.print(resourceWithReplacements);
-		out.close();
-	}
 
-	/* (non-Javadoc)
-	 * @see marytts.tools.voiceimport.VoiceImportComponent#getDefaultProps(marytts.tools.voiceimport.DatabaseLayout)
-	 */
-	@Override
-	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
-        if (props == null) {
-            props = new TreeMap<String, String>();
-            props.put(COMPILEDIR, new File(db.getVoiceFileDir(), "voice-"+db.getVoiceName()).getAbsolutePath());
-        }
-        return props;
-	}
 
 	/* (non-Javadoc)
 	 * @see marytts.tools.voiceimport.VoiceImportComponent#getName()
 	 */
 	@Override
 	public String getName() {
-		return "VoiceCompiler";
+		return "HMMVoiceCompiler";
 	}
 
-	/* (non-Javadoc)
-	 * @see marytts.tools.voiceimport.VoiceImportComponent#getProgress()
-	 */
 	@Override
-	public int getProgress() {
-		return -1;
-	}
-
-	/* (non-Javadoc)
-	 * @see marytts.tools.voiceimport.VoiceImportComponent#setupHelp()
-	 */
-	@Override
-	protected void setupHelp() {
-        props2Help = new TreeMap<String, String>();
-        props2Help.put(COMPILEDIR, "The directory in which the files for compiling the voice will be copied.");
-    }
-
-	@Override
-	protected void initialiseComp() throws Exception {
-		substitutor = new StrSubstitutor(getVariableSubstitutionMap());
-		compileDir = new File(getProp(COMPILEDIR));
-	}
-
 	protected Map<String, String> getVariableSubstitutionMap() {
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("MARYVERSION", db.getMaryVersion());
-		m.put("VOICENAME", db.getVoiceName());
-		m.put("LOCALE", db.getLocale().toString());
-		m.put("LANG", db.getLocale().getLanguage());
-		m.put("GENDER", db.getGender());
-		m.put("DOMAIN", db.getDomain());
-		
-		m.put("SAMPLINGRATE", String.valueOf(db.getSamplingRate()));
+		Map<String, String> m = super.getVariableSubstitutionMap();
 		m.put("FRAMEPERIOD", String.valueOf(db.getProperty(framePeriod)));
 		
 		m.put("ALPHA", String.valueOf(db.getProperty(alpha)));
@@ -304,46 +169,14 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
 		m.put("MIXEXCFILTERFILE", String.valueOf(mixFiltersFile));
 		m.put("NUMMIXEXCFILTERS", String.valueOf(numFilters));		
 				
-		m.put("PACKAGE", toPackageName(db.getVoiceName()));
-		m.put("VOICECLASS", isHmmVoice() ? "marytts.htsengine.HMMVoice" : "marytts.unitselection.UnitSelectionVoice");
 		return m;
 	}
 
-	/**
-	 * Convert an arbitrary string into a valid java package name, as follows:
-	 * - any characters that are not alphanumeric or underscore are deleted;
-	 * - if the first character after a deleted one is a letter, it is capitalised.
-	 * - if the first character is not a letter, we prepend a "V" for "voice".
-	 * @param voiceName
-	 * @return
-	 */
-	public static String toPackageName(String voiceName) {
-		String regexLCLetter = "[a-z]";
-		String regexLetter = "[a-zA-Z]";
-		String invalidChars = "[^_a-zA-Z0-9]";
-		String[] parts = voiceName.split(invalidChars);
-		StringBuilder result = new StringBuilder();
-		for (String part : parts) {
-			if (part.isEmpty()) {
-				continue;
-			}
-			String firstChar =  part.substring(0, 1);
-			if (Pattern.matches(regexLCLetter, firstChar)) {
-				result.append(firstChar.toUpperCase()).append(part.substring(1));
-			} else {
-				result.append(part);
-			}
-		}
-		if (!Pattern.matches(regexLetter, result.subSequence(0, 1))) {
-			result.insert(0, "V");
-		}
-		return result.toString();
-	}
 
 	
 	protected void getFeatureFileExample() throws IOException {	
 		String fileExample=null;
-		String rootDir = db.getProp(db.ROOTDIR);
+		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
         /* copy one example of MARY context features file, it can be one of the 
          * files used for testing in phonefeatures/*.pfeats*/	
         File dirPhonefeatures  = new File(rootDir + "phonefeatures/");
@@ -369,13 +202,12 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
      */
     private void replaceBackFeatureNames(String treeFileName) throws IOException{
       
-      int i, j, length, state;
       BufferedReader s = null; 
       FileWriter outputStream;
       
       //---outputStream.write(hmm_tts.getRealisedDurations());
       //---outputStream.close();
-      String line, aux;
+      String line;
       // read the file until the symbol the delimits an state is found
       try {   
         // output file to copy the result
@@ -416,7 +248,7 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
         
        } catch (IOException e) {
               logger.debug("FileNotFoundException: " + e.getMessage());
-              throw new IOException("LoadTreeSet: " + e.getMessage());
+              throw new IOException("LoadTreeSet: ", e);
       }
    
     }
@@ -445,7 +277,7 @@ public class HMMVoiceCompiler extends VoiceImportComponent {
           }       
         } catch (FileNotFoundException e) {
             logger.debug("loadTrickyPhones:  " + e.getMessage());
-             throw new FileNotFoundException();
+             throw e;
         } 
         return actualFeatureNames;
     }

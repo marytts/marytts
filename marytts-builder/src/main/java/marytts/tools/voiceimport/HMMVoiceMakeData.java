@@ -177,7 +177,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     
          
       String cmdLine;
-      String voiceDir = db.getProp(db.ROOTDIR);
+      String voiceDir = db.getProp(DatabaseLayout.ROOTDIR);
      
       if( Integer.parseInt(getProp(MGC)) == 1 ){
         cmdLine = "cd " + voiceDir + "hts/data\nmake mgc\n";
@@ -353,12 +353,12 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // select a featureListFile from phonefeatures, it will be used to get the feature definition      
         FeatureDefinition feaDef;
         String feaExample;
-        File dirFea = new File(db.getProp(db.PHONEFEATUREDIR));
+        File dirFea = new File(db.getProp(DatabaseLayout.PHONEFEATUREDIR));
         String[] dirFeaList;
         if(getProp(ADAPTSCRIPTS).contentEquals("false")){
           dirFeaList = dirFea.list(featFileFilter);
           if(dirFea.exists() && dirFeaList.length > 0){           
-              feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
+              feaExample = db.getProp(DatabaseLayout.PHONEFEATUREDIR) + "/" + dirFeaList[0];
               System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);
           } else {
               throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
@@ -366,10 +366,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           }   
         } else {
           dirFeaList = dirFea.list();
-          File dirFeaSpeaker = new File(db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0]);
+          File dirFeaSpeaker = new File(db.getProp(DatabaseLayout.PHONEFEATUREDIR) + "/" + dirFeaList[0]);
           String[] dirFeaListSpeaker = dirFeaSpeaker.list(featFileFilter);
           if(dirFeaSpeaker.exists() && dirFeaListSpeaker.length > 0){
-            feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0] + "/" + dirFeaListSpeaker[0];
+            feaExample = db.getProp(DatabaseLayout.PHONEFEATUREDIR) + "/" + dirFeaList[0] + "/" + dirFeaListSpeaker[0];
             System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);  
           } else {
             throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +

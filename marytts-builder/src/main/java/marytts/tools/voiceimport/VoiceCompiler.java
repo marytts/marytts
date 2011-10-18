@@ -80,19 +80,32 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
+		if (!isUnitSelectionVoice()) {
+			mapFeatures();
+		}
+		
 		logger.info("Creating directories");
 		createDirectories();
+		
 		logger.info("Copying template files");
 		copyTemplateFiles();
+		
 		logger.info("Copying voice files");
 		copyVoiceFiles();
+		
 		logger.info("Compiling with Maven");
 		compileWithMaven();
+		
 		logger.info("Creating component description file");
 		createComponentFile();
 		logger.info("done.");
 		
 		return true;
+	}
+
+	protected void mapFeatures() throws Exception {
+		throw new IllegalStateException("This method should not be called for unit selection voices, "+
+				" and hmm-based voices should extend it.");
 	}
 
 	private void createComponentFile() throws IOException {
@@ -174,6 +187,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 		copyWithVarSubstitution("marytts.config.MaryConfig", new File(metaInfDir, "marytts.config.MaryConfig"));
 		if (isUnitSelectionVoice()) {
 			copyWithVarSubstitution("unitselection-voice.config", new File(mainResourcesDir, "voice.config"));
+		} else {
+			copyWithVarSubstitution("hsmm-voice.config", new File(mainResourcesDir, "voice.config"));
 		}
 	}
 

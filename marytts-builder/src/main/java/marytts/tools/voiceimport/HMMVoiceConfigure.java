@@ -144,10 +144,10 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(QNUM,        "001");
            
            //Frame period in point 80 for 16Khz; 240 for 48Khz (Frame period in point = sampRate*0.005sec)");
-           int sampRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
+           int sampRate = db.getSamplingRate();
            int frameLen   = (int) Math.round(sampRate*0.025);
            int frameShift = (int) Math.round(sampRate*0.005);           
-           props.put(SAMPFREQ,    db.getProp(db.SAMPLINGRATE));
+           props.put(SAMPFREQ,    db.getProp(DatabaseLayout.SAMPLINGRATE));
            props.put(FRAMELEN,    Integer.toString(frameLen)); 
            props.put(FRAMESHIFT,  Integer.toString(frameShift));
            if(sampRate >= 48000)
@@ -256,7 +256,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         
         System.out.println("\nChecking directories and files for running HTS training scripts...");
         
-        String filedir = db.getProp(db.ROOTDIR);
+        String filedir = db.getProp(DatabaseLayout.ROOTDIR);
         String cmdLine;
         boolean speech_transcriptions = true;
  
@@ -331,11 +331,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        
          cmdLine = "cd " + filedir + "hts\n" + 
          getProp(CONFIGUREFILE) +
-         " --with-tcl-search-path="        + db.getExternal(db.TCLPATH) +
-         " --with-sptk-search-path="       + db.getExternal(db.SPTKPATH) +
-         " --with-hts-search-path="        + db.getExternal(db.HTSPATH) +
-         " --with-hts-engine-search-path=" + db.getExternal(db.HTSENGINEPATH) +
-         " --with-sox-search-path="        + db.getExternal(db.SOXPATH) +
+         " --with-tcl-search-path="        + db.getExternal(DatabaseLayout.TCLPATH) +
+         " --with-sptk-search-path="       + db.getExternal(DatabaseLayout.SPTKPATH) +
+         " --with-hts-search-path="        + db.getExternal(DatabaseLayout.HTSPATH) +
+         " --with-hts-engine-search-path=" + db.getExternal(DatabaseLayout.HTSENGINEPATH) +
+         " --with-sox-search-path="        + db.getExternal(DatabaseLayout.SOXPATH) +
          " SPEAKER=" + getProp(SPEAKER) +
          " DATASET=" + getProp(DATASET) +
          " LOWERF0=" + getProp(LOWERF0) +
@@ -364,11 +364,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
          
            cmdLine = "cd " + filedir + "hts\n" +
              getProp(CONFIGUREFILE) +
-             " --with-tcl-search-path="        + db.getExternal(db.TCLPATH) +
-             " --with-sptk-search-path="       + db.getExternal(db.SPTKPATH) +
-             " --with-hts-search-path="        + db.getExternal(db.HTSPATH) +
-             " --with-hts-engine-search-path=" + db.getExternal(db.HTSENGINEPATH) +
-             " --with-sox-search-path="        + db.getExternal(db.SOXPATH) +
+             " --with-tcl-search-path="        + db.getExternal(DatabaseLayout.TCLPATH) +
+             " --with-sptk-search-path="       + db.getExternal(DatabaseLayout.SPTKPATH) +
+             " --with-hts-search-path="        + db.getExternal(DatabaseLayout.HTSPATH) +
+             " --with-hts-engine-search-path=" + db.getExternal(DatabaseLayout.HTSENGINEPATH) +
+             " --with-sox-search-path="        + db.getExternal(DatabaseLayout.SOXPATH) +
              " SPEAKER=" + getProp(SPEAKER) +
              " DATASET=" + getProp(DATASET) +
              " TRAINSPKR=" + getProp(ADAPTTRAINSPKR) + 
