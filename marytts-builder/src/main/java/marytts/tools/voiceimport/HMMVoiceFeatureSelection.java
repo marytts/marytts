@@ -69,8 +69,8 @@ public class HMMVoiceFeatureSelection extends VoiceImportComponent {
          this.db = theDb;
          if (props == null){
              props = new TreeMap<String, String>();
-             props.put(HMMFEATUREFILE, db.getProp(db.CONFIGDIR) + "hmmFeatures.txt");
-             props.put(FEATUREFILE, db.getProp(db.CONFIGDIR) + "features.txt");
+             props.put(HMMFEATUREFILE, db.getProp(DatabaseLayout.CONFIGDIR) + "hmmFeatures.txt");
+             props.put(FEATUREFILE, db.getProp(DatabaseLayout.CONFIGDIR) + "features.txt");
              
          } 
          return props;

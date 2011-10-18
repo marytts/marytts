@@ -135,9 +135,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        boolean raw = false;
        boolean text = false;
        boolean wav = false;
-       marybase   = db.getProp(db.MARYBASE); 
-       voiceDir   = db.getProp(db.ROOTDIR);
-       soxPath    = db.getExternal(db.SOXPATH);
+       marybase   = db.getProp(DatabaseLayout.MARYBASE); 
+       voiceDir   = db.getProp(DatabaseLayout.ROOTDIR);
+       soxPath    = db.getExternal(DatabaseLayout.SOXPATH);
        sep        = System.getProperty("file.separator");       
        dataDir    = voiceDir + "hts" + sep + "data" + sep;
        scriptsDir = dataDir + "scripts" + sep;
@@ -291,39 +291,39 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
         
         boolean result = true;
         
-        if ( db.getExternal(db.AWKPATH) == null ){
+        if ( db.getExternal(DatabaseLayout.AWKPATH) == null ){
           System.out.println("  *Missing path for awk"); 
           result = false;
         }
-        if (db.getExternal(db.PERLPATH) == null){
+        if (db.getExternal(DatabaseLayout.PERLPATH) == null){
             System.out.println("  *Missing path for perl"); 
             result = false;
         }        
-        if (db.getExternal(db.BCPATH) == null){
+        if (db.getExternal(DatabaseLayout.BCPATH) == null){
             System.out.println("  *Missing path for bc"); 
             result = false;
         }
-        if (db.getExternal(db.TCLPATH) == null){
+        if (db.getExternal(DatabaseLayout.TCLPATH) == null){
             System.out.println("  *Missing path for tclsh"); 
             result = false;
         }
-        if (db.getExternal(db.SOXPATH) == null){
+        if (db.getExternal(DatabaseLayout.SOXPATH) == null){
             System.out.println("  *Missing path for sox"); 
             result = false;
         }
-        if(db.getExternal(db.HTSPATH) == null){
+        if(db.getExternal(DatabaseLayout.HTSPATH) == null){
             System.out.println("  *Missing path for hts/htk"); 
             result = false;
         }
-        if(db.getExternal(db.HTSENGINEPATH) == null){
+        if(db.getExternal(DatabaseLayout.HTSENGINEPATH) == null){
             System.out.println("  *Missing path for hts_engine"); 
             result = false;
         }
-        if(db.getExternal(db.SPTKPATH) == null){
+        if(db.getExternal(DatabaseLayout.SPTKPATH) == null){
             System.out.println("  *Missing path for sptk"); 
             result = false;
         }
-        if(db.getExternal(db.EHMMPATH) == null){
+        if(db.getExternal(DatabaseLayout.EHMMPATH) == null){
             System.out.println("  *Missing path for ehmm"); 
             result = false;
         }
@@ -350,7 +350,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     }
 
     private void convertRaw2Wav(String rawDirName, String wavDirName) {
-        String Fs = db.getProperty(db.SAMPLINGRATE);
+        String Fs = db.getProperty(DatabaseLayout.SAMPLINGRATE);
         String cmdLine;
         String raw2wavCmd   = scriptsDir + "raw2wav.sh";
         System.out.println("Converting raw files to wav from: " + rawDirName + "  to: " + wavDirName);
