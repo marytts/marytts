@@ -31,10 +31,13 @@ import opennlp.tools.util.BeamSearch;
 
 /**
  * Extend POSTaggerME to support deterministic symbols dictionary.
- * It permit to add constraints on the only tokens allowed to have a specific label.
- * It is useful to force only the punctuation symbols to have a specific label.
+ * It permits to add constraints on tokens allowed to have deterministic labels.
+ * It is useful to force punctuation symbols to have a specific label.
  * The following line is an example of a row in the deterministic dictionary file:
  * $PUNCT , . ! ? ;
+ * 
+ * In this way only the tokens , . ! ? ; are allowed to have the POS $PUNCT, and no others 
+ * word are allowed to have the $PUNCT POS.
  * 
  * @author Fabio Tesser
  * 
@@ -119,22 +122,22 @@ public class PosTaggerMEDetSymSupport extends POSTaggerME {
             tags = deterministicSymbolsTagDictionary.getTags(outcome);
 
             if (tags != null) {
-                // oK we are talking about FS...
+                // OK we are talking about deterministic POS (i.e $PUNCT)
                 tmp = Arrays.asList(tags).contains(inputSequence[i].toString());
                 if (!tmp) {
-                    // if det_tagDictionary FS does not contain the input sequence ","
+                    // if det_tagDictionary (i.e $PUNCT) does not contain the input sequence (i.e. ",")
                     return false;
                 }
             }
-            // Ok the det_tagDictionary contains the correct  input sequence "," or tags == null
+            // OK the det_tagDictionary contains the correct input sequence (i.e. ",") or tags == null
             // check for normal tag dict
             tags = tagDictionary.getTags(inputSequence[i].toString());
             if (tags == null) {
-                // we are not talinkg about ancora
+                // we are not talking about probabilistic POS (i.e adjective, verbs ... )
                 return true;
             } else {
-                // we are talinkg about "ancora"
-                // retrurn treue if the outcome is OK with that
+                // we are talking about about probabilistic POS (i.e adjective, verbs ... )
+                // return true if the outcome is OK with that
                 return Arrays.asList(tags).contains(outcome);
             }
         }
