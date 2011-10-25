@@ -438,15 +438,15 @@ if which hts_engine > /dev/null; then
     echo
 else
     echo "hts_engine does not exist"
-    echo "it can be download from: http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz "
+    echo "it can be download from: http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.05.tar.gz "
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz"
-      echo "  tar -zxf hts_engine_API-1.04.tar.gz"
-      echo "  cd hts_engine_API-1.04"
+      echo "  wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.05.tar.gz"
+      echo "  tar -zxf hts_engine_API-1.05.tar.gz"
+      echo "  cd hts_engine_API-1.05"
       echo "  ./configure --prefix=$root"
       echo "  make"
       echo "  make install"
@@ -458,9 +458,9 @@ else
         echo "binaries will be installed in $root/bin"
         mkdir -p $root/sw
         cd $root/sw
-        wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.04.tar.gz
-        tar -zxf hts_engine_API-1.04.tar.gz
-        cd hts_engine_API-1.04
+        wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.05.tar.gz
+        tar -zxf hts_engine_API-1.05.tar.gz
+        cd hts_engine_API-1.05
         ./configure --prefix=$root
         make
         make install
@@ -493,16 +493,16 @@ if which mgcep > /dev/null; then
       echo
     else
       echo "SPTK gmm does not exist, SPTK version < 3.2" 
-      echo "SPTK installed but probably an older version, please install SPTK 3.2"
-      echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz "
+      echo "SPTK installed but probably an older version, please install SPTK >= 3.2"
+      echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz"
       if [ $option = "-install" ] ; then
         echo "suggested commands:"
         root=$MARY_BASE/lib/external
         echo "  mkdir -p $root/sw"
         echo "  cd $root/sw"
-        echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz"
-        echo "  tar -zxvf SPTK-3.4.tar.gz"
-        echo "  cd SPTK-3.4"
+        echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz"
+        echo "  tar -zxvf SPTK-3.4.1.tar.gz"
+        echo "  cd SPTK-3.4.1"
         echo "  ./configure --prefix=$root"
         echo "  make"
         echo "  make install"
@@ -511,9 +511,9 @@ if which mgcep > /dev/null; then
         if [ $choice = "y" ] ; then
           mkdir -p $root/sw
           cd $root/sw
-          wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz
-          tar -zxvf SPTK-3.4.tar.gz
-          cd SPTK-3.4
+          wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz
+          tar -zxvf SPTK-3.4.1.tar.gz
+          cd SPTK-3.4.1
           ./configure --prefix=$root
           make
           make install
@@ -530,15 +530,15 @@ if which mgcep > /dev/null; then
     fi
 else
     echo "SPTK-3.4 does not exist" 
-    echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz "
+    echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz "
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz"
-      echo "  tar -zxvf SPTK-3.4.tar.gz"
-      echo "  cd SPTK-3.4"
+      echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz"
+      echo "  tar -zxvf SPTK-3.4.1.tar.gz"
+      echo "  cd SPTK-3.4.1"
       echo "  ./configure --prefix=$root"
       echo "  make"
       echo "  make install"
@@ -547,9 +547,9 @@ else
       if [ $choice = "y" ] ; then
         mkdir -p $root/sw
         cd $root/sw
-        wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.tar.gz
-        tar -zxvf SPTK-3.4.tar.gz
-        cd SPTK-3.4
+        wget http://downloads.sourceforge.net/sp-tk/SPTK-3.4.1.tar.gz
+        tar -zxvf SPTK-3.4.1.tar.gz
+        cd SPTK-3.4.1
         ./configure --prefix=$root
         make
         make install
