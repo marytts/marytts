@@ -130,7 +130,7 @@ mgc:
 			$(X2X) +sf $${raw} > tmp; \
 			if [ $(GAMMA) -eq 0 ]; then \
 				echo "Extracting MGC coefficients from $${raw}"; \
-				$(FRAME) +f -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
+				$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
 				$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
 				$(MGCEP) -a $(FREQWARP) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 > mgc/$${base}.mgc; \
 			else \
@@ -139,7 +139,7 @@ mgc:
 				if [ $(LNGAIN) -eq 1 ]; then \
 					GAINOPT="-l"; \
 				fi; \
-				$(FRAME) +f -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
+				$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
 				$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
 				$(MGCEP) -a $(FREQWARP) -c $(GAMMA) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 -o 4 | \
 				$(LPC2LSP) -m $(MGCORDER) -s $${SAMPKHZ} $${GAINOPT} -n $(FFTLEN) -p 8 -d 1.0E-08 > mgc/$${base}.mgc; \
@@ -244,6 +244,8 @@ mag-mary:
 
 
 
+
+
 cmp: 
 	# Composing training data files from mgc and lf0 files
 	mkdir -p cmp
@@ -254,7 +256,7 @@ cmp:
 		MGCWINDIM=`expr $(NMGCWIN) \* $${MGCDIM}`; \
 		LF0WINDIM=`expr $(NLF0WIN) \* $${LF0DIM}`; \
 		BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} \)`; \
-		for mgc in mgc/*.mgc; do \
+		for mgc in mgc/$(DATASET)_$(SPEAKER)_*.mgc; do \
 			base=`basename $${mgc} .mgc`; \
 			MGCWINS=""; \
 			LF0WINS=""; \
@@ -278,7 +280,6 @@ cmp:
 		done; \
 	done
 	rm -f cmp/tmp*
-
 
 # Mary added str for mixed excitation
 cmp-mary: 
@@ -417,13 +418,12 @@ cmp-mag-mary:
 	rm -f cmp/tmp*
 
 
-
 label:
 	# Extracting monophone and fullcontext labels from utterance files
 	mkdir -p labels/mono
 	mkdir -p labels/full
 
-	for utt in utts/*.utt; do \
+	for utt in utts/$(DATASET)_$(SPEAKER)_*.utt; do \
 		base=`basename $${utt} .utt`; \
 		if [ -s $${utt} ]; then \
 			$(DUMPFEATS)    -eval     scripts/extra_feats.scm \

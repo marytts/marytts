@@ -1815,15 +1815,15 @@ sub make_lpf() {
    $lfil     = `$PERL $datdir/scripts/makefilter.pl $sr 0`;
    @coef     = split( / /, $lfil );
    $coefSize = @coef;
-   shell("echo 0 | x2x +ai | swab +f >  $pdf{'lpf'}");
-   shell("echo 1 | x2x +ai | swab +f >> $pdf{'lpf'}");
-   shell("echo $coefSize | x2x +ai | swab +f >> $pdf{'lpf'}");
+   shell("echo 0 | $X2X +ai | $SWAB +f >  $pdf{'lpf'}");
+   shell("echo 1 | $X2X +ai | $SWAB +f >> $pdf{'lpf'}");
+   shell("echo $coefSize | $X2X +ai | $SWAB +f >> $pdf{'lpf'}");
    for ( $i = 0 ; $i < $nState ; $i++ ) {
-      shell("echo 1 | x2x +ai | swab +f >> $pdf{'lpf'}");
+      shell("echo 1 | $X2X +ai | $SWAB +f >> $pdf{'lpf'}");
    }
    for ( $i = 0 ; $i < $nState ; $i++ ) {
       for ( $j = 0 ; $j < $coefSize ; $j++ ) {
-         shell("echo $coef[$j] 0.0 | x2x +af | swab +f >> $pdf{'lpf'}");
+         shell("echo $coef[$j] 0.0 | $X2X +af | $SWAB +f >> $pdf{'lpf'}");
       }
    }
 
