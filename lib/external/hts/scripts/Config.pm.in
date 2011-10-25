@@ -57,7 +57,7 @@ $ref{'dur'} = \@dur;
 
 %vflr = ('mgc' => '0.01',           # variance floors
          'lf0' => '0.01',
-	 'str' => '0.01',
+         'str' => '0.01',
          'dur' => '0.01');
 
 %thr  = ('mgc' => '000',            # minimum likelihood gain in clustering
@@ -87,12 +87,12 @@ $ref{'dur'} = \@dur;
 
 %strb = ('mgc' => '1',              # stream start
          'lf0' => '2',              # these are 3: p, delta p and delta-delta p (so next is 5)
-	 'str' => '5',
+         'str' => '5',
          'dur' => '1');
 
 %stre = ('mgc' => '1',              # stream end
          'lf0' => '@F0STREN@',
-	 'str' => '5',
+         'str' => '5',
          'dur' => '@NSTATE@');
 
 %msdi = ('mgc' => '0',              # msd information MSDInfo: multi-space probability distribution
@@ -107,12 +107,12 @@ $ref{'dur'} = \@dur;
 
 %ordr = ('mgc' => '@MGCVSIZE@',     # feature order
          'lf0' => '1',
-	 'str' => '@STRVSIZE@',
+         'str' => '@STRVSIZE@',
          'dur' => '@NSTATE@');
 
 %nwin = ('mgc' => '@NMGCWIN@',      # number of windows
          'lf0' => '@NLF0WIN@',
-	 'str' => '@NSTRWIN@',
+         'str' => '@NSTRWIN@',
          'dur' => '0');
 
 %nblk = ('mgc' => '@NMGCTRANSBLK@', # number of blocks for transforms
@@ -140,7 +140,7 @@ $ref{'dur'} = \@dur;
 # Festival
 #@slnt = ('pau','h#','brth');        # silent and pause phoneme
 # MARY
-@slnt = ('_','_');        # silent and pause phoneme
+@slnt = ('_','_');                  # silent and pause phoneme
 
 #%mdcp = ('dy' => 'd',              # model copy
 #         'A'  => 'a',
@@ -237,6 +237,7 @@ $BCUT     = '@BCUT@';
 $VSTAT    = '@VSTAT@';
 $NAN      = '@NAN@';
 $DFS      = '@DFS@';
+$SWAB     = '@SWAB@';
 
 # SoX (to add RIFF header)
 $SOX       = '@SOX@';
