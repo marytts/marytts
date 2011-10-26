@@ -145,22 +145,15 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
         
         // Register HMM voices:
-        String voiceNames = MaryProperties.getProperty("hmm.voices.list");
-        if (voiceNames == null) {
-            logger.debug("No HMM voices listed in config files.");
-        } else {
-            logger.debug("Register HMM voices:");
-            for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
-                String voiceName = st.nextToken();
-                logger.debug("Voice '" + voiceName + "'");
-                
-               /** When creating a HMMVoice object it should create and initialise a 
-                * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
-                
-                HMMVoice v = new HMMVoice(voiceName, this);
-                Voice.registerVoice(v);
-               
-            }
+        List<String> voiceNames = MaryProperties.getList("hmm.voices.list");
+        for (String voiceName : voiceNames) {
+            logger.debug("Voice '" + voiceName + "'");
+            
+            /** When creating a HMMVoice object it should create and initialise a 
+             * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
+             
+             HMMVoice v = new HMMVoice(voiceName, this);
+             Voice.registerVoice(v);
         }
         logger.info("started.");
                
