@@ -90,19 +90,14 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         logger = MaryUtils.getLogger("UnitSelectionSynthesizer");
         // Register UnitSelection voices:
         logger.debug("Register UnitSelection voices:");
-        String voiceNames = MaryProperties.getProperty("unitselection.voices.list");
-        if (voiceNames != null) { // voices present
-            for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
-                String voiceName = st.nextToken();
-                //take the time
-                long time = System.currentTimeMillis();
-                
-                Voice unitSelVoice = new UnitSelectionVoice(voiceName, this);
-                logger.debug("Voice '" + unitSelVoice + "'");
-                Voice.registerVoice(unitSelVoice);    
-                long newtime = System.currentTimeMillis()-time;
-                logger.info("Loading of voice "+voiceName+" took "+newtime+" milliseconds");
-            } 
+        List<String> voiceNames = MaryProperties.getList("unitselection.voices.list");
+        for (String voiceName : voiceNames) {
+            long time = System.currentTimeMillis();
+            Voice unitSelVoice = new UnitSelectionVoice(voiceName, this);
+            logger.debug("Voice '" + unitSelVoice + "'");
+            Voice.registerVoice(unitSelVoice);    
+            long newtime = System.currentTimeMillis()-time;
+            logger.info("Loading of voice "+voiceName+" took "+newtime+" milliseconds");
         }
         logger.info("started.");
     }
