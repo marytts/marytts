@@ -129,6 +129,15 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 		return false;
 	}
 	
+	@Override
+	protected String getCompileDirProp() {
+		return "HMMVoiceCompiler.compileDir";
+	}
+
+	@Override
+	protected String getVoiceName(DatabaseLayout db) {
+		return db.getVoiceName()+"-hsmm";
+	}
 
 	@Override
 	protected void copyVoiceFiles() throws IOException {

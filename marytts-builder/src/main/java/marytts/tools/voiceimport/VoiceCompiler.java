@@ -26,7 +26,6 @@ import com.twmacinta.util.MD5;
  */
 public class VoiceCompiler extends VoiceImportComponent {
 
-	public static final String COMPILEDIR = "VoiceCompiler.compileDir";
 	
     // constants to access filenames in database component properties and organize file list:
 
@@ -138,7 +137,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			 FileUtils.deleteDirectory(compileDir);
 		 }
 		 compileDir.mkdir();
-		 String packageName = toPackageName(db.getVoiceName());
+		 String packageName = toPackageName(getVoiceName(db));
 		 mainJavaDir = new File(compileDir.getAbsolutePath()+"/src/main/java/marytts/voice/"+packageName);
 		 mainJavaDir.mkdirs();
 		 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
@@ -150,7 +149,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
 		 testJavaDir.mkdirs();
 		 if (isUnitSelectionVoice()) {
-			 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+db.getVoiceName());
+			 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+getVoiceName(db));
 			 libVoiceDir.mkdir();
 		 }
 	}
@@ -210,9 +209,17 @@ public class VoiceCompiler extends VoiceImportComponent {
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
         if (props == null) {
             props = new TreeMap<String, String>();
-            props.put(COMPILEDIR, new File(db.getVoiceFileDir(), "voice-"+db.getVoiceName()).getAbsolutePath());
+            props.put(getCompileDirProp(), new File(db.getVoiceFileDir(), "voice-"+getVoiceName(db)).getAbsolutePath());
         }
         return props;
+	}
+
+	protected String getVoiceName(DatabaseLayout db) {
+		return db.getVoiceName();
+	}
+
+	protected String getCompileDirProp() {
+		return "VoiceCompiler.compileDir";
 	}
 
 	/* (non-Javadoc)
@@ -237,25 +244,25 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	protected void setupHelp() {
         props2Help = new TreeMap<String, String>();
-        props2Help.put(COMPILEDIR, "The directory in which the files for compiling the voice will be copied.");
+        props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
     }
 
 	@Override
 	protected void initialiseComp() throws Exception {
 		substitutor = new StrSubstitutor(getVariableSubstitutionMap());
-		compileDir = new File(getProp(COMPILEDIR));
+		compileDir = new File(getProp(getCompileDirProp()));
 	}
 
 	protected Map<String, String> getVariableSubstitutionMap() {
 		Map<String, String> m = new HashMap<String, String>();
 		m.put("MARYVERSION", db.getMaryVersion());
-		m.put("VOICENAME", db.getVoiceName());
+		m.put("VOICENAME", getVoiceName(db));
 		m.put("LOCALE", db.getLocale().toString());
 		m.put("LANG", db.getLocale().getLanguage());
 		m.put("GENDER", db.getGender());
 		m.put("DOMAIN", db.getDomain());
 		m.put("SAMPLINGRATE", String.valueOf(db.getSamplingRate()));
-		m.put("PACKAGE", toPackageName(db.getVoiceName()));
+		m.put("PACKAGE", toPackageName(getVoiceName(db)));
 		m.put("VOICECLASS", isUnitSelectionVoice() ? "marytts.unitselection.UnitSelectionVoice" : "marytts.htsengine.HMMVoice");
 		return m;
 	}
