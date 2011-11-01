@@ -266,14 +266,14 @@ $PGEN1 = 1; # generating speech parameter sequences (1mix)
 $WGEN1 = 1; # synthesizing waveforms (1mix)
 $CONVM = 1; # converting mmfs to the hts_engine file format
 $ENGIN = 1; # synthesizing waveforms using hts_engine
-$SEMIT = 1; # semi-tied covariance matrices
-$MKUNS = 1; # making unseen models (stc)
-$PGENS = 1; # generating speech parameter sequences (stc)
-$WGENS = 1; # synthesizing waveforms (stc)
-$UPMIX = 1; # increasing the number of mixture components (1mix -> 2mix)
-$ERST5 = 1; # embedded reestimation (2mix)
-$MKUN2 = 1; # making unseen models (2mix)
-$PGEN2 = 1; # generating speech parameter sequences (2mix)
-$WGEN2 = 1; # synthesizing waveforms (2mix)
+$SEMIT = 0; # semi-tied covariance matrices
+$MKUNS = 0; # making unseen models (stc)
+$PGENS = 0; # generating speech parameter sequences (stc)
+$WGENS = 0; # synthesizing waveforms (stc)
+$UPMIX = 0; # increasing the number of mixture components (1mix -> 2mix)
+$ERST5 = 0; # embedded reestimation (2mix)
+$MKUN2 = 0; # making unseen models (2mix)
+$PGEN2 = 0; # generating speech parameter sequences (2mix)
+$WGEN2 = 0; # synthesizing waveforms (2mix)
 
 1;
