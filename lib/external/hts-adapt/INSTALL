@@ -2,7 +2,7 @@
 * Installation of HTS-demo_CMU-ARCTIC-ADAPT
 ============================================
 
-1. HTS-demo_CMU-ARCTIC-ADAPT requires Festival, SPTK-3.4, HTS-2.2beta, and hts_engine API-1.04.
+1. HTS-demo_CMU-ARCTIC-ADAPT requires Festival, SPTK-3.4.1, HTS-2.2, and hts_engine API-1.05.
    Please install them before running this demo.
    You can download them from the following websites:
 
@@ -30,9 +30,9 @@
    % cd HTS-demo_CMU-ARCTIC-ADAPT
    % ./configure --with-tcl-search-path=/usr/local/ActiveTcl/bin \
                  --with-fest-search-path=/usr/local/festival/examples \
-                 --with-sptk-search-path=/usr/local/SPTK-3.4/bin \
-                 --with-hts-search-path=/usr/local/HTS-2.2beta_for_HTK-3.4.1/bin \
-                 --with-hts-engine-search-path=/usr/local/hts_engine_API-1.04/bin
+                 --with-sptk-search-path=/usr/local/SPTK-3.4.1/bin \
+                 --with-hts-search-path=/usr/local/HTS-2.2_for_HTK-3.4.1/bin \
+                 --with-hts-engine-search-path=/usr/local/hts_engine_API-1.05/bin
 
    Please adjust the above directories for your environment.
    Note that you should specify festival/examples rather than festival/bin.

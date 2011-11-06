@@ -2,7 +2,7 @@
 #  ---------------------------------------------------------------  #
 # Modified by Marcela Charfuelan (DFKI) 2011 to use MARY system     #
 #  ---------------------------------------------------------------  #
-AC_INIT(HTS-demo_CMU-ARCTIC-ADAPT,2.2beta,hts-users@sp.nitech.ac.jp)
+AC_INIT(HTS-demo_CMU-ARCTIC-ADAPT,2.2,hts-users@sp.nitech.ac.jp)
 AC_COPYRIGHT(Copyright 2001-2011 Nagoya Institute of Technology)
 AC_COPYRIGHT(Copyright 2001-2008 Tokyo Institute of Technology)
 AC_COPYRIGHT(Copyright 2008 University of Edinburgh)
@@ -106,33 +106,15 @@ if test -z "$GAMMA"; then
 	if test ! -f "$MGCEP"; then
 		AC_MSG_ERROR(Can't find mcep of SPTK)
 	fi
-	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-	if test -z "$version"; then
-		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
-	elif test `echo "$version < 3.2" | $BC` = 1; then
-		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
-	fi
 elif test $GAMMA -eq 0; then
 	AC_PATH_PROG([MGCEP], [mcep], [:], [${sptk_search_path}:$PATH])
 	if test ! -f "$MGCEP"; then
 		AC_MSG_ERROR(Can't find mcep of SPTK)
 	fi
-	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-	if test -z "$version"; then
-		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
-	elif test `echo "$version < 3.2" | $BC` = 1; then
-		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
-	fi
 else
 	AC_PATH_PROG([MGCEP], [mgcep], [:], [${sptk_search_path}:$PATH])
 	if test ! -f "$MGCEP"; then
 		AC_MSG_ERROR(Can't find mgcep of SPTK)
-	fi
-	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-	if test -z "$version"; then
-		AC_MSG_ERROR(mgcep in SPTK version 3.2 or later is required.)
-	elif test `echo "$version < 3.2" | $BC` = 1; then
-		AC_MSG_ERROR(mgcep in SPTK version 3.2 or later is required.)
 	fi
 fi
 
@@ -140,12 +122,6 @@ fi
 AC_PATH_PROG([LPC2LSP], [lpc2lsp], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$LPC2LSP"; then
 	AC_MSG_ERROR(Can't find lpc2lsp of SPTK)
-fi
-version=`$LPC2LSP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(lpc2lsp in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(lpc2lsp in SPTK version 3.2 or later is required.)
 fi
 
 # nan
@@ -165,12 +141,6 @@ AC_PATH_PROG([NRAND], [nrand], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$NRAND"; then
 	AC_MSG_ERROR(Can't find nrand of SPTK)
 fi
-version=`$NRAND -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(nrand in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(nrand in SPTK version 3.2 or later is required.)
-fi
 
 # vstat
 AC_PATH_PROG([VSTAT], [vstat], [:], [${sptk_search_path}:$PATH])
@@ -182,12 +152,6 @@ fi
 AC_PATH_PROG([STEP], [step], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$STEP"; then
 	AC_MSG_ERROR(Can't find step of SPTK)
-fi
-version=`$STEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(step in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(step in SPTK version 3.2 or later is required.)
 fi
 
 # sopr
@@ -231,12 +195,6 @@ AC_PATH_PROG([MERGE], [merge], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$MERGE"; then
 	AC_MSG_ERROR(Can't find merge of SPTK)
 fi
-version=`$MERGE -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(merge in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(merge in SPTK version 3.2 or later is required.)
-fi
 
 # bcp
 AC_PATH_PROG([BCP], [bcp], [:], [${sptk_search_path}:$PATH])
@@ -254,12 +212,6 @@ fi
 AC_PATH_PROG([LSP2LPC], [lsp2lpc], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$LSP2LPC"; then
 	AC_MSG_ERROR(Can't find lsp2lpc of SPTK)
-fi
-version=`$LSP2LPC -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(lsp2lpc in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(lsp2lpc in SPTK version 3.2 or later is required.)
 fi
 
 # lspcheck
@@ -279,12 +231,6 @@ AC_PATH_PROG([MGLSADF], [mglsadf], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$MGLSADF"; then
 	AC_MSG_ERROR(Can't find mglsadf of SPTK)
 fi
-version=`$MGLSADF -h 2>&1 | grep "version" | sed -e "s/.* //g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(mglsadf in SPTK version 3.2 or later is required.)
-elif test `echo "$version < 3.2" | $BC` = 1; then
-	AC_MSG_ERROR(mglsadf in SPTK version 3.2 or later is required.)
-fi
 
 # dfs
 AC_PATH_PROG([DFS], [dfs], [:], [${sptk_search_path}:$PATH])
@@ -296,6 +242,12 @@ fi
 AC_PATH_PROG([MINMAX], [minmax], [:], [${sptk_search_path}:$PATH])
 if test ! -f "$MINMAX"; then
 	AC_MSG_ERROR(Can't find minmax of SPTK)
+fi
+
+# swab
+AC_PATH_PROG([SWAB], [swab], [:], [${sptk_search_path}:$PATH])
+if test ! -f "$SWAB"; then
+	AC_MSG_ERROR(Can't find swab of SPTK)
 fi
 
 
@@ -392,12 +344,6 @@ AC_PATH_PROG([ENGINE], [hts_engine], [:], [${hts_engine_search_path}:$PATH])
 if test ! -f "$ENGINE"; then
 	AC_MSG_ERROR(Can't find hts_engine)
 fi
-version=`$ENGINE -h 2>&1 | grep "version" | sed -e "s/.*version //g" -e "s/ .*//g"`
-if test -z "$version"; then
-	AC_MSG_ERROR(hts_engine using hts_engine API version 0.95 or later is required.)
-elif test `echo "$version < 0.95" | $BC` = 1; then
-	AC_MSG_ERROR(hts_engine using hts_engine API version 0.95 or later is required.)
-fi
 
 
 
@@ -464,7 +410,7 @@ AC_ARG_VAR([GAMMA],[Pole/Zero weight factor (0: mel-cepstral analysis  1: LPC an
 AC_ARG_VAR([MGCORDER],[Order of MGC analysis (default=34 for cepstral form, default=12 for LSP form)])
 AC_ARG_VAR([STRORDER],[Order of strengths analysis (default=5 for 5 filter bands)])
 AC_ARG_VAR([MAGORDER],[Order of Fourier magnitudes analysis (default=10 for 10 pitch harmonics)])
-AC_ARG_VAR([LNGAIN],[Use logarithmic gain instead of linear gain (default=0)])
+AC_ARG_VAR([LNGAIN],[Use logarithmic gain instead of linear gain (default=1)])
 AC_ARG_VAR([NOISEMASK],[Standard deviation of white noise to mask noise in f0 extraction (default=50)])
 AC_ARG_VAR([PSTFILTER],[Postfiltering factor (default=1.4)])
 AC_ARG_VAR([IMPLEN],[Length of impulse response (default=4096)])
@@ -577,7 +523,6 @@ AC_SUBST(SAMPFREQ)
 AC_SUBST(MGCVSIZE)
 AC_SUBST(STRVSIZE)
 AC_SUBST(MAGVSIZE)
-
 
 
 # F0 search range
