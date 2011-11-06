@@ -87,8 +87,8 @@ FFTLEN     = @FFTLEN@     # FFT length in point
 FREQWARP   = @FREQWARP@   # frequency warping factor
 GAMMA      = @GAMMA@      # pole/zero weight for mel-generalized cepstral (MGC) analysis
 MGCORDER   = @MGCORDER@   # order of MGC analysis
-STRORDER    = @STRORDER@     # order of STR analysis, number of filter banks for mixed excitation
-MAGORDER    = @MAGORDER@    # order of Fourier magnitudes for pulse excitation generation
+STRORDER   = @STRORDER@   # order of STR analysis, number of filter banks for mixed excitation
+MAGORDER   = @MAGORDER@   # order of Fourier magnitudes for pulse excitation generation
 LNGAIN     = @LNGAIN@     # use logarithmic gain rather than linear gain
 NOISEMASK  = @NOISEMASK@  # standard deviation of white noise to mask noises in f0 extraction
 
@@ -142,7 +142,7 @@ mgc:
 				$(X2X) +sf $${raw} > tmp; \
 				if [ $(GAMMA) -eq 0 ]; then \
 					echo "Extracting MGC coefficients from $${raw}"; \
-					$(FRAME) +f -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
+					$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
 					$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
 					$(MGCEP) -a $(FREQWARP) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 > mgc/$${spkr}/$${base}.mgc; \
 				else \
@@ -151,7 +151,7 @@ mgc:
 					if [ $(LNGAIN) -eq 1 ]; then \
 						GAINOPT="-l"; \
 					fi; \
-					$(FRAME) +f -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
+					$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) tmp | \
 					$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
 					$(MGCEP) -a $(FREQWARP) -c $(GAMMA) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 -o 4 | \
 					$(LPC2LSP) -m $(MGCORDER) -s $${SAMPKHZ} $${GAINOPT} -n $(FFTLEN) -p 8 -d 1.0E-08 > mgc/$${spkr}/$${base}.mgc; \
@@ -207,7 +207,6 @@ lf0:
 	done
 
 	rm -f tmp tmp.head tmp.tail tmp.raw
-
 
 # Mary added str for mixed excitation
 str-mary:
@@ -287,8 +286,6 @@ mag:
 
 
 
-
-
 cmp: 
 	# Composing training data files from mgc and lf0 files
 	mkdir -p cmp
@@ -324,8 +321,6 @@ cmp:
 		done; \
 	done
 	rm -f cmp/tmp*
-
-
 
 # Mary added str for mixed excitation
 cmp-mary: 

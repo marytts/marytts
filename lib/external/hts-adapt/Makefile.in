@@ -43,6 +43,7 @@
 # ----------------------------------------------------------------- #
 # Modified by Marcela Charfuelan (DFKI) 2011 to use  MARY system    #
 # ----------------------------------------------------------------- #
+
 all: data voice
 
 data:
@@ -51,6 +52,7 @@ data:
 voice:
 	echo "Running a training/synthesis perl script (Training.pl) in background...."
 	@PERL@ scripts/Training.pl scripts/Config.pm > log-`date +%F-%T` 2>&1 &
+
 
 clean: clean-data clean-voice
 
