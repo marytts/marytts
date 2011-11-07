@@ -216,15 +216,8 @@ public class HMMVoiceFeatureSelection extends VoiceImportComponent {
                   line.contains("ph_") ||
                   line.contains("halfphone_") ||
                   line.contentEquals("phone") )  ) {
-                
-                // put in front the recomended ones: pos_in_syl, syl_break, prev_syl_break, position_type 
-                if( line.contentEquals("pos_in_syl") ||
-                    line.contentEquals("syl_break") ||
-                    line.contentEquals("prev_syl_break") ||
-                    line.contentEquals("position_type") )
-                      recommendedFeatureList += line + " ";
-                else
-                   featureList += line + " ";
+                               
+                featureList += line + " ";
             }
                 
           }
@@ -234,7 +227,7 @@ public class HMMVoiceFeatureSelection extends VoiceImportComponent {
         } catch (FileNotFoundException e) {            
              throw new FileNotFoundException();
         }              
-        return recommendedFeatureList + "\n" + featureList;
+        return featureList;
 
     }
 
