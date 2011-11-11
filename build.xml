@@ -587,6 +587,13 @@ THIS SOFTWARE.
       </antcall>
     </target>
 
+    <target name="it-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="it"/>
+        <param name="lang-fullname" value="Italian"/>
+      </antcall>
+    </target>
+    	
     <target name="te-package">
       <antcall target="default-language-package">
         <param name="lang" value="te"/>
