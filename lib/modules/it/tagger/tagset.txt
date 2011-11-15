@@ -1,0 +1,43 @@
+The Tanl tagset is based on the ILC/PAROLE tagset and is conformant to the EAGLES international standard.
+###################
+Value	Description
+###################
+A 	adjective
+AP 	possessive adjective
+B 	adverb
+BN 	negation adverb
+CC 	coordinate conjunction
+CS 	subordinate conjunction
+DD 	demonstrative determiner
+DE 	exclamative determiner
+DI 	indefinite determiner
+DQ 	interrogative determiner
+DR 	relative determiner
+E 	preposition
+EA 	articulated preposition
+FB 	balanced punctuation
+FC 	clause boundary punctuation
+FF 	comma
+FS 	sentence boundary punctuation
+I 	interjection
+N 	cardinal number
+NO 	ordinal number
+PC 	clitic pronoun
+PD 	demonstrative pronoun
+PE 	personal pronoun
+PI 	indefinite pronoun
+PP 	possessive pronoun
+PQ 	interrogative pronoun
+PR 	relative pronoun
+RD 	determinative article
+RI 	indeterminative article
+S 	common noun
+SA 	abbreviation
+SP 	proper noun
+T 	predeterminer
+V	main verb
+VA	auxiliary verb
+VM	modal verb
+X 	residual class
+###################
+SW	foreign word?

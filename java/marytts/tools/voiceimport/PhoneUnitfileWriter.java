@@ -139,11 +139,13 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
                 if (line.startsWith("#")) break; // line starting with "#" marks end of header
             }
             // Now read the actual units
+            System.out.println("Start unit listing in file " + bnl.getName(i));
             while ((line = labels.readLine()) != null) {
                 // Get the line and the double value in first position
                 line = line.trim();
                 if (line.equals("")) continue; // ignore empty lines
-                String[] parts = line.split( "\\s", 2 );
+                String[] parts = line.split( "\\s", 3 );
+                String unit_name=parts[2];
                 double endTime = Double.valueOf(parts[0]).doubleValue();
                 /* Relocate the label-specific end time on the nearest pitchmark */
                 endTime = (double)( pmFile.getClosestTime( endTime ) );
@@ -151,7 +153,8 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
                 // Output the unit
                 int duration = (int) (end - localStart);
                 out.writeLong( globalStart + localStart ); out.writeInt(duration);
-                // System.out.println( "Unit [" + index + "] starts at [" + localStart + "] and has duration [" + duration + "]." );
+                //System.out.println( "Unit [" + index + "] starts at [" + localStart + "] and has duration [" + duration + "]." );
+                System.out.println( "Unit [" + index + "] <"+ unit_name + "> starts at [" + (double)localStart/(samplingRate) + "] and has duration [" + (double)duration/(samplingRate) + "]." );
                 // Update various pointers
                 localStart = end;
                 index++;

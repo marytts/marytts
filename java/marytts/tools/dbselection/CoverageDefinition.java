@@ -651,7 +651,7 @@ public class CoverageDefinition
         out.println("overall: "+df.format(possibleOverallClusteredCoverage)+"\n\n");
         */
         
-        if (possiblePhoneCoverage<100){
+        if (possiblePhoneCoverage<1){
             out.println("The following phones are missing: ");
             for (int k=1;k<possiblePhoneArray.length;k++){
                 String nextPhone = possiblePhoneArray[k]; 

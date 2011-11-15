@@ -181,7 +181,7 @@ public class LabelPauseDeleter extends VoiceImportComponent {
                         if(ul.getUnitName().equals(pauseSymbol)){
                             double duration = ul.endTime - ul.startTime;
                             if(!isRealPause(duration)){
-                                //System.out.println(ul.startTime + " "+ ul.endTime + " "+ul.unitName);
+                                System.out.println("deleting... " + ul.startTime + " "+ ul.endTime + " "+ul.unitName);
                                 UnitLabel pul = arrayLabel.get(i-1);
                                 UnitLabel nul = arrayLabel.get(i+1);
                                 pul.setEndTime(pul.getEndTime()+((double)duration / 2.0));
