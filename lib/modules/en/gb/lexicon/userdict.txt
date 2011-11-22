@@ -5,3 +5,4 @@ hasnt | ' h { z n t
 havent | ' h { v n t
 mustnt | ' m V s n t
 isnt | ' I z n t
+does | ' d V z
