@@ -744,9 +744,10 @@ public class HTSVocoder {
       //pt1 --> pt = &d1[pd+1]  
        
       for(i=PADEORDER; i>=1; i--) {
-        d[i] = aa * d[pt1+i-1] + a * d[i];  
-        d[pt1+i] = d[i] * b[1];
-        v = d[pt1+i] * pade[ppade+i];
+    	int pt1_plus_i = pt1+i;
+        d[i] = aa * d[pt1_plus_i-1] + a * d[i];  
+        d[pt1_plus_i] = d[i] * b[1];
+        v = d[pt1_plus_i] * pade[ppade+i];
       
         //x += (1 & i) ? v : -v;
         if(i == 1 || i == 3 || i == 5)
@@ -755,7 +756,7 @@ public class HTSVocoder {
           x += -v;
         out += v;
       }
-      d[pt1+0] = x;
+      d[pt1 /* +0 */] = x;
       out += x;
       
       
@@ -773,8 +774,9 @@ public class HTSVocoder {
       
       
       for(i=PADEORDER; i>=1; i--) {   
-        d[pt2+i] = mlsafir(d[(pt2+i)-1], b, m, a, aa, d, pt3[i]);
-        v = d[pt2+i] * pade[ppade+i];
+    	int pt2_plus_i = pt2+i;
+        d[pt2_plus_i] = mlsafir(d[pt2_plus_i-1], b, m, a, aa, d, pt3[i]);
+        v = d[pt2_plus_i] * pade[ppade+i];
           
         if(i == 1 || i == 3 || i == 5)
           x += v;
@@ -783,7 +785,7 @@ public class HTSVocoder {
         out += v;
         
       }
-      d[pt2+0] = x;
+      d[pt2 /* +0 */] = x;
       out += x;
        
       return out;     
@@ -888,12 +890,14 @@ public class HTSVocoder {
       int i, k;
       double cep[], ir[]; 
       
+      int arrayLength = (m+1) + 2 * IRLENG;
+      
       if(spectrum2en_size < m) {
-        spectrum2en_buff = new double[(m+1) + 2 * IRLENG];        
+        spectrum2en_buff = new double[arrayLength];        
         spectrum2en_size = m;
       }
-      cep = new double[(m+1) + 2 * IRLENG]; /* CHECK! these sizes!!! */
-      ir = new double[(m+1) + 2 * IRLENG];
+      cep = new double[arrayLength]; /* CHECK! these sizes!!! */
+      ir = new double[arrayLength];
       
       b2mc(b, spectrum2en_buff, m, a);
       /* freqt(vs->mc, m, vs->cep, vs->irleng - 1, -a);*/
