@@ -64,6 +64,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
 
 
 import javax.sound.sampled.AudioFileFormat;
@@ -73,6 +74,8 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataProducer;
+import marytts.util.data.DoubleDataSourceQueue;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
@@ -167,6 +170,7 @@ public class HTSVocoder {
     private boolean fourierMagnitudes = false;
     
     private boolean lpcVocoder        = false;     /* true if lpc vocoder is used, then the input should be lsp parameters */
+
     
     public void setUseLpcVocoder(boolean bval){ lpcVocoder = bval; }
     
@@ -301,7 +305,6 @@ public class HTSVocoder {
         
     } /* method initMixedExcitation */
 
-    
     /** 
      * HTS_MLSA_Vocoder: Synthesis of speech out of mel-cepstral coefficients. 
      * This procedure uses the parameters generated in pdf2par stored in:
@@ -324,6 +327,15 @@ public class HTSVocoder {
               channels,
               signed,
               bigEndian);
+        
+        
+        // Don't scale the data, since we don't have it all yet.
+        // TODO: Deal with audio scaling some other way.
+        HTSVocoderDataProducer producer = new HTSVocoderDataProducer(pdf2par, htsData);
+        DoubleDataSourceQueue dataQueue = new DoubleDataSourceQueue(producer, 1024);
+        return new DDSAudioInputStream(dataQueue, af);
+
+        /*
         double [] audio_double = null;
         
         audio_double = htsMLSAVocoder(pdf2par.getlf0Pst(), pdf2par.getMcepPst(), pdf2par.getStrPst(), pdf2par.getMagPst(),
@@ -332,18 +344,20 @@ public class HTSVocoder {
         long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
         logger.info("length in samples=" + lengthInSamples );
         
-        /* Normalise the signal before return, this will normalise between 1 and -1 */
+        // Normalise the signal before return, this will normalise between 1 and -1
         double MaxSample = MathUtils.getAbsMax(audio_double);
         for (int i=0; i<audio_double.length; i++)        
             audio_double[i] = ( audio_double[i] / MaxSample );
             //audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
                 
         return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
-    } /* method htsMLSAVocoder() */
+        */
+    } // method htsMLSAVocoder()
     
-    
+
+        
     public double [] htsMLSAVocoder(HTSPStream lf0Pst, HTSPStream mcepPst, HTSPStream strPst, HTSPStream magPst, 
-                                    boolean [] voiced, HMMData htsData)
+                                    boolean [] voiced, HMMData htsData, HTSVocoderDataProducer audioProducer)
     throws Exception {
 
       double inc, x, MaxSample;
@@ -677,6 +691,10 @@ public class HTSVocoder {
         
           
           audio_double[s_double] = x;
+          if(audioProducer != null) {
+              audioProducer.addToQueue(x);
+          }
+
           s_double++;
           
           if((--i) == 0 ) {
@@ -707,6 +725,10 @@ public class HTSVocoder {
       if(debug){
         data_out.close();
         data_out_mix.close();
+      }
+   
+      if (audioProducer != null) {
+          audioProducer.setFinished();
       }
       
       logger.info("Finish processing " + mcepframe + " mcep frames.");
@@ -1628,7 +1650,7 @@ public class HTSVocoder {
        
        //par2speech.setUseLpcVocoder(true);
                
-       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
+       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, null);
        //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
       
        
@@ -1902,7 +1924,7 @@ public class HTSVocoder {
        //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
        
        
-       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
+       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, null);
       
        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
        par2speech.logger.info("length in samples=" + lengthInSamples );
@@ -2039,8 +2061,61 @@ public class HTSVocoder {
       }
  
     }
+
+
+    private class HTSVocoderDataProducer implements DoubleDataProducer {
+
+        // Values used by the synthesis thread
+        private HTSPStream lf0Pst;
+        private HTSPStream mcepPst;
+        private HTSPStream strPst;
+        private HTSPStream magPst;
+        private boolean [] voiced;
+        private HMMData htsData;
+        private ArrayBlockingQueue<Double> queue = null;
+        private boolean finishedSynthesis = false;
         
-    
+        public HTSVocoderDataProducer(HTSParameterGeneration pdf2par, HMMData htsData) {
+            lf0Pst = pdf2par.getlf0Pst();
+            mcepPst = pdf2par.getMcepPst();
+            strPst = pdf2par.getStrPst();
+            magPst =  pdf2par.getMagPst();
+            voiced = pdf2par.getVoicedArray();
+            this.htsData = htsData;
+            finishedSynthesis = false;
+
+        }
+        
+        public void setQueue(ArrayBlockingQueue<Double> queue) {
+            this.queue = queue;
+        }
+
+        public void run() {
+            try {
+                htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, this);
+            } catch (Exception e) {
+                logger.error("Cannot vocode", e);
+            }
+        }
+        
+        public synchronized boolean hasMoreData() {
+            return !finishedSynthesis;
+        }
+        
+        private void addToQueue(double x)
+        {
+            try {
+                queue.put(x);
+            } catch (InterruptedException e) {
+                logger.error("Cannot add audio data to queue", e);
+            }
+        }
+        
+        private synchronized void setFinished() {
+            finishedSynthesis = true;
+            addToQueue(END_OF_STREAM);
+        }
+    }
     
 }  /* class HTSVocoder */
 
