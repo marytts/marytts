@@ -657,6 +657,7 @@ THIS SOFTWARE.
 	<target name="packages" depends="en-US-package,
 		en-GB-package,
 		de-package,
+        	it-package,
 		te-package,
 		tr-package,
 		ru-package,
