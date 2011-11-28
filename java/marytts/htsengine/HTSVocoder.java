@@ -72,10 +72,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.signalproc.process.AmplitudeNormalizer;
 import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataProducer;
-import marytts.util.data.DoubleDataSourceQueue;
+import marytts.util.data.ProducingDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
@@ -316,6 +316,34 @@ public class HTSVocoder {
     public AudioInputStream htsMLSAVocoder(HTSParameterGeneration pdf2par, HMMData htsData) 
     throws Exception {
         
+        HTSVocoderDataProducer producer = new HTSVocoderDataProducer(pdf2par, htsData);
+        producer.start();
+        return new DDSAudioInputStream(producer, getHTSAudioFormat());
+
+        /*
+        double [] audio_double = null;
+        
+        audio_double = htsMLSAVocoder(pdf2par.getlf0Pst(), pdf2par.getMcepPst(), pdf2par.getStrPst(), pdf2par.getMagPst(),
+                                      pdf2par.getVoicedArray(), htsData);
+        
+        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
+        logger.debug("length in samples=" + lengthInSamples );
+        
+        // Normalise the signal before return, this will normalise between 1 and -1
+        double MaxSample = MathUtils.getAbsMax(audio_double);
+        for (int i=0; i<audio_double.length; i++)        
+            audio_double[i] = ( audio_double[i] / MaxSample );
+            //audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
+                
+        return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
+        */
+    } // method htsMLSAVocoder()
+
+    /**
+     * get the audio format produced by the hts vocoder 
+     * @return
+     */
+    public static AudioFormat getHTSAudioFormat() {
         float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
         int sampleSizeInBits = 16;  //8,16
         int channels = 1;     //1,2
@@ -327,32 +355,8 @@ public class HTSVocoder {
               channels,
               signed,
               bigEndian);
-        
-        
-        // Don't scale the data, since we don't have it all yet.
-        // TODO: Deal with audio scaling some other way.
-        HTSVocoderDataProducer producer = new HTSVocoderDataProducer(pdf2par, htsData);
-        DoubleDataSourceQueue dataQueue = new DoubleDataSourceQueue(producer, 1024);
-        return new DDSAudioInputStream(dataQueue, af);
-
-        /*
-        double [] audio_double = null;
-        
-        audio_double = htsMLSAVocoder(pdf2par.getlf0Pst(), pdf2par.getMcepPst(), pdf2par.getStrPst(), pdf2par.getMagPst(),
-                                      pdf2par.getVoicedArray(), htsData);
-        
-        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
-        logger.info("length in samples=" + lengthInSamples );
-        
-        // Normalise the signal before return, this will normalise between 1 and -1
-        double MaxSample = MathUtils.getAbsMax(audio_double);
-        for (int i=0; i<audio_double.length; i++)        
-            audio_double[i] = ( audio_double[i] / MaxSample );
-            //audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
-                
-        return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
-        */
-    } // method htsMLSAVocoder()
+        return af;
+    }
     
 
         
@@ -401,7 +405,7 @@ public class HTSVocoder {
       
       d = new double[m];
       if(lpcVocoder){
-        logger.info("Using LPC vocoder"); 
+        logger.debug("Using LPC vocoder"); 
         for(i=0; i<m; i++)
           d[i] = 0.0;
       }
@@ -428,19 +432,19 @@ public class HTSVocoder {
           logger.debug("htsMLSAVocoder: error num mix-excitation filters =" + numM + " in configuration file is different from generated str order=" + strPst.getOrder());
           throw new Exception("htsMLSAVocoder: error num mix-excitation filters = " + numM + " in configuration file is different from generated str order=" + strPst.getOrder());
         }
-        logger.info("HMM speech generation with mixed-excitation.");
+        logger.debug("HMM speech generation with mixed-excitation.");
       } else
-        logger.info("HMM speech generation without mixed-excitation.");  
+        logger.debug("HMM speech generation without mixed-excitation.");  
       
       if( fourierMagnitudes && htsData.getPdfMagFile() != null)
-        logger.info("Pulse generated with Fourier Magnitudes.");
+        logger.debug("Pulse generated with Fourier Magnitudes.");
       else
-        logger.info("Pulse generated as a unit pulse.");
+        logger.debug("Pulse generated as a unit pulse.");
       
       if(beta != 0.0)
-        logger.info("Postfiltering applied with beta=" + beta);
+        logger.debug("Postfiltering applied with beta=" + beta);
       else
-        logger.info("No postfiltering applied.");
+        logger.debug("No postfiltering applied.");
           
       if(debug){
         data_out = new DataOutputStream (new FileOutputStream (excFile));
@@ -475,6 +479,10 @@ public class HTSVocoder {
       s_double = 0;
       audio_size = (mcepPst.getT()) * (fprd) ;
       audio_double = new double[audio_size];  /* initialise buffer for audio */
+      if (audioProducer != null) {
+          audioProducer.setDataLength(audio_size);
+      }
+      
       magSample = 1;
       magPulseSize = 0;
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
@@ -692,7 +700,7 @@ public class HTSVocoder {
           
           audio_double[s_double] = x;
           if(audioProducer != null) {
-              audioProducer.addToQueue(x);
+              audioProducer.putOneDataPoint(x);
           }
 
           s_double++;
@@ -727,11 +735,7 @@ public class HTSVocoder {
         data_out_mix.close();
       }
    
-      if (audioProducer != null) {
-          audioProducer.setFinished();
-      }
-      
-      logger.info("Finish processing " + mcepframe + " mcep frames.");
+      logger.debug("Finish processing " + mcepframe + " mcep frames.");
         
       return(audio_double);
       
@@ -1383,15 +1387,15 @@ public class HTSVocoder {
       
       d = new double[m];
       if(lpcVocoder){
-        logger.info("Using LPC vocoder");  
+        logger.debug("Using LPC vocoder");  
         for(i=0; i<m; i++)
           d[i] = 0.0;
       }
           
       if(beta != 0.0)
-        logger.info("Postfiltering applied with beta=" + beta);
+        logger.debug("Postfiltering applied with beta=" + beta);
       else
-        logger.info("No postfiltering applied.");
+        logger.debug("No postfiltering applied.");
           
       /* Clear content of c, should be done if this function is
       called more than once with a new set of generated parameters. */
@@ -1504,7 +1508,7 @@ public class HTSVocoder {
       
       } /* for each mcep frame */
       
-      logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
+      logger.debug("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
         
       return(audio_double);
       
@@ -1632,17 +1636,7 @@ public class HTSVocoder {
        magData.close();
              
        
-       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
-       int sampleSizeInBits = 16;  //8,16
-       int channels = 1;     //1,2
-       boolean signed = true;    //true,false
-       boolean bigEndian = false;  //true,false
-       AudioFormat af = new AudioFormat(
-             sampleRate,
-             sampleSizeInBits,
-             channels,
-             signed,
-             bigEndian);
+       AudioFormat af = getHTSAudioFormat();
        double [] audio_double = null;
 
       
@@ -1654,8 +1648,8 @@ public class HTSVocoder {
        //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
       
        
-       long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
-       par2speech.logger.info("length in samples=" + lengthInSamples );
+       long lengthInSamples = (audio_double.length * 2 ) / (af.getSampleSizeInBits()/8);
+       par2speech.logger.debug("length in samples=" + lengthInSamples );
        
        /* Normalise the signal before return, this will normalise between 1 and -1 */
        double MaxSample = MathUtils.getAbsMax(audio_double);
@@ -1904,17 +1898,7 @@ public class HTSVocoder {
        }
              
       
-       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
-       int sampleSizeInBits = 16;  //8,16
-       int channels = 1;     //1,2
-       boolean signed = true;    //true,false
-       boolean bigEndian = false;  //true,false
-       AudioFormat af = new AudioFormat(
-             sampleRate,
-             sampleSizeInBits,
-             channels,
-             signed,
-             bigEndian);
+       AudioFormat af = getHTSAudioFormat();
        double [] audio_double = null;
 
       
@@ -1926,8 +1910,8 @@ public class HTSVocoder {
        
        audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, null);
       
-       long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
-       par2speech.logger.info("length in samples=" + lengthInSamples );
+       long lengthInSamples = (audio_double.length * 2 ) / (af.getSampleSizeInBits()/8);
+       par2speech.logger.debug("length in samples=" + lengthInSamples );
        
        /* Normalise the signal before return, this will normalise between 1 and -1 */
        double MaxSample = MathUtils.getAbsMax(audio_double);
@@ -2063,8 +2047,9 @@ public class HTSVocoder {
     }
 
 
-    private class HTSVocoderDataProducer implements DoubleDataProducer {
-
+    protected class HTSVocoderDataProducer extends ProducingDoubleDataSource {
+        private static final double INITIAL_MAX_AMPLITUDE = 17000.;
+        
         // Values used by the synthesis thread
         private HTSPStream lf0Pst;
         private HTSPStream mcepPst;
@@ -2072,49 +2057,28 @@ public class HTSVocoder {
         private HTSPStream magPst;
         private boolean [] voiced;
         private HMMData htsData;
-        private ArrayBlockingQueue<Double> queue = null;
-        private boolean finishedSynthesis = false;
+        
         
         public HTSVocoderDataProducer(HTSParameterGeneration pdf2par, HMMData htsData) {
+            super(new AmplitudeNormalizer(INITIAL_MAX_AMPLITUDE));
             lf0Pst = pdf2par.getlf0Pst();
             mcepPst = pdf2par.getMcepPst();
             strPst = pdf2par.getStrPst();
             magPst =  pdf2par.getMagPst();
             voiced = pdf2par.getVoicedArray();
             this.htsData = htsData;
-            finishedSynthesis = false;
 
-        }
-        
-        public void setQueue(ArrayBlockingQueue<Double> queue) {
-            this.queue = queue;
         }
 
         public void run() {
             try {
                 htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, this);
+                putEndOfStream();
             } catch (Exception e) {
                 logger.error("Cannot vocode", e);
             }
         }
         
-        public synchronized boolean hasMoreData() {
-            return !finishedSynthesis;
-        }
-        
-        private void addToQueue(double x)
-        {
-            try {
-                queue.put(x);
-            } catch (InterruptedException e) {
-                logger.error("Cannot add audio data to queue", e);
-            }
-        }
-        
-        private synchronized void setFinished() {
-            finishedSynthesis = true;
-            addToQueue(END_OF_STREAM);
-        }
     }
     
 }  /* class HTSVocoder */
