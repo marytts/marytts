@@ -58,16 +58,6 @@ public class ProducingDoubleDataSourceTest {
         assertEquals(numDoubles, data.length);
     }
 
-    @Test
-    public void canSetDataLength() {
-        int numDoubles = 10;
-        TestProducer producer = new TestProducer(2);
-        producer.setDataLength(numDoubles);
-        producer.start();
-        assertEquals(numDoubles, producer.getDataLength());
-        double[] data = producer.getAllData();
-        assertEquals(numDoubles, data.length);
-    }
     
     @Test
     public void canReadTenFrames() throws Exception {

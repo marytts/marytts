@@ -81,14 +81,6 @@ public abstract class ProducingDoubleDataSource extends BufferedDoubleDataSource
         }
     }
     
-    /**
-     * Set the total amount data that will be produced by this data source.
-     * @param newLength
-     */
-    public void setDataLength(int newLength) {
-        this.dataLength = newLength;
-    }
-    
     
     protected void putEndOfStream() {
         putOneDataPoint(END_OF_STREAM);
