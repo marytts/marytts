@@ -42,6 +42,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
@@ -202,9 +203,9 @@ public class EHMMLabeler extends VoiceImportComponent {
         
        /**
         * Setup the EHMM directory
-        * @throws IOException, InterruptedException, RuntimeException 
+        * @throws IOException, InterruptedException, MaryConfigurationException 
         */
-        private void setup() throws IOException,InterruptedException, RuntimeException{
+        private void setup() throws IOException,InterruptedException, MaryConfigurationException{
             String task = "setup";
             String line = null;
             ehmm.mkdir();
@@ -234,7 +235,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
             }
             
             PrintWriter settings = new PrintWriter(
@@ -257,9 +258,9 @@ public class EHMMLabeler extends VoiceImportComponent {
        
         /**
          * Creating Required files for EHMM Training
-         * @throws IOException, InterruptedException, RuntimeException 
+         * @throws IOException, InterruptedException, MaryConfigurationException 
          */
-        private void dumpRequiredFiles()throws IOException,InterruptedException,RuntimeException{   
+        private void dumpRequiredFiles()throws IOException,InterruptedException,MaryConfigurationException{   
             String task = "dumpRequiredFiles";
             String line = null;
             Runtime rtime = Runtime.getRuntime();
@@ -298,15 +299,15 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
             }
         }
         
         /**
          * Computing Features Required files for EHMM Training
-         * @throws IOException, InterruptedException, RuntimeException 
+         * @throws IOException, InterruptedException, MaryConfigurationException 
          */
-        private void computeFeatures()throws IOException,InterruptedException, RuntimeException{
+        private void computeFeatures()throws IOException,InterruptedException, MaryConfigurationException{
             String task = "computeFeatures";
             String line = null;
             Runtime rtime = Runtime.getRuntime();
@@ -342,16 +343,16 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
             }
         }
         
         /**
          * Scaling Features for EHMM Training
          * @throws IOException, InterruptedException
-         * @throws RuntimeException 
+         * @throws MaryConfigurationException 
          */
-        private void scaleFeatures()throws IOException,InterruptedException, RuntimeException{
+        private void scaleFeatures()throws IOException,InterruptedException, MaryConfigurationException{
             
             String task = "scaleFeatures";
             String line = null;
@@ -383,7 +384,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
             }
             
         }
@@ -391,9 +392,9 @@ public class EHMMLabeler extends VoiceImportComponent {
         /**
          * Initializing EHMM Models
          * @throws IOException, InterruptedException
-         * @throws RuntimeException 
+         * @throws MaryConfigurationException 
          */
-     private void intializeEHMMModels()throws IOException,InterruptedException, RuntimeException{
+     private void intializeEHMMModels()throws IOException,InterruptedException, MaryConfigurationException{
          String task = "intializeEHMMModels";
          String line = null;
          
@@ -437,7 +438,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
          }
          
         }
@@ -446,9 +447,9 @@ public class EHMMLabeler extends VoiceImportComponent {
      /**
       * Training EHMM Models
       * @throws IOException, InterruptedException
-     * @throws RuntimeException 
+     * @throws MaryConfigurationException 
       */
-     private void baumWelchEHMM() throws IOException,InterruptedException, RuntimeException{
+     private void baumWelchEHMM() throws IOException,InterruptedException, MaryConfigurationException{
          String task = "baumWelchEHMM";
          String line = null;
          
@@ -513,16 +514,16 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
          }
          System.out.println(".... Done.");
      }
      
      /**
       * Aligning EHMM and Label file generation 
-      * @throws IOException, InterruptedException, RuntimeException
+      * @throws IOException, InterruptedException, MaryConfigurationException
       */
-     private void alignEHMM() throws IOException,InterruptedException, RuntimeException{
+     private void alignEHMM() throws IOException,InterruptedException, MaryConfigurationException{
          String task = "alignEHMM";
          String line = null;
          Runtime rtime = Runtime.getRuntime();
@@ -569,7 +570,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  System.err.println("ERR> " + line);
              }
              errorReader.close();
-             throw new RuntimeException(task + " computation failed.\nError was: " + line);
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
          }     
          
      }
