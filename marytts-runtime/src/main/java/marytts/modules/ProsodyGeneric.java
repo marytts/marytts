@@ -111,8 +111,8 @@ public class ProsodyGeneric extends InternalModule {
         
         this.tobiPredFilename = propertyPrefix + "tobipredparams";
         this.accentPriorities = propertyPrefix + "accentPriorities";
-        this.syllableAccents = propertyPrefix + "paragraphdeclination";
-        this.paragraphDeclination = propertyPrefix + "syllableaccents";
+        this.syllableAccents = propertyPrefix + "syllableaccents";
+        this.paragraphDeclination = propertyPrefix + "paragraphdeclination";
     }
     
     public ProsodyGeneric(String locale){

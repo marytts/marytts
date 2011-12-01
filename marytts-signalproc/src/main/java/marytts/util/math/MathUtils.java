@@ -260,8 +260,19 @@ public class MathUtils {
      */
     public static double absMax(double[] data)
     {
+        return absMax(data, 0, data.length);
+    }
+    
+    /**
+     * Find the maximum of the absolute values of all elements in the given subarray, ignoring elements that are NaN.
+     * @param data
+     * @param off
+     * @param len
+     * @return
+     */
+    public static double absMax(double[] data, int off, int len) {
         double max = Double.NaN;
-        for (int i=0; i<data.length; i++) {
+        for (int i=off; i<off+len; i++) {
             if (Double.isNaN(data[i])) continue;
             double abs = Math.abs(data[i]);
             if (Double.isNaN(max)|| abs > max) max = abs;

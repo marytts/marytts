@@ -39,6 +39,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.io.FileUtils;
 
 import org.w3c.dom.Document;
@@ -72,6 +73,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         public final String OUTLABDIR = "EHMMLabeler.outputLabDir";
         public final String INITEHMMDIR = "EHMMLabeler.startEHMMModelDir";
         public final String RETRAIN = "EHMMLabeler.reTrainFlag";
+        public final String NONDETENDFLAG = "EHMMLabeler.nonDetEndFlag";
         
         public final String getName(){
             return "EHMMLabeler";
@@ -102,6 +104,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator"));
                props.put(INITEHMMDIR,"/");
                props.put(RETRAIN,"false");
+               props.put(NONDETENDFLAG,"0");
            }
            return props;
        }
@@ -114,6 +117,8 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
            props2Help.put(INITEHMMDIR,"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
            props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
+           props2Help.put(NONDETENDFLAG,"(0,1) - Viterbi decoding with non deterministic ending (festvox 2.4)");
+           
        }
         
        @Override
@@ -194,10 +199,11 @@ public class EHMMLabeler extends VoiceImportComponent {
         
        /**
         * Setup the EHMM directory
-        * @throws IOException, InterruptedException
+        * @throws IOException, InterruptedException, MaryConfigurationException 
         */
-        private void setup() throws IOException,InterruptedException{
-            
+        private void setup() throws IOException,InterruptedException, MaryConfigurationException{
+            String task = "setup";
+            String line = null;
             ehmm.mkdir();
             File lab = new File(ehmm.getAbsolutePath()+"/lab");
             //call setup of EHMM in this directory
@@ -209,16 +215,25 @@ public class EHMMLabeler extends VoiceImportComponent {
                     new OutputStreamWriter(process.getOutputStream()));
             //go to ehmm directory and setup Directory Structure 
             pw.print("( cd "+ehmm.getAbsolutePath()
-                    +"; mkdir feat"
-                    +"; mkdir etc"
-                    +"; mkdir mod"
-                    +"; mkdir lab"
+                    +"; mkdir -p feat"
+                    +"; mkdir -p etc"
+                    +"; mkdir -p mod"
+                    +"; mkdir -p lab"
                     +"; exit )\n");
             pw.flush();
             //shut down
             pw.close();
             process.waitFor();
-            process.exitValue();
+            // check exit value
+            if (process.exitValue() != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                 while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+            }
+            
             PrintWriter settings = new PrintWriter(
                     new FileOutputStream (new File(outputDir+"/"+"ehmm"+".featSettings")));
             
@@ -239,10 +254,11 @@ public class EHMMLabeler extends VoiceImportComponent {
        
         /**
          * Creating Required files for EHMM Training
-         * @throws IOException, InterruptedException
+         * @throws IOException, InterruptedException, MaryConfigurationException 
          */
-        private void dumpRequiredFiles()throws IOException,InterruptedException{
-            
+        private void dumpRequiredFiles()throws IOException,InterruptedException,MaryConfigurationException{   
+            String task = "dumpRequiredFiles";
+            String line = null;
             Runtime rtime = Runtime.getRuntime();
             //get a shell
             Process process = rtime.exec("/bin/bash");
@@ -272,16 +288,24 @@ public class EHMMLabeler extends VoiceImportComponent {
             //shut down
             pw.close();
             process.waitFor();
-            process.exitValue();
-                  
+            // check exit value
+            if (process.exitValue() != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                 while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+            }
         }
         
         /**
          * Computing Features Required files for EHMM Training
-         * @throws IOException, InterruptedException
+         * @throws IOException, InterruptedException, MaryConfigurationException 
          */
-        private void computeFeatures()throws IOException,InterruptedException{
-  
+        private void computeFeatures()throws IOException,InterruptedException, MaryConfigurationException{
+            String task = "computeFeatures";
+            String line = null;
             Runtime rtime = Runtime.getRuntime();
             //get a shell
             Process process = rtime.exec("/bin/bash");
@@ -308,15 +332,26 @@ public class EHMMLabeler extends VoiceImportComponent {
             //shut down
             pw.close();
             process.waitFor();
-            process.exitValue(); 
-        
+            // check exit value
+            if (process.exitValue() != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                 while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+            }
         }
         
         /**
          * Scaling Features for EHMM Training
          * @throws IOException, InterruptedException
+         * @throws MaryConfigurationException 
          */
-        private void scaleFeatures()throws IOException,InterruptedException{
+        private void scaleFeatures()throws IOException,InterruptedException, MaryConfigurationException{
+            
+            String task = "scaleFeatures";
+            String line = null;
             
             Runtime rtime = Runtime.getRuntime();
             //get a shell
@@ -338,16 +373,27 @@ public class EHMMLabeler extends VoiceImportComponent {
             //shut down
             pw.close();
             process.waitFor();
-            process.exitValue();
+            // check exit value
+            if (process.exitValue() != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                 while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+            }
             
         }
         
         /**
          * Initializing EHMM Models
          * @throws IOException, InterruptedException
+         * @throws MaryConfigurationException 
          */
-     private void intializeEHMMModels()throws IOException,InterruptedException{
-
+     private void intializeEHMMModels()throws IOException,InterruptedException, MaryConfigurationException{
+         String task = "intializeEHMMModels";
+         String line = null;
+         
          Runtime rtime = Runtime.getRuntime();
          //get a shell
          Process process = rtime.exec("/bin/bash");
@@ -381,17 +427,28 @@ public class EHMMLabeler extends VoiceImportComponent {
          //shut down
          pw.close();
          process.waitFor();
-         process.exitValue();
-            
+         // check exit value
+         if (process.exitValue() != 0) {
+             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+             while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+         }
+         
         }
        
      
      /**
       * Training EHMM Models
       * @throws IOException, InterruptedException
+     * @throws MaryConfigurationException 
       */
-     private void baumWelchEHMM() throws IOException,InterruptedException{
-    
+     private void baumWelchEHMM() throws IOException,InterruptedException, MaryConfigurationException{
+         String task = "baumWelchEHMM";
+         String line = null;
+         
          Runtime rtime = Runtime.getRuntime();
          //get a shell
          Process process = rtime.exec("/bin/bash");
@@ -409,7 +466,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                      +"; "+getProp(EHMMDIR)+"/bin/ehmm "
                      +outputDir+"/"+"ehmm"+".phoneList.int "
                      +outputDir+"/"+"ehmm"+".align.int 1 0 "
-                     +ehmm.getAbsolutePath()+"/feat ft"
+                     +ehmm.getAbsolutePath()+"/feat ft "
                      +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
                      +"; exit )\n");
          
@@ -430,7 +487,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                      +"; "+getProp(EHMMDIR)+"/bin/ehmm "
                      +outputDir+"/"+"ehmm"+".phoneList.int "
                      +outputDir+"/"+"ehmm"+".align.int 1 1 "
-                     +ehmm.getAbsolutePath()+"/feat ft"
+                     +ehmm.getAbsolutePath()+"/feat ft "
                      +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
                      +"; exit )\n");
              
@@ -446,18 +503,25 @@ public class EHMMLabeler extends VoiceImportComponent {
          //shut down
          pw.close();
          process.waitFor();
-         process.exitValue();    
+         // check exit value
+         if (process.exitValue() != 0) {
+             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+              while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+         }
          System.out.println(".... Done.");
-         
-            
      }
      
      /**
       * Aligning EHMM and Label file generation 
-      * @throws IOException, InterruptedException
+      * @throws IOException, InterruptedException, MaryConfigurationException
       */
-     private void alignEHMM() throws IOException,InterruptedException{
-  
+     private void alignEHMM() throws IOException,InterruptedException, MaryConfigurationException{
+         String task = "alignEHMM";
+         String line = null;
          Runtime rtime = Runtime.getRuntime();
          //get a shell
          Process process = rtime.exec("/bin/bash");
@@ -471,7 +535,8 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +outputDir+"/"+"ehmm"+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+"ehmm"+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
+                 +ehmm.getAbsolutePath()+"/mod "
+                 + getProp(NONDETENDFLAG) + " " +ehmm.getAbsolutePath()+"/lab >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
                  +ehmm.getAbsolutePath()+"/lab "
                  +outputDir+"/"+"ehmm"+".phoneList.int >> log.txt"
@@ -483,7 +548,8 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +outputDir+"/"+"ehmm"+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+"ehmm"+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
+                 +ehmm.getAbsolutePath()+"/mod "
+                 + getProp(NONDETENDFLAG) + " " +ehmm.getAbsolutePath()+"/lab >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
                  +ehmm.getAbsolutePath()+"/lab "
                  +outputDir+"/"+"ehmm"+".phoneList.int >> log.txt"
@@ -493,7 +559,15 @@ public class EHMMLabeler extends VoiceImportComponent {
          //shut down
          pw.close();
          process.waitFor();
-         process.exitValue();     
+         // check exit value
+         if (process.exitValue() != 0) {
+             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+              while ((line = errorReader.readLine()) != null) {
+                 System.err.println("ERR> " + line);
+             }
+             errorReader.close();
+             throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+         }     
          
      }
      
