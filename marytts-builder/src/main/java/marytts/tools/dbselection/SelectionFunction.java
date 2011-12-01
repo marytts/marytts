@@ -39,11 +39,11 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.http.Address;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

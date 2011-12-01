@@ -49,13 +49,13 @@ import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.util.Pair;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 
 
