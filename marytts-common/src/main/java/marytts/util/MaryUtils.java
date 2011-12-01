@@ -539,6 +539,9 @@ public class MaryUtils {
     {
         if (subsumes(Locale.GERMAN, targetLocale)) {
             return normaliseUnicode(unicodeText, toGermanLetterTable);
+        } else if (subsumes(Locale.ITALIAN, targetLocale)) {
+            // Note: this as my opinion should be done after the lexicon (before LTS rules) ... for the moment here
+            return normaliseUnicode(unicodeText, toItalianLetterTable);
         } else {
             String german = normaliseUnicode(unicodeText, toGermanLetterTable);
             return normaliseUnicode(german, germanToAsciiLetterTable);
@@ -596,6 +599,68 @@ public class MaryUtils {
         '\u00fb', 'u', // û
         '\u00fd', 'y', // ý
         '\u00ff', 'y', // ÿ
+    };
+    
+    protected static final char[] toItalianLetterTable = new char[] {
+        //'\u00c0', 'A', // À
+        //'\u00c1', 'A', // Á
+        '\u00c2', 'A', // Â
+        '\u00c3', 'A', // Ã
+        '\u00c5', 'A', // Å
+        '\u00c6', 'A', // Æ
+        '\u00c7', 'C', // Ç
+        //'\u00c8', 'E', // È
+        //'\u00c9', 'E', // É
+        '\u00ca', 'E', // Ê
+        '\u00cb', 'E', // Ë
+        //'\u00cc', 'I', // Ì
+        //'\u00cd', 'I', // Í
+        '\u00ce', 'I', // Î
+        '\u00cf', 'I', // Ï
+        '\u00d1', 'N', // Ñ
+        //'\u00d2', 'O', // Ò
+        //'\u00d3', 'O', // Ó
+        '\u00d4', 'O', // Ô
+        '\u00d5', 'O', // Õ
+        '\u00d8', 'O', // Ø
+        //'\u00d9', 'U', // Ù
+        //'\u00da', 'U', // Ú
+        '\u00db', 'U', // Û
+        '\u00dd', 'Y', // Ý
+        //'\u00e0', 'a', // à
+        //'\u00e1', 'a', // á
+        '\u00e2', 'a', // â
+        '\u00e3', 'a', // ã
+        '\u00e5', 'a', // å
+        '\u00e6', 'a', // æ
+        '\u00e7', 'c', // ç
+        //'\u00e8', 'e', // è
+        //'\u00e9', 'e', // é
+        '\u00ea', 'e', // ê
+        '\u00eb', 'e', // ë
+        //'\u00ec', 'i', // ì
+        //'\u00ed', 'i', // í
+        '\u00ee', 'i', // î
+        '\u00ef', 'i', // ï
+        '\u00f1', 'n', // ñ
+        //'\u00f2', 'o', // ò
+        //'\u00f3', 'o', // ó
+        '\u00f4', 'o', // ô
+        '\u00f5', 'o', // õ
+        '\u00f8', 'o', // ø
+        //'\u00f9', 'u', // ù
+        //'\u00fa', 'u', // ú
+        '\u00fb', 'u', // û
+        '\u00fd', 'y', // ý
+        '\u00ff', 'y', // ÿ
+        //----------------
+        '\u00c4', 'A', // Ä
+        '\u00d6', 'O', // Ö
+        '\u00dc', 'U', // Ü
+        '\u00e4', 'a', // ä
+        '\u00f6', 'o', // ö
+        '\u00fc', 'u', // ü
+        '\u00df', 's', // ß
     };
 
     protected static final char[] germanToAsciiLetterTable = new char[] {

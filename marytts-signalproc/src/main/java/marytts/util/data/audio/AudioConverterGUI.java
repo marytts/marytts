@@ -736,11 +736,15 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                 
                 progressBar.setValue(100);
                 System.out.println("Completed Audio Conversion successfully... Done.");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                progressBar.setValue(0);
+                System.err.println("Audio conversion failed for ArrayIndexOutOfBoundsException. Probably this is due because the file lenght is not a multiple of 1024/2048 samples.");
             } catch (Exception e) {
                 e.printStackTrace();
                 progressBar.setValue(0);
                 System.err.println("Audio conversion failed.");
-            } finally {
+            }  finally {
                 progressBar.setStringPainted(false);
             }
 

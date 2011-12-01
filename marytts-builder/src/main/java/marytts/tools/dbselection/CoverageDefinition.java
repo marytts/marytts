@@ -704,6 +704,24 @@ public class CoverageDefinition
         CoverageStatistics stats = getCorpusStatistics();
         out.println(stats);
 
+        /*
+        out.println("\nClustered Coverage:");
+        out.println("phones: "+df.format(possiblePhoneCoverage));
+        out.println("diphones: "+df.format(possibleClusteredDiphoneCoverage));
+        out.println("overall: "+df.format(possibleOverallClusteredCoverage)+"\n\n");
+        */
+        
+        if (possiblePhoneCoverage<1){
+            out.println("The following phones are missing: ");
+            for (int k=1;k<possiblePhoneArray.length;k++){
+                String nextPhone = possiblePhoneArray[k]; 
+                if (phonesToIgnore.contains(new Integer(k))) continue;
+                if (!possiblePhoneTypes.contains(nextPhone)){
+                    out.print(nextPhone+" ");
+                }
+            }
+            out.print("\n");           
+        }
 
         out.println("\n\nDiphones and their frequencies :\n");
         out.println("Simple diphones:\n");

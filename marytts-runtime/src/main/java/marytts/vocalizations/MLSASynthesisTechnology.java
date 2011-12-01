@@ -247,7 +247,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
 
         double[] audio_double = null;
         try {
-            audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, null, voiced, htsData);
+            audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, null, voiced, htsData, null);
         } catch (Exception e) {
             throw new SynthesisException("MLSA vocoding failed .. "+e);
         }
