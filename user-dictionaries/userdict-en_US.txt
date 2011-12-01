@@ -7,3 +7,4 @@ mustnt | ' m V s n t
 isnt | ' I z n t
 Greta | ' g r { - t A
 minute | ' m I - n I t
+does | ' d V z
