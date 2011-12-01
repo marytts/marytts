@@ -379,6 +379,9 @@ public class DatabaseLayout
                 //line looks like "<propName> <value>"
                 //<propname> looks like "<compName>.<prop>"
                 String[] lineSplit = line.split(" ", 2);
+                if (lineSplit.length < 2) {
+                	throw new IOException("Illegal line -- expecting two fields, got "+lineSplit.length+": '"+line+"'");
+                }
                 if (lineSplit[0].startsWith("db.")) {
                    //global prop
                     props.put(lineSplit[0],lineSplit[1]);                    
