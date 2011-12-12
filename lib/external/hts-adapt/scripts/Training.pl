@@ -243,7 +243,7 @@ $HERest{'ful'} = "$HEREST    -A -B -C $cfg{'trn'} -D -T 1 -S $scp{'trn'} -I $mlf
 $HERest{'gv'}  = "$HEREST    -A    -C $cfg{'trn'} -D -T 1 -S $scp{'gv'}  -I $mlf{'gv'}  -m 1 ";
 $HERest{'adp'} = "$HEREST    -A -B -C $cfg{'trn'} -D -T 1 -S $scp{'adp'} -I $mlf{'ful'} -m 1 -u ada      -w $wf -t $beam -h $spkrPat ";
 $HERest{'map'} = "$HEREST    -A -B -C $cfg{'trn'} -D -T 1 -S $scp{'adp'} -I $mlf{'ful'} -m 1 -u pmvwdpmv -w $wf -t $beam -h $spkrPat ";
-$HHEd{'trn'}   = "$HHED      -A -B -C $cfg{'trn'} -D -T 1 -p -i ";
+$HHEd{'trn'}   = "$HHED      -A  -C $cfg{'trn'} -D -T 1 -p -i ";
 $HHEd{'cnv'}   = "$HHED      -A -B -C $cfg{'cnv'} -D -T 1 -p -i ";
 $HSMMAlign     = "$HSMMALIGN -A    -C $cfg{'trn'} -D -T 1 -S $scp{'trn'} -I $mlf{'mon'} -t $beam -w 1.0 ";
 $HMGenS        = "$HMGENS    -A -B -C $cfg{'syn'} -D -T 1 -S $scp{'gen'} -t $beam -h $spkrPat ";
@@ -734,8 +734,8 @@ if ($WGEN1) {
    $mix = 'SI';
    $dir = "${prjdir}/gen/qst${qnum}/ver${ver}/$mix/$pgtype";
 
-   gen_wave($dir);
-}
+   gen_wave($dir);}
+
 
 # HHEd (building regression-class trees for adaptation)
 if ($REGTR) {
@@ -744,7 +744,8 @@ if ($REGTR) {
    foreach $set (@SET) {
       foreach $type ( 'reg', 'dec' ) {    # reg -> regression tree (k-means),  dec -> decision tree
          make_edfile_regtree( $type, $set );
-         shell("$HHEd{'trn'} -C $cfg{'dec'}{$set} -H $reclmmf{$set} -M $regtree{$set} $red{$set}{$type} $lst{'ful'}");
+         shell("$HHEd{'trn'} -C $cfg{'dec'}{$set} -H $rclammf{$set} -M $regtree{$set} $red{$set}{$type} $tiedlst{$set}");
+      ###shell("$HHEd{'trn'} -C $cfg{'dec'}{$set} -H $reclmmf{$set} -M $regtree{$set} $red{$set}{$type} $lst{'ful'}");
       }
    }
 }
@@ -837,7 +838,8 @@ if ($SPKAT) {
    print_time("Speaker adaptive training (SAT)");
 
    for $set (@SET) {
-      shell("cp $reclmmf{$set} $spatmmf{$set}");
+      shell("cp $rclammf{$set} $spatmmf{$set}");
+   ###shell("cp $reclmmf{$set} $spatmmf{$set}");
    }
 
    $type = $tknd{'sat'};
@@ -859,7 +861,8 @@ if ($SPKAT) {
       make_config_adapt( $type, $mllr );
 
       print("\nEstimating transform for iteration $i\n");
-      shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} $opt $lst{'ful'} $lst{'ful'}");
+         shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} $opt $tiedlst{'cmp'} $tiedlst{'dur'}");
+      ###shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} $opt $lst{'ful'} $lst{'ful'}");
 
       # Reestimate HMM and duration models
       $opt = "-C $cfg{'sat'} ";
@@ -870,7 +873,8 @@ if ($SPKAT) {
 
       for ( $j = 1 ; $j <= $nIte ; $j++ ) {
          print("\n\nIteration $j of Embedded Re-estimation in SAT\n");
-         shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} -M $model{'cmp'} -R $model{'dur'} $opt $lst{'ful'} $lst{'ful'}");
+            shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} -M $model{'cmp'} -R $model{'dur'} $opt $tiedlst{'cmp'} $tiedlst{'dur'}");
+         ###shell("$HERest{'ful'} -H $spatmmf{'cmp'} -N $spatmmf{'dur'} -M $model{'cmp'} -R $model{'dur'} $opt $lst{'ful'} $lst{'ful'}");
       }
 
       # compress reestimated mmfs
@@ -886,7 +890,8 @@ if ($MKUN2) {
 
    foreach $set (@SET) {
       make_edfile_mkunseen($set);
-      shell("$HHEd{'trn'} -H $spatmmf{$set} -w $satammf{$set} $mku{$set} $lst{'ful'}");
+      shell("$HHEd{'trn'} -H $spatmmf{$set} -w $satammf{$set} $mku{$set} $tiedlst{$set}");
+   ###shell("$HHEd{'trn'} -H $spatmmf{$set} -w $satammf{$set} $mku{$set} $lst{'ful'}");
    }
 }
 
