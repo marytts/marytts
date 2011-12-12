@@ -352,9 +352,14 @@ AC_ARG_VAR([DATASET],[dataset (default=cmu_us_arctic)])
 AC_ARG_VAR([TRAINSPKR],[speakers for training (default='bdl clb jmk rms')])
 AC_ARG_VAR([ADAPTSPKR],[speakers for adaptation (default=slt)])
 AC_ARG_VAR([ADAPTHEAD],[file name header for adaptation data (default=b05)])
+AC_ARG_VAR([SPKRMASK],[speaker name mask pattern (mask for file names, -h option in HERest) (default=*/cmu_us_arctic_%%%_*)])
 
 if test -z "$DATASET"; then
 	DATASET=cmu_us_arctic
+fi
+
+if test -z "$SPKRMASK"; then
+	SPKRMASK=cmu_us_arctic_%%%_
 fi
 
 if test -z "$TRAINSPKR"; then
@@ -373,7 +378,7 @@ AC_SUBST(DATASET)
 AC_SUBST(TRAINSPKR)
 AC_SUBST(ADAPTSPKR)
 AC_SUBST(ADAPTHEAD)
-
+AC_SUBST(SPKRMASK)
 
 
 # version number and question set name
