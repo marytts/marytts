@@ -405,6 +405,8 @@ AC_ARG_VAR([NOISEMASK],[Standard deviation of white noise to mask noise in f0 ex
 AC_ARG_VAR([PSTFILTER],[Postfiltering factor (default=1.4)])
 AC_ARG_VAR([IMPLEN],[Length of impulse response (default=4096)])
 AC_ARG_VAR([SAMPFREQ],[Sampling frequency in Hz (default=48000)])
+AC_ARG_VAR([STRFILTERNAME],[Name of file containig the filters for voicing strengths analysis in mixed excitation (default=filters/mix_excitation_5filters_199taps_48Kz.txt)])
+
 
 # default values
 if test -z "$FRAMELEN"; then
@@ -503,6 +505,10 @@ if test -z "$MAGVSIZE"; then
 	MAGVSIZE=$MAGORDER
 fi
 
+if test -z "$STRFILTERNAME"; then
+	STRFILTERNAME=filters/mix_excitation_5filters_199taps_48Kz.txt
+fi
+
 # substitute variables
 AC_SUBST(FRAMELEN)
 AC_SUBST(FRAMESHIFT)
@@ -523,6 +529,7 @@ AC_SUBST(SAMPFREQ)
 AC_SUBST(MGCVSIZE)
 AC_SUBST(STRVSIZE)
 AC_SUBST(MAGVSIZE)
+AC_SUBST(STRFILTERNAME)
 
 
 # number of windows

@@ -102,6 +102,9 @@ NSTRWIN = @NSTRWIN@   # Mary added str for mixed excitation
 NMAGWIN = @NMAGWIN@   # Mary added mag for pulse excitation generation out of Fourier magnitudes
 NLF0WIN = @NLF0WIN@
 
+# filter taps filename for voicing strengths analysis in mixed excitation
+STRFILTERNAME = @STRFILTERNAME@
+
 # list of speakers
 TRAINSPKR = @TRAINSPKR@
 ADAPTSPKR = @ADAPTSPKR@
@@ -234,7 +237,7 @@ str-mary:
 				$(STEP) -l `printf "%.0f" $${count}` -v 0.0 | \
 				$(X2X) +fs > tmp.tail; \
 				cat tmp.head $${raw} tmp.tail > tmp; \
-				$(TCLSH) scripts/get_str.tcl -l -H $${upperf0} -L $${lowerf0} -p $(FRAMESHIFT) -r $(SAMPFREQ) -f $(STRORDER) tmp | \
+				$(TCLSH) scripts/get_str.tcl -l -H $${upperf0} -L $${lowerf0} -p $(FRAMESHIFT) -r $(SAMPFREQ) -f $(STRFILTERNAME) -n $(STRORDER) tmp | \
 				$(X2X) +af > str/$${spkr}/$${base}.str; \
 			fi; \
 		done; \

@@ -626,6 +626,7 @@ F0_RANGES
 MAGVSIZE
 STRVSIZE
 MGCVSIZE
+STRFILTERNAME
 SAMPFREQ
 IMPLEN
 PSTFILTER
@@ -764,6 +765,7 @@ NOISEMASK
 PSTFILTER
 IMPLEN
 SAMPFREQ
+STRFILTERNAME
 F0_RANGES
 NMGCWIN
 NSTRWIN
@@ -1470,6 +1472,10 @@ Some influential environment variables:
   PSTFILTER   Postfiltering factor (default=1.4)
   IMPLEN      Length of impulse response (default=4096)
   SAMPFREQ    Sampling frequency in Hz (default=48000)
+  STRFILTERNAME
+              Name of file containig the filters for voicing strengths
+              analysis in mixed excitation
+              (default=filters/mix_excitation_5filters_199taps_48Kz.txt)
   F0_RANGES   F0 search ranges (spkr1 lower1 upper1 spkr2 lower2 upper2...).
               Order of speakers in F0_RANGES should be equal to that in
               ALLSPKR (default='bdl 40 210 clb 130 260 jmk 50 180 rms 40 200
@@ -4239,6 +4245,7 @@ fi
 
 
 
+
 # default values
 if test -z "$FRAMELEN"; then
 	FRAMELEN=1200
@@ -4328,7 +4335,13 @@ if test -z "$MAGVSIZE"; then
 	MAGVSIZE=$MAGORDER
 fi
 
+if test -z "$STRFILTERNAME"; then
+	STRFILTERNAME=filters/mix_excitation_5filters_199taps_48Kz.txt
+fi
+
+
 # substitute variables
+
 
 
 
