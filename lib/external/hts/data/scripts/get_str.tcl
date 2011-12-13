@@ -47,10 +47,10 @@
 #
 # Created by Marcela Charfuelan (DFKI) Wed Jun 27 17:46:58 CEST 2007
 #
-# use:
-#  tclsh8.4 get_str.tcl -H 280  -L 40 -f 5 -p 80 -o f0_tmp.tmp tmp.wav
+# use in dir hts/data/:
+#  tclsh8.4 scripts/get_str.tcl -H 280  -L 40 -f filters/mix_excitation_5filters_199taps_48Kz.txt -n 5 -p 80 -o f0_tmp.tmp tmp.wav
 #  or to output to stdout
-#  tclsh8.4 get_str.tcl -H 280  -L 40 -f 5 -p 80 tmp.wav 
+#  tclsh8.4 scripts/get_str.tcl -H 280  -L 40 -f filters/mix_excitation_5filters_199taps_48Kz.txt -n 5 -p 80 tmp.wav 
 
 package require snack
 
@@ -64,6 +64,7 @@ set samplerate 16000
 set encoding Lin16    
 set endian bigEndian 
 set numfilters 5    
+set filtersfile "filters/mix_excitation_5filters_199taps_48Kz.txt"
 set targetfile ""
 set outputfile ""
 
@@ -71,7 +72,7 @@ set arg_index $argc
 set i 0
 set j 0
 
-set help [ format "\nStrengths extraction using snack library \nUsage %s \[-H max_f0\] \[-L min_f0\] \[-f number_of_filters (must be equal to STRORDER)\] \[-s frame_length (in second)\] \[-p frame_length (in point)\] \[-r samplerate\] \[-l (little endian)\] \[-b (big endian)\] \[-o output_file\] inputfile\n" $argv0 ]
+set help [ format "\nStrengths extraction using snack library \nUsage %s \[-H max_f0\] \[-L min_f0\] \[-f filters_filename \] \[-n number_of_filters (must be equal to STRORDER)\] \[-s frame_length (in second)\] \[-p frame_length (in point)\] \[-r samplerate\] \[-l (little endian)\] \[-b (big endian)\] \[-o output_file\] inputfile\n" $argv0 ]
 
 while { $i < $arg_index } {
     switch -exact -- [ lindex $argv $i ] {
@@ -88,6 +89,10 @@ while { $i < $arg_index } {
         set framelength [ lindex $argv $i ]       
     }
     -f {
+        incr i
+        set filtersfile [ lindex $argv $i ]       
+    }
+    -n {
         incr i
         set numfilters [ lindex $argv $i ]       
     }
@@ -132,18 +137,13 @@ if { $targetfile == "" } {
     exit 0
 }
 
-# if STRORDER is different from 5, exit program
-if { $numfilters != 5 } {
-    puts "\nThis implementation supports only 5 filter bands and STRORDER is $numfilters\n";
-    exit 0
-}
-
+# The number of filters is specified
 snack::sound s 
-snack::sound s1
-snack::sound s2
-snack::sound s3
-snack::sound s4
-snack::sound s5
+set j 1
+while { $j <= $numfilters } {
+  snack::sound s($j)
+  incr j
+}
 
 # Load filter's coefficients from the file: mix_excitation_filters.txt. This file have a 
 # text header of 5 lines:
@@ -165,72 +165,39 @@ snack::sound s5
 #   tap[5][49] 
 #
 # Filter's coefficients must be located in ../data/filters/mix_excitation_filters.txt
-set f [open filters/mix_excitation_filters.txt]
+set f [open $filtersfile]
 set k 0
-set Array h
-foreach line [split [read $f] \n] {
-  if { [string is double $line] } then {
-    set h($k) $line   
+set Array all_taps
+foreach line [split [read $f] \n] {  
+    if { [string is double -strict $line] } then {
+    set all_taps($k) $line  
+    #puts "line($k) = $line" 
     incr k
   }
 }
 close $f
 
-incr k -1
-set size_h $k
+# numfilter is provided, so the number of taps is divided by that number
+set size_all_taps $k
 set size_filter [expr ($k/$numfilters)]
+puts "filters_file=$filtersfile  numfilters=$numfilters  size_all_taps=$size_all_taps  size_filter=$size_filter"
 
-set k 0
-set i 0
-set h1 {}
-while { $i < $size_filter } {
-  lappend h1 $h($k)
-  #puts "h1($i)=[lindex $h1 $i]"
-  incr k
-  incr i
+# k is total number of filter taps read from file
+# j is number of filters
+# i is number of taps per filter
+set k 0  
+set j 1  
+while { $j <= $numfilters } {
+  set i 0
+  set filter_taps($j) {}
+  while { $i < $size_filter } {
+    lappend filter_taps($j) $all_taps($k)
+    #puts "filter_taps($j)($i)=[lindex $filter_taps($j) $i]"
+    incr k
+    incr i
+  }
+  incr j
 }
-set i 0
-set h2 {}
-while { $i < $size_filter } {
-  lappend h2 $h($k)
-  #puts "h2($i)=[lindex $h2 $i]"
-  incr k
-  incr i
-}
-set i 0
-set h3 {}
-while { $i < $size_filter } {
-  lappend h3 $h($k)
-  #puts "h3($i)=[lindex $h3 $i]"
-  incr k
-  incr i
-}
-set i 0
-set h4 {}
-while { $i < $size_filter } {
-  lappend h4 $h($k)
-  #puts "h4($i)=[lindex $h4 $i]"
-  incr k
-  incr i
-}
-set i 0
-set h5 {}
-while { $i < $size_filter } {
-  lappend h5 $h($k)
-  #puts "h5($i)=[lindex $h5 $i]"
-  incr k
-  incr i
-}
-
-
-
-
-# create FIR filters
-set h1 [snack::filter iir -impulse $h1]
-set h2 [snack::filter iir -impulse $h2]
-set h3 [snack::filter iir -impulse $h3]
-set h4 [snack::filter iir -impulse $h4]
-set h5 [snack::filter iir -impulse $h5]
 
 
 # if input file is WAVE (RIFF) format, read it
@@ -240,55 +207,32 @@ if { [file isfile $targetfile ] && "[file extension $targetfile]" == ".wav"} {
     s read $targetfile -fileformat RAW -rate $samplerate -encoding $encoding -byteorder $endian
 }
 
-# copy original sound in s1
-s1 copy s
-s2 copy s
-s3 copy s
-s4 copy s
-s5 copy s
 
-set ini 0
-set final 500
-
-#set s_size [lindex [ s info ] 0 ]
 set s_size [ s length ]
-#puts stderr $s_size
+set j 1  
+while { $j <= $numfilters } {
+  # create FIR filter
+  set h($j) [snack::filter iir -impulse $filter_taps($j)]
 
-s1 filter $h1
-s2 filter $h2
-s3 filter $h3
-s4 filter $h4
-s5 filter $h5
+  # copy original sound in s1
+  s($j) copy s
 
-# i need to do this because after filtering the 
-# file is padded with zeros
-s1 crop 0 $s_size
-s2 crop 0 $s_size
-s3 crop 0 $s_size
-s4 crop 0 $s_size
-s5 crop 0 $s_size
+  # filter signal
+  s($j) filter $h($j)
 
-#s1 write s1.wav
-#s2 write s2.wav
-#s3 write s3.wav
-#s4 write s4.wav
-#s5 write s5.wav
+  # i need to do this because after filtering the 
+  # file is padded with zeros
+  s($j) crop 0 $s_size
 
-# get the strengths for each band
-# using method ESPS the result is a matrix of 4 columns
-# col 0: pitch col 1: prob of voicing col 2: local root mean square measurement
-# col 3: peak normalised cross correlation
-# for example col 3 can be read with: [lindex $str1 0 3]
-set str1 [s1 pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
-set str2 [s2 pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
-set str3 [s3 pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
-set str4 [s4 pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
-set str5 [s5 pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
+  # get the strengths for each band
+  # using method ESPS the result is a matrix of 4 columns
+  # col 0: pitch col 1: prob of voicing col 2: local root mean square measurement
+  # col 3: peak normalised cross correlation
+  # for example col 3 can be read with: [lindex $str1 0 3]
+  set str($j) [s($j) pitch -method ESPS -maxpitch $maxpitch -minpitch $minpitch -framelength $framelength]
 
-#puts stderr [lindex $str1 0 3]
-#puts stderr [lindex $str1 1 3]
-#puts stderr [lindex $str1 2 3]
-#puts stderr $str1
+  incr j
+}
 
 
 # if output filename (-o option) is not specified, output result to stdout
@@ -301,13 +245,12 @@ if { $outputfile != "" } then {
 
 # output results
 set ind 0
-foreach line $str1 {
-    puts [lindex $str1 $ind 3]
-    puts [lindex $str2 $ind 3]
-    puts [lindex $str3 $ind 3]
-    puts [lindex $str4 $ind 3]
-    puts [lindex $str5 $ind 3]
-    incr ind
-    
+foreach line $str(1) {
+  set j 1
+  while { $j <= $numfilters } {
+    puts [lindex $str($j) $ind 3]
+    incr j
+  }
+  incr ind 
 }
 
