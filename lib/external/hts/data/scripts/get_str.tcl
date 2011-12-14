@@ -45,7 +45,8 @@
 # Extracting strengths from 5 filtered bands of raw audio
 # it requires 5 filter taps in ../data/filters/mix_excitation_filters.txt 
 #
-# Created by Marcela Charfuelan (DFKI) Wed Jun 27 17:46:58 CEST 2007
+# Created  by Marcela Charfuelan (DFKI) Wed Jun 27 17:46:58 CEST 2007
+# Modified by Marcela Charfuelan (DFKI) Wed Dec 14 13:58:35 CET  2011
 #
 # use in dir hts/data/:
 #  tclsh8.4 scripts/get_str.tcl -H 280  -L 40 -f filters/mix_excitation_5filters_199taps_48Kz.txt -n 5 -p 80 -o f0_tmp.tmp tmp.wav
@@ -124,7 +125,6 @@ while { $i < $arg_index } {
     incr i
 }
 
-#puts stderr "getf0.tcl: this program was modified to output Fs/pitch in samples instead of log pitch in Hz"
 
 # framelength
 if { $j == 1 } {
@@ -180,7 +180,7 @@ close $f
 # numfilter is provided, so the number of taps is divided by that number
 set size_all_taps $k
 set size_filter [expr ($k/$numfilters)]
-puts "filters_file=$filtersfile  numfilters=$numfilters  size_all_taps=$size_all_taps  size_filter=$size_filter"
+#puts "filters_file=$filtersfile  numfilters=$numfilters  size_all_taps=$size_all_taps  size_filter=$size_filter"
 
 # k is total number of filter taps read from file
 # j is number of filters

@@ -87,7 +87,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String NUMTESTFILES  = name+".numTestFiles";
     
     public final String VER           = name+".version";
-    public final String QNUM          = name+".qestionsNum";
+    public final String QNUM          = name+".questionsNum";
     public final String FRAMELEN      = name+".frameLen";
     public final String FRAMESHIFT    = name+".frameShift";
     public final String WINDOWTYPE    = name+".windowType";
@@ -97,7 +97,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String GAMMA         = name+".gamma";
     public final String MGCORDER      = name+".mgcOrder";
     public final String STRORDER      = name+".strOrder";
-    
+    public final String STRFILTERNAME = name+".strFilterFileName";
     public final String MGCBANDWIDTH  = name+".mgcBandWidth";
     public final String STRBANDWIDTH  = name+".strBandWidth";
     public final String LF0BANDWIDTH  = name+".lf0BandWidth";
@@ -150,22 +150,41 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(SAMPFREQ,    db.getProp(DatabaseLayout.SAMPLINGRATE));
            props.put(FRAMELEN,    Integer.toString(frameLen)); 
            props.put(FRAMESHIFT,  Integer.toString(frameShift));
-           if(sampRate >= 48000)
-             props.put(FFTLEN, "2048");
-           else if(sampRate >= 32000)
-               props.put(FFTLEN, "1024");
-           else if(sampRate >= 16000)
-             props.put(FFTLEN, "512");
-           else
-             props.put(FFTLEN, "256");  
            
+           if(sampRate >= 48000){
+             props.put(FFTLEN, "2048");
+             props.put(FREQWARP, "0.55"); // default HTS-2.2
+           } else if(sampRate >= 44100){
+             props.put(FFTLEN, "2048");
+             props.put(FREQWARP, "0.53");
+           } else if(sampRate >= 22050){
+             props.put(FFTLEN, "1024");
+             props.put(FREQWARP, "0.45");
+           } else if(sampRate >= 16000){
+             props.put(FFTLEN, "512");
+             props.put(FREQWARP, "0.42");  // default HTS-2.1
+           } else if(sampRate >= 12000){
+             props.put(FFTLEN, "512");
+             props.put(FREQWARP, "0.37");
+           } else if(sampRate >= 10000){
+             props.put(FFTLEN, "512");
+             props.put(FREQWARP, "0.35");
+           } else {// sampRate >= 8000)  
+        	 props.put(FFTLEN, "256");
+             props.put(FREQWARP, "0.31");  
+           }
+                      
            props.put(WINDOWTYPE,  "1");
-           props.put(NORMALIZE,   "1");           
-           props.put(FREQWARP,    "0.55");
+           props.put(NORMALIZE,   "1");                             
            props.put(GAMMA,       "0");           
            props.put(MGCORDER,    "34");
            props.put(STRORDER,    "5");
            
+           if(sampRate >= 48000){
+             props.put(STRFILTERNAME,    "filters/mix_excitation_5filters_199taps_48Kz.txt");
+           } else {
+        	 props.put(STRFILTERNAME,    "filters/mix_excitation_5filters_99taps_16Kz.txt");  
+           }
            props.put(MGCBANDWIDTH,    "35");
            props.put(STRBANDWIDTH,    "5");
            props.put(LF0BANDWIDTH,    "1");
@@ -222,12 +241,15 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(GAMMA,       "Pole/Zero weight factor (0: mel-cepstral analysis 1: LPC analysis 2,3,...,N: mel-generalized cepstral (MGC) analysis) (default=0)");
         props2Help.put(MGCORDER,    "Order of MGC analysis (default=24 for cepstral form, default=12 for LSP form)");
         props2Help.put(STRORDER,    "Order of strengths analysis (default=5 for 5 filter bands)");
-        
+        props2Help.put(STRFILTERNAME, "Name of file containig the filters for voicing strengths analysis in mixed excitation " +
+        		                      "(default 48Kz = filters/mix_excitation_5filters_199taps_48Kz.txt " +
+        		                      " default 16Kz = filters/mix_excitation_5filters_99taps_16Kz.txt). More than 5 filters can be defined so STRORDER should" +
+        		                      "be defined accordingly."); 
         props2Help.put(MGCBANDWIDTH,    "band width for MGC transforms (default=24 for cepstral form, derault=1 for LSP form)");
         props2Help.put(STRBANDWIDTH,    "band width for STR transforms (default=5)");
         props2Help.put(LF0BANDWIDTH,    "band width for log F0 transforms (default=1)");
         
-        props2Help.put(LNGAIN,      "Use logarithmic gain instead of linear gain (default=0)");
+        props2Help.put(LNGAIN,      "Use logarithmic gain instead of linear gain (default=1)");
         props2Help.put(NSTATE,      "number of HMM states (default=5)");
         props2Help.put(NITER,       "number of iterations of embedded training (default=5)");        
         
@@ -351,6 +373,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
          " GAMMA=" + getProp(GAMMA) +
          " MGCORDER=" + getProp(MGCORDER) +
          " STRORDER=" + getProp(STRORDER) +
+         " STRFILTERNAME=" + getProp(STRFILTERNAME) +
          " LNGAIN=" + getProp(LNGAIN) +
          " SAMPFREQ=" + getProp(SAMPFREQ) +
          " NSTATE=" + getProp(NSTATE) +
@@ -387,6 +410,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
              " GAMMA=" + getProp(GAMMA) +
              " MGCORDER=" + getProp(MGCORDER) +
              " STRORDER=" + getProp(STRORDER) +
+             " STRFILTERNAME=" + getProp(STRFILTERNAME) +
              " LNGAIN=" + getProp(LNGAIN) +
              " SAMPFREQ=" + getProp(SAMPFREQ) +
              " NSTATE=" + getProp(NSTATE) +
