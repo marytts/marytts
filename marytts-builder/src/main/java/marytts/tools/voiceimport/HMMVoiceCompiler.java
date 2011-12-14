@@ -38,46 +38,42 @@ public class HMMVoiceCompiler extends VoiceCompiler {
     /** Sampling frequency and frame period have to be specified (sampling freq is included in the general config) */
     public static final String samplingRate = "HMMVoiceConfigure.sampFreq";
     public static final String framePeriod = "HMMVoiceConfigure.frameShift";
-       
+           
+    /** The following files depend on the version number and question number defined during configuration and training */
+    public static final String questionNumber = "HMMVoiceConfigure.questionsNum";
+    public static final String versionNumber = "HMMVoiceConfigure.version";
+    
     /** Tree files and TreeSet object */
-    // It should be better something like:
-    // public static final String treeDurFile = "HMMVoiceMakeVoice.treeDurFile";
-    // and then define in that module the name of the files and where they should , it depends on the version ver1----
-    public static final String treeDurFile = "hts/voices/qst001/ver1/tree-dur.inf";
-    public static final String treeLf0File = "hts/voices/qst001/ver1/tree-lf0.inf";
-    public static final String treeMcpFile = "hts/voices/qst001/ver1/tree-mgc.inf";
-    public static final String treeStrFile = "hts/voices/qst001/ver1/tree-str.inf";
+    public static String treeDurFile;
+    public static String treeLf0File;
+    public static String treeMcpFile;
+    public static String treeStrFile;
         
     /** HMM pdf model files and ModelSet object */
-    public static final String pdfDurFile = "hts/voices/qst001/ver1/dur.pdf";
-    public static final String pdfLf0File = "hts/voices/qst001/ver1/lf0.pdf";
-    public static final String pdfMcpFile = "hts/voices/qst001/ver1/mgc.pdf";
-    public static final String pdfStrFile = "hts/voices/qst001/ver1/str.pdf";
-    
-    public static final String pdfLf0GvFile = "hts/voices/qst001/ver1/gv-lf0.pdf"; 
-    public static final String pdfMcpGvFile = "hts/voices/qst001/ver1/gv-mgc.pdf";  
-    public static final String pdfStrGvFile = "hts/voices/qst001/ver1/gv-str.pdf";
+    public static String pdfDurFile;
+    public static String pdfLf0File;
+    public static String pdfMcpFile;
+    public static String pdfStrFile;
+
+    /** Global variance files */
+    public static String pdfLf0GvFile; 
+    public static String pdfMcpGvFile;  
+    public static String pdfStrGvFile;
             
     /** Variables for mixed excitation */
-    public static final String mixFiltersFileLocation = "hts/data/filters/mix_excitation_filters.txt";
-    public static final String mixFiltersFile = "mix_excitation_filters.txt";
-    public static final String numFilters = "5";
+    public static final String mixFiltersFile = "HMMVoiceConfigure.strFilterFileName";
+    public static String mixFiltersFileLocation;
+    public static final String numFilters = "HMMVoiceConfigure.strOrder";
     
    /** Example context feature file (TARGETFEATURES in MARY) */
-    public String featuresFileExampleLocation = "mary/features_example.pfeas";
-    public static final String featuresFileExample = "features_example.pfeas";
- 
+    public static String featuresFileExample = "mary/features_example.pfeas";
     
     public String FeaFile;
     /** trickyPhones file if any, this file could have been created during makeQuestions and makeLabels
      * if it was created, because there are tricky phones in the allophones set, then it should be in
      * voiceDIR/mary/trickyPhones.txt */
-    public static final String trickyPhonesFileLocation = "mary/trickyPhones.txt";
     public static final String trickyPhonesFile = "HMMVoiceMakeData.trickyPhonesFile";
-    public static final String hmmFeaturesMapFileLocation = "HMMVoiceMakeData.featureListMapFile";
-    // the following does not work ???
     public static final String hmmFeaturesMapFile = "HMMVoiceMakeData.featureListMapFile";
-    
     
     /** Mapping in case of using alias names for extra features during training */
     Map<String,String> actualFeatureNames = new HashMap<String, String>();
@@ -97,25 +93,44 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	@Override
 	protected void mapFeatures() throws IOException, FileNotFoundException {
 		// First find a features file example
-		getFeatureFileExample();
-		System.out.println("featuresFileExample=" + featuresFileExample + "\nfeaturesFileExampleLocation=" + featuresFileExampleLocation);
+		getFeatureFileExample();	
 		
+		/* Substitute question number and version number */
+		String vnum = db.getProperty(versionNumber);
+	    String qnum = db.getProperty(questionNumber);
+	       
+	    /** Tree files and TreeSet object */
+	    treeDurFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/tree-dur.inf";
+	    treeLf0File = "hts/voices/qst" + qnum + "/ver" + vnum + "/tree-lf0.inf";
+	    treeMcpFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/tree-mgc.inf";
+	    treeStrFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/tree-str.inf";
+	        
+	    /** HMM pdf model files and ModelSet object */
+	    pdfDurFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/dur.pdf";
+	    pdfLf0File = "hts/voices/qst" + qnum + "/ver" + vnum + "/lf0.pdf";
+	    pdfMcpFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/mgc.pdf";
+	    pdfStrFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/str.pdf";
+	    
+	    /** Global variance files */
+	    pdfLf0GvFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/gv-lf0.pdf"; 
+	    pdfMcpGvFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/gv-mgc.pdf";  
+	    pdfStrGvFile = "hts/voices/qst" + qnum + "/ver" + vnum + "/gv-str.pdf";
+	    
+	    /** Filter file for mixed excitation */
+	    mixFiltersFileLocation = "hts/data/" + db.getProperty(mixFiltersFile);
+	    
         // Before setting the tree files, we need to check if they contain aliases for the extra features used for training
         // if so there must be a file mary/hmmFeaturesMap.txt which has to be used to convert back the feature names
         // Check if features map was used
 		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
-        System.out.println("Checking if aliases for extra features used for training were used: checking if file exist -->" + rootDir + getProp(hmmFeaturesMapFile));
-        //File featuresMap = new File(rootDir + getProp(hmmFeaturesMapFile));
-        File featuresMap = new File(rootDir + "mary/hmmFeaturesMap.txt");
+		String feasMapFileName = rootDir + db.getProperty(hmmFeaturesMapFile); 
+        System.out.println("Checking if aliases for extra features used for training were used: checking if file exist -->" + feasMapFileName);
+        File featuresMap = new File(feasMapFileName);
+        
         if(featuresMap.exists()) {
           // convert back the features in all tree files: treeDurFile, treeLf0File, treeMcpFile, treeStrFile
-        	System.out.println("convert back the features in all tree files: treeDurFile, treeLf0File, treeMcpFile, treeStrFile");	
-          //loadFeaturesMap(rootDir + getProp(hmmFeaturesMapFile));
-          loadFeaturesMap(rootDir + "mary/hmmFeaturesMap.txt");	
-          /*replaceBackFeatureNames(rootDir + getProp(treeDurFile));
-          replaceBackFeatureNames(rootDir + getProp(treeLf0File));
-          replaceBackFeatureNames(rootDir + getProp(treeMcpFile));
-          replaceBackFeatureNames(rootDir + getProp(treeStrFile)); */
+          System.out.println("convert back the features in all tree files: treeDurFile, treeLf0File, treeMcpFile, treeStrFile");	          
+          loadFeaturesMap(feasMapFileName);	
           
           replaceBackFeatureNames(rootDir + treeDurFile);
           replaceBackFeatureNames(rootDir + treeLf0File);
@@ -143,11 +158,13 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	protected void copyVoiceFiles() throws IOException {
 		if (isUnitSelectionVoice()) {
 			throw new IllegalStateException("This method should only be called for hmm voices");
-		}		
+		}	
+
 		
 		String[] filesForResourceDir = new String[] {
 		    treeDurFile, treeLf0File, treeMcpFile, treeStrFile, pdfDurFile, pdfLf0File, pdfMcpFile, pdfStrFile, 
-		    pdfLf0GvFile, pdfMcpGvFile, pdfStrGvFile, mixFiltersFileLocation, featuresFileExampleLocation, trickyPhonesFileLocation				
+		    pdfLf0GvFile, pdfMcpGvFile, pdfStrGvFile, mixFiltersFileLocation, featuresFileExample, 
+		    db.getProperty(trickyPhonesFile) 
 		};
 		for (String prop : filesForResourceDir) {			
 			//System.out.println(prop + "-->" + mainResourcesDir);
@@ -175,8 +192,9 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 		m.put("GAMMA", String.valueOf(db.getProperty(gamma)));
 		m.put("LOGGAIN", String.valueOf(db.getProperty(logGain)));
 				
-		m.put("MIXEXCFILTERFILE", String.valueOf(mixFiltersFile));
-		m.put("NUMMIXEXCFILTERS", String.valueOf(numFilters));		
+		// The filters file name includes the "filters/" directory, we need here just the file name
+		m.put("MIXEXCFILTERFILE", db.getProperty(mixFiltersFile).substring(8));
+		m.put("NUMMIXEXCFILTERS", String.valueOf(db.getProperty(numFilters)));		
 				
 		return m;
 	}
@@ -186,18 +204,29 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	protected void getFeatureFileExample() throws IOException {	
 		String fileExample=null;
 		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
+		logger.info("Getting a context feature file example in phonefeatures/");	
+		
         /* copy one example of MARY context features file, it can be one of the 
          * files used for testing in phonefeatures/*.pfeats*/	
         File dirPhonefeatures  = new File(rootDir + "phonefeatures/");
         if( dirPhonefeatures.exists() && dirPhonefeatures.list().length > 0 ){ 
           String[] feaFiles = dirPhonefeatures.list();
-          fileExample = feaFiles[0];
-          if(fileExample==null){
-        	System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty");
-            throw new IOException();  
+          fileExample = feaFiles[0];          
+          File in = new File(rootDir + "phonefeatures/" + fileExample);
+          
+          if(in.isDirectory() ) {
+        	logger.info("HMMVoiceConfigure.adaptScripts = " + db.getProperty("HMMVoiceConfigure.adaptScripts"));
+            /* If adaptive training then look for an example in the first directory */        	
+        	if( in.exists() && in.list().length > 0 ){                  
+              FileUtils.copyFile(new File("phonefeatures/" + fileExample + "/" + in.list()[0]), new File(featuresFileExample));
+            }  
+          } else if(in.exists()){
+        	  FileUtils.copyFile(new File("phonefeatures/" + fileExample), new File(featuresFileExample));  
           } else {
-        	 FileUtils.copyFile(new File("phonefeatures/"+fileExample), new File("mary/"+featuresFileExample)); 
+        	System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty(?)");
+            throw new IOException();  
           }
+          
         } else{
            System.out.println("Problem copying one example of context features, the directory does not exist.");
            throw new IOException();
