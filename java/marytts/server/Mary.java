@@ -501,6 +501,7 @@ public class Mary {
         System.err.print("MARY server " + Version.specificationVersion() + " starting as a ");
         if (server.equals("socket")) System.err.print("socket server...");
         else if (server.equals("http")) System.err.print("HTTP server...");
+        else if (server.equals("stdio")) System.err.print("stdio server...");
         else System.err.print("command-line application...");
         
         // first thing we do, let's test if the port is available:
@@ -522,6 +523,8 @@ public class Mary {
             new MaryServer().run();
         else if (server.equals("http")) //http server mode
             new MaryHttpServer().run();
+        else if (server.equals("stdio")) //stdio server mode
+            new MaryStdioServer().run();
         else { // command-line mode
             InputStream inputStream;
             if (args.length == 0 || args[0].equals("-"))
