@@ -49,6 +49,7 @@ THIS SOFTWARE.
     <mkdir dir="log"/>
     <mkdir dir="tmp"/>
     <mkdir dir="dist"/>
+    <mkdir dir="installed"/>
   </target>
 
   <target name="version" depends="init">
