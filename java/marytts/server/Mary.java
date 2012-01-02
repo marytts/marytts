@@ -255,7 +255,9 @@ public class Mary {
                 + ")");
         logger.debug("MARY_BASE: "+MaryProperties.maryBase());
         StringBuilder installedMsg = new StringBuilder();
-        for (String filename : new File(MaryProperties.maryBase()+"/installed").list()) {
+        File installedDir = new File(MaryProperties.maryBase()+"/installed");
+        installedDir.mkdir();
+        for (String filename : installedDir.list()) {
             if (installedMsg.length() > 0) {
                 installedMsg.append(", ");
             }
