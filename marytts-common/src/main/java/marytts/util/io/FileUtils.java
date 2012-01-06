@@ -19,6 +19,8 @@
  */
 package marytts.util.io;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -41,13 +43,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 
 /**
@@ -742,10 +748,48 @@ public class FileUtils {
     }
     
 
-    
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
-    {
-        FileUtils.changeFileExtensions("D:\\blizzard09\\dfki\\test2", ".wav.tel.wav", ".wav");
+    /**
+     * Unzip a zip archive into a directory on the file system.
+     * Thanks to Piotr Gabryanczyk for making this code available at http://piotrga.wordpress.com/2008/05/07/how-to-unzip-archive-in-java/
+     * @param archive the zip file to extract
+     * @param outputDir the directory below which to extract the contents of the zip file. If this does not exist, it is created.
+     * @throws IOException if any part of the process fails.
+     */
+    public static void unzipArchive(File archive, File outputDir) throws IOException {
+    	ZipFile zipfile = new ZipFile(archive);
+    	for (Enumeration<? extends ZipEntry> e = zipfile.entries(); e.hasMoreElements(); ) {
+    		ZipEntry entry = e.nextElement();
+    		unzipEntry(zipfile, entry, outputDir);
+    	}
     }
+
+    private static void unzipEntry(ZipFile zipfile, ZipEntry entry, File outputDir) throws IOException {
+
+    	if (entry.isDirectory()) {
+    		createDir(new File(outputDir, entry.getName()));
+    		return;
+    	}
+
+    	File outputFile = new File(outputDir, entry.getName());
+    	if (!outputFile.getParentFile().exists()){
+    		createDir(outputFile.getParentFile());
+    	}
+
+    	BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
+    	BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
+
+    	try {
+    		IOUtils.copy(inputStream, outputStream);
+    	} finally {
+    		outputStream.close();
+    		inputStream.close();
+    	}
+    }
+
+    private static void createDir(File dir) throws IOException {
+    	if(!dir.mkdirs()) throw new IOException("Can not create dir "+dir);
+    }
+
+
 }
 
