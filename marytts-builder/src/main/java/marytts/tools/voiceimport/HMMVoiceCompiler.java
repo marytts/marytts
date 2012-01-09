@@ -154,23 +154,6 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 		return db.getVoiceName()+"-hsmm";
 	}
 
-	@Override
-	protected void copyVoiceFiles() throws IOException {
-		if (isUnitSelectionVoice()) {
-			throw new IllegalStateException("This method should only be called for hmm voices");
-		}	
-
-		
-		String[] filesForResourceDir = new String[] {
-		    treeDurFile, treeLf0File, treeMcpFile, treeStrFile, pdfDurFile, pdfLf0File, pdfMcpFile, pdfStrFile, 
-		    pdfLf0GvFile, pdfMcpGvFile, pdfStrGvFile, mixFiltersFileLocation, featuresFileExample, 
-		    db.getProperty(trickyPhonesFile) 
-		};
-		for (String prop : filesForResourceDir) {			
-			//System.out.println(prop + "-->" + mainResourcesDir);
-			FileUtils.copyFileToDirectory(new File(prop), mainResourcesDir);			
-		}
-	}
 
 
 
@@ -184,8 +167,8 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	}
 
 	@Override
-	protected Map<String, String> getVariableSubstitutionMap() {
-		Map<String, String> m = super.getVariableSubstitutionMap();
+	protected Map<String, String> getExtraVariableSubstitutionMap() {
+		Map<String, String> m = new HashMap<String, String>();
 		m.put("FRAMEPERIOD", String.valueOf(db.getProperty(framePeriod)));
 		
 		m.put("ALPHA", String.valueOf(db.getProperty(alpha)));
@@ -199,6 +182,24 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 		return m;
 	}
 
+	@Override
+	protected File[] getFilesForResources() {
+		String[] filenamesResources = new String[] {
+			    treeDurFile, treeLf0File, treeMcpFile, treeStrFile, pdfDurFile, pdfLf0File, pdfMcpFile, pdfStrFile, 
+			    pdfLf0GvFile, pdfMcpGvFile, pdfStrGvFile, mixFiltersFileLocation, featuresFileExample, 
+			    db.getProperty(trickyPhonesFile) 
+		};
+		File[] filesForResources = new File[filenamesResources.length];
+		for (int i=0; i<filenamesResources.length; i++) {
+			filesForResources[i] = new File(filenamesResources[i]);
+		}
+		return filesForResources;
+	}
+	
+	@Override
+	protected File[] getFilesForFilesystem() {
+		return null;
+	}
 
 	
 	protected void getFeatureFileExample() throws IOException {	
