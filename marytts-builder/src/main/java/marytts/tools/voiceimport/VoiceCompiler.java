@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -56,16 +57,8 @@ public class VoiceCompiler extends VoiceImportComponent {
     public static  final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
 	
+	protected MavenVoiceCompiler compiler;
 	
-	
-	protected StrSubstitutor substitutor;
-	protected File compileDir;
-	protected File mainJavaDir;
-	protected File mainResourcesDir;
-	protected File mainDescriptionsDir;
-	protected File metaInfDir;
-	protected File testJavaDir;
-	protected File libVoiceDir;
 	
 	/**
 	 * 
@@ -84,19 +77,19 @@ public class VoiceCompiler extends VoiceImportComponent {
 		}
 		
 		logger.info("Creating directories");
-		createDirectories();
+		compiler.createDirectories();
 		
 		logger.info("Copying template files");
-		copyTemplateFiles();
+		compiler.copyTemplateFiles();
 		
 		logger.info("Copying voice files");
-		copyVoiceFiles();
+		compiler.copyVoiceFiles();
 		
 		logger.info("Compiling with Maven");
-		compileWithMaven();
+		compiler.compileWithMaven();
 		
 		logger.info("Creating component description file");
-		createComponentFile();
+		compiler.createComponentFile();
 		logger.info("done.");
 		
 		return true;
@@ -107,100 +100,16 @@ public class VoiceCompiler extends VoiceImportComponent {
 				" and hmm-based voices should extend it.");
 	}
 
-	private void createComponentFile() throws IOException {
-		String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
-		File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
-        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
-        Map<String, String> compMap = new HashMap<String, String>();
-        compMap.put("MD5", zipFileMd5Hash);
-        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
-        StrSubstitutor compSubst = new StrSubstitutor(compMap);
-		String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
-		File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
-        copyWithVarSubstitution("component.xml", componentFile, compSubst);
-	}
 
-	private void compileWithMaven() throws IOException, InterruptedException {
-		Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
-		StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
-		StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
-		merr.start();
-		mout.start();
-		int result = maven.waitFor();
-		if (result != 0) {
-			throw new IOException("Maven compilation did not succeed -- check console for details.");
-		}
-	}
 
-	protected void createDirectories() throws IOException {
-		 if (compileDir.exists()) {
-			 FileUtils.deleteDirectory(compileDir);
-		 }
-		 compileDir.mkdir();
-		 String packageName = toPackageName(getVoiceName(db));
-		 mainJavaDir = new File(compileDir.getAbsolutePath()+"/src/main/java/marytts/voice/"+packageName);
-		 mainJavaDir.mkdirs();
-		 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
-		 mainResourcesDir.mkdirs();
-		 mainDescriptionsDir = new File(compileDir.getAbsolutePath()+"/src/main/descriptors");
-		 mainDescriptionsDir.mkdirs();
-		 metaInfDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/META-INF/services");
-		 metaInfDir.mkdirs();
-		 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
-		 testJavaDir.mkdirs();
-		 if (isUnitSelectionVoice()) {
-			 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+getVoiceName(db));
-			 libVoiceDir.mkdir();
-		 }
-	}
+
+
 	
 	protected boolean isUnitSelectionVoice() {
 		return true;
 	}
 
-	protected void copyVoiceFiles() throws IOException {
-		if (!isUnitSelectionVoice()) {
-			throw new IllegalStateException("This method should only be called for unit selection voices");
-		}
-		
-		String[] filesForResourceDir = new String[] {
-			CARTFILE, DURTREE, F0LEFTTREE, F0MIDTREE, F0RIGHTTREE, HALFPHONEFEATDEFAC, JOINCOSTWEIGHTS
-		};
-		for (String prop : filesForResourceDir) {
-			FileUtils.copyFileToDirectory(new File(db.getProperty(prop)), mainResourcesDir);
-		}
 
-		String[] filesForLibVoiceDir = new String[] {
-			HALFPHONEFEATSAC, HALFPHONEUNITS, JOINCOSTFEATS, BASETIMELINE, WAVETIMELINE	
-		};
-		for (String prop : filesForLibVoiceDir) {
-			FileUtils.copyFileToDirectory(new File(db.getProperty(prop)), libVoiceDir);
-		}
-	}
-
-	protected void copyTemplateFiles() throws IOException {
-		copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
-		copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
-		copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
-		copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
-		copyWithVarSubstitution("marytts.config.MaryConfig", new File(metaInfDir, "marytts.config.MaryConfig"));
-		if (isUnitSelectionVoice()) {
-			copyWithVarSubstitution("unitselection-voice.config", new File(mainResourcesDir, "voice.config"));
-		} else {
-			copyWithVarSubstitution("hsmm-voice.config", new File(mainResourcesDir, "voice.config"));
-		}
-	}
-
-	private void copyWithVarSubstitution(String resourceName, File destination, StrSubstitutor... moreSubstitutors) throws IOException {
-		String resource = marytts.util.io.FileUtils.getStreamAsString(getClass().getResourceAsStream("templates/"+resourceName), "UTF-8");
-		String resourceWithReplacements = substitutor.replace(resource);
-		for (StrSubstitutor more : moreSubstitutors) {
-			resourceWithReplacements = more.replace(resourceWithReplacements);
-		}
-		PrintWriter out = new PrintWriter(destination, "UTF-8");
-		out.print(resourceWithReplacements);
-		out.close();
-	}
 
 	/* (non-Javadoc)
 	 * @see marytts.tools.voiceimport.VoiceImportComponent#getDefaultProps(marytts.tools.voiceimport.DatabaseLayout)
@@ -249,24 +158,202 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	@Override
 	protected void initialiseComp() throws Exception {
-		substitutor = new StrSubstitutor(getVariableSubstitutionMap());
-		compileDir = new File(getProp(getCompileDirProp()));
+		File compileDir = new File(getProp(getCompileDirProp()));
+		compiler = createCompiler(compileDir);
+	}
+	
+	protected Map<String, String> getExtraVariableSubstitutionMap() {
+		return null;
+	}
+	
+	protected File[] getFilesForResources() {
+		String[] propsResources = new String[] {
+				CARTFILE, DURTREE, F0LEFTTREE, F0MIDTREE, F0RIGHTTREE, HALFPHONEFEATDEFAC, JOINCOSTWEIGHTS
+		};
+		File[] filesForResources = new File[propsResources.length];
+		for (int i=0; i<propsResources.length; i++) {
+			filesForResources[i] = new File(db.getProperty(propsResources[i]));
+		}
+		return filesForResources;
+	}
+	
+	protected File[] getFilesForFilesystem() {
+		String[] propsFilesystem = new String[] {
+				HALFPHONEFEATSAC, HALFPHONEUNITS, JOINCOSTFEATS, BASETIMELINE, WAVETIMELINE	
+		};
+		File[] filesForFilesystem = new File[propsFilesystem.length];
+		for (int i=0; i<propsFilesystem.length; i++) {
+			filesForFilesystem[i] = new File(db.getProperty(propsFilesystem[i]));
+		}
+		return filesForFilesystem;
 	}
 
-	protected Map<String, String> getVariableSubstitutionMap() {
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("MARYVERSION", db.getMaryVersion());
-		m.put("VOICENAME", getVoiceName(db));
-		m.put("LOCALE", db.getLocale().toString());
-		m.put("LANG", db.getLocale().getLanguage());
-		m.put("GENDER", db.getGender());
-		m.put("DOMAIN", db.getDomain());
-		m.put("SAMPLINGRATE", String.valueOf(db.getSamplingRate()));
-		m.put("PACKAGE", toPackageName(getVoiceName(db)));
-		m.put("VOICECLASS", isUnitSelectionVoice() ? "marytts.unitselection.UnitSelectionVoice" : "marytts.htsengine.HMMVoice");
-		return m;
+	protected MavenVoiceCompiler createCompiler(File compileDir) {
+		File[] filesForResources = getFilesForResources();
+		File[] filesForFilesystem = getFilesForFilesystem();
+		Map<String, String> extraVariablesToSubstitute = getExtraVariableSubstitutionMap();
+		return new MavenVoiceCompiler(compileDir, getVoiceName(db), db.getMaryVersion(), db.getLocale(), db.getGender(), db.getDomain(), db.getSamplingRate(), isUnitSelectionVoice(),
+				filesForResources, filesForFilesystem, extraVariablesToSubstitute);
 	}
 
+
+	
+	public static class MavenVoiceCompiler {
+		protected File compileDir;
+		protected String voiceName;
+		protected String voiceVersion;
+		protected Locale locale;
+		protected String gender;
+		protected String domain;
+		protected int samplingRate;
+		protected boolean isUnitSelectionVoice;
+		protected File[] filesForResources;
+		protected File[] filesForFilesystem;
+		protected Map<String, String> extraVariablesToSubstitute;
+		
+		protected StrSubstitutor substitutor;
+		protected File mainJavaDir;
+		protected File mainResourcesDir;
+		protected File mainDescriptionsDir;
+		protected File metaInfDir;
+		protected File testJavaDir;
+		protected File libVoiceDir;
+		
+		public MavenVoiceCompiler(File compileDir, String voiceName, String voiceVersion, Locale locale, String gender, String domain, int samplingRate, boolean isUnitSelectionVoice,
+				File[] filesForResources, File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
+			this.compileDir = compileDir;
+			this.voiceName = voiceName;
+			this.voiceVersion = voiceVersion;
+			this.locale = locale;
+			this.gender = gender;
+			this.domain = domain;
+			this.samplingRate = samplingRate;
+			this.isUnitSelectionVoice = isUnitSelectionVoice;
+			this.substitutor = new StrSubstitutor(getVariableSubstitutionMap(extraVariablesToSubstitute));
+			
+			this.filesForResources = filesForResources;
+			this.filesForFilesystem = filesForFilesystem;
+		}
+		
+		protected Map<String, String> getVariableSubstitutionMap(Map<String, String> extra) {
+			Map<String, String> m = new HashMap<String, String>();
+			m.put("MARYVERSION", voiceVersion);
+			m.put("VOICENAME", voiceName);
+			m.put("LOCALE", locale.toString());
+			m.put("LANG", locale.getLanguage());
+			m.put("GENDER", gender);
+			m.put("DOMAIN", domain);
+			m.put("SAMPLINGRATE", String.valueOf(samplingRate));
+			m.put("PACKAGE", getPackageName());
+			m.put("VOICECLASS", isUnitSelectionVoice ? "marytts.unitselection.UnitSelectionVoice" : "marytts.htsengine.HMMVoice");
+			if (extra != null) {
+				m.putAll(extra);
+			}
+			return m;
+		}
+
+		
+		public void createDirectories() throws IOException {
+			 if (compileDir.exists()) {
+				 FileUtils.deleteDirectory(compileDir);
+			 }
+			 compileDir.mkdir();
+			 String packageName = getPackageName();
+			 mainJavaDir = new File(compileDir.getAbsolutePath()+"/src/main/java/marytts/voice/"+packageName);
+			 mainJavaDir.mkdirs();
+			 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
+			 mainResourcesDir.mkdirs();
+			 mainDescriptionsDir = new File(compileDir.getAbsolutePath()+"/src/main/descriptors");
+			 mainDescriptionsDir.mkdirs();
+			 metaInfDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/META-INF/services");
+			 metaInfDir.mkdirs();
+			 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
+			 testJavaDir.mkdirs();
+			 if (isUnitSelectionVoice) {
+				 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+voiceName);
+				 libVoiceDir.mkdir();
+			 }
+		}
+		
+		public void copyTemplateFiles() throws IOException {
+			copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
+			copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
+			copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
+			copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
+			copyWithVarSubstitution("marytts.config.MaryConfig", new File(metaInfDir, "marytts.config.MaryConfig"));
+			if (isUnitSelectionVoice) {
+				copyWithVarSubstitution("unitselection-voice.config", getConfigFile());
+			} else {
+				copyWithVarSubstitution("hsmm-voice.config", getConfigFile());
+			}
+		}
+
+		public File getConfigFile() {
+			return new File(mainResourcesDir, "voice.config");
+		}
+
+		private void copyWithVarSubstitution(String resourceName, File destination, StrSubstitutor... moreSubstitutors) throws IOException {
+			String resource = marytts.util.io.FileUtils.getStreamAsString(getClass().getResourceAsStream("templates/"+resourceName), "UTF-8");
+			String resourceWithReplacements = substitutor.replace(resource);
+			for (StrSubstitutor more : moreSubstitutors) {
+				resourceWithReplacements = more.replace(resourceWithReplacements);
+			}
+			PrintWriter out = new PrintWriter(destination, "UTF-8");
+			out.print(resourceWithReplacements);
+			out.close();
+		}
+
+		public void copyVoiceFiles() throws IOException {
+
+			if (filesForResources != null) {
+				for (File f : filesForResources) {
+					FileUtils.copyFileToDirectory(f, mainResourcesDir);
+				}
+			}
+
+			if (filesForFilesystem != null) {
+				for (File f : filesForFilesystem) {
+					FileUtils.copyFileToDirectory(f, libVoiceDir);
+				}
+			}
+		}
+
+		
+		public void compileWithMaven() throws IOException, InterruptedException {
+			Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
+			StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
+			StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
+			merr.start();
+			mout.start();
+			int result = maven.waitFor();
+			if (result != 0) {
+				throw new IOException("Maven compilation did not succeed -- check console for details.");
+			}
+		}
+
+		public void createComponentFile() throws IOException {
+			String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
+			File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
+	        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
+	        Map<String, String> compMap = new HashMap<String, String>();
+	        compMap.put("MD5", zipFileMd5Hash);
+	        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
+	        StrSubstitutor compSubst = new StrSubstitutor(compMap);
+			String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
+			File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
+	        copyWithVarSubstitution("component.xml", componentFile, compSubst);
+		}
+		
+		public String getPackageName() {
+			return toPackageName(voiceName);
+		}
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * Convert an arbitrary string into a valid java package name, as follows:
 	 * - any characters that are not alphanumeric or underscore are deleted;
