@@ -117,7 +117,7 @@ public class VoiceComponentDescription extends ComponentDescription
 
     
     @Override
-    protected Document createComponentXML()
+    public Document createComponentXML()
     throws ParserConfigurationException
     {
         Document doc = super.createComponentXML();
