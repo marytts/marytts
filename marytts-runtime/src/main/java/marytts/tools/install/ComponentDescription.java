@@ -226,6 +226,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return version;
     }
     
+    public void setVersion(String aVersion) {
+    	this.version = aVersion;
+    }
+    
     public String getDescription()
     {
         return description;
@@ -250,6 +254,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return locations;
     }
     
+    public void removeAllLocations() {
+    	locations.clear();
+    }
     
     public void addLocation(URL aLocation) {
         if (this.locations == null) {
@@ -262,6 +269,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     public String getPackageFilename()
     {
         return packageFilename;
+    }
+    
+    public void setPackageFilename(String aPackageFilename) {
+    	this.packageFilename = aPackageFilename;
     }
     
     public int getPackageSize()
@@ -487,7 +498,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     }
 
 
-    protected Document createComponentXML()
+    public Document createComponentXML()
     throws ParserConfigurationException 
     {
         DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
