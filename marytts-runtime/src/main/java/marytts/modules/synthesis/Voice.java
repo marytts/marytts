@@ -315,34 +315,39 @@ public class Voice
 
                 // ...and instantiate it in a switch statement:
                 Model model = null;
-                switch (possibleModelTypes) {
-                case CART:
-                    model = new CARTModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
-                            modelFeatureName, modelPredictFrom, modelApplyTo);
-                    break;
-
-                case SOP:
-                    model = new SoPModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
-                            modelFeatureName, modelPredictFrom, modelApplyTo);
-                    break;
-
-                case HMM:
-                    // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
-                    // and they use the same dataFile, then let them be the same instance:
-                    // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
-                    if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
-                            && voiceName.equals(getDurationModel().getVoiceName())) {
-                        model = getDurationModel();
-                        ((HMMModel)model).setPredictDurAndF0(true);  
-                    } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
-                            && voiceName.equals(getF0Model().getVoiceName())) {
-                        model = getF0Model();
-                        ((HMMModel)model).setPredictDurAndF0(true);
-                    } else {
-                        model = new HMMModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
+                try {
+                    switch (possibleModelTypes) {
+                    case CART:
+                        model = new CARTModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
+                        break;
+
+                    case SOP:
+                        model = new SoPModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
+                                modelFeatureName, modelPredictFrom, modelApplyTo);
+                        break;
+
+                    case HMM:
+                        // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
+                        // and they use the same dataFile, then let them be the same instance:
+                        // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
+                        if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
+                                && voiceName.equals(getDurationModel().getVoiceName())) {
+                            model = getDurationModel();
+                            ((HMMModel)model).setPredictDurAndF0(true);  
+                        } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
+                                && voiceName.equals(getF0Model().getVoiceName())) {
+                            model = getF0Model();
+                            ((HMMModel)model).setPredictDurAndF0(true);
+                        } else {
+                            model = new HMMModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
+                                    modelFeatureName, modelPredictFrom, modelApplyTo);
+                        }
+                        break;
                     }
-                    break;
+                } catch (Throwable t) {
+                	throw new MaryConfigurationException("Cannot instantiate model '"+modelName+"' of type '"+modelType+
+                			"' from '"+ MaryProperties.getProperty(header + "." + modelName + ".data")+"'", t);
                 }
 
                 // if we got this far, model should not be null:

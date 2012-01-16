@@ -100,7 +100,7 @@ public class VocalizationSelector {
             }
         }
         catch (IOException e) {
-            throw new MaryConfigurationException("Problem loading vocalization files for voice " + e);
+            throw new MaryConfigurationException("Problem loading vocalization files for voice ", e);
         }
     }
     
