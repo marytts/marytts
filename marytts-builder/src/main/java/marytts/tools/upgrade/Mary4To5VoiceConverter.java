@@ -42,13 +42,22 @@ public class Mary4To5VoiceConverter {
 		"FeaFile",
 		"trickyPhonesFile",
 		"Fif",
+		"targetCostWeights", "joinCostWeights", "cartFile",
+		"duration.data", "F0.data", "midF0.data", "rightF0.data",
+		"exampleTextFile",
+	};
+	
+	private static final String[] PROPS_FOR_FILESYSTEM = new String[] {
+		"featureFile", "joinCostFile", "unitsFile", "audioTimelineFile", "basenameTimeline",
+		"vocalization.unitfile", "vocalization.timeline", "vocalization.featurefile",
+		"vocalization.featureDefinitionFile", "vocalization.intonationfile",
+		"vocalization.intonation.featureDefinitionFile",
 	};
 	
 	/**
 	 * The list of property suffixes which should be dropped when upgrading the config file.
 	 */
 	private static final String[] PROPS_TO_DROP = new String[] {
-		"duration.data", "F0.data"
 	};
 	
 	private Logger logger;
@@ -154,17 +163,22 @@ public class Mary4To5VoiceConverter {
 		try {
 			config.store(out, null);
 		} finally {
+			out.flush();
 			out.close();
 		}
 	}
 
-	private File[] getFilesForFilesystem() {
-		return null;
+	private File[] getFilesForFilesystem() throws IOException {
+		return getFilesFromProperties(PROPS_FOR_FILESYSTEM);
 	}
 
 	private File[] getFilesForResources() throws IOException {
+		return getFilesFromProperties(PROPS_FOR_RESOURCES);
+	}
+
+	private File[] getFilesFromProperties(String[] propertySuffixes) throws IOException {
 		ArrayList<File> files = new ArrayList<File>();
-		for (String suffix : PROPS_FOR_RESOURCES) {
+		for (String suffix : propertySuffixes) {
 			String key = propertyPrefix+suffix;
 			if (config.containsKey(key)) {
 				String value = config.getProperty(key);
