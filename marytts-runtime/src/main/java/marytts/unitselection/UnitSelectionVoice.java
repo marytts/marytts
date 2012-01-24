@@ -34,6 +34,7 @@ package marytts.unitselection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
@@ -87,14 +88,14 @@ public class UnitSelectionVoice extends Voice {
             String header = "voice."+name;
             
             domain = MaryProperties.needProperty(header+".domain");
-            String exampleTextFile = null;
+            InputStream exampleTextStream = null;
             if (!domain.equals("general")) { // limited domain voices must have example text;
-                exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
+                exampleTextStream = MaryProperties.needStream(header+".exampleTextFile");
             } else { // general domain voices can have example text:
-                exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
+                exampleTextStream = MaryProperties.getStream(header+".exampleTextFile");
             }
-            if (exampleTextFile != null) {
-                readExampleText(exampleTextFile);
+            if (exampleTextStream != null) {
+                readExampleText(exampleTextStream);
             }
             
             FeatureProcessorManager featProcManager = FeatureRegistry.getFeatureProcessorManager(this);
@@ -295,24 +296,19 @@ public class UnitSelectionVoice extends Voice {
         }
     }
     
-    public void readExampleText(String file)
+    public void readExampleText(InputStream in) throws IOException
     {
-        try {
-            BufferedReader reader =
-            	new BufferedReader(new InputStreamReader(new FileInputStream(new File(file)),"UTF-8"));
-        	StringBuilder sb = new StringBuilder();
-        	String line = reader.readLine();
-        	while (line != null){
-        	    if (!line.startsWith("***")){
-        	        sb.append(line+"\n");
-        	    }
-        	    line = reader.readLine();
-        	}
-            exampleText = sb.toString();            
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw new Error("Can not read in example text for voice "+name);
-        }
+        BufferedReader reader =
+        	new BufferedReader(new InputStreamReader(in, "UTF-8"));
+    	StringBuilder sb = new StringBuilder();
+    	String line = reader.readLine();
+    	while (line != null){
+    	    if (!line.startsWith("***")){
+    	        sb.append(line+"\n");
+    	    }
+    	    line = reader.readLine();
+    	}
+        exampleText = sb.toString();            
     }
     
     
