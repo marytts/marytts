@@ -134,7 +134,7 @@ public class Mary4To5VoiceConverter {
 		samplingRate = Integer.parseInt(config.getProperty(propertyPrefix+"samplingRate"));
 		
 		filesForResources = getFilesForResources();
-		filesForFilesystem = getFilesForFilesystem();
+		filesForFilesystem = getFilesForFilesystem();		
 		Map<String, String> extraVariablesToSubstitute = null;
 		
 		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, voiceName, NEW_VERSION, 
@@ -157,7 +157,7 @@ public class Mary4To5VoiceConverter {
 		  logger.debug("Converting HMM PDF files from Mary 4.0 to Mary 5.0 format");
 		  convertMary4ToMary5HmmPdfFiles(compiler.getMainResourcesDir());
 		}
-		
+				
 		logger.debug("Compiling with Maven");
 		compiler.compileWithMaven();
 		
@@ -286,7 +286,7 @@ public class Mary4To5VoiceConverter {
 		File list[] = mainResourcesDir.listFiles();
 		for (File f : list) {
 			// if mainResources dir contains f0.pdf mgc.pdf str.pdf and
-			if(f.getName().contains("lf0.pdf") || f.getName().contains("mgc.pdf") || f.getName().contains("str.pdf")) {
+			if(f.getName().contains("dur.pdf") || f.getName().contains("lf0.pdf") || f.getName().contains("mgc.pdf") || f.getName().contains("str.pdf")) {
 				logger.debug("converting file: " + f.getName());
 				convertPdfBinaryFile(f);
 			} 
