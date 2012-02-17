@@ -16,13 +16,11 @@
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>
 
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>com.savage7.maven.plugins</groupId>
 				<artifactId>maven-external-dependency-plugin</artifactId>
-				<version>0.4</version>
 				<configuration>
 					<stagingDirectory>
 						${basedir}/dependencies
@@ -134,6 +132,42 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bootstrap-jtok</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>bootstrap</goal>
+						</goals>
+						<configuration>
+							<connectionUrl>scm:svn:https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9.1</connectionUrl>
+							<checkoutDirectory>${project.build.directory}/checkout/jtok</checkoutDirectory>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<goals>source:jar,javadoc:jar,install</goals>
+						</configuration>
+					</execution>
+					<execution>
+						<id>bootstrap-mwdumper</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>bootstrap</goal>
+						</goals>
+						<configuration>
+							<connectionUrl>scm:svn:http://svn.wikimedia.org/svnroot/mediawiki/trunk/mwdumper</connectionUrl>
+							<checkoutDirectory>${project.build.directory}/checkout/mwdumper</checkoutDirectory>
+							<scmVersionType>revision</scmVersionType>
+							<scmVersion>87118</scmVersion>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<goals>source:jar,javadoc:jar,install</goals>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
@@ -160,6 +194,12 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>com.savage7.maven.plugins</groupId>
+					<artifactId>maven-external-dependency-plugin</artifactId>
+					<version>0.4</version>
+				</plugin>
+
+				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
 					<version>2.3.1</version>
 				</plugin>
@@ -167,6 +207,11 @@
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.4</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-scm-plugin</artifactId>
+					<version>1.6</version>
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
