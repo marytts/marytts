@@ -33,7 +33,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts.jar
+								file:///${project.dependencyDirectory}/freetts.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -43,7 +43,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts-de.jar
+								file:///${project.dependencyDirectory}/freetts-de.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -53,7 +53,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts-en_us.jar
+								file:///${project.dependencyDirectory}/freetts-en_us.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -64,7 +64,7 @@
 							<version>3.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/sgt_v30.jar
+								file:///${project.dependencyDirectory}/sgt_v30.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -75,7 +75,7 @@
 							<version>3.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/sgt_src_v30.jar
+								file:///${project.dependencyDirectory}/sgt_src_v30.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -86,7 +86,7 @@
 							<version>3.7.3</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/weka-3.7.3.jar
+								file:///${project.dependencyDirectory}/weka-3.7.3.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -97,7 +97,7 @@
 							<version>3.7.3</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/weka-3.7.3-src.jar
+								file:///${project.dependencyDirectory}/weka-3.7.3-src.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -107,7 +107,7 @@
 							<version>1.9.1</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/jtok-core-1.9.1.jar
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -118,7 +118,7 @@
 							<version>1.9.1</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/jtok-core-1.9.1-sources.jar
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-sources.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -129,7 +129,7 @@
 							<version>1.9.1</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/jtok-core-1.9.1-javadoc.jar
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-javadoc.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -139,7 +139,7 @@
 							<version>1.16</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/mwdumper-1.16.jar
+								file:///${project.dependencyDirectory}/mwdumper-1.16.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -150,7 +150,7 @@
 							<version>1.16</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/mwdumper-1.16-sources.jar
+								file:///${project.dependencyDirectory}/mwdumper-1.16-sources.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -161,7 +161,7 @@
 							<version>1.16</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/mwdumper-1.16-javadoc.jar
+								file:///${project.dependencyDirectory}/mwdumper-1.16-javadoc.jar
 							</downloadUrl>
 						</artifactItem>
 
