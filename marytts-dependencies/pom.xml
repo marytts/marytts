@@ -107,7 +107,7 @@
 							<version>1.9.1</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file:///${project.dependencyDirectory}/jtok-core-1.9.1.jar
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-jar-with-dependencies.jar
 							</downloadUrl>
 						</artifactItem>
 
