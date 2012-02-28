@@ -101,6 +101,70 @@
 							</downloadUrl>
 						</artifactItem>
 
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/jtok-core-1.9.1.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<classifier>sources</classifier>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/jtok-core-1.9.1-sources.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<classifier>javadoc</classifier>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/jtok-core-1.9.1-javadoc.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/mwdumper-1.16.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<classifier>sources</classifier>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/mwdumper-1.16-sources.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<classifier>javadoc</classifier>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file://${project.dependencyDirectory}/mwdumper-1.16-javadoc.jar
+							</downloadUrl>
+						</artifactItem>
+
 					</artifactItems>
 				</configuration>
 				<executions>
@@ -129,41 +193,6 @@
 							<!-- mvn com.savage7.maven.plugins:maven-external-dependency-plugin:deploy-external -->
 							<goal>deploy-external</goal>
 						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>bootstrap-jtok</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>bootstrap</goal>
-						</goals>
-						<configuration>
-							<connectionUrl>scm:svn:https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9.1</connectionUrl>
-							<checkoutDirectory>${project.build.directory}/checkout/jtok</checkoutDirectory>
-							<skipCheckoutIfExists>true</skipCheckoutIfExists>
-							<goals>source:jar,javadoc:jar,install</goals>
-						</configuration>
-					</execution>
-					<execution>
-						<id>bootstrap-mwdumper</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>bootstrap</goal>
-						</goals>
-						<configuration>
-							<connectionUrl>scm:svn:http://svn.wikimedia.org/svnroot/mediawiki/trunk/mwdumper</connectionUrl>
-							<checkoutDirectory>${project.build.directory}/checkout/mwdumper</checkoutDirectory>
-							<scmVersionType>revision</scmVersionType>
-							<scmVersion>87118</scmVersion>
-							<skipCheckoutIfExists>true</skipCheckoutIfExists>
-							<goals>source:jar,javadoc:jar,install</goals>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -207,11 +236,6 @@
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.4</version>
-				</plugin>
-
-				<plugin>
-					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.6</version>
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
