@@ -67,6 +67,8 @@
 
     <NBL regexp="@" class="PUNCTUATION"/>
 
+    <VOWEL_QUOTE regexp="[aeiouAEIOU]'" class="PUNCTUATION"/>
+
   </DEFINITIONS>
 
   <!-- These are the mandatory rules defined as -->
@@ -89,7 +91,7 @@
     <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
     <!-- instead of `a|ab|abc' -->
     <ALL_PUNCT_RULE>
-      (<SPECIAL_INT/>)(?=\w)|<PERIOD/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OHYPHEN1/>|<CHYPHEN1/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>
+      (<SPECIAL_INT/>)(?=\w)|<PERIOD/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OHYPHEN1/>|<CHYPHEN1/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<VOWEL_QUOTE/>
     </ALL_PUNCT_RULE>
 
     <!-- punctuation which can mark clitics; this rule is used -->
@@ -114,7 +116,7 @@
     <!-- use the end-of-input matcher \Z to easily -->
     <!-- identify this punctuation -->
     <NON_BREAKING_RIGHT_PUNCT_RULE class="TERM_PUNCT_P">
-      <PERIOD/>\Z
+      (<VOWEL_QUOTE/>|<PERIOD/>)\Z
     </NON_BREAKING_RIGHT_PUNCT_RULE>
 
     <!-- punctuation which can be found only within sentences -->
