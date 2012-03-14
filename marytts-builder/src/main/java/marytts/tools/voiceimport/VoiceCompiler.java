@@ -65,6 +65,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	 */
 	public VoiceCompiler() {
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see marytts.tools.voiceimport.VoiceImportComponent#compute()
@@ -287,11 +288,19 @@ public class VoiceCompiler extends VoiceImportComponent {
 				copyWithVarSubstitution("hsmm-voice.config", getConfigFile());
 			}
 		}
+		
+		public void setFilesForResources(File [] filesForResources){
+			this.filesForResources = filesForResources;
+		}
 
 		public File getConfigFile() {
 			return new File(mainResourcesDir, "voice.config");
 		}
 
+		public File getMainResourcesDir() {
+			return mainResourcesDir;
+		}
+		
 		private void copyWithVarSubstitution(String resourceName, File destination, StrSubstitutor... moreSubstitutors) throws IOException {
 			String resource = marytts.util.io.FileUtils.getStreamAsString(getClass().getResourceAsStream("templates/"+resourceName), "UTF-8");
 			String resourceWithReplacements = substitutor.replace(resource);
@@ -317,6 +326,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 				}
 			}
 		}
+		
+		
 
 		
 		public void compileWithMaven() throws IOException, InterruptedException {
@@ -384,6 +395,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 		}
 		return result.toString();
 	}
+	
+	
 	
 	
 

@@ -365,7 +365,9 @@ public class HMMData {
         if(useGV) {
         	useContextDependentGV = p.getBoolean(prefix+".useContextDependentGV"); /* Use context-dependent GV, (gv without sil)*/
         	String gvMethod = p.getProperty(prefix+".gvMethod");     /* GV method: gradient or derivative (default gradient)*/ 
-        	setGvMethod(gvMethod);
+        	// this feature is new for MARY 5.0 so it will not appear in old config files
+        	if(gvMethod != null)
+        	  setGvMethod(gvMethod);        	
 
         	// Number of iteration for GV
             maxMgcGvIter = p.getInteger(prefix+".maxMgcGvIter", maxMgcGvIter);  /* Max number of iterations for MGC gv optimisation */
@@ -425,7 +427,7 @@ public class HMMData {
 
 		Properties props = new Properties();
 
-		FileInputStream fis = new FileInputStream(marybase + "conf/" + configFile);
+		FileInputStream fis = new FileInputStream(marybase + configFile);
 		props.load(fis);
 		fis.close();
 		Map<String, String> maryBaseReplacer = new HashMap<String, String>();
