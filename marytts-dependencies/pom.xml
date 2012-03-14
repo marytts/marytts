@@ -16,13 +16,11 @@
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>
 
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>com.savage7.maven.plugins</groupId>
 				<artifactId>maven-external-dependency-plugin</artifactId>
-				<version>0.4</version>
 				<configuration>
 					<stagingDirectory>
 						${basedir}/dependencies
@@ -35,7 +33,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts.jar
+								file:///${project.dependencyDirectory}/freetts.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -45,7 +43,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts-de.jar
+								file:///${project.dependencyDirectory}/freetts-de.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -55,7 +53,7 @@
 							<version>1.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/freetts-en_us.jar
+								file:///${project.dependencyDirectory}/freetts-en_us.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -66,7 +64,7 @@
 							<version>3.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/sgt_v30.jar
+								file:///${project.dependencyDirectory}/sgt_v30.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -77,7 +75,7 @@
 							<version>3.0</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/sgt_src_v30.jar
+								file:///${project.dependencyDirectory}/sgt_src_v30.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -88,7 +86,7 @@
 							<version>3.7.3</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/weka-3.7.3.jar
+								file:///${project.dependencyDirectory}/weka-3.7.3.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -99,7 +97,71 @@
 							<version>3.7.3</version>
 							<packaging>jar</packaging>
 							<downloadUrl>
-								file://${project.dependencyDirectory}/weka-3.7.3-src.jar
+								file:///${project.dependencyDirectory}/weka-3.7.3-src.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-jar-with-dependencies.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<classifier>sources</classifier>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-sources.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>de.dfki.lt.jtok</groupId>
+							<artifactId>jtok-core</artifactId>
+							<classifier>javadoc</classifier>
+							<version>1.9.1</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/jtok-core-1.9.1-javadoc.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/mwdumper-1.16.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<classifier>sources</classifier>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/mwdumper-1.16-sources.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>org.wikimedia</groupId>
+							<artifactId>mwdumper</artifactId>
+							<classifier>javadoc</classifier>
+							<version>1.16</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/mwdumper-1.16-javadoc.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -134,10 +196,48 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<!-- disable creation of jar -->
+					<execution>
+						<id>default-jar</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-install-plugin</artifactId>
+				<executions>
+					<!-- disable installation of marytts-dependencies itself -->
+					<execution>
+						<id>default-install</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>com.savage7.maven.plugins</groupId>
+					<artifactId>maven-external-dependency-plugin</artifactId>
+					<version>0.4</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.3.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
