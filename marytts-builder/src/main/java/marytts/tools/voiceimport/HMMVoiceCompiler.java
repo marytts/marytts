@@ -92,6 +92,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	 */
 	@Override
 	protected void mapFeatures() throws IOException, FileNotFoundException {
+		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
 		// First find a features file example
 		getFeatureFileExample();	
 		
@@ -119,10 +120,25 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	    /** Filter file for mixed excitation */
 	    mixFiltersFileLocation = "hts/data/" + db.getProperty(mixFiltersFile);
 	    
+	    // Set files for resources
+	    // Now I know the names of the resources so I can set the files for resources on the maven compiler
+	    String[] filenamesResources = new String[] {
+			    rootDir+treeDurFile, rootDir+treeLf0File, rootDir+treeMcpFile, rootDir+treeStrFile, 
+			    rootDir+pdfDurFile, rootDir+pdfLf0File, rootDir+pdfMcpFile, rootDir+pdfStrFile, 
+			    rootDir+pdfLf0GvFile, rootDir+pdfMcpGvFile, rootDir+pdfStrGvFile, 
+			    rootDir+mixFiltersFileLocation, rootDir+featuresFileExample, 
+			    rootDir+db.getProperty(trickyPhonesFile) 
+		};
+		File[] filesForResources = new File[filenamesResources.length];
+		for (int i=0; i<filenamesResources.length; i++) {
+			filesForResources[i] = new File(filenamesResources[i]);
+		}		
+		compiler.setFilesForResources(filesForResources);
+		
+		
         // Before setting the tree files, we need to check if they contain aliases for the extra features used for training
         // if so there must be a file mary/hmmFeaturesMap.txt which has to be used to convert back the feature names
-        // Check if features map was used
-		String rootDir = db.getProp(DatabaseLayout.ROOTDIR);
+        // Check if features map was used		
 		String feasMapFileName = rootDir + db.getProperty(hmmFeaturesMapFile); 
         System.out.println("Checking if aliases for extra features used for training were used: checking if file exist -->" + feasMapFileName);
         File featuresMap = new File(feasMapFileName);
@@ -184,6 +200,9 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 
 	@Override
 	protected File[] getFilesForResources() {
+		// at this point, initialisation, I still do not know where 
+		// exactly the files will be
+		/*		
 		String[] filenamesResources = new String[] {
 			    treeDurFile, treeLf0File, treeMcpFile, treeStrFile, pdfDurFile, pdfLf0File, pdfMcpFile, pdfStrFile, 
 			    pdfLf0GvFile, pdfMcpGvFile, pdfStrGvFile, mixFiltersFileLocation, featuresFileExample, 
@@ -194,6 +213,8 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 			filesForResources[i] = new File(filenamesResources[i]);
 		}
 		return filesForResources;
+		*/
+		return null;
 	}
 	
 	@Override
@@ -222,7 +243,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
               FileUtils.copyFile(new File("phonefeatures/" + fileExample + "/" + in.list()[0]), new File(featuresFileExample));
             }  
           } else if(in.exists()){
-        	  FileUtils.copyFile(new File("phonefeatures/" + fileExample), new File(featuresFileExample));  
+        	  FileUtils.copyFile(in, new File(featuresFileExample));  
           } else {
         	System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty(?)");
             throw new IOException();  

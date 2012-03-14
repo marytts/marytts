@@ -2,6 +2,8 @@ package marytts.tools.upgrade;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -132,10 +134,12 @@ public class Mary4To5VoiceConverter {
 		samplingRate = Integer.parseInt(config.getProperty(propertyPrefix+"samplingRate"));
 		
 		filesForResources = getFilesForResources();
-		filesForFilesystem = getFilesForFilesystem();
+		filesForFilesystem = getFilesForFilesystem();		
 		Map<String, String> extraVariablesToSubstitute = null;
 		
-		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, voiceName, NEW_VERSION, locale, gender, domain, samplingRate, isUnitSelectionVoice, filesForResources, filesForFilesystem, extraVariablesToSubstitute);
+		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, voiceName, NEW_VERSION, 
+				locale, gender, domain, samplingRate, isUnitSelectionVoice, filesForResources, 
+				filesForFilesystem, extraVariablesToSubstitute);
 
 		logger.debug("Creating directories");
 		compiler.createDirectories();
@@ -145,11 +149,15 @@ public class Mary4To5VoiceConverter {
 
 		updateConfig();
 		saveConfig(compiler.getConfigFile());
-		
-		
-		logger.debug("Copying voice files");
+				
+		logger.debug("Copying voice files");		
 		compiler.copyVoiceFiles();
 		
+		if(!isUnitSelectionVoice){
+		  logger.debug("Converting HMM PDF files from Mary 4.0 to Mary 5.0 format");
+		  convertMary4ToMary5HmmPdfFiles(compiler.getMainResourcesDir());
+		}
+				
 		logger.debug("Compiling with Maven");
 		compiler.compileWithMaven();
 		
@@ -273,7 +281,208 @@ public class Mary4To5VoiceConverter {
 	}
 
 	
-	
+	private void convertMary4ToMary5HmmPdfFiles(File mainResourcesDir) throws Exception {
+		
+		File list[] = mainResourcesDir.listFiles();
+		for (File f : list) {
+			// if mainResources dir contains f0.pdf mgc.pdf str.pdf and
+			if(f.getName().contains("dur.pdf") || f.getName().contains("lf0.pdf") || f.getName().contains("mgc.pdf") || f.getName().contains("str.pdf")) {
+				logger.debug("converting file: " + f.getName());
+				convertPdfBinaryFile(f);
+			} 
+			// if mainResource contains gv-lf0-littend.pdf, gv-mgc-littend.pdf and gv-str-littend.pdf 
+			else if(f.getName().contains("gv-lf0-littend.pdf") || f.getName().contains("gv-mgc-littend.pdf") || f.getName().contains("gv-str-littend.pdf")) {
+				logger.debug("converting file: " + f.getName());
+				convertGvBinaryFile(f);
+			} 
+		}
+		
+		
+		
+	}
+
+	/**
+	 * Converts format from pdf Mary format 4 to Mary 5, the converted file will have the same input name
+	 * @param pdfInFile
+	 * @throws Exception
+	 */
+	public void convertPdfBinaryFile(File pdfInFile) throws Exception {
+	      int i,j,k,l;
+	      boolean lf0=false;
+	      
+	      String pdfInFileString = pdfInFile.getName(); 	      
+	      // the destination file name will be the same as the input file so
+	      String pdfOutFile = pdfInFile.getAbsolutePath();
+	      String path = pdfInFile.getParent();
+	      // I make a copy or the original file 
+	      FileUtils.copy(pdfInFile.getAbsolutePath(), path+"/tmp");
+	      pdfInFile = new File(path+"/tmp");
+	     	      
+	      DataInputStream dataIn;
+	      DataOutputStream dataOut;
+
+	      dataIn = new DataInputStream (new BufferedInputStream(new FileInputStream(pdfInFile)));
+	      //numMSDFlag
+	      int numMSDFlag=0;
+	      //numStream
+	      int numStream=1; // 1 for mgc, str, mag or dur
+	      //vectorSize
+	      int vectorSize;
+	      //numDurPdf
+	      int numPdf[];
+
+	      logger.debug("Reading: from file " + pdfInFileString);
+	      float pdf[];  // pdf[vectorSize];
+	      float fval;
+	      int numState = 5;
+
+	      //---------------------------------------------------------------------------------
+	      //------------ Read header --------------------------------------------------------
+	      //---------------------------------------------------------------------------------
+	      vectorSize = dataIn.readInt();
+	      if(pdfInFileString.contains("lf0.pdf")){
+	        numStream = vectorSize;
+	        vectorSize = 4; // vectorSize = 4 --> [1]:mean f0, [2]:var f0, [3]:voiced weight, [4]:unvoiced weight
+	        lf0 = true;
+	        numMSDFlag=1;
+	      } else if (pdfInFileString.contains("dur.pdf")){
+	        /* 2*nstate because the vector size for duration is the number of states */
+	        //pdf = new double[1][numDurPdf][1][2*numState];  // just one state and one stream
+	        numState=1;
+	        numStream=5;
+	      }
+	      logger.debug("vectorSize(r) = " + vectorSize + " numMSDFlag="+ numMSDFlag+ " numStream=" + numStream + " numState="+ numState);
+
+
+	      /* Now we need the number of pdf's for each state */
+	      numPdf = new int[numState];
+	      for(i=0; i< numState; i++){
+	         numPdf[i] = dataIn.readInt();
+	         logger.debug("loadPdfs(r): numPdf[state:"+ i + "]=" + numPdf[i]);
+	         if( numPdf[i] < 0 )
+	             throw new Exception("loadPdfs: #pdf at state " + i + " must be positive value.");
+	      }
+	      pdf = new float[2*vectorSize];
+
+	      dataOut = new DataOutputStream (new BufferedOutputStream(new FileOutputStream(pdfOutFile)));
+	      // This is the format in version 2.0
+	      //numMSDFlag
+	      dataOut.writeInt(numMSDFlag);
+	      //numStream
+	      dataOut.writeInt(numStream);
+	      //vectorSize (for lf0 vectorsize is the same numStream)
+	      if(lf0)
+	        dataOut.writeInt(numStream);
+	      else
+	        dataOut.writeInt(vectorSize);
+	      //numPdf per state
+	      for(i=0; i< numState; i++){
+	        dataOut.writeInt(numPdf[i]);
+	      }
+
+	      //---------------------------------------------------------------------------------
+	      //-------------- Now read the data ------------------------------------------------
+	      // in the old version the mean vector goes first and then the cov
+	      // in the new version the mean and cov elements of the vector are one after another
+	      //---------------------------------------------------------------------------------
+	       if(lf0){
+	        /* read  pdfs (mean, variance). (2*vectorSize because mean and diag variance */
+	        /* are allocated in only one vector. */
+	        for(i=0; i< numState; i++){
+	          for( j=0; j<numPdf[i]; j++){
+	              for( k=0; k<numStream; k++ ){
+	                for( l=0; l<vectorSize; l++) {
+	                  fval = dataIn.readFloat();
+	                  // NOTE: Here (hts_engine v1.04) the order seem to be the same as before
+	                  dataOut.writeFloat(fval);
+	                }
+
+	              }
+	          }
+	          //System.out.println("New pdf  j=" + j);
+	        }
+	       } else {
+	           /* read  pdfs (mean, variance). (2*vectorSize because mean and diag variance */
+	           /* are allocated in only one vector. */
+	           for(i=0; i< numState; i++){
+	             for( j=0; j<numPdf[i]; j++){
+	                 for( k=0; k<(2*vectorSize); k++ ){
+	                     pdf[k] = dataIn.readFloat();
+	                 }
+	                 for( k=0; k<vectorSize; k++ ){
+	                     dataOut.writeFloat(pdf[k]);
+	                     dataOut.writeFloat(pdf[k+vectorSize]);
+	                 }
+	             }
+	             //System.out.println("New pdf  j=" + j);
+	           }
+
+	       }
+	      dataIn.close ();
+	      dataOut.close();
+	      pdfInFile.delete();
+	      logger.debug("Updated format in file " + pdfOutFile);
+
+
+	  }
+
+      /**
+       * Converts file format from gv Mary format 4 to Mary 5, the converted file will have the same input name
+       * @param gvInFile
+       * @throws IOException
+       */
+	  public void convertGvBinaryFile(File gvInFile) throws IOException {
+	      int i;
+	      String gvInFileString = gvInFile.getName(); 
+	      // the destination file name will be the same as the input file so	      
+	      String gvOutFile = gvInFile.getAbsolutePath();
+	      String path = gvInFile.getParent();
+	      // I make a copy or the original file 
+	      FileUtils.copy(gvInFile.getAbsolutePath(), path+"/tmp");
+	      gvInFile = new File(path+"/tmp");
+	     	      
+	      DataInputStream dataIn;
+	      DataOutputStream dataOut;
+	      dataIn = new DataInputStream (new BufferedInputStream(new FileInputStream(gvInFile)));
+
+	      //int numMix = data_in.readShort();  /* --NOT USED -- first short is the number of mixtures in Gaussian model */
+	      int order = dataIn.readShort();     /* second short is the order of static vector */
+	      float gvmean[] = new float[order];  /* allocate memory of this size */
+	      float gvcov[] = new float[order];
+	      logger.debug("Reading from file " + gvInFileString + " order=" + order);
+
+	      for ( i = 0; i < order; i++){
+	          gvmean[i] = dataIn.readFloat();
+	          //System.out.format("gvmean[%d]=%f\n",i,gvmean[i]);
+	      }
+	      for ( i = 0; i < order; i++){
+	          gvcov[i] = dataIn.readFloat();
+	          //System.out.format("gvcov[%d]=%f\n",i,gvcov[i]);
+	      }
+	      dataIn.close ();
+
+	      dataOut = new DataOutputStream (new BufferedOutputStream(new FileOutputStream(gvOutFile)));
+	      /* This is the format in version 2.0*/
+	      //numMSDFlag
+	      dataOut.writeInt(0);
+	      //numStream
+	      dataOut.writeInt(1);
+	      //vectorSize
+	      dataOut.writeInt(order);
+	      //numDurPdf
+	      dataOut.writeInt(1);
+
+	      for (i = 0; i < order; i++){
+	        dataOut.writeFloat(gvmean[i]);
+	        dataOut.writeFloat(gvcov[i]);
+	      }
+
+	      dataOut.close();
+	      gvInFile.delete();
+	      logger.debug("Updated format in file " + gvOutFile);
+
+	  }
+
 
 	public static void main(String[] args) {
 		if (args.length < 2) {
