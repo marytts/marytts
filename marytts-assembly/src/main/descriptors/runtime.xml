@@ -32,6 +32,7 @@
         <include>bin/*</include>
       </includes>
       <fileMode>0755</fileMode>
+      <filtered>true</filtered>
     </fileSet>
   </fileSets>
   
@@ -43,6 +44,7 @@
       <scope>runtime</scope>
       <includes>
         <include>${project.groupId}:marytts-server:jar:jar-with-dependencies</include>
+        <include>${project.groupId}:marytts-client:jar:jar-with-dependencies</include>
         <include>${project.groupId}:marytts-lang-*</include>
         <include>${project.groupId}:voice-*</include>
       </includes>
