@@ -174,6 +174,10 @@ public class Mary4To5VoiceConverter {
 		if (!convertedZipFile.exists()) {
 			throw new IOException("Maven should have created file "+convertedZipFile.getAbsolutePath()+" but file does not exist.");
 		}
+
+		
+		updateVoiceDescription(rootDir, convertedZipFile);
+
 		File finalZipFile = new File(rootDir, convertedZipFilename);
 		if (finalZipFile.exists()) {
 			finalZipFile.delete();
@@ -183,12 +187,6 @@ public class Mary4To5VoiceConverter {
 			throw new IOException("Failure trying to move "+convertedZipFile.getAbsolutePath()+" to "+finalZipFile.getAbsolutePath());
 		}
 		
-		
-		// - Compute md5 sum and file size for new zip file
-		// - update voice description with these
-		// - move zip file to current folder
-		
-		updateVoiceDescription(rootDir, finalZipFile);
 	}
 
 	protected void saveConfig(File configFile) throws IOException {
@@ -287,12 +285,9 @@ public class Mary4To5VoiceConverter {
 		String newPrefix = "jar:/marytts/voice/"+packageName+"/";
 		for (String suffix : PROPS_FOR_RESOURCES) {
 			String key = getPropertyPrefix()+suffix;
-			System.out.print("Updating "+key);
 			if (config.containsKey(key)) {
 				String value = config.getProperty(key);
-				System.out.print(" from "+value);
 				value = value.replaceFirst(oldPrefix, newPrefix);
-				System.out.println(" to "+value);
 				config.setProperty(key, value);
 			}
 		}
