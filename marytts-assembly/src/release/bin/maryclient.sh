@@ -1,11 +1,10 @@
 #!/bin/bash
 ##########################################################################
-# MARY TTS server
+# MARY TTS client
 ##########################################################################
 
 # Set the Mary base installation directory in an environment variable:
 BINDIR="`dirname "$0"`"
 export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
-
-java -showversion -ea -Xms40m -Xmx1g -cp "$MARY_BASE/lib/*" -Dmary.base="$MARY_BASE" $* marytts.server.Mary
+java -showversion -ea -Dserver.host=localhost -Dserver.port=59125 -jar "$MARY_BASE/lib/marytts-client-${project.version}-jar-with-dependencies.jar"
