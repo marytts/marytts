@@ -28,6 +28,8 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import com.twmacinta.util.MD5;
+
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.install.InstallFileParser;
 import marytts.tools.install.VoiceComponentDescription;
@@ -78,11 +80,15 @@ public class Mary4To5VoiceConverter {
 		"voice.version",
 		"en_US-voice.version",
 		"de-voice.version",
+		"it-voice.version",
+		"requires.marybase.version",
+		"requires.hmm.version",
 		"requires.en_US.version",
 		"requires.de.version",
-		"requires.marybase.version",
+		"requires.it.version",
 		"requires.en_US.download",
 		"requires.de.download",
+		"requires.it.download",
 	};
 	
 	private Logger logger;
@@ -122,14 +128,15 @@ public class Mary4To5VoiceConverter {
 	
 	private void convert() throws Exception {
 		logger.info("converting...");
-		extractedDir = new File(mary4Zip.getParentFile(), voiceDescription.getName()+"-"+voiceDescription.getVersion());
+		File rootDir = mary4Zip.getParentFile();
+		extractedDir = new File(rootDir, voiceDescription.getName()+"-"+voiceDescription.getVersion());
 		logger.debug("... extracting archive to "+extractedDir.getPath());
 		FileUtils.unzipArchive(mary4Zip, extractedDir);
 		
 		
 		loadConfig(findConfigFile());
 		
-		compileDir = new File(mary4Zip.getParentFile(), voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
+		compileDir = new File(rootDir, voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
 		
 		domain = config.getProperty(getPropertyPrefix()+"domain");
 		samplingRate = Integer.parseInt(config.getProperty(getPropertyPrefix()+"samplingRate"));
@@ -162,9 +169,26 @@ public class Mary4To5VoiceConverter {
 		logger.debug("Compiling with Maven");
 		compiler.compileWithMaven();
 		
-		String newZipFilename = getFilenamePrefix()+".zip";
+		String convertedZipFilename = getFilenamePrefix()+".zip";
+		File convertedZipFile = new File(compileDir+"/target/"+convertedZipFilename);
+		if (!convertedZipFile.exists()) {
+			throw new IOException("Maven should have created file "+convertedZipFile.getAbsolutePath()+" but file does not exist.");
+		}
+		File finalZipFile = new File(rootDir, convertedZipFilename);
+		if (finalZipFile.exists()) {
+			finalZipFile.delete();
+		}
+		boolean success = convertedZipFile.renameTo(finalZipFile);
+		if (!success) {
+			throw new IOException("Failure trying to move "+convertedZipFile.getAbsolutePath()+" to "+finalZipFile.getAbsolutePath());
+		}
 		
-		updateVoiceDescription();
+		
+		// - Compute md5 sum and file size for new zip file
+		// - update voice description with these
+		// - move zip file to current folder
+		
+		updateVoiceDescription(rootDir, finalZipFile);
 	}
 
 	protected void saveConfig(File configFile) throws IOException {
@@ -342,25 +366,33 @@ public class Mary4To5VoiceConverter {
 	
 
 	private String getFilenamePrefix() {
-		return "mary-"+voiceDescription.getName()+"-"+NEW_VERSION;
+		return "voice-"+voiceDescription.getName()+"-"+NEW_VERSION;
 	}
+	
+	
 
-	private void updateVoiceDescription()
+	private void updateVoiceDescription(File rootDir, File packageFile)
 			throws MalformedURLException, ParserConfigurationException,
 			MaryConfigurationException, IOException {
 		logger.debug("writing new voice description...");
 		voiceDescription.setVersion(NEW_VERSION);
 		voiceDescription.setDependsVersion(NEW_VERSION);
-		voiceDescription.setPackageFilename(getFilenamePrefix()+".zip");
+		voiceDescription.setPackageFilename(packageFile.getName());
+		voiceDescription.setPackageMD5Sum(computeMD5(packageFile));
+		voiceDescription.setPackageSize((int) packageFile.length());
 		voiceDescription.removeAllLocations();
 		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+NEW_VERSION+"/").toURL());
 		Document doc = voiceDescription.createComponentXML();
-		File newVoiceDescriptionFile = new File(mary4Zip.getParentFile(), getFilenamePrefix() + "-component.xml");
+		File newVoiceDescriptionFile = new File(rootDir, getFilenamePrefix() + "-component.xml");
 		DomUtils.document2File(doc, newVoiceDescriptionFile);
 		logger.debug("... created "+newVoiceDescriptionFile.getPath());
 	}
 
 	
+	private String computeMD5(File packageFile) throws IOException {
+		return MD5.asHex(MD5.getHash(packageFile));
+	}
+
 	private void convertMary4ToMary5HmmPdfFiles(File mainResourcesDir) throws Exception {
 		
 		File list[] = mainResourcesDir.listFiles();
