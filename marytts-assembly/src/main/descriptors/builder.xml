@@ -10,23 +10,20 @@
         <include>LICENSE*</include>
         <include>gpl-3.0.txt</include>
         <include>lgpl-3.0.txt</include>
-        <include>lib/voices/**/*</include>
-        <include>user-dictionaries/*</include>
       </includes>
     </fileSet>
     <!-- General, non-executable files for release -->
     <fileSet>
-      <directory>src/runtime</directory>
+      <directory>src/builder</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README*</include>
-        <include>doc/examples/**/*</include>
       </includes>
     </fileSet>
     
     <!-- Executable scripts: -->
     <fileSet>
-      <directory>src/runtime</directory>
+      <directory>src/builder</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>bin/*</include>
@@ -43,10 +40,9 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-        <include>${project.groupId}:marytts-server:jar:jar-with-dependencies</include>
-        <include>${project.groupId}:marytts-client:jar:jar-with-dependencies</include>
-        <include>${project.groupId}:marytts-lang-*</include>
-        <include>${project.groupId}:voice-*</include>
+        <include>${project.groupId}:marytts-redstart:jar</include>
+        <include>${project.groupId}:marytts-transcription:jar</include>
+        <include>${project.groupId}:marytts-builder:jar:jar-with-dependencies</include>
       </includes>
     </dependencySet>
   </dependencySets>
