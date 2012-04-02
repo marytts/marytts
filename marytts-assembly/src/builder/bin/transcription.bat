@@ -1,7 +1,7 @@
 @echo off
 set BINDIR=%~dp0
 call :RESOLVE "%BINDIR%\.." MARY_BASE
-java -showversion -ea "%*" -jar "%MARY_BASE%"\java\redstart.jar
+java -showversion -ea "%*" -cp "%MARY_BASE%\lib\*" marytts.tools.transcription.TranscriptionGUI
 goto :EOF
 
 :RESOLVE

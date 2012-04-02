@@ -1,7 +1,7 @@
 @echo off
 set BINDIR=%~dp0
 call :RESOLVE "%BINDIR%\.." MARY_BASE
-java -showversion -ea -Xmx1024m -DMARYBASE="%MARY_BASE%" "%*" -jar "%MARY_BASE%"\java\voiceimport.jar
+java -showversion -ea "%*" -jar "%MARY_BASE%\lib\marytts-redstart-${project.version}.jar"
 goto :EOF
 
 :RESOLVE
