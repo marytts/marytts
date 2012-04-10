@@ -1,0 +1,52 @@
+###############################################################################
+#                                                                            ##
+# Inflections for Swedish words                                              ##
+#                                                                            ##
+# Stemming for Swedish words Out Of Vocabulary (OOV) is handled by the class ##
+# sv_CompoundSplitter, which treats them as any word in a compound, except   ##
+# that they can only appear at the end of a word. Finding inflections also   ##
+# takes precedence over finding lexicon words, meaning that if a string is   ##
+# present in both the inflection list and the lexicon, the pronunciation     ##
+# for the inflection will be used - provided that the aforementioned 	     ##
+# condition has been fulfilled. Inflections and their pronunciations         ## 
+# overriding the lexicon and LTS-rules are given below, separated with a     ##
+# tabular ("\t").                                                            ##
+#                                                                            ##
+###############################################################################
+
+heterna
+ornas
+hetens
+heter
+heten
+ernas
+arnas
+arens
+andet
+andes
+anden
+ande
+ades
+aren
+orna
+erna
+erns
+aste
+arne	a r n @
+arna
+het	h e: t
+ern
+ast
+ens
+are
+ade
+en	@ n
+at
+as	a s
+ar
+ad
+es
+or	U r
+er	@ r
+a	a
+e	@
