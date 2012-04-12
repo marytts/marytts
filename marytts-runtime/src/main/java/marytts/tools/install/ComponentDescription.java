@@ -318,11 +318,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     
     public LinkedList<String> getInstalledFileNames() {
         LinkedList<String> files = new LinkedList<String>();
-        StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
-        while (st.hasMoreTokens()) {
-            String next = st.nextToken().trim();
-            if (!"".equals(next)) {
-                files.addFirst(next); // i.e., reverse order
+        if (installedFilesNames != null) {
+            StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
+            while (st.hasMoreTokens()) {
+                String next = st.nextToken().trim();
+                if (!"".equals(next)) {
+                    files.addFirst(next); // i.e., reverse order
+                }
             }
         }
         return files;
