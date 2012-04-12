@@ -46,11 +46,11 @@ public class sv_CompoundSplitter {
 	public sv_CompoundSplitter() throws IOException,  MaryConfigurationException{
 
 	    //HB 120323 some problem with this..
-	    String endings_path = endingsPath= MaryProperties.needFilename("sv.inflections");
-		this.inflection_endings = new HashMap<String, String>();
-		this.lexicon = new FSTLookup(MaryProperties.needFilename("sv.lexicon"));
+	    String endings_path = MaryProperties.needFilename("sv.inflections");
+	    this.inflection_endings = new HashMap<String, String>();
+	    this.lexicon = new FSTLookup(MaryProperties.needFilename("sv.lexicon"));
 		
-		try{
+	    try{
 			BufferedReader infile = new BufferedReader(new FileReader(endings_path));
 			String line;
 			String inf = null;
