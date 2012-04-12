@@ -14,105 +14,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-server</artifactId>
-      <version>5.0-SNAPSHOT</version>
-      <type>jar</type>
-      <classifier>jar-with-dependencies</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-client</artifactId>
-      <version>5.0-SNAPSHOT</version>
-      <type>jar</type>
-      <classifier>jar-with-dependencies</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-de</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-en</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-te</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-tr</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-ru</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-lang-it</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>voice-cmu-slt-hsmm</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-builder</artifactId>
-      <version>5.0-SNAPSHOT</version>
-      <type>jar</type>
-      <classifier>jar-with-dependencies</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-redstart</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>marytts-transcription</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
     
   </dependencies>
   
   
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2.1</version>
-        <configuration>
-          <finalName>${project.parent.artifactId}-${project.parent.version}</finalName>
-          <outputDirectory>${project.parent.build.directory}</outputDirectory>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>src/main/descriptors/runtime-dir.xml</descriptor>
-            <descriptor>src/main/descriptors/runtime-pkg.xml</descriptor>
-            <!--  In reality I want the builder stuff in a separate package but that seems impossible in a single assembly project: -->
-            <descriptor>src/main/descriptors/builder-dir.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-
-      </plugin>
-
-    </plugins>
-  </build>
+  <modules>
+  	<module>assembly-builder</module>
+  	<module>assembly-runtime</module>
+  </modules>
 </project>
