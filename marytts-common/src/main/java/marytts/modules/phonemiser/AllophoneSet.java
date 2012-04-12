@@ -130,6 +130,8 @@ public class AllophoneSet
     private Map<String, String[]> featureValueMap = null;
     
     private Allophone silence = null;
+    // Added by Harald Berthelsen April 12 2012
+    private String ignore_chars = null;
     // The number of characters in the longest Allophone symbol
     private int maxAllophoneSymbolLength = 1;
 
@@ -155,6 +157,12 @@ public class AllophoneSet
         String xmlLang = root.getAttribute("xml:lang");
         locale = MaryUtils.string2locale(xmlLang);
         String[] featureNames = root.getAttribute("features").split(" ");
+
+	// Added by Harald Berthelsen April 12 2012
+	if (root.hasAttribute("ignore_chars")) {
+	    ignore_chars = root.getAttribute("ignore_chars");
+	}
+
         NodeIterator ni = DomUtils.createNodeIterator(document, root, "vowel", "consonant", "silence", "tone");
         Element a;
         while ((a = (Element) ni.nextNode()) != null) {
@@ -223,6 +231,21 @@ public class AllophoneSet
     public Allophone getSilence()
     {
         return silence;
+    }
+    
+    /**
+     * Added by Harald Berthelsen April 12 2012
+     * Obtain the ignore chars in this AllophoneSet
+     * Default: "',-"
+     * @return
+     */
+    public String getIgnoreChars()
+    {
+        if (ignore_chars == null) {
+	    return "',-";
+	} else {
+	    return ignore_chars;
+	}
     }
     
     /**
@@ -334,10 +357,9 @@ public class AllophoneSet
             String one = allophoneString.substring(i,i+1);
             
 	    //HB 120412
-	    //The list of ignore symbols should be read from xml
-	    //Temporarily modified here
-            //if ("',-".contains(one)) {
-            if ("',-%".contains(one)) {
+	    //Allow modification of ignore characters in allophones.xml
+            //original line: if ("',-".contains(one)) {
+            if (getIgnoreChars().contains(one)) {
                 if (includeStressAndSyllableMarkers) phones.add(one); 
                 continue;
             } else if (one.equals(" ")) {
