@@ -50,9 +50,26 @@ Running the freshly built MARY TTS server
 
 After a successful compile, you should find a ready-to-run unpacked install of the MARY TTS server system in `target/marytts-<VERSION>`. Run the server as 
 
-	target/marytts-<VERSION>/bin/maryserver.sh
+	target/marytts-<VERSION>/bin/marytts-server.sh
 	
-Then connect to it with your browser at http://localhost:59125
+Then connect to it with your browser at http://localhost:59125 or using the marytts-client.sh in the same folder.
+
+The runtime system is also available as deployable packages:
+
+    target/marytts-<VERSION>.zip
+    target/marytts-<VERSION>.tar.gz
+
+Installation is easy: Unpack anywhere, and run the scripts in the `bin/` folder.
+
+
+Using the new languages support and voice building tools
+--------------------------------------------------------
+
+Compiling the MARY TTS system creates a folder containing the MARY TTS build tools, in 
+
+    target/marytts-builder-<VERSION>/
+
+Shell scripts for the available tools are provided in the `bin/` subfolder.  
 
 
 Developing MARY TTS in Eclipse
