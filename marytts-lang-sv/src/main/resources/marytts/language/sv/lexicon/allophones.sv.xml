@@ -1,5 +1,7 @@
 <allophones name="sampa" xml:lang="sv"
-		features="vlng vheight vfront vrnd ctype cplace cvox">
+		features="vlng vheight vfront vrnd ctype cplace cvox"
+		ignore_chars="',-%"
+		>
 	<silence ph="_"/>
 
 	<vowel ph="A:" vlng="l" vheight="3" vfront="3" vrnd="-"/>
