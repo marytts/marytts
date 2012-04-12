@@ -333,7 +333,11 @@ public class AllophoneSet
         for (int i=0; i<allophoneString.length(); i++) {
             String one = allophoneString.substring(i,i+1);
             
-            if ("',-".contains(one)) {
+	    //HB 120412
+	    //The list of ignore symbols should be read from xml
+	    //Temporarily modified here
+            //if ("',-".contains(one)) {
+            if ("',-%".contains(one)) {
                 if (includeStressAndSyllableMarkers) phones.add(one); 
                 continue;
             } else if (one.equals(" ")) {
