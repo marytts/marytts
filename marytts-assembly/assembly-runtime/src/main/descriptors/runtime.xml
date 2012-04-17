@@ -14,7 +14,7 @@
         <include>user-dictionaries/*</include>
       </includes>
     </fileSet>
-    <!-- General, non-executable files for release -->
+    <!-- General, non-executable, non-filtered files for release -->
     <fileSet>
       <directory>src/runtime</directory>
       <outputDirectory>/</outputDirectory>
@@ -23,7 +23,7 @@
         <include>doc/examples/**/*</include>
       </includes>
     </fileSet>
-    
+        
     <!-- Executable scripts: -->
     <fileSet>
       <directory>src/runtime</directory>
@@ -35,7 +35,53 @@
       <filtered>true</filtered>
     </fileSet>
   </fileSets>
-  
+
+    <!-- Install files for the language components, needed for component installer -->
+    <files>
+      <file>
+        <source>src/runtime/installed/marytts-lang-de-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-de-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-en-GB-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-en-GB-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-en-US-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-en-US-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-it-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-it-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-ru-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-ru-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-te-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-te-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-tr-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-tr-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+    </files>
+
   <dependencySets><!-- Copy over jar files -->
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
