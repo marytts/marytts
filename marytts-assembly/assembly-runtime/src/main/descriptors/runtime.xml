@@ -69,6 +69,12 @@
 		<filtered>true</filtered>
       </file>
       <file>
+        <source>src/runtime/installed/marytts-lang-sv-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-sv-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
         <source>src/runtime/installed/marytts-lang-te-component.xml</source>
 		<outputDirectory>/</outputDirectory>
 		<destName>installed/marytts-lang-te-${project.version}-component.xml</destName>
