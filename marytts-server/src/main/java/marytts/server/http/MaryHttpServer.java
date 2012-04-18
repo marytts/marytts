@@ -81,6 +81,7 @@ import org.apache.log4j.Logger;
  * <ul>
  *   <li><code>version</code> requests the version of the MARY server;</li>
  *   <li><code>datatypes</code> requests the list of available data types;</li>
+ *   <li><code>locales</code> requests the list of available locales / language components;</li>
  *   <li><code>voices</code> requests the list of available voices;</li>
  *   <li><code>audioformats</code> requests the list of supported audio file format types;</li>
  *   <li><code>exampletext?voice=hmm-slt<code> requests the example text for the given voice;</li>
@@ -183,6 +184,7 @@ public class MaryHttpServer extends Thread
         InfoRequestHandler infoRH = new InfoRequestHandler();
         registry.register("/version", infoRH);
         registry.register("/datatypes", infoRH);
+        registry.register("/locales", infoRH);
         registry.register("/voices", infoRH);
         registry.register("/audioformats", infoRH);
         registry.register("/exampletext", infoRH);
