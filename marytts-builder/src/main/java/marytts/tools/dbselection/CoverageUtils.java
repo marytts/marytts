@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import marytts.LocalMaryInterface;
+import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -41,7 +42,7 @@ public class CoverageUtils {
 		if (clientServer) {
 			throw new UnsupportedOperationException("Not implemented");
 		}
-		LocalMaryInterface mary = new LocalMaryInterface();
+		MaryInterface mary = new LocalMaryInterface();
 		mary.setLocale(locale);
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		mary.setOutputTypeParams(featureNames);

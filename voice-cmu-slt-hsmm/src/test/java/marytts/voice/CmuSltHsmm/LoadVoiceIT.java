@@ -10,6 +10,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.LocalMaryInterface;
+import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
@@ -37,7 +38,7 @@ public class LoadVoiceIT {
     
     @Test
     public void canSetVoice() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
     	String voiceName = new Config().getName();
     	mary.setVoice(voiceName);
     	assertEquals(voiceName, mary.getVoice());
@@ -45,7 +46,7 @@ public class LoadVoiceIT {
     
 	@Test
 	public void canProcessTextToSpeech() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		mary.setVoice(new Config().getName());
 		AudioInputStream audio = mary.generateAudio("Hello world");
 		assertNotNull(audio);
@@ -53,7 +54,7 @@ public class LoadVoiceIT {
 	
 	@Test
 	public void canProcessToTargetfeatures() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String out = mary.generateText("Hello world");
 		assertNotNull(out);
@@ -61,7 +62,7 @@ public class LoadVoiceIT {
 
 	@Test
 	public void canProcessTokensToTargetfeatures() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		mary.setInputType(MaryDataType.TOKENS.name());
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		Document doc = getExampleTokens(mary.getLocale());
@@ -71,7 +72,7 @@ public class LoadVoiceIT {
 
 	@Test
 	public void canProcessTokensToSpeech() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		mary.setInputType(MaryDataType.TOKENS.name());
 		Document doc = getExampleTokens(mary.getLocale());
 		AudioInputStream audio = mary.generateAudio(doc);

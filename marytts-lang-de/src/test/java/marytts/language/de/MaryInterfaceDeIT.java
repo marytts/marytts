@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Locale;
 
 import marytts.LocalMaryInterface;
+import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.util.dom.DomUtils;
 
@@ -17,7 +18,7 @@ public class MaryInterfaceDeIT {
 
 	@Test
 	public void canSetLocale() throws Exception {
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		Locale loc = Locale.GERMAN;
 		assertTrue(!loc.equals(mary.getLocale()));
 		mary.setLocale(loc);
@@ -27,7 +28,7 @@ public class MaryInterfaceDeIT {
 	@Test
 	public void canProcessTokensToAllophones() throws Exception {
 		// setup
-    	LocalMaryInterface mary = new LocalMaryInterface();
+    	MaryInterface mary = new LocalMaryInterface();
 		mary.setInputType(MaryDataType.TOKENS.name());
 		mary.setOutputType(MaryDataType.ALLOPHONES.name());
 		mary.setLocale(Locale.GERMAN);
