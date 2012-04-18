@@ -130,6 +130,7 @@ public class AllophoneSet
     private Map<String, String[]> featureValueMap = null;
     
     private Allophone silence = null;
+    private String ignore_chars = null;
     // The number of characters in the longest Allophone symbol
     private int maxAllophoneSymbolLength = 1;
 
@@ -155,6 +156,11 @@ public class AllophoneSet
         String xmlLang = root.getAttribute("xml:lang");
         locale = MaryUtils.string2locale(xmlLang);
         String[] featureNames = root.getAttribute("features").split(" ");
+
+	if (root.hasAttribute("ignore_chars")) {
+	    ignore_chars = root.getAttribute("ignore_chars");
+	}
+
         NodeIterator ni = DomUtils.createNodeIterator(document, root, "vowel", "consonant", "silence", "tone");
         Element a;
         while ((a = (Element) ni.nextNode()) != null) {
@@ -223,6 +229,20 @@ public class AllophoneSet
     public Allophone getSilence()
     {
         return silence;
+    }
+    
+    /**
+     * Obtain the ignore chars in this AllophoneSet
+     * Default: "',-"
+     * @return
+     */
+    public String getIgnoreChars()
+    {
+        if (ignore_chars == null) {
+	    return "',-";
+	} else {
+	    return ignore_chars;
+	}
     }
     
     /**
@@ -333,7 +353,8 @@ public class AllophoneSet
         for (int i=0; i<allophoneString.length(); i++) {
             String one = allophoneString.substring(i,i+1);
             
-            if ("',-".contains(one)) {
+	    //Allow modification of ignore characters in allophones.xml
+            if (getIgnoreChars().contains(one)) {
                 if (includeStressAndSyllableMarkers) phones.add(one); 
                 continue;
             } else if (one.equals(" ")) {

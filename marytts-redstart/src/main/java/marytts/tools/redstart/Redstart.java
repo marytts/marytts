@@ -73,10 +73,10 @@ public class Redstart {
             System.exit(0);
         }
         
-        File textDir =  new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"text");
+        File textDir =  new File(voiceBuildingDir+System.getProperty("file.separator")+"text");
         //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
         if(!textDir.exists()){
-            int choose = JOptionPane.showOptionDialog(null,
+            JOptionPane.showOptionDialog(null,
                     "Before beginning a new recording session, make sure that all text files (transcriptions) are available in 'text' directory of your specified location.",
                     "Could not find transcriptions",
                     JOptionPane.OK_OPTION, 

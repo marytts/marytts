@@ -1,8 +1,0 @@
-[default]
-title=Setup Preferences Form
-
-[validators]
-validators=validate_server_port
-
-[actions]
-action.success=traverse_to:string:speech_synthesis_preferences_update
