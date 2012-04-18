@@ -21,7 +21,7 @@ package marytts.language.en;
 
 
 
-import marytts.MaryInterface;
+import marytts.LocalMaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
@@ -42,8 +42,8 @@ public class MaryInterfaceEnIT {
 	@Test
 	public void convertTextToAcoustparams() throws Exception {
 		// setup
-		MaryInterface mary = MaryInterface.getLocalMaryInterface();
-		mary.setOutputType(MaryDataType.ACOUSTPARAMS);
+    	LocalMaryInterface mary = new LocalMaryInterface();
+		mary.setOutputType(MaryDataType.ACOUSTPARAMS.name());
 		Document doc = mary.generateXML("Hello world");
 		assertNotNull(doc);
 	}
@@ -51,8 +51,8 @@ public class MaryInterfaceEnIT {
 	@Test
 	public void convertTextToTargetfeatures() throws Exception {
 		// setup
-		MaryInterface mary = MaryInterface.getLocalMaryInterface();
-		mary.setOutputType(MaryDataType.TARGETFEATURES);
+    	LocalMaryInterface mary = new LocalMaryInterface();
+		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String tf = mary.generateText("Hello world");
 		assertNotNull(tf);
 	}
@@ -60,8 +60,8 @@ public class MaryInterfaceEnIT {
 	@Test
 	public void canSelectTargetfeatures() throws Exception {
 		// setup
-		MaryInterface mary = MaryInterface.getLocalMaryInterface();
-		mary.setOutputType(MaryDataType.TARGETFEATURES);
+    	LocalMaryInterface mary = new LocalMaryInterface();
+		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String featureNames = "phone stressed";
 		mary.setOutputTypeParams(featureNames);
 		String tf = mary.generateText("Hello world");

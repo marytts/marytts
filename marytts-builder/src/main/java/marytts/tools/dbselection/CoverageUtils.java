@@ -22,7 +22,7 @@ package marytts.tools.dbselection;
 import java.io.IOException;
 import java.util.Locale;
 
-import marytts.MaryInterface;
+import marytts.LocalMaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -41,9 +41,9 @@ public class CoverageUtils {
 		if (clientServer) {
 			throw new UnsupportedOperationException("Not implemented");
 		}
-		MaryInterface mary = MaryInterface.getLocalMaryInterface();
+		LocalMaryInterface mary = new LocalMaryInterface();
 		mary.setLocale(locale);
-		mary.setOutputType(MaryDataType.TARGETFEATURES);
+		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		mary.setOutputTypeParams(featureNames);
 		String targetFeatureData = mary.generateText(sentence);
 		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetFeatureData);
