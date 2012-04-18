@@ -40,7 +40,7 @@ import static org.junit.Assert.*;
  *
  */
 public class MaryInterfaceIT {
-	LocalMaryInterface mary;
+	MaryInterface mary;
 	
 	@Before
 	public void setUp() throws Exception {

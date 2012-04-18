@@ -42,7 +42,7 @@ import marytts.util.MaryRuntimeUtils;
  * @author marc
  *
  */
-public class LocalMaryInterface {
+public class LocalMaryInterface implements MaryInterface {
 	
 	private MaryDataType inputType;
 	private MaryDataType outputType;
@@ -91,11 +91,10 @@ public class LocalMaryInterface {
     	}
 	}
 	
-	/**
-	 * Set the input type for processing to the new input type.
-	 * @param newInputType a string representation of a MaryDataType.
-	 * @throws SynthesisException if newInputType is not a valid and known input data type.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setInputType(java.lang.String)
 	 */
+	@Override
 	public void setInputType(String newInputType) throws SynthesisException {
 		inputType = MaryDataType.get(newInputType);
 		if (inputType == null) {
@@ -105,19 +104,18 @@ public class LocalMaryInterface {
 		}
 	}
 	
-	/**
-	 * Get the current input type, either the default ("TEXT") or the value most recently set through {@link #setInputType(String)}.
-	 * @return the currently set input type.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getInputType()
 	 */
+	@Override
 	public String getInputType() {
 		return inputType.name();
 	}
 
-	/**
-	 * Set the output type for processing to the new output type.
-	 * @param newOutputType a string representation of a MaryDataType.
-	 * @throws SynthesisException if newOutputType is not a valid and known output data type.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setOutputType(java.lang.String)
 	 */
+	@Override
 	public void setOutputType(String newOutputType) throws SynthesisException {
 		outputType = MaryDataType.get(newOutputType);
 		if (outputType == null) {
@@ -127,19 +125,18 @@ public class LocalMaryInterface {
 		}
 	}
 	
-	/**
-	 * Get the current output type, either the default ("AUDIO") or the value most recently set through {@link #setInputType(String)}.
-	 * @return the currently set input type.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getOutputType()
 	 */
+	@Override
 	public String getOutputType() {
 		return outputType.name();
 	}
 
-	/**
-	 * Set the locale for processing. Set the voice to the default voice for this locale.
-	 * @param newLocale a supported locale.
-	 * @throws SynthesisException if newLocale is not one of the supported locales.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setLocale(java.util.Locale)
 	 */
+	@Override
 	public void setLocale(Locale newLocale) throws SynthesisException {
 		if (MaryConfig.getLanguageConfig(newLocale) == null) {
 			throw new SynthesisException("Unsupported locale: "+newLocale);
@@ -149,19 +146,18 @@ public class LocalMaryInterface {
 		setAudioFileFormatForVoice();
 	}
 	
-	/**
-	 * Get the current locale used for processing. Either the default (US English) or the value most recently set through {@link #setLocale(Locale)} or indirectly through {@link #setVoice(String)}.
-	 * @return the locale
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getLocale()
 	 */
+	@Override
 	public Locale getLocale() {
 		return locale;
 	}
 	
-	/**
-	 * Set the voice to be used for processing. If the current locale differs from the voice's locale, the locale is updated accordingly.
-	 * @param voiceName the name of a valid voice. 
-	 * @throws SynthesisException
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setVoice(java.lang.String)
 	 */
+	@Override
 	public void setVoice(String voiceName) throws SynthesisException {
 		voice = Voice.getVoice(voiceName);
 		if (voice == null) {
@@ -170,10 +166,10 @@ public class LocalMaryInterface {
 		locale = voice.getLocale();
 	}
 	
-	/**
-	 * The name of the current voice, if any.
-	 * @return the voice name, or null if no voice is currently set.
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getVoice()
 	 */
+	@Override
 	public String getVoice() {
 		if (voice == null) {
 			return null;
@@ -181,70 +177,74 @@ public class LocalMaryInterface {
 		return voice.getName();
 	}
 	
-	/**
-	 * Set the audio effects. For advanced use only.
-	 * @param audioEffects
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setAudioEffects(java.lang.String)
 	 */
+	@Override
 	public void setAudioEffects(String audioEffects) {
 		effects = audioEffects;
 	}
 	
-	/**
-	 * Get the currently set audio effects. For advanced use only.
-	 * @return
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getAudioEffects()
 	 */
+	@Override
 	public String getAudioEffects() {
 		return effects;
 	}
 	
-	/**
-	 * Set the speaking style. For advanced use only.
-	 * @param params
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setStyle(java.lang.String)
 	 */
+	@Override
 	public void setStyle(String newStyle) {
 		style = newStyle;
 	}
 	
-	/**
-	 * Get the currently speaking style. For advanced use only.
-	 * @return
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getStyle()
 	 */
+	@Override
 	public String getStyle() {
 		return style;
 	}
 	
-	/**
-	 * Set the output type parameters. For advanced use only.
-	 * @param params
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setOutputTypeParams(java.lang.String)
 	 */
+	@Override
 	public void setOutputTypeParams(String params) {
 		this.outputTypeParams = params;
 	}
 	
-	/**
-	 * Get the currently set output type parameters. For advanced use only.
-	 * @return
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#getOutputTypeParams()
 	 */
+	@Override
 	public String getOutputTypeParams() {
 		return outputTypeParams;
 	}
 	
-	/**
-	 * Set whether to stream audio. For advanced use only.
-	 * @param isStreaming
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#setStreamingAudio(boolean)
 	 */
+	@Override
 	public void setStreamingAudio(boolean newIsStreaming) {
 		isStreaming = newIsStreaming;
 	}
 	
-	/**
-	 * Whether to stream audio. For advanced use only.
-	 * @return
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#isStreamingAudio()
 	 */
+	@Override
 	public boolean isStreamingAudio() {
 		return isStreaming;
 	}
 
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateText(java.lang.String)
+	 */
+	@Override
 	public String generateText(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsText();
@@ -253,6 +253,10 @@ public class LocalMaryInterface {
 		return out.getPlainText();
 	}
 
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateText(org.w3c.dom.Document)
+	 */
+	@Override
 	public String generateText(Document doc) throws SynthesisException {
 		verifyInputTypeIsXML();
 		verifyOutputTypeIsText();
@@ -262,6 +266,10 @@ public class LocalMaryInterface {
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateXML(java.lang.String)
+	 */
+	@Override
 	public Document generateXML(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsXML();
@@ -272,6 +280,10 @@ public class LocalMaryInterface {
 
 
 
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateXML(org.w3c.dom.Document)
+	 */
+	@Override
 	public Document generateXML(Document doc) throws SynthesisException {
 		verifyInputTypeIsXML();
 		verifyOutputTypeIsXML();
@@ -280,6 +292,10 @@ public class LocalMaryInterface {
 		return out.getDocument();
 	}
 
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateAudio(java.lang.String)
+	 */
+	@Override
 	public AudioInputStream generateAudio(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsAudio();
@@ -288,6 +304,10 @@ public class LocalMaryInterface {
 		return out.getAudio();
 	}
 
+	/* (non-Javadoc)
+	 * @see marytts.MaryInterface#generateAudio(org.w3c.dom.Document)
+	 */
+	@Override
 	public AudioInputStream generateAudio(Document doc) throws SynthesisException {
 		verifyInputTypeIsXML();
 		verifyOutputTypeIsAudio();
