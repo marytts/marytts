@@ -2,12 +2,17 @@ package marytts.tools.upgrade;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -15,12 +20,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+
+import com.twmacinta.util.MD5;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.install.InstallFileParser;
@@ -29,6 +37,7 @@ import marytts.tools.voiceimport.VoiceCompiler;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.io.FileUtils;
+import marytts.util.string.StringUtils;
 
 public class Mary4To5VoiceConverter {
 
@@ -59,23 +68,39 @@ public class Mary4To5VoiceConverter {
 	/**
 	 * The list of property suffixes which should be dropped when upgrading the config file.
 	 */
+	private static final String[] SUFFIXES_TO_DROP_UNITSEL = new String[] {
+	};
+	private static final String[] SUFFIXES_TO_DROP_HMM = new String[] {
+		"F0.data",
+		"duration.data",
+	};
 	private static final String[] PROPS_TO_DROP = new String[] {
+		"requires",
+		"provides",
+		"voice.version",
+		"en_US-voice.version",
+		"de-voice.version",
+		"it-voice.version",
+		"requires.marybase.version",
+		"requires.hmm.version",
+		"requires.en_US.version",
+		"requires.de.version",
+		"requires.it.version",
+		"requires.en_US.download",
+		"requires.de.download",
+		"requires.it.download",
 	};
 	
 	private Logger logger;
 	private VoiceComponentDescription voiceDescription;
 	private File mary4Zip;
 	private Properties config;
-	private String propertyPrefix;
+	private String originalConfig;
 	
 	private File extractedDir;
 	private File compileDir;
-	private String voiceName;
-	private Locale locale;
-	private String gender;
 	private String domain;
 	private int samplingRate;
-	private boolean isUnitSelectionVoice;
 	private File[] filesForResources;
 	private File[] filesForFilesystem;
 	
@@ -103,42 +128,25 @@ public class Mary4To5VoiceConverter {
 	
 	private void convert() throws Exception {
 		logger.info("converting...");
-		extractedDir = new File(mary4Zip.getParentFile(), voiceDescription.getName()+"-"+voiceDescription.getVersion());
+		File rootDir = mary4Zip.getParentFile();
+		extractedDir = new File(rootDir, voiceDescription.getName()+"-"+voiceDescription.getVersion());
 		logger.debug("... extracting archive to "+extractedDir.getPath());
 		FileUtils.unzipArchive(mary4Zip, extractedDir);
 		
 		
 		loadConfig(findConfigFile());
 		
-		compileDir = new File(mary4Zip.getParentFile(), voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
-		voiceName = voiceDescription.getName();
-
-		String voiceNameFromConfig;
-		if (config.containsKey("unitselection.voices.list")) {
-			voiceNameFromConfig = config.getProperty("unitselection.voices.list");
-			isUnitSelectionVoice = true;
-		} else if (config.containsKey("hmm.voices.list")) {
-			voiceNameFromConfig = config.getProperty("hmm.voices.list");
-			isUnitSelectionVoice = false;
-		} else {
-			throw new UnsupportedOperationException("The voice '"+voiceName+"' is neither a unit selection voice nor an HMM-based voice -- cannot convert to MARY 5 format.");
-		}
-		if (!voiceName.equals(voiceNameFromConfig)) {
-			logger.warn("Name discrepancy: component.xml says '"+voiceName+"', config file says '"+voiceNameFromConfig+"'");
-		}
-		propertyPrefix = "voice."+voiceNameFromConfig+".";
+		compileDir = new File(rootDir, voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
 		
-		locale = voiceDescription.getLocale();
-		gender = voiceDescription.getGender();
-		domain = config.getProperty(propertyPrefix+"domain");
-		samplingRate = Integer.parseInt(config.getProperty(propertyPrefix+"samplingRate"));
+		domain = config.getProperty(getPropertyPrefix()+"domain");
+		samplingRate = Integer.parseInt(config.getProperty(getPropertyPrefix()+"samplingRate"));
 		
 		filesForResources = getFilesForResources();
 		filesForFilesystem = getFilesForFilesystem();		
 		Map<String, String> extraVariablesToSubstitute = null;
 		
-		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, voiceName, NEW_VERSION, 
-				locale, gender, domain, samplingRate, isUnitSelectionVoice, filesForResources, 
+		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, getVoiceName(), NEW_VERSION, 
+				voiceDescription.getLocale(), voiceDescription.getGender(), domain, samplingRate, isUnitSelectionVoice(), filesForResources, 
 				filesForFilesystem, extraVariablesToSubstitute);
 
 		logger.debug("Creating directories");
@@ -147,13 +155,13 @@ public class Mary4To5VoiceConverter {
 		logger.debug("Copying template files");
 		compiler.copyTemplateFiles();
 
-		updateConfig();
+		updateConfig(compiler.getPackageName());
 		saveConfig(compiler.getConfigFile());
 				
 		logger.debug("Copying voice files");		
 		compiler.copyVoiceFiles();
 		
-		if(!isUnitSelectionVoice){
+		if(!isUnitSelectionVoice()){
 		  logger.debug("Converting HMM PDF files from Mary 4.0 to Mary 5.0 format");
 		  convertMary4ToMary5HmmPdfFiles(compiler.getMainResourcesDir());
 		}
@@ -161,18 +169,63 @@ public class Mary4To5VoiceConverter {
 		logger.debug("Compiling with Maven");
 		compiler.compileWithMaven();
 		
-		String newZipFilename = getFilenamePrefix()+".zip";
+		String convertedZipFilename = getFilenamePrefix()+".zip";
+		File convertedZipFile = new File(compileDir+"/target/"+convertedZipFilename);
+		if (!convertedZipFile.exists()) {
+			throw new IOException("Maven should have created file "+convertedZipFile.getAbsolutePath()+" but file does not exist.");
+		}
+
 		
-		updateVoiceDescription();
+		updateVoiceDescription(rootDir, convertedZipFile);
+
+		File finalZipFile = new File(rootDir, convertedZipFilename);
+		if (finalZipFile.exists()) {
+			finalZipFile.delete();
+		}
+		boolean success = convertedZipFile.renameTo(finalZipFile);
+		if (!success) {
+			throw new IOException("Failure trying to move "+convertedZipFile.getAbsolutePath()+" to "+finalZipFile.getAbsolutePath());
+		}
+		
 	}
 
-	private void saveConfig(File configFile) throws IOException {
-		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(configFile));
+	protected void saveConfig(File configFile) throws IOException {
+		saveConfigToStream(new BufferedOutputStream(new FileOutputStream(configFile)));
+	}
+
+	
+	private boolean isEmpty(String line) {
+		return line.trim().isEmpty();
+	}
+	
+	private boolean isComment(String line) {
+		return line.trim().startsWith("#");
+		
+	}
+	
+	protected void saveConfigToStream(OutputStream out) throws IOException {
+		PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+		StringBuilder comments = new StringBuilder();
 		try {
-			config.store(out, null);
+			String[] lines = StringUtils.toStringArray(originalConfig);
+			for (String line : lines) {
+				if (isEmpty(line) || isComment(line)) {
+					comments.append(line).append('\n');
+					continue;
+				}
+				String key = new StringTokenizer(line.trim()).nextToken();
+				if (config.containsKey(key)) {
+					pw.print(comments.toString());
+					pw.print(key + " = " + config.getProperty(key) + "\r\n");
+					if (key.equals("name")) {
+						pw.print("locale = " + config.getProperty("locale") + "\r\n");
+					}
+				}
+				comments = new StringBuilder();
+			}
 		} finally {
-			out.flush();
-			out.close();
+			pw.flush();
+			pw.close();
 		}
 	}
 
@@ -187,7 +240,7 @@ public class Mary4To5VoiceConverter {
 	private File[] getFilesFromProperties(String[] propertySuffixes) throws IOException {
 		ArrayList<File> files = new ArrayList<File>();
 		for (String suffix : propertySuffixes) {
-			String key = propertyPrefix+suffix;
+			String key = getPropertyPrefix()+suffix;
 			if (config.containsKey(key)) {
 				String value = config.getProperty(key);
 				if (!value.startsWith("MARY_BASE")) {
@@ -205,31 +258,33 @@ public class Mary4To5VoiceConverter {
 	}
 	
 	
-	private void updateConfig() {
-		updatePropsForResources();
+	protected void updateConfig(String packageName) {
+		updatePropsForResources(packageName);
 		dropOutdatedProps();
 		addNewProps();
 	}
 
 	private void addNewProps() {
-		config.setProperty("locale", locale.toString());
+		config.setProperty("locale", voiceDescription.getLocale().toString());
 		
 	}
 
 	private void dropOutdatedProps() {
-		for (String suffix : PROPS_TO_DROP) {
-			String key = propertyPrefix+suffix;
-			if (config.containsKey(key)) {
-				config.remove(key);
-			}
+		String[] suffixesToDrop = isUnitSelectionVoice() ? SUFFIXES_TO_DROP_UNITSEL : SUFFIXES_TO_DROP_HMM;
+		for (String suffix : suffixesToDrop) {
+			String key = getPropertyPrefix()+suffix;
+			config.remove(key);
+		}
+		for (String prop : PROPS_TO_DROP) {
+			config.remove(prop);
 		}
 	}
 
-	private void updatePropsForResources() {
+	private void updatePropsForResources(String packageName) {
 		String oldPrefix = "MARY_BASE/lib/voices/(.*)/";
-		String newPrefix = "jar:/marytts/voice/"+compiler.getPackageName()+"/";
+		String newPrefix = "jar:/marytts/voice/"+packageName+"/";
 		for (String suffix : PROPS_FOR_RESOURCES) {
-			String key = propertyPrefix+suffix;
+			String key = getPropertyPrefix()+suffix;
 			if (config.containsKey(key)) {
 				String value = config.getProperty(key);
 				value = value.replaceFirst(oldPrefix, newPrefix);
@@ -250,37 +305,89 @@ public class Mary4To5VoiceConverter {
 		return confFiles[0];
 	}
 
-	private void loadConfig(File configFile) throws IOException {
+	protected void loadConfig(File configFile) throws IOException {
+		loadConfigFromStream(new BufferedInputStream(new FileInputStream(configFile)));
+	}
+	
+	protected void loadConfigFromStream(InputStream in) throws IOException {
 		config = new Properties();
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(configFile));
 		try {
-			config.load(in);
+			originalConfig = FileUtils.getStreamAsString(in, "UTF-8");
+			ByteArrayInputStream bain = new ByteArrayInputStream(originalConfig.getBytes());
+			config.load(bain);
 		} finally {
 			in.close();
 		}
-		
 	}
+	
+	/**
+	 * Returns true for a unit selection voice, false for an HMM-based voice.
+	 * @return
+	 * @throw {@link UnsupportedOperationException} if the voice is neither a unit selection nor an HMM-based voice.
+	 */
+	protected boolean isUnitSelectionVoice() throws UnsupportedOperationException {
+		if (config.containsKey("unitselection.voices.list")) {
+			return true;
+		} else if (config.containsKey("hmm.voices.list")) {
+			return false;
+		} else {
+			throw new UnsupportedOperationException("The voice is neither a unit selection voice nor an HMM-based voice -- cannot convert to MARY 5 format.");
+		}
+	}
+	
+	private String getVoiceNameFromConfig() {
+		if (isUnitSelectionVoice()) {
+			return config.getProperty("unitselection.voices.list");
+		}
+		return config.getProperty("hmm.voices.list");
+	}
+	
+	private String getVoiceNameFromVoiceDescription() {
+		return voiceDescription.getName();
+	}
+	
+	protected String getVoiceName() {
+		String voiceNameFromConfig = getVoiceNameFromConfig();
+		String voiceNameFromVoiceDescription = getVoiceNameFromVoiceDescription();
+		if (!voiceNameFromConfig.equals(voiceNameFromVoiceDescription)) {
+			logger.warn("Name discrepancy: component.xml says '"+voiceNameFromVoiceDescription+"', config file says '"+voiceNameFromConfig+"'");
+		}
+		return voiceNameFromVoiceDescription;
+	}
+	
+	protected String getPropertyPrefix() {
+		return "voice." + getVoiceNameFromConfig() + ".";
+	}
+	
 
 	private String getFilenamePrefix() {
-		return "mary-"+voiceDescription.getName()+"-"+NEW_VERSION;
+		return "voice-"+voiceDescription.getName()+"-"+NEW_VERSION;
 	}
+	
+	
 
-	private void updateVoiceDescription()
+	private void updateVoiceDescription(File rootDir, File packageFile)
 			throws MalformedURLException, ParserConfigurationException,
 			MaryConfigurationException, IOException {
 		logger.debug("writing new voice description...");
 		voiceDescription.setVersion(NEW_VERSION);
 		voiceDescription.setDependsVersion(NEW_VERSION);
-		voiceDescription.setPackageFilename(getFilenamePrefix()+".zip");
+		voiceDescription.setPackageFilename(packageFile.getName());
+		voiceDescription.setPackageMD5Sum(computeMD5(packageFile));
+		voiceDescription.setPackageSize((int) packageFile.length());
 		voiceDescription.removeAllLocations();
 		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+NEW_VERSION+"/").toURL());
 		Document doc = voiceDescription.createComponentXML();
-		File newVoiceDescriptionFile = new File(mary4Zip.getParentFile(), getFilenamePrefix() + "-component.xml");
+		File newVoiceDescriptionFile = new File(rootDir, getFilenamePrefix() + "-component.xml");
 		DomUtils.document2File(doc, newVoiceDescriptionFile);
 		logger.debug("... created "+newVoiceDescriptionFile.getPath());
 	}
 
 	
+	private String computeMD5(File packageFile) throws IOException {
+		return MD5.asHex(MD5.getHash(packageFile));
+	}
+
 	private void convertMary4ToMary5HmmPdfFiles(File mainResourcesDir) throws Exception {
 		
 		File list[] = mainResourcesDir.listFiles();
