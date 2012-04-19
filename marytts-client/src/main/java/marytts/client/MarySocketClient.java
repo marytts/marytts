@@ -398,6 +398,14 @@ public class MarySocketClient extends MaryClient
         data.toVoices(info);
     }
 
+    @Override
+    protected void fillLocales() throws IOException, UnknownHostException
+    {
+        String info = getServerInfo("MARY LIST LOCALES");
+        if (info.length() == 0)
+            throw new IOException("Could not get locales list from Mary server");
+        data.toLocales(info);
+    }
 
     @Override
     protected void fillVoiceExampleTexts(String voicename) throws IOException
