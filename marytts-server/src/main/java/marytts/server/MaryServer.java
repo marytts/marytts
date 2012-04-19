@@ -44,6 +44,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.Version;
+import marytts.config.LanguageConfig;
+import marytts.config.MaryConfig;
 import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
@@ -80,19 +82,18 @@ import org.apache.log4j.Logger;
  * depending on the configuration with which the server was started.
  * For an English system, these values include:
  * <ul>
- *   <li>  TEXT_EN          plain ASCII text, English (input only) </li>
+ *   <li>  TEXT          plain ASCII text, English (input only) </li>
  *   <li>  SABLE         text annotated with SABLE markup (input only) </li>
  *   <li>  SSML          text annotated with SSML markup (input only) </li>
  *   <li>  APML          text annotated with APML markup (input only) </li>
  *   <li>  RAWMARYXML    untokenised MaryXML </li>
- *   <li>  TOKENS_EN     tokenized text </li>
- *   <li>  WORDS_EN      numbers and abbreviations expanded </li>
- *   <li>  POS_EN        parts of speech tags added </li>
- *   <li>  SEGMENTS_EN   phone symbols </li>
- *   <li>  INTONATION_EN ToBI intonation symbols </li>
- *   <li>  POSTPROCESSED_EN post-lexical phonological rules </li>
+ *   <li>  TOKENS     tokenized text </li>
+ *   <li>  WORDS      numbers and abbreviations expanded </li>
+ *   <li>  POS        parts of speech tags added </li>
+ *   <li>  PHONEMES   phone symbols </li>
+ *   <li>  INTONATION ToBI intonation symbols </li>
+ *   <li>  ALLOPHONES post-lexical phonological rules </li>
  *   <li>  ACOUSTPARAMS  acoustic parameters in MaryXML structure </li>
- *   <li>  MBROLA        phone symbols, duration and frequency values </li>
  *   <li>  AUDIO         audio data (output only) </li>
  * </ul>
  * INPUTTYPE must be earlier in this list than OUTPUTTYPE.
@@ -131,7 +132,7 @@ import org.apache.log4j.Logger;
  * <p>
  * Example: The line
  * <pre>
- *   MARY IN=TEXT_EN OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
+ *   MARY IN=TEXT OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
  * </pre>
  * will process normal ASCII text, and send back a WAV audio file
  * synthesised with the voice "kevin16".
@@ -277,6 +278,9 @@ public class MaryServer implements Runnable {
             } else if (inputLine.startsWith("MARY LIST DATATYPES")) {
                 logger.debug("InfoRequest " + inputLine);
                 return listDataTypes();
+            } else if (inputLine.startsWith("MARY LIST LOCALES")) {
+                logger.debug("InfoRequest " + inputLine);
+                return listLocales();
             } else if (inputLine.startsWith("MARY LIST VOICES")) {
                 logger.debug("InfoRequest " + inputLine);
                 return listVoices();
@@ -574,6 +578,19 @@ public class MaryServer implements Runnable {
             // Empty line marks end of info:
             clientOut.println();
             return true;
+        }
+        
+        private boolean listLocales() {
+        	StringBuilder out = new StringBuilder();
+        	for (LanguageConfig conf : MaryConfig.getLanguageConfigs()) {
+        		for (Locale locale : conf.getLocales()) {
+        			out.append(locale).append('\n');
+        		}
+        	}
+        	clientOut.print(out.toString());
+            // Empty line marks end of info:
+        	clientOut.println();
+        	return true;
         }
 
         private boolean listVoices() {
