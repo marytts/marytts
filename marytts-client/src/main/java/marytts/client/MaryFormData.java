@@ -20,14 +20,17 @@
 package marytts.client;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.http.Address;
 import marytts.util.math.MathUtils;
@@ -57,6 +60,7 @@ public class MaryFormData
     public Vector<MaryClient.Voice> allVoices;
     public Map<Locale, Vector<MaryClient.Voice>> voicesByLocaleMap;
     public Map<String, Vector<String>> limitedDomainVoices;
+    public Set<Locale> locales;
     public Vector<MaryClient.DataType> allDataTypes;
     public Vector<MaryClient.DataType> inputDataTypes;
     public Vector<MaryClient.DataType> outputDataTypes;
@@ -330,6 +334,13 @@ public class MaryFormData
                 }
             }
         }
+    }
+    
+    public void toLocales(String info) {
+    	locales = new HashSet<Locale>();
+    	for (String localeName : StringUtils.toStringArray(info)) {
+    		locales.add(MaryUtils.string2locale(localeName));
+    	}
     }
     
 

@@ -59,7 +59,7 @@ public class MaryInterfaceIT {
 	@Test
 	public void canSetInputType() throws Exception {
 		MaryDataType in = MaryDataType.RAWMARYXML;
-		assertTrue(!in.equals(mary.getInputType()));
+		assertTrue(!in.name().equals(mary.getInputType()));
 		mary.setInputType(in.name());
 		assertEquals(in.name(), mary.getInputType());
 	}

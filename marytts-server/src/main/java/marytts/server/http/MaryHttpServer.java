@@ -146,9 +146,15 @@ import org.apache.log4j.Logger;
 public class MaryHttpServer extends Thread
 {
     private static Logger logger;
+    
+    private boolean isReady = false;
 
     public MaryHttpServer() {
         logger = MaryUtils.getLogger("server");
+    }
+    
+    public boolean isReady() {
+    	return isReady;
     }
     
 
@@ -213,6 +219,7 @@ public class MaryHttpServer extends Thread
         try {
             ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
             ioReactor.listen(new InetSocketAddress(localPort));
+            isReady = true;
             ioReactor.execute(ioEventDispatch);
         } catch (InterruptedIOException ex) {
             logger.info("Interrupted", ex);
