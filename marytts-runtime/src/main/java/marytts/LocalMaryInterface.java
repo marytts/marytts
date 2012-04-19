@@ -324,7 +324,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	private void verifyInputTypeIsXML() {
 		if (!inputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot privide XML input for non-XML-based input type "+inputType);
+			throw new IllegalArgumentException("Cannot provide XML input for non-XML-based input type "+inputType);
 		}
 	}
 	

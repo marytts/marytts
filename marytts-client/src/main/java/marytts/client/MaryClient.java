@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -499,6 +500,15 @@ public abstract class MaryClient
 
     protected abstract void fillVoices() throws IOException;
     
+    
+    public Set<Locale> getLocales() throws IOException {
+    	if (data.locales == null) {
+    		fillLocales();
+    	}
+    	return data.locales;
+    }
+    
+    protected abstract void fillLocales() throws IOException;
 
     /**
      * Request the example texts of a limited domain

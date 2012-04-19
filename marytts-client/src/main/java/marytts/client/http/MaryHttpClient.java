@@ -159,6 +159,11 @@ public class MaryHttpClient extends MaryClient
         data.toVoices(serverInfoRequest("voices", null));
     }
     
+	@Override
+	protected void fillLocales() throws IOException {
+		data.toLocales(serverInfoRequest("locales", null));
+	}
+    
     @Override
     protected void fillVoiceExampleTexts(String voicename) throws IOException
     {
@@ -608,6 +613,8 @@ public class MaryHttpClient extends MaryClient
             }
         }
     }
+
+
     
 
 }
