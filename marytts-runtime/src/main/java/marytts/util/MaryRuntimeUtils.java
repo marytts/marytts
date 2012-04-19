@@ -25,22 +25,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.Version;
+import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
+import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
+import marytts.signalproc.effects.AudioEffect;
+import marytts.signalproc.effects.AudioEffects;
+import marytts.unitselection.UnitSelectionVoice;
+import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.string.StringUtils;
+import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.w3c.dom.Element;
 
@@ -322,4 +337,207 @@ public class MaryRuntimeUtils {
     	assert alloStream != null;
     	return AllophoneSet.getAllophoneSet(alloStream, propertyValue);
     }
+    
+    
+    
+    
+    
+    public static String getMaryVersion()
+    {
+        String output = "Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")";
+
+        return output;
+    }
+
+    public static String getDataTypes()
+    {
+        String output = "";
+        
+        List<MaryDataType> allTypes = MaryDataType.getDataTypes();
+        
+        for (MaryDataType t : allTypes) 
+        {
+            output += t.name();
+            if (t.isInputType())
+                output += " INPUT";
+            if (t.isOutputType())
+                output += " OUTPUT";
+
+            output += System.getProperty("line.separator");
+        }
+
+        return output;
+    }
+    
+    public static String getLocales() {
+    	StringBuilder out = new StringBuilder();
+    	for (LanguageConfig conf : MaryConfig.getLanguageConfigs()) {
+    		for (Locale locale : conf.getLocales()) {
+    			out.append(locale).append('\n');
+    		}
+    	}
+    	return out.toString();
+    }
+
+    public static String getVoices()
+    {
+        String output = "";
+        Collection<Voice> voices = Voice.getAvailableVoices();
+        for (Iterator<Voice> it = voices.iterator(); it.hasNext();) 
+        {
+            Voice v = (Voice) it.next();
+            if (v instanceof InterpolatingVoice) {
+                // do not list interpolating voice
+            } else if (v instanceof UnitSelectionVoice)
+            {
+                output += v.getName() + " " 
+                + v.getLocale() + " " 
+                + v.gender().toString() + " " 
+                + "unitselection" + " "
+                +((UnitSelectionVoice)v).getDomain()
+                + System.getProperty("line.separator");
+            }
+            else if (v instanceof HMMVoice)
+            {
+                output += v.getName() + " " 
+                + v.getLocale()+ " " 
+                + v.gender().toString()+ " "
+                + "hmm"
+                + System.getProperty("line.separator");
+            }
+            else
+            {
+                output += v.getName() + " " 
+                + v.getLocale()+ " " 
+                + v.gender().toString() + " "
+                + "other"
+                + System.getProperty("line.separator");
+            }
+        }
+        
+        return output;
+    }
+    
+    public static String getDefaultVoiceName()
+    {
+        String defaultVoiceName = "";
+        String allVoices = getVoices();
+        if (allVoices!=null && allVoices.length()>0)
+        {
+            StringTokenizer tt = new StringTokenizer(allVoices, System.getProperty("line.separator"));
+            if (tt.hasMoreTokens())
+            {
+                defaultVoiceName = tt.nextToken();
+                StringTokenizer tt2 = new StringTokenizer(defaultVoiceName, " ");
+                if (tt2.hasMoreTokens())
+                    defaultVoiceName = tt2.nextToken();
+            }
+        }
+        
+        return defaultVoiceName;
+    }
+
+    public static String getExampleText(String datatype, Locale locale)
+    {
+        MaryDataType type = MaryDataType.get(datatype);
+        String exampleText = type.exampleText(locale);
+        if (exampleText != null)
+            return exampleText.trim() + System.getProperty("line.separator");
+        return "";
+    }
+
+    public static Vector<String> getDefaultVoiceExampleTexts()
+    {
+        String defaultVoiceName = getDefaultVoiceName();
+        Vector<String> defaultVoiceExampleTexts = null;
+        defaultVoiceExampleTexts = StringUtils.processVoiceExampleText(getVoiceExampleText(defaultVoiceName));
+        if (defaultVoiceExampleTexts==null) //Try for general domain
+        {
+            String str = getExampleText("TEXT", Voice.getVoice(defaultVoiceName).getLocale());
+            if (str!=null && str.length()>0)
+            {
+                defaultVoiceExampleTexts = new Vector<String>();
+                defaultVoiceExampleTexts.add(str);
+            }
+        }
+        
+        return defaultVoiceExampleTexts;
+    }
+    
+    public static String getVoiceExampleText(String voiceName)
+    {
+        Voice v = Voice.getVoice(voiceName);
+        if (v instanceof marytts.unitselection.UnitSelectionVoice)
+            return ((marytts.unitselection.UnitSelectionVoice)v).getExampleText();
+        return "";
+    }
+    
+    /**
+     * For the voice with the given name, return the list of vocalizations supported by this voice,
+     * one vocalization per line.
+     * These values can be used in the "name" attribute of the vocalization tag.
+     * @param voiceName
+     * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
+     */
+    public static String getVocalizations(String voiceName) {
+        Voice v = Voice.getVoice(voiceName);
+        if (v == null || !v.hasVocalizationSupport()) {
+            return "";
+        }
+        VocalizationSynthesizer vs = v.getVocalizationSynthesizer();
+        assert vs != null;
+        String[] vocalizations = vs.listAvailableVocalizations();
+        assert vocalizations != null;
+        return StringUtils.toString(vocalizations);
+    }
+
+    public static String getDefaultAudioEffects()
+    {
+        // Marc, 8.1.09: Simplified format
+        // name params
+        StringBuilder sb = new StringBuilder();
+        for (AudioEffect effect : AudioEffects.getEffects()) {
+        	sb.append(effect.getName()).append(" ").append(effect.getExampleParameters()).append("\n");
+        }
+        return sb.toString();
+    }
+
+
+    public static String getAudioEffectDefaultParam(String effectName)
+    {
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.getExampleParameters().trim();
+    }
+    
+    public static String getFullAudioEffect(String effectName, String currentEffectParams)
+    {
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+        effect.setParams(currentEffectParams);
+        return effect.getFullEffectAsString();
+    }
+
+    public static String getAudioEffectHelpText(String effectName)
+    {
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.getHelpText().trim();
+    }
+
+    public static String isHmmAudioEffect(String effectName)
+    {
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.isHMMEffect() ? "yes" : "no";
+    }
+    
 }
