@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.server.http.BaseHttpRequestHandler;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;
 
@@ -99,19 +100,19 @@ public class DataRequestHandler extends BaseHttpRequestHandler
         else if (request.equals("options")) return getOptions();
         else if (request.equals("sample")) return getSampleData();
         else if (request.equals("title")) return getTitle();
-        else if (request.equals("audioformats")) return getAudioFileFormatTypes();
+        else if (request.equals("audioformats")) return MaryRuntimeUtils.getAudioFileFormatTypes();
         else if (request.equals("exampletext")) {
             if (queryItems != null) {
                 // Voice example text
                 String voice = queryItems.get("voice");
                 if (voice != null) {
-                    return getVoiceExampleText(voice);
+                    return MaryRuntimeUtils.getVoiceExampleText(voice);
                 }
                 String datatype = queryItems.get("datatype");
                 String locale = queryItems.get("locale");
                 if (datatype != null && locale != null) {
                     Locale loc = MaryUtils.string2locale(locale);
-                    return getExampleText(datatype, loc);
+                    return MaryRuntimeUtils.getExampleText(datatype, loc);
                 }
             }
             //MaryHttpServerUtils.errorMissingQueryParameter(response, "'datatype' and 'locale' or 'voice'");
