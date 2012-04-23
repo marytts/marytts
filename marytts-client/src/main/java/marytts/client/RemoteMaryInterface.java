@@ -4,8 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -31,6 +34,9 @@ public class RemoteMaryInterface implements MaryInterface {
 	private String style;
 	private String outputTypeParams;
 	private boolean isStreaming;
+	private Vector<Voice> availableVoices;
+	private Set<Locale> availableLocales;
+	private Map<String, DataType> availableDataTypes;
 	
 	public RemoteMaryInterface() throws IOException {
 		client = MaryClient.getMaryClient();
@@ -47,10 +53,21 @@ public class RemoteMaryInterface implements MaryInterface {
 	}
 	
 	private void setReasonableDefaults() throws IOException {
-		inputType = new DataType("TEXT", true, false);
-		outputType = new DataType("AUDIO", false, true);
-		locale = Locale.US;
-		voiceName = client.getVoices(locale).firstElement().name();
+		availableDataTypes = new HashMap<String, DataType>();
+		for (DataType d : client.getAllDataTypes()) {
+			availableDataTypes.put(d.name(), d);
+		}
+		availableLocales = client.getLocales();
+		availableVoices = client.getVoices();
+
+		inputType = availableDataTypes.get("TEXT");
+		outputType = availableDataTypes.get("AUDIO");
+		if (availableLocales.contains(Locale.US)) {
+			locale = Locale.US;
+		} else {
+			locale = availableLocales.iterator().next();
+		}
+		voiceName = getDefaultVoice(locale);
 		effects = null;
 		style = null;
 		outputTypeParams = null;
@@ -58,20 +75,14 @@ public class RemoteMaryInterface implements MaryInterface {
 	}
 	
 	@Override
-	public void setInputType(String newInputType) throws SynthesisException {
-		Vector<DataType> allInputTypes;
-		try {
-			allInputTypes = client.getInputDataTypes();
-		} catch (IOException e) {
-			throw new SynthesisException("Cannot get input data types from server", e);
+	public void setInputType(String newInputType) throws IllegalArgumentException {
+		DataType inType = availableDataTypes.get(newInputType);
+		if (inType == null) {
+			throw new IllegalArgumentException("No such data type: "+newInputType);
+		} else if (!inType.isInputType()) {
+			throw new IllegalArgumentException("Not an input type: "+newInputType);
 		}
-		for (DataType d : allInputTypes) {
-			if (d.name().equals(newInputType)) {
-				inputType = d;
-				return;
-			}
-		}
-		throw new SynthesisException("No such input type: "+newInputType);
+		inputType = inType;
 	}
 
 	@Override
@@ -80,20 +91,14 @@ public class RemoteMaryInterface implements MaryInterface {
 	}
 
 	@Override
-	public void setOutputType(String newOutputType) throws SynthesisException {
-		Vector<DataType> allOutputTypes;
-		try {
-			allOutputTypes = client.getOutputDataTypes();
-		} catch (IOException e) {
-			throw new SynthesisException("Cannot get output data types from server", e);
+	public void setOutputType(String newOutputType) throws IllegalArgumentException {
+		DataType outType = availableDataTypes.get(newOutputType);
+		if (outType == null) {
+			throw new IllegalArgumentException("No such data type: "+newOutputType);
+		} else if (!outType.isOutputType()) {
+			throw new IllegalArgumentException("Not an output type: "+newOutputType);
 		}
-		for (DataType d : allOutputTypes) {
-			if (d.name().equals(newOutputType)) {
-				outputType = d;
-				return;
-			}
-		}
-		throw new SynthesisException("No such output type: "+newOutputType);
+		outputType = outType;
 	}
 
 	@Override
@@ -102,30 +107,21 @@ public class RemoteMaryInterface implements MaryInterface {
 	}
 
 	@Override
-	public void setLocale(Locale newLocale) throws SynthesisException {
-		Set<Locale> supportedLocales;
-		try {
-			supportedLocales = client.getLocales();
-		} catch (IOException e) {
-			throw new SynthesisException("Cannot get list of supported locales from server", e);
-		}
-		if (!supportedLocales.contains(newLocale)) {
-			throw new SynthesisException("Unsupported locale: "+newLocale);
+	public void setLocale(Locale newLocale) throws IllegalArgumentException {
+		if (!availableLocales.contains(newLocale)) {
+			throw new IllegalArgumentException("Unsupported locale: "+newLocale);
 		}
 		locale = newLocale;
-		Vector<Voice> voicesForLocale;
-		try {
-			 voicesForLocale = client.getVoices(locale);
-		} catch (IOException e) {
-			throw new SynthesisException("Cannot get list of voices for locale from server", e);
+		voiceName = getDefaultVoice(locale);
+	}
+
+	private String getDefaultVoice(Locale loc) {
+		for (Voice v : availableVoices) {
+			if (v.getLocale().equals(loc)) {
+				return v.name();
+			}
 		}
-		if (voicesForLocale.size() > 0) {
-			voiceName = voicesForLocale.get(0).name();
-		} else {
-			voiceName = null;
-		}
-		
-		
+		return null;
 	}
 
 	@Override
@@ -134,17 +130,13 @@ public class RemoteMaryInterface implements MaryInterface {
 	}
 
 	@Override
-	public void setVoice(String newVoiceName) throws SynthesisException {
-		try {
-			for (Voice v : client.getVoices()) {
-				if (v.name().equals(newVoiceName)) {
-					voiceName = newVoiceName;
-					locale = v.getLocale();
-					return;
-				}
+	public void setVoice(String newVoiceName) throws IllegalArgumentException {
+		for (Voice v : availableVoices) {
+			if (v.name().equals(newVoiceName)) {
+				voiceName = newVoiceName;
+				locale = v.getLocale();
+				return;
 			}
-		} catch (IOException e) {
-			throw new SynthesisException("Cannot get list of voices from server", e);
 		}
 		throw new IllegalArgumentException("Not a valid voice name: "+newVoiceName);
 	}
@@ -336,5 +328,66 @@ public class RemoteMaryInterface implements MaryInterface {
 				|| KNOWN_AUDIO_TYPES.contains(outputType.name())) {
 			throw new IllegalArgumentException("Cannot provide text output for non-text output type "+outputType);
 		}
+	}
+
+	@Override
+	public Set<String> getAvailableVoices() {
+		Set<String> voices = new HashSet<String>();
+		for (Voice v : availableVoices) {
+			voices.add(v.name());
+		}
+		return voices;
+	}
+
+	@Override
+	public Set<String> getAvailableVoices(Locale aLocale) {
+		Set<String> voices = new HashSet<String>();
+		for (Voice v : availableVoices) {
+			if (v.getLocale().equals(aLocale))
+			voices.add(v.name());
+		}
+		return voices;
+	}
+
+	@Override
+	public Set<Locale> getAvailableLocales() {
+		return Collections.unmodifiableSet(availableLocales);
+	}
+
+	@Override
+	public Set<String> getAvailableInputTypes() {
+		Set<String> inputTypes = new HashSet<String>();
+		for (DataType d : availableDataTypes.values()) {
+			if (d.isInputType()) {
+				inputTypes.add(d.name());
+			}
+		}
+		return inputTypes;
+	}
+
+	@Override
+	public Set<String> getAvailableOutputTypes() {
+		Set<String> outputTypes = new HashSet<String>();
+		for (DataType d : availableDataTypes.values()) {
+			if (d.isOutputType()) {
+				outputTypes.add(d.name());
+			}
+		}
+		return outputTypes;
+	}
+
+	@Override
+	public boolean isTextType(String dataType) {
+		return KNOWN_TEXT_TYPES.contains(dataType);
+	}
+
+	@Override
+	public boolean isXMLType(String dataType) {
+		return KNOWN_XML_TYPES.contains(dataType);
+	}
+
+	@Override
+	public boolean isAudioType(String dataType) {
+		return KNOWN_AUDIO_TYPES.contains(dataType);
 	}
 }

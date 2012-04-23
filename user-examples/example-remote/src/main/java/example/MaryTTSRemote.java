@@ -1,5 +1,7 @@
 package example;
 
+import java.util.Set;
+
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.MaryInterface;
@@ -23,7 +25,8 @@ public class MaryTTSRemote {
 		
 		MaryInterface marytts = new RemoteMaryInterface(hostname, port);
 
-		marytts.setVoice("cmu-slt-hsmm");
+		Set<String> voices = marytts.getAvailableVoices();
+		marytts.setVoice(voices.iterator().next());
 		AudioInputStream audio = marytts.generateAudio("Hello world.");
 		AudioPlayer player = new AudioPlayer(audio);
 		player.start();

@@ -19,7 +19,9 @@
  */
 package marytts;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -28,6 +30,7 @@ import javax.sound.sampled.AudioSystem;
 
 import org.w3c.dom.Document;
 
+import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -95,12 +98,12 @@ public class LocalMaryInterface implements MaryInterface {
 	 * @see marytts.MaryInterface#setInputType(java.lang.String)
 	 */
 	@Override
-	public void setInputType(String newInputType) throws SynthesisException {
+	public void setInputType(String newInputType) throws IllegalArgumentException {
 		inputType = MaryDataType.get(newInputType);
 		if (inputType == null) {
-			throw new SynthesisException("No such type: "+newInputType);
+			throw new IllegalArgumentException("No such type: "+newInputType);
 		} else if (!inputType.isInputType()) {
-			throw new SynthesisException("Not an input type: "+newInputType);
+			throw new IllegalArgumentException("Not an input type: "+newInputType);
 		}
 	}
 	
@@ -116,12 +119,12 @@ public class LocalMaryInterface implements MaryInterface {
 	 * @see marytts.MaryInterface#setOutputType(java.lang.String)
 	 */
 	@Override
-	public void setOutputType(String newOutputType) throws SynthesisException {
+	public void setOutputType(String newOutputType) throws IllegalArgumentException {
 		outputType = MaryDataType.get(newOutputType);
 		if (outputType == null) {
-			throw new SynthesisException("No such type: "+newOutputType);
+			throw new IllegalArgumentException("No such type: "+newOutputType);
 		} else if (!outputType.isOutputType()) {
-			throw new SynthesisException("Not an output type: "+newOutputType);
+			throw new IllegalArgumentException("Not an output type: "+newOutputType);
 		}
 	}
 	
@@ -137,9 +140,9 @@ public class LocalMaryInterface implements MaryInterface {
 	 * @see marytts.MaryInterface#setLocale(java.util.Locale)
 	 */
 	@Override
-	public void setLocale(Locale newLocale) throws SynthesisException {
+	public void setLocale(Locale newLocale) throws IllegalArgumentException {
 		if (MaryConfig.getLanguageConfig(newLocale) == null) {
-			throw new SynthesisException("Unsupported locale: "+newLocale);
+			throw new IllegalArgumentException("Unsupported locale: "+newLocale);
 		}
 		locale = newLocale;
 		voice = Voice.getDefaultVoice(locale);
@@ -158,10 +161,10 @@ public class LocalMaryInterface implements MaryInterface {
 	 * @see marytts.MaryInterface#setVoice(java.lang.String)
 	 */
 	@Override
-	public void setVoice(String voiceName) throws SynthesisException {
+	public void setVoice(String voiceName) throws IllegalArgumentException {
 		voice = Voice.getVoice(voiceName);
 		if (voice == null) {
-			throw new SynthesisException("No such voice: "+voiceName);
+			throw new IllegalArgumentException("No such voice: "+voiceName);
 		}
 		locale = voice.getLocale();
 	}
@@ -375,5 +378,65 @@ public class LocalMaryInterface implements MaryInterface {
 			throw new SynthesisException("cannot process", e);
 		}
 		return r.getOutputData();
+	}
+
+	@Override
+	public Set<String> getAvailableVoices() {
+		Set<String> voices = new HashSet<String>();
+		for (Voice v : Voice.getAvailableVoices()) {
+			voices.add(v.getName());
+		}
+		return voices;
+	}
+
+	@Override
+	public Set<String> getAvailableVoices(Locale aLocale) {
+		Set<String> voices = new HashSet<String>();
+		for (Voice v : Voice.getAvailableVoices(aLocale)) {
+			voices.add(v.getName());
+		}
+		return voices;
+	}
+
+	@Override
+	public Set<Locale> getAvailableLocales() {
+		Set<Locale> locales = new HashSet<Locale>();
+		for (LanguageConfig lc : MaryConfig.getLanguageConfigs()) {
+			locales.addAll(lc.getLocales());
+		}
+		return locales;
+	}
+
+	@Override
+	public Set<String> getAvailableInputTypes() {
+		return new HashSet<String>(MaryDataType.getInputTypeStrings());
+	}
+
+	@Override
+	public Set<String> getAvailableOutputTypes() {
+		return new HashSet<String>(MaryDataType.getOutputTypeStrings());
+	}
+
+	@Override
+	public boolean isTextType(String dataType) {
+		MaryDataType d = MaryDataType.get(dataType);
+		if (d != null) {
+			return d.isTextType() && !d.isXMLType();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isXMLType(String dataType) {
+		MaryDataType d = MaryDataType.get(dataType);
+		if (d != null) {
+			return d.isXMLType();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isAudioType(String dataType) {
+		return "AUDIO".equals(dataType);
 	}
 }
