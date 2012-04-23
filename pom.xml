@@ -30,6 +30,7 @@
     <module>marytts-lang-sv</module>
     <module>voice-cmu-slt-hsmm</module>
     <module>marytts-assembly</module>
+    <module>user-examples</module>
   </modules>
 
 <!--
