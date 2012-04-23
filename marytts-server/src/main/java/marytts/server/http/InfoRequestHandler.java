@@ -27,6 +27,7 @@ import java.util.Map;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;
 
@@ -78,33 +79,34 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
         assert absPath.startsWith("/") : "Absolute path '"+absPath+"' does not start with a slash!";
         String request = absPath.substring(1); // without the initial slash
         
-        if (request.equals("version")) return getMaryVersion();
-        else if (request.equals("datatypes")) return getDataTypes();
-        else if (request.equals("voices")) return getVoices();
-        else if (request.equals("audioformats")) return getAudioFileFormatTypes();
+        if (request.equals("version")) return MaryRuntimeUtils.getMaryVersion();
+        else if (request.equals("datatypes")) return MaryRuntimeUtils.getDataTypes();
+        else if (request.equals("locales")) return MaryRuntimeUtils.getLocales();
+        else if (request.equals("voices")) return MaryRuntimeUtils.getVoices();
+        else if (request.equals("audioformats")) return MaryRuntimeUtils.getAudioFileFormatTypes();
         else if (request.equals("exampletext")) {
             if (queryItems != null) {
                 // Voice example text
                 String voice = queryItems.get("voice");
                 if (voice != null) {
-                    return getVoiceExampleText(voice);
+                    return MaryRuntimeUtils.getVoiceExampleText(voice);
                 }
                 String datatype = queryItems.get("datatype");
                 String locale = queryItems.get("locale");
                 if (datatype != null && locale != null) {
                     Locale loc = MaryUtils.string2locale(locale);
-                    return getExampleText(datatype, loc);
+                    return MaryRuntimeUtils.getExampleText(datatype, loc);
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'datatype' and 'locale' or 'voice'");
             return null;
         }
-        else if (request.equals("audioeffects")) return getDefaultAudioEffects();
+        else if (request.equals("audioeffects")) return MaryRuntimeUtils.getDefaultAudioEffects();
         else if (request.equals("audioeffect-default-param")) {
             if (queryItems != null) {
                 String effect = queryItems.get("effect");
                 if (effect != null)
-                    return getAudioEffectDefaultParam(effect);
+                    return MaryRuntimeUtils.getAudioEffectDefaultParam(effect);
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
             return null;
@@ -114,7 +116,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
                 String effect = queryItems.get("effect");
                 String params = queryItems.get("params");
                 if (effect != null && params != null) {
-                    return getFullAudioEffect(effect, params);
+                    return MaryRuntimeUtils.getFullAudioEffect(effect, params);
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect' and 'params'");
@@ -124,7 +126,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
             if (queryItems != null) {
                 String effect = queryItems.get("effect");
                 if (effect != null) {
-                    return getAudioEffectHelpText(effect);
+                    return MaryRuntimeUtils.getAudioEffectHelpText(effect);
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
@@ -134,7 +136,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
             if (queryItems != null) {
                 String effect = queryItems.get("effect");
                 if (effect != null) {
-                    return isHmmAudioEffect(effect);
+                    return MaryRuntimeUtils.isHmmAudioEffect(effect);
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
@@ -193,7 +195,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
             if (queryItems != null) {
                 String voice = queryItems.get("voice");
                 if (voice != null) {
-                    return getVocalizations(voice);
+                    return MaryRuntimeUtils.getVocalizations(voice);
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice'");

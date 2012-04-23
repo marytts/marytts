@@ -52,7 +52,7 @@ public class MaryProperties
     /** The mary base directory, e.g. /usr/local/mary */
     public static String maryBase()
     {
-    	return needFilename("mary.base");
+    	return getFilename("mary.base", ".");
     }
     
     
