@@ -77,17 +77,17 @@ public class RemoteMaryInterfaceIT {
 		assertEquals(in, mary.getInputType());
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void unknownInputType() throws Exception {
 		mary.setInputType("something strange");
 	}
 	
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void nullInputType() throws Exception {
 		mary.setInputType(null);
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void notAnInputType() throws Exception {
 		mary.setInputType("AUDIO");
 	}
@@ -100,28 +100,28 @@ public class RemoteMaryInterfaceIT {
 		assertEquals(out, mary.getOutputType());
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void unknownOutputType() throws Exception {
 		mary.setOutputType("something strange");
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void nullOutputType() throws Exception {
 		mary.setOutputType(null);
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void notAnOutputType() throws Exception {
 		mary.setOutputType("TEXT");
 	}
 	
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void cannotSetUnsupportedLocale() throws Exception {
 		Locale loc = new Locale("abcde");
 		mary.setLocale(loc);
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void cannotSetNullLocale() throws Exception {
 		mary.setLocale(null);
 	}
