@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="female" locale="en-US" name="${voicename}"
+        type="hsmm" version="${project.version}">
+        <description>A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University.</description>
+        <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
+        <package filename="${project.artifactId}-${project.version}.zip"
+            md5sum="${zip_md5}" size="${zip_size}">
+            <location href="http://mary.dfki.de/download/${project.version}/"/>
+        </package>
+        <files>lib/${project.artifactId}-${project.version}.jar</files>
+        <depends language="en-US" version="${project.version}"/>
+    </voice>
+</marytts-install>

@@ -72,6 +72,16 @@ Compiling the MARY TTS system creates a folder containing the MARY TTS build too
 Shell scripts for the available tools are provided in the `bin/` subfolder.  
 
 
+Using MARY TTS in your own Java projects
+----------------------------------------
+
+The easiest way to get all dependencies right is to use Maven. The example projects below `user-examples` should be sufficient to get you started.
+
+The `pom.xml` file in each example project copies the required jar files and sets the classpath of the project jar file such that it can be simply started as follows:
+
+    java -jar user-examples/example-embedded/target/example-embedded-5.0-SNAPSHOT.jar
+
+
 Developing MARY TTS in Eclipse
 ------------------------------
 
