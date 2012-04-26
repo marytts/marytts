@@ -16,6 +16,11 @@
   <dependencies>
     <dependency>
       <groupId>marytts</groupId>
+      <artifactId>marytts-common</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
       <artifactId>marytts-runtime</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
@@ -58,25 +63,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.ju-n.maven.plugins</groupId>
-        <artifactId>checksum-maven-plugin</artifactId>
-        <version>1.0.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>artifacts</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <algorithms>
-            <algorithm>MD5</algorithm>
-          </algorithms>
-          <csvSummary>true</csvSummary>
-        </configuration>
-      </plugin>
-      <plugin>
 		  <groupId>org.codehaus.gmaven</groupId>
 		  <artifactId>gmaven-plugin</artifactId>
 		  <version>1.4</version>
@@ -87,11 +73,24 @@
 		        <goal>execute</goal>
 		      </goals>
 		      <configuration>
-		        <properties>
-		        </properties>
+                <classpath>
+                    <element>
+                        <groupId>marytts</groupId>
+                        <artifactId>marytts-common</artifactId>
+                    </element>
+                </classpath>
 		        <source>
-		          def file = new File(project.build.directory+'/'+project.artifactId+'-'+project.version+'.zip.md5')
-		          project.properties.zip_md5 = file.getText()
+		          import com.twmacinta.util.MD5
+		          // First, fill the zip file's size and md5 sum into properties:
+		          def zipfile = new File(project.build.directory+'/'+project.artifactId+'-'+project.version+'.zip')
+		          project.properties.zip_size = ''+zipfile.size()
+		          project.properties.zip_md5 = MD5.asHex(MD5.getHash(zipfile))
+		          // Second, copy component file template into target space with the right name
+		          def tempdir = new File(project.build.directory+'/tmp-component/')
+		          tempdir.mkdirs()
+		          def target = new File(tempdir, project.artifactId+'-'+project.version+'-component.xml')
+		          def source = new File(project.basedir.getPath()+'/src/non-packaged-resources/voice-component.xml')
+		          target &lt;&lt; source.text
 		        </source>
 		      </configuration>
 		    </execution>
@@ -109,17 +108,40 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>          
                 <resource>
-                  <directory>src/non-packaged-resources</directory>
+                  <directory>${project.build.directory}/tmp-component</directory>
                   <filtering>true</filtering>
                 </resource>
               </resources>              
+              <outputDirectory>${project.build.directory}</outputDirectory>
             </configuration>            
           </execution>
         </executions>
       </plugin>
-    </plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-component.xml</file>
+                  <type>xml</type>
+                  <classifier>component</classifier>
+                </artifact>
+                ...
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>    </plugins>
   </build>
 </project>

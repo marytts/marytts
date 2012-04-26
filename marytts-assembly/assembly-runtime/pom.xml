@@ -68,6 +68,13 @@
       <artifactId>voice-cmu-slt-hsmm</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>voice-cmu-slt-hsmm</artifactId>
+      <type>xml</type>
+      <classifier>component</classifier>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   
   
