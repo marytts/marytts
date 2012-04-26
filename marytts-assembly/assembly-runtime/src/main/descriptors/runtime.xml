@@ -97,8 +97,16 @@
       <includes>
         <include>${project.groupId}:marytts-server:jar:jar-with-dependencies</include>
         <include>${project.groupId}:marytts-client:jar:jar-with-dependencies</include>
-        <include>${project.groupId}:marytts-lang-*</include>
-        <include>${project.groupId}:voice-*</include>
+        <include>${project.groupId}:marytts-lang-*:jar</include>
+        <include>${project.groupId}:voice-*:jar</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>/installed</outputDirectory>
+      <scope>runtime</scope>
+      <includes>
+        <include>${project.groupId}:voice-*:xml:component</include>
       </includes>
     </dependencySet>
   </dependencySets>

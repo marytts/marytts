@@ -8,7 +8,7 @@
             md5sum="${zip_md5}" size="${zip_size}">
             <location href="http://mary.dfki.de/download/${project.version}/"/>
         </package>
-        <files>lib/voice-${project.artifactId}-${project.version}.jar</files>
+        <files>lib/${project.artifactId}-${project.version}.jar</files>
         <depends language="en-US" version="${project.version}"/>
     </voice>
 </marytts-install>
