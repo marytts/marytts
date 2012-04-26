@@ -142,6 +142,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>    </plugins>
+      </plugin>
+    </plugins>
   </build>
 </project>
