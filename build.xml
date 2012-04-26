@@ -250,6 +250,21 @@ THIS SOFTWARE.
     </jar>
   </target>
 
+  <!-- French language modules -->
+  <target name="mary-fr.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-fr.jar"
+         basedir="${src}"
+         includes="marytts/language/fr/**/*.class
+                   marytts/language/fr/datatypes/*.example">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+
 	  <!-- Turkish language modules -->
 	  <target name="mary-tr.jar" depends="compile,version">
 	    <jar destfile="${dest}/mary-tr.jar"
@@ -309,7 +324,7 @@ THIS SOFTWARE.
     </jar>
   </target-->
 
-  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-it.jar,mary-tr.jar,mary-te.jar,mary-ru.jar"/>
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-it.jar,mary-fr.jar,mary-tr.jar,mary-te.jar,mary-ru.jar"/>
 
 
 
@@ -594,6 +609,14 @@ THIS SOFTWARE.
         <param name="lang-fullname" value="Italian"/>
       </antcall>
     </target>
+
+    <target name="fr-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="fr"/>
+        <param name="lang-fullname" value="French"/>
+      </antcall>
+    </target>
+
 
     <target name="te-package">
       <antcall target="default-language-package">
