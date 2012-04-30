@@ -6,6 +6,7 @@
     <artifactId>marytts</artifactId>
     <groupId>marytts</groupId>
     <version>5.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>marytts-assembly-runtime</artifactId>
