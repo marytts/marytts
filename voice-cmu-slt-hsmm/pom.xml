@@ -90,7 +90,7 @@
 		          tempdir.mkdirs()
 		          def target = new File(tempdir, project.artifactId+'-'+project.version+'-component.xml')
 		          def source = new File(project.basedir.getPath()+'/src/non-packaged-resources/voice-component.xml')
-		          target &lt;&lt; source.text
+		          target.write(source.text)
 		        </source>
 		      </configuration>
 		    </execution>
