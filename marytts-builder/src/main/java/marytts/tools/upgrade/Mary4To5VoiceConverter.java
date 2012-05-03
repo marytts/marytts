@@ -62,6 +62,7 @@ public class Mary4To5VoiceConverter {
 		"featureFile", "joinCostFile", "unitsFile", "audioTimelineFile", "basenameTimeline",
 		"vocalization.unitfile", "vocalization.timeline", "vocalization.featurefile",
 		"vocalization.featureDefinitionFile", "vocalization.intonationfile",
+		"vocalization.mlsafeaturefile", "vocalization.mixedexcitationfilter",
 		"vocalization.intonation.featureDefinitionFile",
 		// 4.0 prosody carts:
 		"duration.cart", "duration.featuredefinition", 

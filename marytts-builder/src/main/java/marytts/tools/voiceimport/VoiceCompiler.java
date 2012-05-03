@@ -270,7 +270,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			 metaInfDir.mkdirs();
 			 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
 			 testJavaDir.mkdirs();
-			 if (isUnitSelectionVoice) {
+			 if (filesForFilesystem != null && filesForFilesystem.length > 0) {
 				 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+voiceName);
 				 libVoiceDir.mkdir();
 			 }
