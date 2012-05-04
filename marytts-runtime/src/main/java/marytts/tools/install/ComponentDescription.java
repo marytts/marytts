@@ -30,6 +30,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -158,7 +159,11 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             Element aLocationElement = (Element) locationElements.item(i);
             try {
                 String urlString = aLocationElement.getAttribute("href").trim().replaceAll(" ", "%20");
-                if (!urlString.endsWith(packageFilename)) {
+                boolean isFolder = true;
+                if (aLocationElement.hasAttribute("folder")) {
+                	isFolder = Boolean.valueOf(aLocationElement.getAttribute("folder"));
+                }
+                if (isFolder && !urlString.endsWith(packageFilename)) {
                     if (!urlString.endsWith("/")) {
                         urlString += "/";
                     }
@@ -524,11 +529,14 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         for (URL l : locations) {
             // Serialize the location without the filename:
             String urlString = l.toString();
+            boolean isFolder = false;
             if (urlString.endsWith(packageFilename)) {
                 urlString = urlString.substring(0, urlString.length()-packageFilename.length());
+                isFolder = true;
             }
             Element lElt = (Element) packageElt.appendChild(doc.createElementNS(installerNamespaceURI, "location"));
             lElt.setAttribute("href", urlString);
+            lElt.setAttribute("folder", String.valueOf(isFolder));
         }
         if (installedFilesNames != null) {
             Element filesElement = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "files"));
@@ -652,6 +660,38 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 
     class Downloader implements Runnable
     {
+    	
+    	private HttpURLConnection openAndRedirectIfRequired(URL url) throws IOException {
+    		int maxRedirects = 5;
+    		for (int i=0; i<maxRedirects; i++) {
+    			HttpURLConnection c = (HttpURLConnection) url.openConnection();
+                c.setInstanceFollowRedirects(false);
+                // Specify what portion of file to download.
+                c.setRequestProperty("Range", "bytes=" + downloaded + "-");
+                // Connect to server.
+                c.connect();
+                // Check for redirects
+    			int stat = c.getResponseCode();
+    			if (stat >= 300 && stat <= 307 && stat != 306 && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
+    				URL base = c.getURL();
+    				String location = c.getHeaderField("Location");
+    				c.disconnect();
+    				if (location == null) {
+    					throw new SecurityException("No redirect location given.");
+    				}
+    				URL target = new URL(base, location);
+    				String protocol = target.getProtocol();
+    				if (!(protocol.equals("http") || protocol.equals("https"))) {
+    					throw new SecurityException("Redirect supported to http and https protocols only, but found '"+protocol+"'");
+    				}
+    				url = target;
+    			} else {
+    				return c;
+    			}
+    		}
+    		throw new SecurityException("More than five redirects, aborting");
+    	}
+    	
         public void run()
         {
             status = Status.DOWNLOADING;
@@ -666,25 +706,23 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             for (URL u : locations) {
                 try {
                     // Open connection to URL.
-                    connection = (HttpURLConnection) u.openConnection();
-                    // Specify what portion of file to download.
-                    connection.setRequestProperty("Range", "bytes=" + downloaded + "-");
-                    // Connect to server.
-                    connection.connect();
+                    connection = openAndRedirectIfRequired(u);
                     // Make sure response code is in the 200 range.
                     if (connection.getResponseCode() / 100 != 2) {
-                        continue; // try next location
+                        throw new IOException("Non-OK response code: "+connection.getResponseCode()+" ("+connection.getResponseMessage()+")");
                     }
                     // Check for valid content length.
                     int contentLength = connection.getContentLength();
-                    if (contentLength < 1) {
-                        continue; // try next location
+                    if (contentLength > -1) {
+                    	if (contentLength != packageSize) {
+                    		throw new IOException("Expected package size "+packageSize+", but web server reports "+contentLength);
+                    	}
                     }
-                    
+
                     /* Set the size for this download if it
                        hasn't been already set. */
                     if (size == -1) {
-                        size = contentLength;
+                        size = packageSize;
                         stateChanged();
                     }
                     connectException = null;
@@ -698,11 +736,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             if (connectException != null) {
                 connectException.printStackTrace();
                 error();
-            } else if (connection == null) {
-                error();
+                return;
             }
             
-            System.err.println("Connected to "+connectedURL+", downloading "+(downloaded > 0 ? "from byte "+downloaded : ""));
+            System.out.println("Connected to "+connectedURL+", downloading "+(downloaded > 0 ? "from byte "+downloaded : ""));
             try {
                 // Open file and seek to the end of it.
                 file = new RandomAccessFile(archiveFile, "rw");
