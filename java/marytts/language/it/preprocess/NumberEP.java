@@ -65,8 +65,8 @@ public class NumberEP extends ExpansionPattern
     public List knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
-    protected static final String sFloat = "(?:-?(?:[1-9][0-9]+|0)?(?:\\.|,)[0-9]+)";
-    protected static final String sInteger = "(?:-?[1-9][0-9]+|0)";
+    protected static final String sFloat = "(?:-?(?:[1-9][0-9]*|0)?(?:\\.|,)[0-9]+)";
+    protected static final String sInteger = "(?:-?[1-9][0-9]*|0)";
     protected static final String sOrdinal = "(?:" + sInteger + "[°.])";
     protected static final String sRoman = "(?:[MDCLXVI]+\\.?)";
     protected static final String sDigits = "(?:[0-9.,]*[0-9][.,]?)";
@@ -193,10 +193,10 @@ public class NumberEP extends ExpansionPattern
     protected List expand(List tokens, String s, int type)
     {
         if (tokens == null) 
-            throw new NullPointerException("Received null argument");
-        if (tokens.isEmpty()) 
-            throw new IllegalArgumentException("Received empty list");
-        Document doc = ((Element)tokens.get(0)).getOwnerDocument();
+			throw new NullPointerException("Received null argument");
+		if (tokens.isEmpty())
+			throw new IllegalArgumentException("Received empty list");
+		Document doc = ((Element) tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
         List expanded = null;
         switch (type) {
