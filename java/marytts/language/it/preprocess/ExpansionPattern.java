@@ -1,5 +1,7 @@
 /**
  * Copyright 2002 DFKI GmbH.
+ * Copyright 2011-2012 Fabio Tesser.
+ * Copyright 2012 Giulio Paci <giuliopaci@gmail.com>.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -47,14 +49,14 @@ import org.w3c.dom.Element;
  *          i.e. the matched tokens are expanded according to the expansion
  *          rules in the pattern.
  *
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Fabio Tesser, Giulio Paci
  */
 
 public abstract class ExpansionPattern {
     //protected static MultiWordEP multiword;
     protected static CompositeEP composite;
     //protected static NetEP net;
-    //protected static DateEP date;
+    protected static DateEP date;
     //protected static TimeEP time;
     //protected static DurationEP duration;
     //protected static CurrencyEP currency;
@@ -98,13 +100,11 @@ public abstract class ExpansionPattern {
         expansionPatterns.add(composite);
         for (it = composite.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), composite);
-        
-        
-        /*
         date = new DateEP();
         expansionPatterns.add(date);
         for (it = date.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), date);
+        /*
         time = new TimeEP();
         expansionPatterns.add(time);
         for (it = time.knownTypes().iterator(); it.hasNext();)
