@@ -701,16 +701,16 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             InputStream stream = null;
             
             HttpURLConnection connection = null;
-            Exception connectException = null;
-            URL connectedURL = null;
             for (URL u : locations) {
                 try {
+                	System.out.println("Trying location "+u+"...");
                     // Open connection to URL.
                     connection = openAndRedirectIfRequired(u);
                     // Make sure response code is in the 200 range.
                     if (connection.getResponseCode() / 100 != 2) {
                         throw new IOException("Non-OK response code: "+connection.getResponseCode()+" ("+connection.getResponseMessage()+")");
                     }
+                    System.out.println("...connected");
                     // Check for valid content length.
                     int contentLength = connection.getContentLength();
                     if (contentLength > -1) {
@@ -725,27 +725,31 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                         size = packageSize;
                         stateChanged();
                     }
-                    connectException = null;
-                    connectedURL = u;
-                    break; // current location seems OK, leave loop
+        			System.out.println("...downloading"+(downloaded > 0 ? " from byte "+downloaded : ""));
+                    boolean success = tryToDownloadFromLocation(file, stream, connection);
+                    if (success) {
+                    	break; // current location seems OK, leave loop
+                    }
                 } catch (Exception exc) {
-                    connectException = exc;
+                	exc.printStackTrace();
                 }
-            }
+            }            
 
-            if (connectException != null) {
-                connectException.printStackTrace();
-                error();
-                return;
-            }
-            
-            System.out.println("Connected to "+connectedURL+", downloading "+(downloaded > 0 ? "from byte "+downloaded : ""));
+        }
+
+		private boolean tryToDownloadFromLocation(RandomAccessFile file,
+				InputStream stream, HttpURLConnection connection) {
+			boolean success = false;
             try {
                 // Open file and seek to the end of it.
                 file = new RandomAccessFile(archiveFile, "rw");
                 file.seek(downloaded);
                 
                 stream = connection.getInputStream();
+            	if (status == Status.ERROR) {
+            		downloaded = 0;
+            	}
+                status = Status.DOWNLOADING;
                 byte[] buffer = new byte[MAX_BUFFER_SIZE];
                 while (status == Status.DOWNLOADING) {
                     /* target number of bytes to download depends on how much of the
@@ -774,6 +778,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                         System.err.println("ok!");
                         writeDownloadedComponentXML();
                         status = Status.DOWNLOADED;
+                        success = true;
                     } else {
                         System.err.println("failed!");
                         System.out.println("MD5 according to component description: "+packageMD5);
@@ -801,8 +806,8 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                     } catch (Exception e) {}
                 }
             }
-
-        }
+            return success;
+		}
         
     }
     
