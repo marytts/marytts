@@ -1,0 +1,90 @@
+nao | ' n a1 - o
+okay | o - ' kk E1 - i
+stix | ' s t i1 k s
+manche | ' m a1 n S 
+round | ' r a1 - u n d
+patatine | p a - t a - ' t i1 - n e
+bàlia | ' b a1 - l j a
+accorgerti | a - ' kk O1 r - dZ e r - t i
+colibri | k o - l i b - ' r i1
+ok | o - ' kk E1 - i
+l'iniezione | l i - n j e - ' tts j o1 - n e
+sequenza | s e k - ' w E1 n - ts a
+pochino | p o - ' k i1 - n o
+po' | ' p O1
+po | ' p O1
+kappatre | k a - ' kk O1 r - dZ e r - ' t i1
+diabete | d j a - ' b E1 - t e
+boxe | ' b o1 k s
+correggerla | k o - ' rr E1 - ddZ E r - l a
+ingoiarlo | i NG - g o - ' j a1 r - l o
+judo | ' dZ u1 - d o
+qual | k w a - l
+lattina | l a - ' tt i1 - n a
+patagonia | p a - t a - ' g o1 - n i - a
+rugby | ' rr E1 g - b i
+può | ' p w O1
+riposa | r i - 'p O1 - s a
+sciatori | S j a - ' t o1 - r i
+sport | ' s p O1 r t
+tenere | t e - ' n e1 - r e
+stick | ' s t i1 k
+trovo | ' t r O1 - v o
+ore | ' o1 - r e
+weekend | ' u1 j - k e n d
+XX | i k - s - ' i1 k - s 
+XY | i k - s ' i1 p - s i - l o n
+B6 | b i - ' s E1 - i
+banjo |' b E1 n - dZ O
+ciclabile | tS i - ' k l a1 - b i - l e
+colibri | k o - l i b - ' r i1
+computer | k o m - p j u1 - t e r
+diossido | ' d j O1 - ss i - d o
+ricontrollo | r i - k o n - ' t r O1 - ll o
+finanza | f i - ' n a1 n - ts a
+formiche | f O r - ' m i1 - k e
+garage | g a - ' r a1 - dZ
+new | n j u1
+york | ' j o r k
+arpa | ' a1 r - p a
+rimanere | r i - m a - ' n e1 - r e
+riprovo | r i p - ' r O1 - v o
+scherma | ' s k e1 r - r m a
+sovrappeso | s o v - r a - ' pp e1 - z o
+sufficiente | s u - ff i - ' tS e1 n - t e
+sufficienti | s u - ff i - ' tS e1 n - t i
+sultano | s u l - ' t a1 - n o
+vercingetorige | v e r - tS i n - dZ e - ' t o1 - r i - dZ e
+fermarci | f e r - ' m a1 r - tS i
+giochino | dZ O - ' k i1 - n o
+oops | ' o1 - p s
+piedone | p j e - ' d o1 - n e
+preoccuparti | p r e - O -  kk u - ' p a1 r - t i
+ricordarti | r i - k o r - ' d a1 r - t i
+ripeterla | r i - ' p E1 - t e r - l a
+ripeterlo | r i - ' p E1 - t e r - l o
+record | ' r E1 - k o r d
+giocarlo | dZ O - ' k a1 r - l o
+conoscerla | k o - ' n o1 - S e r - l a
+stavolta | s t a1 - ' v O1 l - t a
+su | s u
+tre | ' t r e1
+imitarli |  i - m i - ' t a1 r -  l i
+so | ' s O1
+rivederti | r i - v e - ' d e1 r - t i
+tu | ' t u1
+
+riso | ' rr i1 - z o
+ab | a - ' b i1
+b | ' b i1
+b. | ' b i1
+c | ' tS i1
+c. | ' tS i1
+d | ' d i1
+d. | ' d i1
+c'è | ' tS E1
+c'erano | ' tS E1 - r a - n o
+mamma | ' m a1 m - m a
+c' | tS
+
+
