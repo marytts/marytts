@@ -6,4 +6,4 @@
 
 BINDIR="`dirname "$0"`"
 export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
-java -showversion -ea -Xmx1024m -DMARYBASE="$MARY_BASE" -cp "$MARY_BASE/lib/marytts-builder-${project.version}-jar-with-dependencies.jar" marytts.tools.upgrade.Mary4To5VoiceConverter $*
+java -showversion -ea -Xmx1024m -Dmary.base="$MARY_BASE" -cp "$MARY_BASE/lib/marytts-builder-${project.version}-jar-with-dependencies.jar" marytts.tools.upgrade.Mary4To5VoiceConverter $*

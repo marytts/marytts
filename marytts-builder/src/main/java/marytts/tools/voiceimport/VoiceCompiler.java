@@ -89,8 +89,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 		logger.info("Compiling with Maven");
 		compiler.compileWithMaven();
 		
-		logger.info("Creating component description file");
-		compiler.createComponentFile();
+		//logger.info("Creating component description file");
+		//compiler.createComponentFile();
 		logger.info("done.");
 		
 		return true;
@@ -215,6 +215,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		protected StrSubstitutor substitutor;
 		protected File mainJavaDir;
 		protected File mainResourcesDir;
+		protected File nonPackagedResourcesDir;
 		protected File mainDescriptionsDir;
 		protected File metaInfDir;
 		protected File testJavaDir;
@@ -264,13 +265,15 @@ public class VoiceCompiler extends VoiceImportComponent {
 			 mainJavaDir.mkdirs();
 			 mainResourcesDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/marytts/voice/"+packageName);
 			 mainResourcesDir.mkdirs();
+			 nonPackagedResourcesDir = new File(compileDir.getAbsolutePath()+"/src/non-packaged-resources");
+			 nonPackagedResourcesDir.mkdirs();
 			 mainDescriptionsDir = new File(compileDir.getAbsolutePath()+"/src/main/descriptors");
 			 mainDescriptionsDir.mkdirs();
 			 metaInfDir = new File(compileDir.getAbsolutePath()+"/src/main/resources/META-INF/services");
 			 metaInfDir.mkdirs();
 			 testJavaDir = new File(compileDir.getAbsolutePath()+"/src/test/java/marytts/voice/"+packageName);
 			 testJavaDir.mkdirs();
-			 if (isUnitSelectionVoice) {
+			 if (filesForFilesystem != null && filesForFilesystem.length > 0) {
 				 libVoiceDir = new File(compileDir.getAbsolutePath()+"/lib/voices/"+voiceName);
 				 libVoiceDir.mkdir();
 			 }
@@ -278,6 +281,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		
 		public void copyTemplateFiles() throws IOException {
 			copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
+			copyWithVarSubstitution("component.xml", new File(nonPackagedResourcesDir, "voice-component.xml"));
 			copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
 			copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
 			copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
@@ -342,18 +346,18 @@ public class VoiceCompiler extends VoiceImportComponent {
 			}
 		}
 
-		public void createComponentFile() throws IOException {
-			String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
-			File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
-	        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
-	        Map<String, String> compMap = new HashMap<String, String>();
-	        compMap.put("MD5", zipFileMd5Hash);
-	        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
-	        StrSubstitutor compSubst = new StrSubstitutor(compMap);
-			String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
-			File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
-	        copyWithVarSubstitution("component.xml", componentFile, compSubst);
-		}
+//		public void createComponentFile() throws IOException {
+//			String zipFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}.zip");
+//			File zipFile = new File(compileDir.getAbsolutePath()+"/target/"+zipFileName);
+//	        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
+//	        Map<String, String> compMap = new HashMap<String, String>();
+//	        compMap.put("MD5", zipFileMd5Hash);
+//	        compMap.put("FILESIZE", String.valueOf(zipFile.length()));
+//	        StrSubstitutor compSubst = new StrSubstitutor(compMap);
+//			String componentFileName = substitutor.replace("voice-${VOICENAME}-${MARYVERSION}-component.xml");
+//			File componentFile = new File(compileDir.getAbsolutePath()+"/target/"+componentFileName);
+//	        copyWithVarSubstitution("component.xml", componentFile, compSubst);
+//		}
 		
 		public String getPackageName() {
 			return toPackageName(voiceName);
