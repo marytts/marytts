@@ -12,6 +12,7 @@
         <include>lgpl-3.0.txt</include>
         <include>lib/voices/**/*</include>
         <include>user-dictionaries/*</include>
+        <include>download/marytts-components.xml</include>
       </includes>
     </fileSet>
     <!-- General, non-executable, non-filtered files for release -->
