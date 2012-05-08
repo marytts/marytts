@@ -101,7 +101,7 @@
         <Component class="javax.swing.JTextField" name="tfComponentListURL">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="&quot;http://mary.dfki.de/download/&quot;+version+&quot;/mary-components.xml&quot;" type="code"/>
+              <Connection code="&quot;https://raw.github.com/marytts/marytts/master/download/marytts-components.xml&quot;" type="code"/>
             </Property>
           </Properties>
           <Events>
