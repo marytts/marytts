@@ -60,9 +60,14 @@ public class InstallFileParser
     public InstallFileParser(URL installFile)
     throws IOException, SAXException
     {
-        InputStream in = installFile.openStream();
-        Document doc = builder.parse(in);
-        in.close();
+    	Document doc;
+    	try {
+    		InputStream in = installFile.openStream();
+    		doc = builder.parse(in);
+    		in.close();
+    	} catch (Exception e) {
+    		throw new IOException("Problem parsing install file "+installFile, e);
+    	}
         Element docElt = doc.getDocumentElement();
         if (!docElt.getTagName().equals("marytts-install")) {
             throw new IllegalArgumentException("Expected <marytts-install> document, but found root node <"+docElt.getTagName()+">!");

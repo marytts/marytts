@@ -4,7 +4,7 @@
   <fileSets>
     <!-- Files from the parent project -->
     <fileSet>
-      <directory>${project.basedir}/..</directory>
+      <directory>${project.basedir}/../..</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>LICENSE*</include>
@@ -43,6 +43,7 @@
         <include>${project.groupId}:marytts-redstart:jar</include>
         <include>${project.groupId}:marytts-transcription:jar</include>
         <include>${project.groupId}:marytts-builder:jar:jar-with-dependencies</include>
+        <include>${project.groupId}:marytts-lang-*:jar</include>
       </includes>
     </dependencySet>
   </dependencySets>

@@ -62,7 +62,11 @@ public class Mary4To5VoiceConverter {
 		"featureFile", "joinCostFile", "unitsFile", "audioTimelineFile", "basenameTimeline",
 		"vocalization.unitfile", "vocalization.timeline", "vocalization.featurefile",
 		"vocalization.featureDefinitionFile", "vocalization.intonationfile",
+		"vocalization.mlsafeaturefile", "vocalization.mixedexcitationfilter",
 		"vocalization.intonation.featureDefinitionFile",
+		// 4.0 prosody carts:
+		"duration.cart", "duration.featuredefinition", 
+		"f0.cart.left", "f0.cart.mid", "f0.cart.right", "f0.featuredefinition"
 	};
 	
 	/**
@@ -131,6 +135,10 @@ public class Mary4To5VoiceConverter {
 		File rootDir = mary4Zip.getParentFile();
 		extractedDir = new File(rootDir, voiceDescription.getName()+"-"+voiceDescription.getVersion());
 		logger.debug("... extracting archive to "+extractedDir.getPath());
+		if (extractedDir.exists()) {
+			logger.debug("Folder "+extractedDir.getPath()+" exists, trying to delete...");
+			extractedDir.delete();
+		}
 		FileUtils.unzipArchive(mary4Zip, extractedDir);
 		
 		
