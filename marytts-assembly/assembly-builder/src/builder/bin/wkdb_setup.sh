@@ -11,8 +11,8 @@ set -o errexit
 
 DESCRIPTION="Create wkdb config file in wkdb data path"
 
-MINARG=2
-if [ $# -lt $MINARG ]
+NUMARG=2
+if [ $# -nelt $NUMARG ]
 then
   echo "NAME:
   	`basename $0`

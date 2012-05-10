@@ -11,8 +11,8 @@ set -o errexit
 
 DESCRIPTION="Split wikipedia dump file"
 
-MINARG=1
-if [ $# -lt $MINARG ]
+NUMARG=1
+if [ $# -ne $NUMARG ]
 then
   echo "NAME:
   	`basename $0`
