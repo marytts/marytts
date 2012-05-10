@@ -9,7 +9,7 @@
 # EXIT ERROR settings 
 set -o errexit
 
-DESCRIPTION="Split wikipedia dump file"
+DESCRIPTION="Extract clean text and words from the wikipedia split files"
 
 NUMARG=1
 if [ $# -ne $NUMARG ]

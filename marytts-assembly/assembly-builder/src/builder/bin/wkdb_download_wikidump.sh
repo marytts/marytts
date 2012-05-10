@@ -11,8 +11,8 @@ set -o errexit
 
 DESCRIPTION="Download the wikipedia dump file"
 
-MINARG=1
-if [ $# -lt $MINARG ]
+NUMARG=1
+if [ $# -nelt $NUMARG ]
 then
   echo "NAME:
   	`basename $0`
