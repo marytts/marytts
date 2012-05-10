@@ -2,11 +2,12 @@
 
 ##################################
 # wkdb_setup.sh
-# Created on: May 9, 2012
 # Author: Fabio Tesser
-# Institution: CNR-ISTC, Padova - Italy
 # Email: fabio.tesser@gmail.com
 ##################################
+
+# EXIT ERROR settings 
+set -o errexit
 
 DESCRIPTION="Create wkdb config file in wkdb data path"
 

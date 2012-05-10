@@ -1,5 +1,14 @@
 #!/bin/sh
 
+##################################
+# wkdb_split_dump.sh
+# Author: Fabio Tesser
+# Email: fabio.tesser@gmail.com
+##################################
+
+# EXIT ERROR settings 
+set -o errexit
+
 DESCRIPTION="Split wikipedia dump file"
 
 MINARG=1
