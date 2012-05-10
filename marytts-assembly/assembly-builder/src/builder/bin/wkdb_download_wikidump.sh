@@ -2,11 +2,12 @@
 
 ##################################
 # wkdb_download_wikidump.sh
-# Created on: May 9, 2012
 # Author: Fabio Tesser
-# Institution: CNR-ISTC, Padova - Italy
 # Email: fabio.tesser@gmail.com
 ##################################
+
+# EXIT ERROR settings 
+set -o errexit
 
 DESCRIPTION="Download the wikipedia dump file"
 
