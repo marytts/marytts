@@ -1,3 +1,0 @@
-copiato voiceimport.sh and maryttsbuilder withdependencis in target
-
-cp -r lib/external/ target/marytts-5.0-SNAPSHOT/lib/
