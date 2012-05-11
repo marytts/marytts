@@ -65,7 +65,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.WikipediaProcessor \
--locale "$WIKILOCALE" \
+-locale "$LOCALE" \
 -mysqlHost "localhost" \
 -mysqlUser "mary" \
 -mysqlPasswd "wiki123" \
