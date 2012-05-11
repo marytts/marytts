@@ -11,8 +11,8 @@ set -o errexit
 
 DESCRIPTION="Create wkdb config file in wkdb data path"
 
-NUMARG=2
-if [ $# -nelt $NUMARG ]
+NUMARG=3
+if [ $# -ne $NUMARG ]
 then
   echo "NAME:
   	`basename $0`
@@ -24,8 +24,10 @@ USAGE:
 	`basename $0` [wkdb data path] [wkdb locale]
 wkdb data path: full path for the wkdb data path a configuration file will be create
 wkdb locale: the two letter locale for your language (e.g.: en, de, te, it, ...)
-EXAMPLE:
-	`basename $0` /home/mary/wikidb_data/ en"
+locale: the extended locale for your language (e.g.: en_US, en_GB, de, te, it, ...)
+EXAMPLES:
+	`basename $0` /home/mary/wikidb_data/ en en_US
+	`basename $0` /home/mary/wikidb_data/ it it"
   exit 1
 fi  
 
@@ -47,6 +49,7 @@ FULLPATHWIKIDATAPATH="`(cd $WIKIDATAPATH; pwd)`"
 
 echo "WIKIDATAPATH=$FULLPATHWIKIDATAPATH" > $WIKIDATAPATH/wkdb.conf
 echo "WIKILOCALE=$2" >> $WIKIDATAPATH/wkdb.conf
+echo "LOCALE=$3" >> $WIKIDATAPATH/wkdb.conf
 
 
 

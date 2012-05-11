@@ -12,7 +12,7 @@ set -o errexit
 DESCRIPTION="Download the wikipedia dump file"
 
 NUMARG=1
-if [ $# -nelt $NUMARG ]
+if [ $# -ne $NUMARG ]
 then
   echo "NAME:
   	`basename $0`
@@ -47,7 +47,7 @@ cd $WIKIDATAPATH
 
 #if [ -f $WIKIDATAPATH/$FILENAME]
 #then
-	
+#	
 #fi
 
 
