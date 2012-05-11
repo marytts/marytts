@@ -59,6 +59,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 #  the other sentences as unreliable. With setting lax (default), also those words that
 #  are transcribed with the letter to sound component can be selected.
 
+cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.FeatureMaker \
 -locale "$LOCALE" \
