@@ -62,7 +62,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 #    - simpleProsody : selection stops when simple prosody coverage has reached maximum
 #    Default: "numSentences 90 simpleDiphones simpleProsody"
 #-coverageConfig file : The config file for the coverage definition. 
-#    Default: there is a default coverage config file in MARY_BASE/java/marytts/tools/dbselection/covDef.config
+#    Default: there is a default coverage config file in MARY_BASE/resources/marytts/tools/dbselection/covDef.config
 #             this file will be copied to the current directory if no file is provided.
 #-initFile file : The file containing the coverage data needed to initialise the algorithm.
 #    Default: /current-dir/init.bin
@@ -88,6 +88,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 #java -classpath $CLASSPATH -Djava.endorsed.dirs=$MARY_BASE/lib/endorsed \
 #-Dmary.base=$MARY_BASE marytts.tools.dbselection.DatabaseSelector \
 
+cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
 -locale "$LOCALE" \
@@ -96,7 +97,7 @@ java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseS
 -mysqlPasswd "wiki123" \
 -mysqlDB "wiki" \
 -tableName "test" \
--tableDescription "Testing table: English wikipedia short set. " \
+-tableDescription "Testing table: English wikipedia short set." \
 -stop "numSentences 90 simpleDiphones simpleProsody" \
 -logCoverageDevelopment \
 -vectorsOnDisk
