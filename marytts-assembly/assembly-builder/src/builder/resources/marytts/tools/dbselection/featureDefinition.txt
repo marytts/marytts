@@ -1,0 +1,16 @@
+# This file lists the features to be used for the selection algorithm.
+#
+# Note that the feature definitions must be identical between this file
+# and the feature files used for selection. Use the file
+# german-targetfeatures-selection.config for feature computation to be
+# on the safe side.
+# 
+# Anna Hunecke, August 2007
+
+ByteValuedFeatureProcessors
+mary_phoneme 0 2 2: 6 9 9~ ? @ C D E E: EI I N O OY R S T U Y Z _ a a: aI aU a~ b d e e: e~ f g h i i: j k l m n o o: o~ p pf r s t tS ts u u: v w x y y: z
+mary_next_phoneme 0 2 2: 6 9 9~ ? @ C D E E: EI I N O OY R S T U Y Z _ a a: aI aU a~ b d e e: e~ f g h i i: j k l m n o o: o~ p pf r s t tS ts u u: v w x y y: z
+mary_selection_next_phone_class 0 c_labial c_alveolar c_palatal c_labiodental c_dental c_velar c_glottal c_uvular v_i v_u v_O v_E v_EI v_@ v_aU v_6 v_~ v_a v_y v_2 v_e v_o v_9 v_OY v_Ya v_aI
+mary_selection_prosody 0 stressed pre-nuclear nuclear finalHigh finalLow
+ShortValuedFeatureProcessors
+ContinuousFeatureProcessors
