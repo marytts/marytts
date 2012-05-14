@@ -652,7 +652,7 @@ public class DatabaseSelector
         
         if (covDefConfigFileName == null){
             // check if there is already a covDef.config file in the current directory
-            // if not then copy the default covDef.config from $MARY_BASE/java/marytts/tools/dbselection
+            // if not then copy the default covDef.config from $MARY_BASE/resources/marytts/tools/dbselection
             System.out.println("\nChecking if there is already a covDef.config in the current directory");
             File covDef = new File(currentDir + "/covDef.config"); 
             if( covDef.exists() )
@@ -660,7 +660,7 @@ public class DatabaseSelector
             else 
             {
               System.out.println("Copying default covDef.config file from MARY_BASE" );
-              File in = new File(maryBaseDir + "/java/marytts/tools/dbselection/covDef.config");
+              File in = new File(maryBaseDir + "/resources/marytts/tools/dbselection/covDef.config");
               File out = new File(currentDir + "/covDef.config");
               FileUtils.copy(in,out);
             }
@@ -704,7 +704,7 @@ public class DatabaseSelector
         +"     - simpleProsody : selection stops when simple prosody coverage has reached maximum\n"
         +"     Default: \"numSentences 90 simpleDiphones simpleProsody\"\n"
         +" -coverageConfig file : The config file for the coverage definition. \n"
-        +"     Default: there is a default coverage config file in MARY_BASE/java/marytts/tools/dbselection/covDef.config\n"
+        +"     Default: there is a default coverage config file in MARY_BASE/resources/marytts/tools/dbselection/covDef.config\n"
         +"              this file will be copied to the current directory if no file is provided.\n"
         +" -initFile file : The file containing the coverage data needed to initialise the algorithm.\n"
         +"     Default: /current_dir/init.bin\n"
