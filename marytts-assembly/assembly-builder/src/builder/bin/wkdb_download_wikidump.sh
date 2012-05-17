@@ -31,7 +31,7 @@ fi
 
 
 # read variables from config file
-CONFIG_FILE=$1
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
 . $CONFIG_FILE
 
 getDATE=`date '+%Y%m%d%H%M'`
@@ -52,7 +52,7 @@ cd $WIKIDATAPATH
 
 
 echo "Downloading ..."
-#wget $DOWNLOADURL/$FILENAME
+wget $DOWNLOADURL/$FILENAME
 
 echo "This wikipidia dump ($FILENAME) has been downloaded on $getDATE"
 echo "$getDATE"> wkdb_download_timestamp.txt

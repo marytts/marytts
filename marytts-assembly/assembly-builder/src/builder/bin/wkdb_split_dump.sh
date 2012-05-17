@@ -30,7 +30,7 @@ EXAMPLE:
 fi  
 
 # read variables from config file
-CONFIG_FILE=$1
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
 . $CONFIG_FILE
 
 
@@ -54,9 +54,9 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 cd $WIKIDATAPATH
 
 # clean previus files  
-#rm -fr xml_splits
-#rm -f wikilist.txt
-#mkdir -p xml_splits/
+rm -fr xml_splits
+rm -f wikilist.txt
+mkdir -p xml_splits/
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.WikipediaDumpSplitter \
 -xmlDump "$XMLFILENAME" \

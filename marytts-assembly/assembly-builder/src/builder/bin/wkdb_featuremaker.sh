@@ -30,7 +30,7 @@ EXAMPLE:
 fi  
 
 # read variables from config file
-CONFIG_FILE=$1
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
 . $CONFIG_FILE
 
 BINDIR="`dirname "$0"`"
@@ -67,6 +67,18 @@ java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.FeatureMa
 -mysqlUser "mary" \
 -mysqlPasswd "wiki123" \
 -mysqlDB "wiki" \
--reliability "lax" \
--featuresForSelection "phone,next_phone,selection_prosody"
+-reliability "strict" \
+-featuresForSelection "phone,next_phone,selection_prosody" 
 
+
+#java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.FeatureMakerMaryServer \
+#-locale "$LOCALE" \
+#-mysqlHost "localhost" \
+#-mysqlUser "mary" \
+#-mysqlPasswd "wiki123" \
+#-mysqlDB "wiki" \
+#-reliability "strict" \
+#-featuresForSelection "phone,next_phone,selection_prosody" \
+#-maryHost localhost \
+#-maryPort 59125
+#
