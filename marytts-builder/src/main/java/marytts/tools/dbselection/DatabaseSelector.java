@@ -53,6 +53,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
+import marytts.server.Mary;
 import marytts.util.Pair;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;
@@ -286,9 +287,19 @@ public class DatabaseSelector
 
         /* Start the algorithm */
         System.out.println("\nSelecting sentences...");
+        
+        
+        // Start builtin MARY TTS in order to get and save the transcription 
+        //of the selected sentences (selected_text_transcription.log)
+        System.out.print("Starting builtin MARY TTS...");
+        Mary.startup();
+        System.out.println(" MARY TTS started.");
+        
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,cfp,verbose,wikiToDB);
+
+        
 
         /* Store list of selected files */
         filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
@@ -760,7 +771,7 @@ public class DatabaseSelector
                   selectedLog.println(sel[i] + " " + str);
                   
                   selected_tra_Log.println(sel[i] + " " + str);
-                  selected_tra_Log.println(sel[i] + " <" + transcribe(str,locale) + ">");
+                  selected_tra_Log.println(sel[i] + " <" + SelectionFunction.transcribe(str,locale) + ">");
                 } else{
                   unwantedLog.close();
                   selectedLog.close();
@@ -779,41 +790,7 @@ public class DatabaseSelector
         
     }
     
-    private static String transcribe(String ptext, String plocale) throws IOException, UnknownHostException,
-            UnsupportedAudioFileException, InterruptedException, ParserConfigurationException, SAXException,
-            TransformerConfigurationException, TransformerException {
-        String serverHost = System.getProperty("server.host", "localhost");
-        int serverPort = Integer.getInteger("server.port", 59125).intValue();
-        MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
-        String inputType = "TEXT";
-        String outputType = "ALLOPHONES";
-        String audioType = null;
-        String defaultVoiceName = null;
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(ptext, inputType, outputType, plocale, audioType, defaultVoiceName, baos);
-
-        // read into mary data object
-        MaryData maryData = new MaryData(MaryDataType.ALLOPHONES, null);
-        maryData.readFrom(new ByteArrayInputStream(baos.toByteArray()));
-        Document doc = maryData.getDocument();
-        assert doc != null : "null sentence";
-
-        TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
-        Element ph;
-        String lTranscription = "";
-        while ((ph = (Element) phWalker.nextNode()) != null) {
-            lTranscription = lTranscription + ph.getAttribute("p") + ' ';
-        }
-        lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
-        //System.out.println('<' + lTranscription + '>');
-        return lTranscription;
-    }
-        
-        
-        
-
-
+  
     /**
      * Add a list of sentences to the cover
      * Here the already selected sentences are added to the cover and the indexes removed
