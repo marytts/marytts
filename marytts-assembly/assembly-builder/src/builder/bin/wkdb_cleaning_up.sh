@@ -30,7 +30,7 @@ EXAMPLE:
 fi  
 
 # read variables from config file
-CONFIG_FILE=$1
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
 . $CONFIG_FILE
 
 

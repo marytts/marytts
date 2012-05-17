@@ -32,7 +32,7 @@ fi
 
 
 # read variables from config file
-CONFIG_FILE=$1
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
 . $CONFIG_FILE
 
 BINDIR="`dirname "$0"`"
@@ -97,8 +97,8 @@ java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseS
 -mysqlPasswd "wiki123" \
 -mysqlDB "wiki" \
 -tableName "test" \
--tableDescription "Testing table: English wikipedia short set." \
+-tableDescription "Testing table: $LOCALE wikipedia short set. " \
 -stop "numSentences 90 simpleDiphones simpleProsody" \
 -logCoverageDevelopment \
--vectorsOnDisk
-
+-verbose \
+#-vectorsOnDisk # commented because of an error (Exception in thread "main" java.lang.NullPointerException: Could not get features for sentence ID xxx)
