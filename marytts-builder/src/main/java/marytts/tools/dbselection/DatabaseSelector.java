@@ -289,12 +289,15 @@ public class DatabaseSelector
         System.out.println("\nSelecting sentences...");
         
         
+        // If it is not already running (could happen when SynthesisScriptGUI is used)
         // Start builtin MARY TTS in order to get and save the transcription 
-        //of the selected sentences (selected_text_transcription.log)
-        System.out.print("Starting builtin MARY TTS...");
-        Mary.startup();
-        System.out.println(" MARY TTS started.");
-        
+        // of the selected sentences (selected_text_transcription.log)
+        if (Mary.currentState() == Mary.STATE_OFF)
+        {
+        	System.out.print("Starting builtin MARY TTS...");
+        	Mary.startup();
+        	System.out.println(" MARY TTS started.");
+        }
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,cfp,verbose,wikiToDB);
@@ -338,7 +341,8 @@ public class DatabaseSelector
         logOut.println("Selection took "+minutes+" minutes ("+elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
-              
+
+        
         wikiToDB.closeDBConnection(); 
         System.out.println("All done!");  
         
