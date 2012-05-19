@@ -31,31 +31,6 @@
       <fileMode>0755</fileMode>
       <filtered>true</filtered>
     </fileSet>
-    <!-- dbselection resources data -->
-    <fileSet>
-      <directory>src/builder</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>resources/marytts/tools/dbselection/*.txt</include>
-        <include>resources/marytts/tools/dbselection/*.config</include>
-      </includes>
-      <fileMode>0644</fileMode>
-      <filtered>true</filtered>
-    </fileSet>
-    
-    <!-- dbselection resources script -->
-    <fileSet>
-      <directory>src/builder</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>resources/marytts/tools/dbselection/*.pl</include>
-      </includes>
-      <fileMode>0755</fileMode>
-      <filtered>true</filtered>
-    </fileSet>
-
-
-    
   </fileSets>
   
   <dependencySets><!-- Copy over jar files -->

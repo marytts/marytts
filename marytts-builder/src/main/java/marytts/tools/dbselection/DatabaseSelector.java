@@ -57,9 +57,7 @@ import marytts.server.Mary;
 import marytts.util.Pair;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;
-import marytts.util.io.FileUtils;
-
-
+import org.apache.commons.io.FileUtils;
 
 /**
  * Main class to be run over a database for selection
@@ -667,17 +665,15 @@ public class DatabaseSelector
         
         if (covDefConfigFileName == null){
             // check if there is already a covDef.config file in the current directory
-            // if not then copy the default covDef.config from $MARY_BASE/resources/marytts/tools/dbselection
+            // if not then copy the default covDef.config from jar archive resource (marytts/tools/dbselection/covDef.config)
             System.out.println("\nChecking if there is already a covDef.config in the current directory");
             File covDef = new File(currentDir + "/covDef.config"); 
             if( covDef.exists() )
               System.out.println("Using covDef.config in current directory." );
             else 
             {
-              System.out.println("Copying default covDef.config file from MARY_BASE" );
-              File in = new File(maryBaseDir + "/resources/marytts/tools/dbselection/covDef.config");
-              File out = new File(currentDir + "/covDef.config");
-              FileUtils.copy(in,out);
+              System.out.println("Copying default covDef.config file from archive" );
+              FileUtils.copyInputStreamToFile(DatabaseSelector.class.getResourceAsStream("covDef.config"), covDef);
             }
             covDefConfigFileName = currentDir + "/covDef.config";   
             System.out.println("covDefConfigFileName = " + covDefConfigFileName);
