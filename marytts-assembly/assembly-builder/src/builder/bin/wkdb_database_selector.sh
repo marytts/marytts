@@ -62,7 +62,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 #    - simpleProsody : selection stops when simple prosody coverage has reached maximum
 #    Default: "numSentences 90 simpleDiphones simpleProsody"
 #-coverageConfig file : The config file for the coverage definition. 
-#    Default: there is a default coverage config file in MARY_BASE/resources/marytts/tools/dbselection/covDef.config
+#    Default: there is a default coverage config file in jar archive 
 #             this file will be copied to the current directory if no file is provided.
 #-initFile file : The file containing the coverage data needed to initialise the algorithm.
 #    Default: /current-dir/init.bin
@@ -92,13 +92,13 @@ cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
 -locale "$LOCALE" \
--mysqlHost "localhost" \
--mysqlUser "mary" \
--mysqlPasswd "wiki123" \
--mysqlDB "wiki" \
--tableName "test" \
--tableDescription "Testing table: $LOCALE wikipedia short set. " \
--stop "numSentences 90 simpleDiphones simpleProsody" \
+-mysqlHost "$MYSQLHOST" \
+-mysqlUser "$MYSQLUSER" \
+-mysqlPasswd "$MYSQLPASSWD" \
+-mysqlDB "$MYSQLDB" \
+-tableName "$SELECTEDSENTENCESTABLENAME" \
+-tableDescription "$SELECTEDSENTENCESTABLEDSCRIPTION" \
+-stop "$DATABASESELECTORSTOPCRITERION" \
 -logCoverageDevelopment \
 -verbose \
 

@@ -63,22 +63,9 @@ cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.FeatureMaker \
 -locale "$LOCALE" \
--mysqlHost "localhost" \
--mysqlUser "mary" \
--mysqlPasswd "wiki123" \
--mysqlDB "wiki" \
--reliability "strict" \
--featuresForSelection "phone,next_phone,selection_prosody" 
-
-
-#java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.FeatureMakerMaryServer \
-#-locale "$LOCALE" \
-#-mysqlHost "localhost" \
-#-mysqlUser "mary" \
-#-mysqlPasswd "wiki123" \
-#-mysqlDB "wiki" \
-#-reliability "strict" \
-#-featuresForSelection "phone,next_phone,selection_prosody" \
-#-maryHost localhost \
-#-maryPort 59125
-#
+-mysqlHost "$MYSQLHOST" \
+-mysqlUser "$MYSQLUSER" \
+-mysqlPasswd "$MYSQLPASSWD" \
+-mysqlDB "$MYSQLDB" \
+-reliability "$FEATUREMAKERRELIABILITY" \
+-featuresForSelection "$FEATUREMAKERFEATURESFORSELECTION" 
