@@ -11,7 +11,7 @@ set -o errexit
 
 DESCRIPTION="mysql database creation"
 
-NUMARG=0
+NUMARG=1
 if [ $# -ne $NUMARG ]
 then
   echo "NAME:
@@ -21,23 +21,28 @@ DESCRIPTION:
     $DESCRIPTION
 
 USAGE: 
-	`basename $0` 
+	`basename $0` [config_file] 
+	config_file: wkdb config file  
 
 EXAMPLE:
-	`basename $0`" 
+	`basename $0` /home/mary/wikidb_data/wkdb.conf" 
   exit 1
 fi  
+
+# read variables from config file
+CONFIG_FILE="`dirname "$1"`/`basename "$1"`"
+. $CONFIG_FILE
+
 
 
 # DB CREATION, this ask for mysql root password
 echo "Please insert your mysql root password below."
 mysql --user="root" -p -e \
-"create database wiki; \
-grant all privileges on wiki.* to mary@localhost identified by \"wiki123\"; \
+"create database $MYSQLDB; \
+grant all privileges on $MYSQLDB.* to $MYSQLUSER@$MYSQLHOST identified by \"$MYSQLPASSWD\"; \
 flush privileges;"
 
-#This is the default mary user password wiki123
-echo "wiki database has been created, all privileges are granted to user mary in the localhost and the password wiki123"
+echo "$MYSQLDB database has been created, all privileges are granted to user $MYSQLUSER in the $MYSQLHOST and the password $MYSQLPASSWD"
 
 
 

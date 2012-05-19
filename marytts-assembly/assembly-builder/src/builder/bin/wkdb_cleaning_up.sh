@@ -66,9 +66,9 @@ cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.WikipediaProcessor \
 -locale "$LOCALE" \
--mysqlHost "localhost" \
--mysqlUser "mary" \
--mysqlPasswd "wiki123" \
--mysqlDB "wiki" \
+-mysqlHost "$MYSQLHOST" \
+-mysqlUser "$MYSQLUSER" \
+-mysqlPasswd "$MYSQLPASSWD" \
+-mysqlDB "$MYSQLDB" \
 -listFile "wikilist.txt"
 

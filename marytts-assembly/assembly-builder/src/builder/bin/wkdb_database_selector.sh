@@ -92,13 +92,13 @@ cd $WIKIDATAPATH
 
 java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
 -locale "$LOCALE" \
--mysqlHost "localhost" \
--mysqlUser "mary" \
--mysqlPasswd "wiki123" \
--mysqlDB "wiki" \
--tableName "test" \
--tableDescription "Testing table: $LOCALE wikipedia short set. " \
--stop "numSentences 90 simpleDiphones simpleProsody" \
+-mysqlHost "$MYSQLHOST" \
+-mysqlUser "$MYSQLUSER" \
+-mysqlPasswd "$MYSQLPASSWD" \
+-mysqlDB "$MYSQLDB" \
+-tableName "$SELECTEDSENTENCESTABLENAME" \
+-tableDescription "$SELECTEDSENTENCESTABLEDSCRIPTION" \
+-stop "$DATABASESELECTORSTOPCRITERION" \
 -logCoverageDevelopment \
 -verbose \
 
