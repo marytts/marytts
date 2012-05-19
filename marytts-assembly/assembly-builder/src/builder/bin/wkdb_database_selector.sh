@@ -101,4 +101,5 @@ java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseS
 -stop "numSentences 90 simpleDiphones simpleProsody" \
 -logCoverageDevelopment \
 -verbose \
-#-vectorsOnDisk # commented because of an error (Exception in thread "main" java.lang.NullPointerException: Could not get features for sentence ID xxx)
+
+# vectorsOnDisk not used because of an error (Exception in thread "main" java.lang.NullPointerException: Could not get features for sentence ID xxx)
