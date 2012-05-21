@@ -1,6 +1,8 @@
 MARY TTS README
 ===============
 
+Build status on BuildHive: [![Build Status](https://buildhive.cloudbees.com/job/marc1s/job/marytts/badge/icon)](https://buildhive.cloudbees.com/job/marc1s/job/marytts/)
+
 This is the source code repository for the multilingual open-source MARY text-to-speech platform (MARY TTS).
 MARY TTS is a client-server system written in pure Java, so it runs on many platforms.
 
