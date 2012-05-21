@@ -73,6 +73,9 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
+		File compileDir = new File(getProp(getCompileDirProp()));
+		compiler = createCompiler(compileDir);
+		
 		if (!isUnitSelectionVoice()) {
 			mapFeatures();
 		}
@@ -159,8 +162,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	@Override
 	protected void initialiseComp() throws Exception {
-		File compileDir = new File(getProp(getCompileDirProp()));
-		compiler = createCompiler(compileDir);
+		//File compileDir = new File(getProp(getCompileDirProp()));
+		//compiler = createCompiler(compileDir);
 	}
 	
 	protected Map<String, String> getExtraVariableSubstitutionMap() {
