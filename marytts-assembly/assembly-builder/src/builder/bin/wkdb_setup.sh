@@ -21,10 +21,10 @@ DESCRIPTION:
     $DESCRIPTION
 
 USAGE: 
-	`basename $0` [wkdb data path] [wkdb locale]
-wkdb data path: full path for the wkdb data path a configuration file will be create
+	`basename $0` [wkdb data path] [wkdb locale] [mary locale]
+wkdb data path: path for the wkdb data path a configuration file will be create
 wkdb locale: the two letter locale for your language (e.g.: en, de, te, it, ...)
-locale: the extended locale for your language (e.g.: en_US, en_GB, de, te, it, ...)
+mary locale: the extended mary locale for your language (e.g.: en_US, en_GB, de, te, it, ...)
 EXAMPLES:
 	`basename $0` /home/mary/wikidb_data/ en en_US
 	`basename $0` /home/mary/wikidb_data/ it it"
@@ -63,7 +63,7 @@ echo "SELECTEDSENTENCESTABLEDSCRIPTION=\"Testing table for selected sentences. W
 echo "DATABASESELECTORSTOPCRITERION=\"numSentences 90 simpleDiphones simpleProsody\"" >> $WIKIDATAPATH/wkdb.conf
 
 
-echo "Please look at the configuration file  $WIKIDATAPATH/wkdb.conf change it to according to your needs"
+echo "Please look at the configuration file $WIKIDATAPATH/wkdb.conf and change it to according to your needs"
 
 
 
