@@ -160,12 +160,6 @@ public class VoiceCompiler extends VoiceImportComponent {
         props2Help = new TreeMap<String, String>();
         props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
     }
-
-	@Override
-	protected void initialiseComp() throws Exception {
-		//File compileDir = new File(getProp(getCompileDirProp()));
-		//compiler = createCompiler(compileDir);
-	}
 	
 	protected Map<String, String> getExtraVariableSubstitutionMap() {
 		return null;
