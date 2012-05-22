@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 
+import marytts.util.MaryUtils;
 import marytts.util.io.StreamGobbler;
 
 import org.apache.commons.io.FileUtils;
@@ -244,7 +245,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			Map<String, String> m = new HashMap<String, String>();
 			m.put("MARYVERSION", voiceVersion);
 			m.put("VOICENAME", voiceName);
-			m.put("LOCALE", locale.toString());
+			m.put("LOCALE", MaryUtils.locale2xmllang(locale));
 			m.put("LANG", locale.getLanguage());
 			m.put("GENDER", gender);
 			m.put("DOMAIN", domain);

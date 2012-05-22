@@ -8,6 +8,6 @@
             md5sum="${zip_md5}" size="${zip_size}">
             <location href="http://mary.dfki.de/download/${MARYVERSION}/"/>
         </package>
-        <depends language="${LANG}" version="${MARYVERSION}"/>
+        <depends language="${LOCALE}" version="${MARYVERSION}"/>
     </voice>
 </marytts-install>
