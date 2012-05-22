@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 
+import marytts.util.MaryUtils;
 import marytts.util.io.StreamGobbler;
 
 import org.apache.commons.io.FileUtils;
@@ -73,6 +74,9 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
+		File compileDir = new File(getProp(getCompileDirProp()));
+		compiler = createCompiler(compileDir);
+		
 		if (!isUnitSelectionVoice()) {
 			mapFeatures();
 		}
@@ -156,12 +160,6 @@ public class VoiceCompiler extends VoiceImportComponent {
         props2Help = new TreeMap<String, String>();
         props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
     }
-
-	@Override
-	protected void initialiseComp() throws Exception {
-		File compileDir = new File(getProp(getCompileDirProp()));
-		compiler = createCompiler(compileDir);
-	}
 	
 	protected Map<String, String> getExtraVariableSubstitutionMap() {
 		return null;
@@ -241,7 +239,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			Map<String, String> m = new HashMap<String, String>();
 			m.put("MARYVERSION", voiceVersion);
 			m.put("VOICENAME", voiceName);
-			m.put("LOCALE", locale.toString());
+			m.put("LOCALE", MaryUtils.locale2xmllang(locale));
 			m.put("LANG", locale.getLanguage());
 			m.put("GENDER", gender);
 			m.put("DOMAIN", domain);

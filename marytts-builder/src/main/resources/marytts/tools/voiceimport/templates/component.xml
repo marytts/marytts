@@ -5,9 +5,9 @@
         <description></description>
         <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
         <package filename="voice-${VOICENAME}-${MARYVERSION}.zip"
-            md5sum="${MD5}" size="${FILESIZE}">
+            md5sum="${zip_md5}" size="${zip_size}">
             <location href="http://mary.dfki.de/download/${MARYVERSION}/"/>
         </package>
-        <depends language="${LANG}" version="${MARYVERSION}"/>
+        <depends language="${LOCALE}" version="${MARYVERSION}"/>
     </voice>
 </marytts-install>
