@@ -17,17 +17,17 @@
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-common</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>${parent.version}</version>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-runtime</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>${parent.version}</version>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-lang-en</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>${parent.version}</version>
     </dependency>
     
     <dependency>
