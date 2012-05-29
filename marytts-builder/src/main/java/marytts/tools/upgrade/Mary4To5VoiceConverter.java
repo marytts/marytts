@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 
 import com.twmacinta.util.MD5;
 
+import marytts.Version;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.install.InstallFileParser;
 import marytts.tools.install.VoiceComponentDescription;
@@ -41,7 +42,6 @@ import marytts.util.string.StringUtils;
 
 public class Mary4To5VoiceConverter {
 
-	private static final String NEW_VERSION = "5.0-SNAPSHOT";
 	
 	/**
 	 * The list of property suffixes which can read from a resource file. 
@@ -144,7 +144,7 @@ public class Mary4To5VoiceConverter {
 		
 		loadConfig(findConfigFile());
 		
-		compileDir = new File(rootDir, voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
+		compileDir = new File(rootDir, voiceDescription.getName()+"-"+Version.specificationVersion()+"-maven");
 		
 		domain = config.getProperty(getPropertyPrefix()+"domain");
 		samplingRate = Integer.parseInt(config.getProperty(getPropertyPrefix()+"samplingRate"));
@@ -153,7 +153,7 @@ public class Mary4To5VoiceConverter {
 		filesForFilesystem = getFilesForFilesystem();		
 		Map<String, String> extraVariablesToSubstitute = null;
 		
-		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, getVoiceName(), NEW_VERSION, 
+		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, getVoiceName(), Version.specificationVersion(), 
 				voiceDescription.getLocale(), voiceDescription.getGender(), domain, samplingRate, isUnitSelectionVoice(), filesForResources, 
 				filesForFilesystem, extraVariablesToSubstitute);
 
@@ -369,7 +369,7 @@ public class Mary4To5VoiceConverter {
 	
 
 	private String getFilenamePrefix() {
-		return "voice-"+voiceDescription.getName()+"-"+NEW_VERSION;
+		return "voice-"+voiceDescription.getName()+"-"+Version.specificationVersion();
 	}
 	
 	
@@ -378,13 +378,13 @@ public class Mary4To5VoiceConverter {
 			throws MalformedURLException, ParserConfigurationException,
 			MaryConfigurationException, IOException {
 		logger.debug("writing new voice description...");
-		voiceDescription.setVersion(NEW_VERSION);
-		voiceDescription.setDependsVersion(NEW_VERSION);
+		voiceDescription.setVersion(Version.specificationVersion());
+		voiceDescription.setDependsVersion(Version.specificationVersion());
 		voiceDescription.setPackageFilename(packageFile.getName());
 		voiceDescription.setPackageMD5Sum(computeMD5(packageFile));
 		voiceDescription.setPackageSize((int) packageFile.length());
 		voiceDescription.removeAllLocations();
-		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+NEW_VERSION+"/").toURL());
+		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+Version.specificationVersion()+"/").toURL());
 		Document doc = voiceDescription.createComponentXML();
 		File newVoiceDescriptionFile = new File(rootDir, getFilenamePrefix() + "-component.xml");
 		DomUtils.document2File(doc, newVoiceDescriptionFile);
