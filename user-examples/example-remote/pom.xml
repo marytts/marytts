@@ -13,7 +13,7 @@
   	<dependency>
   		<groupId>marytts</groupId>
   		<artifactId>marytts-client</artifactId>
-  		<version>5.0-SNAPSHOT</version>
+        <version>${parent.version}</version>
   	</dependency>
   </dependencies>
   
