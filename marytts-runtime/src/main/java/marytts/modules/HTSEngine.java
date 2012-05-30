@@ -81,8 +81,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.config.MaryConfig;
-import marytts.config.MaryConfigTest;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -103,7 +101,6 @@ import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.io.PropertiesAccessor;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
