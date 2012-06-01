@@ -1,57 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="2.0"
+                version="1.0"
                 xmlns="http://mary.dfki.de/2002/MaryXML"
                 xmlns:emo="http://www.w3.org/2009/10/emotionml"
-                xmlns:func="http://mary.dfki.de/2002/MaryXML/function"
-                exclude-result-prefixes="emo func">
+                xmlns:helpers="xalan://emotionml.xslt.Helpers"
+                exclude-result-prefixes="emo helpers">
   <xsl:output method="xml"
               encoding="UTF-8"
               indent="yes"/>
   <xsl:strip-space elements="*"/>
 
-
-  <!-- Helper functions for more readable code -->
-  <xsl:function name="func:declaredCategoryVocabulary">
-      <xsl:param name="emotion" />
-      <xsl:choose>
-        <xsl:when test="$emotion/@category-set">
-          <xsl:value-of select="$emotion/@category-set"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$emotion/ancestor::emo:emotionml/@category-set"/>
-        </xsl:otherwise>
-      </xsl:choose>
-  </xsl:function>
-    
-  <xsl:function name="func:declaredDimensionVocabulary">
-      <xsl:param name="emotion" />
-      <xsl:choose>
-        <xsl:when test="$emotion/@dimension-set">
-          <xsl:value-of select="$emotion/@dimension-set"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$emotion/ancestor::emo:emotionml/@dimension-set"/>
-        </xsl:otherwise>
-      </xsl:choose>
-  </xsl:function>
-  
-  <xsl:function name="func:expressedThroughVoice">
-    <xsl:param name="emotion"/>
-    <xsl:choose>
-      <xsl:when test="not($emotion/@expressed-through)">
-        <!-- No expressed-through attribute = no restriction -->
-        <xsl:value-of select="true()"/>
-      </xsl:when>
-      <xsl:when test="index-of(tokenize($emotion/@expressed-through, '\s+'), 'voice')">
-        <!-- voice is one of the listed modalities -->
-        <xsl:value-of select="true()"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="false()"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:function>
 
   <!-- Root node -->
   <xsl:template match="/emo:emotionml">
@@ -73,11 +31,11 @@
 <!-- Use the "style" attribute of MaryXML's <prosody> attribute -->
 <!-- to express emotion categories. Works only with certain voices -->
 <!-- (as of 2012, dfki-pavoque-styles) -->
-<xsl:template match="emo:emotion[emo:category and func:expressedThroughVoice(.)=true()]">
+<xsl:template match="emo:emotion[emo:category and helpers:expressedThrough(., 'voice', true())]">
   <xsl:variable name="cat" select="emo:category/@name"/>
   <xsl:variable name="style">
     <xsl:choose>
-      <xsl:when test="func:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
+      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
         <xsl:choose>
           <xsl:when test="$cat='anger'">angry</xsl:when>
           <xsl:when test="$cat='disgust'">angry</xsl:when>
@@ -87,7 +45,7 @@
           <xsl:when test="$cat='surprise'">neutral</xsl:when>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="func:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-emotions'">
+      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
         <xsl:choose>
           <xsl:when test="$cat='affectionate'">happy</xsl:when>
           <xsl:when test="$cat='afraid'">neutral</xsl:when>
@@ -130,11 +88,23 @@
 <!-- Using the PAD vocabulary as the standard three-dimensional vocabulary. -->
 <xsl:template match="emo:emotion[emo:dimension]">
   <xsl:choose>
-    <xsl:when test="func:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions'">
+    <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions'">
       <!-- Convert range [0, 1] to range [-100, 100]: -->
       <xsl:variable name="activation" select="emo:dimension[@name='arousal']/@value * 200 - 100" />
       <xsl:variable name="evaluation" select="emo:dimension[@name='pleasure']/@value * 200 - 100" />
       <xsl:variable name="power" select="emo:dimension[@name='dominance']/@value * 200 - 100" />
+      <xsl:call-template name="acousticParameters">
+        <xsl:with-param name="activation" select="$activation"/>
+        <xsl:with-param name="evaluation" select="$evaluation"/>
+        <xsl:with-param name="power" select="$power"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#fsre-dimensions'">
+      <!-- Convert range [0, 1] to range [-100, 100]: -->
+      <xsl:variable name="activation" select="emo:dimension[@name='arousal']/@value * 200 - 100" />
+      <xsl:variable name="evaluation" select="emo:dimension[@name='valence']/@value * 200 - 100" />
+      <xsl:variable name="power" select="emo:dimension[@name='potency']/@value * 200 - 100" />
+      <!-- ignoring 'unpredictability' dimension -->
       <xsl:call-template name="acousticParameters">
         <xsl:with-param name="activation" select="$activation"/>
         <xsl:with-param name="evaluation" select="$evaluation"/>
