@@ -422,7 +422,7 @@ public class HMMData {
 	 * Reads from configuration file all the data files in this class this
 	 * method is used when running HTSengine stand alone.
 	 */
-	public void initHMMData(String voice, String marybase, String configFile)
+	public void initHMMData(String voiceName, String marybase, String configFile)
 			throws Exception {
 
 		Properties props = new Properties();
@@ -430,12 +430,12 @@ public class HMMData {
 		FileInputStream fis = new FileInputStream(marybase + configFile);
 		props.load(fis);
 		fis.close();
-		Map<String, String> maryBaseReplacer = new HashMap<String, String>();
-		maryBaseReplacer.put("MARY_BASE", marybase);
-		initHMMData(new PropertiesAccessor(props, false, maryBaseReplacer), voice);
+		Map<String, String> maryBaseReplacer = new HashMap<String, String>();		
+		maryBaseReplacer.put("jar:", marybase);		
+		initHMMData(new PropertiesAccessor(props, false, maryBaseReplacer), voiceName);
 	}
 	
-	public void initHMMData(String voiceName) throws IOException, MaryConfigurationException {
+	public void initHMMData(String voiceName) throws IOException, MaryConfigurationException {		
 		initHMMData(MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true), voiceName);
 	}
  
