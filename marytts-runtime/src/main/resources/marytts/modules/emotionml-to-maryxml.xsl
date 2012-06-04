@@ -9,7 +9,7 @@
               encoding="UTF-8"
               indent="yes"/>
   <xsl:strip-space elements="*"/>
-
+  <xsl:param name="voice" select="'unknown'" />
 
   <!-- Root node -->
   <xsl:template match="/emo:emotionml">
@@ -33,49 +33,96 @@
 <!-- (as of 2012, dfki-pavoque-styles) -->
 <xsl:template match="emo:emotion[emo:category and helpers:expressedThrough(., 'voice', true())]">
   <xsl:variable name="cat" select="emo:category/@name"/>
-  <xsl:variable name="style">
-    <xsl:choose>
-      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
-        <xsl:choose>
-          <xsl:when test="$cat='anger'">angry</xsl:when>
-          <xsl:when test="$cat='disgust'">angry</xsl:when>
-          <xsl:when test="$cat='fear'">neutral</xsl:when>
-          <xsl:when test="$cat='happiness'">happy</xsl:when>
-          <xsl:when test="$cat='sadness'">sad</xsl:when>
-          <xsl:when test="$cat='surprise'">neutral</xsl:when>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
-        <xsl:choose>
-          <xsl:when test="$cat='affectionate'">happy</xsl:when>
-          <xsl:when test="$cat='afraid'">neutral</xsl:when>
-          <xsl:when test="$cat='amused'">happy</xsl:when>
-          <xsl:when test="$cat='angry'">angry</xsl:when>
-          <xsl:when test="$cat='bored'">sad</xsl:when>
-          <xsl:when test="$cat='confident'">poker</xsl:when>
-          <xsl:when test="$cat='content'">poker</xsl:when>
-          <xsl:when test="$cat='disappointed'">sad</xsl:when>
-          <xsl:when test="$cat='excited'">happy</xsl:when>
-          <xsl:when test="$cat='happy'">happy</xsl:when>
-          <xsl:when test="$cat='interested'">happy</xsl:when>
-          <xsl:when test="$cat='loving'">happy</xsl:when>
-          <xsl:when test="$cat='pleased'">happy</xsl:when>
-          <xsl:when test="$cat='relaxed'">poker</xsl:when>
-          <xsl:when test="$cat='sad'">sad</xsl:when>
-          <xsl:when test="$cat='satisfied'">happy</xsl:when>
-          <xsl:when test="$cat='worried'">sad</xsl:when>
-        </xsl:choose>
-      </xsl:when>
-    </xsl:choose>
-  </xsl:variable>
   <xsl:choose>
-    <xsl:when test="$style">
-      <prosody style="{$style}">
-        <xsl:apply-templates/>
-      </prosody>
+    <xsl:when test="$voice='dfki-pavoque-styles'">
+	  <xsl:variable name="style">
+	    <xsl:choose>
+	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
+	        <xsl:choose>
+	          <xsl:when test="$cat='anger'">angry</xsl:when>
+	          <xsl:when test="$cat='disgust'">angry</xsl:when>
+	          <xsl:when test="$cat='fear'">neutral</xsl:when>
+	          <xsl:when test="$cat='happiness'">happy</xsl:when>
+	          <xsl:when test="$cat='sadness'">sad</xsl:when>
+	          <xsl:when test="$cat='surprise'">neutral</xsl:when>
+	        </xsl:choose>
+	      </xsl:when>
+	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
+	        <xsl:choose>
+	          <xsl:when test="$cat='affectionate'">happy</xsl:when>
+	          <xsl:when test="$cat='afraid'">neutral</xsl:when>
+	          <xsl:when test="$cat='amused'">happy</xsl:when>
+	          <xsl:when test="$cat='angry'">angry</xsl:when>
+	          <xsl:when test="$cat='bored'">sad</xsl:when>
+	          <xsl:when test="$cat='confident'">poker</xsl:when>
+	          <xsl:when test="$cat='content'">poker</xsl:when>
+	          <xsl:when test="$cat='disappointed'">sad</xsl:when>
+	          <xsl:when test="$cat='excited'">happy</xsl:when>
+	          <xsl:when test="$cat='happy'">happy</xsl:when>
+	          <xsl:when test="$cat='interested'">happy</xsl:when>
+	          <xsl:when test="$cat='loving'">happy</xsl:when>
+	          <xsl:when test="$cat='pleased'">happy</xsl:when>
+	          <xsl:when test="$cat='relaxed'">poker</xsl:when>
+	          <xsl:when test="$cat='sad'">sad</xsl:when>
+	          <xsl:when test="$cat='satisfied'">happy</xsl:when>
+	          <xsl:when test="$cat='worried'">sad</xsl:when>
+	        </xsl:choose>
+	      </xsl:when>
+	    </xsl:choose>
+	  </xsl:variable>
+	  <xsl:choose>
+	    <xsl:when test="$style">
+	      <prosody style="{$style}">
+	        <xsl:apply-templates/>
+	      </prosody>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:apply-templates/>
+	    </xsl:otherwise>
+	  </xsl:choose>
     </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates/>
+    <xsl:otherwise><!-- A voice without different styles -->
+      <xsl:variable name="arousal">
+	    <xsl:choose>
+	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
+	        <xsl:choose>
+	          <xsl:when test="$cat='anger'">0.9</xsl:when>
+	          <xsl:when test="$cat='disgust'">0.8</xsl:when>
+	          <xsl:when test="$cat='fear'">0.8</xsl:when>
+	          <xsl:when test="$cat='happiness'">0.6</xsl:when>
+	          <xsl:when test="$cat='sadness'">0.2</xsl:when>
+	          <xsl:when test="$cat='surprise'">0.7</xsl:when>
+	        </xsl:choose>
+	      </xsl:when>
+	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
+	        <xsl:choose>
+	          <xsl:when test="$cat='affectionate'">0.4</xsl:when>
+	          <xsl:when test="$cat='afraid'">0.3</xsl:when>
+	          <xsl:when test="$cat='amused'">0.5</xsl:when>
+	          <xsl:when test="$cat='angry'">0.9</xsl:when>
+	          <xsl:when test="$cat='bored'">0.1</xsl:when>
+	          <xsl:when test="$cat='confident'">0.6</xsl:when>
+	          <xsl:when test="$cat='content'">0.4</xsl:when>
+	          <xsl:when test="$cat='disappointed'">0.3</xsl:when>
+	          <xsl:when test="$cat='excited'">0.8</xsl:when>
+	          <xsl:when test="$cat='happy'">0.6</xsl:when>
+	          <xsl:when test="$cat='interested'">0.6</xsl:when>
+	          <xsl:when test="$cat='loving'">0.5</xsl:when>
+	          <xsl:when test="$cat='pleased'">0.5</xsl:when>
+	          <xsl:when test="$cat='relaxed'">0.4</xsl:when>
+	          <xsl:when test="$cat='sad'">0.2</xsl:when>
+	          <xsl:when test="$cat='satisfied'">0.4</xsl:when>
+	          <xsl:when test="$cat='worried'">0.2</xsl:when>
+	        </xsl:choose>
+	      </xsl:when>
+	      <xsl:otherwise>0.5</xsl:otherwise>
+	    </xsl:choose>
+      </xsl:variable>
+      <xsl:call-template name="emotionmlDimensions">
+        <xsl:with-param name="arousal" select="$arousal"/>
+        <xsl:with-param name="pleasure" select="0.5"/>
+        <xsl:with-param name="dominance" select="0.5"/>
+      </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
@@ -89,26 +136,24 @@
 <xsl:template match="emo:emotion[emo:dimension]">
   <xsl:choose>
     <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions'">
-      <!-- Convert range [0, 1] to range [-100, 100]: -->
-      <xsl:variable name="activation" select="emo:dimension[@name='arousal']/@value * 200 - 100" />
-      <xsl:variable name="evaluation" select="emo:dimension[@name='pleasure']/@value * 200 - 100" />
-      <xsl:variable name="power" select="emo:dimension[@name='dominance']/@value * 200 - 100" />
-      <xsl:call-template name="acousticParameters">
-        <xsl:with-param name="activation" select="$activation"/>
-        <xsl:with-param name="evaluation" select="$evaluation"/>
-        <xsl:with-param name="power" select="$power"/>
+      <xsl:variable name="arousal" select="emo:dimension[@name='arousal']/@value" />
+      <xsl:variable name="pleasure" select="emo:dimension[@name='pleasure']/@value" />
+      <xsl:variable name="dominance" select="emo:dimension[@name='dominance']/@value" />
+      <xsl:call-template name="emotionmlDimensions">
+        <xsl:with-param name="arousal" select="$arousal"/>
+        <xsl:with-param name="pleasure" select="$pleasure"/>
+        <xsl:with-param name="dominance" select="$dominance"/>
       </xsl:call-template>
     </xsl:when>
     <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#fsre-dimensions'">
-      <!-- Convert range [0, 1] to range [-100, 100]: -->
-      <xsl:variable name="activation" select="emo:dimension[@name='arousal']/@value * 200 - 100" />
-      <xsl:variable name="evaluation" select="emo:dimension[@name='valence']/@value * 200 - 100" />
-      <xsl:variable name="power" select="emo:dimension[@name='potency']/@value * 200 - 100" />
+      <xsl:variable name="arousal" select="emo:dimension[@name='arousal']/@value" />
+      <xsl:variable name="pleasure" select="emo:dimension[@name='valence']/@value" />
+      <xsl:variable name="dominance" select="emo:dimension[@name='potency']/@value" />
       <!-- ignoring 'unpredictability' dimension -->
-      <xsl:call-template name="acousticParameters">
-        <xsl:with-param name="activation" select="$activation"/>
-        <xsl:with-param name="evaluation" select="$evaluation"/>
-        <xsl:with-param name="power" select="$power"/>
+      <xsl:call-template name="emotionmlDimensions">
+        <xsl:with-param name="arousal" select="$arousal"/>
+        <xsl:with-param name="pleasure" select="$pleasure"/>
+        <xsl:with-param name="dominance" select="$dominance"/>
       </xsl:call-template>
     </xsl:when>
     <xsl:otherwise>
@@ -116,6 +161,19 @@
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+
+  <xsl:template name="emotionmlDimensions">
+    <!-- These parameters are normalised from 0.0 to 1.0: -->
+    <xsl:param name="arousal"/>
+    <xsl:param name="pleasure"/>
+    <xsl:param name="dominance"/>
+    <xsl:call-template name="acousticParameters">
+      <!-- Convert range [0, 1] to range [-100, 100]: -->
+      <xsl:with-param name="activation" select="$arousal * 200 - 100"/>
+      <xsl:with-param name="evaluation" select="$pleasure * 200 - 100"/>
+      <xsl:with-param name="power" select="$dominance * 200 - 100"/>
+    </xsl:call-template>
+  </xsl:template>
 
   <xsl:template name="acousticParameters">
     <!-- These parameters are normalised from -100 to 100: -->
@@ -173,12 +231,19 @@
 
     <xsl:variable name="volume"
     select="round(50 + 0.33*$activation)"/>
+    
+    
+    <xsl:variable name="globalslope" select="round(0.12*$power)"/>
+    
+    <xsl:variable name="contour" select="concat('(0%,', format-number($globalslope, '+#;-#'), 'st)',
+                                              '(100%,', format-number(-$globalslope, '+#;-#'), 'st)')"/>
 
 	<!-- Prosody attributes which cannot be realized with 2012 voices commented out -->
-    <prosody>
+	<p>
+      <prosody>
         <xsl:attribute name="pitch"><xsl:value-of select="$pitch"/>%</xsl:attribute>
 <!--         <xsl:attribute name="pitch-dynamics"><xsl:value-of select="$pitch-dynamics"/>%</xsl:attribute> -->
-        <xsl:attribute name="range"><xsl:value-of select="$range"/>st</xsl:attribute>
+<!--         <xsl:attribute name="range"><xsl:value-of select="$range"/>st</xsl:attribute> -->
 <!--         <xsl:attribute name="range-dynamics"><xsl:value-of select="$range-dynamics"/>%</xsl:attribute> -->
 <!--         <xsl:attribute name="preferred-accent-shape"><xsl:value-of select="$preferred-accent-shape"/></xsl:attribute> -->
 <!--         <xsl:attribute name="accent-slope"><xsl:value-of select="$accent-slope"/>%</xsl:attribute> -->
@@ -193,8 +258,10 @@
 <!--         <xsl:attribute name="plosive-duration"><xsl:value-of select="$plosive-duration"/>%</xsl:attribute> -->
 <!--         <xsl:attribute name="fricative-duration"><xsl:value-of select="$fricative-duration"/>%</xsl:attribute> -->
 <!--         <xsl:attribute name="volume"><xsl:value-of select="$volume"/></xsl:attribute> -->
-      <xsl:apply-templates/>
-    </prosody>
+		<xsl:attribute name="contour"><xsl:value-of select="$contour"/></xsl:attribute>
+        <xsl:apply-templates/>
+      </prosody>
+    </p>
   </xsl:template>
 
   <xsl:template match="text()">
