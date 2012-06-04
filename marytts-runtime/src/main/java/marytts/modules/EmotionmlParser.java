@@ -104,6 +104,8 @@ public class EmotionmlParser extends InternalModule
             transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.EmotionML transformer"));
         }
 
+        transformer.setParameter("voice", d.getDefaultVoice().getName());
+        
         // Transform DOMSource into a DOMResult
         Document maryxmlDocument = docBuilder.newDocument();
         DOMResult domResult = new DOMResult(maryxmlDocument);
