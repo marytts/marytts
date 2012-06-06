@@ -690,7 +690,11 @@ public class MaryGenericFeatureProcessors
                 }
             }
             if (style == null || style.equals("")) style = "0";
-            return values.get(style);
+            if (values.contains(style)) {
+            	return values.get(style);
+            } else { // silently ignore unknown values
+            	return 0;
+            }
         }
     }
 
