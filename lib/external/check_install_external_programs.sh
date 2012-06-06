@@ -575,6 +575,7 @@ if which ehmm > /dev/null; then
     echo "ehmm exist"
     echo "ok"
 else
+    echo 
     echo "ehmm not found"
     echo "so probably festvox is not installed or provide a path for that,"
     echo "normally it can be found in your Festival directory:"
@@ -602,7 +603,8 @@ else
         cd ehmm
         make
         cp bin/* $root/bin
-        ehmmPath=$root/bin
+        # The EHMMLabeler has hard coded /bin/ so here the path will be without /bin/
+        ehmmPath=$root
         echo
         echo "ehmm successfully installed in: $root/bin"
         echo
