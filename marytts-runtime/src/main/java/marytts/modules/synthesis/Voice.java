@@ -477,6 +477,17 @@ public class Voice
     public boolean hasVocalizationSupport() { return vocalizationSupport; }
     public VocalizationSynthesizer getVocalizationSynthesizer() { return vocalizationSynthesizer; }
 
+    /**
+     * Get any styles supported by this voice.
+     * @return an array of style names supported by this voice, or null if styles are not supported.
+     */
+    public String[] getStyles() {
+    	// TODO: read from config file
+    	if (voiceName.equals("dfki-pavoque-styles")) {
+    		return new String[] { "neutral", "poker", "happy", "angry", "sad" };
+    	}
+    	return null;
+    }
     
 
     /**

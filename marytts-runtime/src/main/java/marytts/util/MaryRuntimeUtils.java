@@ -490,6 +490,26 @@ public class MaryRuntimeUtils {
         assert vocalizations != null;
         return StringUtils.toString(vocalizations);
     }
+    
+    /**
+     * For the voice with the given name, return the list of styles supported by this voice, if any,
+     * one style per line.
+     * These values can be used as the global "style" value in a synthesis request, or in the "style"
+     * attribute of the MaryXML prosody element. 
+     * @param voiceName
+     * @return the list of styles, or the empty string if the voice does not support styles.
+     */
+    public static String getStyles(String voiceName) {
+    	Voice v = Voice.getVoice(voiceName);
+    	String[] styles = null;
+    	if (v != null) {
+    		styles = v.getStyles();
+    	}
+    	if (styles != null) {
+        	return StringUtils.toString(styles);
+    	}
+		return "";
+    }
 
     public static String getDefaultAudioEffects()
     {
