@@ -64,14 +64,11 @@
 package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.SortedMap;
@@ -160,7 +157,6 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         
         try {
             FileWriter log = new FileWriter(logFile);
-            //int numSteps = 1;
             /* Java 5.0 compliant code below. */
             /* Hook the command line to the process builder: */
             ProcessBuilder pb = new  ProcessBuilder(cmdLine.split(" "));
