@@ -64,13 +64,11 @@
 package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.SortedMap;
@@ -159,26 +157,23 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         
         try {
             FileWriter log = new FileWriter(logFile);
-            int numSteps = 1;
             /* Java 5.0 compliant code below. */
             /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
+            ProcessBuilder pb = new  ProcessBuilder(cmdLine.split(" "));
+            pb.directory(new File( db.getProp(db.ROOTDIR) ));
+            pb.redirectErrorStream(true);
             /* Launch the process: */
-            /*proc = pb.start(); */
+            proc = pb.start();
             
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();                 
-                if ( line == null ) break;
-                if(line.contains("Start "))
-                  System.out.println( "\nStep: " + line );
-                log.write(line+"\n");
+            /* Collect process's combined stdout & stderr send it to System.out: */
+            procStdout = new BufferedReader(
+            new InputStreamReader(proc.getInputStream()));
+            while ((line = procStdout.readLine()) != null) {
+            	if(line.contains("Start "))
+                    System.out.println( "\nStep: " + line );
+                  log.write(line+"\n");
             }
+            
             /* Wait and check the exit value */
             proc.waitFor();
             if ( proc.exitValue() != 0 ) {
