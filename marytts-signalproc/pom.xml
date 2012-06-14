@@ -5,7 +5,7 @@
   <parent>
     <artifactId>marytts</artifactId>
     <groupId>marytts</groupId>
-    <version>5.0</version>
+    <version>5.1-SNAPSHOT</version>
   </parent>
   <artifactId>marytts-signalproc</artifactId>
   <name>marytts-signalproc</name>
