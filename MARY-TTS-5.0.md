@@ -1,5 +1,7 @@
 MARY TTS 5.0 is the first release from the thoroughly restructured code base.
 
+Get it from the [downloads page](https://github.com/marytts/marytts/downloads)!
+
 MARY TTS 5.0 is better supported by automated tests than any previous version of MARY TTS, but it may well be that in practical use some hiccups will appear that have not surfaced in testing. Therefore cautious users are advised to treat this as a beta release.
 
 ## New features
