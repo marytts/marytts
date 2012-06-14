@@ -228,7 +228,7 @@ public class LTSTrainer extends AlignerTrainer
                 decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeafData,data,true),true,0.25f,true,true, false);
                 decisionTree.buildClassifier(data);
             } catch (Exception e) {
-                throw new RuntimeException("couldn't train decisiontree using weka: " + e);
+                throw new RuntimeException("couldn't train decisiontree using weka: ", e);
             }
             
             CART maryTree = TreeConverter.c45toStringCART(decisionTree, fd,data);

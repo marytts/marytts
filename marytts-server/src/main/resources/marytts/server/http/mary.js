@@ -589,9 +589,12 @@ function requestSynthesis()
         // Check whether <audio> tag is supported:
         var audioType = document.getElementById('AUDIO').value;
         var mimeType = 'audio/'+audioType.substring(0, audioType.indexOf('_')).toLowerCase();
+        if (mimeType == 'audio/wave') {
+        	mimeType = "audio/wav"; // for some reason Chrome likes this better
+        }
         var audioTag = document.createElement('audio');
 		if(! audioTag.canPlayType || audioTag.canPlayType(mimeType)=="no" || audioTag.canPlayType(mimeType)=="") {
-			//alert("cannot use audio tag for "+mimeType);
+			alert("cannot use audio tag for "+mimeType);
 	        audioDestination.innerHTML = '<object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" '
 	          + ' codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="200" height="16">'
 	          + '<param name="src" value="' + url + '" />'

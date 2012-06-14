@@ -1,0 +1,35 @@
+<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" 
+category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories">
+Hallo und guten Tag.
+
+<emotion><category name="angry"/>
+Was ist das jetzt schon wieder?
+</emotion>
+
+<emotion><category name="happy"/>
+Schön dich wieder zu sehen.
+</emotion>
+
+<emotion><category name="sad"/>
+Das hatte ich auch anders im Sinn.
+</emotion>
+
+<emotion><category name="content"/>
+Na jedenfalls gibt's was Gutes zu sehen.
+</emotion>
+
+  <emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions">
+  Ich bin ruhig.
+    <dimension name="arousal" value="0.3"/><!-- lower-than-average arousal -->
+    <dimension name="pleasure" value="0.9"/><!-- very high positive valence -->
+    <dimension name="dominance" value="0.8"/><!-- relatively high potency    -->
+  </emotion>
+
+  <emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions">
+  Ich bin nervös!
+    <dimension name="arousal" value="0.9"/><!-- high arousal -->
+    <dimension name="pleasure" value="0.2"/><!-- negative valence -->
+    <dimension name="dominance" value="0.2"/><!-- low potency    -->
+  </emotion>
+
+</emotionml>
