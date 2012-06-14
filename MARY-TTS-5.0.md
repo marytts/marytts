@@ -20,3 +20,10 @@ It is now possible to use MARY TTS, with HMM-based voices at least, simply by pl
 
 Instead of `marytts-server-5.0-jar-with-dependencies.jar` you can also include the individual dependencies, which can be automated using maven. The source code on github includes examples in the `user-examples` folder.
 
+### New MaryInterface API
+
+Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the new MaryInterface API. The same API can be used to access the TTS components running within the same java process or as a separate client-server setup. For details, see [[MaryInterface]].
+
+### Emotion Markup Language support
+
+MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech. The result of course depends on the expressive capabilities of the selected synthesis voice; try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
