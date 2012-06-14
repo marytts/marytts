@@ -27,3 +27,13 @@ Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the
 ### Emotion Markup Language support
 
 MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech. The result of course depends on the expressive capabilities of the selected synthesis voice; try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
+
+### Maven-based build environment
+
+The MARY TTS source code has been modularized for version 5.0, and the build environment was changed to maven. This allows us to write proper unit and integration tests for the code, and run them at every build.
+
+The modular structure also makes it easier to see which components belong to a given language: sub-projects such as `marytts-lang-de`, `marytts-lang-en` etc. contain all code and data that is language-specific. The updated [[New Language Support]] documentation describes how to create a new language sub-project and integrate it into the system.
+
+### Distributed hosting of installable voices
+
+The maintenance of the list of installable voices has been decentralized: if you build a voice and wish to make it available to others, you can host it somewhere on the net, e.g. on Google Drive, Dropbox or similar. For details, see [[Publishing a MARY TTS Voice]].
