@@ -10,5 +10,13 @@ Installing MARY TTS is now performed by simply unpacking the `zip` or `tar.gz` a
 
 The component installer, bin/marytts-component-installer.sh, still uses a gui; see issue #43 for a workaround.
 
+### Classpath-only user of MARY TTS in your own projects
 
-* classpath-only installation of MARY TTS. It is now possible to use MARY TTS, with HMM-based voices at least, simply by placing the right files into the classpath. For example
+It is now possible to use MARY TTS, with HMM-based voices at least, simply by placing the right files into the classpath. For example, to use US English voice `cmu-slt-hsmm` in your own code, add the following jar files to your classpath:
+
+    marytts-server-5.0-jar-with-dependencies.jar
+    marytts-lang-en-5.0.jar
+    voice-cmu-slt-hsmm-5.0.jar
+
+Instead of `marytts-server-5.0-jar-with-dependencies.jar` you can also include the individual dependencies, which can be automated using maven. The source code on github includes examples in the `user-examples` folder.
+
