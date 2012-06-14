@@ -4,7 +4,7 @@
 
   <groupId>marytts</groupId>
   <artifactId>marytts</artifactId>
-  <version>5.0</version>
+  <version>5.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>MARY TTS</name>
