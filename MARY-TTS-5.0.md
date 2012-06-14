@@ -28,12 +28,22 @@ Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the
 
 MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech. The result of course depends on the expressive capabilities of the selected synthesis voice; try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
 
-### Maven-based build environment
+### Modularized code base
 
-The MARY TTS source code has been modularized for version 5.0, and the build environment was changed to maven. This allows us to write proper unit and integration tests for the code, and run them at every build.
+The MARY TTS source code has been modularized for version 5.0.
 
 The modular structure also makes it easier to see which components belong to a given language: sub-projects such as `marytts-lang-de`, `marytts-lang-en` etc. contain all code and data that is language-specific. The updated [[New Language Support]] documentation describes how to create a new language sub-project and integrate it into the system.
 
 ### Distributed hosting of installable voices
 
 The maintenance of the list of installable voices has been decentralized: if you build a voice and wish to make it available to others, you can host it somewhere on the net, e.g. on Google Drive, Dropbox or similar. For details, see [[Publishing a MARY TTS Voice]].
+
+### New structures for improved code quality
+
+MARY TTS 5.0 mostly results from the aim to establish sound software engineering practices in MARY TTS development. Aspects of this include:
+
+* the build environment was changed to maven, allowing us to write proper unit and integration tests for the code, and run them at every build;
+
+* the code base was moved to github, allowing us to work as a distributed team, to develop features in whichever constellations arise, and to merge them into a stable master repository when ready;
+
+* a Continuous Integration service, kindly provided by [BuildHive](https://buildhive.cloudbees.com/job/marytts/job/marytts/), automatically checks whether the code, and even the latest github pull requests, build OK including all tests passing.
