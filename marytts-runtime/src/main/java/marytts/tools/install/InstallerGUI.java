@@ -112,7 +112,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                         desc.setAvailableUpdate(existing);
                     }
                 } else { // both not installed: show only higher version number
-                    if (desc.getVersion().compareTo(existing.getVersion()) > 0) {
+                    if (ComponentDescription.isVersionNewerThan(desc.getVersion(), existing.getVersion())) {
                         languages.put(desc.getName(), desc);
                     } // else leave existing as is
                 }
@@ -134,7 +134,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                         desc.setAvailableUpdate(existing);
                     }
                 } else { // both not installed: show only higher version number
-                    if (desc.getVersion().compareTo(existing.getVersion()) > 0) {
+                    if (ComponentDescription.isVersionNewerThan(desc.getVersion(), existing.getVersion())) {
                         voices.put(desc.getName(), desc);
                     } // else leave existing as is
                 }
@@ -558,21 +558,21 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                 if (lcd == null) {
                     unmetDependencies.put(depLang, "-- no such language component");
                 } else if (lcd.getStatus() == Status.INSTALLED) {
-                    if (lcd.getVersion().compareTo(depVersion) < 0) {
+                    if (ComponentDescription.isVersionNewerThan(depVersion, lcd.getVersion())) {
                         ComponentDescription update = lcd.getAvailableUpdate();
                         if (update == null) {
                             unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed and no update is available");
-                        } else if (update.getVersion().compareTo(depVersion) < 0) {
+                        } else if (ComponentDescription.isVersionNewerThan(depVersion, update.getVersion())) {
                             unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut only version "+update.getVersion()+" is available as an update");
                         } else if (!toInstall.contains(lcd)) {
                             unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed\nand update to version "+update.getVersion()+" is not selected for installation");
                         }
                     }
                 } else if (!toInstall.contains(lcd)) {
-                    if (lcd.getVersion().compareTo(depVersion) >= 0) {
-                        unmetDependencies.put(depLang, "is required  by "+vcd.getName()+"\nbut is not selected for installation");
-                    } else {
+                    if (ComponentDescription.isVersionNewerThan(depVersion, lcd.getVersion())) {
                         unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut only older version "+lcd.getVersion()+" is available");
+                    } else {
+                        unmetDependencies.put(depLang, "is required  by "+vcd.getName()+"\nbut is not selected for installation");
                     }
                 }
             }
