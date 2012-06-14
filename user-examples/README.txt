@@ -8,11 +8,11 @@ Build with
 then run using
 
 
-    java -jar example-embedded/target/example-embedded-5.0-SNAPSHOT.jar
+    java -jar example-embedded/target/example-embedded-<VERSION>.jar
     
 and (assuming you have a marytts server running at localhost on port 59125):
 
-    java -jar example-remote/target/example-remote-5.0-SNAPSHOT.jar
+    java -jar example-remote/target/example-remote-<VERSION>.jar
     
 
 

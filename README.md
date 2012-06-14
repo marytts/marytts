@@ -79,7 +79,7 @@ The easiest way to get all dependencies right is to use Maven. The example proje
 
 The `pom.xml` file in each example project copies the required jar files and sets the classpath of the project jar file such that it can be simply started as follows:
 
-    java -jar user-examples/example-embedded/target/example-embedded-5.0-SNAPSHOT.jar
+    java -jar user-examples/example-embedded/target/example-embedded-<VERSION>.jar
 
 
 Developing MARY TTS in Eclipse
