@@ -17,24 +17,24 @@
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-common</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-signalproc</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-runtime</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-runtime</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
