@@ -18,63 +18,63 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-server</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
       <type>jar</type>
       <classifier>jar-with-dependencies</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-client</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
       <type>jar</type>
       <classifier>jar-with-dependencies</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-de</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-en</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-te</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-tr</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-ru</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-it</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>marytts-lang-sv</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>voice-cmu-slt-hsmm</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>voice-cmu-slt-hsmm</artifactId>
       <type>xml</type>
       <classifier>component</classifier>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
   </dependencies>
   

@@ -48,23 +48,23 @@
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-common</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-signalproc</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-server</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>voice-cmu-slt-hsmm</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
     
