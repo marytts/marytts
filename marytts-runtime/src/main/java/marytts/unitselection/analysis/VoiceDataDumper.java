@@ -280,9 +280,6 @@ public class VoiceDataDumper {
 
         // implicitly unit-wise buffered writing of samples:
         for (int unitIndex = 0; unitIndex < unitDB.getUnitFileReader().getNumberOfUnits(); unitIndex++) {
-            // if (unitIndex > 727) {
-            // break;
-            // }
             Unit unit = unitDB.getUnitFileReader().getUnit(unitIndex);
             if (unit.isEdgeUnit()) {
                 continue; // ignore edge units (also, avoid ticket:335)
@@ -336,10 +333,10 @@ public class VoiceDataDumper {
     }
 
     /**
-     * Main method. Call with
+     * Main method. Add VOICE jar to classpath, then call with
      * 
      * <pre>
-     * -ea -Xmx1gb -Dmary.base=${workspace_loc:OpenMary}
+     * -ea -Xmx1gb -Dmary.base=$MARYBASE VOICE
      * </pre>
      * 
      * or something similar
