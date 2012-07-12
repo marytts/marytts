@@ -7,6 +7,7 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>example-embedded</artifactId>
+  <name>example-embedded</name>
   <description>Example showing how to use an embedded TTS in your java code using LocalMaryInterface.</description>
   <dependencies>
   	<dependency>

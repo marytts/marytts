@@ -7,6 +7,7 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>example-remote</artifactId>
+  <name>example-remote</name>
   <description>Example showing how to use a client-server TTS in your java code using RemoteMaryInterface.</description>
 
   <dependencies>
