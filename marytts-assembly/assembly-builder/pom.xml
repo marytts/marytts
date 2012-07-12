@@ -10,6 +10,7 @@
   </parent>
 
   <artifactId>marytts-assembly-builder</artifactId>
+  <name>marytts-assembly-builder</name>
   <packaging>pom</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
