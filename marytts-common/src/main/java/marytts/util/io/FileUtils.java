@@ -176,6 +176,10 @@ public class FileUtils {
         }
     }
 
+    /**
+     * @deprecated use {@link org.apache.commons.io.IOUtils#toString(InputStream, String)} instead
+     */
+    @Deprecated
     public static String getStreamAsString(InputStream inputStream, String encoding) throws IOException {
         return getReaderAsString(new InputStreamReader(inputStream, encoding));
     }

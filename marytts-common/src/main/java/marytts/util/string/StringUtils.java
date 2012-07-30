@@ -707,6 +707,11 @@ public class StringUtils {
         return isFound;
     }
     
+	/**
+	 * @deprecated Unstable due to platform-specific behavior. Use {@link org.apache.commons.lang.StringUtils#split}
+	 *             or similar instead.
+	 */
+	@Deprecated
     public static String[] toStringArray(String allInOneLine)
     {
         if (allInOneLine!="")
