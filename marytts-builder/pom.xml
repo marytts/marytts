@@ -82,9 +82,9 @@
       <version>5.1.16</version>
     </dependency>
     <dependency>
-      <groupId>nz.ac.waikato.cs.ml</groupId>
-      <artifactId>weka</artifactId>
-      <version>3.7.3</version>
+      <groupId>nz.ac.waikato.cms.weka</groupId>
+      <artifactId>weka-dev</artifactId>
+      <version>3.7.6</version>
     </dependency>
     <dependency>
 	  <groupId>org.wikimedia</groupId>
