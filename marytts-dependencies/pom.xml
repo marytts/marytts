@@ -80,17 +80,6 @@
 						</artifactItem>
 
 						<artifactItem>
-							<groupId>nz.ac.waikato.cs.ml</groupId>
-							<artifactId>weka</artifactId>
-							<classifier>sources</classifier>
-							<version>3.7.3</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/weka-3.7.3-src.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
 							<groupId>de.dfki.lt.jtok</groupId>
 							<artifactId>jtok-core</artifactId>
 							<version>1.9.1</version>
