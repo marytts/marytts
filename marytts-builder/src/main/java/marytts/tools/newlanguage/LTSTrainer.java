@@ -48,6 +48,7 @@ import org.apache.log4j.BasicConfigurator;
 
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
+import weka.classifiers.trees.j48.C45PruneableClassifierTreeWithUnary;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
 import weka.core.DenseInstance;

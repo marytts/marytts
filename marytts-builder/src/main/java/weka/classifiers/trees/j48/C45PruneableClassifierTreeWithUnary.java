@@ -19,7 +19,7 @@
  */
 
 
-package marytts.tools.newlanguage;
+package weka.classifiers.trees.j48;
 
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
 import weka.classifiers.trees.j48.ModelSelection;
