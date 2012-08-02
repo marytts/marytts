@@ -79,28 +79,6 @@
 							</downloadUrl>
 						</artifactItem>
 
-						<!-- TODO: consider http://sourceforge.net/projects/weka/files/weka-3-7/3.7.3/weka-3-7-3.zip/download -->
-						<artifactItem>
-							<groupId>nz.ac.waikato.cs.ml</groupId>
-							<artifactId>weka</artifactId>
-							<version>3.7.3</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/weka-3.7.3.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>nz.ac.waikato.cs.ml</groupId>
-							<artifactId>weka</artifactId>
-							<classifier>sources</classifier>
-							<version>3.7.3</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/weka-3.7.3-src.jar
-							</downloadUrl>
-						</artifactItem>
-
 						<artifactItem>
 							<groupId>de.dfki.lt.jtok</groupId>
 							<artifactId>jtok-core</artifactId>
