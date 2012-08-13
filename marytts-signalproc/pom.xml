@@ -10,9 +10,6 @@
 	<artifactId>marytts-signalproc</artifactId>
 	<name>marytts-signalproc</name>
 	<url>http://mary.dfki.de</url>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 
 

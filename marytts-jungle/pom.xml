@@ -13,9 +13,6 @@
 	<name>marytts-jungle</name>
 	<url>http://mary.dfki.de</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 
 

@@ -9,9 +9,6 @@
 	</parent>
 	<artifactId>marytts-lang-te</artifactId>
 	<name>marytts-lang-te</name>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 
 		<dependency>

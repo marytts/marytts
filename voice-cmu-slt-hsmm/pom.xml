@@ -10,7 +10,6 @@
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
 	<name>voice-cmu-slt-hsmm</name>
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<voicename>cmu-slt-hsmm</voicename>
 	</properties>
 	<dependencies>
