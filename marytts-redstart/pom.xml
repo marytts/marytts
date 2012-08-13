@@ -9,9 +9,6 @@
 	</parent>
 	<artifactId>marytts-redstart</artifactId>
 	<name>marytts-redstart</name>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>marytts</groupId>
