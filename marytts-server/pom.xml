@@ -1,79 +1,79 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>marytts</artifactId>
-    <groupId>marytts</groupId>
-    <version>5.1-SNAPSHOT</version>
-  </parent>
-  <artifactId>marytts-server</artifactId>
-  <name>marytts-server</name>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>marytts</artifactId>
+		<groupId>marytts</groupId>
+		<version>5.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>marytts-server</artifactId>
+	<name>marytts-server</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
 
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-common</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-signalproc</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-runtime</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-signalproc</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore-nio</artifactId>
-      <version>4.1</version>
-    </dependency>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 
-  </dependencies>
-  
-  
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
 
-      </plugin>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore-nio</artifactId>
+			<version>4.1</version>
+		</dependency>
 
-    </plugins>
-  </build>
+	</dependencies>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+
+		</plugins>
+	</build>
 </project>
