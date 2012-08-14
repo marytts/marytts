@@ -10,6 +10,47 @@
 
 	<name>MARY TTS</name>
 	<url>http://mary.dfki.de</url>
+	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
+	<inceptionYear>2000</inceptionYear>
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License v3.0</name>
+			<url>http://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
+		</license>
+	</licenses>
+	<organization>
+		<name>DFKI GmbH</name>
+		<url>http://www.dfki.de/</url>
+	</organization>
+
+	<distributionManagement>
+		<downloadUrl>https://github.com/marytts/marytts/downloads</downloadUrl>
+	</distributionManagement>
+	<mailingLists>
+		<mailingList>
+			<name>mary-users</name>
+			<archive>http://www.dfki.de/pipermail/mary-users/</archive>
+			<post>mary-users@dfki.de</post>
+			<subscribe>mary-users-request@dfki.de?subject=subscribe</subscribe>
+			<unsubscribe>mary-users-request@dfki.de?subject=unsubscribe</unsubscribe>
+		</mailingList>
+		<mailingList>
+			<name>mary-dev</name>
+			<archive>http://www.dfki.de/pipermail/mary-dev/</archive>
+			<post>mary-dev@dfki.de</post>
+			<subscribe>mary-dev-request@dfki.de?subject=subscribe</subscribe>
+			<unsubscribe>mary-dev-request@dfki.de?subject=unsubscribe</unsubscribe>
+		</mailingList>
+	</mailingLists>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/marytts/marytts/issues/</url>
+	</issueManagement>
+	<scm>
+		<url>https://github.com/marytts/marytts</url>
+		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
+		<developerConnection>scm:git:https://github.com/marytts/marytts.git</developerConnection>
+	</scm>
 
 	<modules>
 		<module>marytts-dependencies</module>
