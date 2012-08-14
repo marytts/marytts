@@ -26,38 +26,47 @@
 	<developers>
 		<developer>
 			<name>Marc Schröder</name>
+			<id>marc1s</id>
 		</developer>
 		<developer>
 			<name>Marcela Charfuelan</name>
+			<id>marcelach1</id>
 		</developer>
 		<developer>
 			<name>Ingmar Steiner</name>
+			<id>psibre</id>
 		</developer>
 		<developer>
 			<name>Sathish Chandra Pammi</name>
+			<id>sathishpc</id>
 		</developer>
 		<developer>
-			<name>Benjamin Roth</name>
+			<name>Fabio Tesser</name>
+			<id>ftesser</id>
 		</developer>
 		<developer>
-			<name>Anna Hunecke</name>
-		</developer>
-		<developer>
-			<name>Mat Wilson</name>
-		</developer>
-		<developer>
-			<name>Sacha Krstulović</name>
-		</developer>
-		<developer>
-			<name>Jochen Steigner</name>
-		</developer>
-		<developer>
-			<name>Stefanie Becker</name>
+			<name>Harald Berthelsen</name>
+			<id>HaraldBerthelsen</id>
 		</developer>
 	</developers>
 	<contributors>
 		<contributor>
-			<name>Fabio Tesser</name>
+			<name>Benjamin Roth</name>
+		</contributor>
+		<contributor>
+			<name>Anna Hunecke</name>
+		</contributor>
+		<contributor>
+			<name>Mat Wilson</name>
+		</contributor>
+		<contributor>
+			<name>Sacha Krstulović</name>
+		</contributor>
+		<contributor>
+			<name>Jochen Steigner</name>
+		</contributor>
+		<contributor>
+			<name>Stefanie Becker</name>
 		</contributor>
 		<contributor>
 			<name>Nickolay Shmyrev</name>
