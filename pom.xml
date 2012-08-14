@@ -23,6 +23,47 @@
 		<url>http://www.dfki.de/</url>
 	</organization>
 
+	<developers>
+		<developer>
+			<name>Marc Schröder</name>
+		</developer>
+		<developer>
+			<name>Marcela Charfuelan</name>
+		</developer>
+		<developer>
+			<name>Ingmar Steiner</name>
+		</developer>
+		<developer>
+			<name>Sathish Chandra Pammi</name>
+		</developer>
+		<developer>
+			<name>Benjamin Roth</name>
+		</developer>
+		<developer>
+			<name>Anna Hunecke</name>
+		</developer>
+		<developer>
+			<name>Mat Wilson</name>
+		</developer>
+		<developer>
+			<name>Sacha Krstulović</name>
+		</developer>
+		<developer>
+			<name>Jochen Steigner</name>
+		</developer>
+		<developer>
+			<name>Stefanie Becker</name>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Fabio Tesser</name>
+		</contributor>
+		<contributor>
+			<name>Nickolay Shmyrev</name>
+		</contributor>
+	</contributors>
+
 	<distributionManagement>
 		<downloadUrl>https://github.com/marytts/marytts/downloads</downloadUrl>
 	</distributionManagement>
