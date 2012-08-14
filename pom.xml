@@ -102,6 +102,11 @@
 		<developerConnection>scm:git:https://github.com/marytts/marytts.git</developerConnection>
 	</scm>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
 	<modules>
 		<module>marytts-dependencies</module>
 		<module>marytts-common</module>
@@ -131,17 +136,6 @@
 		<module>marytts-en-GB</module>
 		</modules>
 	-->
-
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<!-- For 'mvn eclipse:eclipse': -->
-		<!--downloadJavadocs>true</downloadJavadocs -->
-		<downloadSources>true</downloadSources>
-	</properties>
-
-
 
 	<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
 	<profiles>
