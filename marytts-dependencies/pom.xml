@@ -9,7 +9,6 @@
 	</parent>
 	<artifactId>marytts-dependencies</artifactId>
 	<name>marytts-dependencies</name>
-	<url>http://maven.apache.org</url>
 	<properties>
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>

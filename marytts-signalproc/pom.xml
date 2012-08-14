@@ -9,7 +9,6 @@
 	</parent>
 	<artifactId>marytts-signalproc</artifactId>
 	<name>marytts-signalproc</name>
-	<url>http://mary.dfki.de</url>
 
 
 

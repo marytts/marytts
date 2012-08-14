@@ -9,7 +9,6 @@
 	</parent>
 	<artifactId>marytts-client</artifactId>
 	<name>marytts-client</name>
-	<url>http://maven.apache.org</url>
 
 	<build>
 		<plugins>
