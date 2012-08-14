@@ -9,7 +9,6 @@
 	</parent>
 	<artifactId>marytts-common</artifactId>
 	<name>marytts-common</name>
-	<url>http://mary.dfki.de</url>
 	<dependencies>
 
 		<dependency>
