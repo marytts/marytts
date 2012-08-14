@@ -3,100 +3,95 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>marytts</artifactId>
 		<groupId>marytts</groupId>
+		<artifactId>marytts</artifactId>
 		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>marytts-builder</artifactId>
 	<name>marytts-builder</name>
-	<dependencies>
 
+	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
-			<artifactId>marytts-common</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>marytts</groupId>
-			<artifactId>marytts-signalproc</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>marytts</groupId>
-			<artifactId>marytts-runtime</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-client</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-en</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-signalproc</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
 		</dependency>
-
-		<dependency>
-			<groupId>marytts</groupId>
-			<artifactId>marytts-lang-en</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-all</artifactId>
-			<version>1.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.cloudbees</groupId>
-			<artifactId>diff4j</artifactId>
-			<version>1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>oro</groupId>
-			<artifactId>oro</artifactId>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.swinglabs</groupId>
-			<artifactId>swing-layout</artifactId>
-			<version>1.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>gov.noaa.pmel.sgt</groupId>
-			<artifactId>sgt</artifactId>
-			<version>3.0</version>
-		</dependency>
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.16</version>
 		</dependency>
+
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.cloudbees</groupId>
+			<artifactId>diff4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>gov.noaa.pmel.sgt</groupId>
+			<artifactId>sgt</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
-			<version>3.7.6</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swing-layout</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.wikimedia</groupId>
 			<artifactId>mwdumper</artifactId>
-			<version>1.16</version>
 		</dependency>
-
 	</dependencies>
-
 
 	<build>
 		<plugins>
@@ -121,10 +116,8 @@
 						</goals>
 					</execution>
 				</executions>
-
 			</plugin>
 		</plugins>
 	</build>
-
 
 </project>

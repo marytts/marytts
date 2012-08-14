@@ -7,36 +7,37 @@
 		<groupId>marytts</groupId>
 		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
 	<name>voice-cmu-slt-hsmm</name>
+
 	<properties>
 		<voicename>cmu-slt-hsmm</voicename>
 	</properties>
+
 	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-en</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 
 	<build>
 		<plugins>
@@ -60,6 +61,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.gmaven</groupId>
 				<artifactId>gmaven-plugin</artifactId>
@@ -94,6 +96,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.5</version>
@@ -117,6 +120,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

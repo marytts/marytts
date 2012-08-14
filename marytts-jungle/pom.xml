@@ -8,95 +8,82 @@
 	</parent>
 
 	<artifactId>marytts-jungle</artifactId>
-	<packaging>jar</packaging>
-
 	<name>marytts-jungle</name>
 
-
-
-
 	<dependencies>
-
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-signalproc</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-client</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-builder</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-server</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-de</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-en</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-ru</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-te</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-tr</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>voice-cmu-slt-hsmm</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-
-
-
-
-
-
 
 		<!-- System dependencies - to be replaced where possible -->
 
@@ -115,9 +102,6 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/freetts-mbrola.jar</systemPath>
 		</dependency>
-
-
-
 	</dependencies>
 
 	<!-- Reports generated when executing 'mvn site' -->
@@ -198,9 +182,7 @@
 				<version>2.0</version>
 			</plugin>
 
-
 		</plugins>
 	</reporting>
-
 
 </project>

@@ -11,10 +11,6 @@
 	<artifactId>marytts-assembly</artifactId>
 	<name>marytts-assembly</name>
 	<packaging>pom</packaging>
-	<dependencies>
-
-	</dependencies>
-
 
 	<modules>
 		<module>assembly-builder</module>

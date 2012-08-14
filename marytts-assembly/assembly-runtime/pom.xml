@@ -12,70 +12,70 @@
 	<artifactId>marytts-assembly-runtime</artifactId>
 	<name>marytts-assembly-runtime</name>
 	<packaging>pom</packaging>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-server</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 			<type>jar</type>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-client</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 			<type>jar</type>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-de</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-en</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-te</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-tr</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-ru</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-it</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-sv</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>voice-cmu-slt-hsmm</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>voice-cmu-slt-hsmm</artifactId>
+			<version>${project.version}</version>
 			<type>xml</type>
 			<classifier>component</classifier>
-			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
-
 
 	<build>
 		<plugins>
@@ -99,9 +99,7 @@
 						</goals>
 					</execution>
 				</executions>
-
 			</plugin>
-
 		</plugins>
 	</build>
 </project>

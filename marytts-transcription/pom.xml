@@ -7,44 +7,42 @@
 		<groupId>marytts</groupId>
 		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>marytts-transcription</artifactId>
 	<name>marytts-transcription</name>
+
 	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-signalproc</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-builder</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.swinglabs</groupId>
 			<artifactId>swing-layout</artifactId>
-			<version>1.0.3</version>
 		</dependency>
 	</dependencies>
-
 
 	<build>
 		<plugins>

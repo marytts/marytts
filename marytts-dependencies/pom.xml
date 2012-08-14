@@ -7,8 +7,10 @@
 		<groupId>marytts</groupId>
 		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>marytts-dependencies</artifactId>
 	<name>marytts-dependencies</name>
+
 	<properties>
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>
@@ -23,7 +25,6 @@
 						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
-
 						<artifactItem>
 							<groupId>com.sun.speech.freetts</groupId>
 							<artifactId>freetts</artifactId>
@@ -160,7 +161,6 @@
 								file:///${project.dependencyDirectory}/emotionml-checker-java-1.0-SNAPSHOT-sources.jar
 							</downloadUrl>
 						</artifactItem>
-
 					</artifactItems>
 				</configuration>
 				<executions>

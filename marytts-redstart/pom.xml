@@ -7,28 +7,27 @@
 		<groupId>marytts</groupId>
 		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>marytts-redstart</artifactId>
 	<name>marytts-redstart</name>
+
 	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-signalproc</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -48,6 +47,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
