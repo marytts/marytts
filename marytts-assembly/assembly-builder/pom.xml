@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>marytts-assembly-builder</artifactId>
-	<name>marytts-assembly-builder</name>
+	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 
 	<dependencies>

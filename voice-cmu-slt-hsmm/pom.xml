@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
-	<name>voice-cmu-slt-hsmm</name>
+	<name>${project.artifactId}</name>
 
 	<properties>
 		<voicename>cmu-slt-hsmm</voicename>

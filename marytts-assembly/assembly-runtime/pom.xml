@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>marytts-assembly-runtime</artifactId>
-	<name>marytts-assembly-runtime</name>
+	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 
 	<dependencies>

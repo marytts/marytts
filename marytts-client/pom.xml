@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>marytts-client</artifactId>
-	<name>marytts-client</name>
+	<name>${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>

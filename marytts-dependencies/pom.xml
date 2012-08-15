@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>marytts-dependencies</artifactId>
-	<name>marytts-dependencies</name>
+	<name>${project.artifactId}</name>
 
 	<properties>
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
