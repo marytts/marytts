@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>marytts-jungle</artifactId>
-	<name>marytts-jungle</name>
+	<name>${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
