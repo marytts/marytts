@@ -362,7 +362,7 @@
 				<version>1.1</version>
 				<executions>
 					<execution>
-						<id>enforce-java-5-or-higher</id>
+						<id>enforce-java-6-or-higher</id>
 						<goals>
 							<goal>enforce</goal>
 						</goals>
