@@ -60,7 +60,7 @@ public abstract class ExpansionPattern {
     //protected static CurrencyEP currency;
     //protected static MeasureEP measure;
     //protected static TelephoneEP telephone;
-    //protected static NumberEP number;
+    protected static NumberEP number;
     //protected static AbbrevEP abbrev;
     protected static SpecialCharEP specialChar;
 
@@ -137,11 +137,11 @@ public abstract class ExpansionPattern {
 		expansionPatterns.add(abbrev);
 		for (it = abbrev.knownTypes().iterator(); it.hasNext();)
 			patternTable.put(it.next(), abbrev);
+        */
         number = new NumberEP();
         expansionPatterns.add(number);
         for (it = number.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), number);
-        */
         specialChar = new SpecialCharEP();
         expansionPatterns.add(specialChar);
         for (it = specialChar.knownTypes().iterator(); it.hasNext();)
