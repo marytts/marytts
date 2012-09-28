@@ -73,8 +73,8 @@
 	<consonant ph="m" ctype="n" cplace="l" cvox="+" long="-" />
 	<consonant ph="n" ctype="n" cplace="a" cvox="+" long="-" />
 	<consonant ph="J" ctype="n" cplace="p" cvox="+" long="-" />
-	<consonant ph="NG" ctype="n" cplace="v" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'pu-ng-iglione' -->
-	<consonant ph="NF" ctype="n" cplace="b" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'co-nf-rontare' -->
+	<consonant ph="NG" ctype="n" cplace="v" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'pu-ng-giglione' -->
+	<consonant ph="NF" ctype="n" cplace="b" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'co-nf-frontare' -->
 
 	<consonant ph="mm" ctype="n" cplace="l" cvox="+" long="+" />
 	<consonant ph="nn" ctype="n" cplace="a" cvox="+" long="+" />

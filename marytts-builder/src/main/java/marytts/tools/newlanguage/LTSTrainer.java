@@ -48,6 +48,7 @@ import org.apache.log4j.BasicConfigurator;
 
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
+import weka.classifiers.trees.j48.C45PruneableClassifierTreeWithUnary;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -164,7 +165,7 @@ public class LTSTrainer extends AlignerTrainer
         List<CART> stl = new ArrayList<CART>(fd.getNumberOfValues(centerGrapheme));
         
         for (String gr : fd.getPossibleValues(centerGrapheme)){
-            
+            System.out.println("      Training decision tree for: " + gr);
             logger.debug("      Training decision tree for: " + gr);
             
             ArrayList<Attribute> attributeDeclarations = new ArrayList<Attribute>();
@@ -222,13 +223,14 @@ public class LTSTrainer extends AlignerTrainer
             
             // build the tree without using the J48 wrapper class
             // standard parameters are: 
-            //binary split selection with minimum x instances at the leaves, tree is pruned, confidenced value, subtree raising, cleanup, don't collapse
+            // binary split selection with minimum x instances at the leaves, tree is pruned, confidenced value, subtree raising, cleanup, don't collapse
+            // Here is used a modifed version of C45PruneableClassifierTree that allow using Unary Classes (see Issue #51)
             C45PruneableClassifierTree decisionTree;
             try {
-                decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeafData,data,true),true,0.25f,true,true, false);
+                decisionTree = new C45PruneableClassifierTreeWithUnary(new BinC45ModelSelection(minLeafData,data,true),true,0.25f,true,true, false);
                 decisionTree.buildClassifier(data);
             } catch (Exception e) {
-                throw new RuntimeException("couldn't train decisiontree using weka: " + e);
+                throw new RuntimeException("couldn't train decisiontree using weka: ", e);
             }
             
             CART maryTree = TreeConverter.c45toStringCART(decisionTree, fd,data);

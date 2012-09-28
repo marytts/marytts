@@ -1,174 +1,173 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>marytts</groupId>
-  <artifactId>voice-${VOICENAME}</artifactId>
-  <name>voice-${VOICENAME}</name>
-  <version>${MARYVERSION}</version>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <voicename>${VOICENAME}</voicename>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-common</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-runtime</artifactId>
-      <version>${MARYVERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-${LANG}</artifactId>
-      <version>${MARYVERSION}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.8</version>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>integration-test</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>verify</id>
-            <goals>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-		  <argLine>-Xms256m -Xmx512m</argLine>
-          <systemPropertyVariables>
-            <!-- The MARY installation directory, setting to the project dir for the purposes of our integration test: -->
-            <mary.base>${basedir}</mary.base>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2.1</version>
-        <configuration>
-          <finalName>${project.artifactId}-${project.version}</finalName>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>src/main/descriptors/installable.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-		  <groupId>org.codehaus.gmaven</groupId>
-		  <artifactId>gmaven-plugin</artifactId>
-		  <version>1.4</version>
-		  <executions>
-		    <execution>
-		      <phase>package</phase>
-		      <goals>
-		        <goal>execute</goal>
-		      </goals>
-		      <configuration>
-                <classpath>
-                    <element>
-                        <groupId>marytts</groupId>
-                        <artifactId>marytts-common</artifactId>
-                    </element>
-                </classpath>
-		        <source>
-		          import com.twmacinta.util.MD5
-		          // First, fill the zip file's size and md5 sum into properties:
-		          def zipfile = new File(project.build.directory+'/'+project.artifactId+'-'+project.version+'.zip')
-		          project.properties.zip_size = ''+zipfile.size()
-		          project.properties.zip_md5 = MD5.asHex(MD5.getHash(zipfile))
-		          // Second, copy component file template into target space with the right name
-		          def tempdir = new File(project.build.directory+'/tmp-component/')
-		          tempdir.mkdirs()
-		          def target = new File(tempdir, project.artifactId+'-'+project.version+'-component.xml')
-		          def source = new File(project.basedir.getPath()+'/src/non-packaged-resources/voice-component.xml')
-		          target.write(source.text)
-		        </source>
-		      </configuration>
-		    </execution>
-		  </executions>
-		</plugin>
-		<plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <!-- here the phase you need -->
-            <phase>package</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <resources>          
-                <resource>
-                  <directory>${project.build.directory}/tmp-component</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>              
-              <outputDirectory>${project.build.directory}</outputDirectory>
-            </configuration>            
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-component.xml</file>
-                  <type>xml</type>
-                  <classifier>component</classifier>
-                </artifact>
-                ...
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      
-      
-    </plugins>
-  </build>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>marytts</groupId>
+	<artifactId>voice-${VOICENAME}</artifactId>
+	<name>voice-${VOICENAME}</name>
+	<version>${MARYVERSION}</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<voicename>${VOICENAME}</voicename>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${MARYVERSION}</version>
+		</dependency>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${MARYVERSION}</version>
+		</dependency>
+		<dependency>
+			<groupId>marytts</groupId>
+			<artifactId>marytts-lang-${LANG}</artifactId>
+			<version>${MARYVERSION}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<argLine>-Xms256m -Xmx512m</argLine>
+					<systemPropertyVariables>
+						<!-- The MARY installation directory, setting to the project dir for the purposes of our integration test: -->
+						<mary.base>${basedir}</mary.base>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<finalName>${project.artifactId}-${project.version}</finalName>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptors>
+						<descriptor>src/main/descriptors/installable.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.gmaven</groupId>
+				<artifactId>gmaven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<classpath>
+								<element>
+									<groupId>marytts</groupId>
+									<artifactId>marytts-common</artifactId>
+								</element>
+							</classpath>
+							<source>
+								import com.twmacinta.util.MD5
+								// First, fill the zip file's size and md5 sum into properties:
+								def zipfile = new File(project.build.directory+'/'+project.artifactId+'-'+project.version+'.zip')
+								project.properties.zip_size = ''+zipfile.size()
+								project.properties.zip_md5 = MD5.asHex(MD5.getHash(zipfile))
+								// Second, copy component file template into target space with the right name
+								def tempdir = new File(project.build.directory+'/tmp-component/')
+								tempdir.mkdirs()
+								def target = new File(tempdir, project.artifactId+'-'+project.version+'-component.xml')
+								def source = new File(project.basedir.getPath()+'/src/non-packaged-resources/voice-component.xml')
+								target.write(source.text)
+							</source>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!-- here the phase you need -->
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/tmp-component</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-component.xml</file>
+									<type>xml</type>
+									<classifier>component</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
+		</plugins>
+	</build>
 
 </project>

@@ -1,18 +1,17 @@
 <?xml version="1.0"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>marytts</artifactId>
 		<groupId>marytts</groupId>
-		<version>5.0-SNAPSHOT</version>
+		<version>5.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>marytts-dependencies</artifactId>
-	<name>marytts-dependencies</name>
-	<url>http://maven.apache.org</url>
+	<name>${project.artifactId}</name>
+
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.dependencyDirectory>${basedir}/resources</project.dependencyDirectory>
 	</properties>
 
@@ -26,7 +25,6 @@
 						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
-
 						<artifactItem>
 							<groupId>com.sun.speech.freetts</groupId>
 							<artifactId>freetts</artifactId>
@@ -76,28 +74,6 @@
 							<packaging>jar</packaging>
 							<downloadUrl>
 								file:///${project.dependencyDirectory}/sgt_src_v30.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<!-- TODO: consider http://sourceforge.net/projects/weka/files/weka-3-7/3.7.3/weka-3-7-3.zip/download -->
-						<artifactItem>
-							<groupId>nz.ac.waikato.cs.ml</groupId>
-							<artifactId>weka</artifactId>
-							<version>3.7.3</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/weka-3.7.3.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>nz.ac.waikato.cs.ml</groupId>
-							<artifactId>weka</artifactId>
-							<classifier>sources</classifier>
-							<version>3.7.3</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/weka-3.7.3-src.jar
 							</downloadUrl>
 						</artifactItem>
 
@@ -165,6 +141,26 @@
 							</downloadUrl>
 						</artifactItem>
 
+						<artifactItem>
+							<groupId>emotionml-checker-java</groupId>
+							<artifactId>emotionml-checker-java</artifactId>
+							<version>1.0-SNAPSHOT</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/emotionml-checker-java-1.0-SNAPSHOT.jar
+							</downloadUrl>
+						</artifactItem>
+
+						<artifactItem>
+							<groupId>emotionml-checker-java</groupId>
+							<artifactId>emotionml-checker-java</artifactId>
+							<classifier>sources</classifier>
+							<version>1.0-SNAPSHOT</version>
+							<packaging>jar</packaging>
+							<downloadUrl>
+								file:///${project.dependencyDirectory}/emotionml-checker-java-1.0-SNAPSHOT-sources.jar
+							</downloadUrl>
+						</artifactItem>
 					</artifactItems>
 				</configuration>
 				<executions>
@@ -238,7 +234,7 @@
 					<version>2.4</version>
 				</plugin>
 
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>

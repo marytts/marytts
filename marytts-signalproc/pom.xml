@@ -1,44 +1,32 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>marytts</artifactId>
-    <groupId>marytts</groupId>
-    <version>5.0-SNAPSHOT</version>
-  </parent>
-  <artifactId>marytts-signalproc</artifactId>
-  <name>marytts-signalproc</name>
-  <url>http://mary.dfki.de</url>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  
-  
-    
-  <dependencies>
-  
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-common</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    
-    
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>marytts</artifactId>
+		<groupId>marytts</groupId>
+		<version>5.1-SNAPSHOT</version>
+	</parent>
 
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>swing-layout</artifactId>
-      <version>1.0.3</version>
-    </dependency>
-    
+	<artifactId>marytts-signalproc</artifactId>
+	<name>${project.artifactId}</name>
 
-  </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swing-layout</artifactId>
+		</dependency>
+	</dependencies>
 </project>

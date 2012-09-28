@@ -583,11 +583,11 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             throw new IllegalArgumentException("Only a component with the same name can be an update of this component; but this has name "
                     +name+", and argument has name "+aDesc.getName());
         }
-        if (!(version.compareTo(aDesc.getVersion()) < 0)) {
+        if (!(isVersionNewerThan(aDesc.getVersion(), version))) {
             throw new IllegalArgumentException("Version "+aDesc.getVersion()+" is not higher than installed version "+version);
         }
         if (availableUpdate != null) { // already have an available update: we will replace it with aDesc only if aDesc has a higher version number
-            if (!(aDesc.getVersion().compareTo(availableUpdate.getVersion()) > 0)) {
+            if (!(isVersionNewerThan(aDesc.getVersion(), availableUpdate.getVersion()))) {
                 return;
             }
         }
@@ -610,12 +610,36 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             || !this.getClass().equals(other.getClass())
             || !name.equals(other.getName())
             || other.getStatus() != Status.INSTALLED
-            || !(version.compareTo(other.getVersion()) > 0)) {
+            || !(isVersionNewerThan(version, other.getVersion()))) {
             return false;
         }
         return true;
     }
     
+    /**
+     * Determine whether oneVersion is newer than otherVersion.
+     * This performs a lexicographic comparison with the exception that a version with suffix "-SNAPSHOT"
+     * is treated as older than the version without that suffix.
+     * A version is not newer than itself.  
+     * @param oneVersion
+     * @param otherVersion
+     * @return true if oneVersion is newer than otherVersion, false if they are equal or otherVersion is newer.
+     */
+    public static boolean isVersionNewerThan(String oneVersion, String otherVersion) {
+    	if (oneVersion == null || otherVersion == null) {
+    		return false;
+    	}
+    	// The only special cases we need to consider is when otherVersion is oneVersion suffixed with "-SNAPSHOT",
+    	// or the other way round: in this case the one with the suffix is newer.
+    	// All other cases are covered by lexicographic comparison.
+    	if (otherVersion.equals(oneVersion+"-SNAPSHOT")) {
+    		return true;
+    	}
+    	if (oneVersion.equals(otherVersion+"-SNAPSHOT")) {
+    		return false;
+    	}
+    	return oneVersion.compareTo(otherVersion) > 0;
+    }
     
     /**
      * Define a natural ordering for component descriptions. Languages first, in alphabetic order, then voices, in alphabetic order.
@@ -841,9 +865,8 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                                 Manifest packagedManifest = packagedJar.getManifest();
                                 String packagedVersion = packagedManifest.getMainAttributes().getValue("Specification-Version");
                                 // compare the version strings:
-                                // TODO: this should handle "trunk" as always being newer until we have more sophisticated version string handling
-                                if (existingVersion.equals("trunk") || existingVersion.compareTo(packagedVersion) > 0) {
-                                    existingIsNewer = true;
+                                existingIsNewer = isVersionNewerThan(existingVersion, packagedVersion);
+                                if (existingIsNewer) {
                                     // if we don't overwrite a newer existing JAR, then never log it as installed, otherwise we lose it during uninstall!
                                     files.remove(entry.getName()); 
                                 }

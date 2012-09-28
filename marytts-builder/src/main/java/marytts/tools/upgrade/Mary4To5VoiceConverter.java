@@ -17,19 +17,20 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.twmacinta.util.MD5;
 
+import marytts.Version;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.install.InstallFileParser;
 import marytts.tools.install.VoiceComponentDescription;
@@ -37,11 +38,10 @@ import marytts.tools.voiceimport.VoiceCompiler;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.io.FileUtils;
-import marytts.util.string.StringUtils;
 
 public class Mary4To5VoiceConverter {
 
-	private static final String NEW_VERSION = "5.0-SNAPSHOT";
+	private static final String EOL = IOUtils.LINE_SEPARATOR_WINDOWS;
 	
 	/**
 	 * The list of property suffixes which can read from a resource file. 
@@ -99,7 +99,7 @@ public class Mary4To5VoiceConverter {
 	private VoiceComponentDescription voiceDescription;
 	private File mary4Zip;
 	private Properties config;
-	private String originalConfig;
+	private List<String> originalConfig;
 	
 	private File extractedDir;
 	private File compileDir;
@@ -144,7 +144,7 @@ public class Mary4To5VoiceConverter {
 		
 		loadConfig(findConfigFile());
 		
-		compileDir = new File(rootDir, voiceDescription.getName()+"-"+NEW_VERSION+"-maven");
+		compileDir = new File(rootDir, voiceDescription.getName()+"-"+Version.specificationVersion()+"-maven");
 		
 		domain = config.getProperty(getPropertyPrefix()+"domain");
 		samplingRate = Integer.parseInt(config.getProperty(getPropertyPrefix()+"samplingRate"));
@@ -153,7 +153,7 @@ public class Mary4To5VoiceConverter {
 		filesForFilesystem = getFilesForFilesystem();		
 		Map<String, String> extraVariablesToSubstitute = null;
 		
-		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, getVoiceName(), NEW_VERSION, 
+		compiler = new VoiceCompiler.MavenVoiceCompiler(compileDir, getVoiceName(), Version.specificationVersion(), 
 				voiceDescription.getLocale(), voiceDescription.getGender(), domain, samplingRate, isUnitSelectionVoice(), filesForResources, 
 				filesForFilesystem, extraVariablesToSubstitute);
 
@@ -215,18 +215,17 @@ public class Mary4To5VoiceConverter {
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
 		StringBuilder comments = new StringBuilder();
 		try {
-			String[] lines = StringUtils.toStringArray(originalConfig);
-			for (String line : lines) {
+			for (String line : originalConfig) {
 				if (isEmpty(line) || isComment(line)) {
-					comments.append(line).append('\n');
+					comments.append(line).append(EOL);
 					continue;
 				}
 				String key = new StringTokenizer(line.trim()).nextToken();
 				if (config.containsKey(key)) {
 					pw.print(comments.toString());
-					pw.print(key + " = " + config.getProperty(key) + "\r\n");
+					pw.print(key + " = " + config.getProperty(key) + EOL);
 					if (key.equals("name")) {
-						pw.print("locale = " + config.getProperty("locale") + "\r\n");
+						pw.print("locale = " + config.getProperty("locale") + EOL);
 					}
 				}
 				comments = new StringBuilder();
@@ -314,15 +313,17 @@ public class Mary4To5VoiceConverter {
 	}
 
 	protected void loadConfig(File configFile) throws IOException {
-		loadConfigFromStream(new BufferedInputStream(new FileInputStream(configFile)));
+		FileInputStream configStream = new FileInputStream(configFile);
+		InputStream bufferedConfigStream = IOUtils.toBufferedInputStream(configStream);
+		loadConfigFromStream(bufferedConfigStream);
 	}
 	
 	protected void loadConfigFromStream(InputStream in) throws IOException {
 		config = new Properties();
 		try {
-			originalConfig = FileUtils.getStreamAsString(in, "UTF-8");
-			ByteArrayInputStream bain = new ByteArrayInputStream(originalConfig.getBytes());
-			config.load(bain);
+			byte[] byteArray = IOUtils.toByteArray(in);
+			config.load(new ByteArrayInputStream(byteArray));
+			originalConfig = IOUtils.readLines(new ByteArrayInputStream(byteArray), "UTF-8");
 		} finally {
 			in.close();
 		}
@@ -369,7 +370,7 @@ public class Mary4To5VoiceConverter {
 	
 
 	private String getFilenamePrefix() {
-		return "voice-"+voiceDescription.getName()+"-"+NEW_VERSION;
+		return "voice-"+voiceDescription.getName()+"-"+Version.specificationVersion();
 	}
 	
 	
@@ -378,13 +379,13 @@ public class Mary4To5VoiceConverter {
 			throws MalformedURLException, ParserConfigurationException,
 			MaryConfigurationException, IOException {
 		logger.debug("writing new voice description...");
-		voiceDescription.setVersion(NEW_VERSION);
-		voiceDescription.setDependsVersion(NEW_VERSION);
+		voiceDescription.setVersion(Version.specificationVersion());
+		voiceDescription.setDependsVersion(Version.specificationVersion());
 		voiceDescription.setPackageFilename(packageFile.getName());
 		voiceDescription.setPackageMD5Sum(computeMD5(packageFile));
 		voiceDescription.setPackageSize((int) packageFile.length());
 		voiceDescription.removeAllLocations();
-		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+NEW_VERSION+"/").toURL());
+		voiceDescription.addLocation(URI.create("http://mary.dfki.de/download/"+Version.specificationVersion()+"/").toURL());
 		Document doc = voiceDescription.createComponentXML();
 		File newVoiceDescriptionFile = new File(rootDir, getFilenamePrefix() + "-component.xml");
 		DomUtils.document2File(doc, newVoiceDescriptionFile);

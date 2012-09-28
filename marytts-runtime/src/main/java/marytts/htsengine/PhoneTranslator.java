@@ -191,7 +191,7 @@ public class PhoneTranslator {
 
 			trickyPhones.put(ph[0], ph[1]);
 			actualPhones.put(ph[1], ph[0]);
-			logger.info("  " + ph[0] + " -->  " + ph[1]);
+			logger.debug("  " + ph[0] + " -->  " + ph[1]);
 
 		}
 		if (aliasList != null) {

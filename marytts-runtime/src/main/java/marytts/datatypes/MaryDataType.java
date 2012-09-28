@@ -63,6 +63,7 @@ public class MaryDataType
     public static final MaryDataType APML                     = new MaryDataType("APML", true, false, EXTERNAL_MARKUP, "apml");
     public static final MaryDataType AUDIO                    = new MaryDataType("AUDIO", false, true, BINARY);
     public static final MaryDataType DURATIONS                = new MaryDataType("DURATIONS", true, true, MARYXML, MaryXML.MARYXML);
+    public static final MaryDataType EMOTIONML                = new MaryDataType("EMOTIONML", true, false, EXTERNAL_MARKUP, "emotionml");
     public static final MaryDataType FESTIVAL_UTT             = new MaryDataType("FESTIVAL_UTT", true, true, PLAIN_TEXT);
     public static final MaryDataType HALFPHONE_TARGETFEATURES = new MaryDataType("HALFPHONE_TARGETFEATURES", false, true, PLAIN_TEXT);
     public static final MaryDataType HTSCONTEXT               = new MaryDataType("HTSCONTEXT", true, true, PLAIN_TEXT);

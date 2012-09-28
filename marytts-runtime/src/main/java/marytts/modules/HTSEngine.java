@@ -418,13 +418,10 @@ public class HTSEngine extends InternalModule
       Integer numLab=0;
       double diffdurOld = 0.0;
       double diffdurNew = 0.0;
-      double mean = 0.0;
-      double var = 0.0;
       double durationsFraction;
       int alignDurSize=0;
       float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
       float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
-      Integer dur;
       boolean firstPh = true; 
       boolean lastPh = false;
       float durVal = 0.0f; 
@@ -454,17 +451,15 @@ public class HTSEngine extends InternalModule
           if(m.getPhoneName().contentEquals("_"))
               m.setGvSwitch(false);
           }
-          //System.out.println("phone=" + m.getPhoneName());
+          //System.out.println("HTSEngine: phone=" + m.getPhoneName());
  
           // get the duration and f0 values from the acoustparams = segmentsAndBoundaries
-          // if i can get these values from continuous features could be a lot better!!!!
           if( phoneAlignmentForDurations && segmentsAndBoundaries != null) {
             Element e = segmentsAndBoundaries.get(i);
-            //System.out.print("phone=" + m.getPhoneName() + "  TagName=" + e.getTagName());
-            // Determine state-level duration                      
-            //if( phoneAlignmentForDurations) {  // use phone alignment for duration
-            // get the durations of the Gaussians any way, because we need to know how long each estate should be
+            //System.out.print("HTSEngine: phone=" + m.getPhoneName() + "  TagName=" + e.getTagName());
+            // get the durations of the Gaussians, because we need to know how long each estate should be
             // knowing the duration of each state we can modified it so the 5 states reflect the external duration
+            // Here the duration for phones and sil (_) are calcualted
             diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
              
             if( e.getTagName().contentEquals("ph") ){
@@ -485,15 +480,46 @@ public class HTSEngine extends InternalModule
               }
                 
             }
-            else if( e.getTagName().contentEquals("boundary") ){  // the duration for boundaries predicted in the AcousticModeller is not calculated with HMMs
-              durVal = (m.getTotalDur() * fperiodmillisec);       // it is kind of dummy val, so here we need to use the predicted from HMMs
-              //System.out.println("  durVal=" + durVal);           // this will be indicated with -1
-                                                                  // the actual duration is calculated below taking into account states duration
-                                                                  //durVal = Float.parseFloat(e.getAttribute("duration"));
-              m.setMaryXmlDur(Float.toString(durVal));  // CHECK if this boundary value is correctly set in realised_acoustparams
+            else if( e.getTagName().contentEquals("boundary") ){ 
+              durVal=0;
+              if( !e.getAttribute("duration").isEmpty())
+            	durVal = Float.parseFloat(e.getAttribute("duration")); 
+              
+              // TODO: here we need to differentiate a duration coming from outside and one fixed by the BoundaryModel
+              // the marytts.modules.acoustic.BoundaryModel fix always duration="400" for breakindex
+              // durations different from 400 milisec. are used here otherwise it is ignored and use the 
+              // the duration calculated from the gaussians instead.
+              if(durVal != 400){                 
+                // if duration comes from a specified duration in miliseconds, i use that
+                int durValFrames = Math.round(durVal / fperiodmillisec);
+                int totalDurGaussians=m.getTotalDur();
+                m.setTotalDur(durValFrames);
+                //System.out.println("  boundary attribute:duration=" + durVal + "  in frames=" + durValFrames); 
+                
+                // the specified duration has to be split among the five states               
+                durationsFraction = durVal/(fperiodmillisec * m.getTotalDur());
+                m.setTotalDur(0);              
+                for(k=0; k<cart.getNumStates(); k++){
+                  //System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));
+                  newStateDuration = Math.round(((float)m.getDur(k)/(float)totalDurGaussians)*durValFrames);
+                  if( newStateDuration <= 0 )
+                    newStateDuration = 1;
+                  m.setDur(k, newStateDuration);
+                  m.setTotalDur(m.getTotalDur() + m.getDur(k)); 
+                  //System.out.println("   durNew=" + m.getDur(k));       
+                }
+                              
+              } else { 
+            	  if( !e.getAttribute("breakindex").isEmpty()){          
+                    durVal = Float.parseFloat(e.getAttribute("breakindex"));
+                    //System.out.print("   boundary attribute:breakindex=" + durVal);
+            	  }
+                  durVal = (m.getTotalDur() * fperiodmillisec);    
+              } 
+              //System.out.println("  setMaryXml(durVal)=" + durVal); 
+              m.setMaryXmlDur(Float.toString(durVal));
             }
-                       
-            
+                                  
             // set F0 values 
             if( e.hasAttribute("f0") ){
               m.setMaryXmlF0(e.getAttribute("f0"));
@@ -574,52 +600,42 @@ public class HTSEngine extends InternalModule
      */
     public static void main(String[] args) throws IOException, InterruptedException, Exception{
        
-      int i, j; 
+      int j; 
       /* configure log info */
       org.apache.log4j.BasicConfigurator.configure();
 
-      /* To run the stand alone version of HTSEngine, it is necessary to pass a configuration
-       * file. It can be one of the hmm configuration files in MARY_BASE/conf/*hmm*.config 
-       * The input for creating a sound file is a TARGETFEATURES file in MARY format, there
+      /* The input for creating a sound file is a TARGETFEATURES file in MARY format, there
        * is an example indicated in the configuration file as well.
-       * For synthesising other text please generate first a TARGETFEATURES file with the MARY system
+       * For synthesising other text generate first a TARGETFEATURES file with the MARY system
        * save it in a file and use it as feaFile. */
       HTSEngine hmm_tts = new HTSEngine();
       
       /* htsData contains:
        * Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. 
-       * After initHMMData it containswhile(it.hasNext()){
-            phon = it.next(); TreeSet ts and ModelSet ms 
+       * After initHMMData it contains:
        * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, Mgc, str and mag
        *           these are all the HMMs trained for a particular voice 
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag 
        *          these are all the trees trained for a particular voice. */
       HMMData htsData = new HMMData();
             
-      /* For initialise provide the name of the hmm voice and the name of its configuration file,*/
-       
-      String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
-      //String voiceName   = "roger-hsmm";                        /* voice name */
-      //String voiceConfig = "en_GB-roger-hsmm.config";         /* voice configuration file name. */
-      //String voiceName   = "dfki-poppy-hsmm";                        /* voice name */
-      //String voiceConfig = "en_GB-dfki-poppy-hsmm.config";         /* voice configuration file name. */
-      //tring voiceName   = "cmu-slt-hsmm";                        /* voice name */
-      //String voiceConfig = "en_US-cmu-slt-hsmm.config";         /* voice configuration file name. */
-      String voiceName   = "prudence-hsmm-v7";                        /* voice name */
-      String voiceConfig = "en_GB-prudence-hsmm-v7.config";         /* voice configuration file name. */
-      
-      //String voiceName   = "hsmm-ot";                        /* voice name */
-      //String voiceConfig = "tr-hsmm-ot.config";         /* voice configuration file name. */
-      String durFile     = MaryBase + "tmp/tmp.lab";          /* to save realised durations in .lab format */
-      String parFile     = MaryBase + "tmp/tmp";              /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
-      String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
+      /* stand alone with cmu-slt-hsmm voice*/       
+      String MaryBase    = "/project/mary/marcela/marytts/";
+      String voiceDir    = MaryBase + "voice-cmu-slt-hsmm/src/main/resources/";
+      String voiceName   = "cmu-slt-hsmm";                          /* voice name */
+      String voiceConfig = "marytts/voice/CmuSltHsmm/voice.config"; /* voice configuration file name. */      
+      String durFile     = MaryBase +"tmp/tmp.lab";                 /* to save realised durations in .lab format */
+      String parFile     = MaryBase +"tmp/tmp";                     /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
+      String outWavFile  = MaryBase +"tmp/tmp.wav";                 /* to save generated audio file */
       
       // The settings for using GV and MixExc can be changed in this way:      
-      htsData.initHMMData(voiceName, MaryBase, voiceConfig);
+      htsData.initHMMData(voiceName, voiceDir, voiceConfig);      
+           
       htsData.setUseGV(true);
       htsData.setUseMixExc(true);
-      htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
       
+      // Important: the stand alone works without the acoustic modeler, so it should be de-activated
+      htsData.setUseAcousticModels(false);
        
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -629,13 +645,7 @@ public class HTSEngine extends InternalModule
       AudioInputStream ais;
                
       /** Example of context features file */
-      //String feaFile = htsData.getFeaFile();
-      //String feaFile = "/project/mary/marcela/HMM-voices/poppy/phonefeatures/w0130.pfeats";
-      // "Accept a father's blessing, and with it, this."
-      //String feaFile = "/project/mary/marcela/HMM-voices/roger/phonefeatures/roger_5739.pfeats";
-      // "It seems like a strange pointing of the hand of God."
-      //String feaFile = "/project/mary/marcela/HMM-voices/roger/phonefeatures/roger_5740.pfeats";
-      String feaFile = "/project/mary/marcela/HMM-voices/prudence/phonefeatures/pru009.pfeats";
+     String feaFile = voiceDir + "marytts/voice/CmuSltHsmm/cmu_us_arctic_slt_b0487.pfeats";
       
       try {
           /* Process Mary context features file and creates UttModel um, a linked             
@@ -649,7 +659,6 @@ public class HTSEngine extends InternalModule
           outputStream.write(hmm_tts.realisedDurations);
           outputStream.close();
           
-
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
           boolean debug = true;  /* so it save the generated parameters in parFile */
