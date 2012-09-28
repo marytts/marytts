@@ -42,6 +42,7 @@ import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.server.Mary;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;
 
@@ -175,7 +176,7 @@ public class SelectionFunction{
     *                            if false, read vectors from disk 
     * @param verbose print output also to command line
     * @return the list of selected filenames
-    * @throws IOException
+ * @throws Exception 
     */ 
     public void select(Set<Integer>selectedIdSents,
                 Set<Integer>unwantedIdSents,
@@ -184,9 +185,7 @@ public class SelectionFunction{
                 CoverageFeatureProvider cfProvider,
                 boolean verboseSelect,
                 DBHandler wikiToDB) //throws IOException
-                throws IOException, UnknownHostException,
-                UnsupportedAudioFileException, InterruptedException, ParserConfigurationException, SAXException,
-                TransformerConfigurationException, TransformerException {
+                throws Exception {
         this.verbose = verboseSelect;
         int sentIndex = selectedIdSents.size()+1;
         selectedVectors = null;  
@@ -269,38 +268,37 @@ public class SelectionFunction{
         
     }
 
+    
+    /*
+     * Utility method for get the Transcription of the selected sentences
+     * It makes use of a started builtin MARY TTS 
+     */
+	static String transcribe(String ptext, String plocale) throws Exception {
+		String inputType = "TEXT";
+		String outputType = "ALLOPHONES";
+		String audioType = null;
+		String defaultVoiceName = null;
 
- 
-    private static String transcribe(String ptext, String plocale) throws IOException, UnknownHostException,
-            UnsupportedAudioFileException, InterruptedException, ParserConfigurationException, SAXException,
-            TransformerConfigurationException, TransformerException {
-        String serverHost = System.getProperty("server.host", "localhost");
-        int serverPort = Integer.getInteger("server.port", 59125).intValue();
-        MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
-        String inputType = "TEXT";
-        String outputType = "ALLOPHONES";
-        String audioType = null;
-        String defaultVoiceName = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		Mary.process(ptext, inputType, outputType, plocale, audioType, defaultVoiceName, null, null, null, baos);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(ptext, inputType, outputType, plocale, audioType, defaultVoiceName, baos);
+		// read into mary data object
+		MaryData maryData = new MaryData(MaryDataType.ALLOPHONES, null);
+		maryData.readFrom(new ByteArrayInputStream(baos.toByteArray()));
+		Document doc = maryData.getDocument();
+		assert doc != null : "null sentence";
 
-        // read into mary data object
-        MaryData maryData = new MaryData(MaryDataType.ALLOPHONES, null);
-        maryData.readFrom(new ByteArrayInputStream(baos.toByteArray()));
-        Document doc = maryData.getDocument();
-        assert doc != null : "null sentence";
-
-        TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
-        Element ph;
-        String lTranscription = "";
-        while ((ph = (Element) phWalker.nextNode()) != null) {
-            lTranscription = lTranscription + ph.getAttribute("p") + ' ';
-        }
-        lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
-        //System.out.println('<' + lTranscription + '>');
-        return lTranscription;
-    }
+		TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
+		Element ph;
+		String lTranscription = "";
+		while ((ph = (Element) phWalker.nextNode()) != null) {
+			lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+		}
+		lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
+		// System.out.println('<' + lTranscription + '>');
+		return lTranscription;
+	}
+    
 
     /**
      * Select the next sentence

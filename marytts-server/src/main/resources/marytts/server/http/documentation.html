@@ -40,7 +40,7 @@ to build MARY clients.</p>
 <code>locales</code> requests the list of available locales
 </p>
 
-<p><code><a href="voices">voices</a></code></p>
+<p><code><a href="locales">locales</a></code></p>
 
 
 <h3 id="voices">Available voices</h3>
@@ -141,6 +141,30 @@ An empty list indicates that the voice does not support vocalizations.</p>
 &lt;/voice&gt;
 &lt;/maryxml&gt;
 </pre>
+
+<h3 id="styles">Speaking styles</h3>
+
+<p>Some voices can produce speech with different speaking styles. The list of styles that can be generated depends on the voice.
+An empty list indicates that the voice does not support styles.</p>
+
+<p><code>styles?voice=(voicename)</code> requests the list of styles available for a given voice.</p>
+
+<p>For example:</p>
+
+<p><code><a href="styles?voice=dfki-pavoque-styles">styles?voice=dfki-pavoque-styles</a></code></p>
+
+<p>The following is an example document in RAWMARYXML format that requests a happy speaking style:</p>
+
+<pre>
+&lt;maryxml version="0.5" xmlns="http://mary.dfki.de/2002/MaryXML" xml:lang="de"&gt;
+&lt;voice name="dfki-pavoque-styles"&gt;
+&lt;prosody style="happy"&gt;
+Ist das nicht eine schöne Blume!
+&lt;/prosody&gt;
+&lt;/voice&gt;
+&lt;/maryxml&gt;
+</pre>
+
 
 <h2 id="synthesis">Synthesis requests</h2>
 

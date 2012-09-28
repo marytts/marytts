@@ -20,9 +20,11 @@
 package marytts.modules.acoustic;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +58,8 @@ public class ProsodyElementHandler {
     private Logger logger = MaryUtils.getLogger("ProsodyElementHandler");
     
     public ProsodyElementHandler(){
-        df = new DecimalFormat("#0.0");
+        df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
+        df.applyPattern("#0.0");
     }
     
     /**

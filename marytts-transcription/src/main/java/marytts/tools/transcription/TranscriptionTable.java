@@ -164,15 +164,17 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         
         LTSTrainer tp = new LTSTrainer(phoneSet, true, true, 2);
         tp.readLexicon(map);
-        System.out.println("training ... ");
+        System.out.println("alignment ... ");
         // make some alignment iterations
         for ( int i = 0 ; i < 5 ; i++ ){
             System.out.println("iteration " + i);
             tp.alignIteration();
         }
-        System.out.println("training completed.");
+        System.out.println("alignment completed.");
+        System.out.println("training ... ");
         CART st = tp.trainTree(100);
         tp.save(st, treeAbsolutePath);
+        System.out.println("training completed.");
         return tp;        
     }
     

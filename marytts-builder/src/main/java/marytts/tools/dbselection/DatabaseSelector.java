@@ -53,12 +53,11 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
+import marytts.server.Mary;
 import marytts.util.Pair;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;
-import marytts.util.io.FileUtils;
-
-
+import org.apache.commons.io.FileUtils;
 
 /**
  * Main class to be run over a database for selection
@@ -286,9 +285,22 @@ public class DatabaseSelector
 
         /* Start the algorithm */
         System.out.println("\nSelecting sentences...");
+        
+        
+        // If it is not already running (could happen when SynthesisScriptGUI is used)
+        // Start builtin MARY TTS in order to get and save the transcription 
+        // of the selected sentences (selected_text_transcription.log)
+        if (Mary.currentState() == Mary.STATE_OFF)
+        {
+        	System.out.print("Starting builtin MARY TTS...");
+        	Mary.startup();
+        	System.out.println(" MARY TTS started.");
+        }
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,cfp,verbose,wikiToDB);
+
+        
 
         /* Store list of selected files */
         filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
@@ -327,7 +339,8 @@ public class DatabaseSelector
         logOut.println("Selection took "+minutes+" minutes ("+elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
-              
+
+        
         wikiToDB.closeDBConnection(); 
         System.out.println("All done!");  
         
@@ -652,17 +665,15 @@ public class DatabaseSelector
         
         if (covDefConfigFileName == null){
             // check if there is already a covDef.config file in the current directory
-            // if not then copy the default covDef.config from $MARY_BASE/java/marytts/tools/dbselection
+            // if not then copy the default covDef.config from jar archive resource (marytts/tools/dbselection/covDef.config)
             System.out.println("\nChecking if there is already a covDef.config in the current directory");
             File covDef = new File(currentDir + "/covDef.config"); 
             if( covDef.exists() )
               System.out.println("Using covDef.config in current directory." );
             else 
             {
-              System.out.println("Copying default covDef.config file from MARY_BASE" );
-              File in = new File(maryBaseDir + "/java/marytts/tools/dbselection/covDef.config");
-              File out = new File(currentDir + "/covDef.config");
-              FileUtils.copy(in,out);
+              System.out.println("Copying default covDef.config file from archive" );
+              FileUtils.copyInputStreamToFile(DatabaseSelector.class.getResourceAsStream("covDef.config"), covDef);
             }
             covDefConfigFileName = currentDir + "/covDef.config";   
             System.out.println("covDefConfigFileName = " + covDefConfigFileName);
@@ -704,7 +715,7 @@ public class DatabaseSelector
         +"     - simpleProsody : selection stops when simple prosody coverage has reached maximum\n"
         +"     Default: \"numSentences 90 simpleDiphones simpleProsody\"\n"
         +" -coverageConfig file : The config file for the coverage definition. \n"
-        +"     Default: there is a default coverage config file in MARY_BASE/java/marytts/tools/dbselection/covDef.config\n"
+        +"     Default: there is a default coverage config file in MARY_BASE/resources/marytts/tools/dbselection/covDef.config\n"
         +"              this file will be copied to the current directory if no file is provided.\n"
         +" -initFile file : The file containing the coverage data needed to initialise the algorithm.\n"
         +"     Default: /current_dir/init.bin\n"
@@ -760,7 +771,7 @@ public class DatabaseSelector
                   selectedLog.println(sel[i] + " " + str);
                   
                   selected_tra_Log.println(sel[i] + " " + str);
-                  selected_tra_Log.println(sel[i] + " <" + transcribe(str,locale) + ">");
+                  selected_tra_Log.println(sel[i] + " <" + SelectionFunction.transcribe(str,locale) + ">");
                 } else{
                   unwantedLog.close();
                   selectedLog.close();
@@ -779,41 +790,7 @@ public class DatabaseSelector
         
     }
     
-    private static String transcribe(String ptext, String plocale) throws IOException, UnknownHostException,
-            UnsupportedAudioFileException, InterruptedException, ParserConfigurationException, SAXException,
-            TransformerConfigurationException, TransformerException {
-        String serverHost = System.getProperty("server.host", "localhost");
-        int serverPort = Integer.getInteger("server.port", 59125).intValue();
-        MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
-        String inputType = "TEXT";
-        String outputType = "ALLOPHONES";
-        String audioType = null;
-        String defaultVoiceName = null;
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(ptext, inputType, outputType, plocale, audioType, defaultVoiceName, baos);
-
-        // read into mary data object
-        MaryData maryData = new MaryData(MaryDataType.ALLOPHONES, null);
-        maryData.readFrom(new ByteArrayInputStream(baos.toByteArray()));
-        Document doc = maryData.getDocument();
-        assert doc != null : "null sentence";
-
-        TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
-        Element ph;
-        String lTranscription = "";
-        while ((ph = (Element) phWalker.nextNode()) != null) {
-            lTranscription = lTranscription + ph.getAttribute("p") + ' ';
-        }
-        lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
-        //System.out.println('<' + lTranscription + '>');
-        return lTranscription;
-    }
-        
-        
-        
-
-
+  
     /**
      * Add a list of sentences to the cover
      * Here the already selected sentences are added to the cover and the indexes removed

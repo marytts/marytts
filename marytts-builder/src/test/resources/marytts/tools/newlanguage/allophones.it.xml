@@ -1,0 +1,96 @@
+<allophones name="sampa" xml:lang="it"
+	features="vheight vfront vrnd stressed ctype cplace cvox long">
+
+	<!-- Official Sampa for Italian: http://www.phon.ucl.ac.uk/home/sampa/italian.htm -->
+
+	<!--vheight:[1,4]; vfront:[1,3]; vrnd:(-,+); stressed:(-,+) -->
+	<!--ctype:(s, f, a, n, l, r) - consonant type: stop fricative affricative 
+		nasal liquid approximant -->
+	<!--cplace:(l, a, p, b, d, v) - place of articulation: bilabial alveolar 
+		palatal labio-dental dental velar -->
+	<!--cvox:(-,+); long:(-,+) -->
+
+	<silence ph="_" />
+
+	<!-- Stressed and unstressed vowels -->
+	<vowel ph="i" vheight="1" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="e" vheight="2" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="E" vheight="3" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="a" vheight="4" vfront="2" vrnd="-" stressed="-" />
+	<vowel ph="o" vheight="2" vfront="3" vrnd="+" stressed="-" />
+	<vowel ph="O" vheight="3" vfront="3" vrnd="+" stressed="-" />
+	<vowel ph="u" vheight="1" vfront="3" vrnd="+" stressed="-" />
+	<vowel ph="i1" vheight="1" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="e1" vheight="2" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="E1" vheight="3" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="a1" vheight="4" vfront="2" vrnd="-" stressed="+" />
+	<vowel ph="o1" vheight="2" vfront="3" vrnd="+" stressed="+" />
+	<vowel ph="O1" vheight="3" vfront="3" vrnd="+" stressed="+" />
+	<vowel ph="u1" vheight="1" vfront="3" vrnd="+" stressed="+" />
+
+	<!-- Stop consonants -->
+	<consonant ph="p" ctype="s" cplace="l" cvox="-" long="-" />
+	<consonant ph="t" ctype="s" cplace="d" cvox="-" long="-" />
+	<consonant ph="k" ctype="s" cplace="v" cvox="-" long="-" />
+	<consonant ph="b" ctype="s" cplace="l" cvox="+" long="-" />
+	<consonant ph="d" ctype="s" cplace="d" cvox="+" long="-" />
+	<consonant ph="g" ctype="s" cplace="v" cvox="+" long="-" />
+
+	<consonant ph="pp" ctype="s" cplace="l" cvox="-" long="+" />
+	<consonant ph="tt" ctype="s" cplace="d" cvox="-" long="+" />
+	<consonant ph="kk" ctype="s" cplace="v" cvox="-" long="+" />
+	<consonant ph="bb" ctype="s" cplace="l" cvox="+" long="+" />
+	<consonant ph="dd" ctype="s" cplace="d" cvox="+" long="+" />
+	<consonant ph="gg" ctype="s" cplace="v" cvox="+" long="+" />
+
+	<!-- Fricative consonants -->
+	<consonant ph="f" ctype="f" cplace="b" cvox="-" long="-" />
+	<consonant ph="s" ctype="f" cplace="a" cvox="-" long="-" />
+	<consonant ph="S" ctype="f" cplace="p" cvox="-" long="-" />
+	<consonant ph="v" ctype="f" cplace="b" cvox="+" long="-" />
+	<consonant ph="z" ctype="f" cplace="a" cvox="+" long="-" />
+
+	<!--<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> -->
+	<!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
+
+	<consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
+	<consonant ph="ss" ctype="f" cplace="a" cvox="-" long="+" />
+	<consonant ph="SS" ctype="f" cplace="p" cvox="-" long="+" />
+	<consonant ph="vv" ctype="f" cplace="b" cvox="+" long="+" />
+
+	<!-- Affricative consonants -->
+	<consonant ph="ts" ctype="a" cplace="a" cvox="-" long="-" />
+	<consonant ph="tS" ctype="a" cplace="p" cvox="-" long="-" />
+	<consonant ph="dz" ctype="a" cplace="a" cvox="+" long="-" />
+	<consonant ph="dZ" ctype="a" cplace="p" cvox="+" long="-" />
+
+	<consonant ph="tts" ctype="a" cplace="a" cvox="-" long="+" />
+	<consonant ph="ttS" ctype="a" cplace="p" cvox="-" long="+" />
+	<consonant ph="ddz" ctype="a" cplace="a" cvox="+" long="+" />
+	<consonant ph="ddZ" ctype="a" cplace="p" cvox="+" long="+" />
+
+	<!-- Nasal consonants -->
+	<consonant ph="m" ctype="n" cplace="l" cvox="+" long="-" />
+	<consonant ph="n" ctype="n" cplace="a" cvox="+" long="-" />
+	<consonant ph="J" ctype="n" cplace="p" cvox="+" long="-" />
+	<consonant ph="NG" ctype="n" cplace="v" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'pu-ng-giglione' -->
+	<consonant ph="NF" ctype="n" cplace="b" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'co-nf-frontare' -->
+
+	<consonant ph="mm" ctype="n" cplace="l" cvox="+" long="+" />
+	<consonant ph="nn" ctype="n" cplace="a" cvox="+" long="+" />
+	<consonant ph="JJ" ctype="n" cplace="p" cvox="+" long="+" />
+
+	<!-- Liquid consonants -->
+	<consonant ph="l" ctype="l" cplace="a" cvox="+" long="-" />
+	<consonant ph="L" ctype="l" cplace="p" cvox="+" long="-" />
+	<consonant ph="r" ctype="l" cplace="a" cvox="+" long="-" />
+
+	<consonant ph="ll" ctype="l" cplace="a" cvox="+" long="+" />
+	<consonant ph="LL" ctype="l" cplace="p" cvox="+" long="+" />
+	<consonant ph="rr" ctype="l" cplace="a" cvox="+" long="+" />
+
+	<!-- Approximant consonants (semivowels) -->
+	<consonant ph="j" ctype="r" cplace="p" cvox="+" long="-" />
+	<consonant ph="w" ctype="r" cplace="l" cvox="+" long="-" />
+
+</allophones> 

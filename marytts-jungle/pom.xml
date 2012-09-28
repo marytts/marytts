@@ -1,210 +1,188 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>marytts</artifactId>
-    <groupId>marytts</groupId>
-    <version>5.0-SNAPSHOT</version>
-  </parent>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>marytts</artifactId>
+		<groupId>marytts</groupId>
+		<version>5.1-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>marytts-jungle</artifactId>
-  <packaging>jar</packaging>
+	<artifactId>marytts-jungle</artifactId>
+	<name>${project.artifactId}</name>
 
-  <name>marytts-jungle</name>
-  <url>http://mary.dfki.de</url>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-signalproc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-client</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-builder</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-de</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-en</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-ru</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-te</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-tr</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>voice-cmu-slt-hsmm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
+		<!-- System dependencies - to be replaced where possible -->
 
+		<dependency>
+			<groupId>dummy</groupId>
+			<artifactId>dummy3</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/JavaOpenAIR.jar</systemPath>
+		</dependency>
 
-  <dependencies>
+		<dependency>
+			<groupId>dummy</groupId>
+			<artifactId>dummy10</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/freetts-mbrola.jar</systemPath>
+		</dependency>
+	</dependencies>
 
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-common</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>  
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-signalproc</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-client</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-builder</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-runtime</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-runtime</artifactId>
-      <version>5.0-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-server</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-de</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-en</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-ru</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-te</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-lang-tr</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>voice-cmu-slt-hsmm</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    
-    
-    
-    
-    
-    
-    
-    <!-- System dependencies - to be replaced where possible -->
-
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy3</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/JavaOpenAIR.jar</systemPath>
-    </dependency>
-
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy10</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/freetts-mbrola.jar</systemPath>
-    </dependency>
-
-
-
-  </dependencies>
-  
-  <!-- Reports generated when executing 'mvn site' -->
-  <reporting>
-    <plugins>
-      <!-- Generate a number of generic site description pages: -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-project-info-reports-plugin</artifactId>
-		<version>2.2</version>
-	  </plugin>
-	  <!-- Generate javadoc: -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-javadoc-plugin</artifactId>
-		<version>2.7</version>
-	  </plugin>
-	  <!-- Look for duplicate code (CPD): -->
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-                <linkXref>true</linkXref>
-                <sourceEncoding>UTF-8</sourceEncoding>
-                <minimumTokens>30</minimumTokens>
-                <targetJdk>1.6</targetJdk>
+	<!-- Reports generated when executing 'mvn site' -->
+	<reporting>
+		<plugins>
+			<!-- Generate a number of generic site description pages: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.2</version>
+			</plugin>
+			<!-- Generate javadoc: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+			<!-- Look for duplicate code (CPD): -->
+			<plugin>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<linkXref>true</linkXref>
+					<sourceEncoding>UTF-8</sourceEncoding>
+					<minimumTokens>30</minimumTokens>
+					<targetJdk>1.6</targetJdk>
+					<reportSets>
+						<reportSet>
+							<reports>
+								<!--report>pmd</report -->
+								<report>cpd</report>
+							</reports>
+						</reportSet>
+					</reportSets>
+				</configuration>
+			</plugin>
+			<!-- Check style guidelines -->
+			<!--plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.6</version>
+				</plugin -->
+			<!-- Look for typical programming mistakes: -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<findbugsXmlOutput>true</findbugsXmlOutput>
+					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+					<xmlOutput>true</xmlOutput>
+					<!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile -->
+				</configuration>
+			</plugin>
+			<!-- Measure the test code coverage: -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>emma-maven-plugin</artifactId>
+				<version>1.0-alpha-3</version>
+			</plugin>
+			<!-- Web page presenting unit test results: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.7.1</version>
 				<reportSets>
-				  <reportSet>
-					<reports>
-					  <!--report>pmd</report-->
-					  <report>cpd</report>
-					</reports>
-				  </reportSet>
+					<reportSet>
+						<reports>
+							<report>report-only</report>
+						</reports>
+					</reportSet>
 				</reportSets>
-        </configuration>
-      </plugin>
-      <!-- Check style guidelines -->
-      <!--plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.6</version>
-      </plugin-->
-      <!-- Look for typical programming mistakes: -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.3.1</version>
-        <configuration>
-          <findbugsXmlOutput>true</findbugsXmlOutput>
-          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-          <xmlOutput>true</xmlOutput>
-          <!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile-->
-        </configuration>
-      </plugin>
-      <!-- Measure the test code coverage: -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>emma-maven-plugin</artifactId>
-        <version>1.0-alpha-3</version>
-      </plugin>
-      <!-- Web page presenting unit test results: -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.7.1</version>
-		<reportSets>
-			<reportSet>
-				<reports>
-					<report>report-only</report>
-				</reports>
-			</reportSet>
-		</reportSets>
-      </plugin>
-   	  <!-- Number of lines of code: -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>javancss-maven-plugin</artifactId>
-        <version>2.0</version>
-      </plugin>
+			</plugin>
+			<!-- Number of lines of code: -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javancss-maven-plugin</artifactId>
+				<version>2.0</version>
+			</plugin>
 
+		</plugins>
+	</reporting>
 
-    </plugins>
-  </reporting>
-
-  
 </project>

@@ -1,110 +1,106 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>marytts</artifactId>
-    <groupId>marytts</groupId>
-    <version>5.0-SNAPSHOT</version>
-  </parent>
-  <artifactId>marytts-runtime</artifactId>
-  <name>marytts-runtime</name>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>marytts</artifactId>
+		<groupId>marytts</groupId>
+		<version>5.1-SNAPSHOT</version>
+	</parent>
 
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-common</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>marytts</groupId>
-      <artifactId>marytts-signalproc</artifactId>
-      <version>5.0-SNAPSHOT</version>
-    </dependency>
-    
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.trove4j</groupId>
-      <artifactId>trove4j</artifactId>
-      <version>2.0.2</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.opennlp</groupId>
-      <artifactId>opennlp-maxent</artifactId>
-      <version>3.0.1-incubating</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.opennlp</groupId>
-      <artifactId>opennlp-tools</artifactId>
-      <version>1.5.1-incubating</version>
-    </dependency>
+	<artifactId>marytts-runtime</artifactId>
+	<name>${project.artifactId}</name>
 
-    <dependency>
-      <groupId>com.sun.speech.freetts</groupId>
-      <artifactId>freetts</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.speech.freetts</groupId>
-      <artifactId>freetts-de</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.speech.freetts</groupId>
-      <artifactId>freetts-en_us</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>de.dfki.lt.jtok</groupId>
-      <artifactId>jtok-core</artifactId>
-      <version>1.9.1</version>
-    </dependency>
-    
-  </dependencies>
-  
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-signalproc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
 
-    </plugins>
-  </build>
-  
+		<dependency>
+			<groupId>emotionml-checker-java</groupId>
+			<artifactId>emotionml-checker-java</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>freetts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>freetts-de</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>freetts-en_us</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.dfki.lt.jtok</groupId>
+			<artifactId>jtok-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-maxent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.easytesting</groupId>
+			<artifactId>fest-assert</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

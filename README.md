@@ -4,10 +4,11 @@ MARY TTS README
 This is the source code repository for the multilingual open-source MARY text-to-speech platform (MARY TTS).
 MARY TTS is a client-server system written in pure Java, so it runs on many platforms.
 
-For a downloadable package ready for use, see http://mary.dfki.de/download. 
+**For a downloadable package ready for use, see [the download page](https://github.com/marytts/marytts/downloads).** 
 
-For documentation on using MARY TTS from various angles, see http://mary.dfki.de and http://mary.opendfki.de .
-In particular, the latter contains documentation on how to build your own language components and voices.
+**For documentation on using MARY TTS from various angles, see [the wiki](https://github.com/marytts/marytts/wiki).**
+Older documentation can also be found at http://mary.dfki.de and http://mary.opendfki.de .
+
 
 This README is part of the the MARY TTS source code repository. It contains information about compiling
 and developing the MARY TTS sources.
@@ -79,7 +80,7 @@ The easiest way to get all dependencies right is to use Maven. The example proje
 
 The `pom.xml` file in each example project copies the required jar files and sets the classpath of the project jar file such that it can be simply started as follows:
 
-    java -jar user-examples/example-embedded/target/example-embedded-5.0-SNAPSHOT.jar
+    java -jar user-examples/example-embedded/target/example-embedded-<VERSION>.jar
 
 
 Developing MARY TTS in Eclipse
