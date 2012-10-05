@@ -111,6 +111,21 @@ public class JPhonemiser extends InternalModule
         throws Exception
     {
         Document doc = d.getDocument();
+        
+        // Check if rawxml contains lexicon attribute
+        Element root = doc.getDocumentElement();
+        String xmlLexiconFileName = root.getAttribute("lexicon");
+
+        Map<String, List<String>> privatedict = null;
+        if (xmlLexiconFileName != null && xmlLexiconFileName.length() > 0 )  
+        {
+        	privatedict = readLexicon(xmlLexiconFileName);
+        	if (privatedict!=null) // && userdict.size() > 0)
+        	{
+        		logger.info("Private dictionary loaded from "+ xmlLexiconFileName +" is used for this request.");
+        	}
+        }
+        
         NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
         Element t = null;
         while ((t = (Element) it.nextNode()) != null) {
@@ -143,7 +158,18 @@ public class JPhonemiser extends InternalModule
                     while (st.hasMoreTokens()) {
                         String graph = st.nextToken();
                         StringBuilder helper = new StringBuilder();
-                        String phon = phonemise(graph, pos, helper);
+                        String phon = null;
+                        if(privatedict != null)
+                        {
+                        	phon = this.dictLookup(privatedict, graph, pos);
+                            if (phon != null) {
+                                helper.append("privatedict");
+                            }
+                        }
+                        if(phon==null)
+                        {
+                        	phon = this.phonemise(graph, pos, helper);
+                        }
                         if (ph.length() == 0) { // first part
                             // The g2pMethod of the combined beast is
                             // the g2pMethod of the first constituant.
@@ -280,18 +306,31 @@ public class JPhonemiser extends InternalModule
      */
     public String userdictLookup(String text, String pos)
     {
-        if (userdict == null || text == null || text.length() == 0) return null;
-        List<String> entries = userdict.get(text);
+        return this.dictLookup(this.userdict,text,pos);
+    }
+    
+    /**
+     * look a given text up in the userdict. part-of-speech is used 
+     * in case of ambiguity.
+     * 
+     * @param text
+     * @param pos
+     * @return
+     */
+    public String dictLookup(Map<String,List<String>> privatedict, String text, String pos)
+    {
+        if (privatedict == null || text == null || text.length() == 0) return null;
+        List<String> entries = privatedict.get(text);
         // If entry is not found directly, try the following changes:
         // - lowercase the word
         // - all lowercase but first uppercase
         if (entries  == null) {
-            text = text.toLowerCase(getLocale());
-            entries = userdict.get(text);
+            text = text.toLowerCase(this.getLocale());
+            entries = privatedict.get(text);
          }
          if (entries == null) {
-             text = text.substring(0,1).toUpperCase(getLocale()) + text.substring(1);
-             entries = userdict.get(text);
+             text = text.substring(0,1).toUpperCase(this.getLocale()) + text.substring(1);
+             entries = privatedict.get(text);
          }
          
          if (entries == null) return null;
