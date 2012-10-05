@@ -67,10 +67,7 @@ public class CompositeEP extends ExpansionPattern
     // TODO: FABIO Check if better with new REPattern...
     // This is used for c'X t'X d'X () 
     Pattern reOneLetterAndApostrophe =
-            Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])('([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])+)+");
-    // this is used for qual'
-    Pattern reOneQUAlLetterAndApostrophe =
-            Pattern.compile("([Qq]ual)('([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])+)+");
+    		Pattern.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú][^']*)+)+");
     
     // Both letters and digits, in any order:
     Pattern reLettersAndDigits = Pattern.compile
@@ -181,12 +178,12 @@ public class CompositeEP extends ExpansionPattern
         }         
         
         // This is for one letter proclitics (c'X, d'X, ...) and qual'X
-        else if (reOneLetterAndApostrophe.matcher(s).matches() || reOneQUAlLetterAndApostrophe.matcher(s).matches() ) {
+        else if (reOneLetterAndApostrophe.matcher(s).matches()) {
             //System.err.println("one letter and apostrophe");
             // OK, a hyphen between parts containing letters and/or digits.
             // In pseudo-composita, accent is on the first component:
             // c'X l'X d'X  c' is the first-proclitics part
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first-proclitics");
+            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last-proclitics");
             StringTokenizer st = new StringTokenizer(s, "'");
             assert st.hasMoreTokens();
             MaryDomUtils.setTokenText(t, st.nextToken()+"'");
@@ -195,23 +192,8 @@ public class CompositeEP extends ExpansionPattern
                 t = MaryDomUtils.appendToken(t, st.nextToken());
                 expanded.add(t);
             }
-        } 
-        ///// Then, see if we can split in apostrophe
-        //System.err.println("Then, see if we can split in apostrophe");
-        else if (reLettersDigitsAndApostrophe.matcher(s).matches()) {
-            //System.err.println("letter digits and apostrophe");
-            // OK, a hyphen between parts containing letters and/or digits.
-            // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
-            StringTokenizer st = new StringTokenizer(s, "'");
-            assert st.hasMoreTokens();
-            MaryDomUtils.setTokenText(t, st.nextToken()+"'");
-            expanded.add(t);
-            while (st.hasMoreTokens()) {
-                t = MaryDomUtils.appendToken(t, st.nextToken());
-                expanded.add(t);
-            }
-        } else if (reLettersAndDigits.matcher(s).matches()) {
+        }
+        else if (reLettersAndDigits.matcher(s).matches()) {
             // Token consists only of letters and digits.
             // Split between letters and digits.
             // In pseudo-composita, accent is on the first component:
