@@ -420,6 +420,8 @@ THIS SOFTWARE.
                 <xsd:restriction base="xsd:NMTOKEN"/>
             </xsd:simpleType>
         </xsd:attribute>
+        <xsd:attribute name="lexicon" use="optional"  type="xsd:string"> 
+        </xsd:attribute>
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
     <xsd:element name="p" substitutionGroup="struct" type="paragraph"/>
