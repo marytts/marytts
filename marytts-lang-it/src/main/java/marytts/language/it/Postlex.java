@@ -105,8 +105,8 @@ public class Postlex extends PronunciationModel
                 while (c != null &&
                        !c.getTagName().equals(MaryXML.TOKEN)) {
                     String whatToAccent = c.getAttribute("accent");
-                    // check for first-proclitics (c' t' d' X)
-                    if (whatToAccent != null && whatToAccent.equals("first-proclitics")){
+                    // check for last-proclitics (c' t' d' X)
+                    if (whatToAccent != null && whatToAccent.equals("last-proclitics")){
                         //System.err.println("token to join!!! in " + c.getNodeName());
                         Element c1 = MaryDomUtils.getFirstChildElement(c);
                         // get the anchor as reference in order to delete the children after 
