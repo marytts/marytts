@@ -754,6 +754,8 @@ public class Request {
             throw new IllegalArgumentException("Expected MaryXML data");
         }
         String rootLanguage = maryxml.getDocument().getDocumentElement().getAttribute("xml:lang");
+        String rootLexicon = maryxml.getDocument().getDocumentElement().getAttribute("lexicon");
+        
         Document newDoc = MaryXML.newDocument();
         Element newRoot = newDoc.getDocumentElement();
         // Now import not only the paragraph itself (with substructure,
@@ -781,6 +783,9 @@ public class Request {
             }
         }
         newRoot.setAttribute("xml:lang", language);
+        if (rootLexicon.length() > 0)
+        	newRoot.setAttribute("lexicon", rootLexicon);
+        
         MaryData md = new MaryData(maryxml.getType(), MaryUtils.string2locale(language));
         Voice dVoice = maryxml.getDefaultVoice();
         if (dVoice != null) {
