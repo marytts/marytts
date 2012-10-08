@@ -116,7 +116,8 @@ public class Postlex extends PronunciationModel
                         c = MaryDomUtils.getLastChildElement(c);
                         // merge ph and POS?
                         c.setAttribute("merged-token", "yes");
-                        c.setAttribute("g2p_method", c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method")); 
+                        //c.setAttribute("g2p_method", "compound:" + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method"));
+                        c.setAttribute("g2p_method", "compound"); // + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method")); 
                         // TODO: accent= to merge? take the first or the second?
                         //c.setAttribute("accent", c1.getAttribute("accent")); // + "+" + c.getAttribute("accent"));
                         //c.removeAttribute("accent");

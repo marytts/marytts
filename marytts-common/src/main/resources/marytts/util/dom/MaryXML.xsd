@@ -240,6 +240,7 @@ THIS SOFTWARE.
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="first"/>
             <xsd:enumeration value="last"/>
+            <xsd:enumeration value="last-proclitics"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="gtobi_accent.type">
@@ -305,6 +306,7 @@ THIS SOFTWARE.
             <xsd:enumeration value="lexicon"/>
             <xsd:enumeration value="userdict"/>
             <xsd:enumeration value="compound"/>
+            <xsd:enumeration value="privatedict"/>
             <xsd:enumeration value="rules"/>
             <xsd:enumeration value="foreign:en"/>
             <xsd:enumeration value="phonemiseDenglish"/>
@@ -543,7 +545,7 @@ THIS SOFTWARE.
         </xsd:attribute>
         <xsd:attribute name="range">
             <xsd:simpleType>
-                <xsd:union memberTypes="relative.change relative.change.st                           absolute.value.st"/>
+                <xsd:union memberTypes="relative.change relative.change.st absolute.value.st"/>
             </xsd:simpleType>
         </xsd:attribute>
         <xsd:attribute name="range-dynamics">
@@ -649,6 +651,7 @@ THIS SOFTWARE.
             <xsd:group ref="allowed-within-phrase"/>
         </xsd:choice>
         <xsd:attribute name="orig" type="xsd:string"/>
+        <!-- TODO perhaps this is better place to put info for compund lexicon info... -->
         <xsd:attribute name="accent" type="accentposition.type"/>
     </xsd:complexType>
 
@@ -676,6 +679,8 @@ THIS SOFTWARE.
         <xsd:attribute name="syn_phrase" type="xsd:string"/>
         <xsd:attribute name="given" type="givenness.type"/>
         <xsd:attribute name="contrast" type="contrast.type"/>
+        <xsd:attribute name="merged-token" type="xsd:string"/>         <!-- TO CHECK  -->
+
     </xsd:complexType>
 
     <xsd:complexType name="syllable">

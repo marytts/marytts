@@ -177,7 +177,13 @@ public class AllophonesExtractor extends VoiceImportComponent {
         File textFile = new File(fullFileName);
         String text = FileUtils.readFileToString(textFile, "UTF-8");
 
-        // First, test if there is a corresponding .rawmaryxml file in textdir:
+        // First, test if there is a corresponding .lexicon file in lexicon dir:
+        String lexiconfilename=db.getProp(db.LEXICONDIR) + File.separator + basename + db.getProp(db.LEXICONEXT);
+        File lexiconFile = new File(lexiconfilename);
+        if (!lexiconFile.exists()) {
+        	lexiconfilename = null;
+        }
+        // Then, test if there is a corresponding .rawmaryxml file in maryxmlDir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + File.separator + basename + db.getProp(db.MARYXMLEXT));
         if (rawmaryxmlFile.exists()) {
             if (style.isEmpty()) {
@@ -212,9 +218,14 @@ public class AllophonesExtractor extends VoiceImportComponent {
                 prosodyOpeningTag = String.format("<%s style=\"%s\">\n", MaryXML.PROSODY, style);
                 prosodyClosingTag = String.format("</%s>\n", MaryXML.PROSODY);
             }
-            text = getMaryXMLHeaderWithInitialBoundary(xmlLocale) + prosodyOpeningTag + text + prosodyClosingTag + "</maryxml>";
+            text = getMaryXMLHeaderWithInitialBoundary(xmlLocale, lexiconfilename) + prosodyOpeningTag + text + prosodyClosingTag + "</maryxml>";
         }
 
+//        System.out.println("----------------------");
+//        System.out.println(text);
+//        System.out.println("----------------------");
+//        
+        
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(outputDir, basename + featsExt)));
         MaryHttpClient maryClient = getMaryClient();
         maryClient.process(text, maryInputType, maryOutputType, db.getProp(db.LOCALE), null, null, os);
@@ -222,12 +233,17 @@ public class AllophonesExtractor extends VoiceImportComponent {
         os.close();
     }
 
-    public static String getMaryXMLHeaderWithInitialBoundary(String locale) // wtf?
+    public static String getMaryXMLHeaderWithInitialBoundary(String locale, String lexiconfilename) // wtf?
     {
+    	if (lexiconfilename !=null)
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"
                 + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n"
-                + "xml:lang=\"" + locale + "\">\n" + "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
-
+                + "lexicon=\"" + lexiconfilename + "\"\n" + "xml:lang=\"" + locale + "\">\n" + "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
+    	
+    	else
+    		return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"
+            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n"
+            + "xml:lang=\"" + locale + "\">\n" + "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
     }
 
     /**
