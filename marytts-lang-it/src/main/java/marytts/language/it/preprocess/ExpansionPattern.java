@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 /**
@@ -64,8 +65,8 @@ public abstract class ExpansionPattern {
     //protected static AbbrevEP abbrev;
     protected static SpecialCharEP specialChar;
 
-    private static List expansionPatterns;
-    private static Map patternTable;
+    private static List<ExpansionPattern> expansionPatterns;
+    private static Map<String, ExpansionPattern> patternTable;
 
     /**
      * Initialise the various patterns.
@@ -77,16 +78,14 @@ public abstract class ExpansionPattern {
      * should come last in the list.
      */
     static {
-        expansionPatterns = new ArrayList();
-        patternTable = new HashMap();
-        Iterator it;
-        
+        expansionPatterns = new ArrayList<ExpansionPattern>();
+        patternTable = new HashMap<String, ExpansionPattern>();
+        Iterator<String> it;
         /*
         multiword = new MultiWordEP();
         expansionPatterns.add(multiword);
         for (it = multiword.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), multiword);
-            
         net = new NetEP();
         expansionPatterns.add(net);
         for (it = net.knownTypes().iterator(); it.hasNext();)
@@ -98,8 +97,7 @@ public abstract class ExpansionPattern {
         expansionPatterns.add(composite);
         for (it = composite.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), composite);
-        
-        
+
         /*
         date = new DateEP();
         expansionPatterns.add(date);
@@ -146,9 +144,8 @@ public abstract class ExpansionPattern {
         expansionPatterns.add(specialChar);
         for (it = specialChar.knownTypes().iterator(); it.hasNext();)
             patternTable.put(it.next(), specialChar);
-        
     }
-    public static List allPatterns() {
+    public static List<ExpansionPattern> allPatterns() {
         return expansionPatterns;
     }
     public static ExpansionPattern getPattern(String typeString) {
@@ -200,7 +197,7 @@ public abstract class ExpansionPattern {
      * <code>say-as</code> element, as defined in MaryXML.dtd.
      * Each subclass needs to override this to return something meaningful.
      */
-    public abstract List knownTypes();
+    public abstract List<String> knownTypes();
 
     /**
      * Returns the regular expression object matching any of the chars
@@ -227,7 +224,7 @@ public abstract class ExpansionPattern {
      * tokens, false if nothing could be done or more expansion may be
      * necessary.
      */
-    public boolean process(Element t, final List expanded) {
+    public boolean process(Element t, final List<Element> expanded) {
         if (t == null || expanded == null)
             throw new NullPointerException("Received null argument");
         if (!t.getTagName().equals(MaryXML.TOKEN))
@@ -236,7 +233,7 @@ public abstract class ExpansionPattern {
             throw new IllegalArgumentException("Expected empty list, but list has " + expanded.size() + " elements.");
         StringBuilder sb = new StringBuilder();
         int matchedType = -1;
-        ArrayList candidates = new ArrayList();
+        ArrayList<Element> candidates = new ArrayList<Element>();
         if (allowMultipleTokens()) {
             Element n = t;
             // Do a look-forward preselection in order to find possible
@@ -259,7 +256,7 @@ public abstract class ExpansionPattern {
             // looking at more closely.
             while (!candidates.isEmpty()) {
                 sb.setLength(0);
-                Iterator it = candidates.iterator();
+                Iterator<Element> it = candidates.iterator();
                 while (it.hasNext()) {
                     sb.append(MaryDomUtils.tokenText((Element) it.next()));
                 }
@@ -312,16 +309,20 @@ public abstract class ExpansionPattern {
     public void match(Element sayas, String typeString) throws DOMException {
         if (!sayas.getTagName().equals(MaryXML.SAYAS))
             throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected " + MaryXML.SAYAS + " element, got " + sayas.getTagName());
-        List tokens = MaryDomUtils.getNodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
+        List<Node> tokenNodes = MaryDomUtils.getNodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
+        List<Element> tokens = new ArrayList<Element>();
+        for (Node n : tokenNodes) {
+        	tokens.add((Element)n);
+        }
         StringBuilder sb = new StringBuilder();
-        for (Iterator it = tokens.iterator(); it.hasNext();) {
+        for (Iterator<Element> it = tokens.iterator(); it.hasNext();) {
             sb.append(MaryDomUtils.tokenText((Element) it.next()));
         }
         int type = knownTypes().indexOf(typeString);
         int expandType = canDealWith(sb.toString(), type);
         if (expandType != -1) { // OK, we can expand this
             //System.err.println("Say-as requested type \"" + knownTypes().get(type) + "\" for text \"" + sb.toString() + "\": can expand.");
-            List expanded = expand(tokens, sb.toString(), expandType);
+            List<Element> expanded = expand(tokens, sb.toString(), expandType);
             if (expanded.isEmpty())
                 logger.info("Failure expanding string \"" + sb + "\" as type \"" + knownTypes().get(expandType) + "\"");
         } else { // cannot expand according to sayas wish
@@ -364,7 +365,7 @@ public abstract class ExpansionPattern {
      * matched with before.
      * @return the list of expanded (=new) tokens.
      */
-    protected abstract List expand(List tokens, String text, int typeCode);
+    protected abstract List<Element> expand(List<Element> tokens, String text, int typeCode);
 
     /**
      * The default way to create new token DOM elements
@@ -379,15 +380,15 @@ public abstract class ExpansionPattern {
      * Returns a list of token elements created from Document <code>doc</code>,
      * but not yet attached in the tree.
      */
-    protected List makeNewTokens(Document doc, String newText) {
+    protected List<Element> makeNewTokens(Document doc, String newText) {
         return makeNewTokens(doc, newText, false, null);
     }
 
-    protected List makeNewTokens(Document doc, String newText, boolean createMtu, String origText) {
+    protected List<Element> makeNewTokens(Document doc, String newText, boolean createMtu, String origText) {
         return makeNewTokens(doc, newText, createMtu, origText, false);
     }
 
-    protected List makeNewTokens(
+    protected List<Element> makeNewTokens(
         Document doc,
         String newText,
         boolean createMtu,
@@ -399,7 +400,7 @@ public abstract class ExpansionPattern {
         }
         Pattern rePron = Pattern.compile("\\[(.*)\\]"); // pronunciation in square brackets
         StringTokenizer st = new StringTokenizer(newText);
-        ArrayList newTokens = new ArrayList();
+        ArrayList<Element> newTokens = new ArrayList<Element>();
         while (st.hasMoreTokens()) {
             // Create new token element:
             String text = st.nextToken();
@@ -420,10 +421,10 @@ public abstract class ExpansionPattern {
             Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
             mtu.setAttribute("orig", origText);
             mtu.setAttribute("accent", "last");
-            for (Iterator it = newTokens.iterator(); it.hasNext();) {
+            for (Iterator<Element> it = newTokens.iterator(); it.hasNext();) {
                 mtu.appendChild((Element) it.next());
             }
-            List result = new ArrayList();
+            List<Element> result = new ArrayList<Element>();
             result.add(mtu);
             return result;
         } else {
@@ -431,14 +432,14 @@ public abstract class ExpansionPattern {
         }
     }
 
-    protected void replaceTokens(List oldTokens, List newTokens) {
+    protected void replaceTokens(List<Element> oldTokens, List<Element> newTokens) {
         if (oldTokens == null || oldTokens.isEmpty() || newTokens == null || newTokens.isEmpty()) {
             // unusable input
             throw new NullPointerException("Have received null or empty argument.");
         }
         Element oldT = null;
-        Iterator itOld = oldTokens.iterator();
-        Iterator itNew = newTokens.iterator();
+        Iterator<Element> itOld = oldTokens.iterator();
+        Iterator<Element> itNew = newTokens.iterator();
         while (itNew.hasNext()) {
             Element newT = (Element) itNew.next();
             // Retrieve old token element:

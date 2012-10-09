@@ -99,16 +99,16 @@ public class CompositeEP extends ExpansionPattern
      * of the expanded form (or unexpanded form if no expansion is possible)
      * of all the tokens.
      */
-    private List process(List tokens)
+    private List<Element> process(List<Element> tokens)
     {
-        List result = new ArrayList();
-        for (Iterator it = tokens.iterator(); it.hasNext(); )
+        List<Element> result = new ArrayList<Element>();
+        for (Iterator<Element> it = tokens.iterator(); it.hasNext(); )
         {
             Element t = (Element) it.next();
             if (!t.getTagName().equals(MaryXML.TOKEN))
             throw new DOMException(DOMException.INVALID_ACCESS_ERR,
                                    "Expected t element");
-            List expanded = new ArrayList();
+            List<Element> expanded = new ArrayList<Element>();
             process(t, expanded);
             if (expanded.isEmpty()) // no expansion
                 result.add(t);
@@ -132,7 +132,7 @@ public class CompositeEP extends ExpansionPattern
      * necessary. CompositeEP always returns false, in order to have other
      * ExpansionPatterns look at the components as well.
      */
-    public boolean process(Element t, final List expanded)
+    public boolean process(Element t, final List<Element> expanded)
     {
         if (t == null || expanded == null)
             throw new NullPointerException("Received null argument");
@@ -245,7 +245,7 @@ public class CompositeEP extends ExpansionPattern
         }
         // iterative call:
         if (expanded.size() > 0) {
-            List newExpanded = process(expanded);
+            List<Element> newExpanded = process(expanded);
             expanded.clear();
             expanded.addAll(newExpanded);
         }
@@ -264,7 +264,7 @@ public class CompositeEP extends ExpansionPattern
         throw new RuntimeException("This method should not be called.");
     }
 
-    protected List expand(List tokens, String text, int typeCode)
+    protected List<Element> expand(List<Element> tokens, String text, int typeCode)
     {
         throw new RuntimeException("This method should not be called.");
     }

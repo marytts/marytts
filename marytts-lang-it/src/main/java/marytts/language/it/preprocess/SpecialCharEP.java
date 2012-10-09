@@ -55,8 +55,8 @@ public class SpecialCharEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     /** Helper class for the specialCharNames map */
     class SCEntry {
@@ -79,9 +79,9 @@ public class SpecialCharEP extends ExpansionPattern
         }
     }
     /** Only needed to fill specialCharNames */
-    private Map createSpecialCharNames()
+    private Map<String, SCEntry> createSpecialCharNames()
     {
-        HashMap m = new HashMap();
+        HashMap<String, SCEntry> m = new HashMap<String, SCEntry>();
         
         m.put("$",  new SCEntry("dollaro",                 false, true));
         m.put("@",  new SCEntry("chiocciola",                 true, true));
@@ -126,7 +126,7 @@ public class SpecialCharEP extends ExpansionPattern
         m.put(".",  new SCEntry("Punkt",                     false, false));*/
         return m;
     };
-    private final Map specialCharNames = createSpecialCharNames();
+    private final Map<String, SCEntry> specialCharNames = createSpecialCharNames();
     protected final String sMatchingChars = createMatchingChars();
     //    protected final String sMatchingChars = "[\\,\\\\\\!\\#\\$\\%\\&\\'\\*\\+\\-\\/\\=\\?\\^\\_\\`\\{\\|\\}\\~\\(\\)\\[\\]\\@\\:\\;\\\"\\<\\>\\.]";
     protected final String sMatchingCharsSimpleString = createMatchingCharsSimpleString();
@@ -137,7 +137,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createMatchingChars()
     {
         StringBuilder sb = new StringBuilder("[");
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append("\\" + (String) it.next());
         }
         sb.append("]");
@@ -148,7 +148,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createMatchingCharsSimpleString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append((String)it.next());
         }
         return sb.toString();
@@ -158,7 +158,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createSplitAtChars()
     {
         StringBuilder sb = new StringBuilder("[");
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {
                 sb.append("\\" + sc);
@@ -172,7 +172,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createSplitAtCharsSimpleString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {
                 sb.append(sc);
@@ -227,7 +227,7 @@ public class SpecialCharEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -235,7 +235,7 @@ public class SpecialCharEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 0:
             expanded = expandSpecialChar(doc, s);
@@ -261,9 +261,9 @@ public class SpecialCharEP extends ExpansionPattern
         return entry.pronounce;
     }        
 
-    protected List expandSpecialChar(Document doc, String s)
+    protected List<Element> expandSpecialChar(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         if (doPronounce(s)) {
             String specialCharName = expandSpecialChar(s);
             exp.addAll(makeNewTokens(doc, specialCharName, true, s));
