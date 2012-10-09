@@ -90,10 +90,10 @@ public class SpecialCharEP extends ExpansionPattern
         m.put(":",  new SCEntry("duepuntiXXX",                 true, true));
 */
         m.put(",",  new SCEntry("virgola",                     false, false));
-        m.put("\\", new SCEntry("Backslash['bEk-zlES]",      true,  true));
-        m.put("&",  new SCEntry("and[End]",                       true,  true));
-        m.put("/",  new SCEntry("Slash['zlES]",              true,  false));
-        // m.put("@",  new SCEntry("at['Et]",                   false, true));
+        m.put("\\", new SCEntry("Backslash['|b|E1|k|-|z|l|E1|S]",      true,  true));
+        m.put("&",  new SCEntry("and['E1|n|d]",                       true,  true));
+        m.put("/",  new SCEntry("Slash['|z|l|E1|S]",              true,  false));
+        // m.put("@",  new SCEntry("at['|E1|t]",                   false, true));
         m.put("!",  new SCEntry("punto esclamativo",            false, false));
         m.put("#",  new SCEntry("cancelletto", true,  true));
         m.put("$",  new SCEntry("dollaro",                    false, true));
@@ -110,7 +110,7 @@ public class SpecialCharEP extends ExpansionPattern
         m.put("_",  new SCEntry("sottolineato",               true,  false));
         m.put("`",  new SCEntry("apostrofo",                 true,  false));
         m.put("{",  new SCEntry("aperta graffa",   true,  false));
-        m.put("|",  new SCEntry("pipe['paip]",        true,  false));
+        m.put("|",  new SCEntry("pipe['|p|a1|-|i|p]",        true,  false));
         m.put("}",  new SCEntry("chiusa graffa",    true,  false));
         m.put("~",  new SCEntry("tilde",                     true,  true));
         m.put("(",  new SCEntry("aperta tonda",               true,  false));
