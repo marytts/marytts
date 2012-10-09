@@ -409,7 +409,7 @@ public abstract class ExpansionPattern {
             if (remPron.find()) {
                 String pron = remPron.group(1); // would be $1 in perl
                 text = rePron.matcher(text).replaceFirst(""); // delete pronunciation from word
-                newT.setAttribute("ph", pron);
+                newT.setAttribute("ph", pron.replace('|',' '));
             }
             MaryDomUtils.setTokenText(newT, text);
             if (forceAccents)
