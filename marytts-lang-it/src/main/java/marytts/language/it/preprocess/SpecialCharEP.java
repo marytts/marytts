@@ -89,6 +89,7 @@ public class SpecialCharEP extends ExpansionPattern
         m.put("'",  new SCEntry("apostrofoXXX",                 false, true));
         m.put(":",  new SCEntry("duepuntiXXX",                 true, true));
 */
+        /*
         m.put(",",  new SCEntry("virgola",                     false, false));
         m.put("\\", new SCEntry("Backslash['|b|E1|k|-|z|l|E1|S]",      true,  true));
         m.put("&",  new SCEntry("and['E1|n|d]",                       true,  true));
@@ -123,6 +124,7 @@ public class SpecialCharEP extends ExpansionPattern
         m.put("<",  new SCEntry("minore",               true,  true));
         m.put(">",  new SCEntry("maggiore",                true,  true));
         m.put(".",  new SCEntry("punto",                     false, false));
+        */
         return m;
     };
     private final Map<String, SCEntry> specialCharNames = createSpecialCharNames();
