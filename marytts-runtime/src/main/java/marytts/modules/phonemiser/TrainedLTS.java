@@ -51,6 +51,25 @@ public class TrainedLTS {
     private int context;
     private AllophoneSet allophoneSet;
     private boolean convertToLowercase;
+    protected boolean removeTrailingOneFromPhones = true;
+    
+    /**
+     * 
+     * Initializes letter to sound system with a phoneSet, and load the decision
+     * tree from the given file.
+     * 
+     * @param aPhonSet phoneset used in syllabification
+     * @param treeFilename
+     * @param removeTrailingOneFromPhones
+     * @throws IOException 
+     * 
+     */
+    public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream, boolean removeTrailingOneFromPhones)
+    throws IOException, MaryConfigurationException {
+        this.allophoneSet = aPhonSet;
+        this.loadTree(treeStream);
+        this.removeTrailingOneFromPhones = removeTrailingOneFromPhones;
+    }
     
     /**
      * 
@@ -64,8 +83,7 @@ public class TrainedLTS {
      */
     public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream)
     throws IOException, MaryConfigurationException {
-        this.allophoneSet = aPhonSet;
-        this.loadTree(treeStream);
+        this(aPhonSet, treeStream, true);
     }
     
     public TrainedLTS(AllophoneSet aPhonSet, CART predictionTree) {
@@ -147,22 +165,26 @@ public class TrainedLTS {
      */
     public String syllabify(String phones){
         
-        Syllabifier sfr = new Syllabifier(this.allophoneSet);
+        Syllabifier sfr = new Syllabifier(this.allophoneSet, this.removeTrailingOneFromPhones);
         
         return sfr.syllabify(phones);
     }
     
     public static void main(String[] args) throws IOException, MaryConfigurationException {
 
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.out.println("Usage:");
-            System.out.println("java marytts.modules.phonemiser.TrainedLTS allophones.xml lts-model.lts");
+            System.out.println("java marytts.modules.phonemiser.TrainedLTS allophones.xml lts-model.lts [removeTrailingOneFromPhones]");
             System.exit(0);
         }
         String allophoneFile = args[0];
         String ltsFile = args[1];
+        boolean myRemoveTrailingOneFromPhones = true;
+        if(args.length > 2){
+        	myRemoveTrailingOneFromPhones = Boolean.getBoolean(args[2]);
+        }
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile));
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile), myRemoveTrailingOneFromPhones);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String line;

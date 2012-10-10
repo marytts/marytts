@@ -32,16 +32,20 @@ public class CompareLexiconLTS {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
+        if (args.length < 3) {
             System.out.println("Usage:");
-            System.out.println("java marytts.tests.modules.CompareLexiconLTS allophones.xml lts-model.lts lexicon.txt");
+            System.out.println("java marytts.tests.modules.CompareLexiconLTS allophones.xml lts-model.lts lexicon.txt [RemoveTrailingOneFromPhones]");
             System.exit(0);
         }
         String allophoneFile = args[0];
         String ltsFile = args[1];
         String dictFile = args[2];
+        boolean myRemoveTrailingOneFromPhones = true;
+        if(args.length > 3){
+        	myRemoveTrailingOneFromPhones = Boolean.getBoolean(args[3]);
+        }
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile));
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile), myRemoveTrailingOneFromPhones);
 
         int count = 0;
         int correct = 0;

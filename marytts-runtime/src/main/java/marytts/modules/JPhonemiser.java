@@ -61,6 +61,7 @@ public class JPhonemiser extends InternalModule
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
     protected TrainedLTS lts;
+    protected boolean removeTrailingOneFromPhones = true;
 
     protected AllophoneSet allophoneSet;
 
@@ -71,7 +72,8 @@ public class JPhonemiser extends InternalModule
         		propertyPrefix+"allophoneset",
                 propertyPrefix+"userdict",
                 propertyPrefix+"lexicon",
-                propertyPrefix+"lettertosound");
+                propertyPrefix+"lettertosound",
+                propertyPrefix+"removeTrailingOneFromPhones");
     }
     
     
@@ -86,6 +88,24 @@ public class JPhonemiser extends InternalModule
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
             String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty)
+    throws IOException, MaryConfigurationException
+    {
+        this(componentName, inputType, outputType,
+        		allophonesProperty, userdictProperty, lexiconProperty, ltsProperty, null);
+    }
+
+    /**
+     * Constructor providing the individual filenames of files that are required.
+     * @param allophonesFilename
+     * @param userdictFilename
+     * @param lexiconFilename
+     * @param ltsFilename
+     * @param removetrailingonefromphonesBoolean
+     * @throws Exception
+     */
+    public JPhonemiser(String componentName, 
+            MaryDataType inputType, MaryDataType outputType,
+            String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty)
     throws IOException, MaryConfigurationException
     {
         super(componentName, inputType, outputType,
@@ -103,7 +123,10 @@ public class JPhonemiser extends InternalModule
         InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
         lexicon = new FSTLookup(lexiconStream, lexiconProperty);
         InputStream ltsStream = MaryProperties.needStream(ltsProperty);
-        lts = new TrainedLTS(allophoneSet, ltsStream);
+        if(removetrailingonefromphonesProperty != null){
+            this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty, true);
+        }
+        lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
     }
 
 
