@@ -47,8 +47,8 @@ import marytts.util.io.FileUtils;
  * 
  * @author Fabio Tesser <fabio.tesser@gmail.com>
  * 
- *         Example use:
- *         <code>java -showversion -ea -Xmx4096m  -cp "$MARY_BASE/lib/*" marytts.tools.transcription.LTSLexiconPOSBuilder ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt </code> 
+ *         Example use: [allophones] [lexicon] [removeTrailingOneFromPhones] 
+ *         <code>java -showversion -ea -Xmx4096m  -cp "$MARY_BASE/lib/*" marytts.tools.transcription.LTSLexiconPOSBuilder ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt true</code> 
  *         
  * 
  */
