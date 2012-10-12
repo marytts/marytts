@@ -70,8 +70,8 @@ public class Preprocess extends InternalModule
     {
 		if (this.hasPhonemiser == true && this.phonemiser == null) {
 			for (MaryModule module : ModuleRegistry.getAllModules()) {
-				System.err.println("MODULE: " + module.name() + "\n\t"
-						+ module.getLocale());
+//				System.err.println("MODULE: " + module.name() + "\n\t"
+//						+ module.getLocale());
 				if (Locale.ITALIAN.equals(module.getLocale())
 						&& JPhonemiser.class.equals(module.getClass())) {
 					this.phonemiser = (JPhonemiser) module;
