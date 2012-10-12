@@ -115,7 +115,7 @@ public class Postlex extends PronunciationModel
                         // WARNING we treat the case with 2 token only!!!
                         c = MaryDomUtils.getLastChildElement(c);
                         // merge ph and POS?
-                        c.setAttribute("merged-token", "yes");
+                        c.setAttribute("merged-token", "yes");// + "-" +c1.getAttribute("pos") + "+" +c.getAttribute("pos"));
                         //c.setAttribute("g2p_method", "compound:" + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method"));
                         c.setAttribute("g2p_method", "compound"); // + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method")); 
                         // TODO: accent= to merge? take the first or the second?
@@ -123,11 +123,16 @@ public class Postlex extends PronunciationModel
                         //c.removeAttribute("accent");
                         c.setTextContent(c1.getTextContent() + "+" + c.getTextContent());
                         //Merge the ph and write the quote if necessary
-                        c.setAttribute("ph", returnQuoteIfStress(c.getAttribute("ph")) + c1.getAttribute("ph") + " " + c.getAttribute("ph"));
-                        // TODO:  POS are not merged if you want to merge the POS:
-                        //c.setAttribute("pos", c1.getAttribute("pos") + "+" +c.getAttribute("pos"));
+                        c.setAttribute("ph", returnQuoteIfFirstStress(c.getAttribute("ph")) + c1.getAttribute("ph") + " " + c.getAttribute("ph"));
+                        // TODO: the right way to do this should be to re-sillabify and re assign the stress.
                         
-                        //c.setAttribute("pos",c1.getAttribute("pos");
+                        //c.setAttribute("ph", c1.getAttribute("ph") + " " + c.getAttribute("ph"));
+                        //String lPhones=c1.getAttribute("ph") + " " + c.getAttribute("ph");
+                        
+                        // TODO:  POS are not merged if you want to merge the POS:
+                        //c.setAttribute("pos", c1.getAttribute("pos") + "+" +c.getAttribute("pos"));                        
+                        // set the pos of the second token
+                        //c.setAttribute("pos",c.getAttribute("pos"));
                         
                         // remove child token
                         c_anchor.removeChild(c1);
@@ -159,5 +164,21 @@ public class Postlex extends PronunciationModel
                 
             } // for all highest-level mtu elements
         }
+
+	private String returnQuoteIfFirstStress(String lPhones) {
+		// TODO Auto-generated method stub
+		if(lPhones.indexOf("'")==0)
+        {
+           //System.out.println("there is ' in first position temp string");
+           return "' ";
+        }
+        else
+        {
+           //System.out.println("there is no ' in first position of temp string");
+           return "";
+        }
+		
+
+	}
     
 }
