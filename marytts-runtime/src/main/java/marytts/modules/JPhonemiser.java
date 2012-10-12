@@ -129,6 +129,28 @@ public class JPhonemiser extends InternalModule
         lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
     }
 
+	public Map<String, List<String>> loadPrivateLexicon(Document doc) {
+		// Check if rawxml contains lexicon attribute
+		Element root = doc.getDocumentElement();
+		String xmlLexiconFileName = root.getAttribute("lexicon");
+
+		Map<String, List<String>> privatedict = null;
+		if (xmlLexiconFileName != null && xmlLexiconFileName.length() > 0) {
+			try {
+				privatedict = readLexicon(xmlLexiconFileName);
+				if (privatedict != null) // && userdict.size() > 0)
+				{
+					logger.info("Private dictionary loaded from "
+							+ xmlLexiconFileName + " is used for this request.");
+				}
+			} catch (IOException e) {
+				logger.info("Failed to load private dictionary from "
+						+ xmlLexiconFileName + " for this request.");
+
+			}
+		}
+    	return privatedict;
+    }
 
 	public MaryData process(MaryData d)
         throws Exception
@@ -139,15 +161,7 @@ public class JPhonemiser extends InternalModule
         Element root = doc.getDocumentElement();
         String xmlLexiconFileName = root.getAttribute("lexicon");
 
-        Map<String, List<String>> privatedict = null;
-        if (xmlLexiconFileName != null && xmlLexiconFileName.length() > 0 )  
-        {
-        	privatedict = readLexicon(xmlLexiconFileName);
-        	if (privatedict!=null) // && userdict.size() > 0)
-        	{
-        		logger.info("Private dictionary loaded from "+ xmlLexiconFileName +" is used for this request.");
-        	}
-        }
+        Map<String, List<String>> privatedict = this.loadPrivateLexicon(doc);
         
         NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
         Element t = null;
