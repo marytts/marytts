@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
@@ -66,14 +69,15 @@ public class JPhonemiser extends InternalModule
     protected AllophoneSet allophoneSet;
 
     public JPhonemiser(String propertyPrefix)
-    throws IOException,  MaryConfigurationException
+    throws IOException,  MaryConfigurationException, SecurityException, IllegalArgumentException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
         		propertyPrefix+"allophoneset",
                 propertyPrefix+"userdict",
                 propertyPrefix+"lexicon",
                 propertyPrefix+"lettertosound",
-                propertyPrefix+"removeTrailingOneFromPhones");
+                propertyPrefix+"removeTrailingOneFromPhones",
+                propertyPrefix+"syllabifierClass");
     }
     
     
@@ -83,15 +87,33 @@ public class JPhonemiser extends InternalModule
      * @param userdictFilename
      * @param lexiconFilename
      * @param ltsFilename
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     * @throws ClassNotFoundException 
+     * @throws NoSuchMethodException 
+     * @throws IllegalArgumentException 
+     * @throws SecurityException 
      * @throws Exception
      */
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
             String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty)
-    throws IOException, MaryConfigurationException
+    throws IOException, MaryConfigurationException, SecurityException, IllegalArgumentException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         this(componentName, inputType, outputType,
-        		allophonesProperty, userdictProperty, lexiconProperty, ltsProperty, null);
+        		allophonesProperty, userdictProperty, lexiconProperty, ltsProperty, null, null);
+    }
+
+    /**
+	 * 
+	 * Set syllabifier component.
+	 * 
+	 * @param syllabifier
+	 * 
+	 */
+    public void setSyllabifier(Syllabifier syllabifier){
+    	this.lts.setSyllabifier(syllabifier);
     }
 
     /**
@@ -101,12 +123,19 @@ public class JPhonemiser extends InternalModule
      * @param lexiconFilename
      * @param ltsFilename
      * @param removetrailingonefromphonesBoolean
+     * @throws ClassNotFoundException 
+     * @throws NoSuchMethodException 
+     * @throws SecurityException 
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     * @throws IllegalArgumentException 
      * @throws Exception
      */
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
-            String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty)
-    throws IOException, MaryConfigurationException
+            String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty, String syllabifierClassProperty)
+    throws IOException, MaryConfigurationException, SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         super(componentName, inputType, outputType,
         		MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
@@ -125,8 +154,22 @@ public class JPhonemiser extends InternalModule
         InputStream ltsStream = MaryProperties.needStream(ltsProperty);
         if(removetrailingonefromphonesProperty != null){
             this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty, true);
-        }
-        lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
+		}
+		Syllabifier syllabifier = null;
+		if (syllabifierClassProperty != null) {
+			String className = MaryProperties.getProperty(
+					syllabifierClassProperty, null);
+			if (className != null) {
+				Constructor c = Class.forName(className).getConstructor(
+						AllophoneSet.class, boolean.class);
+				syllabifier = (Syllabifier) c.newInstance(this.allophoneSet,
+						this.removeTrailingOneFromPhones);
+			}
+		} else {
+			syllabifier = new Syllabifier(this.allophoneSet,
+					this.removeTrailingOneFromPhones);
+		}
+        lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones, syllabifier);
     }
 
 	public Map<String, List<String>> loadPrivateLexicon(Document doc) {

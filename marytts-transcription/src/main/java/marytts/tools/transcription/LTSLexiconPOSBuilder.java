@@ -31,6 +31,7 @@ import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.tools.dbselection.DBHandler;
 import marytts.tools.newlanguage.LTSTrainer;
@@ -117,13 +118,15 @@ public class LTSLexiconPOSBuilder {
      * train and predict module
      * 
      * @param treeAbsolutePath
+     * @param myRemoveTrailingOneFromPhones
      * @throws IOException
      * @throws MaryConfigurationException 
      */
-    public void trainPredict(String treeAbsolutePath) throws IOException, MaryConfigurationException {
+    public void trainPredict(String treeAbsolutePath, boolean myRemoveTrailingOneFromPhones) throws IOException, MaryConfigurationException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
+        this.removeTrailingOneFromPhones = myRemoveTrailingOneFromPhones;
 
         // Check for number of manual entries available
         int numberOfManualEntries = 0;
@@ -138,7 +141,8 @@ public class LTSLexiconPOSBuilder {
 
         trainLTS(treeAbsolutePath);
         FileInputStream fis = new FileInputStream(treeAbsolutePath);
-        TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones);
+        TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones, new Syllabifier(phoneSet,
+        		this.removeTrailingOneFromPhones));
         for (int i = 0; i < tableData.length; i++) {
             if (!(hasManualVerify[i] && hasCorrectSyntax[i])) {
                 String grapheme = (String) tableData[i][1];
@@ -257,7 +261,7 @@ public class LTSLexiconPOSBuilder {
 
             // Procedure
             System.out.println("trainPredict ...");
-            myLTSLexiconPOSBuilder.trainPredict(treeAbsolutePath);
+            myLTSLexiconPOSBuilder.trainPredict(treeAbsolutePath, myRemoveTrailingOneFromPhones);
             System.out.println("... done.");
 
             System.out.println("saveTranscription ...");
