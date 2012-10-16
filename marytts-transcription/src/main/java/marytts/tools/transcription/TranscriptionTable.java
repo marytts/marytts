@@ -49,6 +49,7 @@ import javax.swing.table.TableColumn;
 import marytts.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.tools.newlanguage.LTSTrainer;
 
@@ -202,7 +203,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         try {
             LTSTrainer tp = this.trainLTS(treeAbsolutePath);
             FileInputStream fis = new FileInputStream(treeAbsolutePath);
-            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones);
+            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones, new Syllabifier(phoneSet,this.removeTrailingOneFromPhones));
         	fis.close();
             for(int i=0;i<tableData.length; i++){
                 if(!(hasManualVerify[i] && hasCorrectSyntax[i])){

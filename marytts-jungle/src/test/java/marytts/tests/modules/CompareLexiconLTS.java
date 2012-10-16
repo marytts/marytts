@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.phonemiser.TrainedLTS;
 
 public class CompareLexiconLTS {
@@ -45,7 +46,8 @@ public class CompareLexiconLTS {
         	myRemoveTrailingOneFromPhones = Boolean.getBoolean(args[3]);
         }
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile), myRemoveTrailingOneFromPhones);
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile), myRemoveTrailingOneFromPhones, new Syllabifier(AllophoneSet.getAllophoneSet(allophoneFile),
+        		myRemoveTrailingOneFromPhones));
 
         int count = 0;
         int correct = 0;
