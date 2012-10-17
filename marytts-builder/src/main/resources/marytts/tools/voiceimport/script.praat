@@ -47,6 +47,7 @@ for b to numBasenames
   wavFile$ = "'wavDir$'/'basename$'.wav"
   pitchFile$ = "'pmDir$'/'basename$'.Pitch"
   pointpFile$ = "'pmDir$'/'basename$'.PointProcess"
+  f0file$ = "'pmDir$'/'basename$'.f0"
 
   # provide current progress as text file "percent":
   percent = floor(b / numBasenames * 100)
@@ -77,13 +78,25 @@ if fileReadable(pitchFile$)
   pitch = Read from file... 'pitchFile$'
 else
   # determine pitch curve:
-  noprogress To Pitch... 0 minPitch maxPitch
+  #noprogress To Pitch... 0 minPitch maxPitch
+  noprogress To Pitch (ac)... 0 minPitch 15 yes 0.03 0.45 0.01 0.35 0.14 maxPitch
   pitch = selected()
+  Write to short text file... 'pitchFile$'
 endif
 
+# Transpose matrix
+select pitch
+To Matrix
+Transpose
+matrix_transpose = selected()
+Save as headerless spreadsheet file... 'f0file$'
+
 # Get some debug info: 
-min_f0 = Get minimum... 0 0 Hertz Parabolic
-max_f0 = Get maximum... 0 0 Hertz Parabolic
+select pitch
+min_f0 = Get minimum... 0 0 Hertz None
+max_f0 = Get maximum... 0 0 Hertz None
+mean_f0 = Get mean... 0 0 Hertz
+std_f0 = Get standard deviation... 0 0 Hertz
 
 # And convert to pitch marks:
 plus sound
@@ -168,7 +181,7 @@ endfor
 
 label writepp
 Write to short text file... 'pointpFile$'
-printline 'basename$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz ('percent$'%)
+printline 'basename$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz; f0 mean: 'mean_f0:0' - std: 'std_f0:0' ('percent$'%)
 
 # cleanup:
 plus wav
