@@ -256,7 +256,7 @@ public class QualityControl extends VoiceImportComponent {
         unit = labelUnit;
         double phoneDuration =  endTimeStamp - startTimeStamp;
         String currentProblem = "";
-        if( phoneDuration > 1 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
+        if( phoneDuration > .4 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
             currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone";
             cost += 4;
         }
