@@ -156,6 +156,7 @@ public class JPhonemiser extends InternalModule
             this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty, true);
 		}
 		Syllabifier syllabifier = null;
+		// how do you know about syllabifierClassProperty? (de = null, other true)
 		if (syllabifierClassProperty != null) {
 			String className = MaryProperties.getProperty(
 					syllabifierClassProperty, null);
@@ -165,7 +166,11 @@ public class JPhonemiser extends InternalModule
 				syllabifier = (Syllabifier) c.newInstance(this.allophoneSet,
 						this.removeTrailingOneFromPhones);
 			}
-		} else {
+			// className is null for all lang except italian...    
+		}
+        // if a syllabifier is not set go with the default  
+		if (syllabifier == null)
+		{
 			syllabifier = new Syllabifier(this.allophoneSet,
 					this.removeTrailingOneFromPhones);
 		}
