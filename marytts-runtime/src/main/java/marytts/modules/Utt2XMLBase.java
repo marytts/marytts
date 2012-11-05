@@ -84,9 +84,17 @@ public abstract class Utt2XMLBase extends InternalModule {
         Document doc = MaryXML.newDocument();
         Element root = doc.getDocumentElement();
         Locale locale = d.getLocale();
+        String privatelexicon = d.getPrivateLexicon();
+        
         if (locale != null) {
             root.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
         }
+        
+        if (privatelexicon!= null && privatelexicon.length() > 0) {
+        	root.setAttribute("lexicon", privatelexicon);
+        }
+        	
+        
         Element paragraph = MaryXML.appendChildElement(root, MaryXML.PARAGRAPH);
 
         List<Utterance> utterances = d.getUtterances();

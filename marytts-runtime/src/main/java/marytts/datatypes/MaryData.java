@@ -74,6 +74,7 @@ public class MaryData
 {
     private MaryDataType type;
     private Locale locale;
+    private String privatelexicon = null;
     private String outputParams = null;
     // Only one of the following data representations should be non-null
     // for a given instance; which one depends on our type.
@@ -492,6 +493,17 @@ public class MaryData
         else
             this.audio = new SequenceAudioInputStream(this.audio.getFormat(), Arrays.asList(new AudioInputStream[] {this.audio, audioToAppend}));
     }
+    
+    public void setPrivateLexicon(String privatelexicon)
+    {
+        this.privatelexicon = privatelexicon;
+    }
+    
+    public String getPrivateLexicon()
+    {
+        return privatelexicon;
+    }
+    
     
     public void setOutputParams(String params)
     {

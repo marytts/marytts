@@ -547,6 +547,8 @@ public class Request {
             MaryData outData = null;
             try {
                 outData = m.process(currentData);
+                if (currentData.getPrivateLexicon() != null)
+                	outData.setPrivateLexicon(currentData.getPrivateLexicon());
             } catch (Exception e) {
                 throw new Exception("Module " + m.name() + ": Problem processing the data.", e);
             }
