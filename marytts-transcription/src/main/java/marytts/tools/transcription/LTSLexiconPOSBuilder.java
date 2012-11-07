@@ -49,7 +49,7 @@ import marytts.util.io.FileUtils;
  * @author Fabio Tesser <fabio.tesser@gmail.com>
  * 
  *         Example use: [allophones] [lexicon] [removeTrailingOneFromPhones] 
- *         <code>java -showversion -ea -Xmx4096m  -cp "$MARY_BASE/lib/*" marytts.tools.transcription.LTSLexiconPOSBuilder ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt true</code> 
+ *         <code>java -showversion -ea -Xmx4096m  -cp "$MARY_BASE/lib/*" marytts.tools.transcription.LTSLexiconPOSBuilder ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt false</code> 
  *         
  * 
  */
@@ -248,7 +248,8 @@ public class LTSLexiconPOSBuilder {
             String baseName = null;
             String suffix = null;
             File transcriptionFile = new File(transcriptionsFileName);
-            dirName = transcriptionFile.getParentFile().getAbsolutePath();
+            File fullpathtranscriptionFile = new File(transcriptionFile.getAbsolutePath());
+            dirName = fullpathtranscriptionFile.getParent();
             String filename = transcriptionFile.getName();
             if (filename.lastIndexOf(".") == -1) {
                 baseName = filename;

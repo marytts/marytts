@@ -23,8 +23,12 @@ DESCRIPTION:
     $DESCRIPTION
 
 USAGE: 
-`basename $0` [allophones] [lexicon] [removeTrailingOneFromPhones] 
-	config_file: wkdb config file  
+`basename $0` [allophones] [lexicon] [removeTrailingOneFromPhones]
+
+	allophones: allophones file name
+	lexicon: lexicon file name
+	removeTrailingOneFromPhones: true if the language have not phonemes ending with '1', false otherwise
+
 
 EXAMPLES:
 	`basename $0` ./marytts-lang-en/src/main/resources/marytts/language/en_GB/lexicon/allophones.en_GB.xml lexicon-en_GB.txt true
