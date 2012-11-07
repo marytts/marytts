@@ -10,7 +10,6 @@
 # EXIT ERROR settings 
 set -o errexit
 
-#lexicon_lts_pos_builder.sh ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt true
 
 DESCRIPTION="Train Letter-to-sound(LTS) rules, create FST dictionary and POS tagger with command line using LTSLexiconPOSBuilder.\nLTSLexiconPOSBuilder has the same functionalities of TRANSCRIPTION TOOL but without GUI (better for a remote use for large lexicon and for scripting). This class is a light version of TranscriptionTable"
 
@@ -27,8 +26,10 @@ USAGE:
 `basename $0` [allophones] [lexicon] [removeTrailingOneFromPhones] 
 	config_file: wkdb config file  
 
-EXAMPLE:
-	`basename $0` ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt false" 
+EXAMPLES:
+	`basename $0` ./marytts-lang-en/src/main/resources/marytts/language/en_GB/lexicon/allophones.en_GB.xml lexicon-en_GB.txt true
+	`basename $0` ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt false
+	" 
   exit 1
 fi  
 
