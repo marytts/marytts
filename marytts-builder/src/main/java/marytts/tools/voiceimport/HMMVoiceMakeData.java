@@ -1062,11 +1062,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            if(ulab[i].unitName.contentEquals(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))){
               // We need here HTK time units, which are measured in hundreds of nanoseconds.  
               // write in label file HTK-HTS format 
-              outLab.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+              outLab.write(Math.round(ulab[i].startTime*1E7) + "  " + Math.round(ulab[i].endTime*1E7) + " " +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)) + "\n");
               
               // write in features file HTK-HTS format
-              outFea.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+              outFea.write(Math.round(ulab[i].startTime*1E7) + "  " + Math.round(ulab[i].endTime*1E7) + " " +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef)) + "^" +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef))      + "-" +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))           + "+" +
