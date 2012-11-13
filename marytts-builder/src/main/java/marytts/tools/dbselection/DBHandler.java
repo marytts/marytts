@@ -1084,6 +1084,7 @@ public class DBHandler {
         
         try {
           Iterator<String> iteratorSorted = wordList.keySet().iterator();
+          int counter = 0;
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
@@ -1093,6 +1094,18 @@ public class DBHandler {
             psWord.setInt(2, value);
             psWord.executeUpdate();
             //psWord.clearParameters();
+            
+            counter++;
+            if ((counter % 1000) == 0)
+            {
+              System.out.print(counter + " ");	
+            }
+            
+            if ((counter % 10000) == 0)
+            {
+              System.out.print("\n"+counter + " ");	
+            }
+            
           } 
         } catch (Exception e) {  // UnsupportedEncodedException
             e.printStackTrace();
