@@ -1083,16 +1083,16 @@ public class DBHandler {
           res = st.execute( wordListTable );   
         
         try {
-          Iterator iteratorSorted = wordList.keySet().iterator();
+          Iterator<String> iteratorSorted = wordList.keySet().iterator();
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
-            wordByte=null;  
+            //wordByte=null; 
             wordByte = word.getBytes("UTF8");
             psWord.setBytes(1, wordByte);
             psWord.setInt(2, value);
-            psWord.execute();
-            psWord.clearParameters();
+            psWord.executeUpdate();
+            //psWord.clearParameters();
           } 
         } catch (Exception e) {  // UnsupportedEncodedException
             e.printStackTrace();
