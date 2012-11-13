@@ -241,7 +241,7 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws IOExceptio
               fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
               //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
           }
-          else if(fea_val[0].contains("tobi_") ){
+          else if(fea_val[0].contains("tobi_") || fea_val[0].contains("_accent")){
               //System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
               fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
               //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);

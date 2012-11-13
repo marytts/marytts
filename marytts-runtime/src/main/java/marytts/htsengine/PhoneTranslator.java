@@ -134,7 +134,7 @@ public class PhoneTranslator {
             String value = def.getFeatureValueAsString(f, featureVector);
             if (f.contains("sentence_punc") || f.contains("punctuation"))
                 value = replacePunc(value);
-            else if (f.contains("tobi"))
+            else if (f.contains("tobi") || f.contains("accent"))
                 value = replaceToBI(value);
             contextName.append(value);
             contextName.append("|");
@@ -168,7 +168,7 @@ public class PhoneTranslator {
                 value = replaceTrickyPhones(value);
             else if (f.contains("sentence_punc") || f.contains("punctuation"))
                 value = replacePunc(value);
-            else if (f.contains("tobi"))
+            else if (f.contains("tobi") || f.contains("accent"))
                 value = replaceToBI(value);
             contextName.append(value);
             contextName.append("|");
