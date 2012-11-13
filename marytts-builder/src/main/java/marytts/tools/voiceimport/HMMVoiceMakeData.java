@@ -108,6 +108,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String featureListMapFile = name+".featureListMapFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
     public final String ADAPTSCRIPTS     = name+".adaptScripts";
+    public final String NUMTESTFILES  = name+".numTestFiles";
     private FilenameFilter featFileFilter;
     
     
@@ -139,6 +140,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(featureListMapFile, "mary/hmmFeaturesMap.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(ADAPTSCRIPTS, "false");
+           props.put(NUMTESTFILES,  "10");
        }
        return props;
        }
@@ -163,6 +165,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 " will be created automatically if aliases are necessary.)");
         props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: " +
                 " speaker adaptation/adaptive scripts.  ");
+        props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copyed/moved from phonefeatures set.");
 
     }
 
@@ -803,15 +806,16 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         monoMlf.close();
         
         System.out.println("Created Master Label Files: \n  " + voiceDir + "hts/data/labels/full.mlf" + "\n  " + voiceDir + "hts/data/labels/mono.mlf");
-        
-        // Copy 10 files in gen directory to test with htsengine
-        System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
+        // number test files from database.config
+        // Move (copy + delete) NUMTESTFILES files in gen directory to test with htsengine
+        int numTestFiles=Integer.parseInt(getProp(NUMTESTFILES));
+        System.out.println("Copying/Moving "+ numTestFiles + " context feature files in gen directory for testing with the HTS htsengine.");
         String cmdLine;
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<numTestFiles; i++) {
             basename = StringUtils.getFileName(feaFiles[i]);
             FileUtils.copy(voiceDir + "hts/data/labels/full/" + basename + ".lab" , voiceDir + "hts/data/labels/gen/gen_" + basename + ".lab");
+            FileUtils.delete(voiceDir + "hts/data/labels/full/" + basename + ".lab");
         }
-        
     }
 
     
