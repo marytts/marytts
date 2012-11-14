@@ -1103,7 +1103,7 @@ public class DBHandler {
             
             if ((counter % 10000) == 0)
             {
-              System.out.print("\n"+counter + " ");	
+              System.out.print("\n");	
             }
             
           } 
