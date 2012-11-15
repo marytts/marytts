@@ -1088,23 +1088,18 @@ public class DBHandler {
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
-            //wordByte=null; 
+            wordByte=null;
             wordByte = word.getBytes("UTF8");
             psWord.setBytes(1, wordByte);
             psWord.setInt(2, value);
             psWord.executeUpdate();
-            //psWord.clearParameters();
-            
+            psWord.clearParameters();
+            // Print some indications on number of words done until now  
             counter++;
             if ((counter % 1000) == 0)
-            {
-              System.out.print(counter + " ");	
-            }
-            
+            	System.out.print(counter + " ");	
             if ((counter % 10000) == 0)
-            {
-              System.out.print("\n");	
-            }
+            	System.out.print("\n");	
             
           } 
         } catch (Exception e) {  // UnsupportedEncodedException
