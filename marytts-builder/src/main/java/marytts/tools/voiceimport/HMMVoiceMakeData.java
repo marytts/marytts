@@ -582,7 +582,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
                 out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + 
                        "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + "|*}\n");
-            else if(hmmfea.contains("tobi_") || hmmfea.contains("accent"))
+            else if(hmmfea.contains("tobi") || hmmfea.contains("accent") || hmmfea.contains("tone"))
                 out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + 
                        "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
             else
@@ -1087,7 +1087,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 // the values need to be mapped otherwise HTK-HHEd complains.
                 if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
                   outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replacePunc(hmmfeaVal));
-                else if(hmmfea.contains("tobi_") || hmmfea.contains("accent"))
+                else if(hmmfea.contains("tobi") || hmmfea.contains("accent") || hmmfea.contains("tone"))
                   outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(hmmfeaVal));
                 else
                   outFea.write("|" + hmmfeaAlias + "=" + hmmfeaVal);
