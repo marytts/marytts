@@ -384,6 +384,8 @@ public class Options extends javax.swing.JFrame {
             printTestOutput = Boolean.valueOf(options.getProperty("printTestOutput", "true")).booleanValue();
             jCheckBox_ShowTestOutput.setSelected(printTestOutput);
             Test.setDebugMode(printTestOutput);        // PRI3 Consolidate these fields
+
+            jCheckBox_ShowTranscription.setSelected(Boolean.valueOf(options.getProperty("showTranscription", "false")).booleanValue());
             
             jCheckBox_ShowPromptCount.setSelected(showPromptCount);
             adminWindow.getSpeakerWindow().setShowPromptCount(showPromptCount);
@@ -454,6 +456,8 @@ public class Options extends javax.swing.JFrame {
             
             options.setProperty("systemLookAndFeel", String.valueOf(this.systemLookAndFeel));             
             options.setProperty("printTestOutput", String.valueOf(this.printTestOutput));
+            
+            options.setProperty("showTranscription", String.valueOf(adminWindow.getShowTranscription()));
 
             boolean showPromptCount = jCheckBox_ShowPromptCount.isSelected();
             options.setProperty("showPromptCount", String.valueOf(showPromptCount));
@@ -531,6 +535,7 @@ public class Options extends javax.swing.JFrame {
         jPanel_DisplayOptions = new javax.swing.JPanel();
         jCheckBox_SystemLookAndFeel = new javax.swing.JCheckBox();
         jCheckBox_ShowTestOutput = new javax.swing.JCheckBox();
+        jCheckBox_ShowTranscription = new javax.swing.JCheckBox();
         jCheckBox_ShowPromptCount = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -873,6 +878,16 @@ public class Options extends javax.swing.JFrame {
                 jCheckBox_ShowTestOutputActionPerformed(evt);
             }
         });
+        
+        jCheckBox_ShowTranscription.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.highlight"));
+        jCheckBox_ShowTranscription.setText("Show transcription");
+        jCheckBox_ShowTranscription.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBox_ShowTranscription.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCheckBox_ShowTranscription.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	jCheckBox_ShowTranscriptionActionPerformed(evt);
+            }
+        });
 
         jCheckBox_ShowPromptCount.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.highlight"));
         jCheckBox_ShowPromptCount.setText("Show prompt count and progress bar in Speaker Window ");
@@ -893,6 +908,7 @@ public class Options extends javax.swing.JFrame {
                 .add(jPanel_DisplayOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jCheckBox_SystemLookAndFeel)
                     .add(jCheckBox_ShowTestOutput)
+                    .add(jCheckBox_ShowTranscription)
                     .add(jCheckBox_ShowPromptCount))
                 .addContainerGap(162, Short.MAX_VALUE))
         );
@@ -903,6 +919,8 @@ public class Options extends javax.swing.JFrame {
                 .add(jCheckBox_SystemLookAndFeel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_ShowTestOutput)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBox_ShowTranscription)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_ShowPromptCount)
                 .addContainerGap(207, Short.MAX_VALUE))
@@ -1020,6 +1038,10 @@ public class Options extends javax.swing.JFrame {
         Test.setDebugMode(this.printTestOutput);      // PRI3 Consolidate these fields
     }//GEN-LAST:event_jCheckBox_ShowTestOutputActionPerformed
 
+    private void jCheckBox_ShowTranscriptionActionPerformed(java.awt.event.ActionEvent evt) {
+    	adminWindow.setShowTranscription(jCheckBox_ShowTranscription.isSelected());
+    }
+    
     private void jCheckBox_SystemLookAndFeelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_SystemLookAndFeelActionPerformed
         this.systemLookAndFeel = !this.systemLookAndFeel; // Toggle setting
     }//GEN-LAST:event_jCheckBox_SystemLookAndFeelActionPerformed
@@ -1260,6 +1282,7 @@ public class Options extends javax.swing.JFrame {
     private javax.swing.JButton jButton_SaveOptions;
     private javax.swing.JCheckBox jCheckBox_ShowPromptCount;
     private javax.swing.JCheckBox jCheckBox_ShowTestOutput;
+    private javax.swing.JCheckBox jCheckBox_ShowTranscription;
     private javax.swing.JCheckBox jCheckBox_SystemLookAndFeel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
