@@ -82,6 +82,7 @@ public class AdminWindow extends javax.swing.JFrame {
     private static final String PROMPT_FOLDER_NAME = "/text/";
     private static final String REC_FOLDER_NAME = "/wav/";
     private static final String SYNTH_FOLDER_NAME = "/prompt_wav/";
+    private static final String TRANSCRIPTION_FOLDER_NAME = "/transcription/";
 
     private static boolean beepDemoOn = true;                // Flag for toggling beep demo (clicking on status icon)
     
@@ -100,6 +101,8 @@ public class AdminWindow extends javax.swing.JFrame {
     private boolean stopPressed;                             // Internal setting, set to true by stop button
         
     private Font defaultPromptFont;
+
+    private static boolean showTranscription = false;         // if true show the transcription if they are available
     
     // ______________________________________________________________________
     // Constructors
@@ -140,6 +143,18 @@ public class AdminWindow extends javax.swing.JFrame {
         System.out.println("System is ready.");           
     }
     
+	public void setShowTranscription(boolean selected) {
+		// TODO Auto-generated method stub
+		showTranscription = selected;
+	}
+    
+	
+	public boolean getShowTranscription() {
+		// TODO Auto-generated method stub
+		return showTranscription;
+	}
+	
+	
     /** Updates the prompt table with prompt data
      *  @param newSession The current recording session object
      */
@@ -275,15 +290,37 @@ public class AdminWindow extends javax.swing.JFrame {
         if (currentRow+1 < promptArray.length) {
             nextPromptText = promptArray[currentRow+1].getPromptText();
         }
+
+        //Transcription if flag set and if file present
+        String promptTranscription = "\n<";
+        String nextPromptTranscription = "\n<";
+        if (showTranscription)
+        {
+        	promptTranscription = promptTranscription + promptArray[currentRow].getPromptTranscriptionText();
+        	if (currentRow+1 < promptArray.length)
+        		nextPromptTranscription = nextPromptTranscription + promptArray[currentRow+1].getPromptTranscriptionText();
+        }
+        promptTranscription = promptTranscription + ">";
+        nextPromptTranscription = nextPromptTranscription + ">";
         
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
         if (this.isVisible()) {
-            LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText);
-            LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText);
+        	if (!showTranscription){
+             LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText);
+             LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText);
+        	} else 
+        	{
+              LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText + promptTranscription);
+              LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText + nextPromptTranscription);
+        	}
         }
         
         // Also update in Speaker window
-        this.speakerWin.updatePromptDisplay(promptText, nextPromptText);
+    	if (!showTranscription)
+         this.speakerWin.updatePromptDisplay(promptText, nextPromptText );
+    	else
+    	 this.speakerWin.updatePromptDisplay(promptText + promptTranscription, nextPromptText + nextPromptTranscription);	 
+    		
         int promptNumber = getCurrentRow() + 1;
         this.speakerWin.updateProgressBar(promptNumber);
         this.speakerWin.updatePromptCount(promptNumber);
@@ -1449,6 +1486,21 @@ public class AdminWindow extends javax.swing.JFrame {
         
     }
     
+    /** Returns file path for folder containing the synthesized recordings
+     *  @return File path for folder containing the synthesized recordings (e.g., /project/mary/mat/voices/bundesliga/prompt_wav)
+     */
+    public File getTranscriptionFolderPath() {
+        
+        // Create the recordings folder path from the voice folder path
+        String pathString = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME; 
+        File transcriptionFolderPath = new File(pathString);
+        
+        // TESTCODE
+        Test.output("|AdminWindow.getTranscriptionFolderPath()| Transcription Path = " + transcriptionFolderPath.getPath());
+        
+        return transcriptionFolderPath;        
+    }
+    
     
     /** Returns file path for folder containing the voice
      *  @return File path for folder containing the voice (e.g., /project/mary/mat/voices/bundesliga)
@@ -1666,6 +1718,5 @@ public class AdminWindow extends javax.swing.JFrame {
     private javax.swing.JTextPane jTextPane_PromptDisplay;
     private javax.swing.JTextPane jTextPane_nextSentence;
     // End of variables declaration//GEN-END:variables
-    
 }
 
