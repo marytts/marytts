@@ -107,11 +107,22 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   "Andiamo a mangiare assieme stasera?"
      
   -->
+  
   <list name="firstPosInQuestionW" items="PQ:PR:DQ:B:E:CS"/>
   
-  <!-- è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano-->
+  <!-- 
+  <list name="all_interrog" items="interrog:interrogW"/>
+   -->
+   
+   
+  <!-- R1: è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano-->
   <list name="verbs0" items="è:ho:ha"/>
   
+  
+  <!-- R2: DE, DQ, PQ ad inizio frase ricevono accento  -->
+  <list name="det0" items="DE:DQ:PQ"/>
+  
+  <!-- R3: -->
   <list name="nouns0" items="S:SP"/>
 
   <!-- the following information should always be present -->
@@ -138,63 +149,65 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
 <!-- the accentposition rules determine if a token gets a tone accent or if it doesn't receive any accent (no force accents in English) -->
 <accentposition>
 
+
 <!--
-R1: se non una tra
+  R1: se non una tra
 
- V+S 
- V+SP
- V+A+S
- V+A+SP
+    V+S 
+    V+SP
+    V+A+S
+    V+A+SP
 
-Allora pitch accent su verbo (solo sul verbo?)
+    Allora pitch accent su verbo (solo sul verbo?)
 
-*
-Mangia Antonio. 
-Lui nasconde Fabio.
-*
-Corri grande Fabio.
-
-Corri  Fabio.
+   *
+  Mangia Antonio. 
+  Lui nasconde Fabio.
+   *
+  Corri grande Fabio.
+  Corri  Fabio.
  -->
-
  <rule> 
     <previousAttributes pos="V"/>
     <attributes pos="INLIST:nouns0"/>
     <action accent=""/>
   </rule>
-
-
-<rule> 
+  <rule> 
  	<previousAttributes pos="V"/>
     <attributes pos="A"/>
     <nextAttributes pos="INLIST:nouns0"/>
     <action accent=""/>
   </rule>
-
- <rule> 
+  <rule> 
  	<previousMinus2Attributes pos="V"/>
     <previousAttributes pos="A"/>
     <attributes pos="INLIST:nouns0"/>
     <action accent=""/>
+   </rule>
+
+  <!--
+   R2: DE, DQ, PQ ad inizio frase ricevono accento 
+     Quale anno è il migliore.
+     Quanta neve sulla strada.
+   -->
+  <rule> <!-- a fronted VVPP receives an accent -->
+    <prevWords num="0"/>
+    <attributes pos="INLIST:det0"/>
+    <action accent="tone"/>
   </rule>
 
-
-
-
-
-
-<!-- R3   pos = BN + è ho ha 
-R3:
-BN + V se il verbo è {è, ho, ha} 
-non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinzia) 
- -->
+  <!-- R3   pos = BN + è ho ha 
+  R3:
+  BN + V se il verbo è {è, ho, ha} 
+  non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinzia) 
+  -->
   <rule> 
     <previousAttributes pos="BN"/>
     <text word="INLIST:verbs0"/>
     <action accent=""/>
   </rule>
 
-
+  <!--    -->
 
   <rule> <!-- list of words that usually receive an accent(content words) -->
     <attributes pos="INLIST:pos_tonal_accent"/>
@@ -269,10 +282,22 @@ non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinz
     <attributes accent="tone"/>
     <action accent="H*"/>
   </rule>
+  <rule> <!-- prenuclear accent in interrogative sentence -->
+    <sentence type="interrogW"/>
+    <prosodicPosition type="prenuclear"/>
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
   
  
   <rule> <!-- nuclear accent in interrogative sentence, not at end of paragraph -->
     <sentence type="interrog"/>
+    <prosodicPosition type="nuclearNonParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H+L*"/> <!-- Oppure H* -->
+  </rule>
+  <rule> <!-- nuclear accent in interrogative sentence, not at end of paragraph -->
+    <sentence type="interrogW"/>
     <prosodicPosition type="nuclearNonParagraphFinal"/>
     <attributes accent="tone"/>
     <action accent="H+L*"/> <!-- Oppure H* -->
@@ -284,6 +309,13 @@ non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinz
     <attributes accent="tone"/>
     <action accent="H+L*"/>  <!-- Oppure H* -->
   </rule>
+    <rule> <!-- nuclear accent in interrogative sentence, at end of paragraph -->
+    <sentence type="interrogW"/>
+    <prosodicPosition type="nuclearParagraphFinal"/>
+    <attributes accent="tone"/>
+    <action accent="H+L*"/>  <!-- Oppure H* -->
+  </rule>
+  
   
   <rule> <!-- catchall rule in case none of the others fired -->
     <attributes accent="tone"/>
