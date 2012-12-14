@@ -84,13 +84,35 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
 
 <definitions>
   <!-- list of part of speechs that don't receive an accent (function words)-->
-  <list name="pos_no_accent" items="AP:BN:CC:CS:DD:DE:DI:DQ:DR:E:EA:PC:PD:PE:PI:PP:PQ:PR:RD:RI:T:VA:VM"/> <!-- TOCHECK: DE,DQ,PQ to check -->
+  <list name="pos_no_accent" items="AP:BN:CC:CS:DD:DE:DI:DQ:DR:E:EA:PC:PD:PE:PI:PP:PQ:PR:RD:RI:T:VA:VM"/> <!-- TOCHECK: DE,DQ,PQ,VM to check -->
 
   <!-- list of part of speechs that receive an accent (content words) -->
   <list name="pos_tonal_accent" items="A:B:I:N:NO:S:SA:SP:SW:V:X"/>  <!-- TOCHECK: V to check --> 
 
   <!-- list of part of speechs for punctuation (used in boundary rules)-->
   <list name="pos_punctuation" items="FB FC FF FS $PUNCT $, $( punc PUNC , '' # . "/>
+
+
+  <!-- the following information should always be present if the language is similar to German-->
+
+  
+  <!-- if the POS of first word in sentence is PQ,PR,B,E it is the equivalent of wh-question for English.
+  these value is used in interrogW sentence.
+  Attention this list should be check  TOCHECK ->  B:E:CS
+  
+  The following should not be in this cathegory:
+  "A che ora mi chiami?" (sicuro?)
+  "Sei stato tu?"
+  "Non mi chiami?"
+  "Andiamo a mangiare assieme stasera?"
+     
+  -->
+  <list name="firstPosInQuestionW" items="PQ:PR:DQ:B:E:CS"/>
+  
+  <!-- è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano-->
+  <list name="verbs0" items="è:ho:ha"/>
+  
+  <list name="nouns0" items="S:SP"/>
 
   <!-- the following information should always be present -->
 
@@ -115,6 +137,65 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
 
 <!-- the accentposition rules determine if a token gets a tone accent or if it doesn't receive any accent (no force accents in English) -->
 <accentposition>
+
+<!--
+R1: se non una tra
+
+ V+S 
+ V+SP
+ V+A+S
+ V+A+SP
+
+Allora pitch accent su verbo (solo sul verbo?)
+
+*
+Mangia Antonio. 
+Lui nasconde Fabio.
+*
+Corri grande Fabio.
+
+Corri  Fabio.
+ -->
+
+ <rule> 
+    <previousAttributes pos="V"/>
+    <attributes pos="INLIST:nouns0"/>
+    <action accent=""/>
+  </rule>
+
+
+<rule> 
+ 	<previousAttributes pos="V"/>
+    <attributes pos="A"/>
+    <nextAttributes pos="INLIST:nouns0"/>
+    <action accent=""/>
+  </rule>
+
+ <rule> 
+ 	<previousMinus2Attributes pos="V"/>
+    <previousAttributes pos="A"/>
+    <attributes pos="INLIST:nouns0"/>
+    <action accent=""/>
+  </rule>
+
+
+
+
+
+
+<!-- R3   pos = BN + è ho ha 
+R3:
+BN + V se il verbo è {è, ho, ha} 
+non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinzia) 
+ -->
+  <rule> 
+    <previousAttributes pos="BN"/>
+    <text word="INLIST:verbs0"/>
+    <action accent=""/>
+  </rule>
+
+
+
   <rule> <!-- list of words that usually receive an accent(content words) -->
     <attributes pos="INLIST:pos_tonal_accent"/>
     <action accent="tone"/>
@@ -124,6 +205,11 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <attributes pos="INLIST:pos_no_accent"/>
     <action accent=""/>
   </rule>
+
+
+
+
+
 
   <rule> <!-- that's the default: no accent -->
     <action accent=""/>
@@ -139,19 +225,20 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <action accent="L+H*"/>
   </rule>
 
+  
   <rule> <!-- nuclear accent in declarative sentence, not at end of paragraph -->
     <sentence type="decl"/>
     <prosodicPosition type="nuclearNonParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="!H*"/>
+    <action accent="H+L*"/> <!-- Oppure L+H* -->
   </rule>
-  <!-- TOCHECK: Togli la regola precedente, è sotituita dalla declinazione del contorno intonativo nelle dichiarative. -->
+
 
   <rule> <!-- nuclear accent in declarative sentence, at end of paragraph -->
     <sentence type="decl"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="L+H*"/>
+    <action accent="H+L*"/>  <!-- Oppure L+H* -->
   </rule>
   
   <rule> <!-- prenuclear accent in exclamative sentence -->
@@ -180,7 +267,7 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <sentence type="interrog"/>
     <prosodicPosition type="prenuclear"/>
     <attributes accent="tone"/>
-    <action accent="H+L*"/>
+    <action accent="H*"/>
   </rule>
   
  
@@ -188,19 +275,19 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <sentence type="interrog"/>
     <prosodicPosition type="nuclearNonParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="H+L*"/>
+    <action accent="H+L*"/> <!-- Oppure H* -->
   </rule>
   
   <rule> <!-- nuclear accent in interrogative sentence, at end of paragraph -->
     <sentence type="interrog"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="H+L*"/>
+    <action accent="H+L*"/>  <!-- Oppure H* -->
   </rule>
   
   <rule> <!-- catchall rule in case none of the others fired -->
     <attributes accent="tone"/>
-    <action accent="H*"/>
+    <action accent="H*"/> 
   </rule>
 </accentshape>
 
@@ -230,14 +317,21 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <action bi="6" tone="L-L%"/>
   </rule>
   
+   <!-- -->
   <rule> <!-- major boundary at end of interrogative sentence at end of paragraph -->
     <sentence type="interrog"/>
     <specialPosition type="endofpar"/>
-    <action bi="6" tone="L-H%"/> <!-- TOCHECK: temporary-->
+    <action bi="6" tone="L-H%"/>
   </rule>
   
-    <!-- TOCHECK: cancella la precedente regola ed inserisci questa: se con parola interrogtiva che inizia con chi, cosa, perchè quale, come ... allora -> L-L% altrimenti (non inizia con: ...) L-H% -->
- 
+  <rule> <!-- major boundary at end of interrogative sentence at end of paragraph -->
+    <sentence type="interrogW"/>
+    <specialPosition type="endofpar"/>
+    <action bi="6" tone="L-L%"/>
+  </rule>
+  
+  <!-- Le precedenti regole: se la prima parola di una interrogativa inizia con 
+  (chi, cosa, perché, quale, come, ...) (PR,B,E,PQ,PR,E,B) allora -> L-L% altrimenti (non inizia con: ...) -> L-H% -->
 
   <rule> <!-- major boundary at end of declarative sentence, not at end of paragraph -->
     <sentence type="decl"/>
@@ -251,11 +345,24 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <action bi="5" tone="L-L%"/>
   </rule>
   
+  <!-- -->
   <rule> <!-- major boundary at end of interrogative sentence, not at end of paragraph -->
     <sentence type="interrog"/>
     <folTokens num="0"/>
     <action bi="5" tone="L-H%"/>
   </rule>
+  
+  <rule> <!-- major boundary at end of interrogative sentence, not at end of paragraph -->
+    <sentence type="interrogW"/>
+    <folTokens num="0"/>
+    <action bi="5" tone="L-L%"/>
+  </rule>
+  
+  <!-- Le precedenti regole: se la prima parola di una interrogativa inizia con 
+  (chi, che, cosa, perché, quale, quali, quanto, come, dove, ...) (PR,PQ,DQ,E,B,CS) allora -> L-L% altrimenti (non inizia con: ...) -> L-H% -->
+  
+  
+  
   
   <rule> <!-- major boundary after a punctuation mark in the middle of the sentence -->
     <attributes pos="INLIST:pos_punctuation"/>
@@ -264,8 +371,11 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <action bi="4" tone="H-L%"/>
   </rule>
 
-<!-- TOCHECK: insert the , ; : rules   -->
+<!-- TOCHECK: insert the , ; : rules -->
+
 <!-- TOCHECK: please insert rules R1 and R2 R3 -->
+
+
 
 
 </boundaries>
