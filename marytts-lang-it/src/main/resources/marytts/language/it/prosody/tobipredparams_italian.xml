@@ -118,7 +118,8 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <!-- R1: è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano-->
   <list name="verbs0" items="è:ho:ha"/>
   
-  
+  <list name="openFB" items="«:(:{:["/>
+    
   <!-- R2: DE, DQ, PQ ad inizio frase ricevono accento  -->
   <list name="det0" items="DE:DQ:PQ"/>
   
@@ -394,14 +395,72 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   (chi, che, cosa, perché, quale, quali, quanto, come, dove, ...) (PR,PQ,DQ,E,B,CS) allora -> L-L% altrimenti (non inizia con: ...) -> L-H% -->
   
   
+
+  <rule> <!-- comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
+    type major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="FF"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus4Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus5Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="H-L%"/>
+  </rule>
+
+  <rule> <!-- comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
+    type major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="FF"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+  
+  <!-- Not used 
+  <rule>  (FB « » ( ) " ') minor boundary after  in the middle of the sentence
+    <attributes pos="FB"/>
+    <text word="INLIST:openFB"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+   -->
+   
+  <rule> <!-- (FB « » ( ) " ') sentence type major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="FB"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="4" tone="H-L%"/>
+  </rule>
   
   
-  <rule> <!-- major boundary after a punctuation mark in the middle of the sentence -->
+  <rule> <!-- (FC : ; -) sentence type major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="FC"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="H-L%"/>
+  </rule>
+  
+  
+  <rule> <!-- others major boundary after a punctuation mark in the middle of the sentence -->
     <attributes pos="INLIST:pos_punctuation"/>
     <folTokens num="1+"/>
     <prevTokens num="1+"/>
     <action bi="4" tone="H-L%"/>
   </rule>
+  
+  
+  
 
 <!-- TOCHECK: insert the , ; : rules -->
 

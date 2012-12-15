@@ -884,7 +884,7 @@ public class ProsodyGeneric extends InternalModule {
     protected synchronized boolean getAccentShape(Element token, NodeList tokens, int position, String sentenceType,
     	String specialPositionType, boolean nucleusAssigned)
     {
-    	System.out.println("getAccentShape");
+    	//System.out.println("getAccentShape");
         String tokenText = MaryDomUtils.tokenText(token); // text of current token
           
         // prosodic position (prenuclear, nuclear, postnuclear)
