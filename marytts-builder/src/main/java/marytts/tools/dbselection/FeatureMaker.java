@@ -591,7 +591,7 @@ public class FeatureMaker
 				sentence = null;
 				//get the tokens
 				NodeList tokens = nextSentence.getChildNodes();
-				usefulSentence = true;
+				
                 unknownWords = false;
                 strangeSymbols = false;
 				for (int k=0;k<tokens.getLength();k++){
@@ -600,8 +600,16 @@ public class FeatureMaker
 					if ( (nextToken instanceof Element) ) 
 					  sentence = collectTokens(nextToken, sentence);                            
 				}
-                //System.out.println(sentence);
+                
+                //System.out.println(sentence);                
 				if (sentence!=null){
+					usefulSentence = true;
+	                // Italian addition this is used to eliminate all the sentences not ending with ".?!"
+	                int sentenceLenght=sentence.toString().length();
+	                if (".?!".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
+	                    usefulSentence = false;
+	                }
+	                
 					if (usefulSentence){	
 						//store sentence in sentence map
 						//index2sentences.put(new Integer(sentenceIndex),sentence.toString());
@@ -642,6 +650,7 @@ public class FeatureMaker
 				} else {
 					//ignore
 					//System.out.println("NULL SENTENCE!!!");
+					usefulSentence = false;
 				}
 			} 
             numUnreliableSentences += unrelSentences;         
@@ -685,7 +694,8 @@ public class FeatureMaker
                 } else {
                     String pos = ((Element)nextToken).getAttribute("pos");
                     //if (pos.startsWith("$")){
-                    if (".,'`:#$".indexOf(pos.substring(0,1)) != -1) {
+					// Italian: F pos tagger is added here! (FS FC FF FP)
+                    if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) {
                         //punctuation
                         tokenText = MaryDomUtils.tokenText((Element)nextToken);
                         //just append without whitespace
@@ -752,13 +762,37 @@ public class FeatureMaker
                                 //System.out.println("   unknownwords: method other than lexicon, userdict, phonemiseDenglish or compound -> unreliable");
                             } //else method is phonemiseDenglish or compound -> credible                        
                         }
-                    }// else method is lexicon or userdict -> credible           
+                    } else {
+                        // method is lexicon or userdict -> credible
+                        if (t.getFirstChild().getNodeValue().contains("-")) {
+                            if (strictReliability) {
+                                // very strict Reliability
+                                // word contains hyphen -> unreliable
+                                newUsefulSentence = 1;
+                                // System.out.println("  word contains hyphen -> unreliable");
+                            }
+                        }
+                    }  
                 } //else no method -> preprocessed -> credible          
             } else {      
                 //we dont have a transcription
                 //if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){
                 String pos = t.getAttribute("pos");
-                if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
+                
+                // Italian note: using OpenNLP POS tagger the punctuation POS can assume the following values: FB:FC::FF:FS
+                // So the pos.substring(0,1) field do not contain .,'`:#$
+                // Solutions:
+                // 1. first option: String (pos != FB) && (pos != FC) && (pos != FF) && (pos != FS)
+                // 2. second option: t.getTextContent() ".,'`:#$".indexOf(t.getTextContent().substring(0,1)) == -1)
+                // 3. third option: add F to indexOf (if yes go to 1 better)
+                
+                //System.out.println("pos:" + pos);
+                //System.out.println("pos.substring(0,1):" + pos.substring(0,1) + " getTextContent:" + t.getTextContent());
+                
+                //if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
+                //if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
+
+                if (",.?!;".indexOf(t.getTextContent().substring(0,1)) == -1){
                     //no transcription given -> unreliable  
                     newUsefulSentence = 2; 
                     //System.out.println("  strangeSymbols: no transcription given -> unreliable");
