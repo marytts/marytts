@@ -470,16 +470,25 @@ public class TranscriptionTableModel extends AbstractTableModel {
         AlignerTrainer at = new AlignerTrainer(false, true);
         at.readLexicon(br, "\\s*\\|\\s*");
         br.close();
-
+        System.out.println("make some alignment iterations");
         // make some alignment iterations
         for ( int i = 0 ; i < 4 ; i++ ){
+        	System.out.println("Iteration " + i);
             at.alignIteration();
         }
         TransducerTrie t = new TransducerTrie();
+        System.out.println("lexiconSize: " + at.lexiconSize());
         for (int i = 0, size = at.lexiconSize(); i<size; i++){
+        	// print some progress of work info
+        	if ((i % 10000) == 0)
+        		System.out.print("\n" + i + " ");
+        	else if ((i % 1000) == 0)
+        		System.out.print(i + " ");
+        	
             t.add(at.getAlignment(i));
             t.add(at.getInfoAlignment(i));
         }
+        System.out.println("ComputeMinimization");
         t.computeMinimization();
         File of = new File(fstFilename);
         DataOutputStream os = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(of)));

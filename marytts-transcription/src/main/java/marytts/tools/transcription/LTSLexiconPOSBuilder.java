@@ -236,8 +236,17 @@ public class LTSLexiconPOSBuilder {
             String phoneSetFileName = args[0];
             String transcriptionsFileName = args[1];
             boolean myRemoveTrailingOneFromPhones = true;
+            System.out.println("myRemoveTrailingOneFromPhones=" + myRemoveTrailingOneFromPhones);
             if(args.length > 2){
-            	myRemoveTrailingOneFromPhones = Boolean.getBoolean(args[2]);
+            	myRemoveTrailingOneFromPhones = Boolean.valueOf(args[2]);
+            	System.out.println("myRemoveTrailingOneFromPhones=" + myRemoveTrailingOneFromPhones);
+            }
+            
+            boolean lts_flag = true;
+            System.out.println("lts_flag=" + lts_flag);
+            if(args.length > 3){
+              lts_flag = Boolean.valueOf(args[3]);
+              System.out.println("lts_flag=" + lts_flag);
             }
 
             // Create object from files
@@ -261,10 +270,12 @@ public class LTSLexiconPOSBuilder {
             String lexout = dirName + File.separator + baseName + ".lextxt";
 
             // Procedure
-            System.out.println("trainPredict ...");
-            myLTSLexiconPOSBuilder.trainPredict(treeAbsolutePath, myRemoveTrailingOneFromPhones);
-            System.out.println("... done.");
-
+            if (lts_flag) {
+             System.out.println("trainPredict ...");
+             myLTSLexiconPOSBuilder.trainPredict(treeAbsolutePath, myRemoveTrailingOneFromPhones);
+             System.out.println("... done.");
+            }
+            
             System.out.println("saveTranscription ...");
             myLTSLexiconPOSBuilder.saveTranscription(lexout);
             System.out.println("... done.");

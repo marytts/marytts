@@ -13,7 +13,7 @@ set -o errexit
 
 DESCRIPTION="Train Letter-to-sound(LTS) rules, create FST dictionary and POS tagger with command line using LTSLexiconPOSBuilder.\nLTSLexiconPOSBuilder has the same functionalities of TRANSCRIPTION TOOL but without GUI (better for a remote use for large lexicon and for scripting). This class is a light version of TranscriptionTable"
 
-NUMARG=3
+NUMARG=4
 if [ $# -ne $NUMARG ]
 then
   echo "NAME:
@@ -28,11 +28,11 @@ USAGE:
 	allophones: allophones file name
 	lexicon: lexicon file name
 	removeTrailingOneFromPhones: true if the language have not phonemes ending with '1', false otherwise
-
+	lts: true for lts training
 
 EXAMPLES:
-	`basename $0` ./marytts-lang-en/src/main/resources/marytts/language/en_GB/lexicon/allophones.en_GB.xml lexicon-en_GB.txt true
-	`basename $0` ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt false
+	`basename $0` ./marytts-lang-en/src/main/resources/marytts/language/en_GB/lexicon/allophones.en_GB.xml lexicon-en_GB.txt true true
+	`basename $0` ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt false true
 	" 
   exit 1
 fi  
