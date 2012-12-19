@@ -90,7 +90,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
 cd $WIKIDATAPATH
 
-java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
+java -showversion -ea -Xmx4096m -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
 -locale "$LOCALE" \
 -mysqlHost "$MYSQLHOST" \
 -mysqlUser "$MYSQLUSER" \
