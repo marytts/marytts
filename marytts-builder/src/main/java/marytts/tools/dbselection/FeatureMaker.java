@@ -591,7 +591,7 @@ public class FeatureMaker
 				sentence = null;
 				//get the tokens
 				NodeList tokens = nextSentence.getChildNodes();
-				
+				usefulSentence = true;
                 unknownWords = false;
                 strangeSymbols = false;
 				for (int k=0;k<tokens.getLength();k++){
@@ -600,10 +600,9 @@ public class FeatureMaker
 					if ( (nextToken instanceof Element) ) 
 					  sentence = collectTokens(nextToken, sentence);                            
 				}
-                
                 //System.out.println(sentence);                
 				if (sentence!=null){
-					usefulSentence = true;
+				
 	                // Italian addition this is used to eliminate all the sentences not ending with ".?!"
 	                int sentenceLenght=sentence.toString().length();
 	                if (".?!".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
@@ -650,7 +649,6 @@ public class FeatureMaker
 				} else {
 					//ignore
 					//System.out.println("NULL SENTENCE!!!");
-					usefulSentence = false;
 				}
 			} 
             numUnreliableSentences += unrelSentences;         
@@ -693,19 +691,27 @@ public class FeatureMaker
                      
                 } else {
                     String pos = ((Element)nextToken).getAttribute("pos");
+                    tokenText = MaryDomUtils.tokenText((Element)nextToken);
                     //if (pos.startsWith("$")){
 					// Italian: F pos tagger is added here! (FS FC FF FP)
-                    if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) {
+                    //if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) || pos == FS {
+                    // punctuation and closed parenthesis: no space added
+                    if ( ".,'`:;?!)".indexOf(tokenText.substring(0,1)) != -1 ) {
+                    //if ( ".,'`:;)".indexOf(tokenText.substring(tokenText.length() - 1)) != -1 ) {
                         //punctuation
-                        tokenText = MaryDomUtils.tokenText((Element)nextToken);
+                        //tokenText = MaryDomUtils.tokenText((Element)nextToken);
                         //just append without whitespace
                         sentence.append(tokenText);
                         //System.out.println(sentence);
-                    } else {
-                        //normal word, append a whitespace before it
-                        word = MaryDomUtils.tokenText((Element)nextToken);
+                    } else if ( "'(".indexOf(sentence.substring(sentence.length() - 1)) != -1 ) { 
+                    	// if last char of sentence is apostrophe
+                    	sentence.append(tokenText);
+                    }
+                    else {
+                        //normal word or open parenthesis, append a whitespace before it
+                        //word = MaryDomUtils.tokenText((Element)nextToken);
                         //System.out.println("word=" + word);
-                        sentence.append(" " + word);
+                        sentence.append(" " + tokenText);
                         //System.out.println(sentence);
                     }
                 }
@@ -791,8 +797,8 @@ public class FeatureMaker
                 
                 //if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
                 //if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
-
-                if (",.?!;".indexOf(t.getTextContent().substring(0,1)) == -1){
+                //\"'`
+                if (",.?!;():".indexOf(t.getTextContent().substring(0,1)) == -1){
                     //no transcription given -> unreliable  
                     newUsefulSentence = 2; 
                     //System.out.println("  strangeSymbols: no transcription given -> unreliable");
