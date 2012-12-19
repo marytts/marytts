@@ -145,7 +145,7 @@ public class DatabaseSelector
         }
 
         //make sure the stop criterion is allright
-        SelectionFunction selFunc = new SelectionFunction();
+        SelectionFunction selFunc = new SelectionFunction(locale);
         if (!selFunc.stopIsOkay(stopCriterion)){
             System.out.println("Stop criterion format is wrong: " + stopCriterion);
             printUsage();
@@ -747,8 +747,8 @@ public class DatabaseSelector
         System.out.println(" selected sentences will be saved in ./selected.log");
         PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
         
-        System.out.println(" selected sentences and transcriptions will be saved in  ./selected_text_transcription.log");
-        PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.log")));
+        System.out.println(" selected sentences and transcriptions will be saved in  ./selected_text_transcription.txt_tr");
+        PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
         
         System.out.println(" unwanted sentences will be saved in ./unwanted.log");
         PrintWriter unwantedLog = new PrintWriter(new FileWriter(new File("./unwanted.log")));
@@ -762,16 +762,18 @@ public class DatabaseSelector
           for(int i=0; i<sel.length; i++){
             str = wikiToDB.getSelectedSentence(wikiToDB.getSelectedSentencesTableName(), sel[i]);  
             System.out.print("id=" + sel[i] + ":  "+ str + "\n  Wanted?(y/n):");             
-            
+
                 String s = br.readLine();  
                 if( s.contentEquals("n")){
                   wikiToDB.setSentenceRecord(sel[i], "unwanted", true);
                   unwantedLog.println(sel[i] + " " + str);
                 } else if( s.contentEquals("y")){
                   selectedLog.println(sel[i] + " " + str);
-                  
+                  String transcription = SelectionFunction.transcribe(str,locale);
+                  // write selected sentence transcription 
+                  wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
                   selected_tra_Log.println(sel[i] + " " + str);
-                  selected_tra_Log.println(sel[i] + " <" + SelectionFunction.transcribe(str,locale) + ">");
+                  selected_tra_Log.println(sel[i] + " <" + transcription + ">");
                 } else{
                   unwantedLog.close();
                   selectedLog.close();

@@ -68,6 +68,7 @@ public class DBHandler {
   private String currentTable = null;
   private PreparedStatement psSentence = null;
   private PreparedStatement psSelectedSentence = null;
+  private PreparedStatement psSelectedSentenceTranscription = null;
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
   private PreparedStatement psTablesDescription = null;
@@ -153,7 +154,10 @@ public class DBHandler {
       psCleanText = cn.prepareStatement("INSERT INTO " + cleanTextTableName + " VALUES (null, ?, ?, ?, ?)");
       psWord      = cn.prepareStatement("INSERT INTO " + wordListTableName + " VALUES (null, ?, ?)");
       psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
-      psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
+      
+      psSelectedSentence = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?, ?)");
+      psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? WHERE dbselection_id = ?");
+      
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
       
       result = true;
@@ -388,8 +392,9 @@ public class DBHandler {
    *
    */
   public void createSelectedSentencesTable(String stopCriterion, String featDefFileName, String covDefConfigFileName) {
-      String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
+      String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +  
                                                        "sentence MEDIUMBLOB NOT NULL, " +
+    		  										   "transcription MEDIUMBLOB NOT NULL, " +
                                                        "unwanted BOOLEAN, " +
                                                        "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from                                                    
                                                        "primary key(id)) CHARACTER SET utf8;";
@@ -1040,14 +1045,14 @@ public class DBHandler {
   
     String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
     byte[] sentenceBytes=null;
-      
+    
     try {
       // First get the sentence
        sentenceBytes = queryTableByte(dbQuery);    
-        
         psSelectedSentence.setBytes(1, sentenceBytes);
-        psSelectedSentence.setBoolean(2, unwanted);
-        psSelectedSentence.setInt(3, dbselection_id);
+        psSelectedSentence.setBytes(2, "0".getBytes()); // default intial value 0
+        psSelectedSentence.setBoolean(3, unwanted);
+        psSelectedSentence.setInt(4, dbselection_id);
         psSelectedSentence.execute();
       
         psSelectedSentence.clearParameters();
@@ -1510,6 +1515,38 @@ public class DBHandler {
       
       return sentence;      
   }
+  
+  
+	/**
+	 * insert the SelectedSentenceTranscription in to selectedSentencesTableName
+	 * 
+	 * @param tableName
+	 * @param id
+	 * @return
+	 */
+	public void insertSelectedSentenceTranscription(int id, String transcription) {
+
+		byte[] transcriptionBytes = null;
+
+		try {
+			transcriptionBytes = transcription.getBytes("UTF8");
+		} catch (Exception e) { // UnsupportedEncodedException
+			e.printStackTrace();
+		}
+		
+		//System.out.println("insertSelectedSentenceTranscription id:" + id );
+
+		try {
+			psSelectedSentenceTranscription.setBytes(1, transcriptionBytes);
+			psSelectedSentenceTranscription.setInt(2,id);
+
+			psSelectedSentenceTranscription.execute();
+			psSelectedSentenceTranscription.clearParameters();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}  
+  
   
   // Firts filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/

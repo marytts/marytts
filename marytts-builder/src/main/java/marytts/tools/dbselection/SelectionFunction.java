@@ -63,6 +63,7 @@ import org.xml.sax.SAXException;
  */
 public class SelectionFunction{
 
+	private static String locale;
     //maximum number of sentences to select
     private int maxNumSents;
     //the vectors that are selected next 
@@ -94,7 +95,8 @@ public class SelectionFunction{
      * Build a new Selection Function
      * 
      */
-    public SelectionFunction(){
+    public SelectionFunction(String pLocale){
+        locale = pLocale;
         }
 
     /**
@@ -245,19 +247,22 @@ public class SelectionFunction{
           System.out.println("Saving selected sentences in ./selected.log");
           PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
           
-          System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.log");
-          PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.log")));
-          
-            
+          System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.txt_tr");
+          PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
+
           String str;
           for(int i=0; i<sel.length; i++){
             // not sure if we need to make another table???
             // str = wikiToDB.getSentence("selectedSentences", sel[i]);
             str = wikiToDB.getDBSelectionSentence(sel[i]);  
             //System.out.println("id=" + sel[i] + str);  
+            String transcription = transcribe(str,locale);
+            // write selected sentence transcription 
+            wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
+            // write selected sentence transcription 
             selectedLog.println(sel[i] + " " + str);
             selected_tra_Log.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " <" + transcribe(str, "it") + ">");
+            selected_tra_Log.println(sel[i] + " <" + transcription + ">");
           }
           selectedLog.close();
           selected_tra_Log.close();
