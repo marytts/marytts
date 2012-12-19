@@ -696,14 +696,15 @@ public class FeatureMaker
 					// Italian: F pos tagger is added here! (FS FC FF FP)
                     //if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) || pos == FS {
                     // punctuation and closed parenthesis: no space added
-                    if ( ".,'`:;?!)".indexOf(tokenText.substring(0,1)) != -1 ) {
+                    //,.?!;:()\"'
+                    if ( ",.?!;:)\"'".indexOf(tokenText.substring(0,1)) != -1 ) {
                     //if ( ".,'`:;)".indexOf(tokenText.substring(tokenText.length() - 1)) != -1 ) {
                         //punctuation
                         //tokenText = MaryDomUtils.tokenText((Element)nextToken);
                         //just append without whitespace
                         sentence.append(tokenText);
                         //System.out.println(sentence);
-                    } else if ( "'(".indexOf(sentence.substring(sentence.length() - 1)) != -1 ) { 
+                    } else if ( "'(\"".indexOf(sentence.substring(sentence.length() - 1)) != -1 ) { 
                     	// if last char of sentence is apostrophe
                     	sentence.append(tokenText);
                     }
@@ -797,8 +798,8 @@ public class FeatureMaker
                 
                 //if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
                 //if (".,'`:#$F".indexOf(pos.substring(0,1)) == -1){
-                //\"'`
-                if (",.?!;():".indexOf(t.getTextContent().substring(0,1)) == -1){
+                //  
+                if ( ",.?!;:()\"'".indexOf(t.getTextContent().substring(0,1)) == -1){
                     //no transcription given -> unreliable  
                     newUsefulSentence = 2; 
                     //System.out.println("  strangeSymbols: no transcription given -> unreliable");
