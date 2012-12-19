@@ -1517,6 +1517,30 @@ public class DBHandler {
   }
   
   
+  /**
+   * Get a 
+   * @param tableName
+   * @param id
+   * @return
+   */
+  public String getSelectedSentenceTranscription(String tableName, int id) {
+      String sentence="";
+      String dbQuery = "Select transcription FROM " + tableName + " WHERE dbselection_id=" + id;
+      byte[] sentenceBytes=null;
+      
+      sentenceBytes = queryTableByte(dbQuery); 
+      try {
+        sentence = new String(sentenceBytes, "UTF8");
+        //System.out.println("  TEXT: " + text);
+      } catch (Exception e) {  // UnsupportedEncodedException
+           e.printStackTrace();
+      } 
+      
+      return sentence;      
+  }
+  
+  
+  
 	/**
 	 * insert the SelectedSentenceTranscription in to selectedSentencesTableName
 	 * 
@@ -1534,7 +1558,8 @@ public class DBHandler {
 			e.printStackTrace();
 		}
 		
-		//System.out.println("insertSelectedSentenceTranscription id:" + id );
+		//System.out.println("InsertSelectedSentenceTranscription id:" + id );
+		//System.out.println("Transcription " + transcription);
 
 		try {
 			psSelectedSentenceTranscription.setBytes(1, transcriptionBytes);

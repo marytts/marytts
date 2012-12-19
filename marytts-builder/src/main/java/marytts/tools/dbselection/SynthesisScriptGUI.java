@@ -59,7 +59,7 @@ import javax.swing.table.TableColumn;
  */
 public class SynthesisScriptGUI extends JPanel implements TableModelListener{
  
-    String colNames[] = {"Unwanted", "No.", "Selected Sentences"};
+    String colNames[] = {"Unwanted", "No.", "Selected Sentences", "Transcription"};
     Object[][] data = null;
     DefaultTableModel dtm;
     private static JTextArea output;
@@ -71,7 +71,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
     private static String locale      = "en_US";
     //  mySql database args
     private static String mysqlHost   = "localhost";
-    private static String mysqlUser   = "marcela";
+    private static String mysqlUser   = "mary";
     private static String mysqlPasswd = "wiki123";
     private static String mysqlDB     = "wiki";
     private static String tableName   = "test";
@@ -113,12 +113,14 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
           if(wikiToDB.tableExist(actualTableName) ){
             selIds = wikiToDB.getIdListOfSelectedSentences(actualTableName, "unwanted=false");  
             if( selIds != null){
-              String str;
+              String str, trans;
               numWanted=selIds.length;
               numUnwanted=0;
               for(int i=0; i<selIds.length; i++){
                 str = wikiToDB.getSelectedSentence(actualTableName, selIds[i]);
-                dtm.addRow(new Object[]{Boolean.FALSE, (i+1), str });
+                trans = wikiToDB.getSelectedSentenceTranscription(actualTableName, selIds[i]);
+                //System.out.println(trans);
+                dtm.addRow(new Object[]{Boolean.FALSE, (i+1), str, trans });
               }
             } else
               output.append("There are not selected sentences in TABLE = " + actualTableName);
@@ -152,6 +154,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
         tc.setPreferredWidth(70);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(1000);
+        table.getColumnModel().getColumn(3).setPreferredWidth(2000);
         
         add(sp); 
         add(new JScrollPane(output));
