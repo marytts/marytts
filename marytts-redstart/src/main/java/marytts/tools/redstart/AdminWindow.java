@@ -1183,9 +1183,15 @@ public class AdminWindow extends javax.swing.JFrame {
         // gs: transcription folder name, and makedir
         if (selectedFile_ext.equals("txt_tr")) {
             System.out.println("txt_tr");
+            if (lines.length % 2 == 0) {
+                // even
+            } else {
+                // odd
+                System.err.println(".txt_tr has an odd number of lines, so it's corrupted, exiting.");
+                System.exit(0);
+            }
             inputHasAlsoTranscription=true;
-	      //            String transcriptionFolderName = voiceFolderPathString + AdminWindow.PROMPT_FOLDER_NAME; 
-	                  String transcriptionFolderName = System.getProperty("user.dir").concat("/transcription");
+            String transcriptionFolderName = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME;
             transcriptionFolder = new File(transcriptionFolderName);
             if (transcriptionFolder.exists()) {
                 System.out.println("YYY dir already exists");
@@ -1211,7 +1217,12 @@ public class AdminWindow extends javax.swing.JFrame {
         for (int i=0; i<lines.length; i++) {
             String line = lines[i];
             if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
-            String filename = String.format(pattern, i+1);
+            int sent_index = i+1;
+            if ( inputHasAlsoTranscription==true) {
+                sent_index = i/2+1;
+            }
+
+            String filename = String.format(pattern, sent_index);
             System.out.println(filename + " " + line);
             File textFile = new File(textFolder, filename);
             if (textFile.exists()) {
@@ -1233,11 +1244,12 @@ public class AdminWindow extends javax.swing.JFrame {
                 if (pw != null) pw.close();
             }
 
+            // gs
             if ( inputHasAlsoTranscription==true) {
                 // modify pattern: best would be something like sed "s/.txt$/.tr$/"
                 // easy but dirty:
                 String transc_pattern=pattern.replace(".txt",".tr");
-                filename = String.format(transc_pattern, i+1);
+                filename = String.format(transc_pattern, sent_index);
                 i++;
                 line = lines[i];
                 File transcriptionTextFile = new File(transcriptionFolder, filename);
@@ -1260,6 +1272,7 @@ public class AdminWindow extends javax.swing.JFrame {
                     if (pw != null) pw.close();
                 }
             }
+            // gs end
         }
         scriptWriter.close();
         setupVoice();
