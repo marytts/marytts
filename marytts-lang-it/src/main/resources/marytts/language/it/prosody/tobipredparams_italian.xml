@@ -114,11 +114,12 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <list name="all_interrog" items="interrog:interrogW"/>
    -->
    
-   
-  <!-- R1: è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano-->
+  <!-- R1: è, ho, ha, TOCHECK ma anche coniugazioni: erano sono avevano sono:sei:siamo:siete:ero:eri risposta: si?-->
   <list name="verbs0" items="è:ho:ha"/>
   
-  <list name="openFB" items="«:(:{:["/>
+  <list name="FBopen" items="«:(:{:["/>
+  
+  <list name="FFelipses" items="...:.."/>
     
   <!-- R2: DE, DQ, PQ ad inizio frase ricevono accento  -->
   <list name="det0" items="DE:DQ:PQ"/>
@@ -148,17 +149,15 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
 </definitions>
 
 <!-- the accentposition rules determine if a token gets a tone accent or if it doesn't receive any accent (no force accents in English) -->
-<accentposition>
 
+<accentposition>
 
 <!--
   R1: se non una tra
-
     V+S 
     V+SP
     V+A+S
     V+A+SP
-
     Allora pitch accent su verbo (solo sul verbo?)
 
    *
@@ -168,6 +167,7 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   Corri grande Fabio.
   Corri  Fabio.
  -->
+
  <rule> 
     <previousAttributes pos="V"/>
     <attributes pos="INLIST:nouns0"/>
@@ -200,15 +200,16 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <!-- R3   pos = BN + è ho ha 
   R3:
   BN + V se il verbo è {è, ho, ha} 
-  non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinzia) 
+  non riceve PA (chi? il verbo o BN, il verbo direi...TOCHECK chiedi conferma cinzia)
   -->
+    <!-- non usata: da indagare 
   <rule> 
     <previousAttributes pos="BN"/>
     <text word="INLIST:verbs0"/>
     <action accent=""/>
   </rule>
 
-  <!--    -->
+    -->
 
   <rule> <!-- list of words that usually receive an accent(content words) -->
     <attributes pos="INLIST:pos_tonal_accent"/>
@@ -394,10 +395,204 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <!-- Le precedenti regole: se la prima parola di una interrogativa inizia con 
   (chi, che, cosa, perché, quale, quali, quanto, come, dove, ...) (PR,PQ,DQ,E,B,CS) allora -> L-L% altrimenti (non inizia con: ...) -> L-H% -->
   
+  <!-- dinstinzione tra , e ...
+   
+  comma -> L-
+  comma in lista H- o L- penultima H- 
+  ellipsis -> H-
   
+  :
+  
+  ellipsis test sentence:  
+  ciao... sono io che mi chiamo fabio...  tu come ti chiami?
+  -->
+  
+  <rule>    <!-- FF ellipsis -->
+    <text word="INLIST:FFelipses"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-H%"/>
+  </rule>
+  
+  <rule>     <!-- FF ellipsis -->
+    <text word="INLIST:FFelipses"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="H-"/>
+  </rule>
 
-  <rule> <!-- comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
-    type major boundary after a punctuation mark in the middle of the sentence -->
+
+
+ <rule>     <!-- FF not ellipsis (comma) -->
+    <attributes pos="FF"/>
+    <folTokens num="1+"/>
+    <prevTokens num="7+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus4Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus5Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus6Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  <rule>    <!-- FF not ellipsis (comma) --> 
+    <attributes pos="FF"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="L-"/>
+  </rule>
+
+ 
+ 
+  <rule>    <!-- FC colon-semicolon -->
+    <text word="INLIST:FCcolon-semicolon"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  <rule>     <!-- FC  colon-semicolon -->
+    <text word="INLIST:FCcolon-semicolon"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="L-"/>
+  </rule>  
+   
+   
+   <rule>    <!-- FC not colon-semicolon -->
+    <attributes pos="FC"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  <rule>     <!-- FC not colon-semicolon -->
+    <attributes pos="FC"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="L-"/>
+  </rule>   
+   
+   
+  <rule>    <!-- FB open brackets -->
+    <text word="INLIST:INLIST:FBopen"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  <rule>    <!-- FB open brackets -->
+    <text word="INLIST:INLIST:FBopen"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="L-"/>
+  </rule>   
+   
+   
+  <rule>    <!-- FB closed brackets -->
+    <text word="INLIST:INLIST:FBclosed"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="H-L%"/>
+  </rule>
+  
+  <rule>    <!-- FB closed brackets -->
+    <text word="INLIST:INLIST:FBclosed"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="H-"/>
+  </rule>    
+   
+   <!--  -->
+   
+   <rule>    <!-- FB not open or closed brackets -->
+    <attributes pos="FB"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  <rule>    <!-- FB not open or closed brackets -->
+    <attributes pos="FB"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <action bi="3" tone="H-"/>
+  </rule>  
+  
+  
+  <rule> <!-- others major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="INLIST:pos_punctuation"/>
+    <folTokens num="1+"/>
+    <prevTokens num="1+"/>
+    <action bi="3" tone="H-"/>
+  </rule>
+  
+  
+  <rule> <!-- others major boundary after a punctuation mark in the middle of the sentence -->
+    <attributes pos="INLIST:pos_punctuation"/>
+    <folTokens num="1+"/>
+    <prevTokens num="4+"/>
+    <nextAttributes pos="!INLIST:pos_punctuation"/>
+    <previousAttributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus2Attributes pos="!INLIST:pos_punctuation"/>
+    <previousMinus3Attributes pos="!INLIST:pos_punctuation"/>
+    <action bi="4" tone="L-L%"/>
+  </rule>
+  
+  
+  
+  <!--
+
+  <rule>  comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
+    type major boundary after a punctuation mark in the middle of the sentence 
     <attributes pos="FF"/>
     <folTokens num="1+"/>
     <prevTokens num="1+"/>
@@ -410,9 +605,10 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <previousMinus5Attributes pos="!INLIST:pos_punctuation"/>
     <action bi="4" tone="H-L%"/>
   </rule>
-
-  <rule> <!-- comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
-    type major boundary after a punctuation mark in the middle of the sentence -->
+-->
+<!--
+  <rule>  comma or ellipsis (FF , ...) after al leats 5 token of not punctuation 
+    type major boundary after a punctuation mark in the middle of the sentence 
     <attributes pos="FF"/>
     <nextAttributes pos="!INLIST:pos_punctuation"/>
     <previousAttributes pos="!INLIST:pos_punctuation"/>
@@ -420,11 +616,12 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <prevTokens num="1+"/>
     <action bi="3" tone="H-"/>
   </rule>
-  
+  -->
+
   <!-- Not used 
   <rule>  (FB « » ( ) " ') minor boundary after  in the middle of the sentence
     <attributes pos="FB"/>
-    <text word="INLIST:openFB"/>
+    <text word="INLIST:FBopen"/>
     <nextAttributes pos="!INLIST:pos_punctuation"/>
     <previousAttributes pos="!INLIST:pos_punctuation"/>
     <folTokens num="1+"/>
@@ -433,15 +630,19 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   </rule>
    -->
    
-  <rule> <!-- (FB « » ( ) " ') sentence type major boundary after a punctuation mark in the middle of the sentence -->
+   
+   
+   <!-- Not used 
+  <rule>  (FB « » ( ) " ') sentence type major boundary after a punctuation mark in the middle of the sentence 
     <attributes pos="FB"/>
     <folTokens num="1+"/>
     <prevTokens num="1+"/>
     <action bi="4" tone="H-L%"/>
   </rule>
+  -->
   
-  
-  <rule> <!-- (FC : ; -) sentence type major boundary after a punctuation mark in the middle of the sentence -->
+  <!-- Not used 
+  <rule> (FC . : ; -) sentence type major boundary after a punctuation mark in the middle of the sentence 
     <attributes pos="FC"/>
     <folTokens num="1+"/>
     <prevTokens num="1+"/>
@@ -450,15 +651,9 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <previousMinus1Attributes pos="!INLIST:pos_punctuation"/>
     <action bi="4" tone="H-L%"/>
   </rule>
+  -->
   
-  
-  <rule> <!-- others major boundary after a punctuation mark in the middle of the sentence -->
-    <attributes pos="INLIST:pos_punctuation"/>
-    <folTokens num="1+"/>
-    <prevTokens num="1+"/>
-    <action bi="4" tone="H-L%"/>
-  </rule>
-  
+
   
   
 
