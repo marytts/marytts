@@ -1174,13 +1174,12 @@ public class AdminWindow extends javax.swing.JFrame {
         }
         File textFolder = getPromptFolderPath();
 
-        // gs:
         // if file ends with .txt_tr then it has also transcriptions in it
         String selectedFile_ext = FilenameUtils.getExtension(file.getName());
         Boolean inputHasAlsoTranscription=false;
         File transcriptionFolder = new File("");
 
-        // gs: transcription folder name, and makedir
+        // transcription folder name, and makedir
         if (selectedFile_ext.equals("txt_tr")) {
             System.out.println("txt_tr");
             if (lines.length % 2 == 0) {
@@ -1194,14 +1193,12 @@ public class AdminWindow extends javax.swing.JFrame {
             String transcriptionFolderName = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME;
             transcriptionFolder = new File(transcriptionFolderName);
             if (transcriptionFolder.exists()) {
-                System.out.println("YYY dir already exists");
+                System.out.println("transcription folder already exists");
             }
             else {
-                System.out.println("YYY dir doesn't exist, attempting to create it..");
                 Boolean hasDirBeenCreated = transcriptionFolder.mkdirs();
-                System.out.println("YYY hasDirBeenCreated: "+hasDirBeenCreated);
                 if(hasDirBeenCreated) {
-                    System.out.println("YYY transc dir created");
+                    System.out.println("transcription folder created");
                 }
                 else {
                     System.err.println("Cannot create transcription folder -- exiting.");
@@ -1210,9 +1207,8 @@ public class AdminWindow extends javax.swing.JFrame {
             }
         }
         else {
-            System.out.println("NOT txt_tr, but "+selectedFile_ext);
+            System.out.println("input file extension is not txt_tr, but "+selectedFile_ext+", so it contains ortographic sentences without transcriptions.");
         }
-        // gs end
 
         for (int i=0; i<lines.length; i++) {
             String line = lines[i];
@@ -1244,7 +1240,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 if (pw != null) pw.close();
             }
 
-            // gs
+            // transcription case:
             if ( inputHasAlsoTranscription==true) {
                 // modify pattern: best would be something like sed "s/.txt$/.tr$/"
                 // easy but dirty:
@@ -1273,7 +1269,7 @@ public class AdminWindow extends javax.swing.JFrame {
                     if (pw != null) pw.close();
                 }
             }
-            // gs end
+
         }
         scriptWriter.close();
         setupVoice();
