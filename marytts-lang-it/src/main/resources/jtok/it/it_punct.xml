@@ -76,6 +76,8 @@
     <HYPHEN regexp="-(?!\d)" class="PUNCTUATION"/>
     <SCOLON regexp=";" class="PUNCTUATION"/>
     <COLON regexp=":" class="PUNCTUATION"/>
+    <ELIPSES3 regexp="\.\.\." class="PUNCTUATION"/>
+    <ELIPSES2 regexp="\.\." class="PUNCTUATION"/>
     <!-- only match a comma when it's not followed by a digit -->
     <!-- because it's then digit internal, like in 3,5 -->
     <COMMA regexp=",(?!\d)" class="PUNCTUATION"/>
@@ -111,7 +113,7 @@
     <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
     <!-- instead of `a|ab|abc' -->
     <ALL_PUNCT_RULE>
-      (<SPECIAL_INT/>)(?=\w)|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
+      (<SPECIAL_INT/>)(?=\w)|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
     </ALL_PUNCT_RULE>
 
     <!-- punctuation which can mark clitics; this rule is used -->
@@ -124,7 +126,7 @@
 
     <!-- punctuation which can be found in compounds -->
     <INTERNAL_PUNCT_RULE>
-      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<PERIOD/>|<AMP/>|<URI_TOKEN/>|<SLASH/>|<COLON/>|<NBL/>
+      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<AMP/>|<URI_TOKEN/>|<SLASH/>|<COLON/>|<NBL/>
     </INTERNAL_PUNCT_RULE>
 
     <!-- non-breaking punctuation on the left side of a token; -->
@@ -143,7 +145,7 @@
 
     <!-- punctuation which can be found only within sentences -->
     <INTERNAL_TU_PUNCT_RULE>
-      <COMMA/>|<SCOLON/>|<COLON/>
+      <COMMA/>|<SCOLON/>|<COLON/>|<ELIPSES3/>|<ELIPSES2/>
     </INTERNAL_TU_PUNCT_RULE>
 
   </RULES>
