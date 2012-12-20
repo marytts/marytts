@@ -18,6 +18,7 @@
  *
  */
 package marytts.tools.redstart;
+import org.apache.commons.io.FilenameUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -1172,6 +1173,41 @@ public class AdminWindow extends javax.swing.JFrame {
             return;
         }
         File textFolder = getPromptFolderPath();
+
+        // gs:
+        // if file ends with .txt_tr then it has also transcriptions in it
+        String selectedFile_ext = FilenameUtils.getExtension(file.getName());
+        Boolean inputHasAlsoTranscription=false;
+        File transcriptionFolder = new File("");
+
+        // gs: transcription folder name, and makedir
+        if (selectedFile_ext.equals("txt_tr")) {
+            System.out.println("txt_tr");
+            inputHasAlsoTranscription=true;
+	      //            String transcriptionFolderName = voiceFolderPathString + AdminWindow.PROMPT_FOLDER_NAME; 
+	                  String transcriptionFolderName = System.getProperty("user.dir").concat("/transcription");
+            transcriptionFolder = new File(transcriptionFolderName);
+            if (transcriptionFolder.exists()) {
+                System.out.println("YYY dir already exists");
+            }
+            else {
+                System.out.println("YYY dir doesn't exist, attempting to create it..");
+                Boolean hasDirBeenCreated = transcriptionFolder.mkdirs();
+                System.out.println("YYY hasDirBeenCreated: "+hasDirBeenCreated);
+                if(hasDirBeenCreated) {
+                    System.out.println("YYY transc dir created");
+                }
+                else {
+                    System.err.println("Cannot create transcription folder -- exiting.");
+                    System.exit(0);
+                }
+            }
+        }
+        else {
+            System.out.println("NOT txt_tr, but "+selectedFile_ext);
+        }
+        // gs end
+
         for (int i=0; i<lines.length; i++) {
             String line = lines[i];
             if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
@@ -1195,6 +1231,34 @@ public class AdminWindow extends javax.swing.JFrame {
                 return;
             } finally {
                 if (pw != null) pw.close();
+            }
+
+            if ( inputHasAlsoTranscription==true) {
+                // modify pattern: best would be something like sed "s/.txt$/.tr$/"
+                // easy but dirty:
+                String transc_pattern=pattern.replace(".txt",".tr");
+                filename = String.format(transc_pattern, i+1);
+                i++;
+                line = lines[i];
+                File transcriptionTextFile = new File(transcriptionFolder, filename);
+                if (transcriptionTextFile.exists()) {
+		  JOptionPane.showMessageDialog(this, "Cannot writing file "+transcriptionTextFile.getName()+":\n"
+                            +"File exists!\n"
+                            +"Aborting text file import.");
+                    return;
+                }
+                pw = null;
+                try {
+                    pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(transcriptionTextFile), "UTF-8"));
+                    pw.println(line);
+                    scriptWriter.println(filename.substring(0, filename.lastIndexOf('.'))+" "+line);
+                } catch (IOException ioe) {
+                    JOptionPane.showMessageDialog(this, "Error writing file "+filename+":\n"+ioe.getMessage());
+                    ioe.printStackTrace();
+                    return;
+                } finally {
+                    if (pw != null) pw.close();
+                }
             }
         }
         scriptWriter.close();
