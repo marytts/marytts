@@ -1252,6 +1252,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 filename = String.format(transc_pattern, sent_index);
                 i++;
                 line = lines[i];
+                if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
                 File transcriptionTextFile = new File(transcriptionFolder, filename);
                 if (transcriptionTextFile.exists()) {
 		  JOptionPane.showMessageDialog(this, "Cannot writing file "+transcriptionTextFile.getName()+":\n"
