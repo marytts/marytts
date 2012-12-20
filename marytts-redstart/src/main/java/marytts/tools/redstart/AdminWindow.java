@@ -1174,7 +1174,7 @@ public class AdminWindow extends javax.swing.JFrame {
         }
         File textFolder = getPromptFolderPath();
 
-        // if file ends with .txt_tr then it has also transcriptions in it
+        // if filename ends with ".txt_tr" then it has also transcriptions in it
         String selectedFile_ext = FilenameUtils.getExtension(file.getName());
         Boolean inputHasAlsoTranscription=false;
         File transcriptionFolder = new File("");
@@ -1186,7 +1186,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 // even
             } else {
                 // odd
-                System.err.println(".txt_tr has an odd number of lines, so it's corrupted, exiting.");
+                System.err.println(".txt_tr file has an odd number of lines, so it's corrupted, exiting.");
                 System.exit(0);
             }
             inputHasAlsoTranscription=true;
@@ -1196,8 +1196,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 System.out.println("transcription folder already exists");
             }
             else {
-                Boolean hasDirBeenCreated = transcriptionFolder.mkdirs();
-                if(hasDirBeenCreated) {
+                if(transcriptionFolder.mkdirs()) {
                     System.out.println("transcription folder created");
                 }
                 else {
