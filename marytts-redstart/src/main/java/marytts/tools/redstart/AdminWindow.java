@@ -18,6 +18,7 @@
  *
  */
 package marytts.tools.redstart;
+import org.apache.commons.io.FilenameUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -1172,10 +1173,51 @@ public class AdminWindow extends javax.swing.JFrame {
             return;
         }
         File textFolder = getPromptFolderPath();
+
+        // if filename ends with ".txt_tr" then it has also transcriptions in it
+        String selectedFile_ext = FilenameUtils.getExtension(file.getName());
+        Boolean inputHasAlsoTranscription=false;
+        File transcriptionFolder = new File("");
+
+        // transcription folder name, and makedir
+        if (selectedFile_ext.equals("txt_tr")) {
+            System.out.println("txt_tr");
+            if (lines.length % 2 == 0) {
+                // even
+            } else {
+                // odd
+                System.err.println(".txt_tr file has an odd number of lines, so it's corrupted, exiting.");
+                System.exit(0);
+            }
+            inputHasAlsoTranscription=true;
+            String transcriptionFolderName = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME;
+            transcriptionFolder = new File(transcriptionFolderName);
+            if (transcriptionFolder.exists()) {
+                System.out.println("transcription folder already exists");
+            }
+            else {
+                if(transcriptionFolder.mkdirs()) {
+                    System.out.println("transcription folder created");
+                }
+                else {
+                    System.err.println("Cannot create transcription folder -- exiting.");
+                    System.exit(0);
+                }
+            }
+        }
+        else {
+            System.out.println("input file extension is not txt_tr, but "+selectedFile_ext+", so it contains ortographic sentences without transcriptions.");
+        }
+
         for (int i=0; i<lines.length; i++) {
             String line = lines[i];
             if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
-            String filename = String.format(pattern, i+1);
+            int sent_index = i+1;
+            if ( inputHasAlsoTranscription==true) {
+                sent_index = i/2+1;
+            }
+
+            String filename = String.format(pattern, sent_index);
             System.out.println(filename + " " + line);
             File textFile = new File(textFolder, filename);
             if (textFile.exists()) {
@@ -1196,6 +1238,37 @@ public class AdminWindow extends javax.swing.JFrame {
             } finally {
                 if (pw != null) pw.close();
             }
+
+            // transcription case:
+            if ( inputHasAlsoTranscription==true) {
+                // modify pattern: best would be something like sed "s/.txt$/.tr$/"
+                // easy but dirty:
+                String transc_pattern=pattern.replace(".txt",".tr");
+                filename = String.format(transc_pattern, sent_index);
+                i++;
+                line = lines[i];
+                if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
+                File transcriptionTextFile = new File(transcriptionFolder, filename);
+                if (transcriptionTextFile.exists()) {
+		  JOptionPane.showMessageDialog(this, "Cannot writing file "+transcriptionTextFile.getName()+":\n"
+                            +"File exists!\n"
+                            +"Aborting text file import.");
+                    return;
+                }
+                pw = null;
+                try {
+                    pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(transcriptionTextFile), "UTF-8"));
+                    pw.println(line);
+                    scriptWriter.println(filename.substring(0, filename.lastIndexOf('.'))+" "+line);
+                } catch (IOException ioe) {
+                    JOptionPane.showMessageDialog(this, "Error writing file "+filename+":\n"+ioe.getMessage());
+                    ioe.printStackTrace();
+                    return;
+                } finally {
+                    if (pw != null) pw.close();
+                }
+            }
+
         }
         scriptWriter.close();
         setupVoice();
