@@ -84,10 +84,10 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
 
 <definitions>
   <!-- list of part of speechs that don't receive an accent (function words)-->
-  <list name="pos_no_accent" items="AP:BN:CC:CS:DD:DE:DI:DQ:DR:E:EA:PC:PD:PE:PI:PP:PQ:PR:RD:RI:T:VA:VM"/>
+  <list name="pos_no_accent" items="AP:BN:CC:CS:DD:DE:DI:DQ:DR:E:EA:PC:PD:PE:PI:PP:PQ:PR:RD:RI:T:VA:VM"/> <!-- TOCHECK: DE,DQ,PQ to check -->
 
   <!-- list of part of speechs that receive an accent (content words) -->
-  <list name="pos_tonal_accent" items="A:B:I:N:NO:S:SA:SP:SW:V:X"/>
+  <list name="pos_tonal_accent" items="A:B:I:N:NO:S:SA:SP:SW:V:X"/>  <!-- TOCHECK: V to check --> 
 
   <!-- list of part of speechs for punctuation (used in boundary rules)-->
   <list name="pos_punctuation" items="FB FC FF FS $PUNCT $, $( punc PUNC , '' # . "/>
@@ -97,19 +97,20 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <!-- default accents for user input, f.e. preferred-accent-shape="rising" -->
   <list name="rising_accents" items="L+H*"/>
   <list name="falling_accents" items="H+L*"/>
-  <list name="alternating_accents" items="L*:H*"/>
+  <list name="alternating_accents" items="L*:H*"/> <!-- TOCHECK: -->
 
   <!-- default boundary tones for user input, f.e. preferred-boundary-type="high" -->
   <list name="high_major_boundary" items="H-H%"/>
   <list name="low_major_boundary" items="L-L%"/>
+  <list name="low_high_major_boundary" items="L-H%"/>
   <list name="high_minor_boundary" items="H-"/>
   <list name="low_minor_boundary" items="L-"/>
 
   <!-- default boundary tones for user input tone="unknown" -->
-  <list name="default_IP_midOfSent" items="H-L%"/>
-  <list name="default_ip" items="H-"/>
+  <list name="default_IP_midOfSent" items="L-H%"/>
+  <list name="default_ip" items="L-"/>
   <list name="default_IP_endOfSent" items="L-L%"/>
-  <list name="default_IP_endOfInterrogSent" items="H-H%"/>
+  <list name="default_IP_endOfInterrogSent" items="L-H%"/>
 </definitions>
 
 <!-- the accentposition rules determine if a token gets a tone accent or if it doesn't receive any accent (no force accents in English) -->
@@ -144,12 +145,13 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <attributes accent="tone"/>
     <action accent="!H*"/>
   </rule>
+  <!-- TOCHECK: Togli la regola precedente, è sotituita dalla declinazione del contorno intonativo nelle dichiarative. -->
 
   <rule> <!-- nuclear accent in declarative sentence, at end of paragraph -->
     <sentence type="decl"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="!H*"/>
+    <action accent="L+H*"/>
   </rule>
   
   <rule> <!-- prenuclear accent in exclamative sentence -->
@@ -163,35 +165,37 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <sentence type="excl"/>
     <prosodicPosition type="nuclearNonParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="H*"/>
+    <action accent="H+L*"/>
   </rule>
   
   <rule> <!-- nuclear accent in exclamative sentence, at end of paragraph -->
     <sentence type="excl"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="H*"/>
+    <action accent="H+L*"/>
   </rule>
+  
   
   <rule> <!-- prenuclear accent in interrogative sentence -->
     <sentence type="interrog"/>
     <prosodicPosition type="prenuclear"/>
     <attributes accent="tone"/>
-    <action accent="H*"/>
+    <action accent="H+L*"/>
   </rule>
   
+ 
   <rule> <!-- nuclear accent in interrogative sentence, not at end of paragraph -->
     <sentence type="interrog"/>
     <prosodicPosition type="nuclearNonParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="L*"/>
+    <action accent="H+L*"/>
   </rule>
   
   <rule> <!-- nuclear accent in interrogative sentence, at end of paragraph -->
     <sentence type="interrog"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
     <attributes accent="tone"/>
-    <action accent="L*"/>
+    <action accent="H+L*"/>
   </rule>
   
   <rule> <!-- catchall rule in case none of the others fired -->
@@ -200,7 +204,7 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   </rule>
 </accentshape>
 
-<!-- the boundaries rules determine if a boundary has to bo inserted after the current token; the rules also determine break index and boundary tone -->
+<!-- the boundaries rules determine if a boundary has to be inserted after the current token; the rules also determine break index and boundary tone -->
 <boundaries>
   <rule> <!-- if there is a punctuation mark at the beginning of sentence, no boundary will be inserted after it-->  
     <prevTokens num="0"/>
@@ -229,8 +233,11 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <rule> <!-- major boundary at end of interrogative sentence at end of paragraph -->
     <sentence type="interrog"/>
     <specialPosition type="endofpar"/>
-    <action bi="6" tone="H-H%"/>
+    <action bi="6" tone="L-H%"/> <!-- TOCHECK: temporary-->
   </rule>
+  
+    <!-- TOCHECK: cancella la precedente regola ed inserisci questa: se con parola interrogtiva che inizia con chi, cosa, perchè quale, come ... allora -> L-L% altrimenti (non inizia con: ...) L-H% -->
+ 
 
   <rule> <!-- major boundary at end of declarative sentence, not at end of paragraph -->
     <sentence type="decl"/>
@@ -247,7 +254,7 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <rule> <!-- major boundary at end of interrogative sentence, not at end of paragraph -->
     <sentence type="interrog"/>
     <folTokens num="0"/>
-    <action bi="5" tone="H-H%"/>
+    <action bi="5" tone="L-H%"/>
   </rule>
   
   <rule> <!-- major boundary after a punctuation mark in the middle of the sentence -->
@@ -256,6 +263,10 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <prevTokens num="1+"/>
     <action bi="4" tone="H-L%"/>
   </rule>
+
+<!-- TOCHECK: insert the , ; : rules   -->
+<!-- TOCHECK: please insert rules R1 and R2 R3 -->
+
 
 </boundaries>
 </tobipredparams>

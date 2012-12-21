@@ -101,6 +101,15 @@ fill_f0 = 100 ; define constant
 select pp
 # TODO tweak parameters?
 tg = To TextGrid (vuv)... 0.02 0.01
+# sanity check: are there even any unvoiced intervals?
+ni = Get number of intervals... 1
+if ni == 1
+  i$ = Get label of interval... 1 1
+  if i$ == "V"
+    select pp
+    goto writepp
+  endif
+endif
 it = Extract tier... 1
 uv = Down to TableOfReal... U
 
@@ -157,6 +166,7 @@ for row to Object_'uv'.nrow
   endwhile
 endfor
 
+label writepp
 Write to short text file... 'pointpFile$'
 printline 'basename$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz ('percent$'%)
 
@@ -167,8 +177,8 @@ plus pitch
 plus pt
 plus pp
 plus tg
-plus it
-plus uv
+nocheck plus it
+nocheck plus uv
 Remove
 
 endproc

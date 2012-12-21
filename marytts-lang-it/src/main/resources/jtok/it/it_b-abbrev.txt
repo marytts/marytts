@@ -1,0 +1,65 @@
+# This contains a list of Italian breaking abbreviations, 
+# words which are always abbreviated, even when they appear at the 
+# end of a sentence. Thus the period is ambiguous.
+# The list only contains abbreviations that are not matched 
+# by the rules defined in en_abbrev.xml
+
+A.
+Cfr.    #Confronta
+DAB.
+Doc.    #Documento
+G.
+M.
+N.      #Numero
+NN.
+On.     #Onorevole
+Onn.    #Onorevoli
+Pag.    #Pagina
+Pagg.   #Pagine
+Prof.   #Professore
+Prov.   #Provincia
+Q.C.S.
+R.f.
+REV.
+S.      #San
+Sig.    #Signore
+Sigg.   #Signori
+Sigg.   #Signori
+St.     #Saint
+St.     #Saint
+U.S.    #United States
+Vol.    #Volume
+WHF.
+al      #et al.
+art.    #Articolo
+artt.   #Articoli
+cfr.    #Confronta
+cm.     #Centimetro
+def.
+doc.    #Documento
+dott.   #Dottore
+ecc.    #Eccetera
+es.     #Esempio
+etc.    #etcetera
+kg.     #Chilogrammo
+km.     #Chilometro
+mq.     #Metri Quadrati
+mrd.    #Migliardi
+n.      #Numero
+nn.     #Numeri
+on.     #Onore Volumevole
+on.     #Onorevole
+onn.    #Onorevoli
+pag.    #Pagina
+pagg.   #Pagine
+par.    #Paragrafo
+prof.   #Professore
+prov.   #Provincia
+rev.
+riv.
+segg.
+sig.    #Signore
+sigg.   #Signori
+t.
+vol.    #Volume
+
