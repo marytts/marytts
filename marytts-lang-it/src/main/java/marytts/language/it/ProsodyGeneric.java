@@ -900,9 +900,9 @@ public class ProsodyGeneric extends InternalModule {
         } else  prosodicPositionType = "prenuclear"; // nucleus is assigned --> prenuclear
         
 		// Debug code:
-        token.setAttribute("prosodicPositionType", prosodicPositionType);
+        /*token.setAttribute("prosodicPositionType", prosodicPositionType);
         token.setAttribute("specialPositionType", specialPositionType);
-        token.setAttribute("sentenceType", sentenceType);
+        token.setAttribute("sentenceType", sentenceType);*/
         	        	
         Element ruleList = null;
         // only the "accentshape" rules are relevant
