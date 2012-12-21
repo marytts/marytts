@@ -673,6 +673,7 @@ THIS SOFTWARE.
         <xsd:attribute name="ending" type="ending.type"/>
         <xsd:attribute name="g2p_method" type="g2pmethod.type"/>
         <xsd:attribute name="pos" type="xsd:string"/>
+        <xsd:attribute name="pos_full" type="xsd:string"/>
         <xsd:attribute name="ph" type="xsd:string"/>
         <xsd:attribute name="sounds_like" type="xsd:string"/>
         <xsd:attribute name="syn_attach" type="xsd:string"/>
