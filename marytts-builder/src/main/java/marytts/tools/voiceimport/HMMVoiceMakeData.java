@@ -814,7 +814,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         for (int i=0; i<numTestFiles; i++) {
             basename = StringUtils.getFileName(feaFiles[i]);
             FileUtils.copy(voiceDir + "hts/data/labels/full/" + basename + ".lab" , voiceDir + "hts/data/labels/gen/gen_" + basename + ".lab");
-            FileUtils.delete(voiceDir + "hts/data/labels/full/" + basename + ".lab");
+            // Un-comment the following line line for scientific testing
+            //FileUtils.delete(voiceDir + "hts/data/labels/full/" + basename + ".lab");
         }
     }
 
