@@ -697,7 +697,8 @@ public class FeatureMaker
                     //if (".,'`:#$F".indexOf(pos.substring(0,1)) != -1) || pos == FS {
                     // punctuation and closed parenthesis: no space added
                     //,.?!;:()\"'
-                    if ( ",.?!;:)\"'".indexOf(tokenText.substring(0,1)) != -1 ) {
+                    // The apostrophe and \"' are removed from here  in order to jump in the add space case 
+                    if ( ",.?!;:)".indexOf(tokenText.substring(0,1)) != -1 ) {
                     //if ( ".,'`:;)".indexOf(tokenText.substring(tokenText.length() - 1)) != -1 ) {
                         //punctuation
                         //tokenText = MaryDomUtils.tokenText((Element)nextToken);
