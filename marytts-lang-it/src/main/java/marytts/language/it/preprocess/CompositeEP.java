@@ -67,7 +67,7 @@ public class CompositeEP extends ExpansionPattern
     // TODO: FABIO Check if better with new REPattern...
     // This is used for c'X t'X d'X () 
     Pattern reOneLetterAndApostrophe =
-    		Pattern.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú][^']*)+)+");
+    		Pattern.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú0-9][^']*)+)+");
     
     // Both letters and digits, in any order:
     Pattern reLettersAndDigits = Pattern.compile
