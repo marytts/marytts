@@ -262,7 +262,7 @@ public class SelectionFunction{
             // write selected sentence transcription 
             selectedLog.println(sel[i] + " " + str);
             selected_tra_Log.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " <" + transcription + ">");
+            selected_tra_Log.println(sel[i] + " " + transcription);
           }
           selectedLog.close();
           selected_tra_Log.close();

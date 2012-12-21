@@ -773,7 +773,7 @@ public class DatabaseSelector
                   // write selected sentence transcription 
                   wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
                   selected_tra_Log.println(sel[i] + " " + str);
-                  selected_tra_Log.println(sel[i] + " <" + transcription + ">");
+                  selected_tra_Log.println(sel[i] + " " + transcription);
                 } else{
                   unwantedLog.close();
                   selectedLog.close();
