@@ -297,7 +297,7 @@ public class NumberEP extends ExpansionPattern
 
         // Special treatment for the 0:
         if (value == 0) {
-            return(new String("null"));
+            return(new String("zero"));
         }
         if (value < 0) {
             buf.append("meno ");
