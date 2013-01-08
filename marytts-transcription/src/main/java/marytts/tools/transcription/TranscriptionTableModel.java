@@ -63,9 +63,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
     private boolean[] hasManualVerification; 
     private boolean[] hasCorrectSyntax;
     private int editableColumns = 2;
+    private int datafieldsize = 5;
     public TranscriptionTableModel(){
-    
-        this.data = new Object[20][4];
+        this.data = new Object[20][datafieldsize];
         this.hasManualVerification  =  new boolean[20];
         this.hasCorrectSyntax  =  new boolean[20];
         for(int i=0; i < 20; i++){
@@ -73,6 +73,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][1] = "";
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
+            data[i][4] = "";
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
@@ -88,7 +89,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         
         String fileData   =  FileUtils.getFileAsString(new File(fileName), "UTF-8");
         String[] words    =  fileData.split("\n");
-        this.data         =  new Object[words.length][4];
+        this.data         =  new Object[words.length][datafieldsize];
         this.hasManualVerification  =  new boolean[words.length];
         this.hasCorrectSyntax  =  new boolean[words.length];
         for(int i=0; i < words.length; i++){
@@ -96,6 +97,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][1] = words[i];
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
+            data[i][4] = "";
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
@@ -191,9 +193,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
             Object[][] oldData = this.data;
             boolean[] oldHasManualVerification = this.hasManualVerification;
             boolean[] oldHasCorrectSyntax = this.hasCorrectSyntax;
-            this.data = new Object[oldData.length+lines.size()][4];
+            this.data = new Object[oldData.length+lines.size()][datafieldsize];
             for (int i=0; i<oldData.length; i++) {
-                System.arraycopy(oldData[i], 0, this.data[i], 0, 4);
+                System.arraycopy(oldData[i], 0, this.data[i], 0, 5);
                 currentWords.add((String)oldData[i][1]);
             }
             this.hasManualVerification = new boolean[this.data.length];
@@ -202,7 +204,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             System.arraycopy(oldHasCorrectSyntax, 0, this.hasCorrectSyntax, 0, oldData.length);
             offset = oldData.length;
         } else {
-            this.data = new Object[lines.size()][4];
+            this.data = new Object[lines.size()][datafieldsize];
             this.hasManualVerification  =  new boolean[data.length];
             this.hasCorrectSyntax  =  new boolean[data.length];
             offset = 0;
@@ -239,6 +241,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 data[pos][3] = Boolean.FALSE;
                 if(words.length >= 2){
                     data[pos][2] = words[1].trim();
+                    if(words.length >= 3){
+                    data[pos][4] = words[2].trim();
+                    }
                     setAsManualVerify(pos, true);
                     setAsCorrectSyntax(pos, true);
                 } else {
@@ -260,7 +265,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
     public void loadTranscription(HashMap<String, Integer> wordList) throws Exception{
         
         int length = wordList.size();
-        this.data  =  new Object[length][4];
+        this.data  =  new Object[length][datafieldsize];
         this.hasManualVerification  =  new boolean[length];
         this.hasCorrectSyntax  =  new boolean[length];
         Iterator<String> it = wordList.keySet().iterator();
@@ -269,6 +274,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
+            data[i][4] = "";
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
                        
@@ -280,7 +286,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
     public void loadTranscription(ArrayList<String> wordList) {
         
         int length = wordList.size();
-        this.data  =  new Object[length][4];
+        this.data  =  new Object[length][datafieldsize];
         this.hasManualVerification  =  new boolean[length];
         this.hasCorrectSyntax  =  new boolean[length];
         Iterator<String> it = wordList.iterator();
@@ -289,6 +295,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
+            data[i][4] = "";
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
@@ -345,6 +352,46 @@ public class TranscriptionTableModel extends AbstractTableModel {
         lastSavedData = storeLastSavedData();
 
     }
+    
+    /**
+     * Save user entered and verified transcription in to lexicon format 
+     * @param fileName
+     * @throws IOException
+     */
+    public void saveSampaLexiconFormatPOS(String fileNamePOS, AllophoneSet phoneSet) throws IOException{
+        if(!hasLexiconData()) return;
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileNamePOS), "UTF-8"));
+        for(int i=0; i < data.length; i++){
+        	String form = (String) data[i][1];
+            
+        	// Add the form without POS
+        	String line;
+        	if(!((String)data[i][2]).equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]){
+        		line =  form;
+        		String grapheme = phoneSet.splitAllophoneString((String)data[i][2]);
+        		line += "|"+grapheme;
+        		out.println(line);
+        	}
+        
+        	// Add the form with POS
+        	line ="";
+        	if(!((String)data[i][2]).equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]){
+        		if (((String)data[i][4]).equals(""))
+        			line = form;
+        		else
+        			line = form+(String) data[i][4];
+	         
+        		String grapheme = phoneSet.splitAllophoneString((String)data[i][2]);
+        		line += "|"+grapheme;
+        		out.println(line);
+        	}
+        }
+        out.flush();
+        out.close();
+        // Saved the data - so, stored data have to modify 
+        lastSavedData = storeLastSavedData();
+    }
+    
     
     /**
      * Save all functional words into text file
