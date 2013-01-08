@@ -214,12 +214,16 @@ public class LTSLexiconPOSBuilder {
             baseName = filename.substring(0, filename.lastIndexOf("."));
         }
         String lexiconFile = dirName + File.separator + baseName + "_lexicon.dict";
+        String lexiconFilePOS = dirName + File.separator + baseName + "_lexiconPOS.dict";
         String fstFile = dirName + File.separator + baseName + "_lexicon.fst";
+        String fstFilePOS = dirName + File.separator + baseName + "_lexiconPOS.fst";
         String posFile = dirName + File.separator + baseName + "_pos.list";
         String posFst = dirName + File.separator + baseName + "_pos.fst";
 
         transcriptionModel.saveSampaLexiconFormat(lexiconFile, phoneSet);
+        transcriptionModel.saveSampaLexiconFormatPOS(lexiconFilePOS, phoneSet);
         transcriptionModel.createLexicon(lexiconFile, fstFile);
+        transcriptionModel.createLexicon(lexiconFilePOS, fstFilePOS);
         transcriptionModel.saveFunctionalWords(posFile);
         transcriptionModel.createPOSFst(posFile, posFst);
         // trainLTS(treeAbsolutePath);
