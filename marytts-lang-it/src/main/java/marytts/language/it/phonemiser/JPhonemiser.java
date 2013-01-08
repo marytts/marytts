@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 
@@ -95,4 +97,16 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		return super.phonemiseLookupOnly(privatedict, text, pos, g2pMethod);
 	}
 
+	protected String getPosTag(Element t) {
+		String pos = null;
+		if (t != null) {
+			// use part-of-speech if available
+			if (t.hasAttribute("pos_full")) {
+				pos = t.getAttribute("pos_full");
+			}
+		}
+		return pos;
+	}
+	
+	
 }
