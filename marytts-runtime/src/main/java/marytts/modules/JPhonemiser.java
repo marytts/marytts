@@ -202,6 +202,17 @@ public class JPhonemiser extends InternalModule
     	return privatedict;
     }
 
+	protected String getPosTag(Element t) {
+		String pos = null;
+		if (t != null) {
+			// use part-of-speech if available
+			if (t.hasAttribute("pos")) {
+				pos = t.getAttribute("pos");
+			}
+		}
+		return pos;
+	}
+
 	public MaryData process(MaryData d)
         throws Exception
     {
@@ -229,11 +240,7 @@ public class JPhonemiser extends InternalModule
                 else
                     text = MaryDomUtils.tokenText(t);
                 
-                String pos = null;
-                // use part-of-speech if available
-                if (t.hasAttribute("pos")){
-                    pos = t.getAttribute("pos");
-                }
+                String pos = this.getPosTag(t);
                 
                 if (text != null && !text.equals("")) {
                     // If text consists of several parts (e.g., because that was
