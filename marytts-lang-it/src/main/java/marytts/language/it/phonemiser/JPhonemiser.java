@@ -68,7 +68,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		if ((pos != null) && pos.length() != 0) {
 			switch (pos.charAt(0)) {
 			case 'V':
-				pos = pos.replaceAll("\\d.*$", "").replaceAll("^V[AM]", "V");
+				pos = pos.replaceAll("(\\d.*|[mf][sp])$", "").replaceAll("^V[AM]", "V");
 				break;
 			case 'T':
 				pos = "D";
