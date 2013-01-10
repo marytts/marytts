@@ -20,165 +20,95 @@
 
 package marytts.language.it;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.modules.InternalModule;
 import marytts.modules.PronunciationModel;
-import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
-
 /**
- * The postlexical phonological processes module.
- * Used as first option to solve proclitics tokens and sillabification merging
- *  
- * @author Fabio Tesser
+ * The postlexical phonological processes module. Used as first option to solve
+ * proclitics tokens and sillabification merging
+ * 
+ * @author Fabio Tesser and Giulio Paci
  */
 
-public class Postlex extends PronunciationModel
-{
+public class Postlex extends PronunciationModel {
 
-    public Postlex()
-    {
-        super(Locale.ITALIAN);
-    }
-
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        //System.err.println("Italian Postlex START");
-        Document doc = d.getDocument();
-        mtuMergeTokenPostlex(doc);
-        return super.process(d);
-    }
-    
-    /*
-     * Return Quote space if quote present 
-     */
-    String returnQuoteIfStress(String lPhones){
-        if(lPhones.indexOf("'")!=-1)
-        {
-           //System.out.println("there is ' in temp string");
-           return "' ";
-        }
-        else
-        {
-           //System.out.println("there is no ' in temp string");
-           return "";
-        }
-    }
-    
-
-    /*
-     * This method is used when proclitics are found in mtu
-     * proclitics is c'X (if there is in it_clitics.xml)
-     * 
-     */
-    private void mtuMergeTokenPostlex(Document doc)
-            throws DOMException
-        {
-            TreeWalker tw = ((DocumentTraversal)doc).
-                createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
-                                 new NameNodeFilter(MaryXML.MTU), false);
-            Element m = null;
-            while ((m = (Element)tw.nextNode()) != null) {
-                if (MaryDomUtils.hasAncestor(m, MaryXML.MTU)) // not highest-level
-                    continue;
-                // Now m is a highest-level mtu element
-                // Search for the token whose accent is retained;
-                // all other accents will be deleted.
-                Element c = m;
-                while (c != null &&
-                       !c.getTagName().equals(MaryXML.TOKEN)) {
-                    String whatToAccent = c.getAttribute("accent");
-                    // check for last-proclitics (c' t' d' X)
-                    if (whatToAccent != null && whatToAccent.equals("last-proclitics")){
-                        //System.err.println("token to join!!! in " + c.getNodeName());
-                        Element c1 = MaryDomUtils.getFirstChildElement(c);
-                        // get the anchor as reference in order to delete the children after 
-                        Element c_anchor = c;
-                        // set c as last (second) child element in this case
-                        // WARNING we treat the case with 2 token only!!!
-                        c = MaryDomUtils.getLastChildElement(c);
-                        // merge ph and POS?
-                        c.setAttribute("merged-token", "yes");// + "-" +c1.getAttribute("pos") + "+" +c.getAttribute("pos"));
-                        //c.setAttribute("g2p_method", "compound:" + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method"));
-                        c.setAttribute("g2p_method", "compound"); // + c1.getAttribute("g2p_method") + "+" + c.getAttribute("g2p_method")); 
-                        // TODO: accent= to merge? take the first or the second?
-                        //c.setAttribute("accent", c1.getAttribute("accent")); // + "+" + c.getAttribute("accent"));
-                        //c.removeAttribute("accent");
-                        c.setTextContent(c1.getTextContent() + "+" + c.getTextContent());
-                        //Merge the ph and write the quote if necessary
-                        c.setAttribute("ph", returnQuoteIfFirstStress(c.getAttribute("ph")) + c1.getAttribute("ph") + " " + c.getAttribute("ph"));
-                        // TODO: the right way to do this should be to re-sillabify and re assign the stress.
-                        
-                        //c.setAttribute("ph", c1.getAttribute("ph") + " " + c.getAttribute("ph"));
-                        //String lPhones=c1.getAttribute("ph") + " " + c.getAttribute("ph");
-                        
-                        // TODO:  POS are not merged if you want to merge the POS:
-                        //c.setAttribute("pos", c1.getAttribute("pos") + "+" +c.getAttribute("pos"));                        
-                        // set the pos of the second token
-                        //c.setAttribute("pos",c.getAttribute("pos"));
-                        
-                        // remove child token
-                        c_anchor.removeChild(c1);
-                        }
-                    else
-                        c = MaryDomUtils.getLastChildElement(c);
-                }
-                
-                /*Element retainAccentToken = c;
-
-                   // Now all token below m except retainAccentToken get
-                // their accent deleted.
-                System.err.println("the olio" + m.getNodeName());
-                NodeList tokens = m.getElementsByTagName(MaryXML.TOKEN);
-                System.err.println("OK number" + tokens.getLength());
-                for (int i=0; i<tokens.getLength(); i++) {
-                    Element t = (Element) tokens.item(i);
-                    System.err.println("OK" );
-                    if (t == retainAccentToken) // not the same *Object*!
-                    {
-                        
-                        System.err.println("VAI!!!!:"  + t.getNodeName());
-                        t.setNodeValue("aaaa");
-                        //System.err.println("VAI!!!!:"  + t.get);
-                        //Element syl = MaryDomUtils.getFirstChildElement(t);       
-                        // System.err.println("VAI!!!!: " + syl.getLocalName());
-                    }
-                }*/
-                
-            } // for all highest-level mtu elements
-        }
-
-	private String returnQuoteIfFirstStress(String lPhones) {
-		// TODO Auto-generated method stub
-		if(lPhones.indexOf("'")==0)
-        {
-           //System.out.println("there is ' in first position temp string");
-           return "' ";
-        }
-        else
-        {
-           //System.out.println("there is no ' in first position of temp string");
-           return "";
-        }
-		
-
+	public Postlex() {
+		super(Locale.ITALIAN);
 	}
-    
+
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		mtuPostlex(doc);
+		return super.process(d);
+	}
+
+	private static void mergeIntoLastElement(Element c1, Element c2) {
+		if ((c1 != null) && (c1 != null)) {
+			c2.setAttribute("merged-token", "yes");
+			c2.setAttribute("g2p_method", "compound");
+			c2.setTextContent(c1.getTextContent() + "+" + c2.getTextContent());
+			// TODO fix accents and syllabification
+			c2.setAttribute("ph", c1.getAttribute("ph") + " " + c2.getAttribute("ph"));
+		}
+	}
+
+	/*
+	 * This method is used when proclitics are found in mtu proclitics is c'X
+	 * (if there is in it_clitics.xml)
+	 */
+	private void mtuPostlex(Document doc) throws DOMException {
+		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.MTU), false);
+		Element m = null;
+		while ((m = (Element) tw.nextNode()) != null) {
+			if (MaryDomUtils.hasAncestor(m, MaryXML.MTU)) // not highest-level
+				continue;
+			// Now m is a highest-level mtu element
+			Element c = m;
+			while (c != null && !c.getTagName().equals(MaryXML.TOKEN)) {
+				String whatToAccent = c.getAttribute("accent");
+				// check for last-proclitics (c' t' d' X)
+				if (whatToAccent != null
+						&& whatToAccent.equals("last-proclitics")) {
+					Element c1 = MaryDomUtils.getFirstChildElement(c);
+					boolean done = false;
+					if (c1 != null) {
+						while (!done) {
+							done = true;
+							Element c2 = MaryDomUtils.getNextSiblingElement(c1);
+							if ((c2 != null) && (MaryXML.TOKEN.equals(c1.getTagName()))) {
+								if (MaryXML.TOKEN.equals(c2.getTagName())) {
+									Postlex.mergeIntoLastElement(c1, c2);
+									c.removeChild(c1);
+									c1 = c2;
+									done = false;
+								} else if (MaryXML.MTU.equals(c2.getTagName())) {
+									while ((c2 != null) && (!MaryXML.TOKEN.equals(c2.getTagName()))) {
+										c2 = MaryDomUtils.getFirstChildElement(c2);
+									}
+									if (c2 != null) {
+										Postlex.mergeIntoLastElement(c1, c2);
+										c.removeChild(c1);
+									}
+								}
+							}
+						}
+					}
+				}
+				c = MaryDomUtils.getLastChildElement(c);
+			}
+		} // for all highest-level mtu elements
+	}
+
 }
