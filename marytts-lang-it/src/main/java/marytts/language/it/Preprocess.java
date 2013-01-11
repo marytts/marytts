@@ -31,7 +31,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.language.it.preprocess.ExpansionPattern;
 import marytts.modules.InternalModule;
-import marytts.modules.JPhonemiser;
+import marytts.language.it.phonemiser.JPhonemiser;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.util.dom.MaryDomUtils;
@@ -70,14 +70,13 @@ public class Preprocess extends InternalModule
     {
 		if (this.hasPhonemiser == true && this.phonemiser == null) {
 			for (MaryModule module : ModuleRegistry.getAllModules()) {
-//				System.err.println("MODULE: " + module.name() + "\n\t"
-//						+ module.getLocale());
 				if (Locale.ITALIAN.equals(module.getLocale())
 						&& JPhonemiser.class.equals(module.getClass())) {
 					this.phonemiser = (JPhonemiser) module;
 				}
 			}
 			if (this.phonemiser == null) {
+				System.err.println("Phonemiser not found");
 				this.hasPhonemiser = false;
 			}
 		}
