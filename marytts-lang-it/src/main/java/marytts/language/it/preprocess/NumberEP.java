@@ -456,8 +456,15 @@ public class NumberEP extends ExpansionPattern
         StringBuilder buf = new StringBuilder();
         for (int i=0; i<digits.length(); i++) {
             switch(digits.charAt(i)) {
-            case ',': buf.append("virgola "); break;
-            case '.': buf.append("punto "); break;
+			case ',': buf.append("virgola "); break;
+			case '.':
+				if (i == digits.length() - 1) {
+					buf.append(". ");
+				}
+				else{
+					buf.append("punto ");
+				}
+				break;
             case '0': buf.append("zero "); break;
             case '1': buf.append("uno "); break;
             case '2': buf.append("due "); break;
