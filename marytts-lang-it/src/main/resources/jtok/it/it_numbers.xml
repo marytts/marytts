@@ -22,7 +22,7 @@
     <FRACT regexp="\A(\d+)?[¼½¾]\Z" class="FRACTION"/>
 
     <!-- ordinal numbers, restricted to a range below 100 -->
-    <ORD regexp="\A\d{1,2}\.\Z" class="ORDINAL"/>
+    <ORD regexp="\A\d+°\Z" class="ORDINAL"/>
 
     <!-- digit numbers -->
     <!-- this matches digits that may start or end with -->
