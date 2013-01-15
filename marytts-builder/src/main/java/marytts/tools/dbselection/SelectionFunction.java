@@ -26,30 +26,21 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Set;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.server.Mary;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.http.Address;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.SAXException;
 
 /**
  * Selects sentences from a given set using the greedy algorithm.
