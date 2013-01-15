@@ -239,46 +239,93 @@ public class SelectionFunction{
         System.out.println("Total number of selected sentences in TABLE: " + wikiToDB.getSelectedSentencesTableName()
                 + " = " + sentIndex);
         
-        
-        int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
-        
-        if( sel != null){
-          // saving sentences in a file
-          System.out.println("Saving selected sentences in ./selected.log");
-          PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
-          
-          System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.txt_tr");
-          PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
-
-          String str;
-          for(int i=0; i<sel.length; i++){
-            // not sure if we need to make another table???
-            // str = wikiToDB.getSentence("selectedSentences", sel[i]);
-            str = wikiToDB.getDBSelectionSentence(sel[i]);  
-            //System.out.println("id=" + sel[i] + str);  
-            String transcription = transcribe(str,locale);
-            // write selected sentence transcription 
-            wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
-            // write selected sentence transcription 
-            selectedLog.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " " + transcription);
-          }
-          selectedLog.close();
-          selected_tra_Log.close();
-          
-          logFile.println("Total number of sentences : "+sentIndex);
-        } else
-            System.out.println("No selected sentences to save.");  
+        logFile.println("Total number of sentences : "+sentIndex);
+       
+        //check_dbselection_sentences(wikiToDB);
+        check_selectedSentencesTableName_sentences(wikiToDB);
         
     }
 
+    static void check_dbselection_sentences(DBHandler wikiToDB) throws Exception
+    {
+    	 int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
+         
+         if( sel != null){
+           // saving sentences in a file
+           System.out.println("Saving selected sentences in ./selected.log");
+           PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
+           
+           System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.txt_tr");
+           PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
+
+           System.out.println("Saving list of word and transcriptions in ./selected_word_trascription.txt_tr");
+           PrintWriter selected_word_tra_Log = new PrintWriter(new FileWriter(new File("./selected_word_transcription.txt_tr")));
+           
+           String str;
+           for(int i=0; i<sel.length; i++){
+             // not sure if we need to make another table???
+             // str = wikiToDB.getSentence("selectedSentences", sel[i]);
+             str = wikiToDB.getDBSelectionSentence(sel[i]);  
+             //System.out.println("id=" + sel[i] + str);  
+             String transcription = transcribeWithWordBoundary(str,locale, selected_word_tra_Log);
+             // write selected sentence transcription 
+             wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
+             // write selected sentence transcription 
+             selectedLog.println(sel[i] + " " + str);
+             selected_tra_Log.println(sel[i] + " " + str);
+             selected_tra_Log.println(sel[i] + " " + transcription);
+           }
+           selectedLog.close();
+           selected_tra_Log.close();
+           
+         } else
+             System.out.println("No selected sentences to save.");  
+    }
+    
+    static void check_selectedSentencesTableName_sentences(DBHandler wikiToDB) throws Exception{
+    	
+    	 int sel[]  = wikiToDB.getIdListOfSelectedSentences(wikiToDB.getSelectedSentencesTableName(), "unwanted=false");
+    	 
+    	 if(sel != null){
+             // saving sentences in a file
+             System.out.println("Saving selected sentences in ./selected_ordered.log");
+             PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected_ordered.log")));
+             
+             System.out.println("Saving selected sentences and transcriptions in ./selected_ordered_text_transcription.txt_tr");
+             PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_ordered_text_transcription.txt_tr")));
+
+             System.out.println("Saving list of word and transcriptions in ./selected_ordered_word_trascription.txt_tr");
+             PrintWriter selected_word_tra_Log = new PrintWriter(new FileWriter(new File("./selected_ordered_word_transcription.txt_tr")));
+             
+             String str;
+             for(int i=0; i<sel.length; i++){
+               // not sure if we need to make another table???
+               // str = wikiToDB.getSentence("selectedSentences", sel[i]);
+               str = wikiToDB.getDBSelectionSentence(sel[i]);  
+               //System.out.println("id=" + sel[i] + str);  
+               String transcription = transcribeWithWordBoundary(str,locale,selected_word_tra_Log);
+               // write selected sentence transcription 
+               wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
+               // write selected sentence transcription 
+               selectedLog.println(sel[i] + " " + str);
+               selected_tra_Log.println(sel[i] + " " + str);
+               selected_tra_Log.println(sel[i] + " " + transcription);
+             }
+             selectedLog.close();
+             selected_tra_Log.close();
+             
+           } else
+               System.out.println("No selected sentences to save.");  
+    	
+    	
+    }
+    
     
     /*
      * Utility method for get the Transcription of the selected sentences
      * It makes use of a started builtin MARY TTS 
      */
-	static String transcribe(String ptext, String plocale) throws Exception {
+	static String transcribeWithWordBoundary(String ptext, String plocale, PrintWriter pWordPipeTranscriptionFile) throws Exception {
 		String inputType = "TEXT";
 		String outputType = "ALLOPHONES";
 		String audioType = null;
@@ -295,16 +342,59 @@ public class SelectionFunction{
 
 		TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
 		Element ph;
-		String lTranscription = "";
+		String lTranscription = "# ";
 		while ((ph = (Element) phWalker.nextNode()) != null) {
-			lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+			if (isFinalInWord(ph)){
+			     lTranscription = lTranscription + ph.getAttribute("p") + " # ";
+				 printOnFileWordPipeTrascription(ph, pWordPipeTranscriptionFile);
+			}
+			else
+			 lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+			 
 		}
+
 		lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
 		// System.out.println('<' + lTranscription + '>');
 		return lTranscription;
 	}
     
-
+	static boolean isFinalInWord(Element segment){
+		if (segment == null) return true;
+	    Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+	    if (word == null) return true;
+	    TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
+	    tw.setCurrentNode(segment);
+	    int count = 0;
+	    
+	    while (( (Element) tw.nextNode()) != null) {
+	        count++;
+	        if (count > 0) return false;
+	    }
+	    return true;
+	}
+	
+	static String getWordPipeTrascription(Element segment){
+		if (segment == null) return null;
+	    Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+	    if (word == null) return null;
+	    TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
+	    Element ph;
+		String lTranscription = "";
+		while ((ph = (Element) tw.nextNode()) != null) {		
+			lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+		}
+		lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
+		return word.getFirstChild().getNodeValue().trim() + " | " + lTranscription;
+	}
+	
+	static void printOnFileWordPipeTrascription(Element segment, PrintWriter pWordPipeTranscriptionFile)
+	{
+		String wordPipeTrascription = getWordPipeTrascription(segment);
+		pWordPipeTranscriptionFile.println(wordPipeTrascription);
+		pWordPipeTranscriptionFile.flush();
+	}
+	
+			
     /**
      * Select the next sentence
      * 

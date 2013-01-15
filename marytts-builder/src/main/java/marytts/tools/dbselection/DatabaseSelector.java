@@ -769,7 +769,7 @@ public class DatabaseSelector
                   unwantedLog.println(sel[i] + " " + str);
                 } else if( s.contentEquals("y")){
                   selectedLog.println(sel[i] + " " + str);
-                  String transcription = SelectionFunction.transcribe(str,locale);
+                  String transcription = SelectionFunction.transcribeWithWordBoundary(str,locale);
                   // write selected sentence transcription 
                   wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
                   selected_tra_Log.println(sel[i] + " " + str);
