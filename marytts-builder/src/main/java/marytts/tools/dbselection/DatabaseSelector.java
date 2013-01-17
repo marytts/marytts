@@ -750,6 +750,10 @@ public class DatabaseSelector
         System.out.println(" selected sentences and transcriptions will be saved in  ./selected_text_transcription.txt_tr");
         PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
         
+        System.out.println("Saving list of word and transcriptions in ./selected_word_trascription.txt_tr");
+        PrintWriter selected_word_tra_Log = new PrintWriter(new FileWriter(new File("./selected_word_transcription.txt_tr")));
+
+        
         System.out.println(" unwanted sentences will be saved in ./unwanted.log");
         PrintWriter unwantedLog = new PrintWriter(new FileWriter(new File("./unwanted.log")));
         
@@ -769,7 +773,7 @@ public class DatabaseSelector
                   unwantedLog.println(sel[i] + " " + str);
                 } else if( s.contentEquals("y")){
                   selectedLog.println(sel[i] + " " + str);
-                  String transcription = SelectionFunction.transcribeWithWordBoundary(str,locale);
+                  String transcription = SelectionFunction.transcribeWithWordBoundary(str,locale,selected_word_tra_Log);
                   // write selected sentence transcription 
                   wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
                   selected_tra_Log.println(sel[i] + " " + str);
