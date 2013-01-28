@@ -440,7 +440,7 @@ public class JPhonemiser extends InternalModule
          return entries[0];
     }
 
-    private String[] lexiconLookupPrimitive(String text, String pos) {
+    protected String[] lexiconLookupPrimitive(String text, String pos) {
         String[] entries;
         if (pos != null) { // look for pos-specific version first
             entries = lexicon.lookup(text+pos);
