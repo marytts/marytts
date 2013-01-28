@@ -83,6 +83,8 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 							pos = "S";
 						}
 						break;
+					case 'N':
+						break;
 					default:
 						pos = pos.substring(0, 1);
 						break;
