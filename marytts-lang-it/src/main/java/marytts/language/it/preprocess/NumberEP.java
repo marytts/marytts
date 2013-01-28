@@ -267,7 +267,7 @@ public class NumberEP extends ExpansionPattern
 
     protected List<Element> expandInteger(Document doc, long value, boolean createMtu, String orig)
     {
-        String expString = expandInteger(value);
+        String expString = expandInteger(value, true);
         return makeNewTokens(doc, expString, createMtu, orig);
     }
 
@@ -282,10 +282,10 @@ public class NumberEP extends ExpansionPattern
             throw e;
         }
 
-        return expandInteger(value);
+        return expandInteger(value, true);
     }
 
-    protected String expandInteger(long value)
+    protected String expandInteger(long value, boolean prepend_counter_to_high_numbers)
     {
         long milliards;
         long millions;
@@ -305,29 +305,37 @@ public class NumberEP extends ExpansionPattern
         milliards = value / 1000000000;
         rest     = value % 1000000000; // the part of value below 1 000 000 000
         if (milliards > 1) {
-            buf.append(expandInteger(milliards)); // recursive call
+            buf.append(expandInteger(milliards, true)); // recursive call
             buf.append(" ");
             if((milliards%1000000)==0)
             {
             	buf.append("di ");
             }
-            buf.append("miliardi ");
-        } else if (milliards == 1) {
-            buf.append("un miliardo ");
-        }
+			buf.append("miliardi ");
+		} else if (milliards == 1) {
+			if (prepend_counter_to_high_numbers) {
+				buf.append("un miliardo ");
+			} else {
+				buf.append("miliardo ");
+			}
+		}
         millions = rest / 1000000;
         rest     = value % 1000000; // the part of value below 1 000 000
         if (millions > 1) {
-            buf.append(expandInteger(millions)); // recursive call
+            buf.append(expandInteger(millions, true)); // recursive call
             buf.append(" ");
-            buf.append("milioni ");
-        } else if (millions == 1) {
-            buf.append("un milione ");
-        }
+			buf.append("milioni ");
+		} else if (millions == 1) {
+			if (prepend_counter_to_high_numbers) {
+				buf.append("un milione ");
+			} else {
+				buf.append("milione ");
+			}
+		}
         thousands = rest / 1000;
         rest      = rest % 1000;
         if (thousands > 1) {
-            buf.append(expandInteger(thousands));
+            buf.append(expandInteger(thousands, true));
             buf.append(" ");
             buf.append("mila ");
         } else if (thousands == 1) {
@@ -336,7 +344,7 @@ public class NumberEP extends ExpansionPattern
         hundreds = (int) rest / 100;
         rest     = rest % 100;
         if (hundreds > 1) {
-            buf.append(expandInteger(hundreds));
+            buf.append(expandInteger(hundreds, true));
             buf.append(" ");
             buf.append("cento ");
         } else if (hundreds == 1) {
@@ -438,7 +446,7 @@ public class NumberEP extends ExpansionPattern
         // Now, if the komma / dot was string-initial, whole is 0,
         // which will be pronounced also.
         // Say the integer part of the float like an integer:
-        buf.append(expandInteger(whole));
+        buf.append(expandInteger(whole, true));
         buf.append(" ");
         // Spell out the rest:
         if (i<number.length())
@@ -527,7 +535,7 @@ public class NumberEP extends ExpansionPattern
         case 9: exp.append("nono"); break;
         case 10: exp.append("decimo"); break;
         default:
-            exp.append(expandInteger(Math.abs(value)));
+            exp.append(expandInteger(Math.abs(value), false));
 			switch (exp.charAt(exp.length() - 1)) {
 			case 'e':
 				if (exp.charAt(exp.length() - 2) == 'r') {
@@ -538,6 +546,7 @@ public class NumberEP extends ExpansionPattern
 				break;
             case 'o': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
             case 'i': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
+            case 'a': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
             }
             break;
         }
