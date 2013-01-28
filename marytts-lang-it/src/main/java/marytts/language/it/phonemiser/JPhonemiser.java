@@ -94,6 +94,38 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		}
 		return pos;
 	}
-	
+
+    /**
+     * Look a given text up in the (standard) lexicon. part-of-speech is used 
+     * in case of ambiguity.
+     * 
+     * @param text
+     * @param pos
+     * @return
+     */
+    public String lexiconLookup(String text, String pos)
+    {
+        if (text == null || text.length() == 0) return null;
+        String[] entries;
+        entries = lexiconLookupPrimitive(text, pos);
+        // If entry is not found directly, try the following changes:
+        // - lowercase the word
+        // - all lowercase but first uppercase
+        if (entries.length  == 0) {
+            text = text.toLowerCase(getLocale());
+            entries = lexiconLookupPrimitive(text, pos);
+            if (entries.length  == 0) {
+                // - lowercase the word and drop points
+                entries = lexiconLookupPrimitive(text.replaceAll("[.]", ""), pos);
+            }
+        }
+        if (entries.length  == 0) {
+            text = text.substring(0,1).toUpperCase(getLocale()) + text.substring(1);
+            entries = lexiconLookupPrimitive(text, pos);
+         }
+         
+         if (entries.length  == 0) return null;
+         return entries[0];
+    }
 	
 }
