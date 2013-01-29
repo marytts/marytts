@@ -153,7 +153,7 @@ public class DBHandler {
       
       psCleanText = cn.prepareStatement("INSERT INTO " + cleanTextTableName + " VALUES (null, ?, ?, ?, ?)");
       psWord      = cn.prepareStatement("INSERT INTO " + wordListTableName + " VALUES (null, ?, ?)");
-      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
+      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
       
       psSelectedSentence = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?, ?)");
       psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? WHERE dbselection_id = ?");
@@ -1006,10 +1006,13 @@ public class DBHandler {
    * @param unknownWords true/false.
    * @param strangeSymbols true/false.
    * @param cleanText_id the id of the cleanText this sentence comes from.
+   * @return the id of the inserted row
    */
-  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
+  public long insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
       
     byte strByte[]=null;  
+    ResultSet generatedKeys = null;
+    long dbselection_ID = -1;
     try {
        strByte = sentence.getBytes("UTF8");
     } catch (Exception e) {  // UnsupportedEncodedException
@@ -1025,14 +1028,32 @@ public class DBHandler {
         psSentence.setBoolean(6, false);
         psSentence.setBoolean(7, false);
         psSentence.setInt(8, cleanText_id);
+        
+        
+        /*int affectedRows = psSentence.executeUpdate();
+        if (affectedRows == 0) {
+            throw new SQLException("no rows affected.");
+        }*/
+
+        
         psSentence.execute();
+        
+        generatedKeys = psSentence.getGeneratedKeys();
+        if (generatedKeys.next()) {
+        	dbselection_ID = generatedKeys.getLong(1);
+        } else {
+            throw new SQLException("no generated key obtained.");
+        }
+        
+
+        //dbselection_ID = psSentence.getGeneratedKeys().getLong(1);
       
         psSentence.clearParameters();
-      
       
     } catch (SQLException e) {
       e.printStackTrace();
     }
+    return dbselection_ID;
   }
   
  /***
