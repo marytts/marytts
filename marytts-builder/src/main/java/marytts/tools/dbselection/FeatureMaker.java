@@ -72,7 +72,7 @@ import com.sun.speech.freetts.Utterance;
 public class FeatureMaker
 {
     // locale
-    private static String locale;    // using locale we should be able to get the default voice. 
+    protected static String locale;    // using locale we should be able to get the default voice. 
     
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
@@ -84,6 +84,9 @@ public class FeatureMaker
     protected static Vector<String> selectionFeature;
     protected static int[] selectionFeatureIndex;
     
+    //
+    protected static TargetFeatureComputer featureComputer;
+    protected static FeatureDefinition fdef;
 
     //if true, credibility is strict, else crebibility is lax
 	protected static boolean strictReliability;
@@ -93,11 +96,11 @@ public class FeatureMaker
     
     protected static DBHandler wikiToDB;
     //  mySql database 
-    private static String mysqlHost=null;
-    private static String mysqlDB=null;
-    private static String mysqlUser=null;
-    private static String mysqlPasswd=null;
-   
+    protected static String mysqlHost=null;
+    protected static String mysqlDB=null;
+    protected static String mysqlUser=null;
+    protected static String mysqlPasswd=null;
+  
     
     public static void main(String[] args)throws Exception{
         boolean test=false;	
@@ -153,10 +156,12 @@ public class FeatureMaker
         System.out.print("Starting builtin MARY TTS...");
         Mary.startup();
         System.out.println(" MARY TTS started.");
-
+		// this file is used to take note of the dbselection id of the reliable sentences
+        FileWriter added_dbselection_id_filewriter = new FileWriter("wiki_dbselection_added_id.txt");
+        
         if(processCleanTextRecords) {     
             // Get the set of id for unprocessed records in clean_text
-            // this will be useful when the process is stoped and then resumed
+            // this will be useful when the process is stopped and then resumed
             System.out.println("\nGetting list of unprocessed clean_text records from " + wikiToDB.getCleanTextTableName());
             int textId[];
             textId = wikiToDB.getUnprocessedTextIds();
@@ -164,6 +169,8 @@ public class FeatureMaker
             String text;
 
             Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+			sentenceList=null;
+
             String targetFeatures = "";
             int i, j;
 
@@ -171,14 +178,14 @@ public class FeatureMaker
             for(i=0; i<selectionFeature.size(); i++)
                 targetFeatures += selectionFeature.elementAt(i) + " ";
             /* loop over the text records in clean_text table of wiki */
-            // once procesed the clean_text records are marked as processed=true, so here retrieve
-            // the next clean_text record untill all are processed.
+            // once processed the clean_text records are marked as processed=true, so here retrieve
+            // the next clean_text record until all are processed.
             System.out.println("Looping over unprocessed clean_text records from wikipedia...");
             System.out.println("TARGETFEATURES to extract: " + targetFeatures);
             System.out.println("Starting time:" + dateStringIni + "\n");
 
-            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale), targetFeatures);
-            FeatureDefinition fdef = featureComputer.getFeatureDefinition();
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale), targetFeatures);
+            fdef = featureComputer.getFeatureDefinition();
             PrintWriter pw = new PrintWriter(new FileWriter(new File(locale + "_featureDefinition.txt")));
             fdef.writeTo(pw, false);
             pw.close();
@@ -189,64 +196,15 @@ public class FeatureMaker
                 // get next unprocessed text  
                 text = wikiToDB.getCleanText(textId[i]);
                 System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
-                sentenceList = splitIntoSentences(text, textId[i], test);
-
-                if( sentenceList != null ) {
-                    int index=0;			
-                    // loop over the sentences
-                    int numSentencesInText=0;
-                    /*
-                    String newSentence;
-                    byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-                    for(j=0; j<sentenceList.size(); j++) {
-                        newSentence = sentenceList.elementAt(j);
-                        MaryData d = processSentence(newSentence,textId[i],targetFeatures);
-                        if (d!=null){
-                            // get the features of the sentence  
-                            feas = getFeatures(d);     
-                            // Insert in the database the new sentence and its features.
-                            numSentencesInText++;
-                            if(!test)
-                                wikiToDB.insertSentence(newSentence,feas, true, false, false, textId[i]);
-                            feas = null;
-                        }        		
-                    }//end of loop over list of sentences
-                    */
-                    
-                    for (String sentence : sentenceList) {
-                        byte[] feas = processSentenceToFeatures(sentence, textId[i], featureComputer);
-                        if (feas == null) continue;
-                        if (false) { // turn on for debugging, to check the features computed make sense
-                            int numFeatures = selectionFeature.size();
-                            System.out.println(sentence);
-                            for (int t=0; t<feas.length; t+=numFeatures) {
-                                for (int f=0; f<numFeatures; f++) {
-                                    int featureIndex = fdef.getFeatureIndex(selectionFeature.get(f));
-                                    byte val = feas[t+f];
-                                    String sVal = fdef.getFeatureValueAsString(featureIndex, val);
-                                    System.out.print(sVal+" ");
-                                }
-                                System.out.println();
-                            }
-                        }
-                        // Insert in the database the new sentence and its features.
-                        numSentencesInText++;
-                        if(!test)
-                            wikiToDB.insertSentence(sentence,feas, true, false, false, textId[i]);
-                    }
-                    sentenceList.clear();
-                    sentenceList=null;
-
-                    numSentences += numSentencesInText;
-                    System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                            + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
-                }  // if sentenceList is not null
+                // the following method is used also in the adding sentence from external text  
+                split_check_reliability_and_insert(text,sentenceList,textId[i],test, added_dbselection_id_filewriter);
             } //end of loop over articles  
+            
             wikiToDB.closeDBConnection();
 
             Date dateEnd = new Date();
             dateStringEnd = fullDate.format(dateEnd);
-            System.out.println("numSentencesInText;=" + numSentences);
+            System.out.println("numSentencesInText=" + numSentences);
             System.out.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);   
             System.out.println("Done");
 
@@ -257,6 +215,73 @@ public class FeatureMaker
 
     }//end of main method
 	
+    
+    
+    protected static void split_check_reliability_and_insert(String text, Vector<String> sentenceList, int textid, boolean test, FileWriter added_dbselection_id) throws Exception {
+    	//Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+ 	   //START
+        sentenceList = splitIntoSentences(text, textid, test);
+
+        if( sentenceList != null ) {
+            int index=0;			
+            // loop over the sentences
+            int numSentencesInText=0;
+            /*
+            String newSentence;
+            byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
+            for(j=0; j<sentenceList.size(); j++) {
+                newSentence = sentenceList.elementAt(j);
+                MaryData d = processSentence(newSentence,textid,targetFeatures);
+                if (d!=null){
+                    // get the features of the sentence  
+                    feas = getFeatures(d);     
+                    // Insert in the database the new sentence and its features.
+                    numSentencesInText++;
+                    if(!test)
+                        wikiToDB.insertSentence(newSentence,feas, true, false, false, textid);
+                    feas = null;
+                }        		
+            }//end of loop over list of sentences
+            */
+            long db_id;
+            for (String sentence : sentenceList) {
+                byte[] feas = processSentenceToFeatures(sentence, textid, featureComputer);
+                if (feas == null) continue;
+                if (false) { // turn on for debugging, to check the features computed make sense
+                    int numFeatures = selectionFeature.size();
+                    System.out.println(sentence);
+                    for (int t=0; t<feas.length; t+=numFeatures) {
+                        for (int f=0; f<numFeatures; f++) {
+                            int featureIndex = fdef.getFeatureIndex(selectionFeature.get(f));
+                            byte val = feas[t+f];
+                            String sVal = fdef.getFeatureValueAsString(featureIndex, val);
+                            System.out.print(sVal+" ");
+                        }
+                        System.out.println();
+                    }
+                }
+                // Insert in the database the new sentence and its features.
+                numSentencesInText++;
+                if(!test)
+                {
+                    db_id = wikiToDB.insertSentence(sentence,feas, true, false, false, textid);
+                    //System.out.println("Sentence with db_id="+db_id+" inserted on dbselection.");
+                    added_dbselection_id.write(String.valueOf(db_id)+"\n");
+                    added_dbselection_id.flush();
+                }
+            }
+            sentenceList.clear();
+            sentenceList=null;
+
+            numSentences += numSentencesInText;
+            System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
+                    + textid + " (Total reliable = "+ numSentences+") \n"); 
+        }  // if sentenceList is not null
+    //END 
+ 	}
+    
+    
+    
 	/**
 	 * Print usage of this program 
 	 *
@@ -459,7 +484,7 @@ public class FeatureMaker
 		
 	}
 	
-	   /**
+	/**
      * Process one sentences from text to target features
      * 
      * @param nextSentence the sentence
