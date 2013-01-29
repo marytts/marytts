@@ -1,6 +1,6 @@
 /**
  * Copyright 2002 DFKI GmbH.
- * Copyright 2012 Giulio Paci <giuliopaci@gmail.com>.
+ * Copyright 2012-2013 Giulio Paci <giuliopaci@gmail.com>.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -50,7 +50,8 @@ public class NumberEP extends ExpansionPattern
         "number:ordinal",
         "number:roman",
         "number:digits",
-		"number:cardinal"
+		"number:cardinal",
+		"number:nofloat"
     };
     /**
      * Every subclass has its own list knownTypes, 
@@ -66,6 +67,7 @@ public class NumberEP extends ExpansionPattern
 
     // Domain-specific primitives:
     protected static final String sFloat = "(?:-?(?:[1-9][0-9]*|0)?(?:\\.|,)[0-9]+)";
+    protected static final String sNoFloat = "[1-9][0-9]?[0-9]?([.][0-9][0-9][0-9])+(,[0-9]+)?|[1-9][0-9]?[0-9]?[,][0-9][0-9][0-9]([,][0-9][0-9][0-9])+(.[0-9]+)?";
     protected static final String sInteger = "(?:-?[1-9][0-9]*|0)";
     protected static final String sOrdinal = "(?:" + sInteger + "[°])";
     protected static final String sRoman = "(?:[MDCLXVI]+\\.?)";
@@ -74,6 +76,7 @@ public class NumberEP extends ExpansionPattern
 
     // Now the actual match patterns:
     protected final Pattern reFloat = Pattern.compile(sFloat);
+    protected final Pattern reNoFloat = Pattern.compile(sNoFloat);
     protected final Pattern reInteger = Pattern.compile(sInteger);
     protected final Pattern reOrdinal = Pattern.compile(sOrdinal);
     protected final Pattern reRoman = Pattern.compile(sRoman);
@@ -117,6 +120,7 @@ public class NumberEP extends ExpansionPattern
     {
         switch (type) {
         case 0:
+            if (matchNoFloat(s)) return 7;
             if (matchFloat(s)) return 1;
             if (matchInteger(s)) return 2;
             if (matchOrdinal(s)) return 3;
@@ -151,6 +155,9 @@ public class NumberEP extends ExpansionPattern
         	if (matchInteger(s)) return 2;
             if (matchFloat(s)) return 1;
         	break;
+        case 7:
+            if (matchNoFloat(s)) return 7;
+        	break;
         }
         return -1;
     }
@@ -160,6 +167,7 @@ public class NumberEP extends ExpansionPattern
     {
         switch (typeCode) {
         case 0:
+            if (matchNoFloat(input)) return 7;
             if (matchFloat(input)) return 1;
             if (matchInteger(input)) return 2;
             if (matchOrdinal(input)) return 3;
@@ -185,6 +193,9 @@ public class NumberEP extends ExpansionPattern
 	    	if (matchInteger(input)) return 2;
 	        if (matchFloat(input)) return 1;
 	    	break;
+        case 7:
+            if (matchNoFloat(input)) return 7;
+        	break;
 	    }
         return -1; // no, cannot deal with it as the given type
     }
@@ -215,9 +226,17 @@ public class NumberEP extends ExpansionPattern
         case 5:
             expanded = expandDigits(doc, s, true);
             break;
+        case 7:
+            expanded = expandNoFloat(doc, s, true);
+        	break;
         }
         replaceTokens(tokens, expanded);
         return expanded;
+    }
+
+    protected boolean matchNoFloat(String s)
+    {
+        return reNoFloat.matcher(s).matches();
     }
 
     protected boolean matchFloat(String s)
@@ -245,6 +264,21 @@ public class NumberEP extends ExpansionPattern
         return reDigits.matcher(s).matches();
     }
 
+    protected List<Element> expandNoFloat(Document doc, String s, boolean createMtu)
+    {
+    	int dot = s.indexOf('.');
+    	int comma = s.indexOf(',');
+    	if( (dot > -1) && ( (dot < comma) || (comma == -1) ) ){
+			s = s.replace(".", "");
+    	}
+    	else if( (comma > -1) && ( (comma < dot) || (dot == -1) ) ){
+			s = s.replace(",", "");
+    	}
+    	if((dot > -1) && (comma > -1)){
+            return expandFloat(doc, s, createMtu);
+    	}
+        return expandInteger(doc, s, createMtu);
+    }
 
     protected List<Element> expandInteger(Document doc, String s, boolean createMtu)
     {
@@ -431,6 +465,7 @@ public class NumberEP extends ExpansionPattern
         String expString = expandFloat(s);
         return makeNewTokens(doc, expString, createMtu, s);
     }
+
     protected String expandFloat(String number)
     {
         // String <code>number</code> must contain exactly one ',' or '.'
