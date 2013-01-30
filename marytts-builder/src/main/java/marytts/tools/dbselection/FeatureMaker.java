@@ -168,9 +168,6 @@ public class FeatureMaker
             System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
             String text;
 
-            Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-			sentenceList=null;
-
             String targetFeatures = "";
             int i, j;
 
@@ -197,7 +194,7 @@ public class FeatureMaker
                 text = wikiToDB.getCleanText(textId[i]);
                 System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
                 // the following method is used also in the adding sentence from external text  
-                split_check_reliability_and_insert(text,sentenceList,textId[i],test, added_dbselection_id_filewriter);
+                split_check_reliability_and_insert(text,textId[i],test, added_dbselection_id_filewriter);
             } //end of loop over articles  
             
             wikiToDB.closeDBConnection();
@@ -217,8 +214,8 @@ public class FeatureMaker
 	
     
     
-    protected static void split_check_reliability_and_insert(String text, Vector<String> sentenceList, int textid, boolean test, FileWriter added_dbselection_id) throws Exception {
-    	//Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+    protected static void split_check_reliability_and_insert(String text, int textid, boolean test, FileWriter added_dbselection_id) throws Exception {
+        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
  	   //START
         sentenceList = splitIntoSentences(text, textid, test);
 
@@ -270,8 +267,6 @@ public class FeatureMaker
                     added_dbselection_id.flush();
                 }
             }
-            sentenceList.clear();
-            sentenceList=null;
 
             numSentences += numSentencesInText;
             System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
