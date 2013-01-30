@@ -1029,27 +1029,18 @@ public class DBHandler {
         psSentence.setBoolean(7, false);
         psSentence.setInt(8, cleanText_id);
         
-        
-        /*int affectedRows = psSentence.executeUpdate();
-        if (affectedRows == 0) {
-            throw new SQLException("no rows affected.");
-        }*/
-
-        
         psSentence.execute();
         
         generatedKeys = psSentence.getGeneratedKeys();
         if (generatedKeys.next()) {
         	dbselection_ID = generatedKeys.getLong(1);
+        	generatedKeys.close();
         } else {
+        	generatedKeys.close();
             throw new SQLException("no generated key obtained.");
         }
-        
 
-        //dbselection_ID = psSentence.getGeneratedKeys().getLong(1);
-      
         psSentence.clearParameters();
-      
     } catch (SQLException e) {
       e.printStackTrace();
     }
