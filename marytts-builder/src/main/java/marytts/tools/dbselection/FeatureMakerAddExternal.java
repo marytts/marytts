@@ -97,9 +97,6 @@ public class FeatureMakerAddExternal extends FeatureMaker {
 	            System.out.println("Number of unprocessed clean_text records to process --> [" + listOfSentences.length + "]");
 	            String text;
 
-	            Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-				sentenceList=null;
-	           
 	            String targetFeatures = "";
 	            int i, j;
 
@@ -126,7 +123,7 @@ public class FeatureMakerAddExternal extends FeatureMaker {
 	                text = listOfSentences[i];
 	                System.out.println("Processing(" + i + ") text id=" + i + " text length=" + text.length());
 	                // the following method is used also in the adding sentence from external text  
-	                split_check_reliability_and_insert(text,sentenceList,i,test, added_dbselection_id_filewriter);
+	                split_check_reliability_and_insert(text,i,test, added_dbselection_id_filewriter);
 	            } //end of loop over articles  
 	            
 	            wikiToDB.closeDBConnection();
