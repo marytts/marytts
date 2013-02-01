@@ -623,9 +623,9 @@ public class FeatureMaker
                 //System.out.println(sentence);                
 				if (sentence!=null){
 				
-	                // Italian addition this is used to eliminate all the sentences not ending with ".?!"
+	                // Italian addition this is used to eliminate all the sentences not ending with ".?!\""
 	                int sentenceLenght=sentence.toString().length();
-	                if (".?!".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
+	                if (".?!\"".indexOf(sentence.toString().substring(sentenceLenght - 1, sentenceLenght )) == -1){
 	                    usefulSentence = false;
 	                }
 	                
