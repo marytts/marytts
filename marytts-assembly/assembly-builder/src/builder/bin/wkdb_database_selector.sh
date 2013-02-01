@@ -89,6 +89,8 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 #-Dmary.base=$MARY_BASE marytts.tools.dbselection.DatabaseSelector \
 
 cd $WIKIDATAPATH
+# To be sure of recomputing init.bin
+rm -f init.bin
 
 java -showversion -ea -Xmx4096m -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.DatabaseSelector \
 -locale "$LOCALE" \
