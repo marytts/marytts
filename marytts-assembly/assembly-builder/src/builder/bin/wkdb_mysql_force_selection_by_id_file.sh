@@ -39,14 +39,17 @@ FILENAME=$2
 
 # Load text file lines into a bash array.
 ID_LIST=""
+ID_LIST2=""
 OLD_IFS=$IFS
 IFS=$'\n'
 for line in $(cat $FILENAME); do
     #printf "${line}\n"
     if [[ "$ID_LIST" -eq "" ]]; then
     	ID_LIST="${line}";
+	ID_LIST2="(${line}, false)";
     else
         ID_LIST="$ID_LIST, ${line}";
+        ID_LIST2="$ID_LIST2, (${line}, false)";
     fi
 
 done
@@ -56,4 +59,8 @@ echo "update ${LOCALE}_dbselection set selected=true where id in ($ID_LIST);"
 
 mysql --user="$MYSQLUSER" --password="$MYSQLPASSWD" -e \
 "use wiki; \
-update ${LOCALE}_dbselection set selected=true where id in ($ID_LIST);"
+update ${LOCALE}_dbselection set selected=true where id in ($ID_LIST); \
+INSERT INTO ${LOCALE}_${SELECTEDSENTENCESTABLENAME}_selectedSentences \
+  (dbselection_id, unwanted) \
+VALUES \
+ $ID_LIST2;"
