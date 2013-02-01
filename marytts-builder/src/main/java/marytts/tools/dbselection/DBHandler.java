@@ -156,7 +156,8 @@ public class DBHandler {
       psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
       
       psSelectedSentence = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?, ?)");
-      psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? WHERE dbselection_id = ?");
+      // UPDATE it_test_selectedSentences SET sentence = "sentence", transcription = "transcription" WHERE dbselection_id = 7015657;
+      psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? , sentence = ? WHERE dbselection_id = ?");
       
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
       
@@ -1560,12 +1561,15 @@ public class DBHandler {
 	 * @param id
 	 * @return
 	 */
-	public void insertSelectedSentenceTranscription(int id, String transcription) {
-
+	public void insertSelectedSentenceTranscription(int dbselection_id, String transcription) {
 		byte[] transcriptionBytes = null;
-
+	    byte[] sentenceBytes=null;
+	    String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
+    
 		try {
 			transcriptionBytes = transcription.getBytes("UTF8");
+			// get the sentence
+		    sentenceBytes = queryTableByte(dbQuery);   
 		} catch (Exception e) { // UnsupportedEncodedException
 			e.printStackTrace();
 		}
@@ -1575,7 +1579,8 @@ public class DBHandler {
 
 		try {
 			psSelectedSentenceTranscription.setBytes(1, transcriptionBytes);
-			psSelectedSentenceTranscription.setInt(2,id);
+			psSelectedSentenceTranscription.setBytes(2, sentenceBytes);
+			psSelectedSentenceTranscription.setInt(3,dbselection_id);
 
 			psSelectedSentenceTranscription.execute();
 			psSelectedSentenceTranscription.clearParameters();
@@ -1585,7 +1590,7 @@ public class DBHandler {
 	}  
   
   
-  // Firts filtering:
+  // First filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
   public String getTextFromWikiPage(String id, int minPageLength, StringBuilder old_id, PrintWriter pw) {
