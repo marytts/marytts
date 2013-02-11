@@ -745,7 +745,7 @@ public class FeatureMaker
                         Node nextMTUToken = mtuTokens.item(l);
                         //ignore all non-element children
                         if (!(nextMTUToken instanceof Element)) continue; 
-                        collectTokens(nextMTUToken, sentence);
+                        sentence = collectTokens(nextMTUToken, sentence);
                     }
                 }
                 
