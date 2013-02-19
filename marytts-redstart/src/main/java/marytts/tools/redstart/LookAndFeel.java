@@ -19,18 +19,24 @@
  */
 package marytts.tools.redstart;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.util.ArrayList;
 
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
+import marytts.util.Pair;
 
 
 /**
@@ -123,7 +129,7 @@ public class LookAndFeel {
         return widest;
     }
 
-    static void centerPromptText(JTextPane pane, String fullText) {
+    static void centerPromptText(JTextPane pane, String fullText, boolean redAlertMode) {
         int top = 10;
         int bottom = 10;
         int left = 10;
@@ -135,6 +141,10 @@ public class LookAndFeel {
         StyleConstants.setLeftIndent(set, left);
         StyleConstants.setRightIndent(set, right);
         pane.setParagraphAttributes(set,false);
+        // define alert red style for underling the ambiguous words (alert text is delimited by underscore chararcter)
+        StyledDocument doc = pane.getStyledDocument();
+        final Style alertStyle = doc.addStyle("Alert", null);
+        StyleConstants.setForeground(alertStyle, Color.red);
    
         /*
         boolean ok = false;
@@ -180,10 +190,83 @@ public class LookAndFeel {
         }
         */
         
-         
         //pane.updateUI();  // Refresh or we'll see artefact from the previous prompt
-        pane.setText(fullText);
+        if (!redAlertMode)
+        	pane.setText(fullText);
+        else{
+	        // red alert view 
+	        Pair<String, ArrayList<Integer>> returnedPair = parseUnderescoredText(fullText);
+	        
+	        String parsedfullText = returnedPair.getFirst();
+	        ArrayList<Integer> pairIntList = returnedPair.getSecond();
+	        
+	        pane.setText(parsedfullText);
+	        
+	        //System.out.println("#1 normal for loop");
+			for (int i = 0; i < pairIntList.size(); i++) {
+				int start= pairIntList.get(i);
+				int lenght= pairIntList.get(++i) - start + 1;
+				//System.out.println("i a b " + i + " " + start + " " + lenght );
+				doc.setCharacterAttributes(start,lenght,alertStyle, false);
+			}
+        }
     }
     
+    
+    /*
+     * Parse the red alert formatted text with the underscore char
+     * return the text without the underscore and a vector of pair indexes used to define the red alert text  
+     */
+	private static Pair<String, ArrayList<Integer>> parseUnderescoredText(String fullText) {
+		ArrayList<Integer> pairIntList = new ArrayList<Integer>();
+		String tmpString = "";
+		int startindex = 0;
+		int findindex = 0;
+		boolean alertFlag = false;
+		int decreaseintA = 0;
+		int decreaseintB = 0;
+		while ((findindex >= 0) && (startindex <= fullText.length()))
+		{
+			findindex = fullText.indexOf('_', startindex);
+						
+			if (findindex == -1)
+			{
+				tmpString = tmpString + fullText.substring(startindex,fullText.length());;
+				break;
+			}
+				
+			else if (findindex == startindex)
+			{
+				startindex = findindex + 1;
+				alertFlag = !alertFlag;
+				decreaseintA++;
+				decreaseintB++;
+				continue;
+			}
+			
+			decreaseintB++;
+
+			int startIndexA= startindex-decreaseintA;
+			int startIndexB= findindex-decreaseintB;
+			
+			String token0 = fullText.substring(startindex,findindex);
+			
+			decreaseintA++;
+			
+			if (alertFlag)
+			{
+				//System.out.println("add " + alertFlag + " " + a + "," + b);
+				pairIntList.add(startIndexA);
+				pairIntList.add(startIndexB);
+			}
+			
+			tmpString = tmpString + token0;
+			startindex = findindex + 1;
+			alertFlag = !alertFlag;
+		}
+		//System.out.println(tmp);
+		Pair<String, ArrayList<Integer>> returnedPair = new Pair<String, ArrayList<Integer>>(tmpString, pairIntList);
+		return returnedPair;
+	}
 }
 
