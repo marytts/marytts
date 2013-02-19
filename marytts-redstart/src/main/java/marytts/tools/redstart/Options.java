@@ -357,6 +357,7 @@ public class Options extends javax.swing.JFrame {
             int expertOutputIndex = Integer.parseInt(options.getProperty("expertOutputIndex", "0"));
             int speakerOutputIndex = Integer.parseInt(options.getProperty("speakerOutputIndex", "0"));
             silenceDuration = Integer.valueOf(options.getProperty("silenceDuration", "2000"));
+            boolean showTranscription = Boolean.valueOf(options.getProperty("showTranscription", "false")).booleanValue();
             boolean showPromptCount = Boolean.valueOf(options.getProperty("showPromptCount", "true")).booleanValue();
                         
             // Set values in the GUI to match what's in the options file
@@ -385,7 +386,10 @@ public class Options extends javax.swing.JFrame {
             jCheckBox_ShowTestOutput.setSelected(printTestOutput);
             Test.setDebugMode(printTestOutput);        // PRI3 Consolidate these fields
 
-            jCheckBox_ShowTranscription.setSelected(Boolean.valueOf(options.getProperty("showTranscription", "false")).booleanValue());
+            
+            jCheckBox_ShowTranscription.setSelected(showTranscription);
+            adminWindow.setShowTranscription(showTranscription);
+            
             
             jCheckBox_ShowPromptCount.setSelected(showPromptCount);
             adminWindow.getSpeakerWindow().setShowPromptCount(showPromptCount);
@@ -457,7 +461,8 @@ public class Options extends javax.swing.JFrame {
             options.setProperty("systemLookAndFeel", String.valueOf(this.systemLookAndFeel));             
             options.setProperty("printTestOutput", String.valueOf(this.printTestOutput));
             
-            options.setProperty("showTranscription", String.valueOf(adminWindow.getShowTranscription()));
+            boolean showTranscription = jCheckBox_ShowTranscription.isSelected();
+            options.setProperty("showTranscription", String.valueOf(showTranscription));
 
             boolean showPromptCount = jCheckBox_ShowPromptCount.isSelected();
             options.setProperty("showPromptCount", String.valueOf(showPromptCount));
