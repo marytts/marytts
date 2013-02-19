@@ -153,6 +153,10 @@ public class Options extends javax.swing.JFrame {
         return jCheckBox_ShowPromptCount.isSelected();
     }
     
+    public boolean getRedAlertMode() {
+        return jCheckBox_RedAlertMode.isSelected();
+    }
+    
     /**
      * Get the target data line corresponding to the selected
      * AudioSource, Line and Format.
@@ -359,6 +363,7 @@ public class Options extends javax.swing.JFrame {
             silenceDuration = Integer.valueOf(options.getProperty("silenceDuration", "2000"));
             boolean showTranscription = Boolean.valueOf(options.getProperty("showTranscription", "false")).booleanValue();
             boolean showPromptCount = Boolean.valueOf(options.getProperty("showPromptCount", "true")).booleanValue();
+            boolean redAlertMode = Boolean.valueOf(options.getProperty("redAlertMode", "false")).booleanValue();
                         
             // Set values in the GUI to match what's in the options file
             jSpinner_BufferAdded.setValue(bufferToAdd);
@@ -386,16 +391,16 @@ public class Options extends javax.swing.JFrame {
             jCheckBox_ShowTestOutput.setSelected(printTestOutput);
             Test.setDebugMode(printTestOutput);        // PRI3 Consolidate these fields
 
-            
             jCheckBox_ShowTranscription.setSelected(showTranscription);
             adminWindow.setShowTranscription(showTranscription);
-            
             
             jCheckBox_ShowPromptCount.setSelected(showPromptCount);
             adminWindow.getSpeakerWindow().setShowPromptCount(showPromptCount);
             
+            jCheckBox_RedAlertMode.setSelected(redAlertMode);
+            adminWindow.setRedAlertMode(redAlertMode);
         } catch (Exception e) {
-            e.printStackTrace();
+        e.printStackTrace();
         }
     }
     
@@ -466,6 +471,9 @@ public class Options extends javax.swing.JFrame {
 
             boolean showPromptCount = jCheckBox_ShowPromptCount.isSelected();
             options.setProperty("showPromptCount", String.valueOf(showPromptCount));
+            
+            boolean redAlertMode = jCheckBox_RedAlertMode.isSelected();
+            options.setProperty("redAlertMode", String.valueOf(redAlertMode));
 
             options.setProperty("samplingRate", (String)cbSamplingRate.getSelectedItem());
             options.setProperty("bitsPerSample", (String)cbBitsPerSample.getSelectedItem());
@@ -542,6 +550,7 @@ public class Options extends javax.swing.JFrame {
         jCheckBox_ShowTestOutput = new javax.swing.JCheckBox();
         jCheckBox_ShowTranscription = new javax.swing.JCheckBox();
         jCheckBox_ShowPromptCount = new javax.swing.JCheckBox();
+        jCheckBox_RedAlertMode = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Redstart - Options");
@@ -895,7 +904,7 @@ public class Options extends javax.swing.JFrame {
         });
 
         jCheckBox_ShowPromptCount.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.highlight"));
-        jCheckBox_ShowPromptCount.setText("Show prompt count and progress bar in Speaker Window ");
+        jCheckBox_ShowPromptCount.setText("Show prompt count and progress bar in Speaker Window");
         jCheckBox_ShowPromptCount.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox_ShowPromptCount.setMargin(new java.awt.Insets(0, 0, 0, 0));
         jCheckBox_ShowPromptCount.addActionListener(new java.awt.event.ActionListener() {
@@ -904,6 +913,20 @@ public class Options extends javax.swing.JFrame {
             }
         });
 
+        
+        jCheckBox_RedAlertMode.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.highlight"));
+        jCheckBox_RedAlertMode.setText("Red alert mode");
+        jCheckBox_RedAlertMode.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBox_RedAlertMode.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCheckBox_RedAlertMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox_RedAlertModeActionPerformed(evt);
+            }
+        });
+
+
+        
+        
         org.jdesktop.layout.GroupLayout jPanel_DisplayOptionsLayout = new org.jdesktop.layout.GroupLayout(jPanel_DisplayOptions);
         jPanel_DisplayOptions.setLayout(jPanel_DisplayOptionsLayout);
         jPanel_DisplayOptionsLayout.setHorizontalGroup(
@@ -914,7 +937,8 @@ public class Options extends javax.swing.JFrame {
                     .add(jCheckBox_SystemLookAndFeel)
                     .add(jCheckBox_ShowTestOutput)
                     .add(jCheckBox_ShowTranscription)
-                    .add(jCheckBox_ShowPromptCount))
+                    .add(jCheckBox_ShowPromptCount)
+                    .add(jCheckBox_RedAlertMode))
                 .addContainerGap(162, Short.MAX_VALUE))
         );
         jPanel_DisplayOptionsLayout.setVerticalGroup(
@@ -928,6 +952,8 @@ public class Options extends javax.swing.JFrame {
                 .add(jCheckBox_ShowTranscription)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBox_ShowPromptCount)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBox_RedAlertMode)
                 .addContainerGap(207, Short.MAX_VALUE))
         );
         jTabbedPane_Options.addTab("Display", jPanel_DisplayOptions);
@@ -990,9 +1016,18 @@ public class Options extends javax.swing.JFrame {
     private void cbExpertOutputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbExpertOutputActionPerformed
     }//GEN-LAST:event_cbExpertOutputActionPerformed
 
+    private void jCheckBox_ShowTranscriptionActionPerformed(java.awt.event.ActionEvent evt) {
+    	adminWindow.setShowTranscription(jCheckBox_ShowTranscription.isSelected());
+    }
+    
     private void jCheckBox_ShowPromptCountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_ShowPromptCountActionPerformed
     }//GEN-LAST:event_jCheckBox_ShowPromptCountActionPerformed
 
+    private void jCheckBox_RedAlertModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_RedAlertModeActionPerformed
+    	adminWindow.setRedAlertMode(jCheckBox_RedAlertMode.isSelected());
+    }//GEN-LAST:event_jCheckBox_RedAlertModeActionPerformed
+
+    
     private void jButton_PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_PlayActionPerformed
         if (this.playingStatus) {
             stopPlayback();  // Stop playback if underway
@@ -1043,9 +1078,6 @@ public class Options extends javax.swing.JFrame {
         Test.setDebugMode(this.printTestOutput);      // PRI3 Consolidate these fields
     }//GEN-LAST:event_jCheckBox_ShowTestOutputActionPerformed
 
-    private void jCheckBox_ShowTranscriptionActionPerformed(java.awt.event.ActionEvent evt) {
-    	adminWindow.setShowTranscription(jCheckBox_ShowTranscription.isSelected());
-    }
     
     private void jCheckBox_SystemLookAndFeelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_SystemLookAndFeelActionPerformed
         this.systemLookAndFeel = !this.systemLookAndFeel; // Toggle setting
@@ -1286,6 +1318,7 @@ public class Options extends javax.swing.JFrame {
     private javax.swing.JButton jButton_Record;
     private javax.swing.JButton jButton_SaveOptions;
     private javax.swing.JCheckBox jCheckBox_ShowPromptCount;
+    private javax.swing.JCheckBox jCheckBox_RedAlertMode;
     private javax.swing.JCheckBox jCheckBox_ShowTestOutput;
     private javax.swing.JCheckBox jCheckBox_ShowTranscription;
     private javax.swing.JCheckBox jCheckBox_SystemLookAndFeel;

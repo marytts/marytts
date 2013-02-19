@@ -32,12 +32,14 @@ public class PromptTableModel extends AbstractTableModel {
     private String[] columnNames;
     protected static final int REC_STATUS_COLUMN = 0;     // First column is recording status 
     protected static final int BASENAME_COLUMN = 1;       // Second column is basename
-    protected static final int PROMPT_TEXT_COLUMN = 2;    // Third collumn is prompt text       
+    protected static final int PROMPT_TEXT_COLUMN = 2;    // Third collumn is prompt text
+    private boolean redAlertMode = false; 			  // if true show red alert portion of text
     
     final Object[][] data;
     
-    public PromptTableModel(Prompt[] promptArray, String[] columnNames) {
+    public PromptTableModel(Prompt[] promptArray, String[] columnNames, boolean redAlertMode) {
         this.columnNames = columnNames;
+        this.redAlertMode = redAlertMode;
         this.data = this.buildDataArray(promptArray);
     }
 
@@ -72,7 +74,11 @@ public class PromptTableModel extends AbstractTableModel {
         for (int row = 0; row < promptArray.length; row++) {
             promptMatrix[row][REC_STATUS_COLUMN] = ""; // update this asynchronously later, it takes time;
             promptMatrix[row][BASENAME_COLUMN] = promptArray[row].getBasename();
-            promptMatrix[row][PROMPT_TEXT_COLUMN] = promptArray[row].getPromptText();
+			if (!redAlertMode)
+				promptMatrix[row][PROMPT_TEXT_COLUMN] = promptArray[row].getPromptText();
+			else
+				// the replace function in the line below is used only for the red alert mode
+				promptMatrix[row][PROMPT_TEXT_COLUMN] = promptArray[row].getPromptText().replace("_", "");
         }
         return promptMatrix;
     }

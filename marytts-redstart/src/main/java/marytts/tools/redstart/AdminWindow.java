@@ -104,6 +104,9 @@ public class AdminWindow extends javax.swing.JFrame {
     private Font defaultPromptFont;
 
     private static boolean showTranscription = false;         // if true show the transcription if they are available
+    // showTranscription: if the input file text contains also the transcription, there is the possibility of see them  
+    private static boolean redAlertMode = false; 			  // if true show red alert portion of text
+    // redAlert mode: if the input file text refers to the redalert mode (sensitive text portion surrounded by underscore char) there is the possibility of visualize them with a red color   
     
     // ______________________________________________________________________
     // Constructors
@@ -149,12 +152,20 @@ public class AdminWindow extends javax.swing.JFrame {
 		showTranscription = selected;
 	}
     
-	
 	public boolean getShowTranscription() {
 		// TODO Auto-generated method stub
 		return showTranscription;
 	}
 	
+
+	public void setRedAlertMode(boolean selected) {
+		// TODO Auto-generated method stub
+		redAlertMode = selected;
+	}
+	
+	public boolean getRedAlertMode() {
+		return redAlertMode;
+	}
 	
     /** Updates the prompt table with prompt data
      *  @param newSession The current recording session object
@@ -307,20 +318,20 @@ public class AdminWindow extends javax.swing.JFrame {
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
         if (this.isVisible()) {
         	if (!showTranscription){
-             LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText);
-             LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText);
+             LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText, redAlertMode);
+             LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText, redAlertMode);
         	} else 
         	{
-              LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText + promptTranscription);
-              LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText + nextPromptTranscription);
+              LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText + promptTranscription, redAlertMode);
+              LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText + nextPromptTranscription, redAlertMode);
         	}
         }
         
         // Also update in Speaker window
     	if (!showTranscription)
-         this.speakerWin.updatePromptDisplay(promptText, nextPromptText );
+         this.speakerWin.updatePromptDisplay(promptText, nextPromptText, redAlertMode);
     	else
-    	 this.speakerWin.updatePromptDisplay(promptText + promptTranscription, nextPromptText + nextPromptTranscription);	 
+    	 this.speakerWin.updatePromptDisplay(promptText + promptTranscription, nextPromptText + nextPromptTranscription, redAlertMode);	 
     		
         int promptNumber = getCurrentRow() + 1;
         this.speakerWin.updateProgressBar(promptNumber);
@@ -406,7 +417,7 @@ public class AdminWindow extends javax.swing.JFrame {
         columnNames[PROMPT_TEXT_COLUMN] = "Prompt Preview";
                 
         // Now create the table itself        
-        JTable table = new JTable(new PromptTableModel(promptArray, columnNames));        
+        JTable table = new JTable(new PromptTableModel(promptArray, columnNames, redAlertMode));        
         table.setColumnSelectionAllowed(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
                
