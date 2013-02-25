@@ -9,7 +9,7 @@
 # EXIT ERROR settings 
 set -o errexit
 
-DESCRIPTION=""
+DESCRIPTION="Force the selection of the sentences marked by id in selectedSentences"
 
 NUMARG=2
 if [ $# -ne $NUMARG ]

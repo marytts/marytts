@@ -8,8 +8,7 @@
 # EXIT ERROR settings 
 set -o errexit
 
-DESCRIPTION=""
-
+DESCRIPTION="Clear (not drop) the selectedSentences table (useful in the procedure Inject already selected sentences)"
 NUMARG=1
 if [ $# -ne $NUMARG ]
 then
