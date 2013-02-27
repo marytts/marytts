@@ -83,9 +83,12 @@ public class SpecialCharEP extends ExpansionPattern
     {
         HashMap m = new HashMap();
         
+        m.put("$",  new SCEntry("dollaro",                 false, true));
+        m.put("@",  new SCEntry("chiocciola",                 true, true));
+/*
         m.put("'",  new SCEntry("apostrofoXXX",                 false, true));
         m.put(":",  new SCEntry("duepuntiXXX",                 true, true));
-        
+*/
         /*
         m.put(",",  new SCEntry("Komma",                     false, false));
         m.put("\\", new SCEntry("Backslash['bEk-slES]",      true,  true));
