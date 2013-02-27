@@ -59,6 +59,16 @@ public class CompositeEP extends ExpansionPattern
     Pattern reLettersDigitsAndApostrophe =
         Pattern.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)+");
     
+    // this can be used for dell' un' etc..
+      /* Pattern reLettersAndApostrophe =
+            //Pattern.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)+");
+            Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+)('([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])+)+");
+            */
+    // TODO: FABIO Check if better with new REPattern...
+    // This is used for c'X t'X d'X () 
+    Pattern reOneLetterAndApostrophe =
+    		Pattern.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú][^']*)+)+");
+    
     // Both letters and digits, in any order:
     Pattern reLettersAndDigits = Pattern.compile
         ("(?:(?:[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+[0-9]+)|(?:[0-9]+[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+))[A-ZÄÖÜa-zàáèéìíòóùú0-9]*");
@@ -166,13 +176,14 @@ public class CompositeEP extends ExpansionPattern
                 expanded.add(t);
             }
         }         
-        ///// Then, see if we can split in apostrophe
-        //System.err.println("Then, see if we can split in apostrophe");
-        else if (reLettersDigitsAndApostrophe.matcher(s).matches()) {
-            //System.err.println("apostrophe");
+        
+        // This is for one letter proclitics (c'X, d'X, ...) and qual'X
+        else if (reOneLetterAndApostrophe.matcher(s).matches()) {
+            //System.err.println("one letter and apostrophe");
             // OK, a hyphen between parts containing letters and/or digits.
             // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
+            // c'X l'X d'X  c' is the first-proclitics part
+            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last-proclitics");
             StringTokenizer st = new StringTokenizer(s, "'");
             assert st.hasMoreTokens();
             MaryDomUtils.setTokenText(t, st.nextToken()+"'");
@@ -181,7 +192,8 @@ public class CompositeEP extends ExpansionPattern
                 t = MaryDomUtils.appendToken(t, st.nextToken());
                 expanded.add(t);
             }
-        } else if (reLettersAndDigits.matcher(s).matches()) {
+        }
+        else if (reLettersAndDigits.matcher(s).matches()) {
             // Token consists only of letters and digits.
             // Split between letters and digits.
             // In pseudo-composita, accent is on the first component:

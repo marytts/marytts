@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -32,7 +34,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import marytts.datatypes.MaryXML;
 import marytts.util.MaryRuntimeUtils;
 
+import org.apache.commons.lang.SystemUtils;
+
 import org.junit.Test;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -47,8 +52,7 @@ public class EnvironmentTest {
 
     @Test
     public void testJavaVersion() {
-        String version = System.getProperty("java.version");
-        assertTrue(version.startsWith("1.5") || version.startsWith("1.6"));
+    	assertThat(SystemUtils.IS_JAVA_1_6 || SystemUtils.IS_JAVA_1_7).isTrue();
     }
 
     @Test
