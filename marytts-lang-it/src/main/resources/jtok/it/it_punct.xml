@@ -49,7 +49,7 @@
 
     <!-- ambigue opening/closing punctuation -->
     <OCQUOTE regexp="\&quot;" class="OPENCLOSE_PUNCT"/>
-    <RSQUOTE_R regexp="&apos;&apos;?" class="OPENCLOSE_PUNCT"/>
+
 
     <!-- this is a matcher for the special case when two internal -->
     <!-- punctuations don't cause a split; it's used for -->
@@ -113,7 +113,7 @@
     <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
     <!-- instead of `a|ab|abc' -->
     <ALL_PUNCT_RULE>
-      (<SPECIAL_INT/>)(?=\w)|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
+      (<SPECIAL_INT/>)(?=\w)|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
     </ALL_PUNCT_RULE>
 
     <!-- punctuation which can mark clitics; this rule is used -->
@@ -126,7 +126,7 @@
 
     <!-- punctuation which can be found in compounds -->
     <INTERNAL_PUNCT_RULE>
-      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<AMP/>|<URI_TOKEN/>|<SLASH/>|<COLON/>|<NBL/>
+      <SPECIAL_INT/>|<HYPHEN/>|<ELIPSES3/>|<ELIPSES2/>|<PERIOD/>|<AMP/>|<URI_TOKEN/>|<SLASH/>|<COLON/>|<NBL/>
     </INTERNAL_PUNCT_RULE>
 
     <!-- non-breaking punctuation on the left side of a token; -->
