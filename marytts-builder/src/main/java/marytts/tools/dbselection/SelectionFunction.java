@@ -190,7 +190,7 @@ public class SelectionFunction{
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
-            boolean haveSelected = selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
+            boolean haveSelected = selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider, wikiToDB);
 
             if (haveSelected) {
             	assert selectedIdSentence >= 0;
@@ -401,7 +401,8 @@ public class SelectionFunction{
     private boolean selectNext(Set<Integer>selectedIdSents,
                 Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
-                CoverageFeatureProvider cfProvider)
+                CoverageFeatureProvider cfProvider,
+                DBHandler wikiToDB)
     throws IOException {
         // TODO: MS, May 2011 -- I have refactored this code but could not test it. Bad me.
     	
@@ -413,7 +414,7 @@ public class SelectionFunction{
         // we bulk-load a chunk of them at a time.
         if (cfProvider instanceof InMemoryCFProvider) {
         	// already in memory, can loop through all
-        	determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
+        	determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider, wikiToDB);
         } else {
         	assert cfProvider instanceof DatabaseCFProvider;
         	DatabaseCFProvider dbCfProvider = (DatabaseCFProvider) cfProvider;
@@ -421,7 +422,7 @@ public class SelectionFunction{
         	for (int c=0, max=dbCfProvider.getNumSentences(); c<max; c+= chunkSize) {
         		int len = Math.min(chunkSize, max-c);
         		CoverageFeatureProvider chunk = dbCfProvider.getFeaturesInMemory(c, len);
-        		determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, chunk);
+        		determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, chunk, wikiToDB);
         	}
         }
         return selectedIdSentence >= 0;
@@ -436,23 +437,26 @@ public class SelectionFunction{
 	private void determineMostUsefulSentence(Set<Integer> selectedIdSents,
 			Set<Integer> unwantedIdSents,
 			CoverageDefinition coverageDefinition,
-			CoverageFeatureProvider cfProvider) {
+			CoverageFeatureProvider cfProvider,
+			DBHandler wikiToDB) {
 		for (int l=0, num=cfProvider.getNumSentences(); l<num; l++) {
 			int id = cfProvider.getID(l);
 			// skip previously selected or excluded sentences:
-			if (selectedIdSents.contains(id) || unwantedIdSents.contains(id)) {
+			if (selectedIdSents.contains(id) || unwantedIdSents.contains(id)){
 				continue;
 			}
 			byte[] nextFeatVects = cfProvider.getCoverageFeatures(l);
 		    //calculate how useful the feature vectors are
 		    double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
 		   
-		    if (usefulness > selectedUsefulness) {                         
+		    if (usefulness > selectedUsefulness ) {
+		    	if  (!wikiToDB.textSentenceIsContainedInSelectedIdSents(id, selectedIdSents, unwantedIdSents)) {
 		        //the current sentence is (currently) the best sentence to add
 		        selectedIdSentence = id;
 		        selectedVectors = nextFeatVects;
 		        selectedUsefulness = usefulness;     
-		    }           
+		    	}
+		    }
 		    if (usefulness == -1.0){
 		      unwantedIdSents.add(id);
 		      // idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
@@ -461,8 +465,8 @@ public class SelectionFunction{
 		}
 	}
     
-    
-    /**
+
+	/**
      * Determine if the stop criterion is reached
      * 
      * @param sentences the list of selected sentences
