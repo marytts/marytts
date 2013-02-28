@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
@@ -72,6 +73,7 @@ public class DBHandler {
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
   private PreparedStatement psTablesDescription = null;
+  private PreparedStatement psCountEqualText = null;
   
  
   private String cleanTextTableName = "_cleanText";
@@ -160,6 +162,12 @@ public class DBHandler {
       psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? , sentence = ? WHERE dbselection_id = ?");
       
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
+
+      //SELECT (SELECT sentence FROM it_dbselection WHERE id = 7033223) = (SELECT sentence FROM it_dbselection WHERE id = 7033223);
+      psCountEqualText = cn.prepareStatement("SELECT (SELECT sentence FROM " + 
+      dbselectionTableName + " WHERE id = ?) = (SELECT sentence FROM "+
+    		  dbselectionTableName + " WHERE id = ?)");
+      
       
       result = true;
       System.out.println("Mysql connection created successfully.");
@@ -2022,13 +2030,45 @@ public class DBHandler {
       wikiDB.closeDBConnection(); 
            
   }
-    
+
+	/**
+	 * textSentenceIsContainedInSelectedIdSents
+	 * 
+	 * @param candidateId
+	 * @param selectedIdSents 
+	 * @param unwantedIdSents
+	 * @return true if text defined by candidateId is already contained in selectedIdSents 
+	 */
+	public boolean textSentenceIsContainedInSelectedIdSents(int candidateId, Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents) {
+		int equal = 0;
+		for (Integer selectedId : selectedIdSents) {
+			//System.out.println("candidateId "+ candidateId + " selectedId " + selectedId);
+			try {
+				psCountEqualText.setInt(1, candidateId);
+				psCountEqualText.setInt(2, selectedId);
+				ResultSet rs = psCountEqualText.executeQuery();
+				while (rs.next()) {
+					equal = rs.getInt(1);
+				}
+				
+				psCountEqualText.clearParameters();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			if (equal == 1) {
+				// add this to unwanted  
+				//System.out.println("Found equal sentence in selectedSentences: candidateId: " + candidateId + ", selectedId:" + selectedId);
+				unwantedIdSents.add(candidateId);
+				//System.out.println("Add candidateId: " + candidateId + " in unwantedIdSents. unwantedIdSents.size() = " + unwantedIdSents.size());
+				return true;
+			} else
+				return false;
+		}
+		return false;
+	}
 
 }
-
-
-
-
 
 
 
