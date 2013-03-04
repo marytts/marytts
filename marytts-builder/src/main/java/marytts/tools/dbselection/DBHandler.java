@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
@@ -68,9 +69,11 @@ public class DBHandler {
   private String currentTable = null;
   private PreparedStatement psSentence = null;
   private PreparedStatement psSelectedSentence = null;
+  private PreparedStatement psSelectedSentenceTranscription = null;
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
   private PreparedStatement psTablesDescription = null;
+  private PreparedStatement psCountEqualText = null;
   
  
   private String cleanTextTableName = "_cleanText";
@@ -152,9 +155,19 @@ public class DBHandler {
       
       psCleanText = cn.prepareStatement("INSERT INTO " + cleanTextTableName + " VALUES (null, ?, ?, ?, ?)");
       psWord      = cn.prepareStatement("INSERT INTO " + wordListTableName + " VALUES (null, ?, ?)");
-      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
-      psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
+      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
+      
+      psSelectedSentence = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?, ?)");
+      // UPDATE it_test_selectedSentences SET sentence = "sentence", transcription = "transcription" WHERE dbselection_id = 7015657;
+      psSelectedSentenceTranscription  = cn.prepareStatement("UPDATE " + selectedSentencesTableName + " SET transcription = ? , sentence = ? WHERE dbselection_id = ?");
+      
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
+
+      //SELECT (SELECT sentence FROM it_dbselection WHERE id = 7033223) = (SELECT sentence FROM it_dbselection WHERE id = 7033223);
+      psCountEqualText = cn.prepareStatement("SELECT (SELECT sentence FROM " + 
+      dbselectionTableName + " WHERE id = ?) = (SELECT sentence FROM "+
+    		  dbselectionTableName + " WHERE id = ?)");
+      
       
       result = true;
       System.out.println("Mysql connection created successfully.");
@@ -388,8 +401,9 @@ public class DBHandler {
    *
    */
   public void createSelectedSentencesTable(String stopCriterion, String featDefFileName, String covDefConfigFileName) {
-      String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
+      String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +  
                                                        "sentence MEDIUMBLOB NOT NULL, " +
+    		  										   "transcription MEDIUMBLOB NOT NULL, " +
                                                        "unwanted BOOLEAN, " +
                                                        "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from                                                    
                                                        "primary key(id)) CHARACTER SET utf8;";
@@ -1001,10 +1015,13 @@ public class DBHandler {
    * @param unknownWords true/false.
    * @param strangeSymbols true/false.
    * @param cleanText_id the id of the cleanText this sentence comes from.
+   * @return the id of the inserted row
    */
-  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
+  public long insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
       
     byte strByte[]=null;  
+    ResultSet generatedKeys = null;
+    long dbselection_ID = -1;
     try {
        strByte = sentence.getBytes("UTF8");
     } catch (Exception e) {  // UnsupportedEncodedException
@@ -1020,14 +1037,23 @@ public class DBHandler {
         psSentence.setBoolean(6, false);
         psSentence.setBoolean(7, false);
         psSentence.setInt(8, cleanText_id);
+        
         psSentence.execute();
-      
+        
+        generatedKeys = psSentence.getGeneratedKeys();
+        if (generatedKeys.next()) {
+        	dbselection_ID = generatedKeys.getLong(1);
+        	generatedKeys.close();
+        } else {
+        	generatedKeys.close();
+            throw new SQLException("no generated key obtained.");
+        }
+
         psSentence.clearParameters();
-      
-      
     } catch (SQLException e) {
       e.printStackTrace();
     }
+    return dbselection_ID;
   }
   
  /***
@@ -1040,14 +1066,14 @@ public class DBHandler {
   
     String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
     byte[] sentenceBytes=null;
-      
+    
     try {
       // First get the sentence
        sentenceBytes = queryTableByte(dbQuery);    
-        
         psSelectedSentence.setBytes(1, sentenceBytes);
-        psSelectedSentence.setBoolean(2, unwanted);
-        psSelectedSentence.setInt(3, dbselection_id);
+        psSelectedSentence.setBytes(2, "0".getBytes()); // default intial value 0
+        psSelectedSentence.setBoolean(3, unwanted);
+        psSelectedSentence.setInt(4, dbselection_id);
         psSelectedSentence.execute();
       
         psSelectedSentence.clearParameters();
@@ -1083,16 +1109,24 @@ public class DBHandler {
           res = st.execute( wordListTable );   
         
         try {
-          Iterator iteratorSorted = wordList.keySet().iterator();
+          Iterator<String> iteratorSorted = wordList.keySet().iterator();
+          int counter = 0;
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
-            wordByte=null;  
+            wordByte=null;
             wordByte = word.getBytes("UTF8");
             psWord.setBytes(1, wordByte);
             psWord.setInt(2, value);
-            psWord.execute();
+            psWord.executeUpdate();
             psWord.clearParameters();
+            // Print some indications on number of words done until now  
+            counter++;
+            if ((counter % 1000) == 0)
+            	System.out.print(counter + " ");	
+            if ((counter % 10000) == 0)
+            	System.out.print("\n");	
+            
           } 
         } catch (Exception e) {  // UnsupportedEncodedException
             e.printStackTrace();
@@ -1503,7 +1537,68 @@ public class DBHandler {
       return sentence;      
   }
   
-  // Firts filtering:
+  
+  /**
+   * Get a 
+   * @param tableName
+   * @param id
+   * @return
+   */
+  public String getSelectedSentenceTranscription(String tableName, int id) {
+      String sentence="";
+      String dbQuery = "Select transcription FROM " + tableName + " WHERE dbselection_id=" + id;
+      byte[] sentenceBytes=null;
+      
+      sentenceBytes = queryTableByte(dbQuery); 
+      try {
+        sentence = new String(sentenceBytes, "UTF8");
+        //System.out.println("  TEXT: " + text);
+      } catch (Exception e) {  // UnsupportedEncodedException
+           e.printStackTrace();
+      } 
+      
+      return sentence;      
+  }
+  
+  
+  
+	/**
+	 * insert the SelectedSentenceTranscription in to selectedSentencesTableName
+	 * 
+	 * @param tableName
+	 * @param id
+	 * @return
+	 */
+	public void insertSelectedSentenceTranscription(int dbselection_id, String transcription) {
+		byte[] transcriptionBytes = null;
+	    byte[] sentenceBytes=null;
+	    String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
+    
+		try {
+			transcriptionBytes = transcription.getBytes("UTF8");
+			// get the sentence
+		    sentenceBytes = queryTableByte(dbQuery);   
+		} catch (Exception e) { // UnsupportedEncodedException
+			e.printStackTrace();
+		}
+		
+		//System.out.println("InsertSelectedSentenceTranscription id:" + id );
+		//System.out.println("Transcription " + transcription);
+
+		try {
+			psSelectedSentenceTranscription.setBytes(1, transcriptionBytes);
+			psSelectedSentenceTranscription.setBytes(2, sentenceBytes);
+			psSelectedSentenceTranscription.setInt(3,dbselection_id);
+
+			psSelectedSentenceTranscription.execute();
+			psSelectedSentenceTranscription.clearParameters();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}  
+  
+  
+  // First filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
   public String getTextFromWikiPage(String id, int minPageLength, StringBuilder old_id, PrintWriter pw) {
@@ -1935,13 +2030,45 @@ public class DBHandler {
       wikiDB.closeDBConnection(); 
            
   }
-    
+
+	/**
+	 * textSentenceIsContainedInSelectedIdSents
+	 * 
+	 * @param candidateId
+	 * @param selectedIdSents 
+	 * @param unwantedIdSents
+	 * @return true if text defined by candidateId is already contained in selectedIdSents 
+	 */
+	public boolean textSentenceIsContainedInSelectedIdSents(int candidateId, Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents) {
+		int equal = 0;
+		for (Integer selectedId : selectedIdSents) {
+			//System.out.println("candidateId "+ candidateId + " selectedId " + selectedId);
+			try {
+				psCountEqualText.setInt(1, candidateId);
+				psCountEqualText.setInt(2, selectedId);
+				ResultSet rs = psCountEqualText.executeQuery();
+				while (rs.next()) {
+					equal = rs.getInt(1);
+				}
+				
+				psCountEqualText.clearParameters();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			if (equal == 1) {
+				// add this to unwanted  
+				//System.out.println("Found equal sentence in selectedSentences: candidateId: " + candidateId + ", selectedId:" + selectedId);
+				unwantedIdSents.add(candidateId);
+				//System.out.println("Add candidateId: " + candidateId + " in unwantedIdSents. unwantedIdSents.size() = " + unwantedIdSents.size());
+				return true;
+			} else
+				return false;
+		}
+		return false;
+	}
 
 }
-
-
-
-
 
 
 

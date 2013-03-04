@@ -32,6 +32,7 @@ public class Prompt {
     // Instance fields
     private String basename;          // Basename used in filenames for this prompt
     private String promptText;        // Prompt text to display to speaker
+    private String promptTranscriptionText;        // Prompt Transcription text to display to speaker
     protected Synthesis synthesized;  // Synthesized version of the prompt - not needed here?
     protected Recording recorded;     // Recorded version(s) of the prompt
         
@@ -51,6 +52,13 @@ public class Prompt {
      */
     public String getPromptText() { return promptText; }
     
+    /** Gets the prompt transcription text for the prompt
+     *  @return The prompt transcription text for the current prompt
+     */
+    public String getPromptTranscriptionText() { return promptTranscriptionText; }
+    
+    
+    
     /** Sets the prompt text for the prompt
      *  @param The prompt text for the current prompt
      */
@@ -58,6 +66,15 @@ public class Prompt {
         this.promptText = text;
     }
 
+    /** Sets the prompt transcription text for the prompt
+     *  @param The prompt transcription text for the current prompt
+     */
+    public void setPromptTranscriptionText(String text) {
+        this.promptTranscriptionText = text;
+    }
+
+    
+    
     /**
      * Get the recording object associated to this prompt.
      * @return

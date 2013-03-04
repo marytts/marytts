@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
@@ -61,17 +64,20 @@ public class JPhonemiser extends InternalModule
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
     protected TrainedLTS lts;
+    protected boolean removeTrailingOneFromPhones = true;
 
     protected AllophoneSet allophoneSet;
 
     public JPhonemiser(String propertyPrefix)
-    throws IOException,  MaryConfigurationException
+    throws IOException,  MaryConfigurationException, SecurityException, IllegalArgumentException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
         		propertyPrefix+"allophoneset",
                 propertyPrefix+"userdict",
                 propertyPrefix+"lexicon",
-                propertyPrefix+"lettertosound");
+                propertyPrefix+"lettertosound",
+                propertyPrefix+"removeTrailingOneFromPhones",
+                propertyPrefix+"syllabifierClass");
     }
     
     
@@ -81,12 +87,55 @@ public class JPhonemiser extends InternalModule
      * @param userdictFilename
      * @param lexiconFilename
      * @param ltsFilename
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     * @throws ClassNotFoundException 
+     * @throws NoSuchMethodException 
+     * @throws IllegalArgumentException 
+     * @throws SecurityException 
      * @throws Exception
      */
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
             String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty)
-    throws IOException, MaryConfigurationException
+    throws IOException, MaryConfigurationException, SecurityException, IllegalArgumentException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException
+    {
+        this(componentName, inputType, outputType,
+        		allophonesProperty, userdictProperty, lexiconProperty, ltsProperty, null, null);
+    }
+
+    /**
+	 * 
+	 * Set syllabifier component.
+	 * 
+	 * @param syllabifier
+	 * 
+	 */
+    public void setSyllabifier(Syllabifier syllabifier){
+    	this.lts.setSyllabifier(syllabifier);
+    }
+
+    /**
+     * Constructor providing the individual filenames of files that are required.
+     * @param allophonesFilename
+     * @param userdictFilename
+     * @param lexiconFilename
+     * @param ltsFilename
+     * @param removetrailingonefromphonesBoolean
+     * @throws ClassNotFoundException 
+     * @throws NoSuchMethodException 
+     * @throws SecurityException 
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     * @throws IllegalArgumentException 
+     * @throws Exception
+     */
+    public JPhonemiser(String componentName, 
+            MaryDataType inputType, MaryDataType outputType,
+            String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty, String syllabifierClassProperty)
+    throws IOException, MaryConfigurationException, SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException
     {
         super(componentName, inputType, outputType,
         		MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
@@ -103,14 +152,78 @@ public class JPhonemiser extends InternalModule
         InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
         lexicon = new FSTLookup(lexiconStream, lexiconProperty);
         InputStream ltsStream = MaryProperties.needStream(ltsProperty);
-        lts = new TrainedLTS(allophoneSet, ltsStream);
+        if(removetrailingonefromphonesProperty != null){
+            this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty, true);
+		}
+		Syllabifier syllabifier = null;
+		// how do you know about syllabifierClassProperty? (de = null, other true)
+		if (syllabifierClassProperty != null) {
+			String className = MaryProperties.getProperty(
+					syllabifierClassProperty, null);
+			if (className != null) {
+				Constructor c = Class.forName(className).getConstructor(
+						AllophoneSet.class, boolean.class);
+				syllabifier = (Syllabifier) c.newInstance(this.allophoneSet,
+						this.removeTrailingOneFromPhones);
+			}
+			// className is null for all lang except italian...    
+		} 
+		
+        // if a syllabifier is not set go with the default  
+		if (syllabifier == null)
+		{
+			syllabifier = new Syllabifier(this.allophoneSet,
+					this.removeTrailingOneFromPhones);
+		}
+		
+        lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones, syllabifier);
     }
 
+	public Map<String, List<String>> loadPrivateLexicon(Document doc) {
+		// Check if rawxml contains lexicon attribute
+		Element root = doc.getDocumentElement();
+		String xmlLexiconFileName = root.getAttribute("lexicon");
+
+		Map<String, List<String>> privatedict = null;
+		if (xmlLexiconFileName != null && xmlLexiconFileName.length() > 0) {
+			try {
+				privatedict = readLexicon(xmlLexiconFileName);
+				if (privatedict != null) // && userdict.size() > 0)
+				{
+					logger.info("Private dictionary loaded from "
+							+ xmlLexiconFileName + " is used for this request.");
+				}
+			} catch (IOException e) {
+				logger.info("Failed to load private dictionary from "
+						+ xmlLexiconFileName + " for this request.");
+
+			}
+		}
+    	return privatedict;
+    }
+
+	protected String getPosTag(Element t) {
+		String pos = null;
+		if (t != null) {
+			// use part-of-speech if available
+			if (t.hasAttribute("pos")) {
+				pos = t.getAttribute("pos");
+			}
+		}
+		return pos;
+	}
 
 	public MaryData process(MaryData d)
         throws Exception
     {
         Document doc = d.getDocument();
+        
+        // Check if rawxml contains lexicon attribute
+        Element root = doc.getDocumentElement();
+        String xmlLexiconFileName = root.getAttribute("lexicon");
+
+        Map<String, List<String>> privatedict = this.loadPrivateLexicon(doc);
+        
         NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
         Element t = null;
         while ((t = (Element) it.nextNode()) != null) {
@@ -127,11 +240,7 @@ public class JPhonemiser extends InternalModule
                 else
                     text = MaryDomUtils.tokenText(t);
                 
-                String pos = null;
-                // use part-of-speech if available
-                if (t.hasAttribute("pos")){
-                    pos = t.getAttribute("pos");
-                }
+                String pos = this.getPosTag(t);
                 
                 if (text != null && !text.equals("")) {
                     // If text consists of several parts (e.g., because that was
@@ -143,17 +252,30 @@ public class JPhonemiser extends InternalModule
                     while (st.hasMoreTokens()) {
                         String graph = st.nextToken();
                         StringBuilder helper = new StringBuilder();
-                        String phon = phonemise(graph, pos, helper);
-                        if (ph.length() == 0) { // first part
-                            // The g2pMethod of the combined beast is
-                            // the g2pMethod of the first constituant.
-                            g2pMethod = helper.toString();
-                            ph.append(phon);
-                        } else { // following parts
-                            ph.append(" - ");
-                            // Reduce primary to secondary stress:
-                            ph.append(phon.replace('\'', ','));
-                       }
+                        String phon = null;
+                        if(privatedict != null)
+                        {
+                        	phon = this.dictLookup(privatedict, graph, pos);
+                            if (phon != null) {
+                                helper.append("privatedict");
+                            }
+                        }
+                        if(phon==null)
+                        {
+                        	phon = this.phonemise(graph, pos, helper);
+                        }
+                        //if(phon!=null){
+	                        if (ph.length() == 0) { // first part
+	                            // The g2pMethod of the combined beast is
+	                            // the g2pMethod of the first constituant.
+	                            g2pMethod = helper.toString();
+	                            ph.append(phon);
+	                        } else { // following parts
+	                            ph.append(" - ");
+	                            // Reduce primary to secondary stress:
+	                            ph.append(phon.replace('\'', ','));
+	                       }
+                       //}
                     }
                     
                     if (ph != null && ph.length() > 0) {
@@ -183,48 +305,109 @@ public class JPhonemiser extends InternalModule
      */
     public String phonemise(String text, String pos, StringBuilder g2pMethod)
     {
+		return this.phonemiseComplete(null, text, pos, g2pMethod);
+	}
+
+    /**
+     * Phonemise the word text. This starts with a simple lexicon lookup,
+     * followed by some heuristics, and finally applies letter-to-sound rules
+     * if nothing else was successful. 
+     * 
+     * @param privatedict an additional lexicon for lookups (can be null).
+     * @param text the textual (graphemic) form of a word.
+     * @param pos the part-of-speech of the word
+     * @param g2pMethod This is an awkward way to return a second
+     * String parameter via a StringBuilder. If a phonemisation of the text is
+     * found, this parameter will be filled with the method of phonemisation
+     * ("lexicon", ... "rules"). 
+     * @return a phonemisation of the text if one can be generated, or
+     * null if no phonemisation method was successful.
+     */
+    public String phonemiseComplete(Map<String, List<String>> privatedict, String text, String pos, StringBuilder g2pMethod)
+    {
         // First, try a simple userdict and lexicon lookup:
 
-        String result = userdictLookup(text, pos);
-        if (result != null) {
-            g2pMethod.append("userdict");
-            return result;
-        }
-        
-        result = lexiconLookup(text, pos);
-        if (result != null) {
-            g2pMethod.append("lexicon");
-            return result;
-        }
+        String result = this.phonemiseLookupOnly(privatedict, text, pos, g2pMethod);
+		if (result != null) {
+			return result;
+		}
 
-        // Lookup attempts failed. Try normalising exotic letters
-        // (diacritics on vowels, etc.), look up again:
-        String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
-        if (!normalised.equals(text)) {
-            result = userdictLookup(normalised, pos);
-            if (result != null) {
-                g2pMethod.append("userdict");
-                return result;
-            }
-            result = lexiconLookup(normalised, pos);
-            if (result != null) {
-                g2pMethod.append("lexicon");
-                return result;
-            }
-        }
-           
-        // Cannot find it in the lexicon -- apply letter-to-sound rules
-        // to the normalised form
+		// Cannot find it in the lexicon -- apply letter-to-sound rules
+		// to the normalised form
 
-        String phones = lts.predictPronunciation(text);
-        result = lts.syllabify(phones);
-        if (result != null) {
-            g2pMethod.append("rules");
-            return result;
-        }
+		String phones = lts.predictPronunciation(text);
+		result = lts.syllabify(phones);
+		if (result != null) {
+			g2pMethod.append("rules");
+			return result;
+		}
 
-        return null;
-    }
+		return null;
+	}
+
+	/**
+	 * Phonemise the word text. This starts with a simple lexicon lookup,
+	 * followed by some heuristics.
+	 * 
+     * @param privatedict an additional lexicon for lookups (can be null).
+	 * @param text
+	 *            the textual (graphemic) form of a word.
+	 * @param pos
+	 *            the part-of-speech of the word
+	 * @param g2pMethod
+	 *            This is an awkward way to return a second String parameter via
+	 *            a StringBuilder. If a phonemisation of the text is found, this
+	 *            parameter will be filled with the method of phonemisation
+	 *            ("lexicon", ... "rules").
+	 * @return a phonemisation of the text if one can be generated, or null if
+	 *         no phonemisation method was successful.
+	 */
+	public String phonemiseLookupOnly(Map<String, List<String>> privatedict, String text, String pos,
+			StringBuilder g2pMethod) {
+		// First, try a simple userdict and lexicon lookup:
+
+		String result = this.dictLookup(privatedict, text, pos);
+		if (result != null) {
+			g2pMethod.append("privatedict");
+			return result;
+		}
+
+		result = this.dictLookup(this.userdict, text, pos);
+		if (result != null) {
+			g2pMethod.append("userdict");
+			return result;
+		}
+
+		result = lexiconLookup(text, pos);
+		if (result != null) {
+			g2pMethod.append("lexicon");
+			return result;
+		}
+
+		// Lookup attempts failed. Try normalising exotic letters
+		// (diacritics on vowels, etc.), look up again:
+		String normalised = MaryUtils
+				.normaliseUnicodeLetters(text, getLocale());
+		if (!normalised.equals(text)) {
+			result = this.dictLookup(privatedict, normalised, pos);
+			if (result != null) {
+				g2pMethod.append("privatedict");
+				return result;
+			}
+			result = this.dictLookup(this.userdict, normalised, pos);
+			if (result != null) {
+				g2pMethod.append("userdict");
+				return result;
+			}
+			result = lexiconLookup(normalised, pos);
+			if (result != null) {
+				g2pMethod.append("lexicon");
+				return result;
+			}
+		}
+
+		return null;
+	}
         
     
     
@@ -257,7 +440,7 @@ public class JPhonemiser extends InternalModule
          return entries[0];
     }
 
-    private String[] lexiconLookupPrimitive(String text, String pos) {
+    protected String[] lexiconLookupPrimitive(String text, String pos) {
         String[] entries;
         if (pos != null) { // look for pos-specific version first
             entries = lexicon.lookup(text+pos);
@@ -280,18 +463,31 @@ public class JPhonemiser extends InternalModule
      */
     public String userdictLookup(String text, String pos)
     {
-        if (userdict == null || text == null || text.length() == 0) return null;
-        List<String> entries = userdict.get(text);
+        return this.dictLookup(this.userdict,text,pos);
+    }
+    
+    /**
+     * look a given text up in the privatedict. part-of-speech is used 
+     * in case of ambiguity.
+     * 
+     * @param text
+     * @param pos
+     * @return
+     */
+    public String dictLookup(Map<String,List<String>> privatedict, String text, String pos)
+    {
+        if (privatedict == null || text == null || text.length() == 0) return null;
+        List<String> entries = privatedict.get(text);
         // If entry is not found directly, try the following changes:
         // - lowercase the word
         // - all lowercase but first uppercase
         if (entries  == null) {
-            text = text.toLowerCase(getLocale());
-            entries = userdict.get(text);
+            text = text.toLowerCase(this.getLocale());
+            entries = privatedict.get(text);
          }
          if (entries == null) {
-             text = text.substring(0,1).toUpperCase(getLocale()) + text.substring(1);
-             entries = userdict.get(text);
+             text = text.substring(0,1).toUpperCase(this.getLocale()) + text.substring(1);
+             entries = privatedict.get(text);
          }
          
          if (entries == null) return null;

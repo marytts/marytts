@@ -547,6 +547,8 @@ public class Request {
             MaryData outData = null;
             try {
                 outData = m.process(currentData);
+                if (currentData.getPrivateLexicon() != null)
+                	outData.setPrivateLexicon(currentData.getPrivateLexicon());
             } catch (Exception e) {
                 throw new Exception("Module " + m.name() + ": Problem processing the data.", e);
             }
@@ -754,6 +756,8 @@ public class Request {
             throw new IllegalArgumentException("Expected MaryXML data");
         }
         String rootLanguage = maryxml.getDocument().getDocumentElement().getAttribute("xml:lang");
+        String rootLexicon = maryxml.getDocument().getDocumentElement().getAttribute("lexicon");
+        
         Document newDoc = MaryXML.newDocument();
         Element newRoot = newDoc.getDocumentElement();
         // Now import not only the paragraph itself (with substructure,
@@ -781,6 +785,9 @@ public class Request {
             }
         }
         newRoot.setAttribute("xml:lang", language);
+        if (rootLexicon.length() > 0)
+        	newRoot.setAttribute("lexicon", rootLexicon);
+        
         MaryData md = new MaryData(maryxml.getType(), MaryUtils.string2locale(language));
         Voice dVoice = maryxml.getDefaultVoice();
         if (dVoice != null) {

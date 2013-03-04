@@ -53,8 +53,8 @@ import org.w3c.dom.traversal.TreeWalker;
 public class OpenNLPPosTagger extends InternalModule
 {
     private String propertyPrefix;
-    private POSTaggerME tagger;
-    private Map<String,String> posMapper = null;
+    protected POSTaggerME tagger;
+    protected Map<String,String> posMapper = null;
 
     /**
      * Constructor which can be directly called from init info in the config file.

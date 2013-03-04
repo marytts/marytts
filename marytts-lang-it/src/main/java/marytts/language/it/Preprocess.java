@@ -24,12 +24,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.language.it.preprocess.ExpansionPattern;
 import marytts.modules.InternalModule;
+import marytts.language.it.phonemiser.JPhonemiser;
+import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -50,6 +54,8 @@ import org.w3c.dom.traversal.TreeWalker;
 
 public class Preprocess extends InternalModule
 {
+	JPhonemiser phonemiser = null;
+	boolean hasPhonemiser = true;
 
     public Preprocess()
     {
@@ -62,8 +68,20 @@ public class Preprocess extends InternalModule
     public MaryData process(MaryData d)
     throws Exception
     {
-        Document doc = d.getDocument();
-        logger.info("Expanding say-as elements...");
+		if (this.hasPhonemiser == true && this.phonemiser == null) {
+			for (MaryModule module : ModuleRegistry.getAllModules()) {
+				if (Locale.ITALIAN.equals(module.getLocale())
+						&& JPhonemiser.class.equals(module.getClass())) {
+					this.phonemiser = (JPhonemiser) module;
+				}
+			}
+			if (this.phonemiser == null) {
+				System.err.println("Phonemiser not found");
+				this.hasPhonemiser = false;
+			}
+		}
+		Document doc = d.getDocument();
+		logger.info("Expanding say-as elements...");
         expandSayasElements(doc);
         logger.info("Matching and expanding patterns...");
         matchAndExpandPatterns(doc);
@@ -92,29 +110,44 @@ public class Preprocess extends InternalModule
                 logger.info("Don't know how to expand say-as type=\"" +
                              type + "\"");
             }
-        }
-    }
+		}
+	}
 
     private void matchAndExpandPatterns(Document doc)
     {
         TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(
             doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.TOKEN), false);
         Element t = null;
-        while ((t = (Element) tw.nextNode()) != null) {
+		StringBuilder g2pMethod = new StringBuilder();
+
+		Map<String, List<String>> privatedict = null;
+		if (this.hasPhonemiser && this.phonemiser != null) {
+			privatedict = this.phonemiser.loadPrivateLexicon(doc);
+		}
+		while ((t = (Element) tw.nextNode()) != null) {
             //System.err.println("matching and expanding " + MaryDomUtils.tokenText(t));
-            // Skip tokens inside say-as tags, as well as tokens
-            // for which a pronunciation is given:
-            if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) ||
-                t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
-                // ignore token
-                continue;
-            }
-            Iterator it = ExpansionPattern.allPatterns().iterator();
+			// Skip tokens inside say-as tags, as well as tokens
+			// for which a pronunciation is given:
+			if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) ||
+					t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
+				// ignore token
+				continue;
+			} else if (this.hasPhonemiser && this.phonemiser != null) {
+				g2pMethod.setLength(0);
+				String ph = this.phonemiser.phonemiseLookupOnly(privatedict,
+						t.getTextContent(), null, g2pMethod);
+				if (ph != null) {
+					//t.setAttribute("ph", ph);
+					//t.setAttribute("g2p_method", g2pMethod.toString());
+					continue;
+				}
+			}
+            Iterator<ExpansionPattern> it = ExpansionPattern.allPatterns().iterator();
             boolean fullyExpanded = false;
             while (!fullyExpanded && it.hasNext()) {
                 ExpansionPattern ep = (ExpansionPattern)it.next();
                 logger.debug("Now applying ep " + ep + " to token " + MaryDomUtils.getPlainTextBelow(t));
-                List expanded = new ArrayList();
+                List<Element> expanded = new ArrayList<Element>();
                 fullyExpanded = ep.process(t, expanded);
                 // Element replacements may have been caused by ep.process());
                 // Update t and tw accordingly: the next position to look at is
@@ -155,7 +188,7 @@ public class Preprocess extends InternalModule
      * @param l a list of elements
      * @return the last token, or null if no such token can be found
      */
-    private Element getLastToken(List l) {
+    private Element getLastToken(List<Element> l) {
         if (l == null) throw new NullPointerException("Received null argument");
         if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
         for (int i=l.size()-1; i>=0; i--) {
@@ -180,7 +213,7 @@ public class Preprocess extends InternalModule
      * @param l a list of elements
      * @return the first token, or null if no such token can be found
      */
-    private Element getFirstToken(List l) {
+    private Element getFirstToken(List<Element> l) {
         if (l == null) throw new NullPointerException("Received null argument");
         if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
         for (int i=0; i<l.size(); i++) {

@@ -84,7 +84,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String DATASET       = name+".dataSet";
     public final String LOWERF0       = name+".lowerF0";
     public final String UPPERF0       = name+".upperF0";
-    public final String NUMTESTFILES  = name+".numTestFiles";
     
     public final String VER           = name+".version";
     public final String QNUM          = name+".questionsNum";
@@ -139,7 +138,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(DATASET,       "cmu_us_arctic");
            props.put(LOWERF0,       "110");
            props.put(UPPERF0,       "280");
-           props.put(NUMTESTFILES,  "10");          
            props.put(VER,         "1");
            props.put(QNUM,        "001");
            
@@ -200,8 +198,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(ADAPTF0_RANGES,     "'bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280'");
            props.put(ADAPTSPKRMASK,      "*/cmu_us_arctic_%%%_*");
            props.put(ADAPTHEAD,     "b05");
-           props.put(NUMTESTFILES,  "5");
-               
            props.put(ADAPTTREEKIND,        "dec");
            props.put(ADAPTTRANSKIND,       "feat");  
            
@@ -219,8 +215,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
         props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default slt=80 female=80, male=40)");
         props2Help.put(UPPERF0,       "Upper limit for F0 extraction in Hz (default slt=350 female=350, male=280)");
-        props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copied from phonefeatures set.");
-            
         props2Help.put(VER,         "version number of this setting (default=1)");
         props2Help.put(QNUM,        "question set number (default='001')");
         props2Help.put(SAMPFREQ,      "Sampling frequency in Hz (default=48000)");

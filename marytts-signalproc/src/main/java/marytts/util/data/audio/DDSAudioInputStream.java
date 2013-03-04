@@ -93,7 +93,9 @@ public class DDSAudioInputStream extends AudioInputStream {
             int toRead = nSamples-totalRead;
             if (toRead > sampleBuf.length) toRead = sampleBuf.length;
             int nRead = source.getData(sampleBuf, 0, toRead);
-            //System.err.println("DDSAudioInputStream: read " + nRead + " samples from source");
+ 			// nRead <= 0; end of stream
+            if (nRead <= 0) 
+				return -1;
             if (frameSize == 1) { // bytes per sample
                 for (int i=0; i<nRead; i++, currentPos++) {
                     int sample = (int) Math.round(sampleBuf[i] * 127.0); // de-normalise to value range

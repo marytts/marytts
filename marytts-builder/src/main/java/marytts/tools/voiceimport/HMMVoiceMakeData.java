@@ -108,6 +108,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String featureListMapFile = name+".featureListMapFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
     public final String ADAPTSCRIPTS     = name+".adaptScripts";
+    public final String NUMTESTFILES  = name+".numTestFiles";
     private FilenameFilter featFileFilter;
     
     
@@ -139,6 +140,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(featureListMapFile, "mary/hmmFeaturesMap.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(ADAPTSCRIPTS, "false");
+           props.put(NUMTESTFILES,  "10");
        }
        return props;
        }
@@ -163,6 +165,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 " will be created automatically if aliases are necessary.)");
         props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: " +
                 " speaker adaptation/adaptive scripts.  ");
+        props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copyed/moved from phonefeatures set.");
 
     }
 
@@ -579,7 +582,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
                 out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + 
                        "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + "|*}\n");
-            else if(hmmfea.contains("tobi_"))
+            else if(hmmfea.contains("tobi") || hmmfea.contains("accent") || hmmfea.contains("tone"))
                 out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + 
                        "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
             else
@@ -803,15 +806,17 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         monoMlf.close();
         
         System.out.println("Created Master Label Files: \n  " + voiceDir + "hts/data/labels/full.mlf" + "\n  " + voiceDir + "hts/data/labels/mono.mlf");
-        
-        // Copy 10 files in gen directory to test with htsengine
-        System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
+        // number test files from database.config
+        // Move (copy + delete) NUMTESTFILES files in gen directory to test with htsengine
+        int numTestFiles=Integer.parseInt(getProp(NUMTESTFILES));
+        System.out.println("Copying/Moving "+ numTestFiles + " context feature files in gen directory for testing with the HTS htsengine.");
         String cmdLine;
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<numTestFiles; i++) {
             basename = StringUtils.getFileName(feaFiles[i]);
             FileUtils.copy(voiceDir + "hts/data/labels/full/" + basename + ".lab" , voiceDir + "hts/data/labels/gen/gen_" + basename + ".lab");
+            // Un-comment the following line line for scientific testing
+            //FileUtils.delete(voiceDir + "hts/data/labels/full/" + basename + ".lab");
         }
-        
     }
 
     
@@ -1058,11 +1063,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            if(ulab[i].unitName.contentEquals(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))){
               // We need here HTK time units, which are measured in hundreds of nanoseconds.  
               // write in label file HTK-HTS format 
-              outLab.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+              outLab.write(Math.round(ulab[i].startTime*1E7) + "  " + Math.round(ulab[i].endTime*1E7) + " " +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)) + "\n");
               
               // write in features file HTK-HTS format
-              outFea.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+              outFea.write(Math.round(ulab[i].startTime*1E7) + "  " + Math.round(ulab[i].endTime*1E7) + " " +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef)) + "^" +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef))      + "-" +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))           + "+" +
@@ -1083,7 +1088,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 // the values need to be mapped otherwise HTK-HHEd complains.
                 if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
                   outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replacePunc(hmmfeaVal));
-                else if(hmmfea.contains("tobi_"))
+                else if(hmmfea.contains("tobi") || hmmfea.contains("accent") || hmmfea.contains("tone"))
                   outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(hmmfeaVal));
                 else
                   outFea.write("|" + hmmfeaAlias + "=" + hmmfeaVal);

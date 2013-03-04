@@ -55,8 +55,8 @@ public class SpecialCharEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     /** Helper class for the specialCharNames map */
     class SCEntry {
@@ -79,9 +79,9 @@ public class SpecialCharEP extends ExpansionPattern
         }
     }
     /** Only needed to fill specialCharNames */
-    private Map createSpecialCharNames()
+    private Map<String, SCEntry> createSpecialCharNames()
     {
-        HashMap m = new HashMap();
+        HashMap<String, SCEntry> m = new HashMap<String, SCEntry>();
         
         m.put("$",  new SCEntry("dollaro",                 false, true));
         m.put("@",  new SCEntry("chiocciola",                 true, true));
@@ -90,43 +90,44 @@ public class SpecialCharEP extends ExpansionPattern
         m.put(":",  new SCEntry("duepuntiXXX",                 true, true));
 */
         /*
-        m.put(",",  new SCEntry("Komma",                     false, false));
-        m.put("\\", new SCEntry("Backslash['bEk-slES]",      true,  true));
-        m.put("!",  new SCEntry("Ausrufezeichen",            false, false));
-        m.put("#",  new SCEntry("Numerical[nu:-'mE-rI_k@l]", true,  true));
-        m.put("$",  new SCEntry("Dollar",                    false, true));
-        m.put(new Character((char)167).toString(),  new SCEntry("Paragraph",                 true, true));
-        m.put("%",  new SCEntry("Prozent",                   false, true));
-        m.put(new Character((char)8364).toString(),  new SCEntry("Euro", false, true));
-        m.put("&",  new SCEntry("und",                       true,  true));
-        m.put("'",  new SCEntry("Hochkomma",                 true,  false));
-        m.put("*",  new SCEntry("Stern",                     true,  true));
-        m.put("+",  new SCEntry("plus",                      true,  true));
-        m.put("-",  new SCEntry("Bindestrich",               false, false));
-        m.put("/",  new SCEntry("Slash['slES]",              true,  false));
-        m.put("=",  new SCEntry("gleich",                    true,  true));
-        m.put("?",  new SCEntry("Fragezeichen",              true,  false));
-        m.put("^",  new SCEntry("Dach",                      true,  false));
-        m.put("_",  new SCEntry("Unterstrich",               true,  false));
-        m.put("`",  new SCEntry("Hochkomma",                 true,  false));
-        m.put("{",  new SCEntry("geschweifte Klammer auf",   true,  false));
-        m.put("|",  new SCEntry("senkrechter Strich",        true,  false));
-        m.put("}",  new SCEntry("geschweifte Klammer zu",    true,  false));
-        m.put("~",  new SCEntry("Tilde",                     true,  true));
-        m.put("(",  new SCEntry("Klammer auf",               true,  false));
-        m.put(")",  new SCEntry("Klammer zu",                true,  false));
-        m.put("[",  new SCEntry("eckige Klammer auf",        true,  false));
-        m.put("]",  new SCEntry("eckige Klammer zu",         true,  false));
-        m.put("@",  new SCEntry("at['Et]",                   false, true));
-        m.put(":",  new SCEntry("Doppelpunkt",               false, false));
-        m.put(";",  new SCEntry("Semikolon",                 true,  false));
-        m.put("\"", new SCEntry("Anführungszeichen",         true,  false));
-        m.put("<",  new SCEntry("kleiner als",               true,  true));
-        m.put(">",  new SCEntry("größer als",                true,  true));
-        m.put(".",  new SCEntry("Punkt",                     false, false));*/
+        m.put(",",  new SCEntry("virgola",                     false, false));
+        m.put("\\", new SCEntry("Backslash['|b|E1|k|-|z|l|E1|S]",      true,  true));
+        m.put("&",  new SCEntry("and['E1|n|d]",                       true,  true));
+        m.put("/",  new SCEntry("Slash['|z|l|E1|S]",              true,  false));
+        // m.put("@",  new SCEntry("at['|E1|t]",                   false, true));
+        m.put("!",  new SCEntry("punto esclamativo",            false, false));
+        m.put("#",  new SCEntry("cancelletto", true,  true));
+        m.put("$",  new SCEntry("dollaro",                    false, true));
+        m.put(new Character((char)167).toString(),  new SCEntry("paragrafo",                 true, true));
+        m.put("%",  new SCEntry("percento",                   false, true));
+        m.put(new Character((char)8364).toString(),  new SCEntry("euro", false, true));
+        m.put("'",  new SCEntry("apostrofo",                 true,  false));
+        m.put("*",  new SCEntry("asterisco",                     true,  true));
+        m.put("+",  new SCEntry("più",                      true,  true));
+        m.put("-",  new SCEntry("meno",               false, false));
+        m.put("=",  new SCEntry("uguale",                    true,  true));
+        m.put("?",  new SCEntry("punto di domanda",              true,  false));
+        m.put("^",  new SCEntry("accento circonflesso",                      true,  false));
+        m.put("_",  new SCEntry("sottolineato",               true,  false));
+        m.put("`",  new SCEntry("apostrofo",                 true,  false));
+        m.put("{",  new SCEntry("aperta graffa",   true,  false));
+        m.put("|",  new SCEntry("pipe['|p|a1|-|i|p]",        true,  false));
+        m.put("}",  new SCEntry("chiusa graffa",    true,  false));
+        m.put("~",  new SCEntry("tilde",                     true,  true));
+        m.put("(",  new SCEntry("aperta tonda",               true,  false));
+        m.put(")",  new SCEntry("chiusa tonda",                true,  false));
+        m.put("[",  new SCEntry("aperta quadra",        true,  false));
+        m.put("]",  new SCEntry("chiusa quadra",         true,  false));
+        m.put(":",  new SCEntry("due punti",               false, false));
+        m.put(";",  new SCEntry("punto e virgola",                 true,  false));
+        m.put("\"", new SCEntry("virgolette",         true,  false));
+        m.put("<",  new SCEntry("minore",               true,  true));
+        m.put(">",  new SCEntry("maggiore",                true,  true));
+        m.put(".",  new SCEntry("punto",                     false, false));
+        */
         return m;
     };
-    private final Map specialCharNames = createSpecialCharNames();
+    private final Map<String, SCEntry> specialCharNames = createSpecialCharNames();
     protected final String sMatchingChars = createMatchingChars();
     //    protected final String sMatchingChars = "[\\,\\\\\\!\\#\\$\\%\\&\\'\\*\\+\\-\\/\\=\\?\\^\\_\\`\\{\\|\\}\\~\\(\\)\\[\\]\\@\\:\\;\\\"\\<\\>\\.]";
     protected final String sMatchingCharsSimpleString = createMatchingCharsSimpleString();
@@ -137,7 +138,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createMatchingChars()
     {
         StringBuilder sb = new StringBuilder("[");
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append("\\" + (String) it.next());
         }
         sb.append("]");
@@ -148,7 +149,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createMatchingCharsSimpleString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append((String)it.next());
         }
         return sb.toString();
@@ -158,7 +159,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createSplitAtChars()
     {
         StringBuilder sb = new StringBuilder("[");
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {
                 sb.append("\\" + sc);
@@ -172,7 +173,7 @@ public class SpecialCharEP extends ExpansionPattern
     private String createSplitAtCharsSimpleString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {
                 sb.append(sc);
@@ -227,7 +228,7 @@ public class SpecialCharEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -235,7 +236,7 @@ public class SpecialCharEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 0:
             expanded = expandSpecialChar(doc, s);
@@ -261,9 +262,9 @@ public class SpecialCharEP extends ExpansionPattern
         return entry.pronounce;
     }        
 
-    protected List expandSpecialChar(Document doc, String s)
+    protected List<Element> expandSpecialChar(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         if (doPronounce(s)) {
             String specialCharName = expandSpecialChar(s);
             exp.addAll(makeNewTokens(doc, specialCharName, true, s));

@@ -94,6 +94,7 @@ public abstract class XML2UttBase extends InternalModule
     {
         Document doc = d.getDocument();
         Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+        String rootLexicon = doc.getDocumentElement().getAttribute("lexicon");
 
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             logger.debug("Converting the following XML structure into Utterances:");
@@ -167,6 +168,11 @@ public abstract class XML2UttBase extends InternalModule
 
         MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
+        
+        if (rootLexicon.length() > 0){
+        	output.setPrivateLexicon(rootLexicon);
+        }
+        
         return output;
     }
 

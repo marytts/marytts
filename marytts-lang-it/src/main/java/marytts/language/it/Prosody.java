@@ -25,13 +25,13 @@ import java.io.IOException;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
-import marytts.modules.ProsodyGenericFST;
+//import marytts.modules.ProsodyGenericFST;
 
 /**
  * @author Fabio Tesser
  *
  */
-public class Prosody extends ProsodyGenericFST {
+public class Prosody extends marytts.language.it.ProsodyGeneric {
 	
     public Prosody() throws IOException {
         super(MaryDataType.PHONEMES, 

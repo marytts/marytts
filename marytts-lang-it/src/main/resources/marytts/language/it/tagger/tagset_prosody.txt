@@ -1,0 +1,43 @@
+The Tanl tagset is based on the ILC/PAROLE tagset and is conformant to the EAGLES international standard.
+#########################################################################
+Value	Description 			Examples 		Accent
+#########################################################################
+A 	adjective			tossico, pachistano	Yes
+AP 	possessive adjective 		mio, tuo		No
+B 	adverb				poi, ora, subito	Yes 
+BN 	negation adverb			no, non			No
+CC 	coordinate conjunction		e, ed, che, ma, o	No
+CS 	subordinate conjunction		allora, che, come	No
+DD 	demonstrative determiner	questo, quello		No
+DE 	exclamative determiner		quanto, quanti		No
+DI 	indefinite determiner		alcuno, certo		No
+DQ 	interrogative determiner	quanto, quanti		No -> ???
+DR 	relative determiner		qual, quale		No
+E 	preposition			di, a, da, in, con	No
+EA 	articulated preposition		al, dal, del, nel	No
+FB 	balanced punctuation		() [] ""		No
+FC 	clause boundary punctuation	. - : ;			No
+FF 	comma				, ... -			No
+FS 	sentence boundary punctuation	. ? ! ...		No
+I 	interjection			grazie, ahò, eh, beh	Yes
+N 	cardinal number			1, 2, uno, tre		Yes
+NO 	ordinal number			primo, secondo, I, IV	Yes
+PC 	clitic pronoun			lo, gli, la, mi, ti, t'	No
+PD 	demonstrative pronoun		questo, quello, ciò	No
+PE 	personal pronoun		lui, noialtri, essi	No -> Yes?
+PI 	indefinite pronoun		alcuno, certo, molto	No
+PP 	possessive pronoun		mio, tuo, suo, loro	No
+PQ 	interrogative pronoun		quanto, che, chi, dove  No -> ???
+PR 	relative pronoun		quanto, quanti, quanta	No		
+RD 	determinative article		il, lo, i, gli, la	No
+RI 	indeterminative article		uno, un, una, un'	No
+S 	common noun			allarme, vetro, piano	Yes
+SA 	abbreviation			km, ndr, pm		Yes ->?
+SP 	proper noun			Monica, Pisa, Fiat 	Yes
+T 	predeterminer			tutto, tutti, entrambi	No
+V	main verb			riesco, arrabbierei	Yes
+VA	auxiliary verb (Class of verbs: essere, avere, venire.)	No
+VM	modal verb (Class of verbs: volere, potere, dovere.)	No
+X 	residual class						Yes
+###################			
+SW	foreign word?						Yes

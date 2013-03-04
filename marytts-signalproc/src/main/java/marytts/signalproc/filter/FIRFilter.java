@@ -157,6 +157,9 @@ public class FIRFilter implements InlineDataProcessor {
                 toDeliver = currentlyInBuffer() - nTailCutoff;
                 writePos -= nTailCutoff;
             }
+            // if toDeliver <= 0; end of stream
+            if (toDeliver <= 0)
+            	return -1;
             System.arraycopy(buf, readPos, target, targetPos, toDeliver);
             readPos += toDeliver;
             assert readPos <= writePos;

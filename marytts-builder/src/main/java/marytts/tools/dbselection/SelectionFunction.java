@@ -26,30 +26,21 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Set;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.server.Mary;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.http.Address;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.SAXException;
 
 /**
  * Selects sentences from a given set using the greedy algorithm.
@@ -63,6 +54,7 @@ import org.xml.sax.SAXException;
  */
 public class SelectionFunction{
 
+	private static String locale;
     //maximum number of sentences to select
     private int maxNumSents;
     //the vectors that are selected next 
@@ -94,7 +86,8 @@ public class SelectionFunction{
      * Build a new Selection Function
      * 
      */
-    public SelectionFunction(){
+    public SelectionFunction(String pLocale){
+        locale = pLocale;
         }
 
     /**
@@ -197,7 +190,7 @@ public class SelectionFunction{
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
-            boolean haveSelected = selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
+            boolean haveSelected = selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider, wikiToDB);
 
             if (haveSelected) {
             	assert selectedIdSentence >= 0;
@@ -237,43 +230,93 @@ public class SelectionFunction{
         System.out.println("Total number of selected sentences in TABLE: " + wikiToDB.getSelectedSentencesTableName()
                 + " = " + sentIndex);
         
-        
-        int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
-        
-        if( sel != null){
-          // saving sentences in a file
-          System.out.println("Saving selected sentences in ./selected.log");
-          PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
-          
-          System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.log");
-          PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.log")));
-          
-            
-          String str;
-          for(int i=0; i<sel.length; i++){
-            // not sure if we need to make another table???
-            // str = wikiToDB.getSentence("selectedSentences", sel[i]);
-            str = wikiToDB.getDBSelectionSentence(sel[i]);  
-            //System.out.println("id=" + sel[i] + str);  
-            selectedLog.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " " + str);
-            selected_tra_Log.println(sel[i] + " <" + transcribe(str, "it") + ">");
-          }
-          selectedLog.close();
-          selected_tra_Log.close();
-          
-          logFile.println("Total number of sentences : "+sentIndex);
-        } else
-            System.out.println("No selected sentences to save.");  
+        logFile.println("Total number of sentences : "+sentIndex);
+       
+        //check_dbselection_sentences(wikiToDB);
+        check_selectedSentencesTableName_sentences(wikiToDB);
         
     }
 
+    static void check_dbselection_sentences(DBHandler wikiToDB) throws Exception
+    {
+    	 int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
+         
+         if( sel != null){
+           // saving sentences in a file
+           System.out.println("Saving selected sentences in ./selected.log");
+           PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
+           
+           System.out.println("Saving selected sentences and transcriptions in ./selected_text_transcription.txt_tr");
+           PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.txt_tr")));
+
+           System.out.println("Saving list of word and transcriptions in ./selected_word_trascription.txt_tr");
+           PrintWriter selected_word_tra_Log = new PrintWriter(new FileWriter(new File("./selected_word_transcription.txt_tr")));
+           
+           String str;
+           for(int i=0; i<sel.length; i++){
+             // not sure if we need to make another table???
+             // str = wikiToDB.getSentence("selectedSentences", sel[i]);
+             str = wikiToDB.getDBSelectionSentence(sel[i]);  
+             //System.out.println("id=" + sel[i] + str);  
+             String transcription = transcribeWithWordBoundary(str,locale, selected_word_tra_Log);
+             // write selected sentence transcription 
+             wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
+             // write selected sentence transcription 
+             selectedLog.println(sel[i] + " " + str);
+             selected_tra_Log.println(sel[i] + " " + str);
+             selected_tra_Log.println(sel[i] + " " + transcription);
+           }
+           selectedLog.close();
+           selected_tra_Log.close();
+           
+         } else
+             System.out.println("No selected sentences to save.");  
+    }
+    
+    static void check_selectedSentencesTableName_sentences(DBHandler wikiToDB) throws Exception{
+    	
+    	 int sel[]  = wikiToDB.getIdListOfSelectedSentences(wikiToDB.getSelectedSentencesTableName(), "unwanted=false");
+    	 
+    	 if(sel != null){
+             // saving sentences in a file
+             System.out.println("Saving selected sentences in ./selected_ordered.log");
+             PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected_ordered.log")));
+             
+             System.out.println("Saving selected sentences and transcriptions in ./selected_ordered_text_transcription.txt_tr");
+             PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_ordered_text_transcription.txt_tr")));
+
+             System.out.println("Saving list of word and transcriptions in ./selected_ordered_word_trascription.txt_tr");
+             PrintWriter selected_word_tra_Log = new PrintWriter(new FileWriter(new File("./selected_ordered_word_transcription.txt_tr")));
+             
+             String str;
+             for(int i=0; i<sel.length; i++){
+               // not sure if we need to make another table???
+               // str = wikiToDB.getSentence("selectedSentences", sel[i]);
+               str = wikiToDB.getDBSelectionSentence(sel[i]);  
+               //System.out.println("id=" + sel[i] + str);  
+               String transcription = transcribeWithWordBoundary(str,locale,selected_word_tra_Log);
+               // write selected sentence transcription 
+               wikiToDB.insertSelectedSentenceTranscription(sel[i], transcription);
+               // write selected sentence transcription 
+               selectedLog.println(sel[i] + " " + str);
+               selected_tra_Log.println(sel[i] + " " + str);
+               selected_tra_Log.println(sel[i] + " " + transcription);
+             }
+             selectedLog.close();
+             selected_tra_Log.close();
+             
+           } else
+               System.out.println("No selected sentences to save.");  
+    	
+    	
+    }
+    
     
     /*
      * Utility method for get the Transcription of the selected sentences
      * It makes use of a started builtin MARY TTS 
      */
-	static String transcribe(String ptext, String plocale) throws Exception {
+	static String transcribeWithWordBoundary(String ptext, String plocale, PrintWriter pWordPipeTranscriptionFile) throws Exception {
 		String inputType = "TEXT";
 		String outputType = "ALLOPHONES";
 		String audioType = null;
@@ -290,16 +333,59 @@ public class SelectionFunction{
 
 		TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
 		Element ph;
-		String lTranscription = "";
+		String lTranscription = "# ";
 		while ((ph = (Element) phWalker.nextNode()) != null) {
-			lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+			if (isFinalInWord(ph)){
+			     lTranscription = lTranscription + ph.getAttribute("p") + " # ";
+				 printOnFileWordPipeTrascription(ph, pWordPipeTranscriptionFile);
+			}
+			else
+			 lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+			 
 		}
+
 		lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
 		// System.out.println('<' + lTranscription + '>');
 		return lTranscription;
 	}
     
-
+	static boolean isFinalInWord(Element segment){
+		if (segment == null) return true;
+	    Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+	    if (word == null) return true;
+	    TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
+	    tw.setCurrentNode(segment);
+	    int count = 0;
+	    
+	    while (( (Element) tw.nextNode()) != null) {
+	        count++;
+	        if (count > 0) return false;
+	    }
+	    return true;
+	}
+	
+	static String getWordPipeTrascription(Element segment){
+		if (segment == null) return null;
+	    Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+	    if (word == null) return null;
+	    TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
+	    Element ph;
+		String lTranscription = "";
+		while ((ph = (Element) tw.nextNode()) != null) {		
+			lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+		}
+		lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
+		return word.getFirstChild().getNodeValue().trim() + " | " + lTranscription;
+	}
+	
+	static void printOnFileWordPipeTrascription(Element segment, PrintWriter pWordPipeTranscriptionFile)
+	{
+		String wordPipeTrascription = getWordPipeTrascription(segment);
+		pWordPipeTranscriptionFile.println(wordPipeTrascription);
+		pWordPipeTranscriptionFile.flush();
+	}
+	
+			
     /**
      * Select the next sentence
      * 
@@ -315,7 +401,8 @@ public class SelectionFunction{
     private boolean selectNext(Set<Integer>selectedIdSents,
                 Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
-                CoverageFeatureProvider cfProvider)
+                CoverageFeatureProvider cfProvider,
+                DBHandler wikiToDB)
     throws IOException {
         // TODO: MS, May 2011 -- I have refactored this code but could not test it. Bad me.
     	
@@ -327,7 +414,7 @@ public class SelectionFunction{
         // we bulk-load a chunk of them at a time.
         if (cfProvider instanceof InMemoryCFProvider) {
         	// already in memory, can loop through all
-        	determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
+        	determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider, wikiToDB);
         } else {
         	assert cfProvider instanceof DatabaseCFProvider;
         	DatabaseCFProvider dbCfProvider = (DatabaseCFProvider) cfProvider;
@@ -335,7 +422,7 @@ public class SelectionFunction{
         	for (int c=0, max=dbCfProvider.getNumSentences(); c<max; c+= chunkSize) {
         		int len = Math.min(chunkSize, max-c);
         		CoverageFeatureProvider chunk = dbCfProvider.getFeaturesInMemory(c, len);
-        		determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, chunk);
+        		determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, chunk, wikiToDB);
         	}
         }
         return selectedIdSentence >= 0;
@@ -350,23 +437,26 @@ public class SelectionFunction{
 	private void determineMostUsefulSentence(Set<Integer> selectedIdSents,
 			Set<Integer> unwantedIdSents,
 			CoverageDefinition coverageDefinition,
-			CoverageFeatureProvider cfProvider) {
+			CoverageFeatureProvider cfProvider,
+			DBHandler wikiToDB) {
 		for (int l=0, num=cfProvider.getNumSentences(); l<num; l++) {
 			int id = cfProvider.getID(l);
 			// skip previously selected or excluded sentences:
-			if (selectedIdSents.contains(id) || unwantedIdSents.contains(id)) {
+			if (selectedIdSents.contains(id) || unwantedIdSents.contains(id)){
 				continue;
 			}
 			byte[] nextFeatVects = cfProvider.getCoverageFeatures(l);
 		    //calculate how useful the feature vectors are
 		    double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
 		   
-		    if (usefulness > selectedUsefulness) {                         
+		    if (usefulness > selectedUsefulness ) {
+		    	if  (!wikiToDB.textSentenceIsContainedInSelectedIdSents(id, selectedIdSents, unwantedIdSents)) {
 		        //the current sentence is (currently) the best sentence to add
 		        selectedIdSentence = id;
 		        selectedVectors = nextFeatVects;
 		        selectedUsefulness = usefulness;     
-		    }           
+		    	}
+		    }
 		    if (usefulness == -1.0){
 		      unwantedIdSents.add(id);
 		      // idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
@@ -375,8 +465,8 @@ public class SelectionFunction{
 		}
 	}
     
-    
-    /**
+
+	/**
      * Determine if the stop criterion is reached
      * 
      * @param sentences the list of selected sentences

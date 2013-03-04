@@ -289,6 +289,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	    Element syl;
 	    while ((syl = (Element) sylWalker.nextNode()) != null) {
 	        StringBuilder sylPh = new StringBuilder();
+	        StringBuilder sylPh_nostress = new StringBuilder();
 	        String stress = syl.getAttribute("stress");
 	        if (stress.equals("1")) sylPh.append("'");
 	        else if (stress.equals("2")) sylPh.append(",");
@@ -296,10 +297,13 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	        Element ph;
 	        while ((ph = (Element) phWalker.nextNode()) != null) {
 	            if (sylPh.length() > 0) sylPh.append(" ");
+	            if (sylPh_nostress.length() > 0) sylPh_nostress.append(" ");
 	            sylPh.append(ph.getAttribute("p"));
+	            sylPh_nostress.append(ph.getAttribute("p"));
 	        }
 	        String sylPhString = sylPh.toString();
-	        syl.setAttribute("ph", sylPhString);
+	        String sylPhString_no_stress = sylPh_nostress.toString();
+	        syl.setAttribute("ph", sylPhString_no_stress);
 	        if (tPh.length() > 0) tPh.append(" - ");
 	        tPh.append(sylPhString);
 	        if (syl.hasAttribute("tone")) {

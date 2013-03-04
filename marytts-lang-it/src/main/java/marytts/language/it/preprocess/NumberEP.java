@@ -1,6 +1,6 @@
 /**
  * Copyright 2002 DFKI GmbH.
- * Copyright 2012 Giulio Paci <giuliopaci@gmail.com>.
+ * Copyright 2012-2013 Giulio Paci <giuliopaci@gmail.com>.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -50,7 +50,8 @@ public class NumberEP extends ExpansionPattern
         "number:ordinal",
         "number:roman",
         "number:digits",
-		"number:cardinal"
+		"number:cardinal",
+		"number:nofloat"
     };
     /**
      * Every subclass has its own list knownTypes, 
@@ -61,19 +62,21 @@ public class NumberEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     protected static final String sFloat = "(?:-?(?:[1-9][0-9]*|0)?(?:\\.|,)[0-9]+)";
+    protected static final String sNoFloat = "[1-9][0-9]?[0-9]?([.][0-9][0-9][0-9])+(,[0-9]+)?|[1-9][0-9]?[0-9]?[,][0-9][0-9][0-9]([,][0-9][0-9][0-9])+(.[0-9]+)?";
     protected static final String sInteger = "(?:-?[1-9][0-9]*|0)";
-    protected static final String sOrdinal = "(?:" + sInteger + "[°.])";
+    protected static final String sOrdinal = "(?:" + sInteger + "[°])";
     protected static final String sRoman = "(?:[MDCLXVI]+\\.?)";
     protected static final String sDigits = "(?:[0-9.,]*[0-9][.,]?)";
     protected static final String sCardinal = sFloat + "|" + sInteger;
 
     // Now the actual match patterns:
     protected final Pattern reFloat = Pattern.compile(sFloat);
+    protected final Pattern reNoFloat = Pattern.compile(sNoFloat);
     protected final Pattern reInteger = Pattern.compile(sInteger);
     protected final Pattern reOrdinal = Pattern.compile(sOrdinal);
     protected final Pattern reRoman = Pattern.compile(sRoman);
@@ -117,6 +120,7 @@ public class NumberEP extends ExpansionPattern
     {
         switch (type) {
         case 0:
+            if (matchNoFloat(s)) return 7;
             if (matchFloat(s)) return 1;
             if (matchInteger(s)) return 2;
             if (matchOrdinal(s)) return 3;
@@ -151,6 +155,9 @@ public class NumberEP extends ExpansionPattern
         	if (matchInteger(s)) return 2;
             if (matchFloat(s)) return 1;
         	break;
+        case 7:
+            if (matchNoFloat(s)) return 7;
+        	break;
         }
         return -1;
     }
@@ -160,6 +167,7 @@ public class NumberEP extends ExpansionPattern
     {
         switch (typeCode) {
         case 0:
+            if (matchNoFloat(input)) return 7;
             if (matchFloat(input)) return 1;
             if (matchInteger(input)) return 2;
             if (matchOrdinal(input)) return 3;
@@ -185,12 +193,15 @@ public class NumberEP extends ExpansionPattern
 	    	if (matchInteger(input)) return 2;
 	        if (matchFloat(input)) return 1;
 	    	break;
+        case 7:
+            if (matchNoFloat(input)) return 7;
+        	break;
 	    }
         return -1; // no, cannot deal with it as the given type
     }
 
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
 			throw new NullPointerException("Received null argument");
@@ -198,7 +209,7 @@ public class NumberEP extends ExpansionPattern
 			throw new IllegalArgumentException("Received empty list");
 		Document doc = ((Element) tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandFloat(doc, s, true);
@@ -215,9 +226,17 @@ public class NumberEP extends ExpansionPattern
         case 5:
             expanded = expandDigits(doc, s, true);
             break;
+        case 7:
+            expanded = expandNoFloat(doc, s, true);
+        	break;
         }
         replaceTokens(tokens, expanded);
         return expanded;
+    }
+
+    protected boolean matchNoFloat(String s)
+    {
+        return reNoFloat.matcher(s).matches();
     }
 
     protected boolean matchFloat(String s)
@@ -245,8 +264,23 @@ public class NumberEP extends ExpansionPattern
         return reDigits.matcher(s).matches();
     }
 
+    protected List<Element> expandNoFloat(Document doc, String s, boolean createMtu)
+    {
+    	int dot = s.indexOf('.');
+    	int comma = s.indexOf(',');
+    	if( (dot > -1) && ( (dot < comma) || (comma == -1) ) ){
+			s = s.replace(".", "");
+    	}
+    	else if( (comma > -1) && ( (comma < dot) || (dot == -1) ) ){
+			s = s.replace(",", "");
+    	}
+    	if((dot > -1) && (comma > -1)){
+            return expandFloat(doc, s, createMtu);
+    	}
+        return expandInteger(doc, s, createMtu);
+    }
 
-    protected List expandInteger(Document doc, String s, boolean createMtu)
+    protected List<Element> expandInteger(Document doc, String s, boolean createMtu)
     {
         long value;
         // In canDealWith(), we have made a commitment to deal with
@@ -265,9 +299,9 @@ public class NumberEP extends ExpansionPattern
         return expandInteger(doc, value, createMtu, s);
     }
 
-    protected List expandInteger(Document doc, long value, boolean createMtu, String orig)
+    protected List<Element> expandInteger(Document doc, long value, boolean createMtu, String orig)
     {
-        String expString = expandInteger(value);
+        String expString = expandInteger(value, true);
         return makeNewTokens(doc, expString, createMtu, orig);
     }
 
@@ -282,10 +316,10 @@ public class NumberEP extends ExpansionPattern
             throw e;
         }
 
-        return expandInteger(value);
+        return expandInteger(value, true);
     }
 
-    protected String expandInteger(long value)
+    protected String expandInteger(long value, boolean prepend_counter_to_high_numbers)
     {
         long milliards;
         long millions;
@@ -297,7 +331,7 @@ public class NumberEP extends ExpansionPattern
 
         // Special treatment for the 0:
         if (value == 0) {
-            return(new String("null"));
+            return(new String("zero"));
         }
         if (value < 0) {
             buf.append("meno ");
@@ -305,29 +339,37 @@ public class NumberEP extends ExpansionPattern
         milliards = value / 1000000000;
         rest     = value % 1000000000; // the part of value below 1 000 000 000
         if (milliards > 1) {
-            buf.append(expandInteger(milliards)); // recursive call
+            buf.append(expandInteger(milliards, true)); // recursive call
             buf.append(" ");
             if((milliards%1000000)==0)
             {
             	buf.append("di ");
             }
-            buf.append("miliardi ");
-        } else if (milliards == 1) {
-            buf.append("un miliardo ");
-        }
+			buf.append("miliardi ");
+		} else if (milliards == 1) {
+			if (prepend_counter_to_high_numbers) {
+				buf.append("un miliardo ");
+			} else {
+				buf.append("miliardo ");
+			}
+		}
         millions = rest / 1000000;
         rest     = value % 1000000; // the part of value below 1 000 000
         if (millions > 1) {
-            buf.append(expandInteger(millions)); // recursive call
+            buf.append(expandInteger(millions, true)); // recursive call
             buf.append(" ");
-            buf.append("milioni ");
-        } else if (millions == 1) {
-            buf.append("un milione ");
-        }
+			buf.append("milioni ");
+		} else if (millions == 1) {
+			if (prepend_counter_to_high_numbers) {
+				buf.append("un milione ");
+			} else {
+				buf.append("milione ");
+			}
+		}
         thousands = rest / 1000;
         rest      = rest % 1000;
         if (thousands > 1) {
-            buf.append(expandInteger(thousands));
+            buf.append(expandInteger(thousands, true));
             buf.append(" ");
             buf.append("mila ");
         } else if (thousands == 1) {
@@ -336,7 +378,7 @@ public class NumberEP extends ExpansionPattern
         hundreds = (int) rest / 100;
         rest     = rest % 100;
         if (hundreds > 1) {
-            buf.append(expandInteger(hundreds));
+            buf.append(expandInteger(hundreds, true));
             buf.append(" ");
             buf.append("cento ");
         } else if (hundreds == 1) {
@@ -418,11 +460,12 @@ public class NumberEP extends ExpansionPattern
      * This seems to be convenient in cases where "some number",
      * i.e. integer or float, was matched, and needs to be expanded.
      */
-    protected List expandFloat(Document doc, String s, boolean createMtu)
+    protected List<Element> expandFloat(Document doc, String s, boolean createMtu)
     {
         String expString = expandFloat(s);
         return makeNewTokens(doc, expString, createMtu, s);
     }
+
     protected String expandFloat(String number)
     {
         // String <code>number</code> must contain exactly one ',' or '.'
@@ -438,7 +481,7 @@ public class NumberEP extends ExpansionPattern
         // Now, if the komma / dot was string-initial, whole is 0,
         // which will be pronounced also.
         // Say the integer part of the float like an integer:
-        buf.append(expandInteger(whole));
+        buf.append(expandInteger(whole, true));
         buf.append(" ");
         // Spell out the rest:
         if (i<number.length())
@@ -446,7 +489,7 @@ public class NumberEP extends ExpansionPattern
         return buf.toString().trim();
     }
 
-    protected List expandDigits(Document doc, String s, boolean createMtu)
+    protected List<Element> expandDigits(Document doc, String s, boolean createMtu)
     {
         String expString = expandDigits(s);
         return makeNewTokens(doc, expString, createMtu, s);
@@ -456,8 +499,15 @@ public class NumberEP extends ExpansionPattern
         StringBuilder buf = new StringBuilder();
         for (int i=0; i<digits.length(); i++) {
             switch(digits.charAt(i)) {
-            case ',': buf.append("virgola "); break;
-            case '.': buf.append("punto "); break;
+			case ',': buf.append("virgola "); break;
+			case '.':
+				if (i == digits.length() - 1) {
+					buf.append(". ");
+				}
+				else{
+					buf.append("punto ");
+				}
+				break;
             case '0': buf.append("zero "); break;
             case '1': buf.append("uno "); break;
             case '2': buf.append("due "); break;
@@ -481,7 +531,7 @@ public class NumberEP extends ExpansionPattern
    * and keep the surface form. This is for the POS tagger to tell a later
    * module whether the ordinal is adverbial or adjectival.
    */
-    protected List expandOrdinal(Document doc, String s, boolean createMtu)
+    protected List<Element> expandOrdinal(Document doc, String s, boolean createMtu)
     {
         long value;
         // In canDealWith(), we have made a commitment to deal with
@@ -505,7 +555,7 @@ public class NumberEP extends ExpansionPattern
         return expandOrdinal(doc, value, createMtu, s);
     }
 
-    protected List expandOrdinal(Document doc, long value, boolean createMtu, String orig)
+    protected List<Element> expandOrdinal(Document doc, long value, boolean createMtu, String orig)
     {
         StringBuilder exp = new StringBuilder();
         switch((int)Math.abs(value)){
@@ -520,7 +570,7 @@ public class NumberEP extends ExpansionPattern
         case 9: exp.append("nono"); break;
         case 10: exp.append("decimo"); break;
         default:
-            exp.append(expandInteger(Math.abs(value)));
+            exp.append(expandInteger(Math.abs(value), false));
 			switch (exp.charAt(exp.length() - 1)) {
 			case 'e':
 				if (exp.charAt(exp.length() - 2) == 'r') {
@@ -531,6 +581,7 @@ public class NumberEP extends ExpansionPattern
 				break;
             case 'o': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
             case 'i': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
+            case 'a': exp.replace(exp.length()-1,exp.length(),"esimo"); break;
             }
             break;
         }
@@ -543,7 +594,7 @@ public class NumberEP extends ExpansionPattern
         t.setAttribute("sounds_like", exp.toString());
         t.setAttribute("ending", "ordinal");
         t.setAttribute("pos", "ADJA"); // part-of-speech: adjective
-        List result = new ArrayList();
+        List<Element> result = new ArrayList<Element>();
         if (createMtu) {
             // create mtu element enclosing the expanded tokens:
             Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
@@ -556,7 +607,7 @@ public class NumberEP extends ExpansionPattern
         return result;
     }
 
-    protected List expandRoman(Document doc, String number, boolean createMtu)
+    protected List<Element> expandRoman(Document doc, String number, boolean createMtu)
     {
         // First, find out whether it is an ordinal or a simple integer:
         boolean isOrdinal = false;
@@ -567,7 +618,7 @@ public class NumberEP extends ExpansionPattern
         return expandRoman(doc, number, createMtu, isOrdinal);
     }
 
-    protected List expandRoman(Document doc, String number, boolean createMtu, boolean isOrdinal)
+    protected List<Element> expandRoman(Document doc, String number, boolean createMtu, boolean isOrdinal)
     {
         // First make sure there is no dot at the end of number:
         // (here, we consider the dot an artefact of the fact that
