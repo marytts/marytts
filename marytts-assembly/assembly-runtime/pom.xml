@@ -16,7 +16,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>marytts-server</artifactId>
+			<artifactId>marytts-runtime</artifactId>
 			<version>${project.version}</version>
 			<type>jar</type>
 			<classifier>jar-with-dependencies</classifier>
