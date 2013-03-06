@@ -50,8 +50,9 @@
 	<consonant ph="v" ctype="f" cplace="b" cvox="+" long="-" />
 	<consonant ph="z" ctype="f" cplace="a" cvox="+" long="-" />
 
-	<!--<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> -->
-	<!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
+	<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
+
+	<consonant ph="h" ctype="f" cplace="v" cvox="-" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'Josè Saramago' or 'Hutton' -->
 
 	<consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
 	<consonant ph="ss" ctype="f" cplace="a" cvox="-" long="+" />
@@ -92,5 +93,7 @@
 	<!-- Approximant consonants (semivowels) -->
 	<consonant ph="j" ctype="r" cplace="p" cvox="+" long="-" />
 	<consonant ph="w" ctype="r" cplace="l" cvox="+" long="-" />
+
+
 
 </allophones> 
