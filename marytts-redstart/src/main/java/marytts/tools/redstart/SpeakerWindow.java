@@ -52,10 +52,10 @@ public class SpeakerWindow extends javax.swing.JFrame {
     /** Updates the prompt display with the current prompt text
      *  @param promptText The current prompt text for the speaker to read
      */
-    public void updatePromptDisplay(String text, String nextSentence) {
+    public void updatePromptDisplay(String text, String nextSentence, boolean redAlertMode) {
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
-        LookAndFeel.centerPromptText(this.jTextPane_PromptDisplay, text);
-        LookAndFeel.centerPromptText(this.jTextPane_nextSentence, nextSentence);
+        LookAndFeel.centerPromptText(this.jTextPane_PromptDisplay, text, redAlertMode);
+        LookAndFeel.centerPromptText(this.jTextPane_nextSentence, nextSentence, redAlertMode);
     }
 
     
