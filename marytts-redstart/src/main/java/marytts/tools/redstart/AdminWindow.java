@@ -18,6 +18,7 @@
  *
  */
 package marytts.tools.redstart;
+import org.apache.commons.io.FilenameUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -82,6 +83,7 @@ public class AdminWindow extends javax.swing.JFrame {
     private static final String PROMPT_FOLDER_NAME = "/text/";
     private static final String REC_FOLDER_NAME = "/wav/";
     private static final String SYNTH_FOLDER_NAME = "/prompt_wav/";
+    private static final String TRANSCRIPTION_FOLDER_NAME = "/transcription/";
 
     private static boolean beepDemoOn = true;                // Flag for toggling beep demo (clicking on status icon)
     
@@ -100,6 +102,11 @@ public class AdminWindow extends javax.swing.JFrame {
     private boolean stopPressed;                             // Internal setting, set to true by stop button
         
     private Font defaultPromptFont;
+
+    private static boolean showTranscription = false;         // if true show the transcription if they are available
+    // showTranscription: if the input file text contains also the transcription, there is the possibility of see them  
+    private static boolean redAlertMode = false; 			  // if true show red alert portion of text
+    // redAlert mode: if the input file text refers to the redalert mode (sensitive text portion surrounded by underscore char) there is the possibility of visualize them with a red color   
     
     // ______________________________________________________________________
     // Constructors
@@ -140,6 +147,26 @@ public class AdminWindow extends javax.swing.JFrame {
         System.out.println("System is ready.");           
     }
     
+	public void setShowTranscription(boolean selected) {
+		// TODO Auto-generated method stub
+		showTranscription = selected;
+	}
+    
+	public boolean getShowTranscription() {
+		// TODO Auto-generated method stub
+		return showTranscription;
+	}
+	
+
+	public void setRedAlertMode(boolean selected) {
+		// TODO Auto-generated method stub
+		redAlertMode = selected;
+	}
+	
+	public boolean getRedAlertMode() {
+		return redAlertMode;
+	}
+	
     /** Updates the prompt table with prompt data
      *  @param newSession The current recording session object
      */
@@ -275,15 +302,37 @@ public class AdminWindow extends javax.swing.JFrame {
         if (currentRow+1 < promptArray.length) {
             nextPromptText = promptArray[currentRow+1].getPromptText();
         }
+
+        //Transcription if flag set and if file present
+        String promptTranscription = "\n<";
+        String nextPromptTranscription = "\n<";
+        if (showTranscription)
+        {
+        	promptTranscription = promptTranscription + promptArray[currentRow].getPromptTranscriptionText();
+        	if (currentRow+1 < promptArray.length)
+        		nextPromptTranscription = nextPromptTranscription + promptArray[currentRow+1].getPromptTranscriptionText();
+        }
+        promptTranscription = promptTranscription + ">";
+        nextPromptTranscription = nextPromptTranscription + ">";
         
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
         if (this.isVisible()) {
-            LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText);
-            LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText);
+        	if (!showTranscription){
+             LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText, redAlertMode);
+             LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText, redAlertMode);
+        	} else 
+        	{
+              LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText + promptTranscription, redAlertMode);
+              LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText + nextPromptTranscription, redAlertMode);
+        	}
         }
         
         // Also update in Speaker window
-        this.speakerWin.updatePromptDisplay(promptText, nextPromptText);
+    	if (!showTranscription)
+         this.speakerWin.updatePromptDisplay(promptText, nextPromptText, redAlertMode);
+    	else
+    	 this.speakerWin.updatePromptDisplay(promptText + promptTranscription, nextPromptText + nextPromptTranscription, redAlertMode);	 
+    		
         int promptNumber = getCurrentRow() + 1;
         this.speakerWin.updateProgressBar(promptNumber);
         this.speakerWin.updatePromptCount(promptNumber);
@@ -368,7 +417,7 @@ public class AdminWindow extends javax.swing.JFrame {
         columnNames[PROMPT_TEXT_COLUMN] = "Prompt Preview";
                 
         // Now create the table itself        
-        JTable table = new JTable(new PromptTableModel(promptArray, columnNames));        
+        JTable table = new JTable(new PromptTableModel(promptArray, columnNames, redAlertMode));        
         table.setColumnSelectionAllowed(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
                
@@ -1135,10 +1184,51 @@ public class AdminWindow extends javax.swing.JFrame {
             return;
         }
         File textFolder = getPromptFolderPath();
+
+        // if filename ends with ".txt_tr" then it has also transcriptions in it
+        String selectedFile_ext = FilenameUtils.getExtension(file.getName());
+        Boolean inputHasAlsoTranscription=false;
+        File transcriptionFolder = new File("");
+
+        // transcription folder name, and makedir
+        if (selectedFile_ext.equals("txt_tr")) {
+            System.out.println("txt_tr");
+            if (lines.length % 2 == 0) {
+                // even
+            } else {
+                // odd
+                System.err.println(".txt_tr file has an odd number of lines, so it's corrupted, exiting.");
+                System.exit(0);
+            }
+            inputHasAlsoTranscription=true;
+            String transcriptionFolderName = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME;
+            transcriptionFolder = new File(transcriptionFolderName);
+            if (transcriptionFolder.exists()) {
+                System.out.println("transcription folder already exists");
+            }
+            else {
+                if(transcriptionFolder.mkdirs()) {
+                    System.out.println("transcription folder created");
+                }
+                else {
+                    System.err.println("Cannot create transcription folder -- exiting.");
+                    System.exit(0);
+                }
+            }
+        }
+        else {
+            System.out.println("input file extension is not txt_tr, but "+selectedFile_ext+", so it contains ortographic sentences without transcriptions.");
+        }
+
         for (int i=0; i<lines.length; i++) {
             String line = lines[i];
             if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
-            String filename = String.format(pattern, i+1);
+            int sent_index = i+1;
+            if ( inputHasAlsoTranscription==true) {
+                sent_index = i/2+1;
+            }
+
+            String filename = String.format(pattern, sent_index);
             System.out.println(filename + " " + line);
             File textFile = new File(textFolder, filename);
             if (textFile.exists()) {
@@ -1159,6 +1249,37 @@ public class AdminWindow extends javax.swing.JFrame {
             } finally {
                 if (pw != null) pw.close();
             }
+
+            // transcription case:
+            if ( inputHasAlsoTranscription==true) {
+                // modify pattern: best would be something like sed "s/.txt$/.tr$/"
+                // easy but dirty:
+                String transc_pattern=pattern.replace(".txt",".tr");
+                filename = String.format(transc_pattern, sent_index);
+                i++;
+                line = lines[i];
+                if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
+                File transcriptionTextFile = new File(transcriptionFolder, filename);
+                if (transcriptionTextFile.exists()) {
+		  JOptionPane.showMessageDialog(this, "Cannot writing file "+transcriptionTextFile.getName()+":\n"
+                            +"File exists!\n"
+                            +"Aborting text file import.");
+                    return;
+                }
+                pw = null;
+                try {
+                    pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(transcriptionTextFile), "UTF-8"));
+                    pw.println(line);
+                    scriptWriter.println(filename.substring(0, filename.lastIndexOf('.'))+" "+line);
+                } catch (IOException ioe) {
+                    JOptionPane.showMessageDialog(this, "Error writing file "+filename+":\n"+ioe.getMessage());
+                    ioe.printStackTrace();
+                    return;
+                } finally {
+                    if (pw != null) pw.close();
+                }
+            }
+
         }
         scriptWriter.close();
         setupVoice();
@@ -1449,6 +1570,21 @@ public class AdminWindow extends javax.swing.JFrame {
         
     }
     
+    /** Returns file path for folder containing the synthesized recordings
+     *  @return File path for folder containing the synthesized recordings (e.g., /project/mary/mat/voices/bundesliga/prompt_wav)
+     */
+    public File getTranscriptionFolderPath() {
+        
+        // Create the recordings folder path from the voice folder path
+        String pathString = voiceFolderPathString + AdminWindow.TRANSCRIPTION_FOLDER_NAME; 
+        File transcriptionFolderPath = new File(pathString);
+        
+        // TESTCODE
+        Test.output("|AdminWindow.getTranscriptionFolderPath()| Transcription Path = " + transcriptionFolderPath.getPath());
+        
+        return transcriptionFolderPath;        
+    }
+    
     
     /** Returns file path for folder containing the voice
      *  @return File path for folder containing the voice (e.g., /project/mary/mat/voices/bundesliga)
@@ -1666,6 +1802,5 @@ public class AdminWindow extends javax.swing.JFrame {
     private javax.swing.JTextPane jTextPane_PromptDisplay;
     private javax.swing.JTextPane jTextPane_nextSentence;
     // End of variables declaration//GEN-END:variables
-    
 }
 
