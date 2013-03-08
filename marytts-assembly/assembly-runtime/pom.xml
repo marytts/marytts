@@ -9,7 +9,7 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>assembly-runtime</artifactId>
+	<artifactId>marytts-assembly-runtime</artifactId>
 	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 
