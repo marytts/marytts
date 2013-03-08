@@ -282,7 +282,7 @@ cmp:
 			fi; \
 		done; \
 	done
-	rm -f cmp/tmp*
+	rm -f cmp/tmp.*
 
 # Mary added str for mixed excitation
 cmp-mary: 
@@ -340,7 +340,7 @@ cmp-mary:
 			fi; \
 		done; \
 	done
-	rm -f cmp/tmp*
+	rm -f cmp/tmp.*
 
 
 
@@ -418,7 +418,7 @@ cmp-mag-mary:
 			fi; \
 		done; \
 	done
-	rm -f cmp/tmp*
+	rm -f cmp/tmp.*
 
 
 label:

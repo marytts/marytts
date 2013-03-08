@@ -94,6 +94,7 @@ public class PromptSet {
         Prompt[] promptArray = new Prompt[this.promptCount];
         String basename = "";
         String promptText = "";
+        String promptTranscriptionText = "" ;
         int fileCount = 0;
         
         // TESTCODE
@@ -126,8 +127,18 @@ public class PromptSet {
                 promptText = getContents(promptFile).trim();
                 Test.output("|PromptSet.getPromptData| Prompt text: " + fileCount + ": " + promptText); // TESTCODE
                 promptArray[fileCount].setPromptText(promptText);
-                fileCount++;
                 
+                // Read in prompt transcription text   
+                File promptTranscriptionFile = new File(adminWindow.getTranscriptionFolderPath() +  File.separator + basename + ".tr");
+                if (promptTranscriptionFile.exists())
+                {
+	                promptTranscriptionText = getContents(promptTranscriptionFile).trim();
+	                Test.output("|PromptSet.getPromptData| Prompt Transcription text: " + fileCount + ": " + promptTranscriptionText); // TESTCODE
+	                promptArray[fileCount].setPromptTranscriptionText(promptTranscriptionText);
+                }
+                
+                fileCount++;
+
             }
             
         }
