@@ -206,36 +206,33 @@ public class JPhonemiser extends InternalModule
      */
     public String phonemise(String text, String pos, StringBuilder g2pMethod)
     {
+		return this.phonemiseComplete(null, text, pos, g2pMethod);
+	}
+
+    /**
+     * Phonemise the word text. This starts with a simple lexicon lookup,
+     * followed by some heuristics, and finally applies letter-to-sound rules
+     * if nothing else was successful. 
+     * 
+     * @param privatedict an additional lexicon for lookups (can be null).
+     * @param text the textual (graphemic) form of a word.
+     * @param pos the part-of-speech of the word
+     * @param g2pMethod This is an awkward way to return a second
+     * String parameter via a StringBuilder. If a phonemisation of the text is
+     * found, this parameter will be filled with the method of phonemisation
+     * ("lexicon", ... "rules"). 
+     * @return a phonemisation of the text if one can be generated, or
+     * null if no phonemisation method was successful.
+     */
+    public String phonemiseComplete(Map<String, List<String>> privatedict, String text, String pos, StringBuilder g2pMethod)
+    {
         // First, try a simple userdict and lexicon lookup:
 
-        String result = userdictLookup(text, pos);
+        String result = this.phonemiseLookupOnly(privatedict, text, pos, g2pMethod);
         if (result != null) {
-            g2pMethod.append("userdict");
-            return result;
-        }
-        
-        result = lexiconLookup(text, pos);
-        if (result != null) {
-            g2pMethod.append("lexicon");
             return result;
         }
 
-        // Lookup attempts failed. Try normalising exotic letters
-        // (diacritics on vowels, etc.), look up again:
-        String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
-        if (!normalised.equals(text)) {
-            result = userdictLookup(normalised, pos);
-            if (result != null) {
-                g2pMethod.append("userdict");
-                return result;
-            }
-            result = lexiconLookup(normalised, pos);
-            if (result != null) {
-                g2pMethod.append("lexicon");
-                return result;
-            }
-        }
-           
         // Cannot find it in the lexicon -- apply letter-to-sound rules
         // to the normalised form
 
@@ -248,6 +245,70 @@ public class JPhonemiser extends InternalModule
 
         return null;
     }
+
+	/**
+	 * Phonemise the word text. This starts with a simple lexicon lookup,
+	 * followed by some heuristics.
+	 * 
+     * @param privatedict an additional lexicon for lookups (can be null).
+	 * @param text
+	 *            the textual (graphemic) form of a word.
+	 * @param pos
+	 *            the part-of-speech of the word
+	 * @param g2pMethod
+	 *            This is an awkward way to return a second String parameter via
+	 *            a StringBuilder. If a phonemisation of the text is found, this
+	 *            parameter will be filled with the method of phonemisation
+	 *            ("lexicon", ... "rules").
+	 * @return a phonemisation of the text if one can be generated, or null if
+	 *         no phonemisation method was successful.
+	 */
+	public String phonemiseLookupOnly(Map<String, List<String>> privatedict, String text, String pos,
+			StringBuilder g2pMethod) {
+		// First, try a simple userdict and lexicon lookup:
+
+		String result = this.dictLookup(privatedict, text, pos);
+		if (result != null) {
+			g2pMethod.append("privatedict");
+			return result;
+		}
+
+		result = this.dictLookup(this.userdict, text, pos);
+		if (result != null) {
+			g2pMethod.append("userdict");
+			return result;
+		}
+
+		result = lexiconLookup(text, pos);
+		if (result != null) {
+			g2pMethod.append("lexicon");
+			return result;
+		}
+
+		// Lookup attempts failed. Try normalising exotic letters
+		// (diacritics on vowels, etc.), look up again:
+		String normalised = MaryUtils
+				.normaliseUnicodeLetters(text, getLocale());
+		if (!normalised.equals(text)) {
+			result = this.dictLookup(privatedict, normalised, pos);
+			if (result != null) {
+				g2pMethod.append("privatedict");
+				return result;
+			}
+			result = this.dictLookup(this.userdict, normalised, pos);
+			if (result != null) {
+				g2pMethod.append("userdict");
+				return result;
+			}
+			result = lexiconLookup(normalised, pos);
+			if (result != null) {
+				g2pMethod.append("lexicon");
+				return result;
+			}
+		}
+
+		return null;
+	}
         
     
     
@@ -303,18 +364,31 @@ public class JPhonemiser extends InternalModule
      */
     public String userdictLookup(String text, String pos)
     {
-        if (userdict == null || text == null || text.length() == 0) return null;
-        List<String> entries = userdict.get(text);
+        return this.dictLookup(this.userdict,text,pos);
+    }
+    
+    /**
+     * look a given text up in the privatedict. part-of-speech is used 
+     * in case of ambiguity.
+     * 
+     * @param text
+     * @param pos
+     * @return
+     */
+    public String dictLookup(Map<String,List<String>> privatedict, String text, String pos)
+    {
+        if (privatedict == null || text == null || text.length() == 0) return null;
+        List<String> entries = privatedict.get(text);
         // If entry is not found directly, try the following changes:
         // - lowercase the word
         // - all lowercase but first uppercase
         if (entries  == null) {
-            text = text.toLowerCase(getLocale());
-            entries = userdict.get(text);
+            text = text.toLowerCase(this.getLocale());
+            entries = privatedict.get(text);
          }
          if (entries == null) {
-             text = text.substring(0,1).toUpperCase(getLocale()) + text.substring(1);
-             entries = userdict.get(text);
+             text = text.substring(0,1).toUpperCase(this.getLocale()) + text.substring(1);
+             entries = privatedict.get(text);
          }
          
          if (entries == null) return null;
