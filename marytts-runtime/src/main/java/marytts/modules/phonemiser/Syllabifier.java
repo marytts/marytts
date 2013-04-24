@@ -26,6 +26,13 @@ import java.util.ListIterator;
 public class Syllabifier
 {
     protected AllophoneSet allophoneSet;
+    protected boolean removeTrailingOneFromPhones = true;
+    
+    public Syllabifier(AllophoneSet allophoneSet, boolean removeTrailingOneFromPhones)
+    {
+        this.allophoneSet = allophoneSet;
+        this.removeTrailingOneFromPhones = removeTrailingOneFromPhones;
+    }
     
     public Syllabifier(AllophoneSet allophoneSet)
     {
@@ -245,11 +252,13 @@ public class Syllabifier
         boolean stressFound = false;
         ListIterator<String> it = phoneList.listIterator(0);
         while (it.hasNext()) {
-            String s = it.next();
-            if (s.endsWith("1")) {
-                it.set(s.substring(0, s.length()-1)); // delete "1"
-                if (!stressFound) {
-                    // Only add a stress marker for first occurrence of "1":
+			String s = it.next();
+			if (s.endsWith("1")) {
+				if (this.removeTrailingOneFromPhones) {
+					it.set(s.substring(0, s.length() - 1)); // delete "1"
+				}
+				if (!stressFound) {
+					// Only add a stress marker for first occurrence of "1":
                     // Search backwards for syllable boundary or beginning of word:
                     int steps = 0;
                     while (it.hasPrevious()) {
@@ -340,7 +349,7 @@ public class Syllabifier
      */
     protected Allophone getAllophone(String phone)
     {
-        if (phone.endsWith("1"))
+        if (this.removeTrailingOneFromPhones && phone.endsWith("1"))
             return allophoneSet.getAllophone(phone.substring(0,phone.length()-1));
         else
             return allophoneSet.getAllophone(phone);
