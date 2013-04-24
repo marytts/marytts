@@ -5,3 +5,5 @@ target/
 tmp/
 log/
 
+# OSX
+.DS_Store
