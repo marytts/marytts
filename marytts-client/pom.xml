@@ -24,12 +24,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>marytts-server</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>voice-cmu-slt-hsmm</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

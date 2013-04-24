@@ -96,7 +96,7 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-        <include>${project.groupId}:marytts-server:jar:jar-with-dependencies</include>
+        <include>${project.groupId}:marytts-runtime:jar:jar-with-dependencies</include>
         <include>${project.groupId}:marytts-client:jar:jar-with-dependencies</include>
         <include>${project.groupId}:marytts-lang-*:jar</include>
         <include>${project.groupId}:voice-*:jar</include>
