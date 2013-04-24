@@ -55,15 +55,21 @@ import marytts.util.io.FileUtils;
 
 public class LTSLexiconPOSBuilder {
     TranscriptionTableModel transcriptionModel;
+    protected boolean removeTrailingOneFromPhones = true;
 
     private AllophoneSet phoneSet;
 
     String locale;
 
-    public LTSLexiconPOSBuilder(String phoneSetFileName, String transcriptionFileName) throws Exception {
+    public LTSLexiconPOSBuilder(String phoneSetFileName, String transcriptionFileName, boolean removeTrailingOneFromPhones) throws Exception {
         loadPhoneSet(phoneSetFileName);
         transcriptionModel = new TranscriptionTableModel();
         loadTranscription(transcriptionFileName);
+        this.removeTrailingOneFromPhones = removeTrailingOneFromPhones;
+    }
+
+    public LTSLexiconPOSBuilder(String phoneSetFileName, String transcriptionFileName) throws Exception {
+        this(phoneSetFileName, transcriptionFileName, true);
     }
 
     /**
@@ -132,7 +138,7 @@ public class LTSLexiconPOSBuilder {
 
         trainLTS(treeAbsolutePath);
         FileInputStream fis = new FileInputStream(treeAbsolutePath);
-        TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis);
+        TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones);
         for (int i = 0; i < tableData.length; i++) {
             if (!(hasManualVerify[i] && hasCorrectSyntax[i])) {
                 String grapheme = (String) tableData[i][1];
@@ -225,9 +231,13 @@ public class LTSLexiconPOSBuilder {
             // Get filenames from args
             String phoneSetFileName = args[0];
             String transcriptionsFileName = args[1];
+            boolean myRemoveTrailingOneFromPhones = true;
+            if(args.length > 2){
+            	myRemoveTrailingOneFromPhones = Boolean.getBoolean(args[2]);
+            }
 
             // Create object from files
-            LTSLexiconPOSBuilder myLTSLexiconPOSBuilder = new LTSLexiconPOSBuilder(phoneSetFileName, transcriptionsFileName);
+            LTSLexiconPOSBuilder myLTSLexiconPOSBuilder = new LTSLexiconPOSBuilder(phoneSetFileName, transcriptionsFileName, myRemoveTrailingOneFromPhones);
 
             // Splitting of dirName baseName suffix
             String dirName = null;

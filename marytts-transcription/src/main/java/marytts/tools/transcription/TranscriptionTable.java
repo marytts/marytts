@@ -67,6 +67,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     private int editableColumns = 2;
     int previousRow = 0;
     boolean trainPredict = false;
+    protected boolean removeTrailingOneFromPhones = true;
     JScrollPane scrollpane;
     String locale;
     CellEditorListener editorListener = null;
@@ -182,10 +183,11 @@ public class TranscriptionTable extends JPanel implements ActionListener {
      * train and predict module
      * @param treeAbsolutePath
      */
-    public void trainPredict(String treeAbsolutePath) throws MaryConfigurationException {
+    public void trainPredict(String treeAbsolutePath, boolean myRemoveTrailingOneFromPhones) throws MaryConfigurationException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
+        this.removeTrailingOneFromPhones = myRemoveTrailingOneFromPhones;
         
         // Check for number of manual entries available
         int numberOfManualEntries = 0;
@@ -200,7 +202,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         try {
             LTSTrainer tp = this.trainLTS(treeAbsolutePath);
             FileInputStream fis = new FileInputStream(treeAbsolutePath);
-            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis);
+            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis, this.removeTrailingOneFromPhones);
         	fis.close();
             for(int i=0;i<tableData.length; i++){
                 if(!(hasManualVerify[i] && hasCorrectSyntax[i])){

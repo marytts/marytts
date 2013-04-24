@@ -80,6 +80,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         saveAsToFile.setEnabled(false);
         loadFromMySql.setEnabled(false);
         trainPredictButton.setEnabled(false);
+        removeTrailingOneFromPhonesCheckBox.setEnabled(false);
         setFontItemList();
         this.setVisible(true);
         helpMenuItemActionPerformed(null);
@@ -124,6 +125,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         tablePanel = new javax.swing.JPanel();
         buttonPanel = new javax.swing.JPanel();
         trainPredictButton = new javax.swing.JButton();
+        removeTrailingOneFromPhonesCheckBox = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
         jComboBox1 = new javax.swing.JComboBox();
         jLabel6 = new javax.swing.JLabel();
@@ -362,13 +364,18 @@ public class TranscriptionGUI extends javax.swing.JFrame {
                 trainPredictActionPerformed(evt);
             }
         });
-
+        
+        removeTrailingOneFromPhonesCheckBox.setText("removeTrailingOneFromPhones");
+        removeTrailingOneFromPhonesCheckBox.setSelected(true);
+        
+        
         org.jdesktop.layout.GroupLayout buttonPanelLayout = new org.jdesktop.layout.GroupLayout(buttonPanel);
         buttonPanel.setLayout(buttonPanelLayout);
         buttonPanelLayout.setHorizontalGroup(
             buttonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonPanelLayout.createSequentialGroup()
                 .addContainerGap(332, Short.MAX_VALUE)
+                .add(removeTrailingOneFromPhonesCheckBox)
                 .add(trainPredictButton)
                 .addContainerGap())
         );
@@ -376,6 +383,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             buttonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonPanelLayout.createSequentialGroup()
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(removeTrailingOneFromPhonesCheckBox)
                 .add(trainPredictButton)
                 .addContainerGap())
         );
@@ -792,13 +800,16 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         }
         if(treeAbsolutePath != null) {
             try {
-                simplePanel.trainPredict(treeAbsolutePath);
+                simplePanel.trainPredict(treeAbsolutePath, this.removeTrailingOneFromPhonesCheckBox.isSelected());
             } catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, e.getMessage()+" -- see console for details", "Problem occurred", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_trainPredictActionPerformed
+    
+  
+    
     
     private boolean checkNecessaryEvents(String eventName){
         
@@ -844,9 +855,11 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         // When to enable train-predict button
         if(phoneSetFile != null && loadTranscription){
             trainPredictButton.setEnabled(true);
+            removeTrailingOneFromPhonesCheckBox.setEnabled(true);
         }
         else{
             trainPredictButton.setEnabled(false);
+            removeTrailingOneFromPhonesCheckBox.setEnabled(false);
         }
         
         return true;
@@ -909,6 +922,8 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     private javax.swing.JTextField tableNameTextField;
     private javax.swing.JPanel tablePanel;
     private javax.swing.JButton trainPredictButton;
+    private javax.swing.JCheckBox removeTrailingOneFromPhonesCheckBox;
+    
     private javax.swing.JPanel transcriptionPanel;
     private javax.swing.JTextField userNameTextField;
     // End of variables declaration//GEN-END:variables
