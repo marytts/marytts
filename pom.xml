@@ -112,7 +112,6 @@
 		<module>marytts-common</module>
 		<module>marytts-signalproc</module>
 		<module>marytts-runtime</module>
-		<module>marytts-server</module>
 		<module>marytts-client</module>
 		<module>marytts-builder</module>
 		<module>marytts-redstart</module>
