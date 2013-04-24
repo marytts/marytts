@@ -67,6 +67,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>gov.noaa.pmel.sgt</groupId>
 			<artifactId>sgt</artifactId>
 		</dependency>
@@ -74,6 +80,12 @@
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.easytesting</groupId>
+			<artifactId>fest-assert</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
