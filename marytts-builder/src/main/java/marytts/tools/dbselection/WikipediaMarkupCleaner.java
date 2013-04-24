@@ -54,7 +54,7 @@ public class WikipediaMarkupCleaner {
     // Default settings for max page length and min and max text length
     private int minPageLength=10000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
     private int minTextLength=1000;
-    private int maxTextLength=15000;  // the average lenght in one big xml file is approx. 12000
+    private int maxTextLength=15000;  // the average length in one big xml file is approx. 12000
     
     // Use this variable to save time not loading Wiki tables, if they already exist in the DB
     private boolean loadWikiTables = true;
@@ -99,7 +99,7 @@ public class WikipediaMarkupCleaner {
     public boolean getDeleteCleanTextTable(){ return deleteCleanTextTable; }
     
 
-    public Vector<String> removeMarKup(String page) {
+    public Vector<String> removeMarkup(String page) {
         StringBuffer str = new StringBuffer("");
         StringBuffer line = null;
         Vector<String> textList = new Vector<String>();
@@ -123,7 +123,7 @@ public class WikipediaMarkupCleaner {
                    line.indexOf("==Discussion")>=0  ){
                    endOfText=true;
            } else {
-             // when emoving sections it might add more lines that might contain again more labes to remove
+             // when removing sections it might add more lines that might contain again more labels to remove
              boolean clean = false;
              while (!clean && line.length()>0 ){
              clean = true;    
@@ -307,7 +307,7 @@ public class WikipediaMarkupCleaner {
                    ) && line.length() < 200 )
                line = new StringBuffer("");
              }
-             // Now if the line is not empy, remove:
+             // Now if the line is not empty, remove:
              //   '''''bold & italic'''''
              //   '''bold'''
              //   ''italic''
@@ -418,7 +418,7 @@ public class WikipediaMarkupCleaner {
                    line.replace(0, 2, "");
                if( line.toString().startsWith("*") || line.toString().startsWith("#") )
                    line.replace(0, 1, "");
-               if( line.toString().startsWith(";") || line.toString().startsWith(";") )  // in glosaries definitions start with ;
+               if( line.toString().startsWith(";") || line.toString().startsWith(";") )  // in glossaries definitions start with ;
                    line.replace(0, 1, "");
                  
                // remove this when the text is almost clean
@@ -503,7 +503,7 @@ public class WikipediaMarkupCleaner {
            numRef--;
             
         if(numRef == 0) {
-          index1 = line.indexOf("<ref"); // get again this because the positiom might change
+          index1 = line.indexOf("<ref"); // get again this because the position might change
           if( endTagLength > index1 ){
             line.delete(index1, endTagLength);
             //System.out.println("nextline="+line);
@@ -576,7 +576,7 @@ public class WikipediaMarkupCleaner {
            numRef--;
             
         if(numRef == 0) {
-          index1 = line.indexOf(iniTag); // get again this because the positiom might change
+          index1 = line.indexOf(iniTag); // get again this because the position might change
           if( endTagLength > index1 ){
             if(debug){ 
               System.out.println("    FINAL LINE: " + line);  
@@ -660,7 +660,7 @@ public class WikipediaMarkupCleaner {
            numRef--;
             
         if(numRef == 0) {
-          index1 = line.indexOf(iniTag); // get again this because the positiom might change
+          index1 = line.indexOf(iniTag); // get again this because the position might change
           if( endTagLength > index1 ){
             if(debug){ 
               System.out.println("    FINAL LINE: " + line);  
@@ -746,7 +746,7 @@ public class WikipediaMarkupCleaner {
         } 
       
         if(numRef == 0) {
-          index1 = line.indexOf(iniTag); // get again this because the positiom might change
+          index1 = line.indexOf(iniTag); // get again this because the position might change
           if( endTagLength > index1 ){
             if(debug){ 
               System.out.println("    FINAL LINE: " + line);  
@@ -793,7 +793,7 @@ public class WikipediaMarkupCleaner {
      */
     private StringBuffer  processInternalAndExternalLinks(StringBuffer line){
        int index1, index2, index3;
-       StringBuffer linetmp=null;  // for debuging
+       StringBuffer linetmp=null;  // for debugging
        boolean changed = false;
        if(debug)
          linetmp = new StringBuffer(line);
@@ -804,11 +804,11 @@ public class WikipediaMarkupCleaner {
          if( (index2 = line.indexOf("]]")) >= 0 ) {
             if ( ( index3 = line.indexOf("|", index1)) >= 0  && index3 < index2){  // if there is text to display
               line.delete(index1, index3+1);   // delete the link and [[ ]]
-              index2 = line.indexOf("]]");     // since i delete some text i need to find egain the next ]]
+              index2 = line.indexOf("]]");     // since i delete some text i need to find again the next ]]
               line.delete(index2, index2+2);
             } else {
               line.delete(index1, index1+2);   // delete the [[ 
-              index2 = line.indexOf("]]");     // since i delete some text i need to find egain the next ]]
+              index2 = line.indexOf("]]");     // since i delete some text i need to find again the next ]]
               line.delete(index2, index2+2);   // delete the ]]  -2 because in the previous line i deleted two chars
             }
             //if(debug)
@@ -831,8 +831,8 @@ public class WikipediaMarkupCleaner {
            if( (index2 = line.indexOf("]", index1)) >= 0 ) {
            //   line.delete(index1, index2+1);
              if ( ( index3 = line.indexOf(" ", index1)) >= 0  && index3 < index2){  // if there is text to display
-               line.delete(index1, index3+1);   // delete the link and [http:    until forst black space before ]
-               index2 = line.indexOf("]");     // since i delete some text i need to find egain the next ]]
+               line.delete(index1, index3+1);   // delete the link and [http:    until first black space before ]
+               index2 = line.indexOf("]");     // since i delete some text i need to find again the next ]]
                line.delete(index2, index2+1);
              } else {                            
                line.delete(index1, index2+1);   // no text to display, delete the whole ref
@@ -871,7 +871,7 @@ public class WikipediaMarkupCleaner {
           for(n=0; n<words.length; n++){
             w = words[n];
             //System.out.print("word=" + words[n] + "   -->");
-            // Split into letter sections that we will cosider atomic "words":
+            // Split into letter sections that we will consider atomic "words":
             int start=0, end=0;
             int minimumLength = 2;
             for (; end<w.length(); end++) {
@@ -993,7 +993,7 @@ public class WikipediaMarkupCleaner {
         Vector<String> textList;
         
         if(text!=null){         
-          textList = removeMarKup(text); 
+          textList = removeMarkup(text);
           System.out.println("\nCLEANED TEXT:");
           for(int i=0; i<textList.size(); i++)
             System.out.println("text(" + i + "): \n" + textList.get(i));  
@@ -1086,7 +1086,7 @@ public class WikipediaMarkupCleaner {
           text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength, textId, pw);
           
           if(text!=null){ 
-            textList = removeMarKup(text); 
+            textList = removeMarkup(text);
             numPagesUsed++; 
             for(int j=0; j<textList.size(); j++){
               text = textList.get(j);
