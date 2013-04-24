@@ -45,31 +45,42 @@
 			<id>ftesser</id>
 		</developer>
 		<developer>
+			<name>Giulio Paci</name>
+			<id>giuliopaci</id>
+		</developer>
+		<developer>
 			<name>Harald Berthelsen</name>
 			<id>HaraldBerthelsen</id>
 		</developer>
 	</developers>
 	<contributors>
+		<!-- in alphabetical order -->
 		<contributor>
-			<name>Benjamin Roth</name>
+			<name>Stefanie Becker</name>
+		</contributor>
+		<contributor>
+			<name>Paulo Faria</name>
 		</contributor>
 		<contributor>
 			<name>Anna Hunecke</name>
 		</contributor>
 		<contributor>
-			<name>Mat Wilson</name>
+			<name>Sacha Krstulović</name>
 		</contributor>
 		<contributor>
-			<name>Sacha Krstulović</name>
+			<name>Benjamin Roth</name>
+		</contributor>
+		<contributor>
+			<name>Nickolay Shmyrev</name>
 		</contributor>
 		<contributor>
 			<name>Jochen Steigner</name>
 		</contributor>
 		<contributor>
-			<name>Stefanie Becker</name>
+			<name>Oytun Türk</name>
 		</contributor>
 		<contributor>
-			<name>Nickolay Shmyrev</name>
+			<name>Mat Wilson</name>
 		</contributor>
 	</contributors>
 
