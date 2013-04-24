@@ -404,10 +404,14 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("…", " "));
                
                // finally sections and lists
-               line = new StringBuffer(line.toString().replaceAll("=====", ""));
-               line = new StringBuffer(line.toString().replaceAll("====", ""));
-               line = new StringBuffer(line.toString().replaceAll("===", ""));
-               line = new StringBuffer(line.toString().replaceAll("==", ""));
+			   boolean is_title = false;
+			   if (line.toString().startsWith("==")) {
+				   is_title = true;
+			   }
+               line = new StringBuffer(line.toString().replaceAll("\\s*==+$|==+", ""));
+               if(is_title){
+            	   line.append(".");
+               }
                
                // bulleted list and numbered list
                if( line.toString().startsWith("***") || line.toString().startsWith("*#*") )
