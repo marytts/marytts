@@ -78,6 +78,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptors>
 						<descriptor>src/main/descriptors/builder-dir.xml</descriptor>
+						<descriptor>src/main/descriptors/builder-pkg.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
