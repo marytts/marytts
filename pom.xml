@@ -85,7 +85,7 @@
 	</contributors>
 
 	<distributionManagement>
-		<downloadUrl>https://github.com/marytts/marytts/downloads</downloadUrl>
+		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 	</distributionManagement>
 	<mailingLists>
 		<mailingList>
