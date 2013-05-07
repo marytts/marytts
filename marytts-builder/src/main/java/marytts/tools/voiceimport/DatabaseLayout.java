@@ -107,6 +107,10 @@ public class DatabaseLayout
     public static final String PTCEXT = "db.ptcExtension";
     //directory for temporary files
     public static final String TEMPDIR = "db.tempDir";
+    //lexicon dir
+    public static final String LEXICONDIR = "db.lexiconDir";
+    //lexicon extension
+    public static final String LEXICONEXT = "db.lexiconExtension";
     //maryxml dir
     public static final String MARYXMLDIR = "db.maryxmlDir";
     //maryxml extentsion
@@ -203,6 +207,8 @@ public class DatabaseLayout
         props2Help.put(LOCALE,"de, en or en_US");
         props2Help.put(MARYBASE,"directory containing the local Mary installation");
         props2Help.put(MARYBASEVERSION,"local Mary installation version");
+        props2Help.put(LEXICONDIR,"directory containing lexicon representations of the transcripts. Will be created if it does not exist.");
+        props2Help.put(LEXICONEXT,"extension of the lexicon files, default: \".lexicon\"");
         props2Help.put(MARYXMLDIR,"directory containing maryxml representations of the transcripts. Will be created if it does not exist.");
         props2Help.put(MARYXMLEXT,"extension of the maryxml files, default: \".xml\"");
         props2Help.put(ROOTDIR,"directory in which all the files created during installation will be stored. Will be created if it does not exist.");
@@ -692,6 +698,8 @@ public class DatabaseLayout
         someProps.put(MARYEXT, ".mry");
         someProps.put(BASENAMEFILE, rootDir+"basenames.lst");        
         someProps.put(TEMPDIR, rootDir+"temp"+fileSeparator);
+        someProps.put(LEXICONDIR, rootDir+"lexicon"+fileSeparator);
+        someProps.put(LEXICONEXT, ".lexicon"); 
         someProps.put(MARYXMLDIR, rootDir+"rawmaryxml"+fileSeparator);
         someProps.put(MARYXMLEXT, ".xml"); 
         someProps.put(PROMPTALLOPHONESDIR, rootDir+"prompt_allophones"+fileSeparator);
@@ -738,6 +746,10 @@ public class DatabaseLayout
         checkDir(CONFIGDIR);
         /* check temp dir */
         checkDir(TEMPDIR);
+        
+        /* check lexicon dir */
+        checkDir(LEXICONDIR);
+        
         /* check maryxml dir */
         checkDir(MARYXMLDIR);
         
