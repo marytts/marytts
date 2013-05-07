@@ -58,7 +58,6 @@ Then connect to it with your browser at http://localhost:59125 or using the mary
 The runtime system is also available as deployable packages:
 
     target/marytts-<VERSION>.zip
-    target/marytts-<VERSION>.tar.gz
 
 Installation is easy: Unpack anywhere, and run the scripts in the `bin/` folder.
 
