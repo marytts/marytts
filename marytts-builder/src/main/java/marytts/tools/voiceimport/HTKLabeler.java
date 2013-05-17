@@ -22,7 +22,6 @@ package marytts.tools.voiceimport;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -35,7 +34,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -67,16 +65,13 @@ import org.w3c.dom.NodeList;
  * @author Fabio Tesser
  * 
  * Fabio Tesser has fixed some HTK procedures and he has added the managing of virtual pauses (so called short pauses) after every word.
- * These pauses if detected will notified to the user, the user should be check if necessary to force
- * the punctuation on the original text phrase in order to have a more coherent prosody. 
+ * These pauses if detected will notified and it should be check if necessary to force the punctuation on the original text phrase in order to have a more coherent prosody.
+ * Moreover in the initial phase, 1 mixture is used for each status; then the mixtures number is iteratively increased until a specific likelihood threshold is reached 
  */
 
 public class HTKLabeler extends VoiceImportComponent {
-        
-    
-        
         private DatabaseLayout db;        
-        private File rootDir;
+        //private File rootDir;
         private File htk;
         private String voicename;
         private String outputDir;
@@ -88,13 +83,13 @@ public class HTKLabeler extends VoiceImportComponent {
         protected String maryInputType;
         protected String maryOutputType;
         protected int percent = 0;
-        protected File intonisedXMLDir;
+        protected File promtallophonesDir;
         protected Map<String, TreeMap<String, String>> dictionary;
         protected AllophoneSet allophoneSet;
         protected int MAX_ITERATIONS = 150;
-        protected int MAX_SP_ITERATION = 10; //when intra word forced pauses (ssil) are inserted
-        protected int MAX_VP_ITERATION = 20; // when virtual pauses (sp) are inserted
-        protected int MAX_MIX_ITERATION = 30; // when mixtures are increased
+        protected int MAX_SP_ITERATION = 10; // iteration when intra word forced pauses (ssil) are inserted
+        protected int MAX_VP_ITERATION = 20; // iteration when virtual pauses (sp) are inserted
+        protected int MAX_MIX_ITERATION = 30; // iteration when mixtures are increased
         
         protected int noIterCompleted = 0;
         
@@ -103,8 +98,7 @@ public class HTKLabeler extends VoiceImportComponent {
         public final String HTKDIR = "HTKLabeler.htkDir";
         public final String OUTLABDIR = "HTKLabeler.outputLabDir";
         public final String MAXITER = "HTKLabeler.maxNoOfIterations";
-        public String INTONISEDDIR =  "HTKLabeler.intonisedXMLDir";
-        public String PHONEMEXML = "HTKLabeler.phoneXMLFile";
+        public String PROMPTALLOPHONESDIR =  "HTKLabeler.promtallophonesDir";
         public String MAXSPITER  = "HTKLabeler.maxshortPauseIteration";
         
         private String HTK_SO = "-A -D -V -T 1"; //Main HTK standard Options HTK_SO
@@ -133,7 +127,7 @@ public class HTKLabeler extends VoiceImportComponent {
                String phoneXml;
                locale = db.getProp(db.LOCALE);
                if ( htkdir == null ) {
-                   htkdir = "/project/mary/htk/";
+                   htkdir = "/usr/bin/";
                }
                props.put(HTKDIR,htkdir);
                
@@ -141,25 +135,16 @@ public class HTKLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator")
                        +"htk"
                        +System.getProperty("file.separator"));
-               props.put(INTONISEDDIR, db.getProp(db.ROOTDIR)
+               props.put(PROMPTALLOPHONESDIR, db.getProp(db.ROOTDIR)
                        +System.getProperty("file.separator")
-                       +"intonisedXML"
+                       +"prompt_allophones"
                        +System.getProperty("file.separator"));
                
-               if(locale.startsWith("de")){
-                   phoneXml = db.getProp(db.MARYBASE)
-                           +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"de"+File.separator+"cap"+File.separator+"phone-list-de.xml";
-               }
-               else{
-                   phoneXml = db.getProp(db.MARYBASE)
-                           +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"en"+File.separator+"cap"+File.separator+"phone-list-en.xml";
-               }
-               props.put(PHONEMEXML, phoneXml);
-               
                props.put(OUTLABDIR, db.getProp(db.ROOTDIR)
-                       +"lab"
+            		   +System.getProperty("file.separator")
+                       +"htk"
+            		   +System.getProperty("file.separator")
+            		   +"lab"
                        +System.getProperty("file.separator"));
                props.put(MAXITER,Integer.toString(MAX_ITERATIONS));
                props.put(MAXSPITER,Integer.toString(MAX_SP_ITERATION));
@@ -171,16 +156,14 @@ public class HTKLabeler extends VoiceImportComponent {
        
        protected void setupHelp(){
            props2Help = new TreeMap();
-           props2Help.put(HTKDIR,"directory containing the local installation of HTK Labeller"); 
+           props2Help.put(HTKDIR,"directory containing the HTK binary files of HTK,  i.e (/usr/local/bin/)"); 
            props2Help.put(HTDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
-           props2Help.put(INTONISEDDIR, "directory containing the acoustic params.");
-           props2Help.put(PHONEMEXML, "Phone XML file for given language.");
-           props2Help.put(OUTLABDIR, "Directory to store generated lebels from HTK.");
+           props2Help.put(PROMPTALLOPHONESDIR, "directory containing the prompt allophones files.");
+           props2Help.put(OUTLABDIR, "Directory to store generated labels from HTK.");
            //props2Help.put(INITHTKDIR,"If you provide a path to previous HTK Directory, Models will intialize with those models. other wise HTK Models will build with Flat-Start Initialization");
            //props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
            props2Help.put(MAXITER,"Maximum number of iterations used for training");
            props2Help.put(MAXSPITER,"Iteration number at which short-pause model need to insert.");
-           
        }
         
         public void initialiseComp() 
@@ -188,12 +171,12 @@ public class HTKLabeler extends VoiceImportComponent {
            
            dictionary = new TreeMap<String, TreeMap<String,String>>();
            
-           intonisedXMLDir = new File(getProp(INTONISEDDIR));
-           if (!intonisedXMLDir.exists()){
-               System.out.print(INTONISEDDIR+" "+getProp(INTONISEDDIR)
+           promtallophonesDir = new File(getProp(PROMPTALLOPHONESDIR));
+           if (!promtallophonesDir.exists()){
+               System.out.print(PROMPTALLOPHONESDIR+" "+getProp(PROMPTALLOPHONESDIR)
                        +" does not exist; ");
-               if (!intonisedXMLDir.mkdir()){
-                   throw new Error("Could not create INTONISEDDIR");
+               if (!promtallophonesDir.mkdir()){
+                   throw new Error("Could not create PROMPTALLOPHONESDIR");
                }
                System.out.print("Created successfully.\n");
            } 
@@ -207,7 +190,7 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         public boolean compute() throws Exception{
             
-            File htkFile = new File(getProp(HTKDIR)+File.separator+"bin"+File.separator+"HInit");
+            File htkFile = new File(getProp(HTKDIR)+File.separator+"HInit");
             if (!htkFile.exists()) {
                 throw new IOException("HTK path setting is wrong. Because file "+htkFile.getAbsolutePath()+" does not exist");
             }
@@ -222,8 +205,8 @@ public class HTKLabeler extends VoiceImportComponent {
             htk = new File(getProp(HTDIR));
             // get the output directory of files used by HTK 
             outputDir = htk.getAbsolutePath()+"/etc";
-            allophoneSet = AllophoneSet.getAllophoneSet(getProp(PHONEMEXML));
-            File dictFile = new File(db.getProp(db.ROOTDIR)+File.separator+"htk"+File.separator+"etc"+File.separator+"htk.dict");
+            allophoneSet = AllophoneSet.getAllophoneSet(getClass().getResourceAsStream("/marytts/language/"+locale.toString()+"/lexicon/allophones."+locale.toString()+".xml"), "allophones."+locale.toString()+".xml");
+
             
             // part 1: HTK basic setup and create required files
             
@@ -235,7 +218,7 @@ public class HTKLabeler extends VoiceImportComponent {
             createRequiredFiles();
             // creating phone dictionary. phone to phone mapping
             createPhoneDictionary();
-            // Extract phone sequence from intonisedXML files
+            // Extract phone sequence from prompt_allophones files
             getPhoneSequence();
 	    
             // This is necessary to remove multiple sp: TODO: implement a loop and check the result 
@@ -327,12 +310,10 @@ public class HTKLabeler extends VoiceImportComponent {
 
         
         /**
-         * Creating phone dictionary (one-one mapping)
+         * Creating phone dictionary (one-one mapping) and lists
          * @throws Exception
          */
         private void createPhoneDictionary() throws Exception{
-            
-            //System.out.println( "Computing AcousticParams for " + bnl.getLength() + " files" );
             PrintWriter transLabelOut = new PrintWriter(
                     new FileOutputStream (new File(getProp(HTDIR)+File.separator
                             +"etc"+File.separator
@@ -599,8 +580,7 @@ public class HTKLabeler extends VoiceImportComponent {
          * @throws Exception
          */
         private void delete_multiple_sp_in_PhoneMLFile(String filein, String fileout) throws Exception{
-            String hled = getProp(HTKDIR)+File.separator
-                    +"bin"+File.separator+"HLEd";
+            String hled = getProp(HTKDIR)+File.separator+"HLEd";
             File htkFile = new File(hled);
             if (!htkFile.exists()) {
                 throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
@@ -647,14 +627,13 @@ public class HTKLabeler extends VoiceImportComponent {
          * @throws Exception
          */
         private void createPhoneMLFile() throws Exception{
-            String hled = getProp(HTKDIR)+File.separator
-                    +"bin"+File.separator+"HLEd";
+            String hled = getProp(HTKDIR)+File.separator+"HLEd";
             File htkFile = new File(hled);
             if (!htkFile.exists()) {
                 throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
             }
             String dict = getProp(HTDIR)+File.separator
-                    +"etc"+File.separator+"htk.dict";
+                   +"etc"+File.separator+"htk.dict";
             String phoneMLF = getProp(HTDIR)+File.separator
                     +"etc"+File.separator+"htk.phones.mlf";
             String wordsMLF = getProp(HTDIR)+File.separator
@@ -696,8 +675,7 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         private void featureExtraction() throws Exception {
             
-            String hcopy = getProp(HTKDIR)+File.separator
-            +"bin"+File.separator+"HCopy";
+            String hcopy = getProp(HTKDIR)+File.separator+"HCopy";
             File htkFile = new File(hcopy);
             if (!htkFile.exists()) {
                 throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
@@ -735,8 +713,7 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         private void initialiseHTKTrain() throws Exception{
             
-            String hcompv = getProp(HTKDIR)+File.separator
-            +"bin"+File.separator+"HCompV";
+            String hcompv = getProp(HTKDIR)+File.separator+"HCompV";
             File htkFile = new File(hcompv);
             if (!htkFile.exists()) {
                 throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
@@ -850,10 +827,8 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         private void herestTraining() throws Exception{
 
-            String herest = getProp(HTKDIR)+File.separator
-                    +"bin"+File.separator+"HERest";
-            String hhed = getProp(HTKDIR)+File.separator
-                    +"bin"+File.separator+"HHEd";
+            String herest = getProp(HTKDIR)+File.separator+"HERest";
+            String hhed = getProp(HTKDIR)+File.separator+"HHEd";
 
             File htkFile = new File(herest);
             if (!htkFile.exists()) {
@@ -1011,7 +986,7 @@ public class HTKLabeler extends VoiceImportComponent {
                 ///-----------------
                 if(PHASE_NUMBER==2){
                     // check epsilon_array  
-                    // the following change_mix_iteration + 2 is used to allow more than one restimation after insertion of new mixture
+                    // the following change_mix_iteration + 2 is used to allow more than one re-estimation after insertion of new mixture
                     // Because just after the insertion the delta can be negative 
 
                     if(((iteration != change_mix_iteration + 2) && (epsilon_array.get(iteration-2) < epsilon_PHASE[PHASE_NUMBER])) || iteration == MAX_MIX_ITERATION){
@@ -1035,10 +1010,10 @@ public class HTKLabeler extends VoiceImportComponent {
                                 
                                 current_number_of_mixtures[state]=wanted_mix;
                                 
-				if (current_number_of_mixtures[state] < num_mixtures_for_state[state]) 
-				{
-				 need_other_updates = true;
-				}
+								if (current_number_of_mixtures[state] < num_mixtures_for_state[state]) 
+								{
+								 need_other_updates = true;
+								}
                             }        
                         }
 			
@@ -1421,8 +1396,7 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         private void  hviteAligning() throws Exception{
             
-            String hvite = getProp(HTKDIR)+File.separator
-            +"bin"+File.separator+"HVite"; // -A -D -V -T 1 "; // to add -A -D -V -T 1 in every function
+            String hvite = getProp(HTKDIR)+File.separator+"HVite"; // -A -D -V -T 1 "; // to add -A -D -V -T 1 in every function
             File htkFile = new File(hvite);
             if (!htkFile.exists()) {
                 throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
@@ -1505,10 +1479,8 @@ public class HTKLabeler extends VoiceImportComponent {
         
       private void  htkExtraModels() throws Exception{
             
-            String hlstats = getProp(HTKDIR)+File.separator
-                +"bin"+File.separator+"HLStats";
-            String hbuild = getProp(HTKDIR)+File.separator
-                +"bin"+File.separator+"HBuild";
+            String hlstats = getProp(HTKDIR)+File.separator+"HLStats";
+            String hbuild = getProp(HTKDIR)+File.separator+"HBuild";
             
             File htkFile = new File(hlstats);
             if (!htkFile.exists()) {
@@ -1667,7 +1639,7 @@ public class HTKLabeler extends VoiceImportComponent {
             //alignBuff.append(basename);
             DocumentBuilderFactory factory  = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder  = factory.newDocumentBuilder();
-            Document doc = builder.parse( new File( getProp(INTONISEDDIR)+"/"+basename+xmlExt ) );
+            Document doc = builder.parse( new File( getProp(PROMPTALLOPHONESDIR)+"/"+basename+xmlExt ) );
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
             
@@ -1723,7 +1695,7 @@ public class HTKLabeler extends VoiceImportComponent {
         
         /**
          * 
-         * This computes a string of phonetic symbols out of an intonised mary xml:
+         * This computes a string of phonetic symbols out of an prompt allophones mary xml:
          * - standard phones are taken from "ph" attribute
          * @param tokens
          * @return
