@@ -263,12 +263,14 @@ proc create_menubuttons {} {
   server "Server" \
   inputtype "Input type" outputtype "Output type" \
   voice Voice \
-  audioformat "Audio format" help Help ]
+  audioformat "Audio format" \
+  textstyle "Text style" help Help ]
 
   set count 1
   foreach { menu_tag string_tag} $buttons {
-    menubutton .menus.$menu_tag -text $string_tag -menu .menus.${menu_tag}.menu
-    menu .menus.${menu_tag}.menu -tearoff true
+    menubutton .menus.$menu_tag -text $string_tag \
+      -menu .menus.${menu_tag}.menu -underline 0 -font ClientFont
+    menu .menus.${menu_tag}.menu -tearoff true 
     grid .menus.$menu_tag -in .menus -row 1 -column $count -sticky w
     incr count
   }
@@ -321,7 +323,8 @@ proc save_binary_file {the_data what_for} {
 # Create the menu for File operations
 proc create_menu_file {} { 
   set fmenu .menus.file.menu
-  $fmenu add command -label "New" -command {
+  $fmenu add command -label "New" \
+    -font ClientFont -command {
     .io.inp.input_area delete 1.0 end 
   }
   # Replace the contents of the input text
@@ -330,7 +333,8 @@ proc create_menu_file {} {
   # to allow inserting a file, rather than
   # replacing the text with file contents?
   # </FIXME>
-  $fmenu add command -label "Open" -command {
+  $fmenu add command -label "Open" \
+    -font ClientFont -command {
     set the_text [text_file_contents "File to load"]
     if {$the_text != ""} {
       .io.inp.input_area delete 1.0 end 
@@ -338,15 +342,18 @@ proc create_menu_file {} {
     }
   }
 
-  $fmenu add command -label "Read" -command {
+  $fmenu add command -label "Read" \
+    -font ClientFont -command {
     generate_output [text_file_contents "File to read"]
   }
   # How to make these disabled for now?
-  $fmenu add command -label "Save Input" -command {
+  $fmenu add command -label "Save Input" \
+    -font ClientFont -command {
     set the_text [get_input_text]
     save_text_file $the_text "Save Input"
   }
-  $fmenu add command -label "Save Output" -command {
+  $fmenu add command -label "Save Output" \
+    -font ClientFont -command {
     set the_text [get_output_text]
     save_text_file $the_text "Save Output"
   }
@@ -355,33 +362,40 @@ proc create_menu_file {} {
 # Create the menu for edit operations
 proc create_menu_edit {} {
   set emenu .menus.edit.menu
-  $emenu add command -label "Select All from Input Area" -command {
+  $emenu add command -label "Select All from Input Area" \
+    -font ClientFont -command {
     # This code says copy the selection as well.
     # May be wrong for some platforms, but is
     # it more useful?
     .io.inp.input_area tag add sel 1.0 end
     event generate .io.inp.input_area <<copy>>
 }
-  $emenu add command -label "Select All from Output Area" -command {
+  $emenu add command -label "Select All from Output Area" \
+    -font ClientFont -command {
     # This code says copy the selection as well.
     # May be wrong for some platforms, but is
     # it more useful?
     .io.out.output_area tag add sel 1.0 end
     event generate .io.out.output_area <<Copy>>
 }
-  $emenu add command -label "Copy from Input Area" -command {
+  $emenu add command -label "Copy from Input Area" \
+    -font ClientFont -command {
     # this appears not to work. FIXME
     event generate .io.inp.input_area <<Copy>>
   }
-  $emenu add command -label "Copy from Output Area" -command {
+  $emenu add command -label "Copy from Output Area" \
+    -font ClientFont -command {
     # this appears not to work. FIXME
     event generate .io.out.output_area <<copy>>
   }
-  $emenu add command -label "Paste into Input Area" -command {
+  $emenu add command -label "Paste into Input Area" \
+    -font ClientFont -command {
     # this appears not to work. FIXME
     event generate .io.inp.input_area <<Paste>>
   }
-  $emenu add command -label "Insert example text into Input Area" -command {
+  $emenu add command \
+    -font ClientFont -label "Insert example text into Input Area"\
+    -command {
   }
   # Add specific editing commands here later.
   # For example, we would like to be able to 
@@ -403,20 +417,50 @@ proc create_menu_edit {} {
 # be possible for https connections?
 proc create_menu_server {} {
   set smenu .menus.server.menu
-  $smenu add command -label "host" -command {
+  $smenu add command -label "host" -font ClientFont -command {
     create_entry_dialog "MARY TTS server name" "hostname/IP Address" mary_tts_host
   }
-  $smenu add command -label "port" -command {
+  $smenu add command -label "port" -font ClientFont -command {
     create_entry_dialog "MARY TTS server port" "pott number" mary_tts_port
   }
 }
+
+# setup the fonts for the various areas on the dipslay.
+proc setup_font {family size} {
+  foreach win {.io .controls .entry.dialogue } {
+   font configure ClientFont -family $family -size $size 
+  }
+}
+
+# Create the menu for changing the text size.
+proc create_menu_textstyle {} {
+  set tmenu .menus.textstyle.menu
+
+  $tmenu add cascade -label "Courier" -underline 0 -menu \
+    $tmenu.courier -font ClientFont
+  $tmenu add cascade -label "Times" -underline 0 -menu \
+    $tmenu.times -font ClientFont
+  $tmenu add cascade -label "Helvetica" -underline 0 -menu \
+    $tmenu.helvetica -font ClientFont
+  foreach {name family} [list $tmenu.courier Courier \
+    $tmenu.times Times $tmenu.helvetica Helvetica ] {
+    set m1 [menu $name]
+    foreach pts {6 7 8 9 10 12 14 16 18 20 24 28 32 36} {
+      $m1 add command -label "$pts" -font ClientFont\
+        -command [list setup_font $family $pts ]
+    }
+  }
+} 
+
+
 
 # Create the menu for Help
 proc create_menu_help {} {
   # This is all pretty much "wet paint"
   # Is there enough to merit separate menus?
   set hmenu .menus.help.menu
-  $hmenu add command -label "Introduction" -command {
+  $hmenu add command -label "Introduction" -font ClientFont\
+    -command {
     tk_messageBox -message "This is a basic Tcl/Tk
 client for the MARY TTS system. Most of the options
 are reached through the menus on the top.  Some
@@ -447,7 +491,7 @@ This does not have support for the effects, yet.
 
 Contributions from developers welcome." -type ok
   }
-  $hmenu add command -label "About" -command {}
+  $hmenu add command -label "About" -command {} -font ClientFont
 }
 
 # We need to create menus for the available
@@ -461,7 +505,7 @@ proc create_radio_menu_from_list {what} {
   upvar 1 $plural var
   foreach item $var {
     .menus.${what}.menu add radiobutton -label $item -variable $what \
-    -value $item
+      -value $item -font ClientFont
   }
 }
 
@@ -477,13 +521,16 @@ proc create_entry_dialog {a_message a_label a_variable} {
   upvar #0 $a_variable var
   upvar #0 old_$a_variable old_var
   toplevel .entry_dialogue 
-  label .entry_dialogue.the_message -text $a_message
-  label .entry_dialogue.the_label -text $a_label
-  entry .entry_dialogue.the_entry -textvariable $a_variable
-  button .entry_dialogue.ok -text "OK" -command {
+  label .entry_dialogue.the_message -text $a_message \
+    -font ClientFont
+  label .entry_dialogue.the_label -text $a_label -font ClientFont
+  entry .entry_dialogue.the_entry -textvariable $a_variable \
+    -font ClientFont
+  button .entry_dialogue.ok -text "OK" -font ClientFont -command {
     destroy .entry_dialogue 
   }
-  button .entry_dialogue.cancel -text "Cancel" -command "reset_entry_and_var $a_variable" 
+  button .entry_dialogue.cancel -text "Cancel" -font ClientFont \
+    -command "reset_entry_and_var $a_variable" 
   
   grid .entry_dialogue.the_message -row 1 -column 1
   grid .entry_dialogue.the_label -row 2 -column 1
@@ -518,13 +565,19 @@ proc play {sound} {
   add_message \
   "play sound not implemented on this platform apparently"
 }
-# Graphical stuff.  First just a text area
+
+# Graphical stuff.  
+
+# In order to be able to scale the font, define a font.
+font create ClientFont -family [font actual TkDefaultFont -family] \
+  -size [font actual TkDefaultFont -size]
 
 frame .menus
 create_menubuttons
 create_menu_file
 create_menu_edit
 create_menu_server
+create_menu_textstyle
 create_menu_help
 # Fill in the other menus at runtime.
 
@@ -538,19 +591,19 @@ frame .io.out
 frame .controls 
 
 # Draw the controls in .io
-label .io.inp.input_label -text "Input Area"
+label .io.inp.input_label -text "Input Area" -font ClientFont
 text .io.inp.input_area -height 10 -width 40 \
 -xscrollcommand ".io.inp.input_x set" \
--yscrollcommand ".io.inp.input_y set" 
+-yscrollcommand ".io.inp.input_y set"  -font ClientFont
 scrollbar .io.inp.input_x -orient horizontal \
 -command ".io.inp.input_area xview"
 scrollbar .io.inp.input_y -orient vertical \
 -command ".io.inp.input_area yview"
 
-label .io.out.output_label -text "Output Area"
+label .io.out.output_label -text "Output Area" -font ClientFont
 text .io.out.output_area -height 10 -width 40 -state disabled \
 -xscrollcommand ".io.out.output_x set" \
--yscrollcommand ".io.out.output_y set" 
+-yscrollcommand ".io.out.output_y set"  -font ClientFont
 scrollbar .io.out.output_x -orient horizontal \
 -command ".io.out.output_area xview"
 scrollbar .io.out.output_y -orient vertical \
@@ -568,12 +621,12 @@ grid .io.out.output_area -in .io.out -row 2 -column 1
 grid .io.out.output_y -in .io.out -row 2 -column 2 -sticky ns
 grid .io.out.output_x -in .io.out -row 3 -column 1 -sticky ew
 
-button .controls.play -text "play" -command {
+button .controls.play -text "play" -font ClientFont -command {
   generate_output [get_input_text]
 }
 grid .controls.play -in .controls -row 1 -column 1
 
-button .controls.save -text "save" -command {
+button .controls.save -text "save" -font ClientFont -command {
   global outputtype
   set input_text [get_input_text]
   if { $outputtype eq "AUDIO" } {
