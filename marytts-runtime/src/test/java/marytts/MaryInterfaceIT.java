@@ -125,7 +125,7 @@ public class MaryInterfaceIT {
 		assertNotNull(tokens);
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void nullAudioFileFormat() throws Exception {
 		mary.generateAudio("some text");
 	}
