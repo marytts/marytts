@@ -302,6 +302,7 @@ public class LocalMaryInterface implements MaryInterface {
 	public AudioInputStream generateAudio(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsAudio();
+		verifyVoiceIsAvailableForLocale();
 		MaryData in = getMaryDataFromText(text);
 		MaryData out = process(in);
 		return out.getAudio();
@@ -314,6 +315,7 @@ public class LocalMaryInterface implements MaryInterface {
 	public AudioInputStream generateAudio(Document doc) throws SynthesisException {
 		verifyInputTypeIsXML();
 		verifyOutputTypeIsAudio();
+		verifyVoiceIsAvailableForLocale();
 		MaryData in = getMaryDataFromXML(doc);
 		MaryData out = process(in);
 		return out.getAudio();
@@ -346,6 +348,22 @@ public class LocalMaryInterface implements MaryInterface {
 	private void verifyOutputTypeIsText() {
 		if (outputType.isXMLType() || !outputType.isTextType()) {
 			throw new IllegalArgumentException("Cannot provide text output for non-text output type "+outputType);
+		}
+	}
+
+	/**
+	 * Synthesis will fail if {@link MaryDataType#AUDIO AUDIO} is requested but no voice is available for the requested Locale.
+	 * Moreover, the {@linkplain #audioFileFormat} will be null because {@linkplain #setAudioFileFormatForVoice()} silently
+	 * ignores if {@linkplain #voice} is null.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             which should actually be a {@link MaryConfigurationException}.
+	 */
+	private void verifyVoiceIsAvailableForLocale() {
+		if (outputType.equals(MaryDataType.AUDIO)) {
+			if (getAvailableVoices(locale).isEmpty()) {
+				throw new IllegalArgumentException("No voice is available for Locale: " + locale);
+			}
 		}
 	}
 
