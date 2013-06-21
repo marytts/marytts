@@ -167,6 +167,7 @@ public class LocalMaryInterface implements MaryInterface {
 			throw new IllegalArgumentException("No such voice: "+voiceName);
 		}
 		locale = voice.getLocale();
+		setAudioFileFormatForVoice();
 	}
 	
 	/* (non-Javadoc)
