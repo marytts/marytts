@@ -59,6 +59,7 @@ public abstract class ProducingDoubleDataSource extends BufferedDoubleDataSource
 
     public void start() {
         dataProducingThread = new Thread(this);
+        dataProducingThread.setDaemon(true);
         dataProducingThread.start();
     }
 
