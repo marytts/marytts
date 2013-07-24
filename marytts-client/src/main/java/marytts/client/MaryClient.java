@@ -202,6 +202,9 @@ public abstract class MaryClient
             ioe.initCause(e1);
             throw ioe;
         }
+        if (!beQuiet) {
+            System.err.println("Mary TTS server: " + data.serverVersionInfo);
+        }
         if (data.serverVersionInfo == null || !data.serverVersionInfo.startsWith("Mary")) {
             throw new IOException("This does not seem to be the expected kind of MARY server at "+data.hostAddress.getFullAddress()+"...");
         }
