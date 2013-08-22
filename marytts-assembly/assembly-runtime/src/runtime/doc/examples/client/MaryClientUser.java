@@ -41,7 +41,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.util.data.audio.AudioPlayer;
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
+import marytts.util.http.Address;
 
 /**
  * A demo class illustrating how to use the MaryClient class.
@@ -69,6 +69,8 @@ public class MaryClientUser {
         int serverPort = Integer.getInteger("server.port", 59125).intValue();
         MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
         String text = "Willkommen in der Welt der Sprachsynthese!";
+        // If the given locale is not supported by the server, it returns
+        // an ambigous exception: "Problem processing the data."
         String locale = "de"; // or US English (en-US), Telugu (te), Turkish (tr), ...
         String inputType = "TEXT";
         String outputType = "AUDIO";
