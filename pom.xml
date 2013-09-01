@@ -116,6 +116,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- this path is defined in the parent POM, but only accessed in the children POMs -->
+		<project.local.repository.path>${project.basedir}/../lib/repo</project.local.repository.path>
 	</properties>
 
 	<modules>
@@ -306,6 +308,20 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>marytts-dependencies</id>
+			<name>marytts-dependencies</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>file://${project.local.repository.path}</url>
+		</repository>
+	</repositories>
 
 	<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
 	<profiles>

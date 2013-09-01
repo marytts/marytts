@@ -78,38 +78,6 @@
 						</artifactItem>
 
 						<artifactItem>
-							<groupId>de.dfki.lt.jtok</groupId>
-							<artifactId>jtok-core</artifactId>
-							<version>1.9.1</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/jtok-core-1.9.1-jar-with-dependencies.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>de.dfki.lt.jtok</groupId>
-							<artifactId>jtok-core</artifactId>
-							<classifier>sources</classifier>
-							<version>1.9.1</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/jtok-core-1.9.1-sources.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>de.dfki.lt.jtok</groupId>
-							<artifactId>jtok-core</artifactId>
-							<classifier>javadoc</classifier>
-							<version>1.9.1</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/jtok-core-1.9.1-javadoc.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
 							<groupId>org.wikimedia</groupId>
 							<artifactId>mwdumper</artifactId>
 							<version>1.16</version>
