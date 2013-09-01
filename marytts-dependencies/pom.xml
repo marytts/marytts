@@ -25,36 +25,6 @@
 						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
-						<artifactItem>
-							<groupId>com.sun.speech.freetts</groupId>
-							<artifactId>freetts</artifactId>
-							<version>1.0</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/freetts.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>com.sun.speech.freetts</groupId>
-							<artifactId>freetts-de</artifactId>
-							<version>1.0</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/freetts-de.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>com.sun.speech.freetts</groupId>
-							<artifactId>freetts-en_us</artifactId>
-							<version>1.0</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/freetts-en_us.jar
-							</downloadUrl>
-						</artifactItem>
-
 						<!-- TODO: consider http://www.epic.noaa.gov/java/sgt/#rel30 -->
 						<artifactItem>
 							<groupId>gov.noaa.pmel.sgt</groupId>
