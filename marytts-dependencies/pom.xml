@@ -25,26 +25,6 @@
 						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
-						<artifactItem>
-							<groupId>emotionml-checker-java</groupId>
-							<artifactId>emotionml-checker-java</artifactId>
-							<version>1.0-SNAPSHOT</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/emotionml-checker-java-1.0-SNAPSHOT.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>emotionml-checker-java</groupId>
-							<artifactId>emotionml-checker-java</artifactId>
-							<classifier>sources</classifier>
-							<version>1.0-SNAPSHOT</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/emotionml-checker-java-1.0-SNAPSHOT-sources.jar
-							</downloadUrl>
-						</artifactItem>
 					</artifactItems>
 				</configuration>
 				<executions>
