@@ -25,28 +25,6 @@
 						${basedir}/dependencies
 					</stagingDirectory>
 					<artifactItems>
-						<!-- TODO: consider http://www.epic.noaa.gov/java/sgt/#rel30 -->
-						<artifactItem>
-							<groupId>gov.noaa.pmel.sgt</groupId>
-							<artifactId>sgt</artifactId>
-							<version>3.0</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/sgt_v30.jar
-							</downloadUrl>
-						</artifactItem>
-
-						<artifactItem>
-							<groupId>gov.noaa.pmel.sgt</groupId>
-							<artifactId>sgt</artifactId>
-							<classifier>sources</classifier>
-							<version>3.0</version>
-							<packaging>jar</packaging>
-							<downloadUrl>
-								file:///${project.dependencyDirectory}/sgt_src_v30.jar
-							</downloadUrl>
-						</artifactItem>
-
 						<artifactItem>
 							<groupId>emotionml-checker-java</groupId>
 							<artifactId>emotionml-checker-java</artifactId>
