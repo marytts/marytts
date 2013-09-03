@@ -1,0 +1,208 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.dfki.lt.jtok</groupId>
+  <artifactId>jtok-core</artifactId>
+  <version>1.9.1</version>
+  <packaging>jar</packaging>
+
+
+  <name>JTok</name>
+  <description>Tokenizer and sentence splitter</description>
+
+  <scm>
+    <url>http://heartofgold.opendfki.de/browser/trunk/jtok</url>
+  </scm>
+
+  <organization>
+    <name>German Research Center for Artificial Intelligence (DFKI)</name>
+    <url>http://www.dfki.de/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License (LGPL) in version 2.1 or higher</name>
+      <url>http://www.gnu.org/licenses/#LGPL</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>Trac</system>
+    <url>http://heartofgold.opendfki.de/wiki/TracSupport</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>steffen</id>
+      <name>Jörg Steffen</name>
+      <email>steffen@dfki.de</email>
+      <url>http://www.dfki.de/~steffen/</url>
+      <organization>German Research Center for Artificial Intelligence (DFKI)</organization>
+      <organizationUrl>http://www.dfki.de/</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>dfki.lt.releases</id>
+      <name>DFKI LT Lab Release Distribution Repository</name>
+      <url>dav:${lt.repositories.base}releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>dfki.lt.snapshots</id>
+      <name>DFKI LT Lab Snapshot Distribution Repository</name>
+      <url>dav:${lt.repositories.base}snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <lt.repositories.base>http://attila.dfki.uni-sb.de:8081/nexus/content/repositories/</lt.repositories.base>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.1</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.16</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.6.1</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory />
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <!-- Set the target configuration directory to be used in the bin 
+            scripts -->
+          <configurationDirectory>conf</configurationDirectory>
+          <!-- Include the target configuration directory in the beginning 
+            of the classpath declaration in the bin scripts -->
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <!-- Configure repository -->
+          <generateRepository>false</generateRepository>
+          <repositoryName>lib</repositoryName>
+          <repositoryLayout>flat</repositoryLayout>
+          <!-- Generate bin scripts for windows and unix per default -->
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>de.dfki.lt.tools.tokenizer.JTok</mainClass>
+              <name>tokenize</name>
+            </program>
+            <program>
+              <mainClass>de.dfki.lt.tools.tokenizer.output.XMLOutputter</mainClass>
+              <name>tokenixe</name>
+            </program>
+          </programs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>appassembler</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/bin.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+    </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav</artifactId>
+        <version>1.0-beta-2</version>
+      </extension>
+    </extensions>
+  </build>
+</project>

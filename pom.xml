@@ -116,10 +116,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- this path is defined in the parent POM, but only accessed in the children POMs -->
+		<project.local.repository.path>${project.basedir}/../lib/repo</project.local.repository.path>
 	</properties>
 
 	<modules>
-		<module>marytts-dependencies</module>
 		<module>marytts-common</module>
 		<module>marytts-signalproc</module>
 		<module>marytts-runtime</module>
@@ -168,7 +169,7 @@
 			<dependency>
 				<groupId>emotionml-checker-java</groupId>
 				<artifactId>emotionml-checker-java</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0</version>
 			</dependency>
 
 			<dependency>
@@ -306,6 +307,20 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>marytts-dependencies</id>
+			<name>marytts-dependencies</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>file://${project.local.repository.path}</url>
+		</repository>
+	</repositories>
 
 	<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
 	<profiles>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.wikimedia</groupId>
+  <artifactId>mwdumper</artifactId>
+  <versioning>
+    <release>1.16</release>
+    <versions>
+      <version>1.16</version>
+    </versions>
+    <lastUpdated>20130901102754</lastUpdated>
+  </versioning>
+</metadata>
