@@ -282,4 +282,40 @@
         </package>
         <depends language="ru" version="5.0-SNAPSHOT"/>
     </voice>
+    <voice gender="female" locale="fr" name="enst-catherine-hsmm"
+        type="hsmm" version="5.1-SNAPSHOT">
+        <description>A female French hidden semi-Markov model voice, built at Télécom ParisTech (ENST).</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="voice-enst-catherine-hsmm-5.1-SNAPSHOT.zip"
+            md5sum="30f6a7e574f8cd5a88b5e44636eecb9c" size="2061925">
+            <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzMDdrTzV4Ylp3VlU"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
+        </package>
+        <depends language="fr" version="5.1-SNAPSHOT"/>
+    </voice>
+    <voice gender="male" locale="fr" name="enst-dennys-hsmm"
+        type="hsmm" version="5.1-SNAPSHOT">
+        <description>A male Québécois French hidden semi-Markov model voice, built at Télécom ParisTech (ENST).</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="voice-enst-dennys-hsmm-5.1-SNAPSHOT.zip"
+            md5sum="c47be51556d1da5e4b3bde7ebc2ed8c1" size="1679286">
+            <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzT0R1cm1IQ1ZuT1U"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
+        </package>
+        <depends language="fr" version="5.1-SNAPSHOT"/>
+    </voice>
+    <voice gender="male" locale="fr" name="enst-florent-hsmm"
+        type="hsmm" version="5.1-SNAPSHOT">
+        <description>A male French hidden semi-Markov model voice, built at Télécom ParisTech (ENST).</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="voice-enst-florent-hsmm-5.1-SNAPSHOT.zip"
+            md5sum="f7d983a7d616c9c8745b8d6348150e77" size="1833451">
+            <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzOTJhUVpIYU0yM2c"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
+        </package>
+        <depends language="fr" version="5.1-SNAPSHOT"/>
+    </voice>
 </marytts-install>
