@@ -85,6 +85,10 @@
 	</contributors>
 
 	<distributionManagement>
+	   <site>
+		<id>DFKI</id>
+		<url>scpexe://mary:/local/mary/www</url>
+	   </site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 	</distributionManagement>
 	<mailingLists>
@@ -330,7 +334,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>2.2</version>
+					<version>3.3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -436,9 +440,23 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.2</version>
+				<reportSets>
+					<reportSet>
+            			<reports>
+              				<!-- <report>dependencies</report> -->
+              				<report>index</report>
+              				<report>project-team</report>
+              				<report>mailing-list</report>
+              				<report>cim</report>
+              				<report>issue-tracking</report>
+              				<report>license</report>
+              				<report>scm</report>
+            			</reports>
+          			</reportSet>
+          		</reportSets>
 			</plugin>
 			<!-- Look for duplicate code (CPD): -->
-			<plugin>
+<!-- 			<plugin>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
@@ -449,21 +467,22 @@
 					<reportSets>
 						<reportSet>
 							<reports>
-								<!--report>pmd</report -->
+								report>pmd</report
 								<report>cpd</report>
 							</reports>
 						</reportSet>
 					</reportSets>
 				</configuration>
-			</plugin>
+			</plugin> -->
 			<!-- Check style guidelines -->
-			<!--plugin>
+<!-- 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.6</version>
-				</plugin -->
+			</plugin>
+ -->
 			<!-- Look for typical programming mistakes: -->
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<version>2.3.1</version>
@@ -471,17 +490,17 @@
 					<findbugsXmlOutput>true</findbugsXmlOutput>
 					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
 					<xmlOutput>true</xmlOutput>
-					<!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile -->
+					excludeFilterFile>findbugs-excludes.xml</excludeFilterFile
 				</configuration>
 			</plugin>
-			<!-- Measure the test code coverage: -->
-			<plugin>
+ -->			<!-- Measure the test code coverage: -->
+<!-- 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>emma-maven-plugin</artifactId>
 				<version>1.0-alpha-3</version>
 			</plugin>
-			<!-- Web page presenting unit test results: -->
-			<plugin>
+ -->			<!-- Web page presenting unit test results: -->
+		<!-- 	<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
 				<version>2.7.1</version>
@@ -492,14 +511,14 @@
 						</reports>
 					</reportSet>
 				</reportSets>
-			</plugin>
+			</plugin> -->
 			<!-- Number of lines of code: -->
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>javancss-maven-plugin</artifactId>
 				<version>2.0</version>
 			</plugin>
-
+ -->
 			<!-- Generate javadoc: -->
 			<!-- deactivating for now because it triggers a fork for each subproject -->
 			<!--
