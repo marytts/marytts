@@ -10,7 +10,7 @@
 
 	<name>MARY TTS</name>
 	<url>http://mary.dfki.de</url>
-	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
+	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java Maven</description>
 	<inceptionYear>2000</inceptionYear>
 	<licenses>
 		<license>

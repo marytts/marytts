@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="MaryTTS">
+	<skin>
+    	<groupId>org.apache.maven.skins</groupId>
+    	<artifactId>maven-fluido-skin</artifactId>
+    	<version>1.3.0</version>
+  	</skin>
+  	 <custom>
+    <fluidoSkin>
+      <topBarEnabled>false</topBarEnabled>
+      <sideBarEnabled>true</sideBarEnabled>
+    </fluidoSkin>
+  </custom>
+  
+  	<bannerLeft>
+    	<name>MaryTTS</name>
+    	<src>images/marylogo.gif</src>
+    	<href>http://github.com/marytts/marytts</href>
+  	</bannerLeft>
+ 	<body>
+    	<menu name="Navigation">
+    		<item name="Introduction" href="index.html"/>
+    		<item name="Online Demo" href="http://mary.dfki.de:59125" target="_blank"/>
+    		<item name="Documentation" href="documentation.html" collapse = "true">
+    			<item name="Overview" href="documentation/overview.html"/>
+    			<item name="Publications" href="documentation/publications_mary.html"/>
+    			<item name="Architecture Walktrough" href="documentation/architecture_walktrough.html"/>
+    			<item name="MaryXML" href="documentation/maryxml.html"/>
+    			<item name="Development Wiki" href="http://mary.opendfki.de/wiki" target="_blank"/>
+    			<item name="Javadoc" href="documentation/javadoc.html"/>
+    			<item name="Tibetan" href="documentation/tibetan.html"/>
+    			<item name="MARY architecture" href="documentation/mary_architecture.html"/>
+    		</item>
+    		<item name="Download" href="download.html"/>
+    		<item name="PAVOQUE Project" href="pavoque_project.html" collapse= "true">
+    			<item name="Publications" href="pavoque/publications_pavoque.html"/>
+    		</item>
+    		<item name="Mailing List" href="http://www.dfki.de/mailman/listinfo/mary-users" target="_blank" />
+    		<item name="Development" href="http://mary.opendfki.de" target="_blank" />
+    		<item name="Legal Information" href="legal_information.html" />
+		</menu>
+    	<menu ref="reports" />
+  	</body>
+</project>
