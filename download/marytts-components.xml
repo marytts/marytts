@@ -301,6 +301,8 @@
         <package filename="voice-camille-5.1-SNAPSHOT.zip"
             md5sum="f8f66a706fdb13da3999956cd343c863" size="183467584">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzXy1sOUR3cjBlVW8"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
@@ -311,6 +313,8 @@
         <package filename="voice-camille-hsmm-hsmm-5.1-SNAPSHOT.zip"
             md5sum="1a997676e4f391ad530897e92c01d33e" size="1519769">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzSzY5MW8ycTlrOFk"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
@@ -321,6 +325,8 @@
         <package filename="voice-jessica_voice-5.1-SNAPSHOT.zip"
             md5sum="0b657d4223529bb7f5645a42b275d134" size="126835541">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzYkJpQlBKUUtrTk0"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
@@ -331,6 +337,8 @@
         <package filename="voice-jessica_voice-hsmm-5.1-SNAPSHOT.zip"
             md5sum="0b7d14d445c143bbd525d6e9730bb279" size="1120231">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzOV9TX3hsT01USXM"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
@@ -341,6 +349,8 @@
         <package filename="voice-pierre-voice-5.1-SNAPSHOT.zip"
             md5sum="2203143ec89a025d1f6a0cfa5520b98e" size="171765181">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzUEM5MEtZeWZuRzg"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
@@ -351,6 +361,8 @@
         <package filename="voice-pierre-voice-hsmm-5.1-SNAPSHOT.zip"
             md5sum="73c385655a95151dbda0fa5e18a3a55c" size="1558713">
             <location href="http://mary.dfki.de/download/5.1-SNAPSHOT/"/>
+            <location folder="false" href="https://drive.google.com/uc?id=0BzQslox9iFCzT1BQbHNSbXpCTWs"/>
+            <location href="http://dl.dropbox.com/u/77978669/"/>
         </package>
         <depends language="fr" version="5.1-SNAPSHOT"/>
     </voice>
