@@ -84,6 +84,7 @@ Tibetan
 	Phrasing is very rudimentary at the moment, relying on punctuation marks such as "/" or "_" to mark ends of sentences or phrases. Within sentences, no phrase breaks after particles are currently inserted. Suggestions for improvement are welcome.
 
 ***Tones
+	
 	While Tibetan may have only two tones distinguishing meaning (high and low), it seems that at least 4 need to be distinguished phonetically, namely a falling variant of high and low tones (corresponding to glottalisation).
 
 	Textbooks state that only on the first syllable of a multi-syllabic word, these tones are realised. In order to avoid monotonous high or low stretches, we have implemented a "mid-tone" realised on all non-initial syllables. Feedback on this is appreciated.

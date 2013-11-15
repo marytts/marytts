@@ -51,7 +51,7 @@ Overview
 
 ***2.2 Output
 
-	The output of the NLP component is a rich MaryXML structure. (For its syntax, see {{{http://mary.dfki.de/documentation/lib/MaryXML.xsd}MaryXML.xsd}}). Example:
+	The output of the NLP component is a rich MaryXML structure. (For its syntax, see {{{../lib/MaryXML.xsd}MaryXML.xsd}}). Example:
 	
 +------------------------------------------+	
 <?xml version="1.0" encoding="UTF-8"?>

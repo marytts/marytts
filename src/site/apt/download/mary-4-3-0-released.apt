@@ -1,0 +1,11 @@
+
+MARY 4.3.0 released
+
+	{{{http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar}Download MARY TTS 4.3.0}}
+
+	This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
+
+	This release marks the final results of work on MARY TTS in the {{{http://mary.dfki.de/pavoque}PAVOQUE project}}, in which we experimented with different technologies for adding expressivity to unit selection synthesis. The release makes available those project results that may be of interest to a wider audience.
+
+	See the {{{http://mary.opendfki.de/wiki/4.3.0}MARY 4.3.0 Release notes}}.
+
