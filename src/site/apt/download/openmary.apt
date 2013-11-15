@@ -1,0 +1,76 @@
+
+OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released
+
+	<<The landscape of open source speech synthesizers is growing richer. The German Research Centre for Artificial Intelligence (DFKI), partner in the Network of Excellence HUMAINE on emotion-oriented computing, has decided to release its emotional text-to-speech synthesis system MARY as open source.>>
+
+	MARY is a multi-lingual (German, English, Tibetan) and multi-platform (Windows, Linux, MacOs X and Solaris) speech synthesis system. It comes with an easy-to-use installer - no technical expertise should be required for installation.
+
+	Main features:
+
+	* easy installation using web-based installer
+	
+		* modularity: only install the components you need
+		
+		* automated dependency checks: missing components can be downloaded automatically (http://mary.dfki.de/download)
+	
+	* several languages and voices
+	
+		* German, English and Tibetan synthesis
+		
+		* MBROLA and LPC diphone voices
+		
+		* CMU ARCTIC cluster unit selection voices
+		
+		* limited domain voices
+	
+	* expressive speech synthesis
+	
+		* With the tool "EmoSpeak", MARY can synthesize emotionally expressive speech using diphone voices
+	
+		* Expressive unit selection voices exist (e.g., a German football announcer)
+	
+	* Markup support
+	
+		* MARY can read and interpret several markup languages, including SSML (speech synthesis markup language) and APML (agent player markup language)
+
+		* Timing information for Embodied Conversational Agents (ECAs) and Talking Heads
+		
+		* High parametrisability of prosody, e.g. for emotion expression, information status, etc.
+	
+	* Stable client-server architecture
+
+		* Multi-threaded Java server, can be used in web applications
+
+		* GUI client is easy to use and powerful
+		
+		* Example implementations of clients in other programming languages
+	
+	* Incremental processing
+
+		* synthesized speech is produced incrementally as the input is processed. It can be sent to the client as an audio stream, so that the delay until the first sound is played is short even for large files
+		
+	* Mailing list
+
+		* MARY users are invited to subscribe to the mary-users mailing list: http://www.dfki.de/mailman/listinfo/mary-users
+
+	* Development environment
+
+		* OpenMary development is based on a modern Trac-based system, featuring SVN-based source code versioning, ticket-based bug reports, and wiki-based documentation: http://mary.opendfki.de
+
+		* Project definition files for importing the source code into Eclipse
+
+		* Javadoc available online: http://mary.dfki.de/javadoc
+	
+		* Plans for future releases include full unit selection support, JSAPI support, accessibility support for the client, and more. Volunteers are very welcome! For details, see: http://mary.opendfki.de/report/1
+
+	* Licenses
+
+		* the core OpenMary system, including English and Tibetan components, is released as open source under a BSD-style license;
+
+		* the German components are released under a DFKI research license;
+
+		* MBROLA binaries and voice databases are available under a non-commercial and non-military license.
+		
+	[]
+	
+	<<Try it out!>>

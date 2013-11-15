@@ -10,14 +10,16 @@ Documentation
       * {{{./documentation/publications_mary.html}Publications}}
       
       
-      * {{{./documentation/architecture_walkthrough.html}Architecture Walkthrough}}
+      * {{{./documentation/architecture_walktrough.html}Architecture Walkthrough}}
       
       
       * {{{./documentation/maryxml.html}MaryXML}}
-      
-      
+		      
+		
+		      
       * {{{./documentation/publications_mary.html}Publications}}
-
+		
+		
 
       * {{{http://mary.opendfki.de/wiki}Development Wiki}}
         
@@ -33,8 +35,9 @@ Documentation
         
         Some background on the Tibetan language synthesis within MARY
         
-      * {{{./documentation/mary_architecture.html}MARY Architecture}}
+~~		This menu is no longer needed -- 15.11.2013
+~~      * {{{./documentation/mary_architecture.html}MARY Architecture}}
         
-        Architecture diagram of the German MARY system
+~~        Architecture diagram of the German MARY system
  	
 		

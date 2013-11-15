@@ -1,0 +1,20 @@
+
+Mary 3.0.1 released
+
+	<<First bugfix release>>
+
+	Get MARY 3.0.1 from {{{../download.html}the download page}}.
+
+
+
+	A number of bugs have been fixed which have occurred after the initial release. Most relevant:
+
+	* Audio can now be saved with proper audio headers ({{{http://mary.opendfki.de/ticket/32}ticket 32}})
+
+	* Mary GUI client is now accessible via the keyboard ({{{http://mary.opendfki.de/ticket/3}ticket 3}})
+
+	[]
+	
+	An update is recommended.
+
+	See also the {{{http://mary.opendfki.de/query?status=closed&milestone=3.0.1&order=priority}full list of bugs fixed}}.
