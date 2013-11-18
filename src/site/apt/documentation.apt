@@ -26,7 +26,7 @@ Documentation
         The place to find documentation on how to compile, develop, contribute to MARY
         
 
-      * {{{./documentation/javadoc.html}Javadoc}}
+      * {{{./javadoc/index.html}Javadoc}}
         
         API details for the MARY system Java implementation
         
