@@ -1,3 +1,6 @@
+   ---
+   Architecture Walkthrough
+   ---
 
 Architecture Walkthrough
 
@@ -141,8 +144,3 @@ Architecture Walkthrough
 *Sound output
 
 	Several audio formats can be generated, including 16 bit wav, aiff, au, and mp3.	
-	
-	
-		
-
-	
