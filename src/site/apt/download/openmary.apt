@@ -11,7 +11,7 @@ OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released
 	
 		* modularity: only install the components you need
 		
-		* automated dependency checks: missing components can be downloaded automatically (http://mary.dfki.de/download)
+		* automated dependency checks: missing components can be downloaded automatically ({{http://mary.dfki.de/download}})
 	
 	* several languages and voices
 	
@@ -51,17 +51,17 @@ OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released
 		
 	* Mailing list
 
-		* MARY users are invited to subscribe to the mary-users mailing list: http://www.dfki.de/mailman/listinfo/mary-users
+		* MARY users are invited to subscribe to the mary-users mailing list: {{http://www.dfki.de/mailman/listinfo/mary-users}}
 
 	* Development environment
 
-		* OpenMary development is based on a modern Trac-based system, featuring SVN-based source code versioning, ticket-based bug reports, and wiki-based documentation: http://mary.opendfki.de
+		* OpenMary development is based on a modern Trac-based system, featuring SVN-based source code versioning, ticket-based bug reports, and wiki-based documentation: {{http://mary.opendfki.de}}
 
 		* Project definition files for importing the source code into Eclipse
 
-		* Javadoc available online: http://mary.dfki.de/javadoc
+		* Javadoc available online: {{http://mary.dfki.de/javadoc}}
 	
-		* Plans for future releases include full unit selection support, JSAPI support, accessibility support for the client, and more. Volunteers are very welcome! For details, see: http://mary.opendfki.de/report/1
+		* Plans for future releases include full unit selection support, JSAPI support, accessibility support for the client, and more. Volunteers are very welcome! For details, see: {{http://mary.opendfki.de/report/1}}
 
 	* Licenses
 

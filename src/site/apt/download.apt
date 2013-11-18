@@ -40,7 +40,7 @@ The MARY Text-to-Speech System: Download
 
 **4.1.1
 	
-	Download: {{http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar}openmary-standalone-install-4.1.1.jar}}
+	Download: {{{http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar}openmary-standalone-install-4.1.1.jar}}
 
 	Fixed a critical bug for Windows users who got an "OutOfMemoryError" when trying to start the server with unit selection voices
 
@@ -299,8 +299,3 @@ Related downloads
 +---------------------------------------------------------------------------------------------------------+
 svn checkout https://mary.opendfki.de/repos/trunk/examples/client/SpeechSynthesisTool SpeechSynthesisTool
 +---------------------------------------------------------------------------------------------------------+
-
-
-
-
-	
