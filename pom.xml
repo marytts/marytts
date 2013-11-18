@@ -438,7 +438,7 @@
 			<!-- Generate a number of generic site description pages: -->
 			<plugin>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.2</version>
+				<version>2.7</version>
 				<reportSets>
 					<reportSet>
             			<reports>
