@@ -7,13 +7,13 @@ Overview
 	
 	Four parts of the TtS system can be distinguished:
 	
-	[[1]] the preprocessing or text normalisation;
+	[[1]] {{{#a1._The_preprocessing}the preprocessing}} or text normalisation;
 	
-	[[2]] the natural language processing, doing linguistic analysis and annotation;
+	[[2]] the {{{#a2._The_natural_language_processing}natural language processing}}, doing linguistic analysis and annotation;
 	
-	[[3]] the calculation of acoustic parameters, which translates the linguistically annotated symbolic structure into a table containing only physically relevant parameters;
+	[[3]] the {{{#a3._The_Calculation_of_Acoustic_Parameters}calculation of acoustic parameters}}, which translates the linguistically annotated symbolic structure into a table containing only physically relevant parameters;
 	
-	[[4]] and the synthesis, transforming the parameter table into an audio file.
+	[[4]] and the {{{#a4._The_synthesiser}synthesis}}, transforming the parameter table into an audio file.
 
 **1. The preprocessing
 
@@ -134,8 +134,3 @@ Technical architecture
 	* XML-based: state-of-the-art technologies such as DOM (for internal manipulation of the MaryXML structures) and XSLT (for input markup parsing) are used to make the system as transparent and understandable as possible.
 	
 []
-	
-		
-	
-	
-	
