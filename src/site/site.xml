@@ -32,19 +32,19 @@
     		</item>
     		<item name="Download" href="download.html" collapse="true">
     			<item name ="OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released" href="download/openmary.html"/>
-    			<item name ="mary-4-3-0-released" href="download/mary-4-3-0-released.html"/>
-    			<item name ="mary-4-2-0-released" href="download/mary-4-2-0-released.html"/>
-    			<item name ="mary-4-1-0-released" href="download/mary-4-1-0-released.html"/>
-    			<item name ="mary-4-0-0-released" href="download/mary-4-0-0-released.html"/>
+    			<item name ="MARY 4.3.0 released" href="download/mary-4-3-0-released.html"/>
+    			<item name ="MARY 4.2.0 released" href="download/mary-4-2-0-released.html"/>
+    			<item name ="Mary 4.1.0 released" href="download/mary-4-1-0-released.html"/>
+    			<item name ="MARY 4.0.0 released" href="download/mary-4-0-0-released.html"/>
     			<item name ="New release: MARY TTS 4.0 beta" href="download/new_release_mary_tts_4.0_beta.html"/>
-    			<item name ="mary-3-6-0-released" href="download/mary-3-6-0-released.html"/>
-    			<item name ="mary-3-5-0-released" href="download/mary-3-5-0-released.html"/>
-    			<item name ="mary-3-1-0-released" href="download/mary-3-1-0-released.html"/>
+    			<item name ="MARY 3.6.0 released" href="download/mary-3-6-0-released.html"/>
+    			<item name ="MARY 3.5.0 released" href="download/mary-3-5-0-released.html"/>
+    			<item name ="MARY 3.1.0 released" href="download/mary-3-1-0-released.html"/>
     			<item name ="German unit selection: Mary 3.1beta2 released" href="download/german_unit_selection_mary-3.1beta2-released.html"/>
     			<item name ="Better unit selection: Mary 3.1beta1 released" href="download/better_unit_selection_mary-3.1beta1-released.html"/>
-    			<item name ="mary-3-0-3-released" href="download/mary-3-0-3-released.html"/>
-    			<item name ="mary-3-0-2-released" href="download/mary-3-0-2-released.html"/>
-    			<item name ="mary-3-0-1-released" href="download/mary-3-0-1-released.html"/>
+    			<item name ="Mary 3.0.3 released" href="download/mary-3-0-3-released.html"/>
+    			<item name ="Mary 3.0.2 released" href="download/mary-3-0-2-released.html"/>
+    			<item name ="Mary 3.0.1 released" href="download/mary-3-0-1-released.html"/>
     		</item>
     		<item name="PAVOQUE Project" href="pavoque_project.html" collapse= "true">
     			<item name="Publications" href="pavoque/publications_pavoque.html"/>
