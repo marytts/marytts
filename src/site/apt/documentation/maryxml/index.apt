@@ -14,7 +14,7 @@ MaryXML
 
 	The MaryXML syntax was designed to maintain a certain degree of readability for the human user, by keeping information redundancy at a minimum.
 
-	The syntax of a correct MaryXML document is defined in the {{{../lib/MaryXML.xsd}MaryXML schema file}}.
+	The syntax of a correct MaryXML document is defined in the {{{../../lib/MaryXML.xsd}MaryXML schema file}}.
 	
 *Examples
 
