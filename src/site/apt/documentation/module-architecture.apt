@@ -75,7 +75,7 @@ Architecture Walkthrough
 	
 * {Inflection endings}
 
-	This module deals with the ordinals and abbreviations which have been marked during {{{#Text_normalisation_mode}preprocessing}} as requiring an appropriate inflection ending. The part-of-speech information added by the tagger tells whether the token is an adverb or an adjective. In addition, information about the boundaries of noun phrases has been provided by the chunker, which is relevant for adjectives.
+	This module deals with the ordinals and abbreviations which have been marked during {{{#Text_normalisation_module}preprocessing}} as requiring an appropriate inflection ending. The part-of-speech information added by the tagger tells whether the token is an adverb or an adjective. In addition, information about the boundaries of noun phrases has been provided by the chunker, which is relevant for adjectives.
 	In the lexicon, all entries occurring in noun phrases (determiners, adjectives, and nouns) are annotated with their possible value combinations for the morphological inflection information gender, number and case. In addition, determiners are marked as definite or indefinite. This information was obtained from the morphological analyser {{{http://www.issco.unige.ch/projects/MULTEXT.html}Mmorph}}.
 
 	When the inflection endings module finds an ordinal or an abbreviation with an adjectival role, it performs a unification of the morphological variables over the known tokens in the noun phrase to which the ordinal or abbreviation belongs. In many cases, this allows to determine the appropriate values of gender, number and case for the ordinal or abbreviation and thus the correct ending, which is added to the expanded form.
