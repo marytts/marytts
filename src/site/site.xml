@@ -27,7 +27,7 @@
     			<item name="Architecture Walktrough" href="documentation/architecture_walktrough.html"/>
     			<item name="MaryXML" href="documentation/maryxml.html"/>
     			<item name="Development Wiki" href="http://mary.opendfki.de/wiki" target="_blank"/>
-    			<item name="Javadoc" href="documentation/javadoc.html"/>
+    			<item name="Javadoc" href="javadoc/index.html"/>
     			<item name="Tibetan" href="documentation/tibetan.html"/>
     		</item>
     		<item name="Download" href="download.html" collapse="true">

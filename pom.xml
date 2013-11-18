@@ -437,7 +437,6 @@
 		<plugins>
 			<!-- Generate a number of generic site description pages: -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.2</version>
 				<reportSets>
@@ -454,6 +453,28 @@
             			</reports>
           			</reportSet>
           		</reportSets>
+			</plugin>
+			<!-- Generate javadoc -->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<destDir>javadoc</destDir>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>default</id>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 			<!-- Look for duplicate code (CPD): -->
 <!-- 			<plugin>
@@ -519,15 +540,6 @@
 				<version>2.0</version>
 			</plugin>
  -->
-			<!-- Generate javadoc: -->
-			<!-- deactivating for now because it triggers a fork for each subproject -->
-			<!--
-				<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.7</version>
-				</plugin>
-			-->
 		</plugins>
 	</reporting>
 
