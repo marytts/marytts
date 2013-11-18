@@ -10,7 +10,7 @@ Better unit selection: Mary 3.1beta1 released
 
 	...and as a result, we can present more natural-sounding and quite efficient unit selection synthesis in Java.
 
-	Go to {{{../download.html}the download page}} to get it!
+	Go to {{{./index.html}the download page}} to get it!
 
 
 	This initial release of the new unit selection code is of beta quality: even though we have tested it quite a bit, you may experience problems. Also, there is a number of {{{http://mary.opendfki.de/query?status=new&status=assigned&status=reopened&milestone=3.1.0}open issues}} which we have not yet addressed, but intend to do so before the first stable release, 3.1.0.

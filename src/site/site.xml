@@ -21,37 +21,37 @@
     	<menu name="Navigation">
     		<item name="Introduction" href="index.html"/>
     		<item name="Online Demo" href="http://mary.dfki.de:59125" target="_blank"/>
-    		<item name="Documentation" href="documentation.html" collapse = "true">
+    		<item name="Documentation" href="documentation/index.html" collapse = "true">
+    			<item name="Publications" href="documentation/publications/index.html"/>
     			<item name="Overview" href="documentation/overview.html"/>
-    			<item name="Publications" href="documentation/publications_mary.html"/>
-    			<item name="Architecture Walktrough" href="documentation/architecture_walktrough.html"/>
-    			<item name="MaryXML" href="documentation/maryxml.html"/>
+    			<item name="Architecture Walktrough" href="documentation/module-architecture.html"/>
+    			<item name="MaryXML" href="documentation/maryxml/index.html"/>
     			<item name="Development Wiki" href="http://mary.opendfki.de/wiki" target="_blank"/>
     			<item name="Javadoc" href="javadoc/index.html"/>
     			<item name="Tibetan" href="documentation/tibetan.html"/>
     		</item>
-    		<item name="Download" href="download.html" collapse="true">
-    			<item name ="OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released" href="download/openmary.html"/>
-    			<item name ="MARY 4.3.0 released" href="download/mary-4-3-0-released.html"/>
-    			<item name ="MARY 4.2.0 released" href="download/mary-4-2-0-released.html"/>
-    			<item name ="Mary 4.1.0 released" href="download/mary-4-1-0-released.html"/>
-    			<item name ="MARY 4.0.0 released" href="download/mary-4-0-0-released.html"/>
-    			<item name ="New release: MARY TTS 4.0 beta" href="download/new_release_mary_tts_4.0_beta.html"/>
-    			<item name ="MARY 3.6.0 released" href="download/mary-3-6-0-released.html"/>
-    			<item name ="MARY 3.5.0 released" href="download/mary-3-5-0-released.html"/>
-    			<item name ="MARY 3.1.0 released" href="download/mary-3-1-0-released.html"/>
-    			<item name ="German unit selection: Mary 3.1beta2 released" href="download/german_unit_selection_mary-3.1beta2-released.html"/>
-    			<item name ="Better unit selection: Mary 3.1beta1 released" href="download/better_unit_selection_mary-3.1beta1-released.html"/>
-    			<item name ="Mary 3.0.3 released" href="download/mary-3-0-3-released.html"/>
-    			<item name ="Mary 3.0.2 released" href="download/mary-3-0-2-released.html"/>
-    			<item name ="Mary 3.0.1 released" href="download/mary-3-0-1-released.html"/>
+    		<item name="Download" href="Download/index.html" collapse="true">
+    			<item name ="OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released" href="Download/openmary-open-source-emotional-text-to-speech-synthesis-system-released.html"/>
+    			<item name ="MARY 4.3.0 released" href="Download/mary-4-3-0-released.html"/>
+    			<item name ="MARY 4.2.0 released" href="Download/mary-4-2-0-released.html"/>
+    			<item name ="Mary 4.1.0 released" href="Download/mary-4-1-0-released.html"/>
+    			<item name ="MARY 4.0.0 released" href="Download/mary-4-0-0-released.html"/>
+    			<item name ="New release: MARY TTS 4.0 beta" href="Download/new_release_mary_tts_4.0_beta.html"/>
+    			<item name ="MARY 3.6.0 released" href="Download/mary-3-6-0-released.html"/>
+    			<item name ="MARY 3.5.0 released" href="Download/mary-3-5-0-released.html"/>
+    			<item name ="MARY 3.1.0 released" href="Download/mary-3-1-0-released.html"/>
+    			<item name ="German unit selection: Mary 3.1beta2 released" href="Download/german_unit_selection_mary-3.1beta2-released.html"/>
+    			<item name ="Better unit selection: Mary 3.1beta1 released" href="Download/better_unit_selection_mary-3.1beta1-released.html"/>
+    			<item name ="Mary 3.0.3 released" href="Download/mary-3-0-3-released.html"/>
+    			<item name ="Mary 3.0.2 released" href="Download/mary-3-0-2-released.html"/>
+    			<item name ="Mary 3.0.1 released" href="Download/mary-3-0-1-released.html"/>
     		</item>
-    		<item name="PAVOQUE Project" href="pavoque_project.html" collapse= "true">
-    			<item name="Publications" href="pavoque/publications_pavoque.html"/>
+    		<item name="PAVOQUE Project" href="pavoque/index.html" collapse= "true">
+    			<item name="Publications" href="pavoque/publications/pavoque-publications.html"/>
     		</item>
     		<item name="Mailing List" href="http://www.dfki.de/mailman/listinfo/mary-users" target="_blank" />
     		<item name="Development" href="http://mary.opendfki.de" target="_blank" />
-    		<item name="Legal Information" href="legal_information.html" />
+    		<item name="Legal Information" href="legal-information.html" />
 		</menu>
     	<menu ref="reports" />
   	</body>
