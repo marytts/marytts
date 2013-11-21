@@ -367,6 +367,10 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.4.2</version>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>2.2</version>
