@@ -137,7 +137,7 @@ public class DBHandler {
    */
   public boolean createDBConnection(String host, String db, String user, String passwd){
     boolean result = false;  
-    String url = "jdbc:mysql://" + host + "/" + db + "?jdbcCompliantTruncation=false";
+    String url = "jdbc:mysql://" + host + "/" + db + "?jdbcCompliantTruncation=false&rewriteBatchedStatements=true";
     try {
       Properties p = new Properties();
       p.put("user",user);
@@ -1084,16 +1084,28 @@ public class DBHandler {
         
         try {
           Iterator iteratorSorted = wordList.keySet().iterator();
+          int i = 0;
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
-            wordByte=null;  
+            wordByte = null;  
             wordByte = word.getBytes("UTF8");
             psWord.setBytes(1, wordByte);
             psWord.setInt(2, value);
-            psWord.execute();
-            psWord.clearParameters();
-          } 
+            
+            //Add new word to insert batch
+            psWord.addBatch();
+            
+            //Execute insert when batch has 1000 items
+            if ((i+1) % 1000 == 0) {
+            	psWord.executeBatch();
+            }
+            
+            i++;
+          }
+          //Execute insert for the remaining words
+          psWord.executeBatch();
+          
         } catch (Exception e) {  // UnsupportedEncodedException
             e.printStackTrace();
       } 
