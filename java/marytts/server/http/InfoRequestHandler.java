@@ -108,6 +108,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
         
         if (request.equals("version")) return getMaryVersion();
         else if (request.equals("datatypes")) return getDataTypes();
+        else if (request.equals("locales")) return getLocales();
         else if (request.equals("voices")) return getVoices();
         else if (request.equals("audioformats")) return getAudioFileFormatTypes();
         else if (request.equals("exampletext")) {

@@ -40,6 +40,7 @@ import javax.sound.sampled.AudioSystem;
 import marytts.Version;
 import marytts.client.http.Address;
 import marytts.datatypes.MaryDataType;
+import marytts.features.FeatureRegistry;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
@@ -214,6 +215,14 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
         }
 
         return output;
+    }
+
+    public String getLocales() {
+        StringBuilder out = new StringBuilder();
+        for (Locale locale : FeatureRegistry.getSupportedLocales()) {
+            out.append(locale).append('\n');
+        }
+        return out.toString();
     }
 
     public String getVoices()

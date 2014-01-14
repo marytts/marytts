@@ -250,6 +250,7 @@ public class MaryHttpServer extends Thread
         InfoRequestHandler infoRH = new InfoRequestHandler();
         registry.register("/version", infoRH);
         registry.register("/datatypes", infoRH);
+        registry.register("/locales", infoRH);
         registry.register("/voices", infoRH);
         registry.register("/audioformats", infoRH);
         registry.register("/exampletext", infoRH);
