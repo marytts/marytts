@@ -100,6 +100,7 @@ public class HTKLabeler extends VoiceImportComponent {
         public final String MAXITER = "HTKLabeler.maxNoOfIterations";
         public String PROMPTALLOPHONESDIR =  "HTKLabeler.promtallophonesDir";
         public String MAXSPITER  = "HTKLabeler.maxshortPauseIteration";
+        public final String AWK = "HTKLabeler.awkbin";
         
         private String HTK_SO = "-A -D -V -T 1"; //Main HTK standard Options HTK_SO
         private String Extract_FEAT = "MFCC_0"; //MFCC_E
@@ -148,6 +149,7 @@ public class HTKLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator"));
                props.put(MAXITER,Integer.toString(MAX_ITERATIONS));
                props.put(MAXSPITER,Integer.toString(MAX_SP_ITERATION));
+               props.put(AWK, "/usr/bin/awk");
               
                
            }
@@ -164,6 +166,7 @@ public class HTKLabeler extends VoiceImportComponent {
            //props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
            props2Help.put(MAXITER,"Maximum number of iterations used for training");
            props2Help.put(MAXSPITER,"Iteration number at which short-pause model need to insert.");
+           props2Help.put(AWK,"Location of awk binary.");
        }
         
         public void initialiseComp() 
@@ -778,7 +781,7 @@ public class HTKLabeler extends VoiceImportComponent {
                 +"for s in `cat etc/htk.phone.list`\n"
                 +"do\n"
                 +"echo \"~h \\\"$s\\\"\" >> hmm/hmm0/hmmdefs\n"
-                +"gawk '/BEGINHMM/,/ENDHMM/ { print $0 }' hmm/hmm-dummy/htk >> hmm/hmm0/hmmdefs\n"
+                +getProp(AWK)+" '/BEGINHMM/,/ENDHMM/ { print $0 }' hmm/hmm-dummy/htk >> hmm/hmm0/hmmdefs\n"
                 +"done\n";
             // creating list of training files
             File file = new File(getProp(HTDIR)+File.separator+"etc"+File.separator+"htkTrainScript.sh");
