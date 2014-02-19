@@ -30,12 +30,15 @@ import java.sql.SQLException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 /**
  * @author marc
  * 
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MaryCacheTest {
 	private static MaryCache c;
 	private static File maryCacheFile = new File("tmp/testfiles-deleteme");
@@ -112,7 +115,7 @@ public class MaryCacheTest {
 	}
 
 	@Test
-	public void isClearable() throws Exception {
+	public void zzz_isClearable() throws Exception {
 		c.shutdown();
 		c = new MaryCache(maryCacheFile, true);
 		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
