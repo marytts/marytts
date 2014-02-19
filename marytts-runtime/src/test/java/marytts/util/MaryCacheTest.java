@@ -30,8 +30,10 @@ import java.sql.SQLException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
 
 /**
@@ -40,8 +42,11 @@ import org.junit.runners.MethodSorters;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MaryCacheTest {
+	@ClassRule
+	public static TemporaryFolder tmp = new TemporaryFolder();
+
 	private static MaryCache c;
-	private static File maryCacheFile = new File("tmp/testfiles-deleteme");
+	private static File maryCacheFile;
 	private static String inputtype = "TEXT";
 	private static String outputtype = "RAWMARYXML";
 	private static String locale = "de";
@@ -57,6 +62,7 @@ public class MaryCacheTest {
 	 */
 	@BeforeClass
 	public static void setUp() throws Exception {
+		maryCacheFile = tmp.newFile();
 		c = new MaryCache(maryCacheFile, true);
 		c.insertText(inputtype, outputtype, locale, voice, inputtext, targetValue);
 		c.insertAudio(inputtype, locale, voice, inputtext, targetAudio);
