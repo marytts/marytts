@@ -459,6 +459,8 @@
 				<version>2.9.1</version>
 				<configuration>
 					<destDir>javadoc</destDir>
+					<!-- TODO temporarily skip this -->
+					<skip>true</skip>
 				</configuration>
 				<reportSets>
 					<reportSet>
