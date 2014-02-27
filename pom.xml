@@ -116,6 +116,10 @@
 		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
 		<developerConnection>scm:git:https://github.com/marytts/marytts.git</developerConnection>
 	</scm>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://buildhive.cloudbees.com/job/marytts/</url>
+	</ciManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
