@@ -22,7 +22,6 @@ public class MaryTTSEmbedded {
 		AudioPlayer player = new AudioPlayer(audio);
 		player.start();
 		player.join();
-		System.exit(0);
 	}
 
 }
