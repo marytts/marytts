@@ -66,7 +66,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
     public static final String numFilters = "HMMVoiceConfigure.strOrder";
     
    /** Example context feature file (TARGETFEATURES in MARY) */
-    public static String featuresFileExample = "mary/features_example.pfeas";
+    public static String featuresFileExample = "mary/features_example.pfeats";
     
     public String FeaFile;
     /** trickyPhones file if any, this file could have been created during makeQuestions and makeLabels
