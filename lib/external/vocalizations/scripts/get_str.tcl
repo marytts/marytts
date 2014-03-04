@@ -311,3 +311,4 @@ foreach line $str1 {
     
 }
 
+exit

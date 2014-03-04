@@ -172,3 +172,5 @@ switch $outputmode {
         }
     }
 }
+
+exit

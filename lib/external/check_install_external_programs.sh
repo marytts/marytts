@@ -134,6 +134,7 @@ if which tclsh > /dev/null; then
     echo "tclsh: $tclshProg"
     echo "package require snack" > tmp.tcl
     echo "snack::sound s" >> tmp.tcl
+    echo "exit" >> tmp.tcl
     if `$tclshProg tmp.tcl` > /dev/null; then
        rm tmp.tcl
        tclshPath=`dirname $tclshProg`
