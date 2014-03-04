@@ -223,27 +223,10 @@ fi
 ################ sox
 if which sox > /dev/null; then
     soxProg=`which sox`
-    # check sox version
-    soxVer=`sox --version | awk '{print substr($3,2,2)}'`
-    if [ $soxVer -ge 13 ]; then
-      soxPath=`dirname $soxProg`
-      echo "sox: $soxProg"
-      echo "ok"
-      echo
-    else
-      echo "sox: $soxProg"
-      echo "sox installed but probably an older version, please install sox >= v13"
-      echo "It can be installed with the command:"
-      echo "  sudo apt-get install sox"
-      echo "The previous command will be executed, it requires administrator privileges"
-      echo "continue (y/n)?"
-      read choice
-      if [ $choice = "y" ] ; then
-        sudo apt-get install sox 
-      else
-        echo "sox: is not installed"
-      fi
-    fi
+    soxPath=`dirname $soxProg`
+    echo "sox: $soxProg"
+    echo "ok"
+    echo
 else
     echo "sox: does not exist"
     echo "It can be installed with the command:"
