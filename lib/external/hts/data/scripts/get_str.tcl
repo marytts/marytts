@@ -254,3 +254,4 @@ foreach line $str(1) {
   incr ind 
 }
 
+exit
