@@ -90,7 +90,7 @@
 
 	<distributionManagement>
 		<site>
-			<id>dfki</id>
+			<id>DFKI</id>
 			<url>scpexe://mary:/local/mary/www</url>
 		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
@@ -114,7 +114,7 @@
 	</mailingLists>
 
 	<issueManagement>
-		<system>github</system>
+		<system>GitHub</system>
 		<url>https://github.com/marytts/marytts/issues/</url>
 	</issueManagement>
 
@@ -450,14 +450,16 @@
 				<reportSets>
 					<reportSet>
 						<reports>
-              				<!-- <report>dependencies</report> -->
 							<report>index</report>
+							<report>summary</report>
 							<report>project-team</report>
-							<report>mailing-list</report>
-							<report>cim</report>
-							<report>issue-tracking</report>
 							<report>license</report>
+							<report>mailing-list</report>
+							<report>issue-tracking</report>
 							<report>scm</report>
+							<report>cim</report>
+							<report>modules</report>
+							<report>dependency-management</report>
 						</reports>
 					</reportSet>
 				</reportSets>
