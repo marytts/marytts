@@ -9,6 +9,11 @@
 		<fluidoSkin>
 			<topBarEnabled>false</topBarEnabled>
 			<sideBarEnabled>true</sideBarEnabled>
+			<gitHub>
+				<projectId>marytts/marytts</projectId>
+				<ribbonOrientation>right</ribbonOrientation>
+				<ribbonColor>gray</ribbonColor>
+			</gitHub>
 			<copyrightClass>pull-right</copyrightClass>
 		</fluidoSkin>
 	</custom>
@@ -16,7 +21,7 @@
 	<bannerLeft>
 		<name>MaryTTS</name>
 		<src>images/marylogo.png</src>
-		<href>http://github.com/marytts/marytts</href>
+		<href>/</href>
 	</bannerLeft>
 	<body>
 		<menu name="Navigation">
