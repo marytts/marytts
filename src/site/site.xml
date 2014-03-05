@@ -55,7 +55,6 @@
 			<item name="PAVOQUE Project" href="pavoque/index.html" collapse="true">
 				<item name="Publications" href="pavoque/publications/pavoque-publications.html" />
 			</item>
-			<item name="Mailing List" href="http://www.dfki.de/mailman/listinfo/mary-users" target="_blank" />
 			<item name="Development" href="http://mary.opendfki.de" target="_blank" />
 			<item name="Legal Information" href="legal-information.html" />
 		</menu>
