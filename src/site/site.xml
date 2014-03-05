@@ -9,6 +9,7 @@
 		<fluidoSkin>
 			<topBarEnabled>false</topBarEnabled>
 			<sideBarEnabled>true</sideBarEnabled>
+			<copyrightClass>pull-right</copyrightClass>
 		</fluidoSkin>
 	</custom>
 
