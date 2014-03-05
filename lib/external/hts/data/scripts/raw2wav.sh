@@ -10,13 +10,8 @@ if [ $# -ne 4 ] ; then
 else
   sox_cmd=$1/sox
   Fs=$4
-  soxVer=`$sox_cmd --version | awk '{print substr($3,2,2)}'`
 
-  options="-c 1 -s -w -r $Fs"  
-  if [ $soxVer -ge 13 ]; then
-    options="-c 1 -s -2 -r $Fs"  
-  fi
-  
+  options="-c 1 -s -2 -r $Fs"
 
   for file in $2/*.raw; do
     file_name=`basename $file .raw`
