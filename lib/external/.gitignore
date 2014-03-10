@@ -5,3 +5,4 @@ externalBinaries.config
 include
 lib
 sw
+autom4te.cache/

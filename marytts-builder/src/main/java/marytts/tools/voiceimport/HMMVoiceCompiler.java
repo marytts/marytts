@@ -66,7 +66,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
     public static final String numFilters = "HMMVoiceConfigure.strOrder";
     
    /** Example context feature file (TARGETFEATURES in MARY) */
-    public static String featuresFileExample = "mary/features_example.pfeas";
+    public static String featuresFileExample = "mary/features_example.pfeats";
     
     public String FeaFile;
     /** trickyPhones file if any, this file could have been created during makeQuestions and makeLabels
@@ -240,10 +240,10 @@ public class HMMVoiceCompiler extends VoiceCompiler {
         	logger.info("HMMVoiceConfigure.adaptScripts = " + db.getProperty("HMMVoiceConfigure.adaptScripts"));
             /* If adaptive training then look for an example in the first directory */        	
         	if( in.exists() && in.list().length > 0 ){                  
-              FileUtils.copyFile(new File("phonefeatures/" + fileExample + "/" + in.list()[0]), new File(featuresFileExample));
+              FileUtils.copyFile(new File(rootDir, "phonefeatures/" + fileExample + "/" + in.list()[0]), new File(rootDir, featuresFileExample));
             }  
           } else if(in.exists()){
-        	  FileUtils.copyFile(in, new File(featuresFileExample));  
+        	  FileUtils.copyFile(in, new File(rootDir, featuresFileExample));
           } else {
         	System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty(?)");
             throw new IOException();  
