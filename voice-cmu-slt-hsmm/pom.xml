@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>marytts</artifactId>
 		<groupId>marytts</groupId>
-		<version>5.1-beta2</version>
+		<version>5.1-beta3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
