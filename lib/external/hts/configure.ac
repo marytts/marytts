@@ -265,14 +265,7 @@ if test ! -f "$SOX"; then
 fi
 
 # sox option
-$SOX -h > sox.option 2>&1
-soxversion=`head -1 sox.option | sed -e s/v//g | awk '{printf "%d\n",$NF}'`
-if test $soxversion -gt 13; then
-	SOXOPTION=2
-else
-	SOXOPTION=w
-fi
-rm -f sox.option
+SOXOPTION=2
 AC_SUBST(SOXOPTION)
 
 

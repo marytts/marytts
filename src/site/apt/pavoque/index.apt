@@ -1,0 +1,281 @@
+   ---
+   PAVOQUE Overview
+   ---
+
+PAVOQUE Overview
+	
+	Information regarding the DFG-funded research project PAVOQUE: PArametrisation of prosody and VOice QUality for concatenative speech synthesis in view of Emotion expression
+
+*Project Publications
+	
+	See the {{{./publications/pavoque-publications.html}PAVOQUE Publications page}}.
+
+*Abstract
+	
+	A major obstacle for the acceptability of speech synthesis is its lack of expressivity. In order to convey emotions or other expressions appropriately, the sound of the synthetic voice would need to be changed; however, newer speech synthesis methods lack the possibility to influence the relevant parameters to the necessary extent.
+
+	In current speech synthesis technology, naturalness and flexibility are mutually exclusive: newer corpus-based unit selection synthesis methods often sound natural, but they can only realise a single speaking style, which is determined during the recordings of the speech corpus. In contrast, older methods such as formant or diphone synthesis are parametrisable but sound quite unnatural. There is currently no synthesis method combining the naturalness of corpus-based synthesis with the parametrisability of earlier systems. 
+
+	The PAVOQUE project is to make a core contribution to reconciling synthesis quality and parametrisability. In a current corpus-based speech synthesis system, it carries out research on methods for the required parametrisation of the key parameters for vocal emotion expression: prosody (=intonation and rhythm) and voice quality. Two strategies are pursued: parameter-based selection of units from the corpus, and post-processing of the synthetic speech signal with signal manipulation methods. This will allow for a high degree of expressivity while maintaining good quality of the speech signal.
+
+
+*Goals
+	
+	The central goal of the PAVOQUE project is to add parametrisation capabilities for prosody and voice quality to a state-of-the-art corpus-based speech synthesiser. This will result in new technology that can be used for expressing emotions in high-quality synthetic speech.
+
+	Two complementary strands will be pursued for the parametrisation. In the first strand, we will explore to what extent prosodic and voice quality parameters can be used in addition to the usual linguistic parameters in the selection of candidate units from the corpus (see state of the art, above), i.e. in the calculation of target costs. In order to avoid a combinatorical explosion of corpus size, it will be necessary to limit the number of such selection criteria to very few parameters of core importance.
+
+	The second strand of parametrisation will address the methods for modification of the prosody and voice quality of the selected units, using signal processing algorithms that introduce only small distortions. We shall use existing modification algorithms and carry out research on improving these algorithms.
+
+	As 	corpus-based speech synthesis crucially depends on the corpus used, it is an important goal of the project to create a suitable German research corpus as a basis for the selection and modification algorithms. One key challenge will be the appropriate design of such a corpus. In particular, we need to ascertain coverage with respect to the envisaged non-standard selection criteria that take into account prosody and voice quality.  The corpus needs to be labelled with respect to the acoustic parameters used in the enhanced selection algorithm. We shall use and improve automatic labelling tools for these parameters.
+
+	The corpus will serve several functions: it will provide the raw material for synthesis; it will provide training and test data for the labelling and modification algorithms used; and it will provide target utterances for the evaluation task.
+
+	A formal perception test shall be conducted in order to evaluate the improvements that the afore-mentioned algorithms bring to the goal of emotional speech synthesis. The system developed in the project shall be compared to a baseline synthesis system, in order to assess the perceived naturalness as well as the achieved expressive capabilities.
+	
+*Work schedule
+
+	The work plan is structured into work packages (WPs). The core piece of the project is WP3, which carries out the research on parametrisation of a unit selection system. WP1 provides preparatory input, gathering and putting to use the state of the art in synthesis and signal processing. WP2 has a dual role: On the one hand, it provides the required raw material for WP3, i.e. a suitable speech corpus; on the other hand, it carries out research on automatic labelling of the prosodic and voice quality parameters that are to be used in the selection algorithms in WP3. Finally, WP4 provides an ongoing evaluation of progress in WP3, as well as a formal evaluation at the end of the project.
+
+	Figure 1 shows the logical interdependency between the work packages, as well as their key results.
+
+
+[images/pavoque-pert.gif] Figure 1: Logical relationships between work packages and key results in PAVOQUE
+
+
+
+	The planned scheduling of the work packages can be seen in Figure 2. Three main phases can be distinguished:
+
+	[Month 1-10:]     In the preparation phase, we prepare the technological framework (WP1, consisting of signal analysis, unit selection synthesis, and signal modification algorithms), and design and record the speech corpus (WP2a+b).
+
+	[Month 11-30:]   In the main phase, we will iteratively improve the three core research aspects prosody/voice quality labelling (WP2c), selection criteria (WP3a) and signal modification (WP3b).
+
+	[Month 31-36:]   In the final phase, we will fine-tune the selection and modification aspects of WP3 with respect to each other (WP3c), and carry out a final evaluation (WP4).
+
+      []
+      
+ 	Several work packages and tasks are scheduled to run in parallel – either because they are largely independent (as in the preparation phase), or because they are mutually dependent (as in the main phase). This interdependence of three tasks in the main phase bears the risk that a delay in one task could delay all other tasks. In order to reduce this risk, a step-wise procedure is used in all three tasks in the main phase (labelling – WP2c, selection – WP3a and modification – WP3b): Existing resources and algorithms are used in a first step, and replaced with newly developed ones as they become available.
+ 	
+
+[images/pavoque-gantt.gif] Figure 2: Planned time course of work packages and key tasks in PAVOQUE
+
+
+    The plans for the individual work packages are now described in detail.
+
+
+**WP1: Technological framework (5 PM)
+
+	
+	The PAVOQUE project intends to reuse existing algorithms where possible. Many suitable algorithms for unit selection synthesis, signal analysis and signal modification exist and are accessible to the proposer; nevertheless, they must be integrated into a coherent technological framework to be optimally usable as the “toolkit” for the work in PAVOQUE. This is possible with limited effort because we can build on the MARY framework and on open-source software such as Praat, Snack, Festvox, Festival, and FreeTTS.
+
+    [[a]] Baseline system for unit selection synthesis
+
+	
+	We need a baseline unit selection system in order to assess the improvements in expressivity obtained in WP3. The implementations of unit selection algorithms that currently exist in the MARY system (see Previous work) are the natural starting point for this baseline system. Their suitability for PAVOQUE must be critically compared  before one of them is selected for further use.
+
+	Most current unit selection algorithms do not account for prosody explicitly; instead, prosody is indirectly described via a set of symbolic features such as sentence type, position in the sentence, or syllable stress status. In all existing systems, voice quality is considered unrelated to target costs, because its modelling is not considered relevant for the expression of a linguistic structure in indo-european languages.
+
+	In contrast to such previous practice, we will need to allow for the explicit use of prosodic and voice quality parameters in the target cost function, i.e. during the selection of candidate units from the database. Criteria for this comparison of available systems include:
+
+	[[i]]   Can the target cost function be extended to take into account acoustic parameter targets? In particular, can it be adapted manually, or is it fully data-driven?
+
+	[[ii]]   Are continuous measures accounted for through coarse cutoffs, or in a continuous way?
+
+	[[iii]]  How difficult is it to take into account relative measures such as z-scores rather than absolute measures?
+
+	[[iv]]    How tolerant is the method to missing data? I.e., is there a measure of “degree of similarity” for non-perfect-match units?
+	
+	[]
+	
+	Further criteria are likely to emerge in the process.
+
+	Should this assessment come to the conclusion that an altogether different unit selection algorithm is considerably more suitable for the PAVOQUE tasks than any of the available techniques, that algorithm would need to be implemented, as an extension to the existing code. However, it would be preferable to concentrate efforts on the core tasks of this project, and to extend one of the existing algorithms, unless strong reasons arise for doing otherwise.
+
+	A subset of the corpus recorded in WP2 will be used as the corpus of the baseline system. This approach allows us to compare naturalness and expressivity of the baseline and enhanced systems, using material from the same speaker in the two versions of the system. Such formal comparison tests will be carried out in WP4.
+
+ 
+
+    [[b]] Speech signal analysis and modification toolkit
+
+	
+	Numerous algorithms exist for analysing and modifying the speech signal (see State of the art). Some of these are available in MARY or in open source software (e.g., F0 tracking, cepstral analysis); others have been published, but no implementations are freely available (e.g., NAQ, glottal formant). WP1 will collect and integrate into a coherent framework a selection of implemented algorithms. In addition, we will list promising algorithms which are described in the literature but for which no implementation is available. They will be evaluated with respect to their potential use within PAVOQUE. This evaluation will include the questions of:
+
+	[[i]]        maturity (i.e., whether they are established good practice vs. experimental);
+
+	[[ii]]      applicability (tried in a synthesis context or not);
+
+	[[iii]]     quality (the amount of degradation introduced); and
+
+	[[iv]]    effort (the amount of work required to implement the algorithm).
+	
+	[]
+
+	As motivated in the State of the art section, we expect frequency domain and mixed methods to be most promising.
+
+	The theoretical assessment of algorithms will yield a set of candidate algorithms to be implemented and tested in WP2 and WP3.
+	
+
+	
+**WP2: Creation of an exemplary corpus suitable for expressive speech synthesis (12 PM)
+	
+	
+	This work package has a dual role. First, it will create a special speech corpus for use in WP3; secondly, it will carry out research on the automatic labelling of prosody and voice quality parameters in this corpus.
+
+	The PAVOQUE project has very specific and non-standard requirements with respect to the content of the speech synthesis corpus:  The enhanced selection algorithm to be developed in WP3(a) requires the corpus to contain a controlled range of variation of prosodic and voice quality parameters, independently of linguistic structure. Existing corpora such as CMU Arctic (Kominek & Black, 2004), or the BITS corpus (expected to be released by the end of 2005 – Ellbogen, Schiel & Steffen, 2004), are designed for general-purpose, unexpressive text-to-speech synthesis, and do not provide the required parameter variation. For this reason, it is necessary to create a new corpus for this research.
+
+	In a concatenative system, the quality of the speech corpus is the single most important factor for the final output speech quality. Therefore, the appropriate design, recording and labelling of the corpus is crucial for its suitability for the purposes of this project.
+
+
+	The work in WP2 consists of three tasks:
+
+	[[a]] Design a textual corpus for a limited domain.
+
+	[[b]] Record the speech corpus.
+
+	[[c]] Label the speech corpus.
+	
+	[]
+
+    [[a]] Design a German textual corpus for a limited domain in which emotions naturally play a role  (3 PM)
+
+	
+	A key challenge in corpus design is to assure adequate coverage, i.e. for every expected target utterance, suitable units must be found in the corpus.
+
+	For unlimited domains, assuring coverage implies recording a very large corpus, consisting of several hours of speech data. For this research project, we will only address a limited domain, i.e. a set of utterances to be produced in a specific scenario. Common examples of such limited domains are speaking clocks or weather forecasts; for PAVOQUE, a new limited domain needs to be identified and modelled where a variety of emotional states are naturally expressed. Examples of possible domains include social chatter, tutorial dialogues, or sports commentaries. These and other domains will be investigated before a decision is taken.
+
+	The issue of assuring coverage is more difficult in PAVOQUE than in traditional, unexpressive corpus-based synthesis: As motivated before, we intend to use not only linguistic parameters in the target cost function for unit candidate selection, but also prosody and voice quality parameters. This means that each unit (e.g., each phone) needs to occur not only in several phonetic contexts, sentence types, stress states etc., but also in several configurations of prosody and voice quality. The combinatorical explosion which would follow from simply cross-combining all these selection criteria needs to be addressed, first by keeping the number of prosodic and voice quality parameters and their possible values small, and second by limiting the recordings to a subset of parameter configurations which are most suitable for the set of target domain utterances to produce.
+	
+	
+	Based on these considerations, we propose to design the speech corpus in such a way that two distinct sub-corpora can be identified:
+
+	[[1]] A number of utterances will be recorded in a fully factorial way, such that each unit exists in each prosody and voice quality parameter setting. The text of target utterances in this sub-corpus should be emotionally neutral (sentences such as “The glass is standing on the table.”) or emotionally ambguous (e.g., “The telephone has not rung at all today!”). This section of the corpus is suitable for general-purpose emotion expression research and full flexibility in acoustic parametrisation. This data is most suitable for testing the parametrisation algorithms and their limits. Obtaining emotional-sounding speech output from this kind of data is a challenging task, because it is necessary to specify explicitly the full acoustic parameter settings for the emotional states.
+
+	[[2]]  A different set of utterances will be tilted towards specific kinds of expressivity, and show only limited variation in prosodic and voice quality parameters. The parameter ranges that are appropriate for different emotions are available from the literature (e.g., Banse & Scherer,  1996; Schröder, 2004a). Target texts for this sub-corpus should be emotional. For example, it is sufficient to be able to speak the sentence "I'm so sad" in medium-to-low F0, and modal-to-soft vocal effort settings. This kind of data, combining a certain emotion-specificity with limited flexibility, constitutes a direct extension of previous practice (e.g., Johnson et al., 2002; Iida & Campbell, 2003) where only a small number of expressions were recorded without the possibility for parametrisation. Generating emotional-sounding speech from this kind of data is comparatively easy, as to a certain extent, the emotional expression is already inherent in the recorded speech material. Nevertheless, adding a certain amount of flexibility to this approach constitutes a worthwile step advancing the state of the art.
+
+	[]
+	
+	This twofold approach ensures that the algorithms can be tested both on general-purpose and on specific material oriented towards certain kinds of emotionality, while keeping the amount of data manageable.
+
+	In order to ensure comparability between the baseline system (WP1) and the enhanced system (WP3), the corpus recorded in WP2 must also be usable for the baseline system. This will be achieved by extracting a subset of the corpus in which the prosodic and voice quality parameters are recorded at the speaker’s default setting, and using this subset as the speech corpus for the baseline system. It will be ensured that the subset achieves coverage of the material to be synthesised, in the classical, linguistic sense.	
+	
+	
+    [[b]] Record the speech corpus (2 PM)
+
+
+	For recording the speech corpus, we build on the setup that exists from the diphone recordings in the NECA project. This includes recording equipment, software, and experience in setting up and carrying out the recording protocol.
+
+	As has been shown several times (e.g., Banse & Scherer, 1996; Ellbogen et al., 2004; Schröder, 2003), actors are more reliable than non-actors to produce the required speech material in a controlled setting. For this reason, the recordings of the speech corpus need to be carried out with a professional speaker. A phonetically trained listener will need to supervise the recordings in order to monitor recording errors and trigger immediate re-recordings where necessary.
+
+	Previous experience (Schröder & Grice, 2003) has shown that it is generally necessary to schedule at least one session for re-recordings. Despite the care used to re-record erroneous material immediately, some problems with individual recordings are usually only noticed during the labelling phase (see below). We therefore include a re-recording session in our planning from the start.
+
+	In addition to the synthesis corpus, a number of recordings need to be made for the evaluation planned in WP4. Selected sentences from both the general-purpose and the specific expression-oriented sections will be recorded in several emotional states of varying intensity by the same speaker. These will not be used as part of the synthesis corpus, but as targets for copy synthesis (see WP4).
+
+ 
+    [[c]] Label the speech corpus (7 PM)
+
+
+	The labelling of the speech corpus is a key pre-requisite for being able to index and later use the units in the corpus. In addition to the traditional marking of segment boundaries, PAVOQUE also requires prosodic and voice quality parameters to be labelled, which is an open research issue.
+
+	For segment boundary labelling, we will start with existing tools (e.g., CMU Sphinx, HTK) for forced alignment of a phoneme string to the recordings. The phoneme string to align is predicted by the TTS system and manually corrected where the speaker deviated from the pronounciation generated by the system. Manual correction of the automatic segment boundary labelling is a relatively simple but necessary and time-consuming task. It will be performed by a phonetically trained student assistant.
+
+	For prosody and voice quality parameters, manual labelling would be an extremely time-consuming task and will be avoided if at all possible. Automatic labelling of prosody and voice quality features, on the other hand, is an open-ended research issue, where improvements are expected to be gradual rather than being once-and-for-all solutions. Therefore, automatic labelling of acoustic parameters will be performed as an iterative process in interaction with WP3, where new measures are taken into account by the selection algorithms as they become available.
+
+	The first methods to be applied are the existing technologies included into the analysis toolkit in WP1(b). In addition, efforts will go into the advancement of the state of the art, taking the assessment of algorithms in WP1(b) as a starting point.
+
+	With respect to prosody labelling, one potential advancement will be the detection of the glottal formant (Fant, 1979; Doval & d'Alessandro, 1997), a parameter related to both pitch and open quotient. As an intermediate parameter between prosody and voice quality, it is of obvious potential relevance for PAVOQUE. A first algorithm for its estimation has been proposed by Bozkurt et al. (2004a), who reported good classification results on carefully selected speech samples. Attempts to generalise its use to unconstrained and emotionally expressive speech are a logical next step.
+
+	Improvements of voice quality labelling will start with measures of spectral tilt and periodic-aperiodic ratio. Spectral tilt is known to be an important measure of voice quality, but existing estimation methods are not fully reliable. We aim to develop more reliable methods of spectral tilt estimation, possibly starting from the Soft Phonation Index, a ratio of high energy and low energy parts of the speech spectrum (Deliyski, 1993). Periodic/aperiodic ratio detection could start with the decomposition algorithm proposed by Yegnanarayana et al. (1998). In addition to these parameters, several recently proposed measures such as the Normalized Amplitude Quotient (NAQ – Alku et al., 1998) as well as cepstral measures will be investigated.
+
+	The relevance of voice quality parameters will be tested in a classification scheme using the newly created corpus as well as the existing diphone databases with three different voice qualities. The aim will be to define the voice quality feature vector that leads to the most accurate classification, the measure of accuracy being the speaker intention during recordings. The obtained feature vector will be used for labelling the corpus, and thus becomes available as a selection criterion in WP3(a).	
+	
+	
+**WP3: New methods for the parametrisation of speech synthesis (16 PM)
+
+	
+	The parametrisation of corpus-based speech synthesis constitutes the core aim of the PAVOQUE project. The goal is to provide the required flexibility for emotion expression while maintaining a high quality of the speech signal. Work in this work package will proceed along two main strands: (a) selection of appropriate units; and (b) signal processing. Each strand will be pursued in two steps: First, existing algorithms will be applied in this new context; and second, new algorithms will be proposed and tested.
+
+	The algorithms will be implemented in an “enhanced” system built on top of the “baseline” system prepared in WP1, thereby allowing for direct comparison of performance of the two systems.
+
+
+    [[a]] Selection of appropriate units (6 PM)
+
+
+	In this strand of WP3, algorithms are developed that can take into account prosody and voice quality parameters during the selection of units, in particular as part of the target cost function which determines the degree of suitedness of a given unit for a target utterance. As voice quality is generally considered to be relatively independent of linguistic structure (e.g., Ladd et al., 1985), we anticipate that selection based on voice quality can be implemented as a simple “add-on” to the baseline system, without the risk of reducing output speech quality. For prosody, the situation is more complex. Existing systems obtain natural prosody by using purely linguistic parameters in the target cost function, i.e., the natural prosody follows from properly selected linguistic predictors without actually being modelled explicitly. Therefore, the simple use of absolute F0, duration and intensity values in addition to the existing linguistic parameters would result in contradictory requests and a reduced synthesis quality. Therefore, we will devise relative measures for prosody in context, e.g. comparing F0 relative to class means by calculating z-scores for classes defined by linguistic parameter configurations. Prosody target costs will then select from among the linguistically acceptable candidates.
+
+	In a first step, a set of selection parameters will be proposed based on theoretical considerations. These parameters should describe prosody and voice quality as independently from linguistic structure as possible. They will be built into the target cost function of the “enhanced” system. We will experimentally determine the weights of these parameters with respect to the linguistic parameters. With respect to the two alternatives of automatic versus manual determination of parameter weights (Blouin, 2003), we clearly favour the manual method in this context. Otherwise, the specificities of the recorded data would determine this rather general question in a way that would be difficult to generalise. It can be anticipated that the question of parameter weights will be decisive for the overall quality especially in situations of incomplete coverage. We will artificially create such situations in a controlled way from the fully covered subset of the corpus (see WP2 (a) 1. above), so that the perceptual effects of different design choices become apparent.
+
+	In a second step, we will add new promising parameters, in particular the measures developed in WP2 (c). Again, the perceptual effects will be assessed based on the controlled creation of incomplete coverage situations.
+
+ 
+
+    [[b]] Modification of prosody and voice quality parameters using new algorithms maintaining high quality (7 PM)
+
+	
+	This second strand of work in WP3 will use signal manipulation algorithms in order to modify the prosody and voice quality of the speech units selected for a target utterance. This may seem risky at first sight – one of the reasons for the success of unit selection synthesis, 10 years ago, was that it did not rely on signal processing, thus avoiding the degradations introduced by the signal manipulation algorithms that existed at the time. However, we are convinced that limited use of signal processing is now possible, firstly because algorithms have improved over the last decade, introducing less artifacts, and secondly because the amplitude of manipulations can be kept relatively small if it can build on a corpus with good coverage of the acoustic space.
+
+	In a first step, we will use existing prosody modification algorithms. Even for the simple time-domain PSOLA algorithm, it has been shown that moderate changes of F0 and timing are possible without extensive quality loss (Blouin, 2003). The more recent frequency-domain and mixed methods, while being more powerful and flexible, are also expected to create less artifacts in the speech signal. The technological toolbox compiled in WP1 (b) will provide a first choice of technology for use in the synthesis system.
+
+	For voice quality modification, we will start, in particular, from the spectral interpolation algorithm which we have recently proposed (Turk et al., 2005). We have shown that we can create degrees of vocal effort in diphone synthesis. Transferring the technology to unit selection synthesis is now a small step. In addition, it will be very interesting to see to what extent the same algorithm can be applied for interpolating between other voice qualities, including the vocal correlates of the smile.
+
+	In a second step, new algorithms for prosody and voice quality modification will be investigated. Modification of prosody will be performed with a frequency domain or a mixed method. We will investigate adaptive filtering techniques for spectral tilt modification. For the modification of the periodic/aperiodic ratio, a decomposition/weighting/recomposition approach will be investigated. All modification algorithms will be applied with an overlap-add approach, which guarantees that no additional discontinuities are introduced into the speech signal.
+
+	This second step is the most open-ended, basic research aspect of the project. We anticipate that new advances can be made compared to today’s state of the art, and that some of the findings can already be put to use in the synthesis algorithm. Given the short duration of the project, however, we do not expect to cover all relevant questions by the end of the project.
+
+ 
+
+    [[c]] Suitable combination of the selection (a) and modification (b) aspects (3 PM)
+
+
+	Each of the two strands of research presented above will lead to a certain range of variation in modelled parameter values. However, the selection strand is limited by the combinatoric explosion that would follow from the use of too many parameters and/or parameter values, while the modification strand is limited with respect to the magnitude of the modifications by the signal degradations introduced by too large parameter changes. Combining the two aspects should ultimately lead to a larger range of variation than for any of the methods alone. 
+	
+	While the basic idea of this combination of selection and modification is straightforward, we need to work on the optimal combination of both aspects. Naturally, each aspect should be used for what it can do best, e.g. limited tempo and F0 modifications can be performed using signal modification, while larger F0 or voice quality deviations might better be realised by selecting appropriate units from the corpus. If some of the desired flexibility can be provided by modification algorithms, that will reduce the combinatoric load on the target cost function for the selection of units. This may allow us to consider additional parameters in the target cost function, thus effectively widening the range of parametric flexibility.
+
+	In addition, the combination with signal modification will prompt a re-adjustment of the join costs in the unit selection algorithm. This will result in a reduction of the costs for discontinuities which can easily be corrected, while giving higher weights to discontinuities which cannot be corrected by the signal processing module without audible degradation.
+
+	
+**WP4: Evaluation (3 PM)
+
+	
+	Evaluation in PAVOQUE has two aspects:
+
+	[[a]] the ongoing evaluation of progress in WP3, and
+
+	[[b]] a formal evaluation study at the end of the project.	
+	
+	[]
+	
+
+    [[a]] Ongoing evaluation of selection and modification algorithms in WP3
+
+	
+	The iterative research process in the main phase is necessarily combined with an ongoing evaluation of the obtained synthesis quality. On the one hand, the selection of units (WP3a) based on prosodic and voice quality measures (WP2c) may lead to discontinuities, e.g. if the target costs weigh the acoustic measures inappropriately relative to the traditional symbolic measures. On the other hand, the results of the research on signal modification algorithms (WP3b) need to be evaluated with respect to the perceptual degradation introduced. 
+
+	This ongoing evaluation will normally be carried out informally, unless special reasons arise that justify the additional effort of carrying out formal perception tests. It will accompany the work of WP3 throughout its duration.
+
+ 
+    [[b]] Formal perceptual evaluation of project results
+
+	
+	At the end of the project, a formal evaluation study will be carried out, assessing the success of the new “enhanced” synthesis algorithm. The measure of success for the PAVOQUE project is a perceptual one, viz., whether or not listeners perceive speech synthesised with the enhanced system as more expressive but similarly natural-sounding compared to speech synthesised with the baseline system. 
+
+	As the PAVOQUE project is concerned primarily with research on new parametrisation algorithms, not with the establishment of prosody rules for emotion expression, it is important not to assess the expressivity using a rule set (which would introduce irrelevant complexity into the experiment), but by modelling natural examples of expressive speech using copy synthesis.
+
+
+	Stimulus generation. For copy synthesis, a sample of expressive target utterances will be recorded in WP2(b). The range of expressivity should include intense as well as mild states, as well as emotions differ in the degree to which they are conveyed through prosody and through voice quality. For example, anger seems to be perceived mainly from voice quality, while surprise is mainly perceived from intonation (Montero et al., 1999). Including both types of states will allow us to assess the success in synthesising prosody vs. voice quality more concretely. For copy synthesis, the natural utterances are analysed with respect to their phonetic string, linguistic, prosodic and voice quality parameters. For each utterance, these measures are then modelled as closely as possible (“copied”) with synthetic speech, using (1) the baseline system with the unexpressive subset of the speech corpus created in WP2; (2) the baseline system with the full speech corpus created in WP2, but without controlling the prosodic and voice quality variation in the corpus; and (3) the three versions of the enhanced system developed in WP3 (a), (b) and (c), respectively.
+
+
+	The success criterion formulated above consists of two parts: (i) perceived expressivity, and (ii) perceived naturalness. These are assessed in separate perception tests.
+
+ 	[[i]] Perceived expressivity.
+
+		We assess the perceived emotionality using rating tests. The stimulus material will include the original recordings as well as the five copy-synthesised versions of each utterance (two versions for the baseline and three versions for the enhanced system). The stimuli are presented in randomised order, and subjects rate the emotion they perceive. We will use dimensional and categorical ratings, in order to cover both general trends (using the dimensions) and fine emotion-specific details (using categories). 
+
+		In analysing the results, we will take into account recent recommendations by Juslin & Laukka (2003) and by Bänziger (2004), who suggest methods to link perceptual ratings to the acoustic parameters of the stimuli, which leads to a better understanding of which parameters caused which perception.
+
+ 
+	[[ii]] Perceived naturalness.
+
+		In a second test, the same stimuli will be presented to a different group of listeners, who will indicate the perceived naturalness of the stimuli using Mean Opinion Scores (MOS). The natural recordings will be included as a reference against which to judge the MOS ratings for the baseline and the three versions of the enhanced system.
+	
+	
+	[]

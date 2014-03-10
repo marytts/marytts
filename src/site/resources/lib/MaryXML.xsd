@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://mary.dfki.de/2002/MaryXML">
+    <xsd:annotation>
+       <xsd:documentation>MaryXML v0.4.2, 2006-02-09</xsd:documentation>
+    </xsd:annotation>
+    <xsd:annotation>
+        <xsd:documentation>Portions Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:annotation>
+        <xsd:documentation>This Schema uses parts of the XML Schema
+            draft, SSML 1.0 Core Schema (20020222), for which the
+            copyright notice is reproduced here:
+            Copyright 1998-2002 W3C (MIT,
+        INRIA, Keio), All Rights Reserved. Permission to use,
+        copy, modify and distribute the SSML core schema and its
+        accompanying documentation for any purpose and without
+        fee is hereby granted in perpetuity, provided that the
+        above copyright notice and this paragraph appear in all
+        copies.  The copyright holders make no representation
+        about the suitability of the schema for any purpose. 
+        It is provided "as is" without expressed or implied
+        warranty.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            Importing dependent namespaces
+            *********************************************
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            General Datatypes
+            *********************************************
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleType name="duration">
+        <xsd:annotation>
+            <xsd:documentation>Duration follows "Times" in
+            CCS specification; e.g. "25ms", "3s"</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[0-9]+m?s"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="relative.change">
+        <xsd:annotation>
+            <xsd:documentation>Relative change: e.g. +10, -5.5,
+            +15%, -9.0%</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[+\-][0-9]+(.[0-9]+)?[%]?"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="relative.change.st">
+        <xsd:annotation>
+            <xsd:documentation>Relative change in semi-tones:
+            e.g. +10st, -5.2st</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[+\-]?[0-9]+(.[0-9]+)?st"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="absolute.value.st">
+        <xsd:annotation>
+            <xsd:documentation>Absolute value in semi-tones:
+            e.g. 10st, 5.2st</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[0-9]+(.[0-9]+)?st"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="volume.scale">
+        <xsd:annotation>
+            <xsd:documentation>values for volume
+                 </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="silent"/>
+            <xsd:enumeration value="soft"/>
+            <xsd:enumeration value="medium"/>
+            <xsd:enumeration value="loud"/>
+            <xsd:enumeration value="default"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="float.range1">
+        <xsd:annotation>
+            <xsd:documentation>0.0 - 100.0
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:float">
+            <xsd:minInclusive value="0.0"/>
+            <xsd:maxInclusive value="100.0"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="Say-as.datatype">
+        <xsd:annotation>
+            <xsd:documentation>say-as datatypes
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="acronym"/>
+            <xsd:enumeration value="spell-out"/>
+            <xsd:enumeration value="number"/>
+            <xsd:enumeration value="number:ordinal"/>
+            <xsd:enumeration value="number:digits"/>
+            <xsd:enumeration value="number:cardinal"/>
+	    <xsd:enumeration value="number:roman"/>
+            <xsd:enumeration value="date"/>
+            <xsd:enumeration value="date:dmy"/>
+            <xsd:enumeration value="date:mdy"/>
+            <xsd:enumeration value="date:ymd"/>
+            <xsd:enumeration value="date:ym"/>
+            <xsd:enumeration value="date:my"/>
+            <xsd:enumeration value="date:md"/>
+            <xsd:enumeration value="date:dm"/>
+            <xsd:enumeration value="date:y"/>
+            <xsd:enumeration value="date:m"/>
+            <xsd:enumeration value="date:d"/>
+            <xsd:enumeration value="time"/>
+            <xsd:enumeration value="time:hms"/>
+            <xsd:enumeration value="time:hm"/>
+            <xsd:enumeration value="time:h"/>
+            <xsd:enumeration value="time:hms12"/>
+            <xsd:enumeration value="time:hms24"/>
+            <xsd:enumeration value="duration"/>
+            <xsd:enumeration value="duration:hms"/>
+            <xsd:enumeration value="duration:hm"/>
+            <xsd:enumeration value="duration:ms"/>
+            <xsd:enumeration value="duration:h"/>
+            <xsd:enumeration value="duration:m"/>
+            <xsd:enumeration value="duration:s"/>
+            <xsd:enumeration value="currency"/>
+            <xsd:enumeration value="measure"/>
+            <xsd:enumeration value="name"/>
+            <xsd:enumeration value="net"/>
+            <xsd:enumeration value="net:email"/>
+            <xsd:enumeration value="net:uri"/>
+            <xsd:enumeration value="address"/>
+            <xsd:enumeration value="telephone"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="precision.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="precise"/>
+            <xsd:enumeration value="normal"/>
+            <xsd:enumeration value="sloppy"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="onoff.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="on"/>
+            <xsd:enumeration value="off"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="accentposition.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="first"/>
+            <xsd:enumeration value="last"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="gtobi_accent.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="*"/>
+            <xsd:enumeration value="H*"/>
+            <xsd:enumeration value="h*"/>
+            <xsd:enumeration value="!H*"/>
+            <xsd:enumeration value="!h*"/>
+            <xsd:enumeration value="^H*"/>
+            <xsd:enumeration value="^h*"/>
+            <xsd:enumeration value="L*"/>
+            <xsd:enumeration value="l*"/>
+            <xsd:enumeration value="L+H*"/>
+            <xsd:enumeration value="l+h*"/>
+            <xsd:enumeration value="L*+H"/>
+            <xsd:enumeration value="l*+h"/>
+            <xsd:enumeration value="L+!H*"/>
+            <xsd:enumeration value="l+!h*"/>
+            <xsd:enumeration value="L*+!H"/>
+            <xsd:enumeration value="l*+!h"/>
+            <xsd:enumeration value="L+^H*"/>
+            <xsd:enumeration value="l+^h*"/>
+            <xsd:enumeration value="L*+^H"/>
+            <xsd:enumeration value="l*+^h"/>
+            <xsd:enumeration value="H+L*"/>
+            <xsd:enumeration value="h+l*"/>
+            <xsd:enumeration value="H+!H*"/>
+            <xsd:enumeration value="h+!h*"/>
+            <xsd:enumeration value="H+^H*"/>
+            <xsd:enumeration value="h+^h*"/>
+            <xsd:enumeration value="!H+!H*"/>
+            <xsd:enumeration value="!h+!h*"/>
+            <xsd:enumeration value="^H+!H*"/>
+            <xsd:enumeration value="^h+!h*"/>
+            <xsd:enumeration value="^H+^H*"/>
+            <xsd:enumeration value="^h+^h*"/>
+            <xsd:enumeration value="unknown"/>
+            <xsd:enumeration value="none"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="ending.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="ordinal"/>
+            <xsd:enumeration value="adjadv"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="g2pmethod.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="lexicon"/>
+            <xsd:enumeration value="userdict"/>
+            <xsd:enumeration value="compound"/>
+            <xsd:enumeration value="rules"/>
+            <xsd:enumeration value="foreign:en"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="givenness.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="+"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="contrast.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="+"/>
+            <xsd:enumeration value="before"/>
+            <xsd:enumeration value="after"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="gtobi_boundarytone.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="H-"/>
+            <xsd:enumeration value="h-"/>
+            <xsd:enumeration value="!H-"/>
+            <xsd:enumeration value="!h-"/>
+            <xsd:enumeration value="L-"/>
+            <xsd:enumeration value="l-"/>
+            <xsd:enumeration value="H-%"/>
+            <xsd:enumeration value="h-%"/>
+            <xsd:enumeration value="!H-%"/>
+            <xsd:enumeration value="!h-%"/>
+            <xsd:enumeration value="H-^H%"/>
+            <xsd:enumeration value="h-^h%"/>
+            <xsd:enumeration value="!H-^H%"/>
+            <xsd:enumeration value="!h-^h%"/>
+            <xsd:enumeration value="L-H%"/>
+            <xsd:enumeration value="l-h%"/>
+            <xsd:enumeration value="L-%"/>
+            <xsd:enumeration value="l-%"/>
+            <xsd:enumeration value="unknown"/>
+            <xsd:enumeration value="none"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="etobi_boundarytone.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="L-L%"/>
+            <xsd:enumeration value="l-l%"/>
+            <xsd:enumeration value="H-H%"/>
+            <xsd:enumeration value="h-h%"/>
+            <xsd:enumeration value="H-L%"/>
+            <xsd:enumeration value="h-l%"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="tobi_boundarytone.type">
+        <xsd:union memberTypes="gtobi_boundarytone.type etobi_boundarytone.type"/>
+    </xsd:simpleType>
+
+
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            Elements
+            *********************************************
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element abstract="true" name="struct"/>
+    <xsd:group name="structure">
+        <xsd:choice>
+            <xsd:element ref="struct"/>
+        </xsd:choice>
+    </xsd:group>
+    <xsd:element abstract="true" name="aws">
+        <xsd:annotation>
+            <xsd:documentation>The 'allowed-within-sentence'
+            group uses this abstract element. Elements with aws as
+            their substitution class are then alternatives for
+            'allowed-within-sentence'.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:group name="allowed-within-sentence">
+        <xsd:choice>
+            <xsd:element ref="aws"/>
+	    <xsd:element ref="awp"/>
+        </xsd:choice>
+    </xsd:group>
+    <xsd:element abstract="true" name="awp">
+        <xsd:annotation>
+            <xsd:documentation>The 'allowed-within-phrase'
+            group uses this abstract element. Elements with awp as
+            their substitution class are then alternatives for
+            'allowed-within-phrase'.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:group name="allowed-within-phrase">
+        <xsd:choice>
+            <xsd:element ref="awp"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            Structure Elements
+            *********************************************
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element name="maryxml" type="maryxml"/>
+    <xsd:complexType name="maryxml">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
+        <xsd:attribute name="version" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:NMTOKEN"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute ref="xml:lang"/>
+    </xsd:complexType>
+    <xsd:element name="p" substitutionGroup="struct" type="paragraph"/>
+    <xsd:complexType name="paragraph">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:element ref="s"/>
+        </xsd:choice>
+        <xsd:attribute ref="xml:lang"/>
+    </xsd:complexType>
+    <xsd:element name="s" substitutionGroup="struct" type="sentence"/>
+    <xsd:complexType name="sentence">
+        <xsd:sequence maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+        </xsd:sequence>
+        <xsd:attribute ref="xml:lang"/>
+    </xsd:complexType>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            Elements allowed within a sentence
+	    (and not within a phrase)
+            *********************************************
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="voice" substitutionGroup="aws" type="voice"/>
+    <xsd:complexType name="voice">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
+        <xsd:attribute name="gender">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="male"/>
+                    <xsd:enumeration value="female"/>
+                    <xsd:enumeration value="neutral"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="age" type="xsd:positiveInteger"/>
+        <xsd:attribute name="variant" type="xsd:integer"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute ref="xml:lang"/>
+    </xsd:complexType>
+
+    <xsd:element name="phrase" substitutionGroup="aws" type="phrase"/>
+    <xsd:complexType name="phrase">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-phrase"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            *********************************************
+            Elements allowed within a phrase
+            *********************************************
+            In intermediate processing steps, it is necessary
+            to allow those elements destinated to be within a phrase
+            to occur directly under a sentence node (before the
+            phrase node is created!). Therefore, all elements allowed within a
+            phrase are also allowed within a sentence.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="mark" substitutionGroup="awp" type="mark"/>
+    <xsd:complexType name="mark">
+      <xsd:attribute name="name" type="xsd:ID" use="required"/>
+    </xsd:complexType>
+
+    <xsd:element name="say-as" substitutionGroup="awp" type="say-as"/>
+    <xsd:complexType name="say-as">
+        <xsd:attribute name="type" type="Say-as.datatype" use="required"/>
+    </xsd:complexType>
+
+    <xsd:element name="phonology" substitutionGroup="awp" type="phonology"/>
+    <xsd:complexType name="phonology">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
+        <xsd:attribute name="precision" type="precision.type" use="required"/>
+        <xsd:attribute name="schwa-elision" type="onoff.type"/>
+        <xsd:attribute name="nasal-assimilation" type="onoff.type"/>
+    </xsd:complexType>
+
+    <xsd:element name="prosody" substitutionGroup="awp" type="prosody"/>
+    <xsd:complexType name="prosody">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
+        <xsd:attribute name="pitch">
+            <xsd:simpleType>
+                <xsd:union memberTypes="xsd:positiveInteger                 relative.change relative.change.st"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="pitch-dynamics">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The pitch baseline declination during a phrase
+                    (difference between baseline start and end).
+                    Default: ca. -2.5st
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:union memberTypes="relative.change relative.change.st"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="range">
+            <xsd:simpleType>
+                <xsd:union memberTypes="relative.change relative.change.st                           absolute.value.st"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="range-dynamics">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The pitch range development during a phrase
+                    (difference between range start and end).
+                    Default: ca. -0.5st
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:union memberTypes="relative.change relative.change.st"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+
+        <xsd:attribute name="accent-prominence" type="relative.change"/>
+        <xsd:attribute name="preferred-accent-shape">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="rising"/>
+                    <xsd:enumeration value="falling"/>
+                    <xsd:enumeration value="alternating"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="accent-slope" type="relative.change"/>
+
+        <xsd:attribute name="preferred-boundary-type">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="high"/>
+                    <xsd:enumeration value="low"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+
+        <xsd:attribute name="rate">
+            <xsd:simpleType>
+                <xsd:union memberTypes="xsd:positiveInteger                 relative.change"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="number-of-pauses" type="relative.change"/>
+        <xsd:attribute name="pause-duration" type="relative.change"/>
+
+        <xsd:attribute name="vowel-duration" type="relative.change"/>
+        <xsd:attribute name="plosive-duration" type="relative.change"/>
+        <xsd:attribute name="fricative-duration" type="relative.change"/>
+        <xsd:attribute name="nasal-duration" type="relative.change"/>
+        <xsd:attribute name="liquid-duration" type="relative.change"/>
+        <xsd:attribute name="glide-duration" type="relative.change"/>
+
+        <xsd:attribute name="volume">
+            <xsd:simpleType>
+                <xsd:union memberTypes="float.range1                 relative.change volume.scale"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+
+        <xsd:attribute name="force-accent">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="word"/>
+                    <xsd:enumeration value="syllable"/>
+                    <xsd:enumeration value="none"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="rules" type="onoff.type"/>
+        <xsd:attribute name="duration" type="duration"/>
+    </xsd:complexType>
+
+    <xsd:element name="audio" substitutionGroup="aws" type="audio"/>
+    <xsd:complexType name="audio">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
+        <xsd:attribute name="src" type="xsd:anyURI"/>
+    </xsd:complexType>
+
+    <xsd:element name="boundary" substitutionGroup="awp" type="boundary"/>
+    <xsd:complexType name="boundary">
+        <xsd:attribute name="tone" type="tobi_boundarytone.type" use="optional"/>
+        <xsd:attribute name="breakindex" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="none"/>
+                    <xsd:enumeration value="1"/>
+                    <xsd:enumeration value="2"/>
+                    <xsd:enumeration value="3"/>
+                    <xsd:enumeration value="4"/>
+                    <xsd:enumeration value="5"/>
+                    <xsd:enumeration value="6"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="duration" type="xsd:positiveInteger" use="optional"/>
+    </xsd:complexType>
+
+
+    <xsd:element name="mtu" substitutionGroup="awp" type="mtu"/>
+    <xsd:complexType name="mtu">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-phrase"/>
+        </xsd:choice>
+        <xsd:attribute name="orig" type="xsd:string"/>
+        <xsd:attribute name="accent" type="accentposition.type"/>
+    </xsd:complexType>
+
+    <xsd:element name="t" substitutionGroup="awp" type="token"/>
+    <xsd:complexType mixed="true" name="token">
+        <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="syllable" type="syllable"/>
+        </xsd:sequence>
+        <xsd:attribute name="accent" type="gtobi_accent.type"/>
+        <xsd:attribute name="ending" type="ending.type"/>
+        <xsd:attribute name="g2p_method" type="g2pmethod.type"/>
+        <xsd:attribute name="pos" type="xsd:string"/>
+        <xsd:attribute name="sampa" type="xsd:string"/>
+        <xsd:attribute name="sounds_like" type="xsd:string"/>
+        <xsd:attribute name="syn_attach" type="xsd:string"/>
+        <xsd:attribute name="syn_phrase" type="xsd:string"/>
+        <xsd:attribute name="given" type="givenness.type"/>
+        <xsd:attribute name="contrast" type="contrast.type"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="syllable">
+        <xsd:sequence>
+            <!-- The phonemes composing the syllable -->
+            <xsd:element maxOccurs="unbounded" name="ph" type="ph"/>
+        </xsd:sequence>
+        <xsd:attribute name="sampa" type="xsd:string"/>
+        <xsd:attribute default="0" name="stress">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:nonNegativeInteger">
+                    <xsd:maxInclusive value="2"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="accent" type="gtobi_accent.type" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="ph">
+        <xsd:attribute name="p" type="xsd:string" use="required"/>
+        <!-- The phoneme duration, in milliseconds -->
+        <xsd:attribute name="d" type="xsd:positiveInteger" use="optional"/>
+        <xsd:attribute name="end" type="xsd:positiveInteger" use="optional"/>
+        <xsd:attribute name="f0" type="xsd:string" use="optional"/>
+        <xsd:attribute name="vq" use="optional">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="loud"/>
+                    <xsd:enumeration value="modal"/>
+                    <xsd:enumeration value="soft"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+
+</xsd:schema>

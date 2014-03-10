@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>marytts</groupId>
@@ -11,12 +12,14 @@
 	<url>http://mary.dfki.de</url>
 	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
 	<inceptionYear>2000</inceptionYear>
+
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License v3.0</name>
 			<url>http://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
 		</license>
 	</licenses>
+
 	<organization>
 		<name>DFKI GmbH</name>
 		<url>http://www.dfki.de/</url>
@@ -40,22 +43,18 @@
 			<id>sathishpc</id>
 		</developer>
 		<developer>
-			<name>Fabio Tesser</name>
-			<id>ftesser</id>
-		</developer>
-		<developer>
-			<name>Giulio Paci</name>
-			<id>giuliopaci</id>
-		</developer>
-		<developer>
-			<name>Harald Berthelsen</name>
-			<id>HaraldBerthelsen</id>
+			<name>Maureen Tanuadji</name>
+			<id>mochanz</id>
 		</developer>
 	</developers>
+
 	<contributors>
 		<!-- in alphabetical order -->
 		<contributor>
 			<name>Stefanie Becker</name>
+		</contributor>
+		<contributor>
+			<name>Harald Berthelsen</name>
 		</contributor>
 		<contributor>
 			<name>Paulo Faria</name>
@@ -67,6 +66,9 @@
 			<name>Sacha Krstulović</name>
 		</contributor>
 		<contributor>
+			<name>Giulio Paci</name>
+		</contributor>
+		<contributor>
 			<name>Benjamin Roth</name>
 		</contributor>
 		<contributor>
@@ -74,6 +76,9 @@
 		</contributor>
 		<contributor>
 			<name>Jochen Steigner</name>
+		</contributor>
+		<contributor>
+			<name>Fabio Tesser</name>
 		</contributor>
 		<contributor>
 			<name>Oytun Türk</name>
@@ -84,8 +89,13 @@
 	</contributors>
 
 	<distributionManagement>
+		<site>
+			<id>dfki</id>
+			<url>scpexe://mary:/local/mary/www</url>
+		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 	</distributionManagement>
+
 	<mailingLists>
 		<mailingList>
 			<name>mary-users</name>
@@ -102,16 +112,18 @@
 			<unsubscribe>mary-dev-request@dfki.de?subject=unsubscribe</unsubscribe>
 		</mailingList>
 	</mailingLists>
+
 	<issueManagement>
 		<system>github</system>
 		<url>https://github.com/marytts/marytts/issues/</url>
 	</issueManagement>
+
 	<scm>
 		<url>https://github.com/marytts/marytts</url>
 		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
 		<developerConnection>scm:git:https://github.com/marytts/marytts.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -128,7 +140,6 @@
 		<module>marytts-builder</module>
 		<module>marytts-redstart</module>
 		<module>marytts-transcription</module>
-		<module>marytts-jungle</module>
 		<module>marytts-lang-de</module>
 		<module>marytts-lang-en</module>
 		<module>marytts-lang-te</module>
@@ -139,15 +150,7 @@
 		<module>marytts-lang-sv</module>
 		<module>voice-cmu-slt-hsmm</module>
 		<module>marytts-assembly</module>
-		<module>user-examples</module>
 	</modules>
-
-	<!--
-		<modules>
-		<module>marytts-en-US</module>
-		<module>marytts-en-GB</module>
-		</modules>
-	-->
 
 	<dependencyManagement>
 		<dependencies>
@@ -176,7 +179,7 @@
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.8.2</version>
+				<version>4.11</version>
 			</dependency>
 
 			<dependency>
@@ -263,12 +266,12 @@
 			<dependency>
 				<groupId>org.apache.opennlp</groupId>
 				<artifactId>opennlp-maxent</artifactId>
-				<version>3.0.1-incubating</version>
+				<version>3.0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.opennlp</groupId>
 				<artifactId>opennlp-tools</artifactId>
-				<version>1.5.1-incubating</version>
+				<version>1.5.3</version>
 			</dependency>
 
 			<dependency>
@@ -323,68 +326,35 @@
 		</repository>
 	</repositories>
 
-	<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
-	<profiles>
-		<profile>
-			<id>maven-3</id>
-			<activation>
-				<file>
-					<!-- This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
-					<exists>${basedir}</exists>
-				</file>
-			</activation>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-site-plugin</artifactId>
-							<version>3.0-beta-3</version>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-				<plugins>
-					<plugin>
-						<artifactId>maven-site-plugin</artifactId>
-						<!--
-							<executions>
-							<execution>
-							<id>attach-descriptor</id>
-							<goals>
-							<goal>attach-descriptor</goal>
-							</goals>
-							</execution>
-							</executions>
-						-->
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<build>
-		<!-- To define the plugin version in your parent POM -->
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.4.2</version>
 				</plugin>
+
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>2.2</version>
+					<version>3.3</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.wagon</groupId>
+							<artifactId>wagon-ssh-external</artifactId>
+							<version>2.6</version>
+						</dependency>
+					</dependencies>
 				</plugin>
+
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.3</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
+
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
@@ -393,6 +363,7 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<version>1.1</version>
@@ -412,23 +383,23 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 			<!-- Unit tests -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.8</version>
 				<configuration>
 					<!--forkMode>pertest</forkMode -->
-					<argLine>-Xms256m -Xmx512m</argLine>
+					<argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m</argLine>
 					<excludes>
 						<!--exclude>**/util/**/*.java</exclude -->
 						<exclude>**/modules/MaryModuleTestCase.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
+			
 			<!-- Integration tests -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.8</version>
 				<executions>
@@ -453,8 +424,8 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.1.2</version>
 				<executions>
@@ -474,14 +445,52 @@
 	<!-- Reports generated when executing 'mvn site' -->
 	<reporting>
 		<plugins>
-			<!-- Generate a number of generic site description pages: -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.2</version>
+				<version>2.7</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+              				<!-- <report>dependencies</report> -->
+							<report>index</report>
+							<report>project-team</report>
+							<report>mailing-list</report>
+							<report>cim</report>
+							<report>issue-tracking</report>
+							<report>license</report>
+							<report>scm</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
-			<!-- Look for duplicate code (CPD): -->
+			
+			<!-- Generate javadoc -->
 			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<destDir>javadoc</destDir>
+					<!-- TODO temporarily skip this -->
+					<skip>true</skip>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>default</id>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			
+			<!-- Look for duplicate code (CPD): -->
+			<!-- <plugin>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
@@ -492,21 +501,23 @@
 					<reportSets>
 						<reportSet>
 							<reports>
-								<!--report>pmd</report -->
+								<report>pmd</report>
 								<report>cpd</report>
 							</reports>
 						</reportSet>
 					</reportSets>
 				</configuration>
-			</plugin>
+			</plugin> -->
+			
 			<!-- Check style guidelines -->
-			<!--plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.6</version>
-				</plugin -->
+			</plugin> -->
+
 			<!-- Look for typical programming mistakes: -->
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<version>2.3.1</version>
@@ -514,17 +525,19 @@
 					<findbugsXmlOutput>true</findbugsXmlOutput>
 					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
 					<xmlOutput>true</xmlOutput>
-					<!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile -->
+					<excludeFilterFile>findbugs-excludes.xml</excludeFilterFile>
 				</configuration>
-			</plugin>
-			<!-- Measure the test code coverage: -->
-			<plugin>
+			</plugin> -->
+			
+ 			<!-- Measure the test code coverage: -->
+			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>emma-maven-plugin</artifactId>
 				<version>1.0-alpha-3</version>
-			</plugin>
+			</plugin> -->
+			
 			<!-- Web page presenting unit test results: -->
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
 				<version>2.7.1</version>
@@ -535,25 +548,16 @@
 						</reports>
 					</reportSet>
 				</reportSets>
-			</plugin>
+			</plugin> -->
+			
 			<!-- Number of lines of code: -->
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>javancss-maven-plugin</artifactId>
 				<version>2.0</version>
-			</plugin>
+			</plugin> -->
 
-			<!-- Generate javadoc: -->
-			<!-- deactivating for now because it triggers a fork for each subproject -->
-			<!--
-				<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.7</version>
-				</plugin>
-			-->
 		</plugins>
 	</reporting>
-
 
 </project>
