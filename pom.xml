@@ -43,6 +43,14 @@
 			<id>sathishpc</id>
 		</developer>
 		<developer>
+			<name>Fabio Tesser</name>
+			<id>ftesser</id>
+		</developer>
+		<developer>
+			<name>Giulio Paci</name>
+			<id>giuliopaci</id>
+		</developer>
+		<developer>
 			<name>Maureen Tanuadji</name>
 			<id>mochanz</id>
 		</developer>
@@ -66,9 +74,6 @@
 			<name>Sacha Krstulović</name>
 		</contributor>
 		<contributor>
-			<name>Giulio Paci</name>
-		</contributor>
-		<contributor>
 			<name>Benjamin Roth</name>
 		</contributor>
 		<contributor>
@@ -76,9 +81,6 @@
 		</contributor>
 		<contributor>
 			<name>Jochen Steigner</name>
-		</contributor>
-		<contributor>
-			<name>Fabio Tesser</name>
 		</contributor>
 		<contributor>
 			<name>Oytun Türk</name>
