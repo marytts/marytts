@@ -475,7 +475,7 @@ public class DBHandler {
             "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
             "rev_page int(10) unsigned NOT NULL," +
             "rev_text_id int(10) unsigned NOT NULL," +
-            "rev_comment tinyblob NOT NULL," +
+            "rev_comment blob NOT NULL," +
             "rev_user int(10) unsigned NOT NULL," +
             "rev_user_text varchar(255) NOT NULL, " +
             "rev_timestamp binary(14) NOT NULL, " +
@@ -593,7 +593,7 @@ public class DBHandler {
             "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
             "rev_page int(10) unsigned NOT NULL," +
             "rev_text_id int(10) unsigned NOT NULL," +
-            "rev_comment tinyblob NOT NULL," +
+            "rev_comment blob NOT NULL," +
             "rev_user int(10) unsigned NOT NULL," +
             "rev_user_text varchar(255) NOT NULL, " +
             "rev_timestamp binary(14) NOT NULL, " +
