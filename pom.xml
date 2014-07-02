@@ -93,6 +93,10 @@
 			<url>scpexe://mary:/local/mary/www</url>
 		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
+		<repository>
+			<id>bintray</id>
+			<url>https://api.bintray.com/maven/psibre/maven/marytts</url>
+		</repository>
 	</distributionManagement>
 
 	<mailingLists>
@@ -118,9 +122,9 @@
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/marytts/marytts</url>
-		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
-		<developerConnection>scm:git:https://github.com/marytts/marytts.git</developerConnection>
+		<url>https://github.com/psibre/marytts</url>
+		<connection>scm:git:https://github.com/psibre/marytts.git</connection>
+		<developerConnection>scm:git:git@github.com/psibre/marytts.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
