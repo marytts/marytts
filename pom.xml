@@ -95,7 +95,7 @@
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 		<repository>
 			<id>bintray</id>
-			<url>https://api.bintray.com/maven/psibre/maven/marytts</url>
+			<url>https://api.bintray.com/maven/marytts/marytts/marytts</url>
 		</repository>
 	</distributionManagement>
 
