@@ -4,7 +4,7 @@
 
 	<groupId>de.dfki.mary</groupId>
 	<artifactId>marytts</artifactId>
-	<version>5.1-beta3</version>
+	<version>5.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MARY TTS</name>
