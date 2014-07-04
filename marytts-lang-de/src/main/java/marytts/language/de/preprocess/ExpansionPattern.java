@@ -92,7 +92,7 @@ public abstract class ExpansionPattern {
         composite = new CompositeEP();
         expansionPatterns.add(composite);
         for (it = composite.knownTypes().iterator(); it.hasNext();)
-            patternTable.put(it.next(), net);
+            patternTable.put(it.next(), composite);
         date = new DateEP();
         expansionPatterns.add(date);
         for (it = date.knownTypes().iterator(); it.hasNext();)
