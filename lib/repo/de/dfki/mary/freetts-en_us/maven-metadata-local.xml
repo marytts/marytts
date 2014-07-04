@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-  <groupId>com.sun.speech.freetts</groupId>
-  <artifactId>freetts</artifactId>
+  <groupId>de.dfki.mary</groupId>
+  <artifactId>freetts-en_us</artifactId>
   <versioning>
     <release>1.0</release>
     <versions>
       <version>1.0</version>
     </versions>
-    <lastUpdated>20130901103326</lastUpdated>
+    <lastUpdated>20140704125435</lastUpdated>
   </versioning>
 </metadata>

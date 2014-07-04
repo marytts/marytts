@@ -43,21 +43,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.sun.speech.freetts</groupId>
-			<artifactId>freetts</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.speech.freetts</groupId>
-			<artifactId>freetts-de</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.speech.freetts</groupId>
-			<artifactId>freetts-en_us</artifactId>
+			<groupId>de.dfki.lt.jtok</groupId>
+			<artifactId>jtok-core</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>de.dfki.lt.jtok</groupId>
-			<artifactId>jtok-core</artifactId>
+			<groupId>de.dfki.mary</groupId>
+			<artifactId>freetts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.dfki.mary</groupId>
+			<artifactId>freetts-de</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.dfki.mary</groupId>
+			<artifactId>freetts-en_us</artifactId>
 		</dependency>
 
 		<dependency>
