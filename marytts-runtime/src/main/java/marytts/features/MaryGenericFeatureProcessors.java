@@ -588,19 +588,12 @@ public class MaryGenericFeatureProcessors
 
 
 
-    /**
-     * Rails an int. flite never returns an int more than 19 from a feature
-     * processor, we duplicate that behavior here so that our tests will match.
-     * 
-     * @param val
-     *            the value to rail
-     * 
-     * @return val clipped to be between 0 and 19
+    /** 
+     * flite never returns an int more than 19 from a feature processor,
+     * we duplicate that behavior in the processors so that our tests will match.
+     * let's keep this number as a constant for better overview
      */
-    private static int rail(int val)
-    {
-        return val > 19 ? 19 : val;
-    }
+    private static final int RAIL_LIMIT = 19;
 
     private static final String[] ZERO_TO_NINETEEN = new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
         "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"};
@@ -829,10 +822,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHRASE);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null && count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -859,12 +852,12 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 // only tokens with a "ph" attribute count as words:
                 if (e.hasAttribute("ph"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -889,10 +882,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -922,10 +915,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.TOKEN);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -953,10 +946,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.SYLLABLE);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -981,10 +974,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1017,10 +1010,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(syllable, MaryXML.PHONE);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1054,10 +1047,10 @@ public class MaryGenericFeatureProcessors
             if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
             int count = 0;
             Element e = segment;
-            while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null) {
+            while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1082,10 +1075,10 @@ public class MaryGenericFeatureProcessors
             if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
             int count = 0;
             Element e = segment;
-            while ((e = MaryDomUtils.getNextSiblingElement(e)) != null) {
+            while ((e = MaryDomUtils.getNextSiblingElement(e)) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1112,10 +1105,10 @@ public class MaryGenericFeatureProcessors
             tw.setCurrentNode(segment);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1143,10 +1136,10 @@ public class MaryGenericFeatureProcessors
             tw.setCurrentNode(segment);
             int count = 0;
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
  
@@ -1172,10 +1165,10 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return (byte)0;
             int count = 0;
             Element e = syllable;
-            while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null) {
+            while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1201,10 +1194,10 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return (byte)0;
             int count = 0;
             Element e = syllable;
-            while ((e = MaryDomUtils.getNextSiblingElement(e)) != null) {
+            while ((e = MaryDomUtils.getNextSiblingElement(e)) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1646,10 +1639,10 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1677,10 +1670,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1713,12 +1706,12 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 String stress = e.getAttribute("stress");
                 if (stress.equals("1"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1746,12 +1739,12 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 String stress = e.getAttribute("stress");
                 if (stress.equals("1"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1784,12 +1777,12 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 String accent = e.getAttribute("accent");
                 if (!accent.equals(""))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1818,12 +1811,12 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 String accent = e.getAttribute("accent");
                 if (!accent.equals(""))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
   
@@ -1857,12 +1850,12 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 // only count tokens that have a "ph" attribute:
                 if (e.hasAttribute("ph"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1890,12 +1883,12 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.TOKEN);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 // only count tokens that have a "ph" attribute
                 if (e.hasAttribute("ph"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1928,12 +1921,12 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 // only count tokens that have a "ph" attribute:
                 if (e.hasAttribute("ph"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -1961,12 +1954,12 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 // only count tokens that have a "ph" attribute:
                 if (e.hasAttribute("ph"))
                     count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -1999,10 +1992,10 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -2030,10 +2023,10 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHRASE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -2067,13 +2060,13 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 String accent = e.getAttribute("accent");
                 if (!accent.equals(""))
                     break;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
   
@@ -2100,13 +2093,13 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 String accent = e.getAttribute("accent");
                 if (!accent.equals(""))
                     break;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -2138,13 +2131,13 @@ public class MaryGenericFeatureProcessors
                 tw.setCurrentNode(segment);
             }
             Element e;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 String stress = e.getAttribute("stress");
                 if (stress.equals("1"))
                     break;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
   
@@ -2171,13 +2164,13 @@ public class MaryGenericFeatureProcessors
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
             tw.setCurrentNode(segment);
             Element e;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 String stress = e.getAttribute("stress");
                 if (stress.equals("1"))
                     break;
             }
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
     
@@ -2311,7 +2304,7 @@ public class MaryGenericFeatureProcessors
             tw.setCurrentNode(word);
             Element e;
             int count = 0;
-            while ((e = (Element) tw.nextNode()) != null) {
+            while ((e = (Element) tw.nextNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 if (e.hasAttribute("ph")) // a word
                     continue;
@@ -2322,7 +2315,7 @@ public class MaryGenericFeatureProcessors
                 }
             }
             // found punctuation or end of sentence:
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
@@ -2347,7 +2340,7 @@ public class MaryGenericFeatureProcessors
             tw.setCurrentNode(word);
             Element e;
             int count = 0;
-            while ((e = (Element) tw.previousNode()) != null) {
+            while ((e = (Element) tw.previousNode()) != null&& count < RAIL_LIMIT) {
                 count++;
                 if (e.hasAttribute("ph")) // a word
                     continue;
@@ -2358,7 +2351,7 @@ public class MaryGenericFeatureProcessors
                 }
             }
             // found punctuation or start of sentence:
-            return (byte) rail(count);
+            return (byte) count;
         }
     }
 
