@@ -115,7 +115,9 @@ public class Target
         }
     }
 
-    
+    public boolean hasFeatureVector() {
+        return featureVector != null;
+    }
     
     
     /**
