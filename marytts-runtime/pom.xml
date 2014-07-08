@@ -32,7 +32,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>emotionml-checker-java</groupId>
+			<groupId>de.dfki.mary</groupId>
 			<artifactId>emotionml-checker-java</artifactId>
 		</dependency>
 

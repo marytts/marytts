@@ -174,9 +174,9 @@
 			</dependency>
 
 			<dependency>
-				<groupId>emotionml-checker-java</groupId>
+				<groupId>de.dfki.mary</groupId>
 				<artifactId>emotionml-checker-java</artifactId>
-				<version>1.0</version>
+				<version>1.1</version>
 			</dependency>
 
 			<dependency>
@@ -326,6 +326,17 @@
 				<enabled>false</enabled>
 			</snapshots>
 			<url>file://${project.local.repository.path}</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<name>jcenter</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>http://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
 
