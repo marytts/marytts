@@ -79,11 +79,6 @@ public class HTSModel {
   
   //private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
   private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
-  private int durPdf;               /* duration pdf index for this HMM */
-  private int lf0Pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
-  private int mcepPdf[];            /* log f0 pdf indexes for each state of this HMM */
-  private int strPdf[];             /* str pdf indexes for each state of this HMM  */
-  private int magPdf[];             /* str pdf indexes for each state of this HMM  */
 
   private int dur[];                /* duration for each state of this HMM */
   private int totalDur;             /* total duration of this HMM in frames */
@@ -110,9 +105,6 @@ public class HTSModel {
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
   
-  public void setDurPdf(int val){ durPdf = val; }
-  public int getDurPdf(){return durPdf;}
-  
   public void setDur(int i, int val){ dur[i] = val; }
   public int getDur(int i){ return dur[i]; } 
   
@@ -121,18 +113,6 @@ public class HTSModel {
   
   public void setTotalDurMillisec(int val){ totalDurMillisec = val; }
   public int getTotalDurMillisec(){return totalDurMillisec;}
-  
-  public void setLf0Pdf(int i, int val){ lf0Pdf[i] = val; }
-  public int getLf0Pdf(int i){ return lf0Pdf[i]; } 
-  
-  public void setMcepPdf(int i, int val){ mcepPdf[i] = val; }
-  public int getMcepPdf(int i){ return mcepPdf[i]; } 
-  
-  public void setStrPdf(int i, int val){ strPdf[i] = val; }
-  public int getStrPdf(int i){ return strPdf[i]; } 
-  
-  public void setMagPdf(int i, int val){ magPdf[i] = val; }
-  public int getMagPdf(int i){ return magPdf[i]; } 
   
   public void setLf0Mean(int i, int j, double val){ lf0Mean[i][j] = val; }
   public double getLf0Mean(int i, int j){ return lf0Mean[i][j]; } 
@@ -236,20 +216,16 @@ public class HTSModel {
 	int i;  
 	totalDur = 0;
 	dur = new int[nstate];
-	lf0Pdf = new int[nstate];
 	lf0Mean = new double[nstate][];
     lf0Variance = new double[nstate][];
     voiced = new boolean[nstate];
 
-    mcepPdf = new int[nstate];
 	mcepMean = new double[nstate][];
     mcepVariance = new double[nstate][];
 	 
-    strPdf = new int[nstate];
 	strMean = new double[nstate][];
     strVariance = new double[nstate][];
     
-    magPdf = new int[nstate];
 	magMean = new double[nstate][];
     magVariance = new double[nstate][];
     
