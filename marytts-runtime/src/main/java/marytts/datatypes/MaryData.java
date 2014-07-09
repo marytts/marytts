@@ -398,7 +398,7 @@ public class MaryData
         }
         // check that voice locale fits before accepting the voice:
         Locale voiceLocale = null;
-        if (voice != null) voiceLocale = voice.getLocale();
+        voiceLocale = voice.getLocale();
         Locale docLocale = getLocale();
         if (docLocale == null && getType().isXMLType() && getDocument() != null
                 && getDocument().getDocumentElement().hasAttribute("xml:lang")) {
