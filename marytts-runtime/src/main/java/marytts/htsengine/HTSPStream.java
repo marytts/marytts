@@ -188,6 +188,7 @@ public class HTSPStream {
   
   public void setPar(int i, int j, double val){ par[i][j] = val; }
   public double getPar(int i, int j){ return par[i][j]; }
+  public double[] getParVec(int i) { return Arrays.copyOf(par[i], par[i].length); }
   public int getT(){ return nT; }
   
   public void setMseq(int i, int j, double val){ mseq[i][j]=val; }
