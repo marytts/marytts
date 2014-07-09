@@ -226,7 +226,7 @@ public class HTSEngine extends InternalModule
         
     }
  
-    public void setRealisedProsody(List<Element> tokensAndBoundaries, HTSUttModel um) 
+    public static void setRealisedProsody(List<Element> tokensAndBoundaries, HTSUttModel um) 
     throws SynthesisException {
       int i,j, index;
       NodeList no1, no2;
@@ -331,7 +331,7 @@ public class HTSEngine extends InternalModule
      *  creates an scanner object and calls getTargets
      * @param LabFile
      */
-    public List<Target> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
+    public static List<Target> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
         List<Target> targets=null;
         Scanner s = null;
         try {    
@@ -366,7 +366,7 @@ public class HTSEngine extends InternalModule
     }
     
     
-    public List<Target> getTargets(Scanner s, HMMData htsData){
+    public static List<Target> getTargets(Scanner s, HMMData htsData){
         int i;
         //Scanner s = null;
         String nextLine;
@@ -567,8 +567,7 @@ public class HTSEngine extends InternalModule
           um.setNumState(um.getNumState() + cart.getNumStates());
           i++;
           
-          if(firstPh)
-            firstPh = false;
+          firstPh = false;
       }
       
       if(phoneAlignmentForDurations && alignDur != null)

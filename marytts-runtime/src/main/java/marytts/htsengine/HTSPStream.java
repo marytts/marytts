@@ -109,21 +109,31 @@ public class HTSPStream {
   /* GV: Global mean and covariance (diagonal covariance only) */
   private double mean, var;  /* mean and variance for current utt eqs: (16), (17)*/
   private int maxGVIter     = 200;      /* max iterations in the speech parameter generation considering GV */
-  private double GVepsilon  = 1.0E-4;  //1.0E-4;  /* convergence factor for GV iteration */
-  private double minEucNorm = 1.0E-2;  //1.0E-2;  /* minimum Euclid norm of a gradient vector */ 
-  private double stepInit   = 0.1;     /* initial step size */  
-  private double stepDec    = 0.5;     /* step size deceralation factor */
-  private double stepInc    = 1.2;     /* step size acceleration factor */
-  private double w1         = 1.0;     /* weight for HMM output prob. */
-  private double w2         = 1.0;     /* weight for GV output prob. */
-  private double lzero      = (-1.0e+10);  /* ~log(0) */
+  /** convergence factor for GV iteration */
+  private final static double GVepsilon  = 1.0E-4;  //1.0E-4;  
+  /** minimum Euclid norm of a gradient vector */ 
+  private final static double minEucNorm = 1.0E-2;  //1.0E-2;  
+  /** initial step size */
+  private final static double stepInit   = 0.1;
+  /** step size deceralation factor */
+  private final static double stepDec    = 0.5;     
+  /** step size acceleration factor */
+  private final static double stepInc    = 1.2;     
+  /** weight for HMM output prob. */
+  private final static double w1         = 1.0;     
+  /** weight for GV output prob. */
+  private final static double w2         = 1.0;     
+  /** ~log(0) */
+  private final static double lzero      = (-1.0e+10);  
   private double norm       = 0.0; 
   private double GVobj      = 0.0;
   private double HMMobj     = 0.0;
   private double gvmean[];
   private double gvcovInv[];
-  private boolean gvSwitch[];          /* GV flag sequence, to consider or not the frame in gv */
-  private int gvLength;                /* this will be the number of frames for which gv can be calculated */
+  /** GV flag sequence, to consider or not the frame in gv */
+  private boolean gvSwitch[];          
+  /** this will be the number of frames for which gv can be calculated */
+  private int gvLength;                
 
  
   private Logger logger = MaryUtils.getLogger("PStream");

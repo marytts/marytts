@@ -90,8 +90,8 @@ public class Synthesis extends InternalModule
      */
     public synchronized void powerOnSelfTest() throws Error
      {
-            for (Iterator it = waveformSynthesizers.iterator(); it.hasNext(); ) {
-                WaveformSynthesizer ws = (WaveformSynthesizer) it.next();
+            for (Iterator<WaveformSynthesizer> it = waveformSynthesizers.iterator(); it.hasNext(); ) {
+                WaveformSynthesizer ws = it.next();
                 ws.powerOnSelfTest();
             }
      }
