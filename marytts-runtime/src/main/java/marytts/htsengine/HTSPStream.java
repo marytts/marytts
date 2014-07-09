@@ -85,7 +85,8 @@ public class HTSPStream {
   public static final int WLEFT = 0;
   public static final int WRIGHT = 1;	
   
-  private int feaType;     /* type of features it contains */  
+  /** type of features it contains */
+  public final HMMData.FeatureType feaType;
   private int vSize;       /* vector size of observation vector (include static and dynamic features) */
   private int order;       /* vector size of static features */
   private int nT;          /* length, number of frames in utterance */
@@ -139,7 +140,7 @@ public class HTSPStream {
   private Logger logger = MaryUtils.getLogger("PStream");
   
   /* Constructor */
-  public HTSPStream(int vector_size, int utt_length, int fea_type, int maxIterationsGV) throws Exception {
+  public HTSPStream(int vector_size, int utt_length, HMMData.FeatureType fea_type, int maxIterationsGV) throws Exception {
 	/* In the c code for each PStream there is an InitDwin() and an InitPStream() */ 
 	/* - InitDwin reads the window files passed as parameters for example: mcp.win1, mcp.win2, mcp.win3 */
 	/*   for the moment the dynamic window is the same for all MCP, LF0, STR and MAG  */
