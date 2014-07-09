@@ -1585,10 +1585,10 @@ public class HTSVocoder {
        voiced = new boolean[totalFrame];
        
        /* Initialise HTSPStream-s */
-       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
-       strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
-       magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);             
+       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.FeatureType.MGC, 0);
+       strPst = new HTSPStream(strVsize, totalFrame, HMMData.FeatureType.STR, 0);
+       magPst = new HTSPStream(magVsize, totalFrame, HMMData.FeatureType.MAG, 0);             
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1908,8 +1908,8 @@ public class HTSVocoder {
        voiced = new boolean[totalFrame];
        
        /* Initialise HTSPStream-s */
-       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
+       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.FeatureType.MGC, 0);
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1950,7 +1950,7 @@ public class HTSVocoder {
              
        /* load str data */
        if(htsData.getUseMixExc()){
-           strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
+           strPst = new HTSPStream(strVsize, totalFrame, HMMData.FeatureType.STR, 0);
            strData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
            for(i=0; i<totalFrame; i++){
               for(j=0; j<strPst.getOrder(); j++){
@@ -1967,7 +1967,7 @@ public class HTSVocoder {
        /* load mag data */
        n=0;
        if(htsData.getUseFourierMag()){
-           magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);     
+           magPst = new HTSPStream(magVsize, totalFrame, HMMData.FeatureType.MAG, 0);     
            magData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
            for(i=0; i<totalFrame; i++){
              //System.out.print(n + " : "); 

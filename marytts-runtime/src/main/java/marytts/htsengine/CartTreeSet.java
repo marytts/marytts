@@ -108,6 +108,14 @@ public class CartTreeSet {
     public int getStrVsize(){ return strVsize; }
     public int getMagVsize(){ return magVsize; }
     
+    public int getVsize(HMMData.FeatureType type) {
+        switch (type) {
+        case MGC: return mcepVsize;
+        case STR: return strVsize;
+        case MAG: return magVsize;
+        default: return 1; // DUR and LF0
+        }
+    }
     
     /** Loads all the CART trees */
     public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones) 

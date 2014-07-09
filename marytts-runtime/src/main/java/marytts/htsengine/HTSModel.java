@@ -130,7 +130,7 @@ public class HTSModel {
   // set the vector per state
   public void setMcepMean(int i, double val[]){ mcepMean[i] = val; }
   public void setMcepVariance(int i, double val[]){ mcepVariance[i] = val; }
-  
+
   /**
    * Print mean and variance of each state
    */
@@ -236,5 +236,9 @@ public class HTSModel {
     
   } /* method Model, initialise a Model object */
   
+	@Override
+	public String toString() {
+		return getPhoneName();
+	}
   
 } /* class Model */
