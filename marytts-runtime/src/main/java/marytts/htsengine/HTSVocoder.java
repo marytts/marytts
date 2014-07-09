@@ -196,10 +196,7 @@ public class HTSVocoder {
         int vector_size;
         
         stage = htsData.getStage();
-        if(stage != 0)
-          gamma = -1.0 / stage;
-        else
-          gamma = 0.0;
+        gamma = htsData.getGamma();
         use_log_gain = htsData.getUseLogGain();
         
         fprd  = htsData.getFperiod();

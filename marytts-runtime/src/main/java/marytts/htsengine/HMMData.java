@@ -208,6 +208,9 @@ public class HMMData {
 	public double getAlpha() { return alpha; }
 	public double getBeta() { return beta; }
     public int getStage() { return stage; }
+    public double getGamma() {
+        return (stage != 0) ? -1.0 / stage : 0.0;
+    }
     public boolean getUseLogGain(){ return useLogGain; }
 	public double getUV() { return  uv; }
 	public boolean getAlgnst() { return algnst; }
