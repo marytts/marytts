@@ -383,7 +383,7 @@ public class HTSEngineTest {
            
         
          voiced = new boolean[totalFrame];
-         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
+         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
          
          /* load lf0 data */
          /* for lf0 i just need to load the voiced values */

@@ -71,11 +71,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Vector;
 
 import marytts.config.MaryConfig;
@@ -83,6 +85,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.util.FeatureUtils;
+import marytts.htsengine.HMMData.FeatureType;
 import marytts.util.MaryUtils;
 import marytts.util.io.PropertiesAccessor;
 
@@ -99,11 +102,13 @@ public class HMMData {
     	
     /** Number of model and identificator for the models*/
 	public static final int HTS_NUMMTYPE = 5;
-	public static final int DUR = 0;
-	public static final int LF0 = 1;
-	public static final int MGC = 2;
-	public static final int STR = 3;
-	public static final int MAG = 4;
+	public static enum FeatureType  {
+	    DUR, // duration
+	    MGC, // MGC mel-generalized cepstral coefficients
+        LF0, // log(fundamental frequency)
+	    STR, // strength of excitation?
+	    MAG, // fourier magnitudes for pulse generation
+	};
 	
 	public enum PdfFileFormat { dur, lf0, mgc, str, mag, join };
 
@@ -534,5 +539,5 @@ public class HMMData {
     } /* method readMixedExcitationFiltersFile() */
 
 
-	
+
 }

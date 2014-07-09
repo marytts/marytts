@@ -79,6 +79,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marytts.htsengine.HMMData.FeatureType;
 import marytts.signalproc.analysis.Mfccs;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.MaryUtils;
@@ -135,7 +136,7 @@ public class HTSParameterGeneration {
   public boolean getVoiced(int i){ return voiced[i]; }
   public void setVoiced(int i, boolean bval){ voiced[i]=bval; }
   public boolean [] getVoicedArray(){ return voiced; }
-  public void setVoicedArray(boolean []var){ voiced = var; }
+  public void setVoicedArray(boolean []var){ voiced = var; } // only used in HTSEngineTest
 	
   /* Inverse of a given double */
   /* We actually need the inverse of the matrix of covariance, but since this matrix */ 
@@ -180,16 +181,16 @@ public class HTSParameterGeneration {
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
     if( htsData.getPdfMgcStream() != null)
-	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MGC, htsData.getMaxMgcGvIter());
+	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.FeatureType.MGC, htsData.getMaxMgcGvIter());
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
     if( htsData.getPdfLf0Stream() != null)
-      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxLf0GvIter());
+      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.FeatureType.LF0, htsData.getMaxLf0GvIter());
 
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrStream() != null)
-	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxStrGvIter());
+	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.FeatureType.STR, htsData.getMaxStrGvIter());
     if (htsData.getPdfMagStream() != null )
-	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxMagGvIter());
+	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.FeatureType.MAG, htsData.getMaxMagGvIter());
 	   
     
 	uttFrame = lf0Frame = 0;
@@ -288,7 +289,7 @@ public class HTSParameterGeneration {
       		  lf0Pst.setMseq(lf0Frame, k, m.getLf0Mean(state, k));      		 
       		  if( nobound || k==0 )
       			lf0Pst.setIvseq(lf0Frame, k, finv(m.getLf0Variance(state, k)));
-      		  else  /* the variances for dynamic feature are set to inf on v/uv boundary */
+      		  else  /* the variances for dynamic features are set to inf on v/uv boundary */
       			lf0Pst.setIvseq(lf0Frame, k, 0.0);
       		}
     	  }
@@ -312,6 +313,7 @@ public class HTSParameterGeneration {
       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
    
+    // parameter generation for lf0 */
     if(htsData.getUseAcousticModels())
         loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
@@ -347,10 +349,10 @@ public class HTSParameterGeneration {
     }
 	   
     if(debug) {
-        saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MGC);  // no header
-        saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
-        //saveParamMaryFormat(parFileName, mcepPst, HMMData.MGC);
-        //saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
+        saveParam(parFileName+"mcep.bin", mcepPst, HMMData.FeatureType.MGC);  // no header
+        saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.FeatureType.LF0);    // no header
+        //saveParamMaryFormat(parFileName, mcepPst, HMMData.FeatureType.MGC);
+        //saveParamMaryFormat(parFileName, lf0Pst, HMMData.FeatureType.LF0);
      }
 
 	  
@@ -359,7 +361,7 @@ public class HTSParameterGeneration {
   
   
   /* Save generated parameters in a binary file */
-  public void saveParamMaryFormat(String fileName, HTSPStream par, int type){
+  public void saveParamMaryFormat(String fileName, HTSPStream par, HMMData.FeatureType type){
     int t, m, i;
     double ws = 0.025; /* window size in seconds */
     double ss = 0.005; /* skip size in seconds */
@@ -367,7 +369,7 @@ public class HTSParameterGeneration {
     
     try{  
         
-      if(type == HMMData.LF0 ) {          
+      if(type == HMMData.FeatureType.LF0 ) {          
           fileName += ".ptc";
           /*
           DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
@@ -405,7 +407,7 @@ public class HTSParameterGeneration {
          PitchReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
           
           
-      } else if(type == HMMData.MGC ){
+      } else if(type == HMMData.FeatureType.MGC ){
           
         int numfrm =  par.getT();
         int dimension = par.getOrder();
@@ -446,12 +448,12 @@ public class HTSParameterGeneration {
   
   
   /* Save generated parameters in a binary file */
-  public void saveParam(String fileName, HTSPStream par, int type){
+  public void saveParam(String fileName, HTSPStream par, HMMData.FeatureType type){
     int t, m, i;
     try{  
       
       
-      if(type == HMMData.LF0 ) {
+      if(type == HMMData.FeatureType.LF0 ) {
           fileName += ".f0";
           DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
           i=0;
@@ -465,7 +467,7 @@ public class HTSParameterGeneration {
           }
           data_out.close();
           
-      } else if(type == HMMData.MGC ){
+      } else if(type == HMMData.FeatureType.MGC ){
         fileName += ".mgc";
         DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));  
         for(t=0; t<par.getT(); t++)
@@ -505,7 +507,7 @@ public class HTSParameterGeneration {
       interpolateSegments(f0Vector); 
       
       // create a new Lf0Pst with the values from maryXML
-      HTSPStream newLf0Pst  = new HTSPStream(3, f0Vector.size(), HMMData.LF0, htsData.getMaxLf0GvIter());
+      HTSPStream newLf0Pst  = new HTSPStream(3, f0Vector.size(), HMMData.FeatureType.LF0, htsData.getMaxLf0GvIter());
       for(n=0; n<f0Vector.size(); n++)
         newLf0Pst.setPar(n, 0, Math.log(f0Vector.get(n)));
       
@@ -685,7 +687,7 @@ public class HTSParameterGeneration {
         
      
       voiced = new boolean[totalFrame];
-      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
+      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
       
       /* load lf0 data */
       /* for lf0 i just need to load the voiced values */
