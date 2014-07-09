@@ -187,14 +187,13 @@ public class CartTreeSet {
       dd = diffdur;
       // in duration the length of the vector is the number of states.
       for(s=0; s<numStates; s++){
-        data = meanVector[s] + rho * varVector[s];
+        data = (meanVector[s] + rho * varVector[s]) * durscale;
       
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
 //        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
 //          data = data * 0.1;
         
-        data = data * durscale;                  
         m.setDur(s, (int)(data+dd+0.5));
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
