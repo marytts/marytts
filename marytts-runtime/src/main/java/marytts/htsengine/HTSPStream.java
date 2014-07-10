@@ -84,23 +84,35 @@ public class HTSPStream {
 	
   public static final int WLEFT = 0;
   public static final int WRIGHT = 1;	
+  /** width of dynamic window */
+  /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
+  /* pst->dw.max_L is hard-code to 1, for all windows                     */
+  private static final int WIDTH = 3;  
   
   /** type of features it contains */
   public final HMMData.FeatureType feaType;
-  private int vSize;       /* vector size of observation vector (include static and dynamic features) */
-  private int order;       /* vector size of static features */
-  private int nT;          /* length, number of frames in utterance */
-  private int width;       /* width of dynamic window */
+  /** vector size of observation vector (include static and dynamic features) */
+  private final int vSize;       
+  /** vector size of static features */
+  private final int order;       
+  /** length, number of frames in utterance */
+  private int nT;        
   
-  private double par[][];  /* output parameter vector, the size of this parameter is par[nT][vSize] */
+  /** output parameter vector, the size of this parameter is par[nT][vSize] */
+  private double par[][];
   
   
   /* ____________________Matrices for parameter generation____________________ */
-  private double mseq[][];   /* sequence of mean vector */
-  private double ivseq[][];  /* sequence of inversed variance vector */
-  private double g[];        /* for forward substitution */
-  private double wuw[][];    /* W' U^-1 W  */
-  private double wum[];      /* W' U^-1 mu */
+  /** sequence of mean vector */
+  private double mseq[][];   
+  /** sequence of inversed variance vector */
+  private double ivseq[][];  
+  /** for forward substitution */
+  private double g[];        
+  /** W' U^-1 W  */
+  private double wuw[][];    
+  /** W' U^-1 mu */
+  private double wum[];      
   
   /* ____________________Dynamic window ____________________ */
   private HTSDWin dw;       /* Windows used to calculate dynamic features, delta and delta-delta */
@@ -108,8 +120,10 @@ public class HTSPStream {
   
   /* ____________________ GV related variables ____________________*/
   /* GV: Global mean and covariance (diagonal covariance only) */
-  private double mean, var;  /* mean and variance for current utt eqs: (16), (17)*/
-  private int maxGVIter     = 200;      /* max iterations in the speech parameter generation considering GV */
+  /** mean and variance for current utt eqs: (16), (17)*/
+  private double mean, var;
+  /** max iterations in the speech parameter generation considering GV */
+  private final int maxGVIter;    
   /** convergence factor for GV iteration */
   private final static double GVepsilon  = 1.0E-4;  //1.0E-4;  
   /** minimum Euclid norm of a gradient vector */ 
@@ -151,15 +165,13 @@ public class HTSPStream {
     order = vector_size / dw.getNum(); 
     nT = utt_length;
     maxGVIter = maxIterationsGV;
-    width = 3;            /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
-                          /* pst->dw.max_L is hard-code to 1, for all windows                     */
     par = new double[nT][order];
     
     /* ___________________________Matrices initialisation___________________ */
 	mseq = new double[nT][vSize];
 	ivseq = new double[nT][vSize];
 	g = new double[nT];
-	wuw = new double[nT][width];
+	wuw = new double[nT][WIDTH];
 	wum = new double[nT];   
 	
 	/* GV Switch sequence initialisation */
@@ -170,10 +182,8 @@ public class HTSPStream {
     
   }
 
-  public void setVsize(int val){ vSize=val; }
   public int getVsize(){ return vSize; }
   
-  public void setOrder(int val){ order=val; }
   public int getOrder(){ return order; }
   
   public void setPar(int i, int j, double val){ par[i][j] = val; }
@@ -181,21 +191,18 @@ public class HTSPStream {
   public int getT(){ return nT; }
   
   public void setMseq(int i, int j, double val){ mseq[i][j]=val; }
-  public double getMseq(int i, int j){ return mseq[i][j]; }
+  public void setMseq(int i, double[] vec) { mseq[i] = vec; }
+  public void setVseq(int i, double[] vec) {
+      assert vec.length == ivseq[i].length;
+      for (int j = 0; j < ivseq[i].length; j++) {
+          ivseq[i][j] = HTSParameterGeneration.finv(vec[j]);
+      }
+  }
   
   public void setIvseq(int i, int j, double val){ ivseq[i][j]=val; }
-  public double getIvseq(int i, int j){ return ivseq[i][j]; }
-  
-  public void setG(int i, double val){ g[i]=val; }
-  public double getG(int i){ return g[i]; }
-  
-  public void setWUW(int i, int j, double val){ wuw[i][j]=val; }
-  public double getWUW(int i, int j){ return wuw[i][j]; }
-  
-  public void setWUM(int i, double val){ wum[i]=val; }
-  public double getWUM(int i){ return wum[i]; }
   
   public int getDWwidth(int i, int j){ return dw.getWidth(i,j); }
+ 
   
   public void setGvMeanVar(double[] mean, double[] ivar){
       gvmean = mean;
@@ -207,9 +214,19 @@ public class HTSPStream {
       gvLength--;
     gvSwitch[i] = bv;
   }
+
+  /**
+   * dynamic features must be 0.0f for the rightmost (and also leftmost?) parameter prior to optimization 
+   */
+  public void fixDynFeatOnBoundaries() {
+	  for (int k = 1; k < vSize; k++) {
+		  setIvseq(0, k, 0.0);
+		  setIvseq(nT - 1, k, 0.0); // TODO: this might be an off-by-one error 
+	  }
+  }
   
   private void printWUW(int t){
-	for(int i=0; i<width; i++)
+	for(int i=0; i<WIDTH; i++)
 	  System.out.print("WUW[" + t + "][" + i + "]=" + wuw[t][i] + "  ");
 	System.out.println(""); 
   }
@@ -218,30 +235,32 @@ public class HTSPStream {
   /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
    * given pdf sequence */
   public void mlpg(HMMData htsData, boolean useGV) {
-	 int m;
-	 int M = order;
-	 boolean debug=false;
   
      if(htsData.getUseContextDependentGV())
        logger.info("Context-dependent global variance optimization: gvLength = "+ gvLength );
      else
        logger.info("Global variance optimization");
      
-	 for (m=0; m<M; m++) {
-	   calcWUWandWUM( m , debug);
-	   ldlFactorization(debug);   /* LDL factorization                               */
-	   forwardSubstitution();     /* forward substitution in Cholesky decomposition  */
-	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
+	 for (int m=0; m<order; m++) {
+	   calcWUWandWUM(m);
+	   double[][] mywuw = new double[nT][];
+	   for (int x = 0; x < wuw.length; x++) {
+	       mywuw[x] = Arrays.copyOf(wuw[x], wuw[x].length);
+	   }
+	   double[] mywum = Arrays.copyOf(wum, wum.length);
+	   ldlFactorization(mywuw);   /* LDL factorization                               */
+	   forwardSubstitution(mywum,mywuw);     /* forward substitution in Cholesky decomposition  */
+	   backwardSubstitution(m,mywuw);   /* backward substitution in Cholesky decomposition */
 	          
 
        /* Global variance optimisation for MCP and LF0 */
        if( useGV && gvLength>0) {           
         if(htsData.getGvMethodGradient())
-          gvParmGenGradient(m, debug);      // this is the previous method we have in MARY, using the Gradient as in the Paper of Toda et. al. IEICE 2007
+          gvParmGenGradient(m, false);      // this is the previous method we have in MARY, using the Gradient as in the Paper of Toda et. al. IEICE 2007
                                            // if using this method the variances have to be inverse (see note in GVModel set: case NEWTON in gv optimization)
                                            // this method seems to give a better result
         else
-          gvParmGenDerivative(m, debug);  // this is the method in the hts_engine 1.04 the variances are not inverse   
+          gvParmGenDerivative(m, false);  // this is the method in the hts_engine 1.04 the variances are not inverse   
 
          
        }
@@ -261,92 +280,78 @@ public class HTSPStream {
   /* L'C = y , solve for C using backward substitution        */
   /* So having A and B we can find the parameters C.          */
   /* U^{-1} = inverse covariance : inseq[][]                  */
-  private void calcWUWandWUM(int m, boolean debug) {
-	int t, i, j, k,iorder;
-	double WU;
-	double val;
-	
-	for(t=0; t<nT; t++) {
+  private void calcWUWandWUM(int m) {
 	  /* initialise */
-	  wum[t] = 0.0;
-	  for(i=0; i<width; i++)
-		wuw[t][i] = 0.0;
-	  
-	  /* calc WUW & WUM, U is already inverse  */
-	    for(i=0; i<dw.getNum(); i++) {
-	      iorder = i*order+m;
-	      for( j = dw.getWidth(i, WLEFT); j <= dw.getWidth(i, WRIGHT); j++) {
+      Arrays.fill(wum, 0, nT, 0.0);
+      /* for all frames: */
+	  for(int t=0; t<nT; t++) {
+          /* initialise */
+          Arrays.fill(wuw[t], 0.0);
+	    /* calc WUW & WUM, U is already inverse  */
+	    for(int i=0; i<dw.getNum(); i++) {
+	      int iorder = i*order+m;
+	      for(int j = dw.getWidth(i, WLEFT); j <= dw.getWidth(i, WRIGHT); j++) {
 
 	          if( ( t+j>=0 ) && ( t+j<nT ) && ( dw.getCoef(i,-j)!=0.0 )  ) {
-	             
-	             //System.out.format("coef[%d,%d]=%f  ivseq[%d][%d]=%f  ", i, -j, dw.getCoef(i,-j),t+j,iorder, ivseq[t+j][iorder]); 
-	              
-				 WU = dw.getCoef(i,-j) * ivseq[t+j][iorder];
+				 double WU = dw.getCoef(i,-j) * ivseq[t+j][iorder];
 				 
 				 wum[t] += WU * mseq[t+j][iorder];
-				 
-				 //System.out.format("wu=%f wum[%d]=%f iorder=%d\n", WU, t, wum[t], iorder);
-				 
-				 for(k=0; ( k<width ) && ( t+k<nT ); k++)
+				 for(int k=0; ( k<WIDTH ) && ( t+k<nT ); k++)
 				   if( ( k-j<=dw.getWidth(i, 1) ) && ( dw.getCoef(i,(k-j)) != 0.0 ) ) {
 				     wuw[t][k] += WU * dw.getCoef(i,(k-j));
-				     val = WU * dw.getCoef(i,(k-j));
 				   }
 			  }
 		  }		  
 	    }  /* for i */	    
 	}  /* for t */
-	if(debug){ 
-	for(t=0; t<nT; t++) {
+/*	if(debug){ 
+	for(int t=0; t<nT; t++) {
 	  System.out.format("t=%d wum=%f  wuw:", t, wum[t]); 
-      for(k=0; k<wuw[t].length; k++)
+      for(int k=0; k<wuw[t].length; k++)
         System.out.format("%f ", wuw[t][k]);
       System.out.format("\n");
 	}
 	System.out.format("\n");
-	}
+	}*/
   }
   
   
-  /* ldlFactorization: Factorize W'*U^{-1}*W to L*D*L' (L: lower triangular, D: diagonal) */
-  private void ldlFactorization(boolean debug) {
-	int t,i,j;
-	for(t=0; t<nT; t++) {
+  /** ldlFactorization: Factorize W'*U^{-1}*W to L*D*L' (L: lower triangular, D: diagonal) */
+  private static void ldlFactorization(double[][] mywuw) {
+	for(int t=0; t<mywuw.length; t++) {
 		
-	  if(debug){
+	 /* if(debug){
 	    System.out.println("WUW calculation:");
 	    printWUW(t);
-	  }
+	  }*/
 	  
 	  /* I need i=1 for the delay in t, but the indexes i in WUW[t][i] go from 0 to 2 
 	   * so wherever i is used as index i=i-1  (this is just to keep somehow the original 
 	   * c implementation). */
-	  for(i=1; (i<width) && (t-i>=0); i++)  
-		wuw[t][0] -= wuw[t-i][i+1-1] * wuw[t-i][i+1-1] * wuw[t-i][0];
+	  for(int i=1; (i<WIDTH) && (t-i>=0); i++)  
+		mywuw[t][0] -= mywuw[t-i][i] * mywuw[t-i][i] * mywuw[t-i][0];
 	  
-	  for(i=2; i<=width; i++) {
-	    for(j=1; (i+j<=width) && (t-j>=0); j++)
-		  wuw[t][i-1] -= wuw[t-j][j+1-1] * wuw[t-j][i+j-1] * wuw[t-j][0];
-	    wuw[t][i-1] /= wuw[t][0];
+	  for(int i=2; i<=WIDTH; i++) {
+	    for(int j=1; (i+j<=WIDTH) && (t-j>=0); j++)
+		  mywuw[t][i-1] -= mywuw[t-j][j] * mywuw[t-j][i+j-1] * mywuw[t-j][0];
+	    mywuw[t][i-1] /= mywuw[t][0];
 	 
 	  }
-	  if(debug) {
+	  /*if(debug) {
 	    System.out.println("LDL factorization:");
 	    printWUW(t);	
 	    System.out.println();
-	  }
+	  }*/
 	}
 	
   }
   
-  /* forward_Substitution */ 
-  private void forwardSubstitution() {
-	 int t, i;
-	 
-	 for(t=0; t<nT; t++) {
-	   g[t] = wum[t];
-	   for(i=1; (i<width) && (t-i>=0); i++)
-		 g[t] -= wuw[t-i][i+1-1] * g[t-i];  /* i as index should be i-1 */
+  /** forward_Substitution */ 
+  private void forwardSubstitution(double[] mywum, double[][] mywuw) {
+     System.arraycopy(mywum, 0, g, 0, mywum.length);
+	 for(int t=0; t<nT; t++) {
+	   for(int i=1; (i<WIDTH) && (t-i>=0); i++)
+		 g[t] -= mywuw[t-i][i] * g[t-i];  /* i as index should be i-1 */
 	   //System.out.println("  g[" + t + "]=" + g[t]);
 	 }
 	 /*
@@ -355,14 +360,12 @@ public class HTSPStream {
 	 System.out.println(); */
   }
   
-  /* backward_Substitution */
-  private void backwardSubstitution(int m) {
-	 int t, i;
-	 
-	 for(t=(nT-1); t>=0; t--) {
-	   par[t][m] = g[t] / wuw[t][0];
-	   for(i=1; (i<width) && (t+i<nT); i++) {
-		   par[t][m] -= wuw[t][i+1-1] * par[t+i][m]; /* i as index should be i-1 */
+  /** backward_Substitution */
+  private void backwardSubstitution(int m, double[][] mywuw) {
+	 for(int t=(nT-1); t>=0; t--) {
+	   par[t][m] = g[t] / mywuw[t][0];
+	   for(int i=1; (i<WIDTH) && (t+i<nT); i++) {
+		   par[t][m] -= mywuw[t][i] * par[t+i][m]; /* i as index should be i-1 */
 	   }
 	   //System.out.println("  par[" + t + "]["+ m + "]=" + par[t][m]); 
 	 }
@@ -392,7 +395,7 @@ public class HTSPStream {
     convGV(m);
     
     /* recalculate R=WUW and r=WUM */
-    calcWUWandWUM(m, false);
+    calcWUWandWUM(m);
     
     /* iteratively optimize c */
     for (iter=1; iter<=maxGVIter; iter++) {
@@ -441,7 +444,7 @@ public class HTSPStream {
       convGV(m);
       
       /* recalculate R=WUW and r=WUM */
-      calcWUWandWUM(m, false);
+      calcWUWandWUM(m);
       
       /* iteratively optimize c */
       for (iter=1; iter<=maxGVIter; iter++) {
@@ -529,7 +532,7 @@ public class HTSPStream {
    /* calculate g = R*c = WUW*c*/
    for(t=0; t<nT; t++) {
      g[t] = wuw[t][0] * par[t][m];
-     for(i=2; i<=width; i++){   /* width goes from 0 to 2  width=3 */
+     for(i=2; i<=WIDTH; i++){   /* WIDTH goes from 0 to 2  WIDTH=3 */
        if( t+i-1 < nT)
          g[t] += wuw[t][i-1] * par[t+i-1][m];      /* i as index should be i-1 */
        if( t-i+1 >= 0 )
@@ -587,7 +590,7 @@ public class HTSPStream {
       /* calculate g = R*c = WUW*c*/
       for(t=0; t<nT; t++) {
         g[t] = wuw[t][0] * par[t][m];
-        for(i=2; i<=width; i++){   /* width goes from 0 to 2  width=3 */
+        for(i=2; i<=WIDTH; i++){   /* WIDTH goes from 0 to 2  WIDTH=3 */
           if( t+i-1 < nT)
             g[t] += wuw[t][i-1] * par[t+i-1][m];      /* i as index should be i-1 */
           if( t-i+1 >= 0 )

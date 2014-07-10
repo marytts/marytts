@@ -70,6 +70,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +102,6 @@ public class HTSParameterGeneration {
   public static final double INFTY2  = ((double) 1.0e+19);
   public static final double INVINF  = ((double) 1.0e-38);
   public static final double INVINF2 = ((double) 1.0e-19);
-  public static final double LTPI    = 1.83787706640935;    /* log(2*PI) */
 	
 
   private HTSPStream mcepPst = null;
@@ -114,27 +114,18 @@ public class HTSParameterGeneration {
   
   private Logger logger = MaryUtils.getLogger("ParameterGeneration");
   
-  public double getMcep(int i, int j){ return mcepPst.getPar(i, j); }
-  public int getMcepOrder(){ return mcepPst.getOrder(); }
-  public int getMcepT(){ return mcepPst.getT(); }
   public HTSPStream getMcepPst(){ return mcepPst;}
   public void setMcepPst(HTSPStream var){ mcepPst = var; };
   
-  public double getStr(int i, int j){ return strPst.getPar(i, j); }
-  public int getStrOrder(){ return strPst.getOrder(); }
   public HTSPStream getStrPst(){ return strPst; }
+  public void setStrPst(HTSPStream var){ strPst = var; };
   
-  public double getMag(int i, int j){ return magPst.getPar(i, j); }
-  public int getMagOrder(){ return magPst.getOrder(); }
   public HTSPStream getMagPst(){ return magPst; }
+  public void setMagPst(HTSPStream var){ magPst = var; };
   
-  public double getLf0(int i, int j){ return lf0Pst.getPar(i, j); }
-  public int getLf0Order(){ return lf0Pst.getOrder(); }
   public HTSPStream getlf0Pst(){ return lf0Pst;}
   public void setlf0Pst(HTSPStream var){ lf0Pst = var; };
   
-  public boolean getVoiced(int i){ return voiced[i]; }
-  public void setVoiced(int i, boolean bval){ voiced[i]=bval; }
   public boolean [] getVoicedArray(){ return voiced; }
   public void setVoicedArray(boolean []var){ voiced = var; } // only used in HTSEngineTest
 	
@@ -149,29 +140,14 @@ public class HTSParameterGeneration {
 	if( x <= INVINF2 && x >= 0 ) return INFTY;
 	if( x >= -INVINF2 && x < 0 ) return -INFTY;
 	
-	return ( 1.0 / x );
+	return 1.0 / x;
 	  
   }
   /** HTS maximum likelihood parameter generation
    * @param um  : utterance model sequence after processing Mary context features
    * @param ms  : HMM pdfs model set.
    */
-  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData) throws Exception{
-      htsMaximumLikelihoodParameterGeneration(um, htsData, "", false);
-  }
-  
-  /** HTS maximum likelihood parameter generation
-  * @param um  : utterance model sequence after processing Mary context features
-  * @param ms  : HMM pdfs model set.
-  * @param parFileName : file name to save parameters
-  * @param debug : true for more debug information
-  */
-  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String parFileName, boolean debug) throws Exception{
-	  
-	int frame, uttFrame, lf0Frame;
-	int state, lw, rw, k, n, i, numVoicedInModel;
-	boolean nobound, gvSwitch;
-    HTSModel m;
+  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, final HMMData htsData) throws Exception{
     CartTreeSet ms = htsData.getCartTreeSet();
     
 	/* Initialisation of PStream objects */
@@ -193,94 +169,69 @@ public class HTSParameterGeneration {
 	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.FeatureType.MAG, htsData.getMaxMagGvIter());
 	   
     
-	uttFrame = lf0Frame = 0;
+    int lf0Frame = 0; // counts voiced frames
+	int uttFrame = 0; // counts all frames
 	voiced = new boolean[um.getTotalFrame()];
 	
-	for(i=0; i<um.getNumUttModel(); i++){
-        m = um.getUttModel(i);
-        numVoicedInModel = 0;
-        for(state=0; state<ms.getNumStates(); state++)
-      	 for(frame=0; frame<m.getDur(state); frame++) {
-      		voiced[uttFrame] = m.getVoiced(state);
-      		uttFrame++;
-      		if(m.getVoiced(state)){
-      		  lf0Frame++;
-              numVoicedInModel++;
-            }
+	// local variables for faster access
+	int msNumStates = ms.getNumStates();
+	int totalFrames = um.getTotalFrame();
+	for(int i=0; i<um.getNumUttModel(); i++){
+        HTSModel m = um.getUttModel(i);
+        int numVoicedInModel = 0;
+        for(int state=0; state<msNumStates; state++) {
+            Arrays.fill(voiced, uttFrame, uttFrame += m.getDur(state), m.getVoiced(state));
+      		if (m.getVoiced(state)) 
+      		  lf0Frame += m.getDur(state);
+
       	 }
-        m.setNumVoiced(numVoicedInModel);
     }
 	/* mcepframe and lf0frame are used in the original code to initialise the T field */
 	/* in each pst, but here the pst are already initialised .... */
 	logger.debug("utteranceFrame=" + uttFrame + " lf0frame=" + lf0Frame);
-	totalUttFrame = uttFrame;
-	totalLf0Frame = lf0Frame;
+	// Step 1: initialize fields in the parameter streams
 	uttFrame = 0;
 	lf0Frame = 0;
 	
 	/* copy pdfs */
-	for(i=0; i<um.getNumUttModel(); i++){
-      m = um.getUttModel(i);
-      gvSwitch = m.getGvSwitch();
-      for(state=0; state<ms.getNumStates(); state++) {
+	for(int i=0; i<um.getNumUttModel(); i++){
+      HTSModel m = um.getUttModel(i);
+      boolean gvSwitch = m.getGvSwitch();
+      for(int state=0; state<msNumStates; state++) {
     	         
-      	for(frame=0; frame<m.getDur(state); frame++) {
+      	for(int frame=0; frame<m.getDur(state); frame++) {
             
-          //System.out.println("uttFrame=" + uttFrame + "  phone frame=" + frame + "  phone state=" + state);
-             
       	  /* copy pdfs for mcep */
           if( mcepPst !=null ) {
-      	    for(k=0; k<ms.getMcepVsize(); k++){
-      		  mcepPst.setMseq(uttFrame, k, m.getMcepMean(state, k));
-      		  // check the borders, if frame is bound or not
-      		  if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= mcepPst.getOrder() )
-      		    mcepPst.setIvseq(uttFrame, k, 0.0);
-      		  else
-      		    mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
-      	    }
+            mcepPst.setMseq(uttFrame, m.getMean(FeatureType.MGC, state));
+            mcepPst.setVseq(uttFrame, m.getVariance(FeatureType.MGC, state));
       	    if(!gvSwitch) 
       	      mcepPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for str */
           if( strPst !=null ) {
-      	    for(k=0; k<ms.getStrVsize(); k++){
-      		  strPst.setMseq(uttFrame, k, m.getStrMean(state, k));
-      		  
-      		  // check the borders, if frame is bound or not
-              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= strPst.getOrder() )
-                strPst.setIvseq(uttFrame, k, 0.0);
-              else
-                strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
-      	    }
+            strPst.setMseq(uttFrame, m.getMean(FeatureType.STR, state));
+            strPst.setVseq(uttFrame, m.getVariance(FeatureType.STR, state));
       	    if(!gvSwitch) 
               strPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for mag */
           if( magPst != null ) {
-      	    for(k=0; k<ms.getMagVsize(); k++){
-      		  magPst.setMseq(uttFrame, k, m.getMagMean(state, k));
-      		  
-      		  // check the borders, if frame is bound or not
-              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= magPst.getOrder() )
-                magPst.setIvseq(uttFrame, k, 0.0);
-              else
-                magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
-    	    }
-      	    if(!gvSwitch) 
+            magPst.setMseq(uttFrame, m.getMean(FeatureType.MAG,state));
+            magPst.setVseq(uttFrame, m.getVariance(FeatureType.MAG, state));
+     	    if(!gvSwitch) 
               magPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdfs for lf0 */
           if( lf0Pst != null && !htsData.getUseAcousticModels() ) {
-      	  for(k=0; k<ms.getLf0Stream(); k++){
-      		lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
-      		rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
-      		nobound = true;
+      	  for(int k=0; k<ms.getLf0Stream(); k++){
+      		boolean nobound = true;
       		/* check if current frame is voiced/unvoiced boundary or not */
-      		for(n=lw; n<=rw; n++)
-      		  if( (uttFrame+n) <= 0 || um.getTotalFrame() <= (uttFrame+n))
+      		for(int n=lf0Pst.getDWwidth(k, HTSPStream.WLEFT); n<=lf0Pst.getDWwidth(k, HTSPStream.WRIGHT); n++)
+      		  if( (uttFrame+n) <= 0 || totalFrames <= (uttFrame+n))
       			 nobound = false;
       		  else
       			 nobound = ( nobound && voiced[uttFrame+n] );
@@ -305,12 +256,24 @@ public class HTSParameterGeneration {
       } /* for each state in this model */
 	}  /* for each model in this utterance */ 
 			
+	GVModelSet gvms = htsData.getGVModelSet();
+	
+	// Step 2: set dynamic features to infinity on the borders for MGC/STR/MAG
+	if (mcepPst != null)
+		mcepPst.fixDynFeatOnBoundaries();
+	if (strPst != null)
+		strPst.fixDynFeatOnBoundaries();
+	if (magPst != null)
+		magPst.fixDynFeatOnBoundaries();
+		
+	// Step 3: optimize individual parameter streams
+		
 	/* parameter generation for mcep */  
     if( mcepPst != null ) {
 	  logger.info("Parameter generation for MGC: ");
-	  if(htsData.getUseGV())
-	    mcepPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMgc(), htsData.getGVModelSet().getGVcovInvMgc()); 
-      mcepPst.mlpg(htsData, htsData.getUseGV());
+      if (htsData.getUseGV() && (htsData.getPdfMgcGVStream() != null))
+	    mcepPst.setGvMeanVar(gvms.getGVmeanMgc(), gvms.getGVcovInvMgc()); 
+       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
    
     // parameter generation for lf0 */
@@ -318,12 +281,11 @@ public class HTSParameterGeneration {
         loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
         logger.info("Parameter generation for LF0: ");
-        if(htsData.getUseGV())
-          lf0Pst.setGvMeanVar(htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0()); 
+        if (htsData.getUseGV() && (htsData.getPdfLf0GVStream() != null))
+        	lf0Pst.setGvMeanVar(gvms.getGVmeanLf0(),gvms.getGVcovInvLf0());
         lf0Pst.mlpg(htsData, htsData.getUseGV());
         // here we need set realisedF0
-        //htsData.getCartTreeSet().getNumStates()
-        setRealisedF0(lf0Pst, um, ms.getNumStates());
+        setRealisedF0(lf0Pst, um, msNumStates);
     }  
  
 	/* parameter generation for str */
@@ -332,7 +294,7 @@ public class HTSParameterGeneration {
       logger.debug("Parameter generation for STR ");
       if(htsData.getUseGV() && (htsData.getPdfStrGVStream() != null) ){
         useGV = true;
-        strPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());
+        strPst.setGvMeanVar(gvms.getGVmeanStr(),gvms.getGVcovInvStr());
       }
       strPst.mlpg(htsData, useGV);
     }
@@ -343,19 +305,11 @@ public class HTSParameterGeneration {
       logger.info("Parameter generation for MAG ");
       if(htsData.getUseGV() && (htsData.getPdfMagGVStream() != null) ){
         useGV = true;
-        magPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());
+        magPst.setGvMeanVar(gvms.getGVmeanMag(), gvms.getGVcovInvMag());
       }
 	  magPst.mlpg(htsData, useGV);
     }
-	   
-    if(debug) {
-        saveParam(parFileName+"mcep.bin", mcepPst, HMMData.FeatureType.MGC);  // no header
-        saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.FeatureType.LF0);    // no header
-        //saveParamMaryFormat(parFileName, mcepPst, HMMData.FeatureType.MGC);
-        //saveParamMaryFormat(parFileName, lf0Pst, HMMData.FeatureType.LF0);
-     }
 
-	  
   }  /* method htsMaximumLikelihoodParameterGeneration */
   
   
@@ -523,11 +477,11 @@ public class HTSParameterGeneration {
       
       int index[] = new int[2];
       double value[] = new double[2];
-      Pattern p = Pattern.compile("(\\d+,\\d+)");       
       int key, n, interval;
       double valF0, lastValF0;  
       
       if(maryXmlF0 != null) {
+	    Pattern p = Pattern.compile("(\\d+,\\d+)");     
           Matcher xml = p.matcher(maryXmlF0);        
           SortedMap<Integer,Double> f0Map = new TreeMap<Integer, Double>();
           int numF0s=0;
@@ -607,21 +561,16 @@ public class HTSParameterGeneration {
  
   
   private void setRealisedF0(HTSPStream lf0Pst, HTSUttModel um, int numStates) {
-      int i, t, k, numVoicedInModel;      
-      HTSModel m;
-      int state, frame;            
-      String formattedF0; 
-      float f0;
-      t=0;      
-      for(i=0; i<um.getNumUttModel(); i++){
-        m = um.getUttModel(i);
-        numVoicedInModel = m.getNumVoiced();
-        formattedF0 = "";
-        k=1;
-        for(state=0; state<numStates; state++) {
-          for(frame=0; frame<m.getDur(state); frame++){
+      int t = 0; int vt = 0;
+      for(int i=0; i<um.getNumUttModel(); i++){
+        HTSModel m = um.getUttModel(i);
+        int numVoicedInModel = m.getNumVoiced();
+        String formattedF0 = "";
+        int k=1;
+        for(int state=0; state<numStates; state++) {
+          for(int frame=0; frame<m.getDur(state); frame++){
             if( voiced[t++] ){
-                f0 = (float)Math.exp(lf0Pst.getPar(i,0));
+                float f0 = (float)Math.exp(lf0Pst.getPar(vt++,0));
                 formattedF0 += "(" + Integer.toString((int)((k*100.0)/numVoicedInModel)) + "," + Integer.toString((int)f0) + ")";
                 k++;  
             }
@@ -636,80 +585,6 @@ public class HTSParameterGeneration {
   }
   
 
-  
-  
-  /***
-   * Load logf0, in HTS format, create a voiced array and set this values in pdf2par
-   * This contour should be aligned with the durations, so the total duration in frames should be the same as in the lf0 file 
-   * @param lf0File: in HTS formant 
-   * @param totalDurationFrames: the total duration in frames can be calculated as:
-   *                             totalDurationFrames = totalDurationInSeconds / (framePeriodInSamples / SamplingFrequencyInHz)
-   * @param pdf2par: HTSParameterGeneration object
-   * @throws Exception If the number of frames in the lf0 file is not the same as represented in the total duration (in frames).
-   */
-  public void loadLogF0FromExternalFile(String lf0File, int totalDurationFrames) throws Exception{
-      
-      LEDataInputStream lf0Data;
-      
-      int lf0Vsize = 3;
-      int totalFrame = 0;
-      int lf0VoicedFrame = 0;
-      float fval;  
-      lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
-      
-      /* First i need to know the size of the vectors */
-      try { 
-        while (true) {
-          fval = lf0Data.readFloat();
-          totalFrame++;  
-          if(fval>0)
-           lf0VoicedFrame++;
-        } 
-      } catch (EOFException e) { }
-      lf0Data.close();
-      
-      // Here we need to check that the total duration in frames is the same as the number of frames
-      // (NOTE: it can be a problem afterwards when the durations per phone are aligned to the lenght of each state
-      // in htsEngine._processUtt() )         
-      if( totalDurationFrames > totalFrame){
-        throw new Exception("The total duration in frames (" +  totalDurationFrames + ") is greater than the number of frames in the lf0File (" + 
-             totalFrame + "): " + lf0File + "\nIt can be fixed to some extend using a smaller value for the variable: newStateDurationFactor");
-      } else if( totalDurationFrames < totalFrame ){
-        if (Math.abs(totalDurationFrames-totalFrame) < 5)
-          System.out.println("Warning: The total duration in frames (" +  totalDurationFrames + ") is smaller than the number of frames in the lf0 file (" 
-            + totalFrame + "): " + lf0File + "\n         It can be fixed to some extend using a greater value for the variable: newStateDurationFactor");
-        else
-          throw new Exception("The total duration in frames (" +  totalDurationFrames + ") is smaller than the number of frames in the lf0File (" + 
-              totalFrame + "): " + lf0File + "\nIt can be fixed to some extend using a greater value for the variable: newStateDurationFactor");
-        
-      } else
-        System.out.println("totalDurationFrames = " + totalDurationFrames + "  totalF0Frames = " + totalFrame);  
-        
-     
-      voiced = new boolean[totalFrame];
-      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
-      
-      /* load lf0 data */
-      /* for lf0 i just need to load the voiced values */
-      lf0VoicedFrame = 0;
-      lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
-      for(int i=0; i<totalFrame; i++){
-        fval = lf0Data.readFloat();  
-        if(fval < 0){
-          voiced[i] = false;
-          //System.out.println("frame: " + i + " = 0.0");
-        }
-        else{
-          voiced[i] = true;
-          lf0Pst.setPar(lf0VoicedFrame, 0, fval);
-          lf0VoicedFrame++;
-          //System.out.format("frame: %d = %.2f\n", i, fval);
-        }
-      }
-      lf0Data.close();
-      
-  }
- 
   
   
 } /* class ParameterGeneration */

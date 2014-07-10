@@ -196,7 +196,7 @@ public class HMMParameterExtractor extends VoiceImportComponent {
           
           /* Process label file of Mary context features and creates UttModel um.   */
           feaFile      = contextFeaDir + file + pfeatExt;
-          hmm_tts.processUttFromFile(feaFile, um, htsData);
+          um = hmm_tts.processUttFromFile(feaFile, htsData);
             
           
           if(getProp(PLAB).equals("true")){
@@ -231,7 +231,7 @@ public class HMMParameterExtractor extends VoiceImportComponent {
               boolean debug = true;  /* with debug=true it saves the generated parameters  
                                         f0 and mfcc in parFile.f0 and parFile.mfcc in Mary format. */
               parFile      = outputDir + file;            /* generated parameters mfcc and f0, Mary format */
-              pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, parFile, debug);
+              pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
           }
           
           if(getProp(PWAVE).equals("true")){
