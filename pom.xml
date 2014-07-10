@@ -42,6 +42,14 @@
 			<id>sathishpc</id>
 		</developer>
 		<developer>
+			<name>Fabio Tesser</name>
+			<id>ftesser</id>
+		</developer>
+		<developer>
+			<name>Giulio Paci</name>
+			<id>giuliopaci</id>
+		</developer>
+		<developer>
 			<name>Maureen Tanuadji</name>
 			<id>mochanz</id>
 		</developer>
@@ -65,9 +73,6 @@
 			<name>Sacha Krstulović</name>
 		</contributor>
 		<contributor>
-			<name>Giulio Paci</name>
-		</contributor>
-		<contributor>
 			<name>Benjamin Roth</name>
 		</contributor>
 		<contributor>
@@ -75,9 +80,6 @@
 		</contributor>
 		<contributor>
 			<name>Jochen Steigner</name>
-		</contributor>
-		<contributor>
-			<name>Fabio Tesser</name>
 		</contributor>
 		<contributor>
 			<name>Oytun Türk</name>
@@ -89,7 +91,7 @@
 
 	<distributionManagement>
 		<site>
-			<id>dfki</id>
+			<id>DFKI</id>
 			<url>scpexe://mary:/local/mary/www</url>
 		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
@@ -117,7 +119,7 @@
 	</mailingLists>
 
 	<issueManagement>
-		<system>github</system>
+		<system>GitHub</system>
 		<url>https://github.com/marytts/marytts/issues/</url>
 	</issueManagement>
 
@@ -127,6 +129,11 @@
 		<developerConnection>scm:git:git@github.com/psibre/marytts.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://buildhive.cloudbees.com/job/marytts/</url>
+	</ciManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -466,14 +473,16 @@
 				<reportSets>
 					<reportSet>
 						<reports>
-              				<!-- <report>dependencies</report> -->
 							<report>index</report>
+							<report>summary</report>
 							<report>project-team</report>
-							<report>mailing-list</report>
-							<report>cim</report>
-							<report>issue-tracking</report>
 							<report>license</report>
+							<report>mailing-list</report>
+							<report>issue-tracking</report>
 							<report>scm</report>
+							<report>cim</report>
+							<report>modules</report>
+							<report>dependency-management</report>
 						</reports>
 					</reportSet>
 				</reportSets>
