@@ -36,7 +36,6 @@ import marytts.unitselection.select.UnitSelector;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.UserDataHandler;
 
 /**
  * Base class for acoustic modeling; specific Models should extend this and
@@ -287,22 +286,11 @@ public abstract class Model {
 			String phone = UnitSelector.getPhoneSymbol(element);
 			Target target = new Target(phone, element);
 			targets.add(target);
-			element.setUserData("target", target, new UserDataHandler() {
-				public void handle(short operation, String key, Object data,
-						Node src, Node dest) {
-					if ((operation == UserDataHandler.NODE_IMPORTED
-							|| operation == UserDataHandler.NODE_CLONED || operation == UserDataHandler.NODE_ADOPTED)
-							&& key == "target") {
-						dest.setUserData(key, data, this);
-					}
-				}
-			});
-		}
-		// compute FeatureVectors for Targets:
-		for (Target target : targets) {
+			// compute FeatureVectors for Targets:
 			FeatureVector targetFeatureVector = featureComputer
 					.computeFeatureVector(target);
 			target.setFeatureVector(targetFeatureVector); // this is critical!
+			element.setUserData("target", target, Target.targetFeatureCloner);
 		}
 		return targets;
 	}

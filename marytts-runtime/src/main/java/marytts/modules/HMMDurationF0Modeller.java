@@ -744,7 +744,7 @@ public class HMMDurationF0Modeller extends InternalModule
   public String HmmF0Generation(HTSUttModel um, HMMData htsData) throws Exception{
       
     int frame, uttFrame, lf0Frame;
-    int hmmState, lw, rw, k, n, i;
+    int hmmState, k, n, i;
     boolean nobound;
     HTSModel m;
     HTSPStream lf0Pst  = null;
@@ -779,8 +779,8 @@ public class HMMDurationF0Modeller extends InternalModule
           //System.out.println("uttFrame=" + uttFrame + "  phone frame=" + frame + "  phone hmmState=" + hmmState);
           /* copy pdfs for lf0 */ 
           for(k=0; k<ms.getLf0Stream(); k++){
-            lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
-            rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
+            int lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
+            int rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
             nobound = true;
             /* check if current frame is voiced/unvoiced boundary or not */
             for(n=lw; n<=rw; n++)

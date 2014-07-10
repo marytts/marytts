@@ -37,7 +37,6 @@ import marytts.util.dom.MaryDomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.traversal.TreeWalker;
 
 
@@ -174,16 +173,7 @@ public class TargetFeatureLister extends InternalModule
             Target t = (Target) sOrB.getUserData("target");
             if (t == null) {
                 t = new Target(phone, sOrB);
-                sOrB.setUserData("target", t, new UserDataHandler() {
-                    public void handle(short operation, String key, Object data, Node src, Node dest) {
-                        if ((operation == UserDataHandler.NODE_IMPORTED 
-                         || operation == UserDataHandler.NODE_CLONED
-                         || operation == UserDataHandler.NODE_ADOPTED)
-                         && key == "target") {
-                            dest.setUserData(key, data, this);
-                        }
-                    }
-                });
+                sOrB.setUserData("target", t, Target.targetFeatureCloner);
             }
             targets.add(t);
         }

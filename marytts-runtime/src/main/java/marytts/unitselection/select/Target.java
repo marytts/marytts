@@ -29,7 +29,8 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
-
+import org.w3c.dom.Node;
+import org.w3c.dom.UserDataHandler;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -118,6 +119,18 @@ public class Target
     public boolean hasFeatureVector() {
         return featureVector != null;
     }
+
+    public static UserDataHandler targetFeatureCloner = new UserDataHandler() {
+        public void handle(short operation, String key, Object data, Node src, Node dest) {
+            if (operation == UserDataHandler.NODE_CLONED
+                 && key == "target") {
+                dest.setUserData(key, data, this);
+		System.err.println("yay");
+            } else {
+		System.err.println("nay");
+	}
+        }
+    };
     
     
     /**
