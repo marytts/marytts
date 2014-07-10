@@ -64,6 +64,8 @@
 
 package marytts.htsengine;
 
+import java.util.Arrays;
+import marytts.htsengine.HMMData.FeatureType;
 
 /**
  * HMM model for a particular phone (or line in context feature file)
@@ -131,6 +133,31 @@ public class HTSModel {
   public void setMcepMean(int i, double val[]){ mcepMean[i] = val; }
   public void setMcepVariance(int i, double val[]){ mcepVariance[i] = val; }
 
+	public double[] getMean(FeatureType type, int i) {
+		switch (type) {
+		case MGC:
+			return Arrays.copyOf(mcepMean[i], mcepMean[i].length);
+		case STR:
+			return Arrays.copyOf(strMean[i], strMean[i].length);
+		case MAG:
+			return Arrays.copyOf(magMean[i], magMean[i].length);
+		default:
+			throw new RuntimeException("You must not ask me about DUR or LF0");
+		}
+	}
+
+	public double[] getVariance(FeatureType type, int i) {
+		switch (type) {
+		case MGC:
+			return Arrays.copyOf(mcepVariance[i], mcepVariance[i].length);
+		case STR:
+			return Arrays.copyOf(strVariance[i], strVariance[i].length);
+		case MAG:
+			return Arrays.copyOf(magVariance[i], magVariance[i].length);
+		default:
+			throw new RuntimeException("You must not ask me about DUR or LF0");
+		}
+	}
   /**
    * Print mean and variance of each state
    */
@@ -197,10 +224,17 @@ public class HTSModel {
   public void setMagVariance(int i, double val[]){ magVariance[i] = val; }
   
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
+	/** whether state i is voiced or not */
   public boolean getVoiced(int i){ return voiced[i]; }
-  public void setNumVoiced(int val){ numVoiced = val; }
-  public int getNumVoiced(){ return numVoiced; }
-  
+	public int getNumVoiced() {
+		int numVoiced = 0;
+		for (int i = 0; i < voiced.length; i++) {
+			if (getVoiced(i))
+				numVoiced += getDur(i);
+		}
+		return numVoiced;
+	}
+
   public void setMaryXmlDur(String str){ maryXmlDur = str;}
   public String getMaryXmlDur(){ return maryXmlDur;}
   

@@ -282,43 +282,6 @@ public class HTSEngine extends InternalModule
       
     }
    
-    /* For stand alone testing. */
-    public AudioInputStream processStr(String context, HMMData htsData)
-    throws Exception
-    {
-        HTSParameterGeneration pdf2par = new HTSParameterGeneration();
-        HTSVocoder par2speech = new HTSVocoder();
-        AudioInputStream ais;
-        
-        /* htsData contains:
-         * data in the configuration file, .pdf file names and other parameters. 
-         * After InitHMMData it contains TreeSet ts and ModelSet ms 
-         * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, Mgc, str and mag
-         *           these are all the HMMs trained for a particular voice 
-         * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag 
-         *          these are all the trees trained for a particular voice. */
-        
-        //loggerHts.info("TARGETFEATURES:" + context);
-        
-        /* Process label file of Mary context features and creates UttModel um */
-        List<Target> targetFeaturesList = getTargetsFromText(context, htsData);
-        HTSUttModel um = processTargetList(targetFeaturesList, null, htsData);
-        //processUtt(context, um, htsData);
-
-        /* Process UttModel */
-        /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */ 
-        boolean debug = false;  /* so it does not save the generated parameters. */
-        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, "", debug);
-    
-        /* Process generated parameters */
-        /* Synthesize speech waveform, generate speech out of sequence of parameters */
-        ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
-        
-       return ais;
-        
-    }
-  
- 
     
     /** Reads the Label file, the file which contains the Mary context features,
      *  creates an scanner object and calls getTargets
@@ -650,7 +613,7 @@ public class HTSEngine extends InternalModule
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
           boolean debug = true;  /* so it save the generated parameters in parFile */
-          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, parFile, debug);
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
           
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
