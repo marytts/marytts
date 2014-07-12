@@ -779,8 +779,8 @@ public class HMMDurationF0Modeller extends InternalModule
           //System.out.println("uttFrame=" + uttFrame + "  phone frame=" + frame + "  phone hmmState=" + hmmState);
           /* copy pdfs for lf0 */ 
           for(k=0; k<ms.getLf0Stream(); k++){
-            int lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
-            int rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
+            int lw = lf0Pst.getDWLeftBoundary(k); 
+            int rw = lf0Pst.getDWRightBoundary(k); 
             nobound = true;
             /* check if current frame is voiced/unvoiced boundary or not */
             for(n=lw; n<=rw; n++)

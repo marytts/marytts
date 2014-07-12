@@ -84,6 +84,7 @@ public class HTSPStream {
 	
   public static final int WLEFT = 0;
   public static final int WRIGHT = 1;	
+  public static final int NUM = 3;
   /** width of dynamic window */
   /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
   /* pst->dw.max_L is hard-code to 1, for all windows                     */
@@ -115,7 +116,13 @@ public class HTSPStream {
   private double wum[];      
   
   /* ____________________Dynamic window ____________________ */
-  private HTSDWin dw;       /* Windows used to calculate dynamic features, delta and delta-delta */
+  //private final HTSDWin dw;       /* Windows used to calculate dynamic features, delta and delta-delta */
+  /* definitions of the dynamic feature window */
+  final static int[] leftWidths = new int[] { 0, -1, -1 };
+  final static int[] rightWidths = new int[] { 0, 1, 1 };
+  final static double[] xcoefs = new double[] { 0, 1, 0, -0.5, 0, 0.5, 1, -2, 1 };
+  public int getDWLeftBoundary(int i) { return leftWidths[i]; }
+  public int getDWRightBoundary(int i) { return rightWidths[i]; }
 
   
   /* ____________________ GV related variables ____________________*/
@@ -159,10 +166,10 @@ public class HTSPStream {
 	/* - InitDwin reads the window files passed as parameters for example: mcp.win1, mcp.win2, mcp.win3 */
 	/*   for the moment the dynamic window is the same for all MCP, LF0, STR and MAG  */
 	/*   The initialisation of the dynamic window is done with the constructor. */
-	dw = new HTSDWin();
+	//dw = new HTSDWin();
     feaType = fea_type; 
     vSize = vector_size;
-    order = vector_size / dw.getNum(); 
+    order = vector_size / NUM; 
     nT = utt_length;
     maxGVIter = maxIterationsGV;
     par = new double[nT][order];
@@ -201,9 +208,6 @@ public class HTSPStream {
   }
   
   public void setIvseq(int i, int j, double val){ ivseq[i][j]=val; }
-  
-  public int getDWwidth(int i, int j){ return dw.getWidth(i,j); }
- 
   
   public void setGvMeanVar(double[] mean, double[] ivar){
       gvmean = mean;
@@ -289,20 +293,27 @@ public class HTSPStream {
           /* initialise */
           Arrays.fill(wuw[t], 0.0);
 	    /* calc WUW & WUM, U is already inverse  */
-	    for(int i=0; i<dw.getNum(); i++) {
+          for (int i=0; i < NUM; i++) {
+              int dwWidth_iright = rightWidths[i];
 	      int iorder = i*order+m;
-	      for(int j = dw.getWidth(i, WLEFT); j <= dw.getWidth(i, WRIGHT); j++) {
-
-	          if( ( t+j>=0 ) && ( t+j<nT ) && ( dw.getCoef(i,-j)!=0.0 )  ) {
-				 double WU = dw.getCoef(i,-j) * ivseq[t+j][iorder];
+              for (int j = leftWidths[i]; j <= dwWidth_iright; j++) {
+                  if ((t + j >= 0) && (t + j < nT)) {
+                      double dwCoef_ij = xcoefs[1 + i * NUM - j];
+                      if (dwCoef_ij != 0.0) {
+                          double WU = dwCoef_ij * ivseq[t + j][iorder];
 				 
 				 wum[t] += WU * mseq[t+j][iorder];
-				 for(int k=0; ( k<WIDTH ) && ( t+k<nT ); k++)
-				   if( ( k-j<=dw.getWidth(i, 1) ) && ( dw.getCoef(i,(k-j)) != 0.0 ) ) {
-				     wuw[t][k] += WU * dw.getCoef(i,(k-j));
+                          for (int k = 0; (k < WIDTH) && (t + k < nT); k++) {
+                              if (k - j <= dwWidth_iright) {
+                                  double dwCoef_ikj = xcoefs[1 + i * NUM + k - j];
+                                  if (dwCoef_ikj != 0.0) {
+                                      wuw[t][k] += WU * dwCoef_ikj;
+                          } 
 				   }
-			  }
+			  } /* for k */
 		  }		  
+                  }
+              } /* for j */
 	    }  /* for i */	    
 	}  /* for t */
 /*	if(debug){ 
@@ -520,7 +531,7 @@ public class HTSPStream {
    int t, i,k; 
    double vd;
    double h, aux;
-   double w = 1.0 / (dw.getNum() * nT);
+   double w = 1.0 / (NUM * nT);
    
    /* recalculate GV of the current c = par */
    calcGV(m);   
@@ -577,7 +588,7 @@ public class HTSPStream {
       int t, i,k; 
       double vd;
       double h, aux;
-      double w = 1.0 / (dw.getNum() * nT);
+      double w = 1.0 / (NUM * nT);
       
       /* recalculate GV of the current c = par */
       calcGV(m);   
