@@ -236,6 +236,9 @@ public class HTSPStream {
 	System.out.println(""); 
   }
   
+  public void mlpg(HMMData htsData) {
+      mlpg(htsData, htsData.getUseGV());
+  }
   
   /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
    * given pdf sequence */

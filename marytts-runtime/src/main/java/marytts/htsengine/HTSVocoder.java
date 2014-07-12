@@ -662,7 +662,7 @@ public class HTSVocoder {
        
     
     /** mc2b: transform mel-cepstrum to MLSA digital filter coefficients */
-    private static void mc2b(double mc[], double b[], int m, double a ) {
+    public static void mc2b(double mc[], double b[], int m, double a ) {
         b[m] = mc[m];
         for(m--; m>=0; m--) {
           b[m] = mc[m] - a * b[m+1];  
@@ -670,7 +670,7 @@ public class HTSVocoder {
       }
     
     /** b2mc: transform MLSA digital filter coefficients to mel-cepstrum */
-    private static void b2mc(double b[], double mc[], int m, double a){
+    public static void b2mc(double b[], double mc[], int m, double a){
       double d = mc[m] = b[m];
       for(int i=m--; i>=0; i--) {
         double o = b[i] + (a * d);
@@ -681,7 +681,7 @@ public class HTSVocoder {
     
  
    /** freqt: frequency transformation */
-    private static void freqt(double c1[], int m1, double c2[], int m2, double a){
+   public static void freqt(double c1[], int m1, double c2[], int m2, double a){
      double b = 1 - a * a;
        
      double freqt_buff[] = new double[(m2 + m2 + 2)];        /* used in freqt */
@@ -704,7 +704,7 @@ public class HTSVocoder {
    }
    
    /** c2ir: The minimum phase impulse response is evaluated from the minimum phase cepstrum */
-   private static void c2ir(double c[], int nc, double hh[], int leng ){
+   public static void c2ir(double c[], int nc, double hh[], int leng ){
      hh[0] = Math.exp(c[0]);
      for(int n = 1; n < leng; n++) {
        double d = 0;
@@ -716,7 +716,7 @@ public class HTSVocoder {
    }
    
    /** b2en: functions for postfiltering */ 
-   private static double b2en(double b[], int m, double a){
+   public static double b2en(double b[], int m, double a){
       double cep[], ir[]; 
       int arrayLength = (m+1) + 2 * IRLENG;
       double[] spectrum2en_buff = new double[arrayLength];
@@ -737,7 +737,7 @@ public class HTSVocoder {
     }  
     
     /** ignorm: inverse gain normalization */
-    private static void ignorm(double c1[], double c2[], int m, double ng){
+    public static void ignorm(double c1[], double c2[], int m, double ng){
       if(ng != 0.0 ) {
         double k = Math.pow(c1[0], ng);
         for(int i=m; i>=1; i--)
@@ -751,7 +751,7 @@ public class HTSVocoder {
     }
    
     /** ignorm: gain normalization */
-    private static void gnorm(double c1[], double c2[], int m, double g){
+    public static void gnorm(double c1[], double c2[], int m, double g){
       if(g != 0.0) {
         double k = 1.0 + g * c1[0];
         for(; m>=1; m--)
@@ -766,7 +766,7 @@ public class HTSVocoder {
     }
    
     /** lsp2lpc: transform LSP to LPC. lsp[1..m] --> a=lpc[0..m]  a[0]=1.0 */
-    private static void lsp2lpc(double lsp[], double a[], int m){
+    public static void lsp2lpc(double lsp[], double a[], int m){
       int i, k, mh1, mh2, flag_odd;
       double xx, xf, xff;
       int p, q;                    /* offsets of lsp2lpc_buff */
@@ -857,7 +857,7 @@ public class HTSVocoder {
     }
     
     /** gc2gc: generalized cepstral transformation */
-    private static void gc2gc(double c1[], int m1, double g1, double c2[], int m2, double g2){
+    public static void gc2gc(double c1[], int m1, double g1, double c2[], int m2, double g2){
        double[] gc2gc_buff = Arrays.copyOf(c1, m1 + 1);
       c2[0] = gc2gc_buff[0];
       
@@ -880,7 +880,7 @@ public class HTSVocoder {
     }
     
     /** mgc2mgc: frequency and generalized cepstral transformation */
-    private static void mgc2mgc(double c1[], int m1, double a1, double g1, double c2[], int m2, double a2, double g2){
+    public static void mgc2mgc(double c1[], int m1, double a1, double g1, double c2[], int m2, double a2, double g2){
       
       if(a1 == a2){
         gnorm(c1, c1, m1, g1);
@@ -899,7 +899,7 @@ public class HTSVocoder {
     }
     
     /** lsp2mgc: transform LSP to MGC.  lsp=C[0..m]  mgc=C[0..m] */
-    private void lsp2mgc(double lsp[], double mgc[], int m, double alpha) {
+    public void lsp2mgc(double lsp[], double mgc[], int m, double alpha) {
       /* lsp2lpc */
       lsp2lpc(lsp, mgc, m);  /* lsp starts in 1!  lsp[1..m] --> mgc[0..m] */
       if(use_log_gain)
@@ -915,7 +915,7 @@ public class HTSVocoder {
     }
     
     /** mglsadff: sub functions for MGLSA filter */
-    private static double mglsadf(double x, double b[], int m, double a, int n, double d[]) {
+    public static double mglsadf(double x, double b[], int m, double a, int n, double d[]) {
       for(int i=0; i<n; i++)
         x = mglsadff(x, b, m, a, d, (i*(m+1)));  
               
@@ -941,7 +941,7 @@ public class HTSVocoder {
     
     
     /** posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData */
-    private static void postfilter_mgc(double mgc[], int m, double alpha, double beta) {
+    public static void postfilter_mgc(double mgc[], int m, double alpha, double beta) {
       if(beta > 0.0 && m > 1){
         double[] postfilter_buff = new double[m+1];
         mc2b(mgc, postfilter_buff, m, alpha);
@@ -963,7 +963,7 @@ public class HTSVocoder {
               
   
     /** Generate one pitch period from Fourier magnitudes */
-    private static double[] genPulseFromFourierMag(double[] mag, double f0) {
+    public static double[] genPulseFromFourierMag(double[] mag, double f0) {
         
       int numHarm = mag.length;
       int currentF0 = (int)Math.round(f0);

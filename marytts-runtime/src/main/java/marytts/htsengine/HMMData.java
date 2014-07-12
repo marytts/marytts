@@ -539,5 +539,15 @@ public class HMMData {
     } /* method readMixedExcitationFiltersFile() */
 
 
+	/** return the set of FeatureTypes that are available in this HMMData object */
+	public Set<FeatureType> getFeatureSet() {
+        Set<FeatureType> featureTypes = EnumSet.noneOf(FeatureType.class);
+        if (getPdfDurStream() != null) featureTypes.add(FeatureType.DUR);
+        if (getPdfLf0Stream() != null) featureTypes.add(FeatureType.LF0);
+        if (getPdfStrStream() != null) featureTypes.add(FeatureType.STR);
+        if (getPdfMagStream() != null) featureTypes.add(FeatureType.MAG);
+        if (getPdfMgcStream() != null) featureTypes.add(FeatureType.MGC);
+        return featureTypes;
+    }
 
 }
