@@ -365,7 +365,7 @@ public class HTSEngine extends InternalModule
      * @param htsData : parameters and configuration of the voice
      * @throws Exception
      */
-    private HTSUttModel processTargetList(List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
+    protected HTSUttModel processTargetList(List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
     throws Exception {          
       HTSUttModel um = new HTSUttModel(); 
       CartTreeSet cart = htsData.getCartTreeSet();
