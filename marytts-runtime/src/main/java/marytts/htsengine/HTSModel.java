@@ -82,6 +82,7 @@ public class HTSModel {
   //private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
   private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
 
+	private double durError;
   private int dur[];                /* duration for each state of this HMM */
   private int totalDur;             /* total duration of this HMM in frames */
   private int totalDurMillisec;     /* total duration of this model in milliseconds */
@@ -109,8 +110,18 @@ public class HTSModel {
   public void setDur(int i, int val){ dur[i] = val; }
   public int getDur(int i){ return dur[i]; } 
   
+	public void setDurError(double e) {
+		durError = e;
+	}
+
+	public double getDurError() {
+		return durError;
+	}
   public void setTotalDur(int val){ totalDur = val; }
   public int getTotalDur(){return totalDur;}
+	public void incrTotalDur(int val) {
+		totalDur += val;
+	}
   
   public void setTotalDurMillisec(int val){ totalDurMillisec = val; }
   public int getTotalDurMillisec(){return totalDurMillisec;}
@@ -140,8 +151,10 @@ public class HTSModel {
 			return Arrays.copyOf(strMean[i], strMean[i].length);
 		case MAG:
 			return Arrays.copyOf(magMean[i], magMean[i].length);
+		case LF0:
+			return Arrays.copyOf(lf0Mean[i], lf0Mean[i].length);
 		default:
-			throw new RuntimeException("You must not ask me about DUR or LF0");
+			throw new RuntimeException("You must not ask me about DUR");
 		}
 	}
 
@@ -153,8 +166,10 @@ public class HTSModel {
 			return Arrays.copyOf(strVariance[i], strVariance[i].length);
 		case MAG:
 			return Arrays.copyOf(magVariance[i], magVariance[i].length);
+		case LF0:
+			return Arrays.copyOf(lf0Variance[i], lf0Variance[i].length);
 		default:
-			throw new RuntimeException("You must not ask me about DUR or LF0");
+			throw new RuntimeException("You must not ask me about DUR");
 		}
 	}
   /**
