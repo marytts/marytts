@@ -230,7 +230,7 @@ public class HTSParameterGeneration {
       	  for(int k=0; k<ms.getLf0Stream(); k++){
       		boolean nobound = true;
       		/* check if current frame is voiced/unvoiced boundary or not */
-      		for(int n=lf0Pst.getDWwidth(k, HTSPStream.WLEFT); n<=lf0Pst.getDWwidth(k, HTSPStream.WRIGHT); n++)
+      		for(int n=lf0Pst.getDWLeftBoundary(k); n<=lf0Pst.getDWRightBoundary(k); n++)
       		  if( (uttFrame+n) <= 0 || totalFrames <= (uttFrame+n))
       			 nobound = false;
       		  else

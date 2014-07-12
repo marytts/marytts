@@ -427,8 +427,7 @@ public class HTSEngine extends InternalModule
                 int newStateDuration = (int)(durationsFraction*m.getDur(k) + newStateDurationFactor);
                 newStateDuration = Math.max(1, newStateDuration);
                 m.setDur(k, newStateDuration);
-                m.setTotalDur(m.getTotalDur() + m.getDur(k)); 
-                //System.out.println("   durNew=" + m.getDur(k));       
+                m.incrTotalDur(newStateDuration);
               }
                 
             }
