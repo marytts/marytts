@@ -276,4 +276,45 @@ public class CartTreeSet {
       }
     }
 
+    /** 
+     * creates a HTSModel (pre-HMM optimization vector data for all parameter streams of a given phoneme) given a feature vector
+     * compare with original code in the main loop of marytts.modules.HTSEngine#processTargetList()   
+     * @param oldErr 
+     * @throws Exception 
+     */  
+    public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureVector fv, double oldErr) {
+        HTSModel m = new HTSModel(getNumStates());
+        String phoneFeature = fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef);
+        m.setPhoneName(phoneFeature);
+        try {
+        	
+            double diffDur = searchDurInCartTree(m, fv, htsData, oldErr);
+            m.setDurError(diffDur);
+            // m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur())); nobody ever uses totaldurmillisec and it's really redundant to gettotaldur
+
+            /* Find pdf for LF0, this function sets the pdf for each state. 
+             * here it is also set whether the model is voiced or not */ 
+            // if ( ! htsData.getUseUnitDurationContinuousFeature() )
+            // Here according to the HMM models it is decided whether the states of this model are voiced or unvoiced
+            // even if f0 is taken from maryXml here we need to set the voived/unvoiced values per model and state
+            searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+
+            /* Find pdf for MGC, this function sets the pdf for each state.  */
+            searchMgcInCartTree(m, fv, feaDef);
+
+            /* Find pdf for strengths, this function sets the pdf for each state.  */
+            if(htsData.getTreeStrStream() != null)
+              searchStrInCartTree(m, fv, feaDef);
+            
+            /* Find pdf for Fourier magnitudes, this function sets the pdf for each state.  */
+            if(htsData.getTreeMagStream() != null)
+              searchMagInCartTree(m, fv, feaDef);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return m;
+    }
+
 }
