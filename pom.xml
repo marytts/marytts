@@ -587,8 +587,11 @@
 
 	<profiles>
 		<profile>
-			<id>github-website</id>
+			<id>github-site</id>
+
 			<build>
+				<defaultGoal>site</defaultGoal>
+
 				<plugins>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
