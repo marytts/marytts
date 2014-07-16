@@ -616,7 +616,7 @@
 							<repositoryOwner>marytts</repositoryOwner>
 							<repositoryName>marytts.github.io</repositoryName>
 							<branch>refs/heads/master</branch>
-							<message>update Github website for ${scm.url}/commit/${buildNumber}</message>
+							<message>update Github website for ${project.scm.url}/commit/${buildNumber}</message>
 							<noJekyll>true</noJekyll>
 						</configuration>
 						<executions>
