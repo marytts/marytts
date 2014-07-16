@@ -24,7 +24,8 @@
 		<href>/</href>
 	</bannerLeft>
 	<body>
-		<menu name="Navigation">
+		<menu ref="parent" inherit="top" />
+		<menu name="Navigation" inherit="top">
 			<item name="Introduction" href="index.html" />
 			<item name="Online Demo" href="http://mary.dfki.de:59125" target="_blank" />
 			<item name="Documentation" href="documentation/index.html" collapse="true">
@@ -57,6 +58,6 @@
 			</item>
 			<item name="Legal Information" href="legal-information.html" />
 		</menu>
-		<menu ref="reports" />
+		<menu ref="reports" inherit="top" />
 	</body>
 </project>
