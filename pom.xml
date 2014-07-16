@@ -595,6 +595,7 @@
 						<artifactId>site-maven-plugin</artifactId>
 						<version>0.9</version>
 						<configuration>
+							<outputDirectory>${project.build.directory}/staging</outputDirectory>
 							<message>update Github website</message>
 							<noJekyll>true</noJekyll>
 						</configuration>
