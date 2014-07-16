@@ -21,7 +21,7 @@
 	<bannerLeft>
 		<name>MaryTTS</name>
 		<src>images/marylogo.png</src>
-		<href>/</href>
+		<href>/index.html</href>
 	</bannerLeft>
 	<body>
 		<menu ref="parent" inherit="top" />
