@@ -591,12 +591,26 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<version>1.3</version>
+						<executions>
+							<execution>
+								<phase>pre-site</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
 						<groupId>com.github.github</groupId>
 						<artifactId>site-maven-plugin</artifactId>
 						<version>0.9</version>
 						<configuration>
 							<outputDirectory>${project.build.directory}/staging</outputDirectory>
-							<message>update Github website</message>
+							<message>update Github website for ${buildNumber}</message>
 							<noJekyll>true</noJekyll>
 						</configuration>
 						<executions>
