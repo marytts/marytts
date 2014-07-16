@@ -124,9 +124,9 @@
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/psibre/marytts</url>
-		<connection>scm:git:https://github.com/psibre/marytts.git</connection>
-		<developerConnection>scm:git:git@github.com/psibre/marytts.git</developerConnection>
+		<url>https://github.com/marytts/marytts</url>
+		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
+		<developerConnection>scm:git:git@github.com/marytts/marytts.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
