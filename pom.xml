@@ -613,6 +613,9 @@
 						<version>0.9</version>
 						<configuration>
 							<outputDirectory>${project.build.directory}/staging</outputDirectory>
+							<repositoryOwner>marytts</repositoryOwner>
+							<repositoryName>marytts.github.io</repositoryName>
+							<branch>refs/heads/master</branch>
 							<message>update Github website for ${buildNumber}</message>
 							<noJekyll>true</noJekyll>
 						</configuration>
