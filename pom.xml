@@ -362,6 +362,11 @@
 					<version>3.3</version>
 					<dependencies>
 						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.6</version>
+						</dependency>
+						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh-external</artifactId>
 							<version>2.6</version>
