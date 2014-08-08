@@ -3,6 +3,7 @@ branches:
     - travis
 
 language: java
+install: mvn install -DskipTests=true -P!standard-with-extra-repos
 jdk:
   - openjdk7
   - oraclejdk7
