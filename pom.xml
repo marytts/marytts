@@ -131,8 +131,8 @@
 	</scm>
 
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://buildhive.cloudbees.com/job/marytts/</url>
+		<system>Travis</system>
+		<url>https://travis-ci.org/marytts/marytts</url>
 	</ciManagement>
 
 	<properties>
