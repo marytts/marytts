@@ -2,6 +2,7 @@ package marytts.tools.dbselection;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class WikipediaMarkupCleanerTest {
 	}
 
 	@Test
-	public void testRemoveMarkup() throws IOException {
+	public void testRemoveMarkup() throws IOException, URISyntaxException {
 		// read markup from test resource
 		String page = Resources.toString(markupResource, Charsets.UTF_8);
 		// process to extract markup-less text
@@ -48,7 +49,7 @@ public class WikipediaMarkupCleanerTest {
 
 		// get expected text and compare with actual processed text
 		URL expectedResource = Resources.getResource(getClass(), "Autorack.txt");
-		File expectedFile = new File(expectedResource.getFile());
+		File expectedFile = new File(expectedResource.toURI());
 		Assertions.assertThat(actualFile).hasSameContentAs(expectedFile);
 	}
 
