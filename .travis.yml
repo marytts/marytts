@@ -1,0 +1,11 @@
+branches:
+  only:
+    - master
+    - 5.1.x
+
+language: java
+install: mvn install -DskipTests=true -P!standard-with-extra-repos
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8

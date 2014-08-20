@@ -128,15 +128,15 @@
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/psibre/marytts</url>
-		<connection>scm:git:https://github.com/psibre/marytts.git</connection>
-		<developerConnection>scm:git:git@github.com/psibre/marytts.git</developerConnection>
+		<url>https://github.com/marytts/marytts</url>
+		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
+		<developerConnection>scm:git:git@github.com/marytts/marytts.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://buildhive.cloudbees.com/job/marytts/</url>
+		<system>Travis</system>
+		<url>https://travis-ci.org/marytts/marytts</url>
 	</ciManagement>
 
 	<properties>
@@ -366,6 +366,11 @@
 					<version>3.3</version>
 					<dependencies>
 						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.6</version>
+						</dependency>
+						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh-external</artifactId>
 							<version>2.6</version>
@@ -591,8 +596,11 @@
 
 	<profiles>
 		<profile>
-			<id>github-website</id>
+			<id>github-site</id>
+
 			<build>
+				<defaultGoal>site</defaultGoal>
+
 				<plugins>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
@@ -614,7 +622,10 @@
 						<version>0.9</version>
 						<configuration>
 							<outputDirectory>${project.build.directory}/staging</outputDirectory>
-							<message>update Github website for ${buildNumber}</message>
+							<repositoryOwner>marytts</repositoryOwner>
+							<repositoryName>marytts.github.io</repositoryName>
+							<branch>refs/heads/master</branch>
+							<message>update Github website for ${project.scm.url}/commit/${buildNumber}</message>
 							<noJekyll>true</noJekyll>
 						</configuration>
 						<executions>
