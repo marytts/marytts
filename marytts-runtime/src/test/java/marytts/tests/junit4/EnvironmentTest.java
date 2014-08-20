@@ -51,11 +51,6 @@ import org.w3c.dom.traversal.DocumentTraversal;
 public class EnvironmentTest {
 
     @Test
-    public void testJavaVersion() {
-    	assertThat(SystemUtils.IS_JAVA_1_6 || SystemUtils.IS_JAVA_1_7).isTrue();
-    }
-
-    @Test
     public void testXMLParserSupportsNamespaces() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
