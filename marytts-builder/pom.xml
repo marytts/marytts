@@ -112,7 +112,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<attach>false</attach>
 					<archive>
 						<manifest>
 							<mainClass>marytts.tools.voiceimport.DatabaseImportMain</mainClass>
