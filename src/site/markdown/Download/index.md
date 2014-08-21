@@ -22,19 +22,7 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 | [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB | [Release notes](releasenotes-4.1.1.html) |
 | [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB | [Release notes](releasenotes-4.1.0.html) |
 | [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB | [Release notes](releasenotes-4.0.0.html) |
-
-### 4.0 beta
-
-[openmary-standalone-install-4.0beta.jar](http://mary.dfki.de/download/4.0%20beta/openmary-standalone-install-4.0beta.jar) (32 MB)
-
-This is a first beta release of the new 4.0 code.
-
-More details can be found in the [MARY TTS 4.0 beta Release Notes](http://mary.opendfki.de/wiki/4.0beta).
-
-NOTE: This is beta software.
-It is not yet ready for production use.
-You are likely to find problems, and we would appreciate if you tell us about it.
-See the [development pages](http://mary.opendfki.de/) for details.
+| [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | | [Release notes](releasenotes-4.0-beta.html) |
 
 ## Pre-4.0 releases
 
