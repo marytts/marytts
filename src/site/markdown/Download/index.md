@@ -20,14 +20,7 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 | [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   | [Release notes](releasenotes-4.3.0.html) |
 | [4.2.0](https://github.com/marytts/marytts/releases/tag/v4.2.0) | 2010-12-08 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.2.0/openmary-standalone-install-4.2.0.jar) | 41 MB   | [Release notes](releasenotes-4.2.0.html) |
 | [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB | [Release notes](releasenotes-4.1.1.html) |
-
-### 4.1.0
-
-Download: [openmary-standalone-install-4.1.0.jar](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar)
-
-This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
-
-For details, check the [MARY 4.1.0 Release notes](http://mary.opendfki.de/wiki/4.1.0)!
+| [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB | [Release notes](releasenotes-4.1.0.html) |
 
 ### 4.0.0
 
