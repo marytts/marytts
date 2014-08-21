@@ -37,6 +37,7 @@
 				<item name="Javadoc" href="javadoc/index.html" />
 				<item name="Tibetan" href="documentation/tibetan.html" />
 			</item>
+			<item name="FAQ" href="faq.html"/>
 			<item name="Download" href="Download/index.html" collapse="true">
 				<item name="OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released" href="Download/openmary-open-source-emotional-text-to-speech-synthesis-system-released.html" />
 				<item name="MARY 4.3.0 released" href="Download/mary-4-3-0-released.html" />
