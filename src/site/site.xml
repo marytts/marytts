@@ -58,6 +58,6 @@
 			</item>
 			<item name="Legal Information" href="legal-information.html" />
 		</menu>
-		<menu ref="reports" inherit="top" />
+		<menu name="Developer Documentation" ref="reports" inherit="top" />
 	</body>
 </project>
