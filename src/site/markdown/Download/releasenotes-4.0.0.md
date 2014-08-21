@@ -1,10 +1,11 @@
 
 # MARY TTS 4.0.0: Release Notes
 
-​[MARY TTS 4.0 download](http://mary.dfki.de/download/4.0/openmary-standalone-install-4.0.x.jar)
+​[MARY TTS 4.0.0 download](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar)
 
 ## What's new
 
+This is the first stable release of the new 4.0 code.
 MARY 4.0 is a major cleanup over previous versions of MARY TTS.
 
 ## Changes since MARY 3.6
@@ -15,17 +16,18 @@ MARY 4.0 is a major cleanup over previous versions of MARY TTS.
 * Fully open source.
   All code is now open source under the [​LGPL](http://www.gnu.org/licenses/lgpl-3.0-standalone.html), including German TTS.
   Voices are distributed under Creative Commons or BSD licenses.
-* New languages.
-  We have added British English, Turkish and Telugu synthesis for now, and have made it easy to add more languages in the future.
+* Many languages and voices. In addition to several high-quality German and US English voices, this release adds four expressive British English voices built for the [SEMAINE project](http://www.semaine-project.eu/), a Turkish and a Telugu voice.
+  Also, we have made it easy to add more languages and voices in the future.
 * New component installer.
   New languages and voices can be installed using a new component installer tool.
-  If new languages and/or voices are made available for download, they can be installed without having to re-install the full system. 
+  If new languages and/or voices are made available for download, they can be installed without having to re-install the full system.
 
-MARY now comes with a toolkit for people who want to add support for new languages or build their own voices. There is detailed documentation for
+MARY now comes with a toolkit for people who want to add support for new languages or build their own voices.
+There is detailed documentation for
 
 * [creating initial support for a new language](http://mary.opendfki.de/wiki/NewLanguageSupport);
 * [recording and building a unit selection voice](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial); and
-* [creating an HMM-based voice from the same recordings](http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0). 
+* [creating an HMM-based voice](http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0) from the same recordings.
 
 ## Changes since MARY 4.0 beta
 
@@ -43,9 +45,9 @@ MARY now comes with a toolkit for people who want to add support for new languag
   They can be installed like the other voices through the MARY component installer.
 * Voice creation tools were simplified.
   The handling of external programs needed, in particular, for the creation of HMM-based voices was simplified.
-  We provide a script now that you can use to find or, if necessary, download and compile third-party software required for training HMM-based voices. 
+  We provide a script now that you can use to find or, if necessary, download and compile third-party software required for training HMM-based voices.
 
-More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&group=resolution&milestone=4.0) and in the [list of tickets associated with the 4.0 beta release](http://mary.opendfki.de/query?status=closed&group=resolution&milestone=4.0+beta).
+More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0) and in the [list of tickets associated with the 4.0 beta release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0+beta).
 
 ## Tested environments
 
@@ -53,13 +55,13 @@ The MARY client and server code was tested on:
 
 * Mac OS X (Intel) 10.5.8 with java 1.6.0_07
 * Ubuntu Linux 8.10 and 9.04 with sun java 1.5, 1.6, and openjdk-6
-* Windows XP and Vista 
+* Windows XP and Vista
 
 The web interface at ​http://localhost:59125 should work with any recent browser that supports AJAX.
 We have obtained best results with:
 
 * Firefox 3.5 with built-in audio support
-* Firefox 3.0, Internet Explorer 6 and 7, Safari 4, with Quicktime plugin 
+* Firefox 3.0, Internet Explorer 6 and 7, Safari 4, with Quicktime plugin
 
 ## Known issues
 
@@ -70,7 +72,7 @@ We have obtained best results with:
 * Web interface in the browser Chrome suboptimal:
   Chrome does not seem to handle the HTML 5 `<audio>` tag correctly.
   It claims it can handle it, but then doesn't play audio.
-  Click on "Save audio file" to get the raw audio data. 
+  Click on "Save audio file" to get the raw audio data.
 
 ## Bug reports
 
