@@ -1,16 +1,15 @@
 Title: Introduction
 
-The MARY Text-to-Speech System
-==============================
+# The MARY Text-to-Speech System (MaryTTS) #
 
-MARY is an open-source, multilingual Text-to-Speech Synthesis platform written in Java. 
-It was originally developed as a collaborative project of [DFKI](http://www.dfki.de/web)'s [Language Technology lab](http://www.dfki.de/lt/) and [the Institute of Phonetics](http://www.coli.uni-saarland.de/groups/WB/Phonetics/) at [Saarland University](http://www.uni-saarland.de) and is now being maintained by DFKI.
+MaryTTS is an open-source, multilingual Text-to-Speech Synthesis platform written in Java.
+It was originally developed as a collaborative project of [DFKI](http://www.dfki.de/web)'s [Language Technology Lab](http://www.dfki.de/lt/) and the [Institute of Phonetics](http://www.coli.uni-saarland.de/groups/WB/Phonetics/) at [Saarland University](http://www.uni-saarland.de).
+It is now maintained by the [Multimodal Speech Processing](http://m2ci.org/en/irg/msp) Group in the [Cluster of Excellence MMCI](http://m2ci.org/) and DFKI.
 
-As of version 5.0, MARY TTS supports German, British and American English, Telugu, Turkish, Russian and Italian; more languages are in preparation. 
-MARY TTS comes with toolkits for quickly [adding support for new languages](https://github.com/marytts/marytts/wiki/New-Language-Support) and for building [unit selection](https://github.com/marytts/marytts/wiki/VoiceImportToolsTutorial) and [HMM-based synthesis voices](https://github.com/marytts/marytts/wiki/HMMVoiceCreation).
+As of version 5.0, MaryTTS supports German, British and American English, French, Italian, Swedish, Russian, Turkish, and Telugu; more languages are in preparation.
+MaryTTS comes with toolkits for quickly [adding support for new languages](https://github.com/marytts/marytts/wiki/New-Language-Support) and for building [unit selection](https://github.com/marytts/marytts/wiki/VoiceImportToolsTutorial) and [HMM-based synthesis voices](https://github.com/marytts/marytts/wiki/HMMVoiceCreation).
 
-New to MARY?
-------------
+## New to MaryTTS? ##
 
 First, check out the online demo:
 
