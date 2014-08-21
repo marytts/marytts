@@ -15,14 +15,9 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 ## Older MARY Releases
 
 | Version | Release Date | Java Version | Download | Size | |
-|---|---|---|---|---|---|
+|---|---|---|---|---:|---|
 | [4.3.1](https://github.com/marytts/marytts/releases/tag/v4.3.1) | 2011-11-30 | 1.6+ | [Standalone installer](http://mary.dfki.de/download/4.3.1/openmary-standalone-install-4.3.1.jar) | 41.2 MB | [Release notes](releasenotes-4.3.1.html) |
-
-### 4.3.0
-
-Download: [openmary-standalone-install-4.3.0.jar](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar)
-
-See the [MARY 4.3.0 Release notes](http://mary.opendfki.de/wiki/4.3.0).
+| [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.6+ | [Standalone installer](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   | [Release notes](releasenotes-4.3.0.html) |
 
 ### 4.2.0
 
