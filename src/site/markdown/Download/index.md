@@ -53,15 +53,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.0.3](https://github.com/marytts/marytts/releases/tag/v3.0.3) | 2006-10-26 | 1.4+ | [Release notes](releasenotes-3.0.3.html) | | |
 | [3.0.2](https://github.com/marytts/marytts/releases/tag/v3.0.2) | 2006-07-04 | 1.4+ | [Release notes](releasenotes-3.0.2.html) | | |
 | [3.0.1](https://github.com/marytts/marytts/releases/tag/v3.0.1) | 2006-03-07 | 1.4+ | [Release notes](releasenotes-3.0.1.html) | | |
-
-### 3.0.0
-
-[mary-install-3.0.0.jar](http://mary.dfki.de/download/mary-install-3.0.0.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.0.jar](http://mary.dfki.de/download/mary-standalone-install-3.0.0.jar) (standalone installer, 420MB) if the web-based installer causes problems
-
-**Note:**
-This is the first open-source release.
-We have put in a lot of effort to test and debug it, but of course the system may have some teething problems.
-Please help us improve the system by submitting [bug reports](http://mary.opendfki.de/newticket) on the [OpenMary development page](http://mary.opendfki.de/).
+| [3.0.0](https://github.com/marytts/marytts/releases/tag/v3.0.0) | 2006-02-14 | 1.4+ | [Release notes](releasenotes-3.0.0.html) | | |
 
 --------
 
