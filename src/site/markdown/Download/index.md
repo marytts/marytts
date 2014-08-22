@@ -47,35 +47,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 |---|:---:|:---:|---|---:|---|
 | [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB | [Release notes](releasenotes-3.6.0.html) |
 | [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | | | [Release notes](releasenotes-3.5.0.html) |
-
-### MARY 3.1.0
-
-Ten months after the last stable release, a major milestone release is finally here:
-MARY 3.1.0.
-
-[mary-install-3.1.0.jar](http://mary.dfki.de/download/mary-install-3.1.0.jar) (web-based installer)
-
-Its main features are:
-
-* state of the art unit selection (English and German);
-* support for two more platforms:
-  64 bit Linux and Mac OS X on Intel platforms;
-* a voice creation toolkit (work in progress, see http://mary.opendfki.de/browser/tags/3.1.0/lib/modules/import/README for preliminary documentation if you want to try it out).
-
-Thanks to those who have helped test the beta versions!
-All the problems that we have become aware of should be fixed in this release.
-For a reasonably complete list of issues addressed in this release, see http://mary.opendfki.de/milestone/3.1.0
-
-Should you come across additional bugs, please post them to the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
-
-Some background info:
-
-The unit selection code released here has performed better-than-average in this year's Blizzard Challenge (http://www.festvox.org/blizzard/), showing that the system can be considered state-of-the-art.
-For details, see:
-http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007a
-
-The German voices have been created from the BITS corpora - for details, see:
-http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
+| [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | | | [Release notes](releasenotes-3.1.0.html) |
 
 ### 3.1beta2
 
