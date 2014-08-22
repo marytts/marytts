@@ -1,19 +1,15 @@
-Title: Download
-
-# The MARY Text-to-Speech System: Download
+# Download
 
 To install and run MARY TTS, you will need a recent [Java Runtime](http://www.java.com/getjava) installed (Java 1.6 or newer).
 
-To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/marytts/marytts-5.0.zip) or [MARY TTS 5.0 tar.gz](https://github.com/downloads/marytts/marytts/marytts-5.0.tar.gz)
-
-[MARY TTS 5.0 Release Notes (June 2012)](https://github.com/marytts/marytts/wiki/MARY-TTS-5.0)
-
 ## MaryTTS 5.x
-
-... are available from http://github.com/marytts/marytts.
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
+| [5.1](https://github.com/marytts/marytts/releases/tag/v5.1) | 2014-07-16 | 1.7+ | | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-5.1.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-builder-5.1.zip) | 25.8 MB<br/>30.6 MB |
+| [5.1-beta3](https://github.com/marytts/marytts/releases/tag/v5.1beta3) | 2014-07-16 | 1.6+ | | | |
+| [5.1-beta2](https://github.com/marytts/marytts/releases/tag/v5.1beta2) | 2014-03-10 | 1.6+ | | | |
+| [5.1-beta1](https://github.com/marytts/marytts/releases/tag/v5.1beta1) | 2013-11-21 | 1.6+ | | | |
 | [5.0](https://github.com/marytts/marytts/releases/tag/v5.0) | 2012-06-14 | 1.6+ | [Release notes](releasenotes-5.0.html) | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-5.0.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-builder-5.0.zip) | 24.5 MB<br/>30.2 MB |
 
 ## MARY TTS 4.x
