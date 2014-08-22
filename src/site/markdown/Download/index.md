@@ -48,25 +48,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB | [Release notes](releasenotes-3.6.0.html) |
 | [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | | | [Release notes](releasenotes-3.5.0.html) |
 | [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | | | [Release notes](releasenotes-3.1.0.html) |
-
-### 3.1beta2
-
-[mary-install-3.1beta2.jar](http://mary.dfki.de/download/mary-install-3.1beta2.jar) (web-based installer, 450kB)
-
-**Release notes:**
-Another beta release of the new unit selection code.
-We have added acoustic targets, so slt-arctic, bdl-arctic and jmk-arctic voices should again sound better than in 3.1beta1.
-Also, we have four German unit selection voices, using recordings from the BITS project!
-Quality is not optimal yet, but we're getting there.
-
-Audio data is still stored as uncompressed PCM data, which makes the full install bigger then 2 GB - therefore, unfortunately there is no standalone-installer for this release.
-We hope to be able to offer smaller voices in the future.
-
-**Known issue:**
-The diphone voices in this release are pretty much broken.
-If you want to use diphone voices, your best bet is probably the 3.0.3 stable release.
-
-For some details of what has been done and what still needs to be done for the stable 3.1 release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.
+| [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | | | [Release notes](releasenotes-3.1-beta2.html) |
 
 ### 3.1beta1
 
