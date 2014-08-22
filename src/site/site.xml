@@ -28,6 +28,7 @@
 		<menu name="Navigation" inherit="top">
 			<item name="Introduction" href="index.html" />
 			<item name="Online Demo" href="http://mary.dfki.de:59125" target="_blank" />
+			<item name="Download" href="download/index.html" />
 			<item name="Documentation" href="documentation/index.html" collapse="true">
 				<item name="Publications" href="documentation/publications/index.html" />
 				<item name="Overview" href="documentation/overview.html" />
@@ -35,9 +36,7 @@
 				<item name="MaryXML" href="documentation/maryxml/index.html" />
 				<item name="Tibetan" href="documentation/tibetan.html" />
 			</item>
-			<item name="FAQ" href="faq.html"/>
-			<item name="Download" href="Download/index.html" collapse="true">
-			</item>
+			<item name="FAQ" href="faq.html" />
 			<item name="PAVOQUE Project" href="pavoque/index.html" collapse="true">
 				<item name="Publications" href="pavoque/publications/pavoque-publications.html" />
 			</item>
