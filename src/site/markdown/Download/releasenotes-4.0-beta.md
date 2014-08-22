@@ -1,5 +1,5 @@
 
-# MARY TTS 4.0 beta: Release Notes
+# MARY TTS 4.0-beta: Release Notes
 
 ## What's new
 

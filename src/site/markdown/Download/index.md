@@ -8,11 +8,11 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 
 [MARY TTS 5.0 Release Notes (June 2012)](https://github.com/marytts/marytts/wiki/MARY-TTS-5.0)
 
-## MARY TTS 5.0+ Releases
+## MaryTTS 5.x
 
 ... are available from http://github.com/marytts/marytts.
 
-## Older MARY Releases
+## MARY TTS 4.x
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
@@ -24,11 +24,11 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 | [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Release notes](releasenotes-4.0.0.html) | [Standalone installer](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB |
 | [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | [Release notes](releasenotes-4.0-beta.html) | | |
 
-## Pre-4.0 releases
+## MARY 3.x
 
 These releases are mixed open source / research license, and mostly contain native code.
 This makes them more difficult to reuse and port to new platforms.
-Support for these releases terminates with the publication of 4.0beta.
+Support for these releases terminates with the publication of 4.0-beta.
 
 Older comments:
 
