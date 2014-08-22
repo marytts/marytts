@@ -38,7 +38,6 @@
 			<item name="FAQ" href="faq.html"/>
 			<item name="Download" href="Download/index.html" collapse="true">
 				<item name="OpenMary: Open Source Emotional Text-to-Speech Synthesis System Released" href="Download/openmary-open-source-emotional-text-to-speech-synthesis-system-released.html" />
-				<item name="MARY 3.6.0 released" href="Download/mary-3-6-0-released.html" />
 				<item name="MARY 3.5.0 released" href="Download/mary-3-5-0-released.html" />
 				<item name="MARY 3.1.0 released" href="Download/mary-3-1-0-released.html" />
 				<item name="German unit selection: Mary 3.1beta2 released" href="Download/german_unit_selection_mary-3.1beta2-released.html" />
