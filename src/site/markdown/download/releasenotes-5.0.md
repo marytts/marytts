@@ -14,7 +14,7 @@ No clicking through installer pages anymore.
 In particular, it is now trivial to install MARY TTS on a server without a GUI connection.
 
 The component installer, bin/marytts-component-installer.sh, still uses a gui;
-see issue #43 for a workaround.
+see issue [#43](https://github.com/marytts/marytts/issues/43) for a workaround.
 
 ### Simplified use of MARY TTS in your own projects
 
@@ -32,7 +32,7 @@ the source code on github includes examples for doing this in the `user-examples
 
 Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the new MaryInterface API.
 The same API can be used to access the TTS components running within the same java process or as a separate client-server setup.
-For details, see [[MaryInterface]].
+For details, see [MaryInterface](https://github.com/marytts/marytts/wiki/MaryInterface).
 
 ### Emotion Markup Language support
 
@@ -46,13 +46,13 @@ The MARY TTS source code has been modularized for version 5.0.
 
 The modular structure also makes it easier to see which components belong to a given language:
 sub-projects such as `marytts-lang-de`, `marytts-lang-en` etc. contain all code and data that is language-specific.
-The updated [[New Language Support]] documentation describes how to create a new language sub-project and integrate it into the system.
+The updated [New Language Support](https://github.com/marytts/marytts/wiki/New-Language-Support) documentation describes how to create a new language sub-project and integrate it into the system.
 
 ### Distributed hosting of installable voices
 
 The maintenance of the list of installable voices has been decentralized:
 if you build a voice and wish to make it available to others, you can host it somewhere on the net, e.g. on Google Drive, Dropbox or similar.
-For details, see [[Publishing a MARY TTS Voice]].
+For details, see [Publishing a MARY TTS Voice](https://github.com/marytts/marytts/wiki/Publishing-a-MARY-TTS-Voice).
 
 ### New structures for improved code quality
 
