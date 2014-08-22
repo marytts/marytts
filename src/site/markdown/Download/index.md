@@ -49,16 +49,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | [Release notes](releasenotes-3.5.0.html) | | |
 | [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | [Release notes](releasenotes-3.1.0.html) | | |
 | [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | [Release notes](releasenotes-3.1-beta2.html) | | |
-
-### 3.1beta1
-
-[mary-install-3.1beta1.jar](http://mary.dfki.de/download/mary-install-3.1beta1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.1beta1.jar](http://mary.dfki.de/download/mary-standalone-install-3.1beta1.jar) (standalone installer, ~500MB) if the web-based installer causes problems
-
-**Release notes:**
-First beta release of the new unit selection code.
-Try the new slt-arctic, bdl-arctic and jmk-arctic voices!
-
-For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.
+| [3.1-beta1](https://github.com/marytts/marytts/releases/tag/v3.1beta1) | 2006-12-13 | 1.4+ | [Release notes](releasenotes-3.1-beta1.html) | | |
 
 ### 3.0.3
 
