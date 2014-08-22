@@ -71,6 +71,6 @@ Installation:
    install product using the portal_quickinstaller;
    and configure the location of your MARY TTS server under "site setup"->"SpeechSynthesisTool Setup".
 
-Download [SpeechSynthesisTool-0.1.zip](http://mary.dfki.de/download/SpeechSynthesisTool-0.1.zip) or get from SVN:
+Download [SpeechSynthesisTool-0.1.zip](http://mary.dfki.de/download/SpeechSynthesisTool-0.1.zip) or get [from SVN](http://mary.opendfki.de/browser/branches/4.x-branch/examples/client/SpeechSynthesisTool):
 
-    svn checkout https://mary.opendfki.de/repos/trunk/examples/client/SpeechSynthesisTool SpeechSynthesisTool
+    svn checkout https://mary.opendfki.de/repos/branches/4.x-branch/examples/client/SpeechSynthesisTool SpeechSynthesisTool
