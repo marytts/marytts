@@ -2,50 +2,63 @@ MARY TTS 5.0 is the first release from the thoroughly restructured code base.
 
 **Download: [MARY TTS 5.0 zip](https://github.com/downloads/marytts/marytts/marytts-5.0.zip) or [MARY TTS 5.0 tar.gz](https://github.com/downloads/marytts/marytts/marytts-5.0.tar.gz)**
 
-MARY TTS 5.0 is better supported by automated tests than any previous version of MARY TTS, but it may well be that in practical use some hiccups will appear that have not surfaced in testing. Therefore cautious users are advised to treat this as a beta release.
+MARY TTS 5.0 is better supported by automated tests than any previous version of MARY TTS, but it may well be that in practical use some hiccups will appear that have not surfaced in testing.
+Therefore cautious users are advised to treat this as a beta release.
 
 ## New features
 
 ### Simpler installation
 
-Installing MARY TTS is now performed by simply unpacking the `zip` or `tar.gz` archive at the target location. No clicking through installer pages anymore. In particular, it is now trivial to install MARY TTS on a server without a GUI connection.
+Installing MARY TTS is now performed by simply unpacking the `zip` or `tar.gz` archive at the target location.
+No clicking through installer pages anymore.
+In particular, it is now trivial to install MARY TTS on a server without a GUI connection.
 
-The component installer, bin/marytts-component-installer.sh, still uses a gui; see issue #43 for a workaround.
+The component installer, bin/marytts-component-installer.sh, still uses a gui;
+see issue #43 for a workaround.
 
 ### Simplified use of MARY TTS in your own projects
 
-It is now possible to use MARY TTS, with HMM-based voices at least, simply by placing the right files into the classpath. For example, to use US English voice `cmu-slt-hsmm` in your own code, add the following jar files to your classpath:
+It is now possible to use MARY TTS, with HMM-based voices at least, simply by placing the right files into the classpath.
+For example, to use US English voice `cmu-slt-hsmm` in your own code, add the following jar files to your classpath:
 
     marytts-server-5.0-jar-with-dependencies.jar
     marytts-lang-en-5.0.jar
     voice-cmu-slt-hsmm-5.0.jar
 
-Instead of `marytts-server-5.0-jar-with-dependencies.jar` you can also include the individual dependencies, which can be automated using maven; the source code on github includes examples for doing this in the `user-examples` folder.
+Instead of `marytts-server-5.0-jar-with-dependencies.jar` you can also include the individual dependencies, which can be automated using maven;
+the source code on github includes examples for doing this in the `user-examples` folder.
 
 ### New MaryInterface API
 
-Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the new MaryInterface API. The same API can be used to access the TTS components running within the same java process or as a separate client-server setup. For details, see [[MaryInterface]].
+Using MARY TTS programmatically gets a lot simpler with MARY TTS 5.0 through the new MaryInterface API.
+The same API can be used to access the TTS components running within the same java process or as a separate client-server setup.
+For details, see [[MaryInterface]].
 
 ### Emotion Markup Language support
 
-MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech. The result of course depends on the expressive capabilities of the selected synthesis voice; try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
+MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech.
+The result of course depends on the expressive capabilities of the selected synthesis voice;
+try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
 
 ### Modularized code base
 
 The MARY TTS source code has been modularized for version 5.0.
 
-The modular structure also makes it easier to see which components belong to a given language: sub-projects such as `marytts-lang-de`, `marytts-lang-en` etc. contain all code and data that is language-specific. The updated [[New Language Support]] documentation describes how to create a new language sub-project and integrate it into the system.
+The modular structure also makes it easier to see which components belong to a given language:
+sub-projects such as `marytts-lang-de`, `marytts-lang-en` etc. contain all code and data that is language-specific.
+The updated [[New Language Support]] documentation describes how to create a new language sub-project and integrate it into the system.
 
 ### Distributed hosting of installable voices
 
-The maintenance of the list of installable voices has been decentralized: if you build a voice and wish to make it available to others, you can host it somewhere on the net, e.g. on Google Drive, Dropbox or similar. For details, see [[Publishing a MARY TTS Voice]].
+The maintenance of the list of installable voices has been decentralized:
+if you build a voice and wish to make it available to others, you can host it somewhere on the net, e.g. on Google Drive, Dropbox or similar.
+For details, see [[Publishing a MARY TTS Voice]].
 
 ### New structures for improved code quality
 
-MARY TTS 5.0 mostly results from the aim to establish sound software engineering practices in MARY TTS development. Aspects of this include:
+MARY TTS 5.0 mostly results from the aim to establish sound software engineering practices in MARY TTS development.
+Aspects of this include:
 
 * the build environment was changed to maven, allowing us to write proper unit and integration tests for the code, and run them at every build;
-
 * the code base was moved to github, allowing us to work as a distributed team, to develop features in whichever constellations arise, and to merge them into a stable master repository when ready;
-
-* a Continuous Integration service, kindly provided by [BuildHive](https://buildhive.cloudbees.com/job/marytts/job/marytts/), automatically checks whether the code, and even the latest github pull requests, build OK including all tests passing.
+* a Continuous Integration service, kindly provided by [BuildHive](https://buildhive.cloudbees.com/job/marytts/job/marytts/), automatically checks whether the code, and even the latest GitHub pull requests, build OK including all tests passing.
