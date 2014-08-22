@@ -52,22 +52,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.1-beta1](https://github.com/marytts/marytts/releases/tag/v3.1beta1) | 2006-12-13 | 1.4+ | [Release notes](releasenotes-3.1-beta1.html) | | |
 | [3.0.3](https://github.com/marytts/marytts/releases/tag/v3.0.3) | 2006-10-26 | 1.4+ | [Release notes](releasenotes-3.0.3.html) | | |
 | [3.0.2](https://github.com/marytts/marytts/releases/tag/v3.0.2) | 2006-07-04 | 1.4+ | [Release notes](releasenotes-3.0.2.html) | | |
-
-### 3.0.1
-
-[mary-install-3.0.1.jar](http://mary.dfki.de/download/mary-install-3.0.1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.1.jar](http://mary.dfki.de/download/mary-standalone-install-3.0.1.jar) (standalone installer, 420MB) if the web-based installer causes problems
-
-**Relase notes:**
-First bugfix release.
-A number of bugs have been fixed which have occurred after the initial release.
-Most relevant:
-
-* Audio can now be saved with proper audio headers ([ticket 32](http://mary.opendfki.de/ticket/32))
-* Mary GUI client is now accessible via the keyboard ([ticket 3](http://mary.opendfki.de/ticket/3))
-
-An update is recommended.
-
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.1&amp;order=priority)
+| [3.0.1](https://github.com/marytts/marytts/releases/tag/v3.0.1) | 2006-03-07 | 1.4+ | [Release notes](releasenotes-3.0.1.html) | | |
 
 ### 3.0.0
 
