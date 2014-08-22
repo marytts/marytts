@@ -50,22 +50,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | [Release notes](releasenotes-3.1.0.html) | | |
 | [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | [Release notes](releasenotes-3.1-beta2.html) | | |
 | [3.1-beta1](https://github.com/marytts/marytts/releases/tag/v3.1beta1) | 2006-12-13 | 1.4+ | [Release notes](releasenotes-3.1-beta1.html) | | |
-
-### 3.0.3
-
-[mary-install-3.0.3.jar](http://mary.dfki.de/download/mary-install-3.0.3.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.3.jar](http://mary.dfki.de/download/mary-standalone-install-3.0.3.jar) (standalone installer, 420MB) if the web-based installer causes problems
-
-**Release notes:**
-Third bugfix release.
-Most relevant changes:
-
-* fixed standalone mode for running MARY ([ticket 80](http://mary.opendfki.de/ticket/80))
-* improved control over prosody using ToBI tags (tickets [59](http://mary.opendfki.de/ticket/59), [60](http://mary.opendfki.de/ticket/60))
-* Several minor improvements of German synthesis (tickets [44](http://mary.opendfki.de/ticket/44), [49](http://mary.opendfki.de/ticket/49), [57](http://mary.opendfki.de/ticket/57), [78](http://mary.opendfki.de/ticket/78))
-* MBROLA to AUDIO conversion fixed (tickets [54](http://mary.opendfki.de/ticket/54), [55](http://mary.opendfki.de/ticket/55))
-* An update is recommended only if you encountered one of these bugs.
-
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?milestone=3.0.3)
+| [3.0.3](https://github.com/marytts/marytts/releases/tag/v3.0.3) | 2006-10-26 | 1.4+ | [Release notes](releasenotes-3.0.3.html) | | |
 
 ### 3.0.2
 
