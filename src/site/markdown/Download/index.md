@@ -14,15 +14,15 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 
 ## Older MARY Releases
 
-| Version | Release Date | Java Version | Download | Size | |
-|---|:---:|:---:|---|---:|---|
-| [4.3.1](https://github.com/marytts/marytts/releases/tag/v4.3.1) | 2011-11-30 | 1.6+ | [Standalone installer](http://mary.dfki.de/download/4.3.1/openmary-standalone-install-4.3.1.jar) | 41.2 MB | [Release notes](releasenotes-4.3.1.html) |
-| [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   | [Release notes](releasenotes-4.3.0.html) |
-| [4.2.0](https://github.com/marytts/marytts/releases/tag/v4.2.0) | 2010-12-08 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.2.0/openmary-standalone-install-4.2.0.jar) | 41 MB   | [Release notes](releasenotes-4.2.0.html) |
-| [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB | [Release notes](releasenotes-4.1.1.html) |
-| [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB | [Release notes](releasenotes-4.1.0.html) |
-| [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB | [Release notes](releasenotes-4.0.0.html) |
-| [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | | [Release notes](releasenotes-4.0-beta.html) |
+| Version | Release Date | Java | | Download | Size |
+|---|:---:|:---:|---|---|---:|
+| [4.3.1](https://github.com/marytts/marytts/releases/tag/v4.3.1) | 2011-11-30 | 1.6+ | [Release notes](releasenotes-4.3.1.html) | [Standalone installer](http://mary.dfki.de/download/4.3.1/openmary-standalone-install-4.3.1.jar) | 41.2 MB |
+| [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.5+ | [Release notes](releasenotes-4.3.0.html) | [Standalone installer](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   |
+| [4.2.0](https://github.com/marytts/marytts/releases/tag/v4.2.0) | 2010-12-08 | 1.5+ | [Release notes](releasenotes-4.2.0.html) | [Standalone installer](http://mary.dfki.de/download/4.2.0/openmary-standalone-install-4.2.0.jar) | 41 MB   |
+| [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Release notes](releasenotes-4.1.1.html) | [Standalone installer](http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB |
+| [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Release notes](releasenotes-4.1.0.html) | [Standalone installer](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB |
+| [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Release notes](releasenotes-4.0.0.html) | [Standalone installer](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB |
+| [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | [Release notes](releasenotes-4.0-beta.html) | | |
 
 ## Pre-4.0 releases
 
@@ -43,12 +43,12 @@ You will need to accept the licenses appropriate for the selected components bef
 
 The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun Solaris, and Mac OS X.
 
-| Version | Release Date | Java Version | Download | Size | |
-|---|:---:|:---:|---|---:|---|
-| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB | [Release notes](releasenotes-3.6.0.html) |
-| [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | | | [Release notes](releasenotes-3.5.0.html) |
-| [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | | | [Release notes](releasenotes-3.1.0.html) |
-| [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | | | [Release notes](releasenotes-3.1-beta2.html) |
+| Version | Release Date | Java | | Download | Size |
+|---|:---:|:---:|---|---|---:|
+| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Release notes](releasenotes-3.6.0.html) | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB |
+| [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | [Release notes](releasenotes-3.5.0.html) | | |
+| [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | [Release notes](releasenotes-3.1.0.html) | | |
+| [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | [Release notes](releasenotes-3.1-beta2.html) | | |
 
 ### 3.1beta1
 
