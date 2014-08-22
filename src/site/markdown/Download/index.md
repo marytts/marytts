@@ -45,30 +45,9 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 
 | Version | Release Date | Java Version | Download | Size | |
 |---|:---:|:---:|---|---:|---|
-| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 32.2 MB | [Release notes](releasenotes-3.6.0.html) |
+| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB | [Release notes](releasenotes-3.6.0.html) |
+| [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | | | [Release notes](releasenotes-3.5.0.html) |
 
-### MARY 3.5.0
-
-This release provides substantial new features while maintaining the API compatible to previous versions.
-[mary-install-3.5.0.jar](http://mary.dfki.de/download/mary-install-3.5.0.jar) (700kB)
-
-[mary-standalone-install-3.5.0.jar](http://mary.dfki.de/download/mary-standalone-install-3.5.0.jar) (32MB, including several voices)
-
-New features include:
-
-* installer slimmed down to just over 30 MB, including some voices;
-* separate voice installer tool, allowing you to download voices comfortably  and with an integrity verification prior to installation;
-* new synthesis technology:
-  Marcela Charfuelan ported the excellent HMM-based synthesis code from the HTS project (http://hts.sp.nitech.ac.jp/) to Java - several HMM-based voices already ship with MARY;
-* audio effects:
-  Oytun Turk implemented a range of audio effects that can be applied to the MARY voices, and can be controlled through the MARYGUIClient;
-* voice creation toolkit:
-  Sathish Chandra Pammi and Anna Hunecke have cleaned up and [documented the tool](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial) we use for building new synthesis voices;
-* voice recording tool "Redstart":
-  Mat Wilson has programmed a very nice GUI for recording new voices;
-* OGG Vorbis support:
-  under Linux, the MARY server can now generate audio in OGG Vorbis format.
-	
 ### MARY 3.1.0
 
 Ten months after the last stable release, a major milestone release is finally here:
