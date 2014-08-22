@@ -51,22 +51,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 | [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | [Release notes](releasenotes-3.1-beta2.html) | | |
 | [3.1-beta1](https://github.com/marytts/marytts/releases/tag/v3.1beta1) | 2006-12-13 | 1.4+ | [Release notes](releasenotes-3.1-beta1.html) | | |
 | [3.0.3](https://github.com/marytts/marytts/releases/tag/v3.0.3) | 2006-10-26 | 1.4+ | [Release notes](releasenotes-3.0.3.html) | | |
-
-### 3.0.2
-
-[mary-install-3.0.2.jar](http://mary.dfki.de/download/mary-install-3.0.2.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.2.jar](http://mary.dfki.de/download/mary-standalone-install-3.0.2.jar) (standalone installer, 420MB) if the web-based installer causes problems
-
-**Release notes:**
-Second bugfix release.
-A number of bugs have been fixed, including:
-
-* WAV audio can now (really) be saved with proper audio headers ([ticket 38](http://mary.opendfki.de/ticket/38))
-* several bugs related to failing validation of intermediate processing results (due to an outdated MaryXML Schema) were fixed (tickets [40](http://mary.opendfki.de/ticket/40), [41](http://mary.opendfki.de/ticket/41), [43](http://mary.opendfki.de/ticket/43))
-* Synthesizing APML was improved (tickets [51](http://mary.opendfki.de/ticket/51), [52](http://mary.opendfki.de/ticket/52))
-* Pronunciation for German compounds was improved ([ticket 36](http://mary.opendfki.de/ticket/36)) 
-* An update is recommended if you encountered one of these bugs.
-
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.2&amp;order=priority)
+| [3.0.2](https://github.com/marytts/marytts/releases/tag/v3.0.2) | 2006-07-04 | 1.4+ | [Release notes](releasenotes-3.0.2.html) | | |
 
 ### 3.0.1
 
