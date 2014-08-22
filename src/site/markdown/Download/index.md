@@ -43,25 +43,9 @@ You will need to accept the licenses appropriate for the selected components bef
 
 The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun Solaris, and Mac OS X.
 
-### MARY 3.6.0
-
-This is a minor feature release, providing one important new feature and several bugfixes over previous MARY 3.5.0.
-
-[mary-install-3.6.0.jar](http://mary.dfki.de/download/mary-install-3.6.0.jar) (700 kB, will download only selected components)
-
-[mary-standalone-install-3.6.0.jar](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) (32 MB, additional voices can be downloaded during install time)
-
-
-New feature:
-
-* New tool for creating your own HMM-based voices for MARY (see tutorial at http://mary.opendfki.de/wiki/HMMVoiceCreation)
-  Feedback and questions about building voices in MARY are welcome via the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
-
-Bugfixes:
-
-* Important for many will be that the "self-healing" capabilities of the MARY installation are now working again:
-  if you install an English system but a German voice, the system detects a misconfiguration and offers to download and install the missing components, and will start up normally after that.
-* the full list of bugs fixed can be found on http://mary.opendfki.de/query?milestone=3.6
+| Version | Release Date | Java Version | Download | Size | |
+|---|:---:|:---:|---|---:|---|
+| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 32.2 MB | [Release notes](releasenotes-3.6.0.html) |
 
 ### MARY 3.5.0
 
