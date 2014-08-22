@@ -1,6 +1,6 @@
 MARY TTS 5.0 is the first release from the thoroughly restructured code base.
 
-**Download: [MARY TTS 5.0 zip](https://github.com/downloads/marytts/marytts/marytts-5.0.zip)**
+**Download: [MARY TTS 5.0 zip](https://github.com/marytts/marytts/releases/download/v5.0/marytts-5.0.zip)**
 
 MARY TTS 5.0 is better supported by automated tests than any previous version of MARY TTS, but it may well be that in practical use some hiccups will appear that have not surfaced in testing.
 Therefore cautious users are advised to treat this as a beta release.
@@ -13,7 +13,7 @@ Installing MARY TTS is now performed by simply unpacking the `zip` archive at th
 No clicking through installer pages anymore.
 In particular, it is now trivial to install MARY TTS on a server without a GUI connection.
 
-The component installer, bin/marytts-component-installer.sh, still uses a gui;
+The component installer, `bin/marytts-component-installer.sh`, still uses a GUI;
 see issue [#43](https://github.com/marytts/marytts/issues/43) for a workaround.
 
 ### Simplified use of MARY TTS in your own projects

@@ -14,7 +14,7 @@ To install, download [MARY TTS 5.0 zip](https://github.com/downloads/marytts/mar
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
-| [5.0](https://github.com/marytts/marytts/releases/tag/v5.0) | 2012-06-14 | 1.6+ | [Release notes](releasenotes-5.0.html) | | |
+| [5.0](https://github.com/marytts/marytts/releases/tag/v5.0) | 2012-06-14 | 1.6+ | [Release notes](releasenotes-5.0.html) | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-5.0.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-builder-5.0.zip) | 24.5 MB<br/>30.2 MB |
 
 ## MARY TTS 4.x
 
