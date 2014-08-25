@@ -147,6 +147,10 @@
 		<github.global.server>github</github.global.server>
 	</properties>
 
+	<prerequisites>
+		<maven>3.0.2</maven>
+	</prerequisites>
+
 	<modules>
 		<module>marytts-common</module>
 		<module>marytts-languages</module>
