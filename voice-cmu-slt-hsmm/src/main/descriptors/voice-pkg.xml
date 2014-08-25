@@ -14,7 +14,6 @@
         <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
 		<outputDirectory>/</outputDirectory>
 		<destName>lib/${project.artifactId}-${project.version}.jar</destName>
-		<filtered>true</filtered>
       </file>
     </files>
 </assembly>
