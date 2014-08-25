@@ -5,9 +5,10 @@
 		<groupId>de.dfki.mary</groupId>
 		<artifactId>marytts</artifactId>
 		<version>5.1.1-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>marytts-lang-en</artifactId>
+	<artifactId>marytts-lang-ru</artifactId>
 	<name>${project.artifactId}</name>
 
 	<dependencies>
@@ -25,13 +26,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>marytts-runtime</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
