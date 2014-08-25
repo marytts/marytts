@@ -98,7 +98,6 @@
 
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
 				<executions>
 					<execution>
 						<id>copy-resources</id>
