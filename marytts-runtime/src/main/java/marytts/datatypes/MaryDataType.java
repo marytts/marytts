@@ -35,8 +35,8 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
-import marytts.util.io.FileUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -379,7 +379,7 @@ public class MaryDataType
         }
         if (exampleStream == null) return null;
         try {
-            return FileUtils.getStreamAsString(exampleStream, "UTF-8");
+            return IOUtils.toString(exampleStream, "UTF-8");
         } catch (IOException e) {
             logger.debug("Could not get example text for "+type.name()+" / locale "+locale);
             return null;
