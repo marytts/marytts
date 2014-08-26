@@ -126,6 +126,10 @@ public class TextToMaryXML extends InternalModule
      */
     protected Locale determineLocale(String text, Locale defaultLocale)
     {
+        if (defaultLocale == null) {
+            defaultLocale = Locale.getDefault();
+            logger.warn("Locale is null, overriding with " + defaultLocale);
+        }
         return defaultLocale;
     }
 
