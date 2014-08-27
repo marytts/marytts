@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="male" locale="cs" name="fitcs-hsmm"
+        type="hsmm" version="5.1-SNAPSHOT">
+        <description>A male Czech Hidden Markov model voice.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="voice-fitcs-hsmm-5.1-SNAPSHOT.zip"
+            md5sum="6b5b33c803fb0a8e93bc6d7cc6bb4726" size="1031906">
+            <location href="https://www.dropbox.com/s/tgigu661fd5nlsi/voice-fitcs-hsmm-5.1-SNAPSHOT.zip"/>
+        </package>
+        <files>lib/voice-fitcs-hsmm-5.1-SNAPSHOT.jar</files>
+        <depends language="cs" version="5.1-SNAPSHOT"/>
+    </voice>
     <voice gender="female" locale="de" name="bits1-hsmm" type="hsmm" version="5.0-SNAPSHOT">
         <description>A female German Hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals.</description>
         <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
