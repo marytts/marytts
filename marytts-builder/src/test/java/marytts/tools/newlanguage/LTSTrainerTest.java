@@ -43,7 +43,7 @@ public class LTSTrainerTest {
 			LTSTrainer tp = new LTSTrainer(allophoneset, true, true, 2);
 			InputStream lexStream = LTSTrainerTest.class.getResourceAsStream("LTS_test.it.txt");
 
-			BufferedReader lexReader = new BufferedReader(new InputStreamReader(lexStream));
+			BufferedReader lexReader = new BufferedReader(new InputStreamReader(lexStream, "UTF-8"));
 
 			// read lexicon for training
 			tp.readLexicon(lexReader, "\\s");
