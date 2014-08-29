@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>marytts</groupId>
+		<groupId>de.dfki.mary</groupId>
 		<artifactId>marytts</artifactId>
 		<version>${MARYVERSION}</version>
 	</parent>
@@ -14,17 +14,17 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
 			<version>${MARYVERSION}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
 			<version>${MARYVERSION}</version>
 		</dependency>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-${LANG}</artifactId>
 			<version>${MARYVERSION}</version>
 		</dependency>
@@ -98,7 +98,7 @@
 						<configuration>
 							<classpath>
 								<element>
-									<groupId>marytts</groupId>
+									<groupId>${project.groupId}</groupId>
 									<artifactId>marytts-common</artifactId>
 								</element>
 							</classpath>
