@@ -1,7 +1,7 @@
 
 # MARY TTS 4.3.0: Release notes
 
-​[Download MARY TTS 4.3.0](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar)
+​[Download MARY TTS 4.3.0](${project.url}/download/4.3.0/openmary-standalone-install-4.3.0.jar)
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
 
@@ -16,7 +16,7 @@ The release makes available those project results that may be of interest to a w
 Style can be selected using RAWMARYXML's `<prosody style="...">` markup (see new expressive voice, below).
 
 Prosody modification is available for all unit selection voices, including older ones;
-to activate it, click the checkbox "Apply prosody modification" in the [​web interface](http://mary.dfki.de:59125/).
+to activate it, click the checkbox "Apply prosody modification" in the [​web interface](${project.url}:59125/).
 This feature should be considered experimental, and the quality depends on many factors, including the accuracy of the pitchmarks used for building the unit selection voice.
 While this feature is likely to lead to reduced quality, it enables research on expressive prosody with unit selection voices.
 

@@ -1,7 +1,7 @@
 
 # MARY TTS 4.1.0: Release notes
 
-[​Download MARY TTS 4.1.0](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar)
+[​Download MARY TTS 4.1.0](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar)
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
 

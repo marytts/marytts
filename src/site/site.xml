@@ -27,7 +27,7 @@
 		<menu ref="parent" inherit="top" />
 		<menu name="Navigation" inherit="top">
 			<item name="Introduction" href="index.html" />
-			<item name="Online Demo" href="http://mary.dfki.de:59125" target="_blank" />
+			<item name="Online Demo" href="${project.url}:59125" target="_blank" />
 			<item name="Download" href="download/index.html" />
 			<item name="Documentation" href="documentation/index.html" collapse="true">
 				<item name="Publications" href="documentation/publications/index.html" />

@@ -3,7 +3,7 @@
 Ten months after the last stable release, a major milestone release is finally here:
 MARY 3.1.0.
 
-[mary-install-3.1.0.jar](http://mary.dfki.de/download/mary-install-3.1.0.jar) (web-based installer)
+[mary-install-3.1.0.jar](${project.url}/download/mary-install-3.1.0.jar) (web-based installer)
 
 ## Its main features are:
 

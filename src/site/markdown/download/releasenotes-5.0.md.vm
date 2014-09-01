@@ -38,7 +38,7 @@ For details, see [MaryInterface](https://github.com/marytts/marytts/wiki/MaryInt
 
 MARY TTS 5.0 includes an implementation of W3C's [Emotion Markup Language](http://www.w3.org/TR/emotionml/) as a means of requesting expressive synthetic speech.
 The result of course depends on the expressive capabilities of the selected synthesis voice;
-try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](http://mary.dfki.de:59125/).
+try out the EMOTIONML example with the German `dfki-pavoque-styles` voice on the [demo page](${project.url}:59125/).
 
 ### Modularized code base
 

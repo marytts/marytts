@@ -13,7 +13,7 @@ MaryTTS comes with toolkits for quickly [adding support for new languages](https
 
 First, check out the online demo:
 
-* [Speech synthesis interface](http://mary.dfki.de:59125) directly in your web browser 
+* [Speech synthesis interface](${project.url}:59125) directly in your web browser 
 
 Want to know more about this Modular Architecture for Research on speech sYnthesis (MARY)?
 

@@ -2,9 +2,9 @@
 
 This release provides substantial new features while maintaining the API compatible to previous versions.
 
-[mary-install-3.5.0.jar](http://mary.dfki.de/download/mary-install-3.5.0.jar) (700kB)
+[mary-install-3.5.0.jar](${project.url}/download/mary-install-3.5.0.jar) (700kB)
 
-[mary-standalone-install-3.5.0.jar](http://mary.dfki.de/download/mary-standalone-install-3.5.0.jar) (32MB, including several voices)
+[mary-standalone-install-3.5.0.jar](${project.url}/download/mary-standalone-install-3.5.0.jar) (32MB, including several voices)
 
 ## New features include:
 
