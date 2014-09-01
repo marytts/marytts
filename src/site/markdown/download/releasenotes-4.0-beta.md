@@ -10,7 +10,7 @@ MARY 4.0 is a major cleanup over previous versions of MARY TTS.
   All native libraries have been removed from the system.
   MARY should now run on any platform that has Java 1.5 or newer.
 * Fully open source.
-  All code is now open source under the [​LGPL](http://www.gnu.org/licenses/lgpl-3.0-standalone.html), including German TTS.
+  All code is now open source under the [LGPL](http://www.gnu.org/licenses/lgpl-3.0-standalone.html), including German TTS.
   Voices are distributed under Creative Commons or BSD licenses.
 * New languages.
   We have added Turkish and Telugu synthesis for now, and have made it easy to add more languages in the future.
@@ -31,7 +31,7 @@ The MARY client and server code was tested on:
 * Ubuntu Linux 8.10 and 9.04 with sun java 1.5, 1.6, and openjdk-6
 * Windows XP and Vista
 
-The web interface at ​http://localhost:59125 should work with any recent browser that supports AJAX.
+The web interface at http://localhost:59125 should work with any recent browser that supports AJAX.
 We have obtained best results with:
 
 * Firefox 3.5 with built-in audio support
@@ -61,8 +61,8 @@ If you think you have identified a bug, proceed as follows:
     * what to do to reproduce the error;
     * expected behaviour;
     * detailed log files, i.e. an excerpt of MARY TTS/log/server.log containing the error episode.
-3. Discuss the problem on the [​MARY user mailing list](http://www.dfki.de/mailman/listinfo/mary-users).
+3. Discuss the problem on the [MARY user mailing list](http://www.dfki.de/mailman/listinfo/mary-users).
 
 ## Contributions
 
-People interested in adding support for a language can get in touch, e.g. via the ​[MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
+People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
