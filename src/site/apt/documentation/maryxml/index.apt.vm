@@ -19,7 +19,7 @@ MaryXML
 *Examples
 
 	MaryXML, when used as a rich input to a speech synthesis system, provides a powerful method for controlling the behaviour of the TTS system for the given input. It can be thought of as a "remote control" for the TTS system. 
-	The input data below is to be fed into the system as data of type RAWMARYXML, e.g. via the {{{http://mary.dfki.de:59125}online demo}}
+	The input data below is to be fed into the system as data of type RAWMARYXML, e.g. via the {{{${project.url}:59125}online demo}}
 	
 	<<Note:>> These examples refer to MaryXML version 0.5, as it is used since MARY TTS 4.0. In previous versions, some attribute names were different, e.g. the attribute name "sampa" was used instead of the current "ph".
 
@@ -29,7 +29,7 @@ MaryXML
 <?xml version="1.0" encoding="UTF-8" ?>
 <maryxml version="0.4"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns="${project.url}/2002/MaryXML"
 xml:lang="en">
 <prosody rate="+20%" pitch="+20%" range="-10%" volume="loud">
 This is something you have to see!
@@ -43,7 +43,7 @@ This is something you have to see!
 <?xml version="1.0" encoding="UTF-8" ?>
 <maryxml version="0.5"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns="${project.url}/2002/MaryXML"
 xml:lang="en-US">
 Can you <boundary duration="100"/>
 <t accent="H*">please</t> <boundary duration="100"/>
@@ -57,7 +57,7 @@ Can you <boundary duration="100"/>
 <?xml version="1.0" encoding="UTF-8" ?>
 <maryxml version="0.5"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns="${project.url}/2002/MaryXML"
 xml:lang="de">
 Klicken Sie den <t xml:lang="en">Button</t>, um die <t xml:lang="en">Beatles</t> zu spielen.
 </maryxml>
@@ -71,7 +71,7 @@ Klicken Sie den <t xml:lang="en">Button</t>, um die <t xml:lang="en">Beatles</t>
 <?xml version="1.0" encoding="UTF-8" ?>
 <maryxml version="0.5"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns="${project.url}/2002/MaryXML"
 xml:lang="de">
 Klicken Sie den <t ph="'ba-t@n">Button</t>, um die <t sampa="'bi:-t@ls">Beatles</t> zu spielen.
 </maryxml>
@@ -83,7 +83,7 @@ Klicken Sie den <t ph="'ba-t@n">Button</t>, um die <t sampa="'bi:-t@ls">Beatles<
 <?xml version="1.0" encoding="UTF-8" ?>
 <maryxml version="0.5"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns="${project.url}/2002/MaryXML"
 xml:lang="de">
 Möchten Sie <boundary duration="400"/>
 

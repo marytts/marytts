@@ -16,12 +16,12 @@ To install and run MARY TTS, you will need a recent [Java Runtime](http://www.ja
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
-| [4.3.1](https://github.com/marytts/marytts/releases/tag/v4.3.1) | 2011-11-30 | 1.6+ | [Release notes](releasenotes-4.3.1.html) | [Standalone installer](http://mary.dfki.de/download/4.3.1/openmary-standalone-install-4.3.1.jar) | 41.2 MB |
-| [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.5+ | [Release notes](releasenotes-4.3.0.html) | [Standalone installer](http://mary.dfki.de/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   |
-| [4.2.0](https://github.com/marytts/marytts/releases/tag/v4.2.0) | 2010-12-08 | 1.5+ | [Release notes](releasenotes-4.2.0.html) | [Standalone installer](http://mary.dfki.de/download/4.2.0/openmary-standalone-install-4.2.0.jar) | 41 MB   |
-| [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Release notes](releasenotes-4.1.1.html) | [Standalone installer](http://mary.dfki.de/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB |
-| [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Release notes](releasenotes-4.1.0.html) | [Standalone installer](http://mary.dfki.de/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB |
-| [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Release notes](releasenotes-4.0.0.html) | [Standalone installer](http://mary.dfki.de/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB |
+| [4.3.1](https://github.com/marytts/marytts/releases/tag/v4.3.1) | 2011-11-30 | 1.6+ | [Release notes](releasenotes-4.3.1.html) | [Standalone installer](${project.url}/download/4.3.1/openmary-standalone-install-4.3.1.jar) | 41.2 MB |
+| [4.3.0](https://github.com/marytts/marytts/releases/tag/v4.3.0) | 2010-12-20 | 1.5+ | [Release notes](releasenotes-4.3.0.html) | [Standalone installer](${project.url}/download/4.3.0/openmary-standalone-install-4.3.0.jar) | 41 MB   |
+| [4.2.0](https://github.com/marytts/marytts/releases/tag/v4.2.0) | 2010-12-08 | 1.5+ | [Release notes](releasenotes-4.2.0.html) | [Standalone installer](${project.url}/download/4.2.0/openmary-standalone-install-4.2.0.jar) | 41 MB   |
+| [4.1.1](https://github.com/marytts/marytts/releases/tag/v4.1.1) | 2010-09-09 | 1.5+ | [Release notes](releasenotes-4.1.1.html) | [Standalone installer](${project.url}/download/4.1.1/openmary-standalone-install-4.1.1.jar) | 33.9 MB |
+| [4.1.0](https://github.com/marytts/marytts/releases/tag/v4.1.0) | 2010-09-01 | 1.5+ | [Release notes](releasenotes-4.1.0.html) | [Standalone installer](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar) | 33.8 MB |
+| [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Release notes](releasenotes-4.0.0.html) | [Standalone installer](${project.url}/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB |
 | [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | [Release notes](releasenotes-4.0-beta.html) | | |
 
 ## MARY 3.x
@@ -34,8 +34,8 @@ Older comments:
 
 DFKI has released the core MARY system as open source, including English and Tibetan synthesis and various voices, including free unit selection voices based on the CMU Arctic databases.
 
-In addition, German synthesis is released under a [DFKI research license](http://mary.dfki.de/download/DFKI%20MARY%20software%20user%20agreement.html).
-The system can also use [MBROLA](http://tcts.fpms.ac.be/synthesis/mbrola.html) voices, under the [MBROLA license](http://mary.dfki.de/download/Mbrola%20software%20user%20agreement.html).
+In addition, German synthesis is released under a [DFKI research license](${project.url}/download/DFKI%20MARY%20software%20user%20agreement.html).
+The system can also use [MBROLA](http://tcts.fpms.ac.be/synthesis/mbrola.html) voices, under the [MBROLA license](${project.url}/download/Mbrola%20software%20user%20agreement.html).
 
 The interactive, web-based installer which you can download below will guide you through the installation process.
 It will let you decide on the install location on your file system and will let you select the components you wish to install.
@@ -45,7 +45,7 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
-| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Release notes](releasenotes-3.6.0.html) | [Web installer](http://mary.dfki.de/download/mary-install-3.6.0.jar)<br/>[Standalone installer](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB |
+| [3.6.0](https://github.com/marytts/marytts/releases/tag/v3.6.0) | 2008-05-21 | 1.5+ | [Release notes](releasenotes-3.6.0.html) | [Web installer](${project.url}/download/mary-install-3.6.0.jar)<br/>[Standalone installer](${project.url}/download/mary-standalone-install-3.6.0.jar) | 704 KB<br/>32.2 MB |
 | [3.5.0](https://github.com/marytts/marytts/releases/tag/v3.5.0) | 2007-12-07 | 1.5+ | [Release notes](releasenotes-3.5.0.html) | | |
 | [3.1.0](https://github.com/marytts/marytts/releases/tag/v3.1.0) | 2007-08-17 | 1.4+ | [Release notes](releasenotes-3.1.0.html) | | |
 | [3.1-beta2](https://github.com/marytts/marytts/releases/tag/v3.1beta2) | 2007-07-15 | 1.4+ | [Release notes](releasenotes-3.1-beta2.html) | | |
@@ -71,6 +71,6 @@ Installation:
    install product using the portal_quickinstaller;
    and configure the location of your MARY TTS server under "site setup"->"SpeechSynthesisTool Setup".
 
-Download [SpeechSynthesisTool-0.1.zip](http://mary.dfki.de/download/SpeechSynthesisTool-0.1.zip) or get [from SVN](http://mary.opendfki.de/browser/branches/4.x-branch/examples/client/SpeechSynthesisTool):
+Download [SpeechSynthesisTool-0.1.zip](${project.url}/download/SpeechSynthesisTool-0.1.zip) or get [from SVN](http://mary.opendfki.de/browser/branches/4.x-branch/examples/client/SpeechSynthesisTool):
 
     svn checkout https://mary.opendfki.de/repos/branches/4.x-branch/examples/client/SpeechSynthesisTool SpeechSynthesisTool

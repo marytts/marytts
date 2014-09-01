@@ -1,6 +1,6 @@
 # MARY 3.1-beta1
 
-[mary-install-3.1beta1.jar](http://mary.dfki.de/download/mary-install-3.1beta1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.1beta1.jar](http://mary.dfki.de/download/mary-standalone-install-3.1beta1.jar) (standalone installer, ~500MB) if the web-based installer causes problems
+[mary-install-3.1beta1.jar](${project.url}/download/mary-install-3.1beta1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.1beta1.jar](${project.url}/download/mary-standalone-install-3.1beta1.jar) (standalone installer, ~500MB) if the web-based installer causes problems
 
 ## Release notes:
 

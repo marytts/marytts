@@ -2,9 +2,9 @@
 
 This is a minor feature release, providing one important new feature and several bugfixes over previous MARY 3.5.0.
 
-[mary-install-3.6.0.jar](http://mary.dfki.de/download/mary-install-3.6.0.jar) (700 kB, will download only selected components)
+[mary-install-3.6.0.jar](${project.url}/download/mary-install-3.6.0.jar) (700 kB, will download only selected components)
 
-[mary-standalone-install-3.6.0.jar](http://mary.dfki.de/download/mary-standalone-install-3.6.0.jar) (32 MB, additional voices can be downloaded during install time)
+[mary-standalone-install-3.6.0.jar](${project.url}/download/mary-standalone-install-3.6.0.jar) (32 MB, additional voices can be downloaded during install time)
 
 ## New feature:
 

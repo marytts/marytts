@@ -1,6 +1,6 @@
 # MARY 3.1-beta2
 
-[mary-install-3.1beta2.jar](http://mary.dfki.de/download/mary-install-3.1beta2.jar) (web-based installer, 450kB)
+[mary-install-3.1beta2.jar](${project.url}/download/mary-install-3.1beta2.jar) (web-based installer, 450kB)
 
 ## Highlights:
 
