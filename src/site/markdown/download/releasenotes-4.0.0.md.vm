@@ -1,7 +1,7 @@
 
 # MARY TTS 4.0.0: Release Notes
 
-​[MARY TTS 4.0.0 download](${project.url}/download/4.0.0/openmary-standalone-install-4.0.0.jar)
+[MARY TTS 4.0.0 download](${project.url}/download/4.0.0/openmary-standalone-install-4.0.0.jar)
 
 ## What's new
 
@@ -14,7 +14,7 @@ MARY 4.0 is a major cleanup over previous versions of MARY TTS.
   All native libraries have been removed from the system.
   MARY should now run on any platform that has Java 1.5 or newer.
 * Fully open source.
-  All code is now open source under the [​LGPL](http://www.gnu.org/licenses/lgpl-3.0-standalone.html), including German TTS.
+  All code is now open source under the [LGPL](http://www.gnu.org/licenses/lgpl-3.0-standalone.html), including German TTS.
   Voices are distributed under Creative Commons or BSD licenses.
 * Many languages and voices. In addition to several high-quality German and US English voices, this release adds four expressive British English voices built for the [SEMAINE project](http://www.semaine-project.eu/), a Turkish and a Telugu voice.
   Also, we have made it easy to add more languages and voices in the future.
@@ -32,7 +32,7 @@ There is detailed documentation for
 ## Changes since MARY 4.0 beta
 
 * New British English expressive voices.
-  We are releasing the voices of four expressive characters built for the [​SEMAINE project](http://www.semaine-project.eu/).
+  We are releasing the voices of four expressive characters built for the [SEMAINE project](http://www.semaine-project.eu/).
 * Improved Installer.
   You can now install downloaded components without requiring an internet connection at install time.
   The Installer handles updates of language and voice components correctly.
@@ -57,7 +57,7 @@ The MARY client and server code was tested on:
 * Ubuntu Linux 8.10 and 9.04 with sun java 1.5, 1.6, and openjdk-6
 * Windows XP and Vista
 
-The web interface at ​http://localhost:59125 should work with any recent browser that supports AJAX.
+The web interface at http://localhost:59125 should work with any recent browser that supports AJAX.
 We have obtained best results with:
 
 * Firefox 3.5 with built-in audio support
@@ -91,4 +91,4 @@ If you think you have identified a bug, proceed as follows:
 
 ## Contributions
 
-People interested in adding support for a language can get in touch, e.g. via the ​[MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
+People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).

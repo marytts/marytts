@@ -1,13 +1,13 @@
 
 # MARY TTS 4.1.0: Release notes
 
-[​Download MARY TTS 4.1.0](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar)
+[Download MARY TTS 4.1.0](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar)
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
 
 ## New features for expressive TTS
 
-* **Prosody control for HMM-based voices.** Using the SSML [`​<prosody>` tag](http://www.w3.org/TR/speech-synthesis11/#edef_prosody), it is now possible to control the intonation generated for HMM-based voices from markup.
+* **Prosody control for HMM-based voices.** Using the SSML [`<prosody>` tag](http://www.w3.org/TR/speech-synthesis11/#edef_prosody), it is now possible to control the intonation generated for HMM-based voices from markup.
   Of particular interest is the "contour" attribute, which allows you to change the shape of the intonation curve.
   For details and examples, see ProsodySpecificationSupport.
 * **Expressive vocalizations** in certain unit selection voices.
