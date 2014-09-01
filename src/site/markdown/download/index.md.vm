@@ -1,8 +1,10 @@
-# Download
+Download
+========
 
 To install and run MARY TTS, you will need a recent [Java Runtime](http://www.java.com/getjava) installed (Java 1.6 or newer).
 
-## MaryTTS 5.x
+MaryTTS 5.x
+-----------
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
@@ -12,7 +14,8 @@ To install and run MARY TTS, you will need a recent [Java Runtime](http://www.ja
 | [5.1-beta1](https://github.com/marytts/marytts/releases/tag/v5.1beta1) | 2013-11-21 | 1.6+ | | | |
 | [5.0](https://github.com/marytts/marytts/releases/tag/v5.0) | 2012-06-14 | 1.6+ | [Release notes](releasenotes-5.0.html) | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-5.0.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.0/marytts-builder-5.0.zip) | 24.5 MB<br/>30.2 MB |
 
-## MARY TTS 4.x
+MARY TTS 4.x
+------------
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
@@ -24,7 +27,8 @@ To install and run MARY TTS, you will need a recent [Java Runtime](http://www.ja
 | [4.0.0](https://github.com/marytts/marytts/releases/tag/v4.0.0) | 2009-12-18 | 1.5+ | [Release notes](releasenotes-4.0.0.html) | [Standalone installer](${project.url}/download/4.0.0/openmary-standalone-install-4.0.0.jar) | 31.4 MB |
 | [4.0-beta](https://github.com/marytts/marytts/releases/tag/v4.0beta) | 2009-09-24 | 1.5+ | [Release notes](releasenotes-4.0-beta.html) | | |
 
-## MARY 3.x
+MARY 3.x
+--------
 
 These releases are mixed open source / research license, and mostly contain native code.
 This makes them more difficult to reuse and port to new platforms.
@@ -57,9 +61,11 @@ The system should run on MS Windows (2000 and XP, maybe others), PC-Linux, Sun S
 
 --------
 
-## Related downloads
+Related downloads
+=================
 
-### Plone Speech Synthesis Tool
+Plone Speech Synthesis Tool
+---------------------------
 
 This Plone product endows your Plone portal with speech output capabilities.
 It is a client which connects to a MARY TTS server, so you will need to install the MARY TTS system to use the Plone Speech Synthesis Tool.

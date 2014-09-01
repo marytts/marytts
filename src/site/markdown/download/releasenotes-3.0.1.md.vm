@@ -1,8 +1,10 @@
-# MARY 3.0.1
+MARY 3.0.1
+==========
 
 [mary-install-3.0.1.jar](${project.url}/download/mary-install-3.0.1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.1.jar](${project.url}/download/mary-standalone-install-3.0.1.jar) (standalone installer, 420MB) if the web-based installer causes problems
 
-## Relase notes:
+Relase notes:
+-------------
 
 First bugfix release.
 A number of bugs have been fixed which have occurred after the initial release.

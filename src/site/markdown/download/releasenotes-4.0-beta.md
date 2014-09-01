@@ -1,7 +1,8 @@
+MARY TTS 4.0-beta: Release Notes
+================================
 
-# MARY TTS 4.0-beta: Release Notes
-
-## What's new
+What's new
+----------
 
 This is a first beta release of the new 4.0 code.
 MARY 4.0 is a major cleanup over previous versions of MARY TTS.
@@ -23,7 +24,8 @@ MARY now comes with a toolkit for people who want to add support for new languag
 
 More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0+beta).
 
-## Tested environments
+Tested environments
+-------------------
 
 The MARY client and server code was tested on:
 
@@ -37,7 +39,8 @@ We have obtained best results with:
 * Firefox 3.5 with built-in audio support
 * Firefox 3.0, Internet Explorer 6 and 7, Safari 4, with Quicktime plugin
 
-## Known issues
+Known issues
+------------
 
 * On Ubuntu Linux with sun java 1.5 and 1.6, we observed a problem with audio playback in the MARY client:
   the final section is cut off. With openjdk-6, it works ok.
@@ -47,7 +50,8 @@ We have obtained best results with:
   It claims it can handle it, but then doesn't play audio.
   Click on "Save audio file" to get the raw audio data.
 
-## Bug reports
+Bug reports
+-----------
 
 This is beta software.
 It is not yet ready for production use.
@@ -63,6 +67,7 @@ If you think you have identified a bug, proceed as follows:
     * detailed log files, i.e. an excerpt of MARY TTS/log/server.log containing the error episode.
 3. Discuss the problem on the [MARY user mailing list](http://www.dfki.de/mailman/listinfo/mary-users).
 
-## Contributions
+Contributions
+-------------
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).

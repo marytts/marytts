@@ -1,11 +1,13 @@
-# MARY 3.1.0
+MARY 3.1.0
+==========
 
 Ten months after the last stable release, a major milestone release is finally here:
 MARY 3.1.0.
 
 [mary-install-3.1.0.jar](${project.url}/download/mary-install-3.1.0.jar) (web-based installer)
 
-## Its main features are:
+Its main features are:
+----------------------
 
 * state of the art unit selection (English and German);
 * support for two more platforms:
@@ -18,7 +20,8 @@ For a reasonably complete list of issues addressed in this release, see http://m
 
 Should you come across additional bugs, please post them to the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
 
-## Some background info:
+Some background info:
+---------------------
 
 The unit selection code released here has performed better-than-average in this year's Blizzard Challenge (http://www.festvox.org/blizzard/), showing that the system can be considered state-of-the-art.
 For details, see:

@@ -1,11 +1,12 @@
-
-# MARY TTS 4.1.0: Release notes
+MARY TTS 4.1.0: Release notes
+=============================
 
 [Download MARY TTS 4.1.0](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar)
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
 
-## New features for expressive TTS
+New features for expressive TTS
+-------------------------------
 
 * **Prosody control for HMM-based voices.** Using the SSML [`<prosody>` tag](http://www.w3.org/TR/speech-synthesis11/#edef_prosody), it is now possible to control the intonation generated for HMM-based voices from markup.
   Of particular interest is the "contour" attribute, which allows you to change the shape of the intonation curve.
@@ -14,12 +15,14 @@ This is a feature release, adding new features while maintaining compatibility w
   MaryXML now supports a new `<vocalization>` tag, with which you can request the generation of non-verbal or para-verbal expressions as they are often produced by the listener in a conversation, such as "yeah", "m-hm", laughter, sigh, etc.
   For details and examples, see [VocalizationSynthesis](http://mary.opendfki.de/wiki/VocalizationSynthesis).
 
-## New voices
+New voices
+----------
 
 * For British English, we release HMM-based versions of the four voices Poppy, Spike, Obadiah and Prudence.
 * Updated versions of many of the previously existing voices, with improved quality.
 
-## Bugfixes and other improvements
+Bugfixes and other improvements
+-------------------------------
 
 * Faster startup times.
   MARY 4.1.0 starts nearly twice as fast and needs about 30% less physical memory compared to MARY 4.0.0, due to the use of memory mapping for unit selection voices.
@@ -33,6 +36,7 @@ This is a feature release, adding new features while maintaining compatibility w
 * Multiple bugs were also fixed under the surface.
   For a full list, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.1
 
-## More info
+More info
+---------
 
 For more background information, please also refer to the [Release notes of MARY 4.0.0](releasenotes-4.0.0.html).
