@@ -1,8 +1,10 @@
-# MARY 3.0.2
+MARY 3.0.2
+==========
 
 [mary-install-3.0.2.jar](${project.url}/download/mary-install-3.0.2.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.2.jar](${project.url}/download/mary-standalone-install-3.0.2.jar) (standalone installer, 420MB) if the web-based installer causes problems
 
-## Release notes:
+Release notes:
+--------------
 
 Second bugfix release.
 A number of bugs have been fixed, including:

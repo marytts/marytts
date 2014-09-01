@@ -1,14 +1,16 @@
-
-# MARY TTS 4.0.0: Release Notes
+MARY TTS 4.0.0: Release Notes
+=============================
 
 [MARY TTS 4.0.0 download](${project.url}/download/4.0.0/openmary-standalone-install-4.0.0.jar)
 
-## What's new
+What's new
+----------
 
 This is the first stable release of the new 4.0 code.
 MARY 4.0 is a major cleanup over previous versions of MARY TTS.
 
-## Changes since MARY 3.6
+Changes since MARY 3.6
+----------------------
 
 * 100% Pure Java.
   All native libraries have been removed from the system.
@@ -29,7 +31,8 @@ There is detailed documentation for
 * [recording and building a unit selection voice](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial); and
 * [creating an HMM-based voice](http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0) from the same recordings.
 
-## Changes since MARY 4.0 beta
+Changes since MARY 4.0 beta
+---------------------------
 
 * New British English expressive voices.
   We are releasing the voices of four expressive characters built for the [SEMAINE project](http://www.semaine-project.eu/).
@@ -49,7 +52,8 @@ There is detailed documentation for
 
 More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0) and in the [list of tickets associated with the 4.0 beta release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0+beta).
 
-## Tested environments
+Tested environments
+-------------------
 
 The MARY client and server code was tested on:
 
@@ -63,7 +67,8 @@ We have obtained best results with:
 * Firefox 3.5 with built-in audio support
 * Firefox 3.0, Internet Explorer 6 and 7, Safari 4, with Quicktime plugin
 
-## Known issues
+Known issues
+------------
 
 * On Ubuntu Linux with sun java 1.5 and 1.6, we observed a problem with audio playback in the MARY client:
   the final section is cut off.
@@ -74,7 +79,8 @@ We have obtained best results with:
   It claims it can handle it, but then doesn't play audio.
   Click on "Save audio file" to get the raw audio data.
 
-## Bug reports
+Bug reports
+-----------
 
 Thanks to user feedback, we have fixed a number of bugs found in the beta release.
 We are therefore confident that the system is ready for production use.
@@ -89,6 +95,7 @@ If you think you have identified a bug, proceed as follows:
     * expected behaviour;
 3. Then send an informative email as described in the [FAQ](http://mary.opendfki.de/wiki/FrequentlyAskedQuestions#bugreport).
 
-## Contributions
+Contributions
+-------------
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).

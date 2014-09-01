@@ -1,4 +1,5 @@
-# MARY 3.5.0
+MARY 3.5.0
+==========
 
 This release provides substantial new features while maintaining the API compatible to previous versions.
 
@@ -6,7 +7,8 @@ This release provides substantial new features while maintaining the API compati
 
 [mary-standalone-install-3.5.0.jar](${project.url}/download/mary-standalone-install-3.5.0.jar) (32MB, including several voices)
 
-## New features include:
+New features include:
+---------------------
 
 * installer slimmed down to just over 30 MB, including some voices;
 * separate voice installer tool, allowing you to download voices comfortably  and with an integrity verification prior to installation;
