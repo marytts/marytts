@@ -376,6 +376,9 @@
 							<version>2.6</version>
 						</dependency>
 					</dependencies>
+					<configuration>
+						<stagingSiteURL>${project.distributionManagement.site.url}</stagingSiteURL>
+					</configuration>
 				</plugin>
 
 				<plugin>
