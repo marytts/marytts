@@ -7,7 +7,7 @@
 	<version>5.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>MARY TTS</name>
+	<name>MaryTTS</name>
 	<url>http://mary.dfki.de</url>
 	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
 	<inceptionYear>2000</inceptionYear>
