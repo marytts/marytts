@@ -30,16 +30,16 @@
 			<item name="Online Demo" href="${project.url}:59125" target="_blank" />
 			<item name="Download" href="download/index.html" />
 			<item name="Documentation" href="documentation/index.html" collapse="true">
-				<item name="Publications" href="documentation/publications/index.html" />
 				<item name="Overview" href="documentation/overview.html" />
 				<item name="Architecture Walktrough" href="documentation/module-architecture.html" />
 				<item name="MaryXML" href="documentation/maryxml/index.html" />
 				<item name="Tibetan" href="documentation/tibetan.html" />
+				<item name="Publications" href="documentation/publications/index.html" />
+				<item name="PAVOQUE Project" href="pavoque/index.html" collapse="true">
+					<item name="Publications" href="pavoque/publications/pavoque-publications.html" />
+				</item>
 			</item>
 			<item name="FAQ" href="faq.html" />
-			<item name="PAVOQUE Project" href="pavoque/index.html" collapse="true">
-				<item name="Publications" href="pavoque/publications/pavoque-publications.html" />
-			</item>
 			<item name="Legal Information" href="legal-information.html" />
 		</menu>
 		<menu name="Developer Documentation" ref="reports" inherit="top" />
