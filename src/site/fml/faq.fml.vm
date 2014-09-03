@@ -24,6 +24,23 @@
       </answer>
     </faq>
   </part>
+  <part id="technical">
+    <title>Technical</title>
+    <faq id="mp3-support">
+      <question>
+        Can I get MP3 output from ${project.name} (or another compressed audio format)?
+      </question>
+      <answer>
+        Unfortunately, no.
+        MARY 3.x did support MP3 output by depending on the <a href="http://tritonus.org/">Tritonus</a> library.
+        However, the native (i.e., non-Java) components became increasingly problematic to support, and were dropped in MARY TTS 4.0.
+        <br/>
+        The Java world is not particularly well-endowed with open-source implementations of popular audio codecs.
+        While it might be possible to support a few formats (such as <a href="http://www.speex.org/">Speex</a>), it's not one of the next milestones.
+        However, code contributions are always welcome.
+      </answer>
+    </faq>
+  </part>
   <part id="legal">
     <title>Legal</title>
     <faq id="commercial-use">
