@@ -31,6 +31,7 @@
 			<item name="Download" href="download/index.html" />
 			<item name="Documentation" href="documentation/index.html" collapse="true">
 				<item name="Overview" href="documentation/overview.html" />
+				<item name="History" href="documentation/history.html" />
 				<item name="Architecture Walktrough" href="documentation/module-architecture.html" />
 				<item name="MaryXML" href="documentation/maryxml/index.html" />
 				<item name="Tibetan" href="documentation/tibetan.html" />
