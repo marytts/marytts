@@ -20,7 +20,7 @@
         eventually, efforts were concentrated on the open-source version and the DFKI-internal MARY was no longer maintained.
         When OpenMARY development was migrated to GitHub, the name was changed to <i>MaryTTS</i> to highlight the project's purpose.
         <br/>
-        We like to use MaryTTS to refer to the project as it exists now, but for brevity and backward compatibility, occasional references to MARY slip in.
+        We like to use ${project.name} to refer to the project as it exists now, but for brevity and backward compatibility, occasional references to MARY slip in.
       </answer>
     </faq>
   </part>
@@ -28,14 +28,14 @@
     <title>Legal</title>
     <faq id="commercial-use">
       <question>
-        Can I use MaryTTS for commercial purposes?
+        Can I use ${project.name} for commercial purposes?
       </question>
       <answer>
         Yes.
-        Everything needed to run MaryTTS ("marytts-runtime") is licensed under the LGPL;
+        Everything needed to run ${project.name} ("marytts-runtime") is licensed under the LGPL;
         this allows commercial use, modification, and redistribution.
         We do consider it appropriate to provide attribution by inserting a notice such as
-        <pre>Powered by &lt;a href="${project.url}/"&gt;MaryTTS&lt;/a&gt;</pre>
+        <pre>Powered by &lt;a href="${project.url}/"&gt;${project.name}&lt;/a&gt;</pre>
         <b>However,</b> the voicebuilding and language building components ("marytts-builder") are licensed under the GPL;
         they rely on a number of GPL-licensed third-party libraries and tools.
         <br/>
