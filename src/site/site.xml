@@ -19,7 +19,7 @@
 	</custom>
 
 	<bannerLeft>
-		<name>MaryTTS</name>
+		<name>${project.name}</name>
 		<src>images/marylogo.png</src>
 		<href>/index.html</href>
 	</bannerLeft>
