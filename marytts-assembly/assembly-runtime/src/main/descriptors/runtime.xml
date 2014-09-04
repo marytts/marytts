@@ -52,9 +52,15 @@
 		<filtered>true</filtered>
       </file>
       <file>
-        <source>src/runtime/installed/marytts-lang-en-US-component.xml</source>
+      <source>src/runtime/installed/marytts-lang-en-US-component.xml</source>
 		<outputDirectory>/</outputDirectory>
 		<destName>installed/marytts-lang-en-US-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+      <source>src/runtime/installed/marytts-lang-en-NZ-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-en-NZ-${project.version}-component.xml</destName>
 		<filtered>true</filtered>
       </file>
       <file>
