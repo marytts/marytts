@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="it">
+  <p>
+    <s>
+      <t>Benvenuto</t>
+      <t>nel</t>
+      <t>mondo</t>
+      <t>della</t>
+      <t>sintesi</t>
+      <t>vocale</t>
+      <t>.</t>
+    </s>
+  </p>
+</maryxml>
