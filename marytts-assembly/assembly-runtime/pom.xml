@@ -63,6 +63,11 @@
 			<artifactId>marytts-lang-fr</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>marytts-lang-es</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-sv</artifactId>
