@@ -207,6 +207,14 @@
         </package>
         <depends language="ru" version="5.1"/>
     </voice>
+    <voice locale="te" name="cmu-nk" gender="female" type="unit selection" version="5.1">
+        <description>A female Telugu unit selection voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University</description>
+        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
+        <package md5sum="3690f72f3ac5c4244c3831d6e2ddd2d6" filename="voice-cmu-nk-5.1.zip" size="495887397">
+            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        </package>
+        <depends language="te" version="5.1"/>
+    </voice>
     <voice locale="te" name="cmu-nk-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female Telugu hidden semi-Markov model voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University</description>
         <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
@@ -214,6 +222,14 @@
             <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
         </package>
         <depends language="te" version="5.1"/>
+    </voice>
+    <voice locale="tr" name="dfki-ot" gender="male" type="unit selection" version="5.1">
+        <description>A male Turkish unit selection voice</description>
+        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
+        <package md5sum="33323b2ffcbad6d438beae8d6c1245eb" filename="voice-dfki-ot-5.1.zip" size="157783975">
+            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        </package>
+        <depends language="tr" version="5.1"/>
     </voice>
     <voice locale="tr" name="dfki-ot-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male Turkish hidden semi-Markov model voice</description>
