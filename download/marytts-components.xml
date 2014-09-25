@@ -1,241 +1,241 @@
 <?xml version="1.0" encoding="UTF-8"?><marytts-install xmlns="http://mary.dfki.de/installer">
     <voice locale="de" name="bits1-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female German hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="b0fb681d2535a021b238455465cb25ae" filename="voice-bits1-hsmm-5.1.zip" size="1360777">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="69aeb40bc27492d887f7d60bd8afc2aa" filename="voice-bits1-hsmm-5.1.zip" size="1360761">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="de" name="bits3" gender="male" type="unit selection" version="5.1">
         <description>A male German unit selection voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="669ae33e6190d5fdb58dee9b577f7ef5" filename="voice-bits3-5.1.zip" size="278237041">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="e11f0d1057dd80d5ab307eaf3c2a2e81" filename="voice-bits3-5.1.zip" size="278237075">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="de" name="bits3-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male German hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="1af6eb18a91577830ecb373313811b3f" filename="voice-bits3-hsmm-5.1.zip" size="1557121">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="d535206d88da7f5b066a4624c321ee73" filename="voice-bits3-hsmm-5.1.zip" size="1557124">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="de" name="dfki-pavoque-neutral" gender="male" type="unit selection" version="5.1">
         <description>A male German unit selection voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="e2d192f837ae94606a011307a3b224a6" filename="voice-dfki-pavoque-neutral-5.1.zip" size="446054132">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="b2067addeb337de0e31c1e0057ccaf93" filename="voice-dfki-pavoque-neutral-5.1.zip" size="446054145">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="de" name="dfki-pavoque-neutral-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male German hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="b3bdb7d472c1a34a5e34fe4ad78c986b" filename="voice-dfki-pavoque-neutral-hsmm-5.1.zip" size="2835016">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="c064426f03689cc0681514818495b347" filename="voice-dfki-pavoque-neutral-hsmm-5.1.zip" size="2835023">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="de" name="dfki-pavoque-styles" gender="male" type="unit selection" version="5.1">
         <description>A male German unit selection voice with expressive styles "happy", "sad", "angry", and "poker"</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="8eba7f5bcd8221efba99f5d26cb881a5" filename="voice-dfki-pavoque-styles-5.1.zip" size="692113571">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="f497dd93f78fa4a2350adea1196ccd7a" filename="voice-dfki-pavoque-styles-5.1.zip" size="692113207">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="de" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-poppy" gender="female" type="unit selection" version="5.1">
         <description>A female British English expressive unit selection voice: Cheerful Poppy</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="72042050b47df39cd81d11c58266b019" filename="voice-dfki-poppy-5.1.zip" size="99318413">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="8a9bd4c4c888e99f8c367cdac614af9c" filename="voice-dfki-poppy-5.1.zip" size="99318417">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-poppy-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female British English hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="cf02168c349ef08c80743e02ff8ed0dc" filename="voice-dfki-poppy-hsmm-5.1.zip" size="1015892">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="04f1b36ee7113b13e01d3b131c6af75f" filename="voice-dfki-poppy-hsmm-5.1.zip" size="1015901">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-prudence" gender="female" type="unit selection" version="5.1">
         <description>A female British English expressive unit selection voice: Pragmatic Prudence</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="844b2e4ccc83943ecba37fdc1341480a" filename="voice-dfki-prudence-5.1.zip" size="250841157">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="7c81cbc736450219ea1597b217ea9b8f" filename="voice-dfki-prudence-5.1.zip" size="250841190">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-prudence-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female British English hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="635f974ff2fac97b8dabc2a7adc3348b" filename="voice-dfki-prudence-hsmm-5.1.zip" size="1560476">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="87a27d0ae3eed71d1d34bd3337f06501" filename="voice-dfki-prudence-hsmm-5.1.zip" size="1560473">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-obadiah" gender="male" type="unit selection" version="5.1">
         <description>A male British English expressive unit selection voice: Gloomy Obadiah</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="45a36746b78c3cdc1657b4ead44d0566" filename="voice-dfki-obadiah-5.1.zip" size="146431504">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="dde06a7a4849b922bc45b123a5b7b504" filename="voice-dfki-obadiah-5.1.zip" size="146431509">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-obadiah-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male British English hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="0cbddbc88f65f6be602c86094fa71ad0" filename="voice-dfki-obadiah-hsmm-5.1.zip" size="1216404">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="eb9872af54a1f944f191b2b7237f8d25" filename="voice-dfki-obadiah-hsmm-5.1.zip" size="1216409">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-spike" gender="male" type="unit selection" version="5.1">
         <description>A male British English expressive unit selection voice: Aggressive Spike</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="27a609ee95840ddb6c747140a66c7d72" filename="voice-dfki-spike-5.1.zip" size="136165028">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="f1161fd1da6306cc65d054cd8ff75f4e" filename="voice-dfki-spike-5.1.zip" size="136165028">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_GB" name="dfki-spike-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male British English hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="9be4b61d437cf600cb8bdc40d8be149e" filename="voice-dfki-spike-hsmm-5.1.zip" size="1083538">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="a0bfd497423bf504dc3c985476b4e669" filename="voice-dfki-spike-hsmm-5.1.zip" size="1083544">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-GB" version="5.1"/>
     </voice>
     <voice locale="en_US" name="cmu-slt" gender="female" type="unit selection" version="5.1">
         <description>A female US English unit selection voice, built from recordings provided by Carnegie Mellon University</description>
         <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
-        <package md5sum="b4e9066ac95a71daf8837263827f0157" filename="voice-cmu-slt-5.1.zip" size="105909128">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <package md5sum="0fe2293ba1f9a0e373b54d79f0a701cc" filename="voice-cmu-slt-5.1.zip" size="105909149">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-US" version="5.1"/>
     </voice>
     <voice locale="en_US" name="cmu-bdl-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male US English hidden semi-Markov model voice, built from recordings provided by Carnegie Mellon University</description>
         <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
-        <package md5sum="14aba8794d7b8b8726b6a1da786455d4" filename="voice-cmu-bdl-hsmm-5.1.zip" size="1017477">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <package md5sum="b192a878fb782b48c2ea37deed769c28" filename="voice-cmu-bdl-hsmm-5.1.zip" size="1017477">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-US" version="5.1"/>
     </voice>
     <voice locale="en_US" name="cmu-rms-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male US English hidden semi-Markov model voice, built from recordings provided by Carnegie Mellon University</description>
         <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
-        <package md5sum="edac77ff1d0e6a61b81d9ad4445194d9" filename="voice-cmu-rms-hsmm-5.1.zip" size="1028060">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <package md5sum="fc06214cf245ecba0c2ddf437149bd89" filename="voice-cmu-rms-hsmm-5.1.zip" size="1028060">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="en-US" version="5.1"/>
     </voice>
     <voice locale="fr" name="enst-camille" gender="female" type="unit selection" version="5.1">
         <description>A female French unit selection voice, built at Télécom ParisTech (ENST) using data recorded by Camille Dianoux</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="e456c3a571d5d544f13fd7b0cb0941bb" filename="voice-enst-camille-5.1.zip" size="183466601">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="ba18cb28526de107a9b6b8c76d5404ff" filename="voice-enst-camille-5.1.zip" size="183466604">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="enst-camille-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female French hidden semi-Markov model voice, built at Télécom ParisTech (ENST) using data recorded by Camille Dianoux</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="acba34008b82e89bbebd489d54aa0aef" filename="voice-enst-camille-hsmm-5.1.zip" size="1518628">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="19cb43b7fed60b732aa1c2e0e86dff03" filename="voice-enst-camille-hsmm-5.1.zip" size="1518635">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="upmc-jessica" gender="female" type="unit selection" version="5.1">
         <description>A female French unit selection voice, built at ISIR (UPMC) using data recorded by Jessica Durand</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="38cfb2dc95382814c0e97181ae8f02e0" filename="voice-upmc-jessica-5.1.zip" size="126834347">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="ba2daa2a0c69164932ff833817fa4b0e" filename="voice-upmc-jessica-5.1.zip" size="126834351">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="upmc-jessica-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female French hidden semi-Markov model voice, built at ISIR (UPMC) using data recorded by Jessica Durand</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="a4c98777f49754efd7abcac582fe9d9c" filename="voice-upmc-jessica-hsmm-5.1.zip" size="1118965">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="0e95f86b9297f2c60fa6286432d20d84" filename="voice-upmc-jessica-hsmm-5.1.zip" size="1118972">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="enst-dennys-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male Québécois French hidden semi-Markov model voice, built at Télécom ParisTech (ENST)</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="281b2c63bb032b0f0a15323afddffe9f" filename="voice-enst-dennys-hsmm-5.1.zip" size="1676367">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="ee95a5257ea4aba46591cfe7c4429d84" filename="voice-enst-dennys-hsmm-5.1.zip" size="1676376">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="upmc-pierre" gender="male" type="unit selection" version="5.1">
         <description>A male French unit selection voice, built at ISIR (UPMC) using data recorded by Pierre Chauvin</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="a4233542f4e09aaecf1c543d03a08396" filename="voice-upmc-pierre-5.1.zip" size="171764024">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="3120b9dadfb56046e86e64c124d1fa82" filename="voice-upmc-pierre-5.1.zip" size="171764059">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="fr" name="upmc-pierre-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male French hidden semi-Markov model voice, built at ISIR (UPMC) using data recorded by Pierre Chauvin</description>
-        <license href="http://creativecommons.org/licenses/by-sa/3.0/"/>
-        <package md5sum="49d773544a3ff9d6ced7f5d4f577fa40" filename="voice-upmc-pierre-hsmm-5.1.zip" size="1557428">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+        <package md5sum="064e272e3e3283134b44df8eb768dd71" filename="voice-upmc-pierre-hsmm-5.1.zip" size="1557436">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="fr" version="5.1"/>
     </voice>
     <voice locale="it" name="istc-lucia-hsmm" gender="female" type="hsmm" version="5.1">
         <description>Italian female Hidden semi-Markov model voice kindly made available by Fabio Tesser</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="6a13e75e66adfa6f40105a90455bdb1d" filename="voice-istc-lucia-hsmm-5.1.zip" size="1466941">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="68258f5b94c596ac961e9bc45be0e521" filename="voice-istc-lucia-hsmm-5.1.zip" size="1466943">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="it" version="5.1"/>
     </voice>
     <voice locale="ru" name="voxforge-ru-nsh" gender="male" type="unit selection" version="5.1">
         <description>Russian male voice kindly made available by Nickolay V. Shmyrev</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="6a977b5527bd547b5276c45d7f4f0b70" filename="voice-voxforge-ru-nsh-5.1.zip" size="175120746">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="b0ec23e41a2e9c2485b55e640ef32fb3" filename="voice-voxforge-ru-nsh-5.1.zip" size="175120753">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="ru" version="5.1"/>
     </voice>
     <voice locale="te" name="cmu-nk" gender="female" type="unit selection" version="5.1">
         <description>A female Telugu unit selection voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="3690f72f3ac5c4244c3831d6e2ddd2d6" filename="voice-cmu-nk-5.1.zip" size="495887397">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="2fb7b6b6c9e9eb12ea2ebcba4f356505" filename="voice-cmu-nk-5.1.zip" size="495885808">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="te" version="5.1"/>
     </voice>
     <voice locale="te" name="cmu-nk-hsmm" gender="female" type="hsmm" version="5.1">
         <description>A female Telugu hidden semi-Markov model voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="888e671795f8621068cf81d218e461d7" filename="voice-cmu-nk-hsmm-5.1.zip" size="3397528">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="8dd7545a096dd87275b51028bc7623c3" filename="voice-cmu-nk-hsmm-5.1.zip" size="3397557">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="te" version="5.1"/>
     </voice>
     <voice locale="tr" name="dfki-ot" gender="male" type="unit selection" version="5.1">
         <description>A male Turkish unit selection voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="33323b2ffcbad6d438beae8d6c1245eb" filename="voice-dfki-ot-5.1.zip" size="157783975">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="c9940e0a58578fc02113b61ac86a6ebf" filename="voice-dfki-ot-5.1.zip" size="157783972">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="tr" version="5.1"/>
     </voice>
     <voice locale="tr" name="dfki-ot-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male Turkish hidden semi-Markov model voice</description>
-        <license href="http://creativecommons.org/licenses/by-nd/3.0/"/>
-        <package md5sum="467e28dcf43bdb2a7b37f9367191ca27" filename="voice-dfki-ot-hsmm-5.1.zip" size="1366534">
-            <location folder="true" href="http://lnv-90208.sb.dfki.de/download/5.1/"/>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package md5sum="211f3d322f19295b5a7671020d76552e" filename="voice-dfki-ot-hsmm-5.1.zip" size="1366536">
+            <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
         <depends language="tr" version="5.1"/>
     </voice>
