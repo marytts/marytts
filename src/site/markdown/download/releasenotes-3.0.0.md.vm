@@ -1,0 +1,11 @@
+MARY 3.0.0
+==========
+
+[mary-install-3.0.0.jar](${project.url}/download/mary-install-3.0.0.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.0.jar](${project.url}/download/mary-standalone-install-3.0.0.jar) (standalone installer, 420MB) if the web-based installer causes problems
+
+Release Notes:
+--------------
+
+This is the first open-source release.
+We have put in a lot of effort to test and debug it, but of course the system may have some teething problems.
+Please help us improve the system by submitting [bug reports](http://mary.opendfki.de/newticket) on the [OpenMary development page](http://mary.opendfki.de/).

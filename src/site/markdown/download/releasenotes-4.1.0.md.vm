@@ -1,0 +1,42 @@
+MARY TTS 4.1.0: Release notes
+=============================
+
+[Download MARY TTS 4.1.0](${project.url}/download/4.1.0/openmary-standalone-install-4.1.0.jar)
+
+This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
+
+New features for expressive TTS
+-------------------------------
+
+* **Prosody control for HMM-based voices.** Using the SSML [`<prosody>` tag](http://www.w3.org/TR/speech-synthesis11/#edef_prosody), it is now possible to control the intonation generated for HMM-based voices from markup.
+  Of particular interest is the "contour" attribute, which allows you to change the shape of the intonation curve.
+  For details and examples, see ProsodySpecificationSupport.
+* **Expressive vocalizations** in certain unit selection voices.
+  MaryXML now supports a new `<vocalization>` tag, with which you can request the generation of non-verbal or para-verbal expressions as they are often produced by the listener in a conversation, such as "yeah", "m-hm", laughter, sigh, etc.
+  For details and examples, see [VocalizationSynthesis](http://mary.opendfki.de/wiki/VocalizationSynthesis).
+
+New voices
+----------
+
+* For British English, we release HMM-based versions of the four voices Poppy, Spike, Obadiah and Prudence.
+* Updated versions of many of the previously existing voices, with improved quality.
+
+Bugfixes and other improvements
+-------------------------------
+
+* Faster startup times.
+  MARY 4.1.0 starts nearly twice as fast and needs about 30% less physical memory compared to MARY 4.0.0, due to the use of memory mapping for unit selection voices.
+* Quality of German and English components improved.
+  A number of bugs were fixed which had degraded the quality of the synthesis results in MARY 4.0.0:
+    * [#297 German words spelled out when they shouldn't](http://mary.opendfki.de/ticket/297)
+    * [#273 Several problems with abbreviations in German](http://mary.opendfki.de/ticket/273)
+    * [#308 German compound analysis over-active](http://mary.opendfki.de/ticket/308)
+    * [#287 Abbreviations in German trigger major boundary insertion](http://mary.opendfki.de/ticket/287)
+    * [#304 English support for apostrophies is broken](http://mary.opendfki.de/ticket/304)
+* Multiple bugs were also fixed under the surface.
+  For a full list, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.1
+
+More info
+---------
+
+For more background information, please also refer to the [Release notes of MARY 4.0.0](releasenotes-4.0.0.html).

@@ -1,0 +1,24 @@
+MARY 3.5.0
+==========
+
+This release provides substantial new features while maintaining the API compatible to previous versions.
+
+[mary-install-3.5.0.jar](${project.url}/download/mary-install-3.5.0.jar) (700kB)
+
+[mary-standalone-install-3.5.0.jar](${project.url}/download/mary-standalone-install-3.5.0.jar) (32MB, including several voices)
+
+New features include:
+---------------------
+
+* installer slimmed down to just over 30 MB, including some voices;
+* separate voice installer tool, allowing you to download voices comfortably  and with an integrity verification prior to installation;
+* new synthesis technology:
+  Marcela Charfuelan ported the excellent HMM-based synthesis code from the HTS project (http://hts.sp.nitech.ac.jp/) to Java - several HMM-based voices already ship with MARY;
+* audio effects:
+  Oytun Turk implemented a range of audio effects that can be applied to the MARY voices, and can be controlled through the MARYGUIClient;
+* voice creation toolkit:
+  Sathish Chandra Pammi and Anna Hunecke have cleaned up and [documented the tool](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial) we use for building new synthesis voices;
+* voice recording tool "Redstart":
+  Mat Wilson has programmed a very nice GUI for recording new voices;
+* OGG Vorbis support:
+  under Linux, the MARY server can now generate audio in OGG Vorbis format.
