@@ -1,0 +1,22 @@
+MARY 3.6.0
+==========
+
+This is a minor feature release, providing one important new feature and several bugfixes over previous MARY 3.5.0.
+
+[mary-install-3.6.0.jar](${project.url}/download/mary-install-3.6.0.jar) (700 kB, will download only selected components)
+
+[mary-standalone-install-3.6.0.jar](${project.url}/download/mary-standalone-install-3.6.0.jar) (32 MB, additional voices can be downloaded during install time)
+
+New feature:
+------------
+
+* New tool for creating your own HMM-based voices for MARY (see tutorial at http://mary.opendfki.de/wiki/HMMVoiceCreation)
+  Feedback and questions about building voices in MARY are welcome via the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
+
+Bugfixes:
+---------
+
+* Important for many will be that the "self-healing" capabilities of the MARY installation are now working again:
+  if you install an English system but a German voice, the system detects a misconfiguration and offers to download and install the missing components, and will start up normally after that.
+* the full list of bugs fixed can be found on http://mary.opendfki.de/query?milestone=3.6
+

@@ -7,7 +7,7 @@
 	<version>5.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>MARY TTS</name>
+	<name>MaryTTS</name>
 	<url>http://mary.dfki.de</url>
 	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
 	<inceptionYear>2000</inceptionYear>
@@ -53,6 +53,10 @@
 			<name>Maureen Tanuadji</name>
 			<id>mochanz</id>
 		</developer>
+		<developer>
+			<name>Tristan Hamilton</name>
+			<id>munzey</id>
+		</developer>
 	</developers>
 
 	<contributors>
@@ -92,7 +96,7 @@
 	<distributionManagement>
 		<site>
 			<id>DFKI</id>
-			<url>scpexe://mary:/local/mary/www</url>
+			<url>rsync:mary:/local/mary/www</url>
 		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 		<repository>
@@ -407,11 +411,14 @@
 							<version>1.6</version>
 						</dependency>
 						<dependency>
-							<groupId>org.apache.maven.wagon</groupId>
-							<artifactId>wagon-ssh-external</artifactId>
-							<version>2.6</version>
+							<groupId>com.pcl-solutions.maven.wagons</groupId>
+							<artifactId>rsync-maven-wagon</artifactId>
+							<version>1.0</version>
 						</dependency>
 					</dependencies>
+					<configuration>
+						<stagingSiteURL>${project.distributionManagement.site.url}</stagingSiteURL>
+					</configuration>
 				</plugin>
 
 				<plugin>

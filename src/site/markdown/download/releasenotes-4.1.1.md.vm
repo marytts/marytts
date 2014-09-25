@@ -1,0 +1,23 @@
+MARY TTS 4.1.1: Release notes
+=============================
+
+[Download MARY TTS 4.1.1](${project.url}/download/4.1.1/openmary-standalone-install-4.1.1.jar)
+
+This is a bugfix release.
+
+Bugfixes
+--------
+
+* Fixed a critical bug for Windows users who got an "OutOfMemoryError" when trying to start the server with unit selection voices
+    * [#314 Memory mapping causes OutOfMemoryError if -Xmx is set too high](http://mary.opendfki.de/ticket/314)
+* Other small bug fixes -- see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.1.1
+
+New voices
+----------
+
+* Added Telugu HMM-based voice "cmu-nk-hsmm".
+
+More info
+---------
+
+For more background information, please also refer to the [Release notes of MARY 4.1.0](releasenotes-4.1.0.html).

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs xmlns="http://maven.apache.org/FML/1.0.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/FML/1.0.1 http://maven.apache.org/xsd/fml-1.0.1.xsd" title="Frequently Asked Questions">
+  <part id="general">
+    <title>General</title>
+    <faq id="name-origin">
+      <question>
+        Where does the name <i>MARY</i> come from?
+      </question>
+      <answer><b>MARY</b> stands for <b>M</b>odular <b>A</b>rchitecture for <b>R</b>esearch in S<b>y</b>nthesis.
+      </answer>
+    </faq>
+    <faq id="name-relation">
+      <question>
+        What is the relation between <i>MARY</i>, <i>OpenMARY</i>, <i>MaryTTS</i>, etc.?
+      </question>
+      <answer>
+        MARY was the original name of the project, before it was open-source.
+        An open-source fork was later released under the name <i>OpenMARY</i>.
+        For a while, MARY and OpenMARY were developed side-by-side;
+        eventually, efforts were concentrated on the open-source version and the DFKI-internal MARY was no longer maintained.
+        When OpenMARY development was migrated to GitHub, the name was changed to <i>MaryTTS</i> to highlight the project's purpose.
+        <br/>
+        We like to use ${project.name} to refer to the project as it exists now, but for brevity and backward compatibility, occasional references to MARY slip in.
+      </answer>
+    </faq>
+  </part>
+  <part id="technical">
+    <title>Technical</title>
+    <faq id="mp3-support">
+      <question>
+        Can I get MP3 output from ${project.name} (or another compressed audio format)?
+      </question>
+      <answer>
+        Unfortunately, no.
+        MARY 3.x did support MP3 output by depending on the <a href="http://tritonus.org/">Tritonus</a> library.
+        However, the native (i.e., non-Java) components became increasingly problematic to support, and were dropped in MARY TTS 4.0.
+        <br/>
+        The Java world is not particularly well-endowed with open-source implementations of popular audio codecs.
+        While it might be possible to support a few formats (such as <a href="http://www.speex.org/">Speex</a>), it's not one of the next milestones.
+        However, code contributions are always welcome.
+      </answer>
+    </faq>
+  </part>
+  <part id="legal">
+    <title>Legal</title>
+    <faq id="commercial-use">
+      <question>
+        Can I use ${project.name} for commercial purposes?
+      </question>
+      <answer>
+        Yes.
+        Everything needed to run ${project.name} ("marytts-runtime") is licensed under the LGPL;
+        this allows commercial use, modification, and redistribution.
+        We do consider it appropriate to provide attribution by inserting a notice such as
+        <pre>Powered by &lt;a href="${project.url}/"&gt;${project.name}&lt;/a&gt;</pre>
+        <b>However,</b> the voicebuilding and language building components ("marytts-builder") are licensed under the GPL;
+        they rely on a number of GPL-licensed third-party libraries and tools.
+        <br/>
+        <b>Moreover,</b> the TTS voices themselves have individual licenses, usually Creative Commons;
+        so depending on the voice's license, it may or may not be used commercially.
+      </answer>
+    </faq>
+  </part>
+</faqs>
