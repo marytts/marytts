@@ -113,7 +113,7 @@
     </voice>
     <voice locale="en_US" name="cmu-slt" gender="female" type="unit selection" version="5.1">
         <description>A female US English unit selection voice, built from recordings provided by Carnegie Mellon University</description>
-        <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
+        <license href="http://mary.dfki.de/download/arctic-license.html"/>
         <package md5sum="0fe2293ba1f9a0e373b54d79f0a701cc" filename="voice-cmu-slt-5.1.zip" size="105909149">
             <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
@@ -121,7 +121,7 @@
     </voice>
     <voice locale="en_US" name="cmu-bdl-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male US English hidden semi-Markov model voice, built from recordings provided by Carnegie Mellon University</description>
-        <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
+        <license href="http://mary.dfki.de/download/arctic-license.html"/>
         <package md5sum="b192a878fb782b48c2ea37deed769c28" filename="voice-cmu-bdl-hsmm-5.1.zip" size="1017477">
             <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
@@ -129,7 +129,7 @@
     </voice>
     <voice locale="en_US" name="cmu-rms-hsmm" gender="male" type="hsmm" version="5.1">
         <description>A male US English hidden semi-Markov model voice, built from recordings provided by Carnegie Mellon University</description>
-        <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
+        <license href="http://mary.dfki.de/download/arctic-license.html"/>
         <package md5sum="fc06214cf245ecba0c2ddf437149bd89" filename="voice-cmu-rms-hsmm-5.1.zip" size="1028060">
             <location folder="true" href="http://mary.dfki.de/download/5.1/"/>
         </package>
