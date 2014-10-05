@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>marytts</artifactId>
 		<groupId>de.dfki.mary</groupId>
-		<version>5.1.1-SNAPSHOT</version>
+		<version>5.1.1</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
