@@ -1,0 +1,50 @@
+<allophones name="sampa" xml:lang="es"
+		features="vheight vfront vrnd ctype cplace cvox">
+  <!-- Symbols follow Spanish SAMPA according to http://www.phon.ucl.ac.uk/home/sampa/spanish.htm -->
+	<silence ph="_"/>
+
+	<!-- Consonants -->
+	<!-- Plosives -->
+	<consonant ph="p" ctype="s" cplace="l" cvox="-"/>
+	<consonant ph="b" ctype="s" cplace="l" cvox="+"/>
+	<consonant ph="t" ctype="s" cplace="a" cvox="-"/>
+	<consonant ph="d" ctype="s" cplace="a" cvox="+"/>
+	<consonant ph="k" ctype="s" cplace="v" cvox="-"/>
+	<consonant ph="g" ctype="s" cplace="v" cvox="+"/>
+	
+	<!-- Affricates -->
+	<consonant ph="tS" ctype="a" cplace="p" cvox="-"/>
+	<consonant ph="jj" ctype="a" cplace="p" cvox="+"/>
+
+	<!-- Fricatives -->
+	<consonant ph="f" ctype="f" cplace="b" cvox="-"/>
+	<consonant ph="B" ctype="f" cplace="b" cvox="+"/>
+	<consonant ph="T" ctype="f" cplace="d" cvox="-"/>
+	<consonant ph="D" ctype="f" cplace="d" cvox="+"/>
+	<consonant ph="s" ctype="f" cplace="a" cvox="-"/>
+	<consonant ph="x" ctype="f" cplace="v" cvox="-"/>
+	<consonant ph="G" ctype="f" cplace="v" cvox="+"/>
+
+	<!-- Nasals -->
+	<consonant ph="m" ctype="n" cplace="l" cvox="+"/>
+	<consonant ph="n" ctype="n" cplace="a" cvox="+"/>
+	<consonant ph="J" ctype="n" cplace="p" cvox="+"/>
+
+	<!-- Liquids -->
+	<consonant ph="l" ctype="l" cplace="a" cvox="+"/>
+	<consonant ph="L" ctype="l" cplace="p" cvox="+"/>
+	<consonant ph="r" ctype="l" cplace="a" cvox="+"/>
+	<consonant ph="rr" ctype="r" cplace="a" cvox="+"/>
+	
+	<!-- Semivowels -->
+	<consonant ph="j" ctype="r" cplace="p" cvox="+"/>
+	<consonant ph="w" ctype="r" cplace="l" cvox="+"/>
+
+	<!-- Vowels -->
+	<vowel ph="i" vheight="1" vfront="1" vrnd="-"/>
+	<vowel ph="e" vheight="2" vfront="1" vrnd="-"/>
+	<vowel ph="u" vheight="1" vfront="3" vrnd="+"/>
+	<vowel ph="o" vheight="2" vfront="3" vrnd="+"/>
+	<vowel ph="a" vheight="3" vfront="2" vrnd="-"/>
+
+</allophones>

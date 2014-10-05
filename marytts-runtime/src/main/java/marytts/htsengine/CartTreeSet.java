@@ -67,7 +67,6 @@ package marytts.htsengine;
 import java.io.IOException;
 
 import marytts.cart.CART;
-import marytts.cart.Node;
 import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
 import marytts.exceptions.MaryConfigurationException;
@@ -99,15 +98,20 @@ public class CartTreeSet {
     private int strVsize;             /* vector size for strengths modeling */
     private int magVsize;             /* vector size for Fourier magnitudes modeling */
    
-    HTSCARTReader htsReader = new HTSCARTReader(); 
-    
     public int getNumStates(){ return numStates; }
-    public void setNumStates(int val){ numStates = val; }
     public int getLf0Stream(){ return lf0Stream; }
     public int getMcepVsize(){ return mcepVsize; }
     public int getStrVsize(){ return strVsize; }
     public int getMagVsize(){ return magVsize; }
     
+    public int getVsize(HMMData.FeatureType type) {
+        switch (type) {
+        case MGC: return mcepVsize;
+        case STR: return strVsize;
+        case MAG: return magVsize;
+        default: return 1; // DUR and LF0
+        }
+    }
     
     /** Loads all the CART trees */
     public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones) 
@@ -115,6 +119,7 @@ public class CartTreeSet {
         // Check if there are tricky phones, and create a PhoneTranslator object
         PhoneTranslator phTranslator = trickyPhones;
              
+		HTSCARTReader htsReader = new HTSCARTReader();
         /* DUR, LF0 and Mgc are required as minimum for generating voice. 
         * The duration tree has only one state.
         * The size of the vector in duration is the number of states. */
@@ -160,49 +165,40 @@ public class CartTreeSet {
      * @return duration
      * @throws Exception
      */
-    public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) throws Exception {
+    public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) {
         return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
     }
     public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData,
-            boolean firstPh, boolean lastPh, double diffdur) 
-      throws Exception {     
-      int s, i;
+            boolean firstPh, boolean lastPh, double diffdur) {     
       double data, dd;
       double rho = htsData.getRho();
       double durscale = htsData.getDurationScale();
       double meanVector[], varVector[];
-      Node node;
-     
-      
       // the duration tree has only one state
-      node = durTree[0].interpretToNode(fv, 1);
+      PdfLeafNode node = (PdfLeafNode) durTree[0].interpretToNode(fv, 0);
       
-      if ( node instanceof PdfLeafNode ) { 
-        //System.out.println("  PDF INDEX = " + ((PdfLeafNode)node).getUniqueLeafId() );  
-        meanVector = ((PdfLeafNode)node).getMean();
-        varVector = ((PdfLeafNode)node).getVariance();
-      } else 
-         throw new Exception("searchDurInCartTree: The node must be a PdfLeafNode");
+        meanVector = node.getMean();
+        varVector = node.getVariance();
           
       dd = diffdur;
       // in duration the length of the vector is the number of states.
-      for(s=0; s<numStates; s++){
-        data = meanVector[s] + rho * varVector[s];
+      for(int s=0; s<numStates; s++){
+        data = (meanVector[s] + rho * varVector[s]) * durscale;
       
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
 //        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
 //          data = data * 0.1;
         
-        data = data * durscale;                  
         m.setDur(s, (int)(data+dd+0.5));
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
         //System.out.format("   state=%d  dur=%d  dd=%f  mean=%f  vari=%f \n", s, m.getDur(s), dd, meanVector[s], varVector[s]);               
-        m.setTotalDur(m.getTotalDur() + m.getDur(s));      
-        dd = dd + ( data - (double)m.getDur(s) );       
+        m.incrTotalDur(m.getDur(s));      
+        dd += data - m.getDur(s);
       }
+      m.setDurError(dd);
       return dd; 
       
     }
@@ -217,20 +213,13 @@ public class CartTreeSet {
      * @param featureDef Feature definition
      * @throws Exception
      */
-    public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) 
-      throws Exception {     
-      int s;
-      Node node;
-      for(s=0; s<numStates; s++) {          
-        node = lf0Tree[s].interpretToNode(fv, 1);
-        if ( node instanceof PdfLeafNode ) { 
-          //System.out.format("  state=%d  node_index=%d \n", s, ((PdfLeafNode)node).getUniqueLeafId());
-          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());         
-          m.setLf0Variance(s, ((PdfLeafNode)node).getVariance());
-        } else 
-            throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");       
+    public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) {     
+      for(int s=0; s<numStates; s++) {          
+        PdfLeafNode node = (PdfLeafNode) lf0Tree[s].interpretToNode(fv, 1);
+          m.setLf0Mean(s, node.getMean());         
+          m.setLf0Variance(s, node.getVariance());
         // set voiced or unvoiced
-        if(((PdfLeafNode)node).getVoicedWeight() > uvthresh)
+        if(node.getVoicedWeight() > uvthresh)
             m.setVoiced(s, true);
         else
             m.setVoiced(s,false);       
@@ -247,19 +236,12 @@ public class CartTreeSet {
      * @param featureDef Feature definition
      * @throws Exception
      */
-    public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
-      throws Exception {     
-      int s;
-      Node node;
-      for(s=0; s<numStates; s++) {         
-        node = mgcTree[s].interpretToNode(fv, 1);       
-        if ( node instanceof PdfLeafNode ) {       
-          m.setMcepMean(s,((PdfLeafNode)node).getMean());         
-          m.setMcepVariance(s, ((PdfLeafNode)node).getVariance());
-        } else
-            throw new Exception("searchMgcInCartTree: The node must be a PdfLeafNode");
+    public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {     
+      for(int s=0; s<numStates; s++) {         
+        PdfLeafNode node = (PdfLeafNode) mgcTree[s].interpretToNode(fv, 1);       
+          m.setMcepMean(s, node.getMean());
+          m.setMcepVariance(s, node.getVariance());
       }
-      //m.printMcepMean();
     }
     
     /***
@@ -270,17 +252,11 @@ public class CartTreeSet {
      * @param featureDef Feature definition
      * @throws Exception
      */
-    public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
-      throws Exception {     
-      int s;
-      Node node;
-      for(s=0; s<numStates; s++) {      
-        node = strTree[s].interpretToNode(fv, 1);
-        if ( node instanceof PdfLeafNode ) {       
-          m.setStrMean(s, ((PdfLeafNode)node).getMean());
-          m.setStrVariance(s, ((PdfLeafNode)node).getVariance());
-        } else
-            throw new Exception("searchStrInCartTree: The node must be a PdfLeafNode");    
+    public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {     
+      for(int s=0; s<numStates; s++) {      
+          PdfLeafNode node = (PdfLeafNode) strTree[s].interpretToNode(fv, 1);
+        m.setStrMean(s, node.getMean());
+        m.setStrVariance(s, node.getVariance());
       }
     }
     
@@ -292,18 +268,53 @@ public class CartTreeSet {
      * @param featureDef Feature definition
      * @throws Exception
      */
-    public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
-      throws Exception {     
-      int s;
-      Node node;
-      for(s=0; s<numStates; s++) {        
-        node = magTree[s].interpretToNode(fv, 1);
-        if ( node instanceof PdfLeafNode ) {       
-          m.setMagMean(s, ((PdfLeafNode)node).getMean());
-          m.setMagVariance(s, ((PdfLeafNode)node).getVariance());
-        } else
-            throw new Exception("searchMagInCartTree: The node must be a PdfLeafNode");   
+    public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
+      for(int s=0; s<numStates; s++) {    
+        PdfLeafNode node = (PdfLeafNode) magTree[s].interpretToNode(fv, 1);
+        m.setMagMean(s, node.getMean());
+        m.setMagVariance(s, node.getVariance());
       }
+    }
+
+    /** 
+     * creates a HTSModel (pre-HMM optimization vector data for all parameter streams of a given phoneme) given a feature vector
+     * compare with original code in the main loop of marytts.modules.HTSEngine#processTargetList()   
+     * @param oldErr 
+     * @throws Exception 
+     */  
+    public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureVector fv, double oldErr) {
+        HTSModel m = new HTSModel(getNumStates());
+        String phoneFeature = fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef);
+        m.setPhoneName(phoneFeature);
+        try {
+        	
+            double diffDur = searchDurInCartTree(m, fv, htsData, oldErr);
+            m.setDurError(diffDur);
+            // m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur())); nobody ever uses totaldurmillisec and it's really redundant to gettotaldur
+
+            /* Find pdf for LF0, this function sets the pdf for each state. 
+             * here it is also set whether the model is voiced or not */ 
+            // if ( ! htsData.getUseUnitDurationContinuousFeature() )
+            // Here according to the HMM models it is decided whether the states of this model are voiced or unvoiced
+            // even if f0 is taken from maryXml here we need to set the voived/unvoiced values per model and state
+            searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+
+            /* Find pdf for MGC, this function sets the pdf for each state.  */
+            searchMgcInCartTree(m, fv, feaDef);
+
+            /* Find pdf for strengths, this function sets the pdf for each state.  */
+            if(htsData.getTreeStrStream() != null)
+              searchStrInCartTree(m, fv, feaDef);
+            
+            /* Find pdf for Fourier magnitudes, this function sets the pdf for each state.  */
+            if(htsData.getTreeMagStream() != null)
+              searchMagInCartTree(m, fv, feaDef);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return m;
     }
 
 }

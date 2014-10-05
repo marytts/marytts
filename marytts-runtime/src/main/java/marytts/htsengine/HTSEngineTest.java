@@ -172,12 +172,12 @@ public class HTSEngineTest {
                   
       try {
           /* Process Mary context features file and creates UttModel um.   */
-          hmm_tts.processUttFromFile(feaFile, um, htsData);
+          um = hmm_tts.processUttFromFile(feaFile, htsData);
 
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
           boolean debug = false;  /* so it DOES NOT save the generated parameters in parFile */
-          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, null, debug);
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
           
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
@@ -269,12 +269,12 @@ public class HTSEngineTest {
                   
       try {
           /* Process Mary context features file and creates UttModel um.   */
-          hmm_tts.processUttFromFile(feaFile, um, htsData);
+          um = hmm_tts.processUttFromFile(feaFile, htsData);
 
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
           boolean debug = false;  /* so it DOES NOT save the generated parameters in parFile */
-          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, null, debug);
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
          
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
@@ -383,7 +383,7 @@ public class HTSEngineTest {
            
         
          voiced = new boolean[totalFrame];
-         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
+         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.FeatureType.LF0, 0);
          
          /* load lf0 data */
          /* for lf0 i just need to load the voiced values */
@@ -471,7 +471,7 @@ public class HTSEngineTest {
         AudioInputStream ais;
         
         /* Process label file of Mary context features and creates UttModel um.   */
-        hmm_tts.processUttFromFile(feaFile, um, htsData);
+        um = hmm_tts.processUttFromFile(feaFile, htsData);
           
         /* save realised durations in a lab file */
         FileWriter outputStream;
@@ -498,7 +498,7 @@ public class HTSEngineTest {
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */ 
         boolean debug = true;  /* with debug=true it saves the generated parameters  
                                   f0 and mfcc in parFile.f0 and parFile.mfcc in Mary format. */
-        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, parFile, debug);
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
           
         /* Synthesize speech waveform, generate speech out of sequence of parameter */
         ais = par2speech.htsMLSAVocoder(pdf2par, htsData);

@@ -71,11 +71,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Vector;
 
 import marytts.config.MaryConfig;
@@ -83,6 +85,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.util.FeatureUtils;
+import marytts.htsengine.HMMData.FeatureType;
 import marytts.util.MaryUtils;
 import marytts.util.io.PropertiesAccessor;
 
@@ -99,11 +102,13 @@ public class HMMData {
     	
     /** Number of model and identificator for the models*/
 	public static final int HTS_NUMMTYPE = 5;
-	public static final int DUR = 0;
-	public static final int LF0 = 1;
-	public static final int MGC = 2;
-	public static final int STR = 3;
-	public static final int MAG = 4;
+	public static enum FeatureType  {
+	    DUR, // duration
+	    MGC, // MGC mel-generalized cepstral coefficients
+        LF0, // log(fundamental frequency)
+	    STR, // strength of excitation?
+	    MAG, // fourier magnitudes for pulse generation
+	};
 	
 	public enum PdfFileFormat { dur, lf0, mgc, str, mag, join };
 
@@ -208,6 +213,9 @@ public class HMMData {
 	public double getAlpha() { return alpha; }
 	public double getBeta() { return beta; }
     public int getStage() { return stage; }
+    public double getGamma() {
+        return (stage != 0) ? -1.0 / stage : 0.0;
+    }
     public boolean getUseLogGain(){ return useLogGain; }
 	public double getUV() { return  uv; }
 	public boolean getAlgnst() { return algnst; }
@@ -531,5 +539,15 @@ public class HMMData {
     } /* method readMixedExcitationFiltersFile() */
 
 
-	
+	/** return the set of FeatureTypes that are available in this HMMData object */
+	public Set<FeatureType> getFeatureSet() {
+        Set<FeatureType> featureTypes = EnumSet.noneOf(FeatureType.class);
+        if (getPdfDurStream() != null) featureTypes.add(FeatureType.DUR);
+        if (getPdfLf0Stream() != null) featureTypes.add(FeatureType.LF0);
+        if (getPdfStrStream() != null) featureTypes.add(FeatureType.STR);
+        if (getPdfMagStream() != null) featureTypes.add(FeatureType.MAG);
+        if (getPdfMgcStream() != null) featureTypes.add(FeatureType.MGC);
+        return featureTypes;
+    }
+
 }

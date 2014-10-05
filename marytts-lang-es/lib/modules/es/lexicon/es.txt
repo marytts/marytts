@@ -1,0 +1,5459 @@
+ #########################################################################
+# Copyright 2009 DFKI GmbH.
+# All Rights Reserved.  Use is subject to license terms.
+#
+# This file is part of MARY TTS.
+#
+# MARY TTS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# #########################################################################
+﻿a a
+abandonado a-Ban-do-'na-Do
+abandonar a-Ban-do-'nar
+abarcan a-'Bar-kan
+abierta a-'Bjer-ta
+abogado a-Bo-'Ga-Do
+abolió a-Bo-'ljo
+abra 'a-Bra
+abre 'a-Bre
+abrieron a-'Brje-ron
+abstenido abs-te-'ni-Do
+abstuvo abs-'tu-Bo
+acaba a-'ka-Ba
+accesibles ak-Te-'si-Bles
+accidente ak-Ti-'Den-te
+acción ak-'Tjon
+acciones ak-'Tjo-nes
+acecho a-'Te-tSo
+acelerar a-Te-le-'rar
+aceptable a-Tep-'ta-Ble
+aceptación a-Tep-ta-'Tjon
+aceptado a-Tep-'ta-Do
+aceptan a-'Tep-tan
+acepto a-'Tep-to
+acerca a-'Ter-ka
+aclaro a-'kla-ro
+acoger a-ko-'xer
+acontecimiento a-kon-te-Ti-'mjen-to
+acordar a-kor-'Dar
+acordaron a-kor-'Da-ron
+actitud ak-ti-'tud
+activa ak-'ti-Ba
+actividad ak-ti-Bi-'Dad
+actividades ak-ti-Bi-'Da-Des
+activistas ak-ti-'Bis-tas
+actos 'ak-tos
+actualmente ak-twal-'men-te
+actuaron ak-'twa-ron
+acudieron a-ku-'Dje-ron
+acuerdo a-'kwer-Do
+acuerdos a-'kwer-Dos
+acumula a-ku-'mu-la
+acumulación a-ku-mu-la-'Tjon
+acusaciones a-ku-sa-'Tjo-nes
+acusadas a-ku-'sa-Das
+acusado a-ku-'sa-Do
+acusados a-ku-'sa-Dos
+acusó a-ku-'so
+adelantadas a-De-lan-'ta-Das
+adelantado a-De-lan-'ta-Do
+adelantar a-De-lan-'tar
+adelantaron a-De-lan-'ta-ron
+adelante a-De-'lan-te
+adelanto a-De-'lan-to
+además a-De-'mas
+adicional a-Di-Tjo-'nal
+adicionales a-Di-Tjo-'na-les
+administración ad-mi-nis-tra-'Tjon
+administrado ad-mi-nis-'tra-Do
+administrador ad-mi-nis-tra-'Dor
+administradores ad-mi-nis-tra-'Do-res
+admitieron ad-mi-'tje-ron
+admitió ad-mi-'tjo
+adoptada a-Dop-'ta-Da
+adoptar a-Dop-'tar
+adopto a-'Dop-to
+adquirir ad-ki-'rir
+adquisición ad-ki-si-'Tjon
+aduanas a-'Dwa-nas
+advertencia ad-Ber-'ten-Tja
+advertido ad-Ber-'ti-Do
+advirtieron ad-Bir-'tje-ron
+advirtió ad-Bir-'tjo
+aérea a-'e-re-a
+aéreo a-'e-re-o
+aeropuerto a-e-ro-'pwer-to
+afectada a-fek-'ta-Da
+afectadas a-fek-'ta-Das
+afectado a-fek-'ta-Do
+afectados a-fek-'ta-Dos
+afectar a-fek-'tar
+afecto a-'fek-to
+afirmaciones a-fir-ma-'Tjo-nes
+afirman a-'fir-man
+afirmando a-fir-'man-do
+afirmo a-'fir-mo
+afronta a-'fron-ta
+agencia a-'xen-Tja
+agenda a-'xen-da
+agentes a-'xen-tes
+agosto a-'Gos-to
+agotado a-Go-'ta-Do
+agrego a-'Gre-Go
+agrícola a-'Gri-ko-la
+agrícolas a-'Gri-ko-las
+agrio 'a-Grjo
+agua 'a-Gwa
+ahora a-'o-ra
+aislado ais-'la-Do
+ajustado a-xus-'ta-Do
+ajuste a-'xus-te
+al al
+alambres a-'lam-bres
+alas 'a-las
+alba 'al-Ba
+albaneses al-Ba-'ne-ses
+alcalde al-'kal-de
+alcance al-'kan-Te
+alcanzar al-kan-'Tar
+alega a-'le-Ga
+alegaciones a-le-Ga-'Tjo-nes
+alegan a-'le-Gan
+alego a-'le-Go
+alegría a-le-'Gri-a
+alejados a-le-'xa-Dos
+alemán a-le-'man
+alemana a-le-'ma-na
+alfabeto al-fa-'Be-to
+algo 'al-go
+alguien 'al-gjen
+algún al-'gun
+alguna al-'gu-na
+algunas al-'gu-nas
+algunos al-'gu-nos
+aliados a-'lja-Dos
+alimentos a-li-'men-tos
+alrededor al-rre-De-'Dor
+alrededores al-rre-De-'Do-res
+alta 'al-ta
+alteraron al-te-'ra-ron
+alto 'al-to
+alude a-'lu-De
+aludió a-lu-'Djo
+alumnos a-'lum-nos
+amanecer a-ma-ne-'Ter
+ambas 'am-bas
+ambos 'am-bos
+amenaza a-me-'na-Ta
+amenazaron a-me-na-'Ta-ron
+amenazas a-me-'na-Tas
+amenazo a-me-'na-To
+amotinamiento a-mo-ti-na-'mjen-to
+amplia 'am-plja
+ampliar am-'pljar
+amplio 'am-pljo
+analistas a-na-'lis-tas
+analizar a-na-li-'Tar
+anexo a-'nek-so
+anoche a-'no-tSe
+anotaron a-no-'ta-ron
+ante 'an-te
+anteriores an-te-'rjo-res
+antes 'an-tes
+anticipa an-ti-'Ti-pa
+antigubernamentales an-ti-Gu-Ber-na-men-'ta-les
+antiguo an-'ti-Gwo
+antonio an-'to-njo
+anunciada a-nun-'Tja-Da
+anunciado a-nun-'Tja-Do
+anunciara a-nun-'Tja-ra
+anunciaron a-nun-'Tja-ron
+anuncio a-'nun-Tjo
+apagaron a-pa-'Ga-ron
+aparato a-pa-'ra-to
+aparentemente a-pa-ren-te-'men-te
+apenas a-'pe-nas
+apertura a-per-'tu-ra
+aplazada a-pla-'Ta-Da
+aplazamiento a-pla-Ta-'mjen-to
+apoyado a-po-'jja-Do
+apoyan a-'po-jjan
+apoyo a-'po-jjo
+aprobación a-pro-Ba-'Tjon
+aprobado a-pro-'Ba-Do
+aprobar a-pro-'Bar
+aprobaron a-pro-'Ba-ron
+aprobó a-pro-'Bo
+aprovechó a-pro-Be-'tSo
+aprueba a-'prwe-Ba
+apunto a-'pun-to
+aquellos a-'ke-Los
+aquí a-'ki
+árabes 'a-ra-Bes
+área 'a-re-a
+argentino ar-xen-'ti-no
+argumentos ar-Gu-'men-tos
+arguye ar-'Gu-jje
+arguyeron ar-Gu-'jje-ron
+arístide a-'ris-ti-De
+armada ar-'ma-Da
+armadas ar-'ma-Das
+armas 'ar-mas
+armisticio ar-mis-'ti-Tjo
+arreglos a-'rre-Glos
+arrestado a-rres-'ta-Do
+arrestados a-rres-'ta-Dos
+arrestar a-rres-'tar
+arrojaron a-rro-'xa-ron
+arrojo a-'rro-xo
+artillería ar-ti-Le-'ri-a
+asalto a-'sal-to
+asamblea a-sam-'ble-a
+asedio a-'se-Djo
+aseguro a-se-'Gu-ro
+asentamientos a-sen-ta-'mjen-tos
+asesinato a-se-si-'na-to
+asesinatos a-se-si-'na-tos
+asesoramiento a-se-so-ra-'mjen-to
+asignados a-sig-'na-Dos
+asilo a-'si-lo
+asimismo a-si-'mis-mo
+asisten a-'sis-ten
+asistencia a-sis-'ten-Tja
+asistentes a-sis-'ten-tes
+asistieron a-sis-'tje-ron
+asistir a-sis-'tir
+asociación a-so-Tja-'Tjon
+asonada a-so-'na-Da
+asumió a-su-'mjo
+asunto a-'sun-to
+asuntos a-'sun-tos
+atacado a-ta-'ka-Do
+atacados a-ta-'ka-Dos
+atacantes a-ta-'kan-tes
+atacaron a-ta-'ka-ron
+ataque a-'ta-ke
+ataques a-'ta-kes
+atentado a-ten-'ta-Do
+atenuante a-te-'nwan-te
+atracción a-trak-'Tjon
+atrás a-'tras
+atribuido a-tri-'Bwi-Do
+atribuyo a-tri-'Bu-jjo
+audiencia au-'Djen-Tja
+aumentar au-men-'tar
+aumento au-'men-to
+aún a-'un
+austeridad aus-te-ri-'Dad
+autobús au-to-'Bus
+automóvil au-to-'mo-Bil
+autoridad au-to-ri-'Dad
+autoridades au-to-ri-'Da-Des
+auxilio auk-'si-ljo
+auxilios auk-'si-ljos
+avanzaran a-Ban-'Ta-ran
+avión a-'Bjon
+aviones a-'Bjo-nes
+avisos a-'Bi-sos
+ayer a-'jjer
+ayuda a-'jju-Da
+ayudantes a-jju-'Dan-tes
+ayudara a-jju-'Da-ra
+añadieron a-Ja-'Dje-ron
+añadió a-Ja-'Djo
+año 'a-Jo
+años 'a-Jos
+baja 'ba-xa
+bajo 'ba-xo
+bajos 'ba-xos
+bala 'ba-la
+balazos ba-'la-Tos
+baloncesto ba-lon-'Tes-to
+bancos 'ban-kos
+bandas 'ban-das
+banderillas ban-de-'ri-Las
+banderillero ban-de-ri-'Le-ro
+bando 'ban-do
+bandos 'ban-dos
+banqueros ban-'ke-ros
+barrera ba-'rre-ra
+barrios 'ba-rrjos
+base 'ba-se
+bases 'ba-ses
+bate 'ba-te
+bazin 'ba-Tin
+begoña be-'Go-Ja
+beisbol beis-'Bol
+beneficios be-ne-'fi-Tjos
+bermejo ber-'me-xo
+bien bjen
+bienes 'bje-nes
+bilaterales bi-la-te-'ra-les
+binacional bi-na-Tjo-'nal
+blanco 'blan-ko
+blancos 'blan-kos
+bloqueadas blo-ke-'a-Das
+bloquear blo-ke-'ar
+bloquearon blo-ke-'a-ron
+bola 'bo-la
+bolas 'bo-las
+boletos bo-'le-tos
+boliviana bo-li-'Bja-na
+bolsa 'bol-sa
+bomberos bom-'be-ros
+bonos 'bo-nos
+borde 'bor-De
+bordo 'bor-Do
+borrador bo-rra-'Dor
+bosnia 'bos-nja
+botellas bo-'te-Las
+boxeador bok-se-a-'Dor
+brasileño bra-si-'le-Jo
+brasileños bra-si-'le-Jos
+británico bri-'ta-ni-ko
+bronce 'bron-Te
+buena 'bwe-na
+busca 'bus-ka
+buscan 'bus-kan
+buscar bus-'kar
+búsqueda 'bus-ke-Da
+cabe 'ka-Be
+cabecillas ka-Be-'Ti-Las
+cabeza ka-'Be-Ta
+cabo 'ka-Bo
+cada 'ka-Da
+cadáveres ka-'Da-Be-res
+cadenas ka-'De-nas
+caer ka-'er
+cajón ka-'xon
+cálculos 'kal-ku-los
+calificado ka-li-fi-'ka-Do
+califican ka-li-'fi-kan
+callado ka-'La-Do
+calles 'ka-Les
+cámaras 'ka-ma-ras
+cambiar kam-'bjar
+cambio 'kam-bjo
+cambios 'kam-bjos
+caminar ka-mi-'nar
+campamento kam-pa-'men-to
+campaña kam-'pa-Ja
+campeonato kam-pe-o-'na-to
+campesinos kam-pe-'si-nos
+campiña kam-'pi-Ja
+campo 'kam-po
+campos 'kam-pos
+cancelación kan-Te-la-'Tjon
+cáncer 'kan-Ter
+candidato kan-di-'Da-to
+candidatos kan-di-'Da-tos
+candidatura kan-di-Da-'tu-ra
+cantidades kan-ti-'Da-Des
+capacidad ka-pa-Ti-'Dad
+capital ka-pi-'tal
+capitales ka-pi-'ta-les
+capitalismo ka-pi-ta-'lis-mo
+capitalista ka-pi-ta-'lis-ta
+capturado kap-tu-'ra-Do
+capturaron kap-tu-'ra-ron
+caputo ka-'pu-to
+carácter ka-'rak-ter
+carbón kar-'Bon
+carga 'kar-Ga
+cargo 'kar-Go
+cargos 'kar-Gos
+carlos 'kar-los
+carrera ka-'rre-ra
+carreras ka-'rre-ras
+carretera ka-rre-'te-ra
+carreteras ka-rre-'te-ras
+casi 'ka-si
+casillas ka-'si-Las
+casinos ka-'si-nos
+casos 'ka-sos
+castro 'kas-tro
+categoría ka-te-Go-'ri-a
+causa 'kau-sa
+causadas kau-'sa-Das
+causaron kau-'sa-ron
+causo 'kau-so
+cayeron ka-'jje-ron
+cayo 'ka-jjo
+cazadores ka-Ta-'Do-res
+caña 'ka-Ja
+cañoneo ka-Jo-'ne-o
+ceder Te-'Der
+cedió Te-'Djo
+cedulas Te-'Du-las
+celebrar Te-le-'Brar
+celebrarán Te-le-Bra-'ran
+censura Ten-'su-ra
+centenares Ten-te-'na-res
+central Ten-'tral
+centro 'Ten-tro
+centroamericana Ten-tro-a-me-ri-'ka-na
+centroamericanos Ten-tro-a-me-ri-'ka-nos
+centros 'Ten-tros
+cerca 'Ter-ka
+ceremonia Te-re-'mo-nja
+certeza Ter-'te-Ta
+cese 'Te-se
+champan 'tSam-pan
+chávez 'tSa-BeT
+checa 'tSe-ka
+chiitas tSi-'i-tas
+chilenos tSi-'le-nos
+china 'tSi-na
+chinas 'tSi-nas
+ciclo 'Ti-klo
+cien Tjen
+ciencia 'Tjen-Tja
+científicos Tjen-'ti-fi-kos
+ciento 'Tjen-to
+cierre 'Tje-rre
+cierta 'Tjer-ta
+ciertos 'Tjer-tos
+cifra 'Ti-fra
+cifras 'Ti-fras
+cinc Tink
+cinco 'Tin-ko
+cirílico Ti-'ri-li-ko
+cita 'Ti-ta
+cito 'Ti-to
+ciudad Tju-'Dad
+ciudades Tju-'Da-Des
+civil Ti-'Bil
+civiles Ti-'Bi-les
+clandestinos klan-des-'ti-nos
+claro 'kla-ro
+clase 'kla-se
+clasificación kla-si-fi-ka-'Tjon
+clava 'kla-Ba
+clemente kle-'men-te
+clientes 'kljen-tes
+clinton 'klin-ton
+club klub
+coalición ko-a-li-'Tjon
+cocaína ko-ka-'i-na
+coche 'ko-tSe
+código 'ko-Di-Go
+coinciden koin-'Ti-Den
+cola 'ko-la
+colaboracionistas ko-la-Bo-ra-Tjo-'nis-tas
+colapso ko-'lap-so
+colectiva ko-lek-'ti-Ba
+colocarían ko-lo-ka-'ri-an
+colombiana ko-lom-'bja-na
+colombiano ko-lom-'bja-no
+colombianos ko-lom-'bja-nos
+colonial ko-lo-'njal
+colonias ko-'lo-njas
+combate kom-'ba-te
+combates kom-'ba-tes
+combinado kom-bi-'na-Do
+combustible kom-bus-'ti-Ble
+comensales ko-men-'sa-les
+comentaristas ko-men-ta-'ris-tas
+comenzaron ko-men-'Ta-ron
+comenzó ko-men-'To
+comercial ko-mer-'Tjal
+comerciales ko-mer-'Tja-les
+comerciantes ko-mer-'Tjan-tes
+comercio ko-'mer-Tjo
+comercios ko-'mer-Tjos
+cometidos ko-me-'ti-Dos
+comienzos ko-'mjen-Tos
+comisión ko-mi-'sjon
+comité ko-mi-'te
+como 'ko-mo
+comparecieron kom-pa-re-'Tje-ron
+compartir kom-par-'tir
+compañía kom-pa-'Ji-a
+compañías kom-pa-'Ji-as
+compensaciones kom-pen-sa-'Tjo-nes
+compensar kom-pen-'sar
+competición kom-pe-ti-'Tjon
+completo kom-'ple-to
+complicado kom-pli-'ka-Do
+comportamiento kom-por-ta-'mjen-to
+comprar kom-'prar
+compras 'kom-pras
+comprender kom-pren-'der
+compro 'kom-pro
+comprometerse kom-pro-me-'ter-se
+compromiso kom-pro-'mi-so
+compromisos kom-pro-'mi-sos
+comunes ko-'mu-nes
+comunicación ko-mu-ni-ka-'Tjon
+comunicado ko-mu-ni-'ka-Do
+comunidad ko-mu-ni-'Dad
+comunista ko-mu-'nis-ta
+comunistas ko-mu-'nis-tas
+con kon
+concedió kon-Te-'Djo
+concejales kon-Te-'xa-les
+concentración kon-Ten-tra-'Tjon
+concertar kon-Ter-'tar
+concesiones kon-Te-'sjo-nes
+conciliación kon-Ti-lja-'Tjon
+concluyo kon-'klu-jjo
+concurrencia kon-ku-'rren-Tja
+condenados kon-de-'na-Dos
+condición kon-di-'Tjon
+condiciones kon-di-'Tjo-nes
+conduciría kon-du-Ti-'ri-a
+conferencia kom-fe-'ren-Tja
+confianza kom-'fjan-Ta
+confirmación kom-fir-ma-'Tjon
+confirmada kom-fir-'ma-Da
+confirmo kom-'fir-mo
+confiscamiento kom-fis-ka-'mjen-to
+conflicto kom-'flik-to
+conflictos kom-'flik-tos
+conforme kom-'for-me
+confuso kom-'fu-so
+congestionadas kon-xes-tjo-'na-Das
+congreso kon-'gre-so
+conjuntos kon-'xun-tos
+cono 'ko-no
+conocer ko-no-'Ter
+conocido ko-no-'Ti-Do
+consecuencia kon-se-'kwen-Tja
+consecuencias kon-se-'kwen-Tjas
+consejo kon-'se-xo
+conservadores kon-ser-Ba-'Do-res
+considera kon-si-'De-ra
+consideraba kon-si-De-'ra-Ba
+considerables kon-si-De-'ra-Bles
+considerado kon-si-De-'ra-Do
+consideran kon-si-'De-ran
+considerar kon-si-De-'rar
+conspiración kons-pi-ra-'Tjon
+constante kons-'tan-te
+constitución kons-ti-tu-'Tjon
+constitucional kons-ti-tu-Tjo-'nal
+constitucionales kons-ti-tu-Tjo-'na-les
+constituida kons-ti-'twi-Da
+construcción kons-truk-'Tjon
+construir kons-'trwir
+consumidor kon-su-mi-'Dor
+consumidores kon-su-mi-'Do-res
+consumo kon-'su-mo
+contacto kon-'tak-to
+contactos kon-'tak-tos
+contaminada kon-ta-mi-'na-Da
+contar kon-'tar
+contención kon-ten-'Tjon
+contenido kon-te-'ni-Do
+conteo kon-'te-o
+continuaban kon-ti-'nwa-Ban
+continuación kon-ti-nwa-'Tjon
+continuaría kon-ti-nwa-'ri-a
+contra 'kon-tra
+contrario kon-'tra-rjo
+contratar kon-tra-'tar
+contratos kon-'tra-tos
+contribuir kon-tri-'Bwir
+contribuyeron kon-tri-Bu-'jje-ron
+control kon-'trol
+controlados kon-tro-'la-Dos
+controlar kon-tro-'lar
+convencidas kom-ben-'Ti-Das
+convencidos kom-ben-'Ti-Dos
+convención kom-ben-'Tjon
+convenio kom-'be-njo
+convenios kom-'be-njos
+conversaciones kom-ber-sa-'Tjo-nes
+conversar kom-ber-'sar
+convertía kom-ber-'ti-a
+convictos kom-'bik-tos
+convirtió kom-bir-'tjo
+convocar kom-bo-'kar
+convoco kom-'bo-ko
+cooperación ko-o-pe-ra-'Tjon
+corazón ko-ra-'Ton
+corredor ko-rre-'Dor
+correspondientes ko-rres-pon-'djen-tes
+corriente ko-'rrjen-te
+corroborar ko-rro-Bo-'rar
+corrupción ko-rrup-'Tjon
+cortadas kor-'ta-Das
+corte 'kor-te
+corto 'kor-to
+costa 'kos-ta
+costo 'kos-to
+cotidianos ko-ti-'Dja-nos
+crean 'kre-an
+crear kre-'ar
+creciente kre-'Tjen-te
+crecimiento kre-Ti-'mjen-to
+crédito 'kre-Di-to
+créditos 'kre-Di-tos
+cree 'kre-e
+creen 'kre-en
+creer kre-'er
+creo 'kre-o
+crímenes 'kri-me-nes
+criminal kri-mi-'nal
+criminales kri-mi-'na-les
+crisis 'kri-sis
+cristóbal kris-'to-Bal
+criticado kri-ti-'ka-Do
+criticaron kri-ti-'ka-ron
+criticas kri-'ti-kas
+critico kri-'ti-ko
+críticos 'kri-ti-kos
+croatas kro-'a-tas
+crudo 'kru-Do
+cuadro 'kwa-Dro
+cual kwal
+cuales 'kwa-les
+cualquier kwal-'kjer
+cuando 'kwan-do
+cuantas 'kwan-tas
+cuánto 'kwan-to
+cuántos 'kwan-tos
+cuarto 'kwar-to
+cuatro 'kwa-tro
+cuba 'ku-Ba
+cubana ku-'Ba-na
+cubano ku-'Ba-no
+cubanos ku-'Ba-nos
+cubrir ku-'Brir
+cuerpos 'kwer-pos
+cuestión kwes-'tjon
+culpable kul-'pa-Ble
+cumplido kum-'pli-Do
+cumpliendo kum-'pljen-do
+cumplir kum-'plir
+cumulo ku-'mu-lo
+cura 'ku-ra
+curso 'kur-so
+dado 'da-Do
+dando 'dan-do
+dar dar
+darles 'dar-les
+datos 'da-tos
+dañado da-'Ja-Do
+dañados da-'Ja-Dos
+daños 'da-Jos
+de de
+debate de-'Ba-te
+debe deben
+deberá de-Be-'ra
+deberán de-Be-'ran
+debería de-Be-'ri-a
+debido de-'Bi-Do
+debió de-'Bjo
+década 'de-ka-Da
+décadas 'de-ka-Das
+decididamente de-Ti-Di-Da-'men-te
+decidido de-Ti-'Di-Do
+decidió de-Ti-'Djo
+decidir de-Ti-'Dir
+decir de-'Tir
+decisión de-Ti-'sjon
+decisiones de-Ti-'sjo-nes
+declaración de-kla-ra-'Tjon
+declarada de-kla-'ra-Da
+declararon de-kla-'ra-ron
+declaro de-'kla-ro
+declinado de-kli-'na-Do
+declive de-'kli-Be
+decorado de-ko-'ra-Do
+decreto de-'kre-to
+defensa de-'fen-sa
+defensas de-'fen-sas
+definición de-fi-ni-'Tjon
+definitiva de-fi-ni-'ti-Ba
+dejada de-'xa-Da
+dejaron de-'xa-ron
+del del
+delegación de-le-Ga-'Tjon
+delegados de-le-'Ga-Dos
+delincuencia de-lin-'kwen-Tja
+delincuentes de-lin-'kwen-tes
+delitos de-'li-tos
+demanda de-'man-da
+demandaron de-man-'da-ron
+demandas de-'man-das
+demando de-'man-do
+demasiado de-ma-'sja-Do
+democracia de-mo-'kra-Tja
+demócrata de-'mo-kra-ta
+demócratas de-'mo-kra-tas
+democratización de-mo-kra-ti-Ta-'Tjon
+demoraron de-mo-'ra-ron
+demostrar de-mos-'trar
+demuestra de-'mwes-tra
+dentro 'den-tro
+denunciado de-nun-'Tja-Do
+denunciar de-nun-'Tjar
+denunciaron de-nun-'Tja-ron
+denuncias de-'nun-Tjas
+denuncio de-'nun-Tjo
+depende de-'pen-de
+dependerá de-pen-de-'ra
+deportados de-por-'ta-Dos
+deportes de-'por-tes
+deportiva de-por-'ti-Ba
+deposito de-po-'si-to
+depuesto de-'pwes-to
+derecha de-'re-tSa
+derechista de-re-'tSis-ta
+derechistas de-re-'tSis-tas
+derechos de-'re-tSos
+derribado de-rri-'Ba-Do
+derrota de-'rro-ta
+desafío de-sa-'fi-o
+desaparecido de-sa-pa-re-'Ti-Do
+desaparecidos de-sa-pa-re-'Ti-Dos
+desarmados de-sar-'ma-Dos
+desarme de-'sar-me
+desarrollo de-sa-'rro-Lo
+descalzo des-'kal-To
+descarto des-'kar-to
+descenso des-'Ten-so
+desconoce des-ko-'no-Te
+desconocidos des-ko-no-'Ti-Dos
+descorchar des-kor-'tSar
+describió des-kri-'Bjo
+desde 'des-De
+desea de-'se-a
+deseaban de-se-'a-Ban
+desempeñar de-sem-pe-'Jar
+desempleo de-sem-'ple-o
+deseo de-'se-o
+designación de-sig-na-'Tjon
+designado de-sig-'na-Do
+desintegrar de-sin-te-'Grar
+desinterés de-sin-te-'res
+desmantelar des-man-te-'lar
+desmedido des-me-'Di-Do
+despegar des-pe-'Gar
+desperdicios des-per-'Di-Tjos
+desperfecto des-per-'fek-to
+despertado des-per-'ta-Do
+desplazado des-pla-'Ta-Do
+desplazados des-pla-'Ta-Dos
+desplazamientos des-pla-Ta-'mjen-tos
+despliegue des-'plje-Ge
+desprevenidos des-pre-Be-'ni-Dos
+después des-'pwes
+destinadas des-ti-'na-Das
+destinado des-ti-'na-Do
+destrozo des-'tro-To
+destrucción des-truk-'Tjon
+destruir des-'trwir
+destruye des-'tru-jje
+destruyo des-'tru-jjo
+desventaja des-Ben-'ta-xa
+desvió des-'Bjo
+detalles de-'ta-Les
+detenidas de-te-'ni-Das
+detenido de-te-'ni-Do
+detenidos de-te-'ni-Dos
+determina de-ter-'mi-na
+determinación de-ter-mi-na-'Tjon
+determinadas de-ter-mi-'na-Das
+determinado de-ter-mi-'na-Do
+determinar de-ter-mi-'nar
+detuvo de-'tu-Bo
+devolvieron de-Bol-'Bje-ron
+día 'di-a
+diario 'dja-rjo
+diarios 'dja-rjos
+días 'di-as
+dice 'di-Te
+dicen 'di-Ten
+dicho 'di-tSo
+diciembre di-'Tjem-bre
+dictadura dik-ta-'Du-ra
+diez djeT
+diferencias di-fe-'ren-Tjas
+difíciles di-'fi-Ti-les
+dificultades di-fi-kul-'ta-Des
+dijeron di-'xe-ron
+dijo 'di-xo
+dinamita di-na-'mi-ta
+dinero di-'ne-ro
+diplomáticamente di-plo-'ma-ti-ka-men-te
+diplomático di-plo-'ma-ti-ko
+diputados di-pu-'ta-Dos
+dirección di-rek-'Tjon
+directamente di-rek-ta-'men-te
+directiva di-rek-'ti-Ba
+directo di-'rek-to
+dirigentes di-ri-'xen-tes
+dirigidos di-ri-'xi-Dos
+disciplina dis-Ti-'pli-na
+disculpo dis-'kul-po
+discusión dis-ku-'sjon
+discusiones dis-ku-'sjo-nes
+disminuye dis-mi-'nu-jje
+disparar dis-pa-'rar
+dispararon dis-pa-'ra-ron
+disparo dis-'pa-ro
+disponibles dis-po-'ni-Bles
+disposición dis-po-si-'Tjon
+dispuesto dis-'pwes-to
+dispuestos dis-'pwes-tos
+dispuso dis-'pu-so
+disputa dis-'pu-ta
+disputaran dis-pu-'ta-ran
+disputas dis-'pu-tas
+distancia dis-'tan-Tja
+distantes dis-'tan-tes
+distintas dis-'tin-tas
+distintos dis-'tin-tos
+distribución dis-tri-Bu-'Tjon
+disturbios dis-'tur-Bjos
+divergencias di-Ber-'xen-Tjas
+diversas di-'Ber-sas
+dividida di-Bi-'Di-Da
+dividido di-Bi-'Di-Do
+dividir di-Bi-'Dir
+divisas di-'Bi-sas
+división di-Bi-'sjon
+divisiones di-Bi-'sjo-nes
+divulgar di-Bul-'gar
+doble 'do-Ble
+docena do-'Te-na
+docenas do-'Te-nas
+documentación do-ku-men-ta-'Tjon
+documento do-ku-'men-to
+documentos do-ku-'men-tos
+dólar 'do-lar
+dólares 'do-la-res
+dominaron do-mi-'na-ron
+domingo do-'min-go
+dominio do-'mi-njo
+donde 'don-de
+dos dos
+drástica 'dras-ti-ka
+drogas 'dro-Gas
+duda 'du-Da
+dudas 'du-Das
+dueños 'dwe-Jos
+durante du-'ran-te
+durar du-'rar
+duro 'du-ro
+duros 'du-ros
+e e
+economía e-ko-no-'mi-a
+económica e-ko-'no-mi-ka
+económicas e-ko-'no-mi-kas
+económico e-ko-'no-mi-ko
+económicos e-ko-'no-mi-kos
+economistas e-ko-no-'mis-tas
+ecuatoriano e-kwa-to-'rja-no
+editorial e-Di-to-'rjal
+editoriales e-Di-to-'rja-les
+efectividad e-fek-ti-Bi-'Dad
+efectivo e-fek-'ti-Bo
+efectivos e-fek-'ti-Bos
+efecto e-'fek-to
+efectuar e-fek-'twar
+efectuara e-fek-'twa-ra
+egipcia e-'xip-Tja
+egipcios e-'xip-Tjos
+ejecutiva e-xe-ku-'ti-Ba
+ejercito e-xer-'Ti-to
+el el
+elaboración e-la-Bo-ra-'Tjon
+elecciones e-lek-'Tjo-nes
+electorado e-lek-to-'ra-Do
+electoral e-lek-to-'ral
+electorales e-lek-to-'ra-les
+electores e-lek-'to-res
+electos e-'lek-tos
+eléctrica e-'lek-tri-ka
+electricidad e-lek-tri-Ti-'Dad
+elegir e-le-'xir
+elementos e-le-'men-tos
+eliminados e-li-mi-'na-Dos
+eliminar e-li-mi-'nar
+ellos 'e-Los
+elocuente e-lo-'kwen-te
+embajada em-ba-'xa-Da
+embajador em-ba-xa-'Dor
+embarcación em-bar-ka-'Tjon
+embarcaciones em-bar-ka-'Tjo-nes
+embargo em-'bar-Go
+embestir em-bes-'tir
+embistió em-bis-'tjo
+emergencia e-mer-'xen-Tja
+emitida e-mi-'ti-Da
+emitido e-mi-'ti-Do
+empañaron em-pa-'Ja-ron
+empezado em-pe-'Ta-Do
+empezaron em-pe-'Ta-ron
+empleado em-ple-'a-Do
+empleados em-ple-'a-Dos
+empleo em-'ple-o
+empleos em-'ple-os
+empresa em-'pre-sa
+empresarial em-pre-sa-'rjal
+empresariales em-pre-sa-'rja-les
+empresarios em-pre-'sa-rjos
+empresas em-'pre-sas
+en en
+encarcelados en-kar-Te-'la-Dos
+encarecimiento en-ka-re-Ti-'mjen-to
+encausado en-kau-'sa-Do
+encíclica en-'Ti-kli-ka
+encontraba en-kon-'tra-Ba
+encontrar en-kon-'trar
+encontró en-kon-'tro
+encuentran en-'kwen-tran
+encuentro en-'kwen-tro
+encuestas en-'kwes-tas
+energía e-ner-'xi-a
+enero e-'ne-ro
+enfermera em-fer-'me-ra
+enfrentamiento em-fren-ta-'mjen-to
+enfrentamientos em-fren-ta-'mjen-tos
+enfrentara em-fren-'ta-ra
+enorme e-'nor-me
+enriquecimiento en-rri-ke-Ti-'mjen-to
+ensañado en-sa-'Ja-Do
+entender en-ten-'der
+enterado en-te-'ra-Do
+entonces en-'ton-Tes
+entrada en-'tra-Da
+entradas en-'tra-Das
+entraron en-'tra-ron
+entre 'en-tre
+entrega en-'tre-Ga
+entregado en-tre-'Ga-Do
+entrenado en-tre-'na-Do
+entrevista en-tre-'Bis-ta
+entro 'en-tro
+enviado em-'bja-Do
+enviados em-'bja-Dos
+envió em-'bjo
+envíos em-'bi-os
+equipo e-'ki-po
+equipos e-'ki-pos
+era 'e-ra
+eran 'e-ran
+es es
+esa 'e-sa
+esas 'e-sas
+escala es-'ka-la
+escalera es-ka-'le-ra
+escandalo es-kan-'da-lo
+escolar es-ko-'lar
+escrita es-'kri-ta
+escuadrones es-kwa-'Dro-nes
+escuchar es-ku-'tSar
+escuela es-'kwe-la
+ese 'e-se
+esfuerzos es-'fwer-Tos
+eslovaca es-lo-'Ba-ka
+eso 'e-so
+esos 'e-sos
+espacial es-pa-'Tjal
+especial es-pe-'Tjal
+especialidad es-pe-Tja-li-'Dad
+espera es-'pe-ra
+esperaban es-pe-'ra-Ban
+esperados es-pe-'ra-Dos
+esta 'es-ta
+estaba es-'ta-Ba
+estaban es-'ta-Ban
+estabilidad es-ta-Bi-li-'Dad
+establece es-ta-'Ble-Te
+establecer es-ta-Ble-'Ter
+establecido es-ta-Ble-'Ti-Do
+establecieron es-ta-Ble-'Tje-ron
+establecimientos es-ta-Ble-Ti-'mjen-tos
+estableció es-ta-Ble-'Tjo
+estación es-ta-'Tjon
+estadísticas es-ta-'Dis-ti-kas
+estado es-'ta-Do
+estados es-'ta-Dos
+estadounidense es-ta-Dou-ni-'Den-se
+estadounidenses es-ta-Dou-ni-'Den-ses
+estamos es-'ta-mos
+están es-'tan
+estancamiento es-tan-ka-'mjen-to
+estar es-'tar
+estaría es-ta-'ri-a
+estas 'es-tas
+estatal es-ta-'tal
+este 'es-te
+esteban es-'te-Ban
+estén es-'ten
+estima es-'ti-ma
+estimular es-ti-mu-'lar
+esto 'es-to
+estos 'es-tos
+estructura es-truk-'tu-ra
+estudiantes es-tu-'Djan-tes
+estuvieron es-tu-'Bje-ron
+estuvo es-'tu-Bo
+europeos eu-ro-'pe-os
+evacuación e-Ba-kwa-'Tjon
+evaluación e-Ba-lwa-'Tjon
+evidencias e-Bi-'Den-Tjas
+evidente e-Bi-'Den-te
+ex eks
+exacta ek-'sak-ta
+exactamente ek-sak-ta-'men-te
+exámenes ek-'sa-me-nes
+excavaron eks-ka-'Ba-ron
+exgobernante eks-Go-Ber-'nan-te
+exhorto eks-'or-to
+exigen ek-'si-xen
+exigir ek-si-'xir
+existe ek-'sis-te
+existen ek-'sis-ten
+expansión eks-pan-'sjon
+expertos eks-'per-tos
+explicación eks-pli-ka-'Tjon
+explicar eks-pli-'kar
+explico eks-'pli-ko
+explosión eks-plo-'sjon
+explosiones eks-plo-'sjo-nes
+explosiva eks-plo-'si-Ba
+explosivo eks-plo-'si-Bo
+expresado eks-pre-'sa-Do
+ex presidente
+exprimer eks-pri-'mer
+expulsado eks-pul-'sa-Do
+exterior eks-te-'rjor
+externa eks-'ter-na
+extradición eks-tra-Di-'Tjon
+extranjera eks-tran-'xe-ra
+extranjeros eks-tran-'xe-ros
+extrema eks-'tre-ma
+extremistas eks-tre-'mis-tas
+fabián fa-'Bjan
+fabrica fa-'Bri-ka
+facciones fak-'Tjo-nes
+fachada fa-'tSa-Da
+fácilmente 'fa-Til-men-te
+factor fak-'tor
+factores fak-'to-res
+fallo 'fa-Lo
+falsas 'fal-sas
+falta 'fal-ta
+familia fa-'mi-lja
+familiares fa-mi-'lja-res
+familias fa-'mi-ljas
+farmacias far-'ma-Tjas
+farmas 'far-mas
+farsa 'far-sa
+fase 'fa-se
+fausto 'faus-to
+favor fa-'Bor
+favorables fa-Bo-'ra-Bles
+favorece fa-Bo-'re-Te
+febrero fe-'Bre-ro
+fecha 'fe-tSa
+federal fe-De-'ral
+federales fe-De-'ra-les
+fenómeno fe-'no-me-no
+fermín fer-'min
+feudal feu-'Dal
+figura fi-'Gu-ra
+figuraban fi-Gu-'ra-Ban
+fijada fi-'xa-Da
+fijado fi-'xa-Do
+fijar fi-'xar
+fijo 'fi-xo
+fin fin
+final fi-'nal
+finales fi-'na-les
+finalistas fi-na-'lis-tas
+financiera fi-nan-'Tje-ra
+financiero fi-nan-'Tje-ro
+firma 'fir-ma
+firmado fir-'ma-Do
+firmaron fir-'ma-ron
+firme 'fir-me
+fiscales fis-'ka-les
+fondo 'fon-do
+forma 'for-ma
+formal for-'mal
+formalmente for-mal-'men-te
+formo 'for-mo
+formula for-'mu-la
+formulado for-mu-'la-Do
+formulo for-'mu-lo
+forzar for-'Tar
+fracasaron fra-ka-'sa-ron
+fracaso fra-'ka-so
+francés fran-'Tes
+francesa fran-'Te-sa
+franceses fran-'Te-ses
+franco 'fran-ko
+francotiradores fran-ko-ti-ra-'Do-res
+fraudulentamente frau-Du-len-ta-'men-te
+frecuencia fre-'kwen-Tja
+frenos 'fre-nos
+frente 'fren-te
+frontera fron-'te-ra
+fue fwe
+fuego 'fwe-Go
+fuente 'fwen-te
+fuentes 'fwen-tes
+fuera 'fwe-ra
+fueras 'fwe-ras
+fueron 'fwe-ron
+fuerza 'fwer-Ta
+fuerzas 'fwer-Tas
+funcionario fun-Tjo-'na-rjo
+funcionarios fun-Tjo-'na-rjos
+funciones fun-'Tjo-nes
+furia 'fu-rja
+futbol fut-'Bol
+gabinete ga-Bi-'ne-te
+gabriel ga-'Brjel
+gama 'ga-ma
+ganador ga-na-'Dor
+ganadores ga-na-'Do-res
+ganar ga-'nar
+gano 'ga-no
+garantizar ga-ran-ti-'Tar
+garcía gar-'Ti-a
+gas gas
+gases 'ga-ses
+gasolina ga-so-'li-na
+gastos 'gas-tos
+gaviria ga-'Bi-rja
+general xe-ne-'ral
+generalmente xe-ne-ral-'men-te
+gente 'xen-te
+gigante xi-'Gan-te
+gira 'xi-ra
+gobernado go-Ber-'na-Do
+gobernador go-Ber-na-'Dor
+gobernante go-Ber-'nan-te
+gobierno go-'Bjer-no
+gobiernos go-'Bjer-nos
+golfo 'gol-fo
+golpe 'gol-pe
+golpes 'gol-pes
+gorbachov gor-Ba-'tSob
+goza 'go-Ta
+gran gran
+granados gra-'na-Dos
+grandes 'gran-des
+grave 'gra-Be
+gravedad gra-Be-'Dad
+graves 'gra-Bes
+gritos 'gri-tos
+grupo 'gru-po
+grupos 'gru-pos
+guardia 'gwar-Dja
+guardias 'gwar-Djas
+guashington gwas-'ing-ton
+guatemalteco gwa-te-mal-'te-ko
+gubernamental gu-Ber-na-men-'tal
+gubernamentales gu-Ber-na-men-'ta-les
+guerra 'ge-rra
+guerrilleros ge-rri-'Le-ros
+gusta 'gus-ta
+guzmán guT-'man
+ha a
+haber a-'Ber
+haberse a-'Ber-se
+había a-'Bi-a
+habían a-'Bi-an
+habitualmente a-Bi-twal-'men-te
+habla 'a-Bla
+hablo 'a-Blo
+habrá a-'Bra
+habría a-'Bri-a
+hace 'a-Te
+hacen 'a-Ten
+hacer a-'Ter
+hacia 'a-Tja
+haga 'a-Ga
+hagan 'a-Gan
+haitiana ai-'tja-na
+haitianos ai-'tja-nos
+halla 'a-La
+hallaban a-'La-Ban
+hallado a-'La-Do
+hallar a-'Lar
+hallaron a-'La-ron
+han an
+harán a-'ran
+hasta 'as-ta
+hay ai
+haya 'a-jja
+hayan 'a-jjan
+hecho 'e-tSo
+hechos 'e-tSos
+helicóptero e-li-'kop-te-ro
+helicópteros e-li-'kop-te-ros
+hemisferio e-mis-'fe-rjo
+herida e-'ri-Da
+heridas e-'ri-Das
+herido e-'ri-Do
+heridos e-'ri-Dos
+hidrocarburos i-Dro-kar-'Bu-ros
+hielo 'jje-lo
+hígado 'i-Ga-Do
+hinchada in-'tSa-Da
+hindúes in-'du-es
+historia is-'to-rja
+hizo 'i-To
+hogares o-'Ga-res
+hombre 'om-bre
+hombres 'om-bres
+hombro 'om-bro
+homónimo o-'mo-ni-mo
+hondureña on-du-'re-Ja
+hora 'o-ra
+horas 'o-ras
+hospitales os-pi-'ta-les
+hospitalizado os-pi-ta-li-'Ta-Do
+hostilidades os-ti-li-'Da-Des
+hoy oi
+hubo 'u-Bo
+huelga 'wel-ga
+huelguistas wel-'gis-tas
+huevo 'we-Bo
+humanitaria u-ma-ni-'ta-rja
+humano u-'ma-no
+humanos u-'ma-nos
+humedad u-me-'Dad
+iba 'i-Ba
+iban 'i-Ban
+idea i-'De-a
+identidad i-Den-ti-'Dad
+identificado i-Den-ti-fi-'ka-Do
+iglesia i-'Gle-sja
+igual i-'Gwal
+igualdad i-Gwal-'dad
+igualmente i-Gwal-'men-te
+ilegales i-le-'Ga-les
+ilícito i-'li-Ti-to
+impacto im-'pak-to
+impedir im-pe-'Dir
+implicados im-pli-'ka-Dos
+importante im-por-'tan-te
+importantes im-por-'tan-tes
+imprimir im-pri-'mir
+improbable im-pro-'Ba-Ble
+impulsado im-pul-'sa-Do
+impulsar im-pul-'sar
+inaceptable i-na-Tep-'ta-Ble
+inaugural i-nau-Gu-'ral
+inauguro i-nau-'Gu-ro
+incendiados in-Ten-'dja-Dos
+incentivos in-Ten-'ti-Bos
+incertidumbre in-Ter-ti-'Dum-bre
+incidente in-Ti-'Den-te
+incidentes in-Ti-'Den-tes
+incitar in-Ti-'tar
+incluir in-'klwir
+incursiones in-kur-'sjo-nes
+independiente in-de-pen-'djen-te
+indican in-'di-kan
+indicaron in-di-'ka-ron
+indicio in-'di-Tjo
+indicios in-'di-Tjos
+indico in-'di-ko
+individuales in-di-Bi-'Dwa-les
+individuo in-di-'Bi-Dwo
+indonesios in-do-'ne-sjos
+industria in-'dus-trja
+industrial in-dus-'trjal
+industrias in-'dus-trjas
+infancia im-'fan-Tja
+influencia im-'flwen-Tja
+influencias im-'flwen-Tjas
+información im-for-ma-'Tjon
+informaciones im-for-ma-'Tjo-nes
+informante im-for-'man-te
+informaron im-for-'ma-ron
+informe im-'for-me
+informes im-'for-mes
+informo im-'for-mo
+ingeniero in-xe-'nje-ro
+ingreso in-'gre-so
+ingresos in-'gre-sos
+iniciaron i-ni-'Tja-ron
+iniciativas i-ni-Tja-'ti-Bas
+inicio i-'ni-Tjo
+injerencia in-xe-'ren-Tja
+inmediatamente im-me-Dja-ta-'men-te
+inmediato im-me-'Dja-to
+inmigración im-mi-Gra-'Tjon
+inmigrantes im-mi-'Gran-tes
+insatisfecho in-sa-tis-'fe-tSo
+insisten in-'sis-ten
+insistido in-sis-'ti-Do
+insistieron in-sis-'tje-ron
+insistió in-sis-'tjo
+inspección ins-pek-'Tjon
+inspectores ins-pek-'to-res
+instalación ins-ta-la-'Tjon
+instalaciones ins-ta-la-'Tjo-nes
+instalo ins-'ta-lo
+instancia ins-'tan-Tja
+institución ins-ti-tu-'Tjon
+instituto ins-ti-'tu-to
+insto 'ins-to
+insuficientes in-su-fi-'Tjen-tes
+integración in-te-Gra-'Tjon
+integrado in-te-'Gra-Do
+integrantes in-te-'Gran-tes
+intención in-ten-'Tjon
+intenciones in-ten-'Tjo-nes
+intensa in-'ten-sa
+intensamente in-ten-sa-'men-te
+intenso in-'ten-so
+intensos in-'ten-sos
+intento in-'ten-to
+interés in-te-'res
+interesados in-te-re-'sa-Dos
+intereses in-te-'re-ses
+interna in-'ter-na
+internacional in-ter-na-Tjo-'nal
+internacionales in-ter-na-Tjo-'na-les
+internos in-'ter-nos
+interpretes in-ter-'pre-tes
+interrogado in-te-rro-'Ga-Do
+intervención in-ter-Ben-'Tjon
+intimas in-'ti-mas
+inversión im-ber-'sjon
+inversiones im-ber-'sjo-nes
+inversionistas im-ber-sjo-'nis-tas
+investiga im-bes-'ti-Ga
+investigación im-bes-ti-Ga-'Tjon
+investigaciones im-bes-ti-Ga-'Tjo-nes
+investigadores im-bes-ti-Ga-'Do-res
+investigue im-bes-'ti-Ge
+invitación im-bi-ta-'Tjon
+involucradas im-bo-lu-'kra-Das
+involucrado im-bo-lu-'kra-Do
+inyección in-jjek-'Tjon
+ir ir
+irak i-'rak
+iraquí i-ra-'ki
+iraquíes i-ra-'ki-es
+ironía i-ro-'ni-a
+irregularidades i-rre-Gu-la-ri-'Da-Des
+isla 'is-la
+israel is-ra-'el
+israelí is-ra-e-'li
+israelíes is-ra-e-'li-es
+italiano i-ta-'lja-no
+izquierda iT-'kjer-Da
+jaime 'xai-me
+japón xa-'pon
+japoneses xa-po-'ne-ses
+jardín xar-'Din
+jefes 'xe-fes
+jonrón xon-'rron
+jornada xor-'na-Da
+judiciales xu-Di-'Tja-les
+juego 'xwe-Go
+juegos 'xwe-Gos
+jueves 'xwe-Bes
+juez xweT
+jugado xu-'Ga-Do
+jugador xu-Ga-'Dor
+jugadores xu-Ga-'Do-res
+jugando xu-'Gan-do
+jugar xu-'Gar
+jugara xu-'Ga-ra
+jugaran xu-'Ga-ran
+jugo 'xu-Go
+juicio 'xwi-Tjo
+juicios 'xwi-Tjos
+julio 'xu-ljo
+junio 'xu-njo
+junta 'xun-ta
+jurado xu-'ra-Do
+justicia xus-'ti-Tja
+juvenil xu-Be-'nil
+juzgados xuT-'Ga-Dos
+kilómetros ki-'lo-me-tros
+la la
+laboral la-Bo-'ral
+laborales la-Bo-'ra-les
+laboratorios la-Bo-ra-'to-rjos
+lacrimógeno la-kri-'mo-xe-no
+lacrimógenos la-kri-'mo-xe-nos
+láctea 'lak-te-a
+lado 'la-Do
+larga 'lar-Ga
+largo 'lar-Go
+las las
+latinoamericanos la-ti-no-a-me-ri-'ka-nos
+le le
+legisladores le-xis-la-'Do-res
+legislativo le-xis-la-'ti-Bo
+legislatura le-xis-la-'tu-ra
+legislaturas le-xis-la-'tu-ras
+lendel len-'del
+les les
+lesión le-'sjon
+lesionados le-sjo-'na-Dos
+letona le-'to-na
+levantar le-Ban-'tar
+levantara le-Ban-'ta-ra
+levanto le-'Ban-to
+leve 'le-Be
+levemente le-Be-'men-te
+ley lei
+leyes 'le-jjes
+liberación li-Be-ra-'Tjon
+liberales li-Be-'ra-les
+libertad li-Ber-'tad
+libertades li-Ber-'ta-Des
+libia 'li-Bja
+libre 'li-Bre
+libres 'li-Bres
+licencia li-'Ten-Tja
+licitación li-Ti-ta-'Tjon
+líder 'li-Der
+liderazgo li-De-'raT-Go
+lideres li-'De-res
+liga 'li-Ga
+limita li-'mi-ta
+limito li-'mi-to
+limpieza lim-'pje-Ta
+línea 'li-ne-a
+líneas 'li-ne-as
+lituanas li-'twa-nas
+llamada La-'ma-Da
+llamadas La-'ma-Das
+llegado Le-'Ga-Do
+llegar Le-'Gar
+llegaron Le-'Ga-ron
+llego 'Le-Go
+llenos 'Le-nos
+lleva 'Le-Ba
+llevar Le-'Bar
+llevarse Le-'Bar-se
+llevo 'Le-Bo
+lluvia 'Lu-Bja
+lo lo
+logra 'lo-Gra
+lograr lo-'Grar
+logro 'lo-Gro
+los los
+lucha 'lu-tSa
+luego 'lwe-Go
+lugar lu-'Gar
+luis lwis
+lunes 'lu-nes
+madrugada ma-Dru-'Ga-Da
+maduros ma-'Du-ros
+mágica 'ma-xi-ka
+magistrados ma-xis-'tra-Dos
+mal mal
+mala 'ma-la
+mandatario man-da-'ta-rjo
+mandatarios man-da-'ta-rjos
+mandela man-'de-la
+manifestación ma-ni-fes-ta-'Tjon
+manifestaciones ma-ni-fes-ta-'Tjo-nes
+manifestantes ma-ni-fes-'tan-tes
+manifestaron ma-ni-fes-'ta-ron
+manifestó ma-ni-fes-'to
+mano 'ma-no
+manolo ma-'no-lo
+manos 'ma-nos
+mantener man-te-'ner
+mantengan man-'ten-gan
+mantenido man-te-'ni-Do
+mantenimiento man-te-ni-'mjen-to
+mantiene man-'tje-ne
+mantienen man-'tje-nen
+maquina ma-'ki-na
+maquinaria ma-ki-'na-rja
+maradona ma-ra-'Do-na
+marcado mar-'ka-Do
+marcador mar-ka-'Dor
+marcaron mar-'ka-ron
+marcha 'mar-tSa
+marco 'mar-ko
+margen 'mar-xen
+marinos ma-'ri-nos
+martes 'mar-tes
+martínez mar-'ti-neT
+marxista mark-'sis-ta
+marzo 'mar-To
+mas mas
+masa 'ma-sa
+masiva ma-'si-Ba
+matanza ma-'tan-Ta
+máxima 'mak-si-ma
+máximo 'mak-si-mo
+mayor ma-'jjor
+mayores ma-'jjo-res
+mayoría ma-jjo-'ri-a
+mañana ma-'Ja-na
+me me
+mecánica me-'ka-ni-ka
+mecanismos me-ka-'nis-mos
+medallas me-'Da-Las
+media 'me-Dja
+mediados me-'Dja-Dos
+medianoche me-Dja-'no-tSe
+mediante me-'Djan-te
+medicamentos me-Di-ka-'men-tos
+medicas me-'Di-kas
+medicinas me-Di-'Ti-nas
+médicos 'me-Di-kos
+medida me-'Di-Da
+medidas me-'Di-Das
+medio 'me-Djo
+mediodía me-Djo-'Di-a
+medios 'me-Djos
+mejor me-'xor
+mejorado me-xo-'ra-Do
+mejores me-'xo-res
+mejoro me-'xo-ro
+mencionado men-Tjo-'na-Do
+menciono men-'Tjo-no
+menor me-'nor
+menos 'me-nos
+menstrual mens-'trwal
+menudo me-'nu-Do
+mercado mer-'ka-Do
+mercados mer-'ka-Dos
+mercancías mer-kan-'Ti-as
+mes mes
+meses 'me-ses
+metro 'me-tro
+mexicana me-xi-'ka-na
+mexicano me-xi-'ka-no
+mexicanos me-xi-'ka-nos
+méxico 'me-xi-ko
+mi mi
+miembro 'mjem-bro
+miembros 'mjem-bros
+miércoles 'mjer-ko-les
+miguel mi-'Gel
+mil mil
+miles 'mi-les
+militantes mi-li-'tan-tes
+militar mi-li-'tar
+militares mi-li-'ta-res
+millar mi-'Lar
+millón mi-'Lon
+millonario mi-Lo-'na-rjo
+millones mi-'Lo-nes
+mina 'mi-na
+mínimo 'mi-ni-mo
+ministerio mi-nis-'te-rjo
+ministra mi-'nis-tra
+ministro mi-'nis-tro
+ministros mi-'nis-tros
+minutos mi-'nu-tos
+mirando mi-'ran-do
+miras 'mi-ras
+misión mi-'sjon
+misterio mis-'te-rjo
+moción mo-'Tjon
+modesto mo-'Des-to
+momento mo-'men-to
+monetaria mo-ne-'ta-rja
+morir mo-'rir
+mostrado mos-'tra-Do
+mostraron mos-'tra-ron
+mostro 'mos-tro
+motivo mo-'ti-Bo
+motivos mo-'ti-Bos
+movimientos mo-Bi-'mjen-tos
+muchas 'mu-tSas
+mucho 'mu-tSo
+muchos 'mu-tSos
+muerte 'mwer-te
+muertes 'mwer-tes
+muertos 'mwer-tos
+mujer mu-'xer
+mujeres mu-'xe-res
+multitud mul-ti-'tud
+mundial mun-'djal
+mundo 'mun-do
+murieron mu-'rje-ron
+musulmán mu-sul-'man
+muy mwi
+nación na-'Tjon
+nacional na-Tjo-'nal
+nacionales na-Tjo-'na-les
+naciones na-'Tjo-nes
+nadie 'na-Dje
+narcotraficantes nar-ko-tra-fi-'kan-tes
+narcotráfico nar-ko-'tra-fi-ko
+nativos na-'ti-Bos
+natural na-tu-'ral
+naturaleza na-tu-ra-'le-Ta
+nazis 'na-Tis
+necesaria ne-Te-'sa-rja
+necesarias ne-Te-'sa-rjas
+necesario ne-Te-'sa-rjo
+necesarios ne-Te-'sa-rjos
+necesidad ne-Te-si-'Dad
+necesitaba ne-Te-si-'ta-Ba
+negado ne-'Ga-Do
+negativo ne-Ga-'ti-Bo
+negligentemente ne-Gli-xen-te-'men-te
+negó ne-'Go
+negociación ne-Go-Tja-'Tjon
+negociaciones ne-Go-Tja-'Tjo-nes
+negociadores ne-Go-Tja-'Do-res
+negociando ne-Go-'Tjan-do
+negra 'ne-Gra
+nerviosismo ner-Bjo-'sis-mo
+neumáticos neu-'ma-ti-kos
+ni ni
+niega 'nje-Ga
+ningún nin-'gun
+ninguna nin-'gu-na
+ninguno nin-'gu-no
+nipona ni-'po-na
+nivel ni-'Bel
+niños 'ni-Jos
+no no
+noche 'no-tSe
+nombre 'nom-bre
+norte 'nor-te
+norteamericana nor-te-a-me-ri-'ka-na
+norteamericanas nor-te-a-me-ri-'ka-nas
+norteamericano nor-te-a-me-ri-'ka-no
+norteamericanos nor-te-a-me-ri-'ka-nos
+nosotros no-'so-tros
+notablemente no-ta-Ble-'men-te
+notificada no-ti-fi-'ka-Da
+novena no-'Be-na
+nuca 'nu-ka
+nucleares nu-kle-'a-res
+nueva 'nwe-Ba
+nuevas 'nwe-Bas
+nueve 'nwe-Be
+nuevo 'nwe-Bo
+nuevos 'nwe-Bos
+numero nu-'me-ro
+numerosa nu-me-'ro-sa
+numerosos nu-me-'ro-sos
+nunca 'nun-ka
+o o
+objetivo ob-xe-'ti-Bo
+objeto ob-'xe-to
+obligar o-Bli-'Gar
+obligo o-'Bli-Go
+obra 'o-Bra
+obras 'o-Bras
+obreros o-'Bre-ros
+observaciones ob-ser-Ba-'Tjo-nes
+observadores ob-ser-Ba-'Do-res
+obstáculo obs-'ta-ku-lo
+obstáculos obs-'ta-ku-los
+obtener ob-te-'ner
+obtenido ob-te-'ni-Do
+obtiene ob-'tje-ne
+obtuvieron ob-tu-'Bje-ron
+obtuvo ob-'tu-Bo
+ocasión o-ka-'sjon
+ocasionaron o-ka-sjo-'na-ron
+ocasiones o-ka-'sjo-nes
+ocasiono o-ka-'sjo-no
+occidental ok-Ti-Den-'tal
+occidentales ok-Ti-Den-'ta-les
+ocho 'o-tSo
+octubre ok-'tu-Bre
+ocupado o-ku-'pa-Do
+ocupados o-ku-'pa-Dos
+ocupantes o-ku-'pan-tes
+ocuparon o-ku-'pa-ron
+ocupen o-'ku-pen
+ocurrieron o-ku-'rrje-ron
+ocurrió o-ku-'rrjo
+ofensiva o-fen-'si-Ba
+oferta o-'fer-ta
+oficial o-fi-'Tjal
+oficiales o-fi-'Tja-les
+oficialismo o-fi-Tja-'lis-mo
+oficialmente o-fi-Tjal-'men-te
+oficina o-fi-'Ti-na
+oficinas o-fi-'Ti-nas
+ofrecer o-fre-'Ter
+ofrecido o-fre-'Ti-Do
+ofreció o-fre-'Tjo
+oír o-'ir
+once 'on-Te
+opciones op-'Tjo-nes
+operación o-pe-ra-'Tjon
+operaciones o-pe-ra-'Tjo-nes
+operadores o-pe-ra-'Do-res
+opinión o-pi-'njon
+oportunidad o-por-tu-ni-'Dad
+oposición o-po-si-'Tjon
+opositor o-po-si-'tor
+opositores o-po-si-'to-res
+orbita or-'Bi-ta
+orden 'or-Den
+ordeno or-'De-no
+organismo or-Ga-'nis-mo
+organismos or-Ga-'nis-mos
+organización or-Ga-ni-Ta-'Tjon
+organizaciones or-Ga-ni-Ta-'Tjo-nes
+organizadores or-Ga-ni-Ta-'Do-res
+oro 'o-ro
+osado o-'sa-Do
+otra 'o-tra
+otras 'o-tras
+otro 'o-tro
+otros 'o-tros
+pacientes pa-'Tjen-tes
+pacto 'pak-to
+padres 'pa-Dres
+pagado pa-'Ga-Do
+pago 'pa-Go
+pagos 'pa-Gos
+país pa-'is
+países pa-'i-ses
+pala 'pa-la
+palestinos pa-les-'ti-nos
+panameño pa-na-'me-Jo
+panameños pa-na-'me-Jos
+pánico 'pa-ni-ko
+panorama pa-no-'ra-ma
+pantalla pan-'ta-La
+papa 'pa-pa
+papel pa-'pel
+paquete pa-'ke-te
+para 'pa-ra
+parece pa-'re-Te
+parecen pa-'re-Ten
+parecer pa-re-'Ter
+parecía pa-re-'Ti-a
+parecieron pa-re-'Tje-ron
+pareció pa-re-'Tjo
+parientes pa-'rjen-tes
+parlamentaria par-la-men-'ta-rja
+parlamentarias par-la-men-'ta-rjas
+parlamento par-la-'men-to
+parlamentos par-la-'men-tos
+paro 'pa-ro
+paros 'pa-ros
+parte 'par-te
+partes 'par-tes
+participación par-ti-Ti-pa-'Tjon
+participado par-ti-Ti-'pa-Do
+participantes par-ti-Ti-'pan-tes
+participar par-ti-Ti-'par
+participaran par-ti-Ti-'pa-ran
+participaron par-ti-Ti-'pa-ron
+particularmente par-ti-ku-lar-'men-te
+partidario par-ti-'Da-rjo
+partidarios par-ti-'Da-rjos
+partido par-'ti-Do
+partidos par-'ti-Dos
+pasada pa-'sa-Da
+pasado pa-'sa-Do
+pasaje pa-'sa-xe
+pasajeros pa-sa-'xe-ros
+pasar pa-'sar
+pasear pa-se-'ar
+paso 'pa-so
+pasta 'pas-ta
+patios 'pa-tjos
+patria 'pa-trja
+paz paT
+pecho 'pe-tSo
+pedro 'pe-Dro
+peleas pe-'le-as
+peligro pe-'li-Gro
+penal pe-'nal
+pensaba pen-'sa-Ba
+pensar pen-'sar
+pepe 'pe-pe
+perdida per-'Di-Da
+perdidas per-'Di-Das
+perdió per-'Djo
+perecieron pe-re-'Tje-ron
+pérez 'pe-reT
+perforar per-fo-'rar
+periódicos pe-'rjo-Di-kos
+periodistas pe-rjo-'Dis-tas
+permanecerá per-ma-ne-Te-'ra
+permanecieron per-ma-ne-'Tje-ron
+permanentes per-ma-'nen-tes
+permiso per-'mi-so
+permita per-'mi-ta
+permite per-'mi-te
+permitió per-mi-'tjo
+permitir per-mi-'tir
+permitirá per-mi-ti-'ra
+pero 'pe-ro
+persona per-'so-na
+personal per-so-'nal
+personas per-'so-nas
+perspectiva pers-pek-'ti-Ba
+peruano pe-'rwa-no
+peruanos pe-'rwa-nos
+pesado pe-'sa-Do
+pese 'pe-se
+pesimista pe-si-'mis-ta
+petróleo pe-'tro-le-o
+petrolera pe-tro-'le-ra
+pidió pi-'Djo
+pie pje
+piloto pi-'lo-to
+pilotos pi-'lo-tos
+pincho 'pin-tSo
+pistoleros pis-to-'le-ros
+plan plan
+planea pla-'ne-a
+planeaban pla-ne-'a-Ban
+planes 'pla-nes
+plano 'pla-no
+plantea plan-'te-a
+planteado plan-te-'a-Do
+planteamiento plan-te-a-'mjen-to
+plata 'pla-ta
+plazo 'pla-To
+plomo 'plo-mo
+poblador po-Bla-'Dor
+pobladores po-Bla-'Do-res
+pobres 'po-Bres
+poca 'po-ka
+poco 'po-ko
+pocos 'po-kos
+poder po-'Der
+poderes po-'De-res
+poderosos po-De-'ro-sos
+podía po-'Di-a
+podido po-'Di-Do
+podrá po-'Dra
+podría po-'Dri-a
+podrían po-'Dri-an
+polémica po-'le-mi-ka
+policía po-li-'Ti-a
+policial po-li-'Tjal
+policías po-li-'Ti-as
+política po-'li-ti-ka
+políticas po-'li-ti-kas
+político po-'li-ti-ko
+políticos po-'li-ti-kos
+pondría pon-'dri-a
+pone 'po-ne
+ponen 'po-nen
+poner po-'ner
+popular po-pu-'lar
+popularidad po-pu-la-ri-'Dad
+por por
+portaban por-'ta-Ban
+posibilidad po-si-Bi-li-'Dad
+posibilidades po-si-Bi-li-'Da-Des
+posible po-'si-Ble
+posibles po-'si-Bles
+posición po-si-'Tjon
+posiciones po-si-'Tjo-nes
+positivo po-si-'ti-Bo
+potencia po-'ten-Tja
+practica prak-'ti-ka
+precedidas pre-Te-'Di-Das
+precio 'pre-Tjo
+precios 'pre-Tjos
+precipitaciones pre-Ti-pi-ta-'Tjo-nes
+preciso pre-'Ti-so
+preguntaría pre-Gun-ta-'ri-a
+preliminar pre-li-mi-'nar
+prensa 'pren-sa
+preocupación pre-o-ku-pa-'Tjon
+preocupaciones pre-o-ku-pa-'Tjo-nes
+preocupados pre-o-ku-'pa-Dos
+preocupando pre-o-ku-'pan-do
+preparación pre-pa-ra-'Tjon
+preparados pre-pa-'ra-Dos
+preparar pre-pa-'rar
+presencia pre-'sen-Tja
+presentada pre-sen-'ta-Da
+presentado pre-sen-'ta-Do
+presentara pre-sen-'ta-ra
+presentes pre-'sen-tes
+presento pre-'sen-to
+presidencia pre-si-'Den-Tja
+presidencial pre-si-Den-'Tjal
+presidenciales pre-si-Den-'Tja-les
+presidenta pre-si-'Den-ta
+presidente pre-si-'Den-te
+presión pre-'sjon
+presionar pre-sjo-'nar
+prestamos pres-'ta-mos
+presuntas pre-'sun-tas
+presunto pre-'sun-to
+presuntos pre-'sun-tos
+previamente pre-Bja-'men-te
+prevista pre-'Bis-ta
+primarias pri-'ma-rjas
+primavera pri-ma-'Be-ra
+primer pri-'mer
+primera pri-'me-ra
+primeramente pri-me-ra-'men-te
+primeras pri-'me-ras
+primero pri-'me-ro
+primeros pri-'me-ros
+principal prin-Ti-'pal
+principales prin-Ti-'pa-les
+principio prin-'Ti-pjo
+principios prin-'Ti-pjos
+prioridad prjo-ri-'Dad
+prisiones pri-'sjo-nes
+privadas pri-'Ba-Das
+privado pri-'Ba-Do
+privados pri-'Ba-Dos
+privatización pri-Ba-ti-Ta-'Tjon
+probable pro-'Ba-Ble
+probablemente pro-Ba-Ble-'men-te
+problema pro-'Ble-ma
+problemas pro-'Ble-mas
+procedimiento pro-Te-Di-'mjen-to
+proceso pro-'Te-so
+procesos pro-'Te-sos
+producción pro-Duk-'Tjon
+produce pro-'Du-Te
+producir pro-Du-'Tir
+productos pro-'Duk-tos
+produjeron pro-Du-'xe-ron
+produjo pro-'Du-xo
+programa pro-'Gra-ma
+programas pro-'Gra-mas
+programo pro-'Gra-mo
+prohíbe pro-'i-Be
+prolongado pro-lon-'ga-Do
+prometieron pro-me-'tje-ron
+prometió pro-me-'tjo
+promover pro-mo-'Ber
+pronto 'pron-to
+pronunciado pro-nun-'Tja-Do
+propiedad pro-pje-'Dad
+proporcionar pro-por-Tjo-'nar
+proposiciones pro-po-si-'Tjo-nes
+propósito pro-'po-si-to
+propuesta pro-'pwes-ta
+propuestas pro-'pwes-tas
+propuesto pro-'pwes-to
+propugnar pro-pug-'nar
+proselitista pro-se-li-'tis-ta
+protección pro-tek-'Tjon
+proteger pro-te-'xer
+protesta pro-'tes-ta
+protestaban pro-tes-'ta-Ban
+protestan pro-'tes-tan
+protestaron pro-tes-'ta-ron
+protestas pro-'tes-tas
+provocado pro-Bo-'ka-Do
+provoco pro-'Bo-ko
+próximo 'prok-si-mo
+próximos 'prok-si-mos
+proyectiles pro-jjek-'ti-les
+proyecto pro-'jjek-to
+proyectos pro-'jjek-tos
+prueba 'prwe-Ba
+pruebas 'prwe-Bas
+publica pu-'Bli-ka
+publicar pu-Bli-'kar
+publicaron pu-Bli-'ka-ron
+publico pu-'Bli-ko
+pudiera pu-'Dje-ra
+pudo 'pu-Do
+pueblo 'pwe-Blo
+pueda 'pwe-Da
+puedan 'pwe-Dan
+puede 'pwe-De
+pueden 'pwe-Den
+puente 'pwen-te
+puerto 'pwer-to
+puesta 'pwes-ta
+puestos 'pwes-tos
+punitiva pu-ni-'ti-Ba
+punto 'pun-to
+puso 'pu-so
+que ke
+queda 'ke-Da
+quedado ke-'Da-Do
+quedan 'ke-Dan
+quedaría ke-Da-'ri-a
+quedaron ke-'Da-ron
+quemaban ke-'ma-Ban
+querían ke-'ri-an
+quieren 'kje-ren
+quiero 'kje-ro
+quinta 'kin-ta
+quizá ki-'Ta
+quizás ki-'Tas
+racial rra-'Tjal
+radicalismo rra-Di-ka-'lis-mo
+radicalmente rra-Di-kal-'men-te
+radio 'rra-Djo
+rampal rram-'pal
+rango 'rran-go
+rápida 'rra-pi-Da
+ratificación rra-ti-fi-ka-'Tjon
+ratificar rra-ti-fi-'kar
+razón rra-'Ton
+reacción rre-ak-'Tjon
+reactivación rre-ak-ti-Ba-'Tjon
+reales rre-'a-les
+realidad rre-a-li-'Dad
+realista rre-a-'lis-ta
+realizada rre-a-li-'Ta-Da
+realizan rre-a-'li-Tan
+realizar rre-a-li-'Tar
+realizaron rre-a-li-'Ta-ron
+realizarse rre-a-li-'Tar-se
+realmente rre-al-'men-te
+reanudar rre-a-nu-'Dar
+reanudaran rre-a-nu-'Da-ran
+rebelde rre-'Bel-de
+rebeldes rre-'Bel-des
+rebotes rre-'Bo-tes
+recesión rre-Te-'sjon
+receso rre-'Te-so
+recetadas rre-Te-'ta-Das
+rechazar rre-tSa-'Tar
+rechazo rre-'tSa-To
+reciben rre-'Ti-Ben
+recibido rre-Ti-'Bi-Do
+recibieron rre-Ti-'Bje-ron
+recibió rre-Ti-'Bjo
+recibir rre-Ti-'Bir
+recientemente rre-Tjen-te-'men-te
+recientes rre-'Tjen-tes
+recipiente rre-Ti-'pjen-te
+reconocer rre-ko-no-'Ter
+reconocida rre-ko-no-'Ti-Da
+reconocimiento rre-ko-no-Ti-'mjen-to
+reconstrucción rre-kons-truk-'Tjon
+recuperación rre-ku-pe-ra-'Tjon
+recurren rre-'ku-rren
+reducción rre-Duk-'Tjon
+reducciones rre-Duk-'Tjo-nes
+reducido rre-Du-'Ti-Do
+reelección rre-e-lek-'Tjon
+referéndum rre-fe-'ren-dum
+refleja rre-'fle-xa
+reforma rre-'for-ma
+reformar rre-for-'mar
+reformas rre-'for-mas
+reformistas rre-for-'mis-tas
+régimen 'rre-xi-men
+región rre-'xjon
+regionales rre-xjo-'na-les
+registraron rre-xis-'tra-ron
+reglas 'rre-Glas
+regresar rre-Gre-'sar
+regreso rre-'Gre-so
+regulaciones rre-Gu-la-'Tjo-nes
+rehenes rre-'e-nes
+reinstalar rreins-ta-'lar
+reiteradamente rrei-te-ra-Da-'men-te
+relación rre-la-'Tjon
+relacionada rre-la-Tjo-'na-Da
+relacionadas rre-la-Tjo-'na-Das
+relacionados rre-la-Tjo-'na-Dos
+relaciones rre-la-'Tjo-nes
+reloj rre-'loj
+rendimiento rren-di-'mjen-to
+renovadores rre-no-Ba-'Do-res
+renuncia rre-'nun-Tja
+reparación rre-pa-ra-'Tjon
+represalia rre-pre-'sa-lja
+representa rre-pre-'sen-ta
+representados rre-pre-sen-'ta-Dos
+representan rre-pre-'sen-tan
+representantes rre-pre-sen-'tan-tes
+represión rre-pre-'sjon
+republicana rre-pu-Bli-'ka-na
+republicas rre-pu-'Bli-kas
+requeriría rre-ke-ri-'ri-a
+requiere rre-'kje-re
+requieren rre-'kje-ren
+rescate rres-'ka-te
+residencia rre-si-'Den-Tja
+residencias rre-si-'Den-Tjas
+resoluciones rre-so-lu-'Tjo-nes
+resolver rre-sol-'Ber
+respaldar rres-pal-'dar
+respaldo rres-'pal-do
+respectivos rres-pek-'ti-Bos
+respecto rres-'pek-to
+respeto rres-'pe-to
+responder rres-pon-'der
+responsabilidad rres-pon-sa-Bi-li-'Dad
+responsabilizo rres-pon-sa-Bi-'li-To
+responsables rres-pon-'sa-Bles
+respuesta rres-'pwes-ta
+restaurante rres-tau-'ran-te
+restos 'rres-tos
+resuelto rre-'swel-to
+resultado rre-sul-'ta-Do
+resultados rre-sul-'ta-Dos
+resultaron rre-sul-'ta-ron
+resulto rre-'sul-to
+retener rre-te-'ner
+retirada rre-ti-'ra-Da
+retirado rre-ti-'ra-Do
+retirarse rre-ti-'rar-se
+retiro rre-'ti-ro
+retracto rre-'trak-to
+reunieron rreu-'nje-ron
+reunió rreu-'njo
+reunión rreu-'njon
+reuniones rreu-'njo-nes
+reunir rreu-'nir
+reunirá rreu-ni-'ra
+revelado rre-Be-'la-Do
+revelar rre-Be-'lar
+revelo rre-'Be-lo
+revisión rre-Bi-'sjon
+revolución rre-Bo-lu-'Tjon
+riachuelos rrja-'tSwe-los
+ricos 'rri-kos
+rival rri-'Bal
+rodean rro-'De-an
+rodo 'rro-Do
+rompimiento rrom-pi-'mjen-to
+ronda 'rron-da
+rondas 'rron-das
+rotación rro-ta-'Tjon
+sábado 'sa-Ba-Do
+sabe 'sa-Be
+sabia 'sa-Bja
+sabiendas sa-'Bjen-das
+sabrán sa-'Bran
+sacados sa-'ka-Dos
+saco 'sa-ko
+sacrílego sa-'kri-le-Go
+salario sa-'la-rjo
+salarios sa-'la-rjos
+sale 'sa-le
+salida sa-'li-Da
+salidas sa-'li-Das
+salir sa-'lir
+salvarla sal-'Bar-la
+sanción san-'Tjon
+sangre 'san-gre
+santuario san-'twa-rjo
+saqueos sa-'ke-os
+satélite sa-'te-li-te
+se se
+sea 'se-a
+sean 'se-an
+secreta se-'kre-ta
+secretario se-kre-'ta-rjo
+sectores sek-'to-res
+secuestrador se-kwes-tra-'Dor
+secuestradores se-kwes-tra-'Do-res
+secuestrados se-kwes-'tra-Dos
+secuestro se-'kwes-tro
+sede 'se-De
+segregación se-Gre-Ga-'Tjon
+seguidores se-Gi-'Do-res
+segunda se-'Gun-da
+segundo se-'Gun-do
+seguramente se-Gu-ra-'men-te
+seguridad se-Gu-ri-'Dad
+seis seis
+selección se-lek-'Tjon
+semana se-'ma-na
+semanas se-'ma-nas
+semifinales se-mi-fi-'na-les
+senadores se-na-'Do-res
+sencillo sen-'Ti-Lo
+sentencias sen-'ten-Tjas
+septiembre sep-'tjem-bre
+septuagenario sep-twa-xe-'na-rjo
+ser ser
+será se-'ra
+serán se-'ran
+seria 'se-rja
+seriamente se-rja-'men-te
+serian 'se-rjan
+serie 'se-rje
+servicio ser-'Bi-Tjo
+servicios ser-'Bi-Tjos
+sesión se-'sjon
+sesiones se-'sjo-nes
+set set
+severas se-'Be-ras
+señal se-'Jal
+señalaron se-Ja-'la-ron
+señales se-'Ja-les
+señalo se-'Ja-lo
+si si
+sido 'si-Do
+siendo 'sjen-do
+siete 'sje-te
+siga 'si-Ga
+sigue 'si-Ge
+siguiente si-'Gjen-te
+silvio 'sil-Bjo
+simbólico sim-'bo-li-ko
+similar si-mi-'lar
+similares si-mi-'la-res
+sin sin
+sirvió sir-'Bjo
+sistema sis-'te-ma
+sitio 'si-tjo
+situación si-twa-'Tjon
+soberanía so-Be-ra-'ni-a
+sobre 'so-Bre
+sobresalto so-Bre-'sal-to
+sobreviviente so-Bre-Bi-'Bjen-te
+sociales so-'Tja-les
+socialismo so-Tja-'lis-mo
+socialistas so-Tja-'lis-tas
+sofocado so-fo-'ka-Do
+sofoco so-'fo-ko
+soldados sol-'da-Dos
+solicitud so-li-Ti-'tud
+solicitudes so-li-Ti-'tu-Des
+solida so-'li-Da
+solo 'so-lo
+solución so-lu-'Tjon
+soluciones so-lu-'Tjo-nes
+sombras 'som-bras
+someter so-me-'ter
+sometido so-me-'ti-Do
+sometió so-me-'tjo
+somos 'so-mos
+son son
+sorpresa sor-'pre-sa
+sospecha sos-'pe-tSa
+sospechoso sos-pe-'tSo-so
+sostienen sos-'tje-nen
+sostuvieron sos-tu-'Bje-ron
+sostuvo sos-'tu-Bo
+soviética so-'Bje-ti-ka
+soviéticos so-'Bje-ti-kos
+soy soi
+su su
+subasta su-'Bas-ta
+suboficiales su-Bo-fi-'Tja-les
+subrayo sub-'rra-jjo
+subsidiarios sub-si-'Dja-rjos
+subsidios sub-'si-Djos
+subterráneo sub-te-'rra-ne-o
+sucedió su-Te-'Djo
+sudafricanos su-Da-fri-'ka-nos
+suelen 'swe-len
+suficiente su-fi-'Tjen-te
+suficientemente su-fi-Tjen-te-'men-te
+suficientes su-fi-'Tjen-tes
+sugirió su-xi-'rjo
+sujeto su-'xe-to
+supeditar su-pe-Di-'tar
+supero su-'pe-ro
+supervisión su-per-Bi-'sjon
+surgido sur-'xi-Do
+surgieron sur-'xje-ron
+surgir sur-'xir
+sus sus
+suspender sus-pen-'der
+suspendida sus-pen-'di-Da
+suspendidas sus-pen-'di-Das
+suspendido sus-pen-'di-Do
+suspendidos sus-pen-'di-Dos
+suspendieron sus-pen-'dje-ron
+sustentación sus-ten-ta-'Tjon
+también tam-'bjen
+tampoco tam-'po-ko
+tan tan
+tanto 'tan-to
+tarde 'tar-De
+tarea ta-'re-a
+tasas 'ta-sas
+técnicas 'tek-ni-kas
+tecnología tek-no-lo-'xi-a
+telecomunicaciones te-le-ko-mu-ni-ka-'Tjo-nes
+telefónica te-le-'fo-ni-ka
+teléfono te-'le-fo-no
+televisión te-le-Bi-'sjon
+tema 'te-ma
+temas 'te-mas
+temen 'te-men
+temores te-'mo-res
+temporada tem-po-'ra-Da
+temporal tem-po-'ral
+tendencia ten-'den-Tja
+tendrá ten-'dra
+tendrán ten-'dran
+tenemos te-'ne-mos
+tener te-'ner
+tenga 'ten-ga
+tenia 'te-nja
+tenían te-'ni-an
+tenido te-'ni-Do
+tensa 'ten-sa
+teodoro te-o-'Do-ro
+teoría te-o-'ri-a
+tercer ter-'Ter
+terceras ter-'Te-ras
+tercero ter-'Te-ro
+tercios 'ter-Tjos
+terminar ter-mi-'nar
+terreno te-'rre-no
+territorio te-rri-'to-rjo
+territorios te-rri-'to-rjos
+terrorismo te-rro-'ris-mo
+terrorista te-rro-'ris-ta
+texto 'teks-to
+tiempo 'tjem-po
+tiempos 'tjem-pos
+tienda 'tjen-da
+tiene 'tje-ne
+tienen 'tje-nen
+tipo 'ti-po
+tipos 'ti-pos
+tiros 'ti-ros
+tiroteo ti-ro-'te-o
+tiroteos ti-ro-'te-os
+titulo ti-'tu-lo
+toda 'to-Da
+todas 'to-Das
+todavía to-Da-'Bi-a
+todo 'to-Do
+todos 'to-Dos
+tomado to-'ma-Do
+tomar to-'mar
+tomo 'to-mo
+toque 'to-ke
+torneo tor-'ne-o
+torno 'tor-no
+toro 'to-ro
+total to-'tal
+trabaja tra-'Ba-xa
+trabajaba tra-Ba-'xa-Ba
+trabajador tra-Ba-xa-'Dor
+trabajadores tra-Ba-xa-'Do-res
+trabajando tra-Ba-'xan-do
+trabajo tra-'Ba-xo
+trabajos tra-'Ba-xos
+tráfico 'tra-fi-ko
+traído tra-'i-Do
+transacción tran-sak-'Tjon
+transbordador trans-Bor-Da-'Dor
+transformo trans-'for-mo
+transportaba trans-por-'ta-Ba
+transportar trans-por-'tar
+transporte trans-'por-te
+tras tras
+trasladado tras-la-'Da-Do
+trasladados tras-la-'Da-Dos
+trata 'tra-ta
+trataba tra-'ta-Ba
+tratado tra-'ta-Do
+tratados tra-'ta-Dos
+tratan 'tra-tan
+tratar tra-'tar
+trataron tra-'ta-ron
+tratarse tra-'tar-se
+trato 'tra-to
+tren tren
+tres tres
+tribunal tri-Bu-'nal
+tripulación tri-pu-la-'Tjon
+triunfo 'trjum-fo
+tropas 'tro-pas
+tropiezos tro-'pje-Tos
+tubería tu-Be-'ri-a
+turcos 'tur-kos
+tuvieron tu-'Bje-ron
+tuvo 'tu-Bo
+ultima ul-'ti-ma
+ultimas ul-'ti-mas
+ultimo ul-'ti-mo
+últimos 'ul-ti-mos
+un un
+una 'u-na
+undécimo un-'de-Ti-mo
+único 'u-ni-ko
+unidad u-ni-'Dad
+unilateral u-ni-la-te-'ral
+unión u-'njon
+uno 'u-no
+unos 'u-nos
+uruguayos u-ru-'Gwa-jjos
+usado u-'sa-Do
+usados u-'sa-Dos
+usaron u-'sa-ron
+uso 'u-so
+utilizado u-ti-li-'Ta-Do
+utilizaron u-ti-li-'Ta-ron
+utilizo u-ti-'li-To
+va ba
+varias 'ba-rjas
+varios 'ba-rjos
+ve be
+vecinas be-'Ti-nas
+vecinos be-'Ti-nos
+vehículo be-'i-ku-lo
+vehículos be-'i-ku-los
+veía be-'i-a
+ven ben
+vender ben-'der
+venezolanas be-ne-To-'la-nas
+venezolanos be-ne-To-'la-nos
+venganza ben-'gan-Ta
+ventaja ben-'ta-xa
+ventajas ben-'ta-xas
+ventanas ben-'ta-nas
+ventas 'ben-tas
+ver ber
+veredicto be-re-'Dik-to
+versión ber-'sjon
+versiones ber-'sjo-nes
+vertebras ber-'te-Bras
+vez beT
+viaje 'bja-xe
+viajes 'bja-xes
+victimas bik-'ti-mas
+victoria bik-'to-rja
+victorias bik-'to-rjas
+vida 'bi-Da
+vidrios 'bi-Drjos
+vieja 'bje-xa
+vieron 'bje-ron
+vietnamitas bjet-na-'mi-tas
+viga 'bi-Ga
+vigilados bi-xi-'la-Dos
+vigilancia bi-xi-'lan-Tja
+vinculación bin-ku-la-'Tjon
+vinculado bin-ku-'la-Do
+vinos 'bi-nos
+vio bjo
+violación bjo-la-'Tjon
+violaciones bjo-la-'Tjo-nes
+violencia bjo-'len-Tja
+violenta bjo-'len-ta
+violento bjo-'len-to
+visitante bi-si-'tan-te
+vital bi-'tal
+viven 'bi-Ben
+vocero bo-'Te-ro
+volcán bol-'kan
+voleibol bo-lei-'Bol
+volumen bo-'lu-men
+voluntarios bo-lun-'ta-rjos
+volver bol-'Ber
+volverá bol-Be-'ra
+volvió bol-'Bjo
+votación bo-ta-'Tjon
+votantes bo-'tan-tes
+votar bo-'tar
+vuelos 'bwe-los
+vuelta 'bwel-ta
+y i
+ya jja
+yolanda jjo-'lan-da
+yugoslavas jju-Gos-'la-Bas
+zanjar Tan-'xar
+zapatos Ta-'pa-tos
+zona 'To-na
+zonas 'To-nas
+de de functional
+la la functional
+que ke functional
+el el functional
+en en functional
+y i functional
+a a functional
+los los functional
+se se functional
+del del functional
+las las functional
+un un functional
+por por functional
+con kon functional
+no no functional
+una 'u-na functional
+su su functional
+para 'pa-ra functional
+es es functional
+al al functional
+lo lo functional
+como 'ko-mo functional
+más mas functional
+o o functional
+pero 'pe-ro functional
+sus sus functional
+le le functional
+ha a functional
+me me functional
+si si functional
+sin sin functional
+sobre 'so-Bre functional
+este 'es-te functional
+ya La functional
+entre 'en-tre functional
+cuando 'kwan-do functional
+todo 'to-Do functional
+esta 'es-ta functional
+ser ser functional
+son son functional
+dos dos functional
+también tam-'bjen functional
+fue fwe functional
+había a-'Bi-a functional
+era 'e-ra functional
+muy mwi functional
+años 'a-Jos functional
+hasta 'as-ta functional
+desde 'des-De functional
+está es-'ta functional
+mi mi functional
+porque 'por-ke functional
+qué ke functional
+sólo 'so-lo functional
+han an functional
+yo Lo functional
+hay ai functional
+vez beT functional
+puede 'pwe-De functional
+todos 'to-Dos functional
+así a-'si functional
+nos nos functional
+ni ni functional
+parte 'par-te functional
+tiene 'tje-ne functional
+él el functional
+uno 'u-no functional
+donde 'don-de functional
+bien bjen functional
+tiempo 'tjem-po functional
+mismo 'mis-mo functional
+ese 'e-se functional
+ahora a-'o-ra functional
+cada 'ka-Da functional
+e e functional
+vida 'bi-Da functional
+otro 'o-tro functional
+después des-'pwes functional
+te te functional
+otros 'o-tros functional
+aunque 'aun-ke functional
+esa 'e-sa functional
+eso 'e-so functional
+hace 'a-Te functional
+otra 'o-tra functional
+gobierno go-'Bjer-no functional
+tan tan functional
+durante du-'ran-te functional
+siempre 'sjem-pre functional
+día 'di-a functional
+tanto 'tan-to functional
+ella 'e-La functional
+tres tres functional
+sí si functional
+dijo 'di-xo functional
+sido 'si-Do functional
+gran gran functional
+país pa-'is functional
+según se-'Gun functional
+menos 'me-nos functional
+mundo 'mun-do functional
+año 'a-Jo functional
+antes 'an-tes functional
+estado es-'ta-Do functional
+contra 'kon-tra functional
+sino 'si-no functional
+forma 'for-ma functional
+caso 'ka-so functional
+nada 'na-Da functional
+hacer a-'Ter functional
+general xe-ne-'ral functional
+estaba es-'ta-Ba functional
+poco 'po-ko functional
+estos 'es-tos functional
+presidente pre-si-'Den-te functional
+mayor ma-'jjor functional
+ante 'an-te functional
+unos 'u-nos functional
+les les functional
+algo 'al-go functional
+hacia 'a-Tja functional
+casa 'ka-sa functional
+ellos 'e-Los functional
+ayer a-'jjer functional
+hecho 'e-tSo functional
+primera pri-'me-ra functional
+mucho 'mu-tSo functional
+mientras 'mjen-tras functional
+además a-De-'mas functional
+quien kjen functional
+momento mo-'men-to functional
+millones mi-'Lo-nes functional
+esto 'es-to functional
+españa es-'pa-Ja functional
+hombre 'om-bre functional
+están es-'tan functional
+pues pwes functional
+hoy oi functional
+lugar lu-'Gar functional
+madrid ma-'Drid functional
+nacional na-Tjo-'nal functional
+trabajo tra-'Ba-xo functional
+otras 'o-tras functional
+mejor me-'xor functional
+nuevo 'nwe-Bo functional
+decir de-'Tir functional
+algunos al-'gu-nos functional
+entonces en-'ton-Tes functional
+todas 'to-Das functional
+días 'di-as functional
+debe 'de-Be functional
+política po-'li-ti-ka functional
+cómo 'ko-mo functional
+casi 'ka-si functional
+toda 'to-Da functional
+tal tal functional
+luego 'lwe-Go functional
+pasado pa-'sa-Do functional
+primer pri-'mer functional
+medio 'me-Djo functional
+va ba functional
+estas 'es-tas functional
+sea 'se-a functional
+tenía te-'ni-a functional
+nunca 'nun-ka functional
+poder po-'Der functional
+aquí a-'ki functional
+ver ber functional
+veces 'be-Tes functional
+embargo em-'bar-Go functional
+partido par-'ti-Do functional
+personas per-'so-nas functional
+grupo 'gru-po functional
+cuenta 'kwen-ta functional
+pueden 'pwe-Den functional
+tienen 'tje-nen functional
+misma 'mis-ma functional
+nueva 'nwe-Ba functional
+cual kwal functional
+fueron 'fwe-ron functional
+mujer mu-'xer functional
+frente 'fren-te functional
+josé xo-'se functional
+tras tras functional
+cosas 'ko-sas functional
+fin fin functional
+ciudad Tju-'Dad functional
+he e functional
+social so-'Tjal functional
+manera ma-'ne-ra functional
+tener te-'ner functional
+sistema sis-'te-ma functional
+será se-'ra functional
+historia is-'to-rja functional
+muchos 'mu-tSos functional
+juan xwan functional
+tipo 'ti-po functional
+cuatro 'kwa-tro functional
+dentro 'den-tro functional
+nuestro 'nwes-tro functional
+punto 'pun-to functional
+dice 'di-Te functional
+ello 'e-Lo functional
+cualquier kwal-'kjer functional
+noche 'no-tSe functional
+aún a-'un functional
+agua 'a-Gwa functional
+parece pa-'re-Te functional
+haber a-'Ber functional
+situación si-twa-'Tjon functional
+fuera 'fwe-ra functional
+bajo 'ba-xo functional
+grandes 'gran-des functional
+nuestra 'nwes-tra functional
+ejemplo e-'xem-plo functional
+acuerdo a-'kwer-Do functional
+habían a-'Bi-an functional
+usted us-'ted functional
+estados es-'ta-Dos functional
+hizo 'i-To functional
+nadie 'na-Dje functional
+países pa-'i-ses functional
+horas 'o-ras functional
+posible po-'si-Ble functional
+tarde 'tar-De functional
+ley lei functional
+importante im-por-'tan-te functional
+guerra 'ge-rra functional
+desarrollo de-sa-'rro-Lo functional
+proceso pro-'Te-so functional
+realidad rre-a-li-'Dad functional
+sentido sen-'ti-Do functional
+lado 'la-Do functional
+mí mi functional
+tu tu functional
+cambio 'kam-bjo functional
+allí a-'Li functional
+mano 'ma-no functional
+eran 'e-ran functional
+estar es-'tar functional
+san san functional
+número 'nu-me-ro functional
+sociedad so-Tje-'Dad functional
+unas 'u-nas functional
+centro 'Ten-tro functional
+padre 'pa-Dre functional
+gente 'xen-te functional
+final fi-'nal functional
+relación rre-la-'Tjon functional
+cuerpo 'kwer-po functional
+obra 'o-Bra functional
+incluso in-'klu-so functional
+través tra-'Bes functional
+último 'ul-ti-mo functional
+madre 'ma-Dre functional
+mis mis functional
+modo 'mo-Do functional
+problemas pro-'Ble-mas functional
+cinco 'Tin-ko functional
+carlos 'kar-los functional
+hombres 'om-bres functional
+información in-for-ma-'Tjon functional
+ojos 'o-xos functional
+muerte 'mwer-te functional
+nombre 'nom-bre functional
+algunas al-'gu-nas functional
+público 'pu-Bli-ko functional
+mujeres mu-'xe-res functional
+siglo 'si-Glo functional
+todavía to-Da-'Bi-a functional
+meses 'me-ses functional
+mañana ma-'Ja-na functional
+esos 'e-sos functional
+nosotros no-'so-tros functional
+hora 'o-ra functional
+muchas 'mu-tSas functional
+pueblo 'pwe-Blo functional
+alguna al-'gu-na functional
+dar dar functional
+problema pro-'Ble-ma functional
+don don functional
+da da functional
+tú tu functional
+derecho de-'re-tSo functional
+verdad ber-'Dad functional
+maría ma-'ri-a functional
+unidos u-'ni-Dos functional
+podría po-'Dri-a functional
+sería se-'ri-a functional
+junto 'xun-to functional
+cabeza ka-'Be-Ta functional
+aquel a-'kel functional
+luis lwis functional
+cuanto 'kwan-to functional
+tierra 'tje-rra functional
+equipo e-'ki-po functional
+segundo se-'Gun-do functional
+director di-rek-'tor functional
+dicho 'di-tSo functional
+cierto 'Tjer-to functional
+casos 'ka-sos functional
+manos 'ma-nos functional
+nivel ni-'Bel functional
+podía po-'Di-a functional
+familia fa-'mi-lja functional
+largo 'lar-Go functional
+partir par-'tir functional
+falta 'fal-ta functional
+llegar Le-'Gar functional
+propio 'pro-pjo functional
+ministro mi-'nis-tro functional
+cosa 'ko-sa functional
+primero pri-'me-ro functional
+seguridad se-Gu-ri-'Dad functional
+hemos 'e-mos functional
+mal mal functional
+trata 'tra-ta functional
+algún al-'gun functional
+tuvo 'tu-Bo functional
+respecto rres-'pek-to functional
+semana se-'ma-na functional
+varios 'ba-rjos functional
+real rre-'al functional
+sé se functional
+voz boT functional
+paso 'pa-so functional
+señor se-'Jor functional
+mil mil functional
+quienes 'kje-nes functional
+proyecto pro-'jjek-to functional
+mercado mer-'ka-Do functional
+mayoría ma-jjo-'ri-a functional
+luz luT functional
+claro 'kla-ro functional
+iba 'i-Ba functional
+éste 'es-te functional
+pesetas pe-'se-tas functional
+orden 'or-Den functional
+español es-pa-'Jol functional
+buena 'bwe-na functional
+quiere 'kje-re functional
+aquella a-'ke-La functional
+programa pro-'Gra-ma functional
+palabras pa-'la-Bras functional
+internacional in-ter-na-Tjo-'nal functional
+van ban functional
+esas 'e-sas functional
+segunda se-'Gun-da functional
+empresa em-'pre-sa functional
+puesto 'pwes-to functional
+ahí a-'i functional
+propia 'pro-pja functional
+libro 'li-Bro functional
+igual i-'Gwal functional
+político po-'li-ti-ko functional
+persona per-'so-na functional
+últimos 'ul-ti-mos functional
+ellas 'e-Las functional
+total to-'tal functional
+creo 'kre-o functional
+tengo 'ten-go functional
+dios djos functional
+c Tjen functional
+española es-pa-'Jo-la functional
+condiciones kon-di-'Tjo-nes functional
+méxico 'me-xi-ko functional
+fuerza 'fwer-Ta functional
+solo 'so-lo functional
+único 'u-ni-ko functional
+acción ak-'Tjon functional
+amor a-'mor functional
+policía po-li-'Ti-a functional
+puerta 'pwer-ta functional
+pesar pe-'sar functional
+zona 'To-na functional
+sabe 'sa-Be functional
+calle 'ka-Le functional
+interior in-te-'rjor functional
+tampoco tam-'po-ko functional
+música 'mu-si-ka functional
+ningún nin-'gun functional
+vista 'bis-ta functional
+campo 'kam-po functional
+buen bwen functional
+hubiera u-'Bje-ra functional
+saber sa-'Ber functional
+obras 'o-Bras functional
+razón rra-'Ton functional
+ex eks functional
+niños 'ni-Jos functional
+presencia pre-'sen-Tja functional
+tema 'te-ma functional
+dinero di-'ne-ro functional
+comisión ko-mi-'sjon functional
+antonio an-'to-njo functional
+servicio ser-'Bi-Tjo functional
+hijo 'i-xo functional
+última 'ul-ti-ma functional
+ciento 'Tjen-to functional
+estoy es-'toi functional
+hablar a-'Blar functional
+dio djo functional
+minutos mi-'nu-tos functional
+producción pro-Duk-'Tjon functional
+camino ka-'mi-no functional
+seis seis functional
+quién kjen functional
+fondo 'fon-do functional
+dirección di-rek-'Tjon functional
+papel pa-'pel functional
+demás de-'mas functional
+barcelona bar-Te-'lo-na functional
+idea i-'De-a functional
+especial es-pe-'Tjal functional
+diferentes di-fe-'ren-tes functional
+dado 'da-Do functional
+base 'ba-se functional
+capital ka-pi-'tal functional
+ambos 'am-bos functional
+europa eu-'ro-pa functional
+libertad li-Ber-'tad functional
+relaciones rre-la-'Tjo-nes functional
+espacio es-'pa-Tjo functional
+medios 'me-Djos functional
+ir ir functional
+actual ak-'twal functional
+población po-Bla-'Tjon functional
+empresas em-'pre-sas functional
+estudio es-'tu-Djo functional
+salud sa-'lud functional
+servicios ser-'Bi-Tjos functional
+haya 'a-jja functional
+principio prin-'Ti-pjo functional
+siendo 'sjen-do functional
+cultura kul-'tu-ra functional
+anterior an-te-'rjor functional
+alto 'al-to functional
+media 'me-Dja functional
+mediante me-'Djan-te functional
+primeros pri-'me-ros functional
+arte 'ar-te functional
+paz paT functional
+sector sek-'tor functional
+imagen i-'ma-xen functional
+medida me-'Di-Da functional
+deben 'de-Ben functional
+datos 'da-tos functional
+consejo kon-'se-xo functional
+personal per-so-'nal functional
+interés in-te-'res functional
+julio 'xu-ljo functional
+grupos 'gru-pos functional
+miembros 'mjem-bros functional
+ninguna nin-'gu-na functional
+existe ek-'sis-te functional
+cara 'ka-ra functional
+edad e-'Dad functional
+etc etk functional
+movimiento mo-Bi-'mjen-to functional
+visto 'bis-to functional
+llegó Le-'Go functional
+puntos 'pun-tos functional
+actividad ak-ti-Bi-'Dad functional
+bueno 'bwe-no functional
+uso 'u-so functional
+niño 'ni-Jo functional
+difícil di-'fi-Til functional
+joven 'xo-Ben functional
+futuro fu-'tu-ro functional
+aquellos a-'ke-Los functional
+mes mes functional
+pronto 'pron-to functional
+soy soi functional
+hacía a-'Ti-a functional
+nuevos 'nwe-Bos functional
+nuestros 'nwes-tros functional
+estaban es-'ta-Ban functional
+posibilidad po-si-Bi-li-'Dad functional
+sigue 'si-Ge functional
+cerca 'Ter-ka functional
+resultados rre-sul-'ta-Dos functional
+educación e-Du-ka-'Tjon functional
+atención a-ten-'Tjon functional
+gonzález gon-'Ta-leT functional
+capacidad ka-pa-Ti-'Dad functional
+efecto e-'fek-to functional
+necesario ne-Te-'sa-rjo functional
+valor ba-'lor functional
+aire 'ai-re functional
+investigación im-bes-ti-Ga-'Tjon functional
+siguiente si-'Gjen-te functional
+figura fi-'Gu-ra functional
+central Ten-'tral functional
+comunidad ko-mu-ni-'Dad functional
+necesidad ne-Te-si-'Dad functional
+serie 'se-rje functional
+organización or-Ga-ni-Ta-'Tjon functional
+nuevas 'nwe-Bas functional
+calidad ka-li-'Dad functional
+economía e-ko-no-'mi-a functional
+carácter ka-'rak-ter functional
+jefe 'xe-fe functional
+estamos es-'ta-mos functional
+prensa 'pren-sa functional
+control kon-'trol functional
+sociales so-'Tja-les functional
+universidad u-ni-Ber-si-'Dad functional
+militar mi-li-'tar functional
+cabo 'ka-Bo functional
+diez djeT functional
+fuerzas 'fwer-Tas functional
+congreso kon-'gre-so functional
+ésta 'es-ta functional
+hijos 'i-xos functional
+justicia xus-'ti-Tja functional
+mundial mun-'djal functional
+dólares 'do-la-res functional
+juego 'xwe-Go functional
+económica e-ko-'no-mi-ka functional
+políticos po-'li-ti-kos functional
+duda 'du-Da functional
+recursos rre-'kur-sos functional
+pública 'pu-Bli-ka functional
+crisis 'kri-sis functional
+próximo 'prok-si-mo functional
+tenemos te-'ne-mos functional
+decisión de-Ti-'sjon functional
+varias 'ba-rjas functional
+popular po-pu-'lar functional
+tenido te-'ni-Do functional
+apenas a-'pe-nas functional
+época 'e-po-ka functional
+banco 'ban-ko functional
+presente pre-'sen-te functional
+menor me-'nor functional
+quiero 'kje-ro functional
+pasar pa-'sar functional
+resultado rre-sul-'ta-Do functional
+televisión te-le-Bi-'sjon functional
+encuentra en-'kwen-tra functional
+gracias 'gra-Tjas functional
+ministerio mi-nis-'te-rjo functional
+conjunto kon-'xun-to functional
+defensa de-'fen-sa functional
+alguien 'al-gjen functional
+queda 'ke-Da functional
+hacen 'a-Ten functional
+pasa 'pa-sa functional
+resto 'rres-to functional
+causa 'kau-sa functional
+seguir se-'Gir functional
+allá a-'La functional
+palabra pa-'la-Bra functional
+voy boi functional
+cuya 'ku-jja functional
+vamos 'ba-mos functional
+mar mar functional
+estudios es-'tu-Djos functional
+derechos de-'re-tSos functional
+importancia im-por-'tan-Tja functional
+cuales 'kwa-les functional
+contrario kon-'tra-rjo functional
+manuel ma-'nwel functional
+garcía gar-'Ti-a functional
+fuerte 'fwer-te functional
+sol sol functional
+jóvenes 'xo-Be-nes functional
+apoyo a-'po-jjo functional
+habría a-'Bri-a functional
+civil Ti-'Bil functional
+miguel mi-'Gel functional
+pedro 'pe-Dro functional
+partidos par-'ti-Dos functional
+libre 'li-Bre functional
+fuentes 'fwen-tes functional
+administración ad-mi-nis-tra-'Tjon functional
+común ko-'mun functional
+dejar de-'xar functional
+cine 'Ti-ne functional
+salir sa-'lir functional
+comunicación ko-mu-ni-ka-'Tjon functional
+b b functional
+experiencia eks-pe-'rjen-Tja functional
+demasiado de-ma-'sja-Do functional
+plan plan functional
+respuesta rres-'pwes-ta functional
+energía e-ner-'xi-a functional
+izquierda iT-'kjer-Da functional
+función fun-'Tjon functional
+principal prin-Ti-'pal functional
+superior su-pe-'rjor functional
+naturaleza na-tu-ra-'le-Ta functional
+podemos po-'De-mos functional
+unión u-'njon functional
+especialmente es-pe-Tjal-'men-te functional
+rey rrei functional
+domingo do-'min-go functional
+favor fa-'Bor functional
+cantidad kan-ti-'Dad functional
+elecciones e-lek-'Tjo-nes functional
+clase 'kla-se functional
+productos pro-'Duk-tos functional
+españoles es-pa-'Jo-les functional
+conocer ko-no-'Ter functional
+teatro te-'a-tro functional
+importantes im-por-'tan-tes functional
+evitar e-Bi-'tar functional
+color ko-'lor functional
+actividades ak-ti-Bi-'Da-Des functional
+mesa 'me-sa functional
+p p functional
+decía de-'Ti-a functional
+cuyo 'ku-jjo functional
+debido de-'Bi-Do functional
+alta 'al-ta functional
+francisco fran-'Tis-ko functional
+secretario se-kre-'ta-rjo functional
+objeto ob-'xe-to functional
+quizá ki-'Ta functional
+posición po-si-'Tjon functional
+parecía pa-re-'Ti-a functional
+natural na-tu-'ral functional
+elementos e-le-'men-tos functional
+hubo 'u-Bo functional
+objetivo ob-xe-'ti-Bo functional
+formas 'for-mas functional
+única 'u-ni-ka functional
+pueda 'pwe-Da functional
+origen o-'ri-xen functional
+blanco 'blan-ko functional
+mismos 'mis-mos functional
+lleva 'Le-Ba functional
+económico e-ko-'no-mi-ko functional
+opinión o-pi-'njon functional
+ayuda a-'jju-Da functional
+oficial o-fi-'Tjal functional
+silencio si-'len-Tjo functional
+buenos 'bwe-nos functional
+pensar pen-'sar functional
+república rre-'pu-Bli-ka functional
+dónde 'don-de functional
+sangre 'san-gre functional
+encuentro en-'kwen-tro functional
+siquiera si-'kje-ra functional
+autor au-'tor functional
+reunión rreu-'njon functional
+haciendo a-'Tjen-do functional
+suelo 'swe-lo functional
+muestra 'mwes-tra functional
+viejo 'bje-xo functional
+encima en-'Ti-ma functional
+resulta rre-'sul-ta functional
+tomar to-'mar functional
+bastante bas-'tan-te functional
+siete 'sje-te functional
+lucha 'lu-tSa functional
+pudo 'pu-Do functional
+amigos a-'mi-Gos functional
+línea 'li-ne-a functional
+sur sur functional
+pocos 'po-kos functional
+medidas me-'Di-Das functional
+norte 'nor-te functional
+partes 'par-tes functional
+iglesia i-'Gle-sja functional
+tratamiento tra-ta-'mjen-to functional
+existencia ek-sis-'ten-Tja functional
+cargo 'kar-Go functional
+grande 'gran-de functional
+américa a-'me-ri-ka functional
+boca 'bo-ka functional
+plaza 'pla-Ta functional
+pie pje functional
+trabajadores tra-Ba-xa-'Do-res functional
+poner po-'ner functional
+existen ek-'sis-ten functional
+viene 'bje-ne functional
+permite per-'mi-te functional
+análisis a-'na-li-sis functional
+argentina ar-xen-'ti-na functional
+acto 'ak-to functional
+hechos 'e-tSos functional
+tiempos 'tjem-pos functional
+políticas po-'li-ti-kas functional
+radio 'rra-Djo functional
+puedo 'pwe-Do functional
+crecimiento kre-Ti-'mjen-to functional
+francia 'fran-Tja functional
+compañía kom-pa-'Ji-a functional
+amigo a-'mi-Go functional
+autoridades au-to-ri-'Da-Des functional
+realizar rre-a-li-'Tar functional
+acciones ak-'Tjo-nes functional
+padres 'pa-Dres functional
+diario 'dja-rjo functional
+ve be functional
+derecha de-'re-tSa functional
+ambiente am-'bjen-te functional
+i 'u-no functional
+habrá a-'Bra functional
+precisamente pre-Ti-sa-'men-te functional
+enfermedad en-fer-me-'Dad functional
+especie es-'pe-Tje functional
+ejército e-'xer-Ti-to functional
+santa 'san-ta functional
+cambios 'kam-bjos functional
+río 'rri-o functional
+sabía sa-'Bi-a functional
+seguro se-'Gu-ro functional
+espera es-'pe-ra functional
+momentos mo-'men-tos functional
+viaje 'bja-xe functional
+quería ke-'ri-a functional
+ocho 'o-tSo functional
+vivir bi-'Bir functional
+región rre-'xjon functional
+formación for-ma-'Tjon functional
+escuela es-'kwe-la functional
+cuarto 'kwar-to functional
+valores ba-'lo-res functional
+quedó ke-'Do functional
+participación par-ti-Ti-pa-'Tjon functional
+éxito 'ek-si-to functional
+baja 'ba-xa functional
+artículo ar-'ti-ku-lo functional
+principales prin-Ti-'pa-les functional
+fernando fer-'nan-do functional
+metros 'me-tros functional
+marcha 'mar-tSa functional
+régimen 'rre-xi-men functional
+consecuencia kon-se-'kwen-Tja functional
+conocimiento ko-no-Ti-'mjen-to functional
+corazón ko-ra-'Ton functional
+campaña kam-'pa-Ja functional
+estructura es-truk-'tu-ra functional
+efectos e-'fek-tos functional
+finalmente fi-nal-'men-te functional
+modelo mo-'De-lo functional
+carta 'kar-ta functional
+construcción kons-truk-'Tjon functional
+médico 'me-Di-ko functional
+miedo 'mje-Do functional
+mayores ma-'jjo-res functional
+entrada en-'tra-Da functional
+humanos u-'ma-nos functional
+sean 'se-an functional
+actitud ak-ti-'tud functional
+deja 'de-xa functional
+dejó de-'xo functional
+d ki-'njen-tos functional
+llevar Le-'Bar functional
+negro 'ne-Gro functional
+texto 'teks-to functional
+mitad mi-'tad functional
+estuvo es-'tu-Bo functional
+alrededor al-rre-De-'Dor functional
+acerca a-'Ter-ka functional
+peso 'pe-so functional
+humano u-'ma-no functional
+pequeño pe-'ke-Jo functional
+fecha 'fe-tSa functional
+serán se-'ran functional
+doctor dok-'tor functional
+ideas i-'De-as functional
+vino 'bi-no functional
+materia ma-'te-rja functional
+llega 'Le-Ga functional
+carrera ka-'rre-ra functional
+cierta 'Tjer-ta functional
+sola 'so-la functional
+psoe 'so-e functional
+lejos 'le-xos functional
+juez xweT functional
+características ka-rak-te-'ris-ti-kas functional
+riesgo 'rrjes-Go functional
+fácil 'fa-Til functional
+diferencia di-fe-'ren-Tja functional
+cultural kul-tu-'ral functional
+libros 'li-Bros functional
+práctica 'prak-ti-ka functional
+mayo 'ma-jjo functional
+nuestras 'nwes-tras functional
+programas pro-'Gra-mas functional
+memoria me-'mo-rja functional
+llegado Le-'Ga-Do functional
+plazo 'pla-To functional
+expresión eks-pre-'sjon functional
+diciembre di-'Tjem-bre functional
+mantener man-te-'ner functional
+enero e-'ne-ro functional
+volver bol-'Ber functional
+cuadro 'kwa-Dro functional
+producto pro-'Duk-to functional
+produce pro-'Du-Te functional
+europea eu-ro-'pe-a functional
+conciencia kon-'Tjen-Tja functional
+tenían te-'ni-an functional
+atrás a-'tras functional
+felipe fe-'li-pe functional
+creación kre-a-'Tjon functional
+chile 'tSi-le functional
+precio 'pre-Tjo functional
+película pe-'li-ku-la functional
+puerto 'pwer-to functional
+fuego 'fwe-Go functional
+cuestión kwes-'tjon functional
+pasó pa-'so functional
+costa 'kos-ta functional
+supuesto su-'pwes-to functional
+local lo-'kal functional
+habla 'a-Bla functional
+aspectos as-'pek-tos functional
+cuba 'ku-Ba functional
+sala 'sa-la functional
+cámara 'ka-ma-ra functional
+vuelta 'bwel-ta functional
+vía 'bi-a functional
+mirada mi-'ra-Da functional
+mejores me-'xo-res functional
+informe in-'for-me functional
+unidad u-ni-'Dad functional
+distintos dis-'tin-tos functional
+suerte 'swer-te functional
+tales 'ta-les functional
+mira 'mi-ra functional
+llamado La-'ma-Do functional
+técnica 'tek-ni-ka functional
+título 'ti-tu-lo functional
+s s functional
+principios prin-'Ti-pjos functional
+octubre ok-'tu-Bre functional
+volvió bol-'Bjo functional
+período pe-'ri-o-Do functional
+g g functional
+encontrar en-kon-'trar functional
+democracia de-mo-'kra-Tja functional
+aumento au-'men-to functional
+fútbol 'fut-Bol functional
+prueba 'prwe-Ba functional
+consumo kon-'su-mo functional
+pese 'pe-se functional
+ocasiones o-ka-'sjo-nes functional
+exterior eks-te-'rjor functional
+solución so-lu-'Tjon functional
+u u functional
+hija 'i-xa functional
+sueño 'swe-Jo functional
+parís pa-'ris functional
+capaz ka-'paT functional
+ocasión o-ka-'sjon functional
+industria in-'dus-trja functional
+adelante a-De-'lan-te functional
+salida sa-'li-Da functional
+ciencia 'Tjen-Tja functional
+asunto a-'sun-to functional
+asociación a-so-Tja-'Tjon functional
+puso 'pu-so functional
+intereses in-te-'re-ses functional
+oro 'o-ro functional
+podrá po-'Dra functional
+pregunta pre-'Gun-ta functional
+oposición o-po-si-'Tjon functional
+entrar en-'trar functional
+señora se-'Jo-ra functional
+señaló se-Ja-'lo functional
+santiago san-'tja-Go functional
+dolor do-'lor functional
+zonas 'To-nas functional
+comercio ko-'mer-Tjo functional
+operación o-pe-ra-'Tjon functional
+tribunal tri-Bu-'nal functional
+instituciones ins-ti-tu-'Tjo-nes functional
+temas 'te-mas functional
+militares mi-li-'ta-res functional
+junio 'xu-njo functional
+marco 'mar-ko functional
+sectores sek-'to-res functional
+hacerlo a-'Ter-lo functional
+aspecto as-'pek-to functional
+razones rra-'To-nes functional
+contenido kon-te-'ni-Do functional
+juicio 'xwi-Tjo functional
+electoral e-lek-to-'ral functional
+considera kon-si-'De-ra functional
+tendrá ten-'dra functional
+mucha 'mu-tSa functional
+voluntad bo-lun-'tad functional
+dicen 'di-Ten functional
+recuerdo rre-'kwer-Do functional
+socialista so-Tja-'lis-ta functional
+área 'a-re-a functional
+aparece a-pa-'re-Te functional
+vio bjo functional
+cama 'ka-ma functional
+aun aun functional
+presenta pre-'sen-ta functional
+pp pp functional
+revolución rre-Bo-lu-'Tjon functional
+busca 'bus-ka functional
+abril a-'Bril functional
+rodríguez rro-'Dri-GeT functional
+fiscal fis-'kal functional
+lópez 'lo-peT functional
+victoria bik-'to-rja functional
+violencia bjo-'len-Tja functional
+primeras pri-'me-ras functional
+pequeña pe-'ke-Ja functional
+armas 'ar-mas functional
+debía de-'Bi-a functional
+ii dos functional
+esfuerzo es-'fwer-To functional
+humana u-'ma-na functional
+posibilidades po-si-Bi-li-'Da-Des functional
+centros 'Ten-tros functional
+profesional pro-fe-sjo-'nal functional
+asimismo a-si-'mis-mo functional
+grado 'gra-Do functional
+has as functional
+toma 'to-ma functional
+distintas dis-'tin-tas functional
+material ma-te-'rjal functional
+carne 'kar-ne functional
+llama 'La-ma functional
+particular par-ti-ku-'lar functional
+jorge 'xor-xe functional
+trabajar tra-Ba-'xar functional
+propuesta pro-'pwes-ta functional
+muerto 'mwer-to functional
+precios 'pre-Tjos functional
+reforma rre-'for-ma functional
+hermano er-'ma-no functional
+corte 'kor-te functional
+comenzó ko-men-'To functional
+etapa e-'ta-pa functional
+obstante obs-'tan-te functional
+pone 'po-ne functional
+diversos di-'Ber-sos functional
+visita bi-'si-ta functional
+concepto kon-'Tep-to functional
+pacientes pa-'Tjen-tes functional
+semanas se-'ma-nas functional
+tipos 'ti-pos functional
+solamente so-la-'men-te functional
+deseo de-'se-o functional
+sistemas sis-'te-mas functional
+encuentran en-'kwen-tran functional
+siguientes si-'Gjen-tes functional
+martín mar-'tin functional
+suficiente su-fi-'Tjen-te functional
+marzo 'mar-To functional
+propios 'pro-pjos functional
+jamás xa-'mas functional
+dan dan functional
+club klub functional
+instituto ins-ti-'tu-to functional
+constitución kons-ti-tu-'Tjon functional
+curso 'kur-so functional
+lenguaje len-'gwa-xe functional
+estilo es-'ti-lo functional
+rosa 'rro-sa functional
+imposible im-po-'si-Ble functional
+pablo 'pa-Blo functional
+buscar bus-'kar functional
+peor pe-'or functional
+piel pjel functional
+arriba a-'rri-Ba functional
+generales xe-ne-'ra-les functional
+septiembre sep-'tjem-bre functional
+blanca 'blan-ka functional
+r rr functional
+aquellas a-'ke-Las functional
+teoría te-o-'ri-a functional
+animales a-ni-'ma-les functional
+hicieron i-'Tje-ron functional
+larga 'lar-Ga functional
+perdido per-'Di-Do functional
+imágenes i-'ma-xe-nes functional
+paciente pa-'Tjen-te functional
+conseguir kon-se-'Gir functional
+máximo 'mak-si-mo functional
+noviembre no-'Bjem-bre functional
+j x functional
+líder 'li-Der functional
+hospital os-pi-'tal functional
+diversas di-'Ber-sas functional
+rafael rra-fa-'el functional
+vuelve 'bwel-Be functional
+destino des-'ti-no functional
+torno 'tor-no functional
+proyectos pro-'jjek-tos functional
+flores 'flo-res functional
+niveles ni-'Be-les functional
+afirmó a-fir-'mo functional
+explicó eks-pli-'ko functional
+n n functional
+somos 'so-mos functional
+términos 'ter-mi-nos functional
+premio 'pre-mjo functional
+tercera ter-'Te-ra functional
+simple 'sim-ple functional
+trabajos tra-'Ba-xos functional
+factores fak-'to-res functional
+fuente 'fwen-te functional
+cielo 'Tje-lo functional
+ambas 'am-bas functional
+mismas 'mis-mas functional
+fernández fer-'nan-deT functional
+actualmente ak-twal-'men-te functional
+conocido ko-no-'Ti-Do functional
+condición kon-di-'Tjon functional
+ejercicio e-xer-'Ti-Tjo functional
+cree 'kre-e functional
+par par functional
+ocurre o-'ku-rre functional
+ti ti functional
+espíritu es-'pi-ri-tu functional
+lengua 'len-gwa functional
+responsabilidad rres-pon-sa-Bi-li-'Dad functional
+digo 'di-Go functional
+pérez 'pe-reT functional
+distancia dis-'tan-Tja functional
+organismo or-Ga-'nis-mo functional
+cruz kruT functional
+evolución e-Bo-lu-'Tjon functional
+realmente rre-al-'men-te functional
+alberto al-'Ber-to functional
+francés fran-'Tes functional
+novela no-'Be-la functional
+alma 'al-ma functional
+doble 'do-Ble functional
+anteriores an-te-'rjo-res functional
+obtener ob-te-'ner functional
+dije 'di-xe functional
+selección se-lek-'Tjon functional
+podido po-'Di-Do functional
+nación na-'Tjon functional
+ido 'i-Do functional
+crear kre-'ar functional
+motivo mo-'ti-Bo functional
+tercer ter-'Ter functional
+detrás de-'tras functional
+significa sig-ni-'fi-ka functional
+empleo em-'ple-o functional
+escrito es-'kri-to functional
+departamento de-par-ta-'men-to functional
+contacto kon-'tak-to functional
+casas 'ka-sas functional
+red rred functional
+rostro 'rros-tro functional
+oportunidad o-por-tu-ni-'Dad functional
+procesos pro-'Te-sos functional
+terreno te-'rre-no functional
+daba 'da-Ba functional
+calles 'ka-Les functional
+lista 'lis-ta functional
+nacionales na-Tjo-'na-les functional
+funciones fun-'Tjo-nes functional
+leyes 'le-jjes functional
+acceso ak-'Te-so functional
+técnico 'tek-ni-ko functional
+visión bi-'sjon functional
+preguntó pre-Gun-'to functional
+jesús xe-'sus functional
+grave 'gra-Be functional
+tenga 'ten-ga functional
+lunes 'lu-nes functional
+aplicación a-pli-ka-'Tjon functional
+junta 'xun-ta functional
+lugares lu-'Ga-res functional
+verano be-'ra-no functional
+capítulo ka-'pi-tu-lo functional
+éstos 'es-tos functional
+pensamiento pen-sa-'mjen-to functional
+york Lork functional
+frecuencia fre-'kwen-Tja functional
+gestión xes-'tjon functional
+viernes 'bjer-nes functional
+javier xa-'Bjer functional
+sitio 'si-tjo functional
+agosto a-'Gos-to functional
+propiedad pro-pje-'Dad functional
+profesionales pro-fe-sjo-'na-les functional
+últimas 'ul-ti-mas functional
+gusta 'gus-ta functional
+objetivos ob-xe-'ti-Bos functional
+movimientos mo-Bi-'mjen-tos functional
+alcalde al-'kal-de functional
+ejecutivo e-xe-ku-'ti-Bo functional
+ciudadanos Tju-Da-'Da-nos functional
+necesidades ne-Te-si-'Da-Des functional
+exposición eks-po-si-'Tjon functional
+término 'ter-mi-no functional
+veinte 'bein-te functional
+cuál kwal functional
+clara 'kla-ra functional
+altura al-'tu-ra functional
+pequeños pe-'ke-Jos functional
+presión pre-'sjon functional
+moral mo-'ral functional
+lograr lo-'Grar functional
+comité ko-mi-'te functional
+teléfono te-'le-fo-no functional
+asuntos a-'sun-tos functional
+peligro pe-'li-Gro functional
+escena es-'Te-na functional
+gusto 'gus-to functional
+palacio pa-'la-Tjo functional
+hotel o-'tel functional
+colombia ko-'lom-bja functional
+aseguró a-se-Gu-'ro functional
+isla 'is-la functional
+guardia 'gwar-Dja functional
+confianza kon-'fjan-Ta functional
+ciudades Tju-'Da-Des functional
+esperar es-pe-'rar functional
+café ka-'fe functional
+demanda de-'man-da functional
+personajes per-so-'na-xes functional
+directamente di-rek-ta-'men-te functional
+salió sa-'ljo functional
+discurso dis-'kur-so functional
+sánchez 'san-tSeT functional
+representantes rre-pre-sen-'tan-tes functional
+normal nor-'mal functional
+pena 'pe-na functional
+jugadores xu-Ga-'Do-res functional
+supone su-'po-ne functional
+industrial in-dus-'trjal functional
+referencia rre-fe-'ren-Tja functional
+febrero fe-'Bre-ro functional
+entender en-ten-'der functional
+esté es-'te functional
+física 'fi-si-ka functional
+dejado de-'xa-Do functional
+alimentos a-li-'men-tos functional
+pies pjes functional
+doña 'do-Ja functional
+protección pro-tek-'Tjon functional
+autores au-'to-res functional
+marido ma-'ri-Do functional
+podrían po-'Dri-an functional
+llamada La-'ma-Da functional
+brazos 'bra-Tos functional
+intervención in-ter-Ben-'Tjon functional
+sal sal functional
+páginas 'pa-xi-nas functional
+nueve 'nwe-Be functional
+pueblos 'pwe-Blos functional
+temporada tem-po-'ra-Da functional
+tus tus functional
+abajo a-'Ba-xo functional
+aquello a-'ke-Lo functional
+maestro ma-'es-tro functional
+internacionales in-ter-na-Tjo-'na-les functional
+técnicas 'tek-ni-kas functional
+estás es-'tas functional
+esposa es-'po-sa functional
+crítica 'kri-ti-ka functional
+totalmente to-tal-'men-te functional
+perder per-'Der functional
+venta 'ben-ta functional
+finales fi-'na-les functional
+ramón rra-'mon functional
+contar kon-'tar functional
+diferencias di-fe-'ren-Tjas functional
+familiar fa-mi-'ljar functional
+martínez mar-'ti-neT functional
+kilómetros ki-'lo-me-tros functional
+mala 'ma-la functional
+fundamental fun-da-men-'tal functional
+enorme e-'nor-me functional
+puedan 'pwe-Dan functional
+líneas 'li-ne-as functional
+ofrece o-'fre-Te functional
+comercial ko-mer-'Tjal functional
+pan pan functional
+aires 'ai-res functional
+profesor pro-fe-'sor functional
+inversión im-ber-'sjon functional
+municipal mu-ni-Ti-'pal functional
+declaraciones de-kla-ra-'Tjo-nes functional
+funcionarios fun-Tjo-'na-rjos functional
+aguas 'a-Gwas functional
+responsable rres-pon-'sa-Ble functional
+sábado 'sa-Ba-Do functional
+alguno al-'gu-no functional
+federal fe-De-'ral functional
+señala se-'Ja-la functional
+conflicto kon-'flik-to functional
+dicha 'di-tSa functional
+efe 'e-fe functional
+dirigentes di-ri-'xen-tes functional
+cambiar kam-'bjar functional
+superficie su-per-'fi-Tje functional
+necesita ne-Te-'si-ta functional
+estudiantes es-tu-'Djan-tes functional
+tantos 'tan-tos functional
+golpe 'gol-pe functional
+públicos 'pu-Bli-kos functional
+públicas 'pu-Bli-kas functional
+equipos e-'ki-pos functional
+literatura li-te-ra-'tu-ra functional
+pruebas 'prwe-Bas functional
+alemania a-le-'ma-nja functional
+circunstancias Tir-kuns-'tan-Tjas functional
+tienes 'tje-nes functional
+documento do-ku-'men-to functional
+fiesta 'fjes-ta functional
+simplemente sim-ple-'men-te functional
+enrique en-'rri-ke functional
+aceite a-'Tei-te functional
+establecer es-ta-Ble-'Ter functional
+médicos 'me-Di-kos functional
+eres 'e-res functional
+locales lo-'ka-les functional
+empezó em-pe-'To functional
+pobre 'po-Bre functional
+debería de-Be-'ri-a functional
+llevó Le-'Bo functional
+parlamento par-la-'men-to functional
+territorio te-rri-'to-rjo functional
+sale 'sa-le functional
+treinta 'trein-ta functional
+coche 'ko-tSe functional
+clases 'kla-ses functional
+afirma a-'fir-ma functional
+oficiales o-fi-'Tja-les functional
+diálogo 'dja-lo functional
+vi bi functional
+respeto rres-'pe-to functional
+tratado tra-'ta-Do functional
+llevaba Le-'Ba-Ba functional
+revista rre-'Bis-ta functional
+copa 'ko-pa functional
+pintura pin-'tu-ra functional
+nombres 'nom-bres functional
+propósito pro-'po-si-to functional
+leche 'le-tSe functional
+actualidad ak-twa-li-'Dad functional
+constituye kons-ti-'tu-jje functional
+tarea ta-'re-a functional
+alcanzar al-kan-'Tar functional
+competencia kom-pe-'ten-Tja functional
+normas 'nor-mas functional
+plata 'pla-ta functional
+vecinos be-'Ti-nos functional
+fenómeno fe-'no-me-no functional
+intención in-ten-'Tjon functional
+dando 'dan-do functional
+diputados di-pu-'ta-Dos functional
+judicial xu-Di-'Tjal functional
+cualquiera kwal-'kje-ra functional
+fe fe functional
+jornada xor-'na-Da functional
+italia i-'ta-lja functional
+ganar ga-'nar functional
+candidato kan-di-'Da-to functional
+calor ka-'lor functional
+esperanza es-pe-'ran-Ta functional
+recién rre-'Tjen functional
+suele 'swe-le functional
+miles 'mi-les functional
+ritmo 'rrit-mo functional
+vive 'bi-Be functional
+quizás ki-'Tas functional
+pasos 'pa-sos functional
+sensación sen-sa-'Tjon functional
+representación rre-pre-sen-ta-'Tjon functional
+presidencia pre-si-'Den-Tja functional
+triunfo 'trjun-fo functional
+ayuntamiento a-jjun-ta-'mjen-to functional
+plantas 'plan-tas functional
+niña 'ni-Ja functional
+frío 'fri-o functional
+tono 'to-no functional
+compañeros kom-pa-'Je-ros functional
+quieren 'kje-ren functional
+pesos 'pe-sos functional
+delante de-'lan-te functional
+propias 'pro-pjas functional
+plano 'pla-no functional
+enfermedades en-fer-me-'Da-Des functional
+institución ins-ti-tu-'Tjon functional
+edificio e-Di-'fi-Tjo functional
+nota 'no-ta functional
+franco 'fran-ko functional
+jugar xu-'Gar functional
+the te functional
+representa rre-pre-'sen-ta functional
+gesto 'xes-to functional
+mensaje men-'sa-xe functional
+vasco 'bas-ko functional
+pudiera pu-'Dje-ra functional
+gómez 'go-meT functional
+influencia in-'flwen-Tja functional
+pocas 'po-kas functional
+realizado rre-a-li-'Ta-Do functional
+conducta kon-'duk-ta functional
+objetos ob-'xe-tos functional
+tamaño ta-'ma-Jo functional
+provincia pro-'Bin-Tja functional
+europeo eu-ro-'pe-o functional
+verde 'ber-De functional
+informó in-for-'mo functional
+escribir es-kri-'Bir functional
+materiales ma-te-'rja-les functional
+eduardo e-'Dwar-Do functional
+cumplir kum-'plir functional
+pidió pi-'Djo functional
+alumnos a-'lum-nos functional
+ámbito 'am-bi-to functional
+muertos 'mwer-tos functional
+explica eks-'pli-ka functional
+consecuencias kon-se-'kwen-Tjas functional
+refiere rre-'fje-re functional
+comer ko-'mer functional
+fines 'fi-nes functional
+versión ber-'sjon functional
+abierto a-'Bjer-to functional
+debate de-'Ba-te functional
+barrio 'ba-rrjo functional
+labor la-'Bor functional
+fondos 'fon-dos functional
+justo 'xus-to functional
+tradición tra-Di-'Tjon functional
+diferente di-fe-'ren-te functional
+piensa 'pjen-sa functional
+tecnología tek-no-lo-'xi-a functional
+mantiene man-'tje-ne functional
+situaciones si-twa-'Tjo-nes functional
+fase 'fa-se functional
+histórico is-'to-ri-ko functional
+agentes a-'xen-tes functional
+planta 'plan-ta functional
+venezuela be-ne-'Twe-la functional
+f f functional
+actuación ak-twa-'Tjon functional
+iban 'i-Ban functional
+actos 'ak-tos functional
+posibles po-'si-Bles functional
+león le-'on functional
+mamá ma-'ma functional
+velocidad be-lo-Ti-'Dad functional
+familiares fa-mi-'lja-res functional
+especies es-'pe-Tjes functional
+cabe 'ka-Be functional
+asamblea a-sam-'ble-a functional
+comunidades ko-mu-ni-'Da-Des functional
+museo mu-'se-o functional
+conferencia kon-fe-'ren-Tja functional
+prácticamente 'prak-ti-ka-men-te functional
+autoridad au-to-ri-'Dad functional
+sujeto su-'xe-to functional
+alfonso al-'fon-so functional
+tratar tra-'tar functional
+hacerse a-'Ter-se functional
+pérdida 'per-Di-Da functional
+dificultades di-fi-kul-'ta-Des functional
+rato 'rra-to functional
+pagar pa-'Gar functional
+colegio ko-'le-xjo functional
+sabes 'sa-Bes functional
+l Tin-'kwen-ta functional
+personaje per-so-'na-xe functional
+áreas 'a-re-as functional
+audiencia au-'Djen-Tja functional
+doce 'do-Te functional
+haga 'a-Ga functional
+periódico pe-'rjo-Di-ko functional
+v 'Tin-ko functional
+distribución dis-tri-Bu-'Tjon functional
+ausencia au-'sen-Tja functional
+entrevista en-tre-'Bis-ta functional
+recibió rre-Ti-'Bjo functional
+añadió a-Ja-'Djo functional
+cocina ko-'Ti-na functional
+edición e-Di-'Tjon functional
+económicos e-ko-'no-mi-kos functional
+naturales na-tu-'ra-les functional
+parecer pa-re-'Ter functional
+santo 'san-to functional
+vieja 'bje-xa functional
+mario 'ma-rjo functional
+corresponde ko-rres-'pon-de functional
+decidió de-Ti-'Djo functional
+perú pe-'ru functional
+llegada Le-'Ga-Da functional
+comienza ko-'mjen-Ta functional
+organizaciones or-Ga-ni-Ta-'Tjo-nes functional
+tendencia ten-'den-Tja functional
+escenario es-Te-'na-rjo functional
+definitiva de-fi-ni-'ti-Ba functional
+deberá de-Be-'ra functional
+indicó in-di-'ko functional
+noticia no-'ti-Tja functional
+inglés in-'gles functional
+reina 'rrei-na functional
+ustedes us-'te-Des functional
+madera ma-'De-ra functional
+alemán a-le-'man functional
+habitantes a-Bi-'tan-tes functional
+recibir rre-Ti-'Bir functional
+salvo 'sal-Bo functional
+familias fa-'mi-ljas functional
+miembro 'mjem-bro functional
+escritor es-kri-'tor functional
+conoce ko-'no-Te functional
+cuidado kwi-'Da-Do functional
+identidad i-Den-ti-'Dad functional
+quiso 'ki-so functional
+pareja pa-'re-xa functional
+evidente e-Bi-'Den-te functional
+brasil bra-'sil functional
+ciertos 'Tjer-tos functional
+siguen 'si-Gen functional
+declaración de-kla-ra-'Tjon functional
+cadena ka-'De-na functional
+acaba a-'ka-Ba functional
+consiste kon-'sis-te functional
+presentación pre-sen-ta-'Tjon functional
+cuentas 'kwen-tas functional
+azul a-'Tul functional
+década 'de-ka-Da functional
+puertas 'pwer-tas functional
+comida ko-'mi-Da functional
+inmediato im-me-'Dja-to functional
+marca 'mar-ka functional
+antiguo an-'ti-Gwo functional
+rojo 'rro-xo functional
+debemos de-'Be-mos functional
+instante ins-'tan-te functional
+operaciones o-pe-ra-'Tjo-nes functional
+iniciativa i-ni-Tja-'ti-Ba functional
+caer ka-'er functional
+luna 'lu-na functional
+veía be-'i-a functional
+verdadero ber-Da-'De-ro functional
+habitación a-Bi-ta-'Tjon functional
+manifestó ma-ni-fes-'to functional
+tío 'ti-o functional
+quedado ke-'Da-Do functional
+martes 'mar-tes functional
+pleno 'ple-no functional
+declaró de-kla-'ro functional
+juegos 'xwe-Gos functional
+mínimo 'mi-ni-mo functional
+aparición a-pa-ri-'Tjon functional
+estará es-ta-'ra functional
+transporte trans-'por-te functional
+ven ben functional
+pretende pre-'ten-de functional
+tantas 'tan-tas functional
+sede 'se-De functional
+comportamiento kom-por-ta-'mjen-to functional
+periodistas pe-rjo-'Dis-tas functional
+animal a-ni-'mal functional
+convertido kom-ber-'ti-Do functional
+brazo 'bra-To functional
+hermanos er-'ma-nos functional
+rico 'rri-ko functional
+anunció a-nun-'Tjo functional
+presupuesto pre-su-'pwes-to functional
+estrategia es-tra-'te-xja functional
+naciones na-'Tjo-nes functional
+utilizar u-ti-li-'Tar functional
+buenas 'bwe-nas functional
+compromiso kom-pro-'mi-so functional
+acaso a-'ka-so functional
+completo kom-'ple-to functional
+pelo 'pe-lo functional
+piedra 'pje-Dra functional
+medicina me-Di-'Ti-na functional
+campos 'kam-pos functional
+liga 'li-Ga functional
+vaya 'ba-jja functional
+disposición dis-po-si-'Tjon functional
+permanente per-ma-'nen-te functional
+método 'me-to-Do functional
+sentía sen-'ti-a functional
+próxima 'prok-si-ma functional
+tierras 'tje-rras functional
+error e-'rror functional
+incremento in-kre-'men-to functional
+piso 'pi-so functional
+socialistas so-Tja-'lis-tas functional
+similar si-mi-'lar functional
+viento 'bjen-to functional
+salvador sal-Ba-'Dor functional
+seres 'se-res functional
+posteriormente pos-te-rjor-'men-te functional
+dispuesto dis-'pwes-to functional
+poeta po-'e-ta functional
+económicas e-ko-'no-mi-kas functional
+secreto se-'kre-to functional
+funcionamiento fun-Tjo-na-'mjen-to functional
+debajo de-'Ba-xo functional
+recordar rre-kor-'Dar functional
+valencia ba-'len-Tja functional
+presentó pre-sen-'to functional
+jueves 'xwe-Bes functional
+corriente ko-'rrjen-te functional
+ingresos in-'gre-sos functional
+intento in-'ten-to functional
+tuvieron tu-'Bje-ron functional
+colores ko-'lo-res functional
+altos 'al-tos functional
+sevilla se-'Bi-La functional
+hojas 'o-xas functional
+probablemente pro-Ba-Ble-'men-te functional
+búsqueda 'bus-ke-Da functional
+pequeñas pe-'ke-Jas functional
+oferta o-'fer-ta functional
+washington gwa-'sing-ton functional
+cataluña ka-ta-'lu-Ja functional
+oficina o-fi-'Ti-na functional
+produjo pro-'Du-xo functional
+soldados sol-'da-Dos functional
+pasada pa-'sa-Da functional
+volumen bo-'lu-men functional
+parecen pa-'re-Ten functional
+causas 'kau-sas functional
+dieron 'dje-ron functional
+división di-Bi-'sjon functional
+darle 'dar-le functional
+clave 'kla-Be functional
+ana 'a-na functional
+reciente rre-'Tjen-te functional
+votos 'bo-tos functional
+logró lo-'Gro functional
+piernas 'pjer-nas functional
+sirve 'sir-Be functional
+carmen 'kar-men functional
+deuda 'deu-Da functional
+noticias no-'ti-Tjas functional
+menores me-'no-res functional
+querido ke-'ri-Do functional
+pago 'pa-Go functional
+fig fig functional
+recuerda rre-'kwer-Da functional
+podrán po-'Dran functional
+independencia in-de-pen-'den-Tja functional
+ataque a-'ta-ke functional
+igualmente i-Gwal-'men-te functional
+necesaria ne-Te-'sa-rja functional
+quedan 'ke-Dan functional
+regional rre-xjo-'nal functional
+castro 'kas-tro functional
+decisiones de-Ti-'sjo-nes functional
+concepción kon-Tep-'Tjon functional
+llegaron Le-'Ga-ron functional
+siente 'sjen-te functional
+juntos 'xun-tos functional
+sabemos sa-'Be-mos functional
+ropa 'rro-pa functional
+parque 'par-ke functional
+empresarios em-pre-'sa-rjos functional
+conmigo kom-'mi-Go functional
+procedimiento pro-Te-Di-'mjen-to functional
+suma 'su-ma functional
+elección e-lek-'Tjon functional
+leer le-'er functional
+feliz fe-'liT functional
+ninguno nin-'gu-no functional
+continuación kon-ti-nwa-'Tjon functional
+ministros mi-'nis-tros functional
+verdadera ber-Da-'De-ra functional
+reacción rre-ak-'Tjon functional
+podían po-'Di-an functional
+tanta 'tan-ta functional
+tomó to-'mo functional
+mente 'men-te functional
+tradicional tra-Di-Tjo-'nal functional
+abierta a-'Bjer-ta functional
+breve 'bre-Be functional
+aparecen a-pa-'re-Ten functional
+trataba tra-'ta-Ba functional
+recibido rre-Ti-'Bi-Do functional
+mejorar me-xo-'rar functional
+ciertas 'Tjer-tas functional
+aparte a-'par-te functional
+cárcel 'kar-Tel functional
+entidad en-ti-'Dad functional
+investigaciones im-bes-ti-Ga-'Tjo-nes functional
+temperatura tem-pe-ra-'tu-ra functional
+siento 'sjen-to functional
+londres 'lon-dres functional
+directa di-'rek-ta functional
+portavoz por-ta-'BoT functional
+eta 'e-ta functional
+responsables rres-pon-'sa-Bles functional
+ventana ben-'ta-na functional
+contrato kon-'tra-to functional
+elemento e-le-'men-to functional
+privada pri-'Ba-Da functional
+quince 'kin-Te functional
+veo 'be-o functional
+os os functional
+firma 'fir-ma functional
+incluye in-'klu-jje functional
+pobres 'po-Bres functional
+vas bas functional
+abogado a-Bo-'Ga-Do functional
+presentar pre-sen-'tar functional
+gobernador go-Ber-na-'Dor functional
+próximos 'prok-si-mos functional
+jaime 'xai-me functional
+hablando a-'Blan-do functional
+canal ka-'nal functional
+tráfico 'tra-fi-ko functional
+capitán ka-pi-'tan functional
+personalidad per-so-na-li-'Dad functional
+género 'xe-ne-ro functional
+generación xe-ne-ra-'Tjon functional
+documentos do-ku-'men-tos functional
+espectáculo es-pek-'ta-ku-lo functional
+vivo 'bi-Bo functional
+tendría ten-'dri-a functional
+preguntas pre-'Gun-tas functional
+inmediatamente im-me-Dja-ta-'men-te functional
+cien Tjen functional
+colaboración ko-la-Bo-ra-'Tjon functional
+hermana er-'ma-na functional
+conde 'kon-de functional
+mío 'mi-o functional
+federación fe-De-ra-'Tjon functional
+cincuenta Tin-'kwen-ta functional
+sorpresa sor-'pre-sa functional
+regiones rre-'xjo-nes functional
+carga 'kar-Ga functional
+bienes 'bje-nes functional
+masa 'ma-sa functional
+cartas 'kar-tas functional
+reyes 'rre-jjes functional
+principalmente prin-Ti-pal-'men-te functional
+puestos 'pwes-tos functional
+sombra 'som-bra functional
+andrés an-'dres functional
+criterios kri-'te-rjos functional
+abrir a-'Brir functional
+cuyos 'ku-jjos functional
+filosofía fi-lo-so-'fi-a functional
+miró mi-'ro functional
+negra 'ne-Gra functional
+margen 'mar-xen functional
+artista ar-'tis-ta functional
+constante kons-'tan-te functional
+encontraba en-kon-'tra-Ba functional
+gastos 'gas-tos functional
+morir mo-'rir functional
+espacios es-'pa-Tjos functional
+figuras fi-'Gu-ras functional
+miércoles 'mjer-ko-les functional
+venido be-'ni-Do functional
+indica in-'di-ka functional
+comienzo ko-'mjen-To functional
+diseño di-'se-Jo functional
+cuarenta kwa-'ren-ta functional
+encontró en-kon-'tro functional
+poesía po-e-'si-a functional
+t t functional
+planes 'pla-nes functional
+ee 'e-e functional
+negocios ne-'Go-Tjos functional
+integración in-te-Gra-'Tjon functional
+caída ka-'i-Da functional
+entrega en-'tre-Ga functional
+hacienda a-'Tjen-da functional
+acuerdos a-'kwer-Dos functional
+preciso pre-'Ti-so functional
+cuello 'kwe-Lo functional
+banda 'ban-da functional
+suyo 'su-jjo functional
+realiza rre-a-'li-Ta functional
+frase 'fra-se functional
+bases 'ba-ses functional
+siglos 'si-Glos functional
+decidido de-Ti-'Di-Do functional
+sentir sen-'tir functional
+artistas ar-'tis-tas functional
+asegura a-se-'Gu-ra functional
+culpa 'kul-pa functional
+original o-ri-xi-'nal functional
+únicamente 'u-ni-ka-men-te functional
+unidades u-ni-'Da-Des functional
+ocurrió o-ku-'rrjo functional
+sexo 'sek-so functional
+entra 'en-tra functional
+hayan 'a-jjan functional
+resolver rre-sol-'Ber functional
+misión mi-'sjon functional
+caja 'ka-xa functional
+considerar kon-si-De-'rar functional
+extranjeros eks-tran-'xe-ros functional
+extremo eks-'tre-mo functional
+periodista pe-rjo-'Dis-ta functional
+reducción rre-Duk-'Tjon functional
+matrimonio ma-tri-'mo-njo functional
+quieres 'kje-res functional
+mas mas functional
+películas pe-'li-ku-las functional
+fui fwi functional
+laboral la-Bo-'ral functional
+importa im-'por-ta functional
+seguía se-'Gi-a functional
+negocio ne-'Go-Tjo functional
+sexual sek-'swal functional
+enseñanza en-se-'Jan-Ta functional
+agregó a-Gre-'Go functional
+labios 'la-Bjos functional
+resolución rre-so-lu-'Tjon functional
+fundación fun-da-'Tjon functional
+hará a-'ra functional
+depende de-'pen-de functional
+diego 'dje-Go functional
+actor ak-'tor functional
+técnicos 'tek-ni-kos functional
+belleza be-'Le-Ta functional
+titular ti-tu-'lar functional
+roma 'rro-ma functional
+logrado lo-'Gra-Do functional
+víctimas 'bik-ti-mas functional
+detalles de-'ta-Les functional
+europeos eu-ro-'pe-os functional
+caballo ka-'Ba-Lo functional
+huelga 'wel-ga functional
+carretera ka-rre-'te-ra functional
+norteamericano nor-te-a-me-ri-'ka-no functional
+producir pro-Du-'Tir functional
+antigua an-'ti-Gwa functional
+alianza a-'ljan-Ta functional
+físico 'fi-si-ko functional
+sacar sa-'kar functional
+publicidad pu-Bli-Ti-'Dad functional
+previsto pre-'Bis-to functional
+entorno en-'tor-no functional
+preocupación pre-o-ku-pa-'Tjon functional
+resistencia rre-sis-'ten-Tja functional
+murió mu-'rjo functional
+éstas 'es-tas functional
+saben 'sa-Ben functional
+generalmente xe-ne-ral-'men-te functional
+dormir dor-'mir functional
+individuo in-di-'Bi-Dwo functional
+cuerpos 'kwer-pos functional
+corto 'kor-to functional
+organismos or-Ga-'nis-mos functional
+especiales es-pe-'Tja-les functional
+internet in-ter-'net functional
+bancos 'ban-kos functional
+jugador xu-Ga-'Dor functional
+esfuerzos es-'fwer-Tos functional
+beneficios be-ne-'fi-Tjos functional
+terminar ter-mi-'nar functional
+equilibrio e-ki-'li-Brjo functional
+oído o-'i-Do functional
+lectura lek-'tu-ra functional
+piezas 'pje-Tas functional
+límites 'li-mi-tes functional
+aproximadamente a-prok-si-ma-Da-'men-te functional
+abre 'a-Bre functional
+david da-'Bid functional
+llevado Le-'Ba-Do functional
+privado pri-'Ba-Do functional
+salón sa-'lon functional
+roberto rro-'Ber-to functional
+actuales ak-'twa-les functional
+graves 'gra-Bes functional
+sonrisa son-'rri-sa functional
+foto 'fo-to functional
+perspectiva pers-pek-'ti-Ba functional
+cifra 'Ti-fra functional
+crédito 'kre-Di-to functional
+interesante in-te-re-'san-te functional
+constitucional kons-ti-tu-Tjo-'nal functional
+aceptar a-Tep-'tar functional
+producido pro-Du-'Ti-Do functional
+bolsa 'bol-sa functional
+factor fak-'tor functional
+noches 'no-tSes functional
+reconocimiento rre-ko-no-Ti-'mjen-to functional
+juventud xu-Ben-'tud functional
+habitual a-Bi-'twal functional
+categoría ka-te-Go-'ri-a functional
+requiere rre-'kje-re functional
+fuese 'fwe-se functional
+impresión im-pre-'sjon functional
+llamar La-'mar functional
+duro 'du-ro functional
+universal u-ni-Ber-'sal functional
+explicar eks-pli-'kar functional
+presentan pre-'sen-tan functional
+realización rre-a-li-Ta-'Tjon functional
+rápido 'rra-pi-Do functional
+científicos Tjen-'ti-fi-kos functional
+serio 'se-rjo functional
+científico Tjen-'ti-fi-ko functional
+comprender kom-pren-'der functional
+reino 'rrei-no functional
+preparación pre-pa-ra-'Tjon functional
+síntomas 'sin-to-mas functional
+recuperación rre-ku-pe-ra-'Tjon functional
+utilización u-ti-li-Ta-'Tjon functional
+fuertes 'fwer-tes functional
+sonido so-'ni-Do functional
+inteligencia in-te-li-'xen-Tja functional
+conversación kom-ber-sa-'Tjon functional
+establece es-ta-'Ble-Te functional
+hubiese u-'Bje-se functional
+plena 'ple-na functional
+venía be-'ni-a functional
+realizó rre-a-li-'To functional
+aznar aT-'nar functional
+daniel da-'njel functional
+francesa fran-'Te-sa functional
+legal le-'Gal functional
+abrió a-'Brjo functional
+alegría a-le-'Gri-a functional
+ojo 'o-xo functional
+ocurrido o-ku-'rri-Do functional
+díaz 'di-aT functional
+vuelto 'bwel-to functional
+diputado di-pu-'ta-Do functional
+correspondiente ko-rres-pon-'djen-te functional
+interna in-'ter-na functional
+musical mu-si-'kal functional
+segundos se-'Gun-dos functional
+recientemente rre-Tjen-te-'men-te functional
+empieza em-'pje-Ta functional
+decreto de-'kre-to functional
+china 'tSi-na functional
+pareció pa-re-'Tjo functional
+células 'Te-lu-las functional
+suelen 'swe-len functional
+perfectamente per-fek-ta-'men-te functional
+azúcar a-'Tu-kar functional
+inversiones im-ber-'sjo-nes functional
+concentración kon-Ten-tra-'Tjon functional
+espalda es-'pal-da functional
+producen pro-'Du-Ten functional
+democrática de-mo-'kra-ti-ka functional
+respondió rres-pon-'djo functional
+sucede su-'Te-De functional
+contexto kon-'teks-to functional
+claramente kla-ra-'men-te functional
+paredes pa-'re-Des functional
+motivos mo-'ti-Bos functional
+ciencias 'Tjen-Tjas functional
+tuve 'tu-Be functional
+isabel i-sa-'Bel functional
+argentino ar-xen-'ti-no functional
+inicio i-'ni-Tjo functional
+mercados mer-'ka-Dos functional
+métodos 'me-to-Dos functional
+estudiar es-tu-'Djar functional
+interpretación in-ter-pre-ta-'Tjon functional
+culturales kul-tu-'ra-les functional
+prisión pri-'sjon functional
+llevan 'Le-Ban functional
+amplio 'am-pljo functional
+queremos ke-'re-mos functional
+apertura a-per-'tu-ra functional
+dedos 'de-Dos functional
+vale 'ba-le functional
+creer kre-'er functional
+voto 'bo-to functional
+participar par-ti-Ti-'par functional
+corrupción ko-rrup-'Tjon functional
+histórica is-'to-ri-ka functional
+teresa te-'re-sa functional
+papá pa-'pa functional
+voces 'bo-Tes functional
+pienso 'pjen-so functional
+ángel 'an-xel functional
+inicial i-ni-'Tjal functional
+escala es-'ka-la functional
+estrellas es-'tre-Las functional
+página 'pa-xi-na functional
+guatemala gwa-te-'ma-la functional
+temor te-'mor functional
+encontrado en-kon-'tra-Do functional
+compra 'kom-pra functional
+pensó pen-'so functional
+dudas 'du-Das functional
+reconocer rre-ko-no-'Ter functional
+máxima 'mak-si-ma functional
+actuar ak-'twar functional
+reales rre-'a-les functional
+universo u-ni-'Ber-so functional
+directo di-'rek-to functional
+negociaciones ne-Go-Tja-'Tjo-nes functional
+ricardo rri-'kar-Do functional
+instalaciones ins-ta-la-'Tjo-nes functional
+artículos ar-'ti-ku-los functional
+aparato a-pa-'ra-to functional
+lleno 'Le-no functional
+intelectual in-te-lek-'twal functional
+cifras 'Ti-fras functional
+jardín xar-'Din functional
+vacío ba-'Ti-o functional
+ciclo 'Ti-klo functional
+valle 'ba-Le functional
+pensaba pen-'sa-Ba functional
+forman 'for-man functional
+dirigente di-ri-'xen-te functional
+pide 'pi-De functional
+vehículos be-'i-ku-los functional
+cuestiones kwes-'tjo-nes functional
+puesta 'pwes-ta functional
+llamó La-'mo functional
+ruiz rrwiT functional
+mostró mos-'tro functional
+pecho 'pe-tSo functional
+honor o-'nor functional
+pedir pe-'Dir functional
+formar for-'mar functional
+numerosos nu-me-'ro-sos functional
+seguramente se-Gu-ra-'men-te functional
+extraño eks-'tra-Jo functional
+recurso rre-'kur-so functional
+independiente in-de-pen-'djen-te functional
+posiciones po-si-'Tjo-nes functional
+sociedades so-Tje-'Da-Des functional
+exteriores eks-te-'rjo-res functional
+cita 'Ti-ta functional
+periodo pe-'rjo-Do functional
+propuestas pro-'pwes-tas functional
+empleados em-ple-'a-Dos functional
+teniendo te-'njen-do functional
+agencia a-'xen-Tja functional
+cuadros 'kwa-Dros functional
+partida par-'ti-Da functional
+tensión ten-'sjon functional
+raúl rra-'ul functional
+mirar mi-'rar functional
+rica 'rri-ka functional
+mexicano me-xi-'ka-no functional
+modelos mo-'De-los functional
+regreso rre-'Gre-so functional
+gobiernos go-'Bjer-nos functional
+constituyen kons-ti-'tu-jjen functional
+absoluta ab-so-'lu-ta functional
+clima 'kli-ma functional
+criterio kri-'te-rjo functional
+latina la-'ti-na functional
+continúa kon-ti-'nu-a functional
+punta 'pun-ta functional
+amplia 'am-plja functional
+registro rre-'xis-tro functional
+sesión se-'sjon functional
+patria 'pa-trja functional
+posee po-'se-e functional
+entró en-'tro functional
+servir ser-'Bir functional
+lluvia 'Lu-Bja functional
+ganado ga-'na-Do functional
+pasando pa-'san-do functional
+construir kons-'trwir functional
+completa kom-'ple-ta functional
+personales per-so-'na-les functional
+reducir rre-Du-'Tir functional
+desarrollar de-sa-rro-'Lar functional
+alcance al-'kan-Te functional
+deporte de-'por-te functional
+pacto 'pak-to functional
+elaboración e-la-Bo-ra-'Tjon functional
+quedaba ke-'Da-Ba functional
+vicepresidente bi-Te-pre-si-'Den-te functional
+alcohol al-ko-'ol functional
+etcétera et-'Te-te-ra functional
+fórmula 'for-mu-la functional
+inferior in-fe-'rjor functional
+tasa 'ta-sa functional
+expertos eks-'per-tos functional
+extranjero eks-tran-'xe-ro functional
+diciendo di-'Tjen-do functional
+olvidar ol-Bi-'Dar functional
+presentes pre-'sen-tes functional
+pensando pen-'san-do functional
+esperaba es-pe-'ra-Ba functional
+código 'ko-Di-Go functional
+cooperación ko-o-pe-ra-'Tjon functional
+fotografía fo-to-Gra-'fi-a functional
+batalla ba-'ta-La functional
+alternativa al-ter-na-'ti-Ba functional
+nacido na-'Ti-Do functional
+árboles 'ar-Bo-les functional
+penal pe-'nal functional
+llena 'Le-na functional
+siguió si-'Gjo functional
+hablaba a-'Bla-Ba functional
+turismo tu-'ris-mo functional
+papeles pa-'pe-les functional
+menudo me-'nu-Do functional
+angel an-'xel functional
+papa 'pa-pa functional
+populares po-pu-'la-res functional
+estación es-ta-'Tjon functional
+rápidamente 'rra-pi-Da-men-te functional
+sección sek-'Tjon functional
+determinado de-ter-mi-'na-Do functional
+convertirse kom-ber-'tir-se functional
+global glo-'Bal functional
+negociación ne-Go-Tja-'Tjon functional
+instrumento ins-tru-'men-to functional
+dura 'du-ra functional
+significado sig-ni-fi-'ka-Do functional
+intensidad in-ten-si-'Dad functional
+posterior pos-te-'rjor functional
+múltiples 'mul-ti-ples functional
+gas gas functional
+nuevamente nwe-Ba-'men-te functional
+hierro 'Le-rro functional
+seguido se-'Gi-Do functional
+once 'on-Te functional
+conseguido kon-se-'Gi-Do functional
+di di functional
+soledad so-le-'Dad functional
+mirando mi-'ran-do functional
+presentado pre-sen-'ta-Do functional
+instrumentos ins-tru-'men-tos functional
+supo 'su-po functional
+disco 'dis-ko functional
+festival fes-ti-'Bal functional
+llegan 'Le-Gan functional
+mezcla 'meT-kla functional
+drogas 'dro-Gas functional
+vivienda bi-'Bjen-da functional
+escuchar es-ku-'tSar functional
+coronel ko-ro-'nel functional
+completamente kom-ple-ta-'men-te functional
+ideal i-De-'al functional
+cáncer 'kan-Ter functional
+textos 'teks-tos functional
+hambre 'am-bre functional
+solidaridad so-li-Da-ri-'Dad functional
+vicente bi-'Ten-te functional
+continuar kon-ti-'nwar functional
+porcentaje por-Ten-'ta-xe functional
+artes 'ar-tes functional
+vienen 'bje-nen functional
+villa 'bi-La functional
+nicaragua ni-ka-'ra-Gwa functional
+hacían a-'Ti-an functional
+lector lek-'tor functional
+estructuras es-truk-'tu-ras functional
+venir be-'nir functional
+castillo kas-'ti-Lo functional
+opción op-'Tjon functional
+comentó ko-men-'to functional
+sindicatos sin-di-'ka-tos functional
+ganó ga-'no functional
+amenaza a-me-'na-Ta functional
+representante rre-pre-sen-'tan-te functional
+comerciales ko-mer-'Tja-les functional
+puedes 'pwe-Des functional
+planeta pla-'ne-ta functional
+perdió per-'Djo functional
+beneficio be-ne-'fi-Tjo functional
+miami 'mja-mi functional
+buscando bus-'kan-do functional
+sentimientos sen-ti-'mjen-tos functional
+comprar kom-'prar functional
+quedar ke-'Dar functional
+accidente ak-Ti-'Den-te functional
+ventaja ben-'ta-xa functional
+impuesto im-'pwes-to functional
+dejando de-'xan-do functional
+distinto dis-'tin-to functional
+tía 'ti-a functional
+semejante se-me-'xan-te functional
+españolas es-pa-'Jo-las functional
+occidental ok-Ti-Den-'tal functional
+capaces ka-'pa-Tes functional
+científica Tjen-'ti-fi-ka functional
+tengan 'ten-gan functional
+ruido 'rrwi-Do functional
+individuos in-di-'Bi-Dwos functional
+víctima 'bik-ti-ma functional
+vestido bes-'ti-Do functional
+comunista ko-mu-'nis-ta functional
+moda 'mo-Da functional
+títulos 'ti-tu-los functional
+diagnóstico djag-'nos-ti-ko functional
+experiencias eks-pe-'rjen-Tjas functional
+espejo es-'pe-xo functional
+puente 'pwen-te functional
+ingreso in-'gre-so functional
+sueños 'swe-Jos functional
+vehículo be-'i-ku-lo functional
+convierte kom-'bjer-te functional
+viejos 'bje-xos functional
+empezar em-pe-'Tar functional
+profesores pro-fe-'so-res functional
+pasión pa-'sjon functional
+basta 'bas-ta functional
+democrático de-mo-'kra-ti-ko functional
+sintió sin-'tjo functional
+dijeron di-'xe-ron functional
+comunes ko-'mu-nes functional
+sentimiento sen-ti-'mjen-to functional
+sentencia sen-'ten-Tja functional
+estatal es-ta-'tal functional
+madrugada ma-Dru-'Ga-Da functional
+moderna mo-'Der-na functional
+impacto im-'pak-to functional
+complejo kom-'ple-xo functional
+denuncia de-'nun-Tja functional
+toro 'to-ro functional
+víctor 'bik-tor functional
+tabla 'ta-Bla functional
+delito de-'li-to functional
+ventas 'ben-tas functional
+dominio do-'mi-njo functional
+entidades en-ti-'Da-Des functional
+superiores su-pe-'rjo-res functional
+candidatos kan-di-'Da-tos functional
+gloria 'glo-rja functional
+índice 'in-di-Te functional
+indios 'in-djos functional
+raíz rra-'iT functional
+recordó rre-kor-'Do functional
+absoluto ab-so-'lu-to functional
+agricultura a-Gri-kul-'tu-ra functional
+marcos 'mar-kos functional
+composición kom-po-si-'Tjon functional
+cuándo 'kwan-do functional
+joaquín xo-a-'kin functional
+terminó ter-mi-'no functional
+fueran 'fwe-ran functional
+asistencia a-sis-'ten-Tja functional
+explicación eks-pli-ka-'Tjon functional
+torres 'to-rres functional
+lógica 'lo-xi-ka functional
+triste 'tris-te functional
+avión a-'Bjon functional
+enfermo en-'fer-mo functional
+cuyas 'ku-jjas functional
+excepción eks-Tep-'Tjon functional
+habló a-'Blo functional
+placer pla-'Ter functional
+humor u-'mor functional
+mecanismos me-ka-'nis-mos functional
+cerebro Te-'re-Bro functional
+caliente ka-'ljen-te functional
+excelente eks-Te-'len-te functional
+darse 'dar-se functional
+conocimientos ko-no-Ti-'mjen-tos functional
+príncipe 'prin-Ti-pe functional
+religión rre-li-'xjon functional
+ganas 'ga-nas functional
+críticas 'kri-ti-kas functional
+profunda pro-'fun-da functional
+manifestaciones ma-ni-fes-ta-'Tjo-nes functional
+dosis 'do-sis functional
+baño 'ba-Jo functional
+paro 'pa-ro functional
+profundo pro-'fun-do functional
+conceptos kon-'Tep-tos functional
+depresión de-pre-'sjon functional
+altas 'al-tas functional
+pared pa-'red functional
+liberación li-Be-ra-'Tjon functional
+estrella es-'tre-La functional
+duración du-ra-'Tjon functional
+perro 'pe-rro functional
+intentar in-ten-'tar functional
+aumentar au-men-'tar functional
+asesinato a-se-si-'na-to functional
+órdenes 'or-De-nes functional
+ignacio ig-'na-Tjo functional
+roja 'rro-xa functional
+permiten per-'mi-ten functional
+despacho des-'pa-tSo functional
+añade a-'Ja-De functional
+poca 'po-ka functional
+recibe rre-'Ti-Be functional
+muchacho mu-'tSa-tSo functional
+considerado kon-si-De-'ra-Do functional
+conversaciones kom-ber-sa-'Tjo-nes functional
+tendrán ten-'dran functional
+definición de-fi-ni-'Tjon functional
+viven 'bi-Ben functional
+consideran kon-si-'De-ran functional
+restos 'rres-tos functional
+tomado to-'ma-Do functional
+estadio es-'ta-Djo functional
+actores ak-'to-res functional
+debió de-'Bjo functional
+conviene kom-'bje-ne functional
+errores e-'rro-res functional
+negros 'ne-Gros functional
+humanidad u-ma-ni-'Dad functional
+individual in-di-Bi-'Dwal functional
+hogar o-'Gar functional
+conocida ko-no-'Ti-Da functional
+acontecimientos a-kon-te-Ti-'mjen-tos functional
+minuto mi-'nu-to functional
+millón mi-'Lon functional
+pantalla pan-'ta-La functional
+estadounidense es-ta-Dou-ni-'Den-se functional
+progreso pro-'Gre-so functional
+inició i-ni-'Tjo functional
+pieza 'pje-Ta functional
+firme 'fir-me functional
+fundamentales fun-da-men-'ta-les functional
+olor o-'lor functional
+gracia 'gra-Tja functional
+autonomía au-to-no-'mi-a functional
+esencial e-sen-'Tjal functional
+exige ek-'si-xe functional
+viva 'bi-Ba functional
+norteamericana nor-te-a-me-ri-'ka-na functional
+nacimiento na-Ti-'mjen-to functional
+polvo 'pol-Bo functional
+castilla kas-'ti-La functional
+fundamentalmente fun-da-men-tal-'men-te functional
+impuestos im-'pwes-tos functional
+implica im-'pli-ka functional
+utiliza u-ti-'li-Ta functional
+totalidad to-ta-li-'Dad functional
+discusión dis-ku-'sjon functional
+italiano i-ta-'lja-no functional
+postura pos-'tu-ra functional
+clientes 'kljen-tes functional
+luces 'lu-Tes functional
+encontramos en-kon-'tra-mos functional
+liberal li-Be-'ral functional
+interno in-'ter-no functional
+dientes 'djen-tes functional
+sesenta se-'sen-ta functional
+exactamente ek-sak-ta-'men-te functional
+compañero kom-pa-'Je-ro functional
+cuento 'kwen-to functional
+virus 'bi-rus functional
+tareas ta-'re-as functional
+evaluación e-Ba-lwa-'Tjon functional
+máquina 'ma-ki-na functional
+funcionario fun-Tjo-'na-rjo functional
+señalar se-Ja-'lar functional
+residencia rre-si-'Den-Tja functional
+absolutamente ab-so-lu-ta-'men-te functional
+dolores do-'lo-res functional
+nació na-'Tjo functional
+sebastián se-Bas-'tjan functional
+ánimo 'a-ni-mo functional
+caminos ka-'mi-nos functional
+torneo tor-'ne-o functional
+acabar a-ka-'Bar functional
+gol gol functional
+fracaso fra-'ka-so functional
+recorrido rre-ko-'rri-Do functional
+contiene kon-'tje-ne functional
+eficacia e-fi-'ka-Tja functional
+policías po-li-'Ti-as functional
+suárez 'swa-reT functional
+inglaterra in-gla-'te-rra functional
+concreto kon-'kre-to functional
+determinar de-ter-mi-'nar functional
+haberse a-'Ber-se functional
+reglas 'rre-Glas functional
+clinton 'klin-ton functional
+ríos 'rri-os functional
+redacción rre-Dak-'Tjon functional
+localidad lo-ka-li-'Dad functional
+escuelas es-'kwe-las functional
+distinta dis-'tin-ta functional
+seguida se-'Gi-Da functional
+paisaje pai-'sa-xe functional
+comprobar kom-pro-'Bar functional
+numerosas nu-me-'ro-sas functional
+creciente kre-'Tjen-te functional
+hernández er-'nan-deT functional
+serían se-'ri-an functional
+césar 'Te-sar functional
+crimen 'kri-men functional
+conocía ko-no-'Ti-a functional
+pintor pin-'tor functional
+suya 'su-jja functional
+definitivamente de-fi-ni-ti-Ba-'men-te functional
+propiedades pro-pje-'Da-Des functional
+cierre 'Tje-rre functional
+jueces 'xwe-Tes functional
+ofrecer o-fre-'Ter functional
+estaría es-ta-'ri-a functional
+frontera fron-'te-ra functional
+virgen 'bir-xen functional
+clasificación kla-si-fi-ka-'Tjon functional
+municipales mu-ni-Ti-'pa-les functional
+marina ma-'ri-na functional
+abuela a-'Bwe-la functional
+componentes kom-po-'nen-tes functional
+adecuada a-De-'kwa-Da functional
+resultó rre-sul-'to functional
+esperando es-pe-'ran-do functional
+oscuro os-'ku-ro functional
+parecido pa-re-'Ti-Do functional
+detenido de-te-'ni-Do functional
+gasto 'gas-to functional
+malo 'ma-lo functional
+pura 'pu-ra functional
+investigadores im-bes-ti-Ga-'Do-res functional
+cargos 'kar-Gos functional
+cayó ka-'jjo functional
+pasaba pa-'sa-Ba functional
+abandonar a-Ban-do-'nar functional
+sierra 'sje-rra functional
+lima 'li-ma functional
+apareció a-pa-re-'Tjo functional
+secretaría se-kre-ta-'ri-a functional
+pausa 'pau-sa functional
+prácticas 'prak-ti-kas functional
+cortés kor-'tes functional
+siguiendo si-'Gjen-do functional
+conclusión kon-klu-'sjon functional
+habana a-'Ba-na functional
+convirtió kom-bir-'tjo functional
+hipótesis i-'po-te-sis functional
+editorial e-Di-to-'rjal functional
+petróleo pe-'tro-le-o functional
+estén es-'ten functional
+playa 'pla-jja functional
+invierno im-'bjer-no functional
+convenio kom-'be-njo functional
+infantil in-fan-'til functional
+extensión eks-ten-'sjon functional
+horno 'or-no functional
+límite 'li-mi-te functional
+elegido e-le-'xi-Do functional
+concurso kon-'kur-so functional
+japón xa-'pon functional
+probable pro-'Ba-Ble functional
+observar ob-ser-'Bar functional
+déficit 'de-fi-Tit functional
+reconoce rre-ko-'no-Te functional
+anual a-'nwal functional
+trabajando tra-Ba-'xan-do functional
+responde rres-'pon-de functional
+tren tren functional
+presidencial pre-si-Den-'Tjal functional
+vías 'bi-as functional
+interesa in-te-'re-sa functional
+supremo su-'pre-mo functional
+enemigo e-ne-'mi-Go functional
+respectivamente rres-pek-ti-Ba-'men-te functional
+dificultad di-fi-kul-'tad functional
+similares si-mi-'la-res functional
+entiende en-'tjen-de functional
+morales mo-'ra-les functional
+alimentación a-li-men-ta-'Tjon functional
+norma 'nor-ma functional
+mental men-'tal functional
+soluciones so-lu-'Tjo-nes functional
+adecuado a-De-'kwa-Do functional
+cuánto 'kwan-to functional
+santos 'san-tos functional
+amistad a-mis-'tad functional
+derrota de-'rro-ta functional
+consiguió kon-si-'Gjo functional
+positivo po-si-'ti-Bo functional
+compañías kom-pa-'Ji-as functional
+ejecución e-xe-ku-'Tjon functional
+expresó eks-pre-'so functional
+embajador em-ba-xa-'Dor functional
+tomás to-'mas functional
+dulce 'duln-Te functional
+promedio pro-'me-Djo functional
+letras 'le-tras functional
+cuesta 'kwes-ta functional
+academia a-ka-'De-mja functional
+mando 'man-do functional
+costumbre kos-'tum-bre functional
+colectivo ko-lek-'ti-Bo functional
+piedras 'pje-Dras functional
+rasgos 'rras-Gos functional
+industriales in-dus-'trja-les functional
+mía 'mi-a functional
+protesta pro-'tes-ta functional
+viajes 'bja-xes functional
+chica 'tSi-ka functional
+periódicos pe-'rjo-Di-kos functional
+moneda mo-'ne-Da functional
+órganos 'or-Ga-nos functional
+comunicado ko-mu-ni-'ka-Do functional
+mantenimiento man-te-ni-'mjen-to functional
+geografía xe-o-Gra-'fi-a functional
+manejo ma-'ne-xo functional
+fría 'fri-a functional
+patrimonio pa-tri-'mo-njo functional
+exclusivamente eks-klu-si-Ba-'men-te functional
+antiguos an-'ti-Gwos functional
+universidades u-ni-Ber-si-'Da-Des functional
+frecuente fre-'kwen-te functional
+oficio o-'fi-Tjo functional
+ayudar a-jju-'Dar functional
+pedido pe-'Di-Do functional
+superar su-pe-'rar functional
+auto 'au-to functional
+relato rre-'la-to functional
+unido u-'ni-Do functional
+sentado sen-'ta-Do functional
+quisiera ki-'sje-ra functional
+detalle de-'ta-Le functional
+quedaron ke-'Da-ron functional
+obligado o-Bli-'Ga-Do functional
+libres 'li-Bres functional
+panamá pa-na-'ma functional
+acabó a-ka-'Bo functional
+aeropuerto a-e-ro-'pwer-to functional
+pobreza po-'Bre-Ta functional
+reflexión rre-flek-'sjon functional
+cumbre 'kum-bre functional
+imaginación i-ma-xi-na-'Tjon functional
+cubano ku-'Ba-no functional
+solar so-'lar functional
+costo 'kos-to functional
+hubieran u-'Bje-ran functional
+tesis 'te-sis functional
+catalán ka-ta-'lan functional
+armadas ar-'ma-Das functional
+hice 'i-Te functional
+oír o-'ir functional
+dada 'da-Da functional
+estabilidad es-ta-Bi-li-'Dad functional
+vaso 'ba-so functional
+mecanismo me-ka-'nis-mo functional
+escribe es-'kri-Be functional
+aprender a-pren-'der functional
+cambiado kam-'bja-Do functional
+bilbao bil-'Ba-o functional
+naturalmente na-tu-ral-'men-te functional
+comandante ko-man-'dan-te functional
+potencia po-'ten-Tja functional
+toros 'to-ros functional
+puro 'pu-ro functional
+elegir e-le-'xir functional
+facultad fa-kul-'tad functional
+ocupa o-'ku-pa functional
+patio 'pa-tjo functional
+recuperar rre-ku-pe-'rar functional
+corta 'kor-ta functional
+pase 'pa-se functional
+necesarios ne-Te-'sa-rjos functional
+responder rres-pon-'der functional
+reuniones rreu-'njo-nes functional
+daño 'da-Jo functional
+trabaja tra-'Ba-xa functional
+promoción pro-mo-'Tjon functional
+ingredientes in-gre-'Djen-tes functional
+descubrir des-ku-'Brir functional
+viviendas bi-'Bjen-das functional
+señal se-'Jal functional
+clínica 'kli-ni-ka functional
+tradicionales tra-Di-Tjo-'na-les functional
+loco 'lo-ko functional
+paseo pa-'se-o functional
+arena a-'re-na functional
+consideración kon-si-De-ra-'Tjon functional
+deberán de-Be-'ran functional
+esquema es-'ke-ma functional
+creado kre-'a-Do functional
+utilizado u-ti-li-'Ta-Do functional
+establecido es-ta-Ble-'Ti-Do functional
+concierto kon-'Tjer-to functional
+manifestación ma-ni-fes-ta-'Tjon functional
+enfermos en-'fer-mos functional
+rechazo rre-'tSa-To functional
+salido sa-'li-Do functional
+dejan 'de-xan functional
+israel is-rra-'el functional
+consciente kons-'Tjen-te functional
+propone pro-'po-ne functional
+manifiesto ma-ni-'fjes-to functional
+publicado pu-Bli-'ka-Do functional
+ejemplos e-'xem-plos functional
+llamaba La-'ma-Ba functional
+barco 'bar-ko functional
+usar u-'sar functional
+signo 'sig-no functional
+afecta a-'fek-ta functional
+árbol 'ar-Bol functional
+riqueza rri-'ke-Ta functional
+difusión di-fu-'sjon functional
+quiera 'kje-ra functional
+disciplina dis-Ti-'pli-na functional
+vemos 'be-mos functional
+felicidad fe-li-Ti-'Dad functional
+mejora me-'xo-ra functional
+dirige di-'ri-xe functional
+correr ko-'rrer functional
+dimensión di-men-'sjon functional
+oscar os-'kar functional
+petición pe-ti-'Tjon functional
+transformación trans-for-ma-'Tjon functional
+notable no-'ta-Ble functional
+pista 'pis-ta functional
+andalucía an-da-lu-'Ti-a functional
+marta 'mar-ta functional
+realizada rre-a-li-'Ta-Da functional
+aplicar a-pli-'kar functional
+cena 'Te-na functional
+eléctrica e-'lek-tri-ka functional
+enviado em-'bja-Do functional
+modos 'mo-Dos functional
+fortuna for-'tu-na functional
+conflictos kon-'flik-tos functional
+infancia in-'fan-Tja functional
+permitió per-mi-'tjo functional
+campesinos kam-pe-'si-nos functional
+tercero ter-'Te-ro functional
+desea de-'se-a functional
+sida 'si-Da functional
+obligación o-Bli-Ga-'Tjon functional
+oriente o-'rjen-te functional
+colección ko-lek-'Tjon functional
+eficaz e-fi-'kaT functional
+exceso eks-'Te-so functional
+evidencia e-Bi-'Den-Tja functional
+poderes po-'De-res functional
+demostrar de-mos-'trar functional
+muestran 'mwes-tran functional
+protagonista pro-ta-Go-'nis-ta functional
+alcanza al-'kan-Ta functional
+recuerdos rre-'kwer-Dos functional
+montaña mon-'ta-Ja functional
+dictadura dik-ta-'Du-ra functional
+observa ob-'ser-Ba functional
+indígenas in-'di-xe-nas functional
+pasan 'pa-san functional
+ortega or-'te-Ga functional
+claridad kla-ri-'Dad functional
+estuviera es-tu-'Bje-ra functional
+consulta kon-'sul-ta functional
+financiero fi-nan-'Tje-ro functional
+inflación in-fla-'Tjon functional
+senado se-'na-Do functional
+tropas 'tro-pas functional
+mexicana me-xi-'ka-na functional
+correspondientes ko-rres-pon-'djen-tes functional
+levantó le-Ban-'to functional
+vuelo 'bwe-lo functional
+imperio im-'pe-rjo functional
+gana 'ga-na functional
+agente a-'xen-te functional
+respuestas rres-'pwes-tas functional
+civiles Ti-'Bi-les functional
+pierde 'pjer-De functional
+moderno mo-'Der-no functional
+homenaje o-me-'na-xe functional
+establecimiento es-ta-Ble-Ti-'mjen-to functional
+crea 'kre-a functional
+fiestas 'fjes-tas functional
+números 'nu-me-ros functional
+controlar kon-tro-'lar functional
+tratando tra-'tan-do functional
+intenta in-'ten-ta functional
+circulación Tir-ku-la-'Tjon functional
+reserva rre-'ser-Ba functional
+silla 'si-La functional
+franceses fran-'Te-ses functional
+expresa eks-'pre-sa functional
+escribió es-kri-'Bjo functional
+virtud bir-'tud functional
+satisfacción sa-tis-fak-'Tjon functional
+huevos 'we-Bos functional
+vos bos functional
+descenso des-'Ten-so functional
+terrorismo te-rro-'ris-mo functional
+ecuador e-kwa-'Dor functional
+chico 'tSi-ko functional
+segura se-'Gu-ra functional
+contó kon-'to functional
+líderes 'li-De-res functional
+lentamente len-ta-'men-te functional
+historias is-'to-rjas functional
+galicia ga-'li-Tja functional
+acompañado a-kom-pa-'Ja-Do functional
+décadas 'de-ka-Das functional
+reconoció rre-ko-no-'Tjo functional
+hago 'a-Go functional
+apartado a-par-'ta-Do functional
+feria 'fe-rja functional
+rueda 'rrwe-Da functional
+usuarios u-'swa-rjos functional
+útil 'u-til functional
+emilio e-'mi-ljo functional
+cumplimiento kum-pli-'mjen-to functional
+transición tran-si-'Tjon functional
+campeón kam-pe-'on functional
+verse 'ber-se functional
+anteriormente an-te-rjor-'men-te functional
+defender de-fen-'der functional
+cuáles 'kwa-les functional
+hecha 'e-tSa functional
+remedio rre-'me-Djo functional
+ponen 'po-nen functional
+debo 'de-Bo functional
+procedimientos pro-Te-Di-'mjen-tos functional
+gritos 'gri-tos functional
+círculo 'Tir-ku-lo functional
+norteamericanos nor-te-a-me-ri-'ka-nos functional
+rojas 'rro-xas functional
+dirigido di-ri-'xi-Do functional
+delitos de-'li-tos functional
+avenida a-Be-'ni-Da functional
+alonso a-'lon-so functional
+obtuvo ob-'tu-Bo functional
+matar ma-'tar functional
+cortes 'kor-tes functional
+grados 'gra-Dos functional
+previamente pre-Bja-'men-te functional
+publicación pu-Bli-ka-'Tjon functional
+aprendizaje a-pren-di-'Ta-xe functional
+motor mo-'tor functional
+crítico 'kri-ti-ko functional
+señores se-'Jo-res functional
+muchacha mu-'tSa-tSa functional
+rumbo 'rrum-bo functional
+trato 'tra-to functional
+arquitectura ar-ki-tek-'tu-ra functional
+querer ke-'rer functional
+encargado en-kar-'Ga-Do functional
+pensé pen-'se functional
+distrito dis-'tri-to functional
+rápida 'rra-pi-Da functional
+ay ai functional
+campeonato kam-pe-o-'na-to functional
+gabriel ga-'Brjel functional
+maestros ma-'es-tros functional
+reformas rre-'for-mas functional
+explotación eks-plo-ta-'Tjon functional
+católica ka-'to-li-ka functional
+contenidos kon-te-'ni-Dos functional
+sustancias sus-'tan-Tjas functional
+regresar rre-Gre-'sar functional
+formado for-'ma-Do functional
+creía kre-'i-a functional
+juzgado xuT-'Ga-Do functional
+bolivia bo-'li-Bja functional
+famoso fa-'mo-so functional
+avance a-'Ban-Te functional
+particulares par-ti-ku-'la-res functional
+usa 'u-sa functional
+cerrar Te-'rrar functional
+aprobación a-pro-Ba-'Tjon functional
+llamadas La-'ma-Das functional
+termina ter-'mi-na functional
+borde 'bor-De functional
+fenómenos fe-'no-me-nos functional
+of of functional
+metro 'me-tro functional
+corrientes ko-'rrjen-tes functional
+dedicado de-Di-'ka-Do functional
+zaragoza Ta-ra-'Go-Ta functional
+creen 'kre-en functional
+continente kon-ti-'nen-te functional
+ventajas ben-'ta-xas functional
+clásico 'kla-si-ko functional
+orquesta or-'kes-ta functional
+oye 'o-jje functional
+analizar a-na-li-'Tar functional
+ernesto er-'nes-to functional
+cuentan 'kwen-tan functional
+diarios 'dja-rjos functional
+dueño 'dwe-Jo functional
+actitudes ak-ti-'tu-Des functional
+bajar ba-'xar functional
+telefónica te-le-'fo-ni-ka functional
+rusia 'rru-sja functional
+coalición ko-a-li-'Tjon functional
+gustaría gus-ta-'ri-a functional
+cerrado Te-'rra-Do functional
+descubierto des-ku-'Bjer-to functional
+urbano ur-'Ba-no functional
+atentado a-ten-'ta-Do functional
+deportivo de-por-'ti-Bo functional
+viendo 'bjen-do functional
+órgano 'or-Ga-no functional
+asociaciones a-so-Tja-'Tjo-nes functional
+instalación ins-ta-la-'Tjon functional
+hombros 'om-bros functional
+introducción in-tro-Duk-'Tjon functional
+demostrado de-mos-'tra-Do functional
+determinados de-ter-mi-'na-Dos functional
+mostrar mos-'trar functional
+atmósfera at-'mos-fe-ra functional
+gentes 'xen-tes functional
+moreno mo-'re-no functional
+sabido sa-'Bi-Do functional
+diga 'di-Ga functional
+vender ben-'der functional
+dejaba de-'xa-Ba functional
+polémica po-'le-mi-ka functional
+guillermo gi-'Ler-mo functional
+vacaciones ba-ka-'Tjo-nes functional
+vidas 'bi-Das functional
+mediados me-'Dja-Dos functional
+subir su-'Bir functional
+iniciar i-ni-'Tjar functional
+droga 'dro-Ga functional
+iv 'kwa-tro functional
+asegurar a-se-Gu-'rar functional
+entusiasmo en-tu-'sjas-mo functional
+prestigio pres-'ti-xjo functional
+centrales Ten-'tra-les functional
+edificios e-Di-'fi-Tjos functional
+contestó kon-tes-'to functional
+extraña eks-'tra-Ja functional
+signos 'sig-nos functional
+cristo 'kris-to functional
+permitir per-mi-'tir functional
+sensibilidad sen-si-Bi-li-'Dad functional
+lógico 'lo-xi-ko functional
+terminado ter-mi-'na-Do functional
+bar bar functional
+comenzaron ko-men-'Ta-ron functional
+ciudadano Tju-Da-'Da-no functional
+actuaciones ak-twa-'Tjo-nes functional
+particularmente par-ti-ku-lar-'men-te functional
+especialistas es-pe-Tja-'lis-tas functional
+canciones kan-'Tjo-nes functional
+golpes 'gol-pes functional
+pertenece per-te-'ne-Te functional
+legislación le-xis-la-'Tjon functional
+delegación de-le-Ga-'Tjon functional
+anoche a-'no-tSe functional
+dignidad dig-ni-'Dad functional
+armada ar-'ma-Da functional
+unidas u-'ni-Das functional
+citado Ti-'ta-Do functional
+conveniente kom-be-'njen-te functional
+empresario em-pre-'sa-rjo functional
+llaman 'La-man functional
+presos 'pre-sos functional
+expansión eks-pan-'sjon functional
+radical rra-Di-'kal functional
+advirtió ad-Bir-'tjo functional
+tomando to-'man-do functional
+comenzar ko-men-'Tar functional
+conforme kon-'for-me functional
+detenidos de-te-'ni-Dos functional
+deseos de-'se-os functional
+impulso im-'pul-so functional
+dispone dis-'po-ne functional
+necesarias ne-Te-'sa-rjas functional
+esquina es-'ki-na functional
+productores pro-Duk-'to-res functional
+ponerse po-'ner-se functional
+destaca des-'ta-ka functional
+mantuvo man-'tu-Bo functional
+cola 'ko-la functional
+tuviera tu-'Bje-ra functional
+inmediata im-me-'Dja-ta functional
+mexicanos me-xi-'ka-nos functional
+socios 'so-Tjos functional
+bajas 'ba-xas functional
+informes in-'for-mes functional
+romero rro-'me-ro functional
+jefes 'xe-fes functional
+argumento ar-Gu-'men-to functional
+cultivo kul-'ti-Bo functional
+vivía bi-'Bi-a functional
+opiniones o-pi-'njo-nes functional
+reloj rre-'loj functional
+in in functional
+habido a-'Bi-Do functional
+riesgos 'rrjes-Gos functional
+meta 'me-ta functional
+gonzalo gon-'Ta-lo functional
+laboratorio la-Bo-ra-'to-rjo functional
+comunicaciones ko-mu-ni-ka-'Tjo-nes functional
+medias 'me-Djas functional
+elena e-'le-na functional
+escolar es-ko-'lar functional
+danza 'dan-Ta functional
+terrible te-'rri-Ble functional
+notas 'no-tas functional
+entero en-'te-ro functional
+suave 'swa-Be functional
+alejandro a-le-'xan-dro functional
+activa ak-'ti-Ba functional
+dirigida di-ri-'xi-Da functional
+eje 'e-xe functional
+variedad ba-rje-'Dad functional
+fácilmente 'fa-Til-men-te functional
+canción kan-'Tjon functional
+cantidades kan-ti-'Da-Des functional
+orientación o-rjen-ta-'Tjon functional
+fotos 'fo-tos functional
+definir de-fi-'nir functional
+masas 'ma-sas functional
+tabaco ta-'Ba-ko functional
+aventura a-Ben-'tu-ra functional
+próximas 'prok-si-mas functional
+pude 'pu-De functional
+llegaba Le-'Ga-Ba functional
+conocidos ko-no-'Ti-Dos functional
+raíces rra-'i-Tes functional
+gravedad gra-Be-'Dad functional
+blancos 'blan-kos functional
+gabinete ga-Bi-'ne-te functional
+alfredo al-'fre-Do functional
+municipio mu-ni-'Ti-pjo functional
+arroz a-'rroT functional
+potencial po-ten-'Tjal functional
+islas 'is-las functional
+goles 'go-les functional
+oportunidades o-por-tu-ni-'Da-Des functional
+estuvieron es-tu-'Bje-ron functional
+caballero ka-Ba-'Le-ro functional
+colocar ko-lo-'kar functional
+comentarios ko-men-'ta-rjos functional
+profundidad pro-fun-di-'Dad functional
+comprensión kom-pren-'sjon functional
+panorama pa-no-'ra-ma functional
+otan 'o-tan functional
+revolucionario rre-Bo-lu-Tjo-'na-rjo functional
+síntesis 'sin-te-sis functional
+seno 'se-no functional
+anda 'an-da functional
+dependencia de-pen-'den-Tja functional
+primavera pri-ma-'Be-ra functional
+aumenta au-'men-ta functional
+manifiesta ma-ni-'fjes-ta functional
+fruto 'fru-to functional
+brillante bri-'Lan-te functional
+sindicato sin-di-'ka-to functional
+fechas 'fe-tSas functional
+torre 'to-rre functional
+oscuridad os-ku-ri-'Dad functional
+anuncio a-'nun-Tjo functional
+intelectuales in-te-lek-'twa-les functional
+ampliación am-plja-'Tjon functional
+conservación kon-ser-Ba-'Tjon functional
+inicia i-'ni-Tja functional
+alcanzó al-kan-'To functional
+teniente te-'njen-te functional
+demuestra de-'mwes-tra functional
+salas 'sa-las functional
+vital bi-'tal functional
+pudieron pu-'Dje-ron functional
+carreras ka-'rre-ras functional
+sabor sa-'Bor functional
+combate kom-'ba-te functional
+efectivamente e-fek-ti-Ba-'men-te functional
+lágrimas 'la-Gri-mas functional
+disminución dis-mi-nu-'Tjon functional
+plantea plan-'te-a functional
+provincial pro-Bin-'Tjal functional
+miraba mi-'ra-Ba functional
+caracas ka-'ra-kas functional
+situado si-'twa-Do functional
+caballos ka-'Ba-Los functional
+proteínas pro-te-'i-nas functional
+biblioteca bi-Bljo-'te-ka functional
+recientes rre-'Tjen-tes functional
+afuera a-'fwe-ra functional
+jiménez xi-'me-neT functional
+tasas 'ta-sas functional
+levanta le-'Ban-ta functional
+cuarta 'kwar-ta functional
+taza 'ta-Ta functional
+conclusiones kon-klu-'sjo-nes functional
+necesitan ne-Te-'si-tan functional
+negativa ne-Ga-'ti-Ba functional
+dieta 'dje-ta functional
+alcanzado al-kan-'Ta-Do functional
+andar an-'dar functional
+destacó des-ta-'ko functional
+pilar pi-'lar functional
+flor flor functional
+suficientes su-fi-'Tjen-tes functional
+existentes ek-sis-'ten-tes functional
+utilizan u-ti-'li-Tan functional
+ceremonia Te-re-'mo-nja functional
+ése 'e-se functional
+abogados a-Bo-'Ga-Dos functional
+mantienen man-'tje-nen functional
+castellano kas-te-'La-no functional
+vivido bi-'Bi-Do functional
+representan rre-pre-'sen-tan functional
+cámaras 'ka-ma-ras functional
+aparecer a-pa-re-'Ter functional
+dioses 'djo-ses functional
+programación pro-Gra-ma-'Tjon functional
+bogotá bo-Go-'ta functional
+médica 'me-Di-ka functional
+opciones op-'Tjo-nes functional
+permiso per-'mi-so functional
+verdes 'ber-Des functional
+mensajes men-'sa-xes functional
+participantes par-ti-Ti-'pan-tes functional
+sacó sa-'ko functional
+profesión pro-fe-'sjon functional
+senador se-na-'Dor functional
+alvarez al-Ba-'reT functional
+convocatoria kom-bo-ka-'to-rja functional
+largas 'lar-Gas functional
+afirmar a-fir-'mar functional
+arma 'ar-ma functional
+americano a-me-ri-'ka-no functional
+provincias pro-'Bin-Tjas functional
+cuantos 'kwan-tos functional
+proporción pro-por-'Tjon functional
+rival rri-'Bal functional
+angustia an-'gus-tja functional
+escasa es-'ka-sa functional
+largos 'lar-Gos functional
+granada gra-'na-Da functional
+destrucción des-truk-'Tjon functional
+europeas eu-ro-'pe-as functional
+podríamos po-'Dri-a-mos functional
+celebración Te-le-Bra-'Tjon functional
+traje 'tra-xe functional
+parecían pa-re-'Ti-an functional
+jurídico xu-'ri-Di-ko functional
+techo 'te-tSo functional
+elevado e-le-'Ba-Do functional
+financiera fi-nan-'Tje-ra functional
+jean 'xe-an functional
+utilizando u-ti-li-'Tan-do functional
+cubrir ku-'Brir functional
+descanso des-'kan-so functional
+percepción per-Tep-'Tjon functional
+iu ju functional
+bosque 'bos-ke functional
+continuidad kon-ti-nwi-'Dad functional
+británico bri-'ta-ni-ko functional
+financiación fi-nan-Tja-'Tjon functional
+bienestar bje-nes-'tar functional
+afectados a-fek-'ta-Dos functional
+consejero kon-se-'xe-ro functional
+dé de functional
+diría di-'ri-a functional
+descubrimiento des-ku-Bri-'mjen-to functional
+escándalo es-'kan-da-lo functional
+estancia es-'tan-Tja functional
+seguros se-'Gu-ros functional
+argumentos ar-Gu-'men-tos functional
+espero es-'pe-ro functional
+deportes de-'por-tes functional
+informa in-'for-ma functional
+preparado pre-pa-'ra-Do functional
+negó ne-'Go functional
+añadir a-Ja-'Dir functional
+corona ko-'ro-na functional
+cabezas ka-'Be-Tas functional
+cadáver ka-'Da-Ber functional
+iguales i-'Gwa-les functional
+pendiente pen-'djen-te functional
+relacionados rre-la-Tjo-'na-Dos functional
+abuelo a-'Bwe-lo functional
+decirle de-'Tir-le functional
+normalmente nor-mal-'men-te functional
+oficinas o-fi-'Ti-nas functional
+revisión rre-Bi-'sjon functional
+frecuentes fre-'kwen-tes functional
+institucional ins-ti-tu-Tjo-'nal functional
+cae 'ka-e functional
+previa 'pre-Bja functional
+ricos 'rri-kos functional
+símbolo 'sim-bo-lo functional
+sostiene sos-'tje-ne functional
+capa 'ka-pa functional
+temporal tem-po-'ral functional
+vigilancia bi-xi-'lan-Tja functional
+mínima 'mi-ni-ma functional
+columna ko-'lum-na functional
+ves bes functional
+ofrecen o-'fre-Ten functional
+acababa a-ka-'Ba-Ba functional
+determinada de-ter-mi-'na-Da functional
+ciu Tju functional
+salsa 'sal-sa functional
+ruta 'rru-ta functional
+cursos 'kur-sos functional
+huesos 'we-sos functional
+permitido per-mi-'ti-Do functional
+difíciles di-'fi-Ti-les functional
+amiga a-'mi-Ga functional
+observación ob-ser-Ba-'Tjon functional
+escritores es-kri-'to-res functional
+asumir a-su-'mir functional
+sufrido su-'fri-Do functional
+setenta se-'ten-ta functional
+dejaron de-'xa-ron functional
+guía 'gi-a functional
+haría a-'ri-a functional
+nervioso ner-'Bjo-so functional
+vivos 'bi-Bos functional
+dimensiones di-men-'sjo-nes functional

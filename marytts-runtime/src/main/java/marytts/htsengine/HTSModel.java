@@ -64,6 +64,8 @@
 
 package marytts.htsengine;
 
+import java.util.Arrays;
+import marytts.htsengine.HMMData.FeatureType;
 
 /**
  * HMM model for a particular phone (or line in context feature file)
@@ -79,12 +81,8 @@ public class HTSModel {
   
   //private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
   private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
-  private int durPdf;               /* duration pdf index for this HMM */
-  private int lf0Pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
-  private int mcepPdf[];            /* log f0 pdf indexes for each state of this HMM */
-  private int strPdf[];             /* str pdf indexes for each state of this HMM  */
-  private int magPdf[];             /* str pdf indexes for each state of this HMM  */
 
+	private double durError;
   private int dur[];                /* duration for each state of this HMM */
   private int totalDur;             /* total duration of this HMM in frames */
   private int totalDurMillisec;     /* total duration of this model in milliseconds */
@@ -110,29 +108,24 @@ public class HTSModel {
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
   
-  public void setDurPdf(int val){ durPdf = val; }
-  public int getDurPdf(){return durPdf;}
-  
   public void setDur(int i, int val){ dur[i] = val; }
   public int getDur(int i){ return dur[i]; } 
   
+	public void setDurError(double e) {
+		durError = e;
+	}
+
+	public double getDurError() {
+		return durError;
+	}
   public void setTotalDur(int val){ totalDur = val; }
   public int getTotalDur(){return totalDur;}
+	public void incrTotalDur(int val) {
+		totalDur += val;
+	}
   
   public void setTotalDurMillisec(int val){ totalDurMillisec = val; }
   public int getTotalDurMillisec(){return totalDurMillisec;}
-  
-  public void setLf0Pdf(int i, int val){ lf0Pdf[i] = val; }
-  public int getLf0Pdf(int i){ return lf0Pdf[i]; } 
-  
-  public void setMcepPdf(int i, int val){ mcepPdf[i] = val; }
-  public int getMcepPdf(int i){ return mcepPdf[i]; } 
-  
-  public void setStrPdf(int i, int val){ strPdf[i] = val; }
-  public int getStrPdf(int i){ return strPdf[i]; } 
-  
-  public void setMagPdf(int i, int val){ magPdf[i] = val; }
-  public int getMagPdf(int i){ return magPdf[i]; } 
   
   public void setLf0Mean(int i, int j, double val){ lf0Mean[i][j] = val; }
   public double getLf0Mean(int i, int j){ return lf0Mean[i][j]; } 
@@ -150,7 +143,36 @@ public class HTSModel {
   // set the vector per state
   public void setMcepMean(int i, double val[]){ mcepMean[i] = val; }
   public void setMcepVariance(int i, double val[]){ mcepVariance[i] = val; }
-  
+
+	public double[] getMean(FeatureType type, int i) {
+		switch (type) {
+		case MGC:
+			return Arrays.copyOf(mcepMean[i], mcepMean[i].length);
+		case STR:
+			return Arrays.copyOf(strMean[i], strMean[i].length);
+		case MAG:
+			return Arrays.copyOf(magMean[i], magMean[i].length);
+		case LF0:
+			return Arrays.copyOf(lf0Mean[i], lf0Mean[i].length);
+		default:
+			throw new RuntimeException("You must not ask me about DUR");
+		}
+	}
+
+	public double[] getVariance(FeatureType type, int i) {
+		switch (type) {
+		case MGC:
+			return Arrays.copyOf(mcepVariance[i], mcepVariance[i].length);
+		case STR:
+			return Arrays.copyOf(strVariance[i], strVariance[i].length);
+		case MAG:
+			return Arrays.copyOf(magVariance[i], magVariance[i].length);
+		case LF0:
+			return Arrays.copyOf(lf0Variance[i], lf0Variance[i].length);
+		default:
+			throw new RuntimeException("You must not ask me about DUR");
+		}
+	}
   /**
    * Print mean and variance of each state
    */
@@ -217,10 +239,17 @@ public class HTSModel {
   public void setMagVariance(int i, double val[]){ magVariance[i] = val; }
   
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
+	/** whether state i is voiced or not */
   public boolean getVoiced(int i){ return voiced[i]; }
-  public void setNumVoiced(int val){ numVoiced = val; }
-  public int getNumVoiced(){ return numVoiced; }
-  
+	public int getNumVoiced() {
+		int numVoiced = 0;
+		for (int i = 0; i < voiced.length; i++) {
+			if (getVoiced(i))
+				numVoiced += getDur(i);
+		}
+		return numVoiced;
+	}
+
   public void setMaryXmlDur(String str){ maryXmlDur = str;}
   public String getMaryXmlDur(){ return maryXmlDur;}
   
@@ -236,20 +265,16 @@ public class HTSModel {
 	int i;  
 	totalDur = 0;
 	dur = new int[nstate];
-	lf0Pdf = new int[nstate];
 	lf0Mean = new double[nstate][];
     lf0Variance = new double[nstate][];
     voiced = new boolean[nstate];
 
-    mcepPdf = new int[nstate];
 	mcepMean = new double[nstate][];
     mcepVariance = new double[nstate][];
 	 
-    strPdf = new int[nstate];
 	strMean = new double[nstate][];
     strVariance = new double[nstate][];
     
-    magPdf = new int[nstate];
 	magMean = new double[nstate][];
     magVariance = new double[nstate][];
     
@@ -260,5 +285,9 @@ public class HTSModel {
     
   } /* method Model, initialise a Model object */
   
+	@Override
+	public String toString() {
+		return getPhoneName();
+	}
   
 } /* class Model */
