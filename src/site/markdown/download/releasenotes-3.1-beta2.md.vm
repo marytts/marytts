@@ -1,0 +1,24 @@
+MARY 3.1-beta2
+==============
+
+[mary-install-3.1beta2.jar](${project.url}/download/mary-install-3.1beta2.jar) (web-based installer, 450kB)
+
+Highlights:
+-----------
+
+* Four German unit selection voices created from recordings in the BITS project;
+* added acoustic models, which should also improve the English unit selection voices;
+* added support for 64-bit linux and Intel Mac architectures.
+
+On our to-do list are still many things, including:
+---------------------------------------------------
+
+* a well-documented and easy-to-use voice creation toolkit;
+* smaller voices by using suitable speech coding for the databases.
+* For more details, see the development page: http://mary.opendfki.de/milestone/3.1.0
+
+Known issues with this release:
+-------------------------------
+
+* diphone voices are basically broken. Don't install this version if you want to use diphone voices.
+* only very limited testing on various platforms. Please report any errors you may find!

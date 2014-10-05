@@ -1,0 +1,42 @@
+MARY TTS 4.3.0: Release notes
+=============================
+
+[Download MARY TTS 4.3.0](${project.url}/download/4.3.0/openmary-standalone-install-4.3.0.jar)
+
+This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
+
+This release marks the final results of work on MARY TTS in the [PAVOQUE project](../pavoque/), in which we experimented with different technologies for adding expressivity to unit selection synthesis.
+The release makes available those project results that may be of interest to a wider audience.
+
+New features for expressive unit selection synthesis
+----------------------------------------------------
+
+* selecting style from a multi-style database using a symbolic style feature;
+* imposing target prosody using FD-PSOLA signal modification.
+
+Style can be selected using RAWMARYXML's `<prosody style="...">` markup (see new expressive voice, below).
+
+Prosody modification is available for all unit selection voices, including older ones;
+to activate it, click the checkbox "Apply prosody modification" in the [web interface](${project.url}:59125/).
+This feature should be considered experimental, and the quality depends on many factors, including the accuracy of the pitchmarks used for building the unit selection voice.
+While this feature is likely to lead to reduced quality, it enables research on expressive prosody with unit selection voices.
+
+For more information on the MaryXML `<prosody>` markup which can now be applied to all types of MARY voices, see [ProsodySpecificationSupport](http://mary.opendfki.de/wiki/ProsodySpecificationSupport).
+
+New expressive voice
+--------------------
+
+* we release the multi-style expressive German voice 'dfki-pavoque-styles' (660 MB) built from the full PAVOQUE corpus;
+  see [Steiner et al. (2010)](http://www.dfki.de/web/research/publications?pubid=4877) for a description of this corpus.
+  The different styles can be requested using RAWMARYXML `<prosody style="A_STYLE">...</prosody>`, where `A_STYLE` is one of `happy`, `angry`, `sad`, and `poker`.
+
+New language: Russian
+---------------------
+
+* Nickolay Shmyrev has kindly made available language support for Russian, as well as the Russian male unit selection voice voxforge-ru-nsh.
+Thanks Nickolay!
+
+Bugfixes
+--------
+
+* This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.3

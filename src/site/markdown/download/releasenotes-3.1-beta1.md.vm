@@ -1,0 +1,12 @@
+MARY 3.1-beta1
+==============
+
+[mary-install-3.1beta1.jar](${project.url}/download/mary-install-3.1beta1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.1beta1.jar](${project.url}/download/mary-standalone-install-3.1beta1.jar) (standalone installer, ~500MB) if the web-based installer causes problems
+
+Release notes:
+--------------
+
+First beta release of the new unit selection code.
+Try the new slt-arctic, bdl-arctic and jmk-arctic voices!
+
+For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.

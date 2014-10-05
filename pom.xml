@@ -7,7 +7,7 @@
 	<version>5.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>MARY TTS</name>
+	<name>MaryTTS</name>
 	<url>http://mary.dfki.de</url>
 	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
 	<inceptionYear>2000</inceptionYear>
@@ -42,8 +42,20 @@
 			<id>sathishpc</id>
 		</developer>
 		<developer>
+			<name>Fabio Tesser</name>
+			<id>ftesser</id>
+		</developer>
+		<developer>
+			<name>Giulio Paci</name>
+			<id>giuliopaci</id>
+		</developer>
+		<developer>
 			<name>Maureen Tanuadji</name>
 			<id>mochanz</id>
+		</developer>
+		<developer>
+			<name>Tristan Hamilton</name>
+			<id>munzey</id>
 		</developer>
 	</developers>
 
@@ -65,9 +77,6 @@
 			<name>Sacha Krstulović</name>
 		</contributor>
 		<contributor>
-			<name>Giulio Paci</name>
-		</contributor>
-		<contributor>
 			<name>Benjamin Roth</name>
 		</contributor>
 		<contributor>
@@ -75,9 +84,6 @@
 		</contributor>
 		<contributor>
 			<name>Jochen Steigner</name>
-		</contributor>
-		<contributor>
-			<name>Fabio Tesser</name>
 		</contributor>
 		<contributor>
 			<name>Oytun Türk</name>
@@ -89,14 +95,18 @@
 
 	<distributionManagement>
 		<site>
-			<id>dfki</id>
-			<url>scpexe://mary:/local/mary/www</url>
+			<id>DFKI</id>
+			<url>rsync:mary:/local/mary/www</url>
 		</site>
 		<downloadUrl>https://bitbucket.org/marytts/marytts/downloads</downloadUrl>
 		<repository>
 			<id>bintray</id>
 			<url>https://api.bintray.com/maven/marytts/marytts/marytts</url>
 		</repository>
+		<snapshotRepository>
+			<id>bintray</id>
+			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<mailingLists>
@@ -117,40 +127,43 @@
 	</mailingLists>
 
 	<issueManagement>
-		<system>github</system>
+		<system>GitHub</system>
 		<url>https://github.com/marytts/marytts/issues/</url>
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/psibre/marytts</url>
-		<connection>scm:git:https://github.com/psibre/marytts.git</connection>
-		<developerConnection>scm:git:git@github.com/psibre/marytts.git</developerConnection>
+		<url>https://github.com/marytts/marytts</url>
+		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
+		<developerConnection>scm:git:git@github.com/marytts/marytts.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+
+	<ciManagement>
+		<system>Travis</system>
+		<url>https://travis-ci.org/marytts/marytts</url>
+	</ciManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- this path is defined in the parent POM, but only accessed in the children POMs -->
 		<project.local.repository.path>${project.basedir}/../lib/repo</project.local.repository.path>
+		<github.global.server>github</github.global.server>
 	</properties>
+
+	<prerequisites>
+		<maven>3.0.2</maven>
+	</prerequisites>
 
 	<modules>
 		<module>marytts-common</module>
+		<module>marytts-languages</module>
 		<module>marytts-signalproc</module>
 		<module>marytts-runtime</module>
 		<module>marytts-client</module>
 		<module>marytts-builder</module>
 		<module>marytts-redstart</module>
 		<module>marytts-transcription</module>
-		<module>marytts-lang-de</module>
-		<module>marytts-lang-en</module>
-		<module>marytts-lang-te</module>
-		<module>marytts-lang-tr</module>
-		<module>marytts-lang-ru</module>
-		<module>marytts-lang-it</module>
-		<module>marytts-lang-fr</module>
-		<module>marytts-lang-sv</module>
 		<module>voice-cmu-slt-hsmm</module>
 		<module>marytts-assembly</module>
 	</modules>
@@ -344,26 +357,90 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>versions-maven-plugin</artifactId>
-					<version>2.1</version>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.4.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>1.3.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.17</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.6</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.3</version>
+					<version>3.4</version>
 					<dependencies>
 						<dependency>
-							<groupId>org.apache.maven.wagon</groupId>
-							<artifactId>wagon-ssh-external</artifactId>
-							<version>2.6</version>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.6</version>
+						</dependency>
+						<dependency>
+							<groupId>com.pcl-solutions.maven.wagons</groupId>
+							<artifactId>rsync-maven-wagon</artifactId>
+							<version>1.0</version>
 						</dependency>
 					</dependencies>
+					<configuration>
+						<stagingSiteURL>${project.distributionManagement.site.url}</stagingSiteURL>
+					</configuration>
 				</plugin>
 
 				<plugin>
-					<artifactId>maven-assembly-plugin</artifactId>
+					<artifactId>maven-source-plugin</artifactId>
 					<version>2.3</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.17</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>buildnumber-maven-plugin</artifactId>
+					<version>1.3</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -371,17 +448,26 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
 
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>1.3.1</version>
 				<executions>
 					<execution>
 						<id>enforce-java-7-or-higher</id>
@@ -402,7 +488,6 @@
 			<!-- Unit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.8</version>
 				<configuration>
 					<!--forkMode>pertest</forkMode -->
 					<argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m</argLine>
@@ -416,7 +501,6 @@
 			<!-- Integration tests -->
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.8</version>
 				<executions>
 					<execution>
 						<id>integration-test</id>
@@ -442,7 +526,6 @@
 
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -466,14 +549,16 @@
 				<reportSets>
 					<reportSet>
 						<reports>
-              				<!-- <report>dependencies</report> -->
 							<report>index</report>
+							<report>summary</report>
 							<report>project-team</report>
-							<report>mailing-list</report>
-							<report>cim</report>
-							<report>issue-tracking</report>
 							<report>license</report>
+							<report>mailing-list</report>
+							<report>issue-tracking</report>
 							<report>scm</report>
+							<report>cim</report>
+							<report>modules</report>
+							<report>dependency-management</report>
 						</reports>
 					</reportSet>
 				</reportSets>
@@ -485,8 +570,7 @@
 				<version>2.9.1</version>
 				<configuration>
 					<destDir>javadoc</destDir>
-					<!-- TODO temporarily skip this -->
-					<skip>true</skip>
+					<skip>false</skip>
 				</configuration>
 				<reportSets>
 					<reportSet>
@@ -574,5 +658,39 @@
 
 		</plugins>
 	</reporting>
+
+	<profiles>
+		<profile>
+			<id>github-site</id>
+
+			<build>
+				<defaultGoal>site</defaultGoal>
+
+				<plugins>
+					<plugin>
+						<groupId>com.github.github</groupId>
+						<artifactId>site-maven-plugin</artifactId>
+						<version>0.9</version>
+						<configuration>
+							<outputDirectory>${project.build.directory}/staging</outputDirectory>
+							<repositoryOwner>marytts</repositoryOwner>
+							<repositoryName>marytts.github.io</repositoryName>
+							<branch>refs/heads/master</branch>
+							<message>update Github website for ${project.scm.url}/commit/${buildNumber}</message>
+							<noJekyll>true</noJekyll>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>site</goal>
+								</goals>
+								<phase>site</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

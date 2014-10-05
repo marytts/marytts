@@ -1,0 +1,18 @@
+MARY 3.0.1
+==========
+
+[mary-install-3.0.1.jar](${project.url}/download/mary-install-3.0.1.jar) (web-based installer, 450kB) or use [mary-standalone-install-3.0.1.jar](${project.url}/download/mary-standalone-install-3.0.1.jar) (standalone installer, 420MB) if the web-based installer causes problems
+
+Relase notes:
+-------------
+
+First bugfix release.
+A number of bugs have been fixed which have occurred after the initial release.
+Most relevant:
+
+* Audio can now be saved with proper audio headers ([ticket 32](http://mary.opendfki.de/ticket/32))
+* Mary GUI client is now accessible via the keyboard ([ticket 3](http://mary.opendfki.de/ticket/3))
+
+An update is recommended.
+
+See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.1&amp;order=priority)

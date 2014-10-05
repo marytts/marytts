@@ -1,0 +1,58 @@
+MaryTTS 5.1 Release Notes
+=========================
+
+Following significant restructuring introduced in v5.0, this is a milestone release to stabilize numerous new features and fixes over the past two years.
+
+**Download:**
+
+* [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-5.1.zip)
+* [Builder package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-builder-5.1.zip)
+
+New features
+============
+
+Apart from numerous fixed issues, there are several notable improvements in this version.
+
+French language support
+-----------------------
+
+Thanks to Sathish Pammi's work at ENST and UPMC in Paris, there is support for French TTS.
+This supersedes an [earlier, experimental implementation](http://mary.opendfki.de/browser/branches/fr-branch), which relied on external, native resources with an incompatible license.
+
+Moreover, thanks to the great work and generosity of the speakers, there are a number of French voices built from three open-source corpora:
+
+* https://github.com/marytts/enst-camille-data
+* https://github.com/marytts/upmc-jessica-data
+* https://github.com/marytts/upmc-pierre-data
+
+Improved Italian language support
+---------------------------------
+
+Thanks to Fabio Tesser and Giulio Paci at ISTC in Padova, numerous improvements were made to Italian TTS.
+
+This also includes the resurrection of the HTK Labeler used for voicebuilding as an alternative to the EHMM Labeler, which may produce better results under certain conditions.
+
+Documentation
+-------------
+
+Although much of the documentation has yet to be updated, the [MaryTTS website](${project.url}) itself is now built directly from the MaryTTS source code (using the [Maven Site Plugin](http://maven.apache.org/plugins/maven-site-plugin/)).
+This unifies the fossilized legacy content with new documentation, including the GitHub-hosted [wiki](https://github.com/marytts/marytts/wiki), and makes it easy to manage.
+
+Easier integration
+------------------
+
+Finally, thanks to cloud hosting at [Bintray](https://bintray.com/marytts), it is now possible to integrate MaryTTS directly into other applications without the requirement to install it first locally, simply by adding the following repository block to your `pom.xml`:
+
+    <repository>
+	  <id>bintray</id>
+	  <url>https://dl.bintray.com/marytts/marytts</url>
+    </repository>
+
+Develepment news
+----------------
+
+There has been some fluctuation in the core development team since the release of v5.0;
+departures and other responsibilities have resulted in less activity than we would have liked.
+
+Fortunately, we do finally have several new projects for MaryTTS, and several exciting features waiting the wings, ready to be rebased on a stable version (this one), including major overhauls of the voicebuilding toolchain and the new language support, and a new web-based installer.
+Expect these to land in the near future.

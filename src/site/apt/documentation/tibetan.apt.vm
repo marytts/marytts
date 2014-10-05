@@ -1,0 +1,101 @@
+   ---
+   Tibetan
+   ---
+
+Tibetan
+
+	Some background on the Tibetan language synthesis within MARY
+
+*Information about this Tibetan text-to-speech synthesizer
+
+	This is a very first system designed to convert written Tibetan text into speech, which can be understood e.g. by blind people, or people who do not know how to write.
+
+	The system is the result of a student project. None of the persons involved speak any Tibetan -- we were therefore unable to determine if the system sounds understandable, does the right thing, etc. 
+	
+	We strongly invite feedback (schroed@dfki.de), but please be kind, and be constructive.
+
+**How to enter Tibetan text
+
+	Currently, Tibetan text must be entered in Wylie transliteration, more precisely in the Extended Wylie format as defined at {{{http://www.thdl.org/collections/langling/ewts/ewts.php}THDL}}. A number of {{{http://www.thdl.org/tools/conv.html}converters}} from/to Tibetan script in different encodings are available.
+	
+**Who built this?
+
+	The Tibetan language version of the {{{${project.url}/}MARY}} text-to-speech (TTS) synthesizer was built during a software project at {{{http://www.dfki.de/}DFKI}} and the {{{http://www.coli.uni-saarland.de/}department of Computational Linguistics}} at {{{http://www.uni-saarland.de}Saarland University}}, in summer 2005.
+
+	The project was directed by {{{http://www.dfki.de/%7Eschroed}Marc Schröder}} and involved the following students:
+
+        * Maria Staudte (sentence and word detection; syllable structure parsing)
+        
+        * {{{http://www.rabenwelt.de.vu/}Anna Hunecke}} (pronounciation rules and lexicon)
+        
+        * Jens Apel (tone assignment; intonation)
+        
+        * {{{http://www.larsjungjohann.de/}Lars Jungjohann}} (sound inventory; tone realisation; diphone voice mapping)
+	
+	[]
+	After four months, the basics of an extendable Tibetan synthesizer were ready.
+	As none of the participants speaks any Tibetan, all modules and rules were determined based on the available literature, in particular the following two manuals:
+
+	Goldstein, M.C., Gelek Rimpoche & Phuntshog, L. (1991). Essentials of modern literary Tibetan. University of California Press.
+
+	Tournadre, N. & Dorje, S. (2003). Manual of Standard Tibetan. Snow Lion.
+
+	We now invite experts of the Tibetan language, such as Tibetologists and native speakers, to play around with our system and to give us feedback:
+
+	* Does the output sound understandable?
+	
+	* Does it sound as it is supposed to?
+	
+	* Which of the voices sound best? Which ones sound worst?
+	
+	* What important mistakes have we made?
+	
+	* What should urgently be improved?
+	
+	* (and not least:) What can you do to help?
+	
+	[]
+	
+	Remember that we do not claim that this system is usable at this stage; furthermore, no manpower is available to work on the system now. But if you have concrete suggestions on what to improve, do let us know. If you think you could help, do let us know! We could certainly set up some cooperation so that language know-how from your side and technical know-how from our side can work together.
+	
+**Who did you build this for?
+
+	We built this system in the hope that it might become useful, e.g., in the {{{http://www.braillewithoutborders.org/}Braille Without Borders}} project in Lhasa. The project is clearly non-commercial, and the resulting system is not to be sold. Organisations or institutions who wish to get a (royalty-free) license for the software should contact us (schroed@dfki.de).
+
+**State of affairs, Limitations
+
+	We are very conscious of the fact that the system is crudely simplified in many ways. In the following, you will find a sketch of the current state of affairs.
+
+***Word segmentation
+	
+	A very crude mechanism for finding words consisting of more than one syllable is implemented, relying on a list of particles such as "la" or "gi", and a lexicon of words. Both the list of particles and the word list are mere proofs of concept, and contain only very few entries. Anyone who can give us access to more exhaustive word lists for Tibetan should contact us (schroed@dfki.de).
+	
+***Numbers and other text normalisations
+
+	The current system knows nothing of numbers, abbreviations, etc. These will need to be spelled out in full if they are to be pronounced.
+
+***Sanskrit
+
+	We have concentrated on core Tibetan, and have ignored all Sanskrit characters in Tibetan (those that are represented by capital letters in Extended Wylie). If you can give us a mapping of Sanskrit letters in Tibetan to their pronounciation, let us know. We have also ignored non-standard syllable structures which seem to stem from Sanskrit, such as "padme" or "karma". To pronounce these, write "pad me" and "kar ma".
+
+***Pronounciation
+
+	Pronounciation relies on the fact that Tibetan is, despite the complex spelling, reasonably regular in its pronounciation. Rules as formalised, in particular, in Goldstein's book, have been implemented in an extendable formalism. If you think you can improve on the current rule set, contact us.
+
+***Phrasing
+	
+	Phrasing is very rudimentary at the moment, relying on punctuation marks such as "/" or "_" to mark ends of sentences or phrases. Within sentences, no phrase breaks after particles are currently inserted. Suggestions for improvement are welcome.
+
+***Tones
+	
+	While Tibetan may have only two tones distinguishing meaning (high and low), it seems that at least 4 need to be distinguished phonetically, namely a falling variant of high and low tones (corresponding to glottalisation).
+
+	Textbooks state that only on the first syllable of a multi-syllabic word, these tones are realised. In order to avoid monotonous high or low stretches, we have implemented a "mid-tone" realised on all non-initial syllables. Feedback on this is appreciated.
+
+***Speech rhythm
+
+	Lacking an empirical basis for predicting timing information for the various speech sounds, we used the same values for phone durations as in our German TTS system. These might be considerably wrong for Tibetan. If you feel that certain sounds seem too long or too short, please send us concrete suggestions on how to improve this.
+
+***Voices
+	
+	At this stage, no synthetic Tibetan voice exists. Recording a Tibetan diphone inventory was very clearly beyond the scope of our project. Instead, we attempt to approximate the Tibetan sound inventory by using similar voices. We would appreciate feedback on the suitability of these voices, as well as suggestions for funding resources for the creation of a Tibetan voice.

@@ -1,0 +1,33 @@
+MARY TTS 4.3.1: Release notes
+=============================
+
+[Download MARY TTS 4.3.1](${project.url}/download/4.3.1/openmary-standalone-install-4.3.1.jar)
+
+This is a minor release, whose main purpose it is to enable Italian TTS (see below).
+It also includes small but useful improvements enabling the use of MARY TTS with screen readers on Linux (see below).
+
+New language: Italian
+---------------------
+
+Thanks to the great work by Fabio Tesser and co-workers at ISTC Padova, Italy, we can now make available support for Italian in MARY TTS.
+To install the Italian voice, first download and install MARY TTS from the link above, then run the MARY Component installer, click "Update" to get the list of available languages and voices, and select the Italian Language and the istc-lucia-hsmm voice.
+
+Improvements
+------------
+
+Bill Cox has kindly provided a patch resulting in substantial reduction of time-to-audio for HMM-based voices.
+The key idea is to use the vocoder in streaming mode rather than produce all audio before sending it onwards.
+Since only the socket server, but not the http server, supports streaming audio, you need to use the socket server or a custom integration mechanism to benefit from this improvement.
+
+Critically, however, this has improved the responsiveness of MARY TTS sufficiently to allow using MARY TTS with screen readers on Linux!
+
+New voices
+----------
+
+Bill also provided two male US English voices built from Arctic data sets, cmu-rms-hsmm and cmu-bdl-hsmm.
+According to him, specifically the rms voice is quite intelligible at high speed (with the speedup done in a post-processing step currently).
+
+Bugfixes
+--------
+
+This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.3.1 -- most notably, the problem with commas in label files during voice-building should now be fixed.

@@ -1,0 +1,139 @@
+   ---
+   Overview
+   ---
+
+Overview
+
+	The properties of the MARY system are explained here along two lines: on the one hand, the architecture of the system from a natural language processing point of view; on the other hand, the workings of the system from a technical viewpoint .
+
+* Processing architecture and modules
+	
+	Four parts of the TtS system can be distinguished:
+	
+	[[1]] {{{#a1._The_preprocessing}the preprocessing}} or text normalisation;
+	
+	[[2]] the {{{#a2._The_natural_language_processing}natural language processing}}, doing linguistic analysis and annotation;
+	
+	[[3]] the {{{#a3._The_Calculation_of_Acoustic_Parameters}calculation of acoustic parameters}}, which translates the linguistically annotated symbolic structure into a table containing only physically relevant parameters;
+	
+	[[4]] and the {{{#a4._The_synthesiser}synthesis}}, transforming the parameter table into an audio file.
+
+**1. The preprocessing
+
+	The preprocessing or text normalisation includes the tokeniser, abbreviation expansion, and numeral expansion. 
+	At the same time, a rudimentary internal XML structure is built around the input text, eventually translating any SABLE annotation that may be given in the input text.
+
+**2. The natural language processing
+	
+	The natural language processing is responsible of the calculation of speech-relevant data out of the written input text, viz. phone symbols and intonation labels. 
+	In a first NLP step, part of speech labelling and shallow parsing (chunking) is performed. Then, a lexicon lookup is performed in the pronounciation lexicon; unknown tokens are morphologically decomposed and phonemised by grapheme to phoneme (letter to sound) rules. 
+	Independently from the lexicon lookup, symbols for the intonation and phrase structure are assigned by rule, using punctuation, part of speech info, and the local syntactic info provided by the chunker. 
+	Finally, postlexical phonological rules are applied, modifying the phone symbols and/or the intonation symbols as a function of their context.
+
+***2.1 Components
+	
+	The NLP analysis is organised in a modular way, containing the following components:
+	
+	* part of speech tagger;
+	
+	* chunker (a partial syntactic analysis);
+	
+    * grapheme to phoneme conversion using
+        
+		* a lexicon for the known tokens;
+			
+		* grapheme to phoneme rules for the unknown tokens, using a morphological analysis;
+		
+		* syllabification, word stress and phonologic rules;
+		
+    * intonation annotation using GToBI;
+    
+    * postlexical phonological rules.
+
+    []
+
+***2.2 Output
+
+	The output of the NLP component is a rich MaryXML structure. (For its syntax, see {{{../lib/MaryXML.xsd}MaryXML.xsd}}). Example:
+	
++------------------------------------------+	
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="${project.url}/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.4" xml:lang="de">
+<p>
+<s>
+<phrase>
+<t g2p_method="lexicon" pos="ART" sampa="'?aI-n@" syn_attach="1" syn_phrase="NP">
+Eine
+</t>
+<t accent="L+H*" g2p_method="lexicon" pos="ADJA" sampa="'?EC-t@" syn_attach="0" syn_phrase="NP">
+echte
+</t>
+<t accent="H*" g2p_method="lexicon" pos="NN" sampa="hE-'RaUs-fO6-d6-RUN" syn_attach="0" syn_phrase="NP">
+Herausforderung
+</t>
+<t pos="$." syn_attach="2" syn_phrase="_">
+.
+</t>
+<boundary breakindex="5" tone="L-%"/>
+</phrase>
+</s>
+</p>
+</maryxml>
++------------------------------------------+    
+
+**3. The Calculation of Acoustic Parameters
+	
+	This rich input is then translated into an acoustic parameter file, by applying a model for duration (the so-called Klatt Rules adapted for German) and for intonation (a ToBI based approach, translating intonation symbols into targets on declination lines that can be attributed precise frequency values).
+	
+
+***3.1 Output
+	
+	The output is a parameter file as used in one way or another by many speech synthesis systems. As one type of waveform synthesizer, we use MBROLA as a synthesis system, so the parameter output format is the MBROLA input format. Every phone symbol is assigned a duration in milliseconds; some phone symbols are assigned a (time,frequency) target, where time is in percent of the phone duration and frequency is in Hertz. Example:
+	
+	
++------------------------------------------+	
+_	10
+aI	130	(0,209)
+n	62
+@	52	(0,187)
+_	55
+E	84	(50,232)
+C	71
+t	57
+@	52
+h	61
+E	71	(0,224)
+R	63
+aU	148	(50,174)
+s	86
+f	71
+O	68
+6	31
+d	42
+6	60
+R	60
+U	139
+N	78	(100,160)
+_	400
+#
++------------------------------------------+	
+
+**4. The synthesiser
+
+	Finally, the synthesiser creates a sound file from a phoneme string. We use MBROLA for diphone synthesis, as well as cluster unit selection code derived from FreeTTS for unit selection synthesis. 
+	Several audio formats can be generated, including 16 bit wav, aiff, and au, and mp3.
+
+=======================================================================
+
+Technical architecture
+
+	The system is composed of a main server or "manager" program, a number of modules doing the actual processing, and a client sending input data and receiving processing results.
+	The system, implemented in Java, is 
+	
+	* multi-threaded: each request is processed in a thread of its own, which allows the server to process multiple requests "in parallel";
+	
+	* flexible: both pure Java modules and "external" modules (external programs reading from stdin and writing to stdout) are supported and can easily be integrated into the system;
+	
+	* XML-based: state-of-the-art technologies such as DOM (for internal manipulation of the MaryXML structures) and XSLT (for input markup parsing) are used to make the system as transparent and understandable as possible.
+	
+[]
