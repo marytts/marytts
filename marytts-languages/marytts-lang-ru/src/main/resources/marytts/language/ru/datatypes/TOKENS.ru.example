@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="ru">
+  <p>
+    <s>
+      <t>Добро</t>
+      <t>пожаловать</t>
+      <t>в</t>
+      <t>мир</t>
+      <t>синтеза</t>
+      <t>речи</t>
+      <t>!</t>
+    </s>
+  </p>
+</maryxml>

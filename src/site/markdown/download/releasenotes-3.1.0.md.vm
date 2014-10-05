@@ -1,0 +1,31 @@
+MARY 3.1.0
+==========
+
+Ten months after the last stable release, a major milestone release is finally here:
+MARY 3.1.0.
+
+[mary-install-3.1.0.jar](${project.url}/download/mary-install-3.1.0.jar) (web-based installer)
+
+Its main features are:
+----------------------
+
+* state of the art unit selection (English and German);
+* support for two more platforms:
+  64 bit Linux and Mac OS X on Intel platforms;
+* a voice creation toolkit (work in progress, see http://mary.opendfki.de/browser/tags/3.1.0/lib/modules/import/README for preliminary documentation if you want to try it out).
+
+Thanks to those who have helped test the beta versions!
+All the problems that we have become aware of should be fixed in this release.
+For a reasonably complete list of issues addressed in this release, see http://mary.opendfki.de/milestone/3.1.0
+
+Should you come across additional bugs, please post them to the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
+
+Some background info:
+---------------------
+
+The unit selection code released here has performed better-than-average in this year's Blizzard Challenge (http://www.festvox.org/blizzard/), showing that the system can be considered state-of-the-art.
+For details, see:
+http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007a
+
+The German voices have been created from the BITS corpora - for details, see:
+http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007

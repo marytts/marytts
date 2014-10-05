@@ -1,0 +1,39 @@
+Project History
+===============
+
+The earliest version of ${project.name} was developed around ${project.inceptionYear} by Marc Schröder as a collaborative project of [DFKI](http://www.dfki.de/web)'s [Language Technology Lab](http://www.dfki.de/lt/) and the [Institute of Phonetics](http://www.coli.uni-saarland.de/groups/WB/Phonetics/) at [Saarland University](http://www.uni-saarland.de).
+For many years, it evolved and matured, first as an in-house Text-to-Speech (TTS) component, and subsequently as a fully open-source TTS platform with a growing community.
+Since its origins, ${project.name} has changed significantly, but it remains true to its original goal:
+a <i><b>M</b>odular <b>A</b>rchitecture for <b>R</b>esearch in s<b>Y</b>ynthesis</i> written in Java.
+
+The history of ${project.name} can be largely broken down into several phases:
+
+Pre-History
+-----------
+
+Marc and the other early developers have all moved on to other institutions and projects, so little is known about the earliest days of ${project.name}.
+DFKI wanted to develop its own in-house solution for TTS, and the earliest incarnation of what was to become ${project.name} consisted of a collection of shell scripts piping data to each other.
+When Marc joined DFKI, he realized that to create a sustainable and extensible TTS platform, it needed to be redesigned and implemented in an object-oriented way.
+The decision was made in favor of Java (over C++), since platform portability was an important criterion.
+
+Originally, as described in the first reference publication, MARY was using [MBROLA](http://tcts.fpms.ac.be/synthesis/mbrola.html) as a back-end for diphone synthesis of German.
+Support for English was added by integrating code from [FreeTTS](http://freetts.sourceforge.net/), a Java port of [Flite](http://cmuflite.org/), which was in turn a light-weight runtime implementation of the venerable [Festival](http://www.cstr.ed.ac.uk/projects/festival/). 
+In a software project in 2005, students from Saarland University used MARY to create a TTS system for Tibetan.
+
+MARY 3 (2006-2008)
+------------------
+
+When MARY development moved the source code from [CVS](http://www.nongnu.org/cvs/) to [Subversion](http://subversion.apache.org/), the project was already using [Apache Ant](http://ant.apache.org/) to manage its build.
+Around the same time, the DFKI-internal MARY code was forked into an open-source project, *OpenMARY*, and managed using a [Trac](http://trac.edgewall.org/) instance at http://mary.opendfki.de/.
+
+Development on MARY was boosted by funding from the DFG for a three-year project, "PAVOQUE".
+This provided the resources needed to implement an open-source unit-selection engine, which offers much higher naturalness in the synthesis output, as well as tools to create new TTS voices and even support for new languages.
+
+OpenMARY (2009-2011)
+--------------------
+
+The internal DFKI MARY was effectively discontinued as development efforts focused on OpenMARY.
+Additional funding was granted by the EU project [SEMAINE](http://www.semaine-project.eu/), which integrated MARY into a multimodal, spoken dialog system with expressive virtual characters.
+Along with the final year of the PAVOQUE project and collaboration in another EU project ([SSPNET](http://sspnet.eu/)), this phase marked extensive development on ${project.name}.
+
+(TBC)
