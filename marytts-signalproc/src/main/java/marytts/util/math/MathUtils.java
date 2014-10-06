@@ -5000,7 +5000,7 @@ public class MathUtils {
                 int index = findNextIndexNonZero( contour, i );
                 //System.out.println("i: "+i+"index: "+index);
                 if( index == -1 ) {
-                    for ( int j=i; j < contour.length; j++ ) {
+                    for ( int j=(i == 0 ? 1 : i); j < contour.length; j++ ) {
                         contour[j] = contour[j-1];
                     }
                     break;

@@ -22,6 +22,7 @@ package marytts.modules.acoustic;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -186,24 +187,20 @@ public class HMMModel extends Model {
      */
     private HTSUttModel predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements)
     throws MaryConfigurationException{
-        int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
-        HTSModel m;
         List<Element> predictorElements = predictFromElements;        
-        List<Target> predictorTargets = getTargets(predictorElements);                
+        List<Target> predictorTargets = getTargets(predictorElements);               
         FeatureVector fv = null;       
         HTSUttModel um = new HTSUttModel();                
-        FeatureDefinition feaDef = htsData.getFeatureDefinition();
-        float duration;       
+        FeatureDefinition feaDef = htsData.getFeatureDefinition(); 
         double diffdurOld = 0.0;
         double diffdurNew = 0.0;
-        float f0s[] = null;
         String durAttributeName = "d";
         try {     
           // (1) Predict the values       
-          for (i = 0; i < predictorTargets.size(); i++) {            
+          for (int i = 0; i < predictorTargets.size(); i++) {            
             fv = predictorTargets.get(i).getFeatureVector();             
             um.addUttModel(new HTSModel(cart.getNumStates()));            
-            m = um.getUttModel(i);
+            HTSModel m = um.getUttModel(i);
             /* this function also sets the phone name, the phone between - and + */
             m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));   
             
@@ -220,7 +217,7 @@ public class HMMModel extends Model {
             // Estimate state duration from state duration model (Gaussian)              
             diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffdurOld);
             diffdurOld = diffdurNew;
-            duration  = m.getTotalDur() * fperiodsec; // in seconds
+            double duration  = m.getTotalDur() * fperiodsec; // in seconds
    
             um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());  
             //System.out.format("HMMModel: phone=%s  duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration, m.getTotalDur());
@@ -229,9 +226,9 @@ public class HMMModel extends Model {
              * and determines, according to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
              * and some unvoiced).*/ 
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
-            for(mstate=0; mstate<cart.getNumStates(); mstate++) 
+            for(int mstate=0; mstate<cart.getNumStates(); mstate++) 
             {  
-              for(frame=0; frame<m.getDur(mstate); frame++)    
+              for(int frame=0; frame<m.getDur(mstate); frame++)    
                 if(m.getVoiced(mstate))                      
                   um.setLf0Frame(um.getLf0Frame() +1);     
             }
@@ -270,7 +267,7 @@ public class HMMModel extends Model {
      * @throws MaryConfigurationException if error generating F0 out of HMMs trees and pdfs.
      */
     private void predictAndSetF0(List<Element> applyToElements, HTSUttModel um) throws MaryConfigurationException{
-      int i, k, s, t, mstate, frame, numVoicedInModel;
+
       HTSModel m;
       try {
           String f0AttributeName = "f0";  
@@ -288,22 +285,20 @@ public class HMMModel extends Model {
           assert applyToElements.size() == um.getNumModel();        
           float f0;
           String formattedTargetValue;
-          t=0;
-          for (i = 0; i < applyToElements.size(); i++) {  // this will be the same as the utterance model set
+          int t=0;
+          for (int i = 0; i < applyToElements.size(); i++) {  // this will be the same as the utterance model set
             m = um.getUttModel(i);
-            k = 1;
-            numVoicedInModel = m.getNumVoiced();
+            int k = 1;
+            int numVoicedInModel = m.getNumVoiced();
             formattedTargetValue = "";
             //System.out.format("phone = %s dur_in_frames=%d  num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
-            for(mstate=0; mstate<cart.getNumStates(); mstate++) {
-              for(frame=0; frame<m.getDur(mstate); frame++) { 
+            for(int mstate=0; mstate<cart.getNumStates(); mstate++) {
+              for(int frame=0; frame<m.getDur(mstate); frame++) { 
                 if( voiced[t++] ){  // numVoiced and t are not the same because voiced values can be true or false, numVoiced count just the voiced
                   f0 = (float)Math.exp(pdf2par.getlf0Pst().getPar(numVoiced++,0));                  
                   formattedTargetValue += "(" + Integer.toString((int)((k*100.0)/numVoicedInModel)) + "," + Integer.toString((int)f0) + ")";
                   k++;
-                }
-                //else
-                //  f0 = 0.0f;                       
+                }                       
               }
             }       
             Element element = applyToElements.get(i);        
@@ -409,5 +404,4 @@ public class HMMModel extends Model {
         throw new RuntimeException("This method should never be called");
     }
     
-
 }

@@ -514,7 +514,8 @@ public class Request {
         }
         MaryData currentData = oneInputData;
         for (MaryModule m : neededModules) {
-            if (abortRequested) break;
+			if (abortRequested)
+				break;
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
                 assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
@@ -622,11 +623,13 @@ public class Request {
             // Ignore whitespace-only nodes:
             if (currentNode.getNodeType() == Node.TEXT_NODE) {
                 Text currentTextNode = (Text) currentNode;
-                if (currentTextNode.getData().trim().length() == 0) continue;
+				if (currentTextNode.getData().trim().length() == 0)
+					continue;
             }
             if (!MaryDomUtils.hasAncestor(currentNode, MaryXML.PARAGRAPH)) {
                 // Outside paragraphs:
-                if (firstNode == null) firstNode = currentNode;
+				if (firstNode == null)
+					firstNode = currentNode;
                 lastNode = currentNode;                    
             } else {
                 // a node below a paragraph -- enclose any previous text
@@ -700,7 +703,7 @@ public class Request {
      * Move all the boundary elements outside of paragraphs into paragraphs.
      * @param rawmaryxml
      */
-    private void moveBoundariesIntoParagraphs(Document rawmaryxml)
+    private static void moveBoundariesIntoParagraphs(Document rawmaryxml)
     {
         if (rawmaryxml == null) {
             throw new NullPointerException("Received null rawmaryxml");
@@ -741,15 +744,12 @@ public class Request {
     }
     
     /**
-     * For a given maryxml document, extract one paragraph element as
-     * a separate document, including any parent nodes around the paragraph
-     * element.
-     * @param maryxml
-     * @param paragraph
-     * @return
+	 * For a given maryxml document, extract one paragraph element as a separate
+	 * document, including any parent nodes around the paragraph element.
+	 * 
      */
-    private MaryData extractParagraphAsMaryData(MaryData maryxml, Element paragraph)
-    {
+	private static MaryData extractParagraphAsMaryData(MaryData maryxml,
+			Element paragraph) {
         if (!maryxml.getType().isMaryXML()) {
             throw new IllegalArgumentException("Expected MaryXML data");
         }
@@ -792,11 +792,10 @@ public class Request {
     }
 
     /**
-     * For a given instance of MaryData, determine the locale -- either
-     * from the data type, or, if it is not specified there, from the
-     * XML document root element's attribute "xml:lang". 
-     * @param data 
-     * @return
+	 * For a given instance of MaryData, determine the locale -- either from the
+	 * data type, or, if it is not specified there, from the XML document root
+	 * element's attribute "xml:lang".
+	 * 
      */
     private Locale determineLocale(MaryData data) {
         Locale locale = null;
@@ -814,10 +813,8 @@ public class Request {
                 }
             }
         }
-        if (locale == null) {
-            locale = defaultLocale;
-        }
-        return locale;
+		assert defaultLocale != null;
+		return locale != null ? locale : defaultLocale;
     }
 
     /**
