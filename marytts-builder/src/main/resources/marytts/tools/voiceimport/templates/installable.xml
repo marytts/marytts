@@ -23,7 +23,7 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-        <include>marytts:voice-${VOICENAME}</include>
+        <include>${project.groupId}:voice-${VOICENAME}</include>
       </includes>
     </dependencySet>
   </dependencySets>
