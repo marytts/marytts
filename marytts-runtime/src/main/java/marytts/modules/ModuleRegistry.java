@@ -62,7 +62,7 @@ public class ModuleRegistry
      */
     static {
         mkm = new MultiKeyMap();
-        allModules = new LinkedList<MaryModule>();
+        allModules = new ArrayList<MaryModule>();
         registrationComplete = false;
         logger = MaryUtils.getLogger("ModuleRegistry");
     }
@@ -198,7 +198,7 @@ public class ModuleRegistry
             throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
-            if (m.getClass().equals(moduleClass)) {
+            if (moduleClass.isInstance(m)) {
                 return m;
             }
         }
@@ -344,7 +344,7 @@ public class ModuleRegistry
             throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
         LinkedHashMap<MaryDataType,MaryModule> results = new LinkedHashMap<MaryDataType,MaryModule>();
         // First, get all results:
-        List<List<MaryModule>> listOfLists = new LinkedList<List<MaryModule>>();
+        List<List<MaryModule>> listOfLists = new ArrayList<List<MaryModule>>();
         listOfLists.add((List<MaryModule>) mkm.get(type, locale, voice));
         Locale langOnly = locale != null ? new Locale(locale.getLanguage()) : null;
         boolean haveCountry = langOnly == null ? false : !langOnly.equals(locale);
@@ -365,7 +365,7 @@ public class ModuleRegistry
                 }
             }
         }
-        List<MaryModule> returnList = new LinkedList<MaryModule>();
+        List<MaryModule> returnList = new ArrayList<MaryModule>();
         for (MaryDataType t : results.keySet()) {
             returnList.add(results.get(t));
         }

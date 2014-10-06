@@ -36,6 +36,7 @@ import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.traversal.TreeWalker;
 
 
@@ -130,9 +131,11 @@ public class TargetFeatureLister extends InternalModule
         String pauseSymbol = featureComputer.getPauseSymbol();
         List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
         for (Target target : targets) {
-            FeatureVector features = featureComputer.computeFeatureVector(target);
-            target.setFeatureVector(features);             
-        }
+		if (!target.hasFeatureVector()) {
+     		       FeatureVector features = featureComputer.computeFeatureVector(target);
+     		       target.setFeatureVector(features);             
+      		}
+	}
         return targets;
     }
 
@@ -167,7 +170,12 @@ public class TargetFeatureLister extends InternalModule
         }
         for (Element sOrB : segmentsAndBoundaries) {
             String phone = UnitSelector.getPhoneSymbol(sOrB);
-            targets.add(new Target(phone, sOrB));
+            Target t = (Target) sOrB.getUserData("target");
+            if (t == null) {
+                t = new Target(phone, sOrB);
+                sOrB.setUserData("target", t, Target.targetFeatureCloner);
+            }
+            targets.add(t);
         }
         return targets;
     }
