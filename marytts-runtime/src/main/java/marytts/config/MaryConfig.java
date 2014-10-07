@@ -38,6 +38,8 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.io.PropertiesAccessor;
+import marytts.util.io.PropertiesTrimTrailingWhitespace;
+
 
 /**
  * @author marc
@@ -182,7 +184,8 @@ public abstract class MaryConfig {
 	private Properties props;
 	
 	protected MaryConfig(InputStream propertyStream) throws MaryConfigurationException {
-		props = new Properties();
+		//props = new Properties();
+		props = new PropertiesTrimTrailingWhitespace();
 		try {
 			props.load(propertyStream);
 		} catch (Exception e) {
@@ -241,5 +244,6 @@ public abstract class MaryConfig {
 		return Arrays.asList(StringUtils.split(val));
 
 	}
-	
 }
+
+
