@@ -68,7 +68,7 @@ public class MaryConfigTest {
 		//should fail when Properties class is used in MaryConfig
 		Pattern p = Pattern.compile("\\s+$");
 		Matcher mat;
-		InputStream is = this.getClass().getResourceAsStream("/marytts/tests/junit4/testConfig.config");
+		InputStream is = this.getClass().getResourceAsStream("test.config");
 		Properties props = new Properties();
 		MaryConfig m = new testMainConfig(is);
 		
@@ -94,7 +94,7 @@ public class MaryConfigTest {
 	
 	@Test
 	public void testConfigExists() {
-	   assertNotNull("Test file missing", this.getClass().getResource("/marytts/tests/junit4/testConfig.config"));
+	   assertNotNull("Test file missing", this.getClass().getResource("test.config"));
 	   }
 	
 	/**
