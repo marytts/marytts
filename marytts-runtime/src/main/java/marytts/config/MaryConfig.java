@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -184,7 +183,6 @@ public abstract class MaryConfig {
 	private Properties props;
 	
 	protected MaryConfig(InputStream propertyStream) throws MaryConfigurationException {
-		//props = new Properties();
 		props = new PropertiesTrimTrailingWhitespace();
 		try {
 			props.load(propertyStream);

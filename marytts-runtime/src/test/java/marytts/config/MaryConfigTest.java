@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import marytts.exceptions.MaryConfigurationException;
 
@@ -57,55 +55,26 @@ public class MaryConfigTest {
 
     /**
      * @author Tristan
+     * @author ingmar
      * 
      *         Test to check properties file for trailing whitespace [SOLVED] -> created PropertiesTrimTrailingWhitespace class to
      *         trim trailing whitespace
      * @throws MaryConfigurationException
+     * @throws IOException
      * 
      */
     @Test
-    public void checkTrailingWhitespace() throws InstantiationException, IllegalAccessException, MaryConfigurationException {
-        // should fail when Properties class is used in MaryConfig
-        Pattern p = Pattern.compile("\\s+$");
-        Matcher mat;
-        InputStream is = this.getClass().getResourceAsStream("test.config");
-        Properties props = new Properties();
-        MaryConfig m = new testMainConfig(is);
-
-        props = m.getProperties();
-        for (String key : props.stringPropertyNames()) {
-
-            if (props.getProperty(key).isEmpty()) {
-                // System.out.printf("'%s' --> '%s'%n", key, props.getProperty(key));
-                continue;
-            }
-            if (props.getProperty(key).trim().isEmpty()) {
-                // System.out.println(key);
-                // assertFalse(props.getProperty(key).trim().equals(""));
-                fail(key + " has no value...check for trailing whitespace in config file");
-            }
-            mat = p.matcher(props.getProperty(key));
-            if (mat.find()) {
-                fail(key + "'s value has trailing whitespace, check config file");
-            }
-            // System.out.printf("'%s' --> '%s'%n", key, props.getProperty(key));
-        }
-    }
-
-    @Test
-    public void testConfigExists() {
-        assertNotNull("Test file missing", this.getClass().getResource("test.config"));
-    }
-
-    /**
-     * @author Tristan Nested class to allow for instance of MaryConfig
-     * 
-     */
-    public static class testMainConfig extends MaryConfig {
-
-        protected testMainConfig(InputStream propertyStream) throws MaryConfigurationException {
-            super(propertyStream);
-
+    public void ensureTrailingWhitespaceIsTrimmed() throws MaryConfigurationException, IOException {
+        String testResourceName = "test.config";
+        InputStream actualInput = this.getClass().getResourceAsStream(testResourceName);
+        MaryConfig testConfig = new TestConfig(actualInput);
+        Properties testProps = new Properties();
+        InputStream expectedInput = this.getClass().getResourceAsStream(testResourceName);
+        testProps.load(expectedInput);
+        for (String key : testProps.stringPropertyNames()) {
+            String expected = testProps.getProperty(key).trim();
+            String actual = testConfig.getProperties().getProperty(key);
+            assertEquals(expected, actual);
         }
     }
 
@@ -141,5 +110,13 @@ public class MaryConfigTest {
         assertEquals("a", it.next());
         assertEquals("b", it.next());
         assertEquals("c", it.next());
+    }
+
+    class TestConfig extends MaryConfig {
+
+        protected TestConfig(InputStream propertyStream) throws MaryConfigurationException {
+            super(propertyStream);
+        }
+
     }
 }
