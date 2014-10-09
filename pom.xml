@@ -26,36 +26,36 @@
 
 	<developers>
 		<developer>
-			<name>Marc Schröder</name>
-			<url>https://github.com/marc1s</url>
-		</developer>
-		<developer>
 			<name>Marcela Charfuelan</name>
 			<url>https://github.com/marcelach1</url>
 		</developer>
 		<developer>
-			<name>Ingmar Steiner</name>
-			<url>https://github.com/psibre</url>
-		</developer>
-		<developer>
-			<name>Sathish Chandra Pammi</name>
-			<url>https://github.com/sathishpc</url>
-		</developer>
-		<developer>
-			<name>Fabio Tesser</name>
-			<url>https://github.com/ftesser</url>
+			<name>Tristan Hamilton</name>
+			<url>https://github.com/munzey</url>
 		</developer>
 		<developer>
 			<name>Giulio Paci</name>
 			<url>https://github.com/giuliopaci</url>
 		</developer>
 		<developer>
+			<name>Sathish Chandra Pammi</name>
+			<url>https://github.com/sathishpc</url>
+		</developer>
+		<developer>
+			<name>Marc Schröder</name>
+			<url>https://github.com/marc1s</url>
+		</developer>
+		<developer>
+			<name>Ingmar Steiner</name>
+			<url>https://github.com/psibre</url>
+		</developer>
+		<developer>
 			<name>Maureen Tanuadji</name>
 			<url>https://github.com/mochanz</url>
 		</developer>
 		<developer>
-			<name>Tristan Hamilton</name>
-			<url>https://github.com/munzey</url>
+			<name>Fabio Tesser</name>
+			<url>https://github.com/ftesser</url>
 		</developer>
 	</developers>
 
