@@ -666,39 +666,4 @@
 
 		</plugins>
 	</reporting>
-
-	<profiles>
-		<profile>
-			<id>github-site</id>
-
-			<build>
-				<defaultGoal>site</defaultGoal>
-
-				<plugins>
-					<plugin>
-						<groupId>com.github.github</groupId>
-						<artifactId>site-maven-plugin</artifactId>
-						<version>0.9</version>
-						<configuration>
-							<outputDirectory>${project.build.directory}/staging</outputDirectory>
-							<repositoryOwner>marytts</repositoryOwner>
-							<repositoryName>marytts.github.io</repositoryName>
-							<branch>refs/heads/master</branch>
-							<message>update Github website for ${project.scm.url}/commit/${buildNumber}</message>
-							<noJekyll>true</noJekyll>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>site</goal>
-								</goals>
-								<phase>site</phase>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 </project>
