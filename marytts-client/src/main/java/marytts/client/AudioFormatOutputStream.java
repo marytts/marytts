@@ -15,6 +15,10 @@ import javax.sound.sampled.AudioFormat;
  * that data.
  * </p>
  * <p>
+ * It is also possible to extend this class and create a new internally used {@link OutputStream} once
+ * {@link #setFormat(AudioFormat)} has been called.
+ * </p>
+ * <p>
  * An example usage might be
  * 
  * <pre>
@@ -23,7 +27,7 @@ import javax.sound.sampled.AudioFormat;
  * AudioFormatOutputStream afos = new AudioFormatOutputStream(out);
  * processor.process("this is a test", "TEXT", "AUDIO", "en-US",
  *     "WAVE", "cmu-slt-hsmm", afos, 5000);
- * AudioFormat fromat = afos.getFormat());
+ * AudioFormat format = afos.getFormat());
  * </pre>
  * 
  * </p>
@@ -34,6 +38,9 @@ import javax.sound.sampled.AudioFormat;
 public class AudioFormatOutputStream extends OutputStream {
 	private OutputStream out;
 	private AudioFormat format;
+
+	protected AudioFormatOutputStream() {
+	}
 
 	public AudioFormatOutputStream(OutputStream out) {
 		this.out = out;
@@ -57,11 +64,15 @@ public class AudioFormatOutputStream extends OutputStream {
 		return format;
 	}
 
-	public void setFormat(AudioFormat format) {
+	public void setFormat(AudioFormat format) throws IOException {
 		this.format = format;
 	}
 
-	public OutputStream getOut() {
+	protected void setOutputStream(OutputStream out) {
+		this.out = out;
+	}
+
+	public OutputStream getOutputStream() {
 		return out;
 	}
 }
