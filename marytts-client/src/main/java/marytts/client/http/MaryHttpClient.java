@@ -42,7 +42,9 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFormat.Encoding;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.client.AudioFormatOutputStream;
 import marytts.client.MaryClient;
 import marytts.client.MaryGUIClient;
 import marytts.util.http.Address;
@@ -581,6 +583,15 @@ public class MaryHttpClient extends MaryClient
         { 
             OutputStream os = (OutputStream) output;
             InputStream bis = new BufferedInputStream(fromServerStream);
+            if (os instanceof AudioFormatOutputStream) {
+                AudioFormatOutputStream afos = (AudioFormatOutputStream) os;
+                try {
+					AudioFileFormat format = AudioSystem.getAudioFileFormat(bis);
+					afos.setFormat(format.getFormat());
+				} catch (UnsupportedAudioFileException e) {
+					throw new IOException(e.getMessage(), e);
+				}
+            }
             byte[] bbuf = new byte[1024];
             int nr;
             while ((nr = bis.read(bbuf, 0, bbuf.length)) != -1) 
