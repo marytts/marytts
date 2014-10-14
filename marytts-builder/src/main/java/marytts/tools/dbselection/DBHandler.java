@@ -1084,6 +1084,10 @@ public class DBHandler {
         
         try {
           Iterator iteratorSorted = wordList.keySet().iterator();
+          int count = 0;
+
+          cn.setAutoCommit(false);
+
           while (iteratorSorted.hasNext()) {
             word = iteratorSorted.next().toString();
             value = wordList.get(word);
@@ -1091,9 +1095,22 @@ public class DBHandler {
             wordByte = word.getBytes("UTF8");
             psWord.setBytes(1, wordByte);
             psWord.setInt(2, value);
-            psWord.execute();
+            psWord.addBatch();
+
+            if (count++ == 1000){
+              psWord.executeBatch();
+              cn.commit();
+              count = 0;
+              System.out.println("Adding batch.");
+            }
+
             psWord.clearParameters();
-          } 
+          }
+
+          psWord.executeBatch(); // the leftovers.
+          cn.commit();
+          cn.setAutoCommit(true);
+
         } catch (Exception e) {  // UnsupportedEncodedException
             e.printStackTrace();
       } 
