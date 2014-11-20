@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="female" locale="de" name="bits1-hsmm" type="hsmm" version="4.1.0">
+        <description>A female German Hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-bits1-hsmm-4.1.0.zip"
+            md5sum="99fe3d8bbc6712de285c1b565165ed4a" size="1360340">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="de" version="4.1.0"/>
+    </voice>
+</marytts-install>
