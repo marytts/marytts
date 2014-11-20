@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="male" locale="de" name="dfki-pavoque-neutral-hsmm" type="hsmm" version="4.1.0">
+        <description>A male German Hidden semi-Markov model voice</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-pavoque-neutral-hsmm-4.1.0.zip"
+            md5sum="34dee2d36ebc791fb6a71b7110fd0eff" size="2834511">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="de" version="4.1.0"/>
+    </voice>
+</marytts-install>

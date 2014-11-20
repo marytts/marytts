@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+
+    <voice gender="male" locale="de" name="bits3" type="unit selection" version="4.0.0">
+        <description>A male German Unit selection voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-bits3-4.0.0.zip"
+            md5sum="57ddfbd47b18993a041071922da4bd9a" size="280205077">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="de" version="4.0.0"/>
+    </voice>
+
+    <voice gender="male" locale="de" name="bits3-hsmm" type="hsmm" version="4.1.0">
+        <description>
+         A male German Hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals.
+        </description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-bits3-hsmm-4.1.0.zip"
+            md5sum="78fa7d79fe53ad72001b3bbb9872ad1a" size="1556635">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="de" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="de" name="bits1-hsmm" type="hsmm" version="4.1.0">
+        <description>A female German Hidden semi-Markov model voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals.</description> 
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-bits1-hsmm-4.1.0.zip"
+            md5sum="99fe3d8bbc6712de285c1b565165ed4a" size="1360340">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="de" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-US" name="cmu-slt"
+        type="unit selection" version="4.0.0">
+        <description>A female US English Unit selection voice, built from voice recordings provided by Carnegie Mellon University.</description>
+        <license href="http://mary.dfki.de/download/voices/arctic-license.html"/>
+        <package filename="mary-cmu-slt-4.0.0.zip"
+            md5sum="807e51ea50c6dd0cceb7397d60fd941b" size="107189049">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="en-US" version="4.0.0"/>
+    </voice>
+
+
+    <voice gender="male" locale="tr" name="dfki-ot"
+        type="unit selection" version="4.0.0">
+        <description>A male Turkish Unit selection voice.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-ot-4.0.0.zip"
+            md5sum="9e03e0abe179be0b38c69b606f5f162f" size="158402077">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="tr" version="4.0.0"/>
+    </voice>
+
+
+    <voice gender="male" locale="de" name="dfki-pavoque-neutral"
+        type="unit selection" version="4.0.0">
+        <description>A male German Unit selection voice.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-pavoque-neutral-4.0.0.zip"
+            md5sum="b9f1ee6613830705cb21eb42fefda29f" size="423986682">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="de" version="4.0.0"/>
+    </voice>
+
+    <voice gender="male" locale="de" name="dfki-pavoque-neutral-hsmm" type="hsmm" version="4.1.0">
+        <description>A male German Hidden semi-Markov model voice</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-pavoque-neutral-hsmm-4.1.0.zip"
+            md5sum="34dee2d36ebc791fb6a71b7110fd0eff" size="2834511">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="de" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="te" name="cmu-nk"
+        type="unit selection" version="4.0.0">
+        <description>A female Telugu Unit selection voice, built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University.</description>
+        <license href="http://mary.dfki.de/download/by-nc-sa-3.0.html"/>
+        <package filename="mary-cmu-nk-4.0.0.zip"
+            md5sum="a072eb2c13a4445b898a16ca3eec37d5" size="497273127">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="te" version="4.0.0"/>
+    </voice>
+
+    <voice gender="female" locale="te" name="cmu-nk-hsmm" type="hsmm" version="4.1.0">
+        <description>A female Telugu Hidden semi-Markov model voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon Universit
+y</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-cmu-nk-hsmm-4.1.0.zip"
+            md5sum="a683cd07b38ea3db33b1ce8991b437b7" size="3397102">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="te" version="4.1.0"/>
+    </voice>
+
+    <voice gender="male" locale="tr" name="dfki-ot-hsmm" type="hsmm" version="4.1.0">
+        <description> A male Turkish Hidden semi-Markov model voice. </description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-ot-hsmm-4.1.0.zip"
+            md5sum="93a0ae4bc88df2646e6cde3334eb8d9a" size="1356615">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="tr" version="4.1.0"/>
+    </voice>
+
+  <language locale="de" name="de" version="4.1.1">
+    <description>de language component</description>
+    <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html" />
+    <package filename="mary-de-4.1.1.zip" md5sum="b3871577aeab3120053a88fa21e6c173" size="11462465">
+      <location href="http://mary.dfki.de/download/4.1.1/" />
+    </package>
+  </language>
+
+    <voice gender="male" locale="en-GB" name="dfki-obadiah" type="unit selection" version="4.1.0">
+        <description>A male, British English expressive unit selection voice: Gloomy Obadiah.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-obadiah-4.1.0.zip"
+            md5sum="5f2d4566cbc5730b1d3a2d3006bb2042" size="147357437">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-GB" name="dfki-poppy" type="unit selection" version="4.1.0">
+        <description>A female, British English expressive unit selection voice: Cheerful Poppy.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-poppy-4.1.0.zip"
+            md5sum="c38124524d9722baea744178385c6861" size="102674855">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-GB" name="dfki-prudence" type="unit selection" version="4.1.0">
+        <description>A female, British English expressive unit selection voice: Pragmatic Prudence.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-prudence-4.1.0.zip"
+            md5sum="a6d8675083de6577cf6a15d34b6c86b9" size="253322449">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="male" locale="en-GB" name="dfki-spike" type="unit selection" version="4.1.0">
+        <description>A male, British English expressive unit selection voice: Aggressive Spike.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-spike-4.1.0.zip"
+            md5sum="7c9aff4ab20a52fd44a73aa188b7492f" size="142687096">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="male" locale="en-GB" name="dfki-obadiah-hsmm" type="hsmm" version="4.1.0">
+        <description>A male, British English expressive Hidden semi-Markov model voice: Gloomy Obadiah.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-obadiah-hsmm-4.1.0.zip"
+            md5sum="160ff8cc526f95a6db557bd0feeaef90" size="1216063">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-GB" name="dfki-poppy-hsmm" type="hsmm" version="4.1.0">
+        <description>A female, British English expressive Hidden semi-Markov model voice: Cheerful Poppy.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-poppy-hsmm-4.1.0.zip"
+            md5sum="42c4f8473b8f6104743ae05dc92bccca" size="1017015">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-GB" name="dfki-prudence-hsmm" type="hsmm" version="4.1.0">
+        <description>A female, British English expressive Hidden semi-Markov model voice: Pragmatic Prudence.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-prudence-hsmm-4.1.0.zip"
+            md5sum="f110505268cf3b80db5f2ddfbf20b1ba" size="1561903">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+    <voice gender="male" locale="en-GB" name="dfki-spike-hsmm" type="hsmm" version="4.1.0">
+        <description>A male, British English expressive Hidden semi-Markov model voice: Aggressive Spike.</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="mary-dfki-spike-hsmm-4.1.0.zip"
+            md5sum="f1d853f028d978c8a854304959f53daa" size="1085398">
+            <location href="http://mary.dfki.de/download/4.1.0/"/>
+        </package>
+        <depends language="en-GB" version="4.1.0"/>
+    </voice>
+
+  <language locale="en-GB" name="en-GB" version="4.1.0">
+    <description>British English language component</description>
+    <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html" />
+    <package filename="mary-en-GB-4.1.0.zip" md5sum="22ef764391f2d0899eb01ed7959c1f06" size="7561567">
+      <location href="http://mary.dfki.de/download/4.1.0/" />
+    </package>
+  </language>
+
+    <voice gender="male" locale="de" name="mbrola-de6" type="MBROLA" version="4.0.0">
+        <description>A German male MBROLA diphone voice with three levels of vocal effort: soft, modal and loud</description>
+        <license href="http://mary.dfki.de/download/Mbrola%20software%20user%20agreement.html"/>
+        <package filename="mary-mbrola-de6-4.0.0.zip"
+            md5sum="72f0f7e14ee0ac3b9264d46ddf025b49" size="49324157">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="de" version="4.0.0"/>
+    </voice>
+
+    <voice gender="female" locale="de" name="mbrola-de7" type="MBROLA" version="4.0.0">
+        <description>A German female MBROLA diphone voice with three levels of vocal effort: soft, modal and loud</description>
+        <license href="http://mary.dfki.de/download/Mbrola%20software%20user%20agreement.html"/>
+        <package filename="mary-mbrola-de7-4.0.0.zip"
+            md5sum="1d5f949ad576848e6503057387611d3d" size="48493050">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="de" version="4.0.0"/>
+    </voice>
+
+    <voice gender="female" locale="en-US" name="mbrola-us1"
+        type="MBROLA" version="4.0.0">
+        <description>A US English female MBROLA diphone voice</description>
+        <license href="http://mary.dfki.de/download/Mbrola%20software%20user%20agreement.html"/>
+        <package filename="mary-mbrola-us1-4.0.0.zip"
+            md5sum="5b9ec134adda97c93e4bebbe2b1e26fa" size="7417463">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="en-US" version="4.0.0"/>
+    </voice>
+
+    <voice gender="male" locale="en-US" name="mbrola-us3" type="MBROLA" version="4.0.0">
+        <description>A US English female MBROLA diphone voice</description>
+        <license href="http://mary.dfki.de/download/Mbrola%20software%20user%20agreement.html"/>
+        <package filename="mary-mbrola-us3-4.0.0.zip"
+            md5sum="78a44b77fb10959f2829a2af39edd588" size="7045525">
+            <location href="http://mary.dfki.de/download/4.0/"/>
+        </package>
+        <depends language="en-US" version="4.0.0"/>
+    </voice>
+
+  <language locale="te" name="te" version="4.1.0">
+    <description>te language component</description>
+    <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html" />
+    <package filename="mary-te-4.1.0.zip" md5sum="fbd5c02abc4260a052b7bec8a28b9d8f" size="16596">
+      <location href="http://mary.dfki.de/download/4.1.0/" />
+    </package>
+  </language>
+
+  <language locale="tr" name="tr" version="4.1.0">
+    <description>tr language component</description>
+    <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html" />
+    <package filename="mary-tr-4.1.0.zip" md5sum="a74a2084347a2ac10f9f849894505d61" size="1169949">
+      <location href="http://mary.dfki.de/download/4.1.0/" />
+    </package>
+  </language>
+
+</marytts-install>
