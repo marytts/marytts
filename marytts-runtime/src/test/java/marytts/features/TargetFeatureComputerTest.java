@@ -32,7 +32,7 @@ public class TargetFeatureComputerTest {
         computer = new TargetFeatureComputer(manager, processor.getName());
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void testToStringValues() {
         String[] values = processor.getValues();
         ByteStringTranslator translator = new ByteStringTranslator(values);
