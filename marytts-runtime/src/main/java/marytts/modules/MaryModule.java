@@ -48,10 +48,14 @@ public interface MaryModule
     public String name();
 
     /** The type of input data needed by this module. */
+    @Deprecated
     public MaryDataType inputType();
+    public MaryDataType getInputType();
 
     /** The type of output data produced by this module. */
+    @Deprecated
     public MaryDataType outputType();
+    public MaryDataType getOutputType();
 
     /** The locale of this module, i.e. the locale of data that this
      * module can process. If null, indicates that the module can use

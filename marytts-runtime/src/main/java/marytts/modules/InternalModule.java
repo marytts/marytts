@@ -98,8 +98,25 @@ public class InternalModule implements MaryModule
 
     // Interface MaryModule implementation:
     public String name() { return name; }
-    public MaryDataType inputType() { return inputType; }
-    public MaryDataType outputType() { return outputType; }
+
+    @Deprecated
+    public MaryDataType inputType() {
+        return getInputType();
+    }
+
+    public MaryDataType getInputType() {
+        return inputType;
+    }
+
+    @Deprecated
+    public MaryDataType outputType() {
+        return getOutputType();
+    }
+
+    public MaryDataType getOutputType() {
+        return outputType;
+    }
+
     public Locale getLocale() { return locale; }
     public int getState() { return state; }
     public void startup() throws Exception {
