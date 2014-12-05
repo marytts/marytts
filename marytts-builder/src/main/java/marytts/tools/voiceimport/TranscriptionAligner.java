@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -169,6 +170,11 @@ public class TranscriptionAligner extends VoiceImportComponent {
         
         // write results to output
         DOMSource source = new DOMSource( doc );
+
+        //settings to have the allophones formatted in the same manner of prompt_allophones
+        doc.setXmlStandalone(true);
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        
         StreamResult output = new StreamResult(docDest);
         transformer.transform(source, output);
     }
