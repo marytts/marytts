@@ -35,11 +35,21 @@ public class DummyModule implements MaryModule
 {
     public String name() { return "Dummy"; }
 
+    @Deprecated
     public MaryDataType inputType() {
+        return getInputType();
+    }
+
+    public MaryDataType getInputType() {
         return MaryDataType.MBROLA;
     }
 
+    @Deprecated
     public MaryDataType outputType() {
+        return getOutputType();
+    }
+
+    public MaryDataType getOutputType() {
         return MaryDataType.AUDIO;
     }
     
