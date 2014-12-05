@@ -771,7 +771,7 @@ public class Voice
         Voice v = defaultVoices.get(locale);
         if (v == null) v = getVoice(locale, FEMALE);
         if (v == null) v = getVoice(locale, MALE);
-        if (v == null) logger.warn("Could not find default voice for locale "+locale);
+        if (v == null) logger.debug("Could not find default voice for locale "+locale);
         return v;
     }
 
