@@ -60,6 +60,7 @@ import org.xml.sax.SAXException;
 
 import com.sun.speech.freetts.Utterance;
 
+import com.google.common.base.Objects;
 
 /**
  * A representation of any type of mary data, be it input, intermediate or
@@ -502,5 +503,19 @@ public class MaryData
     {
         return outputParams;
     }
-}
 
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("type", getType())
+                .add("locale", getLocale())
+                .add("output parameters", getOutputParams())
+                .add("data", getData())
+                .add("document", DomUtils.serializeToString(getDocument()))
+                .add("validating", getValidating())
+                .add("plain text", getPlainText())
+                .add("utterances", getUtterances())
+                .add("audio", getAudio())
+                .add("audio file format", getAudioFileFormat())
+                .toString();
+    }
+}
