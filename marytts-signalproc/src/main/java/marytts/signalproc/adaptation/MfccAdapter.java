@@ -36,89 +36,77 @@ import marytts.util.io.FileUtils;
  * @author Oytun T&uumlrk
  */
 public class MfccAdapter {
-    
-    protected Mfccs inputMfccs;
-    public boolean bSilent;
-    private BaselineTransformerParams baseParams;
-    protected String outputFile;
-    protected int numfrm;
-    
-    public MfccAdapter(BaselineAdaptationItem inputItem, 
-                       String strOutputFile, 
-                       JointGMMTransformerParams jgmmParamsIn)
-    {
-        baseParams = new JointGMMTransformerParams(jgmmParamsIn);
 
-        init(inputItem, strOutputFile);
-    }
-    
-    public void init(BaselineAdaptationItem inputItem, String strOutputFile)
-    {
-        outputFile = null; 
+	protected Mfccs inputMfccs;
+	public boolean bSilent;
+	private BaselineTransformerParams baseParams;
+	protected String outputFile;
+	protected int numfrm;
 
-        boolean bContinue = true;
+	public MfccAdapter(BaselineAdaptationItem inputItem, String strOutputFile, JointGMMTransformerParams jgmmParamsIn) {
+		baseParams = new JointGMMTransformerParams(jgmmParamsIn);
 
-        if (!FileUtils.exists(inputItem.mfccFile))
-        {
-            System.out.println("Error! MFCC file " + inputItem.mfccFile + " not found.");
-            bContinue = false;
-        }
-       
-        if (strOutputFile==null || strOutputFile=="")
-        {
-            System.out.println("Invalid output file...");
-            bContinue = false;
-        }
+		init(inputItem, strOutputFile);
+	}
 
-        numfrm = 0;
-        if (bContinue)
-        {
-            inputMfccs = new Mfccs(inputItem.mfccFile);
-            numfrm = inputMfccs.mfccs.length;
-            outputFile = strOutputFile;    
-        }
-    }
-    
-    public void transformOnline(VocalTractTransformationFunction vtMapper,
-                                VocalTractTransformationData vtData)
-    {   
-        int i;
+	public void init(BaselineAdaptationItem inputItem, String strOutputFile) {
+		outputFile = null;
 
-        for (i=0; i<numfrm; i++) 
-            inputMfccs.mfccs[i] = processFrame(inputMfccs.mfccs[i], vtMapper, vtData);
-        
-        try {
-            Mfccs.writeRawMfccFile(inputMfccs.mfccs, outputFile);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+		boolean bContinue = true;
 
-    //Voice conversion version
-    public double [] processFrame(double[] frameMfccs, 
-                                  VocalTractTransformationFunction mapper,
-                                  VocalTractTransformationData data)
-    {   
-        GMMMatch gmmMatch = null;
+		if (!FileUtils.exists(inputItem.mfccFile)) {
+			System.out.println("Error! MFCC file " + inputItem.mfccFile + " not found.");
+			bContinue = false;
+		}
 
-        //Find target estimate from codebook
-        if (baseParams.isVocalTractTransformation) //isTransformUnvoiced=false not supported for MFCCs currently! Voicing information should be passed here to support this feature
-        {
-            if (mapper instanceof JointGMMMapper)
-            {
-                //Different weighting strategies can be tested here, i.e. doing a fuzzy phone classification
-                double[] gmmWeights = new double[1];
-                Arrays.fill(gmmWeights, 1.0);
+		if (strOutputFile == null || strOutputFile == "") {
+			System.out.println("Invalid output file...");
+			bContinue = false;
+		}
 
-                gmmMatch = ((JointGMMMapper)mapper).transform(frameMfccs, (JointGMMSet)data, gmmWeights, baseParams.isVocalTractMatchUsingTargetModel);
-            }
-        }
+		numfrm = 0;
+		if (bContinue) {
+			inputMfccs = new Mfccs(inputItem.mfccFile);
+			numfrm = inputMfccs.mfccs.length;
+			outputFile = strOutputFile;
+		}
+	}
 
-        if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-            return ((JointGMMMatch)gmmMatch).outputFeatures;
-        else
-            return ((JointGMMMatch)gmmMatch).mappedSourceFeatures;
-    }
+	public void transformOnline(VocalTractTransformationFunction vtMapper, VocalTractTransformationData vtData) {
+		int i;
+
+		for (i = 0; i < numfrm; i++)
+			inputMfccs.mfccs[i] = processFrame(inputMfccs.mfccs[i], vtMapper, vtData);
+
+		try {
+			Mfccs.writeRawMfccFile(inputMfccs.mfccs, outputFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// Voice conversion version
+	public double[] processFrame(double[] frameMfccs, VocalTractTransformationFunction mapper, VocalTractTransformationData data) {
+		GMMMatch gmmMatch = null;
+
+		// Find target estimate from codebook
+		if (baseParams.isVocalTractTransformation) // isTransformUnvoiced=false not supported for MFCCs currently! Voicing
+													// information should be passed here to support this feature
+		{
+			if (mapper instanceof JointGMMMapper) {
+				// Different weighting strategies can be tested here, i.e. doing a fuzzy phone classification
+				double[] gmmWeights = new double[1];
+				Arrays.fill(gmmWeights, 1.0);
+
+				gmmMatch = ((JointGMMMapper) mapper).transform(frameMfccs, (JointGMMSet) data, gmmWeights,
+						baseParams.isVocalTractMatchUsingTargetModel);
+			}
+		}
+
+		if (!baseParams.isResynthesizeVocalTractFromSourceModel)
+			return ((JointGMMMatch) gmmMatch).outputFeatures;
+		else
+			return ((JointGMMMatch) gmmMatch).mappedSourceFeatures;
+	}
 }
-

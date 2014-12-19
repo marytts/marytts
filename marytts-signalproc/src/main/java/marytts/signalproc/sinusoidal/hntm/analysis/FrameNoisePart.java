@@ -26,12 +26,12 @@ import java.io.IOException;
  * Baseline class to represent noise part of a speech frame
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
-public interface FrameNoisePart 
-{      
-    public int getLength();
-    public int getVectorSize();
-    public void write(DataOutput out) throws IOException;
-}
+public interface FrameNoisePart {
+	public int getLength();
 
+	public int getVectorSize();
+
+	public void write(DataOutput out) throws IOException;
+}

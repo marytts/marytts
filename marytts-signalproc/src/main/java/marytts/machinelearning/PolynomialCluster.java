@@ -23,28 +23,25 @@ import marytts.util.math.Polynomial;
 
 /**
  * 
- * Implements a cluster center that has a mean 
- *
+ * Implements a cluster center that has a mean
+ * 
  * @author Oytun T&uuml;rk, Marc Schröder
  */
 public class PolynomialCluster {
-    private Polynomial meanPolynomial;
-    private Polynomial[] clusterMembers;
-    
-    public PolynomialCluster(Polynomial meanPolynomial, Polynomial[] clusterMembers) {
-        this.meanPolynomial = meanPolynomial;
-        this.clusterMembers = clusterMembers;
-    }
-    
-    
-    public Polynomial getMeanPolynomial() {
-        return meanPolynomial;
-    }
-    
-    public Polynomial[] getClusterMembers() {
-        return clusterMembers;
-    }
-    
-    
-}
+	private Polynomial meanPolynomial;
+	private Polynomial[] clusterMembers;
 
+	public PolynomialCluster(Polynomial meanPolynomial, Polynomial[] clusterMembers) {
+		this.meanPolynomial = meanPolynomial;
+		this.clusterMembers = clusterMembers;
+	}
+
+	public Polynomial getMeanPolynomial() {
+		return meanPolynomial;
+	}
+
+	public Polynomial[] getClusterMembers() {
+		return clusterMembers;
+	}
+
+}

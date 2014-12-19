@@ -25,66 +25,69 @@ import java.util.List;
 
 /**
  * Create one DoubleDataSource from a sequence of DoubleDataSources.
+ * 
  * @author Marc Schr&ouml;der
  */
-public class SequenceDoubleDataSource extends BaseDoubleDataSource
-{
-    protected LinkedList sources;
+public class SequenceDoubleDataSource extends BaseDoubleDataSource {
+	protected LinkedList sources;
 
-    /**
-     * 
-     * @param inputSource
-     */
-    public SequenceDoubleDataSource(DoubleDataSource[] inputSources) {
-        super();
-        sources = new LinkedList();
-        dataLength = 0;
-        for (int i=0; i<inputSources.length; i++) {
-            if (dataLength != DoubleDataSource.NOT_SPECIFIED) {
-                long dl = inputSources[i].getDataLength();
-                if (dl == DoubleDataSource.NOT_SPECIFIED) dataLength = DoubleDataSource.NOT_SPECIFIED;
-                else dataLength += dl;
-            }
-            if (inputSources[i] instanceof BlockwiseDoubleDataSource) {
-                sources.add(new BufferedDoubleDataSource(inputSources[i]));
-            } else {
-                sources.add(inputSources[i]);
-            }
-        }
-    }
+	/**
+	 * 
+	 * @param inputSource
+	 */
+	public SequenceDoubleDataSource(DoubleDataSource[] inputSources) {
+		super();
+		sources = new LinkedList();
+		dataLength = 0;
+		for (int i = 0; i < inputSources.length; i++) {
+			if (dataLength != DoubleDataSource.NOT_SPECIFIED) {
+				long dl = inputSources[i].getDataLength();
+				if (dl == DoubleDataSource.NOT_SPECIFIED)
+					dataLength = DoubleDataSource.NOT_SPECIFIED;
+				else
+					dataLength += dl;
+			}
+			if (inputSources[i] instanceof BlockwiseDoubleDataSource) {
+				sources.add(new BufferedDoubleDataSource(inputSources[i]));
+			} else {
+				sources.add(inputSources[i]);
+			}
+		}
+	}
 
-    /**
-     * 
-     * @param inputSources a list of DoubleDataSource objects.
-     */
-    public SequenceDoubleDataSource(List inputSources) {
-        this((DoubleDataSource[]) inputSources.toArray(new DoubleDataSource[0]));
-    }
+	/**
+	 * 
+	 * @param inputSources
+	 *            a list of DoubleDataSource objects.
+	 */
+	public SequenceDoubleDataSource(List inputSources) {
+		this((DoubleDataSource[]) inputSources.toArray(new DoubleDataSource[0]));
+	}
 
-    public boolean hasMoreData()
-    {
-        while (!sources.isEmpty() && !((DoubleDataSource)sources.getFirst()).hasMoreData()) {
-            sources.removeFirst();
-        }
-        if (sources.isEmpty()) return false;
-        return true;
-    }
-    
-    /**
-     * The number of doubles that can currently be read from this 
-     * double data source without blocking. This number can change over time.
-     * @return the number of doubles that can currently be read without blocking 
-     */
-    public int available()
-    {
-        int available = 0;
-        for (Iterator it=sources.iterator(); it.hasNext(); ) {
-            available += ((DoubleDataSource)it.next()).available();
-        }
-        return available;
-    }
-    
-    public int getData(double[] target, int targetPos, int length)
+	public boolean hasMoreData() {
+		while (!sources.isEmpty() && !((DoubleDataSource) sources.getFirst()).hasMoreData()) {
+			sources.removeFirst();
+		}
+		if (sources.isEmpty())
+			return false;
+		return true;
+	}
+
+	/**
+	 * The number of doubles that can currently be read from this double data source without blocking. This number can change over
+	 * time.
+	 * 
+	 * @return the number of doubles that can currently be read without blocking
+	 */
+	public int available() {
+		int available = 0;
+		for (Iterator it = sources.iterator(); it.hasNext();) {
+			available += ((DoubleDataSource) it.next()).available();
+		}
+		return available;
+	}
+
+	public int getData(double[] target, int targetPos, int length)
     {
         if (target.length - targetPos < length) {
             throw new IllegalArgumentException("Target array cannot hold enough data ("+(target.length-targetPos) + " left, but " + length + " requested)");
@@ -102,6 +105,4 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource
         }
         return copied;
     }
-
 }
-

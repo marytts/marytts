@@ -41,45 +41,43 @@ import marytts.signalproc.analysis.Labels;
  * @author Ingmar Steiner
  */
 public class XwavesLabelfileReader {
-    // main class variables (reader, times, labels, header lines)
-    protected BufferedReader reader;
-    protected Double[] times;
-    protected String[] labels;
-    protected String[] header;
-    
-    /**
-     * Read data from a Label file.
-     * 
-     * @param filename
-     *            Label filename as a String
-     * @throws IOException 
-     */
-    public XwavesLabelfileReader(String filename)
-    throws IOException {
-        this(new FileReader(filename));
-    }
+	// main class variables (reader, times, labels, header lines)
+	protected BufferedReader reader;
+	protected Double[] times;
+	protected String[] labels;
+	protected String[] header;
 
-    /**
-     * Read data from a Label file.
-     * 
-     * @param reader
-     *            Label file as a Reader
-     * @throws IOException 
-     */
-    public XwavesLabelfileReader(Reader reader)
-    throws IOException {
-        this.reader = new BufferedReader(reader);
-        parseLabels();
-        reader.close();
-    }
+	/**
+	 * Read data from a Label file.
+	 * 
+	 * @param filename
+	 *            Label filename as a String
+	 * @throws IOException
+	 */
+	public XwavesLabelfileReader(String filename) throws IOException {
+		this(new FileReader(filename));
+	}
 
-    /**
-     * Read lines from the label file and parse them. As each line is parsed, the label in that line and its end time are appended
-     * to the appropriate arrays, and the initial header lines are stored in a third vector.
-     * 
-     * @throws IOException
-     */
-    private void parseLabels()
+	/**
+	 * Read data from a Label file.
+	 * 
+	 * @param reader
+	 *            Label file as a Reader
+	 * @throws IOException
+	 */
+	public XwavesLabelfileReader(Reader reader) throws IOException {
+		this.reader = new BufferedReader(reader);
+		parseLabels();
+		reader.close();
+	}
+
+	/**
+	 * Read lines from the label file and parse them. As each line is parsed, the label in that line and its end time are appended
+	 * to the appropriate arrays, and the initial header lines are stored in a third vector.
+	 * 
+	 * @throws IOException
+	 */
+	private void parseLabels()
     throws IOException {
         // initialize some variables
         String line;
@@ -176,25 +174,25 @@ public class XwavesLabelfileReader {
 
     }
 
-    /**
-     * getter method for times
-     * 
-     * @return times as ArrayList of Doubles
-     */
-    public Double[] getTimes() {
-        return times;
-    }
+	/**
+	 * getter method for times
+	 * 
+	 * @return times as ArrayList of Doubles
+	 */
+	public Double[] getTimes() {
+		return times;
+	}
 
-    /**
-     * getter method for labels
-     * 
-     * @return labels as ArrayList of Strings
-     */
-    public String[] getLabelSymbols() {
-        return labels;
-    }
-    
-    public Labels getLabels() {
+	/**
+	 * getter method for labels
+	 * 
+	 * @return labels as ArrayList of Strings
+	 */
+	public String[] getLabelSymbols() {
+		return labels;
+	}
+
+	public Labels getLabels() {
     	Label[] items = new Label[labels.length];
     	assert times.length == labels.length;
     	for (int i=0; i<items.length; i++) {
@@ -203,14 +201,13 @@ public class XwavesLabelfileReader {
     	return new Labels(items);
     }
 
-    /**
-     * getter method for header
-     * 
-     * @return header lines as ArrayList of Strings
-     */
-    public String[] getHeader() {
-        return header;
-    }
-
+	/**
+	 * getter method for header
+	 * 
+	 * @return header lines as ArrayList of Strings
+	 */
+	public String[] getHeader() {
+		return header;
+	}
 
 }

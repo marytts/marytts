@@ -21,9 +21,8 @@ package marytts.signalproc.adaptation.prosody;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class ProsodyTransformer {
 
 }
-

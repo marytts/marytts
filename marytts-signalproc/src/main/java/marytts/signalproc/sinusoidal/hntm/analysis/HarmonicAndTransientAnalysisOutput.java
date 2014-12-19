@@ -31,11 +31,11 @@ package marytts.signalproc.sinusoidal.hntm.analysis;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class HarmonicAndTransientAnalysisOutput {
-    
-    public HntmSpeechSignal hnmSignal;
-    boolean[] isInTransientSegments;
+
+	public HntmSpeechSignal hnmSignal;
+	boolean[] isInTransientSegments;
 
 }

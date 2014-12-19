@@ -32,22 +32,20 @@ package marytts.util.data.audio;
 import javax.sound.sampled.AudioInputStream;
 
 /**
- * An arbitrary in-between processor for audio data. It is expected to work
- * continuously, i.e. it should start providing audio data before having
- * read all input data.
+ * An arbitrary in-between processor for audio data. It is expected to work continuously, i.e. it should start providing audio
+ * data before having read all input data.
+ * 
  * @author marc
- *
+ * 
  */
-public interface AudioProcessor 
-{
-    /**
-     * Apply this processor inline on the given audio input stream.
-     * It is expected to work
-     * continuously, i.e. it should start providing audio data before having
-     * read all input data.
-     * @param ais
-     * @return
-     */
-    public AudioInputStream apply(AudioInputStream ais);
+public interface AudioProcessor {
+	/**
+	 * Apply this processor inline on the given audio input stream. It is expected to work continuously, i.e. it should start
+	 * providing audio data before having read all input data.
+	 * 
+	 * @param ais
+	 * @return
+	 */
+	public AudioInputStream apply(AudioInputStream ais);
 
 }

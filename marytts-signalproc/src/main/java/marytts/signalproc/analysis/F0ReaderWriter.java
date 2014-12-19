@@ -29,71 +29,64 @@ import marytts.util.string.StringUtils;
  * @author Oytun T&uumlrk
  */
 public class F0ReaderWriter extends PitchReaderWriter {
-    
-    public static final int DEFAULT_SAMPLING_RATE = 16000;
-    public static final double DEFAULT_WINDOW_SIZE_IN_SECONDS = 0.0075;
-    public static final double DEFAULT_SKIP_SIZE_IN_SECONDS = 0.01;
 
-    public F0ReaderWriter(String f0File) 
-    {
-        this(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
-    }
+	public static final int DEFAULT_SAMPLING_RATE = 16000;
+	public static final double DEFAULT_WINDOW_SIZE_IN_SECONDS = 0.0075;
+	public static final double DEFAULT_SKIP_SIZE_IN_SECONDS = 0.01;
 
-    public F0ReaderWriter(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) 
-    {
-        contour = null;
-        
-        header = new PitchFileHeader();
-        
-        header.windowSizeInSeconds = 0.0;
-        header.skipSizeInSeconds = 0.0;
-        header.fs = 0;
-        
-        try {
-            read_f0_file(f0File);  
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    
-    public F0ReaderWriter() 
-    {
-        contour = null;
-        
-        header = new PitchFileHeader();
-        
-        header.windowSizeInSeconds = 0.0;
-        header.skipSizeInSeconds = 0.0;
-        header.fs = 0;
-    }
+	public F0ReaderWriter(String f0File) {
+		this(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
+	}
 
-    public void read_f0_file(String f0File) throws IOException
-    {
-        read_f0_file(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
-    }
-    
-    //Reads from Snack/Wavesurfer generated .f0 files
-    public void read_f0_file(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) throws IOException
-    {
-        String[] lines = StringUtils.readTextFile(f0File, "ASCII");
-        if (lines!=null && lines[0]!=null)
-        {
-            contour = new double[lines.length];
-            
-            int endIndex;
-            for (int i=0; i<lines.length; i++)
-            {
-                endIndex = lines[i].indexOf(" ");
-                contour[i] = Double.valueOf(lines[i].substring(0, endIndex));
-            }
+	public F0ReaderWriter(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) {
+		contour = null;
 
-            header.fs = samplingRate;
-            header.numfrm = contour.length;
+		header = new PitchFileHeader();
 
-            header.windowSizeInSeconds = windowSizeInSeconds;
-            header.skipSizeInSeconds = skipSizeInSeconds;
-        }
-    }
+		header.windowSizeInSeconds = 0.0;
+		header.skipSizeInSeconds = 0.0;
+		header.fs = 0;
+
+		try {
+			read_f0_file(f0File);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public F0ReaderWriter() {
+		contour = null;
+
+		header = new PitchFileHeader();
+
+		header.windowSizeInSeconds = 0.0;
+		header.skipSizeInSeconds = 0.0;
+		header.fs = 0;
+	}
+
+	public void read_f0_file(String f0File) throws IOException {
+		read_f0_file(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
+	}
+
+	// Reads from Snack/Wavesurfer generated .f0 files
+	public void read_f0_file(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds)
+			throws IOException {
+		String[] lines = StringUtils.readTextFile(f0File, "ASCII");
+		if (lines != null && lines[0] != null) {
+			contour = new double[lines.length];
+
+			int endIndex;
+			for (int i = 0; i < lines.length; i++) {
+				endIndex = lines[i].indexOf(" ");
+				contour[i] = Double.valueOf(lines[i].substring(0, endIndex));
+			}
+
+			header.fs = samplingRate;
+			header.numfrm = contour.length;
+
+			header.windowSizeInSeconds = windowSizeInSeconds;
+			header.skipSizeInSeconds = skipSizeInSeconds;
+		}
+	}
 }
-

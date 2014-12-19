@@ -34,8 +34,8 @@
  */
 
 /*
-|<---            this code is formatted to fit into 80 columns             --->|
-*/
+ |<---            this code is formatted to fit into 80 columns             --->|
+ */
 
 package marytts.util.data.audio;
 
@@ -54,136 +54,83 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
-
-
 // IDEA: recording format vs. storage format; possible conversion?
-/**	<titleabbrev>AudioRecorder</titleabbrev>
-	<title>Recording to an audio file (advanced version)</title>
+/**
+ * <titleabbrev>AudioRecorder</titleabbrev> <title>Recording to an audio file (advanced version)</title>
+ * 
+ * <formalpara><title>Purpose</title> <para> This program opens two lines: one for recording and one for playback. In an infinite
+ * loop, it reads data from the recording line and writes them to the playback line. You can use this to measure the delays inside
+ * Java Sound: Speak into the microphone and wait untill you hear yourself in the speakers. This can be used to experience the
+ * effect of changing the buffer sizes: use the '-e' and '-i' options. You will notice that the delays change, too.
+ * </para></formalpara>
+ * 
+ * <formalpara><title>Usage</title> <para> <synopsis>java AudioRecorder -l</synopsis> <synopsis>java AudioRecorder [-M
+ * &lt;mixername&gt;] [-e &lt;buffersize&gt;] [-i &lt;buffersize&gt;] &lt;audiofile&gt;</synopsis> </para></formalpara>
+ * 
+ * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-l</option></term> <listitem><para>lists the
+ * available mixers</para></listitem> </varlistentry> <varlistentry> <term><option>-M &lt;mixername&gt;</option></term>
+ * <listitem><para>selects a mixer to play on</para></listitem> </varlistentry> <varlistentry> <term><option>-e
+ * &lt;buffersize&gt;</option></term> <listitem><para>the buffer size to use in the application ("extern")</para></listitem>
+ * </varlistentry> <varlistentry> <term><option>-i &lt;buffersize&gt;</option></term> <listitem><para>the buffer size to use in
+ * Java Sound ("intern")</para></listitem> </varlistentry> </variablelist> </formalpara>
+ * 
+ * <formalpara><title>Bugs, limitations</title> <para> There is no way to stop the program besides brute force (ctrl-C). There is
+ * no way to set the audio quality. </para></formalpara>
+ * 
+ * <formalpara><title>Source code</title> <para> <ulink url="AudioRecorder.java.html">AudioRecorder.java</ulink>, <ulink
+ * url="AudioCommon.java.html">AudioCommon.java</ulink>, <ulink
+ * url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink> </para> </formalpara>
+ */
+public class AudioRecorder {
+	private static final SupportedFormat[] SUPPORTED_FORMATS = {
+			new SupportedFormat("s8", AudioFormat.Encoding.PCM_SIGNED, 8, true),
+			new SupportedFormat("u8", AudioFormat.Encoding.PCM_UNSIGNED, 8, true),
+			new SupportedFormat("s16_le", AudioFormat.Encoding.PCM_SIGNED, 16, false),
+			new SupportedFormat("s16_be", AudioFormat.Encoding.PCM_SIGNED, 16, true),
+			new SupportedFormat("u16_le", AudioFormat.Encoding.PCM_UNSIGNED, 16, false),
+			new SupportedFormat("u16_be", AudioFormat.Encoding.PCM_UNSIGNED, 16, true),
+			new SupportedFormat("s24_le", AudioFormat.Encoding.PCM_SIGNED, 24, false),
+			new SupportedFormat("s24_be", AudioFormat.Encoding.PCM_SIGNED, 24, true),
+			new SupportedFormat("u24_le", AudioFormat.Encoding.PCM_UNSIGNED, 24, false),
+			new SupportedFormat("u24_be", AudioFormat.Encoding.PCM_UNSIGNED, 24, true),
+			new SupportedFormat("s32_le", AudioFormat.Encoding.PCM_SIGNED, 32, false),
+			new SupportedFormat("s32_be", AudioFormat.Encoding.PCM_SIGNED, 32, true),
+			new SupportedFormat("u32_le", AudioFormat.Encoding.PCM_UNSIGNED, 32, false),
+			new SupportedFormat("u32_be", AudioFormat.Encoding.PCM_UNSIGNED, 32, true), };
 
-	<formalpara><title>Purpose</title>
-	<para>
-	This program opens two lines: one for recording and one
-	for playback. In an infinite loop, it reads data from
-	the recording line and writes them to the playback line.
-	You can use this to measure the delays inside Java Sound:
-	Speak into the microphone and wait untill you hear
-	yourself in the speakers.  This can be used to
-	experience the effect of changing the buffer sizes: use
-	the '-e' and '-i' options. You will notice that the
-	delays change, too.
-	</para></formalpara>
+	private static final String DEFAULT_FORMAT = "s16_le";
+	private static final int DEFAULT_CHANNELS = 2;
+	private static final float DEFAULT_RATE = 44100.0F;
+	private static final AudioFileFormat.Type DEFAULT_TARGET_TYPE = AudioFileFormat.Type.WAVE;
 
-	<formalpara><title>Usage</title>
-	<para>
-	<synopsis>java AudioRecorder -l</synopsis>
-	<synopsis>java AudioRecorder [-M &lt;mixername&gt;] [-e &lt;buffersize&gt;] [-i &lt;buffersize&gt;] &lt;audiofile&gt;</synopsis>
-	</para></formalpara>
+	private static boolean sm_bDebug = false;
 
-	<formalpara><title>Parameters</title>
-	<variablelist>
-	<varlistentry>
-	<term><option>-l</option></term>
-	<listitem><para>lists the available mixers</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option>-M &lt;mixername&gt;</option></term>
-	<listitem><para>selects a mixer to play on</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option>-e &lt;buffersize&gt;</option></term>
-	<listitem><para>the buffer size to use in the application ("extern")</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option>-i &lt;buffersize&gt;</option></term>
-	<listitem><para>the buffer size to use in Java Sound ("intern")</para></listitem>
-	</varlistentry>
-	</variablelist>
-	</formalpara>
-
-	<formalpara><title>Bugs, limitations</title>
-	<para>
-	There is no way to stop the program besides brute force
-	(ctrl-C). There is no way to set the audio quality.
-	</para></formalpara>
-
-	<formalpara><title>Source code</title>
-	<para>
-	<ulink url="AudioRecorder.java.html">AudioRecorder.java</ulink>,
-	<ulink url="AudioCommon.java.html">AudioCommon.java</ulink>,
-	<ulink url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink>
-	</para>
-	</formalpara>
-
-*/
-public class AudioRecorder
-{
-	private static final SupportedFormat[]	SUPPORTED_FORMATS =
-	{
-		new SupportedFormat("s8",
-				    AudioFormat.Encoding.PCM_SIGNED, 8, true),
-		new SupportedFormat("u8",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 8, true),
-		new SupportedFormat("s16_le",
-				    AudioFormat.Encoding.PCM_SIGNED, 16, false),
-		new SupportedFormat("s16_be",
-				    AudioFormat.Encoding.PCM_SIGNED, 16, true),
-		new SupportedFormat("u16_le",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 16, false),
-		new SupportedFormat("u16_be",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 16, true),
-		new SupportedFormat("s24_le",
-				    AudioFormat.Encoding.PCM_SIGNED, 24, false),
-		new SupportedFormat("s24_be",
-				    AudioFormat.Encoding.PCM_SIGNED, 24, true),
-		new SupportedFormat("u24_le",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 24, false),
-		new SupportedFormat("u24_be",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 24, true),
-		new SupportedFormat("s32_le",
-				    AudioFormat.Encoding.PCM_SIGNED, 32, false),
-		new SupportedFormat("s32_be",
-				    AudioFormat.Encoding.PCM_SIGNED, 32, true),
-		new SupportedFormat("u32_le",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 32, false),
-		new SupportedFormat("u32_be",
-				    AudioFormat.Encoding.PCM_UNSIGNED, 32, true),
-	};
-
-	private static final String	DEFAULT_FORMAT = "s16_le";
-	private static final int	DEFAULT_CHANNELS = 2;
-	private static final float	DEFAULT_RATE = 44100.0F;
-	private static final AudioFileFormat.Type	DEFAULT_TARGET_TYPE = AudioFileFormat.Type.WAVE;
-
-	private static boolean		sm_bDebug = false;
-
-
-
-
-	/** TODO:
+	/**
+	 * TODO:
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		/*
-		 *	Parsing of command-line options takes place...
+		 * Parsing of command-line options takes place...
 		 */
-		String	strMixerName = null;
-		int	nInternalBufferSize = AudioSystem.NOT_SPECIFIED;
-		String	strFormat = DEFAULT_FORMAT;
-		int	nChannels = DEFAULT_CHANNELS;
-		float	fRate = DEFAULT_RATE;
-		String	strExtension = null;
-		boolean	bDirectRecording = true;
+		String strMixerName = null;
+		int nInternalBufferSize = AudioSystem.NOT_SPECIFIED;
+		String strFormat = DEFAULT_FORMAT;
+		int nChannels = DEFAULT_CHANNELS;
+		float fRate = DEFAULT_RATE;
+		String strExtension = null;
+		boolean bDirectRecording = true;
 		int millis = 0; // if != null, the number of milliseconds to record
 
 		/*
-		 *	Parsing of command-line options takes place...
+		 * Parsing of command-line options takes place...
 		 */
 
-		if (args.length < 1) printUsageAndExit();
-		
+		if (args.length < 1)
+			printUsageAndExit();
+
 		// All but the last args are options:
-		String	strFilename = null;
-		for (int i=0; i<args.length; i++) {
+		String strFilename = null;
+		for (int i = 0; i < args.length; i++) {
 			if (!args[i].startsWith("-")) {
 				// Only the last arg is allowed to be the filename
 				if (i == args.length - 1) {
@@ -193,9 +140,9 @@ public class AudioRecorder
 					printUsageAndExit();
 				}
 			}
-			if (args[i].length() != 2) printUsageAndExit();
-			switch (args[i].charAt(1))
-			{
+			if (args[i].length() != 2)
+				printUsageAndExit();
+			switch (args[i].charAt(1)) {
 			case 'h':
 				printUsageAndExit();
 
@@ -208,7 +155,9 @@ public class AudioRecorder
 
 			case 'M':
 				strMixerName = args[++i];
-				if (sm_bDebug) { out("AudioRecorder.main(): mixer name: " + strMixerName); }
+				if (sm_bDebug) {
+					out("AudioRecorder.main(): mixer name: " + strMixerName);
+				}
 				break;
 
 			case 'i':
@@ -249,7 +198,7 @@ public class AudioRecorder
 
 			case '?':
 				printUsageAndExit();
-				
+
 			case 'T':
 				millis = Integer.parseInt(args[++i]);
 				break;
@@ -260,168 +209,133 @@ public class AudioRecorder
 			}
 		}
 
-
-		if (sm_bDebug) { out("AudioRecorder.main(): output filename: " + strFilename); }
-		if (strFilename == null)
-		{
+		if (sm_bDebug) {
+			out("AudioRecorder.main(): output filename: " + strFilename);
+		}
+		if (strFilename == null) {
 			printUsageAndExit();
 		}
 
-		File	outputFile = new File(strFilename);
+		File outputFile = new File(strFilename);
 
-		/* For convenience, we have some shortcuts to set the
-		   properties needed for constructing an AudioFormat.
-		*/
-		if (strFormat.equals("phone"))
-		{
+		/*
+		 * For convenience, we have some shortcuts to set the properties needed for constructing an AudioFormat.
+		 */
+		if (strFormat.equals("phone")) {
 			// 8 kHz, 8 bit unsigned, mono
 			fRate = 8000.0F;
 			strFormat = "u8";
 			nChannels = 1;
-		}
-		else if (strFormat.equals("radio"))
-		{
+		} else if (strFormat.equals("radio")) {
 			// 22.05 kHz, 16 bit signed, mono
 			fRate = 22050.0F;
 			strFormat = "s16_le";
 			nChannels = 1;
-		}
-		else if (strFormat.equals("cd"))
-		{
+		} else if (strFormat.equals("cd")) {
 			// 44.1 kHz, 16 bit signed, stereo, little-endian
 			fRate = 44100.0F;
 			strFormat = "s16_le";
 			nChannels = 2;
-		}
-		else if (strFormat.equals("dat"))
-		{
+		} else if (strFormat.equals("dat")) {
 			// 48 kHz, 16 bit signed, stereo, little-endian
 			fRate = 48000.0F;
 			strFormat = "s16_le";
 			nChannels = 2;
 		}
 
-		/* Here, we are constructing the AudioFormat to use for the
-		   recording. Sample rate (fRate) and number of channels
-		   (nChannels) are already set safely, since they have
-		   default values set at the very top. The other properties
-		   needed for AudioFormat are derived from the 'format'
-		   specification (strFormat).
-		*/
-		int	nOutputFormatIndex = -1;
-		for (int i = 0; i < SUPPORTED_FORMATS.length; i++)
-		{
-			if (SUPPORTED_FORMATS[i].getName().equals(strFormat))
-			{
+		/*
+		 * Here, we are constructing the AudioFormat to use for the recording. Sample rate (fRate) and number of channels
+		 * (nChannels) are already set safely, since they have default values set at the very top. The other properties needed for
+		 * AudioFormat are derived from the 'format' specification (strFormat).
+		 */
+		int nOutputFormatIndex = -1;
+		for (int i = 0; i < SUPPORTED_FORMATS.length; i++) {
+			if (SUPPORTED_FORMATS[i].getName().equals(strFormat)) {
 				nOutputFormatIndex = i;
 				break;
 			}
 		}
-		/* If we haven't found the format (string) requested by the
-		   user, we switch to a default format.
-		*/
-		if (nOutputFormatIndex == -1)
-		{
+		/*
+		 * If we haven't found the format (string) requested by the user, we switch to a default format.
+		 */
+		if (nOutputFormatIndex == -1) {
 			out("warning: output format '" + strFormat + "' not supported; using default output format '" + DEFAULT_FORMAT + "'");
-			/* This is the index of "s16_le". Yes, it's
-			   a bit quick & dirty to hardcode the index here.
-			*/
+			/*
+			 * This is the index of "s16_le". Yes, it's a bit quick & dirty to hardcode the index here.
+			 */
 			nOutputFormatIndex = 2;
 		}
-		AudioFormat.Encoding	encoding = SUPPORTED_FORMATS[nOutputFormatIndex].getEncoding();;
-		int	nBitsPerSample = SUPPORTED_FORMATS[nOutputFormatIndex].getSampleSize();
-		boolean	bBigEndian = SUPPORTED_FORMATS[nOutputFormatIndex].getBigEndian();
-		int	nFrameSize = (nBitsPerSample / 8) * nChannels;
-		AudioFormat	audioFormat = new AudioFormat(encoding, fRate, nBitsPerSample, nChannels, nFrameSize, fRate, bBigEndian);
-		if (sm_bDebug) { out("AudioRecorder.main(): target audio format: " + audioFormat); }
+		AudioFormat.Encoding encoding = SUPPORTED_FORMATS[nOutputFormatIndex].getEncoding();
+		;
+		int nBitsPerSample = SUPPORTED_FORMATS[nOutputFormatIndex].getSampleSize();
+		boolean bBigEndian = SUPPORTED_FORMATS[nOutputFormatIndex].getBigEndian();
+		int nFrameSize = (nBitsPerSample / 8) * nChannels;
+		AudioFormat audioFormat = new AudioFormat(encoding, fRate, nBitsPerSample, nChannels, nFrameSize, fRate, bBigEndian);
+		if (sm_bDebug) {
+			out("AudioRecorder.main(): target audio format: " + audioFormat);
+		}
 
 		// extension
 		// TODO:
 
-
-		AudioFileFormat.Type	targetType = null;
-		if (strExtension == null)
-		{
-			/* The user chose not to specify a target audio
-			   file type explicitely. We are trying to guess
-			   the type from the target file name extension.
-			*/
-			int	nDotPosition = strFilename.lastIndexOf('.');
-			if (nDotPosition != -1)
-			{
+		AudioFileFormat.Type targetType = null;
+		if (strExtension == null) {
+			/*
+			 * The user chose not to specify a target audio file type explicitely. We are trying to guess the type from the target
+			 * file name extension.
+			 */
+			int nDotPosition = strFilename.lastIndexOf('.');
+			if (nDotPosition != -1) {
 				strExtension = strFilename.substring(nDotPosition + 1);
 			}
 		}
-		if (strExtension != null)
-		{
+		if (strExtension != null) {
 			targetType = AudioCommon.findTargetType(strExtension);
-			if (targetType == null)
-			{
+			if (targetType == null) {
 				out("target type '" + strExtension + "' is not supported.");
 				out("using default type '" + DEFAULT_TARGET_TYPE.getExtension() + "'");
 				targetType = DEFAULT_TARGET_TYPE;
 			}
-		}
-		else
-		{
+		} else {
 			out("target type is neither specified nor can be guessed from the target file name.");
 			out("using default type '" + DEFAULT_TARGET_TYPE.getExtension() + "'");
 			targetType = DEFAULT_TARGET_TYPE;
 		}
-		if (sm_bDebug) { out("AudioRecorder.main(): target audio file format type: " + targetType); }
+		if (sm_bDebug) {
+			out("AudioRecorder.main(): target audio file format type: " + targetType);
+		}
 
-		TargetDataLine	targetDataLine = null;
-		targetDataLine = AudioCommon.getTargetDataLine(
-			strMixerName, audioFormat, nInternalBufferSize);
-		if (targetDataLine == null)
-		{
+		TargetDataLine targetDataLine = null;
+		targetDataLine = AudioCommon.getTargetDataLine(strMixerName, audioFormat, nInternalBufferSize);
+		if (targetDataLine == null) {
 			out("can't get TargetDataLine, exiting.");
 			System.exit(1);
 		}
 
-		Recorder	recorder = null;
+		Recorder recorder = null;
 		if (millis > 0) { // forces buffering recorder
-			recorder = new BufferingRecorder(
-					targetDataLine,
-					targetType,
-					outputFile,
-					millis);
+			recorder = new BufferingRecorder(targetDataLine, targetType, outputFile, millis);
+		} else if (bDirectRecording) {
+			recorder = new DirectRecorder(targetDataLine, targetType, outputFile);
+		} else {
+			recorder = new BufferingRecorder(targetDataLine, targetType, outputFile, 0);
 		}
-		else if (bDirectRecording)
-		{
-			recorder = new DirectRecorder(
-				targetDataLine,
-				targetType,
-				outputFile);
+		if (sm_bDebug) {
+			out("AudioRecorder.main(): Recorder: " + recorder);
 		}
-		else
-		{
-			recorder = new BufferingRecorder(
-				targetDataLine,
-				targetType,
-				outputFile,
-				0);
-		}
-		if (sm_bDebug) { out("AudioRecorder.main(): Recorder: " + recorder); }
 
 		out("Press ENTER to start the recording.");
-		try
-		{
+		try {
 			System.in.read();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		recorder.start();
 		out("Recording...");
 		out("Press ENTER to stop the recording.");
-		try
-		{
+		try {
 			System.in.read();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		recorder.stopRecording();
@@ -429,31 +343,27 @@ public class AudioRecorder
 		// System.exit(0);
 	}
 
-
 	private static void listTargetDataLines() {
 		out("Available Mixers:");
-		Mixer.Info[]	aInfos = AudioSystem.getMixerInfo();
-		for (int i = 0; i < aInfos.length; i++)
-		{
+		Mixer.Info[] aInfos = AudioSystem.getMixerInfo();
+		for (int i = 0; i < aInfos.length; i++) {
 			Mixer mixer = AudioSystem.getMixer(aInfos[i]);
-			//mixer.open();
+			// mixer.open();
 			Line.Info[] lines = mixer.getTargetLineInfo();
-            out(aInfos[i].getName());
-    		for (int j=0; j<lines.length; j++) {
-    			out("  "+lines[j].toString());
-    			if (lines[j] instanceof DataLine.Info) {
-        			AudioFormat[] formats = ((DataLine.Info)lines[j]).getFormats();
-    				for (int k=0; k<formats.length; k++) {
-    					out("    "+formats[k].toString());
-    				}
-    			}
-    		}
+			out(aInfos[i].getName());
+			for (int j = 0; j < lines.length; j++) {
+				out("  " + lines[j].toString());
+				if (lines[j] instanceof DataLine.Info) {
+					AudioFormat[] formats = ((DataLine.Info) lines[j]).getFormats();
+					for (int k = 0; k < formats.length; k++) {
+						out("    " + formats[k].toString());
+					}
+				}
+			}
 		}
 	}
-	
-	
-	private static void printUsageAndExit()
-	{
+
+	private static void printUsageAndExit() {
 		out("AudioRecorder: usage:");
 		out("\tjava AudioRecorder -l");
 		out("\tjava AudioRecorder -L");
@@ -461,298 +371,244 @@ public class AudioRecorder
 		System.exit(0);
 	}
 
-
-
-	/** TODO:
+	/**
+	 * TODO:
 	 */
-	private static void out(String strMessage)
-	{
+	private static void out(String strMessage) {
 		System.out.println(strMessage);
 	}
 
+	// /////////// inner classes ////////////////////
 
-
-///////////// inner classes ////////////////////
-
-
-	/** TODO:
+	/**
+	 * TODO:
 	 */
-	private static class SupportedFormat
-	{
-		/** The name of the format.
+	private static class SupportedFormat {
+		/**
+		 * The name of the format.
 		 */
-		private String			m_strName;
+		private String m_strName;
 
-		/** The encoding of the format.
+		/**
+		 * The encoding of the format.
 		 */
-		private AudioFormat.Encoding	m_encoding;
+		private AudioFormat.Encoding m_encoding;
 
-		/** The sample size of the format.
-		    This value is in bits for a single sample
-		    (not for a frame).
+		/**
+		 * The sample size of the format. This value is in bits for a single sample (not for a frame).
 		 */
-		private int			m_nSampleSize;
+		private int m_nSampleSize;
 
-		/** The endianess of the format.
+		/**
+		 * The endianess of the format.
 		 */
-		private boolean			m_bBigEndian;
+		private boolean m_bBigEndian;
 
 		// sample size is in bits
-		/** Construct a new supported format.
-		    @param strName the name of the format.
-		    @param encoding the encoding of the format.
-		    @param nSampleSize the sample size of the format, in bits.
-		    @param bBigEndian the endianess of the format.
-		*/
-		public SupportedFormat(String strName,
-				       AudioFormat.Encoding encoding,
-				       int nSampleSize,
-				       boolean bBigEndian)
-		{
+		/**
+		 * Construct a new supported format.
+		 * 
+		 * @param strName
+		 *            the name of the format.
+		 * @param encoding
+		 *            the encoding of the format.
+		 * @param nSampleSize
+		 *            the sample size of the format, in bits.
+		 * @param bBigEndian
+		 *            the endianess of the format.
+		 */
+		public SupportedFormat(String strName, AudioFormat.Encoding encoding, int nSampleSize, boolean bBigEndian) {
 			m_strName = strName;
 			m_encoding = encoding;
 			m_nSampleSize = nSampleSize;
 		}
 
-		/** Returns the name of the format.
+		/**
+		 * Returns the name of the format.
 		 */
-		public String getName()
-		{
+		public String getName() {
 			return m_strName;
 		}
 
-		/** Returns the encoding of the format.
+		/**
+		 * Returns the encoding of the format.
 		 */
-		public AudioFormat.Encoding getEncoding()
-		{
+		public AudioFormat.Encoding getEncoding() {
 			return m_encoding;
 		}
 
-		/** Returns the sample size of the format.
-		    This value is in bits.
-		*/
-		public int getSampleSize()
-		{
+		/**
+		 * Returns the sample size of the format. This value is in bits.
+		 */
+		public int getSampleSize() {
 			return m_nSampleSize;
 		}
 
-		/** Returns the endianess of the format.
+		/**
+		 * Returns the endianess of the format.
 		 */
-		public boolean getBigEndian()
-		{
+		public boolean getBigEndian() {
 			return m_bBigEndian;
 		}
 	}
 
+	// /////////////////////////////////////////////
 
-	///////////////////////////////////////////////
+	public static interface Recorder {
+		/**
+		 * Optionally, set an audio processor to apply to the recording before saving it.
+		 * 
+		 * @param proc
+		 */
+		public void setAudioProcessor(AudioProcessor proc);
 
-
-	public static interface Recorder
-	{
-        /**
-         * Optionally, set an audio processor to apply to the recording before saving it.
-         * @param proc
-         */
-        public void setAudioProcessor(AudioProcessor proc);
-        
 		public void start();
 
 		public void stopRecording();
 	}
 
-
-
-	public static class AbstractRecorder
-	extends Thread
-	implements Recorder
-	{
-		protected TargetDataLine	m_line;
-		protected AudioFileFormat.Type	m_targetType;
-		protected File			m_file;
-		protected boolean		m_bRecording;
+	public static class AbstractRecorder extends Thread implements Recorder {
+		protected TargetDataLine m_line;
+		protected AudioFileFormat.Type m_targetType;
+		protected File m_file;
+		protected boolean m_bRecording;
 
 		protected AudioProcessor audioProcessor;
 
-
-		public AbstractRecorder(TargetDataLine line,
-					AudioFileFormat.Type targetType,
-					File file)
-		{
+		public AbstractRecorder(TargetDataLine line, AudioFileFormat.Type targetType, File file) {
 			m_line = line;
 			m_targetType = targetType;
 			m_file = file;
 		}
 
-
 		/**
 		 * Optionally, set an audio processor to apply to the recording before saving it.
+		 * 
 		 * @param proc
 		 */
-		public void setAudioProcessor(AudioProcessor proc)
-		{
-		    this.audioProcessor = proc;
+		public void setAudioProcessor(AudioProcessor proc) {
+			this.audioProcessor = proc;
 		}
 
-		/**	Starts the recording.
-		 *	To accomplish this, (i) the line is started and (ii) the
-		 *	thread is started.
+		/**
+		 * Starts the recording. To accomplish this, (i) the line is started and (ii) the thread is started.
 		 */
-		public void start()
-		{
+		public void start() {
 			m_line.start();
 			super.start();
 		}
 
-
-
-		public void stopRecording()
-		{
+		public void stopRecording() {
 			m_line.drain();
 			m_line.stop();
 			m_line.close();
 			m_bRecording = false;
 		}
-		
-		public void stopRecordingNOW()
-		{
+
+		public void stopRecordingNOW() {
 			// don't drain, whatever data is in the buffer will not be retained
 			m_line.stop();
 			m_line.close();
 			m_bRecording = false;
 		}
-		
-		
+
 	}
 
+	public static class DirectRecorder extends AbstractRecorder {
+		private AudioInputStream m_audioInputStream;
 
-
-	public static class DirectRecorder
-	extends AbstractRecorder
-	{
-		private AudioInputStream	m_audioInputStream;
-
-
-
-		public DirectRecorder(TargetDataLine line,
-				      AudioFileFormat.Type targetType,
-				      File file)
-		{
+		public DirectRecorder(TargetDataLine line, AudioFileFormat.Type targetType, File file) {
 			super(line, targetType, file);
 			m_audioInputStream = new AudioInputStream(line);
 		}
 
-
-
-		public void run()
-		{
-			try
-			{
-			    if (audioProcessor != null) {
-			        m_audioInputStream = audioProcessor.apply(m_audioInputStream);
-			    }
-				if (sm_bDebug) { out("before AudioSystem.write"); }
-				AudioSystem.write(
-					m_audioInputStream,
-					m_targetType,
-					m_file);
-				if (sm_bDebug) { out("after AudioSystem.write"); }
-			}
-			catch (IOException e)
-			{
+		public void run() {
+			try {
+				if (audioProcessor != null) {
+					m_audioInputStream = audioProcessor.apply(m_audioInputStream);
+				}
+				if (sm_bDebug) {
+					out("before AudioSystem.write");
+				}
+				AudioSystem.write(m_audioInputStream, m_targetType, m_file);
+				if (sm_bDebug) {
+					out("after AudioSystem.write");
+				}
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-
-
 	}
 
-
-
-	public static class BufferingRecorder
-	extends AbstractRecorder
-	{
+	public static class BufferingRecorder extends AbstractRecorder {
 		private int millis;
-		
-		public BufferingRecorder(TargetDataLine line,
-					     AudioFileFormat.Type targetType,
-					     File file, int millis)
-		{
+
+		public BufferingRecorder(TargetDataLine line, AudioFileFormat.Type targetType, File file, int millis) {
 			super(line, targetType, file);
 			this.millis = millis; // millis: if > 0, number of milliseconds to record
 		}
 
-
-
-		public void run()
-		{
-			ByteArrayOutputStream	byteArrayOutputStream = new ByteArrayOutputStream();
-			OutputStream		outputStream = byteArrayOutputStream;
+		public void run() {
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			OutputStream outputStream = byteArrayOutputStream;
 			// TODO: intelligent size
-			byte[]	abBuffer = new byte[65532]; // a multiple of 4 and of 6, to support 16- and 24-bit stereo as well
-			AudioFormat	format = m_line.getFormat();
-			int	nFrameSize = format.getFrameSize();
+			byte[] abBuffer = new byte[65532]; // a multiple of 4 and of 6, to support 16- and 24-bit stereo as well
+			AudioFormat format = m_line.getFormat();
+			int nFrameSize = format.getFrameSize();
 			long totalBytesToRead = (long) (millis * format.getFrameRate() * nFrameSize / 1000);
 			if (totalBytesToRead % nFrameSize != 0) {
 				totalBytesToRead += nFrameSize - totalBytesToRead % nFrameSize;
 			}
 			long totalBytes = 0;
 			m_bRecording = true;
-			while (m_bRecording)
-			{
+			while (m_bRecording) {
 				int bytesToRead = abBuffer.length;
 				if (totalBytesToRead > 0 && totalBytes + abBuffer.length > totalBytesToRead) {
 					bytesToRead = (int) (totalBytesToRead - totalBytes);
 				}
-				if (sm_bDebug) { out("BufferingRecorder.run(): trying to read: " + bytesToRead); }
-				int	nBytesRead = m_line.read(abBuffer, 0, bytesToRead);
+				if (sm_bDebug) {
+					out("BufferingRecorder.run(): trying to read: " + bytesToRead);
+				}
+				int nBytesRead = m_line.read(abBuffer, 0, bytesToRead);
 				totalBytes += nBytesRead;
 				if (totalBytesToRead > 0 && totalBytes >= totalBytesToRead) {
 					m_bRecording = false; // read all we needed
 				}
-				if (sm_bDebug) { out("BufferingRecorder.run(): read: " + nBytesRead); }
-				try
-				{
-					outputStream.write(abBuffer, 0, nBytesRead);
+				if (sm_bDebug) {
+					out("BufferingRecorder.run(): read: " + nBytesRead);
 				}
-				catch (IOException e)
-				{
+				try {
+					outputStream.write(abBuffer, 0, nBytesRead);
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 
-			/* We close the ByteArrayOutputStream.
+			/*
+			 * We close the ByteArrayOutputStream.
 			 */
-			try
-			{
+			try {
 				byteArrayOutputStream.close();
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
+			byte[] abData = byteArrayOutputStream.toByteArray();
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(abData);
 
-			byte[]	abData = byteArrayOutputStream.toByteArray();
-			ByteArrayInputStream	byteArrayInputStream = new ByteArrayInputStream(abData);
-
-			AudioInputStream	audioInputStream = new AudioInputStream(byteArrayInputStream, format, abData.length / format.getFrameSize());
+			AudioInputStream audioInputStream = new AudioInputStream(byteArrayInputStream, format, abData.length
+					/ format.getFrameSize());
 			if (audioProcessor != null) {
-			    audioInputStream = audioProcessor.apply(audioInputStream);
+				audioInputStream = audioProcessor.apply(audioInputStream);
 			}
-			try
-			{
-				AudioSystem.write(audioInputStream,  m_targetType, m_file);
-			}
-			catch (IOException e)
-			{
+			try {
+				AudioSystem.write(audioInputStream, m_targetType, m_file);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 }
-
-
 
 /*** AudioRecorder.java ***/

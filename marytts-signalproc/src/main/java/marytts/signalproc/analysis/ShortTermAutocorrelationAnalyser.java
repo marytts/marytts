@@ -25,45 +25,43 @@ import marytts.signalproc.window.Window;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.math.FFT;
 
-
 /**
  * 
  * @author Marc Schr&ouml;der
- *
- * Implements a frame based autocorrelation analyser
+ * 
+ *         Implements a frame based autocorrelation analyser
  * 
  */
 public class ShortTermAutocorrelationAnalyser extends FrameBasedAnalyser {
-    protected double[] correlationInput;
-    
-    /**
-     * @param signal
-     * @param window
-     * @param frameShift
-     * @param samplingRate
-     */
-    public ShortTermAutocorrelationAnalyser(DoubleDataSource signal,
-            Window window, int frameShift, int samplingRate) {
-        super(signal, window, frameShift, samplingRate);
-        this.correlationInput = new double[2*window.getLength()];
-    }
+	protected double[] correlationInput;
 
-    /**
-     * Apply this FrameBasedAnalyser to the given data.
-     * @param frame the data to analyse, which must be of the length prescribed by this
-     * FrameBasedAnalyser, i.e. by @see{#getFrameLengthSamples()}.
-     * @return a double array of the same length as frame
-     * @throws IllegalArgumentException if frame does not have the prescribed length 
-     */
-     public Object analyse(double[] frame)
-     {
-        if (frame.length != getFrameLengthSamples())
-            throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()
-                    + ", got " + frame.length);
-        System.arraycopy(frame, 0, correlationInput, 0, frame.length);
-        Arrays.fill(correlationInput, frame.length, correlationInput.length, 0);
-        return FFT.autoCorrelate(correlationInput);
-    }
+	/**
+	 * @param signal
+	 * @param window
+	 * @param frameShift
+	 * @param samplingRate
+	 */
+	public ShortTermAutocorrelationAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate) {
+		super(signal, window, frameShift, samplingRate);
+		this.correlationInput = new double[2 * window.getLength()];
+	}
+
+	/**
+	 * Apply this FrameBasedAnalyser to the given data.
+	 * 
+	 * @param frame
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
+	 *            @see{#getFrameLengthSamples()}.
+	 * @return a double array of the same length as frame
+	 * @throws IllegalArgumentException
+	 *             if frame does not have the prescribed length
+	 */
+	public Object analyse(double[] frame) {
+		if (frame.length != getFrameLengthSamples())
+			throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples() + ", got " + frame.length);
+		System.arraycopy(frame, 0, correlationInput, 0, frame.length);
+		Arrays.fill(correlationInput, frame.length, correlationInput.length, 0);
+		return FFT.autoCorrelate(correlationInput);
+	}
 
 }
-

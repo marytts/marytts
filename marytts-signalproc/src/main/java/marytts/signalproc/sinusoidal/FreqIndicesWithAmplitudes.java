@@ -33,23 +33,19 @@ package marytts.signalproc.sinusoidal;
  * A collection of frequency indices and corresponding amplitudes.
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class FreqIndicesWithAmplitudes {
-    public float [] freqIndsRefined;
-    public float [] ampsRefined;
-    
-    public FreqIndicesWithAmplitudes(int len)
-    {
-        if (len>0)
-        {
-            freqIndsRefined = new float[len];
-            ampsRefined = new float[len];
-        }
-        else
-        {
-            freqIndsRefined = null;
-            ampsRefined = null;
-        }
-    }
+	public float[] freqIndsRefined;
+	public float[] ampsRefined;
+
+	public FreqIndicesWithAmplitudes(int len) {
+		if (len > 0) {
+			freqIndsRefined = new float[len];
+			ampsRefined = new float[len];
+		} else {
+			freqIndsRefined = null;
+			ampsRefined = null;
+		}
+	}
 }

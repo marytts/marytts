@@ -41,47 +41,51 @@ import marytts.util.signal.SignalProcUtils;
  * Syntehsizer for the transient part waveform segments.
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class TransientPartSynthesizer {
-    
-    public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams)
-    {
-        int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
-        
-        double[] transientPart = new double[outputLen];
-        Arrays.fill(transientPart, 0.0);
-        
-        if (hnmSignal.transients!=null)
-        {
-            int i, j;
-            int startInd, endInd;
-            int windowLeftEndInd, windowRightStartInd;
-            int ws = SignalProcUtils.time2sample(2*analysisParams.overlapBetweenTransientAndNontransientSectionsInSeconds, hnmSignal.samplingRateInHz);
-            if (ws%2==0)
-                ws++;
-            Window win = new HammingWindow(ws);
-            win.normalizePeakValue(1.0f);
-            int winMidInd = (ws-1)/2;
-            for (i=0; i<hnmSignal.transients.segments.length; i++)
-            {
-                if (hnmSignal.transients.segments[i]!=null && hnmSignal.transients.segments[i].waveform!=null && hnmSignal.transients.segments[i].waveform.length>0 && hnmSignal.transients.segments[i].startTime>=0.0f)
-                {
-                    startInd = Math.min(SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime, hnmSignal.samplingRateInHz), outputLen-1);
-                    windowLeftEndInd = Math.min(startInd+winMidInd, outputLen-1);
-                    endInd = Math.min(SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime,hnmSignal.samplingRateInHz)+hnmSignal.transients.segments[i].waveform.length-1, outputLen-1);
-                    windowRightStartInd = endInd-winMidInd;
-                    
-                    for (j=startInd; j<=windowLeftEndInd; j++)
-                        transientPart[j] = hnmSignal.transients.segments[i].waveform[j-startInd]*win.value(j-startInd);
-                    for (j=windowLeftEndInd+1; j<windowRightStartInd; j++)
-                        transientPart[j] = hnmSignal.transients.segments[i].waveform[j-startInd];
-                    for (j=windowRightStartInd; j<=endInd; j++)
-                        transientPart[j] = hnmSignal.transients.segments[i].waveform[j-startInd]*win.value((j-endInd)+ws-1);
-                }
-            }
-        }
-        
-        return transientPart;
-    }
+
+	public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams) {
+		int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
+
+		double[] transientPart = new double[outputLen];
+		Arrays.fill(transientPart, 0.0);
+
+		if (hnmSignal.transients != null) {
+			int i, j;
+			int startInd, endInd;
+			int windowLeftEndInd, windowRightStartInd;
+			int ws = SignalProcUtils.time2sample(2 * analysisParams.overlapBetweenTransientAndNontransientSectionsInSeconds,
+					hnmSignal.samplingRateInHz);
+			if (ws % 2 == 0)
+				ws++;
+			Window win = new HammingWindow(ws);
+			win.normalizePeakValue(1.0f);
+			int winMidInd = (ws - 1) / 2;
+			for (i = 0; i < hnmSignal.transients.segments.length; i++) {
+				if (hnmSignal.transients.segments[i] != null && hnmSignal.transients.segments[i].waveform != null
+						&& hnmSignal.transients.segments[i].waveform.length > 0
+						&& hnmSignal.transients.segments[i].startTime >= 0.0f) {
+					startInd = Math.min(
+							SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime, hnmSignal.samplingRateInHz),
+							outputLen - 1);
+					windowLeftEndInd = Math.min(startInd + winMidInd, outputLen - 1);
+					endInd = Math.min(
+							SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime, hnmSignal.samplingRateInHz)
+									+ hnmSignal.transients.segments[i].waveform.length - 1, outputLen - 1);
+					windowRightStartInd = endInd - winMidInd;
+
+					for (j = startInd; j <= windowLeftEndInd; j++)
+						transientPart[j] = hnmSignal.transients.segments[i].waveform[j - startInd] * win.value(j - startInd);
+					for (j = windowLeftEndInd + 1; j < windowRightStartInd; j++)
+						transientPart[j] = hnmSignal.transients.segments[i].waveform[j - startInd];
+					for (j = windowRightStartInd; j <= endInd; j++)
+						transientPart[j] = hnmSignal.transients.segments[i].waveform[j - startInd]
+								* win.value((j - endInd) + ws - 1);
+				}
+			}
+		}
+
+		return transientPart;
+	}
 }

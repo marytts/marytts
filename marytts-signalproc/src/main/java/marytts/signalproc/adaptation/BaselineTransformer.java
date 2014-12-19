@@ -25,80 +25,63 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.prosody.PitchTransformationData;
 
-
 /**
  * Baseline class for voice conversion transformation
  * 
  * @author Oytun T&uumlrk
  */
 public class BaselineTransformer {
-    public BaselinePreprocessor preprocessor;
-    public BaselineFeatureExtractor featureExtractor; 
-    public BaselinePostprocessor postprocessor;
-    BaselineTransformerParams params;
-    
-    public BaselineTransformer(BaselinePreprocessor pp,
-                               BaselineFeatureExtractor fe, 
-                               BaselinePostprocessor po,
-                               BaselineTransformerParams pa)
-    {
-        preprocessor = new BaselinePreprocessor(pp);
-        featureExtractor = new BaselineFeatureExtractor(fe);
-        postprocessor = new BaselinePostprocessor(po);
-        params = new BaselineTransformerParams(pa);
-    }
-    
-    //Baseline version does nothing, override in derived classes
-    public boolean checkParams() throws IOException
-    {
-        return true;
-    }
-    
-    //Baseline version does nothing, override in derived classes
-    public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet) throws UnsupportedAudioFileException
-    {
-        
-    }
-    
-    public static void transformOneItem(BaselineAdaptationItem inputItem, 
-            BaselineAdaptationItem outputItem,
-            BaselineTransformerParams tfmParams,
-            VocalTractTransformationFunction vttFunction,
-            VocalTractTransformationData vtData,
-            PitchTransformationData pMap
-            ) throws UnsupportedAudioFileException, IOException
-            {
-        
-            }
-    
-    public static boolean isScalingsRequired(double[] pscales, double[] tscales, double[] escales, double[] vscales)
-    {
-        int i;
-        for (i=0; i<pscales.length; i++)
-        {
-            if (pscales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<tscales.length; i++)
-        {
-            if (tscales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<escales.length; i++)
-        {
-            if (escales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<vscales.length; i++)
-        {
-            if (vscales[i]!=1.0)
-                return true;
-        }
-        
-        return false;
-    }
-}
+	public BaselinePreprocessor preprocessor;
+	public BaselineFeatureExtractor featureExtractor;
+	public BaselinePostprocessor postprocessor;
+	BaselineTransformerParams params;
 
+	public BaselineTransformer(BaselinePreprocessor pp, BaselineFeatureExtractor fe, BaselinePostprocessor po,
+			BaselineTransformerParams pa) {
+		preprocessor = new BaselinePreprocessor(pp);
+		featureExtractor = new BaselineFeatureExtractor(fe);
+		postprocessor = new BaselinePostprocessor(po);
+		params = new BaselineTransformerParams(pa);
+	}
+
+	// Baseline version does nothing, override in derived classes
+	public boolean checkParams() throws IOException {
+		return true;
+	}
+
+	// Baseline version does nothing, override in derived classes
+	public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet) throws UnsupportedAudioFileException {
+
+	}
+
+	public static void transformOneItem(BaselineAdaptationItem inputItem, BaselineAdaptationItem outputItem,
+			BaselineTransformerParams tfmParams, VocalTractTransformationFunction vttFunction,
+			VocalTractTransformationData vtData, PitchTransformationData pMap) throws UnsupportedAudioFileException, IOException {
+
+	}
+
+	public static boolean isScalingsRequired(double[] pscales, double[] tscales, double[] escales, double[] vscales) {
+		int i;
+		for (i = 0; i < pscales.length; i++) {
+			if (pscales[i] != 1.0)
+				return true;
+		}
+
+		for (i = 0; i < tscales.length; i++) {
+			if (tscales[i] != 1.0)
+				return true;
+		}
+
+		for (i = 0; i < escales.length; i++) {
+			if (escales[i] != 1.0)
+				return true;
+		}
+
+		for (i = 0; i < vscales.length; i++) {
+			if (vscales[i] != 1.0)
+				return true;
+		}
+
+		return false;
+	}
+}

@@ -31,76 +31,70 @@
  */
 package marytts.util.math;
 
-
 /**
- * FloatList is used to maintain a circular buffer of float values. It is
- * essentially an index-free array of floats that can easily be iterated through
- * forwards or backwards. Keeping values in an index free list like this
- * eliminates index bounds checking which can save us some time.
+ * FloatList is used to maintain a circular buffer of float values. It is essentially an index-free array of floats that can
+ * easily be iterated through forwards or backwards. Keeping values in an index free list like this eliminates index bounds
+ * checking which can save us some time.
  */
-public class FloatList
-{
-    public float value;
+public class FloatList {
+	public float value;
 
-    public FloatList next;
+	public FloatList next;
 
-    public FloatList prev;
+	public FloatList prev;
 
-    /**
-     * Creates a new node
-     */
-    FloatList()
-    {
-        value = 0.0F;
-        next = null;
-        prev = null;
-    }
+	/**
+	 * Creates a new node
+	 */
+	FloatList() {
+		value = 0.0F;
+		next = null;
+		prev = null;
+	}
 
-    /**
-     * Creates a circular list of nodes of the given size
-     * 
-     * @param size
-     *            the number of nodes in the list
-     * 
-     * @return an entry in the list.
-     */
-    public static FloatList createList(int size)
-    {
-        FloatList prev = null;
-        FloatList first = null;
+	/**
+	 * Creates a circular list of nodes of the given size
+	 * 
+	 * @param size
+	 *            the number of nodes in the list
+	 * 
+	 * @return an entry in the list.
+	 */
+	public static FloatList createList(int size) {
+		FloatList prev = null;
+		FloatList first = null;
 
-        for (int i = 0; i < size; i++) {
-            FloatList cur = new FloatList();
-            cur.prev = prev;
-            if (prev == null) {
-                first = cur;
-            } else {
-                prev.next = cur;
-            }
-            prev = cur;
-        }
-        first.prev = prev;
-        prev.next = first;
+		for (int i = 0; i < size; i++) {
+			FloatList cur = new FloatList();
+			cur.prev = prev;
+			if (prev == null) {
+				first = cur;
+			} else {
+				prev.next = cur;
+			}
+			prev = cur;
+		}
+		first.prev = prev;
+		prev.next = first;
 
-        return first;
-    }
+		return first;
+	}
 
-    /**
-     * prints out the contents of this list
-     * 
-     * @param title
-     *            the title of the dump
-     * @param list
-     *            the list to dump
-     */
-    public static void dump(String title, FloatList list)
-    {
-        System.out.println(title);
+	/**
+	 * prints out the contents of this list
+	 * 
+	 * @param title
+	 *            the title of the dump
+	 * @param list
+	 *            the list to dump
+	 */
+	public static void dump(String title, FloatList list) {
+		System.out.println(title);
 
-        FloatList cur = list;
-        do {
-            System.out.println("Item: " + cur.value);
-            cur = cur.next;
-        } while (cur != list);
-    }
+		FloatList cur = list;
+		do {
+			System.out.println("Item: " + cur.value);
+			cur = cur.next;
+		} while (cur != list);
+	}
 }

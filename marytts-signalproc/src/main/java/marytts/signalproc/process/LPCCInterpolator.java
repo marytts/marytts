@@ -37,66 +37,67 @@ import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.PrintfFormat;
 
-
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFrameMerger
-{
-    protected double[] otherFrame1;
-    protected double[] otherFrame2;
-    protected double relativeWeightOther1;
-    protected double r;
-    
-    /**
-     * Create an lpcc-based interpolator.
-     * @param p the order of LPC analysis
-     * @param r the interpolation ratio, between 0 and 1: <code>new = r * this + (1-r) * other</code>
-     */
-    public LPCCInterpolator(int p, double r)
-    {
-        super(p);
-        if (r < 0 || r > 1) throw new IllegalArgumentException("Mixing ratio r must be between 0 and 1");
-        this.r = r;
-    }
-    
-    /**
-     * Set the frame of data to merge into the next call of applyInline().
-     * This is the data towards which lpcc-based interpolation will be done.
-     * @param frameToMerge
-     */
-    public void setFrameToMerge(double[] frameToMerge)
-    {
-        this.otherFrame1 = frameToMerge;
-        this.otherFrame2 = null;
-        this.relativeWeightOther1 = 1;
-    }
+public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFrameMerger {
+	protected double[] otherFrame1;
+	protected double[] otherFrame2;
+	protected double relativeWeightOther1;
+	protected double r;
 
-    /**
-     * Set the frame of data to merge into the next call of applyInline().
-     * This method allows for an interpolation of two frames to be merged into the data set;
-     * for example, in order to correct for time misalignment between signal and other frames.
-     * @param frame1 
-     * @param frame2
-     * @param relativeWeightFrame1, a number between 0 and 1 indicating the relative weight of frame1^
-     * with respect to frame2. Consequently, the relative weight of frame 2 will be (1 - relativeWeightFrame1).
-     */
-    public void setFrameToMerge(double[] frame1, double[] frame2, double relativeWeightFrame1)
-    {
-        this.otherFrame1 = frame1;
-        this.otherFrame2 = frame2;
-        this.relativeWeightOther1 = relativeWeightFrame1;
-    }
+	/**
+	 * Create an lpcc-based interpolator.
+	 * 
+	 * @param p
+	 *            the order of LPC analysis
+	 * @param r
+	 *            the interpolation ratio, between 0 and 1: <code>new = r * this + (1-r) * other</code>
+	 */
+	public LPCCInterpolator(int p, double r) {
+		super(p);
+		if (r < 0 || r > 1)
+			throw new IllegalArgumentException("Mixing ratio r must be between 0 and 1");
+		this.r = r;
+	}
 
-    
-    /**
-     * Process the LPC coefficients in place. This implementation converts
-     * the LPC coefficients into line spectral frequencies, and interpolates
-     * between these and the corresponding frame in the "other" signal.
-     * @param a the LPC coefficients
-     */
-    protected void processLPC(LpCoeffs coeffs, double[] residual) 
+	/**
+	 * Set the frame of data to merge into the next call of applyInline(). This is the data towards which lpcc-based interpolation
+	 * will be done.
+	 * 
+	 * @param frameToMerge
+	 */
+	public void setFrameToMerge(double[] frameToMerge) {
+		this.otherFrame1 = frameToMerge;
+		this.otherFrame2 = null;
+		this.relativeWeightOther1 = 1;
+	}
+
+	/**
+	 * Set the frame of data to merge into the next call of applyInline(). This method allows for an interpolation of two frames
+	 * to be merged into the data set; for example, in order to correct for time misalignment between signal and other frames.
+	 * 
+	 * @param frame1
+	 * @param frame2
+	 * @param relativeWeightFrame1
+	 *            , a number between 0 and 1 indicating the relative weight of frame1^ with respect to frame2. Consequently, the
+	 *            relative weight of frame 2 will be (1 - relativeWeightFrame1).
+	 */
+	public void setFrameToMerge(double[] frame1, double[] frame2, double relativeWeightFrame1) {
+		this.otherFrame1 = frame1;
+		this.otherFrame2 = frame2;
+		this.relativeWeightOther1 = relativeWeightFrame1;
+	}
+
+	/**
+	 * Process the LPC coefficients in place. This implementation converts the LPC coefficients into line spectral frequencies,
+	 * and interpolates between these and the corresponding frame in the "other" signal.
+	 * 
+	 * @param a
+	 *            the LPC coefficients
+	 */
+	protected void processLPC(LpCoeffs coeffs, double[] residual) 
     {
         if (otherFrame1 == null) return; // no more other audio -- leave signal as is
         LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
@@ -155,59 +156,58 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
         
     }
 
+	public static void main(String[] args) throws Exception {
+		long startTime = System.currentTimeMillis();
+		double r = Double.parseDouble(System.getProperty("r", "0.5"));
+		String file1 = null;
+		String file2 = null;
+		DoubleDataSource label1 = null;
+		DoubleDataSource label2 = null;
+		if (args.length == 2) {
+			file1 = args[0];
+			file2 = args[1];
+		} else if (args.length == 4) {
+			file1 = args[0];
+			label1 = new LabelfileDoubleDataSource(new FileReader(args[1]));
+			file2 = args[2];
+			label2 = new LabelfileDoubleDataSource(new FileReader(args[3]));
+			// Safety check: verify that we have the same number of labels in both files
+			double[] labelData1 = label1.getAllData();
+			double[] labelData2 = label2.getAllData();
+			if (labelData1.length != labelData2.length) {
+				System.err.println("Warning: Number of labels is different!");
+				System.err.println(args[1] + ":");
+				System.err.println(FileUtils.getFileAsString(new File(args[1]), "ASCII"));
+				System.err.println(args[3] + ":");
+				System.err.println(FileUtils.getFileAsString(new File(args[3]), "ASCII"));
+			} // but continue
+			label1 = new BufferedDoubleDataSource(labelData1);
+			label2 = new BufferedDoubleDataSource(labelData2);
+		} else {
+			System.out
+					.println("Usage: java [-Dr=<mixing ratio> marytts.signalproc.process.LPCCInterpolator signal.wav [signal.lab] other.wav [other.lab]");
+			System.out.println("where");
+			System.out
+					.println("    <mixing ratio> is a value between 0.0 and 1.0 indicating how much of \"other\" is supposed to be mixed into \"signal\"");
+			System.exit(1);
+		}
+		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(file1));
+		int samplingRate = (int) inputAudio.getFormat().getSampleRate();
+		AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+		AudioInputStream otherAudio = AudioSystem.getAudioInputStream(new File(file2));
+		DoubleDataSource otherSource = new AudioDoubleDataSource(otherAudio);
+		int frameLength = Integer.getInteger("signalproc.lpcanalysisresynthesis.framelength", 512).intValue();
+		int predictionOrder = Integer.getInteger("signalproc.lpcanalysisresynthesis.predictionorder", 20).intValue();
+		FramewiseMerger foas = new FramewiseMerger(signal, frameLength, samplingRate, label1, otherSource, samplingRate, label2,
+				new LPCCInterpolator(predictionOrder, r));
+		DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
+		String outFileName = file1.substring(0, file1.length() - 4) + "_"
+				+ file2.substring(file2.lastIndexOf("\\") + 1, file2.length() - 4) + "_" + r + "_lpcc.wav";
+		AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+		long endTime = System.currentTimeMillis();
+		int audioDuration = (int) (AudioSystem.getAudioFileFormat(new File(file1)).getFrameLength() / (double) samplingRate * 1000);
+		System.out.println("LPCC-based interpolatin took " + (endTime - startTime) + " ms for " + audioDuration + " ms of audio");
 
-    public static void main(String[] args) throws Exception
-    {
-        long startTime = System.currentTimeMillis();
-        double r = Double.parseDouble(System.getProperty("r", "0.5"));
-        String file1 = null;
-        String file2 = null;
-        DoubleDataSource label1 = null;
-        DoubleDataSource label2 = null;
-        if (args.length == 2) {
-            file1 = args[0];
-            file2 = args[1];
-        } else if (args.length == 4) {
-            file1 = args[0];
-            label1 = new LabelfileDoubleDataSource(new FileReader(args[1]));
-            file2 = args[2];
-            label2 = new LabelfileDoubleDataSource(new FileReader(args[3]));
-            // Safety check: verify that we have the same number of labels in both files
-            double[] labelData1 = label1.getAllData();
-            double[] labelData2 = label2.getAllData();
-            if (labelData1.length != labelData2.length) {
-                System.err.println("Warning: Number of labels is different!");
-                System.err.println(args[1]+":");
-                System.err.println(FileUtils.getFileAsString(new File(args[1]), "ASCII"));
-                System.err.println(args[3]+":");
-                System.err.println(FileUtils.getFileAsString(new File(args[3]), "ASCII"));
-            } // but continue
-            label1 = new BufferedDoubleDataSource(labelData1);
-            label2 = new BufferedDoubleDataSource(labelData2);
-        } else {
-            System.out.println("Usage: java [-Dr=<mixing ratio> marytts.signalproc.process.LPCCInterpolator signal.wav [signal.lab] other.wav [other.lab]");
-            System.out.println("where");
-            System.out.println("    <mixing ratio> is a value between 0.0 and 1.0 indicating how much of \"other\" is supposed to be mixed into \"signal\"");
-            System.exit(1);
-        }
-        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(file1));
-        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        AudioInputStream otherAudio = AudioSystem.getAudioInputStream(new File(file2));
-        DoubleDataSource otherSource = new AudioDoubleDataSource(otherAudio);
-        int frameLength = Integer.getInteger("signalproc.lpcanalysisresynthesis.framelength", 512).intValue();
-        int predictionOrder = Integer.getInteger("signalproc.lpcanalysisresynthesis.predictionorder", 20).intValue();
-        FramewiseMerger foas = new FramewiseMerger(signal, frameLength, samplingRate, label1,
-                otherSource, samplingRate, label2, 
-                new LPCCInterpolator(predictionOrder, r));
-        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
-        String outFileName = file1.substring(0, file1.length()-4) + "_" + file2.substring(file2.lastIndexOf("\\")+1, file2.length()-4)+"_"+r+"_lpcc.wav";
-        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-        long endTime = System.currentTimeMillis();
-        int audioDuration = (int) (AudioSystem.getAudioFileFormat(new File(file1)).getFrameLength() / (double)samplingRate * 1000);
-        System.out.println("LPCC-based interpolatin took "+ (endTime-startTime) + " ms for "+ audioDuration + " ms of audio");
-        
-    }
+	}
 
 }
-

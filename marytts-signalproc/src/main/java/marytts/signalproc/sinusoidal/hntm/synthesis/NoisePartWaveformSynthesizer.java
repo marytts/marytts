@@ -70,166 +70,148 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * Synthesizes noise part waveform from non-overlapping chunks of data.
- * This model is the most natural one since it involves no noise models.
+ * Synthesizes noise part waveform from non-overlapping chunks of data. This model is the most natural one since it involves no
+ * noise models.
  * 
  * @author oytun.turk
- *
+ * 
  */
-public class NoisePartWaveformSynthesizer 
-{    
-    //TO DO: This should use overlap add since the noise waveform will not be a continuous waveform in TTS
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSpeechFrame[] leftContexts, HntmSpeechFrame[] rightContexts, HntmAnalyzerParams analysisParams)
-    {
-        double[] noisePartWaveform = null;
-        
-        if (hnmSignal!=null && hnmSignal.frames!=null)
-        {
-            int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
+public class NoisePartWaveformSynthesizer {
+	// TO DO: This should use overlap add since the noise waveform will not be a continuous waveform in TTS
+	public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSpeechFrame[] leftContexts,
+			HntmSpeechFrame[] rightContexts, HntmAnalyzerParams analysisParams) {
+		double[] noisePartWaveform = null;
 
-            noisePartWaveform = new double[outputLen];
-            double[] wgts = new double[outputLen];
-            Arrays.fill(noisePartWaveform, 0.0);
-            Arrays.fill(wgts, 0.0);
-            int i;
-            
-            HntmSpeechFrame prevFrame, nextFrame, currentLeftContext, currentRightContext;
-            
-            //TO DO: Overlap waveform noise case! See analysis code!
-            for (i=0; i<hnmSignal.frames.length; i++)
-            {
-                if (i>0)
-                    prevFrame = hnmSignal.frames[i-1];
-                else
-                    prevFrame = null;
-                    
-                if (i<hnmSignal.frames.length-1)
-                    nextFrame = hnmSignal.frames[i+1];
-                else
-                    nextFrame = null;
-                
-                boolean isFirstSynthesisFrame = false;
-                if (i==0)
-                    isFirstSynthesisFrame = true;
-                
-                boolean isLastSynthesisFrame = false;
-                if (i==hnmSignal.frames.length-1)
-                    isLastSynthesisFrame = true;
-                
-                boolean existsLeftContexts = true;
-                if (leftContexts==null) //Take the previous frame parameters as left context (i.e. the HNM signal is a continuous one, not concatenated one
-                    existsLeftContexts = false;
-                
-                boolean existsRightContexts = true;
-                if (rightContexts==null) //Take the previous frame parameters as right context (i.e. the HNM signal is a continuous one, not concatenated one
-                    existsRightContexts = false;
-                    
-                currentLeftContext = null;
-                if (leftContexts!=null)
-                    currentLeftContext = leftContexts[i];
-                
-                currentRightContext = null;
-                if (rightContexts!=null)
-                    currentRightContext = rightContexts[i];
-                
-                processFrame(prevFrame, hnmSignal.frames[i], nextFrame, 
-                             hnmSignal.samplingRateInHz, isFirstSynthesisFrame, isLastSynthesisFrame, 
-                             noisePartWaveform, wgts,
-                             existsLeftContexts, currentLeftContext,
-                             existsRightContexts, currentRightContext);
-            }
+		if (hnmSignal != null && hnmSignal.frames != null) {
+			int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
 
-            for (i=0; i<outputLen; i++)
-            {
-                if (wgts[i]>1.0e-10)
-                    noisePartWaveform[i] /= wgts[i];
-            }
-        }
-        
-        return noisePartWaveform;
-    }
-    
-    public static void processFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame,
-                                    int samplingRateInHz, boolean isFirstSynthesisFrame, boolean isLastSynthesisFrame,
-                                    double[] noisePartWaveform, double[] wgts, 
-                                    boolean existsLeftContexts, HntmSpeechFrame currentLeftContext,
-                                    boolean existsRightContexts, HntmSpeechFrame currentRightContext)
-    {
-        double[] frameWaveform = null;
-        int waveformNoiseStartInd;
-        int j;
+			noisePartWaveform = new double[outputLen];
+			double[] wgts = new double[outputLen];
+			Arrays.fill(noisePartWaveform, 0.0);
+			Arrays.fill(wgts, 0.0);
+			int i;
 
-        double[] leftContextWaveform = null;
-        double[] rightContextWaveform = null;
-        
-        if (currentFrame.n!=null && (currentFrame.n instanceof FrameNoisePartWaveform))
-        {
-            frameWaveform = ((FrameNoisePartWaveform)currentFrame.n).waveform2Doubles();
-            
-            if (!existsLeftContexts) //Take the previous frame parameters as left context (i.e. the HNM signal is a continuous one, not concatenated one
-            {
-                if (!isFirstSynthesisFrame)
-                    leftContextWaveform = ((FrameNoisePartWaveform)prevFrame.n).waveform2Doubles();
-                else
-                {
-                    leftContextWaveform = new double[frameWaveform.length];
-                    Arrays.fill(leftContextWaveform, 0.0);
-                }
-            }
-            else
-            {
-                if (currentLeftContext!=null && currentLeftContext.n != null) {
-                    leftContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)currentLeftContext.n).waveform2Doubles());
-                }
-                else
-                {
-                    leftContextWaveform = new double[frameWaveform.length];
-                    Arrays.fill(leftContextWaveform, 0.0);
-                }   
-            }
+			HntmSpeechFrame prevFrame, nextFrame, currentLeftContext, currentRightContext;
 
-            waveformNoiseStartInd = SignalProcUtils.time2sample(currentFrame.tAnalysisInSeconds, samplingRateInHz);
-            waveformNoiseStartInd -= leftContextWaveform.length;
-            
-            if (!existsRightContexts) //Take the next frame parameters as right context (i.e. the HNM signal is a continuous one, not concatenated one
-            {
-                if (!isLastSynthesisFrame)
-                    rightContextWaveform = ((FrameNoisePartWaveform)nextFrame.n).waveform2Doubles();
-                else
-                {
-                    rightContextWaveform = new double[frameWaveform.length];
-                    Arrays.fill(rightContextWaveform, 0.0);
-                }
-            }
-            else
-            {
-                if (currentRightContext!=null && currentRightContext.n != null) {
-                    rightContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)currentRightContext.n).waveform2Doubles());
-                }
-                else
-                {
-                    rightContextWaveform = new double[frameWaveform.length];
-                    Arrays.fill(rightContextWaveform, 0.0);
-                }
-            }
+			// TO DO: Overlap waveform noise case! See analysis code!
+			for (i = 0; i < hnmSignal.frames.length; i++) {
+				if (i > 0)
+					prevFrame = hnmSignal.frames[i - 1];
+				else
+					prevFrame = null;
 
-            frameWaveform = ArrayUtils.combine(leftContextWaveform, frameWaveform);
-            frameWaveform = ArrayUtils.combine(frameWaveform, rightContextWaveform);
-            
-            if (frameWaveform!=null)
-            {
-                Window w = new HammingWindow(frameWaveform.length);
-                double[] wgt = w.getCoeffs();
-                for (j=waveformNoiseStartInd; j<Math.min(waveformNoiseStartInd+frameWaveform.length, noisePartWaveform.length); j++)
-                {
-                    if (waveformNoiseStartInd+j>=0)
-                    {
-                        noisePartWaveform[j] += frameWaveform[j-waveformNoiseStartInd]*wgt[j-waveformNoiseStartInd];
-                        wgts[j] += wgt[j-waveformNoiseStartInd];
-                    }
-                }
-            }
-        }
-    }
+				if (i < hnmSignal.frames.length - 1)
+					nextFrame = hnmSignal.frames[i + 1];
+				else
+					nextFrame = null;
+
+				boolean isFirstSynthesisFrame = false;
+				if (i == 0)
+					isFirstSynthesisFrame = true;
+
+				boolean isLastSynthesisFrame = false;
+				if (i == hnmSignal.frames.length - 1)
+					isLastSynthesisFrame = true;
+
+				boolean existsLeftContexts = true;
+				if (leftContexts == null) // Take the previous frame parameters as left context (i.e. the HNM signal is a
+											// continuous one, not concatenated one
+					existsLeftContexts = false;
+
+				boolean existsRightContexts = true;
+				if (rightContexts == null) // Take the previous frame parameters as right context (i.e. the HNM signal is a
+											// continuous one, not concatenated one
+					existsRightContexts = false;
+
+				currentLeftContext = null;
+				if (leftContexts != null)
+					currentLeftContext = leftContexts[i];
+
+				currentRightContext = null;
+				if (rightContexts != null)
+					currentRightContext = rightContexts[i];
+
+				processFrame(prevFrame, hnmSignal.frames[i], nextFrame, hnmSignal.samplingRateInHz, isFirstSynthesisFrame,
+						isLastSynthesisFrame, noisePartWaveform, wgts, existsLeftContexts, currentLeftContext,
+						existsRightContexts, currentRightContext);
+			}
+
+			for (i = 0; i < outputLen; i++) {
+				if (wgts[i] > 1.0e-10)
+					noisePartWaveform[i] /= wgts[i];
+			}
+		}
+
+		return noisePartWaveform;
+	}
+
+	public static void processFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame,
+			int samplingRateInHz, boolean isFirstSynthesisFrame, boolean isLastSynthesisFrame, double[] noisePartWaveform,
+			double[] wgts, boolean existsLeftContexts, HntmSpeechFrame currentLeftContext, boolean existsRightContexts,
+			HntmSpeechFrame currentRightContext) {
+		double[] frameWaveform = null;
+		int waveformNoiseStartInd;
+		int j;
+
+		double[] leftContextWaveform = null;
+		double[] rightContextWaveform = null;
+
+		if (currentFrame.n != null && (currentFrame.n instanceof FrameNoisePartWaveform)) {
+			frameWaveform = ((FrameNoisePartWaveform) currentFrame.n).waveform2Doubles();
+
+			if (!existsLeftContexts) // Take the previous frame parameters as left context (i.e. the HNM signal is a continuous
+										// one, not concatenated one
+			{
+				if (!isFirstSynthesisFrame)
+					leftContextWaveform = ((FrameNoisePartWaveform) prevFrame.n).waveform2Doubles();
+				else {
+					leftContextWaveform = new double[frameWaveform.length];
+					Arrays.fill(leftContextWaveform, 0.0);
+				}
+			} else {
+				if (currentLeftContext != null && currentLeftContext.n != null) {
+					leftContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform) currentLeftContext.n).waveform2Doubles());
+				} else {
+					leftContextWaveform = new double[frameWaveform.length];
+					Arrays.fill(leftContextWaveform, 0.0);
+				}
+			}
+
+			waveformNoiseStartInd = SignalProcUtils.time2sample(currentFrame.tAnalysisInSeconds, samplingRateInHz);
+			waveformNoiseStartInd -= leftContextWaveform.length;
+
+			if (!existsRightContexts) // Take the next frame parameters as right context (i.e. the HNM signal is a continuous one,
+										// not concatenated one
+			{
+				if (!isLastSynthesisFrame)
+					rightContextWaveform = ((FrameNoisePartWaveform) nextFrame.n).waveform2Doubles();
+				else {
+					rightContextWaveform = new double[frameWaveform.length];
+					Arrays.fill(rightContextWaveform, 0.0);
+				}
+			} else {
+				if (currentRightContext != null && currentRightContext.n != null) {
+					rightContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform) currentRightContext.n).waveform2Doubles());
+				} else {
+					rightContextWaveform = new double[frameWaveform.length];
+					Arrays.fill(rightContextWaveform, 0.0);
+				}
+			}
+
+			frameWaveform = ArrayUtils.combine(leftContextWaveform, frameWaveform);
+			frameWaveform = ArrayUtils.combine(frameWaveform, rightContextWaveform);
+
+			if (frameWaveform != null) {
+				Window w = new HammingWindow(frameWaveform.length);
+				double[] wgt = w.getCoeffs();
+				for (j = waveformNoiseStartInd; j < Math.min(waveformNoiseStartInd + frameWaveform.length,
+						noisePartWaveform.length); j++) {
+					if (waveformNoiseStartInd + j >= 0) {
+						noisePartWaveform[j] += frameWaveform[j - waveformNoiseStartInd] * wgt[j - waveformNoiseStartInd];
+						wgts[j] += wgt[j - waveformNoiseStartInd];
+					}
+				}
+			}
+		}
+	}
 }
-

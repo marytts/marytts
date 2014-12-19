@@ -21,10 +21,9 @@ package marytts.signalproc.analysis;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class SpectrumWithPeakIndices {
-    public double[] spec;
-    public int[] indices;
+	public double[] spec;
+	public int[] indices;
 }
-

@@ -26,63 +26,60 @@ import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
-
-
 /**
- * An convenience class copying audio data from an input stream
- * (e.g., a MARY module) to an AudioDestination object. Used by
- * java-external synthesis methods (SynthesisCallerBase and subclasses). 
+ * An convenience class copying audio data from an input stream (e.g., a MARY module) to an AudioDestination object. Used by
+ * java-external synthesis methods (SynthesisCallerBase and subclasses).
+ * 
  * @author Marc Schröder.
- *
+ * 
  */
-public class AudioReader extends Thread
-{
-    private InputStream from;
-    private AudioDestination audioDestination;
-    private byte[] endMarker;
-    private long latestSeenTime;
-    private Logger logger;
-    
-    public AudioReader(InputStream from, AudioDestination audioDestination)
-    {
-        this(from, audioDestination, null);
-    }
-    public AudioReader(InputStream from, AudioDestination audioDestination, String endMarker)
-    {
-        super(Thread.currentThread().getName() + " reader");
-        this.from = from;
-        this.audioDestination = audioDestination;
-        this.endMarker = endMarker != null? endMarker.getBytes(): null;
-        latestSeenTime = System.currentTimeMillis();
-        logger = MaryUtils.getLogger("Audio reader");
-    }
+public class AudioReader extends Thread {
+	private InputStream from;
+	private AudioDestination audioDestination;
+	private byte[] endMarker;
+	private long latestSeenTime;
+	private Logger logger;
 
-    public void run() {
-        byte[] bytes = new byte[8192];
-        int nrRead;
-        boolean terminate = false;
-        try {
-            while (!terminate && (nrRead = from.read(bytes)) > -1) {
-                latestSeenTime = System.currentTimeMillis();                        
-                logger.debug("Read " + nrRead + " bytes from audio source.");
-                if (endMarker != null) {
-                    int start = MaryUtils.indexOf(bytes, endMarker);
-                    if (start != -1) { // found the end marker!
-                        nrRead = start; // truncate
-                        terminate = true;
-                        logger.debug("Found end marker at index position " + start);
-                    }
-                }
-                audioDestination.write(bytes, 0, nrRead);
-            }
-            logger.info("Finished reading.");
-            from.close();
-        } catch (IOException e) {
-            logger.warn("Problem reading from module:", e);
-        }
-    }
-    
-    public long latestSeenTime() { return latestSeenTime; }
-    
+	public AudioReader(InputStream from, AudioDestination audioDestination) {
+		this(from, audioDestination, null);
+	}
+
+	public AudioReader(InputStream from, AudioDestination audioDestination, String endMarker) {
+		super(Thread.currentThread().getName() + " reader");
+		this.from = from;
+		this.audioDestination = audioDestination;
+		this.endMarker = endMarker != null ? endMarker.getBytes() : null;
+		latestSeenTime = System.currentTimeMillis();
+		logger = MaryUtils.getLogger("Audio reader");
+	}
+
+	public void run() {
+		byte[] bytes = new byte[8192];
+		int nrRead;
+		boolean terminate = false;
+		try {
+			while (!terminate && (nrRead = from.read(bytes)) > -1) {
+				latestSeenTime = System.currentTimeMillis();
+				logger.debug("Read " + nrRead + " bytes from audio source.");
+				if (endMarker != null) {
+					int start = MaryUtils.indexOf(bytes, endMarker);
+					if (start != -1) { // found the end marker!
+						nrRead = start; // truncate
+						terminate = true;
+						logger.debug("Found end marker at index position " + start);
+					}
+				}
+				audioDestination.write(bytes, 0, nrRead);
+			}
+			logger.info("Finished reading.");
+			from.close();
+		} catch (IOException e) {
+			logger.warn("Problem reading from module:", e);
+		}
+	}
+
+	public long latestSeenTime() {
+		return latestSeenTime;
+	}
+
 }
-

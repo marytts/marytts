@@ -24,20 +24,19 @@ import java.io.ByteArrayInputStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-public class SilenceAudioInputStream extends AudioInputStream
-{
-    /**
-     * Construct an audio input stream from which <code>duration</code> seconds
-     * of silence can be read.
-     * @param duration the desired duration of the silence, in seconds
-     * @param format the desired audio format of the audio input stream. getFrameSize() and getFrameRate()
-     * must return meaningful values. 
-     */
-    public SilenceAudioInputStream(double duration, AudioFormat format)
-    {
-        super(new ByteArrayInputStream(new byte[(int) (format.getFrameSize()*format.getFrameRate()*duration)]),
-                format, (long) (format.getFrameRate()*duration));
-    }
+public class SilenceAudioInputStream extends AudioInputStream {
+	/**
+	 * Construct an audio input stream from which <code>duration</code> seconds of silence can be read.
+	 * 
+	 * @param duration
+	 *            the desired duration of the silence, in seconds
+	 * @param format
+	 *            the desired audio format of the audio input stream. getFrameSize() and getFrameRate() must return meaningful
+	 *            values.
+	 */
+	public SilenceAudioInputStream(double duration, AudioFormat format) {
+		super(new ByteArrayInputStream(new byte[(int) (format.getFrameSize() * format.getFrameRate() * duration)]), format,
+				(long) (format.getFrameRate() * duration));
+	}
 
 }
-

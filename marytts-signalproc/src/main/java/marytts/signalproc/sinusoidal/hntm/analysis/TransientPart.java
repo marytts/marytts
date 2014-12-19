@@ -29,32 +29,28 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
-
 /**
  * This class represents all transient segments in a waveform
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class TransientPart {
-    public TransientSegment[] segments;
-    
-    public TransientPart(int numMaxTransients)
-    {
-        if (numMaxTransients>0)
-            segments = new TransientSegment[numMaxTransients];
-        else
-            segments = null;
-    }
-    
-    public TransientPart(TransientPart existing)
-    {
-        segments = null;
-        if (existing!=null && existing.segments!=null)
-        {
-            segments = new TransientSegment[existing.segments.length];
-            for (int i=0; i<existing.segments.length; i++)
-                segments[i] = new TransientSegment(existing.segments[i]);
-        }
-    }
+	public TransientSegment[] segments;
+
+	public TransientPart(int numMaxTransients) {
+		if (numMaxTransients > 0)
+			segments = new TransientSegment[numMaxTransients];
+		else
+			segments = null;
+	}
+
+	public TransientPart(TransientPart existing) {
+		segments = null;
+		if (existing != null && existing.segments != null) {
+			segments = new TransientSegment[existing.segments.length];
+			for (int i = 0; i < existing.segments.length; i++)
+				segments[i] = new TransientSegment(existing.segments[i]);
+		}
+	}
 }

@@ -21,18 +21,16 @@ package marytts.signalproc.filter;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class FilterBankAnalyserBase implements FilterBankAnalyser {
-    public static final int FIR_BANDPASS_FILTERBANK = 1;
-    public static final int FIR_WAVELET_FILTERBANK = 2;
-    public static final int COMPLEMENTARY_FILTERBANK = 3;
-    
-    //The baseline version does nothing
-    //Implement functionality in derived classes
-    public Subband[] apply(double[] x)
-    {
-        return null;
-    }
-}
+	public static final int FIR_BANDPASS_FILTERBANK = 1;
+	public static final int FIR_WAVELET_FILTERBANK = 2;
+	public static final int COMPLEMENTARY_FILTERBANK = 3;
 
+	// The baseline version does nothing
+	// Implement functionality in derived classes
+	public Subband[] apply(double[] x) {
+		return null;
+	}
+}

@@ -34,23 +34,20 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class FIRBandPassFilterBankSynthesiser {
-    public FIRBandPassFilterBankSynthesiser()
-    {
-        
-    }
-    
-    public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands)
-    {
-        return apply(analyser,  subbands, true);
-    }
+	public FIRBandPassFilterBankSynthesiser() {
 
-    public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
+	}
+
+	public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands) {
+		return apply(analyser, subbands, true);
+	}
+
+	public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
     {
         double[] x = null;
 
@@ -78,41 +75,40 @@ public class FIRBandPassFilterBankSynthesiser {
 
         return x;
     }
-    
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
-    {
-        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
-        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        double [] x = signal.getAllData();
-        
-        int i;
-        int numBands = 4;
-        double overlapAround1000Hz = 100.0;
-            
-        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
-        Subband[] subbands = analyser.apply(x);
-        
-        DDSAudioInputStream outputAudio;
-        AudioFormat outputFormat;
-        String outFileName;
-        
-        //Write highpass components 0 to numLevels-1
-        for (i=0; i<subbands.length; i++)
-        {
-            outputFormat = new AudioFormat((int)(subbands[i].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
-            outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(subbands[i].waveform), outputFormat);
-            outFileName = args[0].substring(0, args[0].length()-4) + "_band" + String.valueOf(i+1) + ".wav";
-            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-        }
-        
-        FIRBandPassFilterBankSynthesiser synthesiser = new FIRBandPassFilterBankSynthesiser();
-        double[] y = synthesiser.apply(analyser, subbands);
-        
-        outputFormat = new AudioFormat((int)(subbands[0].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
-        outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), outputFormat);
-        outFileName = args[0].substring(0, args[0].length()-4) + "_resynthesis" + ".wav";
-        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-    }
-}
 
+	public static void main(String[] args) throws UnsupportedAudioFileException, IOException {
+		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
+		int samplingRate = (int) inputAudio.getFormat().getSampleRate();
+		AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+		double[] x = signal.getAllData();
+
+		int i;
+		int numBands = 4;
+		double overlapAround1000Hz = 100.0;
+
+		FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
+		Subband[] subbands = analyser.apply(x);
+
+		DDSAudioInputStream outputAudio;
+		AudioFormat outputFormat;
+		String outFileName;
+
+		// Write highpass components 0 to numLevels-1
+		for (i = 0; i < subbands.length; i++) {
+			outputFormat = new AudioFormat((int) (subbands[i].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),
+					inputAudio.getFormat().getChannels(), true, true);
+			outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(subbands[i].waveform), outputFormat);
+			outFileName = args[0].substring(0, args[0].length() - 4) + "_band" + String.valueOf(i + 1) + ".wav";
+			AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+		}
+
+		FIRBandPassFilterBankSynthesiser synthesiser = new FIRBandPassFilterBankSynthesiser();
+		double[] y = synthesiser.apply(analyser, subbands);
+
+		outputFormat = new AudioFormat((int) (subbands[0].samplingRate), inputAudio.getFormat().getSampleSizeInBits(), inputAudio
+				.getFormat().getChannels(), true, true);
+		outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), outputFormat);
+		outFileName = args[0].substring(0, args[0].length() - 4) + "_resynthesis" + ".wav";
+		AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+	}
+}

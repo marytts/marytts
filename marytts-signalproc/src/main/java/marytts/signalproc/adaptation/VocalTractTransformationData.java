@@ -19,13 +19,11 @@
  */
 package marytts.signalproc.adaptation;
 
-
 /**
  * Baseline class for voice conversion transformation data
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class VocalTractTransformationData {
-    
-}
 
+}

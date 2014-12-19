@@ -29,24 +29,23 @@ import javax.sound.sampled.AudioSystem;
 import marytts.util.data.DoubleDataSource;
 
 /**
- * @author Marc Schr&ouml;der
- * An audio input stream that draws its audio data from a DoubleDataSource.
+ * @author Marc Schr&ouml;der An audio input stream that draws its audio data from a DoubleDataSource.
  */
 public class DDSAudioInputStream extends AudioInputStream {
-    public static final int MAX_AMPLITUDE = 32767;
-    protected DoubleDataSource source;
-    protected double[] sampleBuf;
-    protected static final int SAMPLEBUFFERSIZE = 8192;
-    
-    /**
-     * From the given DoubleDataSource, create an AudioInputStream of the given
-     * audio format.
-     * @param source
-     * @param format
-     * @throws IllegalArgumentException if the format is not mono, not PCM_SIGNED or PCM_UNSIGNED,
-     * or has a sample size in bits other than 8 or 16.
-     */
-    public DDSAudioInputStream(DoubleDataSource source, AudioFormat format)
+	public static final int MAX_AMPLITUDE = 32767;
+	protected DoubleDataSource source;
+	protected double[] sampleBuf;
+	protected static final int SAMPLEBUFFERSIZE = 8192;
+
+	/**
+	 * From the given DoubleDataSource, create an AudioInputStream of the given audio format.
+	 * 
+	 * @param source
+	 * @param format
+	 * @throws IllegalArgumentException
+	 *             if the format is not mono, not PCM_SIGNED or PCM_UNSIGNED, or has a sample size in bits other than 8 or 16.
+	 */
+	public DDSAudioInputStream(DoubleDataSource source, AudioFormat format)
     {
         super(new ByteArrayInputStream(new byte[0]), format, AudioSystem.NOT_SPECIFIED);
         if (format.getChannels()>1) {
@@ -64,28 +63,30 @@ public class DDSAudioInputStream extends AudioInputStream {
         this.sampleBuf = new double[SAMPLEBUFFERSIZE];
         assert frameSize == bitsPerSample/8;        
     }
-    
-    /**
-     * Reads up to a specified maximum number of bytes of data from the audio
-     * stream, putting them into the given byte array.
-     * <p>This method will always read an integral number of frames.
-     * If <code>len</code> does not specify an integral number
-     * of frames, a maximum of <code>len - (len % frameSize)
-     * </code> bytes will be read.
-     *
-     * @param b the buffer into which the data is read
-     * @param off the offset, from the beginning of array <code>b</code>, at which
-     * the data will be written
-     * @param len the maximum number of bytes to read
-     * @return the total number of bytes read into the buffer, or -1 if there
-     * is no more data because the end of the stream has been reached
-     * @throws IOException if an input or output error occurs
-     * @see #read(byte[])
-     * @see #read()
-     * @see #skip
-     * @see #available
-     */
-    public int read(byte[] b, int off, int len) throws IOException {
+
+	/**
+	 * Reads up to a specified maximum number of bytes of data from the audio stream, putting them into the given byte array.
+	 * <p>
+	 * This method will always read an integral number of frames. If <code>len</code> does not specify an integral number of
+	 * frames, a maximum of <code>len - (len % frameSize)
+	 * </code> bytes will be read.
+	 * 
+	 * @param b
+	 *            the buffer into which the data is read
+	 * @param off
+	 *            the offset, from the beginning of array <code>b</code>, at which the data will be written
+	 * @param len
+	 *            the maximum number of bytes to read
+	 * @return the total number of bytes read into the buffer, or -1 if there is no more data because the end of the stream has
+	 *         been reached
+	 * @throws IOException
+	 *             if an input or output error occurs
+	 * @see #read(byte[])
+	 * @see #read()
+	 * @see #skip
+	 * @see #available
+	 */
+	public int read(byte[] b, int off, int len) throws IOException {
         int nSamples = len/frameSize;
         int totalRead = 0;
         int currentPos = off;
@@ -142,84 +143,89 @@ public class DDSAudioInputStream extends AudioInputStream {
         if (totalRead == 0) return -1;
         else return totalRead*frameSize;
     }
- 
-    /**
-     * Skips over and discards a specified number of bytes from this
-     * audio input stream.
-     * @param n the requested number of bytes to be skipped
-     * @return the actual number of bytes skipped
-     * @throws IOException if an input or output error occurs
-     * @see #read
-     * @see #available
-     */
-    public long skip(long n) throws IOException {
-        double[] data = source.getData((int)n); 
-        return data.length;
-    }
-    
-    /**
-     * Returns the maximum number of bytes that can be read (or skipped over) from this
-     * audio input stream without blocking.  This limit applies only to the next invocation of
-     * a <code>read</code> or <code>skip</code> method for this audio input stream; the limit
-     * can vary each time these methods are invoked.
-     * Depending on the underlying stream,an IOException may be thrown if this
-     * stream is closed.
-     * @return the number of bytes that can be read from this audio input stream without blocking
-     * @throws IOException if an input or output error occurs
-     * @see #read(byte[], int, int)
-     * @see #read(byte[])
-     * @see #read()
-     * @see #skip
-     */
-    public int available() throws IOException {
-        return frameSize*source.available();
-    }
-    
-    /**
-     * Closes this audio input stream and releases any system resources associated
-     * with the stream.
-     * @throws IOException if an input or output error occurs
-     */
-    public void close() throws IOException {
-    }
-    
-    /**
-     * Marks the current position in this audio input stream.
-     * @param readlimit the maximum number of bytes that can be read before
-     * the mark position becomes invalid.
-     * @see #reset
-     * @see #markSupported
-     */
-    public void mark(int readlimit) {
-    }
-    
-    /**
-     * Repositions this audio input stream to the position it had at the time its
-     * <code>mark</code> method was last invoked.
-     * @throws IOException if an input or output error occurs.
-     * @see #mark
-     * @see #markSupported
-     */
-    public void reset() throws IOException {
-    }
-    
-    /**
-     * Tests whether this audio input stream supports the <code>mark</code> and
-     * <code>reset</code> methods.
-     * @return <code>true</code> if this stream supports the <code>mark</code>
-     * and <code>reset</code> methods; <code>false</code> otherwise
-     * @see #mark
-     * @see #reset
-     */
-    public boolean markSupported() {
-        return false;
-    }
-    
-    public long getFrameLength()
-    {
-        long dataLength = source.getDataLength();
-        if (dataLength == DoubleDataSource.NOT_SPECIFIED) return AudioSystem.NOT_SPECIFIED;
-        else return dataLength;
-    }
-}
 
+	/**
+	 * Skips over and discards a specified number of bytes from this audio input stream.
+	 * 
+	 * @param n
+	 *            the requested number of bytes to be skipped
+	 * @return the actual number of bytes skipped
+	 * @throws IOException
+	 *             if an input or output error occurs
+	 * @see #read
+	 * @see #available
+	 */
+	public long skip(long n) throws IOException {
+		double[] data = source.getData((int) n);
+		return data.length;
+	}
+
+	/**
+	 * Returns the maximum number of bytes that can be read (or skipped over) from this audio input stream without blocking. This
+	 * limit applies only to the next invocation of a <code>read</code> or <code>skip</code> method for this audio input stream;
+	 * the limit can vary each time these methods are invoked. Depending on the underlying stream,an IOException may be thrown if
+	 * this stream is closed.
+	 * 
+	 * @return the number of bytes that can be read from this audio input stream without blocking
+	 * @throws IOException
+	 *             if an input or output error occurs
+	 * @see #read(byte[], int, int)
+	 * @see #read(byte[])
+	 * @see #read()
+	 * @see #skip
+	 */
+	public int available() throws IOException {
+		return frameSize * source.available();
+	}
+
+	/**
+	 * Closes this audio input stream and releases any system resources associated with the stream.
+	 * 
+	 * @throws IOException
+	 *             if an input or output error occurs
+	 */
+	public void close() throws IOException {
+	}
+
+	/**
+	 * Marks the current position in this audio input stream.
+	 * 
+	 * @param readlimit
+	 *            the maximum number of bytes that can be read before the mark position becomes invalid.
+	 * @see #reset
+	 * @see #markSupported
+	 */
+	public void mark(int readlimit) {
+	}
+
+	/**
+	 * Repositions this audio input stream to the position it had at the time its <code>mark</code> method was last invoked.
+	 * 
+	 * @throws IOException
+	 *             if an input or output error occurs.
+	 * @see #mark
+	 * @see #markSupported
+	 */
+	public void reset() throws IOException {
+	}
+
+	/**
+	 * Tests whether this audio input stream supports the <code>mark</code> and <code>reset</code> methods.
+	 * 
+	 * @return <code>true</code> if this stream supports the <code>mark</code> and <code>reset</code> methods; <code>false</code>
+	 *         otherwise
+	 * @see #mark
+	 * @see #reset
+	 */
+	public boolean markSupported() {
+		return false;
+	}
+
+	public long getFrameLength() {
+		long dataLength = source.getDataLength();
+		if (dataLength == DoubleDataSource.NOT_SPECIFIED)
+			return AudioSystem.NOT_SPECIFIED;
+		else
+			return dataLength;
+	}
+}
