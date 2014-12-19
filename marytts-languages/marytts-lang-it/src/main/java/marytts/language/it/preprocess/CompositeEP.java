@@ -35,104 +35,101 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
-
 /**
- * An expansion pattern implementation for composite patterns. Words consisting
- * of digits and letters and pseudo-composites with a hyphen are split into
- * their components. These will then need to be looked at by the other pattern
- * expanders. CompositeEP directly overrides process(), and does not care about
- * the usual subclass methods isCandidate(), match(), and expand().
- *
+ * An expansion pattern implementation for composite patterns. Words consisting of digits and letters and pseudo-composites with a
+ * hyphen are split into their components. These will then need to be looked at by the other pattern expanders. CompositeEP
+ * directly overrides process(), and does not care about the usual subclass methods isCandidate(), match(), and expand().
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class CompositeEP extends ExpansionPattern
-{
-    // Domain-specific primitives:
-    Pattern reTrailingHyphen = Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])-$");
-    Pattern reLeadingHyphen = Pattern.compile("^-([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])");
-    // LettersDigitsAndHyphens consists of parts separated by hyphens,
-    // each part containing at least one digit or letter.
-    Pattern reLettersDigitsAndHyphens =
-        Pattern.compile("([^-]*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^-]*)(-[^-]*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^-]*)+");
-    
-    Pattern reLettersDigitsAndApostrophe =
-        Pattern.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)+");
-    
-    // this can be used for dell' un' etc..
-      /* Pattern reLettersAndApostrophe =
-            //Pattern.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)+");
-            Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+)('([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])+)+");
-            */
-    // TODO: FABIO Check if better with new REPattern...
-    // This is used for c'X t'X d'X () 
-    Pattern reOneLetterAndApostrophe =
-    		Pattern.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú][^']*)+)+");
-    
-    // Both letters and digits, in any order:
-    Pattern reLettersAndDigits = Pattern.compile
-        ("(?:(?:[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+[0-9]+)|(?:[0-9]+[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+))[A-ZÄÖÜa-zàáèéìíòóùú0-9]*");
+public class CompositeEP extends ExpansionPattern {
+	// Domain-specific primitives:
+	Pattern reTrailingHyphen = Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])-$");
+	Pattern reLeadingHyphen = Pattern.compile("^-([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])");
+	// LettersDigitsAndHyphens consists of parts separated by hyphens,
+	// each part containing at least one digit or letter.
+	Pattern reLettersDigitsAndHyphens = Pattern
+			.compile("([^-]*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^-]*)(-[^-]*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^-]*)+");
 
-    public List knownTypes() { return new ArrayList(); }
+	Pattern reLettersDigitsAndApostrophe = Pattern
+			.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú0-9][^']*)+");
 
-    private final Pattern reMatchingChars = Pattern.compile("");
-    public Pattern reMatchingChars() { return reMatchingChars; }
+	// this can be used for dell' un' etc..
+	/*
+	 * Pattern reLettersAndApostrophe =
+	 * //Pattern.compile("([^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)('[^']*[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú][^']*)+");
+	 * Pattern.compile("([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+)('([A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú])+)+");
+	 */
+	// TODO: FABIO Check if better with new REPattern...
+	// This is used for c'X t'X d'X ()
+	Pattern reOneLetterAndApostrophe = Pattern
+			.compile("([^']*[^EIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú])('[hH]?([AEIOUYaeiouyÀÁÈÉÌÍÒÓÄÖÜËÏäöüëïÙÚàáèéìíòóùú][^']*)+)+");
 
-    /**
-     * Every subclass has its own logger.
-     * The important point is that if several threads are accessing
-     * the variable at the same time, the logger needs to be thread-safe
-     * or it will produce rubbish.
-     */
-    private Logger logger = MaryUtils.getLogger("CompositeEP");
+	// Both letters and digits, in any order:
+	Pattern reLettersAndDigits = Pattern
+			.compile("(?:(?:[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+[0-9]+)|(?:[0-9]+[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+))[A-ZÄÖÜa-zàáèéìíòóùú0-9]*");
 
+	public List knownTypes() {
+		return new ArrayList();
+	}
 
-    public CompositeEP()
-    {
-        super();
-    }
+	private final Pattern reMatchingChars = Pattern.compile("");
 
-    /**
-     * Process and expand a list of tokens.
-     * @param tokens the list of tokens to be expanded one after the other.
-     * @return a list of expanded forms of all the tokens, i.e. the concatenation
-     * of the expanded form (or unexpanded form if no expansion is possible)
-     * of all the tokens.
-     */
-    private List process(List tokens)
-    {
-        List result = new ArrayList();
-        for (Iterator it = tokens.iterator(); it.hasNext(); )
-        {
-            Element t = (Element) it.next();
-            if (!t.getTagName().equals(MaryXML.TOKEN))
-            throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-                                   "Expected t element");
-            List expanded = new ArrayList();
-            process(t, expanded);
-            if (expanded.isEmpty()) // no expansion
-                result.add(t);
-            else
-                result.addAll(expanded);
-        }
-        return result;
-    }
+	public Pattern reMatchingChars() {
+		return reMatchingChars;
+	}
 
-    /**
-     * Process this token. The CompositeEP works as a splitter of single
-     * tokens, iteratively expanding a token into its components.
-     * @param t the element to expand. After processing, this Element will
-     * still exist and be a valid Element, but possibly with a different
-     * content, and possibly enclosed by an <mtu> element. In addition, <t> may
-     * have new right-hand neighbours.
-     * @param expanded an empty list into which the expanded Elements are placed
-     * if an expansion occurred. The list will remain empty if no expansion was performed.
-     * @return true if this pattern is confident to have fully expanded this
-     * token, false if nothing could be done or more expansion may be
-     * necessary. CompositeEP always returns false, in order to have other
-     * ExpansionPatterns look at the components as well.
-     */
-    public boolean process(Element t, final List expanded)
+	/**
+	 * Every subclass has its own logger. The important point is that if several threads are accessing the variable at the same
+	 * time, the logger needs to be thread-safe or it will produce rubbish.
+	 */
+	private Logger logger = MaryUtils.getLogger("CompositeEP");
+
+	public CompositeEP() {
+		super();
+	}
+
+	/**
+	 * Process and expand a list of tokens.
+	 * 
+	 * @param tokens
+	 *            the list of tokens to be expanded one after the other.
+	 * @return a list of expanded forms of all the tokens, i.e. the concatenation of the expanded form (or unexpanded form if no
+	 *         expansion is possible) of all the tokens.
+	 */
+	private List process(List tokens) {
+		List result = new ArrayList();
+		for (Iterator it = tokens.iterator(); it.hasNext();) {
+			Element t = (Element) it.next();
+			if (!t.getTagName().equals(MaryXML.TOKEN))
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected t element");
+			List expanded = new ArrayList();
+			process(t, expanded);
+			if (expanded.isEmpty()) // no expansion
+				result.add(t);
+			else
+				result.addAll(expanded);
+		}
+		return result;
+	}
+
+	/**
+	 * Process this token. The CompositeEP works as a splitter of single tokens, iteratively expanding a token into its
+	 * components.
+	 * 
+	 * @param t
+	 *            the element to expand. After processing, this Element will still exist and be a valid Element, but possibly with
+	 *            a different content, and possibly enclosed by an <mtu> element. In addition, <t> may have new right-hand
+	 *            neighbours.
+	 * @param expanded
+	 *            an empty list into which the expanded Elements are placed if an expansion occurred. The list will remain empty
+	 *            if no expansion was performed.
+	 * @return true if this pattern is confident to have fully expanded this token, false if nothing could be done or more
+	 *         expansion may be necessary. CompositeEP always returns false, in order to have other ExpansionPatterns look at the
+	 *         components as well.
+	 */
+	public boolean process(Element t, final List expanded)
     {
         if (t == null || expanded == null)
             throw new NullPointerException("Received null argument");
@@ -255,18 +252,16 @@ public class CompositeEP extends ExpansionPattern
         return false;
     }
 
-    protected int canDealWith(String input, int typeCode){
-    	return match(input, typeCode);
-    }
-    
-    protected int match(String input, int typeCode)
-    {
-        throw new RuntimeException("This method should not be called.");
-    }
+	protected int canDealWith(String input, int typeCode) {
+		return match(input, typeCode);
+	}
 
-    protected List expand(List tokens, String text, int typeCode)
-    {
-        throw new RuntimeException("This method should not be called.");
-    }
+	protected int match(String input, int typeCode) {
+		throw new RuntimeException("This method should not be called.");
+	}
+
+	protected List expand(List tokens, String text, int typeCode) {
+		throw new RuntimeException("This method should not be called.");
+	}
 
 }

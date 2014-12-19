@@ -36,21 +36,18 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
-
 /**
- * Italian Tokenizer using JTok for Italian 
+ * Italian Tokenizer using JTok for Italian
+ * 
  * @author Fabio Tesser
  */
 public class JTokeniser extends marytts.modules.JTokeniser {
 
-    public JTokeniser() {
-        super(MaryDataType.RAWMARYXML, 
-                MaryDataType.TOKENS,
-                Locale.ITALIAN);
-    }
+	public JTokeniser() {
+		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ITALIAN);
+	}
 
-	public MaryData process(MaryData d) throws Exception
-	{
+	public MaryData process(MaryData d) throws Exception {
 		MaryData result = super.process(d);
 		return result;
 	}
