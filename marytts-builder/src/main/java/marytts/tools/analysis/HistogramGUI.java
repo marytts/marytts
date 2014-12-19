@@ -31,45 +31,44 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 /**
- *
+ * 
  * @author sathish
  */
 public class HistogramGUI extends Thread {
 
-    final double[] data;
-    final int noBins;
-    
-   public HistogramGUI(double[] sdata){
-        this.data = sdata;
-        this.noBins = 25;
-        start();
-   }
-    
-   public HistogramGUI(double[] sdata, int nbins){
-        this.data = sdata;
-        this.noBins = nbins;
-        start();
-   }
-    
-   public HistogramGUI(String file, int column) throws Exception{
-        this.data = this.getFileData(file, column);
-        this.noBins = 25;
-        start();
-   }
-   
-   public HistogramGUI(String file) throws Exception{
-        this.data = this.getFileData(file, 0);
-        this.noBins = 25;
-        start();
-   }
-    
-   public void run(){
-        DrawHistogram hgui = new DrawHistogram(this.data);
-        hgui.setVisible(true);
-   }
-    
-    
-   public double[] getFileData(String file, int index) throws Exception{
+	final double[] data;
+	final int noBins;
+
+	public HistogramGUI(double[] sdata) {
+		this.data = sdata;
+		this.noBins = 25;
+		start();
+	}
+
+	public HistogramGUI(double[] sdata, int nbins) {
+		this.data = sdata;
+		this.noBins = nbins;
+		start();
+	}
+
+	public HistogramGUI(String file, int column) throws Exception {
+		this.data = this.getFileData(file, column);
+		this.noBins = 25;
+		start();
+	}
+
+	public HistogramGUI(String file) throws Exception {
+		this.data = this.getFileData(file, 0);
+		this.noBins = 25;
+		start();
+	}
+
+	public void run() {
+		DrawHistogram hgui = new DrawHistogram(this.data);
+		hgui.setVisible(true);
+	}
+
+	public double[] getFileData(String file, int index) throws Exception{
      Double[] sdata;
      
      ArrayList<Double> arl = new ArrayList<Double>();
@@ -96,16 +95,15 @@ public class HistogramGUI extends Thread {
      return xdata;   
      
    }
-    
-    
-   /**
-    * @param args the command line arguments
-    */
-   public static void main(String args[]) throws Exception{
-        
-       new HistogramGUI("/home/sathish/Work/test/time0017.mfcc",12);
-       
-   }
-    
-    
+
+	/**
+	 * @param args
+	 *            the command line arguments
+	 */
+	public static void main(String args[]) throws Exception {
+
+		new HistogramGUI("/home/sathish/Work/test/time0017.mfcc", 12);
+
+	}
+
 }

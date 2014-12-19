@@ -39,17 +39,18 @@ import java.util.TreeMap;
  * Sorts the test results according to the four coverage measures
  * 
  * @author Anna Hunecke
- *
+ * 
  */
-public class SortTestResults{
-    
-    /**
-     * 
-     * 
-     * @param args comand line arguments
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception{
+public class SortTestResults {
+
+	/**
+	 * 
+	 * 
+	 * @param args
+	 *            comand line arguments
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception{
         File logFile = new File(args[0]);
         boolean justSettings = false;
         boolean shortResults = false;
@@ -179,154 +180,134 @@ public class SortTestResults{
         printNumSentences(out,resultList,numSentences2Results,shortResults,justSettings);
         
     }
-    
-    private static void sort(SortedMap sortMap, TestResult result, Object coverage){
-        if (sortMap.containsKey(coverage)){
-                List nextResultList = (List) sortMap.get(coverage);
-                nextResultList.add(result);
-            } else {
-                List nextResultList = new ArrayList();
-                nextResultList.add(result);
-                sortMap.put(coverage,nextResultList);
-            }
-    }
-    
-    private static void print(SortedMap sortMap, 
-                            PrintWriter out,
-                            boolean shortResults,
-                            boolean justSettings,
-                            String whichCoverage){
-        int index =1;
-        if (justSettings){
-                out.println(whichCoverage+"\n");
-        }
-        DecimalFormat df = new DecimalFormat("0.00");
-        for (Iterator it=sortMap.keySet().iterator();it.hasNext();){
-            Double nextCoverage = (Double) it.next();
-            List nextResultList = (List) sortMap.get(nextCoverage);
-            if (justSettings){
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    TestResult nextResult = (TestResult)it2.next(); 
-                    if (index<10){
-                    	out.println("0"+index+": "+nextCoverage+"\t"
-                                +nextResult.getSettings());
-                    } else {
-                    	out.println(index+": "+nextCoverage+"\t"
-                                +nextResult.getSettings());
-                    }
-                    
-                    
-                    
-                }
-            } else {
-                out.println("*** "+index+" ***\n");            
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    if (shortResults){
-                        out.println(((TestResult)it2.next()).getShortText()+"\n");
-                    } else {
-                        out.println(((TestResult)it2.next()).getText()+"\n");
-                    }
-                }
-                out.println();
-            }            
-            index++;
-        }
-        out.close();
-    }
-    
-    
-    private static void printSameResults(PrintWriter out,
-            List resultList, 
-            double[] sdCovArray, 
-            double[] soCovArray, 
-            double[] cdCovArray, 
-            double[] coCovArray,
-            boolean justSettings){
-        List sameResults = new ArrayList();
-        for (int i=0;i<resultList.size();i++){
-            TestResult nextResult = (TestResult) resultList.get(i);
-            double sdCov = sdCovArray[i];
-            if (sdCov == -1) continue;
-            double soCov = soCovArray[i];
-            double cdCov = cdCovArray[i];
-            double coCov = coCovArray[i];
-            List nextSameResults = new ArrayList();
-            for (int j=0;j<sdCovArray.length;j++){
-                if (i==j) continue;
-                double nextSDCov = sdCovArray[j];
-                double nextSOCov = soCovArray[j];
-                double nextCDCov = cdCovArray[j];
-                double nextCOCov = coCovArray[j];
-                if (sdCov == nextSDCov
-                        && soCov == nextSOCov
-                        && cdCov == nextCDCov
-                        && coCov == nextCOCov){
-                    //every coverage is the same
-                    nextSameResults.add(resultList.get(j));
-                    sdCovArray[j] = -1;
-                }
-            }
-            if (nextSameResults.size()>0){
-                nextSameResults.add(0,nextResult);
-                sdCovArray[i] = -1;
-                sameResults.add(nextSameResults);
-            }
-        }
-        
-        //print the list of same results
-        for (Iterator it=sameResults.iterator();it.hasNext();){
-            List nextResultList = (List) it.next();
-            if (justSettings){
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    out.println(((TestResult)it2.next()).getSettings()); 
-                }
-            } else {      
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    out.println(((TestResult)it2.next()).getText()+"\n");
-                }   
-            }
-            out.println("*******************");
-        }
-    }
-    
-    private static void printNumSentences(PrintWriter out,
-                            List resultList,
-                            Map numSentences2Results,
-                            boolean shortResults,
-                            boolean justSettings){
-        int index =1;
-        
-        DecimalFormat df = new DecimalFormat("0.00");
-        for (Iterator it=numSentences2Results.keySet().iterator();it.hasNext();){
-            Integer numSentences = (Integer) it.next();
-            List nextResultList = (List) numSentences2Results.get(numSentences);
-            if (justSettings){
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    TestResult nextResult = (TestResult)it2.next();
-                    if (index<10){
-                        out.println("0"+index+": "+numSentences+"\t"
-                                +nextResult.getSettings()+"\n\t\t"
-                                +nextResult.getCoverageString()+"\n");
-                    } else {
-                        out.println(index+": "+numSentences+"\t"
-                                +nextResult.getSettings()+"\n\t\t"
-                                +nextResult.getCoverageString()+"\n");
-                    } 
-                }
-            } else {
-                out.println("*** "+index+" ***\n");            
-                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    if (shortResults){
-                        out.println(((TestResult)it2.next()).getShortText()+"\n");
-                    } else {
-                        out.println(((TestResult)it2.next()).getText()+"\n");
-                    }
-                }
-                out.println();
-            }            
-            index++;
-        }
-        out.close();
-    }
-    
+
+	private static void sort(SortedMap sortMap, TestResult result, Object coverage) {
+		if (sortMap.containsKey(coverage)) {
+			List nextResultList = (List) sortMap.get(coverage);
+			nextResultList.add(result);
+		} else {
+			List nextResultList = new ArrayList();
+			nextResultList.add(result);
+			sortMap.put(coverage, nextResultList);
+		}
+	}
+
+	private static void print(SortedMap sortMap, PrintWriter out, boolean shortResults, boolean justSettings, String whichCoverage) {
+		int index = 1;
+		if (justSettings) {
+			out.println(whichCoverage + "\n");
+		}
+		DecimalFormat df = new DecimalFormat("0.00");
+		for (Iterator it = sortMap.keySet().iterator(); it.hasNext();) {
+			Double nextCoverage = (Double) it.next();
+			List nextResultList = (List) sortMap.get(nextCoverage);
+			if (justSettings) {
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					TestResult nextResult = (TestResult) it2.next();
+					if (index < 10) {
+						out.println("0" + index + ": " + nextCoverage + "\t" + nextResult.getSettings());
+					} else {
+						out.println(index + ": " + nextCoverage + "\t" + nextResult.getSettings());
+					}
+
+				}
+			} else {
+				out.println("*** " + index + " ***\n");
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					if (shortResults) {
+						out.println(((TestResult) it2.next()).getShortText() + "\n");
+					} else {
+						out.println(((TestResult) it2.next()).getText() + "\n");
+					}
+				}
+				out.println();
+			}
+			index++;
+		}
+		out.close();
+	}
+
+	private static void printSameResults(PrintWriter out, List resultList, double[] sdCovArray, double[] soCovArray,
+			double[] cdCovArray, double[] coCovArray, boolean justSettings) {
+		List sameResults = new ArrayList();
+		for (int i = 0; i < resultList.size(); i++) {
+			TestResult nextResult = (TestResult) resultList.get(i);
+			double sdCov = sdCovArray[i];
+			if (sdCov == -1)
+				continue;
+			double soCov = soCovArray[i];
+			double cdCov = cdCovArray[i];
+			double coCov = coCovArray[i];
+			List nextSameResults = new ArrayList();
+			for (int j = 0; j < sdCovArray.length; j++) {
+				if (i == j)
+					continue;
+				double nextSDCov = sdCovArray[j];
+				double nextSOCov = soCovArray[j];
+				double nextCDCov = cdCovArray[j];
+				double nextCOCov = coCovArray[j];
+				if (sdCov == nextSDCov && soCov == nextSOCov && cdCov == nextCDCov && coCov == nextCOCov) {
+					// every coverage is the same
+					nextSameResults.add(resultList.get(j));
+					sdCovArray[j] = -1;
+				}
+			}
+			if (nextSameResults.size() > 0) {
+				nextSameResults.add(0, nextResult);
+				sdCovArray[i] = -1;
+				sameResults.add(nextSameResults);
+			}
+		}
+
+		// print the list of same results
+		for (Iterator it = sameResults.iterator(); it.hasNext();) {
+			List nextResultList = (List) it.next();
+			if (justSettings) {
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					out.println(((TestResult) it2.next()).getSettings());
+				}
+			} else {
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					out.println(((TestResult) it2.next()).getText() + "\n");
+				}
+			}
+			out.println("*******************");
+		}
+	}
+
+	private static void printNumSentences(PrintWriter out, List resultList, Map numSentences2Results, boolean shortResults,
+			boolean justSettings) {
+		int index = 1;
+
+		DecimalFormat df = new DecimalFormat("0.00");
+		for (Iterator it = numSentences2Results.keySet().iterator(); it.hasNext();) {
+			Integer numSentences = (Integer) it.next();
+			List nextResultList = (List) numSentences2Results.get(numSentences);
+			if (justSettings) {
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					TestResult nextResult = (TestResult) it2.next();
+					if (index < 10) {
+						out.println("0" + index + ": " + numSentences + "\t" + nextResult.getSettings() + "\n\t\t"
+								+ nextResult.getCoverageString() + "\n");
+					} else {
+						out.println(index + ": " + numSentences + "\t" + nextResult.getSettings() + "\n\t\t"
+								+ nextResult.getCoverageString() + "\n");
+					}
+				}
+			} else {
+				out.println("*** " + index + " ***\n");
+				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
+					if (shortResults) {
+						out.println(((TestResult) it2.next()).getShortText() + "\n");
+					} else {
+						out.println(((TestResult) it2.next()).getText() + "\n");
+					}
+				}
+				out.println();
+			}
+			index++;
+		}
+		out.close();
+	}
+
 }
