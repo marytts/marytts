@@ -41,58 +41,58 @@ import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
 
 /**
  * @author Marc Schr&ouml;der
- *
- *
+ * 
+ * 
  */
-public class JTokeniser extends InternalModule
-{
-    public static final int TOKEN_MAXLENGTH = 100;
+public class JTokeniser extends InternalModule {
+	public static final int TOKEN_MAXLENGTH = 100;
 
-    private JTok jtok;
-    private String jtokLocale;
+	private JTok jtok;
+	private String jtokLocale;
 
-    public JTokeniser() {
-        this((Locale) null);
-    }
-    
-    public JTokeniser(String locale) {
-        super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
-    }
-    
-    public JTokeniser(Locale locale) {
-        this(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
-    }
-    
-    public JTokeniser(MaryDataType inputType, MaryDataType outputType, Locale locale) {
-        super("JTokeniser", inputType, outputType, locale);
-        // Which language to use in the Tokenizer?
-        if (locale == null) {
-            // if locale == null, use English tokeniser as default/fallback tokeniser 
-            jtokLocale = "en";
-        } else {
-            jtokLocale = locale.getLanguage();
-        }
-    }
+	public JTokeniser() {
+		this((Locale) null);
+	}
 
-    /**
-     * Set the tokenizer language to be different from the Locale of the module.
-     * This can be useful when reusing another language's tokenizer data.
-     * @param languageCode the language-code to use, as a two-character string such as "de" or "en".
-     */
-    protected void setTokenizerLanguage(String languageCode) {
-        jtokLocale = languageCode;
-    }
-    
-     public void startup() throws Exception
-     {
-         super.startup();
-         Properties jtokProperties = new Properties();
-         jtokProperties.setProperty("languages", jtokLocale);
-         jtokProperties.setProperty(jtokLocale, "jtok/"+jtokLocale);
-         jtok = new JTok(jtokProperties);
-     }
+	public JTokeniser(String locale) {
+		super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
+	}
 
-    public MaryData process(MaryData d)
+	public JTokeniser(Locale locale) {
+		this(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
+	}
+
+	public JTokeniser(MaryDataType inputType, MaryDataType outputType, Locale locale) {
+		super("JTokeniser", inputType, outputType, locale);
+		// Which language to use in the Tokenizer?
+		if (locale == null) {
+			// if locale == null, use English tokeniser as default/fallback tokeniser
+			jtokLocale = "en";
+		} else {
+			jtokLocale = locale.getLanguage();
+		}
+	}
+
+	/**
+	 * Set the tokenizer language to be different from the Locale of the module. This can be useful when reusing another
+	 * language's tokenizer data.
+	 * 
+	 * @param languageCode
+	 *            the language-code to use, as a two-character string such as "de" or "en".
+	 */
+	protected void setTokenizerLanguage(String languageCode) {
+		jtokLocale = languageCode;
+	}
+
+	public void startup() throws Exception {
+		super.startup();
+		Properties jtokProperties = new Properties();
+		jtokProperties.setProperty("languages", jtokLocale);
+		jtokProperties.setProperty(jtokLocale, "jtok/" + jtokLocale);
+		jtok = new JTok(jtokProperties);
+	}
+
+	public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument();
@@ -276,25 +276,23 @@ public class JTokeniser extends InternalModule
         return result;
     }
 
-    /**
-     * @param firstTokenInSentence
-     * @param lastTokenInSentence
-     */
-    private void encloseWithSentence(Element firstTokenInSentence, Element lastTokenInSentence) {
-        // Allow for sentences to start with a <boundary/> element:
-        Element encloseFromHere = firstTokenInSentence;
-        Element maybeBoundary = DomUtils.getPreviousSiblingElement(firstTokenInSentence);
-        if (maybeBoundary != null && maybeBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-            encloseFromHere = maybeBoundary;
-        }
-        Element encloseToHere = lastTokenInSentence;
-        maybeBoundary = DomUtils.getNextSiblingElement(lastTokenInSentence);
-        if (maybeBoundary != null && maybeBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-            encloseToHere = maybeBoundary;
-        }
-        DomUtils.encloseNodesWithNewElement(encloseFromHere, encloseToHere, MaryXML.SENTENCE);
-    }
-
+	/**
+	 * @param firstTokenInSentence
+	 * @param lastTokenInSentence
+	 */
+	private void encloseWithSentence(Element firstTokenInSentence, Element lastTokenInSentence) {
+		// Allow for sentences to start with a <boundary/> element:
+		Element encloseFromHere = firstTokenInSentence;
+		Element maybeBoundary = DomUtils.getPreviousSiblingElement(firstTokenInSentence);
+		if (maybeBoundary != null && maybeBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+			encloseFromHere = maybeBoundary;
+		}
+		Element encloseToHere = lastTokenInSentence;
+		maybeBoundary = DomUtils.getNextSiblingElement(lastTokenInSentence);
+		if (maybeBoundary != null && maybeBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+			encloseToHere = maybeBoundary;
+		}
+		DomUtils.encloseNodesWithNewElement(encloseFromHere, encloseToHere, MaryXML.SENTENCE);
+	}
 
 }
-

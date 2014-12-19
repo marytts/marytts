@@ -25,31 +25,22 @@ import marytts.datatypes.MaryDataType;
 
 import org.w3c.dom.Document;
 
-
 /**
  * Transforms a full MaryXML document into an MBROLA format string
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class RealisedAcoustparamsExtractor extends InternalModule
-{
-    public RealisedAcoustparamsExtractor()
-    {
-        super("Realised acoustparams extractor",
-              MaryDataType.AUDIO,
-              MaryDataType.REALISED_ACOUSTPARAMS,
-              null);
-    }
+public class RealisedAcoustparamsExtractor extends InternalModule {
+	public RealisedAcoustparamsExtractor() {
+		super("Realised acoustparams extractor", MaryDataType.AUDIO, MaryDataType.REALISED_ACOUSTPARAMS, null);
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        Document doc = d.getDocument();
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(doc);
-        return result;
-    }
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		MaryData result = new MaryData(outputType(), d.getLocale());
+		result.setDocument(doc);
+		return result;
+	}
 
 }
-

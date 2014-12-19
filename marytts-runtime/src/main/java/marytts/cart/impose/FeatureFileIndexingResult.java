@@ -25,23 +25,22 @@ import marytts.features.FeatureVector;
  * A helper class to return the query results from the FeatureFileIndexer.
  * 
  * @author sacha
- *
+ * 
  */
 public class FeatureFileIndexingResult {
-    public FeatureVector[] v = null;
-    public int level = -1;
-    
-    public FeatureFileIndexingResult( FeatureVector[] setV, int setLevel ) {
-        this.v = setV;
-        this.level = setLevel;
-    }
-    
-    public int[] getUnitIndexes() {
-        int[] ret = new int[v.length];
-        for ( int i = 0; i < v.length; i++ ) {
-            ret[i] = v[i].getUnitIndex();
-        }
-        return( ret );
-    }
-}
+	public FeatureVector[] v = null;
+	public int level = -1;
 
+	public FeatureFileIndexingResult(FeatureVector[] setV, int setLevel) {
+		this.v = setV;
+		this.level = setLevel;
+	}
+
+	public int[] getUnitIndexes() {
+		int[] ret = new int[v.length];
+		for (int i = 0; i < v.length; i++) {
+			ret[i] = v[i].getUnitIndex();
+		}
+		return (ret);
+	}
+}

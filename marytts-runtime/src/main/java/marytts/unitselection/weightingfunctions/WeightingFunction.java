@@ -31,81 +31,89 @@
  */
 package marytts.unitselection.weightingfunctions;
 
-
 /**
  * Defines the applicable weighting functions.
  * 
  * @author sacha
- *
+ * 
  */
 public class WeightingFunction {
-    
-    /**
-     * Linear weighting function: just computes the difference.
-     * 
-     * @author sacha
-     *
-     */
-    public static class linear implements WeightFunc {
-        /** Cost computation: a simple absolute value of
-         * a subtraction. */
-        public double cost( double a, double b ) {
-            return( a > b ? (a-b) : (b-a) );
-            /* (Measuring which one is bigger replaces
-             *  a costly Math.abs() operation.) */
-        }
-        /** Optional argument setting. */
-        public void setParam( String val ) {
-            /* Does nothing and is never called
-             * in the linear case. */
-        }
-        /** Returns the string definition for this weight function. 
-         */
-        public String whoAmI() {
-            return( "linear" );
-        }
-    }
 
-    /**
-     * Step weighting function: saturates above a given percentage
-     * of the input values.
-     * 
-     * @author sacha
-     *
-     */
-    public static class step implements WeightFunc {
-        /** A percentage above which the function saturates to 0. */
-        private double stepVal;
-        /** Cost computation: the absolute value of
-         * a subtraction, with application of a saturation
-         * if the difference value reaches a certain percentage
-         * of the mean value of the arguments. */
-        public double cost( double a, double b ) {
-            
-            double res = ( a > b ? (a-b) : (b-a) );
-            /* (Measuring which one is bigger replaces
-             *  a costly Math.abs() operation.) */
-            
-            double dev = res / ((a + b) / 2.0);
-            if ( dev < stepVal ) return( res );
-            else return( 0.0 );
-        }
-        /** Optional argument setting.
-         * 
-         * Syntax for the step function's parameter:
-         * the first number before the % sign is interpreted
-         * as a percentage for the step value.
-         * 
-         * */
-        public void setParam( String val ) {
-            stepVal = Double.parseDouble(
-                    val.substring( 0, val.indexOf("%") )
-            ) / 100.0;
-        }
-        /** String definition of the function. */
-        public String whoAmI() {
-            return( "step " + Double.toString( 100.0 * stepVal ) + "%" );
-        }
-    }
+	/**
+	 * Linear weighting function: just computes the difference.
+	 * 
+	 * @author sacha
+	 * 
+	 */
+	public static class linear implements WeightFunc {
+		/**
+		 * Cost computation: a simple absolute value of a subtraction.
+		 */
+		public double cost(double a, double b) {
+			return (a > b ? (a - b) : (b - a));
+			/*
+			 * (Measuring which one is bigger replaces a costly Math.abs() operation.)
+			 */
+		}
+
+		/** Optional argument setting. */
+		public void setParam(String val) {
+			/*
+			 * Does nothing and is never called in the linear case.
+			 */
+		}
+
+		/**
+		 * Returns the string definition for this weight function.
+		 */
+		public String whoAmI() {
+			return ("linear");
+		}
+	}
+
+	/**
+	 * Step weighting function: saturates above a given percentage of the input values.
+	 * 
+	 * @author sacha
+	 * 
+	 */
+	public static class step implements WeightFunc {
+		/** A percentage above which the function saturates to 0. */
+		private double stepVal;
+
+		/**
+		 * Cost computation: the absolute value of a subtraction, with application of a saturation if the difference value reaches
+		 * a certain percentage of the mean value of the arguments.
+		 */
+		public double cost(double a, double b) {
+
+			double res = (a > b ? (a - b) : (b - a));
+			/*
+			 * (Measuring which one is bigger replaces a costly Math.abs() operation.)
+			 */
+
+			double dev = res / ((a + b) / 2.0);
+			if (dev < stepVal)
+				return (res);
+			else
+				return (0.0);
+		}
+
+		/**
+		 * Optional argument setting.
+		 * 
+		 * Syntax for the step function's parameter: the first number before the % sign is interpreted as a percentage for the
+		 * step value.
+		 * 
+		 * */
+		public void setParam(String val) {
+			stepVal = Double.parseDouble(val.substring(0, val.indexOf("%"))) / 100.0;
+		}
+
+		/** String definition of the function. */
+		public String whoAmI() {
+			return ("step " + Double.toString(100.0 * stepVal) + "%");
+		}
+	}
 
 }

@@ -33,65 +33,68 @@ import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
 
 /**
- * A representation of a target representing the ideal properties of
- * a unit in a target utterance.
+ * A representation of a target representing the ideal properties of a unit in a target utterance.
+ * 
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class Target
-{
-    protected String name;
-    protected Element maryxmlElement;
-    
-    protected FeatureVector featureVector = null;
-    
-    protected float duration = -1;
-    protected float f0 = -1;
-    protected int isSilence =-1;
+public class Target {
+	protected String name;
+	protected Element maryxmlElement;
 
-    
-    /**
-     * Create a target associated to the given element in the MaryXML tree.
-     * @param name a name for the target, which may or may not
-     * coincide with the segment name.
-     * @param maryxmlElement the phone or boundary element in the MaryXML tree
-     * to be associated with this target.
-     */
-    public Target(String name, Element maryxmlElement)
-    {
-        this.name = name;
-        this.maryxmlElement = maryxmlElement;
-    }
-    
-    public Element getMaryxmlElement() { return maryxmlElement; }
-        
-    public String getName() { return name; }
-    
-    public FeatureVector getFeatureVector() { return featureVector; }
-    
-    public void setFeatureVector(FeatureVector featureVector)
-    {
-        this.featureVector = featureVector;
-    }
-    
-    public float getTargetDurationInSeconds()
-    {
-        if (duration != -1){
-            return duration;
-        } else {
-        if (maryxmlElement == null)
-            return 0;
-            //throw new NullPointerException("Target "+name+" does not have a maryxml element.");
-        duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
-        return duration;
-        }
-    }
-    
-    /**
-     * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
-     * @param newDuration
-     */
-    public void setTargetDurationInSeconds(float newDuration) {
+	protected FeatureVector featureVector = null;
+
+	protected float duration = -1;
+	protected float f0 = -1;
+	protected int isSilence = -1;
+
+	/**
+	 * Create a target associated to the given element in the MaryXML tree.
+	 * 
+	 * @param name
+	 *            a name for the target, which may or may not coincide with the segment name.
+	 * @param maryxmlElement
+	 *            the phone or boundary element in the MaryXML tree to be associated with this target.
+	 */
+	public Target(String name, Element maryxmlElement) {
+		this.name = name;
+		this.maryxmlElement = maryxmlElement;
+	}
+
+	public Element getMaryxmlElement() {
+		return maryxmlElement;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public FeatureVector getFeatureVector() {
+		return featureVector;
+	}
+
+	public void setFeatureVector(FeatureVector featureVector) {
+		this.featureVector = featureVector;
+	}
+
+	public float getTargetDurationInSeconds() {
+		if (duration != -1) {
+			return duration;
+		} else {
+			if (maryxmlElement == null)
+				return 0;
+			// throw new NullPointerException("Target "+name+" does not have a maryxml element.");
+			duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
+			return duration;
+		}
+	}
+
+	/**
+	 * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
+	 * 
+	 * @param newDuration
+	 */
+	public void setTargetDurationInSeconds(float newDuration) {
         if (maryxmlElement != null) {
             if (maryxmlElement.getTagName().equals(MaryXML.PHONE)){
                 maryxmlElement.setAttribute("d", Float.toString(newDuration));
@@ -101,58 +104,57 @@ public class Target
             }
         }
     }
-    
-    public float getTargetF0InHz()
-    {
-        if (f0 != -1){
-            return f0;
-        } else {
-            if (maryxmlElement == null)
-                throw new NullPointerException("Target "+name+" does not have a maryxml element.");
-            float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
-            if (logf0 == 0) f0 = 0;
-            else f0 = (float) Math.exp(logf0);
-            return f0;
-        }
-    }
 
-    public boolean hasFeatureVector() {
-        return featureVector != null;
-    }
-
-    public static UserDataHandler targetFeatureCloner = new UserDataHandler() {
-        public void handle(short operation, String key, Object data, Node src, Node dest) {
-            if (operation == UserDataHandler.NODE_CLONED
-                 && key == "target") {
-                dest.setUserData(key, data, this);
-		System.err.println("yay");
-            } else {
-		System.err.println("nay");
+	public float getTargetF0InHz() {
+		if (f0 != -1) {
+			return f0;
+		} else {
+			if (maryxmlElement == null)
+				throw new NullPointerException("Target " + name + " does not have a maryxml element.");
+			float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
+			if (logf0 == 0)
+				f0 = 0;
+			else
+				f0 = (float) Math.exp(logf0);
+			return f0;
+		}
 	}
-        }
-    };
-    
-    
-    /**
-     * Determine whether this target is a silence target
-     * @return true if the target represents silence, false otherwise
-     */
-    public boolean isSilence()
-    {
-        
-        if (isSilence == -1) {
-            // TODO: how do we know the silence symbol here?
-            String silenceSymbol = "_";
-            if (name.startsWith(silenceSymbol)) {
-                isSilence = 1; //true
-            } else {
-                isSilence = 0; //false
-            }
-        }
-        return isSilence == 1;
-    }
-    
-    public Allophone getAllophone()
+
+	public boolean hasFeatureVector() {
+		return featureVector != null;
+	}
+
+	public static UserDataHandler targetFeatureCloner = new UserDataHandler() {
+		public void handle(short operation, String key, Object data, Node src, Node dest) {
+			if (operation == UserDataHandler.NODE_CLONED && key == "target") {
+				dest.setUserData(key, data, this);
+				System.err.println("yay");
+			} else {
+				System.err.println("nay");
+			}
+		}
+	};
+
+	/**
+	 * Determine whether this target is a silence target
+	 * 
+	 * @return true if the target represents silence, false otherwise
+	 */
+	public boolean isSilence() {
+
+		if (isSilence == -1) {
+			// TODO: how do we know the silence symbol here?
+			String silenceSymbol = "_";
+			if (name.startsWith(silenceSymbol)) {
+				isSilence = 1; // true
+			} else {
+				isSilence = 0; // false
+			}
+		}
+		return isSilence == 1;
+	}
+
+	public Allophone getAllophone()
     {
         if (maryxmlElement != null) {
             AllophoneSet allophoneSet = null;
@@ -182,11 +184,8 @@ public class Target
         }
         return null;
     }
-    
-    
-    public String toString()
-    {
-        return name;
-    }
-}
 
+	public String toString() {
+		return name;
+	}
+}

@@ -21,36 +21,33 @@ package marytts.modules.synthesis;
 
 import marytts.modules.FreeTTS2FestivalUtt;
 
-public class FestivalUttSectioner extends VoiceSectioner
-{
-    public FestivalUttSectioner(String s, Voice defaultVoice)
-    {
-        super(s, defaultVoice);
-    }
+public class FestivalUttSectioner extends VoiceSectioner {
+	public FestivalUttSectioner(String s, Voice defaultVoice) {
+		super(s, defaultVoice);
+	}
 
-    public VoiceSection nextSection()
-    {
-        if (pos >= s.length()) return null;
-        if (s.startsWith(FreeTTS2FestivalUtt.UTTMARKER, pos)) {
-            pos += FreeTTS2FestivalUtt.UTTMARKER.length();
-        }
-        int n = s.indexOf(FreeTTS2FestivalUtt.UTTMARKER, pos);
-        if (n == -1) n = s.length();
-        String section = s.substring(pos, n).trim();
-        int endline = section.indexOf(System.getProperty("line.separator"));
-        if (endline > -1 && section.startsWith(FreeTTS2FestivalUtt.VOICEMARKER)) {
-            String voiceName = section.substring(FreeTTS2FestivalUtt.VOICEMARKER.length(), endline);
-            Voice newVoice = Voice.getVoice(voiceName);
-            if (newVoice == null) {
-                logger.warn("Could not find voice named " + voiceName + 
-                    ". Using " + currentVoice.getName() + "instead.");
-            } else {
-                currentVoice = newVoice;
-            }
-        }
-        pos = n;
-        logger.debug("Next voice section: voice = "+ currentVoice.getName() + "\n" + section);
-        return new VoiceSection(currentVoice, section);
-    }
+	public VoiceSection nextSection() {
+		if (pos >= s.length())
+			return null;
+		if (s.startsWith(FreeTTS2FestivalUtt.UTTMARKER, pos)) {
+			pos += FreeTTS2FestivalUtt.UTTMARKER.length();
+		}
+		int n = s.indexOf(FreeTTS2FestivalUtt.UTTMARKER, pos);
+		if (n == -1)
+			n = s.length();
+		String section = s.substring(pos, n).trim();
+		int endline = section.indexOf(System.getProperty("line.separator"));
+		if (endline > -1 && section.startsWith(FreeTTS2FestivalUtt.VOICEMARKER)) {
+			String voiceName = section.substring(FreeTTS2FestivalUtt.VOICEMARKER.length(), endline);
+			Voice newVoice = Voice.getVoice(voiceName);
+			if (newVoice == null) {
+				logger.warn("Could not find voice named " + voiceName + ". Using " + currentVoice.getName() + "instead.");
+			} else {
+				currentVoice = newVoice;
+			}
+		}
+		pos = n;
+		logger.debug("Next voice section: voice = " + currentVoice.getName() + "\n" + section);
+		return new VoiceSection(currentVoice, section);
+	}
 }
-

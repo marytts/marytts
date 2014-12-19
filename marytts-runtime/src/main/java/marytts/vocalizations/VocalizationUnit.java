@@ -21,46 +21,39 @@ package marytts.vocalizations;
 
 import marytts.unitselection.data.Unit;
 
-
 /**
- * Representation of a unit from a unit database. This gives access to
- * everything that is known about a given unit, including all sorts of 
- * features and the actual audio data.
+ * Representation of a unit from a unit database. This gives access to everything that is known about a given unit, including all
+ * sorts of features and the actual audio data.
+ * 
  * @author Sathish pammi
- *
+ * 
  */
-public class VocalizationUnit extends marytts.unitselection.data.Unit
-{
-    protected Unit[] units;
-    protected String[] unitNames; 
-    
-    public VocalizationUnit(long startTime, int duration, int index)
-    {
-        super(startTime,duration,index);
-    }
-    
-    /**
-     * Set units
-     * @return
-     */
-    public void setUnits(Unit[] units)
-    {
-        this.units = units;
-    }
-    
-    public Unit[] getUnits()
-    {
-        return this.units;
-    }
-    
-    public void setUnitNames(String[] unitNames)
-    {
-        this.unitNames = unitNames;
-    }
-    
-    public String[] getUnitNames()
-    {
-        return this.unitNames;
-    }
-}
+public class VocalizationUnit extends marytts.unitselection.data.Unit {
+	protected Unit[] units;
+	protected String[] unitNames;
 
+	public VocalizationUnit(long startTime, int duration, int index) {
+		super(startTime, duration, index);
+	}
+
+	/**
+	 * Set units
+	 * 
+	 * @return
+	 */
+	public void setUnits(Unit[] units) {
+		this.units = units;
+	}
+
+	public Unit[] getUnits() {
+		return this.units;
+	}
+
+	public void setUnitNames(String[] unitNames) {
+		this.unitNames = unitNames;
+	}
+
+	public String[] getUnitNames() {
+		return this.unitNames;
+	}
+}

@@ -50,37 +50,35 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
-
 /**
- * Convert FreeTTS utterances into MaryXML format.
- * This abstract base class is to provide the common part for all
- * Utterance to MaryXML converters.
- *
+ * Convert FreeTTS utterances into MaryXML format. This abstract base class is to provide the common part for all Utterance to
+ * MaryXML converters.
+ * 
  * @author Marc Schr&ouml;der
  */
 
 public abstract class Utt2XMLBase extends InternalModule {
-    protected DocumentBuilderFactory factory = null;
-    protected DocumentBuilder docBuilder = null;
+	protected DocumentBuilderFactory factory = null;
+	protected DocumentBuilder docBuilder = null;
 
-    public Utt2XMLBase(String name, MaryDataType input, MaryDataType output, Locale locale) {
-        super(name, input, output, locale);
-    }
+	public Utt2XMLBase(String name, MaryDataType input, MaryDataType output, Locale locale) {
+		super(name, input, output, locale);
+	}
 
-    public void startup() throws Exception {
-        if (factory == null) {
-            factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-        }
-        if (docBuilder == null) {
-            docBuilder = factory.newDocumentBuilder();
-        }
-        super.startup();
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-    }
+	public void startup() throws Exception {
+		if (factory == null) {
+			factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+		}
+		if (docBuilder == null) {
+			docBuilder = factory.newDocumentBuilder();
+		}
+		super.startup();
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+	}
 
-    public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d) throws Exception {
         Document doc = MaryXML.newDocument();
         Element root = doc.getDocumentElement();
         Locale locale = d.getLocale();
@@ -163,11 +161,10 @@ public abstract class Utt2XMLBase extends InternalModule {
         return output;
     }
 
-    /**
-     * Depending on the data type, find the right information in the utterance
-     * and insert it into the sentence.
-     */
-    protected final void fillSentence(Element sentence, Utterance utterance)
+	/**
+	 * Depending on the data type, find the right information in the utterance and insert it into the sentence.
+	 */
+	protected final void fillSentence(Element sentence, Utterance utterance)
     {
         Document doc = sentence.getOwnerDocument();
         Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
@@ -230,206 +227,207 @@ public abstract class Utt2XMLBase extends InternalModule {
         }
     }
 
-    /**
-     * Convert an item in the Token relation into XML, inserting it at the
-     * specified location in the XML tree.
-     */
-    protected void insertToken(Item tokenItem, Element parent) {
-        insertToken(tokenItem, parent, false); // no deep structure
-    }
+	/**
+	 * Convert an item in the Token relation into XML, inserting it at the specified location in the XML tree.
+	 */
+	protected void insertToken(Item tokenItem, Element parent) {
+		insertToken(tokenItem, parent, false); // no deep structure
+	}
 
-    /**
-     * Convert an item in the Token relation into XML, inserting it at the
-     * specified location in the XML tree.
-     * @param deep whether to create a deep structure of <syllable> and <ph> elements or not.
-     */
-    protected void insertToken(Item tokenItem, Element parent, boolean deep) {
-        if (tokenItem == null || parent == null) {
-            throw new NullPointerException("Null arguments to insertToken()");
-        }
-        Document doc = parent.getOwnerDocument();
-        Voice maryVoice = null;
-        if (tokenItem.getUtterance().getVoice() != null) {
-            maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
-        }
-        AllophoneSet allophoneSet = (AllophoneSet) tokenItem.getUtterance().getObject("allophoneset");
-        if (allophoneSet == null) {
-            throw new NullPointerException("Utterance does not have an AllophoneSet -- should have been set in XML2UttBase.process()");
-        }
-        Element insertHere = parent;
-        boolean needMtu = false;
-        boolean insertPhonesFromToken = tokenItem.getFeatures().isPresent("phones");
-        Item testWordItem = null;
-        if (tokenItem.getFeatures().isPresent("precedingMarks")) {
-            String marks = tokenItem.getFeatures().getString("precedingMarks");
-            StringTokenizer markTok = new StringTokenizer(marks, ",");
-            while (markTok.hasMoreTokens()) {
-                String markStr = markTok.nextToken();
-                Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
-                markEl.setAttribute("name", markStr);
-                insertHere.appendChild(markEl);
-            }
-        }
-        // Any boundary preceding the word?
-        if (tokenItem.getFeatures().isPresent("precedingBoundaryTone")
-                || tokenItem.getFeatures().isPresent("precedingBoundaryBreakindex")
-                || tokenItem.getFeatures().isPresent("precedingBoundaryDuration")) {
-            Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
-            insertHere.appendChild(boundary);
-            if (tokenItem.getFeatures().isPresent("precedingBoundaryTone"))
-                boundary.setAttribute("tone", tokenItem.getFeatures().getString("precedingBoundaryTone"));
-            if (tokenItem.getFeatures().isPresent("precedingBoundaryBreakindex"))
-                boundary.setAttribute("breakindex", tokenItem.getFeatures().getString("precedingBoundaryBreakindex"));
-            if (tokenItem.getFeatures().isPresent("precedingBoundaryDuration"))
-                boundary.setAttribute("duration", tokenItem.getFeatures().getString("precedingBoundaryDuration"));
-        }
-        if (tokenItem.getNthDaughter(1) != null
-            || (testWordItem = tokenItem.getDaughter()) != null
-            && !testWordItem.toString().equals(tokenItem.toString().toLowerCase())) {
-            // Token has more than one daughter, or the only daughter is an
-            // expanded form -- need to create an <mtu> element
-            needMtu = true;
-            Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
-            parent.appendChild(mtu);
-            mtu.setAttribute("orig", tokenItem.toString());
-            insertHere = mtu;
-        }
-        // Any words?
-        FeatureSet tokenFeatureSet = tokenItem.getFeatures();
-        Item tokenDaughter = tokenItem.getDaughter();
-        if (tokenDaughter == null) { // no word relation present
-            // Create a <t> element based on token information only
-            Element t = MaryXML.createElement(doc, MaryXML.TOKEN);
-            insertHere.appendChild(t);
-            MaryDomUtils.setTokenText(t, tokenItem.toString());
-            if (insertPhonesFromToken) {
-                String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
-                insertPhonesFromToken = false;
-            }
-            if (tokenFeatureSet.isPresent("accent")) {
-                t.setAttribute("accent", tokenFeatureSet.getString("accent"));
-            }
-        }
-        while (tokenDaughter != null) {
-            // Part of speech, if present, is associated with the word
-            // relation.
-            Item wordItem = tokenDaughter.getItemAs("Word");
-            Element t = null;
-            StringBuilder sampa = new StringBuilder();
-            if (wordItem != null) {
-                t = MaryXML.createElement(doc, MaryXML.TOKEN);
-                insertHere.appendChild(t);
-                String tokenText = null;
-                // If there is only one, non-expanded word, use text from
-                // tokenItem in order to retain capitalisation:
-                if (needMtu)
-                    tokenText = wordItem.toString();
-                else
-                    tokenText = tokenItem.toString();
-                MaryDomUtils.setTokenText(t, tokenText);
-                if (insertPhonesFromToken) {
-                    String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
-                    insertPhonesFromToken = false;
-                } else if (wordItem.getFeatures().isPresent("phones")) {
-                    // the word item has phones, take them only if there are no Token phones
-                    String[] phones = (String[]) wordItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
-                }
-                if (tokenFeatureSet.isPresent("accent")) {
-                    t.setAttribute("accent", tokenFeatureSet.getString("accent"));
-                }
-                FeatureSet wordFeatureSet = wordItem.getFeatures();
-                if (wordFeatureSet.isPresent("pos"))
-                    t.setAttribute("pos", wordFeatureSet.getString("pos"));
-            }
-            // Any syllables?
-            Item sylStruct = tokenDaughter.getItemAs("SylStructure");
-            if (sylStruct != null && sylStruct.hasDaughters()) {
-                Item syllableItem = sylStruct.getDaughter();
-                while (syllableItem != null) {
-                    if (sampa.length() > 0)
-                        sampa.append(" - ");
-                    sampa.append(insertSyllable(syllableItem, t, deep));
-                    syllableItem = syllableItem.getNext();
-                }
-            }
-            if (sampa.length() > 0)
-                t.setAttribute("ph", sampa.toString());
-            tokenDaughter = tokenDaughter.getNext();
-        }
-        // Any marks after the word but before the punctuation?
-        if (tokenItem.getFeatures().isPresent("prePuncMarks")) {
-            String marks = tokenItem.getFeatures().getString("prePuncMarks");
-            StringTokenizer markTok = new StringTokenizer(marks, ",");
-            while (markTok.hasMoreTokens()) {
-                String markStr = markTok.nextToken();
-                Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
-                markEl.setAttribute("name", markStr);
-                insertHere.appendChild(markEl);
-            }
-        }
-        // Any punctuation after the word?
-        if (tokenItem.getFeatures().isPresent("punc")) {
-            String puncString = tokenItem.getFeatures().getString("punc");
-            if (!puncString.equals("")) {
-                Element punctuation = MaryXML.createElement(doc, MaryXML.TOKEN);
-                MaryDomUtils.setTokenText(punctuation, puncString);
-                String pos = null;
-                if (puncString.equals(","))
-                    pos = "$,";
-                else
-                    pos = "$PUNCT";
-                punctuation.setAttribute("pos", pos);
-                parent.appendChild(punctuation);
-            }
-        }
-        // Any marks after the word?
-        if (tokenItem.getFeatures().isPresent("followingMarks")) {
-            String marks = tokenItem.getFeatures().getString("followingMarks");
-            StringTokenizer markTok = new StringTokenizer(marks, ",");
-            while (markTok.hasMoreTokens()) {
-                String markStr = markTok.nextToken();
-                Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
-                markEl.setAttribute("name", markStr);
-                insertHere.appendChild(markEl);
-            }
-        }
-        // Any boundary after the word?
-        if (tokenItemHasFollowingBoundary(tokenItem)) {
-            Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
-            insertHere.appendChild(boundary);
-            if (tokenItem.getFeatures().isPresent("followingBoundaryTone"))
-                boundary.setAttribute("tone", tokenItem.getFeatures().getString("followingBoundaryTone"));
-            
-            int breakindex = 0;
-            if (tokenItem.getFeatures().isPresent("followingBoundaryBreakindex")) {
-                String breakindexString = tokenItem.getFeatures().getString("followingBoundaryBreakindex");
-                boundary.setAttribute("breakindex", breakindexString);
-                try {
-                    breakindex = Integer.parseInt(breakindexString);
-                } catch (NumberFormatException nfe) {}
-            }
-            
-            if (tokenItem.getFeatures().isPresent("followingBoundaryDuration"))
-                boundary.setAttribute("duration", tokenItem.getFeatures().getString("followingBoundaryDuration"));
-            else { // estimate reasonable duration values based on the break index
-                if (breakindex >= 4) {
-                    boundary.setAttribute("duration", "400");
-                } else if (breakindex == 3) {
-                    boundary.setAttribute("duration", "200");
-                } // and no duration for boundaries with bi < 3
-            }
-        }
+	/**
+	 * Convert an item in the Token relation into XML, inserting it at the specified location in the XML tree.
+	 * 
+	 * @param deep
+	 *            whether to create a deep structure of <syllable> and <ph> elements or not.
+	 */
+	protected void insertToken(Item tokenItem, Element parent, boolean deep) {
+		if (tokenItem == null || parent == null) {
+			throw new NullPointerException("Null arguments to insertToken()");
+		}
+		Document doc = parent.getOwnerDocument();
+		Voice maryVoice = null;
+		if (tokenItem.getUtterance().getVoice() != null) {
+			maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
+		}
+		AllophoneSet allophoneSet = (AllophoneSet) tokenItem.getUtterance().getObject("allophoneset");
+		if (allophoneSet == null) {
+			throw new NullPointerException(
+					"Utterance does not have an AllophoneSet -- should have been set in XML2UttBase.process()");
+		}
+		Element insertHere = parent;
+		boolean needMtu = false;
+		boolean insertPhonesFromToken = tokenItem.getFeatures().isPresent("phones");
+		Item testWordItem = null;
+		if (tokenItem.getFeatures().isPresent("precedingMarks")) {
+			String marks = tokenItem.getFeatures().getString("precedingMarks");
+			StringTokenizer markTok = new StringTokenizer(marks, ",");
+			while (markTok.hasMoreTokens()) {
+				String markStr = markTok.nextToken();
+				Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
+				markEl.setAttribute("name", markStr);
+				insertHere.appendChild(markEl);
+			}
+		}
+		// Any boundary preceding the word?
+		if (tokenItem.getFeatures().isPresent("precedingBoundaryTone")
+				|| tokenItem.getFeatures().isPresent("precedingBoundaryBreakindex")
+				|| tokenItem.getFeatures().isPresent("precedingBoundaryDuration")) {
+			Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
+			insertHere.appendChild(boundary);
+			if (tokenItem.getFeatures().isPresent("precedingBoundaryTone"))
+				boundary.setAttribute("tone", tokenItem.getFeatures().getString("precedingBoundaryTone"));
+			if (tokenItem.getFeatures().isPresent("precedingBoundaryBreakindex"))
+				boundary.setAttribute("breakindex", tokenItem.getFeatures().getString("precedingBoundaryBreakindex"));
+			if (tokenItem.getFeatures().isPresent("precedingBoundaryDuration"))
+				boundary.setAttribute("duration", tokenItem.getFeatures().getString("precedingBoundaryDuration"));
+		}
+		if (tokenItem.getNthDaughter(1) != null || (testWordItem = tokenItem.getDaughter()) != null
+				&& !testWordItem.toString().equals(tokenItem.toString().toLowerCase())) {
+			// Token has more than one daughter, or the only daughter is an
+			// expanded form -- need to create an <mtu> element
+			needMtu = true;
+			Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
+			parent.appendChild(mtu);
+			mtu.setAttribute("orig", tokenItem.toString());
+			insertHere = mtu;
+		}
+		// Any words?
+		FeatureSet tokenFeatureSet = tokenItem.getFeatures();
+		Item tokenDaughter = tokenItem.getDaughter();
+		if (tokenDaughter == null) { // no word relation present
+			// Create a <t> element based on token information only
+			Element t = MaryXML.createElement(doc, MaryXML.TOKEN);
+			insertHere.appendChild(t);
+			MaryDomUtils.setTokenText(t, tokenItem.toString());
+			if (insertPhonesFromToken) {
+				String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
+				t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
+				insertPhonesFromToken = false;
+			}
+			if (tokenFeatureSet.isPresent("accent")) {
+				t.setAttribute("accent", tokenFeatureSet.getString("accent"));
+			}
+		}
+		while (tokenDaughter != null) {
+			// Part of speech, if present, is associated with the word
+			// relation.
+			Item wordItem = tokenDaughter.getItemAs("Word");
+			Element t = null;
+			StringBuilder sampa = new StringBuilder();
+			if (wordItem != null) {
+				t = MaryXML.createElement(doc, MaryXML.TOKEN);
+				insertHere.appendChild(t);
+				String tokenText = null;
+				// If there is only one, non-expanded word, use text from
+				// tokenItem in order to retain capitalisation:
+				if (needMtu)
+					tokenText = wordItem.toString();
+				else
+					tokenText = tokenItem.toString();
+				MaryDomUtils.setTokenText(t, tokenText);
+				if (insertPhonesFromToken) {
+					String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
+					t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
+					insertPhonesFromToken = false;
+				} else if (wordItem.getFeatures().isPresent("phones")) {
+					// the word item has phones, take them only if there are no Token phones
+					String[] phones = (String[]) wordItem.getFeatures().getObject("phones");
+					t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
+				}
+				if (tokenFeatureSet.isPresent("accent")) {
+					t.setAttribute("accent", tokenFeatureSet.getString("accent"));
+				}
+				FeatureSet wordFeatureSet = wordItem.getFeatures();
+				if (wordFeatureSet.isPresent("pos"))
+					t.setAttribute("pos", wordFeatureSet.getString("pos"));
+			}
+			// Any syllables?
+			Item sylStruct = tokenDaughter.getItemAs("SylStructure");
+			if (sylStruct != null && sylStruct.hasDaughters()) {
+				Item syllableItem = sylStruct.getDaughter();
+				while (syllableItem != null) {
+					if (sampa.length() > 0)
+						sampa.append(" - ");
+					sampa.append(insertSyllable(syllableItem, t, deep));
+					syllableItem = syllableItem.getNext();
+				}
+			}
+			if (sampa.length() > 0)
+				t.setAttribute("ph", sampa.toString());
+			tokenDaughter = tokenDaughter.getNext();
+		}
+		// Any marks after the word but before the punctuation?
+		if (tokenItem.getFeatures().isPresent("prePuncMarks")) {
+			String marks = tokenItem.getFeatures().getString("prePuncMarks");
+			StringTokenizer markTok = new StringTokenizer(marks, ",");
+			while (markTok.hasMoreTokens()) {
+				String markStr = markTok.nextToken();
+				Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
+				markEl.setAttribute("name", markStr);
+				insertHere.appendChild(markEl);
+			}
+		}
+		// Any punctuation after the word?
+		if (tokenItem.getFeatures().isPresent("punc")) {
+			String puncString = tokenItem.getFeatures().getString("punc");
+			if (!puncString.equals("")) {
+				Element punctuation = MaryXML.createElement(doc, MaryXML.TOKEN);
+				MaryDomUtils.setTokenText(punctuation, puncString);
+				String pos = null;
+				if (puncString.equals(","))
+					pos = "$,";
+				else
+					pos = "$PUNCT";
+				punctuation.setAttribute("pos", pos);
+				parent.appendChild(punctuation);
+			}
+		}
+		// Any marks after the word?
+		if (tokenItem.getFeatures().isPresent("followingMarks")) {
+			String marks = tokenItem.getFeatures().getString("followingMarks");
+			StringTokenizer markTok = new StringTokenizer(marks, ",");
+			while (markTok.hasMoreTokens()) {
+				String markStr = markTok.nextToken();
+				Element markEl = MaryXML.createElement(doc, MaryXML.MARK);
+				markEl.setAttribute("name", markStr);
+				insertHere.appendChild(markEl);
+			}
+		}
+		// Any boundary after the word?
+		if (tokenItemHasFollowingBoundary(tokenItem)) {
+			Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
+			insertHere.appendChild(boundary);
+			if (tokenItem.getFeatures().isPresent("followingBoundaryTone"))
+				boundary.setAttribute("tone", tokenItem.getFeatures().getString("followingBoundaryTone"));
 
-    }
+			int breakindex = 0;
+			if (tokenItem.getFeatures().isPresent("followingBoundaryBreakindex")) {
+				String breakindexString = tokenItem.getFeatures().getString("followingBoundaryBreakindex");
+				boundary.setAttribute("breakindex", breakindexString);
+				try {
+					breakindex = Integer.parseInt(breakindexString);
+				} catch (NumberFormatException nfe) {
+				}
+			}
 
-    /**
-     * @param tokenItem
-     * @return
-     */
-    private boolean tokenItemHasFollowingBoundary(Item tokenItem)
+			if (tokenItem.getFeatures().isPresent("followingBoundaryDuration"))
+				boundary.setAttribute("duration", tokenItem.getFeatures().getString("followingBoundaryDuration"));
+			else { // estimate reasonable duration values based on the break index
+				if (breakindex >= 4) {
+					boundary.setAttribute("duration", "400");
+				} else if (breakindex == 3) {
+					boundary.setAttribute("duration", "200");
+				} // and no duration for boundaries with bi < 3
+			}
+		}
+
+	}
+
+	/**
+	 * @param tokenItem
+	 * @return
+	 */
+	private boolean tokenItemHasFollowingBoundary(Item tokenItem)
     {
         assert tokenItem.getOwnerRelation().getName().equals(Relation.TOKEN);
         return tokenItem.getFeatures().isPresent("followingBoundaryTone")
@@ -437,115 +435,121 @@ public abstract class Utt2XMLBase extends InternalModule {
                 || tokenItem.getFeatures().isPresent("followingBoundaryDuration");
     }
 
-    /**
-     * Convert an item in the Syllable relation into XML, inserting it at the
-     * specified location in the XML tree.
-     * @param deep whether to create a deep structure of <syllable> and <ph> elements or not.
-     */
-    protected String insertSyllable(Item syllableItem, Element token, boolean deep) {
-        if (syllableItem == null || token == null) {
-            throw new NullPointerException("Null arguments to insertSyllable()");
-        }
-        if (!token.getTagName().equals(MaryXML.TOKEN)) {
-            throw new IllegalArgumentException("Syllables can only be inserted in <t> elements");
-        }
-        Document doc = token.getOwnerDocument();
-        Element syllable = null;
-        StringBuilder sampa = new StringBuilder();
-        if (deep) {
-            syllable = MaryXML.createElement(doc, MaryXML.SYLLABLE);
-            token.appendChild(syllable);
-        }
-        if (syllableItem.getFeatures().isPresent("accent")) {
-            String accentString = syllableItem.getFeatures().getString("accent");
-            if (deep)
-                syllable.setAttribute("accent", accentString);
-            token.setAttribute("accent", accentString);
-        }
-        if (syllableItem.getFeatures().isPresent("stress")) {
-            String stressString = syllableItem.getFeatures().getString("stress");
-            if (!stressString.equals("0")) {
-                if (deep)
-                    syllable.setAttribute("stress", stressString);
-                if (stressString.equals("1"))
-                    sampa.append("'");
-                else if (stressString.equals("2"))
-                    sampa.append(",");
-            }
-        }
-        // Any segments?
-        Item segmentItem = syllableItem.getDaughter();
-        while (segmentItem != null) {
-            if (sampa.length() > 0) sampa.append(" ");
-            sampa.append(insertSegment(segmentItem, syllable, deep));
-            segmentItem = segmentItem.getNext();
-        }
-        String sampaString = sampa.toString();
-        if (deep)
-            syllable.setAttribute("ph", sampaString);
-        // Any boundary?
-        if (syllableItem.getFeatures().isPresent("endtone")
-            && !tokenItemHasFollowingBoundary(syllableItem.getParent().getItemAs(Relation.TOKEN).getParent())) {
-            String endtone = syllableItem.getFeatures().getString("endtone");
-            if (!endtone.equals("")) {
-                Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
-                boundary.setAttribute("tone", endtone);
-                boundary.setAttribute("breakindex", "4");
-                boundary.setAttribute("duration", "200");
-                // And the boundary comes after the current token:
-                token.getParentNode().appendChild(boundary);
-            }
-        }
-        return sampaString;
-    }
+	/**
+	 * Convert an item in the Syllable relation into XML, inserting it at the specified location in the XML tree.
+	 * 
+	 * @param deep
+	 *            whether to create a deep structure of <syllable> and <ph> elements or not.
+	 */
+	protected String insertSyllable(Item syllableItem, Element token, boolean deep) {
+		if (syllableItem == null || token == null) {
+			throw new NullPointerException("Null arguments to insertSyllable()");
+		}
+		if (!token.getTagName().equals(MaryXML.TOKEN)) {
+			throw new IllegalArgumentException("Syllables can only be inserted in <t> elements");
+		}
+		Document doc = token.getOwnerDocument();
+		Element syllable = null;
+		StringBuilder sampa = new StringBuilder();
+		if (deep) {
+			syllable = MaryXML.createElement(doc, MaryXML.SYLLABLE);
+			token.appendChild(syllable);
+		}
+		if (syllableItem.getFeatures().isPresent("accent")) {
+			String accentString = syllableItem.getFeatures().getString("accent");
+			if (deep)
+				syllable.setAttribute("accent", accentString);
+			token.setAttribute("accent", accentString);
+		}
+		if (syllableItem.getFeatures().isPresent("stress")) {
+			String stressString = syllableItem.getFeatures().getString("stress");
+			if (!stressString.equals("0")) {
+				if (deep)
+					syllable.setAttribute("stress", stressString);
+				if (stressString.equals("1"))
+					sampa.append("'");
+				else if (stressString.equals("2"))
+					sampa.append(",");
+			}
+		}
+		// Any segments?
+		Item segmentItem = syllableItem.getDaughter();
+		while (segmentItem != null) {
+			if (sampa.length() > 0)
+				sampa.append(" ");
+			sampa.append(insertSegment(segmentItem, syllable, deep));
+			segmentItem = segmentItem.getNext();
+		}
+		String sampaString = sampa.toString();
+		if (deep)
+			syllable.setAttribute("ph", sampaString);
+		// Any boundary?
+		if (syllableItem.getFeatures().isPresent("endtone")
+				&& !tokenItemHasFollowingBoundary(syllableItem.getParent().getItemAs(Relation.TOKEN).getParent())) {
+			String endtone = syllableItem.getFeatures().getString("endtone");
+			if (!endtone.equals("")) {
+				Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
+				boundary.setAttribute("tone", endtone);
+				boundary.setAttribute("breakindex", "4");
+				boundary.setAttribute("duration", "200");
+				// And the boundary comes after the current token:
+				token.getParentNode().appendChild(boundary);
+			}
+		}
+		return sampaString;
+	}
 
-    /**
-     * Convert an item in the Segment relation into XML, inserting it at the
-     * specified location in the XML tree.
-     * @param deep whether to create a deep structure of <syllable> and <ph> elements or not.
-     */
-    protected String insertSegment(Item segmentItem, Element syllable, boolean deep) {
-        // allow for syllable == null if not deep:
-        if (segmentItem == null || deep && syllable == null) {
-            throw new NullPointerException("Null arguments to insertSegment()");
-        }
-        if (deep && !syllable.getTagName().equals(MaryXML.SYLLABLE)) {
-            throw new IllegalArgumentException("Segments can only be inserted in <syllable> elements");
-        }
-        String segmentString = segmentItem.toString();
-        Voice maryVoice = FreeTTSVoices.getMaryVoice(segmentItem.getUtterance().getVoice());
-        if (deep) {
-            Document doc = syllable.getOwnerDocument();
-            Element segment = MaryXML.createElement(doc, MaryXML.PHONE);
-            syllable.appendChild(segment);
-            segment.setAttribute("p", segmentString);
-            if (segmentItem.getFeatures().isPresent("end")) {
-                float endInSeconds = segmentItem.getFeatures().getFloat("end");
-                int endInMillis = (int) (1000 * endInSeconds);
-                segment.setAttribute("end", String.valueOf(endInMillis));
-            }
-            if (segmentItem.getFeatures().isPresent("mbr_dur")) {
-                int mbrDur = segmentItem.getFeatures().getInt("mbr_dur");
-                segment.setAttribute("d", String.valueOf(mbrDur));
-            }
-            if (segmentItem.getFeatures().isPresent("mbr_targets")) {
-                String mbrTargets = segmentItem.getFeatures().getString("mbr_targets");
-                if (!mbrTargets.equals("")) {
-                    segment.setAttribute("f0", mbrTargets);
-                }
-            }
-        }
-        return segmentString;
-    }
+	/**
+	 * Convert an item in the Segment relation into XML, inserting it at the specified location in the XML tree.
+	 * 
+	 * @param deep
+	 *            whether to create a deep structure of <syllable> and <ph> elements or not.
+	 */
+	protected String insertSegment(Item segmentItem, Element syllable, boolean deep) {
+		// allow for syllable == null if not deep:
+		if (segmentItem == null || deep && syllable == null) {
+			throw new NullPointerException("Null arguments to insertSegment()");
+		}
+		if (deep && !syllable.getTagName().equals(MaryXML.SYLLABLE)) {
+			throw new IllegalArgumentException("Segments can only be inserted in <syllable> elements");
+		}
+		String segmentString = segmentItem.toString();
+		Voice maryVoice = FreeTTSVoices.getMaryVoice(segmentItem.getUtterance().getVoice());
+		if (deep) {
+			Document doc = syllable.getOwnerDocument();
+			Element segment = MaryXML.createElement(doc, MaryXML.PHONE);
+			syllable.appendChild(segment);
+			segment.setAttribute("p", segmentString);
+			if (segmentItem.getFeatures().isPresent("end")) {
+				float endInSeconds = segmentItem.getFeatures().getFloat("end");
+				int endInMillis = (int) (1000 * endInSeconds);
+				segment.setAttribute("end", String.valueOf(endInMillis));
+			}
+			if (segmentItem.getFeatures().isPresent("mbr_dur")) {
+				int mbrDur = segmentItem.getFeatures().getInt("mbr_dur");
+				segment.setAttribute("d", String.valueOf(mbrDur));
+			}
+			if (segmentItem.getFeatures().isPresent("mbr_targets")) {
+				String mbrTargets = segmentItem.getFeatures().getString("mbr_targets");
+				if (!mbrTargets.equals("")) {
+					segment.setAttribute("f0", mbrTargets);
+				}
+			}
+		}
+		return segmentString;
+	}
 
-    /**
-       * For a given utterance or token, see if there are any prosodic settings defined,
-       * and if so, create a corresponding prosody element as a child of insertHere.
-       * @param featureSet an utterance, optionally containing prosody settings 
-       * @param insertHere an element into which to insert the new prosody element if required.
-       * @return the new prosody element, or null if none was created.
-       */
-    protected Element insertProsodySettings(Element insertHere, FeatureSet featureSet) {
+	/**
+	 * For a given utterance or token, see if there are any prosodic settings defined, and if so, create a corresponding prosody
+	 * element as a child of insertHere.
+	 * 
+	 * @param featureSet
+	 *            an utterance, optionally containing prosody settings
+	 * @param insertHere
+	 *            an element into which to insert the new prosody element if required.
+	 * @return the new prosody element, or null if none was created.
+	 */
+	protected Element insertProsodySettings(Element insertHere, FeatureSet featureSet) {
         if (insertHere == null || featureSet == null)
             throw new NullPointerException("I thoroughly dislike getting null arguments!");
         boolean haveProsodyInfo = false;
@@ -570,21 +574,17 @@ public abstract class Utt2XMLBase extends InternalModule {
         return prosody;
     }
 
-    /** Converts an array of phone symbol strings 
-     *  into a single phone string.
-     * If stress is marked on input phone symbols ("1" appended), a crude
-     * syllabification is done on the phone string.
-     */
-    public String phoneArray2phoneString(AllophoneSet allophoneSet, String[] voicePhones)
-    {
-        StringBuilder phoneBuf = new StringBuilder();
-        for (int i=0; i<voicePhones.length; i++) {
-            phoneBuf.append(voicePhones[i]);
-        }
-        Syllabifier syllabifier = new Syllabifier(allophoneSet);
-        return syllabifier.syllabify(phoneBuf.toString());
-    }
+	/**
+	 * Converts an array of phone symbol strings into a single phone string. If stress is marked on input phone symbols ("1"
+	 * appended), a crude syllabification is done on the phone string.
+	 */
+	public String phoneArray2phoneString(AllophoneSet allophoneSet, String[] voicePhones) {
+		StringBuilder phoneBuf = new StringBuilder();
+		for (int i = 0; i < voicePhones.length; i++) {
+			phoneBuf.append(voicePhones[i]);
+		}
+		Syllabifier syllabifier = new Syllabifier(allophoneSet);
+		return syllabifier.syllabify(phoneBuf.toString());
+	}
 
-    
 }
-

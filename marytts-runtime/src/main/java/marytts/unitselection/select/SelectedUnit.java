@@ -21,69 +21,56 @@ package marytts.unitselection.select;
 
 import marytts.unitselection.data.Unit;
 
-
-
 /**
  * A unit selected from Viterbi
  * 
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class SelectedUnit
-{
-    protected Unit unit;
-    protected Target target;
-    protected Object concatenationData;
-    protected double[] audio;
-    
-    public SelectedUnit(Unit unit, Target target)
-    {
-        this.unit = unit;
-        this.target = target;
-        this.audio = null;
-    }
+public class SelectedUnit {
+	protected Unit unit;
+	protected Target target;
+	protected Object concatenationData;
+	protected double[] audio;
 
-    public Unit getUnit()
-    {
-        return unit;
-    }
-    
-    public Target getTarget()
-    {
-        return target;
-    }
+	public SelectedUnit(Unit unit, Target target) {
+		this.unit = unit;
+		this.target = target;
+		this.audio = null;
+	}
 
-    
+	public Unit getUnit() {
+		return unit;
+	}
 
-    /**
-     * Remember data about this selected unit which is relevant for unit concatenation.
-     * What type of data is saved here depends on the UnitConcatenator used.
-     * @param concatenationData
-     */
-    public void setConcatenationData(Object concatenationData)
-    {
-        this.concatenationData = concatenationData;
-    }
-    
-    public Object getConcatenationData()
-    {
-        return concatenationData;
-    }
-    
-    public void setAudio(double[] audio)
-    {
-        this.audio = audio;
-    }
-    
-    public double[] getAudio()
-    {
-        return audio;
-    }
-    
-    public String toString()
-    {
-        return "Target: "+target.toString() + " Unit: " + unit.toString()
-        + " target duration " + target.getTargetDurationInSeconds();
-    }
+	public Target getTarget() {
+		return target;
+	}
+
+	/**
+	 * Remember data about this selected unit which is relevant for unit concatenation. What type of data is saved here depends on
+	 * the UnitConcatenator used.
+	 * 
+	 * @param concatenationData
+	 */
+	public void setConcatenationData(Object concatenationData) {
+		this.concatenationData = concatenationData;
+	}
+
+	public Object getConcatenationData() {
+		return concatenationData;
+	}
+
+	public void setAudio(double[] audio) {
+		this.audio = audio;
+	}
+
+	public double[] getAudio() {
+		return audio;
+	}
+
+	public String toString() {
+		return "Target: " + target.toString() + " Unit: " + unit.toString() + " target duration "
+				+ target.getTargetDurationInSeconds();
+	}
 }
-
