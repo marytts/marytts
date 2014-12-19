@@ -21,44 +21,40 @@ package marytts.unitselection.select;
 
 import org.w3c.dom.Element;
 
+public class HalfPhoneTarget extends Target {
+	protected boolean isLeftHalf;
 
-public class HalfPhoneTarget extends Target
-{
-    protected boolean isLeftHalf;
+	/**
+	 * Create a target associated to the given segment item.
+	 * 
+	 * @param name
+	 *            a name for the target, which may or may not coincide with the segment name.
+	 * @param item
+	 *            the phone segment item in the Utterance structure, to be associated to this target
+	 * @param isLeftHalf
+	 *            true if this target represents the left half of the phone, false if it represents the right half of the phone
+	 */
+	public HalfPhoneTarget(String name, Element maryxmlElement, boolean isLeftHalf) {
+		super(name, maryxmlElement);
+		this.isLeftHalf = isLeftHalf;
+	}
 
+	/**
+	 * Is this target the left half of a phone?
+	 * 
+	 * @return
+	 */
+	public boolean isLeftHalf() {
+		return isLeftHalf;
+	}
 
-    /**
-     * Create a target associated to the given segment item.
-     * @param name a name for the target, which may or may not
-     * coincide with the segment name.
-     * @param item the phone segment item in the Utterance structure,
-     * to be associated to this target 
-     * @param isLeftHalf true if this target represents the left half
-     * of the phone, false if it represents the right half of the phone
-     */
-    public HalfPhoneTarget(String name, Element maryxmlElement, boolean isLeftHalf)
-    {
-        super(name, maryxmlElement);
-        this.isLeftHalf = isLeftHalf;
-    }
+	/**
+	 * Is this target the right half of a phone?
+	 * 
+	 * @return
+	 */
+	public boolean isRightHalf() {
+		return !isLeftHalf;
+	}
 
-    /**
-     * Is this target the left half of a phone?
-     * @return
-     */
-    public boolean isLeftHalf()
-    {
-        return isLeftHalf;
-    }
-    
-    /**
-     * Is this target the right half of a phone?
-     * @return
-     */
-    public boolean isRightHalf()
-    {
-        return !isLeftHalf;
-    }
-    
 }
-

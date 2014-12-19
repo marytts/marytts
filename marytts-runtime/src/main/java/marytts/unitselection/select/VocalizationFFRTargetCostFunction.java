@@ -28,55 +28,64 @@ import marytts.vocalizations.VocalizationFeatureFileReader;
 
 /**
  * FFRTargetCostFunction for vocalization selection
+ * 
  * @author sathish pammi
- *
+ * 
  */
-public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction 
-{
-        
-    private int MEANING_RATING_RANGE = 5;  // the range of meaning rating scale
-    
-    public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr) {
-        this(ffr, ffr.getFeatureDefinition());
-    }
+public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction {
 
-    public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
-        load(ffr, fDef);
-    }
-    
-    /**
-     * load feature file reader and  feature definition for a cost function
-     * @param ffr feature file reader
-     * @param fDef feature definition
-     */
-    private void load(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
-        this.featureVectors = ffr.featureVectorMapping(fDef);
-        this.featureDefinition = fDef;
-        
-        weightFunction = new WeightFunc[featureDefinition.getNumberOfContinuousFeatures()];
-        WeightFunctionManager wfm = new WeightFunctionManager();
-        int nDiscreteFeatures = featureDefinition.getNumberOfByteFeatures()+featureDefinition.getNumberOfShortFeatures();
-        for ( int i = 0; i < weightFunction.length; i++ ) {
-            String weightFunctionName = featureDefinition.getWeightFunctionName(nDiscreteFeatures+i);
-            if ( "".equals( weightFunctionName ) )
-                weightFunction[i] = wfm.getWeightFunction( "linear" );
-            else
-                weightFunction[i] = wfm.getWeightFunction(weightFunctionName);
-        }
-        
-        rememberWhichWeightsAreNonZero();
-    }
-    
-    /**
-     * Compute the goodness-of-fit of a given unit for a given target
-     * @param target target unit
-     * @param unit candidate unit
-     * @param weights FeatureDefinition
-     * @param weightFunctions array of WeightFunctions
-     * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
-     * @throws IllegalArgumentException if featureName not available in featureDefinition
-     */
-    protected double cost(Target target, Unit unit, FeatureDefinition weights, WeightFunc[] weightFunctions)
+	private int MEANING_RATING_RANGE = 5; // the range of meaning rating scale
+
+	public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr) {
+		this(ffr, ffr.getFeatureDefinition());
+	}
+
+	public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
+		load(ffr, fDef);
+	}
+
+	/**
+	 * load feature file reader and feature definition for a cost function
+	 * 
+	 * @param ffr
+	 *            feature file reader
+	 * @param fDef
+	 *            feature definition
+	 */
+	private void load(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
+		this.featureVectors = ffr.featureVectorMapping(fDef);
+		this.featureDefinition = fDef;
+
+		weightFunction = new WeightFunc[featureDefinition.getNumberOfContinuousFeatures()];
+		WeightFunctionManager wfm = new WeightFunctionManager();
+		int nDiscreteFeatures = featureDefinition.getNumberOfByteFeatures() + featureDefinition.getNumberOfShortFeatures();
+		for (int i = 0; i < weightFunction.length; i++) {
+			String weightFunctionName = featureDefinition.getWeightFunctionName(nDiscreteFeatures + i);
+			if ("".equals(weightFunctionName))
+				weightFunction[i] = wfm.getWeightFunction("linear");
+			else
+				weightFunction[i] = wfm.getWeightFunction(weightFunctionName);
+		}
+
+		rememberWhichWeightsAreNonZero();
+	}
+
+	/**
+	 * Compute the goodness-of-fit of a given unit for a given target
+	 * 
+	 * @param target
+	 *            target unit
+	 * @param unit
+	 *            candidate unit
+	 * @param weights
+	 *            FeatureDefinition
+	 * @param weightFunctions
+	 *            array of WeightFunctions
+	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
+	 * @throws IllegalArgumentException
+	 *             if featureName not available in featureDefinition
+	 */
+	protected double cost(Target target, Unit unit, FeatureDefinition weights, WeightFunc[] weightFunctions)
     {
         nCostComputations++; // for debug
         FeatureVector targetFeatures = target.getFeatureVector(); 
@@ -155,18 +164,25 @@ public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction
         }
         return cost;
     }
-  
-    /**
-     * Compute the goodness-of-fit between given unit and given target for a given feature
-     * @param target target unit
-     * @param unit candidate unit
-     * @param featureName feature name
-     * @param weights FeatureDefinition
-     * @param weightFunctions array of WeightFunctions
-     * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
-     * @throws IllegalArgumentException if featureName not available in featureDefinition
-     */
-    protected double featureCost(Target target, Unit unit, String featureName, FeatureDefinition weights, WeightFunc[] weightFunctions)
+
+	/**
+	 * Compute the goodness-of-fit between given unit and given target for a given feature
+	 * 
+	 * @param target
+	 *            target unit
+	 * @param unit
+	 *            candidate unit
+	 * @param featureName
+	 *            feature name
+	 * @param weights
+	 *            FeatureDefinition
+	 * @param weightFunctions
+	 *            array of WeightFunctions
+	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
+	 * @throws IllegalArgumentException
+	 *             if featureName not available in featureDefinition
+	 */
+	protected double featureCost(Target target, Unit unit, String featureName, FeatureDefinition weights, WeightFunc[] weightFunctions)
     {
         if ( !this.featureDefinition.hasFeature(featureName) ) {
             throw new IllegalArgumentException("this feature does not exists in feature definition");
@@ -239,4 +255,3 @@ public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction
         return cost;
     }
 }
-

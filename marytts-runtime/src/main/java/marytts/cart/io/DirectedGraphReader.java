@@ -42,49 +42,48 @@ import marytts.util.data.MaryHeader;
  * 
  * @author Marcela Charfuelan, Marc Schröder
  */
-public class DirectedGraphReader
-{
-    /** Bit code for identifying a node id as a leaf node id in binary DirectedGraph files */
-    public static int LEAFNODE = 0;
-    /** Bit code for identifying a node id as a decision node id in binary DirectedGraph files */
-    public static int DECISIONNODE = 1;
-    /** Bit code for identifying a node id as a directed node id in binary DirectedGraph files */
-    public static int DIRECTEDGRAPHNODE = 2;
-    /**
-     * Load the directed graph from the given file
-     * 
-     * @param fileName
-     *            the file to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @param dummy
-     *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException, {@link MaryConfigurationException}
-     *             if a problem occurs while loading
-     */
-    public DirectedGraph load(String fileName)
-    throws IOException, MaryConfigurationException {
-		InputStream is = new FileInputStream(fileName);
-    	try {
-    		return load(is);
-    	} finally {
-    		is.close();
-    	}
-    }
+public class DirectedGraphReader {
+	/** Bit code for identifying a node id as a leaf node id in binary DirectedGraph files */
+	public static int LEAFNODE = 0;
+	/** Bit code for identifying a node id as a decision node id in binary DirectedGraph files */
+	public static int DECISIONNODE = 1;
+	/** Bit code for identifying a node id as a directed node id in binary DirectedGraph files */
+	public static int DIRECTEDGRAPHNODE = 2;
 
-    /**
-     * Load the directed graph from the given file
-     * 
-     * @param fileName
-     *            the file to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @param dummy
-     *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException, {@link MaryConfigurationException}
-     *             if a problem occurs while loading
-     */
-    public DirectedGraph load(InputStream inStream)
+	/**
+	 * Load the directed graph from the given file
+	 * 
+	 * @param fileName
+	 *            the file to load the cart from
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param dummy
+	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 * @throws IOException
+	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 */
+	public DirectedGraph load(String fileName) throws IOException, MaryConfigurationException {
+		InputStream is = new FileInputStream(fileName);
+		try {
+			return load(is);
+		} finally {
+			is.close();
+		}
+	}
+
+	/**
+	 * Load the directed graph from the given file
+	 * 
+	 * @param fileName
+	 *            the file to load the cart from
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param dummy
+	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 * @throws IOException
+	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 */
+	public DirectedGraph load(InputStream inStream)
     throws IOException, MaryConfigurationException
     {
     	BufferedInputStream buffInStream = new BufferedInputStream(inStream);
@@ -273,7 +272,7 @@ public class DirectedGraphReader
         return new DirectedGraph(rootNode, featureDefinition, props);
     }
 
-    private Node childIndexToNode(int childIndexAndType, DecisionNode[] dns, LeafNode[] lns, DirectedGraphNode[] graphNodes)
+	private Node childIndexToNode(int childIndexAndType, DecisionNode[] dns, LeafNode[] lns, DirectedGraphNode[] graphNodes)
     {
         int childIndex = childIndexAndType & 0x3fffffff; // the lower 30 bits
         int childType = (childIndexAndType >> 30) & 0x03; // the highest two bits
@@ -294,4 +293,3 @@ public class DirectedGraphReader
 
     }
 }
-

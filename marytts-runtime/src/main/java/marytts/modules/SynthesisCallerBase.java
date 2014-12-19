@@ -41,44 +41,38 @@ import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 
 import org.xml.sax.SAXException;
 
-
 /**
- * A base class for a synthesis caller. This can work as a normal MARY module,
- * converting synthesis markup data into audio, or it can be indirectly called
- * from the corresponding Synthesizer.
- *
+ * A base class for a synthesis caller. This can work as a normal MARY module, converting synthesis markup data into audio, or it
+ * can be indirectly called from the corresponding Synthesizer.
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public abstract class SynthesisCallerBase extends InternalModule
-{
-    protected SynthesisCallerBase(String name, MaryDataType inputType,
-			       MaryDataType outputType)
-    {
-        super(name, inputType, outputType, null);
-    }
-        
-    public synchronized void startup() throws Exception {
-        super.startup();
-    }
+public abstract class SynthesisCallerBase extends InternalModule {
+	protected SynthesisCallerBase(String name, MaryDataType inputType, MaryDataType outputType) {
+		super(name, inputType, outputType, null);
+	}
 
-    /**
-      * Perform a power-on self test by processing some example input data.
-      * This implementation does nothing; instead, the module test is carried out
-      * via Synthesis in the WaveformSynthesizer associated with this Caller.
-      * @throws Exception if the module does not work properly.
-      */
-     public synchronized void powerOnSelfTest()
-     {
-     }
+	public synchronized void startup() throws Exception {
+		super.startup();
+	}
 
-    /**
-     * From synthesis markup input <code>d</code>, create audio output of the
-     * type specified by a preceding call to <code>setAudioType()</code>.
-     * Returns a MaryData structure whose data is an input stream from which
-     * audio data of the specified type can be read.
-     */
-    public MaryData process(MaryData d)
+	/**
+	 * Perform a power-on self test by processing some example input data. This implementation does nothing; instead, the module
+	 * test is carried out via Synthesis in the WaveformSynthesizer associated with this Caller.
+	 * 
+	 * @throws Exception
+	 *             if the module does not work properly.
+	 */
+	public synchronized void powerOnSelfTest() {
+	}
+
+	/**
+	 * From synthesis markup input <code>d</code>, create audio output of the type specified by a preceding call to
+	 * <code>setAudioType()</code>. Returns a MaryData structure whose data is an input stream from which audio data of the
+	 * specified type can be read.
+	 */
+	public MaryData process(MaryData d)
         throws TransformerConfigurationException, TransformerException,
                FileNotFoundException, IOException,
                ParserConfigurationException, SAXException, Exception
@@ -155,32 +149,31 @@ public abstract class SynthesisCallerBase extends InternalModule
 
         return result;
     }
-    
-    protected AudioInputStream convertIfNeededAndPossible(AudioInputStream input, AudioFormat format, String voiceName)
-    {
-        if (input.getFormat().equals(format)) {
-            return input;
-        }
-        // Attempt conversion; if not supported, log a warning
-        // and provide the non-converted stream.
-        logger.info("Conversion required for voice " + voiceName);
-        if (AudioSystem.isConversionSupported(format, input.getFormat())) {
-            return  AudioSystem.getAudioInputStream(format, input);
-        }
-        // conversion not supported
-        logger.warn("Conversion to audio format " + format +
-                 " not supported. Providing voice default instead: " +
-                 input.getFormat());
-            return input;
-    }
 
-    /**
-     * Synthesise one chunk of synthesis markup with a given voice.
-     * @param synthesisMarkup the input data in the native format expected by
-     * the synthesis engine
-     * @param voice the voice with which to synthesise the data
-     * @return an AudioInputStream in the native audio format of the voice
-     */
-    public abstract AudioInputStream synthesiseOneSection(String synthesisMarkup, Voice voice) throws IOException;
+	protected AudioInputStream convertIfNeededAndPossible(AudioInputStream input, AudioFormat format, String voiceName) {
+		if (input.getFormat().equals(format)) {
+			return input;
+		}
+		// Attempt conversion; if not supported, log a warning
+		// and provide the non-converted stream.
+		logger.info("Conversion required for voice " + voiceName);
+		if (AudioSystem.isConversionSupported(format, input.getFormat())) {
+			return AudioSystem.getAudioInputStream(format, input);
+		}
+		// conversion not supported
+		logger.warn("Conversion to audio format " + format + " not supported. Providing voice default instead: "
+				+ input.getFormat());
+		return input;
+	}
+
+	/**
+	 * Synthesise one chunk of synthesis markup with a given voice.
+	 * 
+	 * @param synthesisMarkup
+	 *            the input data in the native format expected by the synthesis engine
+	 * @param voice
+	 *            the voice with which to synthesise the data
+	 * @return an AudioInputStream in the native audio format of the voice
+	 */
+	public abstract AudioInputStream synthesiseOneSection(String synthesisMarkup, Voice voice) throws IOException;
 }
-

@@ -20,25 +20,25 @@
 package marytts.modules.synthesis;
 
 /**
- * A helper class for the synthesis module,
- *          representing a section of synthesis input data
- *          to be spoken by the same voice.
- *
+ * A helper class for the synthesis module, representing a section of synthesis input data to be spoken by the same voice.
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class VoiceSection
-{
-    private Voice voice;
-    private String text;
+public class VoiceSection {
+	private Voice voice;
+	private String text;
 
-    public Voice voice() { return voice; }
-    public String text() { return text; }
+	public Voice voice() {
+		return voice;
+	}
 
-    public VoiceSection(Voice voice, String text)
-    {
-        this.voice = voice;
-        this.text = text;
-    }
+	public String text() {
+		return text;
+	}
+
+	public VoiceSection(Voice voice, String text) {
+		this.voice = voice;
+		this.text = text;
+	}
 }
-

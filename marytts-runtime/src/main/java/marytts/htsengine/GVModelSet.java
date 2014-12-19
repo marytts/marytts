@@ -82,117 +82,134 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * Set of Global Mean and (diagonal) Variance for log f0, mel-cepstrum, bandpass 
- * voicing strengths and Fourier magnitudes (
+ * Set of Global Mean and (diagonal) Variance for log f0, mel-cepstrum, bandpass voicing strengths and Fourier magnitudes (
  * 
- * Java port and extension of HTS engine API version 1.04
- * Extension: mixed excitation
+ * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
+ * 
  * @author Marcela Charfuelan
  */
 public class GVModelSet {
-  
-  /** ____________________ GV related variables ____________________
-  GV: Global mean and covariance (diagonal covariance only) it should be inverse for GV method Gradient
-  weight by default is 1.0 but it can be between 0.0-2.0
-  */
-  private double gvmeanMgc[];   
-  private double gvcovInvMgc[]; 
-  
-  private double gvmeanLf0[];  
-  private double gvcovInvLf0[]; 
-  
-  private double gvmeanStr[];   
-  private double gvcovInvStr[]; 
-  
-  private double gvmeanMag[];   
-  private double gvcovInvMag[]; 
-  
-  private Logger logger = MaryUtils.getLogger("GVModelSet");
-  
-  public double[] getGVmeanMgc(){ return gvmeanMgc; }
-  public double[] getGVcovInvMgc(){ return gvcovInvMgc; }
-  
-  public double[] getGVmeanLf0(){ return gvmeanLf0; }
-  public double[] getGVcovInvLf0(){ return gvcovInvLf0; }
-  
-  public double[] getGVmeanStr(){ return gvmeanStr; }
-  public double[] getGVcovInvStr(){ return gvcovInvStr; }
-  
-  public double[] getGVmeanMag(){ return gvmeanMag; }
-  public double[] getGVcovInvMag(){ return gvcovInvMag; }
-  
-  
-  public void loadGVModelSet(HMMData htsData, FeatureDefinition featureDef) throws IOException {
-    
-    /* allocate memory for the arrays and load the data from file */
-    int numMSDFlag, numStream, vectorSize, numDurPdf;
-    double gvcov;
-    DataInputStream data_in;
-    InputStream gvStream;
-        
-    /* Here global variance vectors are loaded from corresponding files */
-    int m, i,nmix;
-    if(htsData.getUseGV()){
-        // GV for Mgc             
-        if( (gvStream=htsData.getPdfMgcGVStream()) != null)
-          loadGvFromFile(gvStream, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
-     
-        // GV for Lf0
-        if( (gvStream=htsData.getPdfLf0GVStream()) != null)
-          loadGvFromFile(gvStream, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
 
-        // GV for Str   
-        if( (gvStream=htsData.getPdfStrGVStream()) != null)
-          loadGvFromFile(gvStream, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());      
-     
-        // GV for Mag  
-        if( (gvStream=htsData.getPdfMagGVStream()) != null)
-          loadGvFromFile(gvStream, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());  
-        
-        // gv-switch
-       // if( (gvFile=htsData.getSwitchGVFile()) != null)
-       //   loadSwitchGvFromFile(gvFile, featureDef, trickyPhones);      
-        
-      } 
+	/**
+	 * ____________________ GV related variables ____________________ GV: Global mean and covariance (diagonal covariance only) it
+	 * should be inverse for GV method Gradient weight by default is 1.0 but it can be between 0.0-2.0
+	 */
+	private double gvmeanMgc[];
+	private double gvcovInvMgc[];
 
-  }
-  
-  
-  private void loadGvFromFile(InputStream gvStream, String par, boolean gradientMethod, double gvWeight) throws IOException {
-          
-    int numMSDFlag, numStream, vectorSize, numDurPdf;
-    DataInputStream data_in;
-    int m, i;
-    
-    data_in = new DataInputStream (new BufferedInputStream(gvStream));
-    logger.debug("LoadGVModelSet reading model of type '" + par + "' with gvWeight = " + gvWeight);
-                       
-    numMSDFlag = data_in.readInt();
-    numStream = data_in.readInt();  
-    vectorSize = data_in.readInt();
-    numDurPdf = data_in.readInt();
-    
-    if(par.contentEquals("mgc")){
-      gvmeanMgc = new double[vectorSize];  
-      gvcovInvMgc = new double[vectorSize];
-      readBinaryFile(data_in, gvmeanMgc, gvcovInvMgc, vectorSize, gradientMethod, gvWeight);      
-    } else if(par.contentEquals("lf0")){
-        gvmeanLf0 = new double[vectorSize];  
-        gvcovInvLf0 = new double[vectorSize];
-        readBinaryFile(data_in, gvmeanLf0, gvcovInvLf0, vectorSize, gradientMethod, gvWeight);
-    } else if(par.contentEquals("str")){
-        gvmeanStr = new double[vectorSize];  
-        gvcovInvStr = new double[vectorSize];
-        readBinaryFile(data_in, gvmeanStr, gvcovInvStr, vectorSize, gradientMethod, gvWeight);
-    } else if(par.contentEquals("mag")){
-        gvmeanMag = new double[vectorSize];  
-        gvcovInvMag = new double[vectorSize];
-        readBinaryFile(data_in, gvmeanMag, gvcovInvMag, vectorSize, gradientMethod, gvWeight);
-    } 
-    data_in.close ();     
-  }  
-  
-  private void readBinaryFile(DataInputStream data_in, double mean[], double ivar[], int vectorSize, boolean gradientMethod, double gvWeight)
+	private double gvmeanLf0[];
+	private double gvcovInvLf0[];
+
+	private double gvmeanStr[];
+	private double gvcovInvStr[];
+
+	private double gvmeanMag[];
+	private double gvcovInvMag[];
+
+	private Logger logger = MaryUtils.getLogger("GVModelSet");
+
+	public double[] getGVmeanMgc() {
+		return gvmeanMgc;
+	}
+
+	public double[] getGVcovInvMgc() {
+		return gvcovInvMgc;
+	}
+
+	public double[] getGVmeanLf0() {
+		return gvmeanLf0;
+	}
+
+	public double[] getGVcovInvLf0() {
+		return gvcovInvLf0;
+	}
+
+	public double[] getGVmeanStr() {
+		return gvmeanStr;
+	}
+
+	public double[] getGVcovInvStr() {
+		return gvcovInvStr;
+	}
+
+	public double[] getGVmeanMag() {
+		return gvmeanMag;
+	}
+
+	public double[] getGVcovInvMag() {
+		return gvcovInvMag;
+	}
+
+	public void loadGVModelSet(HMMData htsData, FeatureDefinition featureDef) throws IOException {
+
+		/* allocate memory for the arrays and load the data from file */
+		int numMSDFlag, numStream, vectorSize, numDurPdf;
+		double gvcov;
+		DataInputStream data_in;
+		InputStream gvStream;
+
+		/* Here global variance vectors are loaded from corresponding files */
+		int m, i, nmix;
+		if (htsData.getUseGV()) {
+			// GV for Mgc
+			if ((gvStream = htsData.getPdfMgcGVStream()) != null)
+				loadGvFromFile(gvStream, "mgc", htsData.getGvMethodGradient(), htsData.getGvWeightMgc());
+
+			// GV for Lf0
+			if ((gvStream = htsData.getPdfLf0GVStream()) != null)
+				loadGvFromFile(gvStream, "lf0", htsData.getGvMethodGradient(), htsData.getGvWeightLf0());
+
+			// GV for Str
+			if ((gvStream = htsData.getPdfStrGVStream()) != null)
+				loadGvFromFile(gvStream, "str", htsData.getGvMethodGradient(), htsData.getGvWeightStr());
+
+			// GV for Mag
+			if ((gvStream = htsData.getPdfMagGVStream()) != null)
+				loadGvFromFile(gvStream, "mag", htsData.getGvMethodGradient(), htsData.getGvWeightMag());
+
+			// gv-switch
+			// if( (gvFile=htsData.getSwitchGVFile()) != null)
+			// loadSwitchGvFromFile(gvFile, featureDef, trickyPhones);
+
+		}
+
+	}
+
+	private void loadGvFromFile(InputStream gvStream, String par, boolean gradientMethod, double gvWeight) throws IOException {
+
+		int numMSDFlag, numStream, vectorSize, numDurPdf;
+		DataInputStream data_in;
+		int m, i;
+
+		data_in = new DataInputStream(new BufferedInputStream(gvStream));
+		logger.debug("LoadGVModelSet reading model of type '" + par + "' with gvWeight = " + gvWeight);
+
+		numMSDFlag = data_in.readInt();
+		numStream = data_in.readInt();
+		vectorSize = data_in.readInt();
+		numDurPdf = data_in.readInt();
+
+		if (par.contentEquals("mgc")) {
+			gvmeanMgc = new double[vectorSize];
+			gvcovInvMgc = new double[vectorSize];
+			readBinaryFile(data_in, gvmeanMgc, gvcovInvMgc, vectorSize, gradientMethod, gvWeight);
+		} else if (par.contentEquals("lf0")) {
+			gvmeanLf0 = new double[vectorSize];
+			gvcovInvLf0 = new double[vectorSize];
+			readBinaryFile(data_in, gvmeanLf0, gvcovInvLf0, vectorSize, gradientMethod, gvWeight);
+		} else if (par.contentEquals("str")) {
+			gvmeanStr = new double[vectorSize];
+			gvcovInvStr = new double[vectorSize];
+			readBinaryFile(data_in, gvmeanStr, gvcovInvStr, vectorSize, gradientMethod, gvWeight);
+		} else if (par.contentEquals("mag")) {
+			gvmeanMag = new double[vectorSize];
+			gvcovInvMag = new double[vectorSize];
+			readBinaryFile(data_in, gvmeanMag, gvcovInvMag, vectorSize, gradientMethod, gvWeight);
+		}
+		data_in.close();
+	}
+
+	private void readBinaryFile(DataInputStream data_in, double mean[], double ivar[], int vectorSize, boolean gradientMethod, double gvWeight)
   throws IOException {
       int i;
       double var;
@@ -210,10 +227,8 @@ public class GVModelSet {
           }
       }
   }
-  
- 
-  
-  public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, PhoneTranslator trickyPhones)
+
+	public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, PhoneTranslator trickyPhones)
   throws Exception {
    
    //featDef = featDefinition;
@@ -285,11 +300,5 @@ public class GVModelSet {
    }
   
 }
-  
-  
-  
-  
-  
-  
-    
+
 }

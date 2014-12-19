@@ -41,207 +41,188 @@ import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;
 import com.sun.speech.freetts.util.BulkTimer;
 
-
 /**
- * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors
- * from "outside".
- * Differing from the FreeTTS philosophy, this "voice" does *not*
- * actually call the UtteranceProcessors. It only serves as a
- * collection of data, such as the lexicon, and some reference values.
+ * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors from "outside". Differing from the FreeTTS philosophy, this
+ * "voice" does *not* actually call the UtteranceProcessors. It only serves as a collection of data, such as the lexicon, and some
+ * reference values.
  */
 public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
-    protected marytts.modules.synthesis.Voice maryVoice;
-    protected boolean useBinaryIO = System.getProperty("com.sun.speech.freetts.useBinaryIO", "true").equals("true");
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     *
-     * This default constructor must be followed by a meaningful
-     * call to initialise().
-     */
-    public DummyFreeTTSVoice(Locale locale)
-    {
-        super.setLocale(locale);
-    }
+	protected marytts.modules.synthesis.Voice maryVoice;
+	protected boolean useBinaryIO = System.getProperty("com.sun.speech.freetts.useBinaryIO", "true").equals("true");
 
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     *
-     * @param lexiconClassName if not null, automatically load up
-     * the specified lexicon; otherwise, don't load any lexicon.
-     * @throws RuntimeException if the class specified by lexiconClassName
-     * cannot be instantiated.
-     */
-    public DummyFreeTTSVoice(marytts.modules.synthesis.Voice maryVoice,
-                             String lexiconClassName) {
-        initialise(maryVoice, lexiconClassName);
-    }
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>.
+	 * 
+	 * This default constructor must be followed by a meaningful call to initialise().
+	 */
+	public DummyFreeTTSVoice(Locale locale) {
+		super.setLocale(locale);
+	}
 
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     *
-     * @param lexiconClassName if not null, automatically load up
-     * the specified lexicon; otherwise, don't load any lexicon.
-     * @throws RuntimeException if the class specified by lexiconClassName
-     * cannot be instantiated.
-     */
-    public void initialise(marytts.modules.synthesis.Voice aMaryVoice,
-            String lexiconClassName) {
-        this.maryVoice = aMaryVoice;
-        if (maryVoice != null) {
-            super.setLocale(maryVoice.getLocale());
-        }
-        if (lexiconClassName != null) {
-            try {
-                Lexicon lex = (Lexicon)Class.forName(lexiconClassName).newInstance();
-                setLexicon(lex);
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException("Illegal access trying to instantiate "+lexiconClassName);
-            } catch (ClassNotFoundException iae) {
-                throw new RuntimeException("Class not found trying to instantiate "+lexiconClassName);
-            } catch (InstantiationException iae) {
-                throw new RuntimeException("Instantiation exception trying to instantiate "+lexiconClassName);
-            }
-        }
-        setRate(135f);
-        try {
-            if (aMaryVoice instanceof MbrolaVoice) {
-                MbrolaVoice mv = (MbrolaVoice) aMaryVoice;
-                float topMean  = (mv.topStart()  + mv.topEnd())  * 0.5f;
-                float baseMean = (mv.baseStart() + mv.baseEnd()) * 0.5f;
-                setPitch     ( (baseMean + topMean) / 2);
-                setPitchRange( (topMean - baseMean) / 2);
-            } else {
-                setPitch (100);
-                setPitchRange(30);
-            }
-            
-        } catch (NoClassDefFoundError err) {
-            // no Mbrola voice -- use "else" case:
-            setPitch (100);
-            setPitchRange(30);
-        }
-        
-    }
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>.
+	 * 
+	 * @param lexiconClassName
+	 *            if not null, automatically load up the specified lexicon; otherwise, don't load any lexicon.
+	 * @throws RuntimeException
+	 *             if the class specified by lexiconClassName cannot be instantiated.
+	 */
+	public DummyFreeTTSVoice(marytts.modules.synthesis.Voice maryVoice, String lexiconClassName) {
+		initialise(maryVoice, lexiconClassName);
+	}
 
-    /**
-     * Called by <code> load() </code>  during loading, derived voices
-     * should override this to provide customized loading.
-     */
-    protected void loader() {
-        try {
-            setupFeatureSet();
-            // do not set up any utterance processors
-            setupFeatureProcessors();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>.
+	 * 
+	 * @param lexiconClassName
+	 *            if not null, automatically load up the specified lexicon; otherwise, don't load any lexicon.
+	 * @throws RuntimeException
+	 *             if the class specified by lexiconClassName cannot be instantiated.
+	 */
+	public void initialise(marytts.modules.synthesis.Voice aMaryVoice, String lexiconClassName) {
+		this.maryVoice = aMaryVoice;
+		if (maryVoice != null) {
+			super.setLocale(maryVoice.getLocale());
+		}
+		if (lexiconClassName != null) {
+			try {
+				Lexicon lex = (Lexicon) Class.forName(lexiconClassName).newInstance();
+				setLexicon(lex);
+			} catch (IllegalAccessException iae) {
+				throw new RuntimeException("Illegal access trying to instantiate " + lexiconClassName);
+			} catch (ClassNotFoundException iae) {
+				throw new RuntimeException("Class not found trying to instantiate " + lexiconClassName);
+			} catch (InstantiationException iae) {
+				throw new RuntimeException("Instantiation exception trying to instantiate " + lexiconClassName);
+			}
+		}
+		setRate(135f);
+		try {
+			if (aMaryVoice instanceof MbrolaVoice) {
+				MbrolaVoice mv = (MbrolaVoice) aMaryVoice;
+				float topMean = (mv.topStart() + mv.topEnd()) * 0.5f;
+				float baseMean = (mv.baseStart() + mv.baseEnd()) * 0.5f;
+				setPitch((baseMean + topMean) / 2);
+				setPitchRange((topMean - baseMean) / 2);
+			} else {
+				setPitch(100);
+				setPitchRange(30);
+			}
 
+		} catch (NoClassDefFoundError err) {
+			// no Mbrola voice -- use "else" case:
+			setPitch(100);
+			setPitchRange(30);
+		}
 
-    /**
-     * Loads this Voice. It loads the lexicon and the audio output handler, but
-     * does not create audio output and output thread. It then calls the
-     * <code>loader()</code> method to load Voice-specific data, which include
-     * utterance processors.
-     */
-    public void allocate() {
-    if (isLoaded()) {
-        return;
-    }
-    BulkTimer.LOAD.start();
+	}
 
+	/**
+	 * Called by <code> load() </code> during loading, derived voices should override this to provide customized loading.
+	 */
+	protected void loader() {
+		try {
+			setupFeatureSet();
+			// do not set up any utterance processors
+			setupFeatureProcessors();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    Lexicon lexicon = getLexicon();
-    if (lexicon != null && !lexicon.isLoaded()) {
-        try {
-        lexicon.load();
-        } catch (IOException ioe) {
-        throw new Error("Can't load voice", ioe);
-        }
-    }
+	/**
+	 * Loads this Voice. It loads the lexicon and the audio output handler, but does not create audio output and output thread. It
+	 * then calls the <code>loader()</code> method to load Voice-specific data, which include utterance processors.
+	 */
+	public void allocate() {
+		if (isLoaded()) {
+			return;
+		}
+		BulkTimer.LOAD.start();
 
-    loader();
-    BulkTimer.LOAD.stop();
-    if (isMetrics()) {
-        BulkTimer.LOAD.show("loading " + toString() + " for " +
-            getRunTitle());
-    }
-    setLoaded(true);
-    }
+		Lexicon lexicon = getLexicon();
+		if (lexicon != null && !lexicon.isLoaded()) {
+			try {
+				lexicon.load();
+			} catch (IOException ioe) {
+				throw new Error("Can't load voice", ioe);
+			}
+		}
 
+		loader();
+		BulkTimer.LOAD.stop();
+		if (isMetrics()) {
+			BulkTimer.LOAD.show("loading " + toString() + " for " + getRunTitle());
+		}
+		setLoaded(true);
+	}
 
-    /**
-     * Sets up the FeatureSet for this Voice.
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    protected void setupFeatureSet()
-    {
-    }
+	/**
+	 * Sets up the FeatureSet for this Voice.
+	 * 
+	 * @throws IOException
+	 *             if an I/O error occurs
+	 */
+	protected void setupFeatureSet() {
+	}
 
-    /**
-     * Sets up the FeatureProcessors for this Voice. Not used for this default implementation.
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    protected void setupFeatureProcessors() throws IOException
-    {
-    }
+	/**
+	 * Sets up the FeatureProcessors for this Voice. Not used for this default implementation.
+	 * 
+	 * @throws IOException
+	 *             if an I/O error occurs
+	 */
+	protected void setupFeatureProcessors() throws IOException {
+	}
 
-    /**
-     * Given a phone and a feature name, return the feature
-     *
-     * @param phone the phone of interest
-     * @param featureName the name of the feature of interest
-     *
-     * @return the feature with the given name, or null if it cannot be found.
-     */
-    public String getPhoneFeature(String phone, String featureName) {
-        return null;
-    }
+	/**
+	 * Given a phone and a feature name, return the feature
+	 * 
+	 * @param phone
+	 *            the phone of interest
+	 * @param featureName
+	 *            the name of the feature of interest
+	 * 
+	 * @return the feature with the given name, or null if it cannot be found.
+	 */
+	public String getPhoneFeature(String phone, String featureName) {
+		return null;
+	}
 
-    /**
-     * Returns the AudioOutput processor to be used by this voice
-     * Derived voices typically override this to customize behaviors.
-     * 
-     * @return the audio output processor
-     * 
-     * @throws IOException if an IO error occurs while getting
-     *     processor
-     */
-    protected UtteranceProcessor getAudioOutput() throws IOException {
-    return null; // no audio output needed in dummy voice
-    }
+	/**
+	 * Returns the AudioOutput processor to be used by this voice Derived voices typically override this to customize behaviors.
+	 * 
+	 * @return the audio output processor
+	 * 
+	 * @throws IOException
+	 *             if an IO error occurs while getting processor
+	 */
+	protected UtteranceProcessor getAudioOutput() throws IOException {
+		return null; // no audio output needed in dummy voice
+	}
 
+	/**
+	 * Gets a tokenizer for this voice (not used here)
+	 * 
+	 * @return null
+	 */
+	public Tokenizer getTokenizer() {
+		return null;
+	}
 
-    /**
-     * Gets a tokenizer for this voice (not used here)
-     *
-     * @return null
-     */
-    public Tokenizer getTokenizer() {
-    return null;
-    }
+	/**
+	 * Gets the marytts.modules.synthesis.Voice associated with this voice.
+	 */
+	public marytts.modules.synthesis.Voice getMaryVoice() {
+		return maryVoice;
+	}
 
-    /**
-     * Gets the marytts.modules.synthesis.Voice associated with this voice.
-     */
-    public marytts.modules.synthesis.Voice getMaryVoice()
-    {
-        return maryVoice;
-    }
-
-    
-    /**
-     * Converts this object to a string
-     * 
-     * @return a string representation of this object
-     */
-    public String toString() {
-    return "DummyFreeTTSVoice";
-    }
+	/**
+	 * Converts this object to a string
+	 * 
+	 * @return a string representation of this object
+	 */
+	public String toString() {
+		return "DummyFreeTTSVoice";
+	}
 }
-

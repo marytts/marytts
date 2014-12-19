@@ -30,189 +30,200 @@ import java.nio.ByteBuffer;
 import marytts.util.data.Datagram;
 import marytts.util.io.General;
 
-
 public class LPCDatagram extends Datagram {
-    protected short[] quantizedCoeffs;
-    protected byte[] quantizedResidual;
-    
-    /**
-     * Construct an LPC datagram from quantized data.
-     * @param duration the duration, in samples, of the data represented by this datagram 
-     * @param quantizedCoeffs the quantized LPC coefficients
-     * @param quantizedResidual the quantized residual
-     */
-    public LPCDatagram(long setDuration, short[] quantizedCoeffs, byte[] quantizedResidual)
-    {
-        super(setDuration);
-        this.quantizedCoeffs = quantizedCoeffs;
-        this.quantizedResidual = quantizedResidual;
-    }
+	protected short[] quantizedCoeffs;
+	protected byte[] quantizedResidual;
 
-    /**
-     * Construct an LPC datagram from unquantized data.
-     * @param duration the duration, in samples, of the data represented by this datagram 
-     * @param coeffs the (unquantized) LPC coefficients
-     * @param residual the (unquantized) residual
-     */
-    public LPCDatagram(long setDuration, float[] coeffs, short[] residual, float lpcMin, float lpcRange)
-    {
-        super(setDuration);
-        this.quantizedCoeffs = General.quantize(coeffs, lpcMin, lpcRange);
-        this.quantizedResidual = General.shortToUlaw(residual);
-    }
+	/**
+	 * Construct an LPC datagram from quantized data.
+	 * 
+	 * @param duration
+	 *            the duration, in samples, of the data represented by this datagram
+	 * @param quantizedCoeffs
+	 *            the quantized LPC coefficients
+	 * @param quantizedResidual
+	 *            the quantized residual
+	 */
+	public LPCDatagram(long setDuration, short[] quantizedCoeffs, byte[] quantizedResidual) {
+		super(setDuration);
+		this.quantizedCoeffs = quantizedCoeffs;
+		this.quantizedResidual = quantizedResidual;
+	}
 
-    
-    /**
-     * Constructor which pops a datagram from a random access file.
-     * 
-     * @param raf the random access file to pop the datagram from.
-     * 
-     * @throws IOException
-     * @throws EOFException
-     */
-    public LPCDatagram( RandomAccessFile raf, int lpcOrder ) throws IOException, EOFException
-    {
-        super(raf.readLong()); // duration
-        int len = raf.readInt();
-        if ( len < 0 ) {
-            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
-        }
-        if (len < 2*lpcOrder) {
-            throw new IOException("LPC datagram too short (len="+len+"): cannot be shorter than the space needed for lpc coefficients (2*"+lpcOrder+")");
-        }
-        // For speed concerns, read into a byte[] first:
-        byte[] buf = new byte[len];
-        raf.readFully(buf);
-        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buf));
+	/**
+	 * Construct an LPC datagram from unquantized data.
+	 * 
+	 * @param duration
+	 *            the duration, in samples, of the data represented by this datagram
+	 * @param coeffs
+	 *            the (unquantized) LPC coefficients
+	 * @param residual
+	 *            the (unquantized) residual
+	 */
+	public LPCDatagram(long setDuration, float[] coeffs, short[] residual, float lpcMin, float lpcRange) {
+		super(setDuration);
+		this.quantizedCoeffs = General.quantize(coeffs, lpcMin, lpcRange);
+		this.quantizedResidual = General.shortToUlaw(residual);
+	}
 
-        int residualLength = len - 2*lpcOrder;
-        quantizedCoeffs = new short[lpcOrder];
-        quantizedResidual = new byte[residualLength];
-        for (int i=0; i<lpcOrder; i++) {
-            quantizedCoeffs[i] = dis.readShort();
-        }
-        System.arraycopy(buf, 2*lpcOrder, quantizedResidual, 0, residualLength);
-    }
+	/**
+	 * Constructor which pops a datagram from a random access file.
+	 * 
+	 * @param raf
+	 *            the random access file to pop the datagram from.
+	 * 
+	 * @throws IOException
+	 * @throws EOFException
+	 */
+	public LPCDatagram(RandomAccessFile raf, int lpcOrder) throws IOException, EOFException {
+		super(raf.readLong()); // duration
+		int len = raf.readInt();
+		if (len < 0) {
+			throw new IOException("Can't create a datagram with a negative data size [" + len + "].");
+		}
+		if (len < 2 * lpcOrder) {
+			throw new IOException("LPC datagram too short (len=" + len
+					+ "): cannot be shorter than the space needed for lpc coefficients (2*" + lpcOrder + ")");
+		}
+		// For speed concerns, read into a byte[] first:
+		byte[] buf = new byte[len];
+		raf.readFully(buf);
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buf));
 
-    /**
-     * Constructor which pops a datagram from a byte buffer.
-     * 
-     * @param bb the byte buffer to pop the datagram from.
-     * 
-     * @throws IOException
-     * @throws EOFException
-     */
-    public LPCDatagram(ByteBuffer bb, int lpcOrder) throws IOException, EOFException
-    {
-        super(bb.getLong()); // duration
-        int len = bb.getInt();
-        if ( len < 0 ) {
-            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
-        }
-        if (len < 2*lpcOrder) {
-            throw new IOException("LPC datagram too short (len="+len+"): cannot be shorter than the space needed for lpc coefficients (2*"+lpcOrder+")");
-        }
+		int residualLength = len - 2 * lpcOrder;
+		quantizedCoeffs = new short[lpcOrder];
+		quantizedResidual = new byte[residualLength];
+		for (int i = 0; i < lpcOrder; i++) {
+			quantizedCoeffs[i] = dis.readShort();
+		}
+		System.arraycopy(buf, 2 * lpcOrder, quantizedResidual, 0, residualLength);
+	}
 
-        int residualLength = len - 2*lpcOrder;
-        quantizedCoeffs = new short[lpcOrder];
-        quantizedResidual = new byte[residualLength];
-        for (int i=0; i<lpcOrder; i++) {
-            quantizedCoeffs[i] = bb.getShort();
-        }
-        bb.get(quantizedResidual);
-    }
+	/**
+	 * Constructor which pops a datagram from a byte buffer.
+	 * 
+	 * @param bb
+	 *            the byte buffer to pop the datagram from.
+	 * 
+	 * @throws IOException
+	 * @throws EOFException
+	 */
+	public LPCDatagram(ByteBuffer bb, int lpcOrder) throws IOException, EOFException {
+		super(bb.getLong()); // duration
+		int len = bb.getInt();
+		if (len < 0) {
+			throw new IOException("Can't create a datagram with a negative data size [" + len + "].");
+		}
+		if (len < 2 * lpcOrder) {
+			throw new IOException("LPC datagram too short (len=" + len
+					+ "): cannot be shorter than the space needed for lpc coefficients (2*" + lpcOrder + ")");
+		}
 
-    /**
-     * Get the length, in bytes, of the datagram's data field.
-     */
-    public int getLength()
-    {
-        return 2*quantizedCoeffs.length + quantizedResidual.length;
-    }
-    
-    /**
-     * Get the LPC order, i.e. the number of LPC coefficients.
-     * @return the lpc order
-     * @see #getQuantizedCoeffs()
-     * @see #getCoeffs()
-     */
-    public int lpcOrder()
-    {
-        return quantizedCoeffs.length;
-    }
-    
-    /**
-     * Get the quantized lpc coefficients
-     * @return an array of shorts, length lpcOrder()
-     * @see #lpcOrder()
-     * @see #getCoeffs()
-     */
-    public short[] getQuantizedCoeffs()
-    {
-        return quantizedCoeffs;
-    }
+		int residualLength = len - 2 * lpcOrder;
+		quantizedCoeffs = new short[lpcOrder];
+		quantizedResidual = new byte[residualLength];
+		for (int i = 0; i < lpcOrder; i++) {
+			quantizedCoeffs[i] = bb.getShort();
+		}
+		bb.get(quantizedResidual);
+	}
 
-    /**
-     * Get the quantized residual.
-     * @return an array of bytes
-     */
-    public byte[] getQuantizedResidual()
-    {
-        return quantizedResidual;
-    }
-    
-    /**
-     * Get the LPC coefficients, unquantized using the given lpc min and range values.
-     * @param lpcMin the lpc minimum
-     * @param lpcRange the lpc range
-     * @return an array of floats, length lpcOrder()
-     * @see #lpcOrder()
-     * @see #getQuantizedCoeffs()
-     */
-    public float[] getCoeffs(float lpcMin, float lpcRange)
-    {
-        return General.unQuantize(quantizedCoeffs, lpcMin, lpcRange);
-    }
-    
-    /**
-     * Get the unquantized residual
-     * @return an array of shorts
-     */
-    public short[] getResidual()
-    {
-        return General.ulawToShort(quantizedResidual);
-    }
-    
-    /**
-     * Write this datagram to a random access file or data output stream.
-     */
-    public void write( DataOutput out ) throws IOException {
-        out.writeLong( duration );
-        out.writeInt( getLength() );
-        for (int i=0; i<quantizedCoeffs.length; i++) {
-            out.writeShort(quantizedCoeffs[i]);
-        }
-        out.write(quantizedResidual);
-    }
+	/**
+	 * Get the length, in bytes, of the datagram's data field.
+	 */
+	public int getLength() {
+		return 2 * quantizedCoeffs.length + quantizedResidual.length;
+	}
 
-    /**
-     * Tests if this datagram is equal to another datagram.
-     */
-    public boolean equals( Datagram other ) {
-        if (! (other instanceof LPCDatagram)) return false;
-        LPCDatagram otherLPC = (LPCDatagram) other;
-        if ( this.duration != otherLPC.duration ) return false;
-        if ( this.quantizedCoeffs.length != otherLPC.quantizedCoeffs.length ) return false;
-        if ( this.quantizedResidual.length != otherLPC.quantizedResidual.length ) return false;
-        for ( int i = 0; i < this.quantizedCoeffs.length; i++ ) {
-            if ( this.quantizedCoeffs[i] != otherLPC.quantizedCoeffs[i] ) return false;
-        }
-        for ( int i = 0; i < this.quantizedResidual.length; i++ ) {
-            if ( this.quantizedResidual[i] != otherLPC.quantizedResidual[i] ) return false;
-        }
-        return true;
-    }
+	/**
+	 * Get the LPC order, i.e. the number of LPC coefficients.
+	 * 
+	 * @return the lpc order
+	 * @see #getQuantizedCoeffs()
+	 * @see #getCoeffs()
+	 */
+	public int lpcOrder() {
+		return quantizedCoeffs.length;
+	}
 
-    
+	/**
+	 * Get the quantized lpc coefficients
+	 * 
+	 * @return an array of shorts, length lpcOrder()
+	 * @see #lpcOrder()
+	 * @see #getCoeffs()
+	 */
+	public short[] getQuantizedCoeffs() {
+		return quantizedCoeffs;
+	}
+
+	/**
+	 * Get the quantized residual.
+	 * 
+	 * @return an array of bytes
+	 */
+	public byte[] getQuantizedResidual() {
+		return quantizedResidual;
+	}
+
+	/**
+	 * Get the LPC coefficients, unquantized using the given lpc min and range values.
+	 * 
+	 * @param lpcMin
+	 *            the lpc minimum
+	 * @param lpcRange
+	 *            the lpc range
+	 * @return an array of floats, length lpcOrder()
+	 * @see #lpcOrder()
+	 * @see #getQuantizedCoeffs()
+	 */
+	public float[] getCoeffs(float lpcMin, float lpcRange) {
+		return General.unQuantize(quantizedCoeffs, lpcMin, lpcRange);
+	}
+
+	/**
+	 * Get the unquantized residual
+	 * 
+	 * @return an array of shorts
+	 */
+	public short[] getResidual() {
+		return General.ulawToShort(quantizedResidual);
+	}
+
+	/**
+	 * Write this datagram to a random access file or data output stream.
+	 */
+	public void write(DataOutput out) throws IOException {
+		out.writeLong(duration);
+		out.writeInt(getLength());
+		for (int i = 0; i < quantizedCoeffs.length; i++) {
+			out.writeShort(quantizedCoeffs[i]);
+		}
+		out.write(quantizedResidual);
+	}
+
+	/**
+	 * Tests if this datagram is equal to another datagram.
+	 */
+	public boolean equals(Datagram other) {
+		if (!(other instanceof LPCDatagram))
+			return false;
+		LPCDatagram otherLPC = (LPCDatagram) other;
+		if (this.duration != otherLPC.duration)
+			return false;
+		if (this.quantizedCoeffs.length != otherLPC.quantizedCoeffs.length)
+			return false;
+		if (this.quantizedResidual.length != otherLPC.quantizedResidual.length)
+			return false;
+		for (int i = 0; i < this.quantizedCoeffs.length; i++) {
+			if (this.quantizedCoeffs[i] != otherLPC.quantizedCoeffs[i])
+				return false;
+		}
+		for (int i = 0; i < this.quantizedResidual.length; i++) {
+			if (this.quantizedResidual[i] != otherLPC.quantizedResidual[i])
+				return false;
+		}
+		return true;
+	}
+
 }
-
