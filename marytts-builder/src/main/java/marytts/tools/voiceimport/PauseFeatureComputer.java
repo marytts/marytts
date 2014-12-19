@@ -34,122 +34,105 @@ import marytts.util.MaryUtils;
 import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 
-
 /**
- * For the given texts, compute unit features and align them
- * with the given unit labels.
+ * For the given texts, compute unit features and align them with the given unit labels.
+ * 
  * @author schroed
- *
+ * 
  */
-public class PauseFeatureComputer extends VoiceImportComponent
-{
-    protected File textDir;
-    protected File pausefeatureDir;
-    protected String featsExt = ".pfeats";
-    protected String xmlExt = ".xml";
-    protected String locale;
-    protected MaryClient mary;
-    protected String maryInputType;
-    protected String maryOutputType;
-    
-    protected DatabaseLayout db = null;
-    protected int percent = 0;
-    
-    public String FEATUREDIR = "PauseFeatureComputer.featureDir";
-    public String INTONISED = "PauseFeatureComputer.correctedIntonisedXMLDir";
-    public String MARYSERVERHOST = "PauseFeatureComputer.maryServerHost";
-    public String MARYSERVERPORT = "PauseFeatureComputer.maryServerPort";
-       
-   
-    
-    public String getName(){
-        return "PauseFeatureComputer";
-    }
-    
-    public static String getMaryXMLHeaderWithInitialBoundary(String locale)
-    {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-            "<maryxml version=\"0.4\"\n" +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
-            "xml:lang=\"" + locale + "\">\n" +
-            "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
-        
-    }
-    
-     public void initialiseComp()
-    {      
-        locale = db.getProp(db.LOCALE);   
-        
-        mary = null; // initialised only if needed   
-        pausefeatureDir = new File(getProp(FEATUREDIR));
-        if (!pausefeatureDir.exists()){
-            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
-                    +" does not exist; ");
-            if (!pausefeatureDir.mkdir()){
-                throw new Error("Could not create FEATUREDIR");
-            }
-            System.out.print("Created successfully.\n");
-        }  
-        
-        maryInputType = "INTONATION";
-        maryOutputType = "PAUSEFEATURES";
-    }
-     
-     public SortedMap getDefaultProps(DatabaseLayout db){
-         this.db = db;
-         if (props == null){
-             props = new TreeMap();
-             props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                     +"pausefeatures"
-                     +System.getProperty("file.separator"));
-             props.put(INTONISED, db.getProp(db.ROOTDIR)
-                     +"correctedIntonisedXML"
-                     +System.getProperty("file.separator"));
-             props.put(MARYSERVERHOST,"localhost");
-             props.put(MARYSERVERPORT,"59125");
-         } 
-         
-         return props;
-     }
-     
-     protected void setupHelp(){
-         props2Help = new TreeMap();
-         props2Help.put(FEATUREDIR, "directory containing the pause features." 
-                 +"Will be created if it does not exist");
-         props2Help.put(INTONISED, "Directory of corrected Intonised XML files.");
-         props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
-         props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
-     }
-     
-     public MaryClient getMaryClient() throws IOException
-     {
-        if (mary == null) {
-            try{
-                mary = MaryClient.getMaryClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));        
-            } catch (IOException e){
-                throw new IOException("Could not connect to Maryserver at "
-                        +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
-            }
-        }
-        return mary;
-    }
+public class PauseFeatureComputer extends VoiceImportComponent {
+	protected File textDir;
+	protected File pausefeatureDir;
+	protected String featsExt = ".pfeats";
+	protected String xmlExt = ".xml";
+	protected String locale;
+	protected MaryClient mary;
+	protected String maryInputType;
+	protected String maryOutputType;
 
-    public boolean compute() throws IOException
-    {
-        
-        textDir = new File(db.getProp(db.TEXTDIR));
-        System.out.println( "Computing pause features for " + bnl.getLength() + " files" );
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            computeFeaturesFor( bnl.getName(i) );
-            System.out.println( "    " + bnl.getName(i) );
-        }
-        System.out.println("Finished computing the unit features.");
-        return true;
-    }
+	protected DatabaseLayout db = null;
+	protected int percent = 0;
 
-    public void computeFeaturesFor(String basename) throws IOException
+	public String FEATUREDIR = "PauseFeatureComputer.featureDir";
+	public String INTONISED = "PauseFeatureComputer.correctedIntonisedXMLDir";
+	public String MARYSERVERHOST = "PauseFeatureComputer.maryServerHost";
+	public String MARYSERVERPORT = "PauseFeatureComputer.maryServerPort";
+
+	public String getName() {
+		return "PauseFeatureComputer";
+	}
+
+	public static String getMaryXMLHeaderWithInitialBoundary(String locale) {
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"
+				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n"
+				+ "xml:lang=\"" + locale + "\">\n" + "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
+
+	}
+
+	public void initialiseComp() {
+		locale = db.getProp(db.LOCALE);
+
+		mary = null; // initialised only if needed
+		pausefeatureDir = new File(getProp(FEATUREDIR));
+		if (!pausefeatureDir.exists()) {
+			System.out.print(FEATUREDIR + " " + getProp(FEATUREDIR) + " does not exist; ");
+			if (!pausefeatureDir.mkdir()) {
+				throw new Error("Could not create FEATUREDIR");
+			}
+			System.out.print("Created successfully.\n");
+		}
+
+		maryInputType = "INTONATION";
+		maryOutputType = "PAUSEFEATURES";
+	}
+
+	public SortedMap getDefaultProps(DatabaseLayout db) {
+		this.db = db;
+		if (props == null) {
+			props = new TreeMap();
+			props.put(FEATUREDIR, db.getProp(db.ROOTDIR) + "pausefeatures" + System.getProperty("file.separator"));
+			props.put(INTONISED, db.getProp(db.ROOTDIR) + "correctedIntonisedXML" + System.getProperty("file.separator"));
+			props.put(MARYSERVERHOST, "localhost");
+			props.put(MARYSERVERPORT, "59125");
+		}
+
+		return props;
+	}
+
+	protected void setupHelp() {
+		props2Help = new TreeMap();
+		props2Help.put(FEATUREDIR, "directory containing the pause features." + "Will be created if it does not exist");
+		props2Help.put(INTONISED, "Directory of corrected Intonised XML files.");
+		props2Help.put(MARYSERVERHOST, "the host were the Mary server is running, default: \"localhost\"");
+		props2Help.put(MARYSERVERPORT, "the port were the Mary server is listening, default: \"59125\"");
+	}
+
+	public MaryClient getMaryClient() throws IOException {
+		if (mary == null) {
+			try {
+				mary = MaryClient.getMaryClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));
+			} catch (IOException e) {
+				throw new IOException("Could not connect to Maryserver at " + getProp(MARYSERVERHOST) + " "
+						+ getProp(MARYSERVERPORT));
+			}
+		}
+		return mary;
+	}
+
+	public boolean compute() throws IOException {
+
+		textDir = new File(db.getProp(db.TEXTDIR));
+		System.out.println("Computing pause features for " + bnl.getLength() + " files");
+		for (int i = 0; i < bnl.getLength(); i++) {
+			percent = 100 * i / bnl.getLength();
+			computeFeaturesFor(bnl.getName(i));
+			System.out.println("    " + bnl.getName(i));
+		}
+		System.out.println("Finished computing the unit features.");
+		return true;
+	}
+
+	public void computeFeaturesFor(String basename) throws IOException
     {
         String text;
         Locale localVoice = MaryUtils.string2locale(locale);
@@ -197,13 +180,12 @@ public class PauseFeatureComputer extends VoiceImportComponent
         os.close();
     }
 
-    /**
-     * Provide the progress of computation, in percent, or -1 if
-     * that feature is not implemented.
-     * @return -1 if not implemented, or an integer between 0 and 100.
-     */
-    public int getProgress()
-    {
-        return percent;
-    }
+	/**
+	 * Provide the progress of computation, in percent, or -1 if that feature is not implemented.
+	 * 
+	 * @return -1 if not implemented, or an integer between 0 and 100.
+	 */
+	public int getProgress() {
+		return percent;
+	}
 }

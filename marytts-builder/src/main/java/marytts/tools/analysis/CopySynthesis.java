@@ -54,46 +54,53 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 
 /**
- * Impose duration and/or intonation from one version of an utterance to another version.
- * The segmental chain of both utterances can have tiny deviations but must be sufficiently similar 
- * to allow the MaryTranscriptionAligner to match the two.
- * The destination must be in ALLOPHONES or ACOUSTPARAMS format, i.e. have syllabic and segmental substructure in the tokens.
- * The source can be in a number of formats.
- *  
+ * Impose duration and/or intonation from one version of an utterance to another version. The segmental chain of both utterances
+ * can have tiny deviations but must be sufficiently similar to allow the MaryTranscriptionAligner to match the two. The
+ * destination must be in ALLOPHONES or ACOUSTPARAMS format, i.e. have syllabic and segmental substructure in the tokens. The
+ * source can be in a number of formats.
+ * 
  * @author marc
- *
+ * 
  */
-public class CopySynthesis
-{
+public class CopySynthesis {
 	AllophoneSet allophoneSet;
-	
+
 	/**
 	 * Provide copy synthesis functionality for documents using the given allophone set.
-	 * @param allophoneSet the allophone set to use, or null if no allophone verification is needed.
+	 * 
+	 * @param allophoneSet
+	 *            the allophone set to use, or null if no allophone verification is needed.
 	 */
 	public CopySynthesis(AllophoneSet allophoneSet) {
 		this.allophoneSet = allophoneSet;
 	}
-	
-	
+
 	/**
 	 * Make sure that the label sequence as provided in source is copied into the target document.
-	 * @param source a label sequence consisting of valid allophones according to the allophone set given in the constructor.
-	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 * 
+	 * @param source
+	 *            a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param target
+	 *            a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in
+	 *            phones.
 	 */
 	public void imposeSegments(Labels source, Document target) {
-        MaryTranscriptionAligner aligner = new MaryTranscriptionAligner(allophoneSet, true);
-        aligner.SetEnsureInitialBoundary(false);
-        String labels = StringUtils.join(aligner.getEntrySeparator(), source.getLabelSymbols());
-        aligner.alignXmlTranscriptions(target, labels);
+		MaryTranscriptionAligner aligner = new MaryTranscriptionAligner(allophoneSet, true);
+		aligner.SetEnsureInitialBoundary(false);
+		String labels = StringUtils.join(aligner.getEntrySeparator(), source.getLabelSymbols());
+		aligner.alignXmlTranscriptions(target, labels);
 
 	}
 
 	/**
-	 * Make sure that the label sequence as provided in source is copied into the target document, and
-	 * that the phone and boundary durations in the target are adjusted to those in source.
-	 * @param source a label sequence consisting of valid allophones according to the allophone set given in the constructor.
-	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 * Make sure that the label sequence as provided in source is copied into the target document, and that the phone and boundary
+	 * durations in the target are adjusted to those in source.
+	 * 
+	 * @param source
+	 *            a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param target
+	 *            a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in
+	 *            phones.
 	 */
 	public void imposeDurations(Labels source, Document target) {
 		imposeSegments(source, target);
@@ -104,7 +111,7 @@ public class CopySynthesis
 		String PHONE = "ph";
 		String BOUNDARY = "boundary";
 		NodeIterator it = DomUtils.createNodeIterator(target, PHONE, BOUNDARY);
-		
+
 		Element e = null;
 		double prevEndTime = 0;
 		int iSource = 0;
@@ -114,7 +121,7 @@ public class CopySynthesis
 			iSource++;
 		}
 	}
-	
+
 	private void updateDurationAndEndTime(Element e, Label label,
 			double prevEndTime) {
 		String PHONE = "ph";
@@ -140,25 +147,26 @@ public class CopySynthesis
 	}
 
 	/**
-	 * Make sure that 1. the label sequence as provided in source is copied into the target document,
-	 * 2. the phone and boundary durations in the target are adjusted to those in source,
-	 * and 3. the intonation targets in the target are replaced by those in the pitchSource.
-	 * @param durationAndSegment a label sequence consisting of valid allophones according to the allophone set given in the constructor.
-	 * @param pitchSource a specification of an intonation contour.
-	 * @param target a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in phones.
+	 * Make sure that 1. the label sequence as provided in source is copied into the target document, 2. the phone and boundary
+	 * durations in the target are adjusted to those in source, and 3. the intonation targets in the target are replaced by those
+	 * in the pitchSource.
+	 * 
+	 * @param durationAndSegment
+	 *            a label sequence consisting of valid allophones according to the allophone set given in the constructor.
+	 * @param pitchSource
+	 *            a specification of an intonation contour.
+	 * @param target
+	 *            a MaryXML document at the stage of ALLOPHONES or ACOUSTPARAMS, i.e. with syllable/segment substructure in
+	 *            phones.
 	 */
 	public void imposeIntonation(Labels durationAndSegmentSource, PraatPitchTier pitchSource, Document target) {
 		throw new RuntimeException("Not yet implemented");
 	}
-	
-	
-	
-	
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws Exception
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception
     {
         String wavFilename = null;
         String labFilename = null;
@@ -278,21 +286,20 @@ public class CopySynthesis
         System.out.println("ACOUSTPARAMS:");
         System.out.println(acoustparams);
     }
-    
-    /**
-     * For the given sampled contour and skipSize, provide the f0 value at time t if
-     * possible or Double.NaN otherwise.
-     * @param contour
-     * @param skipSize
-     * @param t
-     * @return
-     */
-    private static double getF0(double[] contour, double skipSize, double t)
-    {
-        int i = (int) (t/skipSize);
-        if (i>=0 && i<contour.length) return contour[i];
-        return Double.NaN;
-    }
 
+	/**
+	 * For the given sampled contour and skipSize, provide the f0 value at time t if possible or Double.NaN otherwise.
+	 * 
+	 * @param contour
+	 * @param skipSize
+	 * @param t
+	 * @return
+	 */
+	private static double getF0(double[] contour, double skipSize, double t) {
+		int i = (int) (t / skipSize);
+		if (i >= 0 && i < contour.length)
+			return contour[i];
+		return Double.NaN;
+	}
 
 }

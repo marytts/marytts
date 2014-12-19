@@ -19,53 +19,43 @@
  */
 package marytts.tools.voiceimport;
 
-
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.features.FeatureDefinition;
 
+public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter {
+	protected FeatureDefinition leftFeatureDef;
+	protected FeatureDefinition rightFeatureDef;
 
-public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
-{
-    protected FeatureDefinition leftFeatureDef;
-    protected FeatureDefinition rightFeatureDef;
-    
-    
-    public HalfPhoneFeatureFileWriter(){
-        featureExt = ".hpfeats";
-        FEATUREDIR = "HalfPhoneFeatureFileWriter.featureDir";
-        FEATUREFILE = "HalfPhoneFeatureFileWriter.featureFile";
-        UNITFILE = "HalfPhoneFeatureFileWriter.unitFile";
-        WEIGHTSFILE = "HalfPhoneFeatureFileWriter.weightsFile";  
-        name= "HalfPhoneFeatureFileWriter";
-    }
-    
-   public SortedMap getDefaultProps(DatabaseLayout db){
-       if (props == null){
-           props = new TreeMap();
-           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                        +"halfphonefeatures"
-                        +System.getProperty("file.separator"));
-           props.put(FEATUREFILE, db.getProp(db.FILEDIR)
-                        +"halfphoneFeatures"+db.getProp(db.MARYEXT));
-           props.put(UNITFILE, db.getProp(db.FILEDIR)
-                        +"halfphoneUnits"+db.getProp(db.MARYEXT));
-           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR)
-                        +"halfphoneUnitFeatureDefinition.txt");
-       }
-       return props;
-   }
-   
-   protected void setupHelp(){
-         props2Help = new TreeMap();
-         props2Help.put(FEATUREDIR, "directory containing the halfphone features");
-         props2Help.put(FEATUREFILE, "file containing all halfphone units and their target cost features."
-                 +"Will be created by this module");
-         props2Help.put(UNITFILE, "file containing all halfphone units");
-         props2Help.put(WEIGHTSFILE, "file containing the list of halfphone target cost features, their values and weights");
-         
-     }
-    
+	public HalfPhoneFeatureFileWriter() {
+		featureExt = ".hpfeats";
+		FEATUREDIR = "HalfPhoneFeatureFileWriter.featureDir";
+		FEATUREFILE = "HalfPhoneFeatureFileWriter.featureFile";
+		UNITFILE = "HalfPhoneFeatureFileWriter.unitFile";
+		WEIGHTSFILE = "HalfPhoneFeatureFileWriter.weightsFile";
+		name = "HalfPhoneFeatureFileWriter";
+	}
+
+	public SortedMap getDefaultProps(DatabaseLayout db) {
+		if (props == null) {
+			props = new TreeMap();
+			props.put(FEATUREDIR, db.getProp(db.ROOTDIR) + "halfphonefeatures" + System.getProperty("file.separator"));
+			props.put(FEATUREFILE, db.getProp(db.FILEDIR) + "halfphoneFeatures" + db.getProp(db.MARYEXT));
+			props.put(UNITFILE, db.getProp(db.FILEDIR) + "halfphoneUnits" + db.getProp(db.MARYEXT));
+			props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR) + "halfphoneUnitFeatureDefinition.txt");
+		}
+		return props;
+	}
+
+	protected void setupHelp() {
+		props2Help = new TreeMap();
+		props2Help.put(FEATUREDIR, "directory containing the halfphone features");
+		props2Help.put(FEATUREFILE, "file containing all halfphone units and their target cost features."
+				+ "Will be created by this module");
+		props2Help.put(UNITFILE, "file containing all halfphone units");
+		props2Help.put(WEIGHTSFILE, "file containing the list of halfphone target cost features, their values and weights");
+
+	}
+
 }
-

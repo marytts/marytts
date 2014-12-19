@@ -37,67 +37,67 @@ import marytts.util.data.Datagram;
 import marytts.util.data.audio.WavWriter;
 
 public class ListenToPreselection {
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws Exception {
 
-        WaveTimelineMaker wtlm = new WaveTimelineMaker();
-        HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
-        VoiceImportComponent[] comps = new VoiceImportComponent[2];
-        comps[0] = wtlm;
-        comps[1] = ffw;
-        DatabaseLayout dbl = new DatabaseLayout(new File(System.getProperty("user.dir", "."), "database.config"), comps);
-        UnitFileReader ufr = new UnitFileReader( ffw.getProp(ffw.UNITFILE));
-        TimelineReader tlr = new TimelineReader( wtlm.getProp(wtlm.WAVETIMELINE));
-        //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileReader ffr = new FeatureFileReader( ffw.getProp(ffw.FEATUREFILE));
-        FeatureArrayIndexer ffi = new FeatureArrayIndexer(ffr.getFeatureVectors(), ffr.getFeatureDefinition());
-        FeatureDefinition feaDef = ffi.getFeatureDefinition();
-        WavWriter ww = new WavWriter();
-        
-        System.out.println( "Indexing the phones..." );
-        String[] feaSeq = { "phone" }; // Sort by phone name
-        ffi.deepSort( feaSeq );
-        
-        /* Loop across possible phones */
-        long tic = System.currentTimeMillis();
-        int mary_phoneIndex = feaDef.getFeatureIndex("phone");
-        int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "phone" ) );
-        for ( int phon = 1; phon < nbPhonVal; phon++ ) {
-        // for ( int phon = 14; phon < nbPhonVal; phon++ ) {
-            String phonID = feaDef.getFeatureValueAsString( 0, phon );
-            /* Loop across all instances */
-            byte[] phonFeature = new byte[mary_phoneIndex+1];
-            phonFeature[mary_phoneIndex] = (byte)( phon );
-            FeatureVector target = new FeatureVector( phonFeature, new short[0], new float[0], 0 );
-            FeatureFileIndexingResult instances = ffi.retrieve( target );
-            int[] ui = instances.getUnitIndexes();
-            System.out.println( "Concatenating the phone [" + phonID + "] which has [" + ui.length + "] instances..." );
-            ByteArrayOutputStream bbis = new ByteArrayOutputStream();
-            /* Concatenate the instances */
-            for ( int i = 0; i < ui.length; i++ ) {
-                /* Concatenate the datagrams from the instances */
-                Datagram[] dat = tlr.getDatagrams( ufr.getUnit(ui[i]), ufr.getSampleRate() );
-                for ( int k = 0; k < dat.length; k++ ) {
-                    bbis.write( dat[k].getData() );
-                }
-            }
-            /* Get the bytes as an array */
-            byte[] buf = bbis.toByteArray();
-            /* Output the header of the wav file */
-            String fName = ( dbl.getProp(dbl.ROOTDIR) + "/tests/" + phonID + ".wav" );
-            System.out.println( "Outputting file [" + fName + "]..." );
-            ww.export( fName, 16000, buf );
-            /* Sanity check */
-            /* WavReader wr = new WavReader( dbl.rootDirName() + "/tests/" + phonID + ".wav" );
-            System.out.println( "File [" + ( dbl.rootDirName() + "/tests/" + phonID + ".wav" )
-                    + "] has [" + wr.getNumSamples() + "] samples." ); */
-        }
-        long toc = System.currentTimeMillis();
-        System.out.println( "Copying the phones took [" + (toc-tic) + "] milliseconds." );
-    }
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception {
+
+		WaveTimelineMaker wtlm = new WaveTimelineMaker();
+		HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
+		VoiceImportComponent[] comps = new VoiceImportComponent[2];
+		comps[0] = wtlm;
+		comps[1] = ffw;
+		DatabaseLayout dbl = new DatabaseLayout(new File(System.getProperty("user.dir", "."), "database.config"), comps);
+		UnitFileReader ufr = new UnitFileReader(ffw.getProp(ffw.UNITFILE));
+		TimelineReader tlr = new TimelineReader(wtlm.getProp(wtlm.WAVETIMELINE));
+		// TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
+		FeatureFileReader ffr = new FeatureFileReader(ffw.getProp(ffw.FEATUREFILE));
+		FeatureArrayIndexer ffi = new FeatureArrayIndexer(ffr.getFeatureVectors(), ffr.getFeatureDefinition());
+		FeatureDefinition feaDef = ffi.getFeatureDefinition();
+		WavWriter ww = new WavWriter();
+
+		System.out.println("Indexing the phones...");
+		String[] feaSeq = { "phone" }; // Sort by phone name
+		ffi.deepSort(feaSeq);
+
+		/* Loop across possible phones */
+		long tic = System.currentTimeMillis();
+		int mary_phoneIndex = feaDef.getFeatureIndex("phone");
+		int nbPhonVal = feaDef.getNumberOfValues(feaDef.getFeatureIndex("phone"));
+		for (int phon = 1; phon < nbPhonVal; phon++) {
+			// for ( int phon = 14; phon < nbPhonVal; phon++ ) {
+			String phonID = feaDef.getFeatureValueAsString(0, phon);
+			/* Loop across all instances */
+			byte[] phonFeature = new byte[mary_phoneIndex + 1];
+			phonFeature[mary_phoneIndex] = (byte) (phon);
+			FeatureVector target = new FeatureVector(phonFeature, new short[0], new float[0], 0);
+			FeatureFileIndexingResult instances = ffi.retrieve(target);
+			int[] ui = instances.getUnitIndexes();
+			System.out.println("Concatenating the phone [" + phonID + "] which has [" + ui.length + "] instances...");
+			ByteArrayOutputStream bbis = new ByteArrayOutputStream();
+			/* Concatenate the instances */
+			for (int i = 0; i < ui.length; i++) {
+				/* Concatenate the datagrams from the instances */
+				Datagram[] dat = tlr.getDatagrams(ufr.getUnit(ui[i]), ufr.getSampleRate());
+				for (int k = 0; k < dat.length; k++) {
+					bbis.write(dat[k].getData());
+				}
+			}
+			/* Get the bytes as an array */
+			byte[] buf = bbis.toByteArray();
+			/* Output the header of the wav file */
+			String fName = (dbl.getProp(dbl.ROOTDIR) + "/tests/" + phonID + ".wav");
+			System.out.println("Outputting file [" + fName + "]...");
+			ww.export(fName, 16000, buf);
+			/* Sanity check */
+			/*
+			 * WavReader wr = new WavReader( dbl.rootDirName() + "/tests/" + phonID + ".wav" ); System.out.println( "File [" + (
+			 * dbl.rootDirName() + "/tests/" + phonID + ".wav" ) + "] has [" + wr.getNumSamples() + "] samples." );
+			 */
+		}
+		long toc = System.currentTimeMillis();
+		System.out.println("Copying the phones took [" + (toc - tic) + "] milliseconds.");
+	}
 
 }
-

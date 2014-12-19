@@ -45,83 +45,72 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * A class providing the functionality to interface with an external
- * wagon process.
+ * A class providing the functionality to interface with an external wagon process.
+ * 
  * @author marc
- *
+ * 
  */
-public class Wagon implements Runnable
-{
-    private static File wagonExecutable;
-    
-    public static void setWagonExecutable(File wagonExe)
-    {
-        wagonExecutable = wagonExe;
-    }
-    
-    private Logger logger;
-    private String id;
-    private FeatureDefinition featureDefinition;
-    private FeatureVector[] fv;
-    private DistanceMeasure distMeasure;
-    private File distFile;
-    private File descFile;
-    private File featFile;
-    private File cartFile;
-    private String systemCall;
-    private boolean finished = false;
-    private boolean success = false;
-    private CART cart = null;
-    
-    /**
-     * Set up a new wagon process.
-     * Wagon.setWagonExecutable() must be called beforehand.
-     * @param featureDefinition
-     * @param featureVectors
-     * @param aDistanceMeasure
-     * @param dir
-     * @param balance
-     * @param stop
-     * @throws IOException if there was no call to Wagon.setWagonExecutable()
-     * with an executable file before calling this constructor.
-     */
-    public Wagon(String id, FeatureDefinition featureDefinition,
-            FeatureVector[] featureVectors,
-            DistanceMeasure aDistanceMeasure,
-            File dir,
-            int balance, int stop)
-    throws IOException
-    {
-        if (wagonExecutable == null || !wagonExecutable.isFile()) {
-            throw new IOException("No wagon executable set using Wagon.setExecutable()!");
-        }
-        this.logger = MaryUtils.getLogger("Wagon");
-        this.id = id;
-        this.featureDefinition = featureDefinition;
-        this.fv = featureVectors;
-        this.distMeasure = aDistanceMeasure;
-        this.distFile = new File(dir, id+".dist");
-        this.descFile = new File(dir, id+".desc");
-        this.featFile = new File(dir, id+".feat");
-        this.cartFile = new File(dir, id+".cart");
-        this.systemCall = wagonExecutable.getAbsolutePath()
-            + " -desc " + descFile.getAbsolutePath()
-            + " -data " + featFile.getAbsolutePath()
-            + " -balance " + balance 
-            + " -distmatrix " + distFile.getAbsolutePath()
-            + " -stop " + stop 
-            + " -output " + cartFile.getAbsolutePath();
-    }
+public class Wagon implements Runnable {
+	private static File wagonExecutable;
 
-    
-    /**
-     * Export this feature definition in the "all.desc" format which can be
-     * read by wagon.
-     * @param out the destination of the data
-     * @param featuresToIgnore a set of Strings containing the names of features that 
-     * wagon should ignore. Can be null.
-     */
-    private void createDescFile()
+	public static void setWagonExecutable(File wagonExe) {
+		wagonExecutable = wagonExe;
+	}
+
+	private Logger logger;
+	private String id;
+	private FeatureDefinition featureDefinition;
+	private FeatureVector[] fv;
+	private DistanceMeasure distMeasure;
+	private File distFile;
+	private File descFile;
+	private File featFile;
+	private File cartFile;
+	private String systemCall;
+	private boolean finished = false;
+	private boolean success = false;
+	private CART cart = null;
+
+	/**
+	 * Set up a new wagon process. Wagon.setWagonExecutable() must be called beforehand.
+	 * 
+	 * @param featureDefinition
+	 * @param featureVectors
+	 * @param aDistanceMeasure
+	 * @param dir
+	 * @param balance
+	 * @param stop
+	 * @throws IOException
+	 *             if there was no call to Wagon.setWagonExecutable() with an executable file before calling this constructor.
+	 */
+	public Wagon(String id, FeatureDefinition featureDefinition, FeatureVector[] featureVectors,
+			DistanceMeasure aDistanceMeasure, File dir, int balance, int stop) throws IOException {
+		if (wagonExecutable == null || !wagonExecutable.isFile()) {
+			throw new IOException("No wagon executable set using Wagon.setExecutable()!");
+		}
+		this.logger = MaryUtils.getLogger("Wagon");
+		this.id = id;
+		this.featureDefinition = featureDefinition;
+		this.fv = featureVectors;
+		this.distMeasure = aDistanceMeasure;
+		this.distFile = new File(dir, id + ".dist");
+		this.descFile = new File(dir, id + ".desc");
+		this.featFile = new File(dir, id + ".feat");
+		this.cartFile = new File(dir, id + ".cart");
+		this.systemCall = wagonExecutable.getAbsolutePath() + " -desc " + descFile.getAbsolutePath() + " -data "
+				+ featFile.getAbsolutePath() + " -balance " + balance + " -distmatrix " + distFile.getAbsolutePath() + " -stop "
+				+ stop + " -output " + cartFile.getAbsolutePath();
+	}
+
+	/**
+	 * Export this feature definition in the "all.desc" format which can be read by wagon.
+	 * 
+	 * @param out
+	 *            the destination of the data
+	 * @param featuresToIgnore
+	 *            a set of Strings containing the names of features that wagon should ignore. Can be null.
+	 */
+	private void createDescFile()
     throws IOException
     {
         PrintWriter out = new PrintWriter(new FileOutputStream(descFile));
@@ -167,67 +156,59 @@ public class Wagon implements Runnable
         out.close();
     }
 
-    
-    private void dumpFeatureVectors()
-    throws IOException
-    {
-      //open file 
-        PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(featFile)));
-        for (int i=0; i<fv.length;i++) {
-            // Print the feature string
-            out.print(i+" "+featureDefinition.toFeatureString(fv[i]));
-            // print a newline if this is not the last vector
-            if (i+1 != fv.length) {
-                out.print("\n");
-            }
-        }
-        //dump and close
-        out.flush();
-        out.close();
-    }
-    
-    /* Save in "ancient" text format. Extremely inefficient for large files.
-     * Keeping this for documentation purposes only.
-     */
-    private void saveDistanceMatrix()
-    throws IOException
-    {
-        PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(distFile)));
-        for ( int i = 0; i < fv.length; i++ ) {
-            for ( int j = 0; j < fv.length; j++ ) {
-                float distance = (i==j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
-                out.printf(Locale.US, "%.1f ", distance);
-            }
-            out.print("\n");
-        }
-        out.flush();
-        out.close();
-    }
-    
-    /* Save in efficient binary format. */
-    private void binarySaveDistanceMatrix()
-    throws IOException
-    {
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(distFile)));
-        out.writeBytes("EST_File fmatrix\n");
-        out.writeBytes("version 1\n");
-        out.writeBytes("DataType binary\n");
-        out.writeBytes("ByteOrder BigEndian\n");
-        out.writeBytes("rows "+fv.length+"\n");
-        out.writeBytes("columns "+fv.length+"\n");
-        out.writeBytes("EST_Header_End\n");
-        for ( int i = 0; i < fv.length; i++ ) {
-            for ( int j = 0; j < fv.length; j++ ) {
-                float distance = (i==j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
-                out.writeFloat(distance);
-            }
-        }
-        out.flush();
-        out.close();
-    }
+	private void dumpFeatureVectors() throws IOException {
+		// open file
+		PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(featFile)));
+		for (int i = 0; i < fv.length; i++) {
+			// Print the feature string
+			out.print(i + " " + featureDefinition.toFeatureString(fv[i]));
+			// print a newline if this is not the last vector
+			if (i + 1 != fv.length) {
+				out.print("\n");
+			}
+		}
+		// dump and close
+		out.flush();
+		out.close();
+	}
 
-    
-    public void run()
+	/*
+	 * Save in "ancient" text format. Extremely inefficient for large files. Keeping this for documentation purposes only.
+	 */
+	private void saveDistanceMatrix() throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(distFile)));
+		for (int i = 0; i < fv.length; i++) {
+			for (int j = 0; j < fv.length; j++) {
+				float distance = (i == j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
+				out.printf(Locale.US, "%.1f ", distance);
+			}
+			out.print("\n");
+		}
+		out.flush();
+		out.close();
+	}
+
+	/* Save in efficient binary format. */
+	private void binarySaveDistanceMatrix() throws IOException {
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(distFile)));
+		out.writeBytes("EST_File fmatrix\n");
+		out.writeBytes("version 1\n");
+		out.writeBytes("DataType binary\n");
+		out.writeBytes("ByteOrder BigEndian\n");
+		out.writeBytes("rows " + fv.length + "\n");
+		out.writeBytes("columns " + fv.length + "\n");
+		out.writeBytes("EST_Header_End\n");
+		for (int i = 0; i < fv.length; i++) {
+			for (int j = 0; j < fv.length; j++) {
+				float distance = (i == j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
+				out.writeFloat(distance);
+			}
+		}
+		out.flush();
+		out.close();
+	}
+
+	public void run()
     {
         try {
             long startTime = System.currentTimeMillis();
@@ -296,43 +277,43 @@ public class Wagon implements Runnable
         }
 
     }
-    
-    public boolean finished() { return finished; }
-    public boolean success() { return success; }
-    public String id() { return id; }
 
-    
-    public CART getCART()
-    {
-        return cart;
-    }
+	public boolean finished() {
+		return finished;
+	}
 
+	public boolean success() {
+		return success;
+	}
 
-    static class StreamGobbler extends Thread
-    {
-        InputStream is;
-        String type;
-        
-        StreamGobbler(InputStream is, String type)
-        {
-            this.is = is;
-            this.type = type;
-        }
-        
-        public void run()
-        {
-            try
-            {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
-        }
-    }
+	public String id() {
+		return id;
+	}
+
+	public CART getCART() {
+		return cart;
+	}
+
+	static class StreamGobbler extends Thread {
+		InputStream is;
+		String type;
+
+		StreamGobbler(InputStream is, String type) {
+			this.is = is;
+			this.type = type;
+		}
+
+		public void run() {
+			try {
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader br = new BufferedReader(isr);
+				String line = null;
+				while ((line = br.readLine()) != null)
+					System.out.println(type + ">" + line);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+	}
 
 }

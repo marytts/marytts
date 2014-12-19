@@ -75,175 +75,157 @@ import org.apache.commons.io.FileUtils;
 
 import marytts.util.io.BasenameList;
 
-
 /**
- * The single purpose of the DatabaseImportMain class is to provide a main
- * which executes the sequence of database import and conversion operations.
+ * The single purpose of the DatabaseImportMain class is to provide a main which executes the sequence of database import and
+ * conversion operations.
  * 
  * @author sacha, anna
- *
+ * 
  */
-public class DatabaseImportMain extends JFrame 
-{
-    protected VoiceImportComponent[] components;
-    protected String[][] groups2Comps;
-    protected JCheckBox[] checkboxes;
-    protected JButton runButton;
-    protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
-    protected String currentComponent;
-    
-    
-   
-    
-    public DatabaseImportMain(String title, 
-            VoiceImportComponent[] components,
-            DatabaseLayout db,
-            String[][] groups2Comps)
-    {
-        super(title);
-        this.components = components;
-        this.checkboxes = new JCheckBox[components.length];
-        this.db = db;
-        this.bnl = db.getBasenames();
-        this.groups2Comps = groups2Comps;
-        currentComponent = "global properties";
-        setupGUI();
-    }
-    
-    protected void setupGUI()
-    {
-        // A scroll pane containing one labelled checkbox per component,
-        // and a "run selected components" button below.
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        GridBagConstraints gridC = new GridBagConstraints();
-        getContentPane().setLayout( gridBagLayout );
-        
-        JPanel checkboxPane = new JPanel();
-        checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
-        //checkboxPane.setPreferredSize(new Dimension(300, 300));
-        int compIndex = 0;
-        for(int j=0;j<groups2Comps.length;j++){
-            String[] nextGroup = groups2Comps[j];
-            JPanel groupPane = new JPanel();
-            groupPane.setLayout(new BoxLayout(groupPane, BoxLayout.Y_AXIS));
-            groupPane.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(nextGroup[0]),
-                    BorderFactory.createEmptyBorder(1,1,1,1)));
-            for (int i=1; i<nextGroup.length; i++) {
-                JButton configButton = new JButton();
-                Icon configIcon = 
-                    new ImageIcon(DatabaseImportMain.class.getResource("configure.png"),
-                            "Configure");                
-                configButton.setIcon(configIcon);
-                configButton.setPreferredSize(
-                        new Dimension(configIcon.getIconWidth(),
-                                configIcon.getIconHeight()));
-                configButton.addActionListener(new ConfigButtonActionListener(nextGroup[i]));                
-                configButton.setBorderPainted(false);
-                //System.out.println("Adding checkbox for "+components[i].getClass().getName());
-                checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
-                checkboxes[compIndex].setFocusable(true);
-                //checkboxes[i].setPreferredSize(new Dimension(200, 30));
-                JPanel line = new JPanel();
-                line.setLayout(new BorderLayout(5, 0));
-                line.add(configButton, BorderLayout.WEST);
-                line.add(checkboxes[compIndex], BorderLayout.CENTER);
-                groupPane.add(line);
-                compIndex++;
-            }
-            checkboxPane.add(groupPane);
-        }
-        gridC.gridx = 0;
-        gridC.gridy = 0;
-        gridC.fill = GridBagConstraints.BOTH;
-        JScrollPane scrollPane = new JScrollPane(checkboxPane);
-        scrollPane.setPreferredSize(new Dimension(450,300));
-        gridBagLayout.setConstraints( scrollPane, gridC );
-        getContentPane().add(scrollPane);
+public class DatabaseImportMain extends JFrame {
+	protected VoiceImportComponent[] components;
+	protected String[][] groups2Comps;
+	protected JCheckBox[] checkboxes;
+	protected JButton runButton;
+	protected DatabaseLayout db = null;
+	protected BasenameList bnl = null;
+	protected String currentComponent;
 
-        JButton helpButton = new JButton("Help");
-        helpButton.setMnemonic(KeyEvent.VK_H);
-        helpButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                displayHelpGUI();
-            }
-        });
-        JButton settingsButton = new JButton("Settings");
-        settingsButton.setMnemonic(KeyEvent.VK_S);
-        settingsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                currentComponent = "Global properties";
-                displaySettingsGUI();
-            }
-        });
-        runButton = new JButton("Run");
-        runButton.setMnemonic(KeyEvent.VK_R);
-        runButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                runSelectedComponents();
-            }
-        });
-        
-        JButton quitAndSaveButton = new JButton("Quit");
-        quitAndSaveButton.setMnemonic(KeyEvent.VK_Q);
-        quitAndSaveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                try {
-                    askIfSave();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-                System.exit(0);
-            }
-        });
-        
-        gridC.gridy = 1;
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
-        //buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.X_AXIS));
-        //runButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
-        buttonPanel.add(runButton);
-        //helpButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
-        buttonPanel.add(helpButton);
-        //settingsButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
-        buttonPanel.add(settingsButton);
-        //buttonPanel.add(Box.createHorizontalGlue());
-        //quitAndSaveButton.setAlignmentX(JButton.RIGHT_ALIGNMENT);
-        buttonPanel.add(quitAndSaveButton);
-        gridBagLayout.setConstraints( buttonPanel, gridC );
-        getContentPane().add(buttonPanel);
-        
-        //getContentPane().setPreferredSize(new Dimension(300, 300));
-        // End program when closing window:
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent evt) {
-                try {
-                    askIfSave();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-                System.exit(0);
-            }
-        });
-    }
-    
-    
-    protected void displayHelpGUI(){
-        Thread helpGUIThread = 
-            new Thread("DisplayHelpGUIThread") {
-                public void run() {
-                    boolean ok = 
-                        new HelpGUI(DatabaseImportMain.class.getResourceAsStream("help_import_main.html")).display();
-                    if (!ok){
-                        System.out.println("Error displaying helpfile "
-                                +"help_import_main.html");
-                    }                    
-                }};
-                helpGUIThread.start();
-    }
-    
-    protected void displaySettingsGUI()
+	public DatabaseImportMain(String title, VoiceImportComponent[] components, DatabaseLayout db, String[][] groups2Comps) {
+		super(title);
+		this.components = components;
+		this.checkboxes = new JCheckBox[components.length];
+		this.db = db;
+		this.bnl = db.getBasenames();
+		this.groups2Comps = groups2Comps;
+		currentComponent = "global properties";
+		setupGUI();
+	}
+
+	protected void setupGUI() {
+		// A scroll pane containing one labelled checkbox per component,
+		// and a "run selected components" button below.
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		GridBagConstraints gridC = new GridBagConstraints();
+		getContentPane().setLayout(gridBagLayout);
+
+		JPanel checkboxPane = new JPanel();
+		checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
+		// checkboxPane.setPreferredSize(new Dimension(300, 300));
+		int compIndex = 0;
+		for (int j = 0; j < groups2Comps.length; j++) {
+			String[] nextGroup = groups2Comps[j];
+			JPanel groupPane = new JPanel();
+			groupPane.setLayout(new BoxLayout(groupPane, BoxLayout.Y_AXIS));
+			groupPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(nextGroup[0]),
+					BorderFactory.createEmptyBorder(1, 1, 1, 1)));
+			for (int i = 1; i < nextGroup.length; i++) {
+				JButton configButton = new JButton();
+				Icon configIcon = new ImageIcon(DatabaseImportMain.class.getResource("configure.png"), "Configure");
+				configButton.setIcon(configIcon);
+				configButton.setPreferredSize(new Dimension(configIcon.getIconWidth(), configIcon.getIconHeight()));
+				configButton.addActionListener(new ConfigButtonActionListener(nextGroup[i]));
+				configButton.setBorderPainted(false);
+				// System.out.println("Adding checkbox for "+components[i].getClass().getName());
+				checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
+				checkboxes[compIndex].setFocusable(true);
+				// checkboxes[i].setPreferredSize(new Dimension(200, 30));
+				JPanel line = new JPanel();
+				line.setLayout(new BorderLayout(5, 0));
+				line.add(configButton, BorderLayout.WEST);
+				line.add(checkboxes[compIndex], BorderLayout.CENTER);
+				groupPane.add(line);
+				compIndex++;
+			}
+			checkboxPane.add(groupPane);
+		}
+		gridC.gridx = 0;
+		gridC.gridy = 0;
+		gridC.fill = GridBagConstraints.BOTH;
+		JScrollPane scrollPane = new JScrollPane(checkboxPane);
+		scrollPane.setPreferredSize(new Dimension(450, 300));
+		gridBagLayout.setConstraints(scrollPane, gridC);
+		getContentPane().add(scrollPane);
+
+		JButton helpButton = new JButton("Help");
+		helpButton.setMnemonic(KeyEvent.VK_H);
+		helpButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				displayHelpGUI();
+			}
+		});
+		JButton settingsButton = new JButton("Settings");
+		settingsButton.setMnemonic(KeyEvent.VK_S);
+		settingsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				currentComponent = "Global properties";
+				displaySettingsGUI();
+			}
+		});
+		runButton = new JButton("Run");
+		runButton.setMnemonic(KeyEvent.VK_R);
+		runButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				runSelectedComponents();
+			}
+		});
+
+		JButton quitAndSaveButton = new JButton("Quit");
+		quitAndSaveButton.setMnemonic(KeyEvent.VK_Q);
+		quitAndSaveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					askIfSave();
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				System.exit(0);
+			}
+		});
+
+		gridC.gridy = 1;
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+		// buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.X_AXIS));
+		// runButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
+		buttonPanel.add(runButton);
+		// helpButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
+		buttonPanel.add(helpButton);
+		// settingsButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
+		buttonPanel.add(settingsButton);
+		// buttonPanel.add(Box.createHorizontalGlue());
+		// quitAndSaveButton.setAlignmentX(JButton.RIGHT_ALIGNMENT);
+		buttonPanel.add(quitAndSaveButton);
+		gridBagLayout.setConstraints(buttonPanel, gridC);
+		getContentPane().add(buttonPanel);
+
+		// getContentPane().setPreferredSize(new Dimension(300, 300));
+		// End program when closing window:
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent evt) {
+				try {
+					askIfSave();
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				System.exit(0);
+			}
+		});
+	}
+
+	protected void displayHelpGUI() {
+		Thread helpGUIThread = new Thread("DisplayHelpGUIThread") {
+			public void run() {
+				boolean ok = new HelpGUI(DatabaseImportMain.class.getResourceAsStream("help_import_main.html")).display();
+				if (!ok) {
+					System.out.println("Error displaying helpfile " + "help_import_main.html");
+				}
+			}
+		};
+		helpGUIThread.start();
+	}
+
+	protected void displaySettingsGUI()
     {
         new Thread("DisplaySettingsGUIThread") {
             public void run() {
@@ -254,116 +236,103 @@ public class DatabaseImportMain extends JFrame
                         comps2HelpText);
             }}.start();
     }
-    
-    /**
-     * Run the selected components in a different thread.
-     *
-     */
-    protected void runSelectedComponents()
-    {
-        new Thread("RunSelectedComponentsThread") {
-            public void run() {
-                try {
-                    runButton.setEnabled(false);
-                    for (int i=0; i<components.length; i++) {
-                        if (checkboxes[i].isSelected()) {
-                            boolean success = false;
-                            Container parent = checkboxes[i].getParent();
-                            final JProgressBar progress = new JProgressBar();
-                            final VoiceImportComponent oneComponent = components[i];
-                            if (oneComponent.getProgress() != -1) {
-                                progress.setStringPainted(true);
-                                new Thread("ProgressThread") {
-                                    public void run() {
-                                        int percent = 0;
-                                        while (progress.isVisible()) {
-                                            progress.setValue(percent);
-                                            try { Thread.sleep(500); }
-                                            catch (InterruptedException ie) {}
-                                            percent = oneComponent.getProgress();
-                                        }
-                                    }
-                                }.start();
-                            } else {
-                                progress.setIndeterminate(true);
-                            }
-                            parent.add(progress, BorderLayout.EAST);
-                            progress.setVisible(true);
-                            parent.validate();
-                            try {
-                                success = oneComponent.compute();
-                            } catch (Exception exc) {
-                                checkboxes[i].setBackground(Color.RED);
-                                throw new Exception( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
-                            } finally {
-                                checkboxes[i].setSelected(false);
-                                progress.setVisible(false);
-                            }
-                            if (success) {
-                                checkboxes[i].setBackground(Color.GREEN);
-                            } else {
-                                checkboxes[i].setBackground(Color.RED);
-                            }
-                        }
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                } finally {
-                    runButton.setEnabled(true);
-                }
 
-            }
-        }.start();
-    }
-    
-    
-    
-    protected void askIfSave() throws IOException
-    {
-        if (bnl.hasChanged()){
-            int answer = JOptionPane.showOptionDialog(this,
-                    "Do you want to save the list of basenames?",
-                    "Save?",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null, null, null);
-            if (answer == JOptionPane.YES_OPTION) {            
-                JFileChooser fc = new JFileChooser();
-                fc.setSelectedFile(new File( db.getProp(db.BASENAMEFILE) ));
-                int returnVal = fc.showSaveDialog(this);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    bnl.write( fc.getSelectedFile() );
-                } 
-            }
-        } else {
-            System.exit(0);
-        }
-    }
-    
-    protected void closeGUI()
-    {
-        // This doesn't work because Java cannot close the X11 connection, see
-        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4420885
-        int answer = JOptionPane.showOptionDialog(this,
-                "Do you want to close this GUI?\n\n"
-                +"The components that are currently running will continue to run,\n"
-                +"but you will not be able to save settings or select/deselect\n"
-                +"components to run.\n"
-                +"This may be useful when running this tool using 'nohup' on a server\n"
-                +"because it allows you to log off without stopping the process.",
-                "Really close GUI?",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null, null, null);
-        if (answer == JOptionPane.YES_OPTION) {
-            this.setVisible(false);
-            this.dispose();
-        }
-    }
-    
-    
-   
-    public static String[][] readComponentList(InputStream fileIn)
+	/**
+	 * Run the selected components in a different thread.
+	 * 
+	 */
+	protected void runSelectedComponents() {
+		new Thread("RunSelectedComponentsThread") {
+			public void run() {
+				try {
+					runButton.setEnabled(false);
+					for (int i = 0; i < components.length; i++) {
+						if (checkboxes[i].isSelected()) {
+							boolean success = false;
+							Container parent = checkboxes[i].getParent();
+							final JProgressBar progress = new JProgressBar();
+							final VoiceImportComponent oneComponent = components[i];
+							if (oneComponent.getProgress() != -1) {
+								progress.setStringPainted(true);
+								new Thread("ProgressThread") {
+									public void run() {
+										int percent = 0;
+										while (progress.isVisible()) {
+											progress.setValue(percent);
+											try {
+												Thread.sleep(500);
+											} catch (InterruptedException ie) {
+											}
+											percent = oneComponent.getProgress();
+										}
+									}
+								}.start();
+							} else {
+								progress.setIndeterminate(true);
+							}
+							parent.add(progress, BorderLayout.EAST);
+							progress.setVisible(true);
+							parent.validate();
+							try {
+								success = oneComponent.compute();
+							} catch (Exception exc) {
+								checkboxes[i].setBackground(Color.RED);
+								throw new Exception("The component " + checkboxes[i].getText()
+										+ " produced the following exception: ", exc);
+							} finally {
+								checkboxes[i].setSelected(false);
+								progress.setVisible(false);
+							}
+							if (success) {
+								checkboxes[i].setBackground(Color.GREEN);
+							} else {
+								checkboxes[i].setBackground(Color.RED);
+							}
+						}
+					}
+				} catch (Throwable e) {
+					e.printStackTrace();
+				} finally {
+					runButton.setEnabled(true);
+				}
+
+			}
+		}.start();
+	}
+
+	protected void askIfSave() throws IOException {
+		if (bnl.hasChanged()) {
+			int answer = JOptionPane.showOptionDialog(this, "Do you want to save the list of basenames?", "Save?",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+			if (answer == JOptionPane.YES_OPTION) {
+				JFileChooser fc = new JFileChooser();
+				fc.setSelectedFile(new File(db.getProp(db.BASENAMEFILE)));
+				int returnVal = fc.showSaveDialog(this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					bnl.write(fc.getSelectedFile());
+				}
+			}
+		} else {
+			System.exit(0);
+		}
+	}
+
+	protected void closeGUI() {
+		// This doesn't work because Java cannot close the X11 connection, see
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4420885
+		int answer = JOptionPane.showOptionDialog(this, "Do you want to close this GUI?\n\n"
+				+ "The components that are currently running will continue to run,\n"
+				+ "but you will not be able to save settings or select/deselect\n" + "components to run.\n"
+				+ "This may be useful when running this tool using 'nohup' on a server\n"
+				+ "because it allows you to log off without stopping the process.", "Really close GUI?",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+		if (answer == JOptionPane.YES_OPTION) {
+			this.setVisible(false);
+			this.dispose();
+		}
+	}
+
+	public static String[][] readComponentList(InputStream fileIn)
     throws IOException
     {
         List<String> groups = new ArrayList<String>();
@@ -421,9 +390,8 @@ public class DatabaseImportMain extends JFrame
         }
         return result;
     }
-    
-   
-    public static void main( String[] args ) throws Exception
+
+	public static void main( String[] args ) throws Exception
     {
         File voiceDir = determineVoiceBuildingDir(args);
         if (voiceDir == null) {
@@ -553,22 +521,18 @@ public class DatabaseImportMain extends JFrame
         	return null;
         }
 	}
-    
-   
-    class ConfigButtonActionListener implements ActionListener
-    {
-        private String comp;
-        
-        public ConfigButtonActionListener(String comp)
-        {
-            this.comp = comp;
-        }
-        
-        public void actionPerformed(ActionEvent ae)
-        {
-            currentComponent = comp;
-            displaySettingsGUI();
-        }        
-    }
-    
+
+	class ConfigButtonActionListener implements ActionListener {
+		private String comp;
+
+		public ConfigButtonActionListener(String comp) {
+			this.comp = comp;
+		}
+
+		public void actionPerformed(ActionEvent ae) {
+			currentComponent = comp;
+			displaySettingsGUI();
+		}
+	}
+
 }
