@@ -24,34 +24,33 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 
 /**
- *
+ * 
  * @author Mat Wilson <mat.wilson@dfki.de>
  */
 public class IconSet {
-    
-    // Icon locations
-    public static final ImageIcon STOP_16X16      = new ImageIcon(AdminWindow.class.getResource("stopped_16x16.png"));
-    public static final ImageIcon STOP_48X48      = new ImageIcon(AdminWindow.class.getResource("stopped_48x48.png"));
-    public static final ImageIcon STOP_64X64      = new ImageIcon(AdminWindow.class.getResource("stopped_64x64.png"));
-    public static final ImageIcon PLAY_16X16      = new ImageIcon(AdminWindow.class.getResource("playing_16x16.png"));
-    public static final ImageIcon PLAY_48X48      = new ImageIcon(AdminWindow.class.getResource("playing_48x48.png"));
-    public static final ImageIcon PLAY_64X64      = new ImageIcon(AdminWindow.class.getResource("playing_64x64.png"));
-    public static final ImageIcon REC_48X48       = new ImageIcon(AdminWindow.class.getResource("recording_48x48.png"));
-    public static final ImageIcon REC_64X64       = new ImageIcon(AdminWindow.class.getResource("recording_64x64.png"));
-    public static final ImageIcon REC_16X16       = new ImageIcon(AdminWindow.class.getResource("recording_16x16.png"));
-    public static final ImageIcon INFO_16X16      = new ImageIcon(AdminWindow.class.getResource("info_16x16.png"));
-    public static final ImageIcon WARNING_16X16   = new ImageIcon(AdminWindow.class.getResource("warning_16x16.png"));
-    public static final ImageIcon LOGO_48x48      = new ImageIcon(AdminWindow.class.getResource("redstop_48x48.png"));
-    public static final URL       LOGO_16x16_URL  = AdminWindow.class.getResource("redstop_16x16.png");
-    
-    // Icons for recording status in prompt table; may be re-used in Options dialog message bar
-    //public static final ImageIcon CLIP_NO_16x16     = new ImageIcon(AdminWindow.class.getResource("no-clipping_16x16.png"));
-    //public static final ImageIcon CLIP_YES_16x16    = new ImageIcon(AdminWindow.class.getResource("clipping_16x16.png"));
-    //public static final ImageIcon CLIP_ALMOST_16x16 = new ImageIcon(AdminWindow.class.getResource("clip-warning_16x16.png"));
-    
-    /** Creates a new instance of Icon */
-    public IconSet() {
-    }
-    
-}
 
+	// Icon locations
+	public static final ImageIcon STOP_16X16 = new ImageIcon(AdminWindow.class.getResource("stopped_16x16.png"));
+	public static final ImageIcon STOP_48X48 = new ImageIcon(AdminWindow.class.getResource("stopped_48x48.png"));
+	public static final ImageIcon STOP_64X64 = new ImageIcon(AdminWindow.class.getResource("stopped_64x64.png"));
+	public static final ImageIcon PLAY_16X16 = new ImageIcon(AdminWindow.class.getResource("playing_16x16.png"));
+	public static final ImageIcon PLAY_48X48 = new ImageIcon(AdminWindow.class.getResource("playing_48x48.png"));
+	public static final ImageIcon PLAY_64X64 = new ImageIcon(AdminWindow.class.getResource("playing_64x64.png"));
+	public static final ImageIcon REC_48X48 = new ImageIcon(AdminWindow.class.getResource("recording_48x48.png"));
+	public static final ImageIcon REC_64X64 = new ImageIcon(AdminWindow.class.getResource("recording_64x64.png"));
+	public static final ImageIcon REC_16X16 = new ImageIcon(AdminWindow.class.getResource("recording_16x16.png"));
+	public static final ImageIcon INFO_16X16 = new ImageIcon(AdminWindow.class.getResource("info_16x16.png"));
+	public static final ImageIcon WARNING_16X16 = new ImageIcon(AdminWindow.class.getResource("warning_16x16.png"));
+	public static final ImageIcon LOGO_48x48 = new ImageIcon(AdminWindow.class.getResource("redstop_48x48.png"));
+	public static final URL LOGO_16x16_URL = AdminWindow.class.getResource("redstop_16x16.png");
+
+	// Icons for recording status in prompt table; may be re-used in Options dialog message bar
+	// public static final ImageIcon CLIP_NO_16x16 = new ImageIcon(AdminWindow.class.getResource("no-clipping_16x16.png"));
+	// public static final ImageIcon CLIP_YES_16x16 = new ImageIcon(AdminWindow.class.getResource("clipping_16x16.png"));
+	// public static final ImageIcon CLIP_ALMOST_16x16 = new ImageIcon(AdminWindow.class.getResource("clip-warning_16x16.png"));
+
+	/** Creates a new instance of Icon */
+	public IconSet() {
+	}
+
+}
