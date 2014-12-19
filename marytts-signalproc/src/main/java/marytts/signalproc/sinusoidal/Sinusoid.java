@@ -25,33 +25,29 @@ package marytts.signalproc.sinusoidal;
  * @author Oytun T&uumlrk
  */
 public class Sinusoid {
-    public float amp; //Amplitude (Total amplitude, i.e. excitation x system)
-    public float freq; //Frequency in radians
-    public float phase; //Phase
-    public int frameIndex; //Frame index
+	public float amp; // Amplitude (Total amplitude, i.e. excitation x system)
+	public float freq; // Frequency in radians
+	public float phase; // Phase
+	public int frameIndex; // Frame index
 
-    public static int NON_EXISTING_FRAME_INDEX = -1; //Used for sinusoid components added for parameter smoothing
-    
-    public Sinusoid(float freqIn)
-    {
-        this(1.0f, freqIn, 0.0f);
-    }
-    
-    public Sinusoid(float ampIn, float freqIn, float phaseIn)
-    {
-        this(ampIn, freqIn, phaseIn, NON_EXISTING_FRAME_INDEX);
-    }
-    
-    public Sinusoid(Sinusoid existingSinusoid)
-    {
-        this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase, existingSinusoid.frameIndex);
-    }
-    
-    public Sinusoid(float ampIn, float freqIn, float phaseIn, int frameIndexIn)
-    {
-        this.amp = ampIn;
-        this.freq = freqIn;
-        this.phase = phaseIn;
-        this.frameIndex = frameIndexIn;
-    }
+	public static int NON_EXISTING_FRAME_INDEX = -1; // Used for sinusoid components added for parameter smoothing
+
+	public Sinusoid(float freqIn) {
+		this(1.0f, freqIn, 0.0f);
+	}
+
+	public Sinusoid(float ampIn, float freqIn, float phaseIn) {
+		this(ampIn, freqIn, phaseIn, NON_EXISTING_FRAME_INDEX);
+	}
+
+	public Sinusoid(Sinusoid existingSinusoid) {
+		this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase, existingSinusoid.frameIndex);
+	}
+
+	public Sinusoid(float ampIn, float freqIn, float phaseIn, int frameIndexIn) {
+		this.amp = ampIn;
+		this.freq = freqIn;
+		this.phase = phaseIn;
+		this.frameIndex = frameIndexIn;
+	}
 }

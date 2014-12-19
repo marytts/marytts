@@ -25,9 +25,7 @@ package marytts.signalproc.analysis.distance;
  * @author Oytun T&uumlrk
  */
 public class BaselineDistortionComputer {
-    public BaselineDistortionComputer()
-    {
-        
-    }
-}
+	public BaselineDistortionComputer() {
 
+	}
+}

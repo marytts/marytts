@@ -21,25 +21,25 @@ package marytts.signalproc.process;
 
 /**
  * @author marc
- *
+ * 
  */
-public interface InlineFrameMerger extends InlineDataProcessor
-{
-    /**
-     * Set the frame of data to merge into the next call of applyInline().
-     * @param frameToMerge
-     */
-    public void setFrameToMerge(double[] frameToMerge);
-    
-    /**
-     * Set the frame of data to merge into the next call of applyInline().
-     * This method allows for an interpolation of two frames to be merged into the data set;
-     * for example, in order to correct for time misalignment between signal and other frames.
-     * @param frame1 
-     * @param frame2
-     * @param relativeWeightFrame1, a number between 0 and 1 indicating the relative weight of frame1^
-     * with respect to frame2. Consequently, the relative weight of frame 2 will be (1 - relativeWeightFrame1).
-     */
-    public void setFrameToMerge(double[] frame1, double[] frame2, double relativeWeightFrame1);
-}
+public interface InlineFrameMerger extends InlineDataProcessor {
+	/**
+	 * Set the frame of data to merge into the next call of applyInline().
+	 * 
+	 * @param frameToMerge
+	 */
+	public void setFrameToMerge(double[] frameToMerge);
 
+	/**
+	 * Set the frame of data to merge into the next call of applyInline(). This method allows for an interpolation of two frames
+	 * to be merged into the data set; for example, in order to correct for time misalignment between signal and other frames.
+	 * 
+	 * @param frame1
+	 * @param frame2
+	 * @param relativeWeightFrame1
+	 *            , a number between 0 and 1 indicating the relative weight of frame1^ with respect to frame2. Consequently, the
+	 *            relative weight of frame 2 will be (1 - relativeWeightFrame1).
+	 */
+	public void setFrameToMerge(double[] frame1, double[] frame2, double relativeWeightFrame1);
+}

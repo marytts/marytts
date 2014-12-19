@@ -21,13 +21,11 @@ package marytts.signalproc.process;
 
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public interface CopyingDataProcessor
-{
-    /**
-     * Perform some processing on the input data while copying it to the output location.
-     */
-    public void apply(final double[] src, int srcOff, double[] dest, int destOff, int len);
+public interface CopyingDataProcessor {
+	/**
+	 * Perform some processing on the input data while copying it to the output location.
+	 */
+	public void apply(final double[] src, int srcOff, double[] dest, int destOff, int len);
 }
-

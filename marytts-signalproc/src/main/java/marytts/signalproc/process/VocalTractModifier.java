@@ -28,57 +28,55 @@ import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class VocalTractModifier implements InlineDataProcessor {
 
-    protected int p;
-    protected int fs;
-    protected int fftSize;
-    protected int maxFreq;
-    protected ComplexArray h;
-    protected double [] vtSpectrum;
-    private ComplexArray expTerm;
-    private boolean bAnalysisOnly;
-    public static int tmpCount = 0;
-    /**
+	protected int p;
+	protected int fs;
+	protected int fftSize;
+	protected int maxFreq;
+	protected ComplexArray h;
+	protected double[] vtSpectrum;
+	private ComplexArray expTerm;
+	private boolean bAnalysisOnly;
+	public static int tmpCount = 0;
+
+	/**
      * 
      */
-    
-    //For derived classes which will call initialise on their own
-    public VocalTractModifier() {
-    
-    }
-    
-    public VocalTractModifier(int pIn, int fsIn, int fftSizeIn) {
-            initialise(pIn, fsIn, fftSizeIn);
-    }
-    
-    public void initialise(int pIn, int fsIn, int fftSizeIn)
-    {
-        initialise(pIn, fsIn, fftSizeIn, false);
-    }
-    
-    //If bAnalysisOnly is true, it will not process the spectrum and after each call to applyInline, you will obtain
-    // the real valued vocal tract spectrum in vtSpectrum and the ComplexArray valued excitation spectrum in real and imag
-    public void initialise(int pIn, int fsIn, int fftSizeIn, boolean bAnalysisOnlyIn)
-    {
-        this.p = pIn;
-        this.fs = fsIn;
-        this.fftSize = fftSizeIn;
-        fftSize = MathUtils.closestPowerOfTwoAbove(fftSize);
-        h = new ComplexArray(fftSize);
-        this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
-        this.vtSpectrum = new double[maxFreq];
-        this.expTerm = new ComplexArray(p*maxFreq);
-        this.expTerm = LpcAnalyser.calcExpTerm(fftSize, p);
-        this.bAnalysisOnly = bAnalysisOnlyIn;
-    }
-    
-    public void applyInline(double [] data, int pos, int len) {   
+
+	// For derived classes which will call initialise on their own
+	public VocalTractModifier() {
+
+	}
+
+	public VocalTractModifier(int pIn, int fsIn, int fftSizeIn) {
+		initialise(pIn, fsIn, fftSizeIn);
+	}
+
+	public void initialise(int pIn, int fsIn, int fftSizeIn) {
+		initialise(pIn, fsIn, fftSizeIn, false);
+	}
+
+	// If bAnalysisOnly is true, it will not process the spectrum and after each call to applyInline, you will obtain
+	// the real valued vocal tract spectrum in vtSpectrum and the ComplexArray valued excitation spectrum in real and imag
+	public void initialise(int pIn, int fsIn, int fftSizeIn, boolean bAnalysisOnlyIn) {
+		this.p = pIn;
+		this.fs = fsIn;
+		this.fftSize = fftSizeIn;
+		fftSize = MathUtils.closestPowerOfTwoAbove(fftSize);
+		h = new ComplexArray(fftSize);
+		this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+		this.vtSpectrum = new double[maxFreq];
+		this.expTerm = new ComplexArray(p * maxFreq);
+		this.expTerm = LpcAnalyser.calcExpTerm(fftSize, p);
+		this.bAnalysisOnly = bAnalysisOnlyIn;
+	}
+
+	public void applyInline(double [] data, int pos, int len) {   
         int k;
         assert pos==0;
         assert len==data.length;
@@ -159,8 +157,8 @@ public class VocalTractModifier implements InlineDataProcessor {
         }
     }
 
-    //Overload this function in the derived classes to modify the vocal tract spectrum Px in anyway you wish
-    protected void processSpectrum(double [] Px) {}
-    
-}
+	// Overload this function in the derived classes to modify the vocal tract spectrum Px in anyway you wish
+	protected void processSpectrum(double[] Px) {
+	}
 
+}

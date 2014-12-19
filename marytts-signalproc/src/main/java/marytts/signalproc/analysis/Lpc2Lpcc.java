@@ -39,65 +39,66 @@ import marytts.util.data.ESTTrackWriter;
 /**
  * 
  * Internally does the conversion between LPCs and LPCCs.
- *
+ * 
  */
-public class Lpc2Lpcc 
-{
-    private static float[][] convertData( float[][] lpc, int cepstrumOrder ) 
-    { 
-        int nLPC = lpc[0].length;
-        double gain = 0;
-        double[] a = new double[nLPC];
-        a[0] = 1.0; // Set a[0] to 1.0 once and for all
-        double[] c = new double[cepstrumOrder+1];
-        float[][] lpcc = new float[lpc.length][cepstrumOrder+1];
-        
-        // For each LPC vector:
-        for ( int i = 0; i < lpc.length; i++ ) {
-            // Dereference the gain, stored as a[0] in the EST format
-            gain = (double)( lpc[i][0] );
-            // Cast the LPC coeffs from float to double
-            // Note: a[0] has been permanently set to one in the above.
-            for ( int k = 1; k < nLPC; k++ ) {
-                a[k] = (double)( lpc[i][k] );
-            }
-            // Do the conversion
-            c = CepstrumLPCAnalyser.lpc2lpcc( a, gain, cepstrumOrder );
-            // Cast the cesptrum back to floats
-            for ( int k = 0; k <= cepstrumOrder; k++ ) {
-                lpcc[i][k] = (float)( c[k] );
-            }
-            // Note: lpcc[i][0] is now set to log(gain).
-        }
-        return( lpcc );
-    }
-    
-    /**
-     * A method to convert between two files, from LPCs to LPCCs in EST format.
-     * 
-     * @param cepstrumOrder The requested cepstrum order.
-     * @param inFileName The name of the input file.
-     * @param outFileName The name of the output file.
-     * 
-     * @throws IOException
-     */
-    public static void convert( String inFileName, String outFileName, int cepstrumOrder ) throws IOException {
-        // Load the input file
-        ESTTrackReader etr = new ESTTrackReader( inFileName );
-        // Convert
-        float[][] lpcc = convertData( etr.getFrames(), cepstrumOrder );
-        // Output the lpcc
-        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lpcc, "lpcc" );
-        etw.doWriteAndClose( outFileName, etr.isBinary(), etr.isBigEndian() );
-        
-    }
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws IOException {
-        // Usage: ESTlpcToESTlpcc cepstrumOrder inFileName outFileName
-        convert( args[1], args[2], new Integer( args[0] ).intValue() );
-    }
+public class Lpc2Lpcc {
+	private static float[][] convertData(float[][] lpc, int cepstrumOrder) {
+		int nLPC = lpc[0].length;
+		double gain = 0;
+		double[] a = new double[nLPC];
+		a[0] = 1.0; // Set a[0] to 1.0 once and for all
+		double[] c = new double[cepstrumOrder + 1];
+		float[][] lpcc = new float[lpc.length][cepstrumOrder + 1];
+
+		// For each LPC vector:
+		for (int i = 0; i < lpc.length; i++) {
+			// Dereference the gain, stored as a[0] in the EST format
+			gain = (double) (lpc[i][0]);
+			// Cast the LPC coeffs from float to double
+			// Note: a[0] has been permanently set to one in the above.
+			for (int k = 1; k < nLPC; k++) {
+				a[k] = (double) (lpc[i][k]);
+			}
+			// Do the conversion
+			c = CepstrumLPCAnalyser.lpc2lpcc(a, gain, cepstrumOrder);
+			// Cast the cesptrum back to floats
+			for (int k = 0; k <= cepstrumOrder; k++) {
+				lpcc[i][k] = (float) (c[k]);
+			}
+			// Note: lpcc[i][0] is now set to log(gain).
+		}
+		return (lpcc);
+	}
+
+	/**
+	 * A method to convert between two files, from LPCs to LPCCs in EST format.
+	 * 
+	 * @param cepstrumOrder
+	 *            The requested cepstrum order.
+	 * @param inFileName
+	 *            The name of the input file.
+	 * @param outFileName
+	 *            The name of the output file.
+	 * 
+	 * @throws IOException
+	 */
+	public static void convert(String inFileName, String outFileName, int cepstrumOrder) throws IOException {
+		// Load the input file
+		ESTTrackReader etr = new ESTTrackReader(inFileName);
+		// Convert
+		float[][] lpcc = convertData(etr.getFrames(), cepstrumOrder);
+		// Output the lpcc
+		ESTTrackWriter etw = new ESTTrackWriter(etr.getTimes(), lpcc, "lpcc");
+		etw.doWriteAndClose(outFileName, etr.isBinary(), etr.isBigEndian());
+
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws IOException {
+		// Usage: ESTlpcToESTlpcc cepstrumOrder inFileName outFileName
+		convert(args[1], args[2], new Integer(args[0]).intValue());
+	}
 
 }

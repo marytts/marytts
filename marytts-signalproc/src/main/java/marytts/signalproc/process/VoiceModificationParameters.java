@@ -23,72 +23,67 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class VoiceModificationParameters {
 
-    public int fs; //Sampling rate in Hz
-    public int lpOrder; //LP order
-    
-    protected double [] pscales;
-    protected double [] tscales;
-    protected double [] escales;
-    protected double [] vscales;
-    
-    /**
+	public int fs; // Sampling rate in Hz
+	public int lpOrder; // LP order
+
+	protected double[] pscales;
+	protected double[] tscales;
+	protected double[] escales;
+	protected double[] vscales;
+
+	/**
      * 
      */
-    public VoiceModificationParameters() {        
-        this(16000, 18, null, null, null, null);
-    }
+	public VoiceModificationParameters() {
+		this(16000, 18, null, null, null, null);
+	}
 
-    public VoiceModificationParameters(int samplingRate, int LPOrder, double [] pscalesIn, double [] tscalesIn, double [] escalesIn, double [] vscalesIn)
-    {
-        initialise(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
-    }
-    
-    public VoiceModificationParameters(int samplingRate, int LPOrder, double pscaleIn, double tscaleIn, double escaleIn, double vscaleIn)
-    {
-        double [] pscalesIn = new double[1];
-        double [] tscalesIn = new double[1];
-        double [] escalesIn = new double[1];
-        double [] vscalesIn = new double[1];
-        pscalesIn[0] = pscaleIn;
-        tscalesIn[0] = tscaleIn;
-        escalesIn[0] = escaleIn;
-        vscalesIn[0] = vscaleIn;
+	public VoiceModificationParameters(int samplingRate, int LPOrder, double[] pscalesIn, double[] tscalesIn, double[] escalesIn,
+			double[] vscalesIn) {
+		initialise(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
+	}
 
-        initialise(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
-    }
-    
-    private void initialise(int samplingRate, int LPOrder, double [] pscalesIn, double [] tscalesIn, double [] escalesIn, double [] vscalesIn)
-    {
-        if (pscalesIn!=null)
-        {
-            pscales = new double[pscalesIn.length];
-            System.arraycopy(pscalesIn, 0, pscales, 0, pscalesIn.length);
-        }
-        
-        if (tscalesIn!=null)
-        {
-            tscales = new double[tscalesIn.length];
-            System.arraycopy(tscalesIn, 0, tscales, 0, tscalesIn.length);
-        }
-        
-        if (escalesIn!=null)
-        {
-            escales = new double[escalesIn.length];
-            System.arraycopy(escalesIn, 0, escales, 0, escalesIn.length);
-        }
-        
-        if (vscalesIn!=null)
-        {
-            vscales = new double[vscalesIn.length];
-            System.arraycopy(vscalesIn, 0, vscales, 0, vscalesIn.length);
-        }
+	public VoiceModificationParameters(int samplingRate, int LPOrder, double pscaleIn, double tscaleIn, double escaleIn,
+			double vscaleIn) {
+		double[] pscalesIn = new double[1];
+		double[] tscalesIn = new double[1];
+		double[] escalesIn = new double[1];
+		double[] vscalesIn = new double[1];
+		pscalesIn[0] = pscaleIn;
+		tscalesIn[0] = tscaleIn;
+		escalesIn[0] = escaleIn;
+		vscalesIn[0] = vscaleIn;
 
-        fs = samplingRate;
-        lpOrder = SignalProcUtils.getLPOrder(fs);
-    }
+		initialise(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
+	}
+
+	private void initialise(int samplingRate, int LPOrder, double[] pscalesIn, double[] tscalesIn, double[] escalesIn,
+			double[] vscalesIn) {
+		if (pscalesIn != null) {
+			pscales = new double[pscalesIn.length];
+			System.arraycopy(pscalesIn, 0, pscales, 0, pscalesIn.length);
+		}
+
+		if (tscalesIn != null) {
+			tscales = new double[tscalesIn.length];
+			System.arraycopy(tscalesIn, 0, tscales, 0, tscalesIn.length);
+		}
+
+		if (escalesIn != null) {
+			escales = new double[escalesIn.length];
+			System.arraycopy(escalesIn, 0, escales, 0, escalesIn.length);
+		}
+
+		if (vscalesIn != null) {
+			vscales = new double[vscalesIn.length];
+			System.arraycopy(vscalesIn, 0, vscales, 0, vscalesIn.length);
+		}
+
+		fs = samplingRate;
+		lpOrder = SignalProcUtils.getLPOrder(fs);
+	}
 }
-

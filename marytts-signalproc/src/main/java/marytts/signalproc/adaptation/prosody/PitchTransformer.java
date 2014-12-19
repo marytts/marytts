@@ -29,13 +29,12 @@ import marytts.util.signal.SignalProcUtils;
  * 
  * @author Oytun T&uumlrk
  */
-public class PitchTransformer {    
-    public PitchTransformer()
-    {
-        
-    }
-    
-    public double[] transform(ProsodyTransformerParams param, 
+public class PitchTransformer {
+	public PitchTransformer() {
+
+	}
+
+	public double[] transform(ProsodyTransformerParams param, 
                               PitchStatisticsMapping mapping, 
                               PitchStatistics inputLocalStatistics,
                               double[] f0s,
@@ -330,40 +329,35 @@ public class PitchTransformer {
         
         return targetF0s;
     }
-    
-    public int findBestMatch(PitchStatistics oneStatistics, PitchStatisticsCollection multipleStatistics, double[] variances)
-    {
-        int bestIndex = -1;
-        
-        if (multipleStatistics!=null && oneStatistics!=null && multipleStatistics.entries!=null)
-        {
-            if (multipleStatistics.entries.length==1)
-                bestIndex = 0;
-            else
-            {
-                double[] dists = new double[multipleStatistics.entries.length];
-                for (int i=0; i<multipleStatistics.entries.length; i++)
-                {
-                    dists[i] = 0.0;
-                    dists[i] += (oneStatistics.mean-multipleStatistics.entries[i].mean)*
-                                (oneStatistics.mean-multipleStatistics.entries[i].mean)/variances[0];
-                    dists[i] += (oneStatistics.standardDeviation-multipleStatistics.entries[i].standardDeviation)*
-                                (oneStatistics.standardDeviation-multipleStatistics.entries[i].standardDeviation)/variances[1];
-                    dists[i] += (oneStatistics.range-multipleStatistics.entries[i].range)*
-                                (oneStatistics.range-multipleStatistics.entries[i].range)/variances[2];
-                    dists[i] += (oneStatistics.intercept-multipleStatistics.entries[i].intercept)*
-                                (oneStatistics.intercept-multipleStatistics.entries[i].intercept)/variances[3];
-                    dists[i] += (oneStatistics.slope-multipleStatistics.entries[i].slope)*
-                                (oneStatistics.slope-multipleStatistics.entries[i].slope)/variances[4];
 
-                    dists[i] = Math.sqrt(dists[i]);
-                }
+	public int findBestMatch(PitchStatistics oneStatistics, PitchStatisticsCollection multipleStatistics, double[] variances) {
+		int bestIndex = -1;
 
-                bestIndex = MathUtils.getMinIndex(dists);
-            }
-        }
-        
-        return bestIndex;
-    }
+		if (multipleStatistics != null && oneStatistics != null && multipleStatistics.entries != null) {
+			if (multipleStatistics.entries.length == 1)
+				bestIndex = 0;
+			else {
+				double[] dists = new double[multipleStatistics.entries.length];
+				for (int i = 0; i < multipleStatistics.entries.length; i++) {
+					dists[i] = 0.0;
+					dists[i] += (oneStatistics.mean - multipleStatistics.entries[i].mean)
+							* (oneStatistics.mean - multipleStatistics.entries[i].mean) / variances[0];
+					dists[i] += (oneStatistics.standardDeviation - multipleStatistics.entries[i].standardDeviation)
+							* (oneStatistics.standardDeviation - multipleStatistics.entries[i].standardDeviation) / variances[1];
+					dists[i] += (oneStatistics.range - multipleStatistics.entries[i].range)
+							* (oneStatistics.range - multipleStatistics.entries[i].range) / variances[2];
+					dists[i] += (oneStatistics.intercept - multipleStatistics.entries[i].intercept)
+							* (oneStatistics.intercept - multipleStatistics.entries[i].intercept) / variances[3];
+					dists[i] += (oneStatistics.slope - multipleStatistics.entries[i].slope)
+							* (oneStatistics.slope - multipleStatistics.entries[i].slope) / variances[4];
+
+					dists[i] = Math.sqrt(dists[i]);
+				}
+
+				bestIndex = MathUtils.getMinIndex(dists);
+			}
+		}
+
+		return bestIndex;
+	}
 }
-

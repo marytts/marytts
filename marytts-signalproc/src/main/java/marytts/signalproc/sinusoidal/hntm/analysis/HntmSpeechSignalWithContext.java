@@ -29,44 +29,40 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
-
 /**
  * A HNM signal with its left and right context
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class HntmSpeechSignalWithContext {
-    public HntmSpeechSignal hntmSignal;
-    public HntmSpeechFrame[] leftContexts;
-    public HntmSpeechFrame[] rightContexts;
-    
-    public HntmSpeechSignalWithContext()
-    {
-        hntmSignal = null;
-        leftContexts = null;
-        rightContexts = null;
-    }
-    
-    public HntmSpeechSignalWithContext(HntmSpeechSignal hntmSignalIn, HntmSpeechFrame[] leftContextsIn, HntmSpeechFrame[] rightContextsIn)
-    {
-        this();
-        
-        if (hntmSignalIn!=null)
-            hntmSignal = new HntmSpeechSignal(hntmSignalIn);
-        
-        if (leftContextsIn!=null && leftContextsIn.length>0)
-        {
-            leftContexts = new HntmSpeechFrame[leftContextsIn.length];
-            for (int i=0; i<leftContextsIn.length; i++)
-                leftContexts[i] = new HntmSpeechFrame(leftContextsIn[i]);
-        }
-        
-        if (rightContextsIn!=null && rightContextsIn.length>0)
-        {
-            rightContexts = new HntmSpeechFrame[rightContextsIn.length];
-            for (int i=0; i<rightContextsIn.length; i++)
-                rightContexts[i] = new HntmSpeechFrame(rightContextsIn[i]);
-        }
-    }
+	public HntmSpeechSignal hntmSignal;
+	public HntmSpeechFrame[] leftContexts;
+	public HntmSpeechFrame[] rightContexts;
+
+	public HntmSpeechSignalWithContext() {
+		hntmSignal = null;
+		leftContexts = null;
+		rightContexts = null;
+	}
+
+	public HntmSpeechSignalWithContext(HntmSpeechSignal hntmSignalIn, HntmSpeechFrame[] leftContextsIn,
+			HntmSpeechFrame[] rightContextsIn) {
+		this();
+
+		if (hntmSignalIn != null)
+			hntmSignal = new HntmSpeechSignal(hntmSignalIn);
+
+		if (leftContextsIn != null && leftContextsIn.length > 0) {
+			leftContexts = new HntmSpeechFrame[leftContextsIn.length];
+			for (int i = 0; i < leftContextsIn.length; i++)
+				leftContexts[i] = new HntmSpeechFrame(leftContextsIn[i]);
+		}
+
+		if (rightContextsIn != null && rightContextsIn.length > 0) {
+			rightContexts = new HntmSpeechFrame[rightContextsIn.length];
+			for (int i = 0; i < rightContextsIn.length; i++)
+				rightContexts[i] = new HntmSpeechFrame(rightContextsIn[i]);
+		}
+	}
 }

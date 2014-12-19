@@ -26,71 +26,72 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.StringTokenizer;
 
-
-
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class ESTTextfileDoubleDataSource extends TextReaderDoubleDataSource
-{
-    
-    
-    /**
-     * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first token in that line. 
-     * @param reader
-     */
-    public ESTTextfileDoubleDataSource(File file) throws FileNotFoundException
-    {
-        this(new FileReader(file));
-    }
+public class ESTTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 
-    /**
-     * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first token in that line. 
-     * @param reader
-     */
-    public ESTTextfileDoubleDataSource(Reader reader)
-    {
-        super(reader);
-        // Skip header:
-        try {
-            while (!this.reader.readLine().startsWith("EST_Header_End")) {}
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
+	/**
+	 * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first
+	 * token in that line.
+	 * 
+	 * @param reader
+	 */
+	public ESTTextfileDoubleDataSource(File file) throws FileNotFoundException {
+		this(new FileReader(file));
+	}
 
-    /**
-     * Try to get length doubles from this DoubleDataSource, and copy them into target, starting from targetPos.
-     * This is the core method getting the data. Subclasses may want to override this method.
-     * If an exception occurs reading from the underlying reader, or converting data to double,
-     * the method will print a stack trace to standard error, but otherwise will 
-     * silently stop and behave as if all data was read.
-     * @param target the double array to write into
-     * @param targetPos position in target where to start writing
-     * @param length the amount of data requested
-     * @return the amount of data actually delivered. If the returned value is less than length,
-     * only that many data items have been copied into target; further calls will return 0 and not copy anything.
-     */
-    public int getData(double[] target, int targetPos, int length)
-    {
-        for (int i=0; i<length; i++) {
-            try {
-                String line = reader.readLine();
-                if (line == null) return i;
-                String token = new StringTokenizer(line.trim()).nextToken();
-                double value = Double.parseDouble(token);
-                target[targetPos+i] = value;                
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                return i;
-            } catch (NumberFormatException nfe) {
-                nfe.printStackTrace();
-                return i;
-            }
-        }
-        return length;
-    }
+	/**
+	 * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first
+	 * token in that line.
+	 * 
+	 * @param reader
+	 */
+	public ESTTextfileDoubleDataSource(Reader reader) {
+		super(reader);
+		// Skip header:
+		try {
+			while (!this.reader.readLine().startsWith("EST_Header_End")) {
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
+	/**
+	 * Try to get length doubles from this DoubleDataSource, and copy them into target, starting from targetPos. This is the core
+	 * method getting the data. Subclasses may want to override this method. If an exception occurs reading from the underlying
+	 * reader, or converting data to double, the method will print a stack trace to standard error, but otherwise will silently
+	 * stop and behave as if all data was read.
+	 * 
+	 * @param target
+	 *            the double array to write into
+	 * @param targetPos
+	 *            position in target where to start writing
+	 * @param length
+	 *            the amount of data requested
+	 * @return the amount of data actually delivered. If the returned value is less than length, only that many data items have
+	 *         been copied into target; further calls will return 0 and not copy anything.
+	 */
+	public int getData(double[] target, int targetPos, int length) {
+		for (int i = 0; i < length; i++) {
+			try {
+				String line = reader.readLine();
+				if (line == null)
+					return i;
+				String token = new StringTokenizer(line.trim()).nextToken();
+				double value = Double.parseDouble(token);
+				target[targetPos + i] = value;
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				return i;
+			} catch (NumberFormatException nfe) {
+				nfe.printStackTrace();
+				return i;
+			}
+		}
+		return length;
+	}
 
 }
-

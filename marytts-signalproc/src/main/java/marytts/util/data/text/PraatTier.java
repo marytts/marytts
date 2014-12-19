@@ -28,9 +28,9 @@ package marytts.util.data.text;
  */
 public interface PraatTier {
 
-    double getXmin();
+	double getXmin();
 
-    double getXmax();
-    
-    String getName();
+	double getXmax();
+
+	String getName();
 }

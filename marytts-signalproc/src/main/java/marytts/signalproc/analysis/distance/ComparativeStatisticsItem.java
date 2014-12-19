@@ -25,25 +25,22 @@ import marytts.util.io.FileUtils;
  * @author Oytun T&uumlrk
  */
 public class ComparativeStatisticsItem {
-    public StatisticsItem referenceVsMethod1;
-    public StatisticsItem referenceVsMethod2;
-    
-    public ComparativeStatisticsItem(double[] x1, double[] x2)
-    {
-        referenceVsMethod1 = new StatisticsItem(x1);
-        referenceVsMethod2 = new StatisticsItem(x2);
-    }
-    
-    public void writeToTextFile(String textFile)
-    {
-        double[] tmpOut = new double[5];
-        tmpOut[0] = referenceVsMethod1.mean;
-        tmpOut[1] = referenceVsMethod1.std;
-        tmpOut[2] = referenceVsMethod2.mean;
-        tmpOut[3] = referenceVsMethod2.std; 
-        tmpOut[4] = referenceVsMethod1.mean-referenceVsMethod2.mean;
+	public StatisticsItem referenceVsMethod1;
+	public StatisticsItem referenceVsMethod2;
 
-        FileUtils.writeToTextFile(tmpOut, textFile);
-    }
+	public ComparativeStatisticsItem(double[] x1, double[] x2) {
+		referenceVsMethod1 = new StatisticsItem(x1);
+		referenceVsMethod2 = new StatisticsItem(x2);
+	}
+
+	public void writeToTextFile(String textFile) {
+		double[] tmpOut = new double[5];
+		tmpOut[0] = referenceVsMethod1.mean;
+		tmpOut[1] = referenceVsMethod1.std;
+		tmpOut[2] = referenceVsMethod2.mean;
+		tmpOut[3] = referenceVsMethod2.std;
+		tmpOut[4] = referenceVsMethod1.mean - referenceVsMethod2.mean;
+
+		FileUtils.writeToTextFile(tmpOut, textFile);
+	}
 }
-

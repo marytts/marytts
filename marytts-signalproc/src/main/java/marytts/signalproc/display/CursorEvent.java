@@ -19,15 +19,15 @@
  */
 package marytts.signalproc.display;
 
-
 public class CursorEvent {
-    protected FunctionGraph source;
-    public CursorEvent(FunctionGraph source)
-    {
-        this.source = source;
-    }
-    
-    public FunctionGraph getSource() { return source; }
-    
-}
+	protected FunctionGraph source;
 
+	public CursorEvent(FunctionGraph source) {
+		this.source = source;
+	}
+
+	public FunctionGraph getSource() {
+		return source;
+	}
+
+}

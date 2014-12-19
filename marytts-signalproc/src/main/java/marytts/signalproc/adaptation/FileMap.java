@@ -25,54 +25,41 @@ package marytts.signalproc.adaptation;
  * @author Oytun T&uumlrk
  */
 public class FileMap {
-    public int [][] indicesMap;
-    
-    public FileMap()
-    {
-        allocate(0,0);
-    }
-    
-    public FileMap(int numGroups)
-    {
-        allocate(numGroups,0);
-    }
-    
-    public FileMap(int numGroups, int numItems)
-    {
-        allocate(numGroups,numItems);
-    }
-    
-    public FileMap(FileMap fm)
-    {
-        if (fm.indicesMap!=null)
-        {
-            indicesMap = new int[fm.indicesMap.length][];
-            for (int i=0; i<fm.indicesMap.length; i++)
-            {
-                if (fm.indicesMap[i]!=null)
-                {
-                    indicesMap[i] = new int[fm.indicesMap[i].length];
-                    System.arraycopy(fm.indicesMap[i], 0, indicesMap[i], 0, fm.indicesMap[i].length);
-                }
-                else
-                    indicesMap[i] = null;
-            }
-        }
-        else
-            indicesMap = null;
-    }
-    
-    public void allocate(int numGroups, int numItems)
-    {
-        if (numGroups>0)
-        {    
-            if (numItems>0)
-                indicesMap = new int[numGroups][numItems];
-            else
-                indicesMap = new int[numGroups][];
-        }
-        else
-            indicesMap = null;
-    }
-}
+	public int[][] indicesMap;
 
+	public FileMap() {
+		allocate(0, 0);
+	}
+
+	public FileMap(int numGroups) {
+		allocate(numGroups, 0);
+	}
+
+	public FileMap(int numGroups, int numItems) {
+		allocate(numGroups, numItems);
+	}
+
+	public FileMap(FileMap fm) {
+		if (fm.indicesMap != null) {
+			indicesMap = new int[fm.indicesMap.length][];
+			for (int i = 0; i < fm.indicesMap.length; i++) {
+				if (fm.indicesMap[i] != null) {
+					indicesMap[i] = new int[fm.indicesMap[i].length];
+					System.arraycopy(fm.indicesMap[i], 0, indicesMap[i], 0, fm.indicesMap[i].length);
+				} else
+					indicesMap[i] = null;
+			}
+		} else
+			indicesMap = null;
+	}
+
+	public void allocate(int numGroups, int numItems) {
+		if (numGroups > 0) {
+			if (numItems > 0)
+				indicesMap = new int[numGroups][numItems];
+			else
+				indicesMap = new int[numGroups][];
+		} else
+			indicesMap = null;
+	}
+}

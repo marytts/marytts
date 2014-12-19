@@ -21,31 +21,24 @@ package marytts.signalproc.adaptation;
 
 /**
  * Baseline class for pre-processing operations after voice conversion
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class BaselinePreprocessor {
-    
-    public BaselinePreprocessor()
-    {
-        this(null);
-    }
-    
-    public BaselinePreprocessor(BaselinePreprocessor existing)
-    {
-        if (existing!=null)
-        {
-            //Copy class members if you add any
-        }
-        else
-        {
-            //Set default class member values
-        }
-    }
-    
-    public void run(BaselineAdaptationSet trainingSet)
-    {
-        
-    }
-}
 
+	public BaselinePreprocessor() {
+		this(null);
+	}
+
+	public BaselinePreprocessor(BaselinePreprocessor existing) {
+		if (existing != null) {
+			// Copy class members if you add any
+		} else {
+			// Set default class member values
+		}
+	}
+
+	public void run(BaselineAdaptationSet trainingSet) {
+
+	}
+}

@@ -31,7 +31,7 @@ package marytts.signalproc.adaptation;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class VocalTractMatch {
 

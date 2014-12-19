@@ -1,61 +1,60 @@
 package Jampack;
 
-class PlusTest{
+class PlusTest {
 
-   public static void main(String[] args)
-   throws JampackException{
+	public static void main(String[] args) throws JampackException {
 
-      if (args[0].equals("zmzm")){
+		if (args[0].equals("zmzm")) {
 
-         int nr = 4;
-         int nc = 3;
+			int nr = 4;
+			int nc = 3;
 
-         Zmat A = new Zmat(nr,nc);
-         Zmat B = new Zmat(nr,nc);
-         for (int i=0; i<nr; i++){
-            for (int j=0; j<nc; j++){
-               A.re[i][j] = i;
-               B.re[i][j] = -i;
-               A.im[i][j] = j;
-               B.im[i][j] = -j;
-            }
-         }
-         Print.o(Plus.o(A,B));
-      }
-   
-      else if (args[0].equals("zmzdm")){
+			Zmat A = new Zmat(nr, nc);
+			Zmat B = new Zmat(nr, nc);
+			for (int i = 0; i < nr; i++) {
+				for (int j = 0; j < nc; j++) {
+					A.re[i][j] = i;
+					B.re[i][j] = -i;
+					A.im[i][j] = j;
+					B.im[i][j] = -j;
+				}
+			}
+			Print.o(Plus.o(A, B));
+		}
 
-         int n = 3;
+		else if (args[0].equals("zmzdm")) {
 
-         Zmat A = new Zmat(n,n);
-         Zdiagmat D = new Zdiagmat(n);
-         for (int i=0; i<n; i++){
-            for (int j=0; j<n; j++){
-               A.re[i][j] = i;
-               A.im[i][j] = j;
-            }
-            D.re[i] = -i;
-            D.im[i] = -i;
-         }
-         Print.o(Plus.o(A,D));
-         Print.o(Plus.o(D,A));
-      }
+			int n = 3;
 
-      else if (args[0].equals("zdmzdm")){
+			Zmat A = new Zmat(n, n);
+			Zdiagmat D = new Zdiagmat(n);
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					A.re[i][j] = i;
+					A.im[i][j] = j;
+				}
+				D.re[i] = -i;
+				D.im[i] = -i;
+			}
+			Print.o(Plus.o(A, D));
+			Print.o(Plus.o(D, A));
+		}
 
-         int n = 3;
+		else if (args[0].equals("zdmzdm")) {
 
-         Zdiagmat D1 = new Zdiagmat(n);
-         Zdiagmat D2 = new Zdiagmat(n);
-         for (int i=0; i<n; i++){
-            D1.re[i] = i;
-            D1.im[i] = -i;
-            D2.re[i] = -i;
-            D2.im[i] = i;
-         }
-         Print.o(Plus.o(D1,D2));
-      }
+			int n = 3;
 
-   }
+			Zdiagmat D1 = new Zdiagmat(n);
+			Zdiagmat D2 = new Zdiagmat(n);
+			for (int i = 0; i < n; i++) {
+				D1.re[i] = i;
+				D1.im[i] = -i;
+				D2.re[i] = -i;
+				D2.im[i] = i;
+			}
+			Print.o(Plus.o(D1, D2));
+		}
+
+	}
 
 }
