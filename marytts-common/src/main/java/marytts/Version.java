@@ -24,50 +24,48 @@ import java.io.InputStream;
 
 import marytts.util.io.FileUtils;
 
-
 /**
  * Provide Version information for the Mary server and client.
+ * 
  * @author Marc Schr&ouml;der
- *
+ * 
  */
 public class Version {
-    private static String specificationVersion;
-    private static String implementationVersion;
+	private static String specificationVersion;
+	private static String implementationVersion;
 
-    static {
-        InputStream specVersionStream = Version.class.
-            getResourceAsStream("specification-version.txt");
-        if (specVersionStream != null) {
-            try {
-                specificationVersion = FileUtils.getStreamAsString(specVersionStream, "UTF-8").trim();
-            } catch (IOException e) {
-                specificationVersion = "undeterminable";
-            }
-        } else {
-            specificationVersion = "unknown";
-        }
-        
-        InputStream implVersionStream = Version.class.
-            getResourceAsStream("implementation-version.txt");
-        if (implVersionStream != null) {
-            try {
-                implementationVersion = FileUtils.getStreamAsString(implVersionStream, "UTF-8").trim();
-            } catch (IOException e) {
-                implementationVersion = "undeterminable";
-            }
-        } else {
-            implementationVersion = "unknown";
-        }
-    }
+	static {
+		InputStream specVersionStream = Version.class.getResourceAsStream("specification-version.txt");
+		if (specVersionStream != null) {
+			try {
+				specificationVersion = FileUtils.getStreamAsString(specVersionStream, "UTF-8").trim();
+			} catch (IOException e) {
+				specificationVersion = "undeterminable";
+			}
+		} else {
+			specificationVersion = "unknown";
+		}
 
-    /** Specification version */
-    public static String specificationVersion() {
-        return specificationVersion;
-    }
-    /** Implementation version */
-    public static String implementationVersion() {
-        return implementationVersion;
-    }
+		InputStream implVersionStream = Version.class.getResourceAsStream("implementation-version.txt");
+		if (implVersionStream != null) {
+			try {
+				implementationVersion = FileUtils.getStreamAsString(implVersionStream, "UTF-8").trim();
+			} catch (IOException e) {
+				implementationVersion = "undeterminable";
+			}
+		} else {
+			implementationVersion = "unknown";
+		}
+	}
+
+	/** Specification version */
+	public static String specificationVersion() {
+		return specificationVersion;
+	}
+
+	/** Implementation version */
+	public static String implementationVersion() {
+		return implementationVersion;
+	}
 
 }
-

@@ -40,228 +40,214 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing
- * and halving/doubling prevention
- *
+ * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing and halving/doubling prevention
+ * 
  * @author Oytun T&uumlrk
  */
-public class F0TrackerAutocorrelationHeuristic { 
-    public double[] f0s;
-    
-    protected PitchFileHeader params; //Pitch detection parameters
-    protected int totalVoicedFrames; //Total number of voiced frames
-    protected double[] voicingProbabilities; //Probability of voicing for each frame
-    protected int minT0Index; //Minimum period length in samples (i.e. corresponding to maximum f0)
-    protected int maxT0Index; //Maximum period length in samples (i.e. corresponding to minimum f0)
- 
-    protected double[] prevF0s; 
-    protected double[] voicedF0s; //Voiced frame´s f0 values
-    protected double longTermAverageF0; //Long term average f0 in voiced frames
-    protected double shortTermAverageF0; //Short term average f0 in voiced frames
-    
-    public static double MAX_SAMPLE = 32767.0; //Max 16-bit absolute sample value
-    public static double MINIMUM_SPEECH_ENERGY = 50.0; //Minimum average sample energy for detecting unvoiced parts
-    protected double averageSampleEnergy; //Keeps average sample energy for the current analysis frame
-    
-    //The following are used in internal computations only and are not accessible for the user
-    private double[] pitchFrm; //A buffer for analysis speech frames
-    
-    private int frameIndex; //Current frame index
-    private int ws; //Window size in samples
-    private int ss; //Skip size in samples
-    //
-    
-    public F0TrackerAutocorrelationHeuristic(String wavFile) throws Exception
-    {
-        if (FileUtils.exists(wavFile))
-        {
-            String ptcFile = StringUtils.modifyExtension(wavFile, "ptc");
+public class F0TrackerAutocorrelationHeuristic {
+	public double[] f0s;
 
-            params = new PitchFileHeader();
+	protected PitchFileHeader params; // Pitch detection parameters
+	protected int totalVoicedFrames; // Total number of voiced frames
+	protected double[] voicingProbabilities; // Probability of voicing for each frame
+	protected int minT0Index; // Minimum period length in samples (i.e. corresponding to maximum f0)
+	protected int maxT0Index; // Maximum period length in samples (i.e. corresponding to minimum f0)
 
-            init();
+	protected double[] prevF0s;
+	protected double[] voicedF0s; // Voiced frame´s f0 values
+	protected double longTermAverageF0; // Long term average f0 in voiced frames
+	protected double shortTermAverageF0; // Short term average f0 in voiced frames
 
-            PitchReaderWriter f0 = null;
-            try {
-                f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
-            } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        else
-            throw new Exception("Wav file not found!");
-    }
-    
-    public F0TrackerAutocorrelationHeuristic(String wavFile, String ptcFile) throws Exception
-    {
-        if (FileUtils.exists(wavFile))
-        {
-            params = new PitchFileHeader();
+	public static double MAX_SAMPLE = 32767.0; // Max 16-bit absolute sample value
+	public static double MINIMUM_SPEECH_ENERGY = 50.0; // Minimum average sample energy for detecting unvoiced parts
+	protected double averageSampleEnergy; // Keeps average sample energy for the current analysis frame
 
-            init();
+	// The following are used in internal computations only and are not accessible for the user
+	private double[] pitchFrm; // A buffer for analysis speech frames
 
-            PitchReaderWriter f0 = null;
-            try {
-                f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
-            } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        else 
-            throw new Exception("Wav file not found!");
-    }
-    
-    public F0TrackerAutocorrelationHeuristic(PitchFileHeader paramsIn)
-    {
-        params = new PitchFileHeader(paramsIn);
-        
-        init();
-    }
-    
-    public void init()
-    {
-        int i;
-        
-        voicingProbabilities = new double[2];
-        for (i=0; i<voicingProbabilities.length; i++)
-            voicingProbabilities[i] = 0.0;
-        
-        prevF0s = new double[5];
-        
-        for (i=0; i<prevF0s.length; i++)
-            prevF0s[i] = 0.0;
-        
-        voicedF0s = new double[20];
-        
-        for (i=0; i<voicedF0s.length; i++)
-            voicedF0s[i] = 0.0;
-        
-        longTermAverageF0 = 0.5*(params.maximumF0+params.minimumF0);
-        shortTermAverageF0 = longTermAverageF0;
-        
-        frameIndex = 0;
-        
-        ws =  (int)Math.floor(params.windowSizeInSeconds*params.fs+0.5);
-        ss = (int)Math.floor(params.skipSizeInSeconds*params.fs+0.5);
-        
-        pitchFrm = new double[ws];
-        minT0Index = (int)Math.floor(params.fs/params.maximumF0+0.5);
-        maxT0Index = (int)Math.floor(params.fs/params.minimumF0+0.5);
-        
-        if (minT0Index<0)
-            minT0Index=0;
-        if (minT0Index>ws-1)
-            minT0Index=ws-1;
-        if (maxT0Index<minT0Index)
-            maxT0Index=minT0Index;
-        if (maxT0Index>ws-1)
-            maxT0Index=ws-1;
-    }
-    
-    public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn) throws UnsupportedAudioFileException, IOException
-    { 
-        return pitchAnalyzeWavFile(wavFileIn, null);
-    }
-    
-    public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn, String ptcFileOut) throws UnsupportedAudioFileException, IOException
-    {   
-        PitchReaderWriter f0 = new PitchReaderWriter();
-        
-        pitchAnalyzeWav(wavFileIn);
- 
-        if (f0s!=null)
-        {
-            params.numfrm = f0s.length;
-            
-            if (ptcFileOut!=null)
-                PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.windowSizeInSeconds), (float)(params.skipSizeInSeconds), params.fs);
-        }
-        else
-            params.numfrm = 0;
-        
-        f0.header = new PitchFileHeader(params);
-        f0.setContour(f0s);
-        
-        return f0;
-    }
-    
-    public void pitchAnalyzeWav(String wavFile) throws UnsupportedAudioFileException, IOException
-    {   
-        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
-        params.fs = (int)inputAudio.getFormat().getSampleRate();
-        
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        
-        pitchAnalyze(signal);
-    }
+	private int frameIndex; // Current frame index
+	private int ws; // Window size in samples
+	private int ss; // Skip size in samples
 
-    /**
-     * Analyse the f0 contour of the given audio signal.
-     * @param signal
-     */
-    public void pitchAnalyze(DoubleDataSource signal)
-    {
-        pitchAnalyze(signal.getAllData());
-        
-        if (f0s!=null)
-            params.numfrm = f0s.length;
-        else
-            params.numfrm = 0;
-    }
+	//
 
-    private void pitchAnalyze(double[] x)
-    {
-        init();
-        
-        if (params.cutOff1>0.0 || params.cutOff2>0.0)
-        {
-            FIRFilter f = null;
-            if (params.cutOff2<=0.0)
-                f = new LowPassFilter(params.cutOff1/params.fs);
-            else
-                f = new BandPassFilter(params.cutOff1/params.fs, params.cutOff2/params.fs);
-            
-            if (f!=null)
-                f.apply(x);            
-        }
-        
-        f0s = null;
-        
-        int numfrm = (int)Math.floor(((double)x.length-ws)/ss+0.5);
-        
-        
-        if (numfrm <= 0) return;
-        
-        double maxSample = MathUtils.getAbsMax(x);
+	public F0TrackerAutocorrelationHeuristic(String wavFile) throws Exception {
+		if (FileUtils.exists(wavFile)) {
+			String ptcFile = StringUtils.modifyExtension(wavFile, "ptc");
 
-        f0s = new double[numfrm];
-        
-        int i, j;
-        frameIndex = 0;
-        Arrays.fill(f0s, 0.0);
-        
-        Random random = new Random();
-        for (i=0; i<numfrm; i++)
-        {
-            System.arraycopy(x, i*ss, pitchFrm, 0, Math.min(ws, x.length-i*ss));
-            for (j=0; j<ws; j++)
-                pitchFrm[j] = (pitchFrm[j]/maxSample)*MAX_SAMPLE + 1e-50*random.nextDouble();
-            
-            f0s[i] = pitchFrameAutocorrelation(pitchFrm);
-             
-            frameIndex++;
-        }
-    }
-    
-    private double pitchFrameAutocorrelation(double[] frmIn)
+			params = new PitchFileHeader();
+
+			init();
+
+			PitchReaderWriter f0 = null;
+			try {
+				f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
+			} catch (UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else
+			throw new Exception("Wav file not found!");
+	}
+
+	public F0TrackerAutocorrelationHeuristic(String wavFile, String ptcFile) throws Exception {
+		if (FileUtils.exists(wavFile)) {
+			params = new PitchFileHeader();
+
+			init();
+
+			PitchReaderWriter f0 = null;
+			try {
+				f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
+			} catch (UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else
+			throw new Exception("Wav file not found!");
+	}
+
+	public F0TrackerAutocorrelationHeuristic(PitchFileHeader paramsIn) {
+		params = new PitchFileHeader(paramsIn);
+
+		init();
+	}
+
+	public void init() {
+		int i;
+
+		voicingProbabilities = new double[2];
+		for (i = 0; i < voicingProbabilities.length; i++)
+			voicingProbabilities[i] = 0.0;
+
+		prevF0s = new double[5];
+
+		for (i = 0; i < prevF0s.length; i++)
+			prevF0s[i] = 0.0;
+
+		voicedF0s = new double[20];
+
+		for (i = 0; i < voicedF0s.length; i++)
+			voicedF0s[i] = 0.0;
+
+		longTermAverageF0 = 0.5 * (params.maximumF0 + params.minimumF0);
+		shortTermAverageF0 = longTermAverageF0;
+
+		frameIndex = 0;
+
+		ws = (int) Math.floor(params.windowSizeInSeconds * params.fs + 0.5);
+		ss = (int) Math.floor(params.skipSizeInSeconds * params.fs + 0.5);
+
+		pitchFrm = new double[ws];
+		minT0Index = (int) Math.floor(params.fs / params.maximumF0 + 0.5);
+		maxT0Index = (int) Math.floor(params.fs / params.minimumF0 + 0.5);
+
+		if (minT0Index < 0)
+			minT0Index = 0;
+		if (minT0Index > ws - 1)
+			minT0Index = ws - 1;
+		if (maxT0Index < minT0Index)
+			maxT0Index = minT0Index;
+		if (maxT0Index > ws - 1)
+			maxT0Index = ws - 1;
+	}
+
+	public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn) throws UnsupportedAudioFileException, IOException {
+		return pitchAnalyzeWavFile(wavFileIn, null);
+	}
+
+	public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn, String ptcFileOut) throws UnsupportedAudioFileException,
+			IOException {
+		PitchReaderWriter f0 = new PitchReaderWriter();
+
+		pitchAnalyzeWav(wavFileIn);
+
+		if (f0s != null) {
+			params.numfrm = f0s.length;
+
+			if (ptcFileOut != null)
+				PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float) (params.windowSizeInSeconds),
+						(float) (params.skipSizeInSeconds), params.fs);
+		} else
+			params.numfrm = 0;
+
+		f0.header = new PitchFileHeader(params);
+		f0.setContour(f0s);
+
+		return f0;
+	}
+
+	public void pitchAnalyzeWav(String wavFile) throws UnsupportedAudioFileException, IOException {
+		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+		params.fs = (int) inputAudio.getFormat().getSampleRate();
+
+		AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+
+		pitchAnalyze(signal);
+	}
+
+	/**
+	 * Analyse the f0 contour of the given audio signal.
+	 * 
+	 * @param signal
+	 */
+	public void pitchAnalyze(DoubleDataSource signal) {
+		pitchAnalyze(signal.getAllData());
+
+		if (f0s != null)
+			params.numfrm = f0s.length;
+		else
+			params.numfrm = 0;
+	}
+
+	private void pitchAnalyze(double[] x) {
+		init();
+
+		if (params.cutOff1 > 0.0 || params.cutOff2 > 0.0) {
+			FIRFilter f = null;
+			if (params.cutOff2 <= 0.0)
+				f = new LowPassFilter(params.cutOff1 / params.fs);
+			else
+				f = new BandPassFilter(params.cutOff1 / params.fs, params.cutOff2 / params.fs);
+
+			if (f != null)
+				f.apply(x);
+		}
+
+		f0s = null;
+
+		int numfrm = (int) Math.floor(((double) x.length - ws) / ss + 0.5);
+
+		if (numfrm <= 0)
+			return;
+
+		double maxSample = MathUtils.getAbsMax(x);
+
+		f0s = new double[numfrm];
+
+		int i, j;
+		frameIndex = 0;
+		Arrays.fill(f0s, 0.0);
+
+		Random random = new Random();
+		for (i = 0; i < numfrm; i++) {
+			System.arraycopy(x, i * ss, pitchFrm, 0, Math.min(ws, x.length - i * ss));
+			for (j = 0; j < ws; j++)
+				pitchFrm[j] = (pitchFrm[j] / maxSample) * MAX_SAMPLE + 1e-50 * random.nextDouble();
+
+			f0s[i] = pitchFrameAutocorrelation(pitchFrm);
+
+			frameIndex++;
+		}
+	}
+
+	private double pitchFrameAutocorrelation(double[] frmIn)
     {
         assert pitchFrm.length == frmIn.length;
         System.arraycopy(pitchFrm, 0, frmIn, 0, frmIn.length);
@@ -400,38 +386,34 @@ public class F0TrackerAutocorrelationHeuristic {
         
         return f0;
     }
-    
-    /**
-     * The frame shift time, in seconds.
-     * @return
-     */
-    public double getSkipSizeInSeconds()
-    { 
-        return params.skipSizeInSeconds;
-    }
-    
-    /**
-     * The size of the analysis window, in seconds.
-     * @return
-     */
-    public double getWindowSizeInSeconds()
-    {
-        return params.windowSizeInSeconds;
-    }
-    
-    public double[] getF0Contour()
-    {
-        return f0s;
-    }
-    
-    public static void main(String[] args)
-    throws Exception
-    {
-        F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(new PitchFileHeader());
-        tracker.pitchAnalyzeWavFile(args[0]);
-        FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.skipSizeInSeconds, tracker.f0s);
-        f0Graph.showInJFrame("F0 curve for "+args[0], false, true);
-    }
-    
-}
 
+	/**
+	 * The frame shift time, in seconds.
+	 * 
+	 * @return
+	 */
+	public double getSkipSizeInSeconds() {
+		return params.skipSizeInSeconds;
+	}
+
+	/**
+	 * The size of the analysis window, in seconds.
+	 * 
+	 * @return
+	 */
+	public double getWindowSizeInSeconds() {
+		return params.windowSizeInSeconds;
+	}
+
+	public double[] getF0Contour() {
+		return f0s;
+	}
+
+	public static void main(String[] args) throws Exception {
+		F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(new PitchFileHeader());
+		tracker.pitchAnalyzeWavFile(args[0]);
+		FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.skipSizeInSeconds, tracker.f0s);
+		f0Graph.showInJFrame("F0 curve for " + args[0], false, true);
+	}
+
+}

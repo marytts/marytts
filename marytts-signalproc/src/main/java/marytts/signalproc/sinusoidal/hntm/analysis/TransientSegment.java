@@ -36,34 +36,30 @@ import marytts.util.signal.SignalProcUtils;
  * This class represents a transient segment of the waveform
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class TransientSegment {
-    public float startTime; //Start time of segment in seconds
-    public int[] waveform; //Waveform values in 16-bit
-    
-    public TransientSegment()
-    {
-        startTime = -1.0f;
-        waveform = null;
-    }
-    
-    public TransientSegment(TransientSegment existing)
-    {
-        this();
-        
-        if (existing!=null)
-        {
-            this.startTime = existing.startTime;
-            this.waveform = ArrayUtils.copy(existing.waveform);
-        }
-    }
-    
-    public float getEndTime(int samplingRateInHz)
-    {
-        if (waveform!=null && startTime>-1.0f)
-            return startTime + SignalProcUtils.sample2time(waveform.length, samplingRateInHz);
-        else
-            return -1.0f;
-    }
+	public float startTime; // Start time of segment in seconds
+	public int[] waveform; // Waveform values in 16-bit
+
+	public TransientSegment() {
+		startTime = -1.0f;
+		waveform = null;
+	}
+
+	public TransientSegment(TransientSegment existing) {
+		this();
+
+		if (existing != null) {
+			this.startTime = existing.startTime;
+			this.waveform = ArrayUtils.copy(existing.waveform);
+		}
+	}
+
+	public float getEndTime(int samplingRateInHz) {
+		if (waveform != null && startTime > -1.0f)
+			return startTime + SignalProcUtils.sample2time(waveform.length, samplingRateInHz);
+		else
+			return -1.0f;
+	}
 }

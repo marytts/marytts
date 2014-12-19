@@ -21,22 +21,21 @@ package marytts.signalproc.adaptation.smoothing;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class SmoothingDefinitions {
-    //Smoothing status
-    public static final int NONE= 0;
-    public static final int ESTIMATING_SMOOTHED_VOCAL_TRACT = 1; //No output generation except a smoothed vocal tract spectrum
-    public static final int TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT = 2; //No mapping/transformation but use pre-computed values
-    //
-    
-    //Smoothing methods: These are active when ESTIMATING_SMOOTHED_VOCAL_TRACT
-    public static final int NO_SMOOTHING = 0; //Do nothing about smoothing
-    public static final int TRANSFORMATION_FILTER_SMOOTHING = 1; //Store target/source filters to smooth them
-    public static final int OUTPUT_LSFCONTOUR_SMOOTHING = 2; //Store target(output) lsf contours to smooth them
-    public static final int OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING = 3; //Store target(output) vocal tract spectra to smooth them
-    //
-    
-    public static final int DEFAULT_NUM_NEIGHBOURS = 5;
-}
+	// Smoothing status
+	public static final int NONE = 0;
+	public static final int ESTIMATING_SMOOTHED_VOCAL_TRACT = 1; // No output generation except a smoothed vocal tract spectrum
+	public static final int TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT = 2; // No mapping/transformation but use pre-computed values
+	//
 
+	// Smoothing methods: These are active when ESTIMATING_SMOOTHED_VOCAL_TRACT
+	public static final int NO_SMOOTHING = 0; // Do nothing about smoothing
+	public static final int TRANSFORMATION_FILTER_SMOOTHING = 1; // Store target/source filters to smooth them
+	public static final int OUTPUT_LSFCONTOUR_SMOOTHING = 2; // Store target(output) lsf contours to smooth them
+	public static final int OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING = 3; // Store target(output) vocal tract spectra to smooth them
+	//
+
+	public static final int DEFAULT_NUM_NEIGHBOURS = 5;
+}

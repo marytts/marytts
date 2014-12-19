@@ -22,7 +22,6 @@ package marytts.language.fr;
 import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-
 public class FrenchConfig extends LanguageConfig {
 	public FrenchConfig() throws MaryConfigurationException {
 		super(FrenchConfig.class.getResourceAsStream("fr.config"));

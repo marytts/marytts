@@ -24,27 +24,23 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * A helper class for the synthesis module,
- *          splitting synthesis input data into sections
- *          to be spoken by the same voice.
- *
+ * A helper class for the synthesis module, splitting synthesis input data into sections to be spoken by the same voice.
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public abstract class VoiceSectioner
-{
-    protected String s;
-    protected int pos;
-    protected Voice currentVoice;
-    protected Logger logger = null;
-    public VoiceSectioner(String s, Voice defaultVoice)
-    {
-        this.s = s;
-        this.pos = 0;
-        this.currentVoice = defaultVoice;
-        this.logger = MaryUtils.getLogger("VoiceSectioner");
-    }
-    
-    public abstract VoiceSection nextSection();
-}
+public abstract class VoiceSectioner {
+	protected String s;
+	protected int pos;
+	protected Voice currentVoice;
+	protected Logger logger = null;
 
+	public VoiceSectioner(String s, Voice defaultVoice) {
+		this.s = s;
+		this.pos = 0;
+		this.currentVoice = defaultVoice;
+		this.logger = MaryUtils.getLogger("VoiceSectioner");
+	}
+
+	public abstract VoiceSection nextSection();
+}

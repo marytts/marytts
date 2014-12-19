@@ -61,7 +61,6 @@
  *
  */
 
-
 package marytts.htsengine;
 
 import java.util.Locale;
@@ -76,29 +75,41 @@ import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
-
 public class HMMVoice extends Voice {
- 
-    private HMMData htsData = new HMMData();
-    private Logger logger = MaryUtils.getLogger("HMMVoice");
-    
-   /** 
-    * constructor */ 
-    public HMMVoice(String voiceName, WaveformSynthesizer synthesizer) throws Exception {
-    	super(voiceName, synthesizer);
 
-    	htsData.initHMMData(voiceName);
-       
-   }
-   
-   public HMMData getHMMData(){ return this.htsData; }
-   
-   /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
-   /* take the values from audio effects component through a MaryData object */
-   public void setF0Std(double dval) { htsData.setF0Std(dval); }
-   public void setF0Mean(double dval) { htsData.setF0Mean(dval); }
-   public void setLength(double dval) { htsData.setLength(dval); }
-   public void setDurationScale(double dval) { htsData.setDurationScale(dval); }
-    
+	private HMMData htsData = new HMMData();
+	private Logger logger = MaryUtils.getLogger("HMMVoice");
+
+	/**
+	 * constructor
+	 */
+	public HMMVoice(String voiceName, WaveformSynthesizer synthesizer) throws Exception {
+		super(voiceName, synthesizer);
+
+		htsData.initHMMData(voiceName);
+
+	}
+
+	public HMMData getHMMData() {
+		return this.htsData;
+	}
+
+	/* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
+	/* take the values from audio effects component through a MaryData object */
+	public void setF0Std(double dval) {
+		htsData.setF0Std(dval);
+	}
+
+	public void setF0Mean(double dval) {
+		htsData.setF0Mean(dval);
+	}
+
+	public void setLength(double dval) {
+		htsData.setLength(dval);
+	}
+
+	public void setDurationScale(double dval) {
+		htsData.setDurationScale(dval);
+	}
 
 } /* class HMMVoice */

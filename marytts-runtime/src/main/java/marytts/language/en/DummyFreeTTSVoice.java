@@ -38,87 +38,72 @@ import com.sun.speech.freetts.PartOfSpeech;
 import com.sun.speech.freetts.PartOfSpeechImpl;
 import com.sun.speech.freetts.util.BulkTimer;
 
-
 /**
- * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors from
- * "outside". Differing from the FreeTTS philosophy, this "voice" does *not*
- * actually call the UtteranceProcessors. It only serves as a collection of
- * data, such as the lexicon, and some reference values.
+ * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors from "outside". Differing from the FreeTTS philosophy, this
+ * "voice" does *not* actually call the UtteranceProcessors. It only serves as a collection of data, such as the lexicon, and some
+ * reference values.
  */
-public class DummyFreeTTSVoice extends marytts.modules.DummyFreeTTSVoice
-{
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     *
-     * This default constructor must be followed by a meaningful
-     * call to initialise().
-     */
-    public DummyFreeTTSVoice()
-    {
-        super(Locale.US);
-    }
+public class DummyFreeTTSVoice extends marytts.modules.DummyFreeTTSVoice {
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>.
+	 * 
+	 * This default constructor must be followed by a meaningful call to initialise().
+	 */
+	public DummyFreeTTSVoice() {
+		super(Locale.US);
+	}
 
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     * This version sets up US English feature processors. 
-     *
-     * @param lexiconClassName if not null, automatically load up
-     * the specified lexicon; otherwise, don't load any lexicon.
-     * @throws RuntimeException if the class specified by lexiconClassName
-     * cannot be instantiated.
-     */
-    public DummyFreeTTSVoice(marytts.modules.synthesis.Voice maryVoice,
-            String lexiconClassName)
-    {
-        super(maryVoice, lexiconClassName);
-        if (!maryVoice.getLocale().equals(Locale.US)) {
-            throw new IllegalArgumentException("This dummy freetts voice is meant for US English voices only!");
-        }
-    }
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>. This version sets up US
+	 * English feature processors.
+	 * 
+	 * @param lexiconClassName
+	 *            if not null, automatically load up the specified lexicon; otherwise, don't load any lexicon.
+	 * @throws RuntimeException
+	 *             if the class specified by lexiconClassName cannot be instantiated.
+	 */
+	public DummyFreeTTSVoice(marytts.modules.synthesis.Voice maryVoice, String lexiconClassName) {
+		super(maryVoice, lexiconClassName);
+		if (!maryVoice.getLocale().equals(Locale.US)) {
+			throw new IllegalArgumentException("This dummy freetts voice is meant for US English voices only!");
+		}
+	}
 
-    /**
-     * Creates a simple voice containing a reference to a
-     * <code>marytts.modules.synthesis.Voice</code>.
-     *
-     * @param lexiconClassName if not null, automatically load up
-     * the specified lexicon; otherwise, don't load any lexicon.
-     * @throws RuntimeException if the class specified by lexiconClassName
-     * cannot be instantiated.
-     */
-    public void initialise(marytts.modules.synthesis.Voice aMaryVoice,
-            String lexiconClassName) {
-        super.initialise(aMaryVoice, lexiconClassName);
-        if (!aMaryVoice.getLocale().equals(Locale.US)) {
-            throw new IllegalArgumentException("This dummy freetts voice is meant for US English voices only!");
-        }
-    }
+	/**
+	 * Creates a simple voice containing a reference to a <code>marytts.modules.synthesis.Voice</code>.
+	 * 
+	 * @param lexiconClassName
+	 *            if not null, automatically load up the specified lexicon; otherwise, don't load any lexicon.
+	 * @throws RuntimeException
+	 *             if the class specified by lexiconClassName cannot be instantiated.
+	 */
+	public void initialise(marytts.modules.synthesis.Voice aMaryVoice, String lexiconClassName) {
+		super.initialise(aMaryVoice, lexiconClassName);
+		if (!aMaryVoice.getLocale().equals(Locale.US)) {
+			throw new IllegalArgumentException("This dummy freetts voice is meant for US English voices only!");
+		}
+	}
 
-    /**
-     * Sets up the FeatureProcessors for this Voice.
-     * 
-     * @throws IOException
-     *             if an I/O error occurs
-     */
-    protected void setupFeatureProcessors() throws IOException
-    {
-        BulkTimer.LOAD.start("FeatureProcessing");
-        PartOfSpeech pos = new PartOfSpeechImpl(
-                com.sun.speech.freetts.en.us.CMUVoice.class
-                        .getResource("part_of_speech.txt"), "content");
+	/**
+	 * Sets up the FeatureProcessors for this Voice.
+	 * 
+	 * @throws IOException
+	 *             if an I/O error occurs
+	 */
+	protected void setupFeatureProcessors() throws IOException {
+		BulkTimer.LOAD.start("FeatureProcessing");
+		PartOfSpeech pos = new PartOfSpeechImpl(com.sun.speech.freetts.en.us.CMUVoice.class.getResource("part_of_speech.txt"),
+				"content");
 
-        BulkTimer.LOAD.stop("FeatureProcessing");
-    }
+		BulkTimer.LOAD.stop("FeatureProcessing");
+	}
 
-    /**
-     * Converts this object to a string
-     * 
-     * @return a string representation of this object
-     */
-    public String toString()
-    {
-        return "DummyFreeTTSVoice US-English";
-    }
+	/**
+	 * Converts this object to a string
+	 * 
+	 * @return a string representation of this object
+	 */
+	public String toString() {
+		return "DummyFreeTTSVoice US-English";
+	}
 }
-

@@ -20,12 +20,11 @@
 package marytts.tools.emospeak;
 
 /**
- *
- * @author  schroed
+ * 
+ * @author schroed
  */
 public interface ProsodyXMLDisplayer {
-    
-    void updateProsodyXML(String prosodyxmlString, int r1);
-    
-}
 
+	void updateProsodyXML(String prosodyxmlString, int r1);
+
+}

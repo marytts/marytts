@@ -36,62 +36,64 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class connects weighting function names with the actual
- * instances of the weighting functions.
+ * This class connects weighting function names with the actual instances of the weighting functions.
  * 
  * @author sacha
- *
+ * 
  */
 public class WeightFunctionManager {
-    
-    public static Map weightFuncMap;
-    
-    static{
-        weightFuncMap = new HashMap();
-        weightFuncMap.put( "linear", new WeightingFunction.linear() );
-        weightFuncMap.put( "step", new WeightingFunction.step() );
-    }
-    
-    /**
-     * Dummy empty contructor.
-     */
-    public WeightFunctionManager(){}
-    
-    
-    /**
-     * Accessor for the hash map mapping names to interface instances.
-     * @return a hash map.
-     */
-    public static Map getWeightFunc() {
-        return weightFuncMap;
-    }
-    
-    /**
-     * Returns the weighting function from its name.
-     * 
-     * @param funcName The name of the weighting function.
-     * @return an interface to a weighting function.
-     */
-    public WeightFunc getWeightFunction( String funcName ){
-        /* Split the string in 2 parts: function name plus parameters */
-        String[] strPart = funcName.split( "\\s", 2 );
-        WeightFunc wf = ( WeightFunc ) weightFuncMap.get( strPart[0] );
-        /* If the function asked for does not exist, inform the user and throw an exception. */
-        if ( wf == null ) {
-            String[] known = (String[]) weightFuncMap.keySet().toArray( new String[0] );
-            String strKnown = known[0];
-            for ( int i = 1; i < known.length; i++ ) {
-                strKnown = strKnown + "; " + known[i];
-            }
-            strKnown = strKnown + ".";
-            throw new RuntimeException( "The weighting manager was asked for the unknown weighting function type ["
-                    + funcName + "]. Known types are: " + strKnown );
-        }
-        /* If the function has a parameter, parse and set it */
-        // TODO: This is not thread-safe! What if several threads call wf.setParam() with different values?
-        if ( strPart.length > 1 ) wf.setParam( strPart[1] );
-        /* Return the functionś interface */
-        return( wf );
-    }
-    
+
+	public static Map weightFuncMap;
+
+	static {
+		weightFuncMap = new HashMap();
+		weightFuncMap.put("linear", new WeightingFunction.linear());
+		weightFuncMap.put("step", new WeightingFunction.step());
+	}
+
+	/**
+	 * Dummy empty contructor.
+	 */
+	public WeightFunctionManager() {
+	}
+
+	/**
+	 * Accessor for the hash map mapping names to interface instances.
+	 * 
+	 * @return a hash map.
+	 */
+	public static Map getWeightFunc() {
+		return weightFuncMap;
+	}
+
+	/**
+	 * Returns the weighting function from its name.
+	 * 
+	 * @param funcName
+	 *            The name of the weighting function.
+	 * @return an interface to a weighting function.
+	 */
+	public WeightFunc getWeightFunction(String funcName) {
+		/* Split the string in 2 parts: function name plus parameters */
+		String[] strPart = funcName.split("\\s", 2);
+		WeightFunc wf = (WeightFunc) weightFuncMap.get(strPart[0]);
+		/* If the function asked for does not exist, inform the user and throw an exception. */
+		if (wf == null) {
+			String[] known = (String[]) weightFuncMap.keySet().toArray(new String[0]);
+			String strKnown = known[0];
+			for (int i = 1; i < known.length; i++) {
+				strKnown = strKnown + "; " + known[i];
+			}
+			strKnown = strKnown + ".";
+			throw new RuntimeException("The weighting manager was asked for the unknown weighting function type [" + funcName
+					+ "]. Known types are: " + strKnown);
+		}
+		/* If the function has a parameter, parse and set it */
+		// TODO: This is not thread-safe! What if several threads call wf.setParam() with different values?
+		if (strPart.length > 1)
+			wf.setParam(strPart[1]);
+		/* Return the functionś interface */
+		return (wf);
+	}
+
 }

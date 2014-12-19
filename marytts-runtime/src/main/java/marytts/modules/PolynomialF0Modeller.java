@@ -49,64 +49,63 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
-
 /**
  * Predict f0 contours using polynomial curves predicted from a directed graph per syllable.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class PolynomialF0Modeller extends InternalModule
-{
-    protected FeatureFileReader contourFeatures;
-    protected DirectedGraph contourGraph;
-    protected TargetFeatureComputer featureComputer;
-    private String propertyPrefix;
-    private FeatureProcessorManager featureProcessorManager;
-    
-    /**
-     * Constructor which can be directly called from init info in the config file.
-     * Different languages can call this code with different settings.
-     * @param locale a locale string, e.g. "en"
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-     * @param featprocClass a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
-     * @throws Exception
-     */
-    public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClassInfo)
-    throws Exception
-    {
-        this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)MaryRuntimeUtils.instantiateObject(featprocClassInfo));
-    }
+public class PolynomialF0Modeller extends InternalModule {
+	protected FeatureFileReader contourFeatures;
+	protected DirectedGraph contourGraph;
+	protected TargetFeatureComputer featureComputer;
+	private String propertyPrefix;
+	private FeatureProcessorManager featureProcessorManager;
 
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-     * @praam featureProcessorManager the manager to use when looking up feature processors.
-     */
-    protected PolynomialF0Modeller(Locale locale,
-            String propertyPrefix, FeatureProcessorManager featureProcessorManager)
-    {
-        super("PolynomialF0Modeller",
-                MaryDataType.DURATIONS,
-                MaryDataType.ACOUSTPARAMS,
-                locale);
-        if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
-        else this.propertyPrefix = propertyPrefix + ".";
-        this.featureProcessorManager = featureProcessorManager;
-    }
+	/**
+	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
+	 * different settings.
+	 * 
+	 * @param locale
+	 *            a locale string, e.g. "en"
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
+	 * @param featprocClass
+	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
+	 * @throws Exception
+	 */
+	public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
+		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
+				.instantiateObject(featprocClassInfo));
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
+	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 */
+	protected PolynomialF0Modeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
+		super("PolynomialF0Modeller", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, locale);
+		if (propertyPrefix.endsWith("."))
+			this.propertyPrefix = propertyPrefix;
+		else
+			this.propertyPrefix = propertyPrefix + ".";
+		this.featureProcessorManager = featureProcessorManager;
+	}
 
-        contourFeatures = new FeatureFileReader(MaryProperties.needFilename(propertyPrefix+"contours"));
-        contourGraph = new DirectedGraphReader().load(MaryProperties.needFilename(propertyPrefix+"graph"));
-        featureComputer = new TargetFeatureComputer(featureProcessorManager, contourGraph.getFeatureDefinition().getFeatureNames());
-    }
+	public void startup() throws Exception {
+		super.startup();
 
-    public MaryData process(MaryData d)
+		contourFeatures = new FeatureFileReader(MaryProperties.needFilename(propertyPrefix + "contours"));
+		contourGraph = new DirectedGraphReader().load(MaryProperties.needFilename(propertyPrefix + "graph"));
+		featureComputer = new TargetFeatureComputer(featureProcessorManager, contourGraph.getFeatureDefinition()
+				.getFeatureNames());
+	}
+
+	public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument(); 
@@ -217,8 +216,7 @@ public class PolynomialF0Modeller extends InternalModule
         return output;
     }
 
-    
-    protected double[] getMeanContour(FeatureFileReader currentContours, int[] contourIDs)
+	protected double[] getMeanContour(FeatureFileReader currentContours, int[] contourIDs)
     {
         double[] coeffs = null;
         for (int i=0; i<contourIDs.length; i++) {
@@ -235,7 +233,4 @@ public class PolynomialF0Modeller extends InternalModule
         return coeffs;
     }
 
-
-
 }
-

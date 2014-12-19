@@ -23,27 +23,32 @@ package marytts.tools.dbselection;
  * This interface is used to access the coverage features for a given corpus.
  * 
  * @author marc
- *
+ * 
  */
 public interface CoverageFeatureProvider {
 
 	/**
 	 * Get the total number of sentences provided by this provider.
+	 * 
 	 * @return
 	 */
 	public int getNumSentences();
-	
+
 	/**
 	 * Get the i-th coverage features from this provider.
-	 * @param i the index number of the features to retrieve.
+	 * 
+	 * @param i
+	 *            the index number of the features to retrieve.
 	 * @return the coverage features.
-	 * @throws IndexOutOfBoundsException if i is not in the range from 0 to getNumSentences()-1. 
+	 * @throws IndexOutOfBoundsException
+	 *             if i is not in the range from 0 to getNumSentences()-1.
 	 */
 	public byte[] getCoverageFeatures(int i);
-	
+
 	/**
-	 * Get the unique ID number of the i-th sentence. This may or may not be the same as i.
-	 * However, it can be assumed that IDs are ordered: if i > j, getID(i) > getID(j).
+	 * Get the unique ID number of the i-th sentence. This may or may not be the same as i. However, it can be assumed that IDs
+	 * are ordered: if i > j, getID(i) > getID(j).
+	 * 
 	 * @param i
 	 * @return
 	 */

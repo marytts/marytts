@@ -26,55 +26,48 @@ import marytts.util.math.MathUtils;
  * @author Oytun T&uumlrk
  */
 public class HMMDurationScaleEffect extends BaseAudioEffect {
-    public float durScale;
-    public static float NO_MODIFICATION = 1.0f;
-    public static float DEFAULT_DUR_SCALE = 1.5f;
-    public static float MAX_DUR_SCALE = 3.0f;
-    public static float MIN_DUR_SCALE = 0.1f;
-    
-    public HMMDurationScaleEffect()
-    {
-        super(16000);
-        
-        setHMMEffect(true);
-        
-        setExampleParameters("durScale" + chParamEquals + Float.toString(DEFAULT_DUR_SCALE) + chParamSeparator);
-    }
-    
-    public void parseParameters(String param)
-    {
-        super.parseParameters(param);
-        
-        durScale = expectFloatParameter("durScale");
-        
-        if (durScale == NULL_FLOAT_PARAM)
-            durScale = DEFAULT_DUR_SCALE;
-        
-        durScale = MathUtils.CheckLimits(durScale, MIN_DUR_SCALE, MAX_DUR_SCALE);
-    }
-    
-    //Actual processing is done within the HMM synthesizer so do nothing here
-    public DoubleDataSource process(DoubleDataSource input)
-    {
-        return input;
-    }
+	public float durScale;
+	public static float NO_MODIFICATION = 1.0f;
+	public static float DEFAULT_DUR_SCALE = 1.5f;
+	public static float MAX_DUR_SCALE = 3.0f;
+	public static float MIN_DUR_SCALE = 0.1f;
 
-    public String getHelpText() {
-        
-        String strHelp = "Duration scaling for HMM voices:" + strLineBreak +
-                         "Scales the HMM output speech duration by <durScale>." + strLineBreak +
-                         "Parameter:" + strLineBreak +
-                         "   <durScale>" +
-                         "   Definition : Duration scaling factor for synthesized speech output" + strLineBreak +
-                         "   Range      : [" + String.valueOf(MIN_DUR_SCALE) + "," + String.valueOf(MAX_DUR_SCALE) + "]" + strLineBreak +
-                         "Example:" + strLineBreak +
-                         getExampleParameters();
-                        
-        return strHelp;
-    }
+	public HMMDurationScaleEffect() {
+		super(16000);
 
-    public String getName() {
-        return "Rate";
-    }
+		setHMMEffect(true);
+
+		setExampleParameters("durScale" + chParamEquals + Float.toString(DEFAULT_DUR_SCALE) + chParamSeparator);
+	}
+
+	public void parseParameters(String param) {
+		super.parseParameters(param);
+
+		durScale = expectFloatParameter("durScale");
+
+		if (durScale == NULL_FLOAT_PARAM)
+			durScale = DEFAULT_DUR_SCALE;
+
+		durScale = MathUtils.CheckLimits(durScale, MIN_DUR_SCALE, MAX_DUR_SCALE);
+	}
+
+	// Actual processing is done within the HMM synthesizer so do nothing here
+	public DoubleDataSource process(DoubleDataSource input) {
+		return input;
+	}
+
+	public String getHelpText() {
+
+		String strHelp = "Duration scaling for HMM voices:" + strLineBreak
+				+ "Scales the HMM output speech duration by <durScale>." + strLineBreak + "Parameter:" + strLineBreak
+				+ "   <durScale>" + "   Definition : Duration scaling factor for synthesized speech output" + strLineBreak
+				+ "   Range      : [" + String.valueOf(MIN_DUR_SCALE) + "," + String.valueOf(MAX_DUR_SCALE) + "]" + strLineBreak
+				+ "Example:" + strLineBreak + getExampleParameters();
+
+		return strHelp;
+	}
+
+	public String getName() {
+		return "Rate";
+	}
 }
-

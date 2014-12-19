@@ -22,7 +22,6 @@ package marytts.language.te;
 import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-
 public class TeluguConfig extends LanguageConfig {
 	public TeluguConfig() throws MaryConfigurationException {
 		super(TeluguConfig.class.getResourceAsStream("te.config"));

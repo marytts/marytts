@@ -23,14 +23,13 @@ package marytts.signalproc.sinusoidal;
  * A baseline class for all sinusoidal analyzers.
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class BaseSinusoidalAnalyzer {
-   
-    public static final int FIXEDRATE_FULLBAND_ANALYZER = 1;
-    public static final int PITCHSYNCHRONOUS_FULLBAND_ANALYZER = 2;
-    public static final int FIXEDRATE_MULTIRESOLUTION_ANALYZER = 3;
-    public static final int PITCHSYNCHRONOUS_MULTIRESOLUTION_ANALYZER = 4;
-    
-}
 
+	public static final int FIXEDRATE_FULLBAND_ANALYZER = 1;
+	public static final int PITCHSYNCHRONOUS_FULLBAND_ANALYZER = 2;
+	public static final int FIXEDRATE_MULTIRESOLUTION_ANALYZER = 3;
+	public static final int PITCHSYNCHRONOUS_MULTIRESOLUTION_ANALYZER = 4;
+
+}

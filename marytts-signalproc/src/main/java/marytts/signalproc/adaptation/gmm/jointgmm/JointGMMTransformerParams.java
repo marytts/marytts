@@ -23,25 +23,21 @@ import marytts.signalproc.adaptation.BaselineTransformerParams;
 
 /**
  * Parameters for joint-GMM based voice conversion transformation stage
- *
+ * 
  * @author Oytun T&uumlrk
  */
-public class JointGMMTransformerParams extends BaselineTransformerParams 
-{
-    public String jointGmmFile; //Binary GMM file
-    
-    public JointGMMTransformerParams()
-    {
-        super();
-        
-        jointGmmFile = "";
-    }
-    
-    public JointGMMTransformerParams(JointGMMTransformerParams existing)
-    {
-        super((BaselineTransformerParams)existing);
-        
-        jointGmmFile = existing.jointGmmFile;
-    }  
-}
+public class JointGMMTransformerParams extends BaselineTransformerParams {
+	public String jointGmmFile; // Binary GMM file
 
+	public JointGMMTransformerParams() {
+		super();
+
+		jointGmmFile = "";
+	}
+
+	public JointGMMTransformerParams(JointGMMTransformerParams existing) {
+		super((BaselineTransformerParams) existing);
+
+		jointGmmFile = existing.jointGmmFile;
+	}
+}

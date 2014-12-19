@@ -21,36 +21,31 @@ package marytts.signalproc.filter;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class Subband {
-    public double[] waveform;
-    public double samplingRate;
-    public double lowestFreqInHz;
-    public double highestFreqInHz;
-    
-    public Subband(double[] waveformIn, double samplingRateIn)
-    {
-        this(waveformIn, samplingRateIn, 0.0);
-    }
-    
-    public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn)
-    {
-        this(waveformIn, samplingRateIn, lowestFreqInHzIn, 0.5*samplingRateIn);
-    }
-    
-    public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn, double highestFreqInHzIn)
-    {
-        waveform = null;
-        if (waveformIn!=null)
-        {
-            waveform = new double[waveformIn.length];
-            System.arraycopy(waveformIn, 0, waveform, 0, waveformIn.length);
-        }
-        
-        samplingRate = samplingRateIn;
-        lowestFreqInHz = lowestFreqInHzIn;
-        highestFreqInHz = highestFreqInHzIn;
-    }
-}
+	public double[] waveform;
+	public double samplingRate;
+	public double lowestFreqInHz;
+	public double highestFreqInHz;
 
+	public Subband(double[] waveformIn, double samplingRateIn) {
+		this(waveformIn, samplingRateIn, 0.0);
+	}
+
+	public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn) {
+		this(waveformIn, samplingRateIn, lowestFreqInHzIn, 0.5 * samplingRateIn);
+	}
+
+	public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn, double highestFreqInHzIn) {
+		waveform = null;
+		if (waveformIn != null) {
+			waveform = new double[waveformIn.length];
+			System.arraycopy(waveformIn, 0, waveform, 0, waveformIn.length);
+		}
+
+		samplingRate = samplingRateIn;
+		lowestFreqInHz = lowestFreqInHzIn;
+		highestFreqInHz = highestFreqInHzIn;
+	}
+}

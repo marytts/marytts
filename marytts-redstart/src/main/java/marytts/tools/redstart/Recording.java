@@ -37,157 +37,155 @@ import marytts.util.data.audio.AudioProcessor;
 import marytts.util.data.audio.AudioRecorder;
 import marytts.util.math.MathUtils;
 
-
 /**
- *
+ * 
  * @author Mat Wilson <mwilson@dfki.de>
  */
 public class Recording extends Speech {
-   
-    // ______________________________________________________________________
-    // Instance fields
 
-    // ______________________________________________________________________
-    // Class fields
-    public static final AudioFormat audioFormat = new AudioFormat(Encoding.PCM_SIGNED, 44100, 16, 1, 2, 44100, false);
-    public AudioRecorder.BufferingRecorder recorder = null;
-    public boolean isAmpClipped = false;  // Boolean flag to indicate if recording is saturated (amplitude clipping occurred)
-    public boolean isTempClipped = false; // Boolean flag to indicate if temporal clipping occurred (no silence at either end)
-    public boolean isAmpWarning = false;  // Boolean flag to indicate recording is close to being saturated
-    public static final double ampYellowThreshold = -1.5;
-    public static final double ampRedThreshold = -0.5;
-    
-    // ______________________________________________________________________
-    // Instance methods
-        
-    
-    // ______________________________________________________________________
-    // Class methods
-        
-    /** Record for a given number of milliseconds and save as a wav file */
-    public void timedRecord(TargetDataLine line, AudioProcessor inlineFilter, int millis) {
-        AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
-        recorder = new AudioRecorder.BufferingRecorder(line, targetType, getFile(), millis);
-        if (inlineFilter != null) {
-            recorder.setAudioProcessor(inlineFilter);
-        }
+	// ______________________________________________________________________
+	// Instance fields
 
-    	recorder.start();
-    	try {
-    		recorder.join();
-            recorder = null;
-    	} catch (InterruptedException ie) {}
-    }
-    
-    /**
-     * Stop an ongoing recording before the time is up. This may be useful when the user
-     * presses the stop button.
-     * @return true when a recording was stopped, false if no recording was going on.
-     */
-    public boolean stopRecording()
-    {
-        if (recorder != null) {
-            recorder.stopRecordingNOW();
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Rename the file (basename).wav by appending a suffix.
-     *   Example: If spike0003 has three recordings already, then the assumption
-     *             is that spike0003.wav, spike0003a.wav and spike0003b.wav are the
-     *             names of the existing files. The new name for the most recent
-     *             recording (spike0003.wav) will be spike0003c.wav. The newly 
-     *             recorded file will then take the spike0003.wav name.
-     *
-     */
-    public void archiveLatestRecording()
-    {
-        if (fileCount == 0) return;
-        File latest = new File(filePath, basename+".wav");
-        if (!latest.exists()) return;
-        
-        int suffixCodeBase = 96;  // Code point for the character before 'a'        
-        // Need an upper boundary
-        int suffixCode = suffixCodeBase + fileCount;
-        if (fileCount > 26) suffixCode = suffixCodeBase + 26;
-        File newName = new File(filePath, basename+((char)suffixCode)+".wav");
-        latest.renameTo(newName);
-        
-        // TESTCODE
-        Test.output("|Recording.getRename| Renamed " + basename + " to " + newName.getPath());       
+	// ______________________________________________________________________
+	// Class fields
+	public static final AudioFormat audioFormat = new AudioFormat(Encoding.PCM_SIGNED, 44100, 16, 1, 2, 44100, false);
+	public AudioRecorder.BufferingRecorder recorder = null;
+	public boolean isAmpClipped = false; // Boolean flag to indicate if recording is saturated (amplitude clipping occurred)
+	public boolean isTempClipped = false; // Boolean flag to indicate if temporal clipping occurred (no silence at either end)
+	public boolean isAmpWarning = false; // Boolean flag to indicate recording is close to being saturated
+	public static final double ampYellowThreshold = -1.5;
+	public static final double ampRedThreshold = -0.5;
 
-    }
+	// ______________________________________________________________________
+	// Instance methods
 
-    public void checkForAmpClipping() {
-        File f = getFile();
-        if (!f.exists()) return;
-        
-        double amplitude = getPeakAmplitude();
-        //System.err.println("Peak amplitude: "+amplitude+" dB");
-        if (amplitude >= ampRedThreshold) {            
-            this.isAmpClipped = true;
-            this.isAmpWarning = false;
-        }
-        else if (amplitude >= ampYellowThreshold) {
-            this.isAmpWarning = true;
-            this.isAmpClipped = false;
-        }
-        else {
-            this.isAmpClipped = false;
-            this.isAmpWarning = false;
-        }
-    }
+	// ______________________________________________________________________
+	// Class methods
 
-    public void checkForTempClipping() {
-        File f = getFile();
-        if (!f.exists()) return;
-        
-        this.isTempClipped = false;
+	/** Record for a given number of milliseconds and save as a wav file */
+	public void timedRecord(TargetDataLine line, AudioProcessor inlineFilter, int millis) {
+		AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
+		recorder = new AudioRecorder.BufferingRecorder(line, targetType, getFile(), millis);
+		if (inlineFilter != null) {
+			recorder.setAudioProcessor(inlineFilter);
+		}
 
-        try {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(f);
-            double[] audio = new AudioDoubleDataSource(ais).getAllData();
-            int samplingRate = (int) ais.getFormat().getSampleRate();
-            int frameLength = (int) (0.005 * samplingRate); // each frame is 5 ms long
-            EnergyAnalyser silenceFinder = new EnergyAnalyser_dB(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
-            FrameAnalysisResult[] energies = silenceFinder.analyseAllFrames();
-            if (energies.length < 20) { // too short anyway
-                this.isTempClipped = true;
-                return; // temporal clipping
-            }
-            
-            double silenceCutoff = silenceFinder.getSilenceCutoffFromKMeansClustering(0.5, 4);
-            System.out.println("Silence cutoff: "+silenceCutoff);
-            // Need at least 100 ms of silence at the beginning and at the end:
-            
-            double energy = 0;
-            for (int i=0; i<20; i++) {
-                energy += ((Double)energies[i].get()).doubleValue();
-            }
-            energy /= 20;
-            if (energy >= silenceCutoff) {
-                System.out.println("Initial clipping");
-                this.isTempClipped = true;
-            }
+		recorder.start();
+		try {
+			recorder.join();
+			recorder = null;
+		} catch (InterruptedException ie) {
+		}
+	}
 
-            energy = 0;
-            for (int i=1, len=energies.length; i<=20; i++) {
-                energy += ((Double)energies[len-i].get()).doubleValue();
-            }
-            energy /= 20;
-            if (energy >= silenceCutoff) {
-                System.out.println("Final clipping");
-                this.isTempClipped = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-    }
+	/**
+	 * Stop an ongoing recording before the time is up. This may be useful when the user presses the stop button.
+	 * 
+	 * @return true when a recording was stopped, false if no recording was going on.
+	 */
+	public boolean stopRecording() {
+		if (recorder != null) {
+			recorder.stopRecordingNOW();
+			return true;
+		}
+		return false;
+	}
 
-    public double getPeakAmplitude() {
+	/**
+	 * Rename the file (basename).wav by appending a suffix. Example: If spike0003 has three recordings already, then the
+	 * assumption is that spike0003.wav, spike0003a.wav and spike0003b.wav are the names of the existing files. The new name for
+	 * the most recent recording (spike0003.wav) will be spike0003c.wav. The newly recorded file will then take the spike0003.wav
+	 * name.
+	 * 
+	 */
+	public void archiveLatestRecording() {
+		if (fileCount == 0)
+			return;
+		File latest = new File(filePath, basename + ".wav");
+		if (!latest.exists())
+			return;
+
+		int suffixCodeBase = 96; // Code point for the character before 'a'
+		// Need an upper boundary
+		int suffixCode = suffixCodeBase + fileCount;
+		if (fileCount > 26)
+			suffixCode = suffixCodeBase + 26;
+		File newName = new File(filePath, basename + ((char) suffixCode) + ".wav");
+		latest.renameTo(newName);
+
+		// TESTCODE
+		Test.output("|Recording.getRename| Renamed " + basename + " to " + newName.getPath());
+
+	}
+
+	public void checkForAmpClipping() {
+		File f = getFile();
+		if (!f.exists())
+			return;
+
+		double amplitude = getPeakAmplitude();
+		// System.err.println("Peak amplitude: "+amplitude+" dB");
+		if (amplitude >= ampRedThreshold) {
+			this.isAmpClipped = true;
+			this.isAmpWarning = false;
+		} else if (amplitude >= ampYellowThreshold) {
+			this.isAmpWarning = true;
+			this.isAmpClipped = false;
+		} else {
+			this.isAmpClipped = false;
+			this.isAmpWarning = false;
+		}
+	}
+
+	public void checkForTempClipping() {
+		File f = getFile();
+		if (!f.exists())
+			return;
+
+		this.isTempClipped = false;
+
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(f);
+			double[] audio = new AudioDoubleDataSource(ais).getAllData();
+			int samplingRate = (int) ais.getFormat().getSampleRate();
+			int frameLength = (int) (0.005 * samplingRate); // each frame is 5 ms long
+			EnergyAnalyser silenceFinder = new EnergyAnalyser_dB(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
+			FrameAnalysisResult[] energies = silenceFinder.analyseAllFrames();
+			if (energies.length < 20) { // too short anyway
+				this.isTempClipped = true;
+				return; // temporal clipping
+			}
+
+			double silenceCutoff = silenceFinder.getSilenceCutoffFromKMeansClustering(0.5, 4);
+			System.out.println("Silence cutoff: " + silenceCutoff);
+			// Need at least 100 ms of silence at the beginning and at the end:
+
+			double energy = 0;
+			for (int i = 0; i < 20; i++) {
+				energy += ((Double) energies[i].get()).doubleValue();
+			}
+			energy /= 20;
+			if (energy >= silenceCutoff) {
+				System.out.println("Initial clipping");
+				this.isTempClipped = true;
+			}
+
+			energy = 0;
+			for (int i = 1, len = energies.length; i <= 20; i++) {
+				energy += ((Double) energies[len - i].get()).doubleValue();
+			}
+			energy /= 20;
+			if (energy >= silenceCutoff) {
+				System.out.println("Final clipping");
+				this.isTempClipped = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	public double getPeakAmplitude() {
         File f = getFile();
         assert f.exists();
         try {
@@ -205,16 +203,19 @@ public class Recording extends Speech {
         
     }
 
-    // ______________________________________________________________________
-    // Constructors
-    
-    /** Creates a new instance of Recording
-     *  @param filePath The file path for the wav recordings
-     *  @param basename The basename for the currently selected prompt
-     */
-    public Recording(File filePath, String basename) {
-        super(filePath, basename);
-    }
-    
-}
+	// ______________________________________________________________________
+	// Constructors
 
+	/**
+	 * Creates a new instance of Recording
+	 * 
+	 * @param filePath
+	 *            The file path for the wav recordings
+	 * @param basename
+	 *            The basename for the currently selected prompt
+	 */
+	public Recording(File filePath, String basename) {
+		super(filePath, basename);
+	}
+
+}

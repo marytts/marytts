@@ -21,14 +21,11 @@ package marytts.signalproc.adaptation.prosody;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class ProsodyTrainer {
-    PitchTrainer pitchTrainer;
-    DurationTrainer durationTrainer;
-    EnergyTrainer energyTrainer;
-    
-    
+	PitchTrainer pitchTrainer;
+	DurationTrainer durationTrainer;
+	EnergyTrainer energyTrainer;
 
 }
-

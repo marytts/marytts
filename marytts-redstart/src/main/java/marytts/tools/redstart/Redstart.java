@@ -26,13 +26,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-
 public class Redstart {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
         // Determine the voice building directory in the following order:
         // 1. System property "user.dir"
         // 2. First command line argument
@@ -111,6 +110,4 @@ public class Redstart {
         if (splash != null) splash.setVisible(false);
         adminWindow.setVisible(true);
     }
-
 }
-

@@ -40,13 +40,13 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  */
 public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
-    private WeightedCodebookTrainerParams params;
-    public WeightedCodebookMfccMapper(WeightedCodebookTrainerParams pa)
-    {
-        params = new WeightedCodebookTrainerParams(pa);
-    }
-    
-    public void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
+	private WeightedCodebookTrainerParams params;
+
+	public WeightedCodebookMfccMapper(WeightedCodebookTrainerParams pa) {
+		params = new WeightedCodebookTrainerParams(pa);
+	}
+
+	public void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES;
 
@@ -155,8 +155,8 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
             } 
         }
     }
-    
-    public void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
+
+	public void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAME_GROUPS;
 
@@ -425,8 +425,8 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
             } 
         }
     }
-    
-    public void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
+
+	public void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.LABELS;
 
@@ -698,14 +698,14 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
             } 
         }
     }
-    
-    //This function is identical to learnMappingLabels since the mapping is performed accordingly in previous steps
-    public void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
-    {
-         learnMappingLabels(codebookFile, fcol, sourceTrainingSet, targetTrainingSet, map);
-    }
-    
-    public void learnMappingSpeech(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+
+	// This function is identical to learnMappingLabels since the mapping is performed accordingly in previous steps
+	public void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException {
+		learnMappingLabels(codebookFile, fcol, sourceTrainingSet, targetTrainingSet, map);
+	}
+
+	public void learnMappingSpeech(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH;
 
@@ -818,4 +818,3 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         }     
     }
 }
-

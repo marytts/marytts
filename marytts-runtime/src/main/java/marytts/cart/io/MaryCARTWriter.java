@@ -51,80 +51,75 @@ import org.apache.log4j.Logger;
  * 
  * @author Marcela Charfuelan
  */
-public class MaryCARTWriter{
+public class MaryCARTWriter {
 
-    protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
+	protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
 
-    /**
-     * Dump the CARTs in MaryCART format
-     * 
-     * @param destDir the destination directory
-     */
-    public void dumpMaryCART(CART cart, String destFile)
-    throws IOException
-    {
-        if (cart == null)
-            throw new NullPointerException("Cannot dump null CART");
-        if (destFile == null)
-            throw new NullPointerException("No destination file");
-        
-        logger.debug("Dumping CART in MaryCART format to "+destFile+" ...");
-        
-        //Open the destination file (cart.bin) and output the header       
-        DataOutputStream out = new DataOutputStream(new
-                BufferedOutputStream(new 
-                FileOutputStream(destFile)));
-        //create new CART-header and write it to output file     
-        MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-        hdr.writeTo(out);
-        
-        Properties props = cart.getProperties();
-        if (props == null) {
-            out.writeShort(0);
-        } else {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            props.store(baos, null);
-            byte[] propData = baos.toByteArray();
-            out.writeShort(propData.length);
-            out.write(propData);
-        }
+	/**
+	 * Dump the CARTs in MaryCART format
+	 * 
+	 * @param destDir
+	 *            the destination directory
+	 */
+	public void dumpMaryCART(CART cart, String destFile) throws IOException {
+		if (cart == null)
+			throw new NullPointerException("Cannot dump null CART");
+		if (destFile == null)
+			throw new NullPointerException("No destination file");
 
-        // feature definition
-        cart.getFeatureDefinition().writeBinaryTo(out);
-        
-        //dump CART
-        dumpBinary(cart.getRootNode(), out);
-      
-        //finish
-        out.close();
-        logger.debug(" ... done\n");
-    }     
-    
-    public void toTextOut(CART cart, PrintWriter pw) throws IOException {
-        try {
-            int id[] = new int[2];
-            id[0] = 0;  // number of decision nodes
-            id[1] = 0;  // number of leaf nodes
-            
-            //System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
-            setUniqueNodeId(cart.getRootNode(), id);
-            pw.println("Num decision nodes= " + id[0] + "  Num leaf nodes= " + id[1]);
-            printDecisionNodes(cart.getRootNode(),null, pw);
-            pw.println("\n----------------\n");
-            printLeafNodes(cart.getRootNode(), null, pw);
-            
-            pw.flush();
-            pw.close();
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to standard output");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
-    
-    private void setUniqueNodeId(Node node, int id[]) throws IOException{
+		logger.debug("Dumping CART in MaryCART format to " + destFile + " ...");
+
+		// Open the destination file (cart.bin) and output the header
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(destFile)));
+		// create new CART-header and write it to output file
+		MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
+		hdr.writeTo(out);
+
+		Properties props = cart.getProperties();
+		if (props == null) {
+			out.writeShort(0);
+		} else {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			props.store(baos, null);
+			byte[] propData = baos.toByteArray();
+			out.writeShort(propData.length);
+			out.write(propData);
+		}
+
+		// feature definition
+		cart.getFeatureDefinition().writeBinaryTo(out);
+
+		// dump CART
+		dumpBinary(cart.getRootNode(), out);
+
+		// finish
+		out.close();
+		logger.debug(" ... done\n");
+	}
+
+	public void toTextOut(CART cart, PrintWriter pw) throws IOException {
+		try {
+			int id[] = new int[2];
+			id[0] = 0; // number of decision nodes
+			id[1] = 0; // number of leaf nodes
+
+			// System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
+			setUniqueNodeId(cart.getRootNode(), id);
+			pw.println("Num decision nodes= " + id[0] + "  Num leaf nodes= " + id[1]);
+			printDecisionNodes(cart.getRootNode(), null, pw);
+			pw.println("\n----------------\n");
+			printLeafNodes(cart.getRootNode(), null, pw);
+
+			pw.flush();
+			pw.close();
+		} catch (IOException ioe) {
+			IOException newIOE = new IOException("Error dumping CART to standard output");
+			newIOE.initCause(ioe);
+			throw newIOE;
+		}
+	}
+
+	private void setUniqueNodeId(Node node, int id[]) throws IOException{
      
       int thisIdNode; 
       String leafstr = "";
@@ -158,39 +153,34 @@ public class MaryCARTWriter{
       }
 
     }
-    
-    
-    private void dumpBinary(Node rootNode, DataOutput os) throws IOException {
-        try {
-            
-            int id[] = new int[2];
-            id[0] = 0;  // number of decision nodes
-            id[1] = 0;  // number of leaf nodes           
-            // first add unique identifiers to decision nodes and leaf nodes           
-            setUniqueNodeId(rootNode, id);
-            
-            // write the number of decision nodes
-            os.writeInt(Math.abs(id[0]));
-            // lines that start with a negative number are decision nodes
-            printDecisionNodes(rootNode, os, null);
-            
-            // write the number of leaves.
-            os.writeInt(id[1]);
-            // lines that start with id are leaf nodes
-            printLeafNodes(rootNode, (DataOutputStream) os, null);
-            
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to output stream");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
-    
-    
-    
-   private void printDecisionNodes(Node node, DataOutput out, PrintWriter pw)
+
+	private void dumpBinary(Node rootNode, DataOutput os) throws IOException {
+		try {
+
+			int id[] = new int[2];
+			id[0] = 0; // number of decision nodes
+			id[1] = 0; // number of leaf nodes
+			// first add unique identifiers to decision nodes and leaf nodes
+			setUniqueNodeId(rootNode, id);
+
+			// write the number of decision nodes
+			os.writeInt(Math.abs(id[0]));
+			// lines that start with a negative number are decision nodes
+			printDecisionNodes(rootNode, os, null);
+
+			// write the number of leaves.
+			os.writeInt(id[1]);
+			// lines that start with id are leaf nodes
+			printLeafNodes(rootNode, (DataOutputStream) os, null);
+
+		} catch (IOException ioe) {
+			IOException newIOE = new IOException("Error dumping CART to output stream");
+			newIOE.initCause(ioe);
+			throw newIOE;
+		}
+	}
+
+	private void printDecisionNodes(Node node, DataOutput out, PrintWriter pw)
    throws IOException
    {
        if (!(node instanceof DecisionNode)) return; // nothing to do here
@@ -256,10 +246,9 @@ public class MaryCARTWriter{
             printDecisionNodes(((DecisionNode) node).getDaughter(i),out, pw);
       }
    }
-     
-     
-   /** This function will print the leaf nodes only, but it goes through all the decision nodes. */
-   private void printLeafNodes(Node node, DataOutput out, PrintWriter pw)
+
+	/** This function will print the leaf nodes only, but it goes through all the decision nodes. */
+	private void printLeafNodes(Node node, DataOutput out, PrintWriter pw)
    throws IOException
    {
        // If the node does not have leaves then it just return.
@@ -345,7 +334,5 @@ public class MaryCARTWriter{
            if (pw != null) pw.println();
        }
    }
-     
-   
-}
 
+}

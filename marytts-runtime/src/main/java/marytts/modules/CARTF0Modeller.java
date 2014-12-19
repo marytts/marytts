@@ -48,101 +48,101 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
-
 /**
  * Predict phone durations using a CART.
- *
+ * 
  * @author Marc Schr&ouml;der
  * @deprecated
  */
 
-public class CARTF0Modeller extends InternalModule
-{
-    protected CART leftCart;
-    protected CART midCart;
-    protected CART rightCart;
-    protected TargetFeatureComputer featureComputer;
-    private String propertyPrefix;
-    private FeatureProcessorManager featureProcessorManager;
-    
-    /**
-     * Constructor which can be directly called from init info in the config file.
-     * This constructor will use the registered feature processor manager for the given locale.
-     * @param locale a locale string, e.g. "en"
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-     * @throws Exception
-     */
-    public CARTF0Modeller(String locale, String propertyPrefix)
-    throws Exception {
-        this(MaryUtils.string2locale(locale), propertyPrefix,
-                FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
-    }
-    
-    /**
-     * Constructor which can be directly called from init info in the config file.
-     * Different languages can call this code with different settings.
-     * @param locale a locale string, e.g. "en"
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-     * @param featprocClass a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
-     * @throws Exception
-     */
-    public CARTF0Modeller(String locale, String propertyPrefix, String featprocClassInfo)
-    throws Exception
-    {
-        this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)MaryRuntimeUtils.instantiateObject(featprocClassInfo));
-    }
+public class CARTF0Modeller extends InternalModule {
+	protected CART leftCart;
+	protected CART midCart;
+	protected CART rightCart;
+	protected TargetFeatureComputer featureComputer;
+	private String propertyPrefix;
+	private FeatureProcessorManager featureProcessorManager;
 
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-     * @praam featureProcessorManager the manager to use when looking up feature processors.
-     */
-    protected CARTF0Modeller(Locale locale,
-            String propertyPrefix, FeatureProcessorManager featureProcessorManager)
-    {
-        super("CARTF0Modeller",
-                MaryDataType.DURATIONS,
-                MaryDataType.ACOUSTPARAMS,
-                locale);
-        if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
-        else this.propertyPrefix = propertyPrefix + ".";
-        this.featureProcessorManager = featureProcessorManager;
-    }
+	/**
+	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
+	 * feature processor manager for the given locale.
+	 * 
+	 * @param locale
+	 *            a locale string, e.g. "en"
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+	 * @throws Exception
+	 */
+	public CARTF0Modeller(String locale, String propertyPrefix) throws Exception {
+		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
+				.string2locale(locale)));
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
-        
-        String leftCartFilename = MaryProperties.getFilename(propertyPrefix+"cart.left");
-        if (leftCartFilename != null) { // if we have this, we *need* all the rest
-            File leftCartFile = new File(leftCartFilename);
+	/**
+	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
+	 * different settings.
+	 * 
+	 * @param locale
+	 *            a locale string, e.g. "en"
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
+	 * @param featprocClass
+	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
+	 * @throws Exception
+	 */
+	public CARTF0Modeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
+		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
+				.instantiateObject(featprocClassInfo));
+	}
 
-            File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-            FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-            
-            // old: leftCart = new RegressionTree(new BufferedReader(new FileReader(leftCartFile)), featureDefinition);
-            //leftCart = new CART();
-            //leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
-            leftCart = (new MaryCARTReader()).load(leftCartFile.getAbsolutePath());
-            
-            File midCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.mid"));
-            // old: midCart = new RegressionTree(new BufferedReader(new FileReader(midCartFile)), featureDefinition);
-            //midCart = new CART();
-            //midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
-            midCart = (new MaryCARTReader()).load(midCartFile.getAbsolutePath());
-            
-            File rightCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.right"));
-            // old: rightCart = new RegressionTree(new BufferedReader(new FileReader(rightCartFile)), featureDefinition);
-            //rightCart = new CART();
-            //rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
-            rightCart = (new MaryCARTReader()).load(rightCartFile.getAbsolutePath());
-            featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
-        }
-    }
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
+	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 */
+	protected CARTF0Modeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
+		super("CARTF0Modeller", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, locale);
+		if (propertyPrefix.endsWith("."))
+			this.propertyPrefix = propertyPrefix;
+		else
+			this.propertyPrefix = propertyPrefix + ".";
+		this.featureProcessorManager = featureProcessorManager;
+	}
 
-    public MaryData process(MaryData d)
+	public void startup() throws Exception {
+		super.startup();
+
+		String leftCartFilename = MaryProperties.getFilename(propertyPrefix + "cart.left");
+		if (leftCartFilename != null) { // if we have this, we *need* all the rest
+			File leftCartFile = new File(leftCartFilename);
+
+			File fdFile = new File(MaryProperties.needFilename(propertyPrefix + "featuredefinition"));
+			FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
+
+			// old: leftCart = new RegressionTree(new BufferedReader(new FileReader(leftCartFile)), featureDefinition);
+			// leftCart = new CART();
+			// leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
+			leftCart = (new MaryCARTReader()).load(leftCartFile.getAbsolutePath());
+
+			File midCartFile = new File(MaryProperties.needFilename(propertyPrefix + "cart.mid"));
+			// old: midCart = new RegressionTree(new BufferedReader(new FileReader(midCartFile)), featureDefinition);
+			// midCart = new CART();
+			// midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
+			midCart = (new MaryCARTReader()).load(midCartFile.getAbsolutePath());
+
+			File rightCartFile = new File(MaryProperties.needFilename(propertyPrefix + "cart.right"));
+			// old: rightCart = new RegressionTree(new BufferedReader(new FileReader(rightCartFile)), featureDefinition);
+			// rightCart = new CART();
+			// rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
+			rightCart = (new MaryCARTReader()).load(rightCartFile.getAbsolutePath());
+			featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
+		}
+	}
+
+	public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument(); 
@@ -273,8 +273,4 @@ public class CARTF0Modeller extends InternalModule
         return output;
     }
 
-
-
-
 }
-

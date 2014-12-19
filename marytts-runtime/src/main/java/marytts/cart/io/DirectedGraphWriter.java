@@ -52,85 +52,81 @@ import org.apache.log4j.Logger;
  * 
  * @author Marcela Charfuelan, Marc Schröder
  */
-public class DirectedGraphWriter
-{
-    
-    protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
+public class DirectedGraphWriter {
 
-    /**
-     * Dump the graph in Mary format
-     * 
-     * @param destDir the destination directory
-     */
-    public void saveGraph(DirectedGraph graph, String destFile)
-    throws IOException
-    {
-        if (graph == null)
-            throw new NullPointerException("Cannot dump null graph");
-        if (destFile == null)
-            throw new NullPointerException("No destination file");
-        
-        logger.debug("Dumping directed graph in Mary format to "+destFile+" ...");
-        
-        //Open the destination file and output the header       
-        DataOutputStream out = new DataOutputStream(new
-                BufferedOutputStream(new 
-                FileOutputStream(destFile)));
-        //create new CART-header and write it to output file     
-        MaryHeader hdr = new MaryHeader(MaryHeader.DIRECTED_GRAPH);
-        hdr.writeTo(out);
-        
-        Properties props = graph.getProperties();
-        if (props == null) {
-            out.writeShort(0);
-        } else {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            props.store(baos, null);
-            byte[] propData = baos.toByteArray();
-            out.writeShort(propData.length);
-            out.write(propData);
-        }
+	protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
 
-        // feature definition
-        graph.getFeatureDefinition().writeBinaryTo(out);
-        
-        //dump graph
-        dumpBinary(graph, out);
-      
-        //finish
-        out.close();
-        logger.debug(" ... done\n");
-    }     
-    
-    public void toTextOut(DirectedGraph graph, PrintWriter pw) throws IOException {
-        try {
-            int numLeafNodes = setUniqueLeafNodeIds(graph);
-            int numDecNodes = setUniqueDecisionNodeIds(graph);
-            int numGraphNodes = setUniqueDirectedGraphNodeIds(graph);
-            pw.println("Num decision nodes= " + numDecNodes + "  Num leaf nodes= " + numLeafNodes + "  Num directed graph nodes= "+ numGraphNodes);
-            printDecisionNodes(graph,null, pw);
-            pw.println("\n----------------\n");
-            printLeafNodes(graph, null, pw);
-            pw.println("\n----------------\n");
-            printDirectedGraphNodes(graph, null, pw);
-            
-            pw.flush();
-            pw.close();
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping graph to standard output");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
-    /** 
-     * Assign unique ids to leaf nodes. 
-     * 
-     * @param graph
-     * @return the number of different leaf nodes
-     */
-    private int setUniqueLeafNodeIds(DirectedGraph graph)
+	/**
+	 * Dump the graph in Mary format
+	 * 
+	 * @param destDir
+	 *            the destination directory
+	 */
+	public void saveGraph(DirectedGraph graph, String destFile) throws IOException {
+		if (graph == null)
+			throw new NullPointerException("Cannot dump null graph");
+		if (destFile == null)
+			throw new NullPointerException("No destination file");
+
+		logger.debug("Dumping directed graph in Mary format to " + destFile + " ...");
+
+		// Open the destination file and output the header
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(destFile)));
+		// create new CART-header and write it to output file
+		MaryHeader hdr = new MaryHeader(MaryHeader.DIRECTED_GRAPH);
+		hdr.writeTo(out);
+
+		Properties props = graph.getProperties();
+		if (props == null) {
+			out.writeShort(0);
+		} else {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			props.store(baos, null);
+			byte[] propData = baos.toByteArray();
+			out.writeShort(propData.length);
+			out.write(propData);
+		}
+
+		// feature definition
+		graph.getFeatureDefinition().writeBinaryTo(out);
+
+		// dump graph
+		dumpBinary(graph, out);
+
+		// finish
+		out.close();
+		logger.debug(" ... done\n");
+	}
+
+	public void toTextOut(DirectedGraph graph, PrintWriter pw) throws IOException {
+		try {
+			int numLeafNodes = setUniqueLeafNodeIds(graph);
+			int numDecNodes = setUniqueDecisionNodeIds(graph);
+			int numGraphNodes = setUniqueDirectedGraphNodeIds(graph);
+			pw.println("Num decision nodes= " + numDecNodes + "  Num leaf nodes= " + numLeafNodes
+					+ "  Num directed graph nodes= " + numGraphNodes);
+			printDecisionNodes(graph, null, pw);
+			pw.println("\n----------------\n");
+			printLeafNodes(graph, null, pw);
+			pw.println("\n----------------\n");
+			printDirectedGraphNodes(graph, null, pw);
+
+			pw.flush();
+			pw.close();
+		} catch (IOException ioe) {
+			IOException newIOE = new IOException("Error dumping graph to standard output");
+			newIOE.initCause(ioe);
+			throw newIOE;
+		}
+	}
+
+	/**
+	 * Assign unique ids to leaf nodes.
+	 * 
+	 * @param graph
+	 * @return the number of different leaf nodes
+	 */
+	private int setUniqueLeafNodeIds(DirectedGraph graph)
     {
         int i = 0;
         for (LeafNode l : graph.getLeafNodes()) {
@@ -139,13 +135,13 @@ public class DirectedGraphWriter
         return i;
     }
 
-    /** 
-     * Assign unique ids to decision nodes. 
-     * 
-     * @param graph
-     * @return the number of different decision nodes
-     */
-    private int setUniqueDecisionNodeIds(DirectedGraph graph)
+	/**
+	 * Assign unique ids to decision nodes.
+	 * 
+	 * @param graph
+	 * @return the number of different decision nodes
+	 */
+	private int setUniqueDecisionNodeIds(DirectedGraph graph)
     {
         int i = 0;
         for (DecisionNode d : graph.getDecisionNodes()) {
@@ -154,13 +150,13 @@ public class DirectedGraphWriter
         return i;
     }
 
-    /** 
-     * Assign unique ids to directed graph nodes. 
-     * 
-     * @param graph
-     * @return the number of different directed graph nodes
-     */
-    private int setUniqueDirectedGraphNodeIds(DirectedGraph graph)
+	/**
+	 * Assign unique ids to directed graph nodes.
+	 * 
+	 * @param graph
+	 * @return the number of different directed graph nodes
+	 */
+	private int setUniqueDirectedGraphNodeIds(DirectedGraph graph)
     {
         int i = 0;
         for (DirectedGraphNode g : graph.getDirectedGraphNodes()) {
@@ -169,39 +165,35 @@ public class DirectedGraphWriter
         return i;
     }
 
-    
-    private void dumpBinary(DirectedGraph graph, DataOutput os) throws IOException
-    {
-        try {
-            int numLeafNodes = setUniqueLeafNodeIds(graph);
-            int numDecNodes = setUniqueDecisionNodeIds(graph);
-            int numGraphNodes = setUniqueDirectedGraphNodeIds(graph);
-            int maxNum = 1<<30;
-            if (numLeafNodes > maxNum || numDecNodes > maxNum || numGraphNodes > maxNum) {
-                throw new UnsupportedOperationException("Cannot write more than "+maxNum+" nodes of one type in this format");
-            }
-            // write the number of decision nodes
-            os.writeInt(numDecNodes);
-            printDecisionNodes(graph, os, null);
-            
-            // write the number of leaves.
-            os.writeInt(numLeafNodes);
-            printLeafNodes(graph, os, null);
+	private void dumpBinary(DirectedGraph graph, DataOutput os) throws IOException {
+		try {
+			int numLeafNodes = setUniqueLeafNodeIds(graph);
+			int numDecNodes = setUniqueDecisionNodeIds(graph);
+			int numGraphNodes = setUniqueDirectedGraphNodeIds(graph);
+			int maxNum = 1 << 30;
+			if (numLeafNodes > maxNum || numDecNodes > maxNum || numGraphNodes > maxNum) {
+				throw new UnsupportedOperationException("Cannot write more than " + maxNum + " nodes of one type in this format");
+			}
+			// write the number of decision nodes
+			os.writeInt(numDecNodes);
+			printDecisionNodes(graph, os, null);
 
-            // write the number of directed graph nodes
-            os.writeInt(numGraphNodes);
-            printDirectedGraphNodes(graph, os, null);
+			// write the number of leaves.
+			os.writeInt(numLeafNodes);
+			printLeafNodes(graph, os, null);
 
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to output stream");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
+			// write the number of directed graph nodes
+			os.writeInt(numGraphNodes);
+			printDirectedGraphNodes(graph, os, null);
 
-    private void printDecisionNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
+		} catch (IOException ioe) {
+			IOException newIOE = new IOException("Error dumping CART to output stream");
+			newIOE.initCause(ioe);
+			throw newIOE;
+		}
+	}
+
+	private void printDecisionNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
     throws IOException
     {
         for (DecisionNode decNode : graph.getDecisionNodes()) {
@@ -284,9 +276,8 @@ public class DirectedGraphWriter
             }
         }
     }
-     
-     
-    private void printLeafNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
+
+	private void printLeafNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
     throws IOException
     {
         for (LeafNode leaf : graph.getLeafNodes()) {
@@ -361,7 +352,7 @@ public class DirectedGraphWriter
         }
     }
 
-    private void printDirectedGraphNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
+	private void printDirectedGraphNodes(DirectedGraph graph, DataOutput out, PrintWriter pw)
     throws IOException
     {
         for (DirectedGraphNode g : graph.getDirectedGraphNodes()) {
@@ -405,6 +396,4 @@ public class DirectedGraphWriter
             }
         }
     }
-
 }
-

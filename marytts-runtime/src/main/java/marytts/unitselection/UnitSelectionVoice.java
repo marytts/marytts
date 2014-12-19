@@ -66,19 +66,18 @@ import marytts.unitselection.select.UnitSelector;
  * A Unit Selection Voice
  * 
  */
-public class UnitSelectionVoice extends Voice { 
+public class UnitSelectionVoice extends Voice {
 
-    protected UnitDatabase database;
-    protected UnitSelector unitSelector;
-    protected UnitConcatenator concatenator;
-    protected UnitConcatenator modificationConcatenator;
-    protected String domain;
-    protected String name;
-    protected CART[] f0Carts;
-    protected String exampleText;
+	protected UnitDatabase database;
+	protected UnitSelector unitSelector;
+	protected UnitConcatenator concatenator;
+	protected UnitConcatenator modificationConcatenator;
+	protected String domain;
+	protected String name;
+	protected CART[] f0Carts;
+	protected String exampleText;
 
-    
-    public UnitSelectionVoice(String name, WaveformSynthesizer synthesizer)
+	public UnitSelectionVoice(String name, WaveformSynthesizer synthesizer)
     throws MaryConfigurationException
     {
         super(name, synthesizer);
@@ -218,111 +217,107 @@ public class UnitSelectionVoice extends Voice {
         }
         
     }
-    
-    
-    /**
-     * Gets the database of this voice
-     * @return the database
-     */
-    public UnitDatabase getDatabase()
-    {
-        return database;
-    }
-    
-    
-    /**
-     * Gets the unit selector of this voice
-     * @return the unit selector
-     */
-    public UnitSelector getUnitSelector()
-    {
-        return unitSelector;
-    }
-    
-    /**
-     * Gets the unit concatenator of this voice
-     * @return the unit selector
-     */
-    public UnitConcatenator getConcatenator()
-    {
-        return concatenator;
-    }
 
-    /**
-     * Get the modification UnitConcatenator of this voice
-     * 
-     * @return the modifying UnitConcatenator
-     */
-    public UnitConcatenator getModificationConcatenator() {
-        if (modificationConcatenator == null) {
-            // get sensible minimum and maximum values:
-            try {
-                // initialize with values from properties:
-                double minTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.minimum"));
-                double maxTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.maximum"));
-                double minPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.minimum"));
-                double maxPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.maximum"));
-                logger.debug("Initializing FD-PSOLA unit concatenator with the following parameter thresholds:");
-                logger.debug("minimum duration modification factor: " + minTimeScaleFactor);
-                logger.debug("maximum duration modification factor: " + maxTimeScaleFactor);
-                logger.debug("minimum F0 modification factor: " + minPitchScaleFactor);
-                logger.debug("maximum F0 modification factor: " + maxPitchScaleFactor);
-                modificationConcatenator = new FdpsolaUnitConcatenator(minTimeScaleFactor, maxTimeScaleFactor, minPitchScaleFactor, maxPitchScaleFactor);
-            } catch (Exception e) {
-                // ignore -- defaults will be used
-                logger.debug("Initializing FD-PSOLA unit concatenator with default parameter thresholds.");
-                modificationConcatenator = new FdpsolaUnitConcatenator();
-            }
-            modificationConcatenator.load(database);
-        }
-        return modificationConcatenator;
-    }
+	/**
+	 * Gets the database of this voice
+	 * 
+	 * @return the database
+	 */
+	public UnitDatabase getDatabase() {
+		return database;
+	}
 
-    /**
-     * Gets the domain of this voice
-     * @return the domain
-     */
-    public String getDomain()
-    {
-        return domain;
-    }
-    
-    public String getExampleText()
-    {
-        if (exampleText == null) {
-            return "";
-        } else {
-            return exampleText;
-        }
-    }
-    
-    public void readExampleText(InputStream in) throws IOException
-    {
-        BufferedReader reader =
-        	new BufferedReader(new InputStreamReader(in, "UTF-8"));
-    	StringBuilder sb = new StringBuilder();
-    	String line = reader.readLine();
-    	while (line != null){
-    	    if (!line.startsWith("***")){
-    	        sb.append(line+"\n");
-    	    }
-    	    line = reader.readLine();
-    	}
-        exampleText = sb.toString();            
-    }
-    
-    
-    
-    public CART[] getF0Trees()
-    {
-        return f0Carts;
-    }
-    
-    
-    public FeatureDefinition getF0CartsFeatDef()
-    {
-        if (f0Carts == null || f0Carts.length < 1) return null;
-        return f0Carts[0].getFeatureDefinition();
-    }
-    
+	/**
+	 * Gets the unit selector of this voice
+	 * 
+	 * @return the unit selector
+	 */
+	public UnitSelector getUnitSelector() {
+		return unitSelector;
+	}
+
+	/**
+	 * Gets the unit concatenator of this voice
+	 * 
+	 * @return the unit selector
+	 */
+	public UnitConcatenator getConcatenator() {
+		return concatenator;
+	}
+
+	/**
+	 * Get the modification UnitConcatenator of this voice
+	 * 
+	 * @return the modifying UnitConcatenator
+	 */
+	public UnitConcatenator getModificationConcatenator() {
+		if (modificationConcatenator == null) {
+			// get sensible minimum and maximum values:
+			try {
+				// initialize with values from properties:
+				double minTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
+						+ ".prosody.modification.duration.factor.minimum"));
+				double maxTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
+						+ ".prosody.modification.duration.factor.maximum"));
+				double minPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
+						+ ".prosody.modification.f0.factor.minimum"));
+				double maxPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
+						+ ".prosody.modification.f0.factor.maximum"));
+				logger.debug("Initializing FD-PSOLA unit concatenator with the following parameter thresholds:");
+				logger.debug("minimum duration modification factor: " + minTimeScaleFactor);
+				logger.debug("maximum duration modification factor: " + maxTimeScaleFactor);
+				logger.debug("minimum F0 modification factor: " + minPitchScaleFactor);
+				logger.debug("maximum F0 modification factor: " + maxPitchScaleFactor);
+				modificationConcatenator = new FdpsolaUnitConcatenator(minTimeScaleFactor, maxTimeScaleFactor,
+						minPitchScaleFactor, maxPitchScaleFactor);
+			} catch (Exception e) {
+				// ignore -- defaults will be used
+				logger.debug("Initializing FD-PSOLA unit concatenator with default parameter thresholds.");
+				modificationConcatenator = new FdpsolaUnitConcatenator();
+			}
+			modificationConcatenator.load(database);
+		}
+		return modificationConcatenator;
+	}
+
+	/**
+	 * Gets the domain of this voice
+	 * 
+	 * @return the domain
+	 */
+	public String getDomain() {
+		return domain;
+	}
+
+	public String getExampleText() {
+		if (exampleText == null) {
+			return "";
+		} else {
+			return exampleText;
+		}
+	}
+
+	public void readExampleText(InputStream in) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		StringBuilder sb = new StringBuilder();
+		String line = reader.readLine();
+		while (line != null) {
+			if (!line.startsWith("***")) {
+				sb.append(line + "\n");
+			}
+			line = reader.readLine();
+		}
+		exampleText = sb.toString();
+	}
+
+	public CART[] getF0Trees() {
+		return f0Carts;
+	}
+
+	public FeatureDefinition getF0CartsFeatDef() {
+		if (f0Carts == null || f0Carts.length < 1)
+			return null;
+		return f0Carts[0].getFeatureDefinition();
+	}
+
 }

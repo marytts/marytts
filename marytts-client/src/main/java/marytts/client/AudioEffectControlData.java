@@ -19,44 +19,72 @@
  */
 package marytts.client;
 
-
 /**
  * Data for an audio effect control.
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class AudioEffectControlData {
-    private String effectName;
-    private String helpText;
-    private String exampleParams;
-    private String params;
-    private boolean isSelected;
-    
-    public AudioEffectControlData(String strEffectNameIn, String strExampleParams, String strHelpTextIn)
-    { 
-        init(strEffectNameIn, strExampleParams, strHelpTextIn);
-    }
-    
-    public void init(String strEffectNameIn, String strExampleParamsIn, String strHelpTextIn)
-    {
-        setEffectName(strEffectNameIn);
-        setExampleParams(strExampleParamsIn);
-        setHelpText(strHelpTextIn); 
-        setEffectParamsToExample();
-    }
-    
-    public void setEffectName(String strEffectName) { effectName = strEffectName; }
-    public String getEffectName() { return effectName; }
-    public void setHelpText(String strHelpText) { helpText = strHelpText; }
-    public String getHelpText() { return helpText; }
-    public void setParams(String strParams) { params = strParams; }
-    public String getParams() { return params; }
-    public void setExampleParams(String strExampleParams) { exampleParams = strExampleParams; }
-    public String getExampleParams() { return exampleParams; }
-    public void setEffectParamsToExample() { setParams(exampleParams); }
-    public void setSelected(boolean bSelected) { isSelected = bSelected; }
-    public boolean getSelected() { return isSelected; }
-    
-}
+	private String effectName;
+	private String helpText;
+	private String exampleParams;
+	private String params;
+	private boolean isSelected;
 
+	public AudioEffectControlData(String strEffectNameIn, String strExampleParams, String strHelpTextIn) {
+		init(strEffectNameIn, strExampleParams, strHelpTextIn);
+	}
+
+	public void init(String strEffectNameIn, String strExampleParamsIn, String strHelpTextIn) {
+		setEffectName(strEffectNameIn);
+		setExampleParams(strExampleParamsIn);
+		setHelpText(strHelpTextIn);
+		setEffectParamsToExample();
+	}
+
+	public void setEffectName(String strEffectName) {
+		effectName = strEffectName;
+	}
+
+	public String getEffectName() {
+		return effectName;
+	}
+
+	public void setHelpText(String strHelpText) {
+		helpText = strHelpText;
+	}
+
+	public String getHelpText() {
+		return helpText;
+	}
+
+	public void setParams(String strParams) {
+		params = strParams;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setExampleParams(String strExampleParams) {
+		exampleParams = strExampleParams;
+	}
+
+	public String getExampleParams() {
+		return exampleParams;
+	}
+
+	public void setEffectParamsToExample() {
+		setParams(exampleParams);
+	}
+
+	public void setSelected(boolean bSelected) {
+		isSelected = bSelected;
+	}
+
+	public boolean getSelected() {
+		return isSelected;
+	}
+
+}

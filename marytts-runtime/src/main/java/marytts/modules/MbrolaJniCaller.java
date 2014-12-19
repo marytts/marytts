@@ -29,61 +29,60 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.data.audio.AudioDestination;
 
-
 /**
- * The MBROLA-via-JNI caller. This can work as a normal MARY module, converting
- * MBROLA markup data into audio, or it can be indirectly called from the
- * MbrolaSynthesizer.
- *
+ * The MBROLA-via-JNI caller. This can work as a normal MARY module, converting MBROLA markup data into audio, or it can be
+ * indirectly called from the MbrolaSynthesizer.
+ * 
  * @author Marc Schr&ouml;der
  */
 
 public class MbrolaJniCaller extends MbrolaCaller {
-    /* Return true on success, false on failure: */
-    private native boolean mbrolaStartup();
-    private native void mbrolaShutdown();
-    private native void mbrolaReset();
-    private native void mbrolaClose();
-    private native String mbrolaLastError();
-    /* Return true on success, false on failure: */
-    private native boolean mbrolaInitVoice(String voicePath, boolean tolerant);
-    private native boolean mbrolaSynthesise(String text);
+	/* Return true on success, false on failure: */
+	private native boolean mbrolaStartup();
 
-    static {
-        System.loadLibrary("MbrolaJNI");
-    }
+	private native void mbrolaShutdown();
 
-    private Voice currentlyLoadedVoice = null;
+	private native void mbrolaReset();
 
-    /**
-     * This AudioDestination will be filled with the results of the
-     * synthesis process. Because of the JNI callback, this must be
-     * kept at class level, which means that synthesiseOneSection
-     * must be synchronized.
-     */
-    private AudioDestination audioDestination = null;
+	private native void mbrolaClose();
 
+	private native String mbrolaLastError();
 
+	/* Return true on success, false on failure: */
+	private native boolean mbrolaInitVoice(String voicePath, boolean tolerant);
 
-    public MbrolaJniCaller() {
-        super("MbrolaJniCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
-    }
+	private native boolean mbrolaSynthesise(String text);
 
-    public synchronized void startup() throws Exception {
-        boolean ok = mbrolaStartup();
-        if (!ok) {
-            handleNativeError();
-        }
-        super.startup();
-    }
+	static {
+		System.loadLibrary("MbrolaJNI");
+	}
 
-    public synchronized void shutdown()
-    {
-        mbrolaShutdown();
-        super.shutdown();
-    }
+	private Voice currentlyLoadedVoice = null;
 
-    private void setVoice(Voice voice) {
+	/**
+	 * This AudioDestination will be filled with the results of the synthesis process. Because of the JNI callback, this must be
+	 * kept at class level, which means that synthesiseOneSection must be synchronized.
+	 */
+	private AudioDestination audioDestination = null;
+
+	public MbrolaJniCaller() {
+		super("MbrolaJniCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
+	}
+
+	public synchronized void startup() throws Exception {
+		boolean ok = mbrolaStartup();
+		if (!ok) {
+			handleNativeError();
+		}
+		super.startup();
+	}
+
+	public synchronized void shutdown() {
+		mbrolaShutdown();
+		super.shutdown();
+	}
+
+	private void setVoice(Voice voice) {
         // This is what we would like to have done in order to have fast synthesis;
         // unfortunately, it leads to small deviations in the length of the audio data
         // from one call to another.
@@ -99,22 +98,24 @@ public class MbrolaJniCaller extends MbrolaCaller {
         currentlyLoadedVoice = voice;
     }
 
-    private void handleNativeError() throws IOException {
-        currentlyLoadedVoice = null;
-        String errMsg = "Mbrola error " + mbrolaLastError();
-        mbrolaReset();
-        throw new IOException(errMsg);
+	private void handleNativeError() throws IOException {
+		currentlyLoadedVoice = null;
+		String errMsg = "Mbrola error " + mbrolaLastError();
+		mbrolaReset();
+		throw new IOException(errMsg);
 
-    }
+	}
 
-    /**
-     * Synthesise one chunk of MBROLA markup with a given voice.
-     * @param mbrolaMarkup the input data in the native format expected by
-     * the synthesis engine
-     * @param voice the voice with which to synthesise the data
-     * @return an AudioInputStream in the native audio format of the voice
-     */
-    public synchronized AudioInputStream synthesiseOneSection(String mbrolaMarkup, Voice voice) throws IOException {
+	/**
+	 * Synthesise one chunk of MBROLA markup with a given voice.
+	 * 
+	 * @param mbrolaMarkup
+	 *            the input data in the native format expected by the synthesis engine
+	 * @param voice
+	 *            the voice with which to synthesise the data
+	 * @return an AudioInputStream in the native audio format of the voice
+	 */
+	public synchronized AudioInputStream synthesiseOneSection(String mbrolaMarkup, Voice voice) throws IOException {
         if (mbrolaMarkup == null || voice == null) {
             throw new IllegalArgumentException("Received null argument.");
         }
@@ -144,17 +145,15 @@ public class MbrolaJniCaller extends MbrolaCaller {
         logger.info("Finished synthesising.");
         return audioDestination.convertToAudioInputStream(voice.dbAudioFormat());
     }
-    
 
-    /* To be called from native code. */
-    private void callbackSaveAudioData(byte[] audioData) {
-        logger.debug("Read " + audioData.length + " bytes from MBROLA synth.");
-        try {
-            audioDestination.write(audioData);
-        } catch (IOException e) {
-            logger.error(e);
-        }
+	/* To be called from native code. */
+	private void callbackSaveAudioData(byte[] audioData) {
+		logger.debug("Read " + audioData.length + " bytes from MBROLA synth.");
+		try {
+			audioDestination.write(audioData);
+		} catch (IOException e) {
+			logger.error(e);
+		}
 
-    }
+	}
 }
-

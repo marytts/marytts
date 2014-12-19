@@ -43,44 +43,41 @@ import marytts.util.data.MaryHeader;
  * 
  * @author Marcela Charfuelan
  */
-public class MaryCARTReader
-{
-    /**
-     * Load the cart from the given file
-     * 
-     * @param fileName
-     *            the file to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @param dummy
-     *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException
-     *             if a problem occurs while loading
-     */
-    public CART load(String fileName)
-    throws IOException, MaryConfigurationException
-    {
-    	FileInputStream fis = new FileInputStream(fileName);
-    	try {
-    		return loadFromStream(fis);
-    	} finally {
-    		fis.close();
-    	}
-    }
-    
-    /**
-     * Load the cart from the given file
-     * 
-     * @param inStream
-     *            the stream to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @param dummy
-     *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException
-     *             if a problem occurs while loading
-     */
-    public CART loadFromStream(InputStream inStream)
+public class MaryCARTReader {
+	/**
+	 * Load the cart from the given file
+	 * 
+	 * @param fileName
+	 *            the file to load the cart from
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param dummy
+	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 * @throws IOException
+	 *             if a problem occurs while loading
+	 */
+	public CART load(String fileName) throws IOException, MaryConfigurationException {
+		FileInputStream fis = new FileInputStream(fileName);
+		try {
+			return loadFromStream(fis);
+		} finally {
+			fis.close();
+		}
+	}
+
+	/**
+	 * Load the cart from the given file
+	 * 
+	 * @param inStream
+	 *            the stream to load the cart from
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param dummy
+	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 * @throws IOException
+	 *             if a problem occurs while loading
+	 */
+	public CART loadFromStream(InputStream inStream)
     throws IOException, MaryConfigurationException
     {
         // open the CART-File and read the header
@@ -238,19 +235,19 @@ public class MaryCARTReader
         return new CART(rootNode, featureDefinition, props);
     }
 
-    /**
-     * Load the cart from the given file
-     * 
-     * @param fileName
-     *            the file to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @param dummy
-     *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException
-     *             if a problem occurs while loading
-     */
-    private CART loadFromByteBuffer(String fileName)
+	/**
+	 * Load the cart from the given file
+	 * 
+	 * @param fileName
+	 *            the file to load the cart from
+	 * @param featDefinition
+	 *            the feature definition
+	 * @param dummy
+	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 * @throws IOException
+	 *             if a problem occurs while loading
+	 */
+	private CART loadFromByteBuffer(String fileName)
     throws IOException, MaryConfigurationException
     {
         // open the CART-File and read the header
@@ -410,6 +407,4 @@ public class MaryCARTReader
         // set the rootNode as the rootNode of cart
         return new CART(rootNode, featureDefinition, props);
     }
-    
 }
-

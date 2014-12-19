@@ -23,24 +23,22 @@ import java.util.regex.Pattern;
 
 /**
  * Provides some useful, pPatterncompiled Patterngular ExpPatternssion patterns.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class REPattern
-{
-    public static final Pattern letterDot = Pattern.compile("[a-zäöüßA-ZÄÖÜ]\\.");
-    public static final Pattern nonInitialCapital = Pattern.compile("[a-zäöüßA-ZÄÖÜ0-9]+[A-ZÄÖÜ]");
-    public static final Pattern onlyConsonants = Pattern.compile("^[bcdfghj-np-tvwxzßBCDFGHJ-NP-TVWXZ]+$");
-    public static final Pattern letter = Pattern.compile("[a-zäöüßA-ZÄÖÜ]");
-    public static final Pattern digit = Pattern.compile("[0-9]");
-    public static final Pattern onlyDigits = Pattern.compile("^[0-9]+$");
-    public static final Pattern capitalLetter = Pattern.compile("[A-ZÄÖÜ]");
-    public static final Pattern initialCapitalLetter = Pattern.compile("^[A-ZÄÖÜ]");
-    public static final Pattern initialLowercaseLetter = Pattern.compile("^[a-zäöü]");
-    public static final Pattern initialDigits = Pattern.compile("^[0-9]+");
-    public static final Pattern initialNonDigits = Pattern.compile("^[^0-9]+");
-    public static final Pattern emptyLine = Pattern.compile("^\\s*$");
+public class REPattern {
+	public static final Pattern letterDot = Pattern.compile("[a-zäöüßA-ZÄÖÜ]\\.");
+	public static final Pattern nonInitialCapital = Pattern.compile("[a-zäöüßA-ZÄÖÜ0-9]+[A-ZÄÖÜ]");
+	public static final Pattern onlyConsonants = Pattern.compile("^[bcdfghj-np-tvwxzßBCDFGHJ-NP-TVWXZ]+$");
+	public static final Pattern letter = Pattern.compile("[a-zäöüßA-ZÄÖÜ]");
+	public static final Pattern digit = Pattern.compile("[0-9]");
+	public static final Pattern onlyDigits = Pattern.compile("^[0-9]+$");
+	public static final Pattern capitalLetter = Pattern.compile("[A-ZÄÖÜ]");
+	public static final Pattern initialCapitalLetter = Pattern.compile("^[A-ZÄÖÜ]");
+	public static final Pattern initialLowercaseLetter = Pattern.compile("^[a-zäöü]");
+	public static final Pattern initialDigits = Pattern.compile("^[0-9]+");
+	public static final Pattern initialNonDigits = Pattern.compile("^[^0-9]+");
+	public static final Pattern emptyLine = Pattern.compile("^\\s*$");
 
 }
-

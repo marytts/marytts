@@ -32,35 +32,33 @@ package marytts.signalproc.window;
 /**
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class FlattopWindow extends Window {
 
-    public FlattopWindow(int length)
-    {
-        super(length);
-    }
-    
-    public FlattopWindow(int length, double prescalingFactor)
-    {
-        super(length, prescalingFactor);
-    }
-    
-    protected void initialise()
-    {
-        boolean prescale = (prescalingFactor != 1.);
-        
-        for (int i=0; i<window.length;i++)
-        {
-            window[i] = 1.0-1.93*Math.cos((2*Math.PI*i)/(window.length-1))+1.29*Math.cos((4*Math.PI*i)/(window.length-1))-0.388*Math.cos((6*Math.PI*i)/(window.length-1))+0.032*Math.cos((8*Math.PI*i)/(window.length-1));
-            if (prescale) 
-                window[i] *= prescalingFactor;
-        }
-    }
-    
-    public String toString()
-    {
-        return "Bartlett window";
-    }
+	public FlattopWindow(int length) {
+		super(length);
+	}
+
+	public FlattopWindow(int length, double prescalingFactor) {
+		super(length, prescalingFactor);
+	}
+
+	protected void initialise() {
+		boolean prescale = (prescalingFactor != 1.);
+
+		for (int i = 0; i < window.length; i++) {
+			window[i] = 1.0 - 1.93 * Math.cos((2 * Math.PI * i) / (window.length - 1)) + 1.29
+					* Math.cos((4 * Math.PI * i) / (window.length - 1)) - 0.388
+					* Math.cos((6 * Math.PI * i) / (window.length - 1)) + 0.032
+					* Math.cos((8 * Math.PI * i) / (window.length - 1));
+			if (prescale)
+				window[i] *= prescalingFactor;
+		}
+	}
+
+	public String toString() {
+		return "Bartlett window";
+	}
 
 }

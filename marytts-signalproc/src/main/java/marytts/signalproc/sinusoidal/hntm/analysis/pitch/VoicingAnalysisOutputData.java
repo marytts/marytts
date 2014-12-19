@@ -21,11 +21,10 @@ package marytts.signalproc.sinusoidal.hntm.analysis.pitch;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class VoicingAnalysisOutputData {
-    public int[] peakIndices;
-    public float maxFreqOfVoicing;
+	public int[] peakIndices;
+	public float maxFreqOfVoicing;
 
 }
-

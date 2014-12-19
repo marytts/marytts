@@ -31,13 +31,10 @@
  */
 package marytts.features;
 
-
 /**
- * Performs a specific type of processing on an item and returns an
- * object.   
+ * Performs a specific type of processing on an item and returns an object.
  */
 public interface MaryFeatureProcessor {
 
-    public String getName();
+	public String getName();
 }
-

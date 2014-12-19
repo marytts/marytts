@@ -24,56 +24,44 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * The priorites of parts-of-speech for accent assignment.
- * These priorities reflect the "probability" of a token to carry a pitch
- * accent. Lower priorities mean higher probabilities.
- * Priority of 1 means unconditional accent assignment.
+ * The priorites of parts-of-speech for accent assignment. These priorities reflect the "probability" of a token to carry a pitch
+ * accent. Lower priorities mean higher probabilities. Priority of 1 means unconditional accent assignment.
  */
-public class POSAccentPriorities
-{
-    private Properties priorities;
+public class POSAccentPriorities {
+	private Properties priorities;
 
-    public POSAccentPriorities(String propertiesFilename) throws IOException
-    {
-        priorities = new Properties();
-        priorities.load(new FileInputStream(propertiesFilename));
-    }
+	public POSAccentPriorities(String propertiesFilename) throws IOException {
+		priorities = new Properties();
+		priorities.load(new FileInputStream(propertiesFilename));
+	}
 
-    /**
-     * Determine whether a part-of-speech always gets an accent.
-     */
-    public boolean getsUnconditionalAccent(String pos)
-    {
-        return getPriority(pos) == 1;
-    }
+	/**
+	 * Determine whether a part-of-speech always gets an accent.
+	 */
+	public boolean getsUnconditionalAccent(String pos) {
+		return getPriority(pos) == 1;
+	}
 
-    /**
-     * Determine whether one part-of-speech is more likely to get an accent
-     * than another one.
-     */
-    public boolean moreAccentuated(String posA, String posB)
-    {
-        return getPriority(posA) < getPriority(posB);
-    }
+	/**
+	 * Determine whether one part-of-speech is more likely to get an accent than another one.
+	 */
+	public boolean moreAccentuated(String posA, String posB) {
+		return getPriority(posA) < getPriority(posB);
+	}
 
-    /**
-     * Provide the priority of a part-of-speech for getting an accent.
-     * Lower values mean higher priority / probability.
-     */
-    public int getPriority(String pos)
-    {
-        String value = priorities.getProperty(pos);
-        if (value != null) {
-            try {
-                return Integer.parseInt(value);
-            } catch (NumberFormatException e) {}
-            // Invalid entries are treated as missing entries
-        }
-        return 100; // an arbitrary, very high value for missing entries
-    }
-            
-
-
+	/**
+	 * Provide the priority of a part-of-speech for getting an accent. Lower values mean higher priority / probability.
+	 */
+	public int getPriority(String pos) {
+		String value = priorities.getProperty(pos);
+		if (value != null) {
+			try {
+				return Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+			}
+			// Invalid entries are treated as missing entries
+		}
+		return 100; // an arbitrary, very high value for missing entries
+	}
 
 }
-

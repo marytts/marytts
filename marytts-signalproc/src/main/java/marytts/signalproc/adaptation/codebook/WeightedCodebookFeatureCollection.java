@@ -24,20 +24,19 @@ import marytts.util.string.StringUtils;
 
 /**
  * 
- *  A wrapper class for indexed binary files of acoustic feature sets
- *  
- *  @author Oytun T&uumlrk
+ * A wrapper class for indexed binary files of acoustic feature sets
+ * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookFeatureCollection extends BaselineFeatureCollection {
-    public String[] indexMapFiles;
-    
-    public WeightedCodebookFeatureCollection(WeightedCodebookTrainerParams params, int numFiles)
-    {
-        if (numFiles>0)
-            indexMapFiles = StringUtils.indexedNameGenerator(params.trainingBaseFolder + params.codebookHeader.sourceTag + "_" + params.codebookHeader.targetTag + "_", numFiles, 1, "", params.indexMapFileExtension);
-        else
-            indexMapFiles = null;
-    }
+	public String[] indexMapFiles;
+
+	public WeightedCodebookFeatureCollection(WeightedCodebookTrainerParams params, int numFiles) {
+		if (numFiles > 0)
+			indexMapFiles = StringUtils.indexedNameGenerator(params.trainingBaseFolder + params.codebookHeader.sourceTag + "_"
+					+ params.codebookHeader.targetTag + "_", numFiles, 1, "", params.indexMapFileExtension);
+		else
+			indexMapFiles = null;
+	}
 
 }
-

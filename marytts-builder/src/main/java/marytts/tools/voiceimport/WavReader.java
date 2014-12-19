@@ -42,189 +42,189 @@ import marytts.util.io.General;
  * File reader for a wave (RIFF) waveform
  */
 public class WavReader {
-    
-    private int numSamples;
-    private int sampleRate;
-    private short[] samples;
 
-    // Only really used in loading of data.
-    private int headerSize;
-    private int numBytes;
-    private int numChannels = 1;  // Only support mono
+	private int numSamples;
+	private int sampleRate;
+	private short[] samples;
 
-    static final short RIFF_FORMAT_PCM = 0x0001;
+	// Only really used in loading of data.
+	private int headerSize;
+	private int numBytes;
+	private int numChannels = 1; // Only support mono
 
-    
-    /****************/
-    /* CONSTRUCTORS */
-    /****************/
-    
-    /** Constructor from an already open DataInputStream
-     *
-     * @param dis DataInputStream to read the wav data from
-     *
-     */
-    public WavReader( DataInputStream dis ) {
-        loadHeaderAndData( dis );
-    }
-    
-    /** Constructor from a file name
-    *
-    * @param fileName the name of the file to read the wav data from
-    *
-    */
-    public WavReader( String fileName ) {
-        try {
-            /* Open the file */
-            FileInputStream fis = new FileInputStream( fileName );
-            /* Stick the file to a DataInputStream to allow easy reading of primitive classes (numbers) */
-            DataInputStream dis = new DataInputStream( fis );
-            /* Parse the header and load the data */
-            loadHeaderAndData( dis );
-            /* Close the file */
-            fis.close();
-        }
-        catch ( FileNotFoundException e ) {
-            throw new Error("WAV file [" + fileName + "] was not found." );
-        }
-        catch ( SecurityException e ) {
-            throw new Error("You do not have read access to the file [" + fileName + "]." );
-        }
-        catch ( IOException e ) {
-            throw new Error("IO Exception caught when closing file [" + fileName + "]: " + e.getMessage() );
-        }
-    }
-    
-    
-    /*****************/
-    /* OTHER METHODS */
-    /*****************/
-    
-    /**
-     * Read in a wave from a riff format
-     *
-     * @param dis DataInputStream to read data from
-     */
-    private void loadHeaderAndData( DataInputStream dis ) {
-        
-        try {
-            loadHeader(dis);
-            if (dis.skipBytes(headerSize - 16) != (headerSize - 16)) {
-                throw new Error("Unexpected error parsing wave file.");
-            }
+	static final short RIFF_FORMAT_PCM = 0x0001;
 
-            // Bunch of potential random headers
-            while (true) {
-                String s = new String(General.readChars(dis, 4));
+	/****************/
+	/* CONSTRUCTORS */
+	/****************/
 
-                if (s.equals("data")) {
-                    numSamples = General.readInt(dis, false) / 2;
-                    break;
-                } else if (s.equals("fact")) {
-                    int i = General.readInt(dis, false);
-                    if (dis.skipBytes(i) != i) {
-                        throw new Error("Unexpected error parsing wave file.");
-                    }
-                } else {
-                    throw new Error("Unsupported wave header chunk type " + s);
-                }
-            }
+	/**
+	 * Constructor from an already open DataInputStream
+	 * 
+	 * @param dis
+	 *            DataInputStream to read the wav data from
+	 * 
+	 */
+	public WavReader(DataInputStream dis) {
+		loadHeaderAndData(dis);
+	}
 
-            int dataLength = numSamples * numChannels;
-            samples = new short[numSamples];
+	/**
+	 * Constructor from a file name
+	 * 
+	 * @param fileName
+	 *            the name of the file to read the wav data from
+	 * 
+	 */
+	public WavReader(String fileName) {
+		try {
+			/* Open the file */
+			FileInputStream fis = new FileInputStream(fileName);
+			/* Stick the file to a DataInputStream to allow easy reading of primitive classes (numbers) */
+			DataInputStream dis = new DataInputStream(fis);
+			/* Parse the header and load the data */
+			loadHeaderAndData(dis);
+			/* Close the file */
+			fis.close();
+		} catch (FileNotFoundException e) {
+			throw new Error("WAV file [" + fileName + "] was not found.");
+		} catch (SecurityException e) {
+			throw new Error("You do not have read access to the file [" + fileName + "].");
+		} catch (IOException e) {
+			throw new Error("IO Exception caught when closing file [" + fileName + "]: " + e.getMessage());
+		}
+	}
 
-            for (int i = 0; i < dataLength; i++) {
-                samples[i] = General.readShort(dis, false);
-            }
+	/*****************/
+	/* OTHER METHODS */
+	/*****************/
 
-        } catch (IOException ioe) {
-            throw new Error("IO error while parsing wave" + ioe.getMessage());
-        }
-        
-    }
+	/**
+	 * Read in a wave from a riff format
+	 * 
+	 * @param dis
+	 *            DataInputStream to read data from
+	 */
+	private void loadHeaderAndData(DataInputStream dis) {
 
-    /**
-     * load a RIFF header
-     *
-     * @param dis DataInputStream to read from
-     *
-     * @throws IOException on ill-formatted input
-     */
-    private void loadHeader(DataInputStream dis) throws IOException {
-        
-        if (!checkChars(dis, "RIFF")) {
-            throw new Error("Invalid wave file format.");
-        }
-        numBytes = General.readInt(dis,false);
-        if (!checkChars(dis, "WAVEfmt ")) {
-            throw new Error("Invalid wave file format.");
-        }
+		try {
+			loadHeader(dis);
+			if (dis.skipBytes(headerSize - 16) != (headerSize - 16)) {
+				throw new Error("Unexpected error parsing wave file.");
+			}
 
-        headerSize = General.readInt(dis, false);
+			// Bunch of potential random headers
+			while (true) {
+				String s = new String(General.readChars(dis, 4));
 
-        if (General.readShort(dis, false) != RIFF_FORMAT_PCM) {
-            throw new Error("Invalid wave file format.");
-        }
+				if (s.equals("data")) {
+					numSamples = General.readInt(dis, false) / 2;
+					break;
+				} else if (s.equals("fact")) {
+					int i = General.readInt(dis, false);
+					if (dis.skipBytes(i) != i) {
+						throw new Error("Unexpected error parsing wave file.");
+					}
+				} else {
+					throw new Error("Unsupported wave header chunk type " + s);
+				}
+			}
 
-        if (General.readShort(dis, false) != 1) {
-            throw new Error("Only mono wave files supported.");
-        }
-        
-        sampleRate = General.readInt(dis, false);
-        General.readInt(dis, false);
-        General.readShort(dis, false);
-        General.readShort(dis, false);
-        
-    }
+			int dataLength = numSamples * numChannels;
+			samples = new short[numSamples];
 
-    
-    /**
-     * Make sure that a string of characters appear next in the file
-     *
-     * @param dis DataInputStream to read in
-     * @param chars a String containing the ascii characters you
-     *          want the <code>dis</code> to contain.
-     *
-     * @return <code>true</code> if <code>chars</code> appears next
-     *          in <code>dis</code>, else <code>false</code>
-     * @throws on ill-formatted input (end of file, for example)
-     */
-    private boolean checkChars(DataInputStream dis, String chars)
-            throws IOException {
-        char[] carray = chars.toCharArray();
-        for (int i = 0; i < carray.length; i++) {
-            if ((char) dis.readByte() != carray[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
+			for (int i = 0; i < dataLength; i++) {
+				samples[i] = General.readShort(dis, false);
+			}
 
-    /**
-     * Get the sample rate for this wave
-     *
-     * @return sample rate
-     */
-    public int getSampleRate() {
-        return sampleRate;
-    }
+		} catch (IOException ioe) {
+			throw new Error("IO error while parsing wave" + ioe.getMessage());
+		}
 
-    /**
-     * Get the number of samples for this wave
-     *
-     * @return number of samples
-     */
-    public int getNumSamples() {
-        return numSamples;
-    }
+	}
 
-    /* Get the sample data of this wave
-     *
-     * @return samples
-     */
-    public short[] getSamples() {
-        return samples;
-    }
+	/**
+	 * load a RIFF header
+	 * 
+	 * @param dis
+	 *            DataInputStream to read from
+	 * 
+	 * @throws IOException
+	 *             on ill-formatted input
+	 */
+	private void loadHeader(DataInputStream dis) throws IOException {
+
+		if (!checkChars(dis, "RIFF")) {
+			throw new Error("Invalid wave file format.");
+		}
+		numBytes = General.readInt(dis, false);
+		if (!checkChars(dis, "WAVEfmt ")) {
+			throw new Error("Invalid wave file format.");
+		}
+
+		headerSize = General.readInt(dis, false);
+
+		if (General.readShort(dis, false) != RIFF_FORMAT_PCM) {
+			throw new Error("Invalid wave file format.");
+		}
+
+		if (General.readShort(dis, false) != 1) {
+			throw new Error("Only mono wave files supported.");
+		}
+
+		sampleRate = General.readInt(dis, false);
+		General.readInt(dis, false);
+		General.readShort(dis, false);
+		General.readShort(dis, false);
+
+	}
+
+	/**
+	 * Make sure that a string of characters appear next in the file
+	 * 
+	 * @param dis
+	 *            DataInputStream to read in
+	 * @param chars
+	 *            a String containing the ascii characters you want the <code>dis</code> to contain.
+	 * 
+	 * @return <code>true</code> if <code>chars</code> appears next in <code>dis</code>, else <code>false</code>
+	 * @throws on
+	 *             ill-formatted input (end of file, for example)
+	 */
+	private boolean checkChars(DataInputStream dis, String chars) throws IOException {
+		char[] carray = chars.toCharArray();
+		for (int i = 0; i < carray.length; i++) {
+			if ((char) dis.readByte() != carray[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Get the sample rate for this wave
+	 * 
+	 * @return sample rate
+	 */
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	/**
+	 * Get the number of samples for this wave
+	 * 
+	 * @return number of samples
+	 */
+	public int getNumSamples() {
+		return numSamples;
+	}
+
+	/*
+	 * Get the sample data of this wave
+	 * 
+	 * @return samples
+	 */
+	public short[] getSamples() {
+		return samples;
+	}
 }
-
-

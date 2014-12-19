@@ -18,7 +18,6 @@
  *
  */
 
-
 package marytts.language.de;
 
 import java.io.IOException;
@@ -28,11 +27,9 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.ProsodyGenericFST;
 
 public class Prosody extends ProsodyGenericFST {
-	
-    public Prosody() throws IOException {
-        super(MaryDataType.PHONEMES, 
-                MaryDataType.INTONATION,
-                Locale.GERMAN,
-        		"de.prosody.tobipredparams","de.prosody.accentPriorities","de.prosody.syllableaccents", "de.prosody.paragraphdeclination");
-    }
+
+	public Prosody() throws IOException {
+		super(MaryDataType.PHONEMES, MaryDataType.INTONATION, Locale.GERMAN, "de.prosody.tobipredparams",
+				"de.prosody.accentPriorities", "de.prosody.syllableaccents", "de.prosody.paragraphdeclination");
+	}
 }

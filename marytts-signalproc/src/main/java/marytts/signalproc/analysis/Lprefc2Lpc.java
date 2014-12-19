@@ -39,58 +39,60 @@ import marytts.util.data.ESTTrackWriter;
 /**
  * 
  * Internally performs conversion between reflection coefficients and LPCs.
- *
+ * 
  */
 public class Lprefc2Lpc {
-    private static float[][] convertData( float[][] lprefc ) {
-        
-        int lpcOrder = lprefc[0].length;
-        double[] k = new double[lpcOrder];
-        double[] a = new double[lpcOrder+1];
-        float[][] lpc = new float[lprefc.length][lpcOrder+1];
-        
-        // For each LPC vector:
-        for ( int i = 0; i < lprefc.length; i++ ) {
-            // Cast the LPCC coeffs from float to double
-            for ( int j = 0; j < lpcOrder; j++ ) {
-                k[j] = (double)( lprefc[i][j] );
-            }
-            // Do the conversion
-            a = ReflectionCoefficients.lprefc2lpc( k );
-            // Default a[0] to 1.0
-            lpc[i][0] = 1.0f;
-            // Cast the LPCs back to floats
-            for ( int j = 1; j <= lpcOrder; j++ ) {
-                lpc[i][j] = (float)( a[j] );
-            }
-        }
-        return( lpc );
-    }
-    
-    /**
-     * A method to convert between two files, from LPCs to reflection coefficients in EST format.
-     * 
-     * @param inFileName The name of the input file.
-     * @param outFileName The name of the output file.
-     * 
-     * @throws IOException
-     */
-    public static void convert( String inFileName, String outFileName ) throws IOException {
-        // Load the input file
-        ESTTrackReader etr = new ESTTrackReader( inFileName );
-        // Convert
-        float[][] lpc = convertData( etr.getFrames() );
-        // Output the lpcc
-        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lpc, "lpc" );
-        etw.doWriteAndClose( outFileName, etr.isBinary(), etr.isBigEndian() );
-    }
+	private static float[][] convertData(float[][] lprefc) {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws IOException {
-        // Usage: ESTlpccToESTlpc inFileName outFileName
-        convert( args[0], args[1] );
-    }
+		int lpcOrder = lprefc[0].length;
+		double[] k = new double[lpcOrder];
+		double[] a = new double[lpcOrder + 1];
+		float[][] lpc = new float[lprefc.length][lpcOrder + 1];
+
+		// For each LPC vector:
+		for (int i = 0; i < lprefc.length; i++) {
+			// Cast the LPCC coeffs from float to double
+			for (int j = 0; j < lpcOrder; j++) {
+				k[j] = (double) (lprefc[i][j]);
+			}
+			// Do the conversion
+			a = ReflectionCoefficients.lprefc2lpc(k);
+			// Default a[0] to 1.0
+			lpc[i][0] = 1.0f;
+			// Cast the LPCs back to floats
+			for (int j = 1; j <= lpcOrder; j++) {
+				lpc[i][j] = (float) (a[j]);
+			}
+		}
+		return (lpc);
+	}
+
+	/**
+	 * A method to convert between two files, from LPCs to reflection coefficients in EST format.
+	 * 
+	 * @param inFileName
+	 *            The name of the input file.
+	 * @param outFileName
+	 *            The name of the output file.
+	 * 
+	 * @throws IOException
+	 */
+	public static void convert(String inFileName, String outFileName) throws IOException {
+		// Load the input file
+		ESTTrackReader etr = new ESTTrackReader(inFileName);
+		// Convert
+		float[][] lpc = convertData(etr.getFrames());
+		// Output the lpcc
+		ESTTrackWriter etw = new ESTTrackWriter(etr.getTimes(), lpc, "lpc");
+		etw.doWriteAndClose(outFileName, etr.isBinary(), etr.isBigEndian());
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws IOException {
+		// Usage: ESTlpccToESTlpc inFileName outFileName
+		convert(args[0], args[1]);
+	}
 
 }

@@ -25,23 +25,21 @@ import marytts.util.io.MaryRandomAccessFile;
  * 
  * Wrapper class for a single weighted codebook entry
  * 
- *  @author Oytun T&uumlrk
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookEntry {
-    public WeightedCodebookSpeakerItem sourceItem;
-    public WeightedCodebookSpeakerItem targetItem;
-    
-    public WeightedCodebookEntry()
-    {
-        this(0, 0);
-    }
-    
-    public WeightedCodebookEntry(int lpOrder, int mfccDimension)
-    {
-        allocate(lpOrder, mfccDimension);
-    }
-    
-    public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs, double[] sourceMfccs, double[] targetMfccs)
+	public WeightedCodebookSpeakerItem sourceItem;
+	public WeightedCodebookSpeakerItem targetItem;
+
+	public WeightedCodebookEntry() {
+		this(0, 0);
+	}
+
+	public WeightedCodebookEntry(int lpOrder, int mfccDimension) {
+		allocate(lpOrder, mfccDimension);
+	}
+
+	public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs, double[] sourceMfccs, double[] targetMfccs)
     {
         int lsfDimension = 0;
         int mfccDimension = 0;
@@ -66,49 +64,39 @@ public class WeightedCodebookEntry {
         if (mfccDimension>0)
             setMfccs(sourceMfccs, targetMfccs);
     }
-    
-    public void allocate(int lpOrder, int mfccDimension)
-    {
-        if (lpOrder>0 || mfccDimension>0)
-        {
-            sourceItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);
-            targetItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);
-        }
-        else
-        {
-            sourceItem = null;
-            targetItem = null;
-        }
-    }
-    
-    public void setLsfs(double[] srcLsfs, double[] tgtLsfs)
-    {
-        sourceItem.setLsfs(srcLsfs);
-        targetItem.setLsfs(tgtLsfs);
-    }
-    
-    public void setMfccs(double[] srcMfccs, double[] tgtMfccs)
-    {
-        sourceItem.setMfccs(srcMfccs);
-        targetItem.setMfccs(tgtMfccs);
-    }
-    
-    public void write(MaryRandomAccessFile ler)
-    {
-        if (sourceItem!=null && targetItem!=null)
-        {
-            sourceItem.write(ler);
-            targetItem.write(ler);
-        }
-    }
-    
-    public void read(MaryRandomAccessFile ler, int lpOrder, int mfccDimension)
-    {
-        sourceItem = new WeightedCodebookSpeakerItem();
-        sourceItem.read(ler, lpOrder, mfccDimension);
-        
-        targetItem = new WeightedCodebookSpeakerItem();
-        targetItem.read(ler, lpOrder, mfccDimension);
-    }
-}
 
+	public void allocate(int lpOrder, int mfccDimension) {
+		if (lpOrder > 0 || mfccDimension > 0) {
+			sourceItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);
+			targetItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);
+		} else {
+			sourceItem = null;
+			targetItem = null;
+		}
+	}
+
+	public void setLsfs(double[] srcLsfs, double[] tgtLsfs) {
+		sourceItem.setLsfs(srcLsfs);
+		targetItem.setLsfs(tgtLsfs);
+	}
+
+	public void setMfccs(double[] srcMfccs, double[] tgtMfccs) {
+		sourceItem.setMfccs(srcMfccs);
+		targetItem.setMfccs(tgtMfccs);
+	}
+
+	public void write(MaryRandomAccessFile ler) {
+		if (sourceItem != null && targetItem != null) {
+			sourceItem.write(ler);
+			targetItem.write(ler);
+		}
+	}
+
+	public void read(MaryRandomAccessFile ler, int lpOrder, int mfccDimension) {
+		sourceItem = new WeightedCodebookSpeakerItem();
+		sourceItem.read(ler, lpOrder, mfccDimension);
+
+		targetItem = new WeightedCodebookSpeakerItem();
+		targetItem.read(ler, lpOrder, mfccDimension);
+	}
+}

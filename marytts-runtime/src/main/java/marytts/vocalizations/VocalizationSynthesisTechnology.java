@@ -25,41 +25,53 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.exceptions.SynthesisException;
 
 /**
- * An abstract class for vocalization syntehsis technology  
+ * An abstract class for vocalization syntehsis technology
+ * 
  * @author Sathish Pammi
  */
 
 public abstract class VocalizationSynthesisTechnology {
-    
-    /**
-     * Synthesize given vocalization  
-     * @param unitIndex unit index
-     * @param aft audio file format
-     * @return AudioInputStream of synthesized vocalization
-     * @throws SynthesisException if failed to synthesize vocalization
-     */
-    public abstract AudioInputStream synthesize(int unitIndex, AudioFileFormat aft) throws SynthesisException;
 
-    /**
-     * Re-synthesize given vocalization  
-     * @param unitIndex unit index
-     * @param aft audio file format
-     * @return AudioInputStream of synthesized vocalization
-     * @throws SynthesisException if failed to synthesize vocalization
-     */
-    public abstract AudioInputStream reSynthesize(int sourceIndex, AudioFileFormat aft) throws SynthesisException;
-    
-    
-    /**
-     * Impose target intonation contour on given vocalization  
-     * @param sourceIndex unit index of vocalization 
-     * @param targetIndex unit index of target intonation
-     * @param aft aft audio file format
-     * @return AudioInputStream of synthesized vocalization
-     * @throws SynthesisException if failed to synthesize vocalization
-     */
-    public abstract AudioInputStream synthesizeUsingImposedF0(int sourceIndex, int targetIndex, AudioFileFormat aft) throws SynthesisException;
-   
-    
+	/**
+	 * Synthesize given vocalization
+	 * 
+	 * @param unitIndex
+	 *            unit index
+	 * @param aft
+	 *            audio file format
+	 * @return AudioInputStream of synthesized vocalization
+	 * @throws SynthesisException
+	 *             if failed to synthesize vocalization
+	 */
+	public abstract AudioInputStream synthesize(int unitIndex, AudioFileFormat aft) throws SynthesisException;
+
+	/**
+	 * Re-synthesize given vocalization
+	 * 
+	 * @param unitIndex
+	 *            unit index
+	 * @param aft
+	 *            audio file format
+	 * @return AudioInputStream of synthesized vocalization
+	 * @throws SynthesisException
+	 *             if failed to synthesize vocalization
+	 */
+	public abstract AudioInputStream reSynthesize(int sourceIndex, AudioFileFormat aft) throws SynthesisException;
+
+	/**
+	 * Impose target intonation contour on given vocalization
+	 * 
+	 * @param sourceIndex
+	 *            unit index of vocalization
+	 * @param targetIndex
+	 *            unit index of target intonation
+	 * @param aft
+	 *            aft audio file format
+	 * @return AudioInputStream of synthesized vocalization
+	 * @throws SynthesisException
+	 *             if failed to synthesize vocalization
+	 */
+	public abstract AudioInputStream synthesizeUsingImposedF0(int sourceIndex, int targetIndex, AudioFileFormat aft)
+			throws SynthesisException;
+
 }
-

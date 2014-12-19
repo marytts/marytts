@@ -23,42 +23,34 @@ import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
 
-
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class PitchMappingFileHeader {
-    public int totalF0StatisticsEntries;
-  
-    public PitchMappingFileHeader()
-    {
-        this(0);
-    } 
-    
-    public PitchMappingFileHeader(int totalF0StatisticsEntriesIn)
-    {
-        totalF0StatisticsEntries = totalF0StatisticsEntriesIn;
-    } 
-    
-    public PitchMappingFileHeader(PitchMappingFileHeader h)
-    {
-        totalF0StatisticsEntries = h.totalF0StatisticsEntries;
-    } 
-    
-    public void resetTotalEntries()
-    {
-        totalF0StatisticsEntries = 0;
-    }
+	public int totalF0StatisticsEntries;
 
-    public void read(MaryRandomAccessFile ler) throws IOException
-    {   
-        totalF0StatisticsEntries = ler.readInt();
-    }
-    
-    public void write(MaryRandomAccessFile ler) throws IOException
-    {
-        ler.writeInt(totalF0StatisticsEntries);
-    }
+	public PitchMappingFileHeader() {
+		this(0);
+	}
+
+	public PitchMappingFileHeader(int totalF0StatisticsEntriesIn) {
+		totalF0StatisticsEntries = totalF0StatisticsEntriesIn;
+	}
+
+	public PitchMappingFileHeader(PitchMappingFileHeader h) {
+		totalF0StatisticsEntries = h.totalF0StatisticsEntries;
+	}
+
+	public void resetTotalEntries() {
+		totalF0StatisticsEntries = 0;
+	}
+
+	public void read(MaryRandomAccessFile ler) throws IOException {
+		totalF0StatisticsEntries = ler.readInt();
+	}
+
+	public void write(MaryRandomAccessFile ler) throws IOException {
+		ler.writeInt(totalF0StatisticsEntries);
+	}
 }
-

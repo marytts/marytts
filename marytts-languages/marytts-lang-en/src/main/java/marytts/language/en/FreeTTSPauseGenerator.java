@@ -32,52 +32,37 @@ import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.en.PauseGenerator;
 
-
-
 /**
  * Use an individual FreeTTS module for English synthesis.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class FreeTTSPauseGenerator extends InternalModule
-{
-    private UtteranceProcessor processor;
+public class FreeTTSPauseGenerator extends InternalModule {
+	private UtteranceProcessor processor;
 
-    public FreeTTSPauseGenerator()
-    {
-        super("PauseGenerator",
-              USEnglishDataTypes.FREETTS_SEGMENTS,
-              USEnglishDataTypes.FREETTS_PAUSES,
-              Locale.ENGLISH
-              );
-    }
+	public FreeTTSPauseGenerator() {
+		super("PauseGenerator", USEnglishDataTypes.FREETTS_SEGMENTS, USEnglishDataTypes.FREETTS_PAUSES, Locale.ENGLISH);
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
+	public void startup() throws Exception {
+		super.startup();
 
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-        processor = new PauseGenerator();
-    }
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+		processor = new PauseGenerator();
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            processor.processUtterance(utterance);
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
-        return output;
-    }
-
-
-
+	public MaryData process(MaryData d) throws Exception {
+		List utterances = d.getUtterances();
+		Iterator it = utterances.iterator();
+		while (it.hasNext()) {
+			Utterance utterance = (Utterance) it.next();
+			processor.processUtterance(utterance);
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setUtterances(utterances);
+		return output;
+	}
 
 }
-

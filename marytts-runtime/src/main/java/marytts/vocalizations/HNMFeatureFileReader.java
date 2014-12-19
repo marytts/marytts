@@ -42,91 +42,101 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.util.data.MaryHeader;
 
-
 /**
  * Reads a single file which contains HNM analysis features of vocalizations
  * 
  * @author sathish pammi
- *
+ * 
  */
-public class HNMFeatureFileReader 
-{
+public class HNMFeatureFileReader {
 
-    private MaryHeader hdr = null;
-    private HntmSpeechSignal[] hnmSignals;
-    private int numberOfUnits = 0;
+	private MaryHeader hdr = null;
+	private HntmSpeechSignal[] hnmSignals;
+	private int numberOfUnits = 0;
 
-    /**
-     * Create a feature file reader from the given HNM feature file
-     * @param fileName the unit file to read
-     * @throws IOException if a problem occurs while reading
-     * @throws MaryConfigurationException if runtime configuration fails
-     */
-    public HNMFeatureFileReader( String fileName ) throws IOException, MaryConfigurationException {
-        load(fileName);
-    }
+	/**
+	 * Create a feature file reader from the given HNM feature file
+	 * 
+	 * @param fileName
+	 *            the unit file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             if runtime configuration fails
+	 */
+	public HNMFeatureFileReader(String fileName) throws IOException, MaryConfigurationException {
+		load(fileName);
+	}
 
-    /**
-     * Load the given feature file
-     * @param fileName the feature file to read
-     * @throws IOException if a problem occurs while reading
-     * @throws MaryConfigurationException if runtime configuration fails
-     */
-    private void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        // Open the file 
-        DataInputStream dis = null;
+	/**
+	 * Load the given feature file
+	 * 
+	 * @param fileName
+	 *            the feature file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             if runtime configuration fails
+	 */
+	private void load(String fileName) throws IOException, MaryConfigurationException {
+		// Open the file
+		DataInputStream dis = null;
 
-        try {
-            dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
-        } catch ( FileNotFoundException e ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] was not found." );
-        }
+		try {
+			dis = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
+		} catch (FileNotFoundException e) {
+			throw new MaryConfigurationException("File [" + fileName + "] was not found.");
+		}
 
-        // Load the Mary header 
-        hdr = new MaryHeader( dis );
-        if ( hdr.getType() != MaryHeader.LISTENERFEATS ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] is not a valid Mary Units file." );
-        }
+		// Load the Mary header
+		hdr = new MaryHeader(dis);
+		if (hdr.getType() != MaryHeader.LISTENERFEATS) {
+			throw new MaryConfigurationException("File [" + fileName + "] is not a valid Mary Units file.");
+		}
 
-        numberOfUnits = dis.readInt(); // Read the number of units
-        if ( numberOfUnits < 0 ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] has a negative number of units. Aborting." );
-        }
+		numberOfUnits = dis.readInt(); // Read the number of units
+		if (numberOfUnits < 0) {
+			throw new MaryConfigurationException("File [" + fileName + "] has a negative number of units. Aborting.");
+		}
 
-        hnmSignals = new HntmSpeechSignal[numberOfUnits];
-        for ( int i=0; i < numberOfUnits; i++ ) {
-            hnmSignals[i] = new HntmSpeechSignal(0,0,0);
-            hnmSignals[i].read(dis, HntmAnalyzerParams.WAVEFORM);
-        }
+		hnmSignals = new HntmSpeechSignal[numberOfUnits];
+		for (int i = 0; i < numberOfUnits; i++) {
+			hnmSignals[i] = new HntmSpeechSignal(0, 0, 0);
+			hnmSignals[i].read(dis, HntmAnalyzerParams.WAVEFORM);
+		}
 
-        System.out.println();
-    }
+		System.out.println();
+	}
 
-    /**
-     * Get the number of units in the file.
-     * @return The number of units.
-     */
-    public int getNumberOfUnits() {
-        return( numberOfUnits );
-    }
+	/**
+	 * Get the number of units in the file.
+	 * 
+	 * @return The number of units.
+	 */
+	public int getNumberOfUnits() {
+		return (numberOfUnits);
+	}
 
-    /**
-     * get HntmSpeechSignal for a unit index
-     * @param unitnumber unit index number
-     * @return HntmSpeechSignal hnm analysis feature
-     * @throws IllegalArgumentException if given index number is not less than available units
-     */
-    public HntmSpeechSignal getHntmSpeechSignal( int unitnumber ) {
-        if ( unitnumber >= this.numberOfUnits ) {
-            throw new IllegalArgumentException("the given unit index number("+unitnumber+") must be less than number of available units("+this.numberOfUnits+")");
-        }
-        return this.hnmSignals[unitnumber];
-    }
+	/**
+	 * get HntmSpeechSignal for a unit index
+	 * 
+	 * @param unitnumber
+	 *            unit index number
+	 * @return HntmSpeechSignal hnm analysis feature
+	 * @throws IllegalArgumentException
+	 *             if given index number is not less than available units
+	 */
+	public HntmSpeechSignal getHntmSpeechSignal(int unitnumber) {
+		if (unitnumber >= this.numberOfUnits) {
+			throw new IllegalArgumentException("the given unit index number(" + unitnumber
+					+ ") must be less than number of available units(" + this.numberOfUnits + ")");
+		}
+		return this.hnmSignals[unitnumber];
+	}
 
-    public static void main(String[] args) throws Exception{
-        String fileName = "/home/sathish/Work/phd/voices/mlsa-poppy-listener/vocalizations/files/vocalization_hnm_analysis.mry";
-        HNMFeatureFileReader bcUfr = new HNMFeatureFileReader(fileName);
-        //bcUfr.load(fileName);
-    }
+	public static void main(String[] args) throws Exception {
+		String fileName = "/home/sathish/Work/phd/voices/mlsa-poppy-listener/vocalizations/files/vocalization_hnm_analysis.mry";
+		HNMFeatureFileReader bcUfr = new HNMFeatureFileReader(fileName);
+		// bcUfr.load(fileName);
+	}
 }

@@ -32,179 +32,169 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 
-
 /**
- * Cut frames out of a given signal, and provide them one by one,
- * optionally applying a processor to the frame.
- * This base implementation provides frames of a fixed length with a fixed shift.
+ * Cut frames out of a given signal, and provide them one by one, optionally applying a processor to the frame. This base
+ * implementation provides frames of a fixed length with a fixed shift.
+ * 
  * @author Marc Schr&ouml;der
  * @see PitchFrameProvider
  */
-public class FrameProvider
-{
-    protected DoubleDataSource signal;
-    protected InlineDataProcessor processor;
-    
-    /**
-     * The sampling rate.
-     */
-    protected int samplingRate;
-    
-    /**
-     * The start time of the currently analysed frame.
-     */
-    protected long frameStart;
-    protected long nextFrameStart;
-    protected int totalRead = 0;
-    protected double[] frame;
-    protected int validSamplesInFrame;
+public class FrameProvider {
+	protected DoubleDataSource signal;
+	protected InlineDataProcessor processor;
 
-    protected int frameShift;
-    protected int frameLength;
-    /**
-     * The part of the original signal to remember for the next overlapping frame.
-     */
-    private double[] memory;
-    // If !stopWhenTouchingEnd, we must continue reading from memory,
-    // padding the respective frames with zeroes. This is the current
-    // reading position:
-    private int posInMemory;
-    private boolean memoryFilled;
-    
-    /**
-     * Whether or not this frame provider stops when the first frame touches the last input sample.
-     */
-    private boolean stopWhenTouchingEnd;
-    
-    /**
-     * Initialise a FrameProvider.
-     * @param signal the signal source to read from
-     * @param processor an optional data processor to apply to the source signal. If null,
-     * the original data will be returned.
-     * @param frameLength the number of samples in one frame.
-     * @param frameShift the number of samples by which to shift the window from
-     * one frame analysis to the next; if this is smaller than window.getLength(),
-     * frames will overlap.
-     * @param samplingRate the number of samples in one second.
-     * @param stopWhenTouchingEnd whether or not this frame provider stops when the first frame touches the last input sample.
-     * When this is set to true, the last frame will be the first one including the last sample;
-     * when this is set to false, the last frame will be the last that still contains any data.
+	/**
+	 * The sampling rate.
+	 */
+	protected int samplingRate;
 
-     */
-    public FrameProvider(DoubleDataSource signal, InlineDataProcessor processor, int frameLength, int frameShift, int samplingRate, boolean stopWhenTouchingEnd)
-    {
-        this.signal = signal;
-        this.processor = processor;
-        this.frameShift = frameShift;
-        this.frameLength = frameLength;
-        this.samplingRate = samplingRate;
-        this.frame = new double[frameLength];
-        this.frameStart = -1;
-        this.nextFrameStart = 0;
-        validSamplesInFrame = 0;
-        // We keep the previous frame in memory (we'll need this if frameShift < frameLength):
-        this.memory = new double[frameLength];
-        posInMemory = memory.length; // "empty"
-        memoryFilled = false;
-        this.stopWhenTouchingEnd = stopWhenTouchingEnd;
-    }
-    
-    /**
-     * Start position of current frame, in seconds
-     * @return the start time of the last frame returned by getNextFrame(), 
-     * or a small negative number if no frame has been served yet.
-     */
-    public double getFrameStartTime()
-    {
-        return (double)frameStart/samplingRate;
-    }
-    
-    /**
-     * Start position of current frame, in samples
-     * @return the start position of the last frame returned by getNextFrame(), 
-     * or -1 if no frame has been served yet.
-     */
-    public long getFrameStartSamples()
-    {
-        return frameStart;
-    }
-    
-    public int getSamplingRate()
-    {
-        return samplingRate;
-    }
-    
-    /**
-     * The amount of time by which one frame is shifted against the next.
-     */
-    public double getFrameShiftTime()
-    {
-        return (double)frameShift/samplingRate;
-    }
+	/**
+	 * The start time of the currently analysed frame.
+	 */
+	protected long frameStart;
+	protected long nextFrameStart;
+	protected int totalRead = 0;
+	protected double[] frame;
+	protected int validSamplesInFrame;
 
-    /**
-     * The number of samples by which one frame is shifted against the next.
-     */
-    public int getFrameShiftSamples()
-    {
-        return frameShift;
-    }
-    
-    /**
-     * The time length of a frame.
-     */
-    public double getFrameLengthTime()
-    {
-        return (double)getFrameLengthSamples()/samplingRate;
-    }
-    
-    /**
-     * The number of samples in the current frame.
-     * @return
-     */
-    public int getFrameLengthSamples()
-    {
-        return frameLength;
-    }
+	protected int frameShift;
+	protected int frameLength;
+	/**
+	 * The part of the original signal to remember for the next overlapping frame.
+	 */
+	private double[] memory;
+	// If !stopWhenTouchingEnd, we must continue reading from memory,
+	// padding the respective frames with zeroes. This is the current
+	// reading position:
+	private int posInMemory;
+	private boolean memoryFilled;
 
-    /**
-     * Whether or not this frame provider stops when the first frame touches the last input sample.
-     * When this returns true, the last frame will be the first one including the last sample;
-     * when this returns false, the last frame will be the last that still contains any data.
-     * Defaults to true.
-     */
-    public boolean stopWhenTouchingEnd()
-    {
-        return stopWhenTouchingEnd;
-    }
+	/**
+	 * Whether or not this frame provider stops when the first frame touches the last input sample.
+	 */
+	private boolean stopWhenTouchingEnd;
 
+	/**
+	 * Initialise a FrameProvider.
+	 * 
+	 * @param signal
+	 *            the signal source to read from
+	 * @param processor
+	 *            an optional data processor to apply to the source signal. If null, the original data will be returned.
+	 * @param frameLength
+	 *            the number of samples in one frame.
+	 * @param frameShift
+	 *            the number of samples by which to shift the window from one frame analysis to the next; if this is smaller than
+	 *            window.getLength(), frames will overlap.
+	 * @param samplingRate
+	 *            the number of samples in one second.
+	 * @param stopWhenTouchingEnd
+	 *            whether or not this frame provider stops when the first frame touches the last input sample. When this is set to
+	 *            true, the last frame will be the first one including the last sample; when this is set to false, the last frame
+	 *            will be the last that still contains any data.
+	 */
+	public FrameProvider(DoubleDataSource signal, InlineDataProcessor processor, int frameLength, int frameShift,
+			int samplingRate, boolean stopWhenTouchingEnd) {
+		this.signal = signal;
+		this.processor = processor;
+		this.frameShift = frameShift;
+		this.frameLength = frameLength;
+		this.samplingRate = samplingRate;
+		this.frame = new double[frameLength];
+		this.frameStart = -1;
+		this.nextFrameStart = 0;
+		validSamplesInFrame = 0;
+		// We keep the previous frame in memory (we'll need this if frameShift < frameLength):
+		this.memory = new double[frameLength];
+		posInMemory = memory.length; // "empty"
+		memoryFilled = false;
+		this.stopWhenTouchingEnd = stopWhenTouchingEnd;
+	}
 
-    /**
-     * Whether or not this frameprovider can provide another frame.
-     */
-    public boolean hasMoreData()
-    {
-        return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length;
-    }
-    
-    /**
-     * This tells how many valid samples have been read into the current frame 
-     * (before applying the optional data processor!).
-     */
-    public int validSamplesInFrame()
-    {
-        return validSamplesInFrame;
-    }
-    
-    /**
-     * Fill the internal double array with the next frame of data.
-     * The last frame, if only partially filled with the rest of the signal,
-     * is filled up with zeroes. If stopWhenTouchingEnd() returns true,
-     * this method will provide not more than 
-     * a single zero-padded frame at the end of the signal.
-     * @return the next frame on success, null on failure.
-     */
-    public double[] getNextFrame()
+	/**
+	 * Start position of current frame, in seconds
+	 * 
+	 * @return the start time of the last frame returned by getNextFrame(), or a small negative number if no frame has been served
+	 *         yet.
+	 */
+	public double getFrameStartTime() {
+		return (double) frameStart / samplingRate;
+	}
+
+	/**
+	 * Start position of current frame, in samples
+	 * 
+	 * @return the start position of the last frame returned by getNextFrame(), or -1 if no frame has been served yet.
+	 */
+	public long getFrameStartSamples() {
+		return frameStart;
+	}
+
+	public int getSamplingRate() {
+		return samplingRate;
+	}
+
+	/**
+	 * The amount of time by which one frame is shifted against the next.
+	 */
+	public double getFrameShiftTime() {
+		return (double) frameShift / samplingRate;
+	}
+
+	/**
+	 * The number of samples by which one frame is shifted against the next.
+	 */
+	public int getFrameShiftSamples() {
+		return frameShift;
+	}
+
+	/**
+	 * The time length of a frame.
+	 */
+	public double getFrameLengthTime() {
+		return (double) getFrameLengthSamples() / samplingRate;
+	}
+
+	/**
+	 * The number of samples in the current frame.
+	 * 
+	 * @return
+	 */
+	public int getFrameLengthSamples() {
+		return frameLength;
+	}
+
+	/**
+	 * Whether or not this frame provider stops when the first frame touches the last input sample. When this returns true, the
+	 * last frame will be the first one including the last sample; when this returns false, the last frame will be the last that
+	 * still contains any data. Defaults to true.
+	 */
+	public boolean stopWhenTouchingEnd() {
+		return stopWhenTouchingEnd;
+	}
+
+	/**
+	 * Whether or not this frameprovider can provide another frame.
+	 */
+	public boolean hasMoreData() {
+		return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length;
+	}
+
+	/**
+	 * This tells how many valid samples have been read into the current frame (before applying the optional data processor!).
+	 */
+	public int validSamplesInFrame() {
+		return validSamplesInFrame;
+	}
+
+	/**
+	 * Fill the internal double array with the next frame of data. The last frame, if only partially filled with the rest of the
+	 * signal, is filled up with zeroes. If stopWhenTouchingEnd() returns true, this method will provide not more than a single
+	 * zero-padded frame at the end of the signal.
+	 * 
+	 * @return the next frame on success, null on failure.
+	 */
+	public double[] getNextFrame()
     {
         frameStart = nextFrameStart;
         if (!hasMoreData()) {
@@ -262,64 +252,59 @@ public class FrameProvider
 
         return frame;
     }
-    
-    public double[] getCurrentFrame()
-    {
-        return frame;
-    }
-    
-    /**
-     * Read data from input signal into current frame.
-     * This base implementation will attempt to fill the frame from the position
-     * given in nPrefilled onwards.
-     * @param nPrefilled number of valid values at the beginning of frame. These should not be lost or overwritten.
-     * @return the number of new values read into frame at position nPrefilled.
-     */
-    protected int getData(int nPrefilled)
-    {
-        return signal.getData(frame, nPrefilled, frame.length-nPrefilled);
-    }
-    
-    /**
-     * Reset the internal time stamp to 0.
-     */
-    public void resetInternalTimer()
-    {
-        this.frameStart = -1;
-        this.nextFrameStart = 0;
-        this.totalRead = 0;
-    }
-    
-    
-    public static void main(String[] args) throws Exception
-    {
-        for (int i=0; i<args.length; i++) {
-            AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
-            int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-            double[] signal =  new AudioDoubleDataSource(inputAudio).getAllData();
-            FrameProvider fp = new FrameProvider(new BufferedDoubleDataSource(signal), null, 2048, 512, samplingRate, false);
-            double[] result = new double[signal.length];
-            int resultPos = 0;
-            while (fp.hasMoreData()) {
-                double[] frame = fp.getNextFrame();
-                if (fp.validSamplesInFrame() >= fp.getFrameShiftSamples()) {
-                    System.arraycopy(frame, 0, result, resultPos, fp.getFrameShiftSamples());
-                    resultPos += fp.getFrameShiftSamples();
-                } else {
-                    System.arraycopy(frame, 0, result, resultPos, fp.validSamplesInFrame());
-                    resultPos += fp.validSamplesInFrame();
-                }
-            }
-            System.err.println("Signal has length " + signal.length + ", result " + resultPos);
-            double err = MathUtils.sumSquaredError(signal, result);
-            System.err.println("Sum squared error: " + err);
-            if (err > 0.000001) {
-                double[] difference = MathUtils.subtract(signal, result);
-                FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
-                diffGraph.showInJFrame("difference", true, true);
-            }
-        }
-    }
+
+	public double[] getCurrentFrame() {
+		return frame;
+	}
+
+	/**
+	 * Read data from input signal into current frame. This base implementation will attempt to fill the frame from the position
+	 * given in nPrefilled onwards.
+	 * 
+	 * @param nPrefilled
+	 *            number of valid values at the beginning of frame. These should not be lost or overwritten.
+	 * @return the number of new values read into frame at position nPrefilled.
+	 */
+	protected int getData(int nPrefilled) {
+		return signal.getData(frame, nPrefilled, frame.length - nPrefilled);
+	}
+
+	/**
+	 * Reset the internal time stamp to 0.
+	 */
+	public void resetInternalTimer() {
+		this.frameStart = -1;
+		this.nextFrameStart = 0;
+		this.totalRead = 0;
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < args.length; i++) {
+			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
+			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
+			double[] signal = new AudioDoubleDataSource(inputAudio).getAllData();
+			FrameProvider fp = new FrameProvider(new BufferedDoubleDataSource(signal), null, 2048, 512, samplingRate, false);
+			double[] result = new double[signal.length];
+			int resultPos = 0;
+			while (fp.hasMoreData()) {
+				double[] frame = fp.getNextFrame();
+				if (fp.validSamplesInFrame() >= fp.getFrameShiftSamples()) {
+					System.arraycopy(frame, 0, result, resultPos, fp.getFrameShiftSamples());
+					resultPos += fp.getFrameShiftSamples();
+				} else {
+					System.arraycopy(frame, 0, result, resultPos, fp.validSamplesInFrame());
+					resultPos += fp.validSamplesInFrame();
+				}
+			}
+			System.err.println("Signal has length " + signal.length + ", result " + resultPos);
+			double err = MathUtils.sumSquaredError(signal, result);
+			System.err.println("Sum squared error: " + err);
+			if (err > 0.000001) {
+				double[] difference = MathUtils.subtract(signal, result);
+				FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
+				diffGraph.showInJFrame("difference", true, true);
+			}
+		}
+	}
 
 }
-

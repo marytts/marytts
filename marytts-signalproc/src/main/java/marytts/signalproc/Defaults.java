@@ -24,33 +24,28 @@ import marytts.signalproc.window.Window;
 /**
  * 
  * @author Marc Schr&ouml;der
- *
- * A set of static getters for System properties.
- *
+ * 
+ *         A set of static getters for System properties.
+ * 
  */
-public class Defaults
-{
-    public static int getWindowSize()
-    {
-        return Integer.getInteger("signalproc.default.windowsize", 512).intValue();
-    }
+public class Defaults {
+	public static int getWindowSize() {
+		return Integer.getInteger("signalproc.default.windowsize", 512).intValue();
+	}
 
-    public static int getWindowType()
-    {
-        return Window.getTypeByName(System.getProperty("signalproc.default.window", "HAMMING"));
-    }
+	public static int getWindowType() {
+		return Window.getTypeByName(System.getProperty("signalproc.default.window", "HAMMING"));
+	}
 
-    public static int getFFTSize()
-    {
-        return Integer.getInteger("signalproc.default.fftsize", 1024).intValue();
-    }
-    
-    public static int getFrameShift()
-    {
-        int shift = Integer.getInteger("signalproc.default.frameshift", -1).intValue();
-        if (shift == -1) shift = getWindowSize()/2;
-        return shift;
-    }
+	public static int getFFTSize() {
+		return Integer.getInteger("signalproc.default.fftsize", 1024).intValue();
+	}
+
+	public static int getFrameShift() {
+		int shift = Integer.getInteger("signalproc.default.frameshift", -1).intValue();
+		if (shift == -1)
+			shift = getWindowSize() / 2;
+		return shift;
+	}
 
 }
-

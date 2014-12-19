@@ -33,12 +33,12 @@ import marytts.util.FeatureUtils;
 
 /**
  * @author marc
- *
+ * 
  */
 public class CoverageUtils {
 
 	public static byte[] sentenceToFeatures(String sentence, Locale locale, String featureNames, boolean clientServer)
-	throws MaryConfigurationException, SynthesisException, IOException {
+			throws MaryConfigurationException, SynthesisException, IOException {
 		if (clientServer) {
 			throw new UnsupportedOperationException("Not implemented");
 		}
@@ -55,26 +55,24 @@ public class CoverageUtils {
 
 	/**
 	 * Convert the given feature vectors to the coverage features format, containing all byte features in a single byte array.
+	 * 
 	 * @param featureNames
 	 * @param def
 	 * @param featureVectors
 	 * @return
 	 */
-	public static byte[] toCoverageFeatures(String featureNames,
-			FeatureDefinition def, FeatureVector[] featureVectors) {
+	public static byte[] toCoverageFeatures(String featureNames, FeatureDefinition def, FeatureVector[] featureVectors) {
 		String[] featureNameArray = featureNames.split(" ");
 		int numFeatures = featureNameArray.length;
 		byte[] data = new byte[featureVectors.length * featureNameArray.length];
-		for (int f=0; f<featureNameArray.length; f++) {
+		for (int f = 0; f < featureNameArray.length; f++) {
 			int featureIndex = def.getFeatureIndex(featureNameArray[f]);
-			for (int i=0; i<featureVectors.length; i++) {
-				int pos = i*numFeatures + f;
+			for (int i = 0; i < featureVectors.length; i++) {
+				int pos = i * numFeatures + f;
 				data[pos] = featureVectors[i].getByteFeature(featureIndex);
 			}
 		}
 		return data;
 	}
-	
-	
-	
+
 }

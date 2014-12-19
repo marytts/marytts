@@ -28,34 +28,30 @@ import marytts.util.http.Address;
 
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class MaryInterfaceApplet extends JApplet
-{
-    private MaryGUIClient maryExpertInterface;
+public class MaryInterfaceApplet extends JApplet {
+	private MaryGUIClient maryExpertInterface;
 
-    public void init()
-    {
-        String host = getCodeBase().getHost();
-        if (host == null || host.equals("")) {
-            host = "mary.dfki.de";
-        }
-        System.out.println("Connecting to "+host);
-        int port = 59125;
-        try {
-            maryExpertInterface = new MaryGUIClient(new Address(host, port), this);
-            getContentPane().setLayout(new FlowLayout());
-            getContentPane().add(maryExpertInterface);
-        } catch (IOException ioe) {
-            System.err.println("Cannot connect to MARY server on "+host+":"+port);
-            ioe.printStackTrace();
-        }
-    }
+	public void init() {
+		String host = getCodeBase().getHost();
+		if (host == null || host.equals("")) {
+			host = "mary.dfki.de";
+		}
+		System.out.println("Connecting to " + host);
+		int port = 59125;
+		try {
+			maryExpertInterface = new MaryGUIClient(new Address(host, port), this);
+			getContentPane().setLayout(new FlowLayout());
+			getContentPane().add(maryExpertInterface);
+		} catch (IOException ioe) {
+			System.err.println("Cannot connect to MARY server on " + host + ":" + port);
+			ioe.printStackTrace();
+		}
+	}
 
-    public void destroy()
-    {
-        
-    }
+	public void destroy() {
+
+	}
 
 }
-

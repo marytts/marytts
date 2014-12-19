@@ -36,56 +36,58 @@ import javax.swing.JFrame;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.MaryUtils;
 
+public class AudioDestination {
 
+	private OutputStream os;
+	private File f;
+	private boolean ram;
 
-public class AudioDestination
-{
+	/**
+	 * Create an AudioDestination to which the audio data can be written.
+	 * 
+	 * @param isInRam
+	 *            whether to hold the data in RAM or write it into a file. The calling code is responsible for administering this
+	 *            AudioDestination.
+	 * @throws IOException
+	 *             if the underlying OutputStream could not be created.
+	 */
+	public AudioDestination(boolean isInRam) throws IOException {
+		this.ram = isInRam;
+		if (ram) {
+			os = new ByteArrayOutputStream();
+			f = null;
+		} else {
+			f = MaryUtils.createSelfDeletingTempFile(3600);
+			os = new FileOutputStream(f);
+		}
+	}
 
-    private OutputStream os;
-    private File f;
-    private boolean ram;
-     
-    /**
-     * Create an AudioDestination to which the audio data can be written.
-     * @param isInRam whether to hold the data in RAM or write it into a file.
-     * The calling code is responsible for administering this AudioDestination. 
-     * @throws IOException if the underlying OutputStream could not be created. 
-     */
-    public AudioDestination(boolean isInRam) throws IOException
-    {
-        this.ram = isInRam;
-        if (ram) {
-            os = new ByteArrayOutputStream();
-            f = null;
-        } else {
-            f = MaryUtils.createSelfDeletingTempFile(3600);
-            os = new FileOutputStream(f);
-        }
-    }
+	public boolean isInRam() {
+		return ram;
+	}
 
-    public boolean isInRam() { return ram; }
-    public boolean isFile() { return !ram; }
+	public boolean isFile() {
+		return !ram;
+	}
 
-    public void write(byte[] b) throws IOException
-    {
-        os.write(b);
-    }
-    
-    public void write(byte[] b, int off, int len) throws IOException
-    {
-        os.write(b, off, len);
-    }
+	public void write(byte[] b) throws IOException {
+		os.write(b);
+	}
 
-    /**
-     * Convert the audio data into an AudioInputStream
-     * of the proper AudioFormat.
-     * @param audioFormat the format of the audio data.
-     * @return an AudioInputStream from which the synthesised audio data can be
-     * read.
-     * @throws IOException if a problem occurred with the temporary file (only applies
-     * when using files as temporary storage).
-     */
-    public AudioInputStream convertToAudioInputStream(AudioFormat audioFormat)
+	public void write(byte[] b, int off, int len) throws IOException {
+		os.write(b, off, len);
+	}
+
+	/**
+	 * Convert the audio data into an AudioInputStream of the proper AudioFormat.
+	 * 
+	 * @param audioFormat
+	 *            the format of the audio data.
+	 * @return an AudioInputStream from which the synthesised audio data can be read.
+	 * @throws IOException
+	 *             if a problem occurred with the temporary file (only applies when using files as temporary storage).
+	 */
+	public AudioInputStream convertToAudioInputStream(AudioFormat audioFormat)
     throws IOException
     {
         if (ram) {
@@ -107,18 +109,16 @@ public class AudioDestination
                 audioFormat,
                 byteLength / audioFormat.getFrameSize());
         }
-    }        
-    /**
-     * Convert the audio data into an AudioInputStream
-     * of the proper AudioFormat. This method assumes that the audio data
-     * starts with a valid audio file header, so the audio format is read
-     * from the data.
-     * @return an AudioInputStream from which the synthesised audio data can be
-     * read.
-     * @throws IOException if a problem occurred with the temporary file (only applies
-     * when using files as temporary storage).
-     */
-    public AudioInputStream convertToAudioInputStream()
+    }
+	/**
+	 * Convert the audio data into an AudioInputStream of the proper AudioFormat. This method assumes that the audio data starts
+	 * with a valid audio file header, so the audio format is read from the data.
+	 * 
+	 * @return an AudioInputStream from which the synthesised audio data can be read.
+	 * @throws IOException
+	 *             if a problem occurred with the temporary file (only applies when using files as temporary storage).
+	 */
+	public AudioInputStream convertToAudioInputStream()
     throws IOException, UnsupportedAudioFileException
     {
         if (ram) {
@@ -135,30 +135,28 @@ public class AudioDestination
             long byteLength = f.length();
             return AudioSystem.getAudioInputStream(f);
         }
-    }        
+    }
+	public static void plot(double[] x) {
+		plot(x, false);
+	}
 
-    public static void plot(double [] x)
-    {
-        plot(x, false);
-    }
-    
-    public static void plot(double [] x, boolean bAutoClose)
-    {
-        plot(x, bAutoClose, 3000);
-    }
-    
-    // Plots the values in x
-    // If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
-    // milliSecondsToClose: has no effect if bAutoClose is false
-    public static void plot(double [] x, boolean bAutoClose, int milliSecondsToClose)
-    {
-        FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
-        JFrame frame = graph.showInJFrame("wgt2", 500, 300, true, false);
-        
-        if (bAutoClose)
-        {
-            try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
-            frame.dispose();
-        }
-    }
+	public static void plot(double[] x, boolean bAutoClose) {
+		plot(x, bAutoClose, 3000);
+	}
+
+	// Plots the values in x
+	// If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
+	// milliSecondsToClose: has no effect if bAutoClose is false
+	public static void plot(double[] x, boolean bAutoClose, int milliSecondsToClose) {
+		FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
+		JFrame frame = graph.showInJFrame("wgt2", 500, 300, true, false);
+
+		if (bAutoClose) {
+			try {
+				Thread.sleep(milliSecondsToClose);
+			} catch (InterruptedException e) {
+			}
+			frame.dispose();
+		}
+	}
 }

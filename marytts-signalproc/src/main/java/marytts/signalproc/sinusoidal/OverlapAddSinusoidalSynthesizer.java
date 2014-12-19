@@ -19,35 +19,29 @@
  */
 package marytts.signalproc.sinusoidal;
 
-
 /**
- * A basic implementation of overlap-add sinusoidal synthesis.
- * Phase interpolation seems problematic, so we are not yet able to use this class in applications.
+ * A basic implementation of overlap-add sinusoidal synthesis. Phase interpolation seems problematic, so we are not yet able to
+ * use this class in applications.
  * 
- *  @author Oytun T&uumlrk
- *
+ * @author Oytun T&uumlrk
+ * 
  */
 public class OverlapAddSinusoidalSynthesizer extends BaseSinusoidalSynthesizer {
 
-    public OverlapAddSinusoidalSynthesizer(int samplingRate) {
-        super(samplingRate);
-        // TODO Auto-generated constructor stub
-    }
-    
-    public double[] synthesize(SinusoidalTracks[] sts)
-    {
-        return synthesize(sts, false);
-    }
+	public OverlapAddSinusoidalSynthesizer(int samplingRate) {
+		super(samplingRate);
+		// TODO Auto-generated constructor stub
+	}
 
-    public double[] synthesize(SinusoidalTracks[] sts, boolean isSilentSynthesis)
-    {
-        double[] y = null;
-        
-        NonharmonicSinusoidalSpeechFrame[] frameSins = SinusoidalUtils.tracks2frameSins(sts);
-        
-        
-        
-        return y;
-    }
+	public double[] synthesize(SinusoidalTracks[] sts) {
+		return synthesize(sts, false);
+	}
+
+	public double[] synthesize(SinusoidalTracks[] sts, boolean isSilentSynthesis) {
+		double[] y = null;
+
+		NonharmonicSinusoidalSpeechFrame[] frameSins = SinusoidalUtils.tracks2frameSins(sts);
+
+		return y;
+	}
 }
-

@@ -21,9 +21,8 @@ package marytts.signalproc.filter;
 
 /**
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public interface FilterBankAnalyser {
-    public Subband[] apply(double[] x);
+	public Subband[] apply(double[] x);
 }
-

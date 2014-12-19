@@ -22,20 +22,17 @@ package marytts.datatypes;
 
 /**
  * @author marc
- *
+ * 
  */
-public class MaryDataTypeWithParams extends MaryDataType 
-{
-    private String params;
-    
-    public MaryDataTypeWithParams(MaryDataType type, String params)
-    {
-        super(type.name(), type.isInputType(), type.isOutputType(), type.getTraits(), type.rootElement());
-        this.params = params;
-    }
+public class MaryDataTypeWithParams extends MaryDataType {
+	private String params;
 
-    public String getParams()
-    {
-        return params;
-    }
+	public MaryDataTypeWithParams(MaryDataType type, String params) {
+		super(type.name(), type.isInputType(), type.isOutputType(), type.getTraits(), type.rootElement());
+		this.params = params;
+	}
+
+	public String getParams() {
+		return params;
+	}
 }

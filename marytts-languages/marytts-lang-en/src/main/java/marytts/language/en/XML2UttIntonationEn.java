@@ -29,35 +29,24 @@ import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.Utterance;
 
-
-
 /**
- * Convert a MaryXML DOM tree into FreeTTS utterances
- * (intonation, English).
- *
+ * Convert a MaryXML DOM tree into FreeTTS utterances (intonation, English).
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class XML2UttIntonationEn extends XML2UttBase
-{
-    public XML2UttIntonationEn() {
-        super("XML2Utt IntonationEn",
-              MaryDataType.INTONATION,
-              USEnglishDataTypes.FREETTS_INTONATION,
-              Locale.ENGLISH);
-    }
+public class XML2UttIntonationEn extends XML2UttBase {
+	public XML2UttIntonationEn() {
+		super("XML2Utt IntonationEn", MaryDataType.INTONATION, USEnglishDataTypes.FREETTS_INTONATION, Locale.ENGLISH);
+	}
 
-    /**
-     * Depending on the data type, find the right information in the sentence
-     * and insert it into the utterance.
-     */
-    protected void fillUtterance(Utterance utterance, Element sentence)
-    {
-        fillUtterance(utterance, sentence,
-                      true, // create word relation
-                      true, // create sylstruct relation
-                      false); // don't create target relation
-    }
+	/**
+	 * Depending on the data type, find the right information in the sentence and insert it into the utterance.
+	 */
+	protected void fillUtterance(Utterance utterance, Element sentence) {
+		fillUtterance(utterance, sentence, true, // create word relation
+				true, // create sylstruct relation
+				false); // don't create target relation
+	}
 
 }
-

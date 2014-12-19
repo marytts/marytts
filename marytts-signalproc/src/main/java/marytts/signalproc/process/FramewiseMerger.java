@@ -27,40 +27,45 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
 
-
 /**
  * A class to merge two audio signals, using pitch-synchronous frames.
+ * 
  * @author marc
- *
+ * 
  */
-public class FramewiseMerger extends FrameOverlapAddSource
-{
-    protected DoubleDataSource labelTimes;
-    protected DoubleDataSource otherLabelTimes;
-    protected FrameProvider otherFrameProvider;
-    protected double prevLabel, currentLabel, prevOtherLabel, currentOtherLabel;
-    protected double localTimeStretchFactor = 1;
+public class FramewiseMerger extends FrameOverlapAddSource {
+	protected DoubleDataSource labelTimes;
+	protected DoubleDataSource otherLabelTimes;
+	protected FrameProvider otherFrameProvider;
+	protected double prevLabel, currentLabel, prevOtherLabel, currentOtherLabel;
+	protected double localTimeStretchFactor = 1;
 
-    /**
-     * Create a new merger, creating audio by pitch-synchronous merging of audio frames
-     * from a source (aka the "signal") and a target (aka the "other"),
-     * linearly mapping the corresponding times between the 
-     * two sources.
-     * @param inputSource the audio data for the signal
-     * @param pitchmarks the pitchmarks for the signal
-     * @param samplingRate the sampling rate for the signal
-     * @param labelTimes optionally, the label times for the signal, needed for 
-     * time alignment between the signal and the other
-     * @param otherSource the audio data for the other
-     * @param otherPitchmarks the pitchmarks for the other
-     * @param otherSamplingRate the sampling rate for the other
-     * @param otherLabelTimes optionally, the label times for the other; if both
-     * are present, the time interval between the i-th and the (i+1)-th label time
-     * is linearly stretched/squeezed in order to find the mapping frame for interpolation
-     * @param merger the signal processing method used for merging the properties of the "other"
-     * into the corresponding frame in the "signal".
-     */
-    public FramewiseMerger(DoubleDataSource inputSource, DoubleDataSource pitchmarks,
+	/**
+	 * Create a new merger, creating audio by pitch-synchronous merging of audio frames from a source (aka the "signal") and a
+	 * target (aka the "other"), linearly mapping the corresponding times between the two sources.
+	 * 
+	 * @param inputSource
+	 *            the audio data for the signal
+	 * @param pitchmarks
+	 *            the pitchmarks for the signal
+	 * @param samplingRate
+	 *            the sampling rate for the signal
+	 * @param labelTimes
+	 *            optionally, the label times for the signal, needed for time alignment between the signal and the other
+	 * @param otherSource
+	 *            the audio data for the other
+	 * @param otherPitchmarks
+	 *            the pitchmarks for the other
+	 * @param otherSamplingRate
+	 *            the sampling rate for the other
+	 * @param otherLabelTimes
+	 *            optionally, the label times for the other; if both are present, the time interval between the i-th and the
+	 *            (i+1)-th label time is linearly stretched/squeezed in order to find the mapping frame for interpolation
+	 * @param merger
+	 *            the signal processing method used for merging the properties of the "other" into the corresponding frame in the
+	 *            "signal".
+	 */
+	public FramewiseMerger(DoubleDataSource inputSource, DoubleDataSource pitchmarks,
             int samplingRate, DoubleDataSource labelTimes,
             DoubleDataSource otherSource, DoubleDataSource otherPitchmarks, 
             int otherSamplingRate, DoubleDataSource otherLabelTimes,
@@ -117,81 +122,81 @@ public class FramewiseMerger extends FrameOverlapAddSource
                 analysisWindow, otherSamplingRate, 8, 1);
         this.processor = merger;
     }
-    
-    /**
-     * Create a new merger, creating audio by merging of audio frames at a fixed frame rate,
-     * from a source (aka the "signal") and a target (aka the "other"),
-     * linearly mapping the corresponding times between the 
-     * two sources.
-     * @param inputSource the audio data for the signal
-     * @param frameLength length of the fixed-length frames
-     * @param samplingRate the sampling rate for the signal
-     * @param labelTimes optionally, the label times for the signal, needed for 
-     * time alignment between the signal and the other
-     * @param otherSource the audio data for the other
-     * @param otherSamplingRate the sampling rate for the other
-     * @param otherLabelTimes optionally, the label times for the other; if both
-     * are present, the time interval between the i-th and the (i+1)-th label time
-     * is linearly stretched/squeezed in order to find the mapping frame for interpolation
-     * @param merger the signal processing method used for merging the properties of the "other"
-     * into the corresponding frame in the "signal".
-     */
-    public FramewiseMerger(DoubleDataSource inputSource, int frameLength, int samplingRate, DoubleDataSource labelTimes,
-            DoubleDataSource otherSource, int otherSamplingRate, DoubleDataSource otherLabelTimes,
-            InlineFrameMerger merger)
-    {
-        DoubleDataSource paddingOther1 = new BufferedDoubleDataSource(new double[3*frameLength/4]);
-        DoubleDataSource paddedOtherSource = new SequenceDoubleDataSource(new DoubleDataSource[]{paddingOther1, otherSource});
-        this.otherFrameProvider = new FrameProvider(paddedOtherSource, Window.get(Window.HANNING, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
-        this.blockSize = frameLength/4;
-        int inputFrameshift = blockSize;
-        Window window = Window.get(Window.HANNING, frameLength+1, 0.5);
-        this.outputWindow = null;
-        this.memory = new double[frameLength];
-        // This is used when the last input frame has already been read,
-        // to do the last frame output properly:
-        this.processor = merger;
-        // We need to feed through (and discard) 3 (if overlapFraction == 3/4)
-        // blocks of zeroes, so that the first three blocks are properly rebuilt.
-        DoubleDataSource padding1 = new BufferedDoubleDataSource(new double[3*inputFrameshift]);
-        DoubleDataSource padding2 = new BufferedDoubleDataSource(new double[3*inputFrameshift]);
-        DoubleDataSource paddedSource = new SequenceDoubleDataSource(new DoubleDataSource[]{padding1, inputSource, padding2});
-        this.frameProvider = new FrameProvider(paddedSource, window, frameLength, inputFrameshift, samplingRate, true);
-        double[] dummy = new double[blockSize];
-        for (int i=0; i<3; i++) {
-            //System.err.println("Discarding "+blockSize+" samples:");
-            getData(dummy, 0, blockSize); // this calls getNextFrame() indirectly
-        }
-        this.frameProvider.resetInternalTimer();
-        this.otherFrameProvider.resetInternalTimer();
 
-        // Only now, after initialising the overlap-add, set up the label times.
-        // Set up label times for time stretching:
-        this.labelTimes = labelTimes;
-        this.otherLabelTimes = otherLabelTimes;
-        // set all current and previous labels to 0:
-        prevLabel = 0;
-        currentLabel = 0;
-        prevOtherLabel = 0;
-        currentOtherLabel = 0;
-    }
+	/**
+	 * Create a new merger, creating audio by merging of audio frames at a fixed frame rate, from a source (aka the "signal") and
+	 * a target (aka the "other"), linearly mapping the corresponding times between the two sources.
+	 * 
+	 * @param inputSource
+	 *            the audio data for the signal
+	 * @param frameLength
+	 *            length of the fixed-length frames
+	 * @param samplingRate
+	 *            the sampling rate for the signal
+	 * @param labelTimes
+	 *            optionally, the label times for the signal, needed for time alignment between the signal and the other
+	 * @param otherSource
+	 *            the audio data for the other
+	 * @param otherSamplingRate
+	 *            the sampling rate for the other
+	 * @param otherLabelTimes
+	 *            optionally, the label times for the other; if both are present, the time interval between the i-th and the
+	 *            (i+1)-th label time is linearly stretched/squeezed in order to find the mapping frame for interpolation
+	 * @param merger
+	 *            the signal processing method used for merging the properties of the "other" into the corresponding frame in the
+	 *            "signal".
+	 */
+	public FramewiseMerger(DoubleDataSource inputSource, int frameLength, int samplingRate, DoubleDataSource labelTimes,
+			DoubleDataSource otherSource, int otherSamplingRate, DoubleDataSource otherLabelTimes, InlineFrameMerger merger) {
+		DoubleDataSource paddingOther1 = new BufferedDoubleDataSource(new double[3 * frameLength / 4]);
+		DoubleDataSource paddedOtherSource = new SequenceDoubleDataSource(new DoubleDataSource[] { paddingOther1, otherSource });
+		this.otherFrameProvider = new FrameProvider(paddedOtherSource, Window.get(Window.HANNING, frameLength, 0.5), frameLength,
+				frameLength / 4, samplingRate, true);
+		this.blockSize = frameLength / 4;
+		int inputFrameshift = blockSize;
+		Window window = Window.get(Window.HANNING, frameLength + 1, 0.5);
+		this.outputWindow = null;
+		this.memory = new double[frameLength];
+		// This is used when the last input frame has already been read,
+		// to do the last frame output properly:
+		this.processor = merger;
+		// We need to feed through (and discard) 3 (if overlapFraction == 3/4)
+		// blocks of zeroes, so that the first three blocks are properly rebuilt.
+		DoubleDataSource padding1 = new BufferedDoubleDataSource(new double[3 * inputFrameshift]);
+		DoubleDataSource padding2 = new BufferedDoubleDataSource(new double[3 * inputFrameshift]);
+		DoubleDataSource paddedSource = new SequenceDoubleDataSource(new DoubleDataSource[] { padding1, inputSource, padding2 });
+		this.frameProvider = new FrameProvider(paddedSource, window, frameLength, inputFrameshift, samplingRate, true);
+		double[] dummy = new double[blockSize];
+		for (int i = 0; i < 3; i++) {
+			// System.err.println("Discarding "+blockSize+" samples:");
+			getData(dummy, 0, blockSize); // this calls getNextFrame() indirectly
+		}
+		this.frameProvider.resetInternalTimer();
+		this.otherFrameProvider.resetInternalTimer();
 
+		// Only now, after initialising the overlap-add, set up the label times.
+		// Set up label times for time stretching:
+		this.labelTimes = labelTimes;
+		this.otherLabelTimes = otherLabelTimes;
+		// set all current and previous labels to 0:
+		prevLabel = 0;
+		currentLabel = 0;
+		prevOtherLabel = 0;
+		currentOtherLabel = 0;
+	}
 
-    /**
-     * Get the next frame of input data. This method is called by prepareBlock()
-     * when preparing the output data to be read. This implementation
-     * reads the data from the frameProvider. In addition, the appropriate "other"
-     * frame is identified; this is the frame closest in starting time to the 
-     * starting time of the next "signal" frame (i.e., the starting time of the return
-     * value of this method), correcting for the label times. Concretely, if 
-     * the start time t_s of the next signal frame is between labelTimes[i] and
-     * labelTimes[i+1], then the optimal other frame starting time to would be:
-     *      t_o = otherLabelTimes[i] + (t_s - labelTimes[i])/(labelTimes[i+1]-labelTimes[i]) * (otherLabelTimes[i+1] - otherLabelTimes[i])
-     * The other frame whose starting time is closest to to will be prepared as
-     * for merging.
-     * @return the next signal frame.
-     */
-    protected double[] getNextFrame()
+	/**
+	 * Get the next frame of input data. This method is called by prepareBlock() when preparing the output data to be read. This
+	 * implementation reads the data from the frameProvider. In addition, the appropriate "other" frame is identified; this is the
+	 * frame closest in starting time to the starting time of the next "signal" frame (i.e., the starting time of the return value
+	 * of this method), correcting for the label times. Concretely, if the start time t_s of the next signal frame is between
+	 * labelTimes[i] and labelTimes[i+1], then the optimal other frame starting time to would be: t_o = otherLabelTimes[i] + (t_s
+	 * - labelTimes[i])/(labelTimes[i+1]-labelTimes[i]) * (otherLabelTimes[i+1] - otherLabelTimes[i]) The other frame whose
+	 * starting time is closest to to will be prepared as for merging.
+	 * 
+	 * @return the next signal frame.
+	 */
+	protected double[] getNextFrame()
     {
         double[] nextSignalFrame = frameProvider.getNextFrame();
         double frameStart = frameProvider.getFrameStartTime();
@@ -267,22 +272,19 @@ public class FramewiseMerger extends FrameOverlapAddSource
         return nextSignalFrame;
     }
 
-    /**
-     * Output blocksize -- here, this is the same as the input frame shift.
-     */
-    protected int getBlockSize()
-    {
-        return frameProvider.getFrameShiftSamples();
-    }
+	/**
+	 * Output blocksize -- here, this is the same as the input frame shift.
+	 */
+	protected int getBlockSize() {
+		return frameProvider.getFrameShiftSamples();
+	}
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
+	}
 
 }
-

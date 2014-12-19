@@ -18,7 +18,6 @@
  *
  */
 
-
 package weka.classifiers.trees.j48;
 
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
@@ -35,37 +34,35 @@ import weka.core.Capabilities.Capability;
 
 public class C45PruneableClassifierTreeWithUnary extends C45PruneableClassifierTree {
 
-	public C45PruneableClassifierTreeWithUnary(ModelSelection toSelectLocModel,
-			boolean pruneTree, float cf, boolean raiseTree, boolean cleanup,
-			boolean collapseTree) throws Exception {
+	public C45PruneableClassifierTreeWithUnary(ModelSelection toSelectLocModel, boolean pruneTree, float cf, boolean raiseTree,
+			boolean cleanup, boolean collapseTree) throws Exception {
 		super(toSelectLocModel, pruneTree, cf, raiseTree, cleanup, collapseTree);
 	}
-	
-	
+
 	/**
-	   * Returns default capabilities of the classifier tree.
-	   *
-	   * @return      the capabilities of this classifier tree
-	   */
-	  public Capabilities getCapabilities() {
-	    Capabilities result = super.getCapabilities();
-	    result.disableAll();
+	 * Returns default capabilities of the classifier tree.
+	 * 
+	 * @return the capabilities of this classifier tree
+	 */
+	public Capabilities getCapabilities() {
+		Capabilities result = super.getCapabilities();
+		result.disableAll();
 
-	    // attributes
-	    result.enable(Capability.NOMINAL_ATTRIBUTES);
-	    result.enable(Capability.NUMERIC_ATTRIBUTES);
-	    result.enable(Capability.DATE_ATTRIBUTES);
-	    result.enable(Capability.MISSING_VALUES);
-	    result.enable(Capability.UNARY_CLASS);  // Can be used also with Unary 
+		// attributes
+		result.enable(Capability.NOMINAL_ATTRIBUTES);
+		result.enable(Capability.NUMERIC_ATTRIBUTES);
+		result.enable(Capability.DATE_ATTRIBUTES);
+		result.enable(Capability.MISSING_VALUES);
+		result.enable(Capability.UNARY_CLASS); // Can be used also with Unary
 
-	    // class
-	    result.enable(Capability.NOMINAL_CLASS);
-	    result.enable(Capability.MISSING_CLASS_VALUES);
+		// class
+		result.enable(Capability.NOMINAL_CLASS);
+		result.enable(Capability.MISSING_CLASS_VALUES);
 
-	    // instances
-	    result.setMinimumNumberInstances(0);
-	    
-	    return result;
-	  }
+		// instances
+		result.setMinimumNumberInstances(0);
+
+		return result;
+	}
 
 }

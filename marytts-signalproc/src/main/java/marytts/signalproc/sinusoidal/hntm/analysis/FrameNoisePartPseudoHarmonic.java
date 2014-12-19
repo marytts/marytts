@@ -27,107 +27,96 @@ import java.nio.ByteBuffer;
 import marytts.util.math.ArrayUtils;
 
 /**
- * An alternative model for the noise part of a given speech frame.
- * Fullband harmonic parameters are stored (amplitudes only) at a constant "virtual" f0.
- * Cepstral amplitudes are kept only.
- * Synthesis handles noise part generation using the cepstral amplitudes and random phase generation above maximum frequency of voicing
+ * An alternative model for the noise part of a given speech frame. Fullband harmonic parameters are stored (amplitudes only) at a
+ * constant "virtual" f0. Cepstral amplitudes are kept only. Synthesis handles noise part generation using the cepstral amplitudes
+ * and random phase generation above maximum frequency of voicing
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
 public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
 
-    public float[] ceps; //To keep harmonic amplitudes
-    
-    public FrameNoisePartPseudoHarmonic()
-    {
-        super();
-        
-        ceps = null;
-    }
-    
-    public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing)
-    {
-        this();
-        
-        ceps = ArrayUtils.copy(existing.ceps);
-    }
-    
-    public FrameNoisePartPseudoHarmonic( DataInputStream dis, int cepsLen )
-    {     
-        this();
-        
-        if (cepsLen>0)
-        {
-            ceps = new float[cepsLen];
-            for (int i=0; i<cepsLen; i++)
-            {
-                try {
-                    ceps[i] = dis.readFloat();
-                } catch (IOException e) {
-                    System.out.println("Error! At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!");
-                }
-            }
-        }
-    }
+	public float[] ceps; // To keep harmonic amplitudes
 
-    public FrameNoisePartPseudoHarmonic(ByteBuffer bb, int cepsLen)
-    {     
-        this();
-        
-        if (cepsLen>0)
-        {
-            ceps = new float[cepsLen];
-            for (int i=0; i<cepsLen; i++)
-            {
-                try {
-                    ceps[i] = bb.getFloat();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!", e);
-                }
-            }
-        }
-    }
+	public FrameNoisePartPseudoHarmonic() {
+		super();
 
-    public void write(DataOutput out) throws IOException 
-    {
-        int cepsLen = 0;
-        if (ceps!=null && ceps.length>0)
-            cepsLen = ceps.length;
+		ceps = null;
+	}
 
-        if (cepsLen>0)
-        {
-            for (int i=0; i<ceps.length; i++) 
-                out.writeFloat(ceps[i]);
-        }
-    }
+	public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing) {
+		this();
 
-    public boolean equals(FrameNoisePartPseudoHarmonic other)
-    {
-        if (ceps!=null || other.ceps!=null)
-        {
-            if (ceps!=null && other.ceps==null) return false;
-            if (ceps==null && other.ceps!=null) return false;
-            if (ceps.length!=other.ceps.length) return false;
-            for (int i=0; i<ceps.length; i++)
-                if (ceps[i]!=other.ceps[i]) return false;
-        }
-        
-        return true;
-    }
-    
-    public int getVectorSize()
-    {
-        int cepsLen = 0;
-        if (ceps!=null && ceps.length>0)
-            cepsLen = ceps.length;
-        
-        return cepsLen;
-    }
-        
-    public int getLength()
-    {
-        return 4*getVectorSize();
-    }
+		ceps = ArrayUtils.copy(existing.ceps);
+	}
+
+	public FrameNoisePartPseudoHarmonic(DataInputStream dis, int cepsLen) {
+		this();
+
+		if (cepsLen > 0) {
+			ceps = new float[cepsLen];
+			for (int i = 0; i < cepsLen; i++) {
+				try {
+					ceps[i] = dis.readFloat();
+				} catch (IOException e) {
+					System.out.println("Error! At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!");
+				}
+			}
+		}
+	}
+
+	public FrameNoisePartPseudoHarmonic(ByteBuffer bb, int cepsLen) {
+		this();
+
+		if (cepsLen > 0) {
+			ceps = new float[cepsLen];
+			for (int i = 0; i < cepsLen; i++) {
+				try {
+					ceps[i] = bb.getFloat();
+				} catch (Exception e) {
+					throw new IllegalArgumentException(
+							"At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!", e);
+				}
+			}
+		}
+	}
+
+	public void write(DataOutput out) throws IOException {
+		int cepsLen = 0;
+		if (ceps != null && ceps.length > 0)
+			cepsLen = ceps.length;
+
+		if (cepsLen > 0) {
+			for (int i = 0; i < ceps.length; i++)
+				out.writeFloat(ceps[i]);
+		}
+	}
+
+	public boolean equals(FrameNoisePartPseudoHarmonic other) {
+		if (ceps != null || other.ceps != null) {
+			if (ceps != null && other.ceps == null)
+				return false;
+			if (ceps == null && other.ceps != null)
+				return false;
+			if (ceps.length != other.ceps.length)
+				return false;
+			for (int i = 0; i < ceps.length; i++)
+				if (ceps[i] != other.ceps[i])
+					return false;
+		}
+
+		return true;
+	}
+
+	public int getVectorSize() {
+		int cepsLen = 0;
+		if (ceps != null && ceps.length > 0)
+			cepsLen = ceps.length;
+
+		return cepsLen;
+	}
+
+	public int getLength() {
+		return 4 * getVectorSize();
+	}
 }
-
