@@ -418,14 +418,14 @@
 					<version>3.4</version>
 					<dependencies>
 						<dependency>
-							<groupId>org.apache.maven.doxia</groupId>
-							<artifactId>doxia-module-markdown</artifactId>
-							<version>1.6</version>
-						</dependency>
-						<dependency>
 							<groupId>com.pcl-solutions.maven.wagons</groupId>
 							<artifactId>rsync-maven-wagon</artifactId>
 							<version>1.0</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.6</version>
 						</dependency>
 					</dependencies>
 					<configuration>
@@ -467,18 +467,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
 					<execution>
@@ -495,19 +483,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			
-			<!-- Unit tests -->
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<!--forkMode>pertest</forkMode -->
-					<argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m</argLine>
-					<excludes>
-						<!--exclude>**/util/**/*.java</exclude -->
-						<exclude>**/modules/MaryModuleTestCase.java</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 			
 			<!-- Integration tests -->
@@ -544,6 +519,31 @@
 						<phase>verify</phase>
 						<goals>
 							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Unit tests -->
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!--forkMode>pertest</forkMode -->
+					<argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m</argLine>
+					<excludes>
+						<!--exclude>**/util/**/*.java</exclude -->
+						<exclude>**/modules/MaryModuleTestCase.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create</goal>
 						</goals>
 					</execution>
 				</executions>
