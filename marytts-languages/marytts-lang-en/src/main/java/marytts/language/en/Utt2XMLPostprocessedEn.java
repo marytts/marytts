@@ -25,25 +25,15 @@ import marytts.datatypes.MaryDataType;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
-
-
 /**
- * Convert FreeTTS utterances into MaryXML format
- * (Postprocessed, English).
- *
+ * Convert FreeTTS utterances into MaryXML format (Postprocessed, English).
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class Utt2XMLPostprocessedEn extends Utt2XMLBase
-{
-    public Utt2XMLPostprocessedEn()
-    {
-        super("Utt2XML PostprocessedEn",
-              USEnglishDataTypes.FREETTS_POSTPROCESSED,
-              MaryDataType.ALLOPHONES,
-              Locale.ENGLISH);
-    }
-
+public class Utt2XMLPostprocessedEn extends Utt2XMLBase {
+	public Utt2XMLPostprocessedEn() {
+		super("Utt2XML PostprocessedEn", USEnglishDataTypes.FREETTS_POSTPROCESSED, MaryDataType.ALLOPHONES, Locale.ENGLISH);
+	}
 
 }
-

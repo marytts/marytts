@@ -31,40 +31,35 @@ import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;
 
-
 /**
- * Annotates an utterance with <code>Relation.SYLLABLE</code>,
- * <code>Relation.SYLLABLE_STRUCTURE</code>, and
- * <code>Relation.SEGMENT</code>.
- * To determine stress, the <code>isStressed</code> method relies upon
- * a phone ending in the number "1".  Subclasses should override
- * <code>isStressed</code> and <code>deStress</code> if stresses are
- * determined in other ways.
- *
+ * Annotates an utterance with <code>Relation.SYLLABLE</code>, <code>Relation.SYLLABLE_STRUCTURE</code>, and
+ * <code>Relation.SEGMENT</code>. To determine stress, the <code>isStressed</code> method relies upon a phone ending in the number
+ * "1". Subclasses should override <code>isStressed</code> and <code>deStress</code> if stresses are determined in other ways.
+ * 
  * @see Relation#SEGMENT
  * @see Relation#SYLLABLE
  * @see Relation#SYLLABLE_STRUCTURE
  */
 public class Segmenter implements UtteranceProcessor {
-    private final static String STRESS = "1";
-    private final static String NO_STRESS = "0";
-    private Map addenda;
+	private final static String STRESS = "1";
+	private final static String NO_STRESS = "0";
+	private Map addenda;
 
-    /**
-     * Annotates an utterance with <code>Relation.SYLLABLE</code>,
-     * <code>Relation.SYLLABLE_STRUCTURE</code>, and
-     * <code>Relation.SEGMENT</code>.
-     *
-     * @param utterance the utterance to process/tokenize
-     *
-     * @see Relation#SEGMENT
-     * @see Relation#SYLLABLE
-     * @see Relation#SYLLABLE_STRUCTURE
-     *
-     * @throws ProcessException if an IOException is thrown during the
-     *   processing of the utterance
-     */
-    public void processUtterance(Utterance utterance) throws ProcessException {
+	/**
+	 * Annotates an utterance with <code>Relation.SYLLABLE</code>, <code>Relation.SYLLABLE_STRUCTURE</code>, and
+	 * <code>Relation.SEGMENT</code>.
+	 * 
+	 * @param utterance
+	 *            the utterance to process/tokenize
+	 * 
+	 * @see Relation#SEGMENT
+	 * @see Relation#SYLLABLE
+	 * @see Relation#SYLLABLE_STRUCTURE
+	 * 
+	 * @throws ProcessException
+	 *             if an IOException is thrown during the processing of the utterance
+	 */
+	public void processUtterance(Utterance utterance) throws ProcessException {
 
 	// preconditions
         if (utterance.getRelation(Relation.WORD) == null) {
@@ -183,80 +178,70 @@ public class Segmenter implements UtteranceProcessor {
 	assert utterance.getRelation(Relation.SEGMENT) != null;
     }
 
-    /**
-     * Determines if the given phonene is stressed.
-     * To determine stress, this method relies upon
-     * a phone ending in the number "1".  Subclasses should override this
-     * method if stresses are determined in other ways.
-     *
-     * @param phone the phone to check
-     *
-     * @return true if the phone is stressed, otherwise false
-     */
-    protected boolean isStressed(String phone) {
-	return phone.endsWith("1");
-    }
-
-    /**
-     * Converts stressed phone to regular phone.  This method
-     * merely removes the last character of the phone.  Subclasses
-     * should override this if another method is to be used.
-     *
-     * @param phone the phone to convert
-     *
-     * @return de-stressed phone
-     */
-    protected String deStress(String phone) {
-	String retPhone = phone;
-	if (isStressed(phone)) {
-	    retPhone = phone.substring(0, phone.length() - 1);
+	/**
+	 * Determines if the given phonene is stressed. To determine stress, this method relies upon a phone ending in the number "1".
+	 * Subclasses should override this method if stresses are determined in other ways.
+	 * 
+	 * @param phone
+	 *            the phone to check
+	 * 
+	 * @return true if the phone is stressed, otherwise false
+	 */
+	protected boolean isStressed(String phone) {
+		return phone.endsWith("1");
 	}
-	return retPhone;
-    }
-    
-    
-   
-   
-    
-    public void saveAddenda() throws IOException{
-        String path = MaryProperties.maryBase()+"/log/addenda.log";
-        if (addenda != null && path != null){
-            try{
-                String line;
-                StringBuilder addendaBuf = new StringBuilder();
-                addendaBuf.append("# Logfile contains words that are not in the lexicon"
-                        +"\n# and their transcriptions predicted by the LTS-rules"
-                        +"\n# (for English)\n");
-                //add new entries
-                Set words = addenda.keySet();
-                for (Iterator it = words.iterator();it.hasNext();){
-                    String nextWord = (String) it.next();
-                    addendaBuf.append(nextWord+" "
-                            +addenda.get(nextWord)+"\n");
-                }
-                
-                //open addenda file
-                PrintWriter addendaOut = new PrintWriter(
-                        new FileOutputStream(new File(path)));
-                //print addendaBuf and close
-                addendaOut.print(addendaBuf.toString());
-                addendaOut.flush();
-                addendaOut.close();
-            } catch (Exception e){
-                throw new IOException("Could not save addenda because : "
-                        +e.getMessage());
-            }
-            
-        }        
-    }
 
-    /**
-     * Returns the simple name of this class.
-     *
-     * @return the simple name of this class
-     */
-    public String toString() {
-        return "Segmenter";
-    }
+	/**
+	 * Converts stressed phone to regular phone. This method merely removes the last character of the phone. Subclasses should
+	 * override this if another method is to be used.
+	 * 
+	 * @param phone
+	 *            the phone to convert
+	 * 
+	 * @return de-stressed phone
+	 */
+	protected String deStress(String phone) {
+		String retPhone = phone;
+		if (isStressed(phone)) {
+			retPhone = phone.substring(0, phone.length() - 1);
+		}
+		return retPhone;
+	}
+
+	public void saveAddenda() throws IOException {
+		String path = MaryProperties.maryBase() + "/log/addenda.log";
+		if (addenda != null && path != null) {
+			try {
+				String line;
+				StringBuilder addendaBuf = new StringBuilder();
+				addendaBuf.append("# Logfile contains words that are not in the lexicon"
+						+ "\n# and their transcriptions predicted by the LTS-rules" + "\n# (for English)\n");
+				// add new entries
+				Set words = addenda.keySet();
+				for (Iterator it = words.iterator(); it.hasNext();) {
+					String nextWord = (String) it.next();
+					addendaBuf.append(nextWord + " " + addenda.get(nextWord) + "\n");
+				}
+
+				// open addenda file
+				PrintWriter addendaOut = new PrintWriter(new FileOutputStream(new File(path)));
+				// print addendaBuf and close
+				addendaOut.print(addendaBuf.toString());
+				addendaOut.flush();
+				addendaOut.close();
+			} catch (Exception e) {
+				throw new IOException("Could not save addenda because : " + e.getMessage());
+			}
+
+		}
+	}
+
+	/**
+	 * Returns the simple name of this class.
+	 * 
+	 * @return the simple name of this class
+	 */
+	public String toString() {
+		return "Segmenter";
+	}
 }
-
