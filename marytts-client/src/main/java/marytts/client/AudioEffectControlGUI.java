@@ -34,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-
 /**
  * 
  * An AudioEffectControlGUI consists of a checkbox, a text pane, a text field, and a button.
@@ -51,106 +50,106 @@ import javax.swing.JTextField;
  * @author Oytun T&uumlrk
  */
 public class AudioEffectControlGUI {
-    
-    private AudioEffectControlData data; //All data this control has about the audio effect 
-    public JPanel mainPanel;
-    public JCheckBox chkEnabled;
-    public JTextField txtParams;
-    public JButton btnHelp;
-    
-    private boolean isVisible; //This can be used for not showing a specific effect for specific voices
-    public boolean isHelpWindowOpen;
-    private JFrame helpWindow; //Window to show help context
-    
-    //Create a Mary audio effect with help text
-    public AudioEffectControlGUI(AudioEffectControlData dataIn)
-    { 
-        data = dataIn;
-        
-        mainPanel = new JPanel();
-        chkEnabled = new JCheckBox();
-        txtParams = new JTextField("Parameters");
 
-        btnHelp = new JButton("?");
+	private AudioEffectControlData data; // All data this control has about the audio effect
+	public JPanel mainPanel;
+	public JCheckBox chkEnabled;
+	public JTextField txtParams;
+	public JButton btnHelp;
 
-        isVisible = true;
-        isHelpWindowOpen = false;
-        
-    }
-    
-    public void setVisible(boolean bShow) { isVisible = bShow; }
-    public boolean getVisible() { return isVisible; }
-    
-    public AudioEffectControlData getData() { return data; }
+	private boolean isVisible; // This can be used for not showing a specific effect for specific voices
+	public boolean isHelpWindowOpen;
+	private JFrame helpWindow; // Window to show help context
 
-    public void show()
-    {
-        mainPanel.removeAll();
-        mainPanel.validate();
-        
-        if (isVisible)
-        {
-            GridBagLayout g = new GridBagLayout();
-            GridBagConstraints c = new GridBagConstraints();
+	// Create a Mary audio effect with help text
+	public AudioEffectControlGUI(AudioEffectControlData dataIn) {
+		data = dataIn;
 
-            mainPanel.setLayout(g);
+		mainPanel = new JPanel();
+		chkEnabled = new JCheckBox();
+		txtParams = new JTextField("Parameters");
 
-            c.fill = GridBagConstraints.HORIZONTAL;
+		btnHelp = new JButton("?");
 
-            c.gridx = 0;
-            c.gridy = 0;
-            g.setConstraints(chkEnabled, c);
-            chkEnabled.setPreferredSize(new Dimension(100,25));
-            chkEnabled.setText(data.getEffectName());
-            chkEnabled.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    data.setSelected(((JCheckBox)e.getSource()).isSelected());     
-                }
-            });
-            mainPanel.add(chkEnabled);
-            
-            c.gridx = 1;
-            g.setConstraints(chkEnabled, c);
-            txtParams.setPreferredSize(new Dimension(150,25));
-            txtParams.setText(data.getParams());
-            mainPanel.add(txtParams);
+		isVisible = true;
+		isHelpWindowOpen = false;
 
-            c.gridx = GridBagConstraints.RELATIVE;
-            g.setConstraints(btnHelp, c);
-            btnHelp.setPreferredSize(new Dimension(45,25));
-            mainPanel.add(btnHelp);
+	}
 
-            btnHelp.addActionListener( new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (!isHelpWindowOpen)
-                    {
-                        isHelpWindowOpen = true;
-                        helpWindow = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                        JTextArea helpTextArea = new JTextArea(data.getHelpText());
-                        helpTextArea.setEditable(false);
+	public void setVisible(boolean bShow) {
+		isVisible = bShow;
+	}
 
-                        helpWindow.getContentPane().add(helpTextArea, BorderLayout.WEST);
-                        helpWindow.pack();
-                        helpWindow.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
-                        helpWindow.setVisible(true);
-                        
-                        helpWindow.addWindowListener(new java.awt.event.WindowAdapter() {
-                            public void windowClosing(WindowEvent winEvt) {
-                                // Perhaps ask user if they want to save any unsaved files first.
-                                isHelpWindowOpen = false;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        if (helpWindow!=null)
-                            helpWindow.requestFocus();
-                    }
-                }
-            });
-        }
-        
-        mainPanel.validate();
-    }
+	public boolean getVisible() {
+		return isVisible;
+	}
+
+	public AudioEffectControlData getData() {
+		return data;
+	}
+
+	public void show() {
+		mainPanel.removeAll();
+		mainPanel.validate();
+
+		if (isVisible) {
+			GridBagLayout g = new GridBagLayout();
+			GridBagConstraints c = new GridBagConstraints();
+
+			mainPanel.setLayout(g);
+
+			c.fill = GridBagConstraints.HORIZONTAL;
+
+			c.gridx = 0;
+			c.gridy = 0;
+			g.setConstraints(chkEnabled, c);
+			chkEnabled.setPreferredSize(new Dimension(100, 25));
+			chkEnabled.setText(data.getEffectName());
+			chkEnabled.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					data.setSelected(((JCheckBox) e.getSource()).isSelected());
+				}
+			});
+			mainPanel.add(chkEnabled);
+
+			c.gridx = 1;
+			g.setConstraints(chkEnabled, c);
+			txtParams.setPreferredSize(new Dimension(150, 25));
+			txtParams.setText(data.getParams());
+			mainPanel.add(txtParams);
+
+			c.gridx = GridBagConstraints.RELATIVE;
+			g.setConstraints(btnHelp, c);
+			btnHelp.setPreferredSize(new Dimension(45, 25));
+			mainPanel.add(btnHelp);
+
+			btnHelp.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (!isHelpWindowOpen) {
+						isHelpWindowOpen = true;
+						helpWindow = new JFrame("Help: " + chkEnabled.getText() + " Effect");
+						JTextArea helpTextArea = new JTextArea(data.getHelpText());
+						helpTextArea.setEditable(false);
+
+						helpWindow.getContentPane().add(helpTextArea, BorderLayout.WEST);
+						helpWindow.pack();
+						helpWindow.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
+						helpWindow.setVisible(true);
+
+						helpWindow.addWindowListener(new java.awt.event.WindowAdapter() {
+							public void windowClosing(WindowEvent winEvt) {
+								// Perhaps ask user if they want to save any unsaved files first.
+								isHelpWindowOpen = false;
+							}
+						});
+					} else {
+						if (helpWindow != null)
+							helpWindow.requestFocus();
+					}
+				}
+			});
+		}
+
+		mainPanel.validate();
+	}
 }
-

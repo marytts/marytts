@@ -19,47 +19,44 @@
  */
 package marytts.tools.emospeak;
 
-
 /**
- *
- * @author  schroed
+ * 
+ * @author schroed
  */
 public class EmoSpeakApplet extends javax.swing.JApplet {
-    
 
-    public void init() {
-        initComponents();
-        emoSpeakPanel1.initialiseMenu();
-    }
-    
-    /** This method is called from within the init() method to
-     * initialize the form.
-     */
-    private void initComponents() {
-        String host = getCodeBase().getHost();
-        if (host == null || host.equals("")) {
-            host = "localhost";
-        }
-        try {
-            emoSpeakPanel1 = new EmoSpeakPanel(false, host, 59125);
-        } catch (Exception e) {
-            System.err.println("Cannot initialise EmoSpeakPanel:");
-            e.printStackTrace();
-        }
+	public void init() {
+		initComponents();
+		emoSpeakPanel1.initialiseMenu();
+	}
 
-        getContentPane().setLayout(new java.awt.FlowLayout());
+	/**
+	 * This method is called from within the init() method to initialize the form.
+	 */
+	private void initComponents() {
+		String host = getCodeBase().getHost();
+		if (host == null || host.equals("")) {
+			host = "localhost";
+		}
+		try {
+			emoSpeakPanel1 = new EmoSpeakPanel(false, host, 59125);
+		} catch (Exception e) {
+			System.err.println("Cannot initialise EmoSpeakPanel:");
+			e.printStackTrace();
+		}
 
-        getContentPane().add(emoSpeakPanel1);
+		getContentPane().setLayout(new java.awt.FlowLayout());
 
-    }
-    
-    
-    // Variables declaration
-    private EmoSpeakPanel emoSpeakPanel1;
-    // End of variables declaration
-    
-    public void destroy() {
-        emoSpeakPanel1.requestExit();
-    }
+		getContentPane().add(emoSpeakPanel1);
+
+	}
+
+	// Variables declaration
+	private EmoSpeakPanel emoSpeakPanel1;
+
+	// End of variables declaration
+
+	public void destroy() {
+		emoSpeakPanel1.requestExit();
+	}
 }
-
