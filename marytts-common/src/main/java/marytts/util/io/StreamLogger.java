@@ -31,73 +31,64 @@ import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * Read from a stream and log.
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class StreamLogger extends Thread
-{
-    private InputStream is;
-    private PrintStream ps;
-    private Logger logger;
-    private Pattern ignorePattern = null;
+public class StreamLogger extends Thread {
+	private InputStream is;
+	private PrintStream ps;
+	private Logger logger;
+	private Pattern ignorePattern = null;
 
-    /**
-     * Read from an input stream, logging to category <code>logCategory</code>,
-     * ignoring lines matching
-     * the regular expression specified in <code>ignorePattern</code>.
-     * If <code>logCategory</code> is <code>null</code>, "unnamed" will be used.
-     * If <code>ignorePattern</code> is <code>null</code>, no filtering will be
-     * performed.
-     * The thread will silently die when it reaches end-of-file from the input
-     * stream.
-     */
-    public StreamLogger(InputStream is, String logCategory, String ignorePattern)
-    {
-        this.is = is;
-        if (logCategory == null)
-            logger = MaryUtils.getLogger("unnamed");
-        else
-            logger = MaryUtils.getLogger(logCategory);
-        if (ignorePattern != null) {
-            try {
-                this.ignorePattern = Pattern.compile(ignorePattern);
-            } catch (PatternSyntaxException e) {
-                logger.warn("Problem with regular expression pattern", e);
-                this.ignorePattern = null;
-            }
-        }
-    }
+	/**
+	 * Read from an input stream, logging to category <code>logCategory</code>, ignoring lines matching the regular expression
+	 * specified in <code>ignorePattern</code>. If <code>logCategory</code> is <code>null</code>, "unnamed" will be used. If
+	 * <code>ignorePattern</code> is <code>null</code>, no filtering will be performed. The thread will silently die when it
+	 * reaches end-of-file from the input stream.
+	 */
+	public StreamLogger(InputStream is, String logCategory, String ignorePattern) {
+		this.is = is;
+		if (logCategory == null)
+			logger = MaryUtils.getLogger("unnamed");
+		else
+			logger = MaryUtils.getLogger(logCategory);
+		if (ignorePattern != null) {
+			try {
+				this.ignorePattern = Pattern.compile(ignorePattern);
+			} catch (PatternSyntaxException e) {
+				logger.warn("Problem with regular expression pattern", e);
+				this.ignorePattern = null;
+			}
+		}
+	}
 
-    public StreamLogger(InputStream is, PrintStream ps) {
-        this.is = is;
-        this.ps = ps;
-    }
+	public StreamLogger(InputStream is, PrintStream ps) {
+		this.is = is;
+		this.ps = ps;
+	}
 
-    public void run()
-    {
-        String line = null;
-        try {
-            BufferedReader b = new BufferedReader(new InputStreamReader(is));
-            while ((line = b.readLine()) != null) {
-                if (ignorePattern != null && ignorePattern.matcher(line).matches())
-                    continue; // do not log
-                if (ps != null) {
-                    ps.println(line);
-                } else {
-                    logger.info(line);
-                }
-            }
-        } catch (IOException e) {
-            try {
-                logger.warn("Cannot read from stream", e);
-            } catch (NullPointerException npe) {
-                e.printStackTrace();
-            }
-        }
-    }
+	public void run() {
+		String line = null;
+		try {
+			BufferedReader b = new BufferedReader(new InputStreamReader(is));
+			while ((line = b.readLine()) != null) {
+				if (ignorePattern != null && ignorePattern.matcher(line).matches())
+					continue; // do not log
+				if (ps != null) {
+					ps.println(line);
+				} else {
+					logger.info(line);
+				}
+			}
+		} catch (IOException e) {
+			try {
+				logger.warn("Cannot read from stream", e);
+			} catch (NullPointerException npe) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
-
-

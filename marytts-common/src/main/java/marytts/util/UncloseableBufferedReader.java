@@ -24,17 +24,15 @@ import java.io.Reader;
 
 /**
  * A BufferedReader that ignores calls to close().
- *
+ * 
  * @author Marc Schroeder
  */
 
-public class UncloseableBufferedReader extends BufferedReader
-{
-    public UncloseableBufferedReader(Reader i) {
-        super(i);
-    }
-    
-    public void close() {
-    }
-}
+public class UncloseableBufferedReader extends BufferedReader {
+	public UncloseableBufferedReader(Reader i) {
+		super(i);
+	}
 
+	public void close() {
+	}
+}
