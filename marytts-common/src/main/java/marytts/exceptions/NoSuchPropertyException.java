@@ -21,16 +21,16 @@ package marytts.exceptions;
 
 /**
  * @author Marc Schr&ouml;der
- *
- * Thrown by MaryProperties if a property is needed but cannot be found. 
+ * 
+ *         Thrown by MaryProperties if a property is needed but cannot be found.
  */
 public class NoSuchPropertyException extends RuntimeException {
-    public NoSuchPropertyException(String message) {
-        super(message);
-    }
-    public NoSuchPropertyException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public NoSuchPropertyException(String message) {
+		super(message);
+	}
+
+	public NoSuchPropertyException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 }
-

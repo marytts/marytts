@@ -25,34 +25,36 @@ import javax.swing.filechooser.FileFilter;
 
 import marytts.util.MaryUtils;
 
-
 /**
  * A simple file filter accepting files with a given extension.
+ * 
  * @author Marc Schr&ouml;der
  */
-public class SimpleFileFilter extends FileFilter
-{
-    String extension;
-    String description;
-    public SimpleFileFilter(String extension, String description)
-    {
-        this.extension = extension;
-        this.description = description;
-    }
+public class SimpleFileFilter extends FileFilter {
+	String extension;
+	String description;
 
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-        String ext = MaryUtils.getExtension(f);
-        if (ext != null) {
-            return ext.equals(extension);
-        }
-        return false;
-    }
+	public SimpleFileFilter(String extension, String description) {
+		this.extension = extension;
+		this.description = description;
+	}
 
-    public String getDescription() { return description; }
-    
-    public String getExtension() { return extension; }
+	public boolean accept(File f) {
+		if (f.isDirectory()) {
+			return true;
+		}
+		String ext = MaryUtils.getExtension(f);
+		if (ext != null) {
+			return ext.equals(extension);
+		}
+		return false;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
 }
-

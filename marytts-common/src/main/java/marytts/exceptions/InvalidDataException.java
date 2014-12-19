@@ -5,8 +5,9 @@ package marytts.exceptions;
 
 /**
  * An exception class representing cases where data provided to a processing unit does not match the specifications.
+ * 
  * @author marc
- *
+ * 
  */
 public class InvalidDataException extends RuntimeException {
 
