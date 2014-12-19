@@ -22,7 +22,6 @@ package marytts.language.tr;
 import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-
 public class TurkishConfig extends LanguageConfig {
 	public TurkishConfig() throws MaryConfigurationException {
 		super(TurkishConfig.class.getResourceAsStream("tr.config"));
