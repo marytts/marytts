@@ -25,27 +25,20 @@ package marytts.signalproc.adaptation;
  * @author Oytun T&uumlrk
  */
 public class BaselinePostprocessor {
-    public BaselinePostprocessor()
-    {
-        this(null);
-    }
-    
-    public BaselinePostprocessor(BaselinePostprocessor existing)
-    {
-        if (existing!=null)
-        {
-            //Copy class members if you add any
-        }
-        else
-        {
-            //Set default class member values
-        }
-    }
-    
-    public void run(BaselineAdaptationSet trainingSet)
-    {
-        
-    }
+	public BaselinePostprocessor() {
+		this(null);
+	}
+
+	public BaselinePostprocessor(BaselinePostprocessor existing) {
+		if (existing != null) {
+			// Copy class members if you add any
+		} else {
+			// Set default class member values
+		}
+	}
+
+	public void run(BaselineAdaptationSet trainingSet) {
+
+	}
 
 }
-

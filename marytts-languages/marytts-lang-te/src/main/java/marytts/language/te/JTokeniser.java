@@ -33,36 +33,32 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
-
 /**
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 public class JTokeniser extends marytts.modules.JTokeniser {
 
-    /**
+	/**
      * 
      */
-    public JTokeniser() {
-        super(MaryDataType.RAWMARYXML,
-                MaryDataType.TOKENS,
-                new Locale("te"));
-        setTokenizerLanguage("en");
-    }
+	public JTokeniser() {
+		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("te"));
+		setTokenizerLanguage("en");
+	}
 
-    public MaryData process(MaryData d) throws Exception
-    {
-        MaryData result = super.process(d);
-        splitOffDots(result);
-        return result;
-    }
+	public MaryData process(MaryData d) throws Exception {
+		MaryData result = super.process(d);
+		splitOffDots(result);
+		return result;
+	}
 
-
-    /**
-     * For Telugu, treat all dots as standalone tokens that trigger end of sentence.
-     * @param d
-     */
-    protected void splitOffDots(MaryData d)
+	/**
+	 * For Telugu, treat all dots as standalone tokens that trigger end of sentence.
+	 * 
+	 * @param d
+	 */
+	protected void splitOffDots(MaryData d)
     {
         Document doc = d.getDocument();
         NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc,
@@ -91,4 +87,3 @@ public class JTokeniser extends marytts.modules.JTokeniser {
         }
     }
 }
-

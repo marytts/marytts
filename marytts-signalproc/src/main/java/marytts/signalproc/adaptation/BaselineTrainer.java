@@ -19,47 +19,39 @@
  */
 package marytts.signalproc.adaptation;
 
-
-
 /**
  * Baseline class for voice conversion training
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class BaselineTrainer {
-    
-    public BaselinePreprocessor preprocessor;
-    public BaselineFeatureExtractor featureExtractor;
-    
-    public BaselineTrainer(BaselinePreprocessor pp,
-                           BaselineFeatureExtractor fe) 
-    {
-        preprocessor = new BaselinePreprocessor(pp);
-        featureExtractor = new BaselineFeatureExtractor(fe);
-    }
-    
-    //This baseline version does nothing. Please implement functionality in derived classes.
-    public boolean checkParams()
-    {
-        return true;
-    }
-    
-    //This baseline version just returns identical target indices for each source entry
-    //Note that the returned map contains smallest number of items in source and target training sets
-    public int[] getIndexedMapping(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet)
-    {
-        int[] map = null;
-        int numItems = Math.min(sourceTrainingSet.items.length, targetTrainingSet.items.length);
-        if (numItems>0)
-        {
-            map = new int[numItems]; 
-            int i;
-            
-            for (i=0; i<numItems; i++)
-                map[i] = i;
-        }
-        
-        return map;
-    }
-}
 
+	public BaselinePreprocessor preprocessor;
+	public BaselineFeatureExtractor featureExtractor;
+
+	public BaselineTrainer(BaselinePreprocessor pp, BaselineFeatureExtractor fe) {
+		preprocessor = new BaselinePreprocessor(pp);
+		featureExtractor = new BaselineFeatureExtractor(fe);
+	}
+
+	// This baseline version does nothing. Please implement functionality in derived classes.
+	public boolean checkParams() {
+		return true;
+	}
+
+	// This baseline version just returns identical target indices for each source entry
+	// Note that the returned map contains smallest number of items in source and target training sets
+	public int[] getIndexedMapping(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet) {
+		int[] map = null;
+		int numItems = Math.min(sourceTrainingSet.items.length, targetTrainingSet.items.length);
+		if (numItems > 0) {
+			map = new int[numItems];
+			int i;
+
+			for (i = 0; i < numItems; i++)
+				map[i] = i;
+		}
+
+		return map;
+	}
+}

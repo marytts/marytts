@@ -31,62 +31,56 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 
-
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class EnergyGraph extends FunctionGraph
-{
-    public EnergyGraph(AudioInputStream ais) {
-        this(ais, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
-            
-    public EnergyGraph(AudioInputStream ais, int width, int height) {
-        super();
-        if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-            ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
-        }
-        if (ais.getFormat().getChannels() > 1) {
-            throw new IllegalArgumentException("Can only deal with mono audio signals");
-        }
-        int samplingRate = (int) ais.getFormat().getSampleRate();
-        DoubleDataSource signal = new AudioDoubleDataSource(ais);
-        initialise(signal, samplingRate, width, height);
-    }
+public class EnergyGraph extends FunctionGraph {
+	public EnergyGraph(AudioInputStream ais) {
+		this(ais, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 
-    public EnergyGraph(double[] signal, int samplingRate)
-    {
-        this(signal, samplingRate, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
+	public EnergyGraph(AudioInputStream ais, int width, int height) {
+		super();
+		if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+			ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+		}
+		if (ais.getFormat().getChannels() > 1) {
+			throw new IllegalArgumentException("Can only deal with mono audio signals");
+		}
+		int samplingRate = (int) ais.getFormat().getSampleRate();
+		DoubleDataSource signal = new AudioDoubleDataSource(ais);
+		initialise(signal, samplingRate, width, height);
+	}
 
-    public EnergyGraph(double[] signal, int samplingRate, int width, int height)
-    {
-        initialise(new BufferedDoubleDataSource(signal), samplingRate, width, height);
-    }
-    
-    protected void initialise(DoubleDataSource signal, int samplingRate, int width, int height)
-    {
-        double frameDuration = 0.01; // seconds
-        int frameLength = (int) (samplingRate*frameDuration);
-        int frameShift = frameLength / 2;
-        if (frameLength%2==0) frameLength++; // make sure frame length is odd
-        EnergyAnalyser energyAnalyser = new EnergyAnalyser(signal, frameLength, frameShift, samplingRate);
-        FrameBasedAnalyser.FrameAnalysisResult[] results = energyAnalyser.analyseAllFrames();
-        double[] energyData = new double[results.length];
-        for (int i=0; i<results.length; i++) {
-            energyData[i] = ((Double)results[i].get()).doubleValue();
-        }
-        super.initialise(width, height, 0, (double)frameShift/samplingRate, energyData);
-    }
+	public EnergyGraph(double[] signal, int samplingRate) {
+		this(signal, samplingRate, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 
-    public static void main(String[] args) throws Exception
-    {
-        for (int i=0; i<args.length; i++) {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[i]));
-            EnergyGraph signalGraph = new EnergyGraph(ais);
-            signalGraph.showInJFrame(args[i], true, false);
-        }
-    }
+	public EnergyGraph(double[] signal, int samplingRate, int width, int height) {
+		initialise(new BufferedDoubleDataSource(signal), samplingRate, width, height);
+	}
+
+	protected void initialise(DoubleDataSource signal, int samplingRate, int width, int height) {
+		double frameDuration = 0.01; // seconds
+		int frameLength = (int) (samplingRate * frameDuration);
+		int frameShift = frameLength / 2;
+		if (frameLength % 2 == 0)
+			frameLength++; // make sure frame length is odd
+		EnergyAnalyser energyAnalyser = new EnergyAnalyser(signal, frameLength, frameShift, samplingRate);
+		FrameBasedAnalyser.FrameAnalysisResult[] results = energyAnalyser.analyseAllFrames();
+		double[] energyData = new double[results.length];
+		for (int i = 0; i < results.length; i++) {
+			energyData[i] = ((Double) results[i].get()).doubleValue();
+		}
+		super.initialise(width, height, 0, (double) frameShift / samplingRate, energyData);
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < args.length; i++) {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[i]));
+			EnergyGraph signalGraph = new EnergyGraph(ais);
+			signalGraph.showInJFrame(args[i], true, false);
+		}
+	}
 }
-

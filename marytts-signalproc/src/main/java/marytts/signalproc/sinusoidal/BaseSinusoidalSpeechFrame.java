@@ -23,9 +23,8 @@ package marytts.signalproc.sinusoidal;
  * A baseline class for all sinusoidal speech frame representations
  * 
  * @author oytun.turk
- *
+ * 
  */
 public class BaseSinusoidalSpeechFrame {
 
 }
-

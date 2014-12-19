@@ -31,7 +31,7 @@ package marytts.signalproc.analysis;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class AlignmentData {
 

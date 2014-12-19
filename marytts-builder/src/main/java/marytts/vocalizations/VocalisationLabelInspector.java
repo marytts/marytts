@@ -33,73 +33,66 @@ import marytts.util.io.BasenameList;
 
 public class VocalisationLabelInspector {
 
-    private String inLocation; // input directory
-    private String outLocation; // output directory
-    private AudioFormat format;
-    
-    /**
-     * 
-     * @param inLocation
-     * @param outLocation
-     */
-    public VocalisationLabelInspector( String inLocation, String outLocation ) {
-        this.inLocation = inLocation;
-        this.outLocation = outLocation;
-    }
-    
-    public void process(String baseName) throws IOException {
-        
-        String labelFile = inLocation + File.separator + baseName + ".lab";
-        String outlabelFile = outLocation + File.separator + baseName + ".lab";
-        String waveFile = inLocation + File.separator + baseName + ".wav";
-        String outwaveFile = outLocation + File.separator + baseName + ".wav";
-        
-        // read labels
-        UnitLabel[] vocalLabels = UnitLabel.readLabFile(labelFile);
-        
-        // read waveform
-        AudioInputStream audioInputStream = null;
-        try {
-            audioInputStream = AudioSystem.getAudioInputStream(new File(waveFile));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        format = audioInputStream.getFormat();
-        double[] signal = MaryAudioUtils.getSamplesAsDoubleArray(audioInputStream);
-        
-        /*// get start and end pause durations from labels
-        double sPauseDuration = getStartPauseDuration(vocalLabels);
-        double ePauseDuration = getEndPauseDuration(vocalLabels);
-        
-        try {
-        int startStampIndex = (int) (sPauseDuration * format.getSampleRate());
-        int endStampIndex = signal.length - (int) (ePauseDuration * format.getSampleRate()) - 1;
-        double[] newSignal = new double[endStampIndex-startStampIndex]; 
-        System.arraycopy(signal, startStampIndex, newSignal, 0, endStampIndex-startStampIndex);
-        MaryAudioUtils.writeWavFile(newSignal, outwaveFile, format);
-        }
-        catch(Exception e){
-            System.out.println("problem : "+baseName);
-        }*/
-                
-        // get start and end pause durations from labels
-        double sPauseStamp = getStartTimeStamp(vocalLabels);
-        double ePauseStamp = getEndTimeStamp(vocalLabels);
-        
-        
-        int startStampIndex = (int) (sPauseStamp * format.getSampleRate());
-        int endStampIndex   = (int) (ePauseStamp * format.getSampleRate());
-        double[] newSignal  = new double[endStampIndex-startStampIndex]; 
-        System.arraycopy(signal, startStampIndex, newSignal, 0, endStampIndex-startStampIndex);
-        MaryAudioUtils.writeWavFile(newSignal, outwaveFile, format);
-        UnitLabel[] newVocalLabels = removePausesFromLabels(vocalLabels);
-        UnitLabel.writeLabFile(newVocalLabels, outlabelFile);
-        
-    }
-    
-    
-    private UnitLabel[] removePausesFromLabels(UnitLabel[] vocalLabels) {
+	private String inLocation; // input directory
+	private String outLocation; // output directory
+	private AudioFormat format;
+
+	/**
+	 * 
+	 * @param inLocation
+	 * @param outLocation
+	 */
+	public VocalisationLabelInspector(String inLocation, String outLocation) {
+		this.inLocation = inLocation;
+		this.outLocation = outLocation;
+	}
+
+	public void process(String baseName) throws IOException {
+
+		String labelFile = inLocation + File.separator + baseName + ".lab";
+		String outlabelFile = outLocation + File.separator + baseName + ".lab";
+		String waveFile = inLocation + File.separator + baseName + ".wav";
+		String outwaveFile = outLocation + File.separator + baseName + ".wav";
+
+		// read labels
+		UnitLabel[] vocalLabels = UnitLabel.readLabFile(labelFile);
+
+		// read waveform
+		AudioInputStream audioInputStream = null;
+		try {
+			audioInputStream = AudioSystem.getAudioInputStream(new File(waveFile));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		format = audioInputStream.getFormat();
+		double[] signal = MaryAudioUtils.getSamplesAsDoubleArray(audioInputStream);
+
+		/*
+		 * // get start and end pause durations from labels double sPauseDuration = getStartPauseDuration(vocalLabels); double
+		 * ePauseDuration = getEndPauseDuration(vocalLabels);
+		 * 
+		 * try { int startStampIndex = (int) (sPauseDuration * format.getSampleRate()); int endStampIndex = signal.length - (int)
+		 * (ePauseDuration * format.getSampleRate()) - 1; double[] newSignal = new double[endStampIndex-startStampIndex];
+		 * System.arraycopy(signal, startStampIndex, newSignal, 0, endStampIndex-startStampIndex);
+		 * MaryAudioUtils.writeWavFile(newSignal, outwaveFile, format); } catch(Exception e){
+		 * System.out.println("problem : "+baseName); }
+		 */
+
+		// get start and end pause durations from labels
+		double sPauseStamp = getStartTimeStamp(vocalLabels);
+		double ePauseStamp = getEndTimeStamp(vocalLabels);
+
+		int startStampIndex = (int) (sPauseStamp * format.getSampleRate());
+		int endStampIndex = (int) (ePauseStamp * format.getSampleRate());
+		double[] newSignal = new double[endStampIndex - startStampIndex];
+		System.arraycopy(signal, startStampIndex, newSignal, 0, endStampIndex - startStampIndex);
+		MaryAudioUtils.writeWavFile(newSignal, outwaveFile, format);
+		UnitLabel[] newVocalLabels = removePausesFromLabels(vocalLabels);
+		UnitLabel.writeLabFile(newVocalLabels, outlabelFile);
+
+	}
+
+	private UnitLabel[] removePausesFromLabels(UnitLabel[] vocalLabels) {
         
         ArrayList<UnitLabel> uLabels = new ArrayList<UnitLabel>();
         
@@ -146,120 +139,118 @@ public class VocalisationLabelInspector {
         return uLabels.toArray(new UnitLabel[0]);
     }
 
-    /**
-     * 
-     * @param vocalLabels
-     * @return
-     */
-    private double getStartPauseDuration(UnitLabel[] vocalLabels) {
-        
-        boolean isStartPause = false;
-        for ( int i=0; i < vocalLabels.length; i++ ) {
-            
-            if ( i == 0 && "_".equals(vocalLabels[i].unitName) ) {
-                isStartPause = true;
-                continue;
-            }
-            
-            if ( isStartPause && !"_".equals(vocalLabels[i].unitName) ) {
-                return vocalLabels[i].startTime; 
-            }
-        }
-        
-        return 0.0;
-    }
+	/**
+	 * 
+	 * @param vocalLabels
+	 * @return
+	 */
+	private double getStartPauseDuration(UnitLabel[] vocalLabels) {
 
-    /**
-     * 
-     * @param vocalLabels
-     * @return
-     */
-    private double getEndPauseDuration(UnitLabel[] vocalLabels) {
-        
-        boolean isEndPause = false;
-        
-        for ( int i = (vocalLabels.length-1); i > 0 ; i-- ) {
-            
-            if ( i == (vocalLabels.length-1) && "_".equals(vocalLabels[i].unitName) ) {
-                isEndPause = true;
-                continue;
-            }
-            
-            if (isEndPause && !"_".equals(vocalLabels[i].unitName) ) {
-                return (vocalLabels[vocalLabels.length-1].endTime - vocalLabels[i].endTime); 
-            }
-        }
-        
-        return 0.0;
-    }
+		boolean isStartPause = false;
+		for (int i = 0; i < vocalLabels.length; i++) {
 
-    /**
-     * 
-     * @param vocalLabels
-     * @return
-     */
-    private double getStartTimeStamp(UnitLabel[] vocalLabels) {
-        
-        boolean isStartPause = false;
-        for ( int i=0; i < vocalLabels.length; i++ ) {
-            
-            if ( i == 0 && "_".equals(vocalLabels[i].unitName) ) {
-                isStartPause = true;
-                continue;
-            }
-            
-            if ( isStartPause && !"_".equals(vocalLabels[i].unitName) ) {
-                return vocalLabels[i].startTime; 
-            }
-        }
-        
-        return 0.0;
-    }
+			if (i == 0 && "_".equals(vocalLabels[i].unitName)) {
+				isStartPause = true;
+				continue;
+			}
 
-    /**
-     * 
-     * @param vocalLabels
-     * @return
-     */
-    private double getEndTimeStamp(UnitLabel[] vocalLabels) {
-        
-        boolean isEndPause = false;
-        
-        for ( int i = (vocalLabels.length-1); i > 0 ; i-- ) {
-            
-            if ( i == (vocalLabels.length-1) && "_".equals(vocalLabels[i].unitName) ) {
-                isEndPause = true;
-                continue;
-            }
-            
-            if (isEndPause && !"_".equals(vocalLabels[i].unitName) ) {
-                return vocalLabels[i].endTime; 
-            }
-        }
-        
-        return vocalLabels[vocalLabels.length-1].endTime;
-    }
+			if (isStartPause && !"_".equals(vocalLabels[i].unitName)) {
+				return vocalLabels[i].startTime;
+			}
+		}
 
-    
-    /**
-     * @param args
-     * @throws IOException 
-     */
-    public static void main(String[] args) throws IOException {
-        
-        
-        //String inDirName  = "/home/sathish/phd/data/original-lab-wav-sync";
-        //String outDirName = "/home/sathish/phd/data/pauseless-lab-wav-sync";
-        String inDirName  = "/home/sathish/phd/data/original_stimulus_sync";
-        String outDirName = "/home/sathish/phd/data/pauseless_stimulus_sync";
-        BasenameList bnl = new BasenameList( inDirName, ".wav" );
-        
-        VocalisationLabelInspector vli = new VocalisationLabelInspector(inDirName, outDirName);
-        
-        for(int i=0; i<bnl.getLength(); i++){
-            vli.process(bnl.getName(i));
-        }
+		return 0.0;
+	}
 
-    }
+	/**
+	 * 
+	 * @param vocalLabels
+	 * @return
+	 */
+	private double getEndPauseDuration(UnitLabel[] vocalLabels) {
+
+		boolean isEndPause = false;
+
+		for (int i = (vocalLabels.length - 1); i > 0; i--) {
+
+			if (i == (vocalLabels.length - 1) && "_".equals(vocalLabels[i].unitName)) {
+				isEndPause = true;
+				continue;
+			}
+
+			if (isEndPause && !"_".equals(vocalLabels[i].unitName)) {
+				return (vocalLabels[vocalLabels.length - 1].endTime - vocalLabels[i].endTime);
+			}
+		}
+
+		return 0.0;
+	}
+
+	/**
+	 * 
+	 * @param vocalLabels
+	 * @return
+	 */
+	private double getStartTimeStamp(UnitLabel[] vocalLabels) {
+
+		boolean isStartPause = false;
+		for (int i = 0; i < vocalLabels.length; i++) {
+
+			if (i == 0 && "_".equals(vocalLabels[i].unitName)) {
+				isStartPause = true;
+				continue;
+			}
+
+			if (isStartPause && !"_".equals(vocalLabels[i].unitName)) {
+				return vocalLabels[i].startTime;
+			}
+		}
+
+		return 0.0;
+	}
+
+	/**
+	 * 
+	 * @param vocalLabels
+	 * @return
+	 */
+	private double getEndTimeStamp(UnitLabel[] vocalLabels) {
+
+		boolean isEndPause = false;
+
+		for (int i = (vocalLabels.length - 1); i > 0; i--) {
+
+			if (i == (vocalLabels.length - 1) && "_".equals(vocalLabels[i].unitName)) {
+				isEndPause = true;
+				continue;
+			}
+
+			if (isEndPause && !"_".equals(vocalLabels[i].unitName)) {
+				return vocalLabels[i].endTime;
+			}
+		}
+
+		return vocalLabels[vocalLabels.length - 1].endTime;
+	}
+
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+
+		// String inDirName = "/home/sathish/phd/data/original-lab-wav-sync";
+		// String outDirName = "/home/sathish/phd/data/pauseless-lab-wav-sync";
+		String inDirName = "/home/sathish/phd/data/original_stimulus_sync";
+		String outDirName = "/home/sathish/phd/data/pauseless_stimulus_sync";
+		BasenameList bnl = new BasenameList(inDirName, ".wav");
+
+		VocalisationLabelInspector vli = new VocalisationLabelInspector(inDirName, outDirName);
+
+		for (int i = 0; i < bnl.getLength(); i++) {
+			vli.process(bnl.getName(i));
+		}
+
+	}
 
 }

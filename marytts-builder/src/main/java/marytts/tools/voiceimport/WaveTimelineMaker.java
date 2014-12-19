@@ -40,49 +40,44 @@ import java.util.TreeMap;
 import marytts.util.data.Datagram;
 import marytts.util.data.ESTTrackReader;
 
-
 /**
- * The WaveTimelineMaker class takes a database root directory and a list of basenames,
- * and split the waveforms as datagrams to be stored in a timeline in Mary format.
+ * The WaveTimelineMaker class takes a database root directory and a list of basenames, and split the waveforms as datagrams to be
+ * stored in a timeline in Mary format.
  * 
  * @author sacha
  */
-public class WaveTimelineMaker extends VoiceImportComponent
-{ 
+public class WaveTimelineMaker extends VoiceImportComponent {
 
-    protected DatabaseLayout db = null;
-    protected int percent = 0;
-    public final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
-    
-    public final String PMDIR = "db.pmDir";
-    public final String PMEXT = "db.pmExtension";
+	protected DatabaseLayout db = null;
+	protected int percent = 0;
+	public final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
 
-    public final String getName(){
-        return "WaveTimelineMaker";
-    }    
-    
-    public SortedMap getDefaultProps(DatabaseLayout db){
-       this.db = db;
-       if (props == null){
-           props = new TreeMap();
-           props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                        +"timeline_waveforms"+db.getProp(db.MARYEXT));
-       }
-       return props;
-   }
-    
-    
-    protected void setupHelp(){
-        props2Help = new TreeMap();
-        props2Help.put(WAVETIMELINE,"file containing all wave files. Will be created by this module");
-    }
-    
-    
-    /**
-     *  Reads and concatenates a list of waveforms into one single timeline file.
-     *
-     */
-    public boolean compute()
+	public final String PMDIR = "db.pmDir";
+	public final String PMEXT = "db.pmExtension";
+
+	public final String getName() {
+		return "WaveTimelineMaker";
+	}
+
+	public SortedMap getDefaultProps(DatabaseLayout db) {
+		this.db = db;
+		if (props == null) {
+			props = new TreeMap();
+			props.put(WAVETIMELINE, db.getProp(db.FILEDIR) + "timeline_waveforms" + db.getProp(db.MARYEXT));
+		}
+		return props;
+	}
+
+	protected void setupHelp() {
+		props2Help = new TreeMap();
+		props2Help.put(WAVETIMELINE, "file containing all wave files. Will be created by this module");
+	}
+
+	/**
+	 * Reads and concatenates a list of waveforms into one single timeline file.
+	 * 
+	 */
+	public boolean compute()
     {
         System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
         
@@ -194,21 +189,19 @@ public class WaveTimelineMaker extends VoiceImportComponent
         return( true );
     }
 
-    /**
-     * Provide the progress of computation, in percent, or -1 if
-     * that feature is not implemented.
-     * @return -1 if not implemented, or an integer between 0 and 100.
-     */
-    public int getProgress()
-    {
-        return percent;
-    }
-    
-    public static void main(String[] args) throws Exception
-    {        
-        VoiceImportComponent vic  =  new WaveTimelineMaker();
-        DatabaseLayout db = new DatabaseLayout(vic);
-        vic.compute();
-    }
+	/**
+	 * Provide the progress of computation, in percent, or -1 if that feature is not implemented.
+	 * 
+	 * @return -1 if not implemented, or an integer between 0 and 100.
+	 */
+	public int getProgress() {
+		return percent;
+	}
+
+	public static void main(String[] args) throws Exception {
+		VoiceImportComponent vic = new WaveTimelineMaker();
+		DatabaseLayout db = new DatabaseLayout(vic);
+		vic.compute();
+	}
 
 }

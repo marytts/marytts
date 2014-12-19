@@ -32,74 +32,70 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 
-
 /**
  * 
  * @author Marc Schr&ouml;der
  * 
- * Shows silence regions on the input signal using automatic silence detection based on energy histogram 
- *
+ *         Shows silence regions on the input signal using automatic silence detection based on energy histogram
+ * 
  */
-public class SilenceMarker extends Histogram
-{
-    public SilenceMarker(AudioInputStream ais) {
-        this(ais, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
-            
-    public SilenceMarker(AudioInputStream ais, int width, int height) {
-        super();
-        if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-            ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
-        }
-        if (ais.getFormat().getChannels() > 1) {
-            throw new IllegalArgumentException("Can only deal with mono audio signals");
-        }
-        int samplingRate = (int) ais.getFormat().getSampleRate();
-        DoubleDataSource signal = new AudioDoubleDataSource(ais);
-        initialise(signal, samplingRate, width, height);
-    }
+public class SilenceMarker extends Histogram {
+	public SilenceMarker(AudioInputStream ais) {
+		this(ais, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 
-    public SilenceMarker(double[] signal, int samplingRate)
-    {
-        this(signal, samplingRate, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
+	public SilenceMarker(AudioInputStream ais, int width, int height) {
+		super();
+		if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+			ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+		}
+		if (ais.getFormat().getChannels() > 1) {
+			throw new IllegalArgumentException("Can only deal with mono audio signals");
+		}
+		int samplingRate = (int) ais.getFormat().getSampleRate();
+		DoubleDataSource signal = new AudioDoubleDataSource(ais);
+		initialise(signal, samplingRate, width, height);
+	}
 
-    public SilenceMarker(double[] signal, int samplingRate, int width, int height)
-    {
-        initialise(new BufferedDoubleDataSource(signal), samplingRate, width, height);
-    }
-    
-    protected void initialise(DoubleDataSource signal, int samplingRate, int width, int height)
-    {
-        showYAxis = false;
-        showXAxis = false;
-        paddingTop = 5;
-        paddingBottom = 5;
-        double frameDuration = 0.01; // seconds
-        int frameLength = (int) (samplingRate*frameDuration);
-        int frameShift = frameLength / 2;
-        if (frameLength%2==0) frameLength++; // make sure frame length is odd
-        EnergyAnalyser energyAnalyser = new EnergyAnalyser(signal, frameLength, frameShift, samplingRate);
-        double silenceCutoff = energyAnalyser.getSilenceCutoff();
-        FrameBasedAnalyser.FrameAnalysisResult[] results = energyAnalyser.analyseAllFrames();
-        double[] silenceData = new double[results.length];
-        for (int i=0; i<results.length; i++) {
-            double energy = ((Double)results[i].get()).doubleValue();
-            if (energy <= silenceCutoff) silenceData[i] = 0.;
-            else silenceData[i] = 1.;
-        }
-        super.initialise(width, height, 0, (double)frameShift/samplingRate, silenceData);
-        histogramBorderColor = Color.LIGHT_GRAY;
-        setPrimaryDataSeriesStyle(histogramBorderColor, DRAW_HISTOGRAM, -1);
-    }
+	public SilenceMarker(double[] signal, int samplingRate) {
+		this(signal, samplingRate, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 
-    public static void main(String[] args) throws Exception
-    {
-        for (int i=0; i<args.length; i++) {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[i]));
-            SilenceMarker signalGraph = new SilenceMarker(ais);
-            signalGraph.showInJFrame(args[i], true, false);
-        }
-    }
+	public SilenceMarker(double[] signal, int samplingRate, int width, int height) {
+		initialise(new BufferedDoubleDataSource(signal), samplingRate, width, height);
+	}
+
+	protected void initialise(DoubleDataSource signal, int samplingRate, int width, int height) {
+		showYAxis = false;
+		showXAxis = false;
+		paddingTop = 5;
+		paddingBottom = 5;
+		double frameDuration = 0.01; // seconds
+		int frameLength = (int) (samplingRate * frameDuration);
+		int frameShift = frameLength / 2;
+		if (frameLength % 2 == 0)
+			frameLength++; // make sure frame length is odd
+		EnergyAnalyser energyAnalyser = new EnergyAnalyser(signal, frameLength, frameShift, samplingRate);
+		double silenceCutoff = energyAnalyser.getSilenceCutoff();
+		FrameBasedAnalyser.FrameAnalysisResult[] results = energyAnalyser.analyseAllFrames();
+		double[] silenceData = new double[results.length];
+		for (int i = 0; i < results.length; i++) {
+			double energy = ((Double) results[i].get()).doubleValue();
+			if (energy <= silenceCutoff)
+				silenceData[i] = 0.;
+			else
+				silenceData[i] = 1.;
+		}
+		super.initialise(width, height, 0, (double) frameShift / samplingRate, silenceData);
+		histogramBorderColor = Color.LIGHT_GRAY;
+		setPrimaryDataSeriesStyle(histogramBorderColor, DRAW_HISTOGRAM, -1);
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < args.length; i++) {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[i]));
+			SilenceMarker signalGraph = new SilenceMarker(ais);
+			signalGraph.showInJFrame(args[i], true, false);
+		}
+	}
 }
-

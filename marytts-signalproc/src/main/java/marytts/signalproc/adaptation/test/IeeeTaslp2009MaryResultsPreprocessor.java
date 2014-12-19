@@ -38,23 +38,20 @@ import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * This class implements the acoustic post-processor in an attempt to improve intelligibility 
- * of TTS outputs passed from a telephone channel in Blizzard 2009. The algorithm is based on 
- * some basic processing to enhance formants, to boost consonant gains as compared to vowels,
- * and optional highpass filtering.
+ * This class implements the acoustic post-processor in an attempt to improve intelligibility of TTS outputs passed from a
+ * telephone channel in Blizzard 2009. The algorithm is based on some basic processing to enhance formants, to boost consonant
+ * gains as compared to vowels, and optional highpass filtering.
  * 
- * Reference:
- * M. Schröder, S. Pammi, and O. Türk, "Multilingual MARY TTS participation in the Blizzard Challenge 2009",
- *    in Proc. of the Blizzard Challenge 2009. 
+ * Reference: M. Schröder, S. Pammi, and O. Türk, "Multilingual MARY TTS participation in the Blizzard Challenge 2009", in Proc.
+ * of the Blizzard Challenge 2009.
  * 
  * @author oytun.turk
- *
+ * 
  */
-public class IeeeTaslp2009MaryResultsPreprocessor 
-{    
-    //Search for all .txt files, read them, extract test results, and write all results to a separate, single file
-    //Also compute total time it took for each .txt file to be completed by the subject
-    public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile)
+public class IeeeTaslp2009MaryResultsPreprocessor {
+	// Search for all .txt files, read them, extract test results, and write all results to a separate, single file
+	// Also compute total time it took for each .txt file to be completed by the subject
+	public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile)
     throws IOException
     {
         String strTmp;
@@ -120,28 +117,27 @@ public class IeeeTaslp2009MaryResultsPreprocessor
         }
     }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws Exception
-    {    
-        //Emotion
-        String[] emoResultsFolders = {"D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/EmotionA", 
-                                      "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/EmotionB"};
-        String completeEmoResultsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/completeEmo.txt";
-        String totalEmoDurationsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/durationsEmo.txt";
-        
-        combineResults(emoResultsFolders, completeEmoResultsFile, totalEmoDurationsFile);
-        //
-        
-        //MOS
-        String[] mosResultsFolders = {"D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/MOSA", 
-                                      "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/MOSB"};
-        String completeMOSResultsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/completeMOS.txt";
-        String totalMOSDurationsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/durationsMOS.txt";
-        
-        combineResults(mosResultsFolders, completeMOSResultsFile, totalMOSDurationsFile);
-        //
-    }
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception {
+		// Emotion
+		String[] emoResultsFolders = { "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/EmotionA",
+				"D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/EmotionB" };
+		String completeEmoResultsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/completeEmo.txt";
+		String totalEmoDurationsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/durationsEmo.txt";
+
+		combineResults(emoResultsFolders, completeEmoResultsFile, totalEmoDurationsFile);
+		//
+
+		// MOS
+		String[] mosResultsFolders = { "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/MOSA",
+				"D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/MOSB" };
+		String completeMOSResultsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/completeMOS.txt";
+		String totalMOSDurationsFile = "D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/durationsMOS.txt";
+
+		combineResults(mosResultsFolders, completeMOSResultsFile, totalMOSDurationsFile);
+		//
+	}
 
 }

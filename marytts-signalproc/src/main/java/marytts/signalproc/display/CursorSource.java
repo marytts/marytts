@@ -21,12 +21,12 @@ package marytts.signalproc.display;
 
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public interface CursorSource
-{
-    public CursorDisplayer.CursorLine getPositionCursor();
-    public CursorDisplayer.CursorLine getRangeCursor();
-    public CursorDisplayer.Label getValueLabel();
-}
+public interface CursorSource {
+	public CursorDisplayer.CursorLine getPositionCursor();
 
+	public CursorDisplayer.CursorLine getRangeCursor();
+
+	public CursorDisplayer.Label getValueLabel();
+}

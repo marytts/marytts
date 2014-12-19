@@ -27,40 +27,39 @@ import marytts.unitselection.data.UnitFileReader;
 
 /**
  * @author marc
- *
+ * 
  */
-public class DurationDistanceMeasure implements DistanceMeasure
-{
-    private UnitFileReader units;
-    
-    public DurationDistanceMeasure(UnitFileReader units)
-    throws IOException
-    {
-        this.units = units;
-    }
-    
-    /**
-     * Compute the distance between the f0 contours corresponding to the given feature vectors.
-     * From the feature vectors, only their unit index number is used.
-     * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector, marytts.features.FeatureVector)
-     */
-    public float distance(FeatureVector fv1, FeatureVector fv2)
-    {
-        float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float)units.getSampleRate();
-        float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float)units.getSampleRate();
-        return Math.abs(d1-d2);
-    }
+public class DurationDistanceMeasure implements DistanceMeasure {
+	private UnitFileReader units;
 
-    /**
-     * Compute the distance between the f0 contours corresponding to the given feature vectors.
-     * From the feature vectors, only their unit index number is used.
-     * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector, marytts.features.FeatureVector)
-     */
-    public float squaredDistance(FeatureVector fv1, FeatureVector fv2)
-    {
-        float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float)units.getSampleRate();
-        float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float)units.getSampleRate();
-        float diff = d1-d2;
-        return diff*diff;
-    }
+	public DurationDistanceMeasure(UnitFileReader units) throws IOException {
+		this.units = units;
+	}
+
+	/**
+	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
+	 * their unit index number is used.
+	 * 
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
+	 *      marytts.features.FeatureVector)
+	 */
+	public float distance(FeatureVector fv1, FeatureVector fv2) {
+		float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float) units.getSampleRate();
+		float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float) units.getSampleRate();
+		return Math.abs(d1 - d2);
+	}
+
+	/**
+	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
+	 * their unit index number is used.
+	 * 
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
+	 *      marytts.features.FeatureVector)
+	 */
+	public float squaredDistance(FeatureVector fv1, FeatureVector fv2) {
+		float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float) units.getSampleRate();
+		float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float) units.getSampleRate();
+		float diff = d1 - d2;
+		return diff * diff;
+	}
 }

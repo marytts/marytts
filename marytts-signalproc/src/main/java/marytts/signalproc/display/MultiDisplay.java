@@ -39,177 +39,148 @@ import javax.swing.ScrollPaneConstants;
 
 import marytts.util.data.audio.MaryAudioUtils;
 
-
 /**
  * @author marc
  * 
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ *         To change the template for this generated type comment go to Window>Preferences>Java>Code Generation>Code and Comments
  * 
  */
-public class MultiDisplay extends JFrame
-{
-    public static final int DEFAULT_WIDTH = 800;
+public class MultiDisplay extends JFrame {
+	public static final int DEFAULT_WIDTH = 800;
 
-    public static final int DEFAULT_HEIGHT = 600;
+	public static final int DEFAULT_HEIGHT = 600;
 
-    protected SignalGraph signalGraph;
+	protected SignalGraph signalGraph;
 
-    protected Spectrogram spectrogram;
+	protected Spectrogram spectrogram;
 
-    protected F0Graph f0Graph;
+	protected F0Graph f0Graph;
 
-    protected EnergyGraph energyGraph;
-    
-    protected SilenceMarker silenceMarker;
+	protected EnergyGraph energyGraph;
 
-    protected List allGraphs = new ArrayList();
+	protected SilenceMarker silenceMarker;
 
-    public MultiDisplay(AudioInputStream ais, String title)
-    {
-        this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
+	protected List allGraphs = new ArrayList();
 
-    public MultiDisplay(AudioInputStream ais, String title, boolean exitOnClose)
-    {
-        this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT, exitOnClose);
-    }
+	public MultiDisplay(AudioInputStream ais, String title) {
+		this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 
-    public MultiDisplay(AudioInputStream ais, String title, int width,
-            int height, boolean exitOnClose)
-    {
-        super(title);
-        if (!ais.getFormat().getEncoding().equals(
-                AudioFormat.Encoding.PCM_SIGNED)) {
-            ais = AudioSystem.getAudioInputStream(
-                    AudioFormat.Encoding.PCM_SIGNED, ais);
-        }
-        if (ais.getFormat().getChannels() > 1) {
-            throw new IllegalArgumentException(
-                    "Can only deal with mono audio signals");
-        }
-        int samplingRate = (int) ais.getFormat().getSampleRate();
-        double[] audioData = MaryAudioUtils.getSamplesAsDoubleArray(ais);
-        initialise(audioData, samplingRate, width, height, exitOnClose);
-    }
+	public MultiDisplay(AudioInputStream ais, String title, boolean exitOnClose) {
+		this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT, exitOnClose);
+	}
 
-    public MultiDisplay(AudioInputStream ais, String title, int width,
-            int height)
-    {
-        this(ais, title, width, height, true);
-    }
+	public MultiDisplay(AudioInputStream ais, String title, int width, int height, boolean exitOnClose) {
+		super(title);
+		if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+			ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+		}
+		if (ais.getFormat().getChannels() > 1) {
+			throw new IllegalArgumentException("Can only deal with mono audio signals");
+		}
+		int samplingRate = (int) ais.getFormat().getSampleRate();
+		double[] audioData = MaryAudioUtils.getSamplesAsDoubleArray(ais);
+		initialise(audioData, samplingRate, width, height, exitOnClose);
+	}
 
-    public MultiDisplay(double[] signal, int samplingRate, String title,
-            int width, int height)
-    {
-        super(title);
-        initialise(signal, samplingRate, width, height, true);
-    }
+	public MultiDisplay(AudioInputStream ais, String title, int width, int height) {
+		this(ais, title, width, height, true);
+	}
 
-    public MultiDisplay(double[] signal, int samplingRate, String title,
-            int width, int height, boolean exitOnClose)
-    {
-        super(title);
-        initialise(signal, samplingRate, width, height, exitOnClose);
-    }
+	public MultiDisplay(double[] signal, int samplingRate, String title, int width, int height) {
+		super(title);
+		initialise(signal, samplingRate, width, height, true);
+	}
 
-    protected void initialise(double[] signal, int samplingRate, int width,
-            int height, boolean exitOnClose)
-    {
-        setSize(width, height);
-        JPanel zoomPanel = new JPanel();
-        zoomPanel.setLayout(new BoxLayout(zoomPanel, BoxLayout.Y_AXIS));
-        getContentPane().add(zoomPanel, BorderLayout.WEST);
-        JButton zoomIn = new JButton("Zoom In");
-        zoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                changeZoomX(2);
-                signalGraph.requestFocus();
-            }
-        });
-        zoomPanel.add(zoomIn);
-        JButton zoomOut = new JButton("Zoom Out");
-        zoomOut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                changeZoomX(0.5);
-                signalGraph.requestFocus();
-            }
-        });
-        zoomPanel.add(zoomOut);
+	public MultiDisplay(double[] signal, int samplingRate, String title, int width, int height, boolean exitOnClose) {
+		super(title);
+		initialise(signal, samplingRate, width, height, exitOnClose);
+	}
 
-        int graphWidth = width - zoomPanel.getPreferredSize().width - 30;
-        JPanel graphPanel = new JPanel();
-        graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
+	protected void initialise(double[] signal, int samplingRate, int width, int height, boolean exitOnClose) {
+		setSize(width, height);
+		JPanel zoomPanel = new JPanel();
+		zoomPanel.setLayout(new BoxLayout(zoomPanel, BoxLayout.Y_AXIS));
+		getContentPane().add(zoomPanel, BorderLayout.WEST);
+		JButton zoomIn = new JButton("Zoom In");
+		zoomIn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				changeZoomX(2);
+				signalGraph.requestFocus();
+			}
+		});
+		zoomPanel.add(zoomIn);
+		JButton zoomOut = new JButton("Zoom Out");
+		zoomOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				changeZoomX(0.5);
+				signalGraph.requestFocus();
+			}
+		});
+		zoomPanel.add(zoomOut);
 
-        JScrollPane scroll = new JScrollPane(graphPanel);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        getContentPane().add(scroll, BorderLayout.CENTER);
-        signalGraph = new SignalGraph(signal, samplingRate, graphWidth,
-                height * 15 / 100);
-        allGraphs.add(signalGraph);
-        spectrogram = new Spectrogram(signal, samplingRate, graphWidth,
-                height * 40 / 100);
-        allGraphs.add(spectrogram);
-        f0Graph = new F0Graph(signal, samplingRate, graphWidth,
-                height * 20 / 100);
-        allGraphs.add(f0Graph);
-        energyGraph = new EnergyGraph(signal, samplingRate, graphWidth,
-                height * 15 / 100);
-        allGraphs.add(energyGraph);
-        silenceMarker = new SilenceMarker(signal, samplingRate, graphWidth,
-                height * 5 / 100);
-        allGraphs.add(silenceMarker);
+		int graphWidth = width - zoomPanel.getPreferredSize().width - 30;
+		JPanel graphPanel = new JPanel();
+		graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
 
-        final CursorDisplayer glass = new CursorDisplayer();
-        setGlassPane(glass);
-        glass.setVisible(true);
+		JScrollPane scroll = new JScrollPane(graphPanel);
+		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		getContentPane().add(scroll, BorderLayout.CENTER);
+		signalGraph = new SignalGraph(signal, samplingRate, graphWidth, height * 15 / 100);
+		allGraphs.add(signalGraph);
+		spectrogram = new Spectrogram(signal, samplingRate, graphWidth, height * 40 / 100);
+		allGraphs.add(spectrogram);
+		f0Graph = new F0Graph(signal, samplingRate, graphWidth, height * 20 / 100);
+		allGraphs.add(f0Graph);
+		energyGraph = new EnergyGraph(signal, samplingRate, graphWidth, height * 15 / 100);
+		allGraphs.add(energyGraph);
+		silenceMarker = new SilenceMarker(signal, samplingRate, graphWidth, height * 5 / 100);
+		allGraphs.add(silenceMarker);
 
-        for (Iterator it = allGraphs.iterator(); it.hasNext();) {
-            FunctionGraph g = (FunctionGraph) it.next();
-            graphPanel.add(g);
-            // Now register every graph with every other graph as a
-            // listener/source pair:
-            for (Iterator it2 = allGraphs.iterator(); it2.hasNext();) {
-                FunctionGraph g2 = (FunctionGraph) it2.next();
-                if (g2 != g) {
-                    g.addCursorListener(g2);
-                }
-            }
-            glass.addCursorSource(g);
-            g.addCursorListener(glass);
-        }
+		final CursorDisplayer glass = new CursorDisplayer();
+		setGlassPane(glass);
+		glass.setVisible(true);
 
-        if (exitOnClose) {
-            addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent evt)
-                {
-                    System.exit(0);
-                }
-            });
-        }
-        
-        setVisible(true);
-        signalGraph.requestFocus();
-    }
+		for (Iterator it = allGraphs.iterator(); it.hasNext();) {
+			FunctionGraph g = (FunctionGraph) it.next();
+			graphPanel.add(g);
+			// Now register every graph with every other graph as a
+			// listener/source pair:
+			for (Iterator it2 = allGraphs.iterator(); it2.hasNext();) {
+				FunctionGraph g2 = (FunctionGraph) it2.next();
+				if (g2 != g) {
+					g.addCursorListener(g2);
+				}
+			}
+			glass.addCursorSource(g);
+			g.addCursorListener(glass);
+		}
 
-    protected void changeZoomX(double factor)
-    {
-        for (Iterator it = allGraphs.iterator(); it.hasNext();) {
-            FunctionGraph g = (FunctionGraph) it.next();
-            g.setZoomX(g.getZoomX() * factor);
-        }
-    }
+		if (exitOnClose) {
+			addWindowListener(new java.awt.event.WindowAdapter() {
+				public void windowClosing(java.awt.event.WindowEvent evt) {
+					System.exit(0);
+				}
+			});
+		}
 
-    public static void main(String[] args) throws Exception
-    {
-        for (int i = 0; i < args.length; i++) {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File(
-                    args[i]));
-            MultiDisplay multiDisplay = new MultiDisplay(ais, args[i]);
-        }
+		setVisible(true);
+		signalGraph.requestFocus();
+	}
 
-    }
+	protected void changeZoomX(double factor) {
+		for (Iterator it = allGraphs.iterator(); it.hasNext();) {
+			FunctionGraph g = (FunctionGraph) it.next();
+			g.setZoomX(g.getZoomX() * factor);
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < args.length; i++) {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[i]));
+			MultiDisplay multiDisplay = new MultiDisplay(ais, args[i]);
+		}
+
+	}
 }

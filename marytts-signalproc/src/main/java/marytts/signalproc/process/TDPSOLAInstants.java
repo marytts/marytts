@@ -31,26 +31,22 @@ package marytts.signalproc.process;
 
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class TDPSOLAInstants {
-    public float[] synthesisInstantsInSeconds;
-    public float[] analysisInstantsInSeconds;
-    public int[] repeatSkipCounts;
-    
-    public TDPSOLAInstants(int totalSynthesisFrames)
-    {
-        if (totalSynthesisFrames>0)
-        {
-            synthesisInstantsInSeconds = new float[totalSynthesisFrames];
-            analysisInstantsInSeconds = new float[totalSynthesisFrames];
-            repeatSkipCounts = new int[totalSynthesisFrames];
-        }
-        else
-        {
-            synthesisInstantsInSeconds = null;
-            analysisInstantsInSeconds = null;
-            repeatSkipCounts = null;
-        }
-    }
+	public float[] synthesisInstantsInSeconds;
+	public float[] analysisInstantsInSeconds;
+	public int[] repeatSkipCounts;
+
+	public TDPSOLAInstants(int totalSynthesisFrames) {
+		if (totalSynthesisFrames > 0) {
+			synthesisInstantsInSeconds = new float[totalSynthesisFrames];
+			analysisInstantsInSeconds = new float[totalSynthesisFrames];
+			repeatSkipCounts = new int[totalSynthesisFrames];
+		} else {
+			synthesisInstantsInSeconds = null;
+			analysisInstantsInSeconds = null;
+			repeatSkipCounts = null;
+		}
+	}
 }

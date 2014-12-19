@@ -28,88 +28,86 @@ import javax.sound.sampled.AudioSystem;
 import marytts.util.data.BaseDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 
-
-
 /**
- * @author Marc Schr&ouml;der
- * A Double Data Source reading doubles from a Reader, in their string representation.
- * The Reader is expected to contain the text representation of exactly one double per line.
+ * @author Marc Schr&ouml;der A Double Data Source reading doubles from a Reader, in their string representation. The Reader is
+ *         expected to contain the text representation of exactly one double per line.
  */
 public class AudioDoubleDataSource extends BaseDoubleDataSource {
-    public static final int BYTEBUFFER_LENGTH = 65532; // multiple of 4 and 6, to allow for 16 and 24 bit
-    protected AudioInputStream ais;
-    protected byte[] byteBuf;
-    protected int samplingRate;
-    protected int bytesPerSample;
-    protected boolean bigEndian;
-    protected boolean hasMoreData;
-    protected boolean bAutomaticClippingControl;
-    protected double [] scales;
-    protected int scaleInd;
-    
-    /**
-     * Initialise this double data source with the AudioInputStream from which
-     * samples can be read.
-     * @throws IllegalArgumentException if the audio input stream does not have 8, 16 or 24 bits per sample. 
-     */
-    public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
-        this.ais = ais;
-        if (ais.getFormat().getChannels() > 1) {
-            throw new IllegalArgumentException("Can only deal with mono signals");
-        }
-        int bitsPerSample = ais.getFormat().getSampleSizeInBits();
-        if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
-            throw new IllegalArgumentException("Can deal with sample size 8, 16 or 24, but not " + bitsPerSample);
-        }   
-        this.bytesPerSample = bitsPerSample / 8;
-        this.bigEndian = ais.getFormat().isBigEndian();
-        this.samplingRate = (int) ais.getFormat().getSampleRate();
-        this.byteBuf = new byte[BYTEBUFFER_LENGTH];
-        this.hasMoreData = true;
-        
-        this.scaleInd = -1;
-        this.bAutomaticClippingControl = isAutomaticClippingControl;
-        if (bAutomaticClippingControl)
-        {
-            scales = new double[20];
-            for (int i=0; i<scales.length; i++)
-                scales[i] = 1.0;
-        }
-        else
-            scales = null;
-    }
-    
-    public AudioDoubleDataSource(AudioInputStream ais) {
-        this(ais, false);
-    }
+	public static final int BYTEBUFFER_LENGTH = 65532; // multiple of 4 and 6, to allow for 16 and 24 bit
+	protected AudioInputStream ais;
+	protected byte[] byteBuf;
+	protected int samplingRate;
+	protected int bytesPerSample;
+	protected boolean bigEndian;
+	protected boolean hasMoreData;
+	protected boolean bAutomaticClippingControl;
+	protected double[] scales;
+	protected int scaleInd;
 
-    /**
-     * Get the sampling rate of the audio data.
-     * @return the sampling rate
-     */
-    public int getSamplingRate()
-    {
-        return samplingRate;
-    }
+	/**
+	 * Initialise this double data source with the AudioInputStream from which samples can be read.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the audio input stream does not have 8, 16 or 24 bits per sample.
+	 */
+	public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
+		this.ais = ais;
+		if (ais.getFormat().getChannels() > 1) {
+			throw new IllegalArgumentException("Can only deal with mono signals");
+		}
+		int bitsPerSample = ais.getFormat().getSampleSizeInBits();
+		if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
+			throw new IllegalArgumentException("Can deal with sample size 8, 16 or 24, but not " + bitsPerSample);
+		}
+		this.bytesPerSample = bitsPerSample / 8;
+		this.bigEndian = ais.getFormat().isBigEndian();
+		this.samplingRate = (int) ais.getFormat().getSampleRate();
+		this.byteBuf = new byte[BYTEBUFFER_LENGTH];
+		this.hasMoreData = true;
 
-    public AudioFormat getAudioFormat()
-    {
-        return ais.getFormat();
-    }
-    
-    /**
-     * Try to get length doubles from this DoubleDataSource, and copy them into target, starting from targetPos.
-     * This is the core method getting the data. Subclasses may want to override this method.
-     * If an exception occurs reading from the underlying reader, or converting data to double,
-     * the method will print a stack trace to standard error, but otherwise will 
-     * silently stop and behave as if all data was read.
-     * @param target the double array to write into
-     * @param targetPos position in target where to start writing
-     * @param length the amount of data requested
-     * @return the amount of data actually delivered. If the returned value is less than length,
-     * only that many data items have been copied into target; further calls will return 0 and not copy anything.
-     */
-    public int getData(double[] target, int targetPos, int length)
+		this.scaleInd = -1;
+		this.bAutomaticClippingControl = isAutomaticClippingControl;
+		if (bAutomaticClippingControl) {
+			scales = new double[20];
+			for (int i = 0; i < scales.length; i++)
+				scales[i] = 1.0;
+		} else
+			scales = null;
+	}
+
+	public AudioDoubleDataSource(AudioInputStream ais) {
+		this(ais, false);
+	}
+
+	/**
+	 * Get the sampling rate of the audio data.
+	 * 
+	 * @return the sampling rate
+	 */
+	public int getSamplingRate() {
+		return samplingRate;
+	}
+
+	public AudioFormat getAudioFormat() {
+		return ais.getFormat();
+	}
+
+	/**
+	 * Try to get length doubles from this DoubleDataSource, and copy them into target, starting from targetPos. This is the core
+	 * method getting the data. Subclasses may want to override this method. If an exception occurs reading from the underlying
+	 * reader, or converting data to double, the method will print a stack trace to standard error, but otherwise will silently
+	 * stop and behave as if all data was read.
+	 * 
+	 * @param target
+	 *            the double array to write into
+	 * @param targetPos
+	 *            position in target where to start writing
+	 * @param length
+	 *            the amount of data requested
+	 * @return the amount of data actually delivered. If the returned value is less than length, only that many data items have
+	 *         been copied into target; further calls will return 0 and not copy anything.
+	 */
+	public int getData(double[] target, int targetPos, int length)
     {
         int currentPos = targetPos;
         int totalCopied = 0;
@@ -186,36 +184,36 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
         return totalCopied;
     }
 
-    /**
-     * Whether or not any more data can be read from this data source.
-     * @return true if another call to getData() will return data, false otherwise.
-     */
-    public boolean hasMoreData()
-    {
-        return hasMoreData; 
-    }
-    
-    /**
-     * The number of doubles that can currently be read from this 
-     * double data source without blocking. This number can change over time.
-     * @return the number of doubles that can currently be read without blocking 
-     */
-    public int available()
-    {
-        try {
-            int bytes = ais.available();
-            return bytes / bytesPerSample;
-        } catch (IOException e) {
-            return 0;
-        }
-    }
-    
-    public long getDataLength()
-    {
-        long frameLength = ais.getFrameLength();
-        if (frameLength == AudioSystem.NOT_SPECIFIED) return DoubleDataSource.NOT_SPECIFIED;
-        else return frameLength;
-    }
-    
-}
+	/**
+	 * Whether or not any more data can be read from this data source.
+	 * 
+	 * @return true if another call to getData() will return data, false otherwise.
+	 */
+	public boolean hasMoreData() {
+		return hasMoreData;
+	}
 
+	/**
+	 * The number of doubles that can currently be read from this double data source without blocking. This number can change over
+	 * time.
+	 * 
+	 * @return the number of doubles that can currently be read without blocking
+	 */
+	public int available() {
+		try {
+			int bytes = ais.available();
+			return bytes / bytesPerSample;
+		} catch (IOException e) {
+			return 0;
+		}
+	}
+
+	public long getDataLength() {
+		long frameLength = ais.getFrameLength();
+		if (frameLength == AudioSystem.NOT_SPECIFIED)
+			return DoubleDataSource.NOT_SPECIFIED;
+		else
+			return frameLength;
+	}
+
+}

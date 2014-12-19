@@ -21,46 +21,44 @@ package marytts.util.data;
 
 import java.util.Arrays;
 
-
 public class SilenceDoubleDataSource extends BaseDoubleDataSource {
-    protected long n;
-    
-    /**
-     * Construct an double data source from which a given amount of
-     * silence can be read.
-     * @param n the number of silence samples to be read
-     */
-    public SilenceDoubleDataSource(long n) {
-        super();
-        this.n = n;
-        dataLength = n;
-    }
+	protected long n;
 
-    public boolean hasMoreData()
-    {
-        return n > 0;
-    }
-    
-    /**
-     * The number of doubles that can currently be read from this 
-     * double data source without blocking. This number can change over time.
-     * @return the number of doubles that can currently be read without blocking 
-     */
-    public int available()
-    {
-        return (int)n;
-    }
-    
-    public int getData(double[] target, int targetPos, int length)
-    {
-        if (target.length - targetPos < length) {
-            throw new IllegalArgumentException("Target array cannot hold enough data ("+(target.length-targetPos) + " left, but " + length + " requested)");
-        }
-        int toCopy = (int) Math.min(length, n);
-        Arrays.fill(target, targetPos, targetPos+toCopy, 0.);
-        n -= toCopy;
-        return toCopy;
-    }
+	/**
+	 * Construct an double data source from which a given amount of silence can be read.
+	 * 
+	 * @param n
+	 *            the number of silence samples to be read
+	 */
+	public SilenceDoubleDataSource(long n) {
+		super();
+		this.n = n;
+		dataLength = n;
+	}
+
+	public boolean hasMoreData() {
+		return n > 0;
+	}
+
+	/**
+	 * The number of doubles that can currently be read from this double data source without blocking. This number can change over
+	 * time.
+	 * 
+	 * @return the number of doubles that can currently be read without blocking
+	 */
+	public int available() {
+		return (int) n;
+	}
+
+	public int getData(double[] target, int targetPos, int length) {
+		if (target.length - targetPos < length) {
+			throw new IllegalArgumentException("Target array cannot hold enough data (" + (target.length - targetPos)
+					+ " left, but " + length + " requested)");
+		}
+		int toCopy = (int) Math.min(length, n);
+		Arrays.fill(target, targetPos, targetPos + toCopy, 0.);
+		n -= toCopy;
+		return toCopy;
+	}
 
 }
-

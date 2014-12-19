@@ -21,74 +21,70 @@ package marytts.tools.redstart;
 
 import javax.swing.table.AbstractTableModel;
 
-
 /**
- *
+ * 
  * @author Mat Wilson <mat.wilson@dfki.de>
  */
 public class PromptTableModel extends AbstractTableModel {
-    
-    /** Creates a new instance of PromptTableModel */
-    private String[] columnNames;
-    protected static final int REC_STATUS_COLUMN = 0;     // First column is recording status 
-    protected static final int BASENAME_COLUMN = 1;       // Second column is basename
-    protected static final int PROMPT_TEXT_COLUMN = 2;    // Third collumn is prompt text
-    private boolean redAlertMode = false; 			  // if true show red alert portion of text
-    
-    final Object[][] data;
-    
-    public PromptTableModel(Prompt[] promptArray, String[] columnNames, boolean redAlertMode) {
-        this.columnNames = columnNames;
-        this.redAlertMode = redAlertMode;
-        this.data = this.buildDataArray(promptArray);
-    }
 
-   public boolean isCellEditable(int row, int col) {
-        return false;
-   }
+	/** Creates a new instance of PromptTableModel */
+	private String[] columnNames;
+	protected static final int REC_STATUS_COLUMN = 0; // First column is recording status
+	protected static final int BASENAME_COLUMN = 1; // Second column is basename
+	protected static final int PROMPT_TEXT_COLUMN = 2; // Third collumn is prompt text
+	private boolean redAlertMode = false; // if true show red alert portion of text
 
-    public int getColumnCount() {
-        return columnNames.length;
-    }
+	final Object[][] data;
 
-    public int getRowCount() {
-        return data.length;
-    }
+	public PromptTableModel(Prompt[] promptArray, String[] columnNames, boolean redAlertMode) {
+		this.columnNames = columnNames;
+		this.redAlertMode = redAlertMode;
+		this.data = this.buildDataArray(promptArray);
+	}
 
-    public String getColumnName(int column) {
-        return columnNames[column];
-    }
+	public boolean isCellEditable(int row, int col) {
+		return false;
+	}
 
-    public Object getValueAt(int row, int column) {
-        return data[row][column];
-    }
+	public int getColumnCount() {
+		return columnNames.length;
+	}
 
-    public Class getColumnClass(int c) {
-        return String.class;
-    }
+	public int getRowCount() {
+		return data.length;
+	}
 
-    private Object[][] buildDataArray(Prompt[] promptArray) {
-        
-        Object[][] promptMatrix = new Object[promptArray.length][columnNames.length];
-        
-        for (int row = 0; row < promptArray.length; row++) {
-            promptMatrix[row][REC_STATUS_COLUMN] = ""; // update this asynchronously later, it takes time;
-            promptMatrix[row][BASENAME_COLUMN] = promptArray[row].getBasename();
+	public String getColumnName(int column) {
+		return columnNames[column];
+	}
+
+	public Object getValueAt(int row, int column) {
+		return data[row][column];
+	}
+
+	public Class getColumnClass(int c) {
+		return String.class;
+	}
+
+	private Object[][] buildDataArray(Prompt[] promptArray) {
+
+		Object[][] promptMatrix = new Object[promptArray.length][columnNames.length];
+
+		for (int row = 0; row < promptArray.length; row++) {
+			promptMatrix[row][REC_STATUS_COLUMN] = ""; // update this asynchronously later, it takes time;
+			promptMatrix[row][BASENAME_COLUMN] = promptArray[row].getBasename();
 			if (!redAlertMode)
 				promptMatrix[row][PROMPT_TEXT_COLUMN] = promptArray[row].getPromptText();
 			else
 				// the replace function in the line below is used only for the red alert mode
 				promptMatrix[row][PROMPT_TEXT_COLUMN] = promptArray[row].getPromptText().replace("_", "");
-        }
-        return promptMatrix;
-    }
-    
-    
-    public void setValueAt(Object obj, int row, int col)
-    {
-        data[row][col] = obj;
-        fireTableCellUpdated(row, col);
-    }
-    
-}
+		}
+		return promptMatrix;
+	}
 
+	public void setValueAt(Object obj, int row, int col) {
+		data[row][col] = obj;
+		fireTableCellUpdated(row, col);
+	}
+
+}

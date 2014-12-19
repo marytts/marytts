@@ -22,31 +22,42 @@ package marytts.modules;
 import marytts.datatypes.MaryData;
 
 /**
- *
+ * 
  * @author Marc Schr&ouml;der
  */
-public class ExternalModuleRequest
-{
-    private MaryData input = null;
-    public synchronized MaryData getInput() { return input; }
-    private synchronized void setInput(MaryData input) {
-        this.input = input;
-    }
-    private MaryData output = null;
-    public synchronized MaryData getOutput() { return output; }
-    public synchronized void setOutput(MaryData output) {
-        this.output = output;
-    }
+public class ExternalModuleRequest {
+	private MaryData input = null;
 
-    private boolean problem = false;
-    public synchronized boolean problemOccurred() { return problem; }
-    public synchronized void setProblemOccurred(boolean problem) {
-        this.problem = problem;
-    }
+	public synchronized MaryData getInput() {
+		return input;
+	}
 
-    public ExternalModuleRequest(MaryData input) {
-        setInput(input);
-    }
+	private synchronized void setInput(MaryData input) {
+		this.input = input;
+	}
+
+	private MaryData output = null;
+
+	public synchronized MaryData getOutput() {
+		return output;
+	}
+
+	public synchronized void setOutput(MaryData output) {
+		this.output = output;
+	}
+
+	private boolean problem = false;
+
+	public synchronized boolean problemOccurred() {
+		return problem;
+	}
+
+	public synchronized void setProblemOccurred(boolean problem) {
+		this.problem = problem;
+	}
+
+	public ExternalModuleRequest(MaryData input) {
+		setInput(input);
+	}
 
 }
-

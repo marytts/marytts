@@ -27,20 +27,23 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
  * 
  * Baseline class for mapping different acoustic features
  * 
- *  @author Oytun T&uumlrk
+ * @author Oytun T&uumlrk
  */
 public abstract class WeightedCodebookFeatureMapper {
-    //Implement functionality in derived classes!
-    public abstract void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map)
-    throws IOException;
-    public abstract void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map)
-    throws IOException;
-    public abstract void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map)
-    throws IOException;
-    public abstract void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map)
-    throws IOException;
-    public abstract void learnMappingSpeech(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map)
-    throws IOException;  
-    //
-}
+	// Implement functionality in derived classes!
+	public abstract void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException;
 
+	public abstract void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException;
+
+	public abstract void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException;
+
+	public abstract void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException;
+
+	public abstract void learnMappingSpeech(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol,
+			BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int[] map) throws IOException;
+	//
+}

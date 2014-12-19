@@ -48,95 +48,99 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
-
 /**
  * Predict phone durations using a CART.
- *
+ * 
  * @author Marc Schr&ouml;der
  * @deprecated
  */
 
-public class CARTDurationModeller extends InternalModule
-{
-    protected DirectedGraph cart = new CART();
-    // TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
-    protected StringPredictionTree pausetree;
-    protected TargetFeatureComputer featureComputer;
-    protected TargetFeatureComputer pauseFeatureComputer;
-    private String propertyPrefix;
-    private FeatureProcessorManager featureProcessorManager;
+public class CARTDurationModeller extends InternalModule {
+	protected DirectedGraph cart = new CART();
+	// TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
+	protected StringPredictionTree pausetree;
+	protected TargetFeatureComputer featureComputer;
+	protected TargetFeatureComputer pauseFeatureComputer;
+	private String propertyPrefix;
+	private FeatureProcessorManager featureProcessorManager;
 
-    /**
-     * Constructor which can be directly called from init info in the config file.
-     * This constructor will use the registered feature processor manager for the given locale.
-     * @param locale a locale string, e.g. "en"
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-     * @throws Exception
-     */
-    public CARTDurationModeller(String locale, String propertyPrefix)
-    throws Exception {
-        this(MaryUtils.string2locale(locale), propertyPrefix,
-                FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
-    }
-    
-    /**
-     * Constructor which can be directly called from init info in the config file.
-     * Different languages can call this code with different settings.
-     * @param locale a locale string, e.g. "en"
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-     * @param featprocClassInfo a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
-     * @throws Exception
-     */
-    public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo)
-    throws Exception
-    {
-        this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)MaryRuntimeUtils.instantiateObject(featprocClassInfo));
-    }
-    
-    /**
-     * Constructor to be called with instantiated objects.
-     * @param locale
-     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-     * @praam featureProcessorManager the manager to use when looking up feature processors.
-     */
-    protected CARTDurationModeller(Locale locale,
-               String propertyPrefix, FeatureProcessorManager featureProcessorManager)
-    {
-        super("CARTDurationModeller",
-                MaryDataType.ALLOPHONES,
-                MaryDataType.DURATIONS, locale);
-        if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
-        else this.propertyPrefix = propertyPrefix + ".";
-        this.featureProcessorManager = featureProcessorManager;
-    }
+	/**
+	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
+	 * feature processor manager for the given locale.
+	 * 
+	 * @param locale
+	 *            a locale string, e.g. "en"
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+	 * @throws Exception
+	 */
+	public CARTDurationModeller(String locale, String propertyPrefix) throws Exception {
+		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
+				.string2locale(locale)));
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
-        String cartFilename = MaryProperties.getFilename(propertyPrefix+"cart");
-        if (cartFilename != null) { // there is a default model for the language
-            File cartFile = new File(cartFilename);
-            cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
-            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition().getFeatureNames());
-        } else {
-            cart = null;
-        }
-        
-        String pauseFilename = MaryProperties.getFilename(propertyPrefix+"pausetree");
-        if (pauseFilename != null) {
-            File pauseFile = new File(pauseFilename);
+	/**
+	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
+	 * different settings.
+	 * 
+	 * @param locale
+	 *            a locale string, e.g. "en"
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+	 * @param featprocClassInfo
+	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
+	 * @throws Exception
+	 */
+	public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
+		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
+				.instantiateObject(featprocClassInfo));
+	}
 
-            File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix+"pausefeatures"));
-            FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)), false);
-            pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
-            pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
-        } else {
-            this.pausetree = null;
-        }
-    }
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 * @param propertyPrefix
+	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 */
+	protected CARTDurationModeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
+		super("CARTDurationModeller", MaryDataType.ALLOPHONES, MaryDataType.DURATIONS, locale);
+		if (propertyPrefix.endsWith("."))
+			this.propertyPrefix = propertyPrefix;
+		else
+			this.propertyPrefix = propertyPrefix + ".";
+		this.featureProcessorManager = featureProcessorManager;
+	}
 
-    public MaryData process(MaryData d)
+	public void startup() throws Exception {
+		super.startup();
+		String cartFilename = MaryProperties.getFilename(propertyPrefix + "cart");
+		if (cartFilename != null) { // there is a default model for the language
+			File cartFile = new File(cartFilename);
+			cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
+			featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
+					.getFeatureNames());
+		} else {
+			cart = null;
+		}
+
+		String pauseFilename = MaryProperties.getFilename(propertyPrefix + "pausetree");
+		if (pauseFilename != null) {
+			File pauseFile = new File(pauseFilename);
+
+			File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix + "pausefeatures"));
+			FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)),
+					false);
+			pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager,
+					pauseFeatureDefinition.getFeatureNames());
+			pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
+		} else {
+			this.pausetree = null;
+		}
+	}
+
+	public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument(); 
@@ -207,15 +211,15 @@ public class CARTDurationModeller extends InternalModule
         return output;
     }
 
-    /**
-     * 
-     * This predicts and enters the pause duration for a pause segment.
-     * 
-     * @param s
-     * @param maryVoice 
-     * @return pause duration, in seconds
-     */
-    private float enterPauseDuration(Element boundary, Element previous, 
+	/**
+	 * 
+	 * This predicts and enters the pause duration for a pause segment.
+	 * 
+	 * @param s
+	 * @param maryVoice
+	 * @return pause duration, in seconds
+	 */
+	private float enterPauseDuration(Element boundary, Element previous, 
             StringPredictionTree currentPauseTree, TargetFeatureComputer currentPauseFeatureComputer)
     {
         if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
@@ -255,6 +259,4 @@ public class CARTDurationModeller extends InternalModule
         return duration;
     }
 
-
 }
-

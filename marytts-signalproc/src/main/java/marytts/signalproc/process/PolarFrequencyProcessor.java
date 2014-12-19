@@ -23,52 +23,47 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class PolarFrequencyProcessor extends FrequencyDomainProcessor
-{
+public class PolarFrequencyProcessor extends FrequencyDomainProcessor {
 
-    /**
-     * @param fftSize
-     */
-    public PolarFrequencyProcessor(int fftSize, double amount)
-    {
-        super(fftSize, amount);
-        //super(fftSize);
-    }
+	/**
+	 * @param fftSize
+	 */
+	public PolarFrequencyProcessor(int fftSize, double amount) {
+		super(fftSize, amount);
+		// super(fftSize);
+	}
 
-    public PolarFrequencyProcessor(int fftSize)
-    {
-        this(fftSize, 1.0);
-    }
-    
-    /**
-     * Here the actual processing of the frequency-domain frame (in cartesian coordinates) happens.
-     * This implementation converts to polar coordinates calls processPolar(), and
-     * converts the result back to cartesian coordinates.
-     * @param real
-     * @param imag
-     */
-    protected final void process(double[] real, double[] imag)
-    {
-        MathUtils.toPolarCoordinates(real, imag);
-        // for readability:
-        double[] r = real;
-        double[] phi = imag;
-        // Now do something meaningful with the fourier transform
-        processPolar(r, phi);
-        // Convert back:
-        MathUtils.toCartesianCoordinates(real, imag);
-    }
-    
-    /**
-     * Here the actual processing of the frequency-domain frame (in polar coordinates) happens.
-     * This base implementation does nothing.
-     * @param r
-     * @param phi
-     */
-    protected void processPolar(double[] r, double[] phi)
-    {
-    }
+	public PolarFrequencyProcessor(int fftSize) {
+		this(fftSize, 1.0);
+	}
+
+	/**
+	 * Here the actual processing of the frequency-domain frame (in cartesian coordinates) happens. This implementation converts
+	 * to polar coordinates calls processPolar(), and converts the result back to cartesian coordinates.
+	 * 
+	 * @param real
+	 * @param imag
+	 */
+	protected final void process(double[] real, double[] imag) {
+		MathUtils.toPolarCoordinates(real, imag);
+		// for readability:
+		double[] r = real;
+		double[] phi = imag;
+		// Now do something meaningful with the fourier transform
+		processPolar(r, phi);
+		// Convert back:
+		MathUtils.toCartesianCoordinates(real, imag);
+	}
+
+	/**
+	 * Here the actual processing of the frequency-domain frame (in polar coordinates) happens. This base implementation does
+	 * nothing.
+	 * 
+	 * @param r
+	 * @param phi
+	 */
+	protected void processPolar(double[] r, double[] phi) {
+	}
 }
-

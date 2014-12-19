@@ -26,41 +26,34 @@ package marytts.signalproc.adaptation.codebook;
  * @author Oytun T&uumlrk
  */
 public class WeightedCodebookMfccMatch {
-    public WeightedCodebookEntry entry;
-    public int[] indices;
-    public double[] weights;
-    public int totalMatches; //This is less than or equal to the length of the above items (i.e. number of
-                             // best codebook matches). Can be lower when the codebook has less entries
-    
-    public WeightedCodebookMfccMatch(int numMaxMatches, int mfccDimension)
-    {
-        init(numMaxMatches, mfccDimension);
-    }
-    
-    //Create a dummy match to use original input mfccs 
-    // (Should not be used in real codebook matching but only for control purposes)
-    public WeightedCodebookMfccMatch(double[] sourceMfccs, double[] targetMfccs)
-    {
-        init(1, sourceMfccs.length);
-        entry = new WeightedCodebookEntry(null, null, sourceMfccs, targetMfccs);
-    }
-    
-    public void init(int numMaxMatches, int mfccDimension)
-    {
-        if (numMaxMatches>0 && mfccDimension>0)
-        {
-            entry = new WeightedCodebookEntry(0, mfccDimension);
-            indices = new int[numMaxMatches];
-            weights = new double[numMaxMatches];
-            totalMatches = numMaxMatches;
-        }
-        else
-        {
-            entry = null;
-            indices = null;
-            weights = null;
-            totalMatches = 0;
-        }
-    }
-}
+	public WeightedCodebookEntry entry;
+	public int[] indices;
+	public double[] weights;
+	public int totalMatches; // This is less than or equal to the length of the above items (i.e. number of
+								// best codebook matches). Can be lower when the codebook has less entries
 
+	public WeightedCodebookMfccMatch(int numMaxMatches, int mfccDimension) {
+		init(numMaxMatches, mfccDimension);
+	}
+
+	// Create a dummy match to use original input mfccs
+	// (Should not be used in real codebook matching but only for control purposes)
+	public WeightedCodebookMfccMatch(double[] sourceMfccs, double[] targetMfccs) {
+		init(1, sourceMfccs.length);
+		entry = new WeightedCodebookEntry(null, null, sourceMfccs, targetMfccs);
+	}
+
+	public void init(int numMaxMatches, int mfccDimension) {
+		if (numMaxMatches > 0 && mfccDimension > 0) {
+			entry = new WeightedCodebookEntry(0, mfccDimension);
+			indices = new int[numMaxMatches];
+			weights = new double[numMaxMatches];
+			totalMatches = numMaxMatches;
+		} else {
+			entry = null;
+			indices = null;
+			weights = null;
+			totalMatches = 0;
+		}
+	}
+}

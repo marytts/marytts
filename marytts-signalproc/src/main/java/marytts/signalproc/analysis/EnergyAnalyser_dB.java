@@ -25,48 +25,43 @@ import marytts.util.math.MathUtils;
 /**
  * 
  * @author Marc Schr&ouml;der
- *  
- * A class that analyses the energy distribution, 
- * and computes a silence cutoff threshold,
- * in the dB energy domain.
- *
+ * 
+ *         A class that analyses the energy distribution, and computes a silence cutoff threshold, in the dB energy domain.
+ * 
  */
 public class EnergyAnalyser_dB extends EnergyAnalyser {
-    public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int samplingRate)
-    {
-        super(signal, framelength, samplingRate);
-    }
+	public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int samplingRate) {
+		super(signal, framelength, samplingRate);
+	}
 
-    public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int frameShift, int samplingRate)
-    {
-        super(signal, framelength, frameShift, samplingRate);
-    }
+	public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int frameShift, int samplingRate) {
+		super(signal, framelength, frameShift, samplingRate);
+	}
 
-    public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int maxSize)
-    {
-        super(signal, framelength, frameShift, samplingRate, maxSize);
-    }
+	public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int maxSize) {
+		super(signal, framelength, frameShift, samplingRate, maxSize);
+	}
 
-    /**
-     * Apply this FrameBasedAnalyser to the given data.
-     * @param frame the data to analyse, which must be of the length prescribed by this
-     * FrameBasedAnalyser, i.e. by @see{#getFrameLengthSamples()}.
-     * @return a Double representing the total energy in the frame.
-     * @throws IllegalArgumentException if frame does not have the prescribed length 
-     */
-    public Double analyse(double[] frame)
-    {
-        if (frame.length != getFrameLengthSamples())
-            throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()
-                    + ", got " + frame.length);
-        double totalEnergy = 0;
-        for (int i=0; i<frame.length; i++) {
-            if (frame[i] != 0) 
-                totalEnergy += MathUtils.db(frame[i] * frame[i]);
-            // for energy 0, ignore
-        }
-        rememberFrameEnergy(totalEnergy);
-        return new Double(totalEnergy);
-    }
+	/**
+	 * Apply this FrameBasedAnalyser to the given data.
+	 * 
+	 * @param frame
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
+	 *            @see{#getFrameLengthSamples()}.
+	 * @return a Double representing the total energy in the frame.
+	 * @throws IllegalArgumentException
+	 *             if frame does not have the prescribed length
+	 */
+	public Double analyse(double[] frame) {
+		if (frame.length != getFrameLengthSamples())
+			throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples() + ", got " + frame.length);
+		double totalEnergy = 0;
+		for (int i = 0; i < frame.length; i++) {
+			if (frame[i] != 0)
+				totalEnergy += MathUtils.db(frame[i] * frame[i]);
+			// for energy 0, ignore
+		}
+		rememberFrameEnergy(totalEnergy);
+		return new Double(totalEnergy);
+	}
 }
-

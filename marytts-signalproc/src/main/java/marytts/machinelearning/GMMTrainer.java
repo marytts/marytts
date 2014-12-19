@@ -32,33 +32,30 @@ import marytts.util.string.StringUtils;
  * 
  * Expectation-Maximization (EM) based GMM training
  * 
- * Reference:
- * A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from in-
- *       complete data via the em algorithm. Journal of the Royal Statistical Society:
- *       Series B, 39(1):1–38, November 1977.
+ * Reference: A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from in- complete data via the em algorithm.
+ * Journal of the Royal Statistical Society: Series B, 39(1):1–38, November 1977.
  * 
  * @author Oytun T&uumlrk
  */
 public class GMMTrainer {
 
-    public double[] logLikelihoods;
+	public double[] logLikelihoods;
 
-    public GMMTrainer()
-    {
-        logLikelihoods = null;
-    }
-    
-    //This function calls the Expectation-Maximization (EM) algorithm
-    //  to fit a Gaussian Mixture Model (GMM) to multi-dimensional data in x.
-    //  Each row of x, i.e. x[0], x[1], ... corresponds to an observation vector.
-    //  The dimension of each vector should be identical.
-    //  Either a java implementation or a native C implementation (in Windows OS only) can be used.
-    //  Note that native C implementation (GMMTrainer.exe) works 5 to 10 times faster.
-    //  All training parameters are given by gmmParams (See GMMTrainerParams.java for details)
-    //  Training consists of two steps:
-    //  (a) Initialization using K-Means clustering
-    //  (b) EM iterations to increase total log-likelihood of the model given the data
-    public GMM train(double[][] x, GMMTrainerParams gmmParams)
+	public GMMTrainer() {
+		logLikelihoods = null;
+	}
+
+	// This function calls the Expectation-Maximization (EM) algorithm
+	// to fit a Gaussian Mixture Model (GMM) to multi-dimensional data in x.
+	// Each row of x, i.e. x[0], x[1], ... corresponds to an observation vector.
+	// The dimension of each vector should be identical.
+	// Either a java implementation or a native C implementation (in Windows OS only) can be used.
+	// Note that native C implementation (GMMTrainer.exe) works 5 to 10 times faster.
+	// All training parameters are given by gmmParams (See GMMTrainerParams.java for details)
+	// Training consists of two steps:
+	// (a) Initialization using K-Means clustering
+	// (b) EM iterations to increase total log-likelihood of the model given the data
+	public GMM train(double[][] x, GMMTrainerParams gmmParams)
     {
         long startTime, endTime;
         
@@ -162,25 +159,23 @@ public class GMMTrainer {
         return gmm;
     }
 
-    /* EM algorithm to fit a GMM to multi-dimensional data
-     * x: Data matrix (Each row is another observation vector)
-     * initialGMM: Initial GMM model (can be initialized using K-Means clustering (See function train)
-     * emMinimumIterations: Minimum number of EM iterations for which the algorithm will not quit 
-     *                      even when the total likelihood does not change much with additional iterations)
-     * emMaximumIterations: Maximum number of EM iterations for which the algorithm will quit even when total likelihood
-     *                      has not settled yet
-     * isUpdateCovariances: Update covariance matrices in EM iterations?
-     * tinyLogLikelihoodChangePercent: Threshold to compare percent decrease in total log-likelihood to stop iterations automatically
-     * minimumCovarianceAllowed: Minimum covariance value allowed - should be a small positive number to avoid ill-conditioned training
-     *
-     * Reference:
-     * A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from incomplete data via the em algorithm. 
-     *         Journal of the Royal Statistical Society: Series B, 39(1):1–38, November 1977.
-     *         
-     * Many practical tutorials for EM training of GMMs exist on the web, i.e.:
-     * http://bengio.abracadoudou.com/lectures/old/tex_gmm.pdf
-     */
-    public GMM expectationMaximization(double[][] x, 
+	/*
+	 * EM algorithm to fit a GMM to multi-dimensional data x: Data matrix (Each row is another observation vector) initialGMM:
+	 * Initial GMM model (can be initialized using K-Means clustering (See function train) emMinimumIterations: Minimum number of
+	 * EM iterations for which the algorithm will not quit even when the total likelihood does not change much with additional
+	 * iterations) emMaximumIterations: Maximum number of EM iterations for which the algorithm will quit even when total
+	 * likelihood has not settled yet isUpdateCovariances: Update covariance matrices in EM iterations?
+	 * tinyLogLikelihoodChangePercent: Threshold to compare percent decrease in total log-likelihood to stop iterations
+	 * automatically minimumCovarianceAllowed: Minimum covariance value allowed - should be a small positive number to avoid
+	 * ill-conditioned training
+	 * 
+	 * Reference: A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from incomplete data via the em algorithm.
+	 * Journal of the Royal Statistical Society: Series B, 39(1):1–38, November 1977.
+	 * 
+	 * Many practical tutorials for EM training of GMMs exist on the web, i.e.:
+	 * http://bengio.abracadoudou.com/lectures/old/tex_gmm.pdf
+	 */
+	public GMM expectationMaximization(double[][] x, 
                                        GMM initialGmm, 
                                        int emMinimumIterations,
                                        int emMaximumIterations, 
@@ -410,142 +405,128 @@ public class GMMTrainer {
 
         return gmm;
     }
-    
-    public static void testEndianFileIO() throws IOException
-    {
-        boolean b1 = true;
-        char c1 = 'c';
-        short s1 = 111;
-        int i1 = 222;
-        double d1 = 33.3;
-        float f1 = 44.4f;
-        long l1 = 555;
-        
-        String javaFile = "d:/endianJava.tmp";
-        MaryRandomAccessFile fp = new MaryRandomAccessFile(javaFile, "rw");
-        if (fp!=null)
-        {
-            fp.writeBooleanEndian(b1);
-            fp.writeCharEndian(c1);
-            fp.writeShortEndian(s1);
-            fp.writeIntEndian(i1);
-            fp.writeDoubleEndian(d1);
-            fp.writeFloatEndian(f1);
-            fp.writeLongEndian(l1);
 
-            fp.close();
-        }
+	public static void testEndianFileIO() throws IOException {
+		boolean b1 = true;
+		char c1 = 'c';
+		short s1 = 111;
+		int i1 = 222;
+		double d1 = 33.3;
+		float f1 = 44.4f;
+		long l1 = 555;
 
-        boolean b2;
-        char c2;
-        short s2;
-        int i2;
-        double d2;
-        float f2;
-        long l2;
+		String javaFile = "d:/endianJava.tmp";
+		MaryRandomAccessFile fp = new MaryRandomAccessFile(javaFile, "rw");
+		if (fp != null) {
+			fp.writeBooleanEndian(b1);
+			fp.writeCharEndian(c1);
+			fp.writeShortEndian(s1);
+			fp.writeIntEndian(i1);
+			fp.writeDoubleEndian(d1);
+			fp.writeFloatEndian(f1);
+			fp.writeLongEndian(l1);
 
-        String cFile = "d:/endianC.tmp";
-        
-        if (FileUtils.exists(cFile))
-        {
-            MaryRandomAccessFile fp2 = new MaryRandomAccessFile(cFile, "r");
-            if (fp2!=null)
-            {
-                b2 = fp2.readBooleanEndian();
-                c2 = fp2.readCharEndian();
-                s2 = fp2.readShortEndian();
-                i2 = fp2.readIntEndian();
-                d2 = fp2.readDoubleEndian();
-                f2 = fp2.readFloatEndian();
-                l2 = fp2.readLongEndian();
+			fp.close();
+		}
 
-                fp2.close();
+		boolean b2;
+		char c2;
+		short s2;
+		int i2;
+		double d2;
+		float f2;
+		long l2;
 
-                if (b1!=b2)
-                    System.out.println("Error in bool!\n");
-                if (c1!=c2)
-                    System.out.println("Error in char!\n");
-                if (s1!=s2)
-                    System.out.println("Error in short!\n");
-                if (i1!=i2)
-                    System.out.println("Error in int!\n");
-                if (d1!=d2)
-                    System.out.println("Error in double!\n");
-                if (f1!=f2)
-                    System.out.println("Error in float!\n");
-                if (l1!=l2)
-                    System.out.println("Error in long!\n");
-            }
-            else
-                System.out.println("C generated file cannot be opened...\n");
-        }
-        else
-            System.out.println("C generated file not found...\n");
-    }
-    
-    public static void main(String[] args)
-    {
-        int numClusters = 20;
-        int numSamplesInClusters = 2000;
-        double[] variances = {0.01};
-        int vectorDim = 10;
-        ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
-        int i, j, n;
-        int totalVectors = 0;
-        for (i=0; i<vectorDim; i++)
-        {
-            if (i<variances.length)
-                c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[i]);
-            else
-                c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[0]);
-        }
-        
-        totalVectors = c[0].data.length;
-        
-        double[][] x = new double[totalVectors][vectorDim];
-        int counter=0;
-        for (n=0; n<c.length; n++)
-        {
-            for (i=0; i<c[n].data.length; i++)
-                x[i][n] = c[n].data[i];
-        }
-        
-        x = MathUtils.randomSort(x);
-        
-        double[] m = MathUtils.mean(x);
-        double[] v = MathUtils.variance(x, m);
-        System.out.println(String.valueOf(m[0]) + " " + String.valueOf(v[0]));
-        
-        GMMTrainerParams gmmParams = new GMMTrainerParams();
-        gmmParams.totalComponents = numClusters;
-        gmmParams.isDiagonalCovariance = true; 
-        gmmParams.kmeansMaxIterations = 100;
-        gmmParams.kmeansMinClusterChangePercent = 0.01;
-        gmmParams.kmeansMinSamplesInOneCluster = 10;
-        gmmParams.emMinIterations = 100;
-        gmmParams.emMaxIterations = 2000; 
-        gmmParams.isUpdateCovariances = true;
-        gmmParams.tinyLogLikelihoodChangePercent = 0.001;
-        gmmParams.minCovarianceAllowed = 1e-5;
-        gmmParams.useNativeCLibTrainer = true;
-        
-        GMMTrainer g = new GMMTrainer();
-        GMM gmm = g.train(x, gmmParams);
-        
-        if (gmm!=null)
-        {
-            for (i=0; i<gmm.totalComponents; i++)
-                System.out.println("Gaussian #" + String.valueOf(i+1) + " mean=" + String.valueOf(gmm.components[i].meanVector[0]) + " variance=" + String.valueOf(gmm.components[i].covMatrix[0][0])+" prior=" + gmm.weights[i]);
-        }
-        
-        /*
-        try {
-            testEndianFileIO();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        */
-    }
+		String cFile = "d:/endianC.tmp";
+
+		if (FileUtils.exists(cFile)) {
+			MaryRandomAccessFile fp2 = new MaryRandomAccessFile(cFile, "r");
+			if (fp2 != null) {
+				b2 = fp2.readBooleanEndian();
+				c2 = fp2.readCharEndian();
+				s2 = fp2.readShortEndian();
+				i2 = fp2.readIntEndian();
+				d2 = fp2.readDoubleEndian();
+				f2 = fp2.readFloatEndian();
+				l2 = fp2.readLongEndian();
+
+				fp2.close();
+
+				if (b1 != b2)
+					System.out.println("Error in bool!\n");
+				if (c1 != c2)
+					System.out.println("Error in char!\n");
+				if (s1 != s2)
+					System.out.println("Error in short!\n");
+				if (i1 != i2)
+					System.out.println("Error in int!\n");
+				if (d1 != d2)
+					System.out.println("Error in double!\n");
+				if (f1 != f2)
+					System.out.println("Error in float!\n");
+				if (l1 != l2)
+					System.out.println("Error in long!\n");
+			} else
+				System.out.println("C generated file cannot be opened...\n");
+		} else
+			System.out.println("C generated file not found...\n");
+	}
+
+	public static void main(String[] args) {
+		int numClusters = 20;
+		int numSamplesInClusters = 2000;
+		double[] variances = { 0.01 };
+		int vectorDim = 10;
+		ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
+		int i, j, n;
+		int totalVectors = 0;
+		for (i = 0; i < vectorDim; i++) {
+			if (i < variances.length)
+				c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0 * (i + 1), variances[i]);
+			else
+				c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0 * (i + 1), variances[0]);
+		}
+
+		totalVectors = c[0].data.length;
+
+		double[][] x = new double[totalVectors][vectorDim];
+		int counter = 0;
+		for (n = 0; n < c.length; n++) {
+			for (i = 0; i < c[n].data.length; i++)
+				x[i][n] = c[n].data[i];
+		}
+
+		x = MathUtils.randomSort(x);
+
+		double[] m = MathUtils.mean(x);
+		double[] v = MathUtils.variance(x, m);
+		System.out.println(String.valueOf(m[0]) + " " + String.valueOf(v[0]));
+
+		GMMTrainerParams gmmParams = new GMMTrainerParams();
+		gmmParams.totalComponents = numClusters;
+		gmmParams.isDiagonalCovariance = true;
+		gmmParams.kmeansMaxIterations = 100;
+		gmmParams.kmeansMinClusterChangePercent = 0.01;
+		gmmParams.kmeansMinSamplesInOneCluster = 10;
+		gmmParams.emMinIterations = 100;
+		gmmParams.emMaxIterations = 2000;
+		gmmParams.isUpdateCovariances = true;
+		gmmParams.tinyLogLikelihoodChangePercent = 0.001;
+		gmmParams.minCovarianceAllowed = 1e-5;
+		gmmParams.useNativeCLibTrainer = true;
+
+		GMMTrainer g = new GMMTrainer();
+		GMM gmm = g.train(x, gmmParams);
+
+		if (gmm != null) {
+			for (i = 0; i < gmm.totalComponents; i++)
+				System.out.println("Gaussian #" + String.valueOf(i + 1) + " mean="
+						+ String.valueOf(gmm.components[i].meanVector[0]) + " variance="
+						+ String.valueOf(gmm.components[i].covMatrix[0][0]) + " prior=" + gmm.weights[i]);
+		}
+
+		/*
+		 * try { testEndianFileIO(); } catch (IOException e) { // TODO Auto-generated catch block e.printStackTrace(); }
+		 */
+	}
 }
-

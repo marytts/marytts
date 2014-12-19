@@ -24,25 +24,15 @@ import java.util.Locale;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
-
-
 /**
- * Convert FreeTTS utterances into MaryXML format
- * (Pauses, English).
- *
+ * Convert FreeTTS utterances into MaryXML format (Pauses, English).
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class Utt2XMLPausesEn extends Utt2XMLBase
-{
-    public Utt2XMLPausesEn()
-    {
-        super("Utt2XML PausesEn",
-              USEnglishDataTypes.FREETTS_PAUSES,
-              USEnglishDataTypes.PAUSES_US,
-              Locale.ENGLISH);
-    }
-
+public class Utt2XMLPausesEn extends Utt2XMLBase {
+	public Utt2XMLPausesEn() {
+		super("Utt2XML PausesEn", USEnglishDataTypes.FREETTS_PAUSES, USEnglishDataTypes.PAUSES_US, Locale.ENGLISH);
+	}
 
 }
-

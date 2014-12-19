@@ -25,15 +25,13 @@ package marytts.signalproc.sinusoidal;
  * @author Oytun T&uumlrk
  */
 public class NonharmonicSinusoidalSpeechSignal {
-    public NonharmonicSinusoidalSpeechFrame [] framesSins;
-    public float originalDurationInSeconds ;
-    
-    public NonharmonicSinusoidalSpeechSignal(int totalFrm)
-    {
-        if (totalFrm>0)
-            framesSins =  new NonharmonicSinusoidalSpeechFrame[totalFrm];
-        else
-            framesSins = null;
-    }
-}
+	public NonharmonicSinusoidalSpeechFrame[] framesSins;
+	public float originalDurationInSeconds;
 
+	public NonharmonicSinusoidalSpeechSignal(int totalFrm) {
+		if (totalFrm > 0)
+			framesSins = new NonharmonicSinusoidalSpeechFrame[totalFrm];
+		else
+			framesSins = null;
+	}
+}

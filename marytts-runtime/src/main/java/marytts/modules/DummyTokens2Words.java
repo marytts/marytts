@@ -23,43 +23,33 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 
-
 /**
- * Dummy modules to support new language (for phone durations and phone f0) 
- *
+ * Dummy modules to support new language (for phone durations and phone f0)
+ * 
  * @author Sathish Pammi
  */
 
-public class DummyTokens2Words extends InternalModule
-{
-    public DummyTokens2Words()
-    {
-        this((Locale)null);
-    }
-    
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     */
-    public DummyTokens2Words(String locale)
-    {
-        super("DummyTokens2Words",
-                MaryDataType.TOKENS,
-                MaryDataType.WORDS,
-                new Locale(locale));
-    }
-    
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     */
-    public DummyTokens2Words(Locale locale)
-    {
-        super("DummyTokens2Words",
-                MaryDataType.TOKENS,
-                MaryDataType.WORDS,
-                locale);
-    }
-    
-}
+public class DummyTokens2Words extends InternalModule {
+	public DummyTokens2Words() {
+		this((Locale) null);
+	}
 
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 */
+	public DummyTokens2Words(String locale) {
+		super("DummyTokens2Words", MaryDataType.TOKENS, MaryDataType.WORDS, new Locale(locale));
+	}
+
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 */
+	public DummyTokens2Words(Locale locale) {
+		super("DummyTokens2Words", MaryDataType.TOKENS, MaryDataType.WORDS, locale);
+	}
+
+}

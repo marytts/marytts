@@ -36,10 +36,10 @@ import marytts.util.math.Polynomial;
 
 public class ContourTreeInspector {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args)
     throws Exception
     {
         boolean showIndividualLeaves = true;
@@ -120,6 +120,5 @@ public class ContourTreeInspector {
         
 
     }
-    
 
 }

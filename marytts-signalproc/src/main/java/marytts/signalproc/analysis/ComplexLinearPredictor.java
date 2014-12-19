@@ -25,27 +25,21 @@ import marytts.util.math.ComplexArray;
  * A class for nesting results of complex valued linear prediction
  * 
  * @author Oytun T&uumlrk
- *
+ * 
  */
-public class ComplexLinearPredictor 
-{
-    public ComplexArray complexLPCoeffs;
-    public ComplexArray reflectionCoeffs;
-    public double variance; //LP gain squared
-    public double gain;
-    
-    public ComplexLinearPredictor(int predictionOrder)
-    {
-        if (predictionOrder>0)
-        {
-            complexLPCoeffs = new ComplexArray(predictionOrder);
-            reflectionCoeffs = new ComplexArray(predictionOrder);
-        }
-        else
-        {
-            complexLPCoeffs = null;
-            reflectionCoeffs = null;
-        }
-    }
-}
+public class ComplexLinearPredictor {
+	public ComplexArray complexLPCoeffs;
+	public ComplexArray reflectionCoeffs;
+	public double variance; // LP gain squared
+	public double gain;
 
+	public ComplexLinearPredictor(int predictionOrder) {
+		if (predictionOrder > 0) {
+			complexLPCoeffs = new ComplexArray(predictionOrder);
+			reflectionCoeffs = new ComplexArray(predictionOrder);
+		} else {
+			complexLPCoeffs = null;
+			reflectionCoeffs = null;
+		}
+	}
+}

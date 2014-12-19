@@ -22,10 +22,9 @@ package marytts.signalproc.adaptation.outlier;
 /**
  * 
  * TO DO: GMM based outlier elimination
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class GMMOutlierEliminator {
 
 }
-

@@ -29,17 +29,15 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * This class combines SinusoidsTester and NoiseTester classes
- * You can simply give a SinusoidsTester object and NoiseTester object
- * and generate the superposition of the outputs of the two objects,
- * i.e. multiple sinusoids located at desired instants of time plus white or pink noise
- * with desired bandwidth at desired time instants
- * Using this class one can generate fairly complicated yet parametric test signals
+ * This class combines SinusoidsTester and NoiseTester classes You can simply give a SinusoidsTester object and NoiseTester object
+ * and generate the superposition of the outputs of the two objects, i.e. multiple sinusoids located at desired instants of time
+ * plus white or pink noise with desired bandwidth at desired time instants Using this class one can generate fairly complicated
+ * yet parametric test signals
  * 
  * @author Oytun T&uumlrk
  **/
-public class SinusoidsNoiseTester extends BaseTester{
-    public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n)
+public class SinusoidsNoiseTester extends BaseTester {
+	public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n)
     {
         assert s.fs == n.fs;
         fs = s.fs;
@@ -178,56 +176,55 @@ public class SinusoidsNoiseTester extends BaseTester{
         }
     }
 
-    public static void main(String[] args) throws IOException
-    {
-        int i, numSins, numNoises;
-        
-        SinusoidsTester s = null;
-        NoiseTester n = null;
-        SinusoidsNoiseTester h = null;
-        
-        //Sinus part
-        numSins = 5;
-        float [] sinFreqs = new float[numSins];
-        sinFreqs[0] = 120.0f;
-        sinFreqs[1] = 230.0f;
-        sinFreqs[2] = 500.0f;
-        sinFreqs[3] = 1100.0f;
-        sinFreqs[4] = 1500.0f;
-        
-        Sinusoid [] sins = new Sinusoid[numSins];
-        for (i=0; i<numSins; i++)
-            sins[i] = new Sinusoid(100.0f, sinFreqs[i], 0.0f);
-        
-        s = new SinusoidsTester(sins);
-        //
-        
-        //Noise part
-        numNoises = 1;
-        float [][] freqs = new float[numNoises][];
-        float [] amps = new float[numNoises];
-        for (i=0; i<numNoises; i++)
-            freqs[i] = new float[2];
-        
-        freqs[0][0] = 2000;
-        freqs[0][1] = 4000;
-        amps[0] = 100.0f;
+	public static void main(String[] args) throws IOException {
+		int i, numSins, numNoises;
 
-        n = new NoiseTester(freqs, amps);
-        //
-        
-        h = new SinusoidsNoiseTester(s, n);
-        
-        if (args.length>1)
-            h.write(args[0], args[1]);
-        else
-            h.write(args[0]);
-        
-        System.out.println(String.valueOf(MathUtils.getAbsMax(h.signal)) + " " + MathUtils.getAbsMax(s.signal) + " " + MathUtils.getAbsMax(n.signal));
-        
-        int [] pitchMarks = FileUtils.readFromBinaryFile(args[1]);
-        for (i=0; i<pitchMarks.length; i++)
-            System.out.println(String.valueOf(pitchMarks[i]) + " ");
-    }
+		SinusoidsTester s = null;
+		NoiseTester n = null;
+		SinusoidsNoiseTester h = null;
+
+		// Sinus part
+		numSins = 5;
+		float[] sinFreqs = new float[numSins];
+		sinFreqs[0] = 120.0f;
+		sinFreqs[1] = 230.0f;
+		sinFreqs[2] = 500.0f;
+		sinFreqs[3] = 1100.0f;
+		sinFreqs[4] = 1500.0f;
+
+		Sinusoid[] sins = new Sinusoid[numSins];
+		for (i = 0; i < numSins; i++)
+			sins[i] = new Sinusoid(100.0f, sinFreqs[i], 0.0f);
+
+		s = new SinusoidsTester(sins);
+		//
+
+		// Noise part
+		numNoises = 1;
+		float[][] freqs = new float[numNoises][];
+		float[] amps = new float[numNoises];
+		for (i = 0; i < numNoises; i++)
+			freqs[i] = new float[2];
+
+		freqs[0][0] = 2000;
+		freqs[0][1] = 4000;
+		amps[0] = 100.0f;
+
+		n = new NoiseTester(freqs, amps);
+		//
+
+		h = new SinusoidsNoiseTester(s, n);
+
+		if (args.length > 1)
+			h.write(args[0], args[1]);
+		else
+			h.write(args[0]);
+
+		System.out.println(String.valueOf(MathUtils.getAbsMax(h.signal)) + " " + MathUtils.getAbsMax(s.signal) + " "
+				+ MathUtils.getAbsMax(n.signal));
+
+		int[] pitchMarks = FileUtils.readFromBinaryFile(args[1]);
+		for (i = 0; i < pitchMarks.length; i++)
+			System.out.println(String.valueOf(pitchMarks[i]) + " ");
+	}
 }
-

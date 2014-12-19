@@ -25,35 +25,32 @@ import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
  * Baseline class for voice conversion function binary file header
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class BaselineMappingFileHeader {
-    public String sourceTag; //Source name tag (i.e. style or speaker identity)
-    public String targetTag; //Target name tag (i.e. style or speaker identity)
-    
-    public LsfFileHeader lsfParams;
-    public PitchFileHeader ptcParams;
-    public EnergyFileHeader energyParams;
-    
-    public BaselineMappingFileHeader() 
-    {
-        sourceTag = "source"; //Source name tag (i.e. style or speaker identity)
-        targetTag = "target"; //Target name tag (i.e. style or speaker identity)
+	public String sourceTag; // Source name tag (i.e. style or speaker identity)
+	public String targetTag; // Target name tag (i.e. style or speaker identity)
 
-        lsfParams = new LsfFileHeader();
-        ptcParams = new PitchFileHeader();
-        energyParams = new EnergyFileHeader();
-    }
+	public LsfFileHeader lsfParams;
+	public PitchFileHeader ptcParams;
+	public EnergyFileHeader energyParams;
 
-    public BaselineMappingFileHeader(BaselineMappingFileHeader existing) 
-    {
-        sourceTag = existing.sourceTag;
-        targetTag = existing.targetTag;
+	public BaselineMappingFileHeader() {
+		sourceTag = "source"; // Source name tag (i.e. style or speaker identity)
+		targetTag = "target"; // Target name tag (i.e. style or speaker identity)
 
-        lsfParams = new LsfFileHeader(existing.lsfParams);
-        ptcParams = new PitchFileHeader(existing.ptcParams);
-        energyParams = new EnergyFileHeader(existing.energyParams);
-    }
+		lsfParams = new LsfFileHeader();
+		ptcParams = new PitchFileHeader();
+		energyParams = new EnergyFileHeader();
+	}
+
+	public BaselineMappingFileHeader(BaselineMappingFileHeader existing) {
+		sourceTag = existing.sourceTag;
+		targetTag = existing.targetTag;
+
+		lsfParams = new LsfFileHeader(existing.lsfParams);
+		ptcParams = new PitchFileHeader(existing.ptcParams);
+		energyParams = new EnergyFileHeader(existing.energyParams);
+	}
 }
-

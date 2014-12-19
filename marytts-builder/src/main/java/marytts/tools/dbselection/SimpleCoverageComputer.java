@@ -33,9 +33,11 @@ import marytts.features.FeatureRegistry;
 import marytts.util.MaryUtils;
 
 /**
- * This class takes a text file containing one sentence per line, and computes the phone, diphone and prosody coverage of the corpus.
+ * This class takes a text file containing one sentence per line, and computes the phone, diphone and prosody coverage of the
+ * corpus.
+ * 
  * @author marc
- *
+ * 
  */
 public class SimpleCoverageComputer {
 
@@ -74,5 +76,4 @@ public class SimpleCoverageComputer {
 		System.out.println("done -- see "+args[1]+" for results.");
 
 	}
-
 }

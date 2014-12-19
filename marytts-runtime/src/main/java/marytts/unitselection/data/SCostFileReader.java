@@ -40,100 +40,101 @@ import java.io.IOException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.data.MaryHeader;
 
-
 /**
  * sCost file reader
  * 
  * @author sathish pammi
- *
+ * 
  */
-public class SCostFileReader
-{
+public class SCostFileReader {
 
-    private MaryHeader hdr = null;
-    private int numberOfUnits = 0;
-    private double[] sCost;
-    
-    /****************/
-    /* CONSTRUCTORS */
-    /****************/
+	private MaryHeader hdr = null;
+	private int numberOfUnits = 0;
+	private double[] sCost;
 
-    /**
-     * Empty constructor; need to call load() separately.
-     * @see #load(String)
-     */
-    public SCostFileReader()
-    {
-    }
-    
-    /**
-     * Create a unit file reader from the given unit file
-     * @param fileName the unit file to read
-     * @throws IOException if a problem occurs while reading
-     */
-    public SCostFileReader( String fileName ) throws IOException, MaryConfigurationException
-    {
-        load(fileName);
-    }
-    
-    /**
-     * Load the given unit file
-     * @param fileName the unit file to read
-     * @throws IOException if a problem occurs while reading
-     */
-    public void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        /* Open the file */
-        DataInputStream dis = null;
-        try {
-            dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
-        }
-        catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "File [" + fileName + "] was not found." );
-        }
-        try {
-            /* Load the Mary header */
-            hdr = new MaryHeader( dis );
-            if ( hdr.getType() != MaryHeader.SCOST ) {
-                throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
-            }
-            /* Read the number of units */
-            numberOfUnits = dis.readInt();
-            if ( numberOfUnits < 0 ) {
-                throw new RuntimeException( "File [" + fileName + "] has a negative number of units. Aborting." );
-            }
-            
-            sCost = new double[numberOfUnits];
-            /* Read the start times and durations */
-            for ( int i = 0; i < numberOfUnits; i++ ) {
-                sCost[i] = dis.readFloat();
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "Reading the Mary header from file [" + fileName + "] failed.", e );
-        }
-        
-    }
-    
-    /*****************/
-    /* OTHER METHODS */
-    /*****************/
-    
-    /**
-     * Get the number of units in the file.
-     * @return The number of units.
-     */
-    public int getNumberOfUnits() {
-        return( numberOfUnits );
-    }
-    
-    /**
-     * Get sCost for a unit index
-     * @return sCost 
-     */
-    public double getSCost(int index) {
-        return(this.sCost[index]);
-    }
- 
-    
+	/****************/
+	/* CONSTRUCTORS */
+	/****************/
+
+	/**
+	 * Empty constructor; need to call load() separately.
+	 * 
+	 * @see #load(String)
+	 */
+	public SCostFileReader() {
+	}
+
+	/**
+	 * Create a unit file reader from the given unit file
+	 * 
+	 * @param fileName
+	 *            the unit file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 */
+	public SCostFileReader(String fileName) throws IOException, MaryConfigurationException {
+		load(fileName);
+	}
+
+	/**
+	 * Load the given unit file
+	 * 
+	 * @param fileName
+	 *            the unit file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 */
+	public void load(String fileName) throws IOException, MaryConfigurationException {
+		/* Open the file */
+		DataInputStream dis = null;
+		try {
+			dis = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("File [" + fileName + "] was not found.");
+		}
+		try {
+			/* Load the Mary header */
+			hdr = new MaryHeader(dis);
+			if (hdr.getType() != MaryHeader.SCOST) {
+				throw new RuntimeException("File [" + fileName + "] is not a valid Mary Units file.");
+			}
+			/* Read the number of units */
+			numberOfUnits = dis.readInt();
+			if (numberOfUnits < 0) {
+				throw new RuntimeException("File [" + fileName + "] has a negative number of units. Aborting.");
+			}
+
+			sCost = new double[numberOfUnits];
+			/* Read the start times and durations */
+			for (int i = 0; i < numberOfUnits; i++) {
+				sCost[i] = dis.readFloat();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Reading the Mary header from file [" + fileName + "] failed.", e);
+		}
+
+	}
+
+	/*****************/
+	/* OTHER METHODS */
+	/*****************/
+
+	/**
+	 * Get the number of units in the file.
+	 * 
+	 * @return The number of units.
+	 */
+	public int getNumberOfUnits() {
+		return (numberOfUnits);
+	}
+
+	/**
+	 * Get sCost for a unit index
+	 * 
+	 * @return sCost
+	 */
+	public double getSCost(int index) {
+		return (this.sCost[index]);
+	}
+
 }

@@ -32,54 +32,38 @@ import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.en.ContourGenerator;
 
-
-
 /**
  * Use an individual FreeTTS module for English synthesis.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class FreeTTSContourGenerator extends InternalModule
-{
-    private UtteranceProcessor processor;
+public class FreeTTSContourGenerator extends InternalModule {
+	private UtteranceProcessor processor;
 
-    public FreeTTSContourGenerator()
-    {
-        super("ContourGenerator",
-              USEnglishDataTypes.FREETTS_DURATIONS,
-              USEnglishDataTypes.FREETTS_CONTOUR,
-              Locale.ENGLISH
-              );
-    }
+	public FreeTTSContourGenerator() {
+		super("ContourGenerator", USEnglishDataTypes.FREETTS_DURATIONS, USEnglishDataTypes.FREETTS_CONTOUR, Locale.ENGLISH);
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
+	public void startup() throws Exception {
+		super.startup();
 
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-        processor = new ContourGenerator
-	   (com.sun.speech.freetts.en.us.CMUVoice.class.
-            getResource("f0_lr_terms.txt"), 170.0f, 34.0f);
-    }
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+		processor = new ContourGenerator(com.sun.speech.freetts.en.us.CMUVoice.class.getResource("f0_lr_terms.txt"), 170.0f,
+				34.0f);
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            processor.processUtterance(utterance);
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
-        return output;
-    }
-
-
-
+	public MaryData process(MaryData d) throws Exception {
+		List utterances = d.getUtterances();
+		Iterator it = utterances.iterator();
+		while (it.hasNext()) {
+			Utterance utterance = (Utterance) it.next();
+			processor.processUtterance(utterance);
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setUtterances(utterances);
+		return output;
+	}
 
 }
-

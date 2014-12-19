@@ -32,29 +32,25 @@ package marytts.util.io;
 import java.io.File;
 import java.io.FilenameFilter;
 
-
 /**
  * @author oytun.turk
- *
+ * 
  */
-public class FileFilter implements FilenameFilter 
-{
-    private String extension;
-    
-    public FileFilter(String ext)
-    {
-        if (ext.startsWith(".") || ext.compareTo("*.*")==0)
-            extension = ext;
-        else
-            extension = "." + ext;
-    }
-    
-    public boolean accept(File dir, String name) 
-    {
-        if (extension.compareTo("*.*")==0)
-            return true;
-        else
-            return name.endsWith(extension); 
-    }
+public class FileFilter implements FilenameFilter {
+	private String extension;
+
+	public FileFilter(String ext) {
+		if (ext.startsWith(".") || ext.compareTo("*.*") == 0)
+			extension = ext;
+		else
+			extension = "." + ext;
+	}
+
+	public boolean accept(File dir, String name) {
+		if (extension.compareTo("*.*") == 0)
+			return true;
+		else
+			return name.endsWith(extension);
+	}
 
 }

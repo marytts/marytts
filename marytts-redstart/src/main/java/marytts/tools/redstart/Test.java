@@ -20,27 +20,28 @@
 package marytts.tools.redstart;
 
 /**
- *
+ * 
  * @author Mat Wilson <mat.wilson@dfki.de>
  */
 public class Test {
-    
-    public static boolean isDebug = true;
-    
-    /**
-     * Creates a new instance of Test
-     */
-    public Test() {
-        Test.output("Test object created.");
-        setDebugMode(false);
-    }
 
-    public static void output(String message) {
-        if (Test.isDebug) { System.out.println(message); }
-    }
+	public static boolean isDebug = true;
 
-    public static void setDebugMode(boolean isEnabled) {
-        Test.isDebug = isEnabled;
-    }
+	/**
+	 * Creates a new instance of Test
+	 */
+	public Test() {
+		Test.output("Test object created.");
+		setDebugMode(false);
+	}
+
+	public static void output(String message) {
+		if (Test.isDebug) {
+			System.out.println(message);
+		}
+	}
+
+	public static void setDebugMode(boolean isEnabled) {
+		Test.isDebug = isEnabled;
+	}
 }
-

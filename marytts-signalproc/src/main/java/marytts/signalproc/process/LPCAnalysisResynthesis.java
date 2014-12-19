@@ -35,26 +35,26 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.ArrayUtils;
 
-
 /**
  * A base class for LPC-based analysis and resynthesis, which does nothing.
+ * 
  * @author Marc Schr&ouml;der
- *
+ * 
  */
-public class LPCAnalysisResynthesis implements InlineDataProcessor
-{
-    protected int p;
-    
-    /**
-     * Apply LPC analysis-resynthesis.
-     * @param p prediction order, i.e. number of LPC coefficients to compute.
-     */
-    public LPCAnalysisResynthesis(int p) 
-    {
-        this.p = p;
-    }
-    
-    public void applyInline(double[] data, int off, int len)
+public class LPCAnalysisResynthesis implements InlineDataProcessor {
+	protected int p;
+
+	/**
+	 * Apply LPC analysis-resynthesis.
+	 * 
+	 * @param p
+	 *            prediction order, i.e. number of LPC coefficients to compute.
+	 */
+	public LPCAnalysisResynthesis(int p) {
+		this.p = p;
+	}
+
+	public void applyInline(double[] data, int off, int len)
     {
         assert off==0;
         assert len==data.length;
@@ -69,32 +69,33 @@ public class LPCAnalysisResynthesis implements InlineDataProcessor
         //System.err.println("Sum squared error:"+MathUtils.sumSquaredError(data, newData));
         System.arraycopy(newData, 0, data, 0, len);
     }
-    
-    /**
-     * Process the LPC coefficients and/or the residual in place.
-     * This method does nothing; subclasses may want to override it
-     * to do something meaningful.
-     * @param coeffs the LPC coefficients
-     * @param residual the residual, of length framelength
-     */
-    protected void processLPC(LpCoeffs coeffs, double[] residual) {}
 
+	/**
+	 * Process the LPC coefficients and/or the residual in place. This method does nothing; subclasses may want to override it to
+	 * do something meaningful.
+	 * 
+	 * @param coeffs
+	 *            the LPC coefficients
+	 * @param residual
+	 *            the residual, of length framelength
+	 */
+	protected void processLPC(LpCoeffs coeffs, double[] residual) {
+	}
 
-    public static void main(String[] args) throws Exception
-    {
-        for (int i=0; i<args.length; i++) {
-            AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
-            int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-            AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-            int frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
-            int predictionOrder = Integer.getInteger("signalproc.lpcanalysissynthesis.predictionorder", 20).intValue();
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate, new LPCAnalysisResynthesis(predictionOrder));
-            DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
-            String outFileName = args[i].substring(0, args[i].length()-4) + "_lpc_ar.wav";
-            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-        }
+	public static void main(String[] args) throws Exception {
+		for (int i = 0; i < args.length; i++) {
+			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
+			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
+			AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+			int frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
+			int predictionOrder = Integer.getInteger("signalproc.lpcanalysissynthesis.predictionorder", 20).intValue();
+			FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate,
+					new LPCAnalysisResynthesis(predictionOrder));
+			DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
+			String outFileName = args[i].substring(0, args[i].length() - 4) + "_lpc_ar.wav";
+			AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+		}
 
-    }
+	}
 
 }
-

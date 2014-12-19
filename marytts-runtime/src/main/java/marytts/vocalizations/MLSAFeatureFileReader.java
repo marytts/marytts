@@ -40,45 +40,52 @@ import java.io.IOException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.data.MaryHeader;
 
-
 /**
- * Reads a single file which contains all MLSA features (logfo, mgc and strengths) of vocalizations  
+ * Reads a single file which contains all MLSA features (logfo, mgc and strengths) of vocalizations
+ * 
  * @author sathish pammi
- *
+ * 
  */
-public class MLSAFeatureFileReader 
-{
+public class MLSAFeatureFileReader {
 
-    private MaryHeader hdr = null;
+	private MaryHeader hdr = null;
 
-    private int numberOfUnits;
-    private int STRVECTORSIZE;
-    private int MGCVECTORSIZE;
-    private int LF0VECTORSIZE;
+	private int numberOfUnits;
+	private int STRVECTORSIZE;
+	private int MGCVECTORSIZE;
+	private int LF0VECTORSIZE;
 
-    private int[] numberOfFrames;
-    private boolean[][] voiced;
-    private double[][] logf0;
-    private double[][][] strengths;
-    private double[][][] mgc;
+	private int[] numberOfFrames;
+	private boolean[][] voiced;
+	private double[][] logf0;
+	private double[][][] strengths;
+	private double[][][] mgc;
 
-    /**
-     * Create a feature file reader from the given MLSA feature file
-     * @param fileName the unit file to read
-     * @throws IOException if a problem occurs while reading
-     * @throws MaryConfigurationException if runtime configuration fails
-     */
-    public MLSAFeatureFileReader( String fileName ) throws IOException, MaryConfigurationException {
-        load(fileName);
-    }
+	/**
+	 * Create a feature file reader from the given MLSA feature file
+	 * 
+	 * @param fileName
+	 *            the unit file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             if runtime configuration fails
+	 */
+	public MLSAFeatureFileReader(String fileName) throws IOException, MaryConfigurationException {
+		load(fileName);
+	}
 
-    /**
-     * Load the given feature file
-     * @param fileName the feature file to read
-     * @throws IOException if a problem occurs while reading
-     * @throws MaryConfigurationException if runtime configuration fails
-     */
-    private void load(String fileName) throws IOException, MaryConfigurationException
+	/**
+	 * Load the given feature file
+	 * 
+	 * @param fileName
+	 *            the feature file to read
+	 * @throws IOException
+	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             if runtime configuration fails
+	 */
+	private void load(String fileName) throws IOException, MaryConfigurationException
     {
         // Open the file 
         DataInputStream dis = null;
@@ -155,93 +162,113 @@ public class MLSAFeatureFileReader
         }
     }
 
-    /**
-     * Get the number of units in the file.
-     * @return The number of units.
-     */
-    public int getNumberOfUnits() {
-        return( numberOfUnits );
-    }
+	/**
+	 * Get the number of units in the file.
+	 * 
+	 * @return The number of units.
+	 */
+	public int getNumberOfUnits() {
+		return (numberOfUnits);
+	}
 
-    /**
-     * get boolean array of voiced frame information: true, if voiced; false if unvoiced;
-     * @param unitnumber unit index number
-     * @return boolean[] boolean array of voiced frames
-     * @throws IllegalArgumentException if given index number is not less than available units
-     */
-    public boolean[] getVoicedFrames( int unitnumber ) {
-        if ( unitnumber >= this.numberOfUnits ) {
-            throw new IllegalArgumentException("the given unit index number("+unitnumber+") must be less than number of available units("+this.numberOfUnits+")");
-        }
-        return this.voiced[unitnumber];
-    }
+	/**
+	 * get boolean array of voiced frame information: true, if voiced; false if unvoiced;
+	 * 
+	 * @param unitnumber
+	 *            unit index number
+	 * @return boolean[] boolean array of voiced frames
+	 * @throws IllegalArgumentException
+	 *             if given index number is not less than available units
+	 */
+	public boolean[] getVoicedFrames(int unitnumber) {
+		if (unitnumber >= this.numberOfUnits) {
+			throw new IllegalArgumentException("the given unit index number(" + unitnumber
+					+ ") must be less than number of available units(" + this.numberOfUnits + ")");
+		}
+		return this.voiced[unitnumber];
+	}
 
-    /**
-     * get array of logf0 features
-     * @param unitnumber unit index number
-     * @return double[] array of logf0 values
-     * @throws IllegalArgumentException if given index number is not less than available units
-     */
-    public double[] getUnitLF0( int unitnumber ) {
-        if ( unitnumber >= this.numberOfUnits ) {
-            throw new IllegalArgumentException("the given unit index number("+unitnumber+") must be less than number of available units("+this.numberOfUnits+")");
-        }
-        return this.logf0[unitnumber];
-    }
+	/**
+	 * get array of logf0 features
+	 * 
+	 * @param unitnumber
+	 *            unit index number
+	 * @return double[] array of logf0 values
+	 * @throws IllegalArgumentException
+	 *             if given index number is not less than available units
+	 */
+	public double[] getUnitLF0(int unitnumber) {
+		if (unitnumber >= this.numberOfUnits) {
+			throw new IllegalArgumentException("the given unit index number(" + unitnumber
+					+ ") must be less than number of available units(" + this.numberOfUnits + ")");
+		}
+		return this.logf0[unitnumber];
+	}
 
-    /**
-     * get double array of MGC features
-     * @param unitnumber unit index number
-     * @return double[][] array of mgc vectors
-     * @throws IllegalArgumentException if given index number is not less than available units
-     */
-    public double[][] getUnitMGCs( int unitnumber ) {
-        if ( unitnumber >= this.numberOfUnits ) {
-            throw new IllegalArgumentException("the given unit index number("+unitnumber+") must be less than number of available units("+this.numberOfUnits+")");
-        }
-        return this.mgc[unitnumber];
-    }
+	/**
+	 * get double array of MGC features
+	 * 
+	 * @param unitnumber
+	 *            unit index number
+	 * @return double[][] array of mgc vectors
+	 * @throws IllegalArgumentException
+	 *             if given index number is not less than available units
+	 */
+	public double[][] getUnitMGCs(int unitnumber) {
+		if (unitnumber >= this.numberOfUnits) {
+			throw new IllegalArgumentException("the given unit index number(" + unitnumber
+					+ ") must be less than number of available units(" + this.numberOfUnits + ")");
+		}
+		return this.mgc[unitnumber];
+	}
 
-    /**
-     * get double array of strength features
-     * @param unitnumber unit index number
-     * @return double[][] array of strength vectors
-     * @throws IllegalArgumentException if given index number is not less than available units
-     */
-    public double[][] getUnitStrengths( int unitnumber ) {
-        if ( unitnumber >= this.numberOfUnits ) {
-            throw new IllegalArgumentException("the given unit index number("+unitnumber+") must be less than number of available units("+this.numberOfUnits+")");
-        }
-        return this.strengths[unitnumber];
-    }
+	/**
+	 * get double array of strength features
+	 * 
+	 * @param unitnumber
+	 *            unit index number
+	 * @return double[][] array of strength vectors
+	 * @throws IllegalArgumentException
+	 *             if given index number is not less than available units
+	 */
+	public double[][] getUnitStrengths(int unitnumber) {
+		if (unitnumber >= this.numberOfUnits) {
+			throw new IllegalArgumentException("the given unit index number(" + unitnumber
+					+ ") must be less than number of available units(" + this.numberOfUnits + ")");
+		}
+		return this.strengths[unitnumber];
+	}
 
-    /**
-     * get vector size of MGC features
-     * @return int mgc vector size
-     */
-    public int getMGCVectorSize() {
-        return this.MGCVECTORSIZE;
-    }
+	/**
+	 * get vector size of MGC features
+	 * 
+	 * @return int mgc vector size
+	 */
+	public int getMGCVectorSize() {
+		return this.MGCVECTORSIZE;
+	}
 
-    /**
-     * get vector size of LF0 features
-     * @return int lf0 vector size
-     */
-    public int getLF0VectorSize() {
-        return this.LF0VECTORSIZE;
-    }
+	/**
+	 * get vector size of LF0 features
+	 * 
+	 * @return int lf0 vector size
+	 */
+	public int getLF0VectorSize() {
+		return this.LF0VECTORSIZE;
+	}
 
-    /**
-     * get vector size of strength features
-     * @return int strengths vector size
-     */
-    public int getSTRVectorSize() {
-        return this.STRVECTORSIZE;
-    }
+	/**
+	 * get vector size of strength features
+	 * 
+	 * @return int strengths vector size
+	 */
+	public int getSTRVectorSize() {
+		return this.STRVECTORSIZE;
+	}
 
-    public static void main(String[] args) throws Exception{
-        String fileName = "/home/sathish/Work/phd/voices/mlsa-poppy-listener/vocalizations/files/vocalization_mlsa_features.mry";
-        MLSAFeatureFileReader bcUfr = new MLSAFeatureFileReader(fileName);
-        //bcUfr.load(fileName);
-    }
+	public static void main(String[] args) throws Exception {
+		String fileName = "/home/sathish/Work/phd/voices/mlsa-poppy-listener/vocalizations/files/vocalization_mlsa_features.mry";
+		MLSAFeatureFileReader bcUfr = new MLSAFeatureFileReader(fileName);
+		// bcUfr.load(fileName);
+	}
 }

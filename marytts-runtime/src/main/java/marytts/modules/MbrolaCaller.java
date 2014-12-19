@@ -39,59 +39,63 @@ import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.AudioReader;
 import marytts.util.io.StreamLogger;
 
-
 /**
- * The mbrola caller. This can work as a normal MARY module, converting MBROLA
- * data into audio, or it can be indirectly called from the MbrolaSynthesizer.
- *
+ * The mbrola caller. This can work as a normal MARY module, converting MBROLA data into audio, or it can be indirectly called
+ * from the MbrolaSynthesizer.
+ * 
  * @author Marc Schr&ouml;der
  */
 
 public class MbrolaCaller extends SynthesisCallerBase {
-    private String baseCmd;
-    private int timeout;
+	private String baseCmd;
+	private int timeout;
 
-    /**
-     * This is so a subclass of MbrolaCaller can also use the superclass constructor.
-     * @param name
-     * @param inputType
-     * @param outputType
-     */
-    protected MbrolaCaller(String name, MaryDataType inputType, MaryDataType outputType) {
-        super(name, inputType, outputType);
-    }
+	/**
+	 * This is so a subclass of MbrolaCaller can also use the superclass constructor.
+	 * 
+	 * @param name
+	 * @param inputType
+	 * @param outputType
+	 */
+	protected MbrolaCaller(String name, MaryDataType inputType, MaryDataType outputType) {
+		super(name, inputType, outputType);
+	}
 
-    public MbrolaCaller() throws NoSuchPropertyException {
-        super("MbrolaCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
-        String basePath = System.getProperty("mary.base") + File.separator + "bin" + File.separator;
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Windows")) {
-            baseCmd = basePath + "mbrola_cygwin.exe";
-        } else if (osName.equals("Linux")) {
-            baseCmd = basePath + "mbrola-linux-i386";
-        } else if (osName.startsWith("Mac OS")) {
-            baseCmd = basePath + "mbrola-darwin-ppc";
-        } else if (osName.equals("Solaris") || osName.equals("SunOS")) {
-            baseCmd = basePath + "mbrola-solaris";
-        } else {
-            // fallback to fragile agnostic brute-force search:
-            baseCmd = findMbrolaBinary(basePath);
-        }
-        if (baseCmd == null) {
-            throw new NullPointerException("No mbrola binary found in "+basePath+" that can be run on this machine.");
-        }
-        logger.debug("Found mbrola binary in "+baseCmd);
-        timeout = MaryProperties.needInteger("modules.timeout");
-    }
+	public MbrolaCaller() throws NoSuchPropertyException {
+		super("MbrolaCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
+		String basePath = System.getProperty("mary.base") + File.separator + "bin" + File.separator;
+		String osName = System.getProperty("os.name");
+		if (osName.startsWith("Windows")) {
+			baseCmd = basePath + "mbrola_cygwin.exe";
+		} else if (osName.equals("Linux")) {
+			baseCmd = basePath + "mbrola-linux-i386";
+		} else if (osName.startsWith("Mac OS")) {
+			baseCmd = basePath + "mbrola-darwin-ppc";
+		} else if (osName.equals("Solaris") || osName.equals("SunOS")) {
+			baseCmd = basePath + "mbrola-solaris";
+		} else {
+			// fallback to fragile agnostic brute-force search:
+			baseCmd = findMbrolaBinary(basePath);
+		}
+		if (baseCmd == null) {
+			throw new NullPointerException("No mbrola binary found in " + basePath + " that can be run on this machine.");
+		}
+		logger.debug("Found mbrola binary in " + baseCmd);
+		timeout = MaryProperties.needInteger("modules.timeout");
+	}
 
-    /**
-     * Synthesise one chunk of MBROLA data with a given voice.
-     * @param mbrolaData the MBROLA data in the usual MBROLA pho format
-     * @param voice the Voice with which to synthesise the data
-     * @return an AudioInputStream in the native audio format of the voice
-     * @throws IOException if communication with external module fails
-     */
-    public AudioInputStream synthesiseOneSection(String mbrolaData, Voice voice) throws IOException {
+	/**
+	 * Synthesise one chunk of MBROLA data with a given voice.
+	 * 
+	 * @param mbrolaData
+	 *            the MBROLA data in the usual MBROLA pho format
+	 * @param voice
+	 *            the Voice with which to synthesise the data
+	 * @return an AudioInputStream in the native audio format of the voice
+	 * @throws IOException
+	 *             if communication with external module fails
+	 */
+	public AudioInputStream synthesiseOneSection(String mbrolaData, Voice voice) throws IOException {
         assert getState() == MODULE_RUNNING;
         if (mbrolaData == null || voice == null) {
             throw new IllegalArgumentException("Received null argument.");
@@ -154,13 +158,14 @@ public class MbrolaCaller extends SynthesisCallerBase {
         throw new IOException("Repeated timeouts -- cannot synthesise.");
     }
 
-    /**
-     * Try to find an mbrola binary that can be run on the present platform. Do this in the brute-force way:
-     * try out all things in our bin/ directory that have mbrola in their name. If we can run them, we are done.
-     * @param binPath
-     * @return the full path of a runnable mbrola binary, or null if none could be found. 
-     */
-    private String findMbrolaBinary(String binPath) {
+	/**
+	 * Try to find an mbrola binary that can be run on the present platform. Do this in the brute-force way: try out all things in
+	 * our bin/ directory that have mbrola in their name. If we can run them, we are done.
+	 * 
+	 * @param binPath
+	 * @return the full path of a runnable mbrola binary, or null if none could be found.
+	 */
+	private String findMbrolaBinary(String binPath) {
         String fileSeparator = System.getProperty("file.separator");
         if (!binPath.endsWith(fileSeparator)) {
             binPath += fileSeparator;
@@ -194,4 +199,3 @@ public class MbrolaCaller extends SynthesisCallerBase {
         return null;
     }
 }
-

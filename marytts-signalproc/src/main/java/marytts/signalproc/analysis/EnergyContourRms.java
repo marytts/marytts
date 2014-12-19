@@ -37,101 +37,92 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  */
 public class EnergyContourRms {
-    public EnergyFileHeader header;
-    public double[] contour;
+	public EnergyFileHeader header;
+	public double[] contour;
 
-    public EnergyContourRms() throws IOException
-    {
-        this(null);
-    }
-    
-    public EnergyContourRms(String wavFile) throws IOException
-    {
-        this(wavFile, null);
-    }
-    
-    public EnergyContourRms(String wavFile, String energyFile) throws IOException
-    {
-        this(wavFile, energyFile, EnergyFileHeader.DEFAULT_WINDOW_SIZE, EnergyFileHeader.DEFAULT_SKIP_SIZE);
-    }
-    
-    public EnergyContourRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn) throws IOException
-    {   
-        this(wavFileIn, null, windowSizeInSecondsIn, skipSizeInSecondsIn);
-    }
-    
-    public EnergyContourRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn) throws IOException
-    {   
-        header = new EnergyFileHeader();
-        
-        header.windowSizeInSeconds = windowSizeInSecondsIn;
-        header.skipSizeInSeconds = skipSizeInSecondsIn;
-        
-        if (wavFileIn!=null)
-        {
-            AudioInputStream inputAudio = null;
-            try {
-                inputAudio = AudioSystem.getAudioInputStream(new File(wavFileIn));
-            } catch (UnsupportedAudioFileException e) {
-                throw new IOException("Unsupported audio file: " + wavFileIn);
-            } 
-            
-            if (inputAudio!=null)
-            {
-                header.samplingRate = (int)inputAudio.getFormat().getSampleRate();
+	public EnergyContourRms() throws IOException {
+		this(null);
+	}
 
-                AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+	public EnergyContourRms(String wavFile) throws IOException {
+		this(wavFile, null);
+	}
 
-                contour = SignalProcUtils.getEnergyContourRms(signal.getAllData(), header.windowSizeInSeconds, header.skipSizeInSeconds, header.samplingRate);
-                
-                header.totalFrames = contour.length;
+	public EnergyContourRms(String wavFile, String energyFile) throws IOException {
+		this(wavFile, energyFile, EnergyFileHeader.DEFAULT_WINDOW_SIZE, EnergyFileHeader.DEFAULT_SKIP_SIZE);
+	}
 
-                if (energyFileOut!=null && energyFileOut!=null) {                    
-                    WriteEnergyFile(this, energyFileOut);
-                }
-            }
-        }
-    }
-    
-    public static void WriteEnergyFile(EnergyContourRms en, String energyFile) throws IOException
-    {
-        if (en.contour!=null)
-        {
-            en.header.totalFrames = en.contour.length;
-            
-            MaryRandomAccessFile ler = null;
-            try {
-                ler = new MaryRandomAccessFile(energyFile, "rw");
-            } catch (FileNotFoundException e) {
-                throw new IOException("File not found: " + energyFile);
-            }
-            
-            en.header.write(ler);
-            
-            ler.writeDouble(en.contour);
-                
-            ler.close();
-        }
-    }
+	public EnergyContourRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn) throws IOException {
+		this(wavFileIn, null, windowSizeInSecondsIn, skipSizeInSecondsIn);
+	}
 
-    public static EnergyContourRms ReadEnergyFile(String energyFile) throws IOException
-    {
-        EnergyContourRms en = null;
-        MaryRandomAccessFile ler = null;
-        try {
-            ler = new MaryRandomAccessFile(energyFile, "r");
-        } catch (FileNotFoundException e) {
-            throw new IOException("File not found: " + energyFile);
-        }
+	public EnergyContourRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
+			throws IOException {
+		header = new EnergyFileHeader();
 
-        en = new EnergyContourRms();
-        en.header.read(ler, true);
+		header.windowSizeInSeconds = windowSizeInSecondsIn;
+		header.skipSizeInSeconds = skipSizeInSecondsIn;
 
-        en.contour = ler.readDouble(en.header.totalFrames);
+		if (wavFileIn != null) {
+			AudioInputStream inputAudio = null;
+			try {
+				inputAudio = AudioSystem.getAudioInputStream(new File(wavFileIn));
+			} catch (UnsupportedAudioFileException e) {
+				throw new IOException("Unsupported audio file: " + wavFileIn);
+			}
 
-        ler.close();
-        
-        return en;
-    }
+			if (inputAudio != null) {
+				header.samplingRate = (int) inputAudio.getFormat().getSampleRate();
+
+				AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+
+				contour = SignalProcUtils.getEnergyContourRms(signal.getAllData(), header.windowSizeInSeconds,
+						header.skipSizeInSeconds, header.samplingRate);
+
+				header.totalFrames = contour.length;
+
+				if (energyFileOut != null && energyFileOut != null) {
+					WriteEnergyFile(this, energyFileOut);
+				}
+			}
+		}
+	}
+
+	public static void WriteEnergyFile(EnergyContourRms en, String energyFile) throws IOException {
+		if (en.contour != null) {
+			en.header.totalFrames = en.contour.length;
+
+			MaryRandomAccessFile ler = null;
+			try {
+				ler = new MaryRandomAccessFile(energyFile, "rw");
+			} catch (FileNotFoundException e) {
+				throw new IOException("File not found: " + energyFile);
+			}
+
+			en.header.write(ler);
+
+			ler.writeDouble(en.contour);
+
+			ler.close();
+		}
+	}
+
+	public static EnergyContourRms ReadEnergyFile(String energyFile) throws IOException {
+		EnergyContourRms en = null;
+		MaryRandomAccessFile ler = null;
+		try {
+			ler = new MaryRandomAccessFile(energyFile, "r");
+		} catch (FileNotFoundException e) {
+			throw new IOException("File not found: " + energyFile);
+		}
+
+		en = new EnergyContourRms();
+		en.header.read(ler, true);
+
+		en.contour = ler.readDouble(en.header.totalFrames);
+
+		ler.close();
+
+		return en;
+	}
 }
-

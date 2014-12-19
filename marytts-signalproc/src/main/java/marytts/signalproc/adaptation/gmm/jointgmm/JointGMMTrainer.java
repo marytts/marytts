@@ -26,29 +26,23 @@ import marytts.signalproc.adaptation.BaselineTrainer;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 
 /**
- * Joint-GMM voice conversion training
- * Both parallel and non-parallel training should derive from this class
+ * Joint-GMM voice conversion training Both parallel and non-parallel training should derive from this class
  * 
  * @author Oytun T&uumlrk
  */
 public class JointGMMTrainer extends BaselineTrainer {
 
-    protected WeightedCodebookTrainerParams codebookTrainerParams;
-    protected JointGMMTrainerParams gmmTrainerParams;
-    protected ContextualGMMParams cgParams;
-    
-    public JointGMMTrainer(BaselinePreprocessor pp,
-                           BaselineFeatureExtractor fe,
-                           WeightedCodebookTrainerParams pa,
-                           JointGMMTrainerParams gp,
-                           ContextualGMMParams cg) 
-    {
-        super(pp, fe);
-        
-        codebookTrainerParams = new WeightedCodebookTrainerParams(pa);
-        gmmTrainerParams = new JointGMMTrainerParams(gp);
-        cgParams = new ContextualGMMParams(cg);
-    }
-            
-}
+	protected WeightedCodebookTrainerParams codebookTrainerParams;
+	protected JointGMMTrainerParams gmmTrainerParams;
+	protected ContextualGMMParams cgParams;
 
+	public JointGMMTrainer(BaselinePreprocessor pp, BaselineFeatureExtractor fe, WeightedCodebookTrainerParams pa,
+			JointGMMTrainerParams gp, ContextualGMMParams cg) {
+		super(pp, fe);
+
+		codebookTrainerParams = new WeightedCodebookTrainerParams(pa);
+		gmmTrainerParams = new JointGMMTrainerParams(gp);
+		cgParams = new ContextualGMMParams(cg);
+	}
+
+}

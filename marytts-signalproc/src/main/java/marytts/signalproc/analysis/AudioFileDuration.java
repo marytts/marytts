@@ -28,30 +28,25 @@ import javax.sound.sampled.AudioSystem;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.string.PrintfFormat;
 
-
-
 /**
  * @author Marc Schr&ouml;der
- *
- * Prints durations of audio files that are specified as fullpath arguments in String[] args
+ * 
+ *         Prints durations of audio files that are specified as fullpath arguments in String[] args
  * 
  */
-public class AudioFileDuration 
-{
-    
-    public static void main(String[] args) throws Exception
-    {
-        PrintfFormat format = new PrintfFormat("%.4f");
-        for (int file=0; file<args.length; file++) {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[file]));
-            if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-                ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
-            }
-            float samplingRate = ais.getFormat().getSampleRate();
-            double[] signal = new AudioDoubleDataSource(ais).getAllData();
-            float duration = signal.length / samplingRate;
-            System.out.println(args[file]+": "+format.sprintf(duration)+" s");
-        }
-    }
-}
+public class AudioFileDuration {
 
+	public static void main(String[] args) throws Exception {
+		PrintfFormat format = new PrintfFormat("%.4f");
+		for (int file = 0; file < args.length; file++) {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[file]));
+			if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+				ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+			}
+			float samplingRate = ais.getFormat().getSampleRate();
+			double[] signal = new AudioDoubleDataSource(ais).getAllData();
+			float duration = signal.length / samplingRate;
+			System.out.println(args[file] + ": " + format.sprintf(duration) + " s");
+		}
+	}
+}

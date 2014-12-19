@@ -31,24 +31,18 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
-
 /**
  * Transforms a full MaryXML document into an MBROLA format string
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class RealisedDurationsExtractor extends InternalModule
-{
-    public RealisedDurationsExtractor()
-    {
-        super("Realised durations extractor",
-              MaryDataType.AUDIO,
-              MaryDataType.REALISED_DURATIONS,
-              null);
-    }
+public class RealisedDurationsExtractor extends InternalModule {
+	public RealisedDurationsExtractor() {
+		super("Realised durations extractor", MaryDataType.AUDIO, MaryDataType.REALISED_DURATIONS, null);
+	}
 
-    public MaryData process(MaryData d)
+	public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument();
@@ -93,6 +87,4 @@ public class RealisedDurationsExtractor extends InternalModule
         result.setPlainText(buf.toString());
         return result;
     }
-
 }
-

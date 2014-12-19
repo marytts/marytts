@@ -23,90 +23,114 @@ package marytts.tools.redstart;
 import java.io.File;
 
 /**
- *
+ * 
  * @author Mat Wilson <mwilson@dfki.de>
  */
 public class Prompt {
-    
-    // ______________________________________________________________________
-    // Instance fields
-    private String basename;          // Basename used in filenames for this prompt
-    private String promptText;        // Prompt text to display to speaker
-    private String promptTranscriptionText;        // Prompt Transcription text to display to speaker
-    protected Synthesis synthesized;  // Synthesized version of the prompt - not needed here?
-    protected Recording recorded;     // Recorded version(s) of the prompt
-        
-    // ______________________________________________________________________
-    // Class fields
-    
-    // ______________________________________________________________________
-    // Instance methods
-    
-    /** Gets the basename for the prompt
-     *  @return The basename for the current prompt
-     */
-    public String getBasename() { return basename; }
-    
-    /** Gets the prompt text for the prompt
-     *  @return The prompt text for the current prompt
-     */
-    public String getPromptText() { return promptText; }
-    
-    /** Gets the prompt transcription text for the prompt
-     *  @return The prompt transcription text for the current prompt
-     */
-    public String getPromptTranscriptionText() { return promptTranscriptionText; }
-    
-    
-    
-    /** Sets the prompt text for the prompt
-     *  @param The prompt text for the current prompt
-     */
-    public void setPromptText(String text) {
-        this.promptText = text;
-    }
 
-    /** Sets the prompt transcription text for the prompt
-     *  @param The prompt transcription text for the current prompt
-     */
-    public void setPromptTranscriptionText(String text) {
-        this.promptTranscriptionText = text;
-    }
+	// ______________________________________________________________________
+	// Instance fields
+	private String basename; // Basename used in filenames for this prompt
+	private String promptText; // Prompt text to display to speaker
+	private String promptTranscriptionText; // Prompt Transcription text to display to speaker
+	protected Synthesis synthesized; // Synthesized version of the prompt - not needed here?
+	protected Recording recorded; // Recorded version(s) of the prompt
 
-    
-    
-    /**
-     * Get the recording object associated to this prompt.
-     * @return
-     */
-    public Recording getRecording() { return recorded; }
-    
-    /** Gets the the number of recordings for the current prompt
-     *  @return The number of recordings for the current prompt
-     */
-    public int getRecCount() { return recorded.getFileCount(); }
+	// ______________________________________________________________________
+	// Class fields
 
-    public Synthesis getSynthesis() {
-        return synthesized;
-    }
-        
-    // ______________________________________________________________________
-    // Class methods
-    
-    // ______________________________________________________________________
-    // Constructors
-    
-    /** Creates a new instance of Prompt
-     *  @param promptBasename The basename for the prompt (e.g., spike0003)
-     *  @param voicePath The file path for the voice (e.g., path for Spike)
-     */    
-    public Prompt(String passedBasename, File recFolderPath, File synthFolderPath) {
+	// ______________________________________________________________________
+	// Instance methods
 
-        this.basename = passedBasename;
-        this.recorded = new Recording(recFolderPath, this.basename);
-        this.synthesized = new Synthesis(synthFolderPath, this.basename);
-        
-    }
-    
+	/**
+	 * Gets the basename for the prompt
+	 * 
+	 * @return The basename for the current prompt
+	 */
+	public String getBasename() {
+		return basename;
+	}
+
+	/**
+	 * Gets the prompt text for the prompt
+	 * 
+	 * @return The prompt text for the current prompt
+	 */
+	public String getPromptText() {
+		return promptText;
+	}
+
+	/**
+	 * Gets the prompt transcription text for the prompt
+	 * 
+	 * @return The prompt transcription text for the current prompt
+	 */
+	public String getPromptTranscriptionText() {
+		return promptTranscriptionText;
+	}
+
+	/**
+	 * Sets the prompt text for the prompt
+	 * 
+	 * @param The
+	 *            prompt text for the current prompt
+	 */
+	public void setPromptText(String text) {
+		this.promptText = text;
+	}
+
+	/**
+	 * Sets the prompt transcription text for the prompt
+	 * 
+	 * @param The
+	 *            prompt transcription text for the current prompt
+	 */
+	public void setPromptTranscriptionText(String text) {
+		this.promptTranscriptionText = text;
+	}
+
+	/**
+	 * Get the recording object associated to this prompt.
+	 * 
+	 * @return
+	 */
+	public Recording getRecording() {
+		return recorded;
+	}
+
+	/**
+	 * Gets the the number of recordings for the current prompt
+	 * 
+	 * @return The number of recordings for the current prompt
+	 */
+	public int getRecCount() {
+		return recorded.getFileCount();
+	}
+
+	public Synthesis getSynthesis() {
+		return synthesized;
+	}
+
+	// ______________________________________________________________________
+	// Class methods
+
+	// ______________________________________________________________________
+	// Constructors
+
+	/**
+	 * Creates a new instance of Prompt
+	 * 
+	 * @param promptBasename
+	 *            The basename for the prompt (e.g., spike0003)
+	 * @param voicePath
+	 *            The file path for the voice (e.g., path for Spike)
+	 */
+	public Prompt(String passedBasename, File recFolderPath, File synthFolderPath) {
+
+		this.basename = passedBasename;
+		this.recorded = new Recording(recFolderPath, this.basename);
+		this.synthesized = new Synthesis(synthFolderPath, this.basename);
+
+	}
+
 }
-

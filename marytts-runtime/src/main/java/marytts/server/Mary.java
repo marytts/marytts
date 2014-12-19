@@ -67,41 +67,42 @@ import marytts.util.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-
 /**
- * The main program for the mary TtS system.
- *          It can run as a socket server or as a stand-alone program.
+ * The main program for the mary TtS system. It can run as a socket server or as a stand-alone program.
+ * 
  * @author Marc Schr&ouml;der
  */
 
 public class Mary {
-    public static final int STATE_OFF = 0;
-    public static final int STATE_STARTING = 1;
-    public static final int STATE_RUNNING = 2;
-    public static final int STATE_SHUTTING_DOWN = 3;
+	public static final int STATE_OFF = 0;
+	public static final int STATE_STARTING = 1;
+	public static final int STATE_RUNNING = 2;
+	public static final int STATE_SHUTTING_DOWN = 3;
 
-    private static Logger logger;
+	private static Logger logger;
 
-    private static int currentState = STATE_OFF;
-    private static boolean jarsAdded = false;
+	private static int currentState = STATE_OFF;
+	private static boolean jarsAdded = false;
 
-    /**
-     * Inform about system state.
-     * @return an integer representing the current system state.
-     * @see #STATE_OFF
-     * @see #STATE_STARTING
-     * @see #STATE_RUNNING
-     * @see #STATE_SHUTTING_DOWN
-     */
-    public static int currentState() {
-        return currentState;
-    }
+	/**
+	 * Inform about system state.
+	 * 
+	 * @return an integer representing the current system state.
+	 * @see #STATE_OFF
+	 * @see #STATE_STARTING
+	 * @see #STATE_RUNNING
+	 * @see #STATE_SHUTTING_DOWN
+	 */
+	public static int currentState() {
+		return currentState;
+	}
 
-    /**
-     * Add jars to classpath. Normally this is called from startup().
-     * @throws Exception
-     */
-    protected static void addJarsToClasspath() throws Exception
+	/**
+	 * Add jars to classpath. Normally this is called from startup().
+	 * 
+	 * @throws Exception
+	 */
+	protected static void addJarsToClasspath() throws Exception
     {
     	if (true) return;
     	// TODO: clean this up when the new modularity mechanism is in place
@@ -123,8 +124,7 @@ public class Mary {
         jarsAdded = true;
     }
 
-
-    private static void startModules()
+	private static void startModules()
         throws ClassNotFoundException, InstantiationException, Exception {
         for (String moduleClassName : MaryProperties.moduleInitInfo()) {
             MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
@@ -170,7 +170,7 @@ public class Mary {
         }
     }
 
-    private static void setupFeatureProcessors()
+	private static void setupFeatureProcessors()
     throws Exception
     {
         for (String fpmInitInfo : MaryProperties.getList("featuremanager.classes.list")) {
@@ -189,33 +189,31 @@ public class Mary {
             }
         }
     }
-    
-    
-    /**
-     * Start the MARY system and all modules. This method must be called
-     * once before any calls to {@link #process()} are possible.
-     * The method will dynamically extend the classpath to all jar files in
-     * MARY_BASE/java/*.jar. Use <code>startup(false)</code> if you do not want
-     * to automatically extend the classpath in this way.
-     * @throws IllegalStateException if the system is not offline.
-     * @throws Exception
-     */
-    public static void startup() throws Exception
-    {
-        startup(true);
-    }
-    
-    
-    /**
-     * Start the MARY system and all modules. This method must be called
-     * once before any calls to {@link #process()} are possible.
-     * @param addJarsToClasspath if true, the
-     * method will dynamically extend the classpath to all jar files in
-     * MARY_BASE/java/*.jar; if false, the classpath will remain unchanged.
-     * @throws IllegalStateException if the system is not offline.
-     * @throws Exception
-     */
-    public static void startup(boolean addJarsToClasspath) throws Exception
+
+	/**
+	 * Start the MARY system and all modules. This method must be called once before any calls to {@link #process()} are possible.
+	 * The method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar. Use <code>startup(false)</code>
+	 * if you do not want to automatically extend the classpath in this way.
+	 * 
+	 * @throws IllegalStateException
+	 *             if the system is not offline.
+	 * @throws Exception
+	 */
+	public static void startup() throws Exception {
+		startup(true);
+	}
+
+	/**
+	 * Start the MARY system and all modules. This method must be called once before any calls to {@link #process()} are possible.
+	 * 
+	 * @param addJarsToClasspath
+	 *            if true, the method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar; if false,
+	 *            the classpath will remain unchanged.
+	 * @throws IllegalStateException
+	 *             if the system is not offline.
+	 * @throws Exception
+	 */
+	public static void startup(boolean addJarsToClasspath) throws Exception
     {
         if (currentState != STATE_OFF) throw new IllegalStateException("Cannot start system: it is not offline");
         currentState = STATE_STARTING;
@@ -301,12 +299,13 @@ public class Mary {
         currentState = STATE_RUNNING;
     }
 
-    /**
-     * Log4j initialisation, called from {@link #startup(boolean)}.
-     * @throws NoSuchPropertyException
-     * @throws IOException
-     */
-    private static void configureLogging() throws MaryConfigurationException, IOException {
+	/**
+	 * Log4j initialisation, called from {@link #startup(boolean)}.
+	 * 
+	 * @throws NoSuchPropertyException
+	 * @throws IOException
+	 */
+	private static void configureLogging() throws MaryConfigurationException, IOException {
         if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
             // Configure logging:
             /*        logger = MaryUtils.getLogger("main");
@@ -375,11 +374,13 @@ public class Mary {
         
     }
 
-    /**
-     * Orderly shut down the MARY system.
-     * @throws IllegalStateException if the MARY system is not running.
-     */
-    public static void shutdown()
+	/**
+	 * Orderly shut down the MARY system.
+	 * 
+	 * @throws IllegalStateException
+	 *             if the MARY system is not running.
+	 */
+	public static void shutdown()
     {
         if (currentState != STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
         currentState = STATE_SHUTTING_DOWN;
@@ -401,149 +402,148 @@ public class Mary {
         logger.info("Shutdown complete.");
         currentState = STATE_OFF;
     }
-    
-    /**
-     * Process input into output using the MARY system. For inputType TEXT
-     * and output type AUDIO, this does text-to-speech conversion; for other
-     * settings, intermediate processing results can be generated or provided
-     * as input.
-     * @param input
-     * @param inputTypeName
-     * @param outputTypeName
-     * @param localeString
-     * @param audioType
-     * @param voiceName
-     * @param style
-     * @param effects
-     * @param outputTypeParams
-     * @param output the output stream into which the processing result will be
-     * written.
-     * @throws IllegalStateException if the MARY system is not running.
-     * @throws Exception
-     */
-    public static void process(String input, String inputTypeName, String outputTypeName,
-            String localeString, String audioTypeName, String voiceName, 
-            String style, String effects, String outputTypeParams, OutputStream output)
-    throws Exception
-    {
-        if (currentState != STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
-        
-        MaryDataType inputType = MaryDataType.get(inputTypeName);
-        MaryDataType outputType = MaryDataType.get(outputTypeName);
-        Locale locale = MaryUtils.string2locale(localeString);
-        Voice voice = null;
-        if (voiceName != null)
-            voice = Voice.getVoice(voiceName);
-        AudioFileFormat audioFileFormat = null;
-        AudioFileFormat.Type audioType = null;
-        if (audioTypeName != null) {
-            audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
-            AudioFormat audioFormat = null;
-            if (audioTypeName.equals("MP3")) {
-                audioFormat = MaryRuntimeUtils.getMP3AudioFormat();
-            } else if (audioTypeName.equals("Vorbis")) {
-                audioFormat = MaryRuntimeUtils.getOggAudioFormat();
-            } else if (voice != null) {
-                audioFormat = voice.dbAudioFormat();
-            } else {
-                audioFormat = Voice.AF22050;
-            }
-            audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
-        }
-        
-        Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false, outputTypeParams);
-        request.setInputData(input);
-        request.process();
-        request.writeOutputData(output);
 
-        
-        
-    }
-    
+	/**
+	 * Process input into output using the MARY system. For inputType TEXT and output type AUDIO, this does text-to-speech
+	 * conversion; for other settings, intermediate processing results can be generated or provided as input.
+	 * 
+	 * @param input
+	 * @param inputTypeName
+	 * @param outputTypeName
+	 * @param localeString
+	 * @param audioType
+	 * @param voiceName
+	 * @param style
+	 * @param effects
+	 * @param outputTypeParams
+	 * @param output
+	 *            the output stream into which the processing result will be written.
+	 * @throws IllegalStateException
+	 *             if the MARY system is not running.
+	 * @throws Exception
+	 */
+	public static void process(String input, String inputTypeName, String outputTypeName, String localeString,
+			String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)
+			throws Exception {
+		if (currentState != STATE_RUNNING)
+			throw new IllegalStateException("MARY system is not running");
 
-    /**
-     * The starting point of the standalone Mary program.
-     * If server mode is requested by property settings, starts
-     * the <code>MaryServer</code>; otherwise, a <code>Request</code>
-     * is created reading from the file given as first argument and writing
-     * to System.out.
-     *
-     * <p>Usage:<p>
-     * As a socket server:
-     * <pre>
-     * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
-     * </pre><p>
-     * As a stand-alone program:
-     * <pre>
-     * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
-     * </pre>
-     * @see MaryProperties
-     * @see MaryServer
-     * @see RequestHandler
-     * @see Request
-     */
-    public static void main(final String[] args) throws Exception {
-        long startTime = System.currentTimeMillis();
+		MaryDataType inputType = MaryDataType.get(inputTypeName);
+		MaryDataType outputType = MaryDataType.get(outputTypeName);
+		Locale locale = MaryUtils.string2locale(localeString);
+		Voice voice = null;
+		if (voiceName != null)
+			voice = Voice.getVoice(voiceName);
+		AudioFileFormat audioFileFormat = null;
+		AudioFileFormat.Type audioType = null;
+		if (audioTypeName != null) {
+			audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
+			AudioFormat audioFormat = null;
+			if (audioTypeName.equals("MP3")) {
+				audioFormat = MaryRuntimeUtils.getMP3AudioFormat();
+			} else if (audioTypeName.equals("Vorbis")) {
+				audioFormat = MaryRuntimeUtils.getOggAudioFormat();
+			} else if (voice != null) {
+				audioFormat = voice.dbAudioFormat();
+			} else {
+				audioFormat = Voice.AF22050;
+			}
+			audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
+		}
 
-        addJarsToClasspath();
+		Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false,
+				outputTypeParams);
+		request.setInputData(input);
+		request.process();
+		request.writeOutputData(output);
 
-        String server = MaryProperties.needProperty("server");
-        System.err.print("MARY server " + Version.specificationVersion() + " starting as a ");
-        if (server.equals("socket")) System.err.print("socket server...");
-        else if (server.equals("http")) System.err.print("HTTP server...");
-        else System.err.print("command-line application...");
-        
-        // first thing we do, let's test if the port is available:
-        if (!server.equals("commandline")) {
-            int localPort = MaryProperties.needInteger("socket.port");
-            try {
-                ServerSocket serverSocket = new ServerSocket(localPort);
-                serverSocket.close();
-            } catch (IOException e) {
-                System.err.println("\nPort " + localPort + " already in use!");
-                throw e;
-            }
-        }
-        
-        startup();
-        System.err.println(" started in " + (System.currentTimeMillis()-startTime)/1000. + " s");
-        
-        Runnable main = null;
-        
-        if (server.equals("socket")) { //socket server mode
-            main = (Runnable) Class.forName("marytts.server.MaryServer").newInstance();
-        } else if (server.equals("http")) { //http server mode
-        	main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
-        } else { // command-line mode
-        	main = new Runnable() {
-        		public void run() {
-        			try {
-                        InputStream inputStream;
-                        if (args.length == 0 || args[0].equals("-"))
-                            inputStream = System.in;
-                        else
-                            inputStream = new FileInputStream(args[0]);
-                        String input = FileUtils.getStreamAsString(inputStream, "UTF-8");
-                        process(input,
-                                MaryProperties.getProperty("input.type", "TEXT"),
-                                MaryProperties.getProperty("output.type", "AUDIO"),
-                                MaryProperties.getProperty("locale", "en_US"),
-                                MaryProperties.getProperty("audio.type", "WAVE"),
-                                MaryProperties.getProperty("voice", null),
-                                MaryProperties.getProperty("style", null),
-                                MaryProperties.getProperty("effect", null),
-                                MaryProperties.getProperty("output.type.params", null),
-                                System.out);
-        			} catch (Exception e) {
-        				throw new RuntimeException(e);
-        			}
-        		}
-        	};
-        }
-        
-        main.run();
-        
-        //shutdown();
-    }
+	}
+
+	/**
+	 * The starting point of the standalone Mary program. If server mode is requested by property settings, starts the
+	 * <code>MaryServer</code>; otherwise, a <code>Request</code> is created reading from the file given as first argument and
+	 * writing to System.out.
+	 * 
+	 * <p>
+	 * Usage:
+	 * <p>
+	 * As a socket server:
+	 * 
+	 * <pre>
+	 * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
+	 * </pre>
+	 * <p>
+	 * As a stand-alone program:
+	 * 
+	 * <pre>
+	 * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
+	 * </pre>
+	 * 
+	 * @see MaryProperties
+	 * @see MaryServer
+	 * @see RequestHandler
+	 * @see Request
+	 */
+	public static void main(final String[] args) throws Exception {
+		long startTime = System.currentTimeMillis();
+
+		addJarsToClasspath();
+
+		String server = MaryProperties.needProperty("server");
+		System.err.print("MARY server " + Version.specificationVersion() + " starting as a ");
+		if (server.equals("socket"))
+			System.err.print("socket server...");
+		else if (server.equals("http"))
+			System.err.print("HTTP server...");
+		else
+			System.err.print("command-line application...");
+
+		// first thing we do, let's test if the port is available:
+		if (!server.equals("commandline")) {
+			int localPort = MaryProperties.needInteger("socket.port");
+			try {
+				ServerSocket serverSocket = new ServerSocket(localPort);
+				serverSocket.close();
+			} catch (IOException e) {
+				System.err.println("\nPort " + localPort + " already in use!");
+				throw e;
+			}
+		}
+
+		startup();
+		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s");
+
+		Runnable main = null;
+
+		if (server.equals("socket")) { // socket server mode
+			main = (Runnable) Class.forName("marytts.server.MaryServer").newInstance();
+		} else if (server.equals("http")) { // http server mode
+			main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
+		} else { // command-line mode
+			main = new Runnable() {
+				public void run() {
+					try {
+						InputStream inputStream;
+						if (args.length == 0 || args[0].equals("-"))
+							inputStream = System.in;
+						else
+							inputStream = new FileInputStream(args[0]);
+						String input = FileUtils.getStreamAsString(inputStream, "UTF-8");
+						process(input, MaryProperties.getProperty("input.type", "TEXT"),
+								MaryProperties.getProperty("output.type", "AUDIO"),
+								MaryProperties.getProperty("locale", "en_US"), MaryProperties.getProperty("audio.type", "WAVE"),
+								MaryProperties.getProperty("voice", null), MaryProperties.getProperty("style", null),
+								MaryProperties.getProperty("effect", null),
+								MaryProperties.getProperty("output.type.params", null), System.out);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			};
+		}
+
+		main.run();
+
+		// shutdown();
+	}
 }
-

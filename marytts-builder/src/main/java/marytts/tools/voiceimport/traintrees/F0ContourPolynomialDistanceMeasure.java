@@ -28,75 +28,75 @@ import marytts.util.math.Polynomial;
 
 /**
  * @author marc
- *
+ * 
  */
-public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
-{
-    private float[][] contourCoeffs;
-    
-    public F0ContourPolynomialDistanceMeasure(FeatureFileReader contours)
-    throws IOException
-    {
-        this.contourCoeffs = new float[contours.getNumberOfUnits()][];
-        for (int i=0; i<contourCoeffs.length; i++) {
-            contourCoeffs[i] = contours.getFeatureVector(i).getContinuousFeatures();
-        }
-    }
-    
-    /**
-     * Compute the distance between the f0 contours corresponding to the given feature vectors.
-     * From the feature vectors, only their unit index number is used.
-     * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector, marytts.features.FeatureVector)
-     */
-    public float distance(FeatureVector fv1, FeatureVector fv2)
-    {
-        float dist = (float) Polynomial.polynomialDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);
-        return dist;
-    }
+public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
+	private float[][] contourCoeffs;
 
-    /**
-     * Compute the distance between the f0 contours corresponding to the given feature vectors.
-     * From the feature vectors, only their unit index number is used.
-     * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector, marytts.features.FeatureVector)
-     */
-    public float squaredDistance(FeatureVector fv1, FeatureVector fv2)
-    {
-        float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);
-        return dist;
-    }
-    
-    
-    public float squaredDistance(FeatureVector fv, float[] polynomial) {
-        float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[fv.unitIndex], polynomial);
-        return dist;
-    }
-    
-    /**
-     * Compute the mean polynomial from the given set of polynomials.
-     * @param fvs
-     * @return
-     */
-    public float[] computeMean(FeatureVector[] fvs) {
-        float[][] contours = new float[fvs.length][];
-        for (int i=0; i<fvs.length; i++) {
-            contours[i] = contourCoeffs[fvs[i].unitIndex];
-        }
-        float[] mean = Polynomial.mean(contours);
-        return mean;
-    }
-    
-    /**
-     * Compute the variance of the given set of feature vectors.
-     * @param fvs
-     * @return
-     */
-    public double computeVariance(FeatureVector[] fvs) {
-        float[][] contours = new float[fvs.length][];
-        for (int i=0; i<fvs.length; i++) {
-            contours[i] = contourCoeffs[fvs[i].unitIndex];
-        }
-        float[] mean = Polynomial.mean(contours);
-        double variance = Polynomial.variance(contours, mean);
-        return variance;
-    }
+	public F0ContourPolynomialDistanceMeasure(FeatureFileReader contours) throws IOException {
+		this.contourCoeffs = new float[contours.getNumberOfUnits()][];
+		for (int i = 0; i < contourCoeffs.length; i++) {
+			contourCoeffs[i] = contours.getFeatureVector(i).getContinuousFeatures();
+		}
+	}
+
+	/**
+	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
+	 * their unit index number is used.
+	 * 
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
+	 *      marytts.features.FeatureVector)
+	 */
+	public float distance(FeatureVector fv1, FeatureVector fv2) {
+		float dist = (float) Polynomial.polynomialDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);
+		return dist;
+	}
+
+	/**
+	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
+	 * their unit index number is used.
+	 * 
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
+	 *      marytts.features.FeatureVector)
+	 */
+	public float squaredDistance(FeatureVector fv1, FeatureVector fv2) {
+		float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);
+		return dist;
+	}
+
+	public float squaredDistance(FeatureVector fv, float[] polynomial) {
+		float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[fv.unitIndex], polynomial);
+		return dist;
+	}
+
+	/**
+	 * Compute the mean polynomial from the given set of polynomials.
+	 * 
+	 * @param fvs
+	 * @return
+	 */
+	public float[] computeMean(FeatureVector[] fvs) {
+		float[][] contours = new float[fvs.length][];
+		for (int i = 0; i < fvs.length; i++) {
+			contours[i] = contourCoeffs[fvs[i].unitIndex];
+		}
+		float[] mean = Polynomial.mean(contours);
+		return mean;
+	}
+
+	/**
+	 * Compute the variance of the given set of feature vectors.
+	 * 
+	 * @param fvs
+	 * @return
+	 */
+	public double computeVariance(FeatureVector[] fvs) {
+		float[][] contours = new float[fvs.length][];
+		for (int i = 0; i < fvs.length; i++) {
+			contours[i] = contourCoeffs[fvs[i].unitIndex];
+		}
+		float[] mean = Polynomial.mean(contours);
+		double variance = Polynomial.variance(contours, mean);
+		return variance;
+	}
 }

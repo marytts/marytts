@@ -34,68 +34,69 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class UnitLabel {
-    public String unitName;
-    public double startTime;
-    public double endTime;
-    public int unitIndex;
-    public double sCost;
-    
-    public UnitLabel(String unitName, double startTime, double endTime, int unitIndex){
-        this.unitName = unitName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.unitIndex = unitIndex;
-        this.sCost = 0;
-    }
-    public UnitLabel(String unitName, double startTime, double endTime, int unitIndex, double sCost){
-        this.unitName = unitName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.unitIndex = unitIndex;
-        this.sCost = sCost;
-    }
-    
-    public double getSCost(){
-        return this.sCost;
-    }
-    
-    public double getStartTime(){
-        return this.startTime;
-    }
-    
-    public double getEndTime(){
-        return this.endTime;
-    }
-    
-    public int getUnitIndex(){
-        return this.unitIndex;
-    }
-    
-    public String getUnitName(){
-        return this.unitName;
-    }
-   
-    public void setStartTime(double startTime){
-        this.startTime = startTime;
-    }
-    
-    public void setEndTime(double endTime){
-        this.endTime = endTime;
-    }
-    
-    public void setUnitIndex(int unitIndex){
-        this.unitIndex = unitIndex;
-    }
-    
-    public void setUnitName(String unitName){
-        this.unitName = unitName;
-    }
-    
-    /**
-     * @param labFile
-     * @return
-     */
-    public static UnitLabel[] readLabFile(String labFile) throws IOException{
+	public String unitName;
+	public double startTime;
+	public double endTime;
+	public int unitIndex;
+	public double sCost;
+
+	public UnitLabel(String unitName, double startTime, double endTime, int unitIndex) {
+		this.unitName = unitName;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.unitIndex = unitIndex;
+		this.sCost = 0;
+	}
+
+	public UnitLabel(String unitName, double startTime, double endTime, int unitIndex, double sCost) {
+		this.unitName = unitName;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.unitIndex = unitIndex;
+		this.sCost = sCost;
+	}
+
+	public double getSCost() {
+		return this.sCost;
+	}
+
+	public double getStartTime() {
+		return this.startTime;
+	}
+
+	public double getEndTime() {
+		return this.endTime;
+	}
+
+	public int getUnitIndex() {
+		return this.unitIndex;
+	}
+
+	public String getUnitName() {
+		return this.unitName;
+	}
+
+	public void setStartTime(double startTime) {
+		this.startTime = startTime;
+	}
+
+	public void setEndTime(double endTime) {
+		this.endTime = endTime;
+	}
+
+	public void setUnitIndex(int unitIndex) {
+		this.unitIndex = unitIndex;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
+	}
+
+	/**
+	 * @param labFile
+	 * @return
+	 */
+	public static UnitLabel[] readLabFile(String labFile) throws IOException{
         
         ArrayList<String> lines = new ArrayList<String>();
         BufferedReader labels = new BufferedReader
@@ -144,41 +145,41 @@ public class UnitLabel {
         }
         return ulab;
     }
-    
-    public static void writeLabFile(UnitLabel[] ulab, String outFile)
-    throws IOException
-    {
-        PrintWriter pw = new PrintWriter(new FileWriter(outFile));
-        pw.println("#");
-        for(int i=0; i<ulab.length; i++){
-            pw.printf(Locale.US, "%.6f %d %s\n", ulab[i].getEndTime(), ulab[i].getUnitIndex(), ulab[i].getUnitName());
-        }
-        pw.flush();
-        pw.close();
-    }
-    
-    /**
-     * To get Label Unit DATA (time stamp, index, phone unit)
-     * @param line
-     * @return ArrayList contains time stamp, index and phone unit
-     * @throws IOException
-     */
-    private static ArrayList getLabelUnitData(String line) throws IOException
-    {
-        if (line == null) return null;
-        ArrayList unitData = new ArrayList();
-        StringTokenizer st = new StringTokenizer(line.trim());
-        //the first token is the time
-        unitData.add(st.nextToken()); 
-        //the second token is the unit index
-        unitData.add(st.nextToken());
-        //the third token is the phone
-        unitData.add(st.nextToken());
-       //the fourth token is sCost
-        if(st.hasMoreTokens())
-        unitData.add(st.nextToken());
-        else unitData.add("0");
-        return unitData;
-    }
-    
+
+	public static void writeLabFile(UnitLabel[] ulab, String outFile) throws IOException {
+		PrintWriter pw = new PrintWriter(new FileWriter(outFile));
+		pw.println("#");
+		for (int i = 0; i < ulab.length; i++) {
+			pw.printf(Locale.US, "%.6f %d %s\n", ulab[i].getEndTime(), ulab[i].getUnitIndex(), ulab[i].getUnitName());
+		}
+		pw.flush();
+		pw.close();
+	}
+
+	/**
+	 * To get Label Unit DATA (time stamp, index, phone unit)
+	 * 
+	 * @param line
+	 * @return ArrayList contains time stamp, index and phone unit
+	 * @throws IOException
+	 */
+	private static ArrayList getLabelUnitData(String line) throws IOException {
+		if (line == null)
+			return null;
+		ArrayList unitData = new ArrayList();
+		StringTokenizer st = new StringTokenizer(line.trim());
+		// the first token is the time
+		unitData.add(st.nextToken());
+		// the second token is the unit index
+		unitData.add(st.nextToken());
+		// the third token is the phone
+		unitData.add(st.nextToken());
+		// the fourth token is sCost
+		if (st.hasMoreTokens())
+			unitData.add(st.nextToken());
+		else
+			unitData.add("0");
+		return unitData;
+	}
+
 }

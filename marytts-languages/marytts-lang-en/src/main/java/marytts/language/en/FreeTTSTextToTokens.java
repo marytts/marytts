@@ -44,87 +44,67 @@ import com.sun.speech.freetts.Tokenizer;
 import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.en.us.USEnglish;
 
-
-
 /**
  * Use an individual FreeTTS module for English synthesis.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class FreeTTSTextToTokens extends InternalModule
-{
-    public FreeTTSTextToTokens()
-    {
-        super("TextToTokens",
-              MaryDataType.TEXT,
-              USEnglishDataTypes.FREETTS_TOKENS,
-              Locale.ENGLISH
-              );
-    }
+public class FreeTTSTextToTokens extends InternalModule {
+	public FreeTTSTextToTokens() {
+		super("TextToTokens", MaryDataType.TEXT, USEnglishDataTypes.FREETTS_TOKENS, Locale.ENGLISH);
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
+	public void startup() throws Exception {
+		super.startup();
 
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-    }
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        String text = d.getPlainText();
-        // create a basic utterance from text
-	Tokenizer tokenizer = new com.sun.speech.freetts.en.TokenizerImpl();
-	tokenizer.setWhitespaceSymbols(USEnglish.WHITESPACE_SYMBOLS);
-	tokenizer.setSingleCharSymbols(USEnglish.SINGLE_CHAR_SYMBOLS);
-	tokenizer.setPrepunctuationSymbols(USEnglish.PREPUNCTUATION_SYMBOLS);
-	tokenizer.setPostpunctuationSymbols(USEnglish.PUNCTUATION_SYMBOLS);
-        tokenizer.setInputText(text);
-        ArrayList utteranceList = new ArrayList();
-        Token savedToken = null;
-        boolean first = true;
-        while (tokenizer.hasMoreTokens()) {
-            // Fill a new Utterance:
-            ArrayList tokenList = new ArrayList();
-            Utterance utterance = null;
-            if (savedToken != null) {
-                tokenList.add(savedToken);
-                savedToken = null;
-            }
-            while (tokenizer.hasMoreTokens()) {
-                Token token = tokenizer.getNextToken();
-                if ((token.getWord().length() == 0) ||
-                    (tokenList.size() > 500) ||
-                    tokenizer.isBreak()) {
-                    savedToken = token;
-                    break;
-                }
-                tokenList.add(token);
-            }
-            marytts.modules.synthesis.Voice maryVoice =
-                d.getDefaultVoice();
-            if (maryVoice == null ||
-                !maryVoice.getLocale().equals(Locale.US)) {
-                maryVoice = marytts.modules.synthesis.Voice.
-                    getDefaultVoice(Locale.US);
-            }
+	public MaryData process(MaryData d) throws Exception {
+		String text = d.getPlainText();
+		// create a basic utterance from text
+		Tokenizer tokenizer = new com.sun.speech.freetts.en.TokenizerImpl();
+		tokenizer.setWhitespaceSymbols(USEnglish.WHITESPACE_SYMBOLS);
+		tokenizer.setSingleCharSymbols(USEnglish.SINGLE_CHAR_SYMBOLS);
+		tokenizer.setPrepunctuationSymbols(USEnglish.PREPUNCTUATION_SYMBOLS);
+		tokenizer.setPostpunctuationSymbols(USEnglish.PUNCTUATION_SYMBOLS);
+		tokenizer.setInputText(text);
+		ArrayList utteranceList = new ArrayList();
+		Token savedToken = null;
+		boolean first = true;
+		while (tokenizer.hasMoreTokens()) {
+			// Fill a new Utterance:
+			ArrayList tokenList = new ArrayList();
+			Utterance utterance = null;
+			if (savedToken != null) {
+				tokenList.add(savedToken);
+				savedToken = null;
+			}
+			while (tokenizer.hasMoreTokens()) {
+				Token token = tokenizer.getNextToken();
+				if ((token.getWord().length() == 0) || (tokenList.size() > 500) || tokenizer.isBreak()) {
+					savedToken = token;
+					break;
+				}
+				tokenList.add(token);
+			}
+			marytts.modules.synthesis.Voice maryVoice = d.getDefaultVoice();
+			if (maryVoice == null || !maryVoice.getLocale().equals(Locale.US)) {
+				maryVoice = marytts.modules.synthesis.Voice.getDefaultVoice(Locale.US);
+			}
 
-            utterance =  new Utterance
-                (FreeTTSVoices.getFreeTTSVoice(maryVoice), tokenList);
-            //utterance.setSpeakable(speakable);
-            utterance.setFirst(first);
-            first = false;
-            utterance.setLast(!tokenizer.hasMoreTokens());
-            utteranceList.add(utterance);
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utteranceList);
-        return output;
-    }
-
-
-
+			utterance = new Utterance(FreeTTSVoices.getFreeTTSVoice(maryVoice), tokenList);
+			// utterance.setSpeakable(speakable);
+			utterance.setFirst(first);
+			first = false;
+			utterance.setLast(!tokenizer.hasMoreTokens());
+			utteranceList.add(utterance);
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setUtterances(utteranceList);
+		return output;
+	}
 
 }

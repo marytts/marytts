@@ -41,61 +41,50 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
-
 /**
  * The preprocessing module.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class Preprocess extends InternalModule
-{
+public class Preprocess extends InternalModule {
 
-    public Preprocess()
-    {
-        super("Preprocess",
-              MaryDataType.TOKENS,
-              MaryDataType.WORDS,
-              Locale.ITALIAN);
-    }
+	public Preprocess() {
+		super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.ITALIAN);
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        Document doc = d.getDocument();
-        logger.info("Expanding say-as elements...");
-        expandSayasElements(doc);
-        logger.info("Matching and expanding patterns...");
-        matchAndExpandPatterns(doc);
-        logger.info("Done.");
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(doc);
-        return result;
-    }
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		logger.info("Expanding say-as elements...");
+		expandSayasElements(doc);
+		logger.info("Matching and expanding patterns...");
+		matchAndExpandPatterns(doc);
+		logger.info("Done.");
+		MaryData result = new MaryData(outputType(), d.getLocale());
+		result.setDocument(doc);
+		return result;
+	}
 
-    private void expandSayasElements(Document doc)
-    {
-        NodeList sayasElements = doc.getElementsByTagName(MaryXML.SAYAS);
-        for(int i=0; i<sayasElements.getLength(); i++) {
-            Element sayas = (Element) sayasElements.item(i);
-            String type = sayas.getAttribute("type");
-            ExpansionPattern ep = ExpansionPattern.getPattern(type);
-            if (ep != null) {
-                if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-                    logger.debug("Expanding say-as element of type " + type +
-                                 ", containing text `" +
-                                 MaryDomUtils.getPlainTextBelow(sayas) + "'");
-                }
-                ep.match(sayas, type);
-            } else {
-                // Don't know how to handle type -- ignore
-                logger.info("Don't know how to expand say-as type=\"" +
-                             type + "\"");
-            }
-        }
-    }
+	private void expandSayasElements(Document doc) {
+		NodeList sayasElements = doc.getElementsByTagName(MaryXML.SAYAS);
+		for (int i = 0; i < sayasElements.getLength(); i++) {
+			Element sayas = (Element) sayasElements.item(i);
+			String type = sayas.getAttribute("type");
+			ExpansionPattern ep = ExpansionPattern.getPattern(type);
+			if (ep != null) {
+				if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+					logger.debug("Expanding say-as element of type " + type + ", containing text `"
+							+ MaryDomUtils.getPlainTextBelow(sayas) + "'");
+				}
+				ep.match(sayas, type);
+			} else {
+				// Don't know how to handle type -- ignore
+				logger.info("Don't know how to expand say-as type=\"" + type + "\"");
+			}
+		}
+	}
 
-    private void matchAndExpandPatterns(Document doc)
+	private void matchAndExpandPatterns(Document doc)
     {
         TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(
             doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.TOKEN), false);
@@ -146,55 +135,61 @@ public class Preprocess extends InternalModule
             } // all patterns
         } // all tokens
     }
-    
-    /**
-     * Find the last token in the list of elements l.
-     * Starting from the last element in the list, if the element itself is a token,
-     * return it; else, if it has a direct or indirect descendant which is a token,
-     * return that one; else, go backwards in the list.
-     * @param l a list of elements
-     * @return the last token, or null if no such token can be found
-     */
-    private Element getLastToken(List l) {
-        if (l == null) throw new NullPointerException("Received null argument");
-        if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
-        for (int i=l.size()-1; i>=0; i--) {
-            Element e = (Element) l.get(i);
-            Element t = null;
-            if (e.getTagName().equals(MaryXML.TOKEN)) {
-                t = e;
-            } else {
-                t = MaryDomUtils.getLastElementByTagName(e, MaryXML.TOKEN);
-            }
-            if (t != null)
-                return t;
-        }
-        return null;
-    }
 
-    /**
-     * Find the first token in the list of elements l.
-     * Starting from the first element in the list, if the element itself is a token,
-     * return it; else, if it has a direct or indirect descendant which is a token,
-     * return that one; else, go forward in the list.
-     * @param l a list of elements
-     * @return the first token, or null if no such token can be found
-     */
-    private Element getFirstToken(List l) {
-        if (l == null) throw new NullPointerException("Received null argument");
-        if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
-        for (int i=0; i<l.size(); i++) {
-            Element e = (Element) l.get(i); 
-            Element t = null;
-            if (e.getTagName().equals(MaryXML.TOKEN)) {
-                t = e;
-            } else {
-                t = MaryDomUtils.getFirstElementByTagName(e, MaryXML.TOKEN);
-            }
-            if (t != null)
-                return t;
-        }
-        return null;
-    }
+	/**
+	 * Find the last token in the list of elements l. Starting from the last element in the list, if the element itself is a
+	 * token, return it; else, if it has a direct or indirect descendant which is a token, return that one; else, go backwards in
+	 * the list.
+	 * 
+	 * @param l
+	 *            a list of elements
+	 * @return the last token, or null if no such token can be found
+	 */
+	private Element getLastToken(List l) {
+		if (l == null)
+			throw new NullPointerException("Received null argument");
+		if (l.isEmpty())
+			throw new IllegalArgumentException("Received empty list");
+		for (int i = l.size() - 1; i >= 0; i--) {
+			Element e = (Element) l.get(i);
+			Element t = null;
+			if (e.getTagName().equals(MaryXML.TOKEN)) {
+				t = e;
+			} else {
+				t = MaryDomUtils.getLastElementByTagName(e, MaryXML.TOKEN);
+			}
+			if (t != null)
+				return t;
+		}
+		return null;
+	}
+
+	/**
+	 * Find the first token in the list of elements l. Starting from the first element in the list, if the element itself is a
+	 * token, return it; else, if it has a direct or indirect descendant which is a token, return that one; else, go forward in
+	 * the list.
+	 * 
+	 * @param l
+	 *            a list of elements
+	 * @return the first token, or null if no such token can be found
+	 */
+	private Element getFirstToken(List l) {
+		if (l == null)
+			throw new NullPointerException("Received null argument");
+		if (l.isEmpty())
+			throw new IllegalArgumentException("Received empty list");
+		for (int i = 0; i < l.size(); i++) {
+			Element e = (Element) l.get(i);
+			Element t = null;
+			if (e.getTagName().equals(MaryXML.TOKEN)) {
+				t = e;
+			} else {
+				t = MaryDomUtils.getFirstElementByTagName(e, MaryXML.TOKEN);
+			}
+			if (t != null)
+				return t;
+		}
+		return null;
+	}
 
 }

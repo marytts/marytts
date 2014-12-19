@@ -26,55 +26,48 @@ import marytts.util.math.MathUtils;
  * @author Oytun T&uumlrk
  */
 public class HMMF0AddEffect extends BaseAudioEffect {
-    public float f0Add;
-    public static float NO_MODIFICATION = 0.0f;
-    public static float DEFAULT_F0_ADD = 50.0f;
-    public static float MAX_F0_ADD= 300.0f;
-    public static float MIN_F0_ADD = -300.0f;
-    
-    public HMMF0AddEffect()
-    {
-        super(16000);
-        
-        setHMMEffect(true);
-        
-        setExampleParameters("f0Add" + chParamEquals + Float.toString(DEFAULT_F0_ADD) + chParamSeparator);
-    }
-    
-    public void parseParameters(String param)
-    {
-        super.parseParameters(param);
-        
-        f0Add = expectFloatParameter("f0Add");
-        
-        if (f0Add == NULL_FLOAT_PARAM)
-            f0Add = DEFAULT_F0_ADD;
-        
-        f0Add = MathUtils.CheckLimits(f0Add, MIN_F0_ADD, MAX_F0_ADD);
-    }
-    
-    //Actual processing is done within the HMM synthesizer so do nothing here
-    public DoubleDataSource process(DoubleDataSource input)
-    {
-        return input;
-    }
+	public float f0Add;
+	public static float NO_MODIFICATION = 0.0f;
+	public static float DEFAULT_F0_ADD = 50.0f;
+	public static float MAX_F0_ADD = 300.0f;
+	public static float MIN_F0_ADD = -300.0f;
 
-    public String getHelpText() {
-        
-        String strHelp = "F0 mean shifting effect for HMM voices:" + strLineBreak +
-                         "Shifts the mean F0 value by <f0Add> Hz for HMM voices." + strLineBreak +
-                         "Parameter:" + strLineBreak +
-                         "   <f0Add>" +
-                         "   Definition : F0 shift of mean value in Hz for synthesized speech output" + strLineBreak +
-                         "   Range      : [" + String.valueOf(MIN_F0_ADD) + "," + String.valueOf(MAX_F0_ADD) + "]" + strLineBreak +
-                         "Example:" + strLineBreak +
-                         getExampleParameters();
-                        
-        return strHelp;
-    }
+	public HMMF0AddEffect() {
+		super(16000);
 
-    public String getName() {
-        return "F0Add";
-    }
+		setHMMEffect(true);
+
+		setExampleParameters("f0Add" + chParamEquals + Float.toString(DEFAULT_F0_ADD) + chParamSeparator);
+	}
+
+	public void parseParameters(String param) {
+		super.parseParameters(param);
+
+		f0Add = expectFloatParameter("f0Add");
+
+		if (f0Add == NULL_FLOAT_PARAM)
+			f0Add = DEFAULT_F0_ADD;
+
+		f0Add = MathUtils.CheckLimits(f0Add, MIN_F0_ADD, MAX_F0_ADD);
+	}
+
+	// Actual processing is done within the HMM synthesizer so do nothing here
+	public DoubleDataSource process(DoubleDataSource input) {
+		return input;
+	}
+
+	public String getHelpText() {
+
+		String strHelp = "F0 mean shifting effect for HMM voices:" + strLineBreak
+				+ "Shifts the mean F0 value by <f0Add> Hz for HMM voices." + strLineBreak + "Parameter:" + strLineBreak
+				+ "   <f0Add>" + "   Definition : F0 shift of mean value in Hz for synthesized speech output" + strLineBreak
+				+ "   Range      : [" + String.valueOf(MIN_F0_ADD) + "," + String.valueOf(MAX_F0_ADD) + "]" + strLineBreak
+				+ "Example:" + strLineBreak + getExampleParameters();
+
+		return strHelp;
+	}
+
+	public String getName() {
+		return "F0Add";
+	}
 }
-

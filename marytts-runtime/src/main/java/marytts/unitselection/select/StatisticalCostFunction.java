@@ -22,26 +22,23 @@ package marytts.unitselection.select;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 
-
 /**
- * A statistical cost function 
+ * A statistical cost function
+ * 
  * @author Sathish Pammi
- *
+ * 
  */
-public interface StatisticalCostFunction
-{
-    
-    public double cost(Unit u1, Unit u2);
+public interface StatisticalCostFunction {
 
-    /**
-     * Initialise this scost cost function by reading the appropriate settings
-     * from the MaryProperties using the given configPrefix.
-     * @param configPrefix the prefix for the (voice-specific) config entries
-     * to use when looking up files to load.
-     */
-    public void init(String configPrefix) throws MaryConfigurationException;
-    
-    
-    
+	public double cost(Unit u1, Unit u2);
+
+	/**
+	 * Initialise this scost cost function by reading the appropriate settings from the MaryProperties using the given
+	 * configPrefix.
+	 * 
+	 * @param configPrefix
+	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 */
+	public void init(String configPrefix) throws MaryConfigurationException;
+
 }
-

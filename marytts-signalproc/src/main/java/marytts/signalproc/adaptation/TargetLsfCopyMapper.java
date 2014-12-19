@@ -33,26 +33,25 @@ import marytts.signalproc.analysis.Labels;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class TargetLsfCopyMapper extends VocalTractTransformationFunction {
 
-    public TargetLsfCopyMapper()
-    {
-        
-    }
-    
-    public LsfMatch transform(double sourceTime, Labels sourceLabels, Labels targetLabels, double[][] targetLsfs, double targetLsfAnalysisWindowSizeInSeconds, double targetLsfAnalysisSkipSizeInSeconds)
-    {
-        double targetTime = SignalProcUtils.sourceTime2targetTime(sourceTime, sourceLabels, targetLabels);
-        
-        int targetInd = SignalProcUtils.time2frameIndex(targetTime, targetLsfAnalysisWindowSizeInSeconds, targetLsfAnalysisSkipSizeInSeconds);
-        
-        targetInd = MathUtils.CheckLimits(targetInd, 0, targetLsfs.length-1);
-        
-        return new LsfMatch(targetLsfs[targetInd]);
-    }
+	public TargetLsfCopyMapper() {
+
+	}
+
+	public LsfMatch transform(double sourceTime, Labels sourceLabels, Labels targetLabels, double[][] targetLsfs,
+			double targetLsfAnalysisWindowSizeInSeconds, double targetLsfAnalysisSkipSizeInSeconds) {
+		double targetTime = SignalProcUtils.sourceTime2targetTime(sourceTime, sourceLabels, targetLabels);
+
+		int targetInd = SignalProcUtils.time2frameIndex(targetTime, targetLsfAnalysisWindowSizeInSeconds,
+				targetLsfAnalysisSkipSizeInSeconds);
+
+		targetInd = MathUtils.CheckLimits(targetInd, 0, targetLsfs.length - 1);
+
+		return new LsfMatch(targetLsfs[targetInd]);
+	}
 }

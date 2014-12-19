@@ -25,265 +25,233 @@ import java.io.IOException;
 import marytts.util.io.FileUtils;
 import marytts.util.io.MaryRandomAccessFile;
 
-
 /**
  * 
  * A class for handling file I/O of binary weighted codebook files
- *
+ * 
  * @author Oytun T&uumlrk
  */
 public class WeightedCodebookFile {
-    int status;
-    public static int NOT_OPENED = -1;
-    public static int OPEN_FOR_READ = 0;
-    public static int OPEN_FOR_WRITE = 1;
-    
-    public MaryRandomAccessFile stream;
-    public String currentFile;
-    
-    public static final String DEFAULT_EXTENSION = ".wcf";
-    
-    public WeightedCodebookFile()
-    {
-        this("");
-    }
-    
-    public WeightedCodebookFile(String codebookFile)
-    {
-        this(codebookFile, NOT_OPENED);
-    }
-    
-    public WeightedCodebookFile(String codebookFile, int desiredStatus)
-    {
-        init(codebookFile, desiredStatus);
-    }
-    
-    private void init(String codebookFile, int desiredStatus)
-    {
-        status = NOT_OPENED;
-        stream = null;
-        currentFile = "";
-        
-        if (desiredStatus==OPEN_FOR_READ)
-        {
-            status = desiredStatus;
-            try {
-                stream = new MaryRandomAccessFile(codebookFile, "r");
-                currentFile = codebookFile;
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } 
-        }
-        else if (desiredStatus==OPEN_FOR_WRITE)
-        {
-            FileUtils.delete(codebookFile);
-            
-            status = desiredStatus;
-            try {
-                stream = new MaryRandomAccessFile(codebookFile, "rw");
-                currentFile = codebookFile;
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    public void close()
-    {
-        if (status!=NOT_OPENED)
-        {
-            if (stream!=null)
-            {       
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            
-            stream = null;
-            status = NOT_OPENED;
-        }
-    }
-    
-    public WeightedCodebookFileHeader readCodebookHeader(String codebookFile, boolean bCloseAfterReading)
-    {
-        init(codebookFile, OPEN_FOR_READ);
-        return readCodebookHeader();
-    }
+	int status;
+	public static int NOT_OPENED = -1;
+	public static int OPEN_FOR_READ = 0;
+	public static int OPEN_FOR_WRITE = 1;
 
-    public WeightedCodebookFileHeader readCodebookHeader()
-    {
-        try {
-            return readCodebookHeader(stream);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        return null;
-    }
-    
-    public static WeightedCodebookFileHeader readCodebookHeader(MaryRandomAccessFile ler) throws IOException
-    {
-        WeightedCodebookFileHeader header = new WeightedCodebookFileHeader();
-        
-        header.read(ler);
-        
-        return header;
-    }
-    
-    public MaryRandomAccessFile writeCodebookHeader(String codebookFile, WeightedCodebookFileHeader header)
-    {   
-        init(codebookFile, OPEN_FOR_WRITE);
-        return writeCodebookHeader(header);
-    }
-    
-    public MaryRandomAccessFile writeCodebookHeader(WeightedCodebookFileHeader header)
-    {
-        try {
-             writeCodebookHeader(stream, header);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        return stream;
-    }
-    
-    public void writeCodebookHeader(MaryRandomAccessFile ler, WeightedCodebookFileHeader header) throws IOException
-    {
-        header.write(ler);
-    }
-    
-    public WeightedCodebook readCodebookFile() throws IOException
-    {
-        return readCodebookFile(currentFile);
-    }
-    
-    //Read whole codebook from a file into memory
-    public WeightedCodebook readCodebookFile(String codebookFile) throws IOException
-    {
-        WeightedCodebook codebook = null;
-        
-        if (FileUtils.exists(codebookFile))
-        {
-            if (status!=OPEN_FOR_READ)
-            {
-                if (status!=NOT_OPENED)
-                    close();
+	public MaryRandomAccessFile stream;
+	public String currentFile;
 
-                init(codebookFile, OPEN_FOR_READ);
-            }
+	public static final String DEFAULT_EXTENSION = ".wcf";
 
-            if (status==OPEN_FOR_READ)
-            {
-                codebook = new WeightedCodebook();
+	public WeightedCodebookFile() {
+		this("");
+	}
 
-                codebook.header = readCodebookHeader();
-                
-                readCodebookFileExcludingHeader(codebook);
-            }
-        }
+	public WeightedCodebookFile(String codebookFile) {
+		this(codebookFile, NOT_OPENED);
+	}
 
-        return codebook;
-    }
-    
-    public void readCodebookFileExcludingHeader(WeightedCodebook codebook)
-    {
-        codebook.allocate();
+	public WeightedCodebookFile(String codebookFile, int desiredStatus) {
+		init(codebookFile, desiredStatus);
+	}
 
-        System.out.println("Reading codebook file: "+ currentFile + "...");
-        
-        int i;
-        for (i=0; i<codebook.header.totalEntries; i++)
-            codebook.entries[i] = readEntry(codebook.header.lsfParams.dimension, codebook.header.mfccParams.dimension);
-        
-        close();
-        
-        System.out.println("Reading completed...");
-    }
-    
-    public void WriteCodebookFile(String codebookFile, WeightedCodebook codebook)
-    {
-        if (status!=OPEN_FOR_WRITE)
-        {
-            if (status!=NOT_OPENED)
-                close();
+	private void init(String codebookFile, int desiredStatus) {
+		status = NOT_OPENED;
+		stream = null;
+		currentFile = "";
 
-            init(codebookFile, OPEN_FOR_WRITE);
-        }
+		if (desiredStatus == OPEN_FOR_READ) {
+			status = desiredStatus;
+			try {
+				stream = new MaryRandomAccessFile(codebookFile, "r");
+				currentFile = codebookFile;
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (desiredStatus == OPEN_FOR_WRITE) {
+			FileUtils.delete(codebookFile);
 
-        codebook.header.totalEntries = codebook.entries.length;
-        
-        writeCodebookHeader(codebookFile, codebook.header);
+			status = desiredStatus;
+			try {
+				stream = new MaryRandomAccessFile(codebookFile, "rw");
+				currentFile = codebookFile;
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
-        int i;
-        for (i=0; i<codebook.header.totalEntries; i++)
-            writeEntry(codebook.entries[i]);
-        
-        close();
-    }
-    
-    //Append a new codebook entry to a codebook file opened with write permission
-    public void writeEntry(WeightedCodebookEntry w)
-    {
-        if (status!=OPEN_FOR_WRITE)
-        {
-            if (status!=NOT_OPENED)
-                close();
-               
-            init(currentFile, OPEN_FOR_WRITE);
-        }
-        
-        if (status==OPEN_FOR_WRITE)
-        {
-            w.write(stream);
-            incrementTotalEntries();
-        }
-    }
-    
-    //Read a codebook entry from a codebook file opened with read permission
-    public WeightedCodebookEntry readEntry(int lpOrder, int mfccDimension)
-    {
-        WeightedCodebookEntry w = new WeightedCodebookEntry();
-        
-        if (status!=OPEN_FOR_READ)
-        {
-            if (status!=NOT_OPENED)
-                close();
-               
-            init(currentFile, OPEN_FOR_READ);
-        }
-        
-        if (status==OPEN_FOR_READ)
-            w.read(stream, lpOrder, mfccDimension);
-        
-        return w;
-    }
-    //
-    
-    public void incrementTotalEntries()
-    {
-        if (status==OPEN_FOR_WRITE)
-        {
-            try {
-                long currentPos = stream.getFilePointer();
-                stream.seek(0);
-                int totalEntries = stream.readInt();
-                totalEntries++;
-                stream.seek(0);
-                stream.writeInt(totalEntries);
-                System.out.println("Wrote codebook entry " + String.valueOf(totalEntries));
-                stream.seek(currentPos);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
+	public void close() {
+		if (status != NOT_OPENED) {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			stream = null;
+			status = NOT_OPENED;
+		}
+	}
+
+	public WeightedCodebookFileHeader readCodebookHeader(String codebookFile, boolean bCloseAfterReading) {
+		init(codebookFile, OPEN_FOR_READ);
+		return readCodebookHeader();
+	}
+
+	public WeightedCodebookFileHeader readCodebookHeader() {
+		try {
+			return readCodebookHeader(stream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static WeightedCodebookFileHeader readCodebookHeader(MaryRandomAccessFile ler) throws IOException {
+		WeightedCodebookFileHeader header = new WeightedCodebookFileHeader();
+
+		header.read(ler);
+
+		return header;
+	}
+
+	public MaryRandomAccessFile writeCodebookHeader(String codebookFile, WeightedCodebookFileHeader header) {
+		init(codebookFile, OPEN_FOR_WRITE);
+		return writeCodebookHeader(header);
+	}
+
+	public MaryRandomAccessFile writeCodebookHeader(WeightedCodebookFileHeader header) {
+		try {
+			writeCodebookHeader(stream, header);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return stream;
+	}
+
+	public void writeCodebookHeader(MaryRandomAccessFile ler, WeightedCodebookFileHeader header) throws IOException {
+		header.write(ler);
+	}
+
+	public WeightedCodebook readCodebookFile() throws IOException {
+		return readCodebookFile(currentFile);
+	}
+
+	// Read whole codebook from a file into memory
+	public WeightedCodebook readCodebookFile(String codebookFile) throws IOException {
+		WeightedCodebook codebook = null;
+
+		if (FileUtils.exists(codebookFile)) {
+			if (status != OPEN_FOR_READ) {
+				if (status != NOT_OPENED)
+					close();
+
+				init(codebookFile, OPEN_FOR_READ);
+			}
+
+			if (status == OPEN_FOR_READ) {
+				codebook = new WeightedCodebook();
+
+				codebook.header = readCodebookHeader();
+
+				readCodebookFileExcludingHeader(codebook);
+			}
+		}
+
+		return codebook;
+	}
+
+	public void readCodebookFileExcludingHeader(WeightedCodebook codebook) {
+		codebook.allocate();
+
+		System.out.println("Reading codebook file: " + currentFile + "...");
+
+		int i;
+		for (i = 0; i < codebook.header.totalEntries; i++)
+			codebook.entries[i] = readEntry(codebook.header.lsfParams.dimension, codebook.header.mfccParams.dimension);
+
+		close();
+
+		System.out.println("Reading completed...");
+	}
+
+	public void WriteCodebookFile(String codebookFile, WeightedCodebook codebook) {
+		if (status != OPEN_FOR_WRITE) {
+			if (status != NOT_OPENED)
+				close();
+
+			init(codebookFile, OPEN_FOR_WRITE);
+		}
+
+		codebook.header.totalEntries = codebook.entries.length;
+
+		writeCodebookHeader(codebookFile, codebook.header);
+
+		int i;
+		for (i = 0; i < codebook.header.totalEntries; i++)
+			writeEntry(codebook.entries[i]);
+
+		close();
+	}
+
+	// Append a new codebook entry to a codebook file opened with write permission
+	public void writeEntry(WeightedCodebookEntry w) {
+		if (status != OPEN_FOR_WRITE) {
+			if (status != NOT_OPENED)
+				close();
+
+			init(currentFile, OPEN_FOR_WRITE);
+		}
+
+		if (status == OPEN_FOR_WRITE) {
+			w.write(stream);
+			incrementTotalEntries();
+		}
+	}
+
+	// Read a codebook entry from a codebook file opened with read permission
+	public WeightedCodebookEntry readEntry(int lpOrder, int mfccDimension) {
+		WeightedCodebookEntry w = new WeightedCodebookEntry();
+
+		if (status != OPEN_FOR_READ) {
+			if (status != NOT_OPENED)
+				close();
+
+			init(currentFile, OPEN_FOR_READ);
+		}
+
+		if (status == OPEN_FOR_READ)
+			w.read(stream, lpOrder, mfccDimension);
+
+		return w;
+	}
+
+	//
+
+	public void incrementTotalEntries() {
+		if (status == OPEN_FOR_WRITE) {
+			try {
+				long currentPos = stream.getFilePointer();
+				stream.seek(0);
+				int totalEntries = stream.readInt();
+				totalEntries++;
+				stream.seek(0);
+				stream.writeInt(totalEntries);
+				System.out.println("Wrote codebook entry " + String.valueOf(totalEntries));
+				stream.seek(currentPos);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }
-

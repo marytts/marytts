@@ -20,45 +20,54 @@
 package marytts.tools.emospeak;
 
 /**
- *
- * @author  Marc Schr&ouml;der
+ * 
+ * @author Marc Schr&ouml;der
  */
 public interface TwoDimensionalModel {
-    /** Jointly set x and y values.
-     * If one of the values is beyond the
-     * respective Max and Min range, both values are ignored.
-     */
-    public void setXY(int x, int y);
-    /** Set X value.
-     * If beyond the Max and Min range, value is ignored.
-     */
-    public void setX(int x);
-    /** Set Y value.
-     * If beyond the Max and Min range, value is ignored.
-     */
-    public void setY(int y);
-    /** Set the Maximum X value. */
-    public void setMaxX(int maxX);
-    /** Set the Minimum X value. */
-    public void setMinX(int minX);
-    /** Set the Maximum Y value. */
-    public void setMaxY(int maxY);
-    /** Set the Minimum Y value. */
-    public void setMinY(int minY);
-    
-    /** Get the X value. */
-    public int getX();
-    /** Get the Y value. */
-    public int getY();
-    public int getMaxX();
-    public int getMinX();
-    public int getMaxY();
-    public int getMinY();
-    
-    /** Adds a ChangeListener to the model's listener list. */
-    public void addChangeListener(javax.swing.event.ChangeListener l);
-    /** Removes a ChangeListener from the model's listener list. */
-    public void removeChangeListener(javax.swing.event.ChangeListener l);
+	/**
+	 * Jointly set x and y values. If one of the values is beyond the respective Max and Min range, both values are ignored.
+	 */
+	public void setXY(int x, int y);
+
+	/**
+	 * Set X value. If beyond the Max and Min range, value is ignored.
+	 */
+	public void setX(int x);
+
+	/**
+	 * Set Y value. If beyond the Max and Min range, value is ignored.
+	 */
+	public void setY(int y);
+
+	/** Set the Maximum X value. */
+	public void setMaxX(int maxX);
+
+	/** Set the Minimum X value. */
+	public void setMinX(int minX);
+
+	/** Set the Maximum Y value. */
+	public void setMaxY(int maxY);
+
+	/** Set the Minimum Y value. */
+	public void setMinY(int minY);
+
+	/** Get the X value. */
+	public int getX();
+
+	/** Get the Y value. */
+	public int getY();
+
+	public int getMaxX();
+
+	public int getMinX();
+
+	public int getMaxY();
+
+	public int getMinY();
+
+	/** Adds a ChangeListener to the model's listener list. */
+	public void addChangeListener(javax.swing.event.ChangeListener l);
+
+	/** Removes a ChangeListener from the model's listener list. */
+	public void removeChangeListener(javax.swing.event.ChangeListener l);
 }
-
-

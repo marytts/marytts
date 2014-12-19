@@ -44,11 +44,11 @@ import org.w3c.dom.traversal.NodeIterator;
 
 public class PraatTextGridGenerator extends InternalModule {
 
-    public PraatTextGridGenerator() {
-        super("Praat TextGrid generator", MaryDataType.AUDIO, MaryDataType.PRAAT_TEXTGRID, null);
-    }
+	public PraatTextGridGenerator() {
+		super("Praat TextGrid generator", MaryDataType.AUDIO, MaryDataType.PRAAT_TEXTGRID, null);
+	}
 
-    public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d) throws Exception {
         // prevUnitIndex;
         // numberOfConsecutiveUnits;
         // basenameDuration;
@@ -186,5 +186,4 @@ public class PraatTextGridGenerator extends InternalModule {
         result.setPlainText(textGrid.toString());
         return result;
     }
-
 }

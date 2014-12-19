@@ -52,107 +52,99 @@ import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.util.data.MaryHeader;
 
-
 /**
  * Class for importing CARTs from Festival Text-Format to Mary Bin-Format
  * 
  * @author Anna Hunecke
- *
+ * 
  */
 public class FestivalCARTImporter {
-    
-    private Map cartMap;
-    
-    /**
-     * Read in the CARTs from festival/trees/ directory,
-     * and store them in a CARTMap
-     * 
-     * @param festvoxDirectory the festvox directory of a voice
-     */
-    public void importCARTS(String festvoxDirectory, 
-        					String destDir,
-        					FeatureDefinition featDef){
-        try{
-        
-            //open CART-File
-            System.out.println("Reading CARTS from "+festvoxDirectory);
-            File treesDir = new File(festvoxDirectory + "/festival/trees/");
-     
-            if (treesDir.isDirectory()){
-                File[] entries = treesDir.listFiles();
-                cartMap = new HashMap();
-                for (int i=0;i<entries.length;i++){
-                    //get the name of the CART
-                    
-                    String name = entries[i].getName();
-                    System.out.print(name);
-                    name = name.substring(0,name.length()-5);
-                    System.out.print(" "+name+"\n");
-                    BufferedReader reader =
-                        new BufferedReader(new 
-                                InputStreamReader(new FileInputStream(entries[i])));
-                                        
-                    // old: CART cart = new ClassificationTree(reader, featDef);
-                    CART cart = new CART();
-                    WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
-                    cart.setRootNode(wagonReader.load(reader, featDef));
-                    
-                    //store CART in map
-                    cartMap.put(name, cart);
-                    reader.close();
-                    
-                }
-            } else {
-                throw new Error(treesDir.getPath() + " is no directory!");
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error reading CARTS");
-        }
-    }
-           
-    /**
-     * Dump the CARTs in the cart map
-     * to destinationDir/CARTS.bin
-     * 
-     * @param destDir the destination directory
-     */
-    public void dumpCARTS(String destDir,
-						FeatureDefinition featDef){
-           try {
-                //dump CARTS to binary file
-                System.out.println("Dumping CARTS to "+destDir+"/CARTs.bin");
-                WagonCARTWriter ww = new WagonCARTWriter();
-        
-                //Open the destination file (CARTS.bin) and output the header
-                DataOutputStream out = new DataOutputStream(new
-                		BufferedOutputStream(new 
-                        FileOutputStream(destDir+"/CARTS.bin")));
-                //create new CART-header and write it to output file
-                MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-                hdr.writeTo(out);
-        
-                //write number of CARTs
-                out.writeInt(cartMap.size());
-                Set carts = cartMap.keySet();
-                //for each CART in the map,
-                for (Iterator i = carts.iterator(); i.hasNext();) {
-                    //get name and CART,
-                    String name = (String) i.next();
-                    CART cart =  (CART) cartMap.get(name);
-                    //dump name and CART
-                    out.writeUTF(name);
-                    //cart.dumpBinary(out);  //old version
-                    ww.dumpBinary(cart, out);
-                    //cart.toTextOut(new PrintWriter(System.out));    //old version
-                    ww.toTextOut(cart, new PrintWriter(System.out));  
-                }
-                //finish
-                out.close();
-                System.out.println("Done\n");
-            } catch (IOException e){
-                    e.printStackTrace();
-                    throw new Error("Error dumping CARTS");
-            }    
-    }     
+
+	private Map cartMap;
+
+	/**
+	 * Read in the CARTs from festival/trees/ directory, and store them in a CARTMap
+	 * 
+	 * @param festvoxDirectory
+	 *            the festvox directory of a voice
+	 */
+	public void importCARTS(String festvoxDirectory, String destDir, FeatureDefinition featDef) {
+		try {
+
+			// open CART-File
+			System.out.println("Reading CARTS from " + festvoxDirectory);
+			File treesDir = new File(festvoxDirectory + "/festival/trees/");
+
+			if (treesDir.isDirectory()) {
+				File[] entries = treesDir.listFiles();
+				cartMap = new HashMap();
+				for (int i = 0; i < entries.length; i++) {
+					// get the name of the CART
+
+					String name = entries[i].getName();
+					System.out.print(name);
+					name = name.substring(0, name.length() - 5);
+					System.out.print(" " + name + "\n");
+					BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(entries[i])));
+
+					// old: CART cart = new ClassificationTree(reader, featDef);
+					CART cart = new CART();
+					WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
+					cart.setRootNode(wagonReader.load(reader, featDef));
+
+					// store CART in map
+					cartMap.put(name, cart);
+					reader.close();
+
+				}
+			} else {
+				throw new Error(treesDir.getPath() + " is no directory!");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Error("Error reading CARTS");
+		}
+	}
+
+	/**
+	 * Dump the CARTs in the cart map to destinationDir/CARTS.bin
+	 * 
+	 * @param destDir
+	 *            the destination directory
+	 */
+	public void dumpCARTS(String destDir, FeatureDefinition featDef) {
+		try {
+			// dump CARTS to binary file
+			System.out.println("Dumping CARTS to " + destDir + "/CARTs.bin");
+			WagonCARTWriter ww = new WagonCARTWriter();
+
+			// Open the destination file (CARTS.bin) and output the header
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(destDir + "/CARTS.bin")));
+			// create new CART-header and write it to output file
+			MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
+			hdr.writeTo(out);
+
+			// write number of CARTs
+			out.writeInt(cartMap.size());
+			Set carts = cartMap.keySet();
+			// for each CART in the map,
+			for (Iterator i = carts.iterator(); i.hasNext();) {
+				// get name and CART,
+				String name = (String) i.next();
+				CART cart = (CART) cartMap.get(name);
+				// dump name and CART
+				out.writeUTF(name);
+				// cart.dumpBinary(out); //old version
+				ww.dumpBinary(cart, out);
+				// cart.toTextOut(new PrintWriter(System.out)); //old version
+				ww.toTextOut(cart, new PrintWriter(System.out));
+			}
+			// finish
+			out.close();
+			System.out.println("Done\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new Error("Error dumping CARTS");
+		}
+	}
 }

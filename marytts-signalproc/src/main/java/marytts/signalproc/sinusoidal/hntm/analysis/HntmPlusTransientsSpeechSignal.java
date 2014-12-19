@@ -29,21 +29,19 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
-
 /**
  * @author oytun.turk
- *
+ * 
  */
 public class HntmPlusTransientsSpeechSignal extends HntmSpeechSignal {
-    
-    public TransientPart transients;
-    
-    public HntmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
-                                          int numMaxTransients) 
-    {
-        super(totalFrm, samplingRateInHz, originalDurationInSeconds);
 
-        transients = new TransientPart(numMaxTransients);
-    }
+	public TransientPart transients;
+
+	public HntmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
+			int numMaxTransients) {
+		super(totalFrm, samplingRateInHz, originalDurationInSeconds);
+
+		transients = new TransientPart(numMaxTransients);
+	}
 
 }

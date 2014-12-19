@@ -34,12 +34,9 @@ package marytts.features;
 import marytts.unitselection.select.Target;
 
 /**
- * Performs a specific type of processing on an item and returns an
- * object.   
+ * Performs a specific type of processing on an item and returns an object.
  */
-public interface ContinuousFeatureProcessor extends MaryFeatureProcessor
-{
+public interface ContinuousFeatureProcessor extends MaryFeatureProcessor {
 
-    public float process(Target target);
+	public float process(Target target);
 }
-

@@ -21,25 +21,15 @@ package marytts.modules;
 
 import marytts.datatypes.MaryDataType;
 
-
-
 /**
- * Convert FreeTTS utterances into MaryXML format
- * (Acoustic Parameters, not language specific).
- *
+ * Convert FreeTTS utterances into MaryXML format (Acoustic Parameters, not language specific).
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class Utt2XMLAcoustParams extends Utt2XMLBase
-{
-    public Utt2XMLAcoustParams()
-    {
-        super("Utt2XML AcoustParams",
-              MaryDataType.FREETTS_ACOUSTPARAMS,
-              MaryDataType.ACOUSTPARAMS,
-              null);
-    }
-
+public class Utt2XMLAcoustParams extends Utt2XMLBase {
+	public Utt2XMLAcoustParams() {
+		super("Utt2XML AcoustParams", MaryDataType.FREETTS_ACOUSTPARAMS, MaryDataType.ACOUSTPARAMS, null);
+	}
 
 }
-

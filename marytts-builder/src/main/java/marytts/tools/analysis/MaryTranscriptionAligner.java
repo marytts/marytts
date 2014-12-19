@@ -22,16 +22,16 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * @author marc
- *
+ * 
  */
 public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	private boolean insertDummyDurations = false;
-	
+
 	public MaryTranscriptionAligner() {
 		super(null);
 	}
-	
+
 	/**
 	 * @param allophoneSet
 	 */
@@ -41,7 +41,8 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * @param allophoneSet
-	 * @param insertDummyDurations if true, in any inserted items, a duration of 1 millisecond will be set.
+	 * @param insertDummyDurations
+	 *            if true, in any inserted items, a duration of 1 millisecond will be set.
 	 */
 	public MaryTranscriptionAligner(AllophoneSet allophoneSet, boolean insertDummyDurations) {
 		super(allophoneSet);
@@ -50,15 +51,15 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * 
-	 * This changes the transcription of a MARYXML document in ALLOPHONES format
-	 * to match the label sequence given as the "labels" parameter. 
-	 * The symbols of the original transcription are aligned to corrected 
-	 * ones, with which they are replaced in turn.
+	 * This changes the transcription of a MARYXML document in ALLOPHONES format to match the label sequence given as the "labels"
+	 * parameter. The symbols of the original transcription are aligned to corrected ones, with which they are replaced in turn.
 	 * 
-	 * @param allophones the MARYXML document, in ALLOPHONES format
-	 * @param labels the sequence of label symbols to use, separated by the
-	 * entry separator as provided by getEntrySeparator().
-	 * @throws InvalidDataException if a manual label is encountered that is not in the AllophoneSet
+	 * @param allophones
+	 *            the MARYXML document, in ALLOPHONES format
+	 * @param labels
+	 *            the sequence of label symbols to use, separated by the entry separator as provided by getEntrySeparator().
+	 * @throws InvalidDataException
+	 *             if a manual label is encountered that is not in the AllophoneSet
 	 */
 	public void alignXmlTranscriptions(Document allophones, String labels)
 	throws InvalidDataException {
@@ -99,52 +100,55 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * 
-	 * This computes a string of phonetic symbols out of an allophones xml:
-	 * - standard phones are taken from "ph" elements in the document
-	 * - after each token-element (except those followed by a "boundary"-element), 
-	 *   a "bnd" symbol is inserted (standing for a possible pause).
-	 * Entries are separated by the entrySeparator character.
+	 * This computes a string of phonetic symbols out of an allophones xml: - standard phones are taken from "ph" elements in the
+	 * document - after each token-element (except those followed by a "boundary"-element), a "bnd" symbol is inserted (standing
+	 * for a possible pause). Entries are separated by the entrySeparator character.
 	 * 
-	 * @param doc the document to analyse
+	 * @param doc
+	 *            the document to analyse
 	 * @return
 	 */
 	private String collectTranscription(Document doc) {
-	    // String storing the original transcription begins with a pause
-	    StringBuilder orig = new StringBuilder();
-	
-	    NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.PHONE, MaryXML.BOUNDARY);
-	    Element e;
-	    Element prevToken = null;
-	    boolean prevWasBoundary = false;
-	    while ((e = (Element) ni.nextNode()) != null) {
-	        if (e.getTagName().equals(MaryXML.PHONE)) {
-	            Element token = (Element) MaryDomUtils.getAncestor(e, MaryXML.TOKEN);
-	            if (token != prevToken && !prevWasBoundary) {
-	                if (orig.length() > 0) orig.append(entrySeparator);
-	                orig.append(possibleBnd);
-	            }
-	            if (orig.length() > 0) orig.append(entrySeparator);
-	            orig.append(e.getAttribute("p"));
-	            prevToken = token;
-	            prevWasBoundary = false;
-	        } else { // boundary
-	            if (orig.length() > 0) orig.append(entrySeparator);
-	            orig.append(possibleBnd);
-	            prevWasBoundary = true;
-	        }
-	    }
-	    
-	    return orig.toString();
+		// String storing the original transcription begins with a pause
+		StringBuilder orig = new StringBuilder();
+
+		NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.PHONE, MaryXML.BOUNDARY);
+		Element e;
+		Element prevToken = null;
+		boolean prevWasBoundary = false;
+		while ((e = (Element) ni.nextNode()) != null) {
+			if (e.getTagName().equals(MaryXML.PHONE)) {
+				Element token = (Element) MaryDomUtils.getAncestor(e, MaryXML.TOKEN);
+				if (token != prevToken && !prevWasBoundary) {
+					if (orig.length() > 0)
+						orig.append(entrySeparator);
+					orig.append(possibleBnd);
+				}
+				if (orig.length() > 0)
+					orig.append(entrySeparator);
+				orig.append(e.getAttribute("p"));
+				prevToken = token;
+				prevWasBoundary = false;
+			} else { // boundary
+				if (orig.length() > 0)
+					orig.append(entrySeparator);
+				orig.append(possibleBnd);
+				prevWasBoundary = true;
+			}
+		}
+
+		return orig.toString();
 	}
 
 	/**
 	 * 
-	 * This changes the transcription according to a given sequence of phonetic
-	 * symbols (including boundaries and pauses). Boundaries in doc are added 
-	 * or deleted as necessary to match the pause symbols in alignments.
+	 * This changes the transcription according to a given sequence of phonetic symbols (including boundaries and pauses).
+	 * Boundaries in doc are added or deleted as necessary to match the pause symbols in alignments.
 	 * 
-	 * @param doc the document in which to change the transcriptions
-	 * @param alignments the aligned symbols to use in the update.
+	 * @param doc
+	 *            the document in which to change the transcriptions
+	 * @param alignments
+	 *            the aligned symbols to use in the update.
 	 */
 	private void changeTranscriptions(Document doc, String[] alignments) {
 	    // Algorithm:
@@ -272,43 +276,48 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	}
 
 	private void updatePhAttributesFromPhElements(Document doc) {
-	    NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.TOKEN);
-	    Element t;
-	    while ((t = (Element) ni.nextNode()) != null) {
-	        updatePhAttributesFromPhElements(t);
-	    }
+		NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.TOKEN);
+		Element t;
+		while ((t = (Element) ni.nextNode()) != null) {
+			updatePhAttributesFromPhElements(t);
+		}
 	}
 
 	private void updatePhAttributesFromPhElements(Element token) {
-	    if (token == null) throw new NullPointerException("Got null token");
-	    if (!token.getTagName().equals(MaryXML.TOKEN)) {
-	        throw new IllegalArgumentException("Argument should be a <"+MaryXML.TOKEN+">, not a <"+token.getTagName()+">");
-	    }
-	    StringBuilder tPh = new StringBuilder();
-	    TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
-	    Element syl;
-	    while ((syl = (Element) sylWalker.nextNode()) != null) {
-	        StringBuilder sylPh = new StringBuilder();
-	        String stress = syl.getAttribute("stress");
-	        if (stress.equals("1")) sylPh.append("'");
-	        else if (stress.equals("2")) sylPh.append(",");
-	        TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
-	        Element ph;
-	        while ((ph = (Element) phWalker.nextNode()) != null) {
-	            if (sylPh.length() > 0) sylPh.append(" ");
-	            sylPh.append(ph.getAttribute("p"));
-	        }
-	        String sylPhString = sylPh.toString();
-	        syl.setAttribute("ph", sylPhString);
-	        if (tPh.length() > 0) tPh.append(" - ");
-	        tPh.append(sylPhString);
-	        if (syl.hasAttribute("tone")) {
-	            tPh.append(" "+syl.getAttribute("tone"));
-	        }
-	    }
-	    if (tPh.toString().length() > 0) { 
-	        token.setAttribute("ph", tPh.toString());
-	    }
+		if (token == null)
+			throw new NullPointerException("Got null token");
+		if (!token.getTagName().equals(MaryXML.TOKEN)) {
+			throw new IllegalArgumentException("Argument should be a <" + MaryXML.TOKEN + ">, not a <" + token.getTagName() + ">");
+		}
+		StringBuilder tPh = new StringBuilder();
+		TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
+		Element syl;
+		while ((syl = (Element) sylWalker.nextNode()) != null) {
+			StringBuilder sylPh = new StringBuilder();
+			String stress = syl.getAttribute("stress");
+			if (stress.equals("1"))
+				sylPh.append("'");
+			else if (stress.equals("2"))
+				sylPh.append(",");
+			TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
+			Element ph;
+			while ((ph = (Element) phWalker.nextNode()) != null) {
+				if (sylPh.length() > 0)
+					sylPh.append(" ");
+				sylPh.append(ph.getAttribute("p"));
+			}
+			String sylPhString = sylPh.toString();
+			syl.setAttribute("ph", sylPhString);
+			if (tPh.length() > 0)
+				tPh.append(" - ");
+			tPh.append(sylPhString);
+			if (syl.hasAttribute("tone")) {
+				tPh.append(" " + syl.getAttribute("tone"));
+			}
+		}
+		if (tPh.toString().length() > 0) {
+			token.setAttribute("ph", tPh.toString());
+		}
 	}
 
 }

@@ -23,26 +23,23 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
- *
+ * 
  */
 public class AveragingFilter extends FIRFilter {
-    public AveragingFilter(double lengthInSeconds, int samplingRate)
-    {
-        this((int)(lengthInSeconds*samplingRate));
-    }
+	public AveragingFilter(double lengthInSeconds, int samplingRate) {
+		this((int) (lengthInSeconds * samplingRate));
+	}
 
-    
-    public AveragingFilter(int lengthInSamples)
-    {
-        int fftLength = MathUtils.closestPowerOfTwoAbove(lengthInSamples);
-        if (fftLength==lengthInSamples) fftLength *= 2;
-        double[] impulseResponse = new double[lengthInSamples];
-        // Straight impulse response:
-        for (int i=0; i<lengthInSamples; i++) {
-            impulseResponse[i] = 1./lengthInSamples;
-        }
-        initialise(impulseResponse, fftLength-lengthInSamples);
-    }
+	public AveragingFilter(int lengthInSamples) {
+		int fftLength = MathUtils.closestPowerOfTwoAbove(lengthInSamples);
+		if (fftLength == lengthInSamples)
+			fftLength *= 2;
+		double[] impulseResponse = new double[lengthInSamples];
+		// Straight impulse response:
+		for (int i = 0; i < lengthInSamples; i++) {
+			impulseResponse[i] = 1. / lengthInSamples;
+		}
+		initialise(impulseResponse, fftLength - lengthInSamples);
+	}
 
 }
-
