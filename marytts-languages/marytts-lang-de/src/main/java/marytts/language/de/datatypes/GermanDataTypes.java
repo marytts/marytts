@@ -19,15 +19,14 @@
  */
 package marytts.language.de.datatypes;
 
-
 /**
- * This class will register the data types that are specific for the
- * German synthesis modules. Names are arbitrary, but appending the 
- * (uppercased) locale may be a suitable way of making sure the names are unique.
+ * This class will register the data types that are specific for the German synthesis modules. Names are arbitrary, but appending
+ * the (uppercased) locale may be a suitable way of making sure the names are unique.
+ * 
  * @author marc
- *
+ * 
  */
-public class GermanDataTypes 
-{
-//    public static final MaryDataType INFOSTRUCT_DE = new MaryDataType("INFOSTRUCT_DE", true, true, MaryDataType.MARYXML, MaryXML.MARYXML);
+public class GermanDataTypes {
+	// public static final MaryDataType INFOSTRUCT_DE = new MaryDataType("INFOSTRUCT_DE", true, true, MaryDataType.MARYXML,
+	// MaryXML.MARYXML);
 }
