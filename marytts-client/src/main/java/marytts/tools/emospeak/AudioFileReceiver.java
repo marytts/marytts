@@ -20,12 +20,11 @@
 package marytts.tools.emospeak;
 
 /**
- *
- * @author  schroed
+ * 
+ * @author schroed
  */
 public interface AudioFileReceiver {
-    
-    public void setNextAudio(javax.sound.sampled.AudioInputStream audioInputStream);
-    
-}
 
+	public void setNextAudio(javax.sound.sampled.AudioInputStream audioInputStream);
+
+}
