@@ -42,99 +42,81 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
-
-
 /**
  * Use an individual FreeTTS module for English synthesis.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class FreeTTSPartOfSpeechTagger extends InternalModule
-{
-    //private UtteranceProcessor processor;
-    private Logger logger;
-    
-    private Map posMap;
-    
-    
-    public FreeTTSPartOfSpeechTagger()
-    {
-        super("PartOfSpeechTagger",
-              USEnglishDataTypes.FREETTS_WORDS,
-              USEnglishDataTypes.FREETTS_POS,
-              Locale.ENGLISH
-              );
-        
-    }
+public class FreeTTSPartOfSpeechTagger extends InternalModule {
+	// private UtteranceProcessor processor;
+	private Logger logger;
 
-    public void startup() throws Exception
-    {
-        super.startup();
-        this.logger = MaryUtils.getLogger("FreeTTSPOSTagger");
-        buildPosMap();
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-        //processor = new PartOfSpeechTagger();
-    }
+	private Map posMap;
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            //processor.processUtterance(utterance);
-            processUtterance(utterance);
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
-        return output;
-    }
+	public FreeTTSPartOfSpeechTagger() {
+		super("PartOfSpeechTagger", USEnglishDataTypes.FREETTS_WORDS, USEnglishDataTypes.FREETTS_POS, Locale.ENGLISH);
 
-    private void buildPosMap(){
-        posMap = new HashMap();
-        try{
-            String posFile = 
-                MaryProperties.getFilename("english.freetts.posfile");
-            BufferedReader reader = 
-                new BufferedReader(new FileReader(new File (posFile)));
-            String line = reader.readLine();
-            while (line!=null){
-                if(!(line.startsWith("***"))){
-                    //System.out.println(line);
-                    StringTokenizer st = 
-                        new StringTokenizer(line," ");
-                    String word = st.nextToken();
-                    String pos = st.nextToken();
-                    posMap.put(word,pos);}
-               line = reader.readLine();
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            throw new Error("Unable to build PoS-Map");
-        }
-    }
+	}
 
-    private void processUtterance(Utterance utt){
-        logger.debug("Tagging part of speech...");
-        for(Item word = utt.getRelation(Relation.WORD).getHead();
-        	word != null; word = word.getNext()){
-            String pos = null;
-            if (posMap.containsKey(word.toString())){
-                pos = (String) posMap.get(word.toString());
-                logger.debug("Assigning pos \""+pos+"\" to word \""
-                        +word.toString()+"\"");
-                }
-            else {pos = "content";}
-            word.getFeatures().setString("pos",pos);
-            
-        }
-    
-    }
+	public void startup() throws Exception {
+		super.startup();
+		this.logger = MaryUtils.getLogger("FreeTTSPOSTagger");
+		buildPosMap();
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+		// processor = new PartOfSpeechTagger();
+	}
 
-    
+	public MaryData process(MaryData d) throws Exception {
+		List utterances = d.getUtterances();
+		Iterator it = utterances.iterator();
+		while (it.hasNext()) {
+			Utterance utterance = (Utterance) it.next();
+			// processor.processUtterance(utterance);
+			processUtterance(utterance);
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setUtterances(utterances);
+		return output;
+	}
+
+	private void buildPosMap() {
+		posMap = new HashMap();
+		try {
+			String posFile = MaryProperties.getFilename("english.freetts.posfile");
+			BufferedReader reader = new BufferedReader(new FileReader(new File(posFile)));
+			String line = reader.readLine();
+			while (line != null) {
+				if (!(line.startsWith("***"))) {
+					// System.out.println(line);
+					StringTokenizer st = new StringTokenizer(line, " ");
+					String word = st.nextToken();
+					String pos = st.nextToken();
+					posMap.put(word, pos);
+				}
+				line = reader.readLine();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Error("Unable to build PoS-Map");
+		}
+	}
+
+	private void processUtterance(Utterance utt) {
+		logger.debug("Tagging part of speech...");
+		for (Item word = utt.getRelation(Relation.WORD).getHead(); word != null; word = word.getNext()) {
+			String pos = null;
+			if (posMap.containsKey(word.toString())) {
+				pos = (String) posMap.get(word.toString());
+				logger.debug("Assigning pos \"" + pos + "\" to word \"" + word.toString() + "\"");
+			} else {
+				pos = "content";
+			}
+			word.getFeatures().setString("pos", pos);
+
+		}
+
+	}
 
 }
-

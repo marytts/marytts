@@ -46,57 +46,40 @@ import com.sun.speech.freetts.en.us.PrefixFSM;
 import com.sun.speech.freetts.en.us.PronounceableFSM;
 import com.sun.speech.freetts.en.us.SuffixFSM;
 
-
-
 /**
  * Use an individual FreeTTS module for English synthesis.
- *
+ * 
  * @author Marc Schr&ouml;der
  */
 
-public class FreeTTSTokenToWords extends InternalModule
-{
-    private UtteranceProcessor processor;
+public class FreeTTSTokenToWords extends InternalModule {
+	private UtteranceProcessor processor;
 
-    public FreeTTSTokenToWords()
-    {
-        super("TokenToWords",
-              USEnglishDataTypes.FREETTS_TOKENS,
-              USEnglishDataTypes.FREETTS_WORDS,
-              Locale.ENGLISH
-              );
-    }
+	public FreeTTSTokenToWords() {
+		super("TokenToWords", USEnglishDataTypes.FREETTS_TOKENS, USEnglishDataTypes.FREETTS_WORDS, Locale.ENGLISH);
+	}
 
-    public void startup() throws Exception
-    {
-        super.startup();
+	public void startup() throws Exception {
+		super.startup();
 
-        // Initialise FreeTTS
-        FreeTTSVoices.load();
-    	CARTImpl numbersCart = new CARTImpl
-	       (com.sun.speech.freetts.en.us.CMUVoice.class.getResource("nums_cart.txt"));
-    	PronounceableFSM prefixFSM = new PrefixFSM
-	       (com.sun.speech.freetts.en.us.CMUVoice.class.getResource("prefix_fsm.txt"));
-	   PronounceableFSM suffixFSM = new SuffixFSM
-	        (com.sun.speech.freetts.en.us.CMUVoice.class.getResource("suffix_fsm.txt"));
-        processor = new TokenToWords(numbersCart, prefixFSM, suffixFSM);
-    }
+		// Initialise FreeTTS
+		FreeTTSVoices.load();
+		CARTImpl numbersCart = new CARTImpl(com.sun.speech.freetts.en.us.CMUVoice.class.getResource("nums_cart.txt"));
+		PronounceableFSM prefixFSM = new PrefixFSM(com.sun.speech.freetts.en.us.CMUVoice.class.getResource("prefix_fsm.txt"));
+		PronounceableFSM suffixFSM = new SuffixFSM(com.sun.speech.freetts.en.us.CMUVoice.class.getResource("suffix_fsm.txt"));
+		processor = new TokenToWords(numbersCart, prefixFSM, suffixFSM);
+	}
 
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            processor.processUtterance(utterance);
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
-        return output;
-    }
-
-
-
+	public MaryData process(MaryData d) throws Exception {
+		List utterances = d.getUtterances();
+		Iterator it = utterances.iterator();
+		while (it.hasNext()) {
+			Utterance utterance = (Utterance) it.next();
+			processor.processUtterance(utterance);
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setUtterances(utterances);
+		return output;
+	}
 
 }
