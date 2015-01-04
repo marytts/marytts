@@ -1,3 +1,5 @@
-<allophones name="sampa" xml:lang="ROOT">
+<allophones name="sampa" xml:lang="ROOT" features="vlng vheight vfront vrnd ctype cplace cvox">
 	<silence ph="_" />
+	<vowel ph="a" vheight="3" vfront="1" vrnd="-" />
+	<consonant ph="m" ctype="n" cplace="l" cvox="+" />
 </allophones>
