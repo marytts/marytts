@@ -27,78 +27,74 @@ import java.util.Properties;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.data.Datagram;
 
+public class LPCTimelineReader extends TimelineReader {
+	protected int lpcOrder;
+	protected float lpcMin;
+	protected float lpcRange;
 
-public class LPCTimelineReader extends TimelineReader
-{
-    protected int lpcOrder;
-    protected float lpcMin;
-    protected float lpcRange;
+	public LPCTimelineReader(String fileName) throws IOException, MaryConfigurationException {
+		super();
+		load(fileName);
+	}
 
-    public LPCTimelineReader(String fileName) throws IOException, MaryConfigurationException
-    {
-        super();
-        load(fileName);
-    }
+	@Override
+	protected void load(String fileName) throws IOException, MaryConfigurationException {
+		super.load(fileName);
+		// Now make sense of the processing header
+		Properties props = new Properties();
+		ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
+		props.load(bais);
+		ensurePresent(props, "lpc.order");
+		lpcOrder = Integer.parseInt(props.getProperty("lpc.order"));
+		ensurePresent(props, "lpc.min");
+		lpcMin = Float.parseFloat(props.getProperty("lpc.min"));
+		ensurePresent(props, "lpc.range");
+		lpcRange = Float.parseFloat(props.getProperty("lpc.range"));
+	}
 
-    @Override
-    protected void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        super.load(fileName);
-        // Now make sense of the processing header
-        Properties props = new Properties();
-        ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
-        props.load(bais);
-        ensurePresent(props, "lpc.order");
-        lpcOrder = Integer.parseInt(props.getProperty("lpc.order"));
-        ensurePresent(props, "lpc.min");
-        lpcMin = Float.parseFloat(props.getProperty("lpc.min")); 
-        ensurePresent(props, "lpc.range");
-        lpcRange = Float.parseFloat(props.getProperty("lpc.range")); 
-    }
-    
-    
-    private void ensurePresent(Properties props, String key) throws IOException
-    {
-        if (!props.containsKey(key))
-            throw new IOException("Processing header does not contain required field '"+key+"'");
+	private void ensurePresent(Properties props, String key) throws IOException {
+		if (!props.containsKey(key))
+			throw new IOException("Processing header does not contain required field '" + key + "'");
 
-    }
+	}
 
-    public int getLPCOrder() { return lpcOrder; }
-    
-    public float getLPCMin() { return lpcMin; }
-    
-    public float getLPCRange() { return lpcRange; }
-    
-    
-    /**
-     * Read and return the upcoming datagram.
-     * 
-     * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
-     * 
-     * @throws IOException
-     */
-    @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) {
-        
-        Datagram d = null;
-        
-        /* If the end of the datagram zone is reached, gracefully refuse to read */
-        if (bb.position() == timeIdxBytePos ) return( null );
-        /* Else, pop the datagram out of the file */
-        try {
-            d = new LPCDatagram(bb, lpcOrder );
-        }
-        /* Detect a possible EOF encounter */
-        catch ( IOException e ) {
-           return null;
-        }
-        
-        return( d );
-    }
+	public int getLPCOrder() {
+		return lpcOrder;
+	}
 
+	public float getLPCMin() {
+		return lpcMin;
+	}
 
+	public float getLPCRange() {
+		return lpcRange;
+	}
 
+	/**
+	 * Read and return the upcoming datagram.
+	 * 
+	 * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
+	 * 
+	 * @throws IOException
+	 */
+	@Override
+	protected Datagram getNextDatagram(ByteBuffer bb) {
+
+		Datagram d = null;
+
+		/* If the end of the datagram zone is reached, gracefully refuse to read */
+		if (bb.position() == timeIdxBytePos)
+			return (null);
+		/* Else, pop the datagram out of the file */
+		try {
+			d = new LPCDatagram(bb, lpcOrder);
+		}
+		/* Detect a possible EOF encounter */
+		catch (IOException e) {
+			return null;
+		}
+
+		return (d);
+	}
 
 }
-

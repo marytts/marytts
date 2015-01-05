@@ -334,5 +334,4 @@ public class MaryCARTWriter {
            if (pw != null) pw.println();
        }
    }
-
 }

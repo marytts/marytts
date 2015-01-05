@@ -44,99 +44,113 @@ import marytts.util.MaryUtils;
  *
  */
 public class SoPModel extends Model {
-    
-    /**
-     * The SopModels map contains one SoP model for F0 and three SoP models duration: vowel, consonant and pause.
-     */
-    private Map<String, SoP> sopModels;
-    
-    /**
-     * Model constructor
-     * @param featureManager the feature processor manager used to compute the symbolic features used for prediction
-     * @param dataFileName data file containing the sop data
-     * @param targetAttributeName attribute in MARYXML to predict
-     * @param targetAttributeFormat print style
-     * @param featureName not used in SoP model
-     * @param predictFrom not used in SoP model
-     * @param applyTo not used in SoP model
-     * 
-     * @throws MaryConfigurationException  if there are missing files.
-     */
-    public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo)
-    throws MaryConfigurationException {
-        super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
-        load();
-    }
-    
-    /**
-     * Load SoP data.
-     * 
-     * @throws IOException if data can not be read.
-     */
-    @Override
-    protected void loadData() throws IOException {
-        sopModels = new HashMap<String, SoP>();
-        String nextLine, nextType;
-        String strContext="";
-        Scanner s = null;
-        try {
-        s = new Scanner(new BufferedReader(new InputStreamReader(dataStream, "UTF-8")));
 
-        // The first part contains the feature definition
-        while (s.hasNext()) {
-            nextLine = s.nextLine(); 
-            if (nextLine.trim().equals("")) break;
-            else
-                strContext += nextLine + "\n";
-        }
-        // the featureDefinition is the same for vowel, consonant and Pause
-        FeatureDefinition sopFeatureDefinition = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-        predictionFeatureNames = sopFeatureDefinition.getFeatureNames();
+	/**
+	 * The SopModels map contains one SoP model for F0 and three SoP models duration: vowel, consonant and pause.
+	 */
+	private Map<String, SoP> sopModels;
 
-        while (s.hasNext()){
-            nextType = s.nextLine();
-            nextLine = s.nextLine();
+	/**
+	 * Model constructor
+	 * 
+	 * @param featureManager
+	 *            the feature processor manager used to compute the symbolic features used for prediction
+	 * @param dataFileName
+	 *            data file containing the sop data
+	 * @param targetAttributeName
+	 *            attribute in MARYXML to predict
+	 * @param targetAttributeFormat
+	 *            print style
+	 * @param featureName
+	 *            not used in SoP model
+	 * @param predictFrom
+	 *            not used in SoP model
+	 * @param applyTo
+	 *            not used in SoP model
+	 * 
+	 * @throws MaryConfigurationException
+	 *             if there are missing files.
+	 */
+	public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
+			String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
+			throws MaryConfigurationException {
+		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
+				applyTo);
+		load();
+	}
 
-            if (nextType.startsWith("f0")){                
-                sopModels.put("f0", new SoP(nextLine, sopFeatureDefinition));
-            } else {
-                sopModels.put(nextType, new SoP(nextLine, sopFeatureDefinition));    
-            }
-        }
-        s.close();
-        
-        } catch (Exception e) {
-            throw new IOException("Error reading SoP data",  e);
-        }
-    }
+	/**
+	 * Load SoP data.
+	 * 
+	 * @throws IOException
+	 *             if data can not be read.
+	 */
+	@Override
+	protected void loadData() throws IOException {
+		sopModels = new HashMap<String, SoP>();
+		String nextLine, nextType;
+		String strContext = "";
+		Scanner s = null;
+		try {
+			s = new Scanner(new BufferedReader(new InputStreamReader(dataStream, "UTF-8")));
 
-    /**
-     * Apply the SoP to a Target to get its predicted value
-     * @param target target from where to predict
-     * @return result predicted value
-     */
-    @Override
-    protected float evaluate(Target target) {
-        float result=0;
+			// The first part contains the feature definition
+			while (s.hasNext()) {
+				nextLine = s.nextLine();
+				if (nextLine.trim().equals(""))
+					break;
+				else
+					strContext += nextLine + "\n";
+			}
+			// the featureDefinition is the same for vowel, consonant and Pause
+			FeatureDefinition sopFeatureDefinition = new FeatureDefinition(new BufferedReader(new StringReader(strContext)),
+					false);
+			predictionFeatureNames = sopFeatureDefinition.getFeatureNames();
 
-        if(targetAttributeName.contentEquals("f0")){            
-            result = (float) sopModels.get("f0").interpret(target);
-        } else {          
-            if(target.getAllophone().isVowel())
-                result = (float) sopModels.get("vowel").interpret(target);
-            else if(target.getAllophone().isConsonant())
-                result = (float) sopModels.get("consonant").interpret(target);
-            else if(target.getAllophone().isPause())
-                result = (float) sopModels.get("pause").interpret(target);
-            else { 
-                // ignore but complain
-                MaryUtils.getLogger("SoPModel").warn("Warning: No SoP model for target "+target.toString());
-            }
-        } 
+			while (s.hasNext()) {
+				nextType = s.nextLine();
+				nextLine = s.nextLine();
 
-        return result;
-    }    
-    
-    
+				if (nextType.startsWith("f0")) {
+					sopModels.put("f0", new SoP(nextLine, sopFeatureDefinition));
+				} else {
+					sopModels.put(nextType, new SoP(nextLine, sopFeatureDefinition));
+				}
+			}
+			s.close();
+
+		} catch (Exception e) {
+			throw new IOException("Error reading SoP data", e);
+		}
+	}
+
+	/**
+	 * Apply the SoP to a Target to get its predicted value
+	 * 
+	 * @param target
+	 *            target from where to predict
+	 * @return result predicted value
+	 */
+	@Override
+	protected float evaluate(Target target) {
+		float result = 0;
+
+		if (targetAttributeName.contentEquals("f0")) {
+			result = (float) sopModels.get("f0").interpret(target);
+		} else {
+			if (target.getAllophone().isVowel())
+				result = (float) sopModels.get("vowel").interpret(target);
+			else if (target.getAllophone().isConsonant())
+				result = (float) sopModels.get("consonant").interpret(target);
+			else if (target.getAllophone().isPause())
+				result = (float) sopModels.get("pause").interpret(target);
+			else {
+				// ignore but complain
+				MaryUtils.getLogger("SoPModel").warn("Warning: No SoP model for target " + target.toString());
+			}
+		}
+
+		return result;
+	}
+
 }

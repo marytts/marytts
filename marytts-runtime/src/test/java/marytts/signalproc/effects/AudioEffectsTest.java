@@ -9,12 +9,12 @@ public class AudioEffectsTest {
 		assertNotNull(AudioEffects.getEffects());
 		assertTrue(AudioEffects.getEffects().iterator().hasNext());
 	}
-	
+
 	@Test
 	public void haveEffects() {
 		assertTrue(AudioEffects.countEffects() > 0);
 	}
-	
+
 	@Test
 	public void canGetByName() {
 		String name = "Robot";
@@ -22,7 +22,7 @@ public class AudioEffectsTest {
 		assertNotNull(ae);
 		assertEquals(name, ae.getName());
 	}
-	
+
 	@Test
 	public void canGetDefaultParams() {
 		String name = "Robot";
@@ -32,5 +32,5 @@ public class AudioEffectsTest {
 		// verify
 		assertEquals(expected, params);
 	}
-	
+
 }

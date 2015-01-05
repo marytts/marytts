@@ -39,84 +39,84 @@ import org.junit.Test;
  */
 public class MaryConfigTest {
 
-    @Test
-    public void canCountConfigs() {
-        // exercise
-        int num = MaryConfig.countConfigs();
-        // verify
-        assertTrue(num >= 0);
-    }
+	@Test
+	public void canCountConfigs() {
+		// exercise
+		int num = MaryConfig.countConfigs();
+		// verify
+		assertTrue(num >= 0);
+	}
 
-    @Test
-    public void haveMainConfig() {
-        MaryConfig m = MaryConfig.getMainConfig();
-        assertNotNull(m);
-    }
+	@Test
+	public void haveMainConfig() {
+		MaryConfig m = MaryConfig.getMainConfig();
+		assertNotNull(m);
+	}
 
-    /**
-     * @author Tristan
-     * @author ingmar
-     * 
-     *         Test to check properties file for trailing whitespace [SOLVED] -> created PropertiesTrimTrailingWhitespace class to
-     *         trim trailing whitespace
-     * @throws MaryConfigurationException
-     * @throws IOException
-     * 
-     */
-    @Test
-    public void ensureTrailingWhitespaceIsTrimmed() throws MaryConfigurationException, IOException {
-        String testResourceName = "test.config";
-        InputStream actualInput = this.getClass().getResourceAsStream(testResourceName);
-        MaryConfig testConfig = new TestConfig(actualInput);
-        Properties testProps = new Properties();
-        InputStream expectedInput = this.getClass().getResourceAsStream(testResourceName);
-        testProps.load(expectedInput);
-        for (String key : testProps.stringPropertyNames()) {
-            String expected = testProps.getProperty(key).trim();
-            String actual = testConfig.getProperties().getProperty(key);
-            assertEquals(expected, actual);
-        }
-    }
+	/**
+	 * @author Tristan
+	 * @author ingmar
+	 * 
+	 *         Test to check properties file for trailing whitespace [SOLVED] -> created PropertiesTrimTrailingWhitespace class to
+	 *         trim trailing whitespace
+	 * @throws MaryConfigurationException
+	 * @throws IOException
+	 * 
+	 */
+	@Test
+	public void ensureTrailingWhitespaceIsTrimmed() throws MaryConfigurationException, IOException {
+		String testResourceName = "test.config";
+		InputStream actualInput = this.getClass().getResourceAsStream(testResourceName);
+		MaryConfig testConfig = new TestConfig(actualInput);
+		Properties testProps = new Properties();
+		InputStream expectedInput = this.getClass().getResourceAsStream(testResourceName);
+		testProps.load(expectedInput);
+		for (String key : testProps.stringPropertyNames()) {
+			String expected = testProps.getProperty(key).trim();
+			String actual = testConfig.getProperties().getProperty(key);
+			assertEquals(expected, actual);
+		}
+	}
 
-    @Test(expected = MaryConfigurationException.class)
-    public void requireLocale1() throws MaryConfigurationException {
-        new LanguageConfig(new ByteArrayInputStream(new byte[0]));
-    }
+	@Test(expected = MaryConfigurationException.class)
+	public void requireLocale1() throws MaryConfigurationException {
+		new LanguageConfig(new ByteArrayInputStream(new byte[0]));
+	}
 
-    @Test(expected = MaryConfigurationException.class)
-    public void requireLocale2() throws MaryConfigurationException, IOException {
-        Properties p = new Properties();
-        p.setProperty("a", "b");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        p.store(baos, "");
-        // exercise:
-        new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
-    }
+	@Test(expected = MaryConfigurationException.class)
+	public void requireLocale2() throws MaryConfigurationException, IOException {
+		Properties p = new Properties();
+		p.setProperty("a", "b");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		p.store(baos, "");
+		// exercise:
+		new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
+	}
 
-    @Test
-    public void testGetList() throws MaryConfigurationException, IOException {
-        Properties p = new Properties();
-        p.setProperty("locale", "en");
-        p.setProperty("testlist", "a b c");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        p.store(baos, "");
-        LanguageConfig lc = new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
-        // exercise:
-        List<String> theList = lc.getList("testlist");
-        // verify
-        assertNotNull(theList);
-        assertEquals(3, theList.size());
-        Iterator<String> it = theList.iterator();
-        assertEquals("a", it.next());
-        assertEquals("b", it.next());
-        assertEquals("c", it.next());
-    }
+	@Test
+	public void testGetList() throws MaryConfigurationException, IOException {
+		Properties p = new Properties();
+		p.setProperty("locale", "en");
+		p.setProperty("testlist", "a b c");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		p.store(baos, "");
+		LanguageConfig lc = new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
+		// exercise:
+		List<String> theList = lc.getList("testlist");
+		// verify
+		assertNotNull(theList);
+		assertEquals(3, theList.size());
+		Iterator<String> it = theList.iterator();
+		assertEquals("a", it.next());
+		assertEquals("b", it.next());
+		assertEquals("c", it.next());
+	}
 
-    class TestConfig extends MaryConfig {
+	class TestConfig extends MaryConfig {
 
-        protected TestConfig(InputStream propertyStream) throws MaryConfigurationException {
-            super(propertyStream);
-        }
+		protected TestConfig(InputStream propertyStream) throws MaryConfigurationException {
+			super(propertyStream);
+		}
 
-    }
+	}
 }

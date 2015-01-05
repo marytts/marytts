@@ -27,13 +27,18 @@ public class InMemoryCFProvider implements CoverageFeatureProvider {
 
 	private byte[][] data;
 	private int[] ids;
-	
+
 	/**
 	 * Instantiate an in-memory coverage feature provider
-	 * @param data the data to provide.
-	 * @param ids optionally, an array of unique id numbers. if this is null, the index number is used as the id number.
-	 * @throws NullPointerException if data is null
-	 * @throws IllegalArgumentException if ids is given but has different length than data.
+	 * 
+	 * @param data
+	 *            the data to provide.
+	 * @param ids
+	 *            optionally, an array of unique id numbers. if this is null, the index number is used as the id number.
+	 * @throws NullPointerException
+	 *             if data is null
+	 * @throws IllegalArgumentException
+	 *             if ids is given but has different length than data.
 	 */
 	public InMemoryCFProvider(byte[][] data, int[] ids) {
 		if (data == null) {
@@ -45,8 +50,10 @@ public class InMemoryCFProvider implements CoverageFeatureProvider {
 			throw new IllegalArgumentException("ID array does not have same length as data vector");
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.tools.dbselection.CoverageFeatureProvider#getCoverageFeatures(int)
 	 */
 	@Override
@@ -54,14 +61,16 @@ public class InMemoryCFProvider implements CoverageFeatureProvider {
 		return data[i];
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.tools.dbselection.CoverageFeatureProvider#getNumSentences()
 	 */
 	@Override
 	public int getNumSentences() {
 		return data.length;
 	}
-	
+
 	@Override
 	public int getID(int i) {
 		if (ids != null) {

@@ -34,109 +34,109 @@ package marytts.unitselection.select.viterbi;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
- /**
-  * Represents a candidate for the Viterbi algorthm.
-  * Each candidate knows about its next candidate, i.e. they can form
-  * a queue.
-  */
-public class ViterbiCandidate implements Comparable<ViterbiCandidate>
-{
-    final Target target;
+
+/**
+ * Represents a candidate for the Viterbi algorthm. Each candidate knows about its next candidate, i.e. they can form a queue.
+ */
+public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
+	final Target target;
 	final Unit unit;
-    final double targetCost;
-    ViterbiPath bestPath = null;
+	final double targetCost;
+	ViterbiPath bestPath = null;
 	ViterbiCandidate next = null;
-	
-	public ViterbiCandidate(Target target, Unit unit, TargetCostFunction tcf)
-	{
-	    this.target = target;
-	    this.unit = unit;
-	    this.targetCost = tcf.cost(target, unit);
+
+	public ViterbiCandidate(Target target, Unit unit, TargetCostFunction tcf) {
+		this.target = target;
+		this.unit = unit;
+		this.targetCost = tcf.cost(target, unit);
 	}
-	
+
 	/**
 	 * Calculates and returns the target cost for this candidate
-	 * @param tcf the target cost function 
+	 * 
+	 * @param tcf
+	 *            the target cost function
 	 * @return the target cost
 	 */
-	public double getTargetCost()
-	{
-	    return targetCost;
+	public double getTargetCost() {
+		return targetCost;
 	}
-	
+
 	/**
 	 * Gets the next candidate in the queue
+	 * 
 	 * @return the next candidate
 	 */
-	public ViterbiCandidate getNext(){
-	    return next;
+	public ViterbiCandidate getNext() {
+		return next;
 	}
-	
+
 	/**
 	 * Sets the next candidate in the queue
-	 * @param next the next candidate
+	 * 
+	 * @param next
+	 *            the next candidate
 	 */
-	public void setNext(ViterbiCandidate next){
-	    this.next = next;
+	public void setNext(ViterbiCandidate next) {
+		this.next = next;
 	}
-	
+
 	/**
 	 * Gets the target of this candidate
+	 * 
 	 * @return the target
 	 */
-	public Target getTarget(){
-	    return target;
+	public Target getTarget() {
+		return target;
 	}
-	
 
 	/**
-	 * Gets the index of this 
+	 * Gets the index of this
+	 * 
 	 * @return the unit index
 	 */
-	public Unit getUnit(){
-	    return unit;
+	public Unit getUnit() {
+		return unit;
 	}
-	
+
 	/**
-	 * Sets the currently best path leading to this candidate.
-     * Each path leads to exactly one candidate; in the candidate,
-     * we only remember the best path leading to it.
+	 * Sets the currently best path leading to this candidate. Each path leads to exactly one candidate; in the candidate, we only
+	 * remember the best path leading to it.
+	 * 
 	 * @param bestPath
 	 */
-	public void setBestPath(ViterbiPath bestPath){
-	    this.bestPath = bestPath;
+	public void setBestPath(ViterbiPath bestPath) {
+		this.bestPath = bestPath;
 	}
-	
+
 	/**
 	 * Gets the best path leading to this candidate
+	 * 
 	 * @return the best path, or null
 	 */
-	public ViterbiPath getBestPath(){
-	    return bestPath;
+	public ViterbiPath getBestPath() {
+		return bestPath;
 	}
-	
 
-	
 	/**
 	 * Converts this object to a string.
 	 *
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiCandidate: target "+ target + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.score : ", no best path");
+		return "ViterbiCandidate: target " + target + ", unit " + unit
+				+ (bestPath != null ? ", best path score " + bestPath.score : ", no best path");
 	}
 
 	/**
 	 * Compare two candidates so that the one with the smaller target cost is considered smaller.
 	 */
-    public int compareTo(ViterbiCandidate o)
-    {
-        if (targetCost < o.targetCost) {
-            return -1;
-        } else if (targetCost > o.targetCost) {
-            return 1;
-        }
-        return 0;
-    }
- }
- 
+	public int compareTo(ViterbiCandidate o) {
+		if (targetCost < o.targetCost) {
+			return -1;
+		} else if (targetCost > o.targetCost) {
+			return 1;
+		}
+		return 0;
+	}
+}

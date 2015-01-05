@@ -258,5 +258,4 @@ public class CARTDurationModeller extends InternalModule {
         }
         return duration;
     }
-
 }

@@ -32,30 +32,26 @@ import org.junit.Test;
  * @author Marc Schr&ouml;der
  *
  */
-public class AudioDoubleDataSourceTest
-{
-    @Test
-    public void testGetAllData1()
-    {
-        int samplingRate = 16000;
-        AudioFormat af = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, samplingRate, 16, 1, 2, samplingRate, false);
-        double[] testSignal = FFTTest.getSampleSignal(16000);
-        DDSAudioInputStream ais = new DDSAudioInputStream(new BufferedDoubleDataSource(testSignal), af);
-        double [] result = new AudioDoubleDataSource(ais).getAllData();
-        Assert.assertTrue(result.length == testSignal.length);
-    }
+public class AudioDoubleDataSourceTest {
+	@Test
+	public void testGetAllData1() {
+		int samplingRate = 16000;
+		AudioFormat af = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, samplingRate, 16, 1, 2, samplingRate, false);
+		double[] testSignal = FFTTest.getSampleSignal(16000);
+		DDSAudioInputStream ais = new DDSAudioInputStream(new BufferedDoubleDataSource(testSignal), af);
+		double[] result = new AudioDoubleDataSource(ais).getAllData();
+		Assert.assertTrue(result.length == testSignal.length);
+	}
 
-    @Test
-    public void testGetAllData2()
-    {
-        int samplingRate = 16000;
-        AudioFormat af = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, samplingRate, 16, 1, 2, samplingRate, false);
-        double[] signal = FFTTest.getSampleSignal(16000);
-        DDSAudioInputStream ais = new DDSAudioInputStream(new BufferedDoubleDataSource(signal), af);
-        double [] result = new AudioDoubleDataSource(ais).getAllData();
-        double err = MathUtils.sumSquaredError(signal, result);
-        Assert.assertTrue("Error: "+err, err<1.E-20);
-    }
+	@Test
+	public void testGetAllData2() {
+		int samplingRate = 16000;
+		AudioFormat af = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, samplingRate, 16, 1, 2, samplingRate, false);
+		double[] signal = FFTTest.getSampleSignal(16000);
+		DDSAudioInputStream ais = new DDSAudioInputStream(new BufferedDoubleDataSource(signal), af);
+		double[] result = new AudioDoubleDataSource(ais).getAllData();
+		double err = MathUtils.sumSquaredError(signal, result);
+		Assert.assertTrue("Error: " + err, err < 1.E-20);
+	}
 
 }
-

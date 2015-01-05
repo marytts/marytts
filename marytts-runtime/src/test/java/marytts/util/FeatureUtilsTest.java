@@ -30,8 +30,6 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.io.FileUtils;
 
-
-
 /**
  * @author marc
  *
@@ -39,10 +37,11 @@ import marytts.util.io.FileUtils;
 public class FeatureUtilsTest {
 
 	String targetfeatures;
-	
+
 	@Before
 	public void setUp() throws IOException {
-		targetfeatures = FileUtils.getStreamAsString(FeatureUtilsTest.class.getResourceAsStream("helloworld.targetfeatures"), "UTF-8");
+		targetfeatures = FileUtils.getStreamAsString(FeatureUtilsTest.class.getResourceAsStream("helloworld.targetfeatures"),
+				"UTF-8");
 	}
 
 	@Test
@@ -50,7 +49,7 @@ public class FeatureUtilsTest {
 		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetfeatures);
 		assertNotNull(def);
 	}
-	
+
 	@Test
 	public void testReadFeatureVectors() throws IOException {
 		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetfeatures);
@@ -58,6 +57,6 @@ public class FeatureUtilsTest {
 		assertNotNull(featureVectors);
 		assertEquals(9, featureVectors.length);
 		assertEquals("h", def.getFeatureValueAsString("phone", featureVectors[0]));
-		
+
 	}
 }

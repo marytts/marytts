@@ -26,34 +26,32 @@ import marytts.unitselection.data.UnitDatabase;
 
 import org.w3c.dom.Element;
 
+public class HalfPhoneUnitSelector extends UnitSelector {
 
-public class HalfPhoneUnitSelector extends UnitSelector
-{
+	/**
+	 * Initialise the unit selector. Need to call load() separately.
+	 * 
+	 * @see #load(UnitDatabase)
+	 */
+	public HalfPhoneUnitSelector() throws Exception {
+		super();
+	}
 
-    /**
-     * Initialise the unit selector. Need to call load() separately.
-     * @see #load(UnitDatabase)
-     */
-    public HalfPhoneUnitSelector() throws Exception
-    {
-        super();
-    }
-
-    /**
-     * Create the list of targets from the XML elements to synthesize.
-     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
-     * @return a list of Target objects
-     */
-    protected List<Target> createTargets(List<Element> segmentsAndBoundaries)
-    {
-        List<Target> targets = new ArrayList<Target>();
-        for (Element sOrB : segmentsAndBoundaries) {
-            String phone = getPhoneSymbol(sOrB);
-            targets.add(new HalfPhoneTarget(phone+"_L", sOrB, true)); // left half
-            targets.add(new HalfPhoneTarget(phone+"_R", sOrB, false)); // right half
-        }
-        return targets;
-    }
+	/**
+	 * Create the list of targets from the XML elements to synthesize.
+	 * 
+	 * @param segmentsAndBoundaries
+	 *            a list of MaryXML phone and boundary elements
+	 * @return a list of Target objects
+	 */
+	protected List<Target> createTargets(List<Element> segmentsAndBoundaries) {
+		List<Target> targets = new ArrayList<Target>();
+		for (Element sOrB : segmentsAndBoundaries) {
+			String phone = getPhoneSymbol(sOrB);
+			targets.add(new HalfPhoneTarget(phone + "_L", sOrB, true)); // left half
+			targets.add(new HalfPhoneTarget(phone + "_R", sOrB, false)); // right half
+		}
+		return targets;
+	}
 
 }
-

@@ -19,8 +19,6 @@
  */
 package marytts.language.en;
 
-
-
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
@@ -37,18 +35,19 @@ import static org.junit.Assert.*;
 
 /**
  * Some more coverage tests with actual language modules
+ * 
  * @author marc
  *
  */
 public class MaryInterfaceEnIT {
 
 	private MaryInterface mary;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		mary = new LocalMaryInterface();
 	}
-	
+
 	@Test
 	public void convertTextToAcoustparams() throws Exception {
 		mary.setOutputType(MaryDataType.ACOUSTPARAMS.name());
@@ -62,14 +61,15 @@ public class MaryInterfaceEnIT {
 		String tf = mary.generateText("Hello world");
 		assertNotNull(tf);
 	}
-	
+
 	@Test
 	public void canSelectTargetfeatures() throws Exception {
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String featureNames = "phone stressed";
 		mary.setOutputTypeParams(featureNames);
 		String tf = mary.generateText("Hello world");
-		FeatureDefinition expected = FeatureRegistry.getTargetFeatureComputer(mary.getLocale(), featureNames).getFeatureDefinition(); 
+		FeatureDefinition expected = FeatureRegistry.getTargetFeatureComputer(mary.getLocale(), featureNames)
+				.getFeatureDefinition();
 		FeatureDefinition actual = FeatureUtils.readFeatureDefinition(tf);
 		assertEquals(expected.featureEqualsAnalyse(actual), expected, actual);
 	}

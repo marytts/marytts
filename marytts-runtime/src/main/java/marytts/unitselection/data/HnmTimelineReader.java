@@ -51,201 +51,198 @@ import marytts.util.math.MathUtils;
  * 
  */
 public class HnmTimelineReader extends TimelineReader {
-    public HntmAnalyzerParams analysisParams;
-    public HnmTimelineReader(String fileName) throws IOException, MaryConfigurationException
-    {
-        super();
-        load(fileName);
-    }
+	public HntmAnalyzerParams analysisParams;
 
-    protected void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        super.load(fileName);
-        // Now make sense of the processing header
-        Properties props = new Properties();
-        ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
-        props.load(bais);
-        ensurePresent(props, "hnm.noiseModel");
+	public HnmTimelineReader(String fileName) throws IOException, MaryConfigurationException {
+		super();
+		load(fileName);
+	}
 
-        analysisParams = new HntmAnalyzerParams();
+	protected void load(String fileName) throws IOException, MaryConfigurationException {
+		super.load(fileName);
+		// Now make sense of the processing header
+		Properties props = new Properties();
+		ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
+		props.load(bais);
+		ensurePresent(props, "hnm.noiseModel");
 
-        analysisParams.noiseModel = Integer.parseInt(props.getProperty("hnm.noiseModel"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages = Integer
-                .parseInt(props.getProperty("hnm.numFiltStages"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength = Integer
-                .parseInt(props.getProperty("hnm.medianFiltLen"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength = Integer.parseInt(props
-                .getProperty("hnm.maFiltLen"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold = Float.parseFloat(props.getProperty("hnm.cumAmpTh"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB = Float
-                .parseFloat(props.getProperty("hnm.maxAmpTh"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent = Float.parseFloat(props
-                .getProperty("hnm.harmDevPercent"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB = Float.parseFloat(props
-                .getProperty("hnm.sharpPeakAmpDiff"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics = Integer.parseInt(props
-                .getProperty("hnm.minHarmonics"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics = Integer.parseInt(props
-                .getProperty("hnm.maxHarmonics"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing = Float.parseFloat(props
-                .getProperty("hnm.minVoicedFreq"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing = Float.parseFloat(props
-                .getProperty("hnm.maxVoicedFreq"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift = Float.parseFloat(props
-                .getProperty("hnm.maxFreqVoicingFinalShift"));
-        analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent = Float.parseFloat(props.getProperty("hnm.neighsPercent"));
-        analysisParams.harmonicPartCepstrumOrder = Integer.parseInt(props.getProperty("hnm.harmCepsOrder"));
-        analysisParams.regularizedCepstrumWarpingMethod = Integer.parseInt(props.getProperty("hnm.regCepWarpMethod"));
-        analysisParams.regularizedCepstrumLambdaHarmonic = Float.parseFloat(props.getProperty("hnm.regCepsLambda"));
-        analysisParams.noisePartLpOrder = Integer.parseInt(props.getProperty("hnm.noiseLpOrder"));
-        analysisParams.preemphasisCoefNoise = Float.parseFloat(props.getProperty("hnm.preCoefNoise"));
-        analysisParams.hpfBeforeNoiseAnalysis = Boolean.parseBoolean(props.getProperty("hnm.hpfBeforeNoiseAnalysis"));
-        analysisParams.numPeriodsHarmonicsExtraction = Float.parseFloat(props.getProperty("hnm.harmNumPer"));
-    }
-    
-    private void ensurePresent(Properties props, String key) throws MaryConfigurationException
-    {
-        if (!props.containsKey(key))
-            throw new MaryConfigurationException("Processing header does not contain required field '"+key+"'");
-    }
+		analysisParams = new HntmAnalyzerParams();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) {
+		analysisParams.noiseModel = Integer.parseInt(props.getProperty("hnm.noiseModel"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages = Integer
+				.parseInt(props.getProperty("hnm.numFiltStages"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength = Integer
+				.parseInt(props.getProperty("hnm.medianFiltLen"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength = Integer.parseInt(props
+				.getProperty("hnm.maFiltLen"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold = Float.parseFloat(props.getProperty("hnm.cumAmpTh"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB = Float
+				.parseFloat(props.getProperty("hnm.maxAmpTh"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent = Float.parseFloat(props
+				.getProperty("hnm.harmDevPercent"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB = Float.parseFloat(props
+				.getProperty("hnm.sharpPeakAmpDiff"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics = Integer.parseInt(props
+				.getProperty("hnm.minHarmonics"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics = Integer.parseInt(props
+				.getProperty("hnm.maxHarmonics"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing = Float.parseFloat(props
+				.getProperty("hnm.minVoicedFreq"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing = Float.parseFloat(props
+				.getProperty("hnm.maxVoicedFreq"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift = Float.parseFloat(props
+				.getProperty("hnm.maxFreqVoicingFinalShift"));
+		analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent = Float.parseFloat(props.getProperty("hnm.neighsPercent"));
+		analysisParams.harmonicPartCepstrumOrder = Integer.parseInt(props.getProperty("hnm.harmCepsOrder"));
+		analysisParams.regularizedCepstrumWarpingMethod = Integer.parseInt(props.getProperty("hnm.regCepWarpMethod"));
+		analysisParams.regularizedCepstrumLambdaHarmonic = Float.parseFloat(props.getProperty("hnm.regCepsLambda"));
+		analysisParams.noisePartLpOrder = Integer.parseInt(props.getProperty("hnm.noiseLpOrder"));
+		analysisParams.preemphasisCoefNoise = Float.parseFloat(props.getProperty("hnm.preCoefNoise"));
+		analysisParams.hpfBeforeNoiseAnalysis = Boolean.parseBoolean(props.getProperty("hnm.hpfBeforeNoiseAnalysis"));
+		analysisParams.numPeriodsHarmonicsExtraction = Float.parseFloat(props.getProperty("hnm.harmNumPer"));
+	}
 
-        Datagram d = null;
+	private void ensurePresent(Properties props, String key) throws MaryConfigurationException {
+		if (!props.containsKey(key))
+			throw new MaryConfigurationException("Processing header does not contain required field '" + key + "'");
+	}
 
-        /* If the end of the datagram zone is reached, refuse to read */
-        if (bb.position() == bb.limit()) {
-            // throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
-            // " a time which is bigger than the total timeline duration." );
-            return null;
-        }
-        /* Else, pop the datagram out of the file */
-        try {
-            d = new HnmDatagram(bb, analysisParams.noiseModel);
-        }
-        /* Detect a possible EOF encounter */
-        catch (IOException e) {
-           return null;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Datagram getNextDatagram(ByteBuffer bb) {
 
-        return d;
-    }
+		Datagram d = null;
 
-    private void testSynthesizeFromDatagrams(LinkedList<HnmDatagram> datagrams, int startIndex, int endIndex,
-            DataOutputStream output) throws IOException {
-        HntmSynthesizer s = new HntmSynthesizer();
-        // TODO: These should come from timeline and user choices...
-        HntmAnalyzerParams hnmAnalysisParams = new HntmAnalyzerParams();
-        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
-        BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
-        int samplingRateInHz = this.getSampleRate();
+		/* If the end of the datagram zone is reached, refuse to read */
+		if (bb.position() == bb.limit()) {
+			// throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
+			// " a time which is bigger than the total timeline duration." );
+			return null;
+		}
+		/* Else, pop the datagram out of the file */
+		try {
+			d = new HnmDatagram(bb, analysisParams.noiseModel);
+		}
+		/* Detect a possible EOF encounter */
+		catch (IOException e) {
+			return null;
+		}
 
-        int totalFrm = 0;
-        int i;
-        float originalDurationInSeconds = 0.0f;
-        float deltaTimeInSeconds;
+		return d;
+	}
 
-        for (i = startIndex; i <= endIndex; i++) {
-            HnmDatagram datagram;
-            try {
-                datagram = datagrams.get(i);
-            } catch (IndexOutOfBoundsException e) {
-                throw e;
-            }
-            if (datagram != null && datagram instanceof HnmDatagram) {
-                totalFrm++;
-                // deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(),
-                // samplingRateInHz);
-                deltaTimeInSeconds = datagram.frame.deltaAnalysisTimeInSeconds;
-                originalDurationInSeconds += deltaTimeInSeconds;
-            }
-        }
+	private void testSynthesizeFromDatagrams(LinkedList<HnmDatagram> datagrams, int startIndex, int endIndex,
+			DataOutputStream output) throws IOException {
+		HntmSynthesizer s = new HntmSynthesizer();
+		// TODO: These should come from timeline and user choices...
+		HntmAnalyzerParams hnmAnalysisParams = new HntmAnalyzerParams();
+		HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+		BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
+		int samplingRateInHz = this.getSampleRate();
 
-        HntmSpeechSignal hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds);
+		int totalFrm = 0;
+		int i;
+		float originalDurationInSeconds = 0.0f;
+		float deltaTimeInSeconds;
 
-        int frameCount = 0;
-        float tAnalysisInSeconds = 0.0f;
-        for (i = startIndex; i <= endIndex; i++) {
-            HnmDatagram datagram;
-            try {
-                datagram = datagrams.get(i);
-            } catch (IndexOutOfBoundsException e) {
-                throw e;
-            }
-            if (datagram != null && datagram instanceof HnmDatagram) {
-                // tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(),
-                // samplingRateInHz);
-                tAnalysisInSeconds += datagram.getFrame().deltaAnalysisTimeInSeconds;
+		for (i = startIndex; i <= endIndex; i++) {
+			HnmDatagram datagram;
+			try {
+				datagram = datagrams.get(i);
+			} catch (IndexOutOfBoundsException e) {
+				throw e;
+			}
+			if (datagram != null && datagram instanceof HnmDatagram) {
+				totalFrm++;
+				// deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(),
+				// samplingRateInHz);
+				deltaTimeInSeconds = datagram.frame.deltaAnalysisTimeInSeconds;
+				originalDurationInSeconds += deltaTimeInSeconds;
+			}
+		}
 
-                if (frameCount < totalFrm) {
-                    hnmSignal.frames[frameCount] = new HntmSpeechFrame(datagram.getFrame());
-                    hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
-                    frameCount++;
-                }
-            }
-        }
+		HntmSpeechSignal hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds);
 
-        HntmSynthesizedSignal ss = null;
-        if (totalFrm > 0) {
-            ss = s.synthesize(hnmSignal, null, null, pmodParams, null, hnmAnalysisParams, synthesisParams);
-            FileUtils.writeBinaryFile(ArrayUtils.copyDouble2Short(ss.output), output);
-            if (ss.output != null) {
-                ss.output = MathUtils.multiply(ss.output, 1.0 / 32768.0); // why is this done here?
-            }
-        }
-        return;
-    }
+		int frameCount = 0;
+		float tAnalysisInSeconds = 0.0f;
+		for (i = startIndex; i <= endIndex; i++) {
+			HnmDatagram datagram;
+			try {
+				datagram = datagrams.get(i);
+			} catch (IndexOutOfBoundsException e) {
+				throw e;
+			}
+			if (datagram != null && datagram instanceof HnmDatagram) {
+				// tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(),
+				// samplingRateInHz);
+				tAnalysisInSeconds += datagram.getFrame().deltaAnalysisTimeInSeconds;
 
-    /**
-     * Dump audio from HNM timeline to a series big-endian raw audio files in chunks of Datagrams (<tt>clusterSize</tt>). Run this
-     * with
-     * 
-     * <pre>
-     * -ea - Xmx2gb
-     * </pre>
-     * 
-     * @param args
-     *            <ol>
-     *            <li>path to <tt>timeline_hnm.mry</tt> file</li>
-     *            <li>path to dump output files</li>
-     *            </ol>
-     * @throws IOException
-     */
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
-    {
-        HnmTimelineReader h = new HnmTimelineReader(args[0]);
+				if (frameCount < totalFrm) {
+					hnmSignal.frames[frameCount] = new HntmSpeechFrame(datagram.getFrame());
+					hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
+					frameCount++;
+				}
+			}
+		}
 
-        LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
-        int count = 0;
-        long startDatagramTime = 0;
-        int numDatagrams = (int) h.numDatagrams;
-        // long numDatagrams = 2000;
+		HntmSynthesizedSignal ss = null;
+		if (totalFrm > 0) {
+			ss = s.synthesize(hnmSignal, null, null, pmodParams, null, hnmAnalysisParams, synthesisParams);
+			FileUtils.writeBinaryFile(ArrayUtils.copyDouble2Short(ss.output), output);
+			if (ss.output != null) {
+				ss.output = MathUtils.multiply(ss.output, 1.0 / 32768.0); // why is this done here?
+			}
+		}
+		return;
+	}
 
-        Datagram[] rawDatagrams = h.getDatagrams(0l, numDatagrams, h.getSampleRate(), null);
-        for (int i = 0; i < rawDatagrams.length; i++) {
-            HnmDatagram d = (HnmDatagram) rawDatagrams[i];
-            datagrams.add(d);
-            count++;
-            System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size="
-                    + ((FrameNoisePartWaveform) (((HnmDatagram) d).frame.n)).waveform().length);
-        }
+	/**
+	 * Dump audio from HNM timeline to a series big-endian raw audio files in chunks of Datagrams (<tt>clusterSize</tt>). Run this
+	 * with
+	 * 
+	 * <pre>
+	 * -ea - Xmx2gb
+	 * </pre>
+	 * 
+	 * @param args
+	 *            <ol>
+	 *            <li>path to <tt>timeline_hnm.mry</tt> file</li>
+	 *            <li>path to dump output files</li>
+	 *            </ol>
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException {
+		HnmTimelineReader h = new HnmTimelineReader(args[0]);
 
-        int clusterSize = 1000;
-        int numClusters = (int) Math.floor((numDatagrams) / ((double) clusterSize) + 0.5);
-        int startIndex, endIndex;
-        for (int i = 0; i < numClusters; i++) {
-            DataOutputStream output = new DataOutputStream(new FileOutputStream(
-                    new File(String.format("%s_%06d.bin", args[1], i))));
-            startIndex = (int) (i * clusterSize);
-            endIndex = (int) Math.min((i + 1) * clusterSize - 1, numDatagrams - 1);
-            h.testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, output);
-            System.out.println("Timeline cluster " + String.valueOf(i + 1) + " of " + String.valueOf(numClusters)
-                    + " synthesized...");
-            output.close();
-        }
-    }
+		LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
+		int count = 0;
+		long startDatagramTime = 0;
+		int numDatagrams = (int) h.numDatagrams;
+		// long numDatagrams = 2000;
+
+		Datagram[] rawDatagrams = h.getDatagrams(0l, numDatagrams, h.getSampleRate(), null);
+		for (int i = 0; i < rawDatagrams.length; i++) {
+			HnmDatagram d = (HnmDatagram) rawDatagrams[i];
+			datagrams.add(d);
+			count++;
+			System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size="
+					+ ((FrameNoisePartWaveform) (((HnmDatagram) d).frame.n)).waveform().length);
+		}
+
+		int clusterSize = 1000;
+		int numClusters = (int) Math.floor((numDatagrams) / ((double) clusterSize) + 0.5);
+		int startIndex, endIndex;
+		for (int i = 0; i < numClusters; i++) {
+			DataOutputStream output = new DataOutputStream(new FileOutputStream(
+					new File(String.format("%s_%06d.bin", args[1], i))));
+			startIndex = (int) (i * clusterSize);
+			endIndex = (int) Math.min((i + 1) * clusterSize - 1, numDatagrams - 1);
+			h.testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, output);
+			System.out.println("Timeline cluster " + String.valueOf(i + 1) + " of " + String.valueOf(numClusters)
+					+ " synthesized...");
+			output.close();
+		}
+	}
 }

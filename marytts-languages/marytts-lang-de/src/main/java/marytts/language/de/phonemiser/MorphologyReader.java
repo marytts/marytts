@@ -40,89 +40,86 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-
-
 public class MorphologyReader {
 
-	public MorphologyReader(){
+	public MorphologyReader() {
 
 	}
 
+	public Hashtable<String, String> loadInputModel(InputStream modelStream) throws ParserConfigurationException, SAXException,
+			IOException, MaryConfigurationException {
+		Hashtable<String, String> modelTable;
+		modelTable = new Hashtable<String, String>(40);
 
-	public Hashtable<String,String> loadInputModel(InputStream modelStream)
-	throws ParserConfigurationException, SAXException, IOException, MaryConfigurationException { 
-    	Hashtable<String,String> modelTable;	
-		modelTable = new Hashtable<String,String>(40);
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder parser = factory.newDocumentBuilder();
+		Document doc = parser.parse(modelStream);
+		Element rootNode = doc.getDocumentElement();
 
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    	DocumentBuilder parser = factory.newDocumentBuilder();
-    	Document doc  = parser.parse(modelStream);
-    	Element rootNode = doc.getDocumentElement();
-
-    	if (rootNode.getNodeName().equals("entries")){
+		if (rootNode.getNodeName().equals("entries")) {
 			NodeList entriesList = rootNode.getChildNodes();
 
-			for (int i=0;i<entriesList.getLength();i++) {
+			for (int i = 0; i < entriesList.getLength(); i++) {
 
-	    		if (entriesList.item(i).getNodeType()==org.w3c.dom.Node.ELEMENT_NODE){
-					Element entry=(Element)entriesList.item(i);
-					NodeList keyList =entry.getElementsByTagName("key");
-					NodeList valueList=entry.getElementsByTagName("value");
-					if (keyList.getLength() == 1 && valueList.getLength() == 1 ){
-		    			NodeList keyTextNodeList = ((Element)keyList.item(0)).getChildNodes();
-		    			NodeList valueTextNodeList  = ((Element)valueList.item(0)).getChildNodes();
-		    
-		    			String keyString = "";
-		    			String valueString  = "";
+				if (entriesList.item(i).getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+					Element entry = (Element) entriesList.item(i);
+					NodeList keyList = entry.getElementsByTagName("key");
+					NodeList valueList = entry.getElementsByTagName("value");
+					if (keyList.getLength() == 1 && valueList.getLength() == 1) {
+						NodeList keyTextNodeList = ((Element) keyList.item(0)).getChildNodes();
+						NodeList valueTextNodeList = ((Element) valueList.item(0)).getChildNodes();
 
-		    		for (int a=0;a<keyTextNodeList.getLength();a++) {
-						if (keyTextNodeList.item(a).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
-			    			org.w3c.dom.Text textNode=(org.w3c.dom.Text)keyTextNodeList.item(a);
-			    			keyString+=textNode.getData().trim();
+						String keyString = "";
+						String valueString = "";
+
+						for (int a = 0; a < keyTextNodeList.getLength(); a++) {
+							if (keyTextNodeList.item(a).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+								org.w3c.dom.Text textNode = (org.w3c.dom.Text) keyTextNodeList.item(a);
+								keyString += textNode.getData().trim();
+							}
 						}
-		    		}
 
-		    		for (int a=0;a<valueTextNodeList.getLength();a++) {
-						if (valueTextNodeList.item(a).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
-			    			org.w3c.dom.Text textNode=(org.w3c.dom.Text)valueTextNodeList.item(a);
-			    			valueString+=textNode.getData().trim();
+						for (int a = 0; a < valueTextNodeList.getLength(); a++) {
+							if (valueTextNodeList.item(a).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+								org.w3c.dom.Text textNode = (org.w3c.dom.Text) valueTextNodeList.item(a);
+								valueString += textNode.getData().trim();
+							}
 						}
-		    		}
-		    		modelTable.put(keyString,valueString);
+						modelTable.put(keyString, valueString);
 					} else {
-		    			System.out.println("ERROR: The "+i+"th entry contains wrong number of subElements !!");
+						System.out.println("ERROR: The " + i + "th entry contains wrong number of subElements !!");
 					}
-	    		}
+				}
 			}
 		} else {
 			throw new MaryConfigurationException("Document is not wellformed. Top-level element should be <entries>.");
-    	}
+		}
 		return modelTable;
-    }
+	}
 
-     /**
-      * Prints a textual representation of a DOM object into a text string..
-      *
-      * @param element DOM object to parse.
-      * @return String representation of <i>document</i>.
-      */
-      public static String document2String(Element element) {
-	  	String result = null;
+	/**
+	 * Prints a textual representation of a DOM object into a text string..
+	 *
+	 * @param element
+	 *            DOM object to parse.
+	 * @return String representation of <i>document</i>.
+	 */
+	public static String document2String(Element element) {
+		String result = null;
 
-	  	StringWriter strWtr = new StringWriter();
-        StreamResult strResult = new StreamResult(strWtr);
-        TransformerFactory tfac = TransformerFactory.newInstance();
-        try {
-	      Transformer trans = tfac.newTransformer();
-	      trans.setOutputProperty("omit-xml-declaration","yes");
-	      trans.transform(new DOMSource(element), strResult);
-	  } catch (Exception e) {
-	      System.err.println("XMLUtils.document2String(): " + e);
-	  }
-	  result = strResult.getWriter().toString();
+		StringWriter strWtr = new StringWriter();
+		StreamResult strResult = new StreamResult(strWtr);
+		TransformerFactory tfac = TransformerFactory.newInstance();
+		try {
+			Transformer trans = tfac.newTransformer();
+			trans.setOutputProperty("omit-xml-declaration", "yes");
+			trans.transform(new DOMSource(element), strResult);
+		} catch (Exception e) {
+			System.err.println("XMLUtils.document2String(): " + e);
+		}
+		result = strResult.getWriter().toString();
 
-	  return result;
-      }//document2String()
+		return result;
+	}// document2String()
 
 }
-

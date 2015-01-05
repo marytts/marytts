@@ -48,140 +48,125 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class TranscriptionAligner extends VoiceImportComponent {
-    
-    private DatabaseLayout db;
-    private String locale;
-    private int progress;
-    DocumentBuilderFactory dbf;
-    DocumentBuilder docBuilder;
-    TransformerFactory tFactory;
-    Transformer transformer;
-    File xmlOutDir;
-    
-    private marytts.tools.analysis.MaryTranscriptionAligner aligner;
-    
 
-    
+	private DatabaseLayout db;
+	private String locale;
+	private int progress;
+	DocumentBuilderFactory dbf;
+	DocumentBuilder docBuilder;
+	TransformerFactory tFactory;
+	Transformer transformer;
+	File xmlOutDir;
 
-    
-    public TranscriptionAligner() {
-    }
+	private marytts.tools.analysis.MaryTranscriptionAligner aligner;
 
-    public String getName() {
-        return "TranscriptionAligner";
-    }
-    
-    @Override
-    protected void initialiseComp()
-    throws ParserConfigurationException, IOException, SAXException, TransformerConfigurationException, MaryConfigurationException
-    {
-        aligner = new MaryTranscriptionAligner(db.getAllophoneSet());
-        aligner.SetEnsureInitialBoundary(true);
-        xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
-        if (!xmlOutDir.exists()) {
-            xmlOutDir.mkdir();
-        }
-        // for parsing xml files
-        dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        docBuilder = dbf.newDocumentBuilder();
-        
-        // for writing xml files
-        tFactory = TransformerFactory.newInstance();
-        transformer = tFactory.newTransformer();
-    }
-    
-    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb)
-    {
-        this.db = theDb;
-        locale = db.getProp(db.LOCALE);
-        if (props == null){
-            props = new TreeMap<String, String>();
-        }
-        return props;
-    }
-    
-    protected void setupHelp()
-    {
-        props2Help = new TreeMap<String, String>();
-    }
-    
- 
-    
-    public int getProgress()
-    {
-        return progress;
-    }
-    /**
-     * align and change automatic transcriptions to manually 
-     * corrected ones.
-     * 
-     * XML-Version: this changes mary xml-files (PHONEMISED)
-     * @throws Exception 
-     * @throws XPathExpressionException 
-     */
-    public boolean compute()
-    throws Exception
-    {
-        
-        System.out.println("traversing through " + bnl.getLength() + " files");
-       
-        String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
-        for (int i=0; i<bnl.getLength(); i++) {
-            progress = 100*i/bnl.getLength();
-            System.out.println(bnl.getName(i));
-            alignTranscription(bnl.getName(i));
-        }
-                
-        return true;
-    }
-    
-    public void alignTranscription(String baseName) throws Exception{
-        String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
-        File nextFile = new File(promptAllophonesDir
-                +System.getProperty("file.separator")
-                +baseName+".xml");
-        // get original xml file
-        Document doc = docBuilder.parse(nextFile);
+	public TranscriptionAligner() {
+	}
 
-        // open destination xml file
-        Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + System.getProperty("file.separator")+nextFile.getName()), "UTF-8");
+	public String getName() {
+		return "TranscriptionAligner";
+	}
 
-        // open file with manual transcription that is to be aligned
-        String manTransString;
-        try{
+	@Override
+	protected void initialiseComp() throws ParserConfigurationException, IOException, SAXException,
+			TransformerConfigurationException, MaryConfigurationException {
+		aligner = new MaryTranscriptionAligner(db.getAllophoneSet());
+		aligner.SetEnsureInitialBoundary(true);
+		xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
+		if (!xmlOutDir.exists()) {
+			xmlOutDir.mkdir();
+		}
+		// for parsing xml files
+		dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		docBuilder = dbf.newDocumentBuilder();
 
-            String trfdir = db.getProp(db.LABDIR);
-            
-            String trfname = trfdir + 
-            nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
-            
-            System.out.println(trfname);
-            
-            manTransString = MaryTranscriptionAligner.readLabelFile(aligner.getEntrySeparator(), aligner.getEnsureInitialBoundary(), trfname);
+		// for writing xml files
+		tFactory = TransformerFactory.newInstance();
+		transformer = tFactory.newTransformer();
+	}
 
-            // align transcriptions
-            aligner.alignXmlTranscriptions(doc, manTransString);            
-        } catch ( FileNotFoundException e ) {
-            // transform the unchanged xml-structure to a file
-            System.out.println("No manual transcription found, copy original ...");
-        }
-        
-        // write results to output
-        DOMSource source = new DOMSource( doc );
-        StreamResult output = new StreamResult(docDest);
-        transformer.transform(source, output);
-    }
-  
+	public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb) {
+		this.db = theDb;
+		locale = db.getProp(db.LOCALE);
+		if (props == null) {
+			props = new TreeMap<String, String>();
+		}
+		return props;
+	}
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws Exception
-    {
-        VoiceImportComponent vic  =  new TranscriptionAligner();
-        DatabaseLayout db = new DatabaseLayout(vic);
-        vic.compute();
-    }
+	protected void setupHelp() {
+		props2Help = new TreeMap<String, String>();
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	/**
+	 * align and change automatic transcriptions to manually corrected ones.
+	 * 
+	 * XML-Version: this changes mary xml-files (PHONEMISED)
+	 * 
+	 * @throws Exception
+	 * @throws XPathExpressionException
+	 */
+	public boolean compute() throws Exception {
+
+		System.out.println("traversing through " + bnl.getLength() + " files");
+
+		String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
+		for (int i = 0; i < bnl.getLength(); i++) {
+			progress = 100 * i / bnl.getLength();
+			System.out.println(bnl.getName(i));
+			alignTranscription(bnl.getName(i));
+		}
+
+		return true;
+	}
+
+	public void alignTranscription(String baseName) throws Exception {
+		String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
+		File nextFile = new File(promptAllophonesDir + System.getProperty("file.separator") + baseName + ".xml");
+		// get original xml file
+		Document doc = docBuilder.parse(nextFile);
+
+		// open destination xml file
+		Writer docDest = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath()
+				+ System.getProperty("file.separator") + nextFile.getName()), "UTF-8");
+
+		// open file with manual transcription that is to be aligned
+		String manTransString;
+		try {
+
+			String trfdir = db.getProp(db.LABDIR);
+
+			String trfname = trfdir + nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
+
+			System.out.println(trfname);
+
+			manTransString = MaryTranscriptionAligner.readLabelFile(aligner.getEntrySeparator(),
+					aligner.getEnsureInitialBoundary(), trfname);
+
+			// align transcriptions
+			aligner.alignXmlTranscriptions(doc, manTransString);
+		} catch (FileNotFoundException e) {
+			// transform the unchanged xml-structure to a file
+			System.out.println("No manual transcription found, copy original ...");
+		}
+
+		// write results to output
+		DOMSource source = new DOMSource(doc);
+		StreamResult output = new StreamResult(docDest);
+		transformer.transform(source, output);
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception {
+		VoiceImportComponent vic = new TranscriptionAligner();
+		DatabaseLayout db = new DatabaseLayout(vic);
+		vic.compute();
+	}
 }
-

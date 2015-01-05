@@ -26,113 +26,113 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 
-
 /**
  * 
  * @author Marc Schr&ouml;der
  *
- * Implements a frame based spectrum analyser
+ *         Implements a frame based spectrum analyser
  * 
  */
-public class ShortTermCepstrumAnalyser extends FrameBasedAnalyser<double[]>
-{
-    int fftSize;
-    int invFftSize;
-    double frequencyResolution;
-    double quefrencyResolution;
+public class ShortTermCepstrumAnalyser extends FrameBasedAnalyser<double[]> {
+	int fftSize;
+	int invFftSize;
+	double frequencyResolution;
+	double quefrencyResolution;
 
-    /**
-     * Initialise a FrameBasedAnalyser.
-     * @param signal the signal source to read from
-     * @param fftSize the size of the FFT to use
-     * @param window the window function to apply to each frame
-     * @param frameShift the number of samples by which to shift the window from
-     * one frame analysis to the next; if this is smaller than window.getLength(),
-     * frames will overlap.
-     * @param samplingRate the number of samples in one second.
-     * @throws IllegalArgumentException if the window is longer than fftSize, or
-     * fftSize is not a power of two.
-     */
-    public ShortTermCepstrumAnalyser(DoubleDataSource signal, int fftSize, int invFftSize, Window window,
-            int frameShift, int samplingRate) {
-        super(signal, window, frameShift, samplingRate);
-        if (window.getLength() > fftSize)
-            throw new IllegalArgumentException("Window must not be longer than fftSize");
-        if (!MathUtils.isPowerOfTwo(fftSize))
-            throw new IllegalArgumentException("fftSize must be a power of two!");
-        if (!MathUtils.isPowerOfTwo(invFftSize))
-            throw new IllegalArgumentException("invFftSize must be a power of two!");
-        this.fftSize = fftSize;
-        this.invFftSize = invFftSize;
-        assert fftSize >= frame.length;
-        
-        this.frequencyResolution = (double)samplingRate/fftSize;
-        this.quefrencyResolution = (double)fftSize/((double)samplingRate*invFftSize);
-    }
+	/**
+	 * Initialise a FrameBasedAnalyser.
+	 * 
+	 * @param signal
+	 *            the signal source to read from
+	 * @param fftSize
+	 *            the size of the FFT to use
+	 * @param window
+	 *            the window function to apply to each frame
+	 * @param frameShift
+	 *            the number of samples by which to shift the window from one frame analysis to the next; if this is smaller than
+	 *            window.getLength(), frames will overlap.
+	 * @param samplingRate
+	 *            the number of samples in one second.
+	 * @throws IllegalArgumentException
+	 *             if the window is longer than fftSize, or fftSize is not a power of two.
+	 */
+	public ShortTermCepstrumAnalyser(DoubleDataSource signal, int fftSize, int invFftSize, Window window, int frameShift,
+			int samplingRate) {
+		super(signal, window, frameShift, samplingRate);
+		if (window.getLength() > fftSize)
+			throw new IllegalArgumentException("Window must not be longer than fftSize");
+		if (!MathUtils.isPowerOfTwo(fftSize))
+			throw new IllegalArgumentException("fftSize must be a power of two!");
+		if (!MathUtils.isPowerOfTwo(invFftSize))
+			throw new IllegalArgumentException("invFftSize must be a power of two!");
+		this.fftSize = fftSize;
+		this.invFftSize = invFftSize;
+		assert fftSize >= frame.length;
 
-    /**
-     * Apply this FrameBasedAnalyser to the given data.
-     * @param aFrame the data to analyse, which must be of the length prescribed by this
-     * FrameBasedAnalyser, i.e. by @see{#getFrameLengthSamples()}.
-     * @return a double array of half the frame length
-     * @throws IllegalArgumentException if frame does not have the prescribed length 
-     */
-    @Override
-    public double[] analyse(double[] aFrame)
-    {
-        if (aFrame.length != frameLength)
-            throw new IllegalArgumentException("Expected frame of length " + frameLength
-                    + ", got " + aFrame.length);
-        double[] real = new double[fftSize];
-        double[] imag = new double[fftSize];
-        System.arraycopy(aFrame, 0, real, 0, aFrame.length);
-        FFT.transform(real, imag, false);
-        // Now real + j*imag is the complex spectrum
-        MathUtils.toPolarCoordinates(real, imag);
-        // now real = abs(X), imag = phi
-        real = MathUtils.log(real);
-        Arrays.fill(imag, 0.);
+		this.frequencyResolution = (double) samplingRate / fftSize;
+		this.quefrencyResolution = (double) fftSize / ((double) samplingRate * invFftSize);
+	}
 
-        // For computing the cepstrum, use only frequencies below b:
-        double b = 5000; // Hz
-        int bIndex = (int) (b / frequencyResolution);
-        double[] invReal;
-        double[] invImag;
-        if (invFftSize == fftSize) {
-            invReal = real;
-            invImag = imag;
-        } else {
-            invReal = new double[invFftSize];
-            System.arraycopy(real, 0, invReal, 0, bIndex+1);
-            invImag = new double[invFftSize];
-        }
-        for (int i=bIndex+1; i<invFftSize/2; i++) {
-            invReal[i] = invReal[bIndex];
-        }
-        for (int i=0;i<invFftSize/2; i++) {
-            invReal[invFftSize-i-1] = invReal[i];
-        }
-        FFT.transform(invReal, invImag, true);
-        return invReal;
-    }
+	/**
+	 * Apply this FrameBasedAnalyser to the given data.
+	 * 
+	 * @param aFrame
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
+	 *            @see{#getFrameLengthSamples()}.
+	 * @return a double array of half the frame length
+	 * @throws IllegalArgumentException
+	 *             if frame does not have the prescribed length
+	 */
+	@Override
+	public double[] analyse(double[] aFrame) {
+		if (aFrame.length != frameLength)
+			throw new IllegalArgumentException("Expected frame of length " + frameLength + ", got " + aFrame.length);
+		double[] real = new double[fftSize];
+		double[] imag = new double[fftSize];
+		System.arraycopy(aFrame, 0, real, 0, aFrame.length);
+		FFT.transform(real, imag, false);
+		// Now real + j*imag is the complex spectrum
+		MathUtils.toPolarCoordinates(real, imag);
+		// now real = abs(X), imag = phi
+		real = MathUtils.log(real);
+		Arrays.fill(imag, 0.);
 
-    /**
-     * The distance of two adjacent points on the quefrency axis, in ms
-     */
-    public double getQuefrencyResolution()
-    {
-        return quefrencyResolution;
-    }
-    
-    public int getFFTWindowLength()
-    {
-        return fftSize;
-    }
-    
-    public int getInverseFFTWindowLength()
-    {
-        return invFftSize;
-    }
-    
+		// For computing the cepstrum, use only frequencies below b:
+		double b = 5000; // Hz
+		int bIndex = (int) (b / frequencyResolution);
+		double[] invReal;
+		double[] invImag;
+		if (invFftSize == fftSize) {
+			invReal = real;
+			invImag = imag;
+		} else {
+			invReal = new double[invFftSize];
+			System.arraycopy(real, 0, invReal, 0, bIndex + 1);
+			invImag = new double[invFftSize];
+		}
+		for (int i = bIndex + 1; i < invFftSize / 2; i++) {
+			invReal[i] = invReal[bIndex];
+		}
+		for (int i = 0; i < invFftSize / 2; i++) {
+			invReal[invFftSize - i - 1] = invReal[i];
+		}
+		FFT.transform(invReal, invImag, true);
+		return invReal;
+	}
+
+	/**
+	 * The distance of two adjacent points on the quefrency axis, in ms
+	 */
+	public double getQuefrencyResolution() {
+		return quefrencyResolution;
+	}
+
+	public int getFFTWindowLength() {
+		return fftSize;
+	}
+
+	public int getInverseFFTWindowLength() {
+		return invFftSize;
+	}
+
 }
-

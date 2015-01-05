@@ -655,5 +655,4 @@ public class VocalizationSelector {
         
         return Float.NaN;
     }
-
 }

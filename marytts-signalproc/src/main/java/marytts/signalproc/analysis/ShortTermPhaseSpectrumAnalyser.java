@@ -45,7 +45,7 @@ public class ShortTermPhaseSpectrumAnalyser extends ShortTermSpectrumAnalyser {
 	 *            the window function to apply to each frame
 	 * @param frameShift
 	 *            the number of samples by which to shift the window from one frame analysis to the next; if this is smaller than
-	 *            window.getLength(), frames will overlap.
+	 *            {@link marytts.signalproc.window.Window#getLength() window.getLength()}, frames will overlap.
 	 * @param samplingRate
 	 *            the number of samples in one second.
 	 * @throws IllegalArgumentException
@@ -60,7 +60,7 @@ public class ShortTermPhaseSpectrumAnalyser extends ShortTermSpectrumAnalyser {
 	 * 
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 *            @see{#getFrameLengthSamples()}.
+	 *            {@link #getFrameLengthSamples()}.
 	 * @return a double array of half the frame length
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
