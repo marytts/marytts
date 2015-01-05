@@ -31,73 +31,73 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * A pronunciation model that takes into account some English postlexical rules.
+ * 
  * @author marc
  *
  */
-public class PronunciationModel extends marytts.modules.PronunciationModel
-{
-    /**
+public class PronunciationModel extends marytts.modules.PronunciationModel {
+	/**
      * 
      */
-    public PronunciationModel()
-    {
-        super(Locale.ENGLISH);
-    }
+	public PronunciationModel() {
+		super(Locale.ENGLISH);
+	}
 
-    /**
-     * Optionally, a language-specific subclass can implement any postlexical rules
-     * on the document.
-     * @param token a <t> element with a <syllable> and <ph> substructure. 
-     * @param allophoneSet
-     * @return true if something was changed in the content of the <ph> elements for this <t>, false otherwise
-     */
-    @Override
-    protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet)
-    {
-        String word = MaryDomUtils.tokenText(token);
+	/**
+	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
+	 * 
+	 * @param token
+	 *            a <t> element with a <syllable> and <ph> substructure.
+	 * @param allophoneSet
+	 * @return true if something was changed in the content of the <ph> elements for this <t>, false otherwise
+	 */
+	@Override
+	protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet) {
+		String word = MaryDomUtils.tokenText(token);
 
-        if (word.equals("'s") || word.equals("'ve") || word.equals("'ll") || word.equals("'d")) {
-            Element sentence = (Element) MaryDomUtils.getAncestor(token, MaryXML.SENTENCE);
-            if (sentence == null) return false;
-            TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE);
-            tw.setCurrentNode(token);
-            Element currentSegment = (Element)tw.nextNode();
-            if (currentSegment == null) return false;
-            Element prevSegment = (Element) tw.previousNode();
-            if (prevSegment == null) return false;
-            String pname = prevSegment.getAttribute("p");
-            Allophone prev = allophoneSet.getAllophone(pname);
-            if (prev == null) return false;
-            
-            if (word.equals("'s")) {
-                if ("fa".contains(prev.getFeature("ctype"))
-                    && "ap".contains(prev.getFeature("cplace"))) {
-                    // an alveolar or palatal fricative or affricate: s,z,S,Z,tS,dZ
-                    prependSchwa(currentSegment);
-                    return true;
-                } else if (prev.getFeature("cvox").equals("-")) {
-                    // any unvoiced consonant
-                    currentSegment.setAttribute("p", "s"); // devoice
-                    return true;
-                }
-            } else { // one of 've, 'll or 'd
-                if (prev.isConsonant()) {
-                    prependSchwa(currentSegment);
-                    return true;
-                }
-            }
-        }
-        return false;
+		if (word.equals("'s") || word.equals("'ve") || word.equals("'ll") || word.equals("'d")) {
+			Element sentence = (Element) MaryDomUtils.getAncestor(token, MaryXML.SENTENCE);
+			if (sentence == null)
+				return false;
+			TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE);
+			tw.setCurrentNode(token);
+			Element currentSegment = (Element) tw.nextNode();
+			if (currentSegment == null)
+				return false;
+			Element prevSegment = (Element) tw.previousNode();
+			if (prevSegment == null)
+				return false;
+			String pname = prevSegment.getAttribute("p");
+			Allophone prev = allophoneSet.getAllophone(pname);
+			if (prev == null)
+				return false;
 
-    }
+			if (word.equals("'s")) {
+				if ("fa".contains(prev.getFeature("ctype")) && "ap".contains(prev.getFeature("cplace"))) {
+					// an alveolar or palatal fricative or affricate: s,z,S,Z,tS,dZ
+					prependSchwa(currentSegment);
+					return true;
+				} else if (prev.getFeature("cvox").equals("-")) {
+					// any unvoiced consonant
+					currentSegment.setAttribute("p", "s"); // devoice
+					return true;
+				}
+			} else { // one of 've, 'll or 'd
+				if (prev.isConsonant()) {
+					prependSchwa(currentSegment);
+					return true;
+				}
+			}
+		}
+		return false;
 
-    private void prependSchwa(Element currentSegment)
-    {
-        Element syllable = (Element) currentSegment.getParentNode();
-        assert syllable != null;
-        Element schwa = MaryXML.createElement(syllable.getOwnerDocument(), MaryXML.PHONE);
-        schwa.setAttribute("p", "@");
-        syllable.insertBefore(schwa, currentSegment);
-    }
+	}
+
+	private void prependSchwa(Element currentSegment) {
+		Element syllable = (Element) currentSegment.getParentNode();
+		assert syllable != null;
+		Element schwa = MaryXML.createElement(syllable.getOwnerDocument(), MaryXML.PHONE);
+		schwa.setAttribute("p", "@");
+		syllable.insertBefore(schwa, currentSegment);
+	}
 }
-
