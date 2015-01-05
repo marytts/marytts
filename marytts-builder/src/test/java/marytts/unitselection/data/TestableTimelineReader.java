@@ -30,25 +30,24 @@ import marytts.util.data.Datagram;
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
  */
 public class TestableTimelineReader extends TimelineReader {
-    
-    public TestableTimelineReader(String fileName, boolean tryMemoryMapping) throws Exception {
-        super(fileName, tryMemoryMapping);
-    }
 
-    @Override
-    public Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
-        return super.getByteBufferAtTime(targetTimeInSamples);
-    }
+	public TestableTimelineReader(String fileName, boolean tryMemoryMapping) throws Exception {
+		super(fileName, tryMemoryMapping);
+	}
 
-    @Override
-    public long skipNextDatagram(ByteBuffer bb) throws IOException {
-        return super.skipNextDatagram(bb);
-    }
+	@Override
+	public Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
+		return super.getByteBufferAtTime(targetTimeInSamples);
+	}
 
-    @Override
-    public Datagram getNextDatagram(ByteBuffer bb) {
-        return super.getNextDatagram(bb);
-    }
+	@Override
+	public long skipNextDatagram(ByteBuffer bb) throws IOException {
+		return super.skipNextDatagram(bb);
+	}
+
+	@Override
+	public Datagram getNextDatagram(ByteBuffer bb) {
+		return super.getNextDatagram(bb);
+	}
 
 }
-

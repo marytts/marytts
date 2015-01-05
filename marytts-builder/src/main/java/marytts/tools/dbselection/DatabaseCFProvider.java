@@ -27,13 +27,15 @@ public class DatabaseCFProvider implements CoverageFeatureProvider {
 
 	private DBHandler dbHandler;
 	private int[] sentenceIDs;
-	
+
 	public DatabaseCFProvider(DBHandler dbHandler, String condition) {
 		this.dbHandler = dbHandler;
 		this.sentenceIDs = dbHandler.getIdListOfType("dbselection", condition);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.tools.dbselection.CoverageFeatureProvider#getCoverageFeatures(int)
 	 */
 	@Override
@@ -41,26 +43,32 @@ public class DatabaseCFProvider implements CoverageFeatureProvider {
 		return dbHandler.getFeatures(sentenceIDs[i]);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.tools.dbselection.CoverageFeatureProvider#getNumSentences()
 	 */
 	@Override
 	public int getNumSentences() {
 		return sentenceIDs.length;
 	}
-	
+
 	@Override
 	public int getID(int i) {
 		return sentenceIDs[i];
 	}
 
 	/**
-	 * Get in-memory access to a subset of the features. The features will be
-	 * accessible from the in-memory provider with index numbers 0..(len-1). 
-	 * @param off first index of features to be made available in the in-memory provider.
-	 * @param len number of features to provide.
+	 * Get in-memory access to a subset of the features. The features will be accessible from the in-memory provider with index
+	 * numbers 0..(len-1).
+	 * 
+	 * @param off
+	 *            first index of features to be made available in the in-memory provider.
+	 * @param len
+	 *            number of features to provide.
 	 * @return an in-memory context feature provider.
-	 * @throws IndexOutOfBoundsException if off or off+len-1 are outside the range from 0 to getNumSentences()-1.
+	 * @throws IndexOutOfBoundsException
+	 *             if off or off+len-1 are outside the range from 0 to getNumSentences()-1.
 	 */
 	public InMemoryCFProvider getFeaturesInMemory(int off, int len) {
 		int[] ids = new int[len];

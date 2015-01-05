@@ -37,10 +37,11 @@ import static org.junit.Assert.*;
 public class CoverageDefinitionTest {
 	private FeatureDefinition featDef;
 	private CoverageFeatureProvider cfProvider;
-	
+
 	@Before
 	public void setup() throws Exception {
-		String targetFeaturesData = FileUtils.getStreamAsString(getClass().getResourceAsStream("helloworld.targetfeatures"), "UTF-8");
+		String targetFeaturesData = FileUtils.getStreamAsString(getClass().getResourceAsStream("helloworld.targetfeatures"),
+				"UTF-8");
 		featDef = FeatureUtils.readFeatureDefinition(targetFeaturesData);
 		FeatureVector[] features = FeatureUtils.readFeatureVectors(targetFeaturesData);
 		byte[][] data = new byte[1][];

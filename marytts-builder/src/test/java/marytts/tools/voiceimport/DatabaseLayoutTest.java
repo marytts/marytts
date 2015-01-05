@@ -19,11 +19,9 @@ public class DatabaseLayoutTest {
 	File dummyConfigFile;
 	DatabaseLayout db;
 
-	private static File createDummyConfigFile(TemporaryFolder parent)
-			throws IOException {
-		BufferedReader br = new BufferedReader(
-				new InputStreamReader(DatabaseLayoutTest.class
-						.getResourceAsStream("database.config"), "UTF-8"));
+	private static File createDummyConfigFile(TemporaryFolder parent) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				DatabaseLayoutTest.class.getResourceAsStream("database.config"), "UTF-8"));
 		File conf = parent.newFile("dummy.config");
 		PrintWriter out = new PrintWriter(conf, "UTF-8");
 		String line;
@@ -47,9 +45,8 @@ public class DatabaseLayoutTest {
 		dummyConfigFile = createDummyConfigFile(dummyVoiceDir);
 		assertTrue(dummyConfigFile.length() > 0);
 		dummyVoiceDir.newFolder("wav");
-		db = new DatabaseLayout(dummyConfigFile, new VoiceImportComponent[] {
-				new AllophonesExtractor(), new BasenameTimelineMaker(),
-				new EHMMLabeler() });
+		db = new DatabaseLayout(dummyConfigFile, new VoiceImportComponent[] { new AllophonesExtractor(),
+				new BasenameTimelineMaker(), new EHMMLabeler() });
 	}
 
 	@Test

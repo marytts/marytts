@@ -39,10 +39,10 @@ public class CoverageUtilsIT {
 
 	String text = "Hello world";
 	Locale locale = Locale.US;
-	String[] phones = {"h", "@", "l", "@U", "w", "r=", "l", "d", "_"};
-	String[] next_phones = {"@", "l", "@U", "w", "r=", "l", "d", "_", "_"};
-	String[] selection_prosodies = {"0", "0", "pre-nuclear", "pre-nuclear", "nuclear", "nuclear", "nuclear", "nuclear", "0" };
-	
+	String[] phones = { "h", "@", "l", "@U", "w", "r=", "l", "d", "_" };
+	String[] next_phones = { "@", "l", "@U", "w", "r=", "l", "d", "_", "_" };
+	String[] selection_prosodies = { "0", "0", "pre-nuclear", "pre-nuclear", "nuclear", "nuclear", "nuclear", "nuclear", "0" };
+
 	private void assertFeaturesMatchTarget(byte[] data, String featureNames) {
 		assertNotNull(data);
 		String[] featureNameArray = featureNames.split(" ");
@@ -51,7 +51,7 @@ public class CoverageUtilsIT {
 		assertEquals(0, data.length % numFeatures);
 		TargetFeatureComputer tfc = FeatureRegistry.getTargetFeatureComputer(locale, featureNames);
 		FeatureDefinition def = tfc.getFeatureDefinition();
-		for (int k=0; k<numFeatures; k++) {
+		for (int k = 0; k < numFeatures; k++) {
 			String featureName = featureNameArray[k];
 			String[] possibleValues = def.getPossibleValues(def.getFeatureIndex(featureName));
 			String[] values;
@@ -62,25 +62,24 @@ public class CoverageUtilsIT {
 			} else if (featureName.equals("selection_prosody")) {
 				values = selection_prosodies;
 			} else {
-				throw new IllegalArgumentException("Unexpected feature name: "+featureName);
+				throw new IllegalArgumentException("Unexpected feature name: " + featureName);
 			}
-			for (int i=0; i<phones.length; i++) {
-				int pos = i*numFeatures + k;
+			for (int i = 0; i < phones.length; i++) {
+				int pos = i * numFeatures + k;
 				String actual = possibleValues[data[pos]];
 				String expected = values[i];
 				assertEquals(expected, actual);
 			}
 		}
 	}
-	
-	
+
 	@BeforeClass
 	public static void startMary() throws Exception {
 		if (Mary.currentState() == Mary.STATE_OFF) {
 			Mary.startup();
 		}
 	}
-	
+
 	@Test
 	public void canComputePhoneFeature() throws Exception {
 		// setup
@@ -91,7 +90,7 @@ public class CoverageUtilsIT {
 		assertFeaturesMatchTarget(data, featureNames);
 	}
 
-	@Test(expected=SynthesisException.class)
+	@Test(expected = SynthesisException.class)
 	public void willRejectUnknownFeature() throws Exception {
 		// setup
 		String featureNames = "unknown";
