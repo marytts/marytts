@@ -35,8 +35,7 @@ import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * A collection of EST formatted labels with ascii text file input/output
- * functionality
+ * A collection of EST formatted labels with ascii text file input/output functionality
  * 
  * @author Oytun Türk, reworked by Marc Schröder
  */
@@ -46,15 +45,14 @@ public class Labels extends AlignmentData {
 	public Labels(Label[] items) {
 		this.items = deepCopy(items);
 	}
-	
+
 	public Labels(String[] lines) {
 		this(lines, 3);
 	}
-	
+
 	public Labels(String[] lines, int minItemsPerLine) {
 		initFromLines(lines, minItemsPerLine);
 	}
-
 
 	// Create ESTLabels from existing ones
 	public Labels(Labels e) {
@@ -70,15 +68,16 @@ public class Labels extends AlignmentData {
 	public Labels(String labelFile) throws IOException {
 		initFromStream(new FileInputStream(labelFile));
 	}
-	
+
 	public Labels(Document acoustparams) {
 		initFromAcoustparams(acoustparams);
 	}
-	
+
 	public String[] getLabelSymbols() {
-		if (items == null) return null;
+		if (items == null)
+			return null;
 		String[] symbols = new String[items.length];
-		for (int i=0; i<items.length; i++) {
+		for (int i = 0; i < items.length; i++) {
 			symbols[i] = items[i].phn;
 		}
 		return symbols;
@@ -92,12 +91,10 @@ public class Labels extends AlignmentData {
 
 	private void initFromLines(String[] lines, int minimumItemsInOneLine) {
 		ArrayList<Label> labels = new ArrayList<Label>();
-		
 
 		for (int i = 0; i < lines.length; i++) {
 			String[] labelInfos = lines[i].trim().split("\\s+");
-			if (labelInfos.length >= minimumItemsInOneLine
-					&& StringUtils.isNumeric(labelInfos[0])
+			if (labelInfos.length >= minimumItemsInOneLine && StringUtils.isNumeric(labelInfos[0])
 					&& StringUtils.isNumeric(labelInfos[1])) {
 				Label l = new Label();
 				labels.add(l);
@@ -124,7 +121,7 @@ public class Labels extends AlignmentData {
 				if (labelInfos.length > restStartMin) {
 					int numericCount = 0;
 					l.rest = new String[labelInfos.length - restStartMin];
-					l.valuesRest = new double[labelInfos.length	- restStartMin];
+					l.valuesRest = new double[labelInfos.length - restStartMin];
 					for (int j = 0; j < l.rest.length; j++) {
 						l.rest[j] = labelInfos[j + restStartMin];
 						if (StringUtils.isNumeric(l.rest[j]))
@@ -137,12 +134,12 @@ public class Labels extends AlignmentData {
 		}
 		items = (Label[]) labels.toArray(new Label[0]);
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param acoustparams
-	 * @throws InvalidDataException if any phone or boundary in acoustparams has no duration.
+	 * @throws InvalidDataException
+	 *             if any phone or boundary in acoustparams has no duration.
 	 */
 	private void initFromAcoustparams(Document acoustparams) {
 		ArrayList<Label> labels = new ArrayList<Label>();
@@ -160,7 +157,7 @@ public class Labels extends AlignmentData {
 		double endResetCorrection = 0;
 		String phoneSymbol;
 		while ((e = (Element) it.nextNode()) != null) {
-			startTime = /* previous */ endTime;
+			startTime = /* previous */endTime;
 			if (e.getTagName().equals(PHONE)) {
 				phoneSymbol = e.getAttribute(A_PHONE_SYMBOL);
 				// Expect end attribute to reset itself sometimes:
@@ -170,11 +167,11 @@ public class Labels extends AlignmentData {
 				}
 				endTime = endResetCorrection + endValue;
 				// Too imprecise to use only full milliseconds:
-//				if (!e.hasAttribute(A_PHONE_DURATION)) {
-//					throw new InvalidDataException("No duration for phone '"+phoneSymbol+"'");
-//				}
-//				duration = 0.001 * Double.parseDouble(e.getAttribute(A_PHONE_DURATION));
-//				endTime = startTime + duration;
+				// if (!e.hasAttribute(A_PHONE_DURATION)) {
+				// throw new InvalidDataException("No duration for phone '"+phoneSymbol+"'");
+				// }
+				// duration = 0.001 * Double.parseDouble(e.getAttribute(A_PHONE_DURATION));
+				// endTime = startTime + duration;
 			} else { // BOUNDARY
 				assert e.getTagName().equals(BOUNDARY);
 				if (!e.hasAttribute(A_BOUNDARY_DURATION)) {
@@ -188,17 +185,6 @@ public class Labels extends AlignmentData {
 		}
 		items = (Label[]) labels.toArray(new Label[0]);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	public void print() {
 		for (int i = 0; i < items.length; i++)
@@ -209,14 +195,13 @@ public class Labels extends AlignmentData {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
-		for (int i=0; i<items.length; i++) {
+		for (int i = 0; i < items.length; i++) {
 			sb.append("(").append(items[i]).append(") ");
 		}
 		sb.append("]");
 		return sb.toString();
 	}
-	
-	
+
 	/**
 	 * For the given time, return the index of the label at that time, if any.
 	 * 
@@ -236,26 +221,29 @@ public class Labels extends AlignmentData {
 		}
 		return -1;
 	}
-	
+
 	private Label[] deepCopy(Label[] in) {
-		if (in == null) return null;
+		if (in == null)
+			return null;
 		Label[] out = new Label[in.length];
-		for (int i=0; i<in.length; i++) {
+		for (int i = 0; i < in.length; i++) {
 			if (in[i] != null) {
 				out[i] = new Label(in[i]);
 			}
 		}
 		return out;
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
-		if (this == other) return true;
-		if (!(other instanceof Labels)) return false;
+		if (this == other)
+			return true;
+		if (!(other instanceof Labels))
+			return false;
 		Labels o = (Labels) other;
 		return Arrays.deepEquals(this.items, o.items);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return 0;
