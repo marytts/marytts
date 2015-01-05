@@ -42,7 +42,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 
-
 /**
  * @author Marc Schr&ouml;der
  *
@@ -50,46 +49,34 @@ import org.w3c.dom.traversal.DocumentTraversal;
  */
 public class EnvironmentTest {
 
-    @Test
-    public void testXMLParserSupportsNamespaces() throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        DocumentBuilder docBuilder = factory.newDocumentBuilder();
-        Document document =
-            docBuilder.parse(
-                this.getClass().getResourceAsStream("test1.namespaces"));
-        NodeList nl =
-            document.getElementsByTagNameNS(
-                "http://www.w3.org/2001/10/synthesis",
-                "*");
-        assertNotNull(nl.item(0));
-        assertTrue(nl.item(0).getNodeName().equals("ssml:emphasis"));
-    }
+	@Test
+	public void testXMLParserSupportsNamespaces() throws Exception {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		DocumentBuilder docBuilder = factory.newDocumentBuilder();
+		Document document = docBuilder.parse(this.getClass().getResourceAsStream("test1.namespaces"));
+		NodeList nl = document.getElementsByTagNameNS("http://www.w3.org/2001/10/synthesis", "*");
+		assertNotNull(nl.item(0));
+		assertTrue(nl.item(0).getNodeName().equals("ssml:emphasis"));
+	}
 
-    @Test
-    public void testDocumentTraversalAvailable() {
-        Document doc = MaryXML.newDocument();
-        assertTrue(doc instanceof DocumentTraversal);
-    }
+	@Test
+	public void testDocumentTraversalAvailable() {
+		Document doc = MaryXML.newDocument();
+		assertTrue(doc instanceof DocumentTraversal);
+	}
 
-    @Test
-    public void testMP3Available() throws Exception {
-        AudioFormat mp3af = new AudioFormat(
-                new AudioFormat.Encoding("MPEG1L3"),
-                AudioSystem.NOT_SPECIFIED,
-                AudioSystem.NOT_SPECIFIED,
-                1,
-                AudioSystem.NOT_SPECIFIED,
-                AudioSystem.NOT_SPECIFIED,
-                false);
-        AudioInputStream waveStream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("test.wav"));
-        // Now attempt conversion:
-        if (MaryRuntimeUtils.canCreateMP3()) {
-            assertTrue(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
-            AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3af, waveStream);
-        } else {
-            assertFalse(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
-        }
-    }
+	@Test
+	public void testMP3Available() throws Exception {
+		AudioFormat mp3af = new AudioFormat(new AudioFormat.Encoding("MPEG1L3"), AudioSystem.NOT_SPECIFIED,
+				AudioSystem.NOT_SPECIFIED, 1, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
+		AudioInputStream waveStream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("test.wav"));
+		// Now attempt conversion:
+		if (MaryRuntimeUtils.canCreateMP3()) {
+			assertTrue(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
+			AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3af, waveStream);
+		} else {
+			assertFalse(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
+		}
+	}
 }
-

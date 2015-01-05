@@ -104,7 +104,7 @@ public abstract class F0Tracker {
 		 * 
 		 * @param frame
 		 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-		 *            @see{#getFrameLengthSamples()}.
+		 *            {@link #getFrameLengthSamples()}.
 		 * @return an array of F0Candidates
 		 * @throws IllegalArgumentException
 		 *             if frame does not have the prescribed length

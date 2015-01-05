@@ -203,7 +203,7 @@ public class DrawHistogram extends javax.swing.JFrame {
 	}// </editor-fold>//GEN-END:initComponents
 
 	private void changeBandWidth(javax.swing.event.ChangeEvent evt) {// GEN-FIRST:event_changeBandWidth
-	// TODO add your handling code here:
+		// TODO add your handling code here:
 		try {
 			int bwSlide = bandwidth.getValue();
 			this.jLabel2.setText(Integer.toString(bwSlide));

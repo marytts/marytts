@@ -47,7 +47,7 @@ public class ConfigTest {
 		MaryConfig m = new Config();
 		assertTrue(m.isVoiceConfig());
 	}
-	
+
 	@Test
 	public void hasRightName() throws MaryConfigurationException {
 		VoiceConfig m = new Config();
@@ -60,7 +60,7 @@ public class ConfigTest {
 		assertNotNull(m);
 		assertEquals(voiceName, m.getName());
 	}
-	
+
 	@Test
 	public void hasVoiceConfigs() throws MaryConfigurationException {
 		assertTrue(MaryConfig.countVoiceConfigs() > 0);
@@ -72,6 +72,5 @@ public class ConfigTest {
 		assertNotNull(vcs);
 		assertTrue(vcs.iterator().hasNext());
 	}
-
 
 }

@@ -41,13 +41,12 @@ import static org.junit.Assert.*;
  */
 public class MaryInterfaceIT {
 	MaryInterface mary;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		mary = new LocalMaryInterface();
 	}
-	
-	
+
 	@Test
 	public void canGetMaryInterface() throws Exception {
 		assertNotNull(mary);
@@ -55,7 +54,7 @@ public class MaryInterfaceIT {
 		assertEquals(MaryDataType.AUDIO.name(), mary.getOutputType());
 		assertEquals(Locale.US, mary.getLocale());
 	}
-	
+
 	@Test
 	public void canSetInputType() throws Exception {
 		MaryDataType in = MaryDataType.RAWMARYXML;
@@ -63,18 +62,18 @@ public class MaryInterfaceIT {
 		mary.setInputType(in.name());
 		assertEquals(in.name(), mary.getInputType());
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void unknownInputType() throws Exception {
 		mary.setInputType("something strange");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void nullInputType() throws Exception {
 		mary.setInputType(null);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void notAnInputType() throws Exception {
 		mary.setInputType(MaryDataType.AUDIO.name());
 	}
@@ -87,33 +86,31 @@ public class MaryInterfaceIT {
 		assertEquals(out.name(), mary.getOutputType());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void unknownOutputType() throws Exception {
 		mary.setOutputType("something strange");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void nullOutputType() throws Exception {
 		mary.setOutputType(null);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void notAnOutputType() throws Exception {
 		mary.setOutputType(MaryDataType.TEXT.name());
 	}
 
-
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetUnsupportedLocale() throws Exception {
 		Locale loc = new Locale("abcde");
 		mary.setLocale(loc);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetNullLocale() throws Exception {
 		mary.setLocale(null);
 	}
-
 
 	@Test
 	public void canProcessToTokens() throws Exception {
@@ -130,7 +127,7 @@ public class MaryInterfaceIT {
 		mary.generateAudio("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongInput1() throws Exception {
 		// setup
 		mary.setInputType(MaryDataType.RAWMARYXML.name());
@@ -138,13 +135,13 @@ public class MaryInterfaceIT {
 		mary.generateXML("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput1() throws Exception {
 		// requesting xml output but set to default output type AUDIO:
 		mary.generateXML("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput2() throws Exception {
 		// setup
 		mary.setOutputType(MaryDataType.TOKENS.name());
@@ -152,7 +149,7 @@ public class MaryInterfaceIT {
 		mary.generateAudio("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput3() throws Exception {
 		// setup
 		mary.setOutputType(MaryDataType.TOKENS.name());

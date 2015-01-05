@@ -6,7 +6,6 @@ import marytts.util.io.FileUtils;
 
 import org.junit.Test;
 
-
 public class DomUtilsTest {
 
 	@Test
@@ -19,6 +18,5 @@ public class DomUtilsTest {
 	public void validatingParseStream() throws Exception {
 		DomUtils.parseDocument(DomUtilsTest.class.getResourceAsStream("sample.maryxml"), true);
 	}
-	
 
 }

@@ -32,36 +32,36 @@ import marytts.util.data.Datagram;
  */
 public class FloatArrayDatagram extends Datagram {
 
-    private float[] floatData;
+	private float[] floatData;
 
-    public FloatArrayDatagram(long duration, float[] data) {
-        super(duration);
-        this.floatData = data;
-    }
+	public FloatArrayDatagram(long duration, float[] data) {
+		super(duration);
+		this.floatData = data;
+	}
 
-    public float[] getFloatData() {
-        return floatData;
-    }
+	public float[] getFloatData() {
+		return floatData;
+	}
 
-    /**
-     * Write this datagram to a random access file or data output stream.
-     * 
-     * @throws IOException
-     */
-    @Override
-    public void write(DataOutput raf) throws IOException {
+	/**
+	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @throws IOException
+	 */
+	@Override
+	public void write(DataOutput raf) throws IOException {
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-        BufferedOutputStream bos = new BufferedOutputStream(dos);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		BufferedOutputStream bos = new BufferedOutputStream(dos);
 
-        dos.writeLong(duration);
-        dos.writeInt(floatData.length);
-        for (float fl : floatData) {
-            dos.writeFloat(fl);
-        }
+		dos.writeLong(duration);
+		dos.writeInt(floatData.length);
+		for (float fl : floatData) {
+			dos.writeFloat(fl);
+		}
 
-        raf.write(baos.toByteArray());
-    }
+		raf.write(baos.toByteArray());
+	}
 
 }

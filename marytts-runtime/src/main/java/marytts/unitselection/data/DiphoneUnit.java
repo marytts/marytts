@@ -19,52 +19,47 @@
  */
 package marytts.unitselection.data;
 
-public class DiphoneUnit extends Unit
-{
-    public final Unit left;
-    public final Unit right;
-    
-    public DiphoneUnit(Unit left, Unit right)
-    {
-        super(left.startTime, left.duration+right.duration, left.index);
-        this.left = left;
-        this.right = right;
-    }
-    
+public class DiphoneUnit extends Unit {
+	public final Unit left;
+	public final Unit right;
 
-    public int getIndex()
-    {
-        throw new IllegalStateException("This method should not be called for DiphoneUnits.");
-    }
-    
-    public boolean isEdgeUnit()
-    {
-        throw new IllegalStateException("This method should not be called for DiphoneUnits.");
-    }
+	public DiphoneUnit(Unit left, Unit right) {
+		super(left.startTime, left.duration + right.duration, left.index);
+		this.left = left;
+		this.right = right;
+	}
 
-    public String toString()
-    {
-        return "diphoneunit "+index+" start: "+startTime+", duration: "+duration;
-    }
+	public int getIndex() {
+		throw new IllegalStateException("This method should not be called for DiphoneUnits.");
+	}
 
-    /**
-     * inspired by http://www.artima.com/lejava/articles/equality.html
-     */
-    @Override public boolean equals(Object other) {
-        boolean result = false;
-        if (other instanceof DiphoneUnit) {
-            DiphoneUnit that = (DiphoneUnit) other;
-            result = (this.left.equals(that.left) && this.right.equals(that.right));
-        }
-        return result;
-    }
+	public boolean isEdgeUnit() {
+		throw new IllegalStateException("This method should not be called for DiphoneUnits.");
+	}
 
-    /**
-     * inspired by http://www.artima.com/lejava/articles/equality.html
-     */
-    @Override public int hashCode() {
-        return (41 * (41 + this.left.hashCode()) + this.right.hashCode());
-    }
+	public String toString() {
+		return "diphoneunit " + index + " start: " + startTime + ", duration: " + duration;
+	}
+
+	/**
+	 * inspired by http://www.artima.com/lejava/articles/equality.html
+	 */
+	@Override
+	public boolean equals(Object other) {
+		boolean result = false;
+		if (other instanceof DiphoneUnit) {
+			DiphoneUnit that = (DiphoneUnit) other;
+			result = (this.left.equals(that.left) && this.right.equals(that.right));
+		}
+		return result;
+	}
+
+	/**
+	 * inspired by http://www.artima.com/lejava/articles/equality.html
+	 */
+	@Override
+	public int hashCode() {
+		return (41 * (41 + this.left.hashCode()) + this.right.hashCode());
+	}
 
 }
-

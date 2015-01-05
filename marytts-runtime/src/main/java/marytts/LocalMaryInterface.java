@@ -41,12 +41,14 @@ import marytts.server.Request;
 import marytts.util.MaryRuntimeUtils;
 
 /**
- * This class and its subclasses are intended to grow into a simple-to-use, unified interface for both the local MARY server and a MARY client.
+ * This class and its subclasses are intended to grow into a simple-to-use, unified interface for both the local MARY server and a
+ * MARY client.
+ * 
  * @author marc
  *
  */
 public class LocalMaryInterface implements MaryInterface {
-	
+
 	private MaryDataType inputType;
 	private MaryDataType outputType;
 	private Locale locale;
@@ -57,57 +59,60 @@ public class LocalMaryInterface implements MaryInterface {
 	private String outputTypeParams;
 	private boolean isStreaming;
 
-	
 	public LocalMaryInterface() throws MaryConfigurationException {
 		try {
 			MaryRuntimeUtils.ensureMaryStarted();
 		} catch (Exception e) {
 			throw new MaryConfigurationException("Cannot start MARY server", e);
 		}
-		
+
 		init();
 	}
-	
+
 	protected void init() {
 		setReasonableDefaults();
 	}
-	
+
 	protected void setReasonableDefaults() {
 		inputType = MaryDataType.TEXT;
 		outputType = MaryDataType.AUDIO;
 		locale = Locale.US;
-        voice = Voice.getDefaultVoice(locale);
-        setAudioFileFormatForVoice();
-        effects = null;
-        style = null;
-        outputTypeParams = null;
-        isStreaming = false;
+		voice = Voice.getDefaultVoice(locale);
+		setAudioFileFormatForVoice();
+		effects = null;
+		style = null;
+		outputTypeParams = null;
+		isStreaming = false;
 
 	}
 
 	private void setAudioFileFormatForVoice() {
-    	if (voice != null) {
-    		AudioFormat af = voice.dbAudioFormat();
-    		audioFileFormat = new AudioFileFormat(AudioFileFormat.Type.WAVE, af, AudioSystem.NOT_SPECIFIED);
-    	} else {
-    		audioFileFormat = null;
-    	}
+		if (voice != null) {
+			AudioFormat af = voice.dbAudioFormat();
+			audioFileFormat = new AudioFileFormat(AudioFileFormat.Type.WAVE, af, AudioSystem.NOT_SPECIFIED);
+		} else {
+			audioFileFormat = null;
+		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setInputType(java.lang.String)
 	 */
 	@Override
 	public void setInputType(String newInputType) throws IllegalArgumentException {
 		inputType = MaryDataType.get(newInputType);
 		if (inputType == null) {
-			throw new IllegalArgumentException("No such type: "+newInputType);
+			throw new IllegalArgumentException("No such type: " + newInputType);
 		} else if (!inputType.isInputType()) {
-			throw new IllegalArgumentException("Not an input type: "+newInputType);
+			throw new IllegalArgumentException("Not an input type: " + newInputType);
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getInputType()
 	 */
 	@Override
@@ -115,20 +120,24 @@ public class LocalMaryInterface implements MaryInterface {
 		return inputType.name();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setOutputType(java.lang.String)
 	 */
 	@Override
 	public void setOutputType(String newOutputType) throws IllegalArgumentException {
 		outputType = MaryDataType.get(newOutputType);
 		if (outputType == null) {
-			throw new IllegalArgumentException("No such type: "+newOutputType);
+			throw new IllegalArgumentException("No such type: " + newOutputType);
 		} else if (!outputType.isOutputType()) {
-			throw new IllegalArgumentException("Not an output type: "+newOutputType);
+			throw new IllegalArgumentException("Not an output type: " + newOutputType);
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getOutputType()
 	 */
 	@Override
@@ -136,41 +145,49 @@ public class LocalMaryInterface implements MaryInterface {
 		return outputType.name();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setLocale(java.util.Locale)
 	 */
 	@Override
 	public void setLocale(Locale newLocale) throws IllegalArgumentException {
 		if (MaryConfig.getLanguageConfig(newLocale) == null) {
-			throw new IllegalArgumentException("Unsupported locale: "+newLocale);
+			throw new IllegalArgumentException("Unsupported locale: " + newLocale);
 		}
 		locale = newLocale;
 		voice = Voice.getDefaultVoice(locale);
 		setAudioFileFormatForVoice();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getLocale()
 	 */
 	@Override
 	public Locale getLocale() {
 		return locale;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setVoice(java.lang.String)
 	 */
 	@Override
 	public void setVoice(String voiceName) throws IllegalArgumentException {
 		voice = Voice.getVoice(voiceName);
 		if (voice == null) {
-			throw new IllegalArgumentException("No such voice: "+voiceName);
+			throw new IllegalArgumentException("No such voice: " + voiceName);
 		}
 		locale = voice.getLocale();
 		setAudioFileFormatForVoice();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getVoice()
 	 */
 	@Override
@@ -180,64 +197,80 @@ public class LocalMaryInterface implements MaryInterface {
 		}
 		return voice.getName();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setAudioEffects(java.lang.String)
 	 */
 	@Override
 	public void setAudioEffects(String audioEffects) {
 		effects = audioEffects;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getAudioEffects()
 	 */
 	@Override
 	public String getAudioEffects() {
 		return effects;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setStyle(java.lang.String)
 	 */
 	@Override
 	public void setStyle(String newStyle) {
 		style = newStyle;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getStyle()
 	 */
 	@Override
 	public String getStyle() {
 		return style;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setOutputTypeParams(java.lang.String)
 	 */
 	@Override
 	public void setOutputTypeParams(String params) {
 		this.outputTypeParams = params;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#getOutputTypeParams()
 	 */
 	@Override
 	public String getOutputTypeParams() {
 		return outputTypeParams;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#setStreamingAudio(boolean)
 	 */
 	@Override
 	public void setStreamingAudio(boolean newIsStreaming) {
 		isStreaming = newIsStreaming;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#isStreamingAudio()
 	 */
 	@Override
@@ -245,7 +278,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return isStreaming;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateText(java.lang.String)
 	 */
 	@Override
@@ -257,7 +292,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return out.getPlainText();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateText(org.w3c.dom.Document)
 	 */
 	@Override
@@ -269,8 +306,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return out.getPlainText();
 	}
 
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateXML(java.lang.String)
 	 */
 	@Override
@@ -282,9 +320,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return out.getDocument();
 	}
 
-
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateXML(org.w3c.dom.Document)
 	 */
 	@Override
@@ -296,7 +334,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return out.getDocument();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateAudio(java.lang.String)
 	 */
 	@Override
@@ -309,7 +349,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return out.getAudio();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see marytts.MaryInterface#generateAudio(org.w3c.dom.Document)
 	 */
 	@Override
@@ -324,31 +366,31 @@ public class LocalMaryInterface implements MaryInterface {
 
 	private void verifyOutputTypeIsXML() {
 		if (!outputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide XML output for non-XML-based output type "+outputType);
+			throw new IllegalArgumentException("Cannot provide XML output for non-XML-based output type " + outputType);
 		}
 	}
 
 	private void verifyInputTypeIsXML() {
 		if (!inputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide XML input for non-XML-based input type "+inputType);
+			throw new IllegalArgumentException("Cannot provide XML input for non-XML-based input type " + inputType);
 		}
 	}
-	
+
 	private void verifyInputTypeIsText() {
 		if (inputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide plain-text input for XML-based input type "+inputType);
+			throw new IllegalArgumentException("Cannot provide plain-text input for XML-based input type " + inputType);
 		}
 	}
 
 	private void verifyOutputTypeIsAudio() {
 		if (!outputType.equals(MaryDataType.AUDIO)) {
-			throw new IllegalArgumentException("Cannot provide audio output for non-audio output type "+outputType);
+			throw new IllegalArgumentException("Cannot provide audio output for non-audio output type " + outputType);
 		}
 	}
 
 	private void verifyOutputTypeIsText() {
 		if (outputType.isXMLType() || !outputType.isTextType()) {
-			throw new IllegalArgumentException("Cannot provide text output for non-text output type "+outputType);
+			throw new IllegalArgumentException("Cannot provide text output for non-text output type " + outputType);
 		}
 	}
 
@@ -377,7 +419,7 @@ public class LocalMaryInterface implements MaryInterface {
 		}
 		return in;
 	}
-	
+
 	private MaryData getMaryDataFromXML(Document doc) throws SynthesisException {
 		MaryData in = new MaryData(inputType, locale);
 		try {
@@ -388,8 +430,9 @@ public class LocalMaryInterface implements MaryInterface {
 		return in;
 	}
 
-	private MaryData process(MaryData in) throws SynthesisException {		
-		Request r = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, isStreaming, outputTypeParams);
+	private MaryData process(MaryData in) throws SynthesisException {
+		Request r = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, isStreaming,
+				outputTypeParams);
 		r.setInputData(in);
 		try {
 			r.process();

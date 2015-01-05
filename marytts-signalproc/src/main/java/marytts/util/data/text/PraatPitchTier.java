@@ -94,7 +94,7 @@ public class PraatPitchTier implements PraatTier {
 	public PraatPitchTier(Document acoustparams) {
 		this(computePitchTargets(acoustparams));
 	}
-	
+
 	private static PitchTarget[] computePitchTargets(Document acoustparams) {
 		ArrayList<PitchTarget> targets = new ArrayList<PitchTarget>();
 		String PHONE = "ph";
@@ -108,7 +108,7 @@ public class PraatPitchTier implements PraatTier {
 		double endTime = 0;
 		double duration = 0;
 		while ((e = (Element) it.nextNode()) != null) {
-			startTime = /* previous */ endTime;
+			startTime = /* previous */endTime;
 			if (e.getTagName().equals(PHONE)) {
 				duration = 0.001 * Double.parseDouble(e.getAttribute(A_PHONE_DURATION));
 				endTime = startTime + duration;
@@ -118,17 +118,17 @@ public class PraatPitchTier implements PraatTier {
 				continue; // no f0 targets for boundaries
 			}
 			assert e.getTagName().equals(PHONE);
-			assert startTime < endTime
-			: "for phone '"+e.getAttribute("p")+"', startTime "+startTime+" is not less than endTime "+endTime;
+			assert startTime < endTime : "for phone '" + e.getAttribute("p") + "', startTime " + startTime
+					+ " is not less than endTime " + endTime;
 			String f0String = e.getAttribute(A_F0).trim();
 			if (f0String.isEmpty()) {
 				continue;
 			}
 			int[] localF0Targets = StringUtils.parseIntPairs(f0String);
-			for (int i=0, len = localF0Targets.length/2; i<len; i++) {
-				int percent = localF0Targets[2*i];
-				int hertz = localF0Targets[2*i+1];
-				double time = startTime + 0.01*percent*(endTime-startTime);
+			for (int i = 0, len = localF0Targets.length / 2; i < len; i++) {
+				int percent = localF0Targets[2 * i];
+				int hertz = localF0Targets[2 * i + 1];
+				double time = startTime + 0.01 * percent * (endTime - startTime);
 				targets.add(new PitchTarget(time, hertz));
 			}
 		}
@@ -139,7 +139,7 @@ public class PraatPitchTier implements PraatTier {
 		this.targets = targets;
 		this.numTargets = targets.length;
 		this.xmin = targets[0].time;
-		this.xmax = targets[targets.length-1].time;
+		this.xmax = targets[targets.length - 1].time;
 	}
 
 	/*
@@ -161,11 +161,10 @@ public class PraatPitchTier implements PraatTier {
 	public double getXmax() {
 		return xmax;
 	}
-	
+
 	public void setXmax(double value) {
 		xmax = value;
 	}
-	
 
 	/*
 	 * (non-Javadoc)
@@ -208,14 +207,12 @@ public class PraatPitchTier implements PraatTier {
 	}
 
 	/**
-	 * Convert this sequence of pitch targets into an array of frame values.
-	 * Values before the first target are NaN, values after the last target are
-	 * NaN; values between targets are linearly interpolated.
+	 * Convert this sequence of pitch targets into an array of frame values. Values before the first target are NaN, values after
+	 * the last target are NaN; values between targets are linearly interpolated.
 	 * 
 	 * @param step
 	 *            the constant time distance between two frames, in seconds.
-	 * @return an array of doubles representing the equally spaced frequency
-	 *         values, from xmin to xmax.
+	 * @return an array of doubles representing the equally spaced frequency values, from xmin to xmax.
 	 */
 	public double[] toFrames(double step) {
 		int numFrames = (int) ((xmax - xmin) / step) + 1;

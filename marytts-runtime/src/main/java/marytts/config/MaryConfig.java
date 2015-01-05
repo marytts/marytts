@@ -39,24 +39,25 @@ import marytts.server.MaryProperties;
 import marytts.util.io.PropertiesAccessor;
 import marytts.util.io.PropertiesTrimTrailingWhitespace;
 
-
 /**
  * @author marc
  *
  */
 public abstract class MaryConfig {
 	private static final ServiceLoader<MaryConfig> configLoader = ServiceLoader.load(MaryConfig.class);
-	
+
 	/**
-	 * This method will try to check that the available configs are consistent and will spot obvious reasons why
-	 * they might not work together as a full system. Reasons that are detected include:
+	 * This method will try to check that the available configs are consistent and will spot obvious reasons why they might not
+	 * work together as a full system. Reasons that are detected include:
 	 * <ul>
-	 *   <li>There is no main config;</li>
-	 *   <li>There is a voice with a certain locale but no language component has that locale.</li>
+	 * <li>There is no main config;</li>
+	 * <li>There is a voice with a certain locale but no language component has that locale.</li>
 	 * </ul>
-	 * This method will return allright if everything is OK; if there is a problem, it will throw an Exception
-	 * with a message indicating the problem.
-	 * @throws MaryConfigurationException if the configuration cannot work as it is now.
+	 * This method will return allright if everything is OK; if there is a problem, it will throw an Exception with a message
+	 * indicating the problem.
+	 * 
+	 * @throws MaryConfigurationException
+	 *             if the configuration cannot work as it is now.
 	 */
 	public static void checkConsistency() throws MaryConfigurationException {
 		// Check that we have a main config
@@ -66,19 +67,21 @@ public abstract class MaryConfig {
 		// Check that for each voice, we have a matching language config
 		for (VoiceConfig vc : getVoiceConfigs()) {
 			if (getLanguageConfig(vc.getLocale()) == null) {
-				throw new MaryConfigurationException("Voice '"+vc.getName()+"' has locale '"+vc.getLocale()+"', but there is no corresponding language config.");
+				throw new MaryConfigurationException("Voice '" + vc.getName() + "' has locale '" + vc.getLocale()
+						+ "', but there is no corresponding language config.");
 			}
 		}
 	}
-	
+
 	public static int countConfigs() {
 		int num = 0;
-		for (@SuppressWarnings("unused") MaryConfig mc : configLoader) {
+		for (@SuppressWarnings("unused")
+		MaryConfig mc : configLoader) {
 			num++;
 		}
 		return num;
 	}
-		
+
 	public static int countLanguageConfigs() {
 		int num = 0;
 		for (MaryConfig mc : configLoader) {
@@ -107,7 +110,7 @@ public abstract class MaryConfig {
 		}
 		return null;
 	}
-	
+
 	public static Iterable<LanguageConfig> getLanguageConfigs() {
 		Set<LanguageConfig> lcs = new HashSet<LanguageConfig>();
 		for (MaryConfig mc : configLoader) {
@@ -118,7 +121,7 @@ public abstract class MaryConfig {
 		}
 		return lcs;
 	}
-	
+
 	public static Iterable<VoiceConfig> getVoiceConfigs() {
 		Set<VoiceConfig> vcs = new HashSet<VoiceConfig>();
 		for (MaryConfig mc : configLoader) {
@@ -129,7 +132,7 @@ public abstract class MaryConfig {
 		}
 		return vcs;
 	}
-	
+
 	public static LanguageConfig getLanguageConfig(Locale locale) {
 		for (MaryConfig mc : configLoader) {
 			if (mc.isLanguageConfig()) {
@@ -141,9 +144,10 @@ public abstract class MaryConfig {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get the voice config for the given voice name, or null if there is no such voice config.
+	 * 
 	 * @param voiceName
 	 * @return
 	 */
@@ -158,16 +162,18 @@ public abstract class MaryConfig {
 		}
 		return null;
 	}
-	
+
 	public static Iterable<MaryConfig> getConfigs() {
 		return configLoader;
 	}
-	
+
 	/**
 	 * Get the allophone set for the given locale, or null if it cannot be retrieved.
+	 * 
 	 * @param locale
 	 * @return the allophone set for the given locale, or null of the locale is not supported.
-	 * @throws MaryConfigurationException if the locale is supported in principle but no allophone set can be retrieved.
+	 * @throws MaryConfigurationException
+	 *             if the locale is supported in principle but no allophone set can be retrieved.
 	 */
 	public static AllophoneSet getAllophoneSet(Locale locale) throws MaryConfigurationException {
 		LanguageConfig lc = getLanguageConfig(locale);
@@ -176,12 +182,11 @@ public abstract class MaryConfig {
 		}
 		return lc.getAllophoneSetFor(locale);
 	}
-	
-	
-	//////////// Non-static / base class methods //////////////
-	
+
+	// ////////// Non-static / base class methods //////////////
+
 	private Properties props;
-	
+
 	protected MaryConfig(InputStream propertyStream) throws MaryConfigurationException {
 		props = new PropertiesTrimTrailingWhitespace();
 		try {
@@ -190,29 +195,30 @@ public abstract class MaryConfig {
 			throw new MaryConfigurationException("cannot load properties", e);
 		}
 	}
-	
+
 	public boolean isMainConfig() {
 		return false;
 	}
-	
+
 	public boolean isLanguageConfig() {
 		return false;
 	}
-	
+
 	public boolean isVoiceConfig() {
 		return false;
 	}
-	
+
 	public Properties getProperties() {
 		return props;
 	}
-	
+
 	/**
 	 * Convenience access to this config's properties.
-	 * @param systemPropertiesOverride whether to use system properties in priority if they exist.
-	 * If true, any property requested from this properties accessor will first be looked up
-	 * in the system properties, and only if it is not defined there, it will be looked up
-	 * in this config's properties.
+	 * 
+	 * @param systemPropertiesOverride
+	 *            whether to use system properties in priority if they exist. If true, any property requested from this properties
+	 *            accessor will first be looked up in the system properties, and only if it is not defined there, it will be
+	 *            looked up in this config's properties.
 	 * @return
 	 */
 	public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
@@ -220,28 +226,32 @@ public abstract class MaryConfig {
 		maryBaseMap.put("MARY_BASE", MaryProperties.maryBase());
 		return new PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap);
 	}
-	
+
 	/**
-	 * Get the given property.  If it is not defined, the defaultValue is returned.
-	 * @param property name of the property to retrieve
-	 * @param defaultValue value to return if the property is not defined.
-	 * @return 
+	 * Get the given property. If it is not defined, the defaultValue is returned.
+	 * 
+	 * @param property
+	 *            name of the property to retrieve
+	 * @param defaultValue
+	 *            value to return if the property is not defined.
+	 * @return
 	 */
 	public String getProperty(String property, String defaultValue) {
 		return props.getProperty(property, defaultValue);
 	}
-	
+
 	/**
-	 * For the given property name, return the value of that property as a list of items (interpreting the property value as a space-separated list).
+	 * For the given property name, return the value of that property as a list of items (interpreting the property value as a
+	 * space-separated list).
+	 * 
 	 * @param propertyName
 	 * @return the list of items, or an empty list if the property is not defined or contains no items
 	 */
 	public List<String> getList(String propertyName) {
 		String val = props.getProperty(propertyName);
-		if (val == null) return new ArrayList<String>();
+		if (val == null)
+			return new ArrayList<String>();
 		return Arrays.asList(StringUtils.split(val));
 
 	}
 }
-
-

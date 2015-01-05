@@ -43,15 +43,14 @@ public class RussianConfigTest {
 		MaryConfig m = new RussianConfig();
 		assertFalse(m.isMainConfig());
 	}
-	
+
 	@Test
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(RUSSIAN);
 		assertNotNull(m);
-		assertTrue(((LanguageConfig)m).getLocales().contains(RUSSIAN));
+		assertTrue(((LanguageConfig) m).getLocales().contains(RUSSIAN));
 	}
-	
-	
+
 	@Test
 	public void hasRussianLocale() throws MaryConfigurationException {
 		LanguageConfig e = new RussianConfig();

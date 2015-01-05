@@ -30,26 +30,22 @@ import org.w3c.dom.Element;
  */
 public class LanguageComponentDescription extends ComponentDescription {
 
-    public LanguageComponentDescription(String name, String version, String packageFilename) {
-        super(name, version, packageFilename);
-    }
-    
-    /**
-     * @param xmlDescription
-     * @throws NullPointerException
-     * @throws MalformedURLException
-     */
-    public LanguageComponentDescription(Element xmlDescription)
-    throws NullPointerException, MalformedURLException
-    {
-        super(xmlDescription);
-    }
-    
-    
-    @Override
-    public String getComponentTypeString()
-    {
-        return "language";
-    }
+	public LanguageComponentDescription(String name, String version, String packageFilename) {
+		super(name, version, packageFilename);
+	}
+
+	/**
+	 * @param xmlDescription
+	 * @throws NullPointerException
+	 * @throws MalformedURLException
+	 */
+	public LanguageComponentDescription(Element xmlDescription) throws NullPointerException, MalformedURLException {
+		super(xmlDescription);
+	}
+
+	@Override
+	public String getComponentTypeString() {
+		return "language";
+	}
 
 }

@@ -27,44 +27,41 @@ import marytts.util.data.DoubleDataSource;
  * 
  * @author Marc Schr&ouml;der
  *
- * Computes energy of the input signal
+ *         Computes energy of the input signal
  * 
  */
 public class Signal2EnergyConverter extends BufferedDoubleDataSource {
-    protected static InlineDataProcessor processor = new InlineDataProcessor() {
-        /**
-         * For each signal sample, compute the signal energy as the square of the signal sample. 
-         */
-        public void applyInline(double[] buf, int off, int len)
-        {
-            for (int i=off; i<off+len; i++) {
-                buf[i] = buf[i]*buf[i];
-                assert buf[i] >= 0;
-            }
-        }
-    };
+	protected static InlineDataProcessor processor = new InlineDataProcessor() {
+		/**
+		 * For each signal sample, compute the signal energy as the square of the signal sample.
+		 */
+		public void applyInline(double[] buf, int off, int len) {
+			for (int i = off; i < off + len; i++) {
+				buf[i] = buf[i] * buf[i];
+				assert buf[i] >= 0;
+			}
+		}
+	};
 
-    public Signal2EnergyConverter(double[] signal)
-    {
-        super(signal, processor);
-    }
-    
-    public Signal2EnergyConverter(DoubleDataSource signal)
-    {
-        super(signal, processor);
-    }
-    
-    /**
-     * For each signal sample, compute the signal energy as the square of the signal sample. 
-     * @param nNew the number of items in buf preceding writePos to process
-     */
-    public void processNewData(int off, int len)
-    {
-        for (int i=off; i<off+len; i++) {
-            buf[i] = buf[i]*buf[i];
-            assert buf[i] >= 0;
-        }
-    }
+	public Signal2EnergyConverter(double[] signal) {
+		super(signal, processor);
+	}
+
+	public Signal2EnergyConverter(DoubleDataSource signal) {
+		super(signal, processor);
+	}
+
+	/**
+	 * For each signal sample, compute the signal energy as the square of the signal sample.
+	 * 
+	 * @param nNew
+	 *            the number of items in buf preceding writePos to process
+	 */
+	public void processNewData(int off, int len) {
+		for (int i = off; i < off + len; i++) {
+			buf[i] = buf[i] * buf[i];
+			assert buf[i] >= 0;
+		}
+	}
 
 }
-

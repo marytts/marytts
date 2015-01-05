@@ -23,82 +23,86 @@ import java.util.Comparator;
 
 import marytts.features.FeatureVector;
 
-
 public class FeatureComparator implements Comparator<FeatureVector> {
- 
-    /** The index of the feature to be compared in the feature vector. */
-    private int I = -1;
-    private FeatureVector.FeatureType type = null;
 
-    /**
-     * Constructor which initializes the feature index.
-     * @param setI The index of the feature to be compared on the next
-     * run of the comparator.
-     */
-    public FeatureComparator( int setI, FeatureVector.FeatureType featureType ) {
-        setFeatureIdx( setI, featureType );
-    }
-    
-    /**
-     * Accessor to set the feature index.
-     * @param setI The index of the feature to be compared on the next
-     * run of the comparator.
-     */
-    public void setFeatureIdx( int setI, FeatureVector.FeatureType featureType ) {
-        I = setI;
-        type = featureType;
-    }
-    
-    /**
-     * Access the index of the currently compared feature.
-     * @return The index of the feature which the comparator
-     * currently deals with.
-     */
-    public int getFeatureIdx() {
-        return( I );
-    }
-    
-    /**
-     * Compares two feature vectors according to their values
-     * at an internal index previously set by this.setFeatureIdx().
-     * 
-     * @param v1 The first vector.
-     * @param v2 The second vector.
-     * @return a negative integer, zero, or a positive integer
-     * as the feature at index I for v1 is less than, equal to,
-     * or greater than the feature at index I for v2.
-     * 
-     * @see FeatureComparator#setFeatureIdx(int)
-     */
-    public int compare( FeatureVector a, FeatureVector b ) {
-        switch(type) {
-        case byteValued:
-            return a.byteValuedDiscreteFeatures[I] - b.byteValuedDiscreteFeatures[I];
-        case shortValued:
-            int offset = a.byteValuedDiscreteFeatures.length;
-            return a.shortValuedDiscreteFeatures[I-offset] - b.shortValuedDiscreteFeatures[I-offset];
-        case floatValued:
-            int offset2 = a.byteValuedDiscreteFeatures.length + a.shortValuedDiscreteFeatures.length;
-            float delta = a.continuousFeatures[I-offset2] - b.continuousFeatures[I-offset2]; 
-            if (delta > 0) return 1;
-            else if (delta < 0) return -1;
-            return 0;
-        default:
-            throw new IllegalStateException("compare called with feature index "+I+" and feature type "+type);
-        }
-        
-    }
-    
-    /**
-     * The equals() method asked for by the Comparable interface.
-     * Returns true if the compared object is a FeatureComparator
-     * with the same internal index, false otherwise.
-     */
-    public boolean equals( Object obj ) {
-        if ( !( obj instanceof FeatureComparator ) ) return false;
-        else if ( ((FeatureComparator)obj).getFeatureIdx() != this.I ) return false;
-        return( true );
-    }
+	/** The index of the feature to be compared in the feature vector. */
+	private int I = -1;
+	private FeatureVector.FeatureType type = null;
+
+	/**
+	 * Constructor which initializes the feature index.
+	 * 
+	 * @param setI
+	 *            The index of the feature to be compared on the next run of the comparator.
+	 */
+	public FeatureComparator(int setI, FeatureVector.FeatureType featureType) {
+		setFeatureIdx(setI, featureType);
+	}
+
+	/**
+	 * Accessor to set the feature index.
+	 * 
+	 * @param setI
+	 *            The index of the feature to be compared on the next run of the comparator.
+	 */
+	public void setFeatureIdx(int setI, FeatureVector.FeatureType featureType) {
+		I = setI;
+		type = featureType;
+	}
+
+	/**
+	 * Access the index of the currently compared feature.
+	 * 
+	 * @return The index of the feature which the comparator currently deals with.
+	 */
+	public int getFeatureIdx() {
+		return (I);
+	}
+
+	/**
+	 * Compares two feature vectors according to their values at an internal index previously set by this.setFeatureIdx().
+	 * 
+	 * @param v1
+	 *            The first vector.
+	 * @param v2
+	 *            The second vector.
+	 * @return a negative integer, zero, or a positive integer as the feature at index I for v1 is less than, equal to, or greater
+	 *         than the feature at index I for v2.
+	 * 
+	 * @see FeatureComparator#setFeatureIdx(int)
+	 */
+	public int compare(FeatureVector a, FeatureVector b) {
+		switch (type) {
+		case byteValued:
+			return a.byteValuedDiscreteFeatures[I] - b.byteValuedDiscreteFeatures[I];
+		case shortValued:
+			int offset = a.byteValuedDiscreteFeatures.length;
+			return a.shortValuedDiscreteFeatures[I - offset] - b.shortValuedDiscreteFeatures[I - offset];
+		case floatValued:
+			int offset2 = a.byteValuedDiscreteFeatures.length + a.shortValuedDiscreteFeatures.length;
+			float delta = a.continuousFeatures[I - offset2] - b.continuousFeatures[I - offset2];
+			if (delta > 0)
+				return 1;
+			else if (delta < 0)
+				return -1;
+			return 0;
+		default:
+			throw new IllegalStateException("compare called with feature index " + I + " and feature type " + type);
+		}
+
+	}
+
+	/**
+	 * The equals() method asked for by the Comparable interface. Returns true if the compared object is a FeatureComparator with
+	 * the same internal index, false otherwise.
+	 */
+	public boolean equals(Object obj) {
+		if (!(obj instanceof FeatureComparator))
+			return false;
+		else if (((FeatureComparator) obj).getFeatureIdx() != this.I)
+			return false;
+		return (true);
+	}
 }
 
 /**
@@ -106,11 +110,9 @@ public class FeatureComparator implements Comparator<FeatureVector> {
  * 
  */
 class UnitIndexComparator implements Comparator<FeatureVector> {
-    
-    public int compare( FeatureVector a, FeatureVector b ) {
-        return a.unitIndex - b.unitIndex;
-    }
+
+	public int compare(FeatureVector a, FeatureVector b) {
+		return a.unitIndex - b.unitIndex;
+	}
 
 }
-
-

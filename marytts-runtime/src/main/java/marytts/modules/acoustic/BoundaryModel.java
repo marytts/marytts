@@ -37,33 +37,34 @@ import org.w3c.dom.Element;
  * 
  */
 public class BoundaryModel extends Model {
-    public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
-            String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
-        super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
-    }
+	public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream,
+			String targetAttributeName, String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
+		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
+				applyTo);
+	}
 
-    @Override
-    public void applyTo(List<Element> elements) {
-        for (Element element : elements) {
-            if (!element.hasAttribute(targetAttributeName)) {
-                element.setAttribute(targetAttributeName, "400");
-            }
-        }
-    }
+	@Override
+	public void applyTo(List<Element> elements) {
+		for (Element element : elements) {
+			if (!element.hasAttribute(targetAttributeName)) {
+				element.setAttribute(targetAttributeName, "400");
+			}
+		}
+	}
 
-    /**
-     * For boundaries, this does nothing;
-     */
-    @Override
-    protected float evaluate(Target target) {
-        return Float.NaN;
-    }
+	/**
+	 * For boundaries, this does nothing;
+	 */
+	@Override
+	protected float evaluate(Target target) {
+		return Float.NaN;
+	}
 
-    /**
-     * For boundaries, this does nothing;
-     */
-    @Override
-    public void loadData() {
-        return;
-    }
+	/**
+	 * For boundaries, this does nothing;
+	 */
+	@Override
+	public void loadData() {
+		return;
+	}
 }

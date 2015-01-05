@@ -32,103 +32,92 @@ import org.w3c.dom.NodeList;
  * @author marc
  *
  */
-public class VoiceComponentDescription extends ComponentDescription
-{
-    private String gender;
-    private String type;
-    private String dependsLanguage;
-    private String dependsVersion;
-    
-    @Override
-    public void replaceWithUpdate() {
-        VoiceComponentDescription update = (VoiceComponentDescription) getAvailableUpdate();
-        if (update == null) {
-            return;
-        }
-        this.gender = update.gender;
-        this.type = update.type;
-        this.dependsLanguage = update.dependsLanguage;
-        this.dependsVersion = update.dependsVersion;
-        super.replaceWithUpdate();
-    }
+public class VoiceComponentDescription extends ComponentDescription {
+	private String gender;
+	private String type;
+	private String dependsLanguage;
+	private String dependsVersion;
 
-    public VoiceComponentDescription(String name, String version, String packageFilename) {
-        super(name, version, packageFilename);
-    }
+	@Override
+	public void replaceWithUpdate() {
+		VoiceComponentDescription update = (VoiceComponentDescription) getAvailableUpdate();
+		if (update == null) {
+			return;
+		}
+		this.gender = update.gender;
+		this.type = update.type;
+		this.dependsLanguage = update.dependsLanguage;
+		this.dependsVersion = update.dependsVersion;
+		super.replaceWithUpdate();
+	}
 
-    /**
-     * @param xmlDescription
-     * @throws NullPointerException
-     * @throws MalformedURLException
-     */
-    public VoiceComponentDescription(Element xmlDescription)
-    throws NullPointerException, MalformedURLException
-    {
-        super(xmlDescription);
-        this.gender = xmlDescription.getAttribute("gender");
-        this.type = xmlDescription.getAttribute("type");
-        Element dependsElement = (Element) xmlDescription.getElementsByTagName("depends").item(0);
-        this.dependsLanguage = dependsElement.getAttribute("language");
-        this.dependsVersion = dependsElement.getAttribute("version");
-    }
-    
-    @Override
-    public String getComponentTypeString()
-    {
-        return "voice";
-    }
+	public VoiceComponentDescription(String name, String version, String packageFilename) {
+		super(name, version, packageFilename);
+	}
 
-    
-    public String getGender()
-    {
-        return gender;
-    }
-    
-    public void setGender(String aGender) {
-        this.gender = aGender;
-    }
-    
-    public String getType()
-    {
-        return type;
-    }
-    
-    public void setType(String aType) {
-        this.type = aType;
-    }
+	/**
+	 * @param xmlDescription
+	 * @throws NullPointerException
+	 * @throws MalformedURLException
+	 */
+	public VoiceComponentDescription(Element xmlDescription) throws NullPointerException, MalformedURLException {
+		super(xmlDescription);
+		this.gender = xmlDescription.getAttribute("gender");
+		this.type = xmlDescription.getAttribute("type");
+		Element dependsElement = (Element) xmlDescription.getElementsByTagName("depends").item(0);
+		this.dependsLanguage = dependsElement.getAttribute("language");
+		this.dependsVersion = dependsElement.getAttribute("version");
+	}
 
-    public String getDependsLanguage()
-    {
-        return dependsLanguage;
-    }
-    
-    public void setDependsLanguage(String aLanguage) {
-        this.dependsLanguage = aLanguage;
-    }
-    
-    public String getDependsVersion()
-    {
-        return dependsVersion;
-    }
-    
-    public void setDependsVersion(String aVersion) {
-        this.dependsVersion = aVersion;
-    }
+	@Override
+	public String getComponentTypeString() {
+		return "voice";
+	}
 
-    
-    @Override
-    public Document createComponentXML()
-    throws ParserConfigurationException
-    {
-        Document doc = super.createComponentXML();
-        NodeList nodes = doc.getElementsByTagName(getComponentTypeString());
-        assert nodes.getLength() == 1;
-        Element voiceElt = (Element) nodes.item(0);
-        voiceElt.setAttribute("type", type);
-        voiceElt.setAttribute("gender", gender);
-        Element dependsElt = (Element) voiceElt.appendChild(doc.createElementNS(ComponentDescription.installerNamespaceURI, "depends"));
-        dependsElt.setAttribute("language", dependsLanguage);
-        dependsElt.setAttribute("version", dependsVersion);
-        return doc;
-    }
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String aGender) {
+		this.gender = aGender;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String aType) {
+		this.type = aType;
+	}
+
+	public String getDependsLanguage() {
+		return dependsLanguage;
+	}
+
+	public void setDependsLanguage(String aLanguage) {
+		this.dependsLanguage = aLanguage;
+	}
+
+	public String getDependsVersion() {
+		return dependsVersion;
+	}
+
+	public void setDependsVersion(String aVersion) {
+		this.dependsVersion = aVersion;
+	}
+
+	@Override
+	public Document createComponentXML() throws ParserConfigurationException {
+		Document doc = super.createComponentXML();
+		NodeList nodes = doc.getElementsByTagName(getComponentTypeString());
+		assert nodes.getLength() == 1;
+		Element voiceElt = (Element) nodes.item(0);
+		voiceElt.setAttribute("type", type);
+		voiceElt.setAttribute("gender", gender);
+		Element dependsElt = (Element) voiceElt.appendChild(doc.createElementNS(ComponentDescription.installerNamespaceURI,
+				"depends"));
+		dependsElt.setAttribute("language", dependsLanguage);
+		dependsElt.setAttribute("version", dependsVersion);
+		return doc;
+	}
 }

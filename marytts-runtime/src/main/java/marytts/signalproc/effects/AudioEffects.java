@@ -29,19 +29,19 @@ import marytts.server.MaryProperties;
  */
 public class AudioEffects {
 	private static ArrayList<AudioEffect> effects = initialiseEffects();
-	
+
 	private static ArrayList<AudioEffect> initialiseEffects() {
 		ArrayList<AudioEffect> effs = new ArrayList<AudioEffect>();
 		for (String className : MaryProperties.effectClasses()) {
 			try {
 				effs.add((AudioEffect) Class.forName(className).newInstance());
 			} catch (Exception e) {
-				throw new Error("Cannot set up effect class '"+className+"'", e);
+				throw new Error("Cannot set up effect class '" + className + "'", e);
 			}
 		}
 		return effs;
 	}
-	
+
 	public static Iterable<AudioEffect> getEffects() {
 		return effects;
 	}
@@ -49,7 +49,7 @@ public class AudioEffects {
 	public static int countEffects() {
 		return effects.size();
 	}
-	
+
 	public static AudioEffect getEffect(String name) {
 		for (AudioEffect effect : getEffects()) {
 			if (effect.getName().equals(name)) {

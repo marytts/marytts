@@ -26,81 +26,73 @@ import java.io.IOException;
 import marytts.signalproc.window.Window;
 
 /**
- * Implements a structured header with file I/O functionality 
- * for binary files that store frame based line spectral frequency vectors 
+ * Implements a structured header with file I/O functionality for binary files that store frame based line spectral frequency
+ * vectors
  * 
  * @author Oytun T&uumlrk
  */
 public class LsfFileHeader extends FeatureFileHeader {
-    public float preCoef; //Preemphasis coefficient
-    public int windowType; //Type of analysis window (See class marytts.signalproc.window.Window for details
-    public boolean isBarkScaled; //Bark-scaled or not
-    
-    public LsfFileHeader()
-    {
-        super();
-        preCoef = 0.0f;
-        windowType = Window.HAMMING;
-        isBarkScaled = false;
-    }
-    
-    public LsfFileHeader(LsfFileHeader existingHeader)
-    {
-        super(existingHeader);
-        preCoef = existingHeader.preCoef;
-        windowType = existingHeader.windowType;
-        isBarkScaled = existingHeader.isBarkScaled;
-    }
-    
-    public LsfFileHeader(String lsfFile)
-    {
-        super(lsfFile);
-        
-        try {
-            readHeader(lsfFile);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    
-    public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
-    {
-        boolean bRet = super.isIdenticalAnalysisParams(hdr);
-       
-        if (!bRet)
-            return false;
+	public float preCoef; // Preemphasis coefficient
+	public int windowType; // Type of analysis window (See class marytts.signalproc.window.Window for details
+	public boolean isBarkScaled; // Bark-scaled or not
 
-        if (this.preCoef!= hdr.preCoef)
-            return false;
-        if (this.windowType!= hdr.windowType)
-            return false;
-        if (this.isBarkScaled!= hdr.isBarkScaled)
-            return false;
-        
-        return bRet;
-    }
-    
-    @Override
-    public void readHeader(DataInput stream) throws IOException
-    {
-        if (stream!=null)
-        {
-            super.readHeader(stream);
-            
-            preCoef = stream.readFloat();
-            windowType = stream.readInt();
-            isBarkScaled = stream.readBoolean();
-        }
-    }
-    
-    @Override
-    public void writeHeader(DataOutput ler) throws IOException
-    {   
-        super.writeHeader(ler);
-        ler.writeFloat(preCoef);
-        ler.writeInt(windowType);
-        ler.writeBoolean(isBarkScaled);
-    }
+	public LsfFileHeader() {
+		super();
+		preCoef = 0.0f;
+		windowType = Window.HAMMING;
+		isBarkScaled = false;
+	}
+
+	public LsfFileHeader(LsfFileHeader existingHeader) {
+		super(existingHeader);
+		preCoef = existingHeader.preCoef;
+		windowType = existingHeader.windowType;
+		isBarkScaled = existingHeader.isBarkScaled;
+	}
+
+	public LsfFileHeader(String lsfFile) {
+		super(lsfFile);
+
+		try {
+			readHeader(lsfFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isIdenticalAnalysisParams(LsfFileHeader hdr) {
+		boolean bRet = super.isIdenticalAnalysisParams(hdr);
+
+		if (!bRet)
+			return false;
+
+		if (this.preCoef != hdr.preCoef)
+			return false;
+		if (this.windowType != hdr.windowType)
+			return false;
+		if (this.isBarkScaled != hdr.isBarkScaled)
+			return false;
+
+		return bRet;
+	}
+
+	@Override
+	public void readHeader(DataInput stream) throws IOException {
+		if (stream != null) {
+			super.readHeader(stream);
+
+			preCoef = stream.readFloat();
+			windowType = stream.readInt();
+			isBarkScaled = stream.readBoolean();
+		}
+	}
+
+	@Override
+	public void writeHeader(DataOutput ler) throws IOException {
+		super.writeHeader(ler);
+		ler.writeFloat(preCoef);
+		ler.writeInt(windowType);
+		ler.writeBoolean(isBarkScaled);
+	}
 }
-

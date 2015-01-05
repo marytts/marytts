@@ -36,7 +36,7 @@ public class LTSTrainerTest {
 		InputStream alloStream = LTSTrainerTest.class.getResourceAsStream("allophones.it.xml");
 		AllophoneSet allophoneset;
 		try {
-			
+
 			allophoneset = AllophoneSet.getAllophoneSet(alloStream, "test");
 
 			// Initialize trainer
@@ -54,16 +54,16 @@ public class LTSTrainerTest {
 				tp.alignIteration();
 			}
 			CART st = tp.trainTree(10);
-			
-			// Temp file for test 
+
+			// Temp file for test
 			String OutputFilename = "LTS_test.tree";
 			File tempFile = testFolder.newFile(OutputFilename);
-			System.out.println("Writing tree in tempFile: " + tempFile.getAbsolutePath()+tempFile.getName());
+			System.out.println("Writing tree in tempFile: " + tempFile.getAbsolutePath() + tempFile.getName());
 
-			tp.save(st, tempFile.getAbsolutePath()+tempFile.getName());
-			
+			tp.save(st, tempFile.getAbsolutePath() + tempFile.getName());
+
 			assertTrue(tempFile.exists());
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

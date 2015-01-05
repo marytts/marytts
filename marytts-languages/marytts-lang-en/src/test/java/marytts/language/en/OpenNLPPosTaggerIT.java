@@ -38,30 +38,28 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
 	 */
 	public OpenNLPPosTaggerIT() throws Exception {
 		super(true); // start MARY
-		
+
 	}
-	
+
 	@Override
 	protected String inputEnding() {
 		return "words";
 	}
-	
+
 	@Override
 	protected String outputEnding() {
 		return "partsofspeech";
 	}
-	
 
-
-	   @Test
-	    public void posExample2() throws Exception {
-	        // setup SUT:
-	        module = new OpenNLPPosTagger("en", "en.pos");
-	        module.startup();
-	        // exercise:
-	        processAndCompare("example2-en_US", Locale.US);
-	        // teardown:
-	        module.shutdown();
-	        module = null;
-	    }
+	@Test
+	public void posExample2() throws Exception {
+		// setup SUT:
+		module = new OpenNLPPosTagger("en", "en.pos");
+		module.startup();
+		// exercise:
+		processAndCompare("example2-en_US", Locale.US);
+		// teardown:
+		module.shutdown();
+		module = null;
+	}
 }
