@@ -28,7 +28,6 @@ import javax.xml.transform.TransformerFactory;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-
 /**
  * @author Marc Schr&ouml;der
  *
@@ -36,30 +35,25 @@ import org.w3c.dom.Document;
  */
 public class EmospeakTest {
 
-    @Test
-    public void testTransform() throws Exception 
-    {
-        TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
-        System.err.println("Using XSL processor " + tFactory.getClass().getName());
-        javax.xml.transform.stream.StreamSource stylesheetStream =
-            new javax.xml.transform.stream.StreamSource (
-                EmoTransformer.class.getResourceAsStream("emotion-to-mary.xsl")
-            );
-        Templates stylesheet = tFactory.newTemplates( stylesheetStream );
-        DocumentBuilderFactory dbFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-        dbFactory.setNamespaceAware(true);
-        DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-        Transformer transformer = stylesheet.newTransformer();
+	@Test
+	public void testTransform() throws Exception {
+		TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
+		System.err.println("Using XSL processor " + tFactory.getClass().getName());
+		javax.xml.transform.stream.StreamSource stylesheetStream = new javax.xml.transform.stream.StreamSource(
+				EmoTransformer.class.getResourceAsStream("emotion-to-mary.xsl"));
+		Templates stylesheet = tFactory.newTemplates(stylesheetStream);
+		DocumentBuilderFactory dbFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+		dbFactory.setNamespaceAware(true);
+		DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
+		Transformer transformer = stylesheet.newTransformer();
 
-        Document emotion = docBuilder.parse(EmospeakTest.class.getResourceAsStream("emotion.xml"));
-        javax.xml.transform.dom.DOMSource domSource = new javax.xml.transform.dom.DOMSource (emotion);
-        java.io.StringWriter sw = new java.io.StringWriter();
-        javax.xml.transform.stream.StreamResult streamResult = new javax.xml.transform.stream.StreamResult (sw);
-        transformer.transform(domSource, streamResult);
-        String maryxmlString = sw.toString();
-        System.out.println("Converted to maryxml: "+maryxmlString);
-    }
-    
+		Document emotion = docBuilder.parse(EmospeakTest.class.getResourceAsStream("emotion.xml"));
+		javax.xml.transform.dom.DOMSource domSource = new javax.xml.transform.dom.DOMSource(emotion);
+		java.io.StringWriter sw = new java.io.StringWriter();
+		javax.xml.transform.stream.StreamResult streamResult = new javax.xml.transform.stream.StreamResult(sw);
+		transformer.transform(domSource, streamResult);
+		String maryxmlString = sw.toString();
+		System.out.println("Converted to maryxml: " + maryxmlString);
+	}
 
 }
-
