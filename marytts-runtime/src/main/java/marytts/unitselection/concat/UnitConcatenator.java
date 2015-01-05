@@ -28,36 +28,34 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
 
-
 /**
- * Concatenates the units of an utterance
- * and returns an audio stream
+ * Concatenates the units of an utterance and returns an audio stream
  * 
  * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
-public interface UnitConcatenator
-{
-    /**
-     * Initialise the unit concatenator from the database.
-     * @param database
-     */
-   public void load(UnitDatabase database);
-   
-    /**
-     * Build the audio stream from the units
-     * 
-     * @param units the units
-     * @return the resulting audio stream
-     */
-    public AudioInputStream getAudio(List<SelectedUnit> units) throws IOException;
-    
-    /**
-     * Provide the audio format which will be produced by this
-     * unit concatenator.
-     * @return the audio format
-     */
-    public AudioFormat getAudioFormat();
-    
-}
+public interface UnitConcatenator {
+	/**
+	 * Initialise the unit concatenator from the database.
+	 * 
+	 * @param database
+	 */
+	public void load(UnitDatabase database);
 
+	/**
+	 * Build the audio stream from the units
+	 * 
+	 * @param units
+	 *            the units
+	 * @return the resulting audio stream
+	 */
+	public AudioInputStream getAudio(List<SelectedUnit> units) throws IOException;
+
+	/**
+	 * Provide the audio format which will be produced by this unit concatenator.
+	 * 
+	 * @return the audio format
+	 */
+	public AudioFormat getAudioFormat();
+
+}

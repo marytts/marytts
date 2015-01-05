@@ -24,48 +24,54 @@ import java.util.Locale;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 
-
 /**
  * A dummy module doing nothing.
  *
  * @author Marc Schr&ouml;der
  */
 
-public class DummyModule implements MaryModule
-{
-    public String name() { return "Dummy"; }
+public class DummyModule implements MaryModule {
+	public String name() {
+		return "Dummy";
+	}
 
-    @Deprecated
-    public MaryDataType inputType() {
-        return getInputType();
-    }
+	@Deprecated
+	public MaryDataType inputType() {
+		return getInputType();
+	}
 
-    public MaryDataType getInputType() {
-        return MaryDataType.MBROLA;
-    }
+	public MaryDataType getInputType() {
+		return MaryDataType.MBROLA;
+	}
 
-    @Deprecated
-    public MaryDataType outputType() {
-        return getOutputType();
-    }
+	@Deprecated
+	public MaryDataType outputType() {
+		return getOutputType();
+	}
 
-    public MaryDataType getOutputType() {
-        return MaryDataType.AUDIO;
-    }
-    
-    public Locale getLocale() {
-        return null;
-    }
+	public MaryDataType getOutputType() {
+		return MaryDataType.AUDIO;
+	}
 
-    public void startup() throws Exception {}
-    
-    public void powerOnSelfTest() throws Error {}
-        
-    public void shutdown() {}
-    
-    public int getState() { return MODULE_OFFLINE; }
+	public Locale getLocale() {
+		return null;
+	}
 
-    public MaryData process(MaryData d) throws Exception { return d; }
+	public void startup() throws Exception {
+	}
+
+	public void powerOnSelfTest() throws Error {
+	}
+
+	public void shutdown() {
+	}
+
+	public int getState() {
+		return MODULE_OFFLINE;
+	}
+
+	public MaryData process(MaryData d) throws Exception {
+		return d;
+	}
 
 }
-

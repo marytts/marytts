@@ -26,86 +26,79 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 
 /**
- * A generic interface for Mary Modules.
- * This interface defines the communication of the Mary.java main program
- * with the individual modules.
+ * A generic interface for Mary Modules. This interface defines the communication of the Mary.java main program with the
+ * individual modules.
  * <p>
  * The main program calls
  * <ul>
- * <li> <code>startup()</code> once after module instantiation, </li>
- * <li> <code>process()</code> many times, from different threads,
- *      possibly at the same time, during the lifetime of the server </li>
- * <li> <code>shutdown()</code> once, at the end of the program. </li>
+ * <li> <code>startup()</code> once after module instantiation,</li>
+ * <li> <code>process()</code> many times, from different threads, possibly at the same time, during the lifetime of the server</li>
+ * <li> <code>shutdown()</code> once, at the end of the program.</li>
  * </ul>
+ * 
  * @author Marc Schr&ouml;der
  */
-public interface MaryModule
-{
-    public final int MODULE_OFFLINE = 0;
-    public final int MODULE_RUNNING = 1;
-    
-    /** This module's name, as free text, for example "Tokeniser" */
-    public String name();
+public interface MaryModule {
+	public final int MODULE_OFFLINE = 0;
+	public final int MODULE_RUNNING = 1;
 
-    /** The type of input data needed by this module. */
-    @Deprecated
-    public MaryDataType inputType();
-    public MaryDataType getInputType();
+	/** This module's name, as free text, for example "Tokeniser" */
+	public String name();
 
-    /** The type of output data produced by this module. */
-    @Deprecated
-    public MaryDataType outputType();
-    public MaryDataType getOutputType();
+	/** The type of input data needed by this module. */
+	@Deprecated
+	public MaryDataType inputType();
 
-    /** The locale of this module, i.e. the locale of data that this
-     * module can process. If null, indicates that the module can use
-     * data of any locale (i.e., the module is language-independent.) 
-     * @return the locale of this module, if any, or null
-     */ 
-    public Locale getLocale();
-    
-    /**
-     * Allow the module to start up, performing whatever is necessary
-     * to become operational. After successful completion, getState()
-     * should return MODULE_RUNNING.
-     */
-    public void startup() throws Exception;
+	public MaryDataType getInputType();
 
-    /**
-     * Inform about the state of this module. 
-     * @return an int identifying the state of this module, either MODULE_OFFLINE or MODULE_RUNNING.
-     */
-    public int getState();
-    
+	/** The type of output data produced by this module. */
+	@Deprecated
+	public MaryDataType outputType();
 
-    /**
-     * Perform a power-on self test by processing some example input data.
-     * @throws Error if the module does not work properly.
-     */
-    public void powerOnSelfTest() throws Error;
- 
-    /**
-     * Allow the module to shut down cleanly. After this has successfully completed,
-     * getState() should return MODULE_OFFLINE.
-     */
-    public void shutdown();
+	public MaryDataType getOutputType();
 
+	/**
+	 * The locale of this module, i.e. the locale of data that this module can process. If null, indicates that the module can use
+	 * data of any locale (i.e., the module is language-independent.)
+	 * 
+	 * @return the locale of this module, if any, or null
+	 */
+	public Locale getLocale();
 
-    /**
-     * Perform this module's processing on abstract "MaryData" input
-     * <code>d</code>.
-     * Classes implementing this interface need to make the
-     * <code>process()</code>
-     * method thread-safe, because in server-mode,
-     * it will be called from different
-     * threads at the same time.
-     * <p>
-     * The result is returned encapsulated in a MaryData object of type
-     * <code>outputType()</code>.
-     * <p>
-     * This method should never return <code> null </code>; in case of a
-     * failure, an exception should be thrown.
-     */
-    public MaryData process(MaryData d) throws Exception;
+	/**
+	 * Allow the module to start up, performing whatever is necessary to become operational. After successful completion,
+	 * getState() should return MODULE_RUNNING.
+	 */
+	public void startup() throws Exception;
+
+	/**
+	 * Inform about the state of this module.
+	 * 
+	 * @return an int identifying the state of this module, either MODULE_OFFLINE or MODULE_RUNNING.
+	 */
+	public int getState();
+
+	/**
+	 * Perform a power-on self test by processing some example input data.
+	 * 
+	 * @throws Error
+	 *             if the module does not work properly.
+	 */
+	public void powerOnSelfTest() throws Error;
+
+	/**
+	 * Allow the module to shut down cleanly. After this has successfully completed, getState() should return MODULE_OFFLINE.
+	 */
+	public void shutdown();
+
+	/**
+	 * Perform this module's processing on abstract "MaryData" input <code>d</code>. Classes implementing this interface need to
+	 * make the <code>process()</code> method thread-safe, because in server-mode, it will be called from different threads at the
+	 * same time.
+	 * <p>
+	 * The result is returned encapsulated in a MaryData object of type <code>outputType()</code>.
+	 * <p>
+	 * This method should never return <code> null </code>; in case of a failure, an exception should be thrown.
+	 */
+	public MaryData process(MaryData d) throws Exception;
 }
-

@@ -31,55 +31,50 @@ import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 
+public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 
-public class HalfPhoneTargetFeatureLister extends TargetFeatureLister 
-{
+	@Deprecated
+	public HalfPhoneTargetFeatureLister() {
+		super(MaryDataType.HALFPHONE_TARGETFEATURES);
+	}
 
-    @Deprecated    
-    public HalfPhoneTargetFeatureLister()
-    {
-        super(MaryDataType.HALFPHONE_TARGETFEATURES);
-    }
-    
+	/**
+	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
+	 * method in local code.
+	 * 
+	 * @param segs
+	 * @return
+	 */
+	@Override
+	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
+		return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
+	}
 
+	/**
+	 * Create the list of targets from the segments to be synthesized Prepend and append pauses if necessary
+	 * 
+	 * @param segmentsAndBoundaries
+	 *            a list of MaryXML phone and boundary elements
+	 * @return a list of Target objects
+	 */
+	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
+		List<Target> targets = new ArrayList<Target>();
+		if (segmentsAndBoundaries.size() == 0)
+			return targets;
+		Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size() - 1);
+		if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
+			Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
+			Element token = (Element) MaryDomUtils.getAncestor(last, MaryXML.TOKEN);
+			Element parent = (Element) token.getParentNode();
+			parent.appendChild(finalPause);
+			segmentsAndBoundaries.add(finalPause);
+		}
+		for (Element sOrB : segmentsAndBoundaries) {
+			String phone = UnitSelector.getPhoneSymbol(sOrB);
+			targets.add(new HalfPhoneTarget(phone + "_L", sOrB, true));
+			targets.add(new HalfPhoneTarget(phone + "_R", sOrB, false));
+		}
+		return targets;
+	}
 
-    
-    /**
-     * Access the code from within the our own code so that a subclass
-     * can override it. Use this rather than the public static method in local code.
-     * @param segs
-     * @return
-     */
-    @Override
-    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol)
-    {
-        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
-    }
-    
-    /**
-     * Create the list of targets from the segments to be synthesized
-     * Prepend and append pauses if necessary
-     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
-     * @return a list of Target objects
-     */
-    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
-        List<Target> targets = new ArrayList<Target>();
-        if (segmentsAndBoundaries.size() == 0) return targets;
-        Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size()-1);
-        if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
-            Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
-            Element token = (Element) MaryDomUtils.getAncestor(last, MaryXML.TOKEN);
-            Element parent = (Element) token.getParentNode();
-            parent.appendChild(finalPause);
-            segmentsAndBoundaries.add(finalPause);
-        }
-        for (Element sOrB : segmentsAndBoundaries) {
-            String phone = UnitSelector.getPhoneSymbol(sOrB);
-            targets.add(new HalfPhoneTarget(phone+"_L", sOrB, true));
-            targets.add(new HalfPhoneTarget(phone+"_R", sOrB, false));
-        }
-        return targets;
-    }
-    
 }
-

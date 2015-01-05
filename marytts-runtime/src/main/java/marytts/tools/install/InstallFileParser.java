@@ -38,59 +38,52 @@ import org.xml.sax.SAXException;
  * @author marc
  *
  */
-public class InstallFileParser 
-{
-    private static DocumentBuilder builder;
-    
-    static {
-        try {
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (Exception e) {
-            e.printStackTrace();
-            builder = null;
-        }
-    }
-    
-    
-    private List<LanguageComponentDescription> languages = new ArrayList<LanguageComponentDescription>();
-    private List<VoiceComponentDescription> voices = new ArrayList<VoiceComponentDescription>();
-    
-    
-    
-    public InstallFileParser(URL installFile)
-    throws IOException, SAXException
-    {
-    	Document doc;
-    	try {
-    		InputStream in = installFile.openStream();
-    		doc = builder.parse(in);
-    		in.close();
-    	} catch (Exception e) {
-    		throw new IOException("Problem parsing install file "+installFile, e);
-    	}
-        Element docElt = doc.getDocumentElement();
-        if (!docElt.getTagName().equals("marytts-install")) {
-            throw new IllegalArgumentException("Expected <marytts-install> document, but found root node <"+docElt.getTagName()+">!");
-        }
-        NodeList languageElements = docElt.getElementsByTagName("language");
-        for (int i=0, max = languageElements.getLength(); i<max; i++) {
-            Element languageElement = (Element) languageElements.item(i);
-            languages.add(new LanguageComponentDescription(languageElement));
-        }
-        NodeList voiceElements = docElt.getElementsByTagName("voice");
-        for (int i=0, max = voiceElements.getLength(); i<max; i++) {
-            Element voiceElement = (Element) voiceElements.item(i);
-            voices.add(new VoiceComponentDescription(voiceElement));
-        }
-    }
+public class InstallFileParser {
+	private static DocumentBuilder builder;
 
-    public List<LanguageComponentDescription> getLanguageDescriptions()
-    {
-        return languages;
-    }
-    
-    public List<VoiceComponentDescription> getVoiceDescriptions()
-    {
-        return voices;
-    }
+	static {
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		} catch (Exception e) {
+			e.printStackTrace();
+			builder = null;
+		}
+	}
+
+	private List<LanguageComponentDescription> languages = new ArrayList<LanguageComponentDescription>();
+	private List<VoiceComponentDescription> voices = new ArrayList<VoiceComponentDescription>();
+
+	public InstallFileParser(URL installFile) throws IOException, SAXException {
+		Document doc;
+		try {
+			InputStream in = installFile.openStream();
+			doc = builder.parse(in);
+			in.close();
+		} catch (Exception e) {
+			throw new IOException("Problem parsing install file " + installFile, e);
+		}
+		Element docElt = doc.getDocumentElement();
+		if (!docElt.getTagName().equals("marytts-install")) {
+			throw new IllegalArgumentException("Expected <marytts-install> document, but found root node <" + docElt.getTagName()
+					+ ">!");
+		}
+		NodeList languageElements = docElt.getElementsByTagName("language");
+		for (int i = 0, max = languageElements.getLength(); i < max; i++) {
+			Element languageElement = (Element) languageElements.item(i);
+			languages.add(new LanguageComponentDescription(languageElement));
+		}
+		NodeList voiceElements = docElt.getElementsByTagName("voice");
+		for (int i = 0, max = voiceElements.getLength(); i < max; i++) {
+			Element voiceElement = (Element) voiceElements.item(i);
+			voices.add(new VoiceComponentDescription(voiceElement));
+		}
+	}
+
+	public List<LanguageComponentDescription> getLanguageDescriptions() {
+		return languages;
+	}
+
+	public List<VoiceComponentDescription> getVoiceDescriptions() {
+		return voices;
+	}
 }

@@ -21,21 +21,20 @@ import org.junit.Test;
  */
 public class MaryPropertiesIT {
 
-	
-	@Test(expected = NoSuchPropertyException.class) 
+	@Test(expected = NoSuchPropertyException.class)
 	public void failOnNonexistingProperty() throws Exception {
 		MaryProperties.needProperty("test.property.nonexisting");
 	}
-	
+
 	@Test(expected = MaryConfigurationException.class)
 	public void failOnNonexistingStream() throws Exception {
 		MaryProperties.getStream("test.stream.nonexistant");
 	}
-	
+
 	@Test
 	public void succeedOnExistingStream() throws Exception {
 		InputStream is = MaryProperties.getStream("test.stream.existant");
 		assertNotNull(is);
 	}
-	
+
 }
