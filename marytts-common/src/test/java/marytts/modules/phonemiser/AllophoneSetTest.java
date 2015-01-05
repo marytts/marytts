@@ -20,12 +20,12 @@ public class AllophoneSetTest {
 		AllophoneSet allo1b = AllophoneSet.getAllophoneSet(alloStream1b, "test1");
 		assertEquals(allo1a, allo1b);
 	}
-	
+
 	@Test
 	public void testUnloadedIsUnavailable() {
 		assertFalse(AllophoneSet.hasAllophoneSet("laaleeloo"));
 	}
-	
+
 	@Test
 	public void testLoadedIsAvailable() throws MaryConfigurationException {
 		InputStream alloStream = AllophoneSetTest.class.getResourceAsStream("allophones.de.xml");
@@ -33,6 +33,6 @@ public class AllophoneSetTest {
 		assertTrue(AllophoneSet.hasAllophoneSet("test2"));
 		AllophoneSet copy = AllophoneSet.getAllophoneSetById("test2");
 		assertEquals(orig, copy);
-		
+
 	}
 }
