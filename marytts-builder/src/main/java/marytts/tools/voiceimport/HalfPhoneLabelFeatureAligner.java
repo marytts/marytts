@@ -19,34 +19,29 @@
  */
 package marytts.tools.voiceimport;
 
-
-
 /**
  * @author marc
  *
  */
 public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
-    
-    public String getName(){
-        return "HalfPhoneLabelFeatureAligner";
-    }
-    
-    public HalfPhoneLabelFeatureAligner(){
-    }
-    
-    @Override
-    protected void customInitialisation()
-    {
-        featureComputer = (HalfPhoneUnitFeatureComputer) db.getComponent("HalfPhoneUnitFeatureComputer");
-        allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
-        labelComputer =  (HalfPhoneUnitLabelComputer) db.getComponent("HalfPhoneUnitLabelComputer");
-        transcriptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner");
-        featsExt = ".hpfeats";
-        labExt = ".hplab";
-        featsDir = db.getProp(db.HALFPHONEFEATUREDIR);
-        labDir = db.getProp(db.HALFPHONELABDIR);
-    }
 
+	public String getName() {
+		return "HalfPhoneLabelFeatureAligner";
+	}
+
+	public HalfPhoneLabelFeatureAligner() {
+	}
+
+	@Override
+	protected void customInitialisation() {
+		featureComputer = (HalfPhoneUnitFeatureComputer) db.getComponent("HalfPhoneUnitFeatureComputer");
+		allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
+		labelComputer = (HalfPhoneUnitLabelComputer) db.getComponent("HalfPhoneUnitLabelComputer");
+		transcriptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner");
+		featsExt = ".hpfeats";
+		labExt = ".hplab";
+		featsDir = db.getProp(db.HALFPHONEFEATUREDIR);
+		labDir = db.getProp(db.HALFPHONELABDIR);
+	}
 
 }
-

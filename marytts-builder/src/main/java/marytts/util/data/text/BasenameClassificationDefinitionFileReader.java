@@ -68,99 +68,99 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * 
  */
 public class BasenameClassificationDefinitionFileReader {
-    protected BufferedReader reader;
+	protected BufferedReader reader;
 
-    public boolean fileOK = true;
+	public boolean fileOK = true;
 
-    protected LinkedHashMap<Pattern, String> styleDefinitions = new LinkedHashMap<Pattern, String>();
+	protected LinkedHashMap<Pattern, String> styleDefinitions = new LinkedHashMap<Pattern, String>();
 
-    /**
-     * constructor to call main constructor with a filename String
-     * 
-     * @param filename
-     *            as a String
-     * @throws IOException
-     */
-    public BasenameClassificationDefinitionFileReader(String filename) throws IOException {
-        this(new FileReader(filename));
-    }
+	/**
+	 * constructor to call main constructor with a filename String
+	 * 
+	 * @param filename
+	 *            as a String
+	 * @throws IOException
+	 */
+	public BasenameClassificationDefinitionFileReader(String filename) throws IOException {
+		this(new FileReader(filename));
+	}
 
-    /**
-     * main constructor
-     * 
-     * @param reader
-     *            as a Reader
-     * @throws IOException
-     */
-    public BasenameClassificationDefinitionFileReader(Reader reader) throws IOException {
-        this.reader = new BufferedReader(reader);
-        parseDefinitionFile();
-    }
+	/**
+	 * main constructor
+	 * 
+	 * @param reader
+	 *            as a Reader
+	 * @throws IOException
+	 */
+	public BasenameClassificationDefinitionFileReader(Reader reader) throws IOException {
+		this.reader = new BufferedReader(reader);
+		parseDefinitionFile();
+	}
 
-    /**
-     * parse style definition file (see class documentation above for format), putting &lt;glob expression, style string&gt; pairs
-     * in styleDefinitions
-     * 
-     * @throws IOException
-     */
-    private void parseDefinitionFile() throws IOException {
-        String line;
-        String globString;
-        String styleString;
-        GlobCompiler glob = new GlobCompiler();
-        Pattern globPattern;
-        // read lines...
-        while ((line = reader.readLine()) != null) {
-            // ...trimming whitespace:
-            line = line.trim();
-            // ignore lines that are empty or start with #:
-            if (line.equals("") || line.startsWith("#")) {
-                continue;
-            } else {
-                // split lines into fields
-                String[] fields = line.split("=");
-                try {
-                    globString = fields[0].trim();
-                    styleString = fields[1].trim();
-                } catch (IndexOutOfBoundsException iob) {
-                    System.err.println("Warning: could not parse line: " + line);
-                    fileOK = false;
-                    continue;
-                }
-                // create GlobCompiler for glob expression:
-                try {
-                    globPattern = glob.compile(globString);
-                } catch (MalformedPatternException mpe) {
-                    System.err.println("Warning: could not parse line: ");
-                    fileOK = false;
-                    continue;
-                }
-                // put (glob expression, style string) pair in styleDefinions:
-                styleDefinitions.put(globPattern, styleString);
-            }
-        }
-        if (styleDefinitions.isEmpty()) {
-            System.err.println("Warning: no style definitions were found!");
-        }
-    }
+	/**
+	 * parse style definition file (see class documentation above for format), putting &lt;glob expression, style string&gt; pairs
+	 * in styleDefinitions
+	 * 
+	 * @throws IOException
+	 */
+	private void parseDefinitionFile() throws IOException {
+		String line;
+		String globString;
+		String styleString;
+		GlobCompiler glob = new GlobCompiler();
+		Pattern globPattern;
+		// read lines...
+		while ((line = reader.readLine()) != null) {
+			// ...trimming whitespace:
+			line = line.trim();
+			// ignore lines that are empty or start with #:
+			if (line.equals("") || line.startsWith("#")) {
+				continue;
+			} else {
+				// split lines into fields
+				String[] fields = line.split("=");
+				try {
+					globString = fields[0].trim();
+					styleString = fields[1].trim();
+				} catch (IndexOutOfBoundsException iob) {
+					System.err.println("Warning: could not parse line: " + line);
+					fileOK = false;
+					continue;
+				}
+				// create GlobCompiler for glob expression:
+				try {
+					globPattern = glob.compile(globString);
+				} catch (MalformedPatternException mpe) {
+					System.err.println("Warning: could not parse line: ");
+					fileOK = false;
+					continue;
+				}
+				// put (glob expression, style string) pair in styleDefinions:
+				styleDefinitions.put(globPattern, styleString);
+			}
+		}
+		if (styleDefinitions.isEmpty()) {
+			System.err.println("Warning: no style definitions were found!");
+		}
+	}
 
-    /**
-     * match basename against the glob expressions in styleDefinitions
-     * 
-     * @param basename
-     * @return style String of first matching glob expression, or empty String if no glob matches
-     */
-    public String getValue(String basename) {
-        Perl5Matcher globMatcher = new Perl5Matcher();
-        String style = "";
-        for (Pattern globPattern : styleDefinitions.keySet()) {
-            if (globMatcher.matches(basename, globPattern)) {
-                style = styleDefinitions.get(globPattern);
-                break; // enable this line to change behavior to return style of *first* matching glob expr
-                // return style; // enable this line to change behavior to return style of *last* matching glob expr
-            }
-        }
-        // no globPattern in styleDefinitions matched... return empty string:
-        return style;
-    }
+	/**
+	 * match basename against the glob expressions in styleDefinitions
+	 * 
+	 * @param basename
+	 * @return style String of first matching glob expression, or empty String if no glob matches
+	 */
+	public String getValue(String basename) {
+		Perl5Matcher globMatcher = new Perl5Matcher();
+		String style = "";
+		for (Pattern globPattern : styleDefinitions.keySet()) {
+			if (globMatcher.matches(basename, globPattern)) {
+				style = styleDefinitions.get(globPattern);
+				break; // enable this line to change behavior to return style of *first* matching glob expr
+				// return style; // enable this line to change behavior to return style of *last* matching glob expr
+			}
+		}
+		// no globPattern in styleDefinitions matched... return empty string:
+		return style;
+	}
 }

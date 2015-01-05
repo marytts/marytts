@@ -51,177 +51,182 @@ import marytts.vocalizations.VocalizationUnitFileReader;
 
 /**
  * A component to extract and write HNM features of all vocalizations into a single file
+ * 
  * @author sathish
  *
  */
-public class HNMFeatureFileWriter extends VoiceImportComponent {    
+public class HNMFeatureFileWriter extends VoiceImportComponent {
 
-    private String waveExt = ".wav";
-    private String ptcExt = ".ptc";
-    private String hnmAnalysisFileExt = ".ana";    
-    private int progress = 0;    
-    protected DatabaseLayout db = null;
-    protected BasenameList bnlVocalizations;
+	private String waveExt = ".wav";
+	private String ptcExt = ".ptc";
+	private String hnmAnalysisFileExt = ".ana";
+	private int progress = 0;
+	protected DatabaseLayout db = null;
+	protected BasenameList bnlVocalizations;
 
-    private final String WAVEDIR = getName()+".vocalizationWaveDir";
-    private final String HNMANADIR = getName()+".hnmAnalysisDir";
-    private final String OUTHNMFILE = getName()+".hnmAnalysisTimelineFile";
-    private final String UNITFILE = getName()+".unitFile";
+	private final String WAVEDIR = getName() + ".vocalizationWaveDir";
+	private final String HNMANADIR = getName() + ".hnmAnalysisDir";
+	private final String OUTHNMFILE = getName() + ".hnmAnalysisTimelineFile";
+	private final String UNITFILE = getName() + ".unitFile";
 
-    private HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis;
-    private HntmAnalyzerParams analysisParams;
-    private PitchFileHeader f0Params;
+	private HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis;
+	private HntmAnalyzerParams analysisParams;
+	private PitchFileHeader f0Params;
 
-    @Override
-    public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
-        this.db = db;
-        if (props == null){
-            props = new TreeMap<String, String>();
-            props.put(UNITFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_units"+db.getProp(db.MARYEXT));
-            props.put(HNMANADIR,  db.getProp(db.VOCALIZATIONSDIR)+File.separator+"hna"+File.separator);
-            props.put(WAVEDIR, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
-            props.put(OUTHNMFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_hnm_analysis"+db.getProp(db.MARYEXT));
-        }
-        return props;
-    }
+	@Override
+	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
+		this.db = db;
+		if (props == null) {
+			props = new TreeMap<String, String>();
+			props.put(UNITFILE, db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files" + File.separator
+					+ "vocalization_units" + db.getProp(db.MARYEXT));
+			props.put(HNMANADIR, db.getProp(db.VOCALIZATIONSDIR) + File.separator + "hna" + File.separator);
+			props.put(WAVEDIR, db.getProp(db.VOCALIZATIONSDIR) + File.separator + "wav");
+			props.put(OUTHNMFILE, db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files" + File.separator
+					+ "vocalization_hnm_analysis" + db.getProp(db.MARYEXT));
+		}
+		return props;
+	}
 
-    @Override
-    protected void setupHelp() {
-        if (props2Help ==null){
-            props2Help = new TreeMap<String, String>();
-            props2Help.put(UNITFILE, "unit file representing all vocalizations");
-            props2Help.put(HNMANADIR,  "HNM features directory");
-            props2Help.put(WAVEDIR, "vocalization wave files directory");
-            props2Help.put(OUTHNMFILE,"a single file to write all HNM features");
-        }
-    }
+	@Override
+	protected void setupHelp() {
+		if (props2Help == null) {
+			props2Help = new TreeMap<String, String>();
+			props2Help.put(UNITFILE, "unit file representing all vocalizations");
+			props2Help.put(HNMANADIR, "HNM features directory");
+			props2Help.put(WAVEDIR, "vocalization wave files directory");
+			props2Help.put(OUTHNMFILE, "a single file to write all HNM features");
+		}
+	}
 
-    @Override
-    public boolean compute() throws UnsupportedAudioFileException, IOException, MaryConfigurationException {
+	@Override
+	public boolean compute() throws UnsupportedAudioFileException, IOException, MaryConfigurationException {
 
-        VocalizationUnitFileReader listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
+		VocalizationUnitFileReader listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
 
-        // sanity checker
-        if ( listenerUnits.getNumberOfUnits() != bnlVocalizations.getLength() ) {
-            throw new MaryConfigurationException("The number of vocalizations given in basename list and number of units in unit file should be matched");
-        }
+		// sanity checker
+		if (listenerUnits.getNumberOfUnits() != bnlVocalizations.getLength()) {
+			throw new MaryConfigurationException(
+					"The number of vocalizations given in basename list and number of units in unit file should be matched");
+		}
 
-        F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(f0Params);
-        HntmAnalyzer ha = new HntmAnalyzer();
-        DataOutputStream outStream = new DataOutputStream(new FileOutputStream(new File(getProp(OUTHNMFILE))));
-        writeHeaderTo(outStream);
-        outStream.writeInt(listenerUnits.getNumberOfUnits());
+		F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(f0Params);
+		HntmAnalyzer ha = new HntmAnalyzer();
+		DataOutputStream outStream = new DataOutputStream(new FileOutputStream(new File(getProp(OUTHNMFILE))));
+		writeHeaderTo(outStream);
+		outStream.writeInt(listenerUnits.getNumberOfUnits());
 
-        for( int i=0; i < bnlVocalizations.getLength(); i++ ) {
-            progress = i * 100 / bnlVocalizations.getLength();
-            String wavFile = getProp(WAVEDIR)+File.separator+bnlVocalizations.getName(i)+waveExt;
-            String pitchFile = getProp(HNMANADIR)+File.separator+bnlVocalizations.getName(i)+ptcExt;
-            String analysisResultsFile = getProp(HNMANADIR)+File.separator+bnlVocalizations.getName(i)+hnmAnalysisFileExt;
-            PitchReaderWriter f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, pitchFile);
-            AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
-            int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-            AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-            double[] x = signal.getAllData();
-            x = MathUtils.multiply(x, 32768.0);
-            HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
-            hnmSignal.write(outStream);
-        }
-        outStream.close();
+		for (int i = 0; i < bnlVocalizations.getLength(); i++) {
+			progress = i * 100 / bnlVocalizations.getLength();
+			String wavFile = getProp(WAVEDIR) + File.separator + bnlVocalizations.getName(i) + waveExt;
+			String pitchFile = getProp(HNMANADIR) + File.separator + bnlVocalizations.getName(i) + ptcExt;
+			String analysisResultsFile = getProp(HNMANADIR) + File.separator + bnlVocalizations.getName(i) + hnmAnalysisFileExt;
+			PitchReaderWriter f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, pitchFile);
+			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
+			AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+			double[] x = signal.getAllData();
+			x = MathUtils.multiply(x, 32768.0);
+			HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, null, analysisParams,
+					synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
+			hnmSignal.write(outStream);
+		}
+		outStream.close();
 
-        HNMFeatureFileReader tester = new HNMFeatureFileReader(getProp(OUTHNMFILE));
-        int unitsOnDisk = tester.getNumberOfUnits();
-        if (unitsOnDisk == listenerUnits.getNumberOfUnits()) {
-            System.out.println("Can read right number of units");
-            return true;
-        } else {
-            System.out.println("Read wrong number of units: "+unitsOnDisk);
-            return false;
-        }
-    }
+		HNMFeatureFileReader tester = new HNMFeatureFileReader(getProp(OUTHNMFILE));
+		int unitsOnDisk = tester.getNumberOfUnits();
+		if (unitsOnDisk == listenerUnits.getNumberOfUnits()) {
+			System.out.println("Can read right number of units");
+			return true;
+		} else {
+			System.out.println("Read wrong number of units: " + unitsOnDisk);
+			return false;
+		}
+	}
 
-    /**
-     * Initialize this component
-     */
-    @Override
-    protected void initialiseComp() throws Exception {
+	/**
+	 * Initialize this component
+	 */
+	@Override
+	protected void initialiseComp() throws Exception {
 
-        createDirectoryifNotExists(getProp(HNMANADIR));
+		createDirectoryifNotExists(getProp(HNMANADIR));
 
-        try {
-            String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
-            if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
-                bnlVocalizations = new BasenameList(basenameFile);
-                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
-            }
-            else {
-                String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
-                bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
-                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
-            }
-        } catch (IOException e) {
-            throw new MaryConfigurationException("Problem with basename list "+e);
-        }
-        f0Params = new PitchFileHeader();
-        analysisParams = new HntmAnalyzerParams();
+		try {
+			String basenameFile = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "basenames.lst";
+			if ((new File(basenameFile)).exists()) {
+				System.out.println("Loading basenames of vocalizations from '" + basenameFile + "' list...");
+				bnlVocalizations = new BasenameList(basenameFile);
+				System.out.println("Found " + bnlVocalizations.getLength() + " vocalizations in basename list");
+			} else {
+				String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "wav";
+				System.out.println("Loading basenames of vocalizations from '" + vocalWavDir + "' directory...");
+				bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
+				System.out.println("Found " + bnlVocalizations.getLength() + " vocalizations in " + vocalWavDir + " directory");
+			}
+		} catch (IOException e) {
+			throw new MaryConfigurationException("Problem with basename list " + e);
+		}
+		f0Params = new PitchFileHeader();
+		analysisParams = new HntmAnalyzerParams();
 
-        analysisParams.harmonicModel = HntmAnalyzerParams.HARMONICS_PLUS_NOISE;
-        analysisParams.noiseModel = HntmAnalyzerParams.WAVEFORM;
-        analysisParams.useHarmonicAmplitudesDirectly = true;
-        analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
-        analysisParams.regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
+		analysisParams.harmonicModel = HntmAnalyzerParams.HARMONICS_PLUS_NOISE;
+		analysisParams.noiseModel = HntmAnalyzerParams.WAVEFORM;
+		analysisParams.useHarmonicAmplitudesDirectly = true;
+		analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
+		analysisParams.regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
 
-        synthesisParamsBeforeNoiseAnalysis = new HntmSynthesizerParams();
-        synthesisParamsBeforeNoiseAnalysis.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;        
-    }
+		synthesisParamsBeforeNoiseAnalysis = new HntmSynthesizerParams();
+		synthesisParamsBeforeNoiseAnalysis.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
+	}
 
+	/**
+	 * Create new directory if the directory doesn't exist
+	 * 
+	 * @param dirName
+	 * @throws Exception
+	 */
+	private void createDirectoryifNotExists(String dirName) throws Exception {
+		if (!(new File(dirName)).exists()) {
+			System.out.println(dirName + " directory does not exist; ");
+			if (!(new File(dirName)).mkdirs()) {
+				throw new Exception("Could not create directory " + dirName);
+			}
+			System.out.println("Created successfully.\n");
+		}
+	}
 
-    /**
-     * Create new directory if the directory doesn't exist 
-     * @param dirName
-     * @throws Exception
-     */
-    private void createDirectoryifNotExists(String dirName) throws Exception {
-        if (!(new File(dirName)).exists()) {
-            System.out.println( dirName+ " directory does not exist; ");
-            if (!(new File(dirName)).mkdirs()) {
-                throw new Exception("Could not create directory "+dirName);
-            }
-            System.out.println("Created successfully.\n");
-        }
-    }
+	/**
+	 * Write the header of this feature file to the given DataOutput
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	protected void writeHeaderTo(DataOutput out) throws IOException {
+		new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
+	}
 
-    /**
-     * Write the header of this feature file to the given DataOutput
-     * @param out
-     * @throws IOException
-     */
-    protected void writeHeaderTo(DataOutput out) throws IOException {
-        new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
-    }
+	/**
+	 * Return this voice import component name
+	 */
+	@Override
+	public String getName() {
+		return "HNMFeatureFileWriter";
+	}
 
-    /**
-     * Return this voice import component name
-     */
-    @Override
-    public String getName() {
-        return "HNMFeatureFileWriter";
-    }
+	/**
+	 * Return the progress of this component
+	 */
+	@Override
+	public int getProgress() {
+		return this.progress;
+	}
 
-    /**
-     * Return the progress of this component
-     */
-    @Override
-    public int getProgress() {
-        return this.progress;
-    }
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
+	}
 }
