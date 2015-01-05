@@ -31,85 +31,80 @@
  */
 package marytts.unitselection.select.viterbi;
 
- /**
-  * Describes a Viterbi path.
-  */
- public class ViterbiPath implements Comparable<ViterbiPath>
- {
+/**
+ * Describes a Viterbi path.
+ */
+public class ViterbiPath implements Comparable<ViterbiPath> {
 	final double score;
 	final ViterbiCandidate candidate;
-    final ViterbiPath previous;
+	final ViterbiPath previous;
 	ViterbiPath next = null;
-	
-	public ViterbiPath(ViterbiCandidate candidate, ViterbiPath previousPath, double score)
-	{
-	    this.candidate = candidate;
-	    this.previous = previousPath;
-	    this.score = score;
+
+	public ViterbiPath(ViterbiCandidate candidate, ViterbiPath previousPath, double score) {
+		this.candidate = candidate;
+		this.previous = previousPath;
+		this.score = score;
 	}
+
 	/**
 	 * Get the score of this path
+	 * 
 	 * @return the score
 	 */
-	public double getScore(){
-	    return score;
+	public double getScore() {
+		return score;
 	}
-	
 
-	
 	/**
-	 * Get the candidate of this path.
-     * Each path leads to exactly one candidate.
+	 * Get the candidate of this path. Each path leads to exactly one candidate.
+	 * 
 	 * @return the candidate
 	 */
-	public ViterbiCandidate getCandidate(){
-	    return candidate;
+	public ViterbiCandidate getCandidate() {
+		return candidate;
 	}
-	
 
 	/**
 	 * Get the next path
+	 * 
 	 * @return the next path
 	 */
-	public ViterbiPath getNext(){
-	    return next;
+	public ViterbiPath getNext() {
+		return next;
 	}
-	
+
 	/**
 	 * Set the next path
-	 * @param next the next path
+	 * 
+	 * @param next
+	 *            the next path
 	 */
-	public void setNext(ViterbiPath next){
-	    this.next = next;
+	public void setNext(ViterbiPath next) {
+		this.next = next;
 	}
-	
-	/** 
+
+	/**
 	 * Get the previous path
+	 * 
 	 * @return the previous path
 	 */
-	public ViterbiPath getPrevious(){
-	    return previous;
+	public ViterbiPath getPrevious() {
+		return previous;
 	}
-	
 
-
-
-	
 	/**
 	 * Converts this object to a string.
 	 *
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiPath score " + score + " leads to candidate unit " + candidate.getUnit();
+		return "ViterbiPath score " + score + " leads to candidate unit " + candidate.getUnit();
 	}
-	
+
 	/**
 	 * Compare two viterbi paths such that the one with the lower score is considered smaller.
 	 */
-    public int compareTo(ViterbiPath o)
-    {
-        return Double.compare(score, o.score);
-    }
- }
-   
+	public int compareTo(ViterbiPath o) {
+		return Double.compare(score, o.score);
+	}
+}

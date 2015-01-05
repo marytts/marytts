@@ -23,43 +23,41 @@ package marytts.unitselection.data;
 import java.util.Iterator;
 
 /**
- * This class represents the section of a feature file which
- * constitutes a sentence.
+ * This class represents the section of a feature file which constitutes a sentence.
+ * 
  * @author marc
  *
  */
 public class Sentence implements Iterable<Syllable> {
 
-    private FeatureFileReader features;
-    private int firstUnitIndex;
-    private int lastUnitIndex;
-    
-    public Sentence(FeatureFileReader features, int firstUnitIndex, int lastUnitIndex) {
-        this.features = features;
-        this.firstUnitIndex = firstUnitIndex;
-        this.lastUnitIndex = lastUnitIndex;
-    }
-    
-    public int getFirstUnitIndex() {
-        return firstUnitIndex;
-    }
-    
-    public int getLastUnitIndex() {
-        return lastUnitIndex;
-    }
+	private FeatureFileReader features;
+	private int firstUnitIndex;
+	private int lastUnitIndex;
 
-    public Iterator<Syllable> iterator() {
-        return new SyllableIterator(features, firstUnitIndex, lastUnitIndex);
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Sentence)) {
-            return false;
-        }
-        Sentence other = (Sentence) o;
-        return features.equals(other.features)
-            && firstUnitIndex == other.firstUnitIndex
-            && lastUnitIndex == other.lastUnitIndex;
-    }
+	public Sentence(FeatureFileReader features, int firstUnitIndex, int lastUnitIndex) {
+		this.features = features;
+		this.firstUnitIndex = firstUnitIndex;
+		this.lastUnitIndex = lastUnitIndex;
+	}
+
+	public int getFirstUnitIndex() {
+		return firstUnitIndex;
+	}
+
+	public int getLastUnitIndex() {
+		return lastUnitIndex;
+	}
+
+	public Iterator<Syllable> iterator() {
+		return new SyllableIterator(features, firstUnitIndex, lastUnitIndex);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Sentence)) {
+			return false;
+		}
+		Sentence other = (Sentence) o;
+		return features.equals(other.features) && firstUnitIndex == other.firstUnitIndex && lastUnitIndex == other.lastUnitIndex;
+	}
 }

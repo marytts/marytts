@@ -27,68 +27,59 @@ import java.util.Properties;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.data.Datagram;
 
+public class MCepTimelineReader extends TimelineReader {
+	protected int order;
 
-public class MCepTimelineReader extends TimelineReader
-{
-    protected int order;
-    
+	public MCepTimelineReader(String fileName) throws IOException, MaryConfigurationException {
+		super();
+		load(fileName);
+	}
 
-    public MCepTimelineReader(String fileName) throws IOException, MaryConfigurationException
-    {
-        super();
-        load(fileName);
-    }
+	@Override
+	protected void load(String fileName) throws IOException, MaryConfigurationException {
+		super.load(fileName);
+		// Now make sense of the processing header
+		Properties props = new Properties();
+		ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
+		props.load(bais);
+		ensurePresent(props, "mcep.order");
+		order = Integer.parseInt(props.getProperty("mcep.order"));
+	}
 
-    @Override
-    protected void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        super.load(fileName);
-        // Now make sense of the processing header
-        Properties props = new Properties();
-        ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
-        props.load(bais);
-        ensurePresent(props, "mcep.order");
-        order = Integer.parseInt(props.getProperty("mcep.order"));
-    }
-    
-    
-    private void ensurePresent(Properties props, String key) throws IOException
-    {
-        if (!props.containsKey(key))
-            throw new IOException("Processing header does not contain required field '"+key+"'");
+	private void ensurePresent(Properties props, String key) throws IOException {
+		if (!props.containsKey(key))
+			throw new IOException("Processing header does not contain required field '" + key + "'");
 
-    }
+	}
 
-    public int getOrder() { return order; }
-    
-    
-    /**
-     * Read and return the upcoming datagram.
-     * 
-     * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
-     * 
-     */
-    @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) {
-        
-        Datagram d = null;
-        
-        /* If the end of the datagram zone is reached, gracefully refuse to read */
-        if (bb.position() == timeIdxBytePos ) return( null );
-        /* Else, pop the datagram out of the file */
-        try {
-            d = new MCepDatagram(bb, order );
-        }
-        /* Detect a possible EOF encounter */
-        catch ( IOException e ) {
-           return null;
-        }
-        
-        return( d );
-    }
+	public int getOrder() {
+		return order;
+	}
 
+	/**
+	 * Read and return the upcoming datagram.
+	 * 
+	 * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
+	 * 
+	 */
+	@Override
+	protected Datagram getNextDatagram(ByteBuffer bb) {
 
+		Datagram d = null;
 
+		/* If the end of the datagram zone is reached, gracefully refuse to read */
+		if (bb.position() == timeIdxBytePos)
+			return (null);
+		/* Else, pop the datagram out of the file */
+		try {
+			d = new MCepDatagram(bb, order);
+		}
+		/* Detect a possible EOF encounter */
+		catch (IOException e) {
+			return null;
+		}
+
+		return (d);
+	}
 
 }
-

@@ -33,153 +33,140 @@ import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
-
-
 /**
- * A stub implementation of the MaryModule interface
- *          as a basis for internal modules.
+ * A stub implementation of the MaryModule interface as a basis for internal modules.
  * <p>
- * Any internal module extending this class will need to implement
- * a constructor calling this class's constructor, and override
- * <code>process()</code> in a meaningful way. Care must be taken
- * to make sure the <code>process()</code> method is thread-seafe.
+ * Any internal module extending this class will need to implement a constructor calling this class's constructor, and override
+ * <code>process()</code> in a meaningful way. Care must be taken to make sure the <code>process()</code> method is thread-seafe.
  * <p>
  * Example for a subclass:
+ * 
  * <pre>
- * public class Postlex extends InternalModule
- * {
- *    public Postlex()
- *    {
- *        super("Postlex",
- *              MaryDataType.PHONEMISED,
- *              MaryDataType.POSTPROCESSED);
- *    }
- *
- *    public MaryData process(MaryData d)
- *    throws Exception
- *    {
- *        Document doc = d.getDocument();
- *        mtuPostlex(doc);
- *        phonologicalRules(doc);
- *        MaryData result = new MaryData(outputType());
- *        result.setDocument(doc);
- *        return result;
- *    }
- *
- *    private void mtuPostlex(Document doc) {...}
- *    private void phonologicalRules(Document doc) {...}
+ * public class Postlex extends InternalModule {
+ * 	public Postlex() {
+ * 		super(&quot;Postlex&quot;, MaryDataType.PHONEMISED, MaryDataType.POSTPROCESSED);
+ * 	}
+ * 
+ * 	public MaryData process(MaryData d) throws Exception {
+ * 		Document doc = d.getDocument();
+ * 		mtuPostlex(doc);
+ * 		phonologicalRules(doc);
+ * 		MaryData result = new MaryData(outputType());
+ * 		result.setDocument(doc);
+ * 		return result;
+ * 	}
+ * 
+ * 	private void mtuPostlex(Document doc) {...}
+ * 
+ * 	private void phonologicalRules(Document doc) {...}
  * }
  * </pre>
  *
  * @author Marc Schr&ouml;der
  */
 
-public class InternalModule implements MaryModule
-{
-    private String name = null;
-    private MaryDataType inputType = null;
-    private MaryDataType outputType = null;
-    private Locale locale = null;
-    protected int state;
-    /** The logger instance to be used by this module.
-     * It will identify the origin of the log message in the log file.
-     */
-    protected Logger logger;
+public class InternalModule implements MaryModule {
+	private String name = null;
+	private MaryDataType inputType = null;
+	private MaryDataType outputType = null;
+	private Locale locale = null;
+	protected int state;
+	/**
+	 * The logger instance to be used by this module. It will identify the origin of the log message in the log file.
+	 */
+	protected Logger logger;
 
-    protected InternalModule(String name, MaryDataType inputType, MaryDataType outputType, Locale locale)
-    {
-        this.name = name;
-        this.inputType = inputType;
-        this.outputType = outputType;
-        this.locale = locale;
-        logger = MaryUtils.getLogger(name());
-        this.state = MODULE_OFFLINE;
-    }
+	protected InternalModule(String name, MaryDataType inputType, MaryDataType outputType, Locale locale) {
+		this.name = name;
+		this.inputType = inputType;
+		this.outputType = outputType;
+		this.locale = locale;
+		logger = MaryUtils.getLogger(name());
+		this.state = MODULE_OFFLINE;
+	}
 
-    // Interface MaryModule implementation:
-    public String name() { return name; }
+	// Interface MaryModule implementation:
+	public String name() {
+		return name;
+	}
 
-    @Deprecated
-    public MaryDataType inputType() {
-        return getInputType();
-    }
+	@Deprecated
+	public MaryDataType inputType() {
+		return getInputType();
+	}
 
-    public MaryDataType getInputType() {
-        return inputType;
-    }
+	public MaryDataType getInputType() {
+		return inputType;
+	}
 
-    @Deprecated
-    public MaryDataType outputType() {
-        return getOutputType();
-    }
+	@Deprecated
+	public MaryDataType outputType() {
+		return getOutputType();
+	}
 
-    public MaryDataType getOutputType() {
-        return outputType;
-    }
+	public MaryDataType getOutputType() {
+		return outputType;
+	}
 
-    public Locale getLocale() { return locale; }
-    public int getState() { return state; }
-    public void startup() throws Exception {
-        assert state == MODULE_OFFLINE;
-        logger.info("Module started ("+inputType()+"->"+outputType()+", locale "+getLocale()+").");
+	public Locale getLocale() {
+		return locale;
+	}
 
-        state = MODULE_RUNNING;
-    }
+	public int getState() {
+		return state;
+	}
 
-    /**
-     * Perform a power-on self test by processing some example input data.
-     * @throws Error if the module does not work properly.
-     */
-    public void powerOnSelfTest() throws Error
-    {
-        assert state == MODULE_RUNNING;
-        logger.info("Starting power-on self test.");
-        try {
-            MaryData in = new MaryData(inputType, getLocale());
-            String example = inputType.exampleText(getLocale());
-            if (example != null) {
-                in.readFrom(new StringReader(example));
-                if (outputType.equals(MaryDataType.get("AUDIO")))
-                    in.setAudioFileFormat(new AudioFileFormat(
-                            AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
-                    );
-                process(in);
-            } else {
-                logger.debug("No example text -- no power-on self test!");
-            }
-        } catch (Throwable t) {
-            throw new Error("Module " + name + ": Power-on self test failed.", t);
-        }
-        logger.info("Power-on self test complete.");
-    }
+	public void startup() throws Exception {
+		assert state == MODULE_OFFLINE;
+		logger.info("Module started (" + inputType() + "->" + outputType() + ", locale " + getLocale() + ").");
 
+		state = MODULE_RUNNING;
+	}
 
-    public void shutdown()
-    {
-        logger = MaryUtils.getLogger(name());
-        logger.info("Module shut down.");
-        state = MODULE_OFFLINE;
-    }
+	/**
+	 * Perform a power-on self test by processing some example input data.
+	 * 
+	 * @throws Error
+	 *             if the module does not work properly.
+	 */
+	public void powerOnSelfTest() throws Error {
+		assert state == MODULE_RUNNING;
+		logger.info("Starting power-on self test.");
+		try {
+			MaryData in = new MaryData(inputType, getLocale());
+			String example = inputType.exampleText(getLocale());
+			if (example != null) {
+				in.readFrom(new StringReader(example));
+				if (outputType.equals(MaryDataType.get("AUDIO")))
+					in.setAudioFileFormat(new AudioFileFormat(AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED));
+				process(in);
+			} else {
+				logger.debug("No example text -- no power-on self test!");
+			}
+		} catch (Throwable t) {
+			throw new Error("Module " + name + ": Power-on self test failed.", t);
+		}
+		logger.info("Power-on self test complete.");
+	}
 
+	public void shutdown() {
+		logger = MaryUtils.getLogger(name());
+		logger.info("Module shut down.");
+		state = MODULE_OFFLINE;
+	}
 
-    /**
-     * Perform this module's processing on abstract "MaryData" input
-     * <code>d</code>.
-     * Subclasses need to make sure that the <code>process()</code>
-     * method is thread-safe, because in server-mode,
-     * it will be called from different threads at the same time.
-     * A sensible way to do this seems to be not to use any
-     * global or static variables, or to use them read-only.
-     * <p>
-     * @return A MaryData object of type
-     * <code>outputType()</code> encapsulating the processing result.
-     * <p>
-     * This method just returns its input. Subclasses should override this.
-     */
-    public MaryData process(MaryData d) throws Exception
-    {
-        return d; // just return input.
-    }
+	/**
+	 * Perform this module's processing on abstract "MaryData" input <code>d</code>. Subclasses need to make sure that the
+	 * <code>process()</code> method is thread-safe, because in server-mode, it will be called from different threads at the same
+	 * time. A sensible way to do this seems to be not to use any global or static variables, or to use them read-only.
+	 * <p>
+	 * 
+	 * @return A MaryData object of type <code>outputType()</code> encapsulating the processing result.
+	 *         <p>
+	 *         This method just returns its input. Subclasses should override this.
+	 */
+	public MaryData process(MaryData d) throws Exception {
+		return d; // just return input.
+	}
 
 }
-

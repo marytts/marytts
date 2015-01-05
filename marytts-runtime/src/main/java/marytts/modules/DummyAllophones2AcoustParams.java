@@ -24,43 +24,33 @@ import java.util.Locale;
 import marytts.datatypes.MaryDataType;
 import marytts.util.MaryUtils;
 
-
 /**
- * Dummy modules to support new language (for phone durations and phone f0) 
+ * Dummy modules to support new language (for phone durations and phone f0)
  *
  * @author Sathish Pammi
  */
 
 @Deprecated
-public class DummyAllophones2AcoustParams extends InternalModule
-{
-    public DummyAllophones2AcoustParams()
-    {
-        this((Locale)null);
-    }
-    
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     */
-    public DummyAllophones2AcoustParams(String locale)
-    {
-        super("DummyAllophones2AcoustParams",
-                MaryDataType.ALLOPHONES,
-                MaryDataType.ACOUSTPARAMS,
-                MaryUtils.string2locale(locale));
-    }
-    
-    /**
-     * Constructor to be called  with instantiated objects.
-     * @param locale
-     */
-    public DummyAllophones2AcoustParams(Locale locale)
-    {
-        super("DummyAllophones2AcoustParams",
-                MaryDataType.ALLOPHONES,
-                MaryDataType.ACOUSTPARAMS,
-                locale);
-    }
-}
+public class DummyAllophones2AcoustParams extends InternalModule {
+	public DummyAllophones2AcoustParams() {
+		this((Locale) null);
+	}
 
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 */
+	public DummyAllophones2AcoustParams(String locale) {
+		super("DummyAllophones2AcoustParams", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, MaryUtils.string2locale(locale));
+	}
+
+	/**
+	 * Constructor to be called with instantiated objects.
+	 * 
+	 * @param locale
+	 */
+	public DummyAllophones2AcoustParams(Locale locale) {
+		super("DummyAllophones2AcoustParams", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
+	}
+}

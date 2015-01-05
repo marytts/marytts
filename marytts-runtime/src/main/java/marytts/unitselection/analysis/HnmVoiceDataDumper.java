@@ -47,81 +47,80 @@ import marytts.util.math.MathUtils;
  */
 public class HnmVoiceDataDumper extends VoiceDataDumper {
 
-    private AudioFormat audioformat;
+	private AudioFormat audioformat;
 
-    public HnmVoiceDataDumper() {
-        super();
-    }
+	public HnmVoiceDataDumper() {
+		super();
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Also set the audioFormat needed in {@link #getSamples(Datagram[])}
-     */
-    @Override
-    protected HnmTimelineReader loadAudioTimeline(String fileName)
-    throws IOException, MaryConfigurationException {
-        HnmTimelineReader audioTimeline = new HnmTimelineReader(fileName);
-        int sampleRate = audioTimeline.getSampleRate();
-        this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, // encoding
-                sampleRate, // samples per second
-                16, // bits per sample
-                1, // mono
-                2, // nr. of bytes per frame
-                sampleRate, // nr. of frames per second
-                true); // big-endian;
-        return audioTimeline;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Also set the audioFormat needed in {@link #getSamples(Datagram[])}
+	 */
+	@Override
+	protected HnmTimelineReader loadAudioTimeline(String fileName) throws IOException, MaryConfigurationException {
+		HnmTimelineReader audioTimeline = new HnmTimelineReader(fileName);
+		int sampleRate = audioTimeline.getSampleRate();
+		this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, // encoding
+				sampleRate, // samples per second
+				16, // bits per sample
+				1, // mono
+				2, // nr. of bytes per frame
+				sampleRate, // nr. of frames per second
+				true); // big-endian;
+		return audioTimeline;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * For {@link HnmDatagram}s, the samples must be resynthesized from the HntmSpeechFrame in each HnmDatagram. This requires
-     * quite a bit of processing.
-     */
-    @Override
-    protected byte[] getSamples(Datagram[] datagrams) throws IOException {
-        // init required objects:
-        HntmSynthesizer hnmSynthesizer = new HntmSynthesizer();
-        HntmAnalyzerParams hnmAnalysisParams = new HntmAnalyzerParams();
-        HntmSynthesizerParams hnmSynthesisParams = new HntmSynthesizerParams();
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * For {@link HnmDatagram}s, the samples must be resynthesized from the HntmSpeechFrame in each HnmDatagram. This requires
+	 * quite a bit of processing.
+	 */
+	@Override
+	protected byte[] getSamples(Datagram[] datagrams) throws IOException {
+		// init required objects:
+		HntmSynthesizer hnmSynthesizer = new HntmSynthesizer();
+		HntmAnalyzerParams hnmAnalysisParams = new HntmAnalyzerParams();
+		HntmSynthesizerParams hnmSynthesisParams = new HntmSynthesizerParams();
 
-        // get duration from datagrams:
-        float originalDurationInSeconds = 0;
-        for (Datagram datagram : datagrams) {
-            HnmDatagram hnmDatagram = (HnmDatagram) datagram;
-            originalDurationInSeconds += hnmDatagram.getFrame().deltaAnalysisTimeInSeconds;
-        }
+		// get duration from datagrams:
+		float originalDurationInSeconds = 0;
+		for (Datagram datagram : datagrams) {
+			HnmDatagram hnmDatagram = (HnmDatagram) datagram;
+			originalDurationInSeconds += hnmDatagram.getFrame().deltaAnalysisTimeInSeconds;
+		}
 
-        // generate HNM signal from frames, correcting the analysis times:
-        HntmSpeechSignal hnmSpeechSignal = new HntmSpeechSignal(datagrams.length, unitDB.getAudioTimeline().getSampleRate(),
-                originalDurationInSeconds);
-        float tAnalysisInSeconds = 0;
-        for (int i = 0; i < datagrams.length; i++) {
-            HntmSpeechFrame hnmSpeechFrame = ((HnmDatagram) datagrams[i]).getFrame();
-            // correct analysis time:
-            tAnalysisInSeconds += hnmSpeechFrame.deltaAnalysisTimeInSeconds;
-            hnmSpeechFrame.tAnalysisInSeconds = tAnalysisInSeconds;
-            hnmSpeechSignal.frames[i] = hnmSpeechFrame;
-        }
+		// generate HNM signal from frames, correcting the analysis times:
+		HntmSpeechSignal hnmSpeechSignal = new HntmSpeechSignal(datagrams.length, unitDB.getAudioTimeline().getSampleRate(),
+				originalDurationInSeconds);
+		float tAnalysisInSeconds = 0;
+		for (int i = 0; i < datagrams.length; i++) {
+			HntmSpeechFrame hnmSpeechFrame = ((HnmDatagram) datagrams[i]).getFrame();
+			// correct analysis time:
+			tAnalysisInSeconds += hnmSpeechFrame.deltaAnalysisTimeInSeconds;
+			hnmSpeechFrame.tAnalysisInSeconds = tAnalysisInSeconds;
+			hnmSpeechSignal.frames[i] = hnmSpeechFrame;
+		}
 
-        // synthesize signal
-        HntmSynthesizedSignal hnmSynthesizedSignal = hnmSynthesizer.synthesize(hnmSpeechSignal, null, null, null, null,
-                hnmAnalysisParams, hnmSynthesisParams);
+		// synthesize signal
+		HntmSynthesizedSignal hnmSynthesizedSignal = hnmSynthesizer.synthesize(hnmSpeechSignal, null, null, null, null,
+				hnmAnalysisParams, hnmSynthesisParams);
 
-        // scale amplitude:
-        double[] output = MathUtils.multiply(hnmSynthesizedSignal.output, 1.0 / 32768.0);
+		// scale amplitude:
+		double[] output = MathUtils.multiply(hnmSynthesizedSignal.output, 1.0 / 32768.0);
 
-        // repack output into byte array:
-        BufferedDoubleDataSource buffer = new BufferedDoubleDataSource(output);
-        DDSAudioInputStream audio = new DDSAudioInputStream(buffer, audioformat);
-        byte[] samples = new byte[(int) audio.getFrameLength() * audioformat.getFrameSize()];
-        audio.read(samples);
-        return samples;
-    }
+		// repack output into byte array:
+		BufferedDoubleDataSource buffer = new BufferedDoubleDataSource(output);
+		DDSAudioInputStream audio = new DDSAudioInputStream(buffer, audioformat);
+		byte[] samples = new byte[(int) audio.getFrameLength() * audioformat.getFrameSize()];
+		audio.read(samples);
+		return samples;
+	}
 
-    public static void main(String[] args) throws Exception {
-        new HnmVoiceDataDumper().dumpData(args[0]);
-    }
+	public static void main(String[] args) throws Exception {
+		new HnmVoiceDataDumper().dumpData(args[0]);
+	}
 
 }

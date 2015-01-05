@@ -36,99 +36,94 @@ import java.util.List;
 
 import marytts.unitselection.select.Target;
 
- /**
-  * Represents a point in the Viterbi path. A point corresponds to an item,
-  * e.g. a Segment.
-  * Each ViterbiPoint knows
-  * about its next ViterbiPoint, i.e. they can form a queue.
-  */
- public class ViterbiPoint {
-     Target target = null;
-     List<ViterbiCandidate> candidates = null;
-     List<ViterbiPath> paths = new ArrayList<ViterbiPath>();
-     ViterbiPoint next = null;
-	
-     /**
-      * Creates a ViterbiPoint for the given target.
-      *
-      * @param target the target of interest
-      */
-     public ViterbiPoint(Target target)
-     {
-         this.target = target;
-     }
-     
-     /**
- 	 * Gets the target of this point
- 	 * @return the target
- 	 */
- 	public Target getTarget()
- 	{
- 	    return target;
- 	}
- 	
- 	/**
- 	 * Sets the target of this point
- 	 * @param target the new target
- 	 */
- 	public void setTarget(Target target)
- 	{
- 	    this.target = target;
- 	}
-     
- 	 /**
- 	 * Gets the candidates of this point
- 	 * @return the candidates
- 	 */
-     public List<ViterbiCandidate> getCandidates()
-     {
- 	    return candidates;
- 	}
- 	
-     /**
-      * Sets the candidates of this point
-      * @param cands the candidates
-      */
- 	public void setCandidates(ArrayList<ViterbiCandidate> candidates)
- 	{
- 	    this.candidates = candidates;
- 	}
-    
-	 /**
- 	 * Gets the sorted set containting the paths of the candidates of this point,
-     * sorted by score. getPaths().first() will return the path with the lowest
-     * score, i.e. the best path.
- 	 * @return a sorted set.
- 	 */
-	public List<ViterbiPath> getPaths()
-	{
-	    return paths;
+/**
+ * Represents a point in the Viterbi path. A point corresponds to an item, e.g. a Segment. Each ViterbiPoint knows about its next
+ * ViterbiPoint, i.e. they can form a queue.
+ */
+public class ViterbiPoint {
+	Target target = null;
+	List<ViterbiCandidate> candidates = null;
+	List<ViterbiPath> paths = new ArrayList<ViterbiPath>();
+	ViterbiPoint next = null;
+
+	/**
+	 * Creates a ViterbiPoint for the given target.
+	 *
+	 * @param target
+	 *            the target of interest
+	 */
+	public ViterbiPoint(Target target) {
+		this.target = target;
 	}
-	
+
+	/**
+	 * Gets the target of this point
+	 * 
+	 * @return the target
+	 */
+	public Target getTarget() {
+		return target;
+	}
+
+	/**
+	 * Sets the target of this point
+	 * 
+	 * @param target
+	 *            the new target
+	 */
+	public void setTarget(Target target) {
+		this.target = target;
+	}
+
+	/**
+	 * Gets the candidates of this point
+	 * 
+	 * @return the candidates
+	 */
+	public List<ViterbiCandidate> getCandidates() {
+		return candidates;
+	}
+
+	/**
+	 * Sets the candidates of this point
+	 * 
+	 * @param cands
+	 *            the candidates
+	 */
+	public void setCandidates(ArrayList<ViterbiCandidate> candidates) {
+		this.candidates = candidates;
+	}
+
+	/**
+	 * Gets the sorted set containting the paths of the candidates of this point, sorted by score. getPaths().first() will return
+	 * the path with the lowest score, i.e. the best path.
+	 * 
+	 * @return a sorted set.
+	 */
+	public List<ViterbiPath> getPaths() {
+		return paths;
+	}
+
 	/**
 	 * Gets the next point in the queue
+	 * 
 	 * @return the next point
 	 */
-	public ViterbiPoint getNext()
-	{
-	    return next;
+	public ViterbiPoint getNext() {
+		return next;
 	}
-	
+
 	/**
 	 * Sets the next point in the queue
-	 * @param next the next point
+	 * 
+	 * @param next
+	 *            the next point
 	 */
-	public void setNext(ViterbiPoint next)
-	{
-	    this.next = next;
+	public void setNext(ViterbiPoint next) {
+		this.next = next;
 	}
-	
 
-	
-	
-	
 	public String toString() {
-	    return "ViterbiPoint: target " + target + "; " + paths.size() + " paths";
-		}
- }
- 
+		return "ViterbiPoint: target " + target + "; " + paths.size() + " paths";
+	}
+}

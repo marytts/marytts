@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
  *
  */
 public class MaryDomUtilsTest {
-	
+
 	private Document createInvalidMaryXML() {
 		Document doc = MaryXML.newDocument();
 		Element para = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.PARAGRAPH);
@@ -25,7 +25,7 @@ public class MaryDomUtilsTest {
 		sent.setTextContent("Hello world"); // but text content not allowed in sentences, so invalid
 		return doc;
 	}
-	
+
 	private Document createValidMaryXML() {
 		Document doc = MaryXML.newDocument();
 		Element para = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.PARAGRAPH);
@@ -36,22 +36,21 @@ public class MaryDomUtilsTest {
 		t2.setTextContent("world");
 		return doc;
 	}
-	
+
 	@Test
 	public void canValidateMaryXML() throws MaryConfigurationException {
 		// setup SUT
-		Document doc = createValidMaryXML(); 
+		Document doc = createValidMaryXML();
 		// exercise / verify
 		assertTrue(MaryDomUtils.isSchemaValid(doc));
 	}
-	
+
 	@Test
 	public void canDetectInvalidMaryXML() throws MaryConfigurationException {
 		// setup SUT
-		Document doc = createInvalidMaryXML(); 
+		Document doc = createInvalidMaryXML();
 		// exercise / verify
 		assertFalse(MaryDomUtils.isSchemaValid(doc));
 	}
-		
 
 }
