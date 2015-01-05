@@ -18,17 +18,17 @@ public class MaryInterfaceDeIT {
 
 	@Test
 	public void canSetLocale() throws Exception {
-    	MaryInterface mary = new LocalMaryInterface();
+		MaryInterface mary = new LocalMaryInterface();
 		Locale loc = Locale.GERMAN;
 		assertTrue(!loc.equals(mary.getLocale()));
 		mary.setLocale(loc);
 		assertEquals(loc, mary.getLocale());
 	}
-	
+
 	@Test
 	public void canProcessTokensToAllophones() throws Exception {
 		// setup
-    	MaryInterface mary = new LocalMaryInterface();
+		MaryInterface mary = new LocalMaryInterface();
 		mary.setInputType(MaryDataType.TOKENS.name());
 		mary.setOutputType(MaryDataType.ALLOPHONES.name());
 		mary.setLocale(Locale.GERMAN);
