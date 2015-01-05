@@ -316,7 +316,7 @@ public class Polynomial {
 
 	/**
 	 * For the given collection of polynomials, for which a mean polynomial has already been computed using
-	 * @see{#mean(Polynomial[])}, compute a variance as follows.
+	 * {@link #mean(Polynomial[])}, compute a variance as follows.
 	 * 
 	 * <p>
 	 * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>; in other words, the sum of the
@@ -340,7 +340,7 @@ public class Polynomial {
 
 	/**
 	 * For the given collection of polynomials, for which a mean polynomial has already been computed using
-	 * @see{#mean(double[][])}, compute a variance as follows.
+	 * {@link #mean(double[][])}, compute a variance as follows.
 	 * 
 	 * <p>
 	 * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>; in other words, the sum of the
@@ -364,7 +364,7 @@ public class Polynomial {
 
 	/**
 	 * For the given collection of polynomials, for which a mean polynomial has already been computed using
-	 * @see{#mean(float[][])}, compute a variance as follows.
+	 * {@link #mean(float[][])}, compute a variance as follows.
 	 * 
 	 * <p>
 	 * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>; in other words, the sum of the
@@ -512,9 +512,12 @@ public class Polynomial {
 	}
 
 	/**
-	 * Compute one minus the Pearson product moment correlation between two polynomials of same order. Equation : D = 1 - corr(F1,
-	 * F2) purpose: the distance should be less for contours that have a similar shape, so differences in pitch height or pitch
-	 * range should not be included in the distance measure.
+	 * Compute one minus the Pearson product moment correlation between two polynomials of same order.
+	 * <p>
+	 * Equation: <code>D = 1 - corr(F1 * F2)</code>
+	 * </p>
+	 * Purpose: the distance should be less for contours that have a similar shape, so differences in pitch height or pitch range
+	 * should not be included in the distance measure.
 	 * 
 	 * @param coeffs1
 	 *            polynomial coefficients that are not null

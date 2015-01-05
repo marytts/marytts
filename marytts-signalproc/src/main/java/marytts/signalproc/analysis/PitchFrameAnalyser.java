@@ -38,7 +38,8 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	protected DynamicWindow analysisWindow;
 
 	/**
-	 * Array containing the analysis results, filled by analyseAllFrames(). Can be used for future reference to the results.
+	 * Array containing the analysis results, filled by {@link #analyseAllFrames()}. Can be used for future reference to the
+	 * results.
 	 */
 	protected FrameAnalysisResult[] analysisResults;
 
@@ -50,7 +51,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * @param pitchmarks
 	 *            the source of the pitchmarks, in seconds from the start of signal
 	 * @param windowType
-	 *            type of analysis window to use, @see{de.dfki.signalproc.window.Window#getAvailableTypes()}
+	 *            type of analysis window to use, {@link marytts.signalproc.window.Window#getAvailableTypes()}
 	 * @param samplingRate
 	 *            the number of samples in one second.
 	 */
@@ -66,7 +67,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * @param pitchmarks
 	 *            an array of pitchmarks; each pitch mark is in seconds from signal start
 	 * @param windowType
-	 *            type of analysis window to use, @see{de.dfki.signalproc.window.Window#getAvailableTypes()}
+	 *            type of analysis window to use, {@link marytts.signalproc.window.Window#getAvailableTypes()}
 	 * @param samplingRate
 	 *            number of samples per second in signal
 	 * @param framePeriods
@@ -136,7 +137,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * 
 	 * @param frame
 	 *            the data to analyse, which is expected to be the number of pitch periods requested from this PitchFrameAnalyser,
-	 *            @see{#getFramePeriods()}.
+	 *            {@link #getFramePeriods()}.
 	 * @return An analysis result. The data type depends on the concrete analyser.
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
