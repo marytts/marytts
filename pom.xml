@@ -549,6 +549,18 @@
 				<configuration>
 					<configFile>${user.dir}/eclipse-code-style.xml</configFile>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.text</groupId>
+						<artifactId>org.eclipse.text</artifactId>
+						<version>3.5.101</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>org.eclipse.jdt.core</artifactId>
+						<version>3.10.0.v20140604-1726</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			<plugin>
