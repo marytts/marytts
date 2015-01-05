@@ -23,39 +23,33 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * Implements a structured header with file I/O functionality 
- * for binary files that store frame based mel frequency cepstral coefficient vectors 
- *  
+ * Implements a structured header with file I/O functionality for binary files that store frame based mel frequency cepstral
+ * coefficient vectors
+ * 
  * @author Oytun T&uumlrk
  */
 public class MfccFileHeader extends FeatureFileHeader {
-    
-    public static final int DEFAULT_SPTK_MFCC_VECTOR_SIZE = 25;
-    
-    public MfccFileHeader()
-    {
-        super();
-    }
-    
-    public MfccFileHeader(MfccFileHeader existingHeader)
-    {
-        super(existingHeader);
-    }
-    
-    public MfccFileHeader(String mfccFile)
-    {
-        super(mfccFile);
-    }
-    
-    public boolean isIdenticalAnalysisParams(MfccFileHeader hdr)
-    {
-        return super.isIdenticalAnalysisParams(hdr);
-    }
-    
-    @Override
-    public void writeHeader(DataOutput ler) throws IOException
-    {   
-        super.writeHeader(ler);
-    }
-}
 
+	public static final int DEFAULT_SPTK_MFCC_VECTOR_SIZE = 25;
+
+	public MfccFileHeader() {
+		super();
+	}
+
+	public MfccFileHeader(MfccFileHeader existingHeader) {
+		super(existingHeader);
+	}
+
+	public MfccFileHeader(String mfccFile) {
+		super(mfccFile);
+	}
+
+	public boolean isIdenticalAnalysisParams(MfccFileHeader hdr) {
+		return super.isIdenticalAnalysisParams(hdr);
+	}
+
+	@Override
+	public void writeHeader(DataOutput ler) throws IOException {
+		super.writeHeader(ler);
+	}
+}

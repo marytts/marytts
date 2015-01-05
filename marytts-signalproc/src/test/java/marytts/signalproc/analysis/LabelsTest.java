@@ -12,8 +12,8 @@ import static org.junit.Assert.*;
 public class LabelsTest {
 	private Label[] createTestLabels() {
 		Label[] items = new Label[5];
-		for (int i=0; i<items.length; i++) {
-			items[i] = new Label(0.01*i, 0, "a"+i, 0);
+		for (int i = 0; i < items.length; i++) {
+			items[i] = new Label(0.01 * i, 0, "a" + i, 0);
 		}
 		return items;
 	}
@@ -23,7 +23,7 @@ public class LabelsTest {
 		Labels l = new Labels(getClass().getResourceAsStream("pop001.lab"));
 		assertEquals(10, l.items.length);
 	}
-	
+
 	@Test
 	public void labelArrayConstructor() {
 		Label[] items = createTestLabels();
@@ -31,14 +31,14 @@ public class LabelsTest {
 		assertNotSame(l.items, items);
 		assertArrayEquals(l.items, items);
 	}
-	
+
 	@Test
 	public void lineArrayConstructor() throws Exception {
 		String[] lines = FileUtils.getStreamAsString(getClass().getResourceAsStream("pop001.lab"), "ASCII").split("\n");
 		Labels l = new Labels(lines);
 		assertEquals(10, l.items.length);
 	}
-	
+
 	@Test
 	public void copyConstructor() {
 		Labels l1 = new Labels(createTestLabels());
@@ -52,11 +52,12 @@ public class LabelsTest {
 		Labels l = new Labels(createTestLabels());
 		assertEquals(2, l.getLabelIndexAtTime(0.019));
 	}
-	
+
 	@Test
 	public void canReadWithXwavesLabelfileReader() throws Exception {
 		Labels l = new Labels(getClass().getResourceAsStream("pop001.lab"));
-		XwavesLabelfileReader xr = new XwavesLabelfileReader(new InputStreamReader(getClass().getResourceAsStream("pop001.lab"), "ASCII"));
+		XwavesLabelfileReader xr = new XwavesLabelfileReader(new InputStreamReader(getClass().getResourceAsStream("pop001.lab"),
+				"ASCII"));
 		Labels xl = xr.getLabels();
 		assertEquals(l.items.length, xl.items.length);
 		assertArrayEquals(l.items, xl.items);

@@ -19,7 +19,6 @@
  */
 package marytts.util.data;
 
-
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
@@ -30,24 +29,19 @@ import org.junit.Test;
  * @author Marc Schr&ouml;der
  *
  */
-public class BufferedDoubleDataSourceTest
-{
-    @Test
-    public void testGetAllData1()
-    {
-        double[] signal = FFTTest.getSampleSignal(10000);
-        double[] result = new BufferedDoubleDataSource(signal).getAllData();
-        Assert.assertTrue(signal.length == result.length);
-    }
-    
-    @Test
-    public void testGetAllData2()
-    {
-        double[] signal = FFTTest.getSampleSignal(10000);
-        double[] result = new BufferedDoubleDataSource(signal).getAllData();
-        Assert.assertTrue(MathUtils.sumSquaredError(signal, result)<1.E-20);
-    }
-    
+public class BufferedDoubleDataSourceTest {
+	@Test
+	public void testGetAllData1() {
+		double[] signal = FFTTest.getSampleSignal(10000);
+		double[] result = new BufferedDoubleDataSource(signal).getAllData();
+		Assert.assertTrue(signal.length == result.length);
+	}
+
+	@Test
+	public void testGetAllData2() {
+		double[] signal = FFTTest.getSampleSignal(10000);
+		double[] result = new BufferedDoubleDataSource(signal).getAllData();
+		Assert.assertTrue(MathUtils.sumSquaredError(signal, result) < 1.E-20);
+	}
 
 }
-
