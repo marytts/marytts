@@ -43,53 +43,50 @@ import org.w3c.dom.Element;
  */
 public class FeatureProcessorIT {
 
-    private static FeatureProcessorManager fpm;
-    
-    @BeforeClass
-    public static void setupClass() throws Exception {
-        if (Mary.currentState() == Mary.STATE_OFF) {
-            Mary.startup();
-        }
-        fpm = FeatureRegistry.determineBestFeatureProcessorManager(Locale.GERMAN);
-    }
-    
-    
-    ///// Utilities
-    private Target createRareWordTarget() {
-        return createWordTarget("Sprachsynthese");
-    }
-    
-    private Target createFrequentWordTarget() {
-        return createWordTarget("der");
-    }
-    
-    private Target createWordTarget(String word) {
-        Document doc = MaryXML.newDocument();
-        Element s = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.SENTENCE);
-        Element t = MaryXML.appendChildElement(s, MaryXML.TOKEN);
-        MaryDomUtils.setTokenText(t, word);
-        Element syl = MaryXML.appendChildElement(t, MaryXML.SYLLABLE);
-        Element ph = MaryXML.appendChildElement(syl, MaryXML.PHONE);
-        Target target = new Target("dummy", ph);
-        return target;
-    }
-    
-    
-    
-    ///// Tests
-    
-    @Test
-    public void testWordFrequency() {
-        // Setup SUT
-        ByteValuedFeatureProcessor wf = (ByteValuedFeatureProcessor) fpm.getFeatureProcessor("word_frequency");
-        Target t1 = createRareWordTarget();
-        Target t2 = createFrequentWordTarget();
-        // Exercise SUT
-        byte f1 = wf.process(t1);
-        byte f2 = wf.process(t2);
-        // verify
-        assertEquals(0, f1);
-        assertEquals(9, f2);
-    }
+	private static FeatureProcessorManager fpm;
+
+	@BeforeClass
+	public static void setupClass() throws Exception {
+		if (Mary.currentState() == Mary.STATE_OFF) {
+			Mary.startup();
+		}
+		fpm = FeatureRegistry.determineBestFeatureProcessorManager(Locale.GERMAN);
+	}
+
+	// /// Utilities
+	private Target createRareWordTarget() {
+		return createWordTarget("Sprachsynthese");
+	}
+
+	private Target createFrequentWordTarget() {
+		return createWordTarget("der");
+	}
+
+	private Target createWordTarget(String word) {
+		Document doc = MaryXML.newDocument();
+		Element s = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.SENTENCE);
+		Element t = MaryXML.appendChildElement(s, MaryXML.TOKEN);
+		MaryDomUtils.setTokenText(t, word);
+		Element syl = MaryXML.appendChildElement(t, MaryXML.SYLLABLE);
+		Element ph = MaryXML.appendChildElement(syl, MaryXML.PHONE);
+		Target target = new Target("dummy", ph);
+		return target;
+	}
+
+	// /// Tests
+
+	@Test
+	public void testWordFrequency() {
+		// Setup SUT
+		ByteValuedFeatureProcessor wf = (ByteValuedFeatureProcessor) fpm.getFeatureProcessor("word_frequency");
+		Target t1 = createRareWordTarget();
+		Target t2 = createFrequentWordTarget();
+		// Exercise SUT
+		byte f1 = wf.process(t1);
+		byte f2 = wf.process(t2);
+		// verify
+		assertEquals(0, f1);
+		assertEquals(9, f2);
+	}
 
 }
