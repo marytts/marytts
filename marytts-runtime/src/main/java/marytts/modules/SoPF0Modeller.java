@@ -295,5 +295,4 @@ public class SoPF0Modeller extends InternalModule {
       output.setDocument(doc);
       return output;
   }
-
 }

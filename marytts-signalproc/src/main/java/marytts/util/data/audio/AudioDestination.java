@@ -110,6 +110,7 @@ public class AudioDestination {
                 byteLength / audioFormat.getFrameSize());
         }
     }
+
 	/**
 	 * Convert the audio data into an AudioInputStream of the proper AudioFormat. This method assumes that the audio data starts
 	 * with a valid audio file header, so the audio format is read from the data.
@@ -136,6 +137,7 @@ public class AudioDestination {
             return AudioSystem.getAudioInputStream(f);
         }
     }
+
 	public static void plot(double[] x) {
 		plot(x, false);
 	}
