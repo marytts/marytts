@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 public class RemoteMaryInterfaceIT {
 
 	private static final int testPort = 59111;
+
 	@BeforeClass
 	public static void setupClass() throws Exception {
 		MaryRuntimeUtils.ensureMaryStarted();
@@ -39,7 +40,7 @@ public class RemoteMaryInterfaceIT {
 		maryserver.start();
 		waitForMaryServer(maryserver);
 	}
-	
+
 	private static void waitForMaryServer(MaryHttpServer maryserver) throws IllegalStateException, InterruptedException {
 		long start = System.currentTimeMillis();
 		long threshold = 5000; // wait for up to 5 seconds
@@ -51,16 +52,16 @@ public class RemoteMaryInterfaceIT {
 		}
 		// And now give the server just a bit more after it claims it's ready:
 		Thread.sleep(50);
-		
+
 	}
 
 	MaryInterface mary;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		mary = new RemoteMaryInterface("localhost", testPort);
 	}
-	
+
 	@Test
 	public void canGetMaryInterface() throws Exception {
 		assertNotNull(mary);
@@ -68,7 +69,7 @@ public class RemoteMaryInterfaceIT {
 		assertEquals("AUDIO", mary.getOutputType());
 		assertEquals(Locale.US, mary.getLocale());
 	}
-	
+
 	@Test
 	public void canSetInputType() throws Exception {
 		String in = "RAWMARYXML";
@@ -77,17 +78,17 @@ public class RemoteMaryInterfaceIT {
 		assertEquals(in, mary.getInputType());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void unknownInputType() throws Exception {
 		mary.setInputType("something strange");
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void nullInputType() throws Exception {
 		mary.setInputType(null);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void notAnInputType() throws Exception {
 		mary.setInputType("AUDIO");
 	}
@@ -100,32 +101,32 @@ public class RemoteMaryInterfaceIT {
 		assertEquals(out, mary.getOutputType());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void unknownOutputType() throws Exception {
 		mary.setOutputType("something strange");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void nullOutputType() throws Exception {
 		mary.setOutputType(null);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void notAnOutputType() throws Exception {
 		mary.setOutputType("TEXT");
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetUnsupportedLocale() throws Exception {
 		Locale loc = new Locale("abcde");
 		mary.setLocale(loc);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetNullLocale() throws Exception {
 		mary.setLocale(null);
 	}
-	
+
 	@Test
 	public void canProcessToTokens() throws Exception {
 		// setup
@@ -135,8 +136,8 @@ public class RemoteMaryInterfaceIT {
 		// verify
 		assertNotNull(tokens);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongInput1() throws Exception {
 		// setup
 		mary.setInputType(MaryDataType.RAWMARYXML.name());
@@ -144,13 +145,13 @@ public class RemoteMaryInterfaceIT {
 		mary.generateXML("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput1() throws Exception {
 		// requesting xml output but set to default output type AUDIO:
 		mary.generateXML("some text");
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput2() throws Exception {
 		// setup
 		mary.setOutputType("TOKENS");
@@ -158,7 +159,7 @@ public class RemoteMaryInterfaceIT {
 		mary.generateAudio("some text");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void refuseWrongOutput3() throws Exception {
 		// setup
 		mary.setOutputType("TOKENS");
@@ -191,7 +192,6 @@ public class RemoteMaryInterfaceIT {
 		Document tokens = m.generateXML("Hello world");
 		return tokens;
 	}
-	
 
 	@Test
 	public void convertTextToAcoustparams() throws Exception {
@@ -227,15 +227,13 @@ public class RemoteMaryInterfaceIT {
 		assertTrue(!allFeatures.equals(selectedFeatures));
 		assertTrue(allFeatures.length() > selectedFeatures.length());
 	}
-	
+
 	@Test
 	public void canProcessTextToSpeech() throws Exception {
 		mary.setVoice("cmu-slt-hsmm");
 		AudioInputStream audio = mary.generateAudio("Hello world");
 		assertNotNull(audio);
 	}
-	
-
 
 	@Test
 	public void canProcessTokensToSpeech() throws Exception {
@@ -244,16 +242,15 @@ public class RemoteMaryInterfaceIT {
 		AudioInputStream audio = mary.generateAudio(doc);
 		assertNotNull(audio);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetInvalidVoiceName() throws Exception {
 		mary.setVoice("abcde");
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void cannotSetNullVoiceName() throws Exception {
 		mary.setVoice(null);
 	}
-	
 
 }
