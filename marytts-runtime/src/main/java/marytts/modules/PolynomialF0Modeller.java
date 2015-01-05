@@ -232,5 +232,4 @@ public class PolynomialF0Modeller extends InternalModule {
         }
         return coeffs;
     }
-
 }
