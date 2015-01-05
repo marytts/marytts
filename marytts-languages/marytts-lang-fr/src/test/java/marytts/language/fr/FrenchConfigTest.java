@@ -42,15 +42,14 @@ public class FrenchConfigTest {
 		MaryConfig m = new FrenchConfig();
 		assertFalse(m.isMainConfig());
 	}
-	
+
 	@Test
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(Locale.FRENCH);
 		assertNotNull(m);
-		assertTrue(((LanguageConfig)m).getLocales().contains(Locale.FRENCH));
+		assertTrue(((LanguageConfig) m).getLocales().contains(Locale.FRENCH));
 	}
-	
-	
+
 	@Test
 	public void hasFrenchLocale() throws MaryConfigurationException {
 		LanguageConfig e = new FrenchConfig();
