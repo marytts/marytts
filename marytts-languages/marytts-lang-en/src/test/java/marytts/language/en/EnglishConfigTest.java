@@ -47,7 +47,7 @@ public class EnglishConfigTest {
 		MaryConfig m = new EnglishConfig();
 		assertFalse(m.isMainConfig());
 	}
-	
+
 	@Test
 	public void haveLanguageConfig() {
 		assertTrue(MaryConfig.countLanguageConfigs() > 0);
@@ -64,22 +64,20 @@ public class EnglishConfigTest {
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
 		assertNotNull(m);
-		assertTrue(((LanguageConfig)m).getLocales().contains(Locale.US));
+		assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
 	}
-	
-	
+
 	@Test
 	public void hasEnglishLocale() throws MaryConfigurationException {
 		LanguageConfig e = new EnglishConfig();
 		assertTrue(e.getLocales().contains(Locale.US));
 	}
-	
+
 	@Test
 	public void hasAllophoneSet() throws MaryConfigurationException {
 		LanguageConfig e = new EnglishConfig();
 		assertNotNull(e.getAllophoneSet(Locale.US));
 		assertNotNull(e.getAllophoneSet(Locale.UK));
 	}
-	
-	
+
 }
