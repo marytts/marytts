@@ -212,13 +212,17 @@ public class AllophoneSet {
 	 * 
 	 * @param ph
 	 *            name of Allophone to get
-	 * @return the Allophone, or null if there is no such Allophone.
+	 * @return the Allophone
+	 * @throws IllegalArgumentException
+	 *             if the Allophone is not found in the AllophoneSet
 	 */
 	public Allophone getAllophone(String ph) {
-		if (ph == null) {
-			return null;
+		Allophone allophone = allophones.get(ph);
+		if (allophone == null) {
+			throw new IllegalArgumentException(String.format(
+					"Allophone `%s' could not be found in AllophoneSet `%s' (Locale: %s)", ph, name, locale));
 		}
-		return allophones.get(ph);
+		return allophone;
 	}
 
 	/**
