@@ -359,7 +359,6 @@ public class AllophoneSet {
 	 */
 	private List<String> splitIntoAllophoneList(String allophoneString, boolean includeStressAndSyllableMarkers) {
 		List<String> phones = new ArrayList<String>();
-		boolean haveSeenNucleus = false;
 		for (int i = 0; i < allophoneString.length(); i++) {
 			String one = allophoneString.substring(i, i + 1);
 
