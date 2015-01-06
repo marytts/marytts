@@ -1,6 +1,7 @@
 package marytts.modules.phonemiser;
 
 import java.io.InputStream;
+import java.util.LinkedList;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -43,5 +44,11 @@ public class SyllabifierTest {
 				{ ",mama'mama", ", m a - m a - ' m a - m a" }
 		};
 		// @formatter:on
+	}
+
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void testSyllabfyNullList() {
+		LinkedList<String> nullList = null;
+		syllabifier.syllabify(nullList);
 	}
 }
