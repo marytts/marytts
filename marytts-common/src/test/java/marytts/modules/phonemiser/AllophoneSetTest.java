@@ -1,8 +1,12 @@
 package marytts.modules.phonemiser;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import marytts.exceptions.MaryConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -67,6 +71,14 @@ public class AllophoneSetTest {
 	@Test(dataProvider = "allophoneStringData")
 	public void testSplitAllophoneString(String phoneString, String expected) {
 		String actual = allophoneSet.splitAllophoneString(phoneString);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test(dataProvider = "allophoneStringData")
+	public void testSplitIntoAllophoneList(String phoneString, String allophoneListString) {
+		String[] allophones = StringUtils.split(allophoneListString);
+		List<String> expected = Arrays.asList(allophones);
+		List<String> actual = allophoneSet.splitIntoAllophoneList(phoneString);
 		Assert.assertEquals(actual, expected);
 	}
 

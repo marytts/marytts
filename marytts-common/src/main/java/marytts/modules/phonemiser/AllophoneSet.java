@@ -346,6 +346,18 @@ public class AllophoneSet {
 	}
 
 	/**
+	 * Split allophone string into a list of allophone symbols, preserving all stress and syllable boundaries that may be present
+	 * 
+	 * @param allophoneString
+	 * @return a List of allophone Strings
+	 * @throws IllegalArgumentException
+	 *             if allophoneString contains a symbol for which no Allophone can be found
+	 */
+	public List<String> splitIntoAllophoneList(String allophonesString) {
+		return splitIntoAllophoneList(allophonesString, true);
+	}
+
+	/**
 	 * Split allophone string into a list of allophone symbols. Include (or ignore, depending on parameter
 	 * 'includeStressAndSyllableMarkers') stress markers (',), syllable boundaries (-). Ignores space characters.
 	 * 
