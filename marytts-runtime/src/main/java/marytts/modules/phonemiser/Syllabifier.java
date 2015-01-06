@@ -81,8 +81,9 @@ public class Syllabifier {
 
 		// Only one such component as long as we don't have morpheme boundaries
 
-		if (phoneList == null)
-			return;
+		if (phoneList == null) {
+			throw new IllegalArgumentException("Cannot syllabify null string");
+		}
 		ListIterator<String> it = phoneList.listIterator(0);
 		if (!it.hasNext())
 			return;
