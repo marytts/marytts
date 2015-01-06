@@ -95,4 +95,9 @@ public class AllophoneSetTest {
 		};
 		// @formatter:on
 	}
+
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void testSplitIntoAllophoneListWithInvalidInput() {
+		Assert.assertNull(allophoneSet.splitIntoAllophoneList("!@#$%^"));
+	}
 }

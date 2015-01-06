@@ -367,7 +367,7 @@ public class AllophoneSet {
 	 *            string in the list.
 	 * @throws IllegalArgumentException
 	 *             if the string contains illegal symbols.
-	 * @return a list of allophone objects.
+	 * @return a list of allophone strings.
 	 */
 	private List<String> splitIntoAllophoneList(String allophoneString, boolean includeStressAndSyllableMarkers) {
 		List<String> phones = new ArrayList<String>();
@@ -396,7 +396,7 @@ public class AllophoneSet {
 					}
 				}
 			}
-			if (ph != null) {
+			if (ph != null && allophones.containsKey(ph)) {
 				// have found a valid phone
 				phones.add(ph);
 			} else {
