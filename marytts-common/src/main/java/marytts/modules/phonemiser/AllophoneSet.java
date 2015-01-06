@@ -316,8 +316,11 @@ public class AllophoneSet {
 		List<String> phones = splitIntoAllophoneList(allophoneString, false);
 		Allophone[] allos = new Allophone[phones.size()];
 		for (int i = 0; i < phones.size(); i++) {
-			allos[i] = getAllophone(phones.get(i));
-			assert allos[i] != null : "Symbol '" + phones.get(i) + "' really should be an allophone, but isn't!";
+			try {
+				allos[i] = getAllophone(phones.get(i));
+			} catch (IllegalArgumentException e) {
+				throw e;
+			}
 		}
 		return allos;
 	}
@@ -370,13 +373,12 @@ public class AllophoneSet {
 			}
 			// Try to cut off individual segments,
 			// starting with the longest prefixes:
-			Allophone ph = null;
+			String ph = null;
 			for (int l = maxAllophoneSymbolLength; l >= 1; l--) {
 				if (i + l <= allophoneString.length()) {
-					String s = allophoneString.substring(i, i + l);
+					ph = allophoneString.substring(i, i + l);
 					// look up in allophone map:
-					ph = getAllophone(s);
-					if (ph != null) {
+					if (allophones.containsKey(ph)) {
 						// OK, found a symbol of length l.
 						i += l - 1; // together with the i++ in the for loop, move by l
 						break;
@@ -385,7 +387,7 @@ public class AllophoneSet {
 			}
 			if (ph != null) {
 				// have found a valid phone
-				phones.add(ph.name());
+				phones.add(ph);
 			} else {
 				throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
 						+ "' in phonetic string `" + allophoneString + "' -- ignoring.");

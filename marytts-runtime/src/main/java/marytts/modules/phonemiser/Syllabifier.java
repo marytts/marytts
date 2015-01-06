@@ -289,7 +289,7 @@ public class Syllabifier {
 			while (it.hasNext()) {
 				String s = it.next();
 				Allophone ph = allophoneSet.getAllophone(s);
-				if (ph != null && ph.sonority() >= 5) { // non-schwa vowel
+				if (ph.sonority() >= 5) { // non-schwa vowel
 					// Search backwards for syllable boundary or beginning of word:
 					int steps = 0;
 					while (it.hasPrevious()) {

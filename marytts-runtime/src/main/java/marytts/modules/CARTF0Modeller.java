@@ -29,6 +29,7 @@ import marytts.cart.io.MaryCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -198,8 +199,12 @@ public class CARTF0Modeller extends InternalModule {
                         allophoneSet = MaryRuntimeUtils.determineAllophoneSet(s);
                     }
                     assert allophoneSet != null;
-                    Allophone allophone = allophoneSet.getAllophone(phone);
-                    assert allophone != null : "Unknown allophone: ["+phone+"]";
+					Allophone allophone;
+					try {
+						allophone = allophoneSet.getAllophone(phone);
+					} catch (IllegalArgumentException e) {
+						throw new SynthesisException(e);
+					}
                     if (allophone.isVowel()) {
                         // found a vowel
                         if (firstVoiced == null) firstVoiced = s;
