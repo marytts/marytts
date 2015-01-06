@@ -617,20 +617,18 @@ public class KlattDurationModeller extends InternalModule {
 			// Duration is the inverse of rate:
 			int durFactor = 10000 / rate;
 			Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-			if (ph != null) {
-				if (ph.isVowel())
-					durFactor = (durFactor * settings.vowelDuration()) / 100;
-				else if (ph.isPlosive())
-					durFactor = (durFactor * settings.plosiveDuration()) / 100;
-				else if (ph.isFricative())
-					durFactor = (durFactor * settings.fricativeDuration()) / 100;
-				else if (ph.isNasal())
-					durFactor = (durFactor * settings.nasalDuration()) / 100;
-				else if (ph.isLiquid())
-					durFactor = (durFactor * settings.liquidDuration()) / 100;
-				else if (ph.isGlide())
-					durFactor = (durFactor * settings.glideDuration()) / 100;
-			}
+			if (ph.isVowel())
+				durFactor = (durFactor * settings.vowelDuration()) / 100;
+			else if (ph.isPlosive())
+				durFactor = (durFactor * settings.plosiveDuration()) / 100;
+			else if (ph.isFricative())
+				durFactor = (durFactor * settings.fricativeDuration()) / 100;
+			else if (ph.isNasal())
+				durFactor = (durFactor * settings.nasalDuration()) / 100;
+			else if (ph.isLiquid())
+				durFactor = (durFactor * settings.liquidDuration()) / 100;
+			else if (ph.isGlide())
+				durFactor = (durFactor * settings.glideDuration()) / 100;
 			return durFactor;
 		}
 		// default: Rule not applicable
@@ -936,7 +934,6 @@ public class KlattDurationModeller extends InternalModule {
 
 	private boolean isInOnset(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		if (ph.isSyllabic()) {
 			return false;
 		}
@@ -960,7 +957,6 @@ public class KlattDurationModeller extends InternalModule {
 
 	private boolean isInCoda(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		if (ph.isSyllabic()) {
 			return false;
 		}
@@ -969,7 +965,6 @@ public class KlattDurationModeller extends InternalModule {
 		for (Element e = MaryDomUtils.getPreviousSiblingElement(segment); e != null; e = MaryDomUtils
 				.getPreviousSiblingElement(e)) {
 			ph = allophoneSet.getAllophone(e.getAttribute("p"));
-			assert ph != null;
 			if (ph.isSyllabic()) {
 				return true;
 			}
@@ -983,31 +978,26 @@ public class KlattDurationModeller extends InternalModule {
 
 	private boolean isVowel(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isVowel();
 	}
 
 	private boolean isLiquid(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isLiquid();
 	}
 
 	private boolean isGlide(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isGlide();
 	}
 
 	private boolean isNasal(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isNasal();
 	}
 
 	private boolean isFricative(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isFricative();
 	}
 

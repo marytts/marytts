@@ -159,7 +159,6 @@ public class PolynomialF0Modeller extends InternalModule {
                     }
                     assert allophoneSet != null;
                     Allophone allophone = allophoneSet.getAllophone(phone);
-                    assert allophone != null : "Unknown allophone: ["+phone+"]";
                     if (allophone.isVowel()) {
                         // found a vowel
                         vowel = s;

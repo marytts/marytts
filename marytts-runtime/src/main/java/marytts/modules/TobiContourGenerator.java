@@ -1369,7 +1369,6 @@ public class TobiContourGenerator extends InternalModule {
 
 	private boolean isInOnset(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		if (ph.isSyllabic()) {
 			return false;
 		}
@@ -1377,7 +1376,6 @@ public class TobiContourGenerator extends InternalModule {
 		// segment:
 		for (Element e = MaryDomUtils.getNextSiblingElement(segment); e != null; e = MaryDomUtils.getNextSiblingElement(e)) {
 			ph = allophoneSet.getAllophone(e.getAttribute("p"));
-			assert ph != null;
 			if (ph.isSyllabic()) {
 				return true;
 			}
@@ -1387,13 +1385,11 @@ public class TobiContourGenerator extends InternalModule {
 
 	private boolean isInNucleus(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		return ph.isSyllabic();
 	}
 
 	private boolean isInCoda(Element segment) {
 		Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
-		assert ph != null;
 		if (ph.isSyllabic()) {
 			return false;
 		}
@@ -1402,7 +1398,6 @@ public class TobiContourGenerator extends InternalModule {
 		for (Element e = MaryDomUtils.getPreviousSiblingElement(segment); e != null; e = MaryDomUtils
 				.getPreviousSiblingElement(e)) {
 			ph = allophoneSet.getAllophone(e.getAttribute("p"));
-			assert ph != null;
 			if (ph.isSyllabic()) {
 				return true;
 			}
