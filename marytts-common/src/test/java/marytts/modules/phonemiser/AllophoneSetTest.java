@@ -61,6 +61,9 @@ public class AllophoneSetTest {
 				{ "tOYtOYtOY", allophones },
 				{ "'tOYtOYtOY", allophones },
 				{ ",tOYtOY'tOY", allophones },
+				{ "tOY tOY tOY", allophones },
+				{ "'tOY tOY tOY", allophones },
+				{ ",tOY tOY 'tOY", allophones },
 				{ "tOY-tOY-tOY", allophones },
 				{ "'tOY-tOY-tOY", allophones },
 				{ ",tOY-tOY-'tOY", allophones }
@@ -89,6 +92,9 @@ public class AllophoneSetTest {
 				{ "tOYtOYtOY", "t OY t OY t OY" },
 				{ "'tOYtOYtOY", "' t OY t OY t OY" },
 				{ ",tOYtOY'tOY", ", t OY t OY ' t OY" },
+				{ "tOY tOY tOY", "t OY t OY t OY" },
+				{ "'tOY tOY tOY", "' t OY t OY t OY" },
+				{ ",tOY tOY 'tOY", ", t OY t OY ' t OY" },
 				{ "tOY-tOY-tOY", "t OY - t OY - t OY" },
 				{ "'tOY-tOY-tOY", "' t OY - t OY - t OY" },
 				{ ",tOY-tOY-'tOY", ", t OY - t OY - ' t OY" }
