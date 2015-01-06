@@ -69,8 +69,6 @@ public class PronunciationModel extends marytts.modules.PronunciationModel {
 				return false;
 			String pname = prevSegment.getAttribute("p");
 			Allophone prev = allophoneSet.getAllophone(pname);
-			if (prev == null)
-				return false;
 
 			if (word.equals("'s")) {
 				if ("fa".contains(prev.getFeature("ctype")) && "ap".contains(prev.getFeature("cplace"))) {

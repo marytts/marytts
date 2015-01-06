@@ -91,10 +91,12 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 		}
 		// assert that all alignments should be in the AllophoneSet for this locale:
 		HashSet<String> manualLabelSet = new HashSet<String>(Arrays.asList(al.trim().split("[#\\s]+")));
-		for (String label : manualLabelSet) {
-			if (allophoneSet.getAllophone(label) == null) {
-				throw new InvalidDataException("Label \"" + label + "\" not found in AllophoneSet for Locale " + allophoneSet.getLocale());
+		try {
+			for (String label : manualLabelSet) {
+				allophoneSet.getAllophone(label);
 			}
+		} catch (IllegalArgumentException iae) {
+			throw new InvalidDataException(iae.getMessage());
 		}
 	}
 
