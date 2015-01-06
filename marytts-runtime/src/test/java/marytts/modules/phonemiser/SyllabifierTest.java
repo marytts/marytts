@@ -20,7 +20,7 @@ public class SyllabifierTest {
 	@Test(dataProvider = "syllabifierData")
 	public void testSyllabify(String phones, String expected) {
 		String actual = syllabifier.syllabify(phones);
-		Assert.assertEquals(expected, actual);
+		Assert.assertEquals(actual, expected);
 	}
 
 	@DataProvider
