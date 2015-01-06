@@ -57,11 +57,11 @@ public class Syllabifier {
 	}
 
 	/**
-	 * Syllabify a linked list of phones. This is an implementation of the syllabification rules by J&uml;rgen Trouvain.
+	 * Syllabify a LinkedList of phones. This is an implementation of the syllabification rules by J&uuml;rgen Trouvain.
 	 * 
-	 * @return a linked list of phone strings with inserted "-" strings at syllable boundaries.
+	 * @return a LinkedList of phone strings with inserted "-" strings at syllable boundaries.
 	 */
-	public void syllabify(LinkedList<String> phoneList) {
+	public LinkedList<String> syllabify(LinkedList<String> phoneList) {
 		// Regel(1a)
 		// Jede Grenze einer morphologischen Wurzel stellt eine
 		// Silbengrenze dar.
@@ -245,6 +245,7 @@ public class Syllabifier {
 			}
 		}
 		correctStressSymbol(phoneList);
+		return phoneList;
 	}
 
 	/**
