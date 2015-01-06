@@ -320,7 +320,9 @@ public class Syllabifier {
 	 * @param phoneString
 	 *            the phone string to split
 	 * @return a linked list of strings, each string representing an individual phone
+	 * @deprecated This duplicates (badly) {@link AllophoneSet#splitAllophoneString(String)}; use that method instead.
 	 */
+	@Deprecated
 	protected LinkedList<String> splitIntoAllophones(String phoneString) {
 		LinkedList<String> phoneList = new LinkedList<String>();
 		for (int i = 0; i < phoneString.length(); i++) {
@@ -348,7 +350,10 @@ public class Syllabifier {
 	/**
 	 * Get the Allophone object named phone; if phone ends with "1", discard the "1" and use the rest of the string as the phone
 	 * symbol.
+	 * 
+	 * @deprecated Use {@link AllophoneSet#getAllophone(String)} instead
 	 */
+	@Deprecated
 	protected Allophone getAllophone(String phone) {
 		if (this.removeTrailingOneFromPhones && phone.endsWith("1"))
 			return allophoneSet.getAllophone(phone.substring(0, phone.length() - 1));
