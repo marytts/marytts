@@ -333,6 +333,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>6.8.13</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.wikimedia</groupId>
 				<artifactId>mwdumper</artifactId>
 				<version>1.16</version>
