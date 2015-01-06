@@ -40,4 +40,47 @@ public class AllophoneSetTest {
 	public void testGetInvalidAllophone() {
 		allophoneSet.getAllophone("fnord");
 	}
+
+	@Test(dataProvider = "allophoneArrayData")
+	public void testSplitIntoAllophones(String phoneString, Allophone[] expecteds) {
+		Allophone[] actuals = allophoneSet.splitIntoAllophones(phoneString);
+		Assert.assertEquals(expecteds, actuals);
+	}
+
+	@DataProvider
+	private Object[][] allophoneArrayData() {
+		Allophone t = allophoneSet.getAllophone("t");
+		Allophone oy = allophoneSet.getAllophone("OY");
+		Allophone[] allophones = new Allophone[] { t, oy, t, oy, t, oy };
+		// @formatter:off
+		return new Object[][] {
+				{ "tOYtOYtOY", allophones },
+				{ "'tOYtOYtOY", allophones },
+				{ ",tOYtOY'tOY", allophones },
+				{ "tOY-tOY-tOY", allophones },
+				{ "'tOY-tOY-tOY", allophones },
+				{ ",tOY-tOY-'tOY", allophones }
+		};
+		// @formatter:on
+	}
+
+	@Test(dataProvider = "allophoneStringData")
+	public void testSplitAllophoneString(String phoneString, String expected) {
+		String actual = allophoneSet.splitAllophoneString(phoneString);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@DataProvider
+	private Object[][] allophoneStringData() {
+		// @formatter:off
+		return new Object[][] {
+				{ "tOYtOYtOY", "t OY t OY t OY" },
+				{ "'tOYtOYtOY", "' t OY t OY t OY" },
+				{ ",tOYtOY'tOY", ", t OY t OY ' t OY" },
+				{ "tOY-tOY-tOY", "t OY - t OY - t OY" },
+				{ "'tOY-tOY-tOY", "' t OY - t OY - t OY" },
+				{ ",tOY-tOY-'tOY", ", t OY - t OY - ' t OY" }
+		};
+		// @formatter:on
+	}
 }
