@@ -1,51 +1,47 @@
 package marytts.modules.phonemiser;
 
-import static org.junit.Assert.*;
-
 import java.io.InputStream;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-@RunWith(JUnitParamsRunner.class)
 public class SyllabifierTest {
 
 	private Syllabifier syllabifier;
 
-	@Before
+	@BeforeTest
 	public void setUp() throws Exception {
 		InputStream resource = getClass().getResourceAsStream("/marytts/features/allophones.ROOT.xml");
 		AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(resource, "");
 		syllabifier = new Syllabifier(allophoneSet);
 	}
 
-	@Test
-	// @formatter:off
-	@Parameters({
-		"ma, ' m a",
-		"'ma, ' m a",
-		"mama, ' m a - m a",
-		"'mama, ' m a - m a",
-		"ma'ma, m a - ' m a",
-		"mamama, ' m a - m a - m a",
-		"'mamama, ' m a - m a - m a",
-		"ma'mama, m a - ' m a - m a",
-		"mama'ma, m a - m a - ' m a",
-		"mamamama, ' m a - m a - m a - m a",
-		"'mamamama, ' m a - m a - m a - m a",
-		"ma'mamama, m a - ' m a - m a - m a",
-		"mama'mama, m a - m a - ' m a - m a",
-		"mamama'ma, m a - m a - m a - ' m a",
-		"\\,mama'mama, \\, m a - m a - ' m a - m a"
-		})
-	// @formatter:on
+	@Test(dataProvider = "syllabifierData")
 	public void testSyllabify(String phones, String expected) {
 		String actual = syllabifier.syllabify(phones);
-		assertEquals(expected, actual);
+		Assert.assertEquals(expected, actual);
 	}
 
+	@DataProvider
+	private Object[][] syllabifierData() {
+		// @formatter:off
+		return new Object[][] {
+				{ "ma", "' m a" },
+				{ "'ma", "' m a" },
+				{ "mama", "' m a - m a" },
+				{ "'mama", "' m a - m a" },
+				{ "ma'ma", "m a - ' m a" },
+				{ "mamama", "' m a - m a - m a" },
+				{ "'mamama", "' m a - m a - m a" },
+				{ "ma'mama", "m a - ' m a - m a" },
+				{ "mama'ma", "m a - m a - ' m a" },
+				{ "mamamama", "' m a - m a - m a - m a" },
+				{ "'mamamama", "' m a - m a - m a - m a" },
+				{ "ma'mamama", "m a - ' m a - m a - m a" },
+				{ "mama'mama", "m a - m a - ' m a - m a" },
+				{ "mamama'ma", "m a - m a - m a - ' m a" },
+				{ ",mama'mama", ", m a - m a - ' m a - m a" }
+		};
+		// @formatter:on
+	}
 }
