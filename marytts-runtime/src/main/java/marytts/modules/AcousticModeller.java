@@ -353,9 +353,11 @@ public class AcousticModeller extends InternalModule {
 				}
 
 				// ...and get the corresponding allophone, which knows about its phonological features:
-				Allophone allophone = allophoneSet.getAllophone(phone);
-				if (allophone == null) {
-					throw new SynthesisException("No Allophone found for phone '" + phone + "'");
+				Allophone allophone;
+				try {
+					allophone = allophoneSet.getAllophone(phone);
+				} catch (IllegalArgumentException e) {
+					throw new SynthesisException(e);
 				}
 
 				if (allophone.isVoiced()) { // all and only voiced segments are potential F0 anchors

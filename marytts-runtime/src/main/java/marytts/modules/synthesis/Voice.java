@@ -408,8 +408,10 @@ public class Voice {
 	 * Get the Allophone set for the given phone symbol.
 	 * 
 	 * @param phoneSymbol
-	 * @return an Allophone object if phoneSymbol is a known phone symbol in the voice's AllophoneSet, or null.
+	 * @return an Allophone object if phoneSymbol is a known phone symbol in the voice's AllophoneSet.
+	 * @deprecated use {@link AllophoneSet#getAllophone(String)} directly instead
 	 */
+	@Deprecated
 	public Allophone getAllophone(String phoneSymbol) {
 		return allophoneSet.getAllophone(phoneSymbol);
 	}
