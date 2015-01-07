@@ -6,8 +6,8 @@ import java.util.List;
 
 import marytts.exceptions.MaryConfigurationException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -105,5 +105,34 @@ public class AllophoneSetTest {
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testSplitIntoAllophoneListWithInvalidInput() {
 		Assert.assertNull(allophoneSet.splitIntoAllophoneList("!@#$%^"));
+	}
+
+	@Test(dataProvider = "syllabifierData", expectedExceptions = NotImplementedException.class)
+	public void testSyllabify(String phones, String expected) {
+		String actual = allophoneSet.syllabify(phones);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@DataProvider
+	private Object[][] syllabifierData() {
+		// @formatter:off
+		return new Object[][] {
+				{ "ma", "' m a" },
+				{ "'ma", "' m a" },
+				{ "mama", "' m a - m a" },
+				{ "'mama", "' m a - m a" },
+				{ "ma'ma", "m a - ' m a" },
+				{ "mamama", "' m a - m a - m a" },
+				{ "'mamama", "' m a - m a - m a" },
+				{ "ma'mama", "m a - ' m a - m a" },
+				{ "mama'ma", "m a - m a - ' m a" },
+				{ "mamamama", "' m a - m a - m a - m a" },
+				{ "'mamamama", "' m a - m a - m a - m a" },
+				{ "ma'mamama", "m a - ' m a - m a - m a" },
+				{ "mama'mama", "m a - m a - ' m a - m a" },
+				{ "mamama'ma", "m a - m a - m a - ' m a" },
+				{ ",mama'mama", ", m a - m a - ' m a - m a" }
+		};
+		// @formatter:on
 	}
 }
