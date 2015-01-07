@@ -85,8 +85,9 @@ public class Syllabifier {
 			throw new IllegalArgumentException("Cannot syllabify null string");
 		}
 		ListIterator<String> it = phoneList.listIterator(0);
-		if (!it.hasNext())
-			return;
+		if (!it.hasNext()) {
+			return phoneList;
+		}
 		Allophone previous = getAllophone(it.next());
 		boolean previousIsVowel = (previous != null && previous.sonority() >= 4);
 		while (it.hasNext()) {
@@ -334,10 +335,13 @@ public class Syllabifier {
 			for (int j = 3; j >= 1; j--) {
 				if (i + j <= phoneString.length()) {
 					String candidate = phoneString.substring(i, i + j);
-					if (getAllophone(candidate) != null) { // found
+					try {
+						allophoneSet.getAllophone(candidate);
 						name = candidate;
 						i += j - 1; // so that the next i++ goes beyond current phone
 						break;
+					} catch (IllegalArgumentException e) {
+						// ignore
 					}
 				}
 			}
