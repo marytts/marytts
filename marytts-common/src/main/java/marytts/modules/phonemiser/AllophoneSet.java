@@ -37,6 +37,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -420,6 +421,10 @@ public class AllophoneSet {
 		} catch (IllegalArgumentException e) {
 			return false;
 		}
+	}
+
+	public String syllabify(String phoneString) throws NotImplementedException {
+		throw new NotImplementedException("TODO");
 	}
 
 }
