@@ -107,7 +107,7 @@ public class AllophoneSetTest {
 		Assert.assertNull(allophoneSet.splitIntoAllophoneList("!@#$%^"));
 	}
 
-	@Test(dataProvider = "syllabifierData", expectedExceptions = NotImplementedException.class)
+	@Test(dataProvider = "syllabifierData")
 	public void testSyllabify(String phones, String expected) {
 		String actual = allophoneSet.syllabify(phones);
 		Assert.assertEquals(actual, expected);
