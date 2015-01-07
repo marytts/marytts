@@ -22,6 +22,9 @@ package marytts.modules.phonemiser;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+/**
+ * @deprecated Use {@link AllophoneSet#syllabify(String)} instead.
+ */
 public class Syllabifier {
 	protected AllophoneSet allophoneSet;
 	protected boolean removeTrailingOneFromPhones = true;
