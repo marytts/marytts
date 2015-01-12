@@ -96,6 +96,11 @@ public class Allophone {
 		return "+".equals(features.get("vc"));
 	}
 
+	public boolean isDiphthong() {
+		assert isVowel();
+		return "d".equals(features.get("vlng"));
+	}
+
 	public boolean isSyllabic() {
 		return isVowel();
 	}

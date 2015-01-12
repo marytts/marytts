@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -346,6 +348,18 @@ public class AllophoneSet {
 	}
 
 	/**
+	 * Split allophone string into a list of allophone symbols, preserving all stress and syllable boundaries that may be present
+	 * 
+	 * @param allophoneString
+	 * @return a List of allophone Strings
+	 * @throws IllegalArgumentException
+	 *             if allophoneString contains a symbol for which no Allophone can be found
+	 */
+	public List<String> splitIntoAllophoneList(String allophonesString) {
+		return splitIntoAllophoneList(allophonesString, true);
+	}
+
+	/**
 	 * Split allophone string into a list of allophone symbols. Include (or ignore, depending on parameter
 	 * 'includeStressAndSyllableMarkers') stress markers (',), syllable boundaries (-). Ignores space characters.
 	 * 
@@ -355,11 +369,10 @@ public class AllophoneSet {
 	 *            string in the list.
 	 * @throws IllegalArgumentException
 	 *             if the string contains illegal symbols.
-	 * @return a list of allophone objects.
+	 * @return a list of allophone strings.
 	 */
 	private List<String> splitIntoAllophoneList(String allophoneString, boolean includeStressAndSyllableMarkers) {
 		List<String> phones = new ArrayList<String>();
-		boolean haveSeenNucleus = false;
 		for (int i = 0; i < allophoneString.length(); i++) {
 			String one = allophoneString.substring(i, i + 1);
 
@@ -385,7 +398,7 @@ public class AllophoneSet {
 					}
 				}
 			}
-			if (ph != null) {
+			if (ph != null && allophones.containsKey(ph)) {
 				// have found a valid phone
 				phones.add(ph);
 			} else {
@@ -411,4 +424,197 @@ public class AllophoneSet {
 		}
 	}
 
+	/**
+	 * Syllabify a string of allophones. If stress markers are provided, they are preserved; otherwise, primary stress will be
+	 * assigned to the initial syllable.
+	 * <p>
+	 * The syllabification algorithm itself follows the <i>Core Syllabification Principle (CSP)</i> from <blockquote>G.N. Clements
+	 * (1990) "The role of the sonority cycle in core syllabification." In: J. Kingston & M.E. Beckman (Eds.),
+	 * <em>Papers in Laboratory Phonology I: Between the Grammar and Physics of Speech</em>, Ch. 17, pp. 283-333, Cambridge
+	 * University Press.</blockquote>
+	 *
+	 * @param phoneString
+	 * @return a syllabified string; individual allophones are separated by spaces, and syllables, by dashes.
+	 * @throws IllegalArgumentException
+	 *             if the <b>phoneString</b> contains a symbol that satisfies none of the following conditions:
+	 *             <ol>
+	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
+	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
+	 *             </ol>
+	 * @author ingmar
+	 * 
+	 */
+	public String syllabify(String phoneString) {
+		// First, split phoneString into a List of allophone Strings...
+		List<String> allophoneStrings = splitIntoAllophoneList(phoneString, true);
+		// ...and create from it a List of generic Objects
+		List<Object> phonesAndSyllables = new ArrayList<Object>(allophoneStrings);
+
+		// Create an iterator
+		ListIterator<Object> iterator = phonesAndSyllables.listIterator();
+
+		// First iteration (left-to-right):
+		// CSP (a): Associate each [+syllabic] segment to a syllable node.
+		Syllable currentSyllable = null;
+		while (iterator.hasNext()) {
+			String phone = (String) iterator.next();
+			try {
+				// either it's an Allophone
+				Allophone allophone = getAllophone(phone);
+				if (allophone.isSyllabic()) {
+					// if /6/ immediately follows a non-diphthong vowel, it should be appended instead of forming its own syllable
+					if (allophone.getFeature("ctype").equals("r") && currentSyllable != null
+							&& !currentSyllable.getLastAllophone().isDiphthong()) {
+						iterator.remove();
+						currentSyllable.appendAllophone(allophone);
+					} else {
+						currentSyllable = new Syllable(allophone);
+						iterator.set(currentSyllable);
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				// or a stress or boundary marker
+				if (!getIgnoreChars().contains(phone)) {
+					throw e;
+				}
+			}
+		}
+
+		// Second iteration (right-to-left):
+		// CSP (b): Given P (an unsyllabified segment) preceding Q (a syllabified segment), adjoin P to the syllable containing Q
+		// iff P has lower sonority rank than Q (iterative).
+		currentSyllable = null;
+		boolean foundPrimaryStress = false;
+		iterator = phonesAndSyllables.listIterator(phonesAndSyllables.size());
+		while (iterator.hasPrevious()) {
+			Object phoneOrSyllable = iterator.previous();
+			if (phoneOrSyllable instanceof Syllable) {
+				currentSyllable = (Syllable) phoneOrSyllable;
+			} else if (currentSyllable == null) {
+				// haven't seen a Syllable yet in this iteration
+				continue;
+			} else {
+				String phone = (String) phoneOrSyllable;
+				try {
+					// it's an Allophone -- prepend to the Syllable
+					Allophone allophone = getAllophone(phone);
+					if (allophone.sonority() < currentSyllable.getFirstAllophone().sonority()) {
+						iterator.remove();
+						currentSyllable.prependAllophone(allophone);
+					}
+				} catch (IllegalArgumentException e) {
+					// it's a provided stress marker -- assign it to the Syllable
+					switch (phone) {
+					case Stress.PRIMARY:
+						iterator.remove();
+						currentSyllable.setStress(Stress.PRIMARY);
+						foundPrimaryStress = true;
+						break;
+					case Stress.SECONDARY:
+						iterator.remove();
+						currentSyllable.setStress(Stress.SECONDARY);
+						break;
+					case "-":
+						iterator.remove();
+						// TODO handle syllable boundaries
+						break;
+					default:
+						throw e;
+					}
+				}
+			}
+		}
+
+		// Third iteration (left-to-right):
+		// CSP (c): Given Q (a syllabified segment) followed by R (an unsyllabified segment), adjoin R to the syllable containing
+		// Q iff has a lower sonority rank than Q (iterative).
+		Syllable initialSyllable = currentSyllable;
+		currentSyllable = null;
+		iterator = phonesAndSyllables.listIterator();
+		while (iterator.hasNext()) {
+			Object phoneOrSyllable = iterator.next();
+			if (phoneOrSyllable instanceof Syllable) {
+				currentSyllable = (Syllable) phoneOrSyllable;
+			} else {
+				String phone = (String) phoneOrSyllable;
+				try {
+					// it's an Allophone -- append to the Syllable
+					Allophone allophone = getAllophone(phone);
+					if (currentSyllable == null) {
+						// haven't seen a Syllable yet in this iteration
+						iterator.remove();
+						initialSyllable.prependAllophone(allophone);
+					} else {
+						// append it to the last seen Syllable
+						iterator.remove();
+						currentSyllable.appendAllophone(allophone);
+					}
+				} catch (IllegalArgumentException e) {
+					throw e;
+				}
+			}
+		}
+
+		// if primary stress was not provided, assign it to initial syllable
+		if (!foundPrimaryStress) {
+			initialSyllable.setStress(Stress.PRIMARY);
+		}
+
+		// join Syllables with dashes and return the String
+		return StringUtils.join(phonesAndSyllables, " - ");
+	}
+
+	/**
+	 * Helper class for OO syllabification. Wraps an ArrayList of Allophones and has a Stress property.
+	 * 
+	 * @author ingmar
+	 *
+	 */
+	private class Syllable {
+		private List<Allophone> allophones = new ArrayList<Allophone>();
+		private String stress = Stress.NONE;
+
+		public Syllable(Allophone... allophones) {
+			Collections.addAll(this.allophones, allophones);
+		}
+
+		public Allophone getFirstAllophone() {
+			return allophones.get(0);
+		}
+
+		public void prependAllophone(Allophone allophone) {
+			allophones.add(0, allophone);
+		}
+
+		public Allophone getLastAllophone() {
+			return allophones.get(allophones.size() - 1);
+		}
+
+		public void appendAllophone(Allophone allophone) {
+			allophones.add(allophone);
+		}
+
+		public void setStress(String stress) {
+			this.stress = stress;
+		}
+
+		/**
+		 * @return The Stress, if not {@link Stress.NONE NONE}, followed by the Allophones, all separated by spaces
+		 */
+		public String toString() {
+			return String.format("%s %s", stress, StringUtils.join(allophones, " ")).trim();
+		}
+	}
+
+	/**
+	 * Constants for Stress markers
+	 * 
+	 * @author ingmar
+	 *
+	 */
+	public interface Stress {
+		String NONE = "";
+		String PRIMARY = "'";
+		String SECONDARY = ",";
+	}
 }

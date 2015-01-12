@@ -22,6 +22,9 @@ package marytts.modules.phonemiser;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+/**
+ * @deprecated Use {@link AllophoneSet#syllabify(String)} instead.
+ */
 public class Syllabifier {
 	protected AllophoneSet allophoneSet;
 	protected boolean removeTrailingOneFromPhones = true;
@@ -57,11 +60,11 @@ public class Syllabifier {
 	}
 
 	/**
-	 * Syllabify a linked list of phones. This is an implementation of the syllabification rules by J&uml;rgen Trouvain.
+	 * Syllabify a LinkedList of phones. This is an implementation of the syllabification rules by J&uuml;rgen Trouvain.
 	 * 
-	 * @return a linked list of phone strings with inserted "-" strings at syllable boundaries.
+	 * @return a LinkedList of phone strings with inserted "-" strings at syllable boundaries.
 	 */
-	public void syllabify(LinkedList<String> phoneList) {
+	public LinkedList<String> syllabify(LinkedList<String> phoneList) {
 		// Regel(1a)
 		// Jede Grenze einer morphologischen Wurzel stellt eine
 		// Silbengrenze dar.
@@ -81,11 +84,13 @@ public class Syllabifier {
 
 		// Only one such component as long as we don't have morpheme boundaries
 
-		if (phoneList == null)
-			return;
+		if (phoneList == null) {
+			throw new IllegalArgumentException("Cannot syllabify null string");
+		}
 		ListIterator<String> it = phoneList.listIterator(0);
-		if (!it.hasNext())
-			return;
+		if (!it.hasNext()) {
+			return phoneList;
+		}
 		Allophone previous = getAllophone(it.next());
 		boolean previousIsVowel = (previous != null && previous.sonority() >= 4);
 		while (it.hasNext()) {
@@ -245,6 +250,7 @@ public class Syllabifier {
 			}
 		}
 		correctStressSymbol(phoneList);
+		return phoneList;
 	}
 
 	/**
@@ -319,7 +325,9 @@ public class Syllabifier {
 	 * @param phoneString
 	 *            the phone string to split
 	 * @return a linked list of strings, each string representing an individual phone
+	 * @deprecated This duplicates (badly) {@link AllophoneSet#splitAllophoneString(String)}; use that method instead.
 	 */
+	@Deprecated
 	protected LinkedList<String> splitIntoAllophones(String phoneString) {
 		LinkedList<String> phoneList = new LinkedList<String>();
 		for (int i = 0; i < phoneString.length(); i++) {
@@ -330,10 +338,13 @@ public class Syllabifier {
 			for (int j = 3; j >= 1; j--) {
 				if (i + j <= phoneString.length()) {
 					String candidate = phoneString.substring(i, i + j);
-					if (getAllophone(candidate) != null) { // found
+					try {
+						allophoneSet.getAllophone(candidate);
 						name = candidate;
 						i += j - 1; // so that the next i++ goes beyond current phone
 						break;
+					} catch (IllegalArgumentException e) {
+						// ignore
 					}
 				}
 			}
@@ -347,7 +358,10 @@ public class Syllabifier {
 	/**
 	 * Get the Allophone object named phone; if phone ends with "1", discard the "1" and use the rest of the string as the phone
 	 * symbol.
+	 * 
+	 * @deprecated Use {@link AllophoneSet#getAllophone(String)} instead
 	 */
+	@Deprecated
 	protected Allophone getAllophone(String phone) {
 		if (this.removeTrailingOneFromPhones && phone.endsWith("1"))
 			return allophoneSet.getAllophone(phone.substring(0, phone.length() - 1));
