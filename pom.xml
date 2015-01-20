@@ -241,6 +241,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.ibm.icu</groupId>
+				<artifactId>icu4j</artifactId>
+				<version>54.1.1</version>
+			</dependency>
+
+			<dependency>
 				<groupId>de.dfki.lt.jtok</groupId>
 				<artifactId>jtok-core</artifactId>
 				<version>1.9.1</version>
@@ -332,6 +338,13 @@
 				<version>1.0.3</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>6.8.13</version>
+				<scope>test</scope>
+			</dependency>
+			
 			<dependency>
 				<groupId>org.wikimedia</groupId>
 				<artifactId>mwdumper</artifactId>
