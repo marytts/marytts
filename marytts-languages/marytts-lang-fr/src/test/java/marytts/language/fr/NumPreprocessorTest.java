@@ -3,11 +3,7 @@
  */
 package marytts.language.fr;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.language.fr.NumPreprocess;
-import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
 import org.custommonkey.xmlunit.*;
@@ -17,8 +13,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.Locale;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
@@ -41,9 +35,30 @@ public class NumPreprocessorTest {
 								{ "2", "deux" }, 
 								{ "3", "trois" }, 
 								{ "4", "quatre" },
+								{ "42", "quarante-deux"},
+								{ "1er", "premier"},
+								{ "1re", "première"},
+								{ "2e", "deuxième" },
+								{ "3e", "troisième" },
+								{ "4e", "quatrième" } };
+	}
+	
+	@DataProvider(name = "NumExpandData")
+	private Object[][] numberExpansionDocDataCardinal() {
+		return new Object[][] { { "1", "un" }, 
+								{ "2", "deux" }, 
+								{ "3", "trois" }, 
+								{ "4", "quatre" },
 								{ "42", "quarante-deux"} };
 	}
-
+	
+	@DataProvider(name = "OrdinalExpandData")
+	private Object[][] numberExpansionDocDataOrdinal() {
+		return new Object[][] { { "2", "deuxième" },
+								{ "3", "troisième" },
+								{ "4", "quatrième" } };
+	}
+	
 	@Test(dataProvider = "DocData")
 	public void testSpellout(String tokenised, String expected) throws Exception, ParserConfigurationException, SAXException,
 			IOException {
@@ -52,18 +67,25 @@ public class NumPreprocessorTest {
 		String tokens = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\" xml:lang=\"fr\"><p><s><t>"
 				+ tokenised + "</t></s></p></maryxml>";
 		tokenisedDoc = DomUtils.parseDocument(tokens);
-		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\" xml:lang=\"fr\"><p><s><t>"
-				+ expected + "</t></s></p></maryxml>";
+		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\" xml:lang=\"fr\"><p><s><mtu orig=\""
+				+ tokenised + "\"><t>" + expected + "</t></mtu></s></p></maryxml>";
 		expectedDoc = DomUtils.parseDocument(words);
 		module.checkForNumbers(tokenisedDoc);
 		Diff diff = XMLUnit.compareXML(expectedDoc, tokenisedDoc);
 		Assert.assertTrue(diff.identical());
 	}
 
-	@Test(dataProvider = "DocData")
+	@Test(dataProvider = "NumExpandData")
 	public void testExpandNum(String token, String word) {
 		double x = Double.parseDouble(token);
 		String actual = module.expandNumber(x);
+		Assert.assertEquals(actual, word);
+	}
+
+	@Test(dataProvider = "OrdinalExpandData")
+	public void testExpandOrdinal(String token, String word) {
+		double x = Double.parseDouble(token);
+		String actual = module.expandOrdinal(x);
 		Assert.assertEquals(actual, word);
 	}
 }
