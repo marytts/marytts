@@ -71,11 +71,11 @@ public class MaryDataType {
 	public static final MaryDataType MBROLA = new MaryDataType("MBROLA", true, true, PLAIN_TEXT);
 	public static final MaryDataType PARTSOFSPEECH = new MaryDataType("PARTSOFSPEECH", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PHONEMES = new MaryDataType("PHONEMES", true, true, MARYXML, MaryXML.MARYXML);
-	public static final MaryDataType PRAAT_TEXTGRID = new MaryDataType("PRAAT_TEXTGRID", true, true, PLAIN_TEXT);
+	public static final MaryDataType PRAAT_TEXTGRID = new MaryDataType("PRAAT_TEXTGRID", false, true, PLAIN_TEXT);
 	public static final MaryDataType RAWMARYXML = new MaryDataType("RAWMARYXML", true, true, MARYXML, MaryXML.MARYXML);
-	public static final MaryDataType REALISED_ACOUSTPARAMS = new MaryDataType("REALISED_ACOUSTPARAMS", true, true, MARYXML,
+	public static final MaryDataType REALISED_ACOUSTPARAMS = new MaryDataType("REALISED_ACOUSTPARAMS", false, true, MARYXML,
 			MaryXML.MARYXML);
-	public static final MaryDataType REALISED_DURATIONS = new MaryDataType("REALISED_DURATIONS", true, true, PLAIN_TEXT);
+	public static final MaryDataType REALISED_DURATIONS = new MaryDataType("REALISED_DURATIONS", false, true, PLAIN_TEXT);
 	public static final MaryDataType SABLE = new MaryDataType("SABLE", true, false, EXTERNAL_MARKUP, "SABLE");
 	public static final MaryDataType SIMPLEPHONEMES = new MaryDataType("SIMPLEPHONEMES", true, false, PLAIN_TEXT);
 	public static final MaryDataType SSML = new MaryDataType("SSML", true, false, EXTERNAL_MARKUP, "speak");
