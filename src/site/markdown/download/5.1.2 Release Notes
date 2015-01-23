@@ -1,0 +1,24 @@
+MaryTTS 5.1.2 Release Notes
+===========================
+
+Minor Adjustments
+-----------------
+####Targets cached####
+- targets are cached so these do not get recreated, and can be re-used later
+
+####Words addition in batches####
+- words are now added to wordlist in batches.
+
+####Github for Downloads####
+- linked back from bitbucket to github for downloads
+
+####MaryData helper method####
+- toString() method added to MaryData class 
+
+Closed Issues/Bugs
+------------------
+####issue #154####
+- trailing whitespace issue resolved - issue existed when a space existed after backslash in config file.
+
+####issue #258####
+- Byte overflow in TargetFeatureComputer - issue with limit of array - fixed
