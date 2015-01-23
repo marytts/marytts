@@ -26,14 +26,14 @@ import com.ibm.icu.text.RuleBasedNumberFormat;
  * 
  *         Processes cardinal and ordinal numbers.
  */
-public class NumPreprocess extends InternalModule {
+public class Preprocess extends InternalModule {
 
 	private RuleBasedNumberFormat rbnf;
 	protected final String cardinalRule;
 	protected final String ordinalRule;
 
-	public NumPreprocess() {
-		super("NumPreprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.FRENCH);
+	public Preprocess() {
+		super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.FRENCH);
 		this.rbnf = new RuleBasedNumberFormat(ULocale.FRENCH, RuleBasedNumberFormat.SPELLOUT);
 		this.cardinalRule = "%spellout-numbering";
 		this.ordinalRule = getOrdinalRuleName(rbnf);

@@ -3,7 +3,7 @@
  */
 package marytts.language.fr;
 
-import marytts.language.fr.NumPreprocess;
+import marytts.language.fr.Preprocess;
 import marytts.util.dom.DomUtils;
 
 import org.custommonkey.xmlunit.*;
@@ -20,13 +20,13 @@ import javax.xml.parsers.ParserConfigurationException;
  *
  *
  */
-public class NumPreprocessorTest {
+public class PreprocessTest {
 
-	private static NumPreprocess module;
+	private static Preprocess module;
 
 	@BeforeSuite
 	public static void setUpBeforeClass() {
-		module = new NumPreprocess();
+		module = new Preprocess();
 	}
 
 	@DataProvider(name = "DocData")
