@@ -8,6 +8,7 @@ MaryTTS 5.x
 
 | Version | Release Date | Java | | Download | Size |
 |---|:---:|:---:|---|---|---:|
+| [5.1.1](https://github.com/marytts/marytts/releases/tag/v5.1.1) | 2014-10-05 | 1.7+ | [Release notes](releasenotes-5.1.1.html) | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1.1/marytts-5.1.1.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.1.1/marytts-builder-5.1.1.zip) | 25.8 MB<br/>30.6 MB |
 | [5.1](https://github.com/marytts/marytts/releases/tag/v5.1) | 2014-07-16 | 1.7+ | [Release notes](releasenotes-5.1.html) | [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-5.1.zip)<br/>[Builder package](https://github.com/marytts/marytts/releases/download/v5.1/marytts-builder-5.1.zip) | 25.8 MB<br/>30.6 MB |
 | [5.1-beta3](https://github.com/marytts/marytts/releases/tag/v5.1beta3) | 2014-07-16 | 1.6+ | | | |
 | [5.1-beta2](https://github.com/marytts/marytts/releases/tag/v5.1beta2) | 2014-03-10 | 1.6+ | | | |
