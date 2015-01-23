@@ -1,0 +1,53 @@
+MaryTTS 5.1.1 Release Notes
+===========================
+
+A milestone release that stabilizes changes in build and hosting infrastructure and fixes several issues.
+
+**Download:**
+
+* [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1.1/marytts-5.1.1.zip)
+* [Builder package](https://github.com/marytts/marytts/releases/download/v5.1.1/marytts-builder-5.1.1.zip)
+
+New Features
+============
+
+Language updates
+----------------
+
+* Telugu and Turkish: two voices were added which had not been rebuilt since v4.0.0.
+* added `TOKENS` example text for Italian, Turkish, British English, Telugu, and Russian.
+* Voice components are sorted by locale and name in `download/marytts-components.xml`.
+
+Documentation updates
+---------------------
+
+* Added to the documentation section on the mary site is a page on [MaryTTS's history](../documentation/history.html).
+* Also added a point on MP3 support to the [FAQ](../faq.html).
+* Minor tweaks to navigation menu, earlier version release notes, download links, etc.
+
+Development news
+------------------
+
+**New Infrastructure:**
+
+* Continuous Integration is now provided by [Travis CI](https://travis-ci.org/marytts/marytts).
+* The web server running at ${project.url} has been replaced with a new machine, which hosts the latest stable website content and runs the latest stable build as an online demo.
+* The latest release artifacts are hosted at [Bintray](https://bintray.com/marytts) and indexed in [jCenter](https://bintray.com/bintray/jcenter).
+* The latest development (SNAPSHOT) artifacts are hosted at [OJO](https://oss.jfrog.org/).
+* A website built from the latest development (SNAPSHOT) version is hosted at http://marytts.github.io/.
+
+**Build environment:**
+
+* All supported languages have been moved into a container module `marytts-languages`.
+* Several maven plugins were updated to the latest versions.
+* Building MaryTTS now requires Maven 3.0.2 or later.
+
+Fixed Issues/Bugs
+------------------
+
+* added missing voice resources that had been present in v5.0 before hosting had switched servers, as well as fixing some missing license files.
+* [#207](https://github.com/marytts/marytts/issues/207): Deploying to Bintray/jCenter required changing the **groupId** from `marytts` to `de.dfki.mary`.
+* [#206](https://github.com/marytts/marytts/issues/206): LTSTrainerTest would fail if UTF-8 encoding was not specified
+* [#204](https://github.com/marytts/marytts/issues/204): A locale set to `null` no longer breaks the Mary server   
+* [#202](https://github.com/marytts/marytts/issues/202): WikipediaMarkupCleanerTest failed if workspace contains space
+* [#185](https://github.com/marytts/marytts/issues/185): EnviromentTest no longer fails with Java 8
