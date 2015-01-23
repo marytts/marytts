@@ -1,24 +1,36 @@
 MaryTTS 5.1.2 Release Notes
 ===========================
 
-Minor Adjustments
------------------
-####Targets cached####
-- targets are cached so these do not get recreated, and can be re-used later
+Another milestone release with several improvements and fixes.
 
-####Words addition in batches####
-- words are now added to wordlist in batches.
+**Download:**
 
-####Github for Downloads####
-- linked back from bitbucket to github for downloads
+* [Runtime package](https://github.com/marytts/marytts/releases/download/v5.1.2/marytts-5.1.2.zip)
+* [Builder package](https://github.com/marytts/marytts/releases/download/v5.1.2/marytts-builder-5.1.2.zip)
 
-####MaryData helper method####
-- toString() method added to MaryData class 
+New Features
+============
 
-Closed Issues/Bugs
+Improvements
+------------
+
+* For French, numbers in the input text were silently ignored; this has been [improved](https://github.com/marytts/marytts/issues/269) using a *spellout formatter* from [ICU4J](http://icu-project.org/). This fix can (and will soon) also be applied to other languages that are missing a text Preprocess module. 
+* A new rule-based Syllabfier class has been implemented.
+* All releases are now [hosted on GitHub](https://github.com/marytts/marytts/releases) again; references to the Downloads on Bitbucket have been updated accordingly.
+
+Development news
+----------------
+
+* Targets are cached so these do not get recreated, and can be re-used later.
+* Words are now added to wordlist in batches for new language components.
+* A toString() helper method was added to MaryData class to help with debugging. 
+
+Fixed Issues/Bugs
 ------------------
-####issue #154####
-- trailing whitespace issue resolved - issue existed when a space existed after backslash in config file.
 
-####issue #258####
-- Byte overflow in TargetFeatureComputer - issue with limit of array - fixed
+* [#268](https://github.com/marytts/marytts/issues/268): getAllophone() no longer silently returns `null` on invalid input.
+* [#267](https://github.com/marytts/marytts/issues/267): `REALISED_DURATIONS` and `REALISED_ACOUSTPARAMS` are no longer (mistakenly) available as input types.
+* [#266](https://github.com/marytts/marytts/issues/266): Syllabification no longer ignores any provided stress diacritics.
+* [#258](https://github.com/marytts/marytts/issues/258): Byte overflow in TargetFeatureComputer -- issue with limit of array.
+* [#218](https://github.com/marytts/marytts/issues/218): a voice would not be built correctly following the **groupId** change in v.5.1.1.
+* [#154](https://github.com/marytts/marytts/issues/154): trailing whitespace in config files could prevent correct parsing.
