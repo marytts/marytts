@@ -4,6 +4,7 @@ target/
 .classpath
 tmp/
 log/
+test-output/
 
 # OSX
 .DS_Store
