@@ -640,43 +640,44 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 		mySqlDetailsDialog.setVisible(false);
 	}// GEN-LAST:event_cancelMySqlDetails
 
-	private void loadFromSqlDatabase(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromSqlDatabase
-        
-        if(!checkNecessaryEvents("load")) return;
-        String hostName = hostNameTextField.getText(); 
-        String databaseName = dbNameTextField.getText(); 
-        String tableName = tableNameTextField.getText();
-        String userName = userNameTextField.getText();
-        String password = passwordTextField.getText();
-        locale = simplePanel.getLocaleString();
-        DBHandler wikiToDB = new DBHandler(locale);
-        wikiToDB.createDBConnection(hostName,databaseName,userName,password);
-        wikiToDB.setWordListTable(tableName);
-        int noWords = wikiToDB.getNumberOfWords(0);
-        //HashMap<String, Integer> hpMap = wikiToDB.getMostFrequentWords(noWords, 0);
-        ArrayList<String> arrList = wikiToDB.getMostFrequentWordsArray(noWords, 0);
-        wikiToDB.closeDBConnection();
-        try {
-            simplePanel.loadTranscription(arrList);
-            simplePanel.repaint();
-            simplePanel.updateUI();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        fileNametoSave = null; 
-        
-        treeAbsolutePath = null;
-        dirName = null;
-        baseName = null;
-        suffix = null;
-        
-        mySqlDetailsDialog.setVisible(false);
-        loadTranscription = true;
-        saveToFile.setEnabled(true);
-        saveAsToFile.setEnabled(true);
-        checkNecessaryEvents("load");
-        
-    }//GEN-LAST:event_loadFromSqlDatabase
+	private void loadFromSqlDatabase(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_loadFromSqlDatabase
+
+		if (!checkNecessaryEvents("load"))
+			return;
+		String hostName = hostNameTextField.getText();
+		String databaseName = dbNameTextField.getText();
+		String tableName = tableNameTextField.getText();
+		String userName = userNameTextField.getText();
+		String password = passwordTextField.getText();
+		locale = simplePanel.getLocaleString();
+		DBHandler wikiToDB = new DBHandler(locale);
+		wikiToDB.createDBConnection(hostName, databaseName, userName, password);
+		wikiToDB.setWordListTable(tableName);
+		int noWords = wikiToDB.getNumberOfWords(0);
+		// HashMap<String, Integer> hpMap = wikiToDB.getMostFrequentWords(noWords, 0);
+		ArrayList<String> arrList = wikiToDB.getMostFrequentWordsArray(noWords, 0);
+		wikiToDB.closeDBConnection();
+		try {
+			simplePanel.loadTranscription(arrList);
+			simplePanel.repaint();
+			simplePanel.updateUI();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		fileNametoSave = null;
+
+		treeAbsolutePath = null;
+		dirName = null;
+		baseName = null;
+		suffix = null;
+
+		mySqlDetailsDialog.setVisible(false);
+		loadTranscription = true;
+		saveToFile.setEnabled(true);
+		saveAsToFile.setEnabled(true);
+		checkNecessaryEvents("load");
+
+	}// GEN-LAST:event_loadFromSqlDatabase
 
 	private void ancestorFrameResized(java.awt.event.HierarchyEvent evt) {// GEN-FIRST:event_ancestorFrameResized
 		try {

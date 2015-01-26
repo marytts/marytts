@@ -156,35 +156,35 @@ public class LTSLexiconPOSBuilder {
 
 	private LTSTrainer trainLTS(String treeAbsolutePath) throws IOException {
 
-        Object[][] tableData = transcriptionModel.getData();
-        HashMap<String, String> map = new HashMap<String, String>();
-        boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
-        boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
+		Object[][] tableData = transcriptionModel.getData();
+		HashMap<String, String> map = new HashMap<String, String>();
+		boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
+		boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
 
-        for (int i = 0; i < tableData.length; i++) {
-            if (hasManualVerify[i] && hasCorrectSyntax[i]) {
-                String grapheme = (String) tableData[i][1];
-                String phone = (String) tableData[i][2];
-                if (!phone.equals("")) {
-                    map.put(grapheme, phone);
-                    transcriptionModel.setAsCorrectSyntax(i, true);
-                }
-            }
-        }
+		for (int i = 0; i < tableData.length; i++) {
+			if (hasManualVerify[i] && hasCorrectSyntax[i]) {
+				String grapheme = (String) tableData[i][1];
+				String phone = (String) tableData[i][2];
+				if (!phone.equals("")) {
+					map.put(grapheme, phone);
+					transcriptionModel.setAsCorrectSyntax(i, true);
+				}
+			}
+		}
 
-        LTSTrainer tp = new LTSTrainer(phoneSet, true, true, 2);
-        tp.readLexicon(map);
-        System.out.println("training ... ");
-        // make some alignment iterations
-        for (int i = 0; i < 5; i++) {
-            System.out.println("iteration " + i);
-            tp.alignIteration();
-        }
-        System.out.println("training completed.");
-        CART st = tp.trainTree(100);
-        tp.save(st, treeAbsolutePath);
-        return tp;
-    }
+		LTSTrainer tp = new LTSTrainer(phoneSet, true, true, 2);
+		tp.readLexicon(map);
+		System.out.println("training ... ");
+		// make some alignment iterations
+		for (int i = 0; i < 5; i++) {
+			System.out.println("iteration " + i);
+			tp.alignIteration();
+		}
+		System.out.println("training completed.");
+		CART st = tp.trainTree(100);
+		tp.save(st, treeAbsolutePath);
+		return tp;
+	}
 
 	private String getLocaleString() {
 		return locale;
