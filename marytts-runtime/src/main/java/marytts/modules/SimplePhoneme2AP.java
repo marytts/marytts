@@ -30,7 +30,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
@@ -123,15 +122,7 @@ public class SimplePhoneme2AP extends InternalModule {
 					ph.setAttribute("d", String.valueOf(dur));
 					cumulDur += dur;
 					ph.setAttribute("end", String.valueOf(cumulDur));
-					// Set top start for first and base end for last segment:
-					if (defaultVoice instanceof MbrolaVoice) {
-						if (isFirst) {
-							isFirst = false;
-							ph.setAttribute("f0", "(0," + ((MbrolaVoice) defaultVoice).topStart() + ")");
-						} else if (i == phones.length - 1 && !stTokens.hasMoreTokens() && !stSyllables.hasMoreTokens()) {
-							ph.setAttribute("f0", "(100," + ((MbrolaVoice) defaultVoice).baseEnd() + ")");
-						}
-					}
+                    
 					token.appendChild(ph);
 				}
 			}
