@@ -34,7 +34,6 @@ package marytts.modules;
 import java.io.IOException;
 import java.util.Locale;
 
-
 import com.sun.speech.freetts.Tokenizer;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;

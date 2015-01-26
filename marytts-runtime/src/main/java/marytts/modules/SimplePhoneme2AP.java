@@ -122,7 +122,7 @@ public class SimplePhoneme2AP extends InternalModule {
 					ph.setAttribute("d", String.valueOf(dur));
 					cumulDur += dur;
 					ph.setAttribute("end", String.valueOf(cumulDur));
-                    
+
 					token.appendChild(ph);
 				}
 			}
