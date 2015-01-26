@@ -113,7 +113,7 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 	 * 
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 *            @see{#getFrameLengthSamples()}.
+	 * @see{#getFrameLengthSamples() .
 	 * @return An analysis result. The data type depends on the concrete analyser.
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length

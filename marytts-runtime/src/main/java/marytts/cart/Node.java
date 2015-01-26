@@ -106,16 +106,15 @@ public abstract class Node {
 		return false;
 	}
 
-	public Node getRootNode()
-    {
-        if (isRoot) {
-            assert mother == null;
-            return this;
-        } else {
-            assert mother != null : " I am not root but I have no mother :-(";
-            return mother.getRootNode();
-        }
-    }
+	public Node getRootNode() {
+		if (isRoot) {
+			assert mother == null;
+			return this;
+		} else {
+			assert mother != null : " I am not root but I have no mother :-(";
+			return mother.getRootNode();
+		}
+	}
 
 	public String getDecisionPath() {
 		String ancestorInfo;

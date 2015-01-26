@@ -55,109 +55,79 @@ public class GMMTrainer {
 	// Training consists of two steps:
 	// (a) Initialization using K-Means clustering
 	// (b) EM iterations to increase total log-likelihood of the model given the data
-	public GMM train(double[][] x, GMMTrainerParams gmmParams)
-    {
-        long startTime, endTime;
-        
-        /*
-        //For testing Java and native C versions with identical data
-        String dataFile0 = "d:/gmmTester2.dat";
-        DoubleData d0 = null;
-        if (FileUtils.exists(dataFile0))
-        {
-            d0 = new DoubleData(dataFile0);
-            x = new double[d0.numVectors][];
-            for (int i=0; i<d0.numVectors; i++)
-            {
-                x[i] = new double[d0.dimension];
-                System.arraycopy(d0.vectors[i], 0, x[i], 0, d0.dimension);
-            } 
-        }
-        else
-        {
-            d0 = new DoubleData(x);
-            d0.write(dataFile0);
-        }
-        //
-        */
-        
-        startTime = System.currentTimeMillis();
-        
-        GMM gmm = null;
-        if (x!=null && gmmParams.totalComponents>0)
-        {
-            if (!MaryUtils.isWindows())
-                gmmParams.useNativeCLibTrainer = false;
-            
-            if (!gmmParams.useNativeCLibTrainer) //Java based training
-            {
-                int featureDimension = x[0].length;
-                int i;
-                for (i=1; i<x.length; i++)
-                    assert x[i].length==featureDimension;
+	public GMM train(double[][] x, GMMTrainerParams gmmParams) {
+		long startTime, endTime;
 
-                //Initialize components with KMeans clustering
-                KMeansClusteringTrainerParams kmeansParams = new KMeansClusteringTrainerParams(gmmParams);
-                KMeansClusteringTrainer kmeansClusterer = new KMeansClusteringTrainer();
-                kmeansClusterer.train(x, kmeansParams);
+		/*
+		 * //For testing Java and native C versions with identical data String dataFile0 = "d:/gmmTester2.dat"; DoubleData d0 =
+		 * null; if (FileUtils.exists(dataFile0)) { d0 = new DoubleData(dataFile0); x = new double[d0.numVectors][]; for (int i=0;
+		 * i<d0.numVectors; i++) { x[i] = new double[d0.dimension]; System.arraycopy(d0.vectors[i], 0, x[i], 0, d0.dimension); } }
+		 * else { d0 = new DoubleData(x); d0.write(dataFile0); } //
+		 */
 
-                //Create initial GMM according to KMeans clustering results
-                GMM initialGmm = new GMM(kmeansClusterer);
+		startTime = System.currentTimeMillis();
 
-                //Update model parameters with Expectation-Maximization
-                gmm = expectationMaximization(x, 
-                                              initialGmm, 
-                                              gmmParams.emMinIterations, 
-                                              gmmParams.emMaxIterations, 
-                                              gmmParams.isUpdateCovariances, 
-                                              gmmParams.tinyLogLikelihoodChangePercent,
-                                              gmmParams.minCovarianceAllowed);
-            }
-            else //native C library based training (only available for Windows OS)
-            {   
-                String strIsBigEndian = "1";
-                String dataFile = StringUtils.getRandomFileName("d:/gmmTemp_", 8, ".dat");
-                DoubleMatrix d = new DoubleMatrix(x);
-                d.write(dataFile);
+		GMM gmm = null;
+		if (x != null && gmmParams.totalComponents > 0) {
+			if (!MaryUtils.isWindows())
+				gmmParams.useNativeCLibTrainer = false;
 
-                String gmmFile = StringUtils.modifyExtension(dataFile, ".gmm");
-                String logFile = StringUtils.modifyExtension(dataFile, ".log");
-                String strCommand = "GMMTrainer.exe " +
-                                    "\"" + dataFile + "\" " +
-                                    "\"" + gmmFile + "\" " +
-                                    String.valueOf(gmmParams.totalComponents) + " " +
-                                    strIsBigEndian + " " +
-                                    String.valueOf(gmmParams.isDiagonalCovariance ? 1 : 0) + " " +
-                                    String.valueOf(gmmParams.kmeansMaxIterations) + " " + 
-                                    String.valueOf(gmmParams.kmeansMinClusterChangePercent) + " " +
-                                    String.valueOf(gmmParams.kmeansMinSamplesInOneCluster) + " " +
-                                    String.valueOf(gmmParams.emMinIterations) + " " +
-                                    String.valueOf(gmmParams.emMaxIterations) + " " +
-                                    String.valueOf(gmmParams.isUpdateCovariances ? 1 : 0) + " " +
-                                    String.valueOf(gmmParams.tinyLogLikelihoodChangePercent) + " " +
-                                    String.valueOf(gmmParams.minCovarianceAllowed) + " " +
-                                    "\"" + logFile + "\"";
+			if (!gmmParams.useNativeCLibTrainer) // Java based training
+			{
+				int featureDimension = x[0].length;
+				int i;
+				for (i = 1; i < x.length; i++)
+					assert x[i].length == featureDimension;
 
-                int exitVal = MaryUtils.shellExecute(strCommand, true);
+				// Initialize components with KMeans clustering
+				KMeansClusteringTrainerParams kmeansParams = new KMeansClusteringTrainerParams(gmmParams);
+				KMeansClusteringTrainer kmeansClusterer = new KMeansClusteringTrainer();
+				kmeansClusterer.train(x, kmeansParams);
 
-                if (exitVal == 0) 
-                {
-                    System.out.println("GMM training with native C library done...");
-                    gmm = new GMM(gmmFile);
-                    FileUtils.delete(gmmFile); 
-                }
-                else
-                    System.out.println("Error executing native C library with exit code " + exitVal);
+				// Create initial GMM according to KMeans clustering results
+				GMM initialGmm = new GMM(kmeansClusterer);
 
-                FileUtils.delete(dataFile);
-            }
-        }
-        
-        endTime = System.currentTimeMillis();
-        System.out.println("GMM training took " + String.valueOf((endTime-startTime)/1000.0) + " seconds...");
+				// Update model parameters with Expectation-Maximization
+				gmm = expectationMaximization(x, initialGmm, gmmParams.emMinIterations, gmmParams.emMaxIterations,
+						gmmParams.isUpdateCovariances, gmmParams.tinyLogLikelihoodChangePercent, gmmParams.minCovarianceAllowed);
+			} else // native C library based training (only available for Windows OS)
+			{
+				String strIsBigEndian = "1";
+				String dataFile = StringUtils.getRandomFileName("d:/gmmTemp_", 8, ".dat");
+				DoubleMatrix d = new DoubleMatrix(x);
+				d.write(dataFile);
 
-        return gmm;
-    }
+				String gmmFile = StringUtils.modifyExtension(dataFile, ".gmm");
+				String logFile = StringUtils.modifyExtension(dataFile, ".log");
+				String strCommand = "GMMTrainer.exe " + "\"" + dataFile + "\" " + "\"" + gmmFile + "\" "
+						+ String.valueOf(gmmParams.totalComponents) + " " + strIsBigEndian + " "
+						+ String.valueOf(gmmParams.isDiagonalCovariance ? 1 : 0) + " "
+						+ String.valueOf(gmmParams.kmeansMaxIterations) + " "
+						+ String.valueOf(gmmParams.kmeansMinClusterChangePercent) + " "
+						+ String.valueOf(gmmParams.kmeansMinSamplesInOneCluster) + " "
+						+ String.valueOf(gmmParams.emMinIterations) + " " + String.valueOf(gmmParams.emMaxIterations) + " "
+						+ String.valueOf(gmmParams.isUpdateCovariances ? 1 : 0) + " "
+						+ String.valueOf(gmmParams.tinyLogLikelihoodChangePercent) + " "
+						+ String.valueOf(gmmParams.minCovarianceAllowed) + " " + "\"" + logFile + "\"";
+
+				int exitVal = MaryUtils.shellExecute(strCommand, true);
+
+				if (exitVal == 0) {
+					System.out.println("GMM training with native C library done...");
+					gmm = new GMM(gmmFile);
+					FileUtils.delete(gmmFile);
+				} else
+					System.out.println("Error executing native C library with exit code " + exitVal);
+
+				FileUtils.delete(dataFile);
+			}
+		}
+
+		endTime = System.currentTimeMillis();
+		System.out.println("GMM training took " + String.valueOf((endTime - startTime) / 1000.0) + " seconds...");
+
+		return gmm;
+	}
 
 	/*
 	 * EM algorithm to fit a GMM to multi-dimensional data x: Data matrix (Each row is another observation vector) initialGMM:
@@ -175,236 +145,214 @@ public class GMMTrainer {
 	 * Many practical tutorials for EM training of GMMs exist on the web, i.e.:
 	 * http://bengio.abracadoudou.com/lectures/old/tex_gmm.pdf
 	 */
-	public GMM expectationMaximization(double[][] x, 
-                                       GMM initialGmm, 
-                                       int emMinimumIterations,
-                                       int emMaximumIterations, 
-                                       boolean isUpdateCovariances,
-                                       double tinyLogLikelihoodChangePercent,
-                                       double minimumCovarianceAllowed)
-    {
-        int i, j,k;
-        int totalObservations = x.length;
+	public GMM expectationMaximization(double[][] x, GMM initialGmm, int emMinimumIterations, int emMaximumIterations,
+			boolean isUpdateCovariances, double tinyLogLikelihoodChangePercent, double minimumCovarianceAllowed) {
+		int i, j, k;
+		int totalObservations = x.length;
 
-        GMM gmm = new GMM(initialGmm);
+		GMM gmm = new GMM(initialGmm);
 
-        for (i=0; i<totalObservations; i++)
-            assert x[i].length == gmm.featureDimension;
+		for (i = 0; i < totalObservations; i++)
+			assert x[i].length == gmm.featureDimension;
 
-        int numIterations = 1;
+		int numIterations = 1;
 
-        double error = 0.0;
-        double prevErr;
+		double error = 0.0;
+		double prevErr;
 
-        for (k=0; k<gmm.totalComponents; k++)
-            gmm.weights[k] = 1.0f/gmm.totalComponents;
+		for (k = 0; k < gmm.totalComponents; k++)
+			gmm.weights[k] = 1.0f / gmm.totalComponents;
 
-        boolean bContinue = true;
+		boolean bContinue = true;
 
-        double[] zDenum = new double[totalObservations];
-        double P_xj_tetak;
+		double[] zDenum = new double[totalObservations];
+		double P_xj_tetak;
 
-        double[][] zNum = new double[totalObservations][gmm.totalComponents];
-        double[][] z = new double[totalObservations][gmm.totalComponents];
+		double[][] zNum = new double[totalObservations][gmm.totalComponents];
+		double[][] z = new double[totalObservations][gmm.totalComponents];
 
-        double[] num1 = new double[gmm.featureDimension];
-        double[] tmpMean = new double[gmm.featureDimension];
+		double[] num1 = new double[gmm.featureDimension];
+		double[] tmpMean = new double[gmm.featureDimension];
 
-        double[][] num2 = new double[gmm.featureDimension][gmm.featureDimension];
+		double[][] num2 = new double[gmm.featureDimension][gmm.featureDimension];
 
-        double tmpSum;
-        double mean_diff;
-        double denum;
-        double diffk; 
-        double tmpZeroMean;
-        int d1, d2;
-        logLikelihoods = new double[emMaximumIterations];
+		double tmpSum;
+		double mean_diff;
+		double denum;
+		double diffk;
+		double tmpZeroMean;
+		int d1, d2;
+		logLikelihoods = new double[emMaximumIterations];
 
-        long start, end;
-        start = end = 0;
-        
-        //Main EM iteartions loop
-        while(bContinue)
-        {
-            start = System.currentTimeMillis();
-            //Expectation step
-            // Find zjk's at time (s+1) using alphak's at time (s)
-            for (j=0; j<totalObservations; j++)
-            {
-                zDenum[j] = 0.0f;
-                for (k=0; k<gmm.totalComponents; k++)
-                {
-                    //P(xj|teta_k)
-                    if (gmm.isDiagonalCovariance)
-                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
-                    else
-                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
+		long start, end;
+		start = end = 0;
 
-                    /*
-                    if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
-                        P_xj_tetak=MathUtils.TINY_PROBABILITY;
-                        */
-                    
-                    zNum[j][k] = gmm.weights[k] * P_xj_tetak;
-                    zDenum[j] = zDenum[j] + zNum[j][k];
-                }
-            }
+		// Main EM iteartions loop
+		while (bContinue) {
+			start = System.currentTimeMillis();
+			// Expectation step
+			// Find zjk's at time (s+1) using alphak's at time (s)
+			for (j = 0; j < totalObservations; j++) {
+				zDenum[j] = 0.0f;
+				for (k = 0; k < gmm.totalComponents; k++) {
+					// P(xj|teta_k)
+					if (gmm.isDiagonalCovariance)
+						P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector,
+								gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm());
+					else
+						P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector,
+								gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
 
-            //Find zjk's at time (s+1)
-            for (j=0; j<totalObservations; j++)
-            {
-                for (k=0; k<gmm.totalComponents; k++)
-                    z[j][k] = zNum[j][k]/zDenum[j];
-            }
+					/*
+					 * if (P_xj_tetak<MathUtils.TINY_PROBABILITY) P_xj_tetak=MathUtils.TINY_PROBABILITY;
+					 */
 
-            //Now update alphak's to find their values at time (s+1)
-            for (k=0; k<gmm.totalComponents; k++)
-            {
-                tmpSum = 0.0;
-                for (j=0; j<totalObservations; j++)
-                    tmpSum += z[j][k];
+					zNum[j][k] = gmm.weights[k] * P_xj_tetak;
+					zDenum[j] = zDenum[j] + zNum[j][k];
+				}
+			}
 
-                gmm.weights[k] = tmpSum/totalObservations;
-            }
+			// Find zjk's at time (s+1)
+			for (j = 0; j < totalObservations; j++) {
+				for (k = 0; k < gmm.totalComponents; k++)
+					z[j][k] = zNum[j][k] / zDenum[j];
+			}
 
-            //Maximization step
-            // Find the model parameters at time (s+1) using zjk's at time (s+1)
-            mean_diff=0.0;
-            for (k=0; k<gmm.totalComponents; k++)
-            {                
-                for (d1=0; d1<gmm.featureDimension; d1++)
-                {
-                    num1[d1] = 0.0f;
-                    for (d2=0; d2<gmm.featureDimension; d2++)
-                        num2[d1][d2] = 0.0f;
-                }
+			// Now update alphak's to find their values at time (s+1)
+			for (k = 0; k < gmm.totalComponents; k++) {
+				tmpSum = 0.0;
+				for (j = 0; j < totalObservations; j++)
+					tmpSum += z[j][k];
 
-                denum=0.0;
+				gmm.weights[k] = tmpSum / totalObservations;
+			}
 
-                for (j=0; j<totalObservations; j++)
-                {
-                    denum += z[j][k];
+			// Maximization step
+			// Find the model parameters at time (s+1) using zjk's at time (s+1)
+			mean_diff = 0.0;
+			for (k = 0; k < gmm.totalComponents; k++) {
+				for (d1 = 0; d1 < gmm.featureDimension; d1++) {
+					num1[d1] = 0.0f;
+					for (d2 = 0; d2 < gmm.featureDimension; d2++)
+						num2[d1][d2] = 0.0f;
+				}
 
-                    for (d1=0; d1<gmm.featureDimension; d1++)
-                    {
-                        num1[d1] += x[j][d1]*z[j][k];
-                        
-                        tmpZeroMean = x[j][d1]-gmm.components[k].meanVector[d1];
-                        
-                        for (d2=0; d2<gmm.featureDimension; d2++)
-                            num2[d1][d2] += z[j][k]*tmpZeroMean*(x[j][d2]-gmm.components[k].meanVector[d2]);
-                    }
-                }
+				denum = 0.0;
 
-                for (d1=0; d1<gmm.featureDimension; d1++)
-                    tmpMean[d1] = num1[d1] / denum;
+				for (j = 0; j < totalObservations; j++) {
+					denum += z[j][k];
 
-                diffk = 0.0f;
-                for (d1=0; d1<gmm.featureDimension; d1++)
-                {
-                    tmpZeroMean = tmpMean[d1]-gmm.components[k].meanVector[d1];
-                    diffk += tmpZeroMean*tmpZeroMean;
-                }
-                diffk = Math.sqrt(diffk);
-                mean_diff += diffk;
+					for (d1 = 0; d1 < gmm.featureDimension; d1++) {
+						num1[d1] += x[j][d1] * z[j][k];
 
-                for (d1=0; d1<gmm.featureDimension; d1++)
-                    gmm.components[k].meanVector[d1] = tmpMean[d1];
+						tmpZeroMean = x[j][d1] - gmm.components[k].meanVector[d1];
 
-                if (isUpdateCovariances)
-                {
-                    if (gmm.isDiagonalCovariance)
-                    {
-                        for (d1=0; d1<gmm.featureDimension; d1++)
-                            gmm.components[k].covMatrix[0][d1] = Math.max(num2[d1][d1]/denum, minimumCovarianceAllowed);
-                    }
-                    else
-                    {
-                        for (d1=0; d1<gmm.featureDimension; d1++)
-                        {
-                            for (d2=0; d2<gmm.featureDimension; d2++)
-                                gmm.components[k].covMatrix[d1][d2] = Math.max(num2[d1][d2]/denum, minimumCovarianceAllowed);
-                        }
-                    }
+						for (d2 = 0; d2 < gmm.featureDimension; d2++)
+							num2[d1][d2] += z[j][k] * tmpZeroMean * (x[j][d2] - gmm.components[k].meanVector[d2]);
+					}
+				}
 
-                    gmm.components[k].setDerivedValues();
-                }
-            }
+				for (d1 = 0; d1 < gmm.featureDimension; d1++)
+					tmpMean[d1] = num1[d1] / denum;
 
-            if (numIterations == 1)
-                error = mean_diff;
-            else
-            {
-                prevErr = error;
-                error = mean_diff;
-            }
+				diffk = 0.0f;
+				for (d1 = 0; d1 < gmm.featureDimension; d1++) {
+					tmpZeroMean = tmpMean[d1] - gmm.components[k].meanVector[d1];
+					diffk += tmpZeroMean * tmpZeroMean;
+				}
+				diffk = Math.sqrt(diffk);
+				mean_diff += diffk;
 
-            logLikelihoods[numIterations-1] = 0.0;
-            if (gmm.isDiagonalCovariance)
-            {
-                for (j=0; j<totalObservations; j++)
-                {
-                    double tmp=0.0;
-                    for (k=0; k<gmm.totalComponents; k++)
-                    {
-                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
+				for (d1 = 0; d1 < gmm.featureDimension; d1++)
+					gmm.components[k].meanVector[d1] = tmpMean[d1];
 
-                        /*
-                        if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
-                            P_xj_tetak=MathUtils.TINY_PROBABILITY;
-                            */
+				if (isUpdateCovariances) {
+					if (gmm.isDiagonalCovariance) {
+						for (d1 = 0; d1 < gmm.featureDimension; d1++)
+							gmm.components[k].covMatrix[0][d1] = Math.max(num2[d1][d1] / denum, minimumCovarianceAllowed);
+					} else {
+						for (d1 = 0; d1 < gmm.featureDimension; d1++) {
+							for (d2 = 0; d2 < gmm.featureDimension; d2++)
+								gmm.components[k].covMatrix[d1][d2] = Math.max(num2[d1][d2] / denum, minimumCovarianceAllowed);
+						}
+					}
 
-                        tmp += gmm.weights[k]*P_xj_tetak;
-                    }
+					gmm.components[k].setDerivedValues();
+				}
+			}
 
-                    logLikelihoods[numIterations-1] += Math.log(tmp);
-                }
-            }
-            else
-            {
-                for (j=0; j<totalObservations; j++)
-                {
-                    double tmp=0.0;
-                    for (k=0; k<gmm.totalComponents; k++)
-                    {
-                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm()); 
+			if (numIterations == 1)
+				error = mean_diff;
+			else {
+				prevErr = error;
+				error = mean_diff;
+			}
 
-                        /*
-                        if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
-                            P_xj_tetak=MathUtils.TINY_PROBABILITY;
-                            */
+			logLikelihoods[numIterations - 1] = 0.0;
+			if (gmm.isDiagonalCovariance) {
+				for (j = 0; j < totalObservations; j++) {
+					double tmp = 0.0;
+					for (k = 0; k < gmm.totalComponents; k++) {
+						P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector,
+								gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm());
 
-                        tmp += gmm.weights[k]*P_xj_tetak;
-                    }
+						/*
+						 * if (P_xj_tetak<MathUtils.TINY_PROBABILITY) P_xj_tetak=MathUtils.TINY_PROBABILITY;
+						 */
 
-                    logLikelihoods[numIterations-1] += Math.log(tmp);
-                }
-            }
+						tmp += gmm.weights[k] * P_xj_tetak;
+					}
 
-            end = System.currentTimeMillis();
-            
-            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with avg. difference in means " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]) + " in " +  String.valueOf((end-start)/1000.0) + " sec");
+					logLikelihoods[numIterations - 1] += Math.log(tmp);
+				}
+			} else {
+				for (j = 0; j < totalObservations; j++) {
+					double tmp = 0.0;
+					for (k = 0; k < gmm.totalComponents; k++) {
+						P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector,
+								gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
 
-            //Force iterations to stop if maximum number of iterations has been reached
-            if (numIterations+1>emMaximumIterations)
-                break;
+						/*
+						 * if (P_xj_tetak<MathUtils.TINY_PROBABILITY) P_xj_tetak=MathUtils.TINY_PROBABILITY;
+						 */
 
-            //Force iterations to stop if minimum number of iterations has been reached AND total log likelihood does not change much
-            if (numIterations>emMinimumIterations && logLikelihoods[numIterations-1]-logLikelihoods[numIterations-2]<Math.abs(logLikelihoods[numIterations-1]/100*tinyLogLikelihoodChangePercent))
-                break;
+						tmp += gmm.weights[k] * P_xj_tetak;
+					}
 
-            numIterations++;
-        }
+					logLikelihoods[numIterations - 1] += Math.log(tmp);
+				}
+			}
 
-        double[] tmpLogLikelihoods = new double[numIterations-1];
-        System.arraycopy(logLikelihoods, 0, tmpLogLikelihoods, 0, numIterations-1);
-        logLikelihoods = new double[numIterations-1];
-        System.arraycopy(tmpLogLikelihoods, 0, logLikelihoods, 0, numIterations-1);   
-        
-        System.out.println("GMM training completed...");
+			end = System.currentTimeMillis();
 
-        return gmm;
-    }
+			System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: "
+					+ String.valueOf(numIterations) + " with avg. difference in means " + String.valueOf(error)
+					+ " log-likelihood=" + String.valueOf(logLikelihoods[numIterations - 1]) + " in "
+					+ String.valueOf((end - start) / 1000.0) + " sec");
+
+			// Force iterations to stop if maximum number of iterations has been reached
+			if (numIterations + 1 > emMaximumIterations)
+				break;
+
+			// Force iterations to stop if minimum number of iterations has been reached AND total log likelihood does not change
+			// much
+			if (numIterations > emMinimumIterations
+					&& logLikelihoods[numIterations - 1] - logLikelihoods[numIterations - 2] < Math
+							.abs(logLikelihoods[numIterations - 1] / 100 * tinyLogLikelihoodChangePercent))
+				break;
+
+			numIterations++;
+		}
+
+		double[] tmpLogLikelihoods = new double[numIterations - 1];
+		System.arraycopy(logLikelihoods, 0, tmpLogLikelihoods, 0, numIterations - 1);
+		logLikelihoods = new double[numIterations - 1];
+		System.arraycopy(tmpLogLikelihoods, 0, logLikelihoods, 0, numIterations - 1);
+
+		System.out.println("GMM training completed...");
+
+		return gmm;
+	}
 
 	public static void testEndianFileIO() throws IOException {
 		boolean b1 = true;

@@ -140,76 +140,75 @@ public class CARTDurationModeller extends InternalModule {
 		}
 	}
 
-	public MaryData process(MaryData d)
-    throws Exception
-    {
-        Document doc = d.getDocument(); 
-        NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
-        Element sentence = null;
-        while ((sentence = (Element) sentenceIt.nextNode()) != null) {
-            // Make sure we have the correct voice:
-            Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
-            Voice maryVoice = Voice.getVoice(voice);
-            if (maryVoice == null) {                
-                maryVoice = d.getDefaultVoice();
-            }
-            if (maryVoice == null) {
-                // Determine Locale in order to use default voice
-                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
-                maryVoice = Voice.getDefaultVoice(locale);
-            }
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
+		Element sentence = null;
+		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+			// Make sure we have the correct voice:
+			Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
+			Voice maryVoice = Voice.getVoice(voice);
+			if (maryVoice == null) {
+				maryVoice = d.getDefaultVoice();
+			}
+			if (maryVoice == null) {
+				// Determine Locale in order to use default voice
+				Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+				maryVoice = Voice.getDefaultVoice(locale);
+			}
 
-            DirectedGraph currentCart = cart;
-            TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice != null) {
-                DirectedGraph voiceCart = maryVoice.getDurationGraph();
-                if (voiceCart != null) {
-                    currentCart  = voiceCart;
-                    logger.debug("Using voice duration graph");
-                    FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
-                    currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
-                }
-            }
-            
-            if (currentCart == null) {
-                throw new NullPointerException("No cart for predicting duration");
-            }
-            
-            // cumulative duration from beginning of sentence, in seconds:
-            float end = 0;
+			DirectedGraph currentCart = cart;
+			TargetFeatureComputer currentFeatureComputer = featureComputer;
+			if (maryVoice != null) {
+				DirectedGraph voiceCart = maryVoice.getDurationGraph();
+				if (voiceCart != null) {
+					currentCart = voiceCart;
+					logger.debug("Using voice duration graph");
+					FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
+					currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager,
+							voiceFeatDef.getFeatureNames());
+				}
+			}
 
-            TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
-            Element segmentOrBoundary;
-            Element previous = null;
-            while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {
-                String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
-                Target t = new Target(phone, segmentOrBoundary);
-                t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                float durInSeconds;
-                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
-                    durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
-                } else {
-                    float[] dur = (float[])currentCart.interpret(t);
-                    assert dur != null : "Null duration";
-                    assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-                    durInSeconds = dur[1];
-                    float stddevInSeconds = dur[0];
-                }
-                end += durInSeconds;
-                int durInMillis = (int) (1000 * durInSeconds);
-                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-                    segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
-                } else { // phone
-                    segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
-                    segmentOrBoundary.setAttribute("end", String.valueOf(end));
-                }
-                previous = segmentOrBoundary;
-            }
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setDocument(doc);
-        return output;
-    }
+			if (currentCart == null) {
+				throw new NullPointerException("No cart for predicting duration");
+			}
+
+			// cumulative duration from beginning of sentence, in seconds:
+			float end = 0;
+
+			TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
+			Element segmentOrBoundary;
+			Element previous = null;
+			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
+				String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
+				Target t = new Target(phone, segmentOrBoundary);
+				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+				float durInSeconds;
+				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
+					durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
+				} else {
+					float[] dur = (float[]) currentCart.interpret(t);
+					assert dur != null : "Null duration";
+					assert dur.length == 2 : "Unexpected duration length: " + dur.length;
+					durInSeconds = dur[1];
+					float stddevInSeconds = dur[0];
+				}
+				end += durInSeconds;
+				int durInMillis = (int) (1000 * durInSeconds);
+				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+					segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
+				} else { // phone
+					segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
+					segmentOrBoundary.setAttribute("end", String.valueOf(end));
+				}
+				previous = segmentOrBoundary;
+			}
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setDocument(doc);
+		return output;
+	}
 
 	/**
 	 * 
@@ -219,43 +218,44 @@ public class CARTDurationModeller extends InternalModule {
 	 * @param maryVoice
 	 * @return pause duration, in seconds
 	 */
-	private float enterPauseDuration(Element boundary, Element previous, 
-            StringPredictionTree currentPauseTree, TargetFeatureComputer currentPauseFeatureComputer)
-    {
-        if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
-            throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
-        
-        // If there is already a duration, keep it:
-        if (boundary.hasAttribute("duration")) {
-            try {
-                return Float.parseFloat(boundary.getAttribute("duration"))  * 0.001f;
-            } catch (NumberFormatException nfe) {}
-        }
+	private float enterPauseDuration(Element boundary, Element previous, StringPredictionTree currentPauseTree,
+			TargetFeatureComputer currentPauseFeatureComputer) {
+		if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
+			throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
 
-        float duration = 0.4f; // default value
+		// If there is already a duration, keep it:
+		if (boundary.hasAttribute("duration")) {
+			try {
+				return Float.parseFloat(boundary.getAttribute("duration")) * 0.001f;
+			} catch (NumberFormatException nfe) {
+			}
+		}
 
-        if (previous == null || !previous.getTagName().equals(MaryXML.PHONE))
-            return duration;
-        
-        if (currentPauseTree == null)
-            return duration;
-        
-        assert currentPauseFeatureComputer != null;
-        String phone = previous.getAttribute("p");
-        Target t = new Target(phone, previous);
-        t.setFeatureVector(currentPauseFeatureComputer.computeFeatureVector(t));
-                
-        String durationString = currentPauseTree.getMostProbableString(t);
-        // strip off "ms"
-        durationString = durationString.substring(0, durationString.length() - 2);
-        try {
-            duration = Float.parseFloat(durationString);
-        } catch (NumberFormatException nfe) {}
-        
-        if (duration > 2) {
-            logger.debug("Cutting long duration to 2 s -- was " + duration);
-            duration = 2;
-        }
-        return duration;
-    }
+		float duration = 0.4f; // default value
+
+		if (previous == null || !previous.getTagName().equals(MaryXML.PHONE))
+			return duration;
+
+		if (currentPauseTree == null)
+			return duration;
+
+		assert currentPauseFeatureComputer != null;
+		String phone = previous.getAttribute("p");
+		Target t = new Target(phone, previous);
+		t.setFeatureVector(currentPauseFeatureComputer.computeFeatureVector(t));
+
+		String durationString = currentPauseTree.getMostProbableString(t);
+		// strip off "ms"
+		durationString = durationString.substring(0, durationString.length() - 2);
+		try {
+			duration = Float.parseFloat(durationString);
+		} catch (NumberFormatException nfe) {
+		}
+
+		if (duration > 2) {
+			logger.debug("Cutting long duration to 2 s -- was " + duration);
+			duration = 2;
+		}
+		return duration;
+	}
 }

@@ -96,55 +96,51 @@ public class UnitLabel {
 	 * @param labFile
 	 * @return
 	 */
-	public static UnitLabel[] readLabFile(String labFile) throws IOException{
-        
-        ArrayList<String> lines = new ArrayList<String>();
-        BufferedReader labels = new BufferedReader
-                            (new InputStreamReader
-                                    (new FileInputStream
-                                            (new File(labFile)), "UTF-8"));
-        String line;
-        
-        // Read Label file first
-        //1. Skip label file header:
-        while ((line = labels.readLine()) != null) {
-            if (line.startsWith("#")) break; // line starting with "#" marks end of header
-        }
-        
-        //2. Put data into an ArrayList  
-        String labelUnit = null;
-        double startTimeStamp = 0.0;
-        double endTimeStamp = 0.0;
-        double sCost = 0.0;
-        int unitIndex = 0;
-        while ((line = labels.readLine()) != null) {
-            labelUnit = null;
-            if (line != null){
-                List labelUnitData = getLabelUnitData(line);
-                sCost = (new Double((String)labelUnitData.get(3))).doubleValue();
-                labelUnit = (String)labelUnitData.get(2);
-                unitIndex = Integer.parseInt((String)labelUnitData.get(1));
-                endTimeStamp = Double.parseDouble((String)labelUnitData.get(0)); 
-            }
-            if(labelUnit == null) break;
-            lines.add(labelUnit.trim()+" "+startTimeStamp+" "+endTimeStamp+" "+unitIndex+" "+sCost);
-            startTimeStamp = endTimeStamp;  
-        }
-        labels.close();
-        
-        UnitLabel[] ulab = new UnitLabel[lines.size()];
-        Iterator<String> itr = lines.iterator();
-        for(int i=0; itr.hasNext() ; i++) {
-            String element = itr.next();
-            String[] wrds = element.split("\\s+");
-            ulab[i] = new UnitLabel(wrds[0],
-                    (new Double(wrds[1])).doubleValue(),
-                    (new Double(wrds[2])).doubleValue(),
-                    (new Integer(wrds[3])).intValue(),
-                    (new Double(wrds[4])).doubleValue());
-        }
-        return ulab;
-    }
+	public static UnitLabel[] readLabFile(String labFile) throws IOException {
+
+		ArrayList<String> lines = new ArrayList<String>();
+		BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(labFile)), "UTF-8"));
+		String line;
+
+		// Read Label file first
+		// 1. Skip label file header:
+		while ((line = labels.readLine()) != null) {
+			if (line.startsWith("#"))
+				break; // line starting with "#" marks end of header
+		}
+
+		// 2. Put data into an ArrayList
+		String labelUnit = null;
+		double startTimeStamp = 0.0;
+		double endTimeStamp = 0.0;
+		double sCost = 0.0;
+		int unitIndex = 0;
+		while ((line = labels.readLine()) != null) {
+			labelUnit = null;
+			if (line != null) {
+				List labelUnitData = getLabelUnitData(line);
+				sCost = (new Double((String) labelUnitData.get(3))).doubleValue();
+				labelUnit = (String) labelUnitData.get(2);
+				unitIndex = Integer.parseInt((String) labelUnitData.get(1));
+				endTimeStamp = Double.parseDouble((String) labelUnitData.get(0));
+			}
+			if (labelUnit == null)
+				break;
+			lines.add(labelUnit.trim() + " " + startTimeStamp + " " + endTimeStamp + " " + unitIndex + " " + sCost);
+			startTimeStamp = endTimeStamp;
+		}
+		labels.close();
+
+		UnitLabel[] ulab = new UnitLabel[lines.size()];
+		Iterator<String> itr = lines.iterator();
+		for (int i = 0; itr.hasNext(); i++) {
+			String element = itr.next();
+			String[] wrds = element.split("\\s+");
+			ulab[i] = new UnitLabel(wrds[0], (new Double(wrds[1])).doubleValue(), (new Double(wrds[2])).doubleValue(),
+					(new Integer(wrds[3])).intValue(), (new Double(wrds[4])).doubleValue());
+		}
+		return ulab;
+	}
 
 	public static void writeLabFile(UnitLabel[] ulab, String outFile) throws IOException {
 		PrintWriter pw = new PrintWriter(new FileWriter(outFile));

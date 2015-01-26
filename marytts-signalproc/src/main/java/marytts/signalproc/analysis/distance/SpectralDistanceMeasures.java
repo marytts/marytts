@@ -99,65 +99,61 @@ public class SpectralDistanceMeasures {
 		return getLsfDist(lsfs1, lsfs2, samplingRate, lsfWgt);
 	}
 
-	public static double getLsfDist(double [] lsfs1, double [] lsfs2, int samplingRate, double [] lsfWgt)
-    {
-        assert lsfs1.length == lsfs2.length;
-        assert lsfs1.length == lsfWgt.length;
-        
-        double dist = 0.0;
-        
-        for (int i=0; i<lsfs1.length; i++)
-            dist += 0.1*lsfWgt[i]*Math.abs(lsfs1[i]-lsfs2[i]);
-        
-        dist = dist*16000/samplingRate;
-        dist = Math.min(20.0, dist/lsfs1.length);
-        dist = 10*(dist+1e-36);
-        
-        return dist;
-    }
+	public static double getLsfDist(double[] lsfs1, double[] lsfs2, int samplingRate, double[] lsfWgt) {
+		assert lsfs1.length == lsfs2.length;
+		assert lsfs1.length == lsfWgt.length;
 
-	public static double [] getInverseHarmonicLSFWeights(double [] lsfs)
-    {
-        assert lsfs.length>1;
-        
-        int P = lsfs.length;
-        
-        int i;
-      
-        double [] lsfWgt = new double[P];
-        
-        lsfWgt[0] = 1.0/Math.abs(lsfs[1]-lsfs[0]);
-        lsfWgt[P-1] = 0.5/Math.abs(lsfs[P-1]-lsfs[P-2]);
+		double dist = 0.0;
 
-        for (i=1; i<=P-2; i++)
-           lsfWgt[i] = 1.0/Math.min(Math.abs(lsfs[i]-lsfs[i-1]), Math.abs(lsfs[i+1]-lsfs[i]));
+		for (int i = 0; i < lsfs1.length; i++)
+			dist += 0.1 * lsfWgt[i] * Math.abs(lsfs1[i] - lsfs2[i]);
 
-        //Emphasize low frequency LSFs 
-        double tmp = 0.0;
-        for (i=0; i<P; i++)
-        {
-           lsfWgt[i] = Math.exp(-0.05*i)*lsfWgt[i];
-           tmp += lsfWgt[i];
-        }
-        
-        //Normalize
-        for (i=0; i<P; i++)
-            lsfWgt[i] /= tmp;
+		dist = dist * 16000 / samplingRate;
+		dist = Math.min(20.0, dist / lsfs1.length);
+		dist = 10 * (dist + 1e-36);
 
-        //Compress dynamic range
-        tmp = 0.0;
-        for (i=0; i<=P-1; i++)
-        {
-           lsfWgt[i] = Math.sqrt(lsfWgt[i]);
-           tmp += lsfWgt[i];
-        }
-        
-      //Normalize
-        for (i=0; i<P; i++)
-            lsfWgt[i] /= tmp;
-        
-        return lsfWgt;
-    }
+		return dist;
+	}
+
+	public static double[] getInverseHarmonicLSFWeights(double[] lsfs) {
+		assert lsfs.length > 1;
+
+		int P = lsfs.length;
+
+		int i;
+
+		double[] lsfWgt = new double[P];
+
+		lsfWgt[0] = 1.0 / Math.abs(lsfs[1] - lsfs[0]);
+		lsfWgt[P - 1] = 0.5 / Math.abs(lsfs[P - 1] - lsfs[P - 2]);
+
+		for (i = 1; i <= P - 2; i++)
+			lsfWgt[i] = 1.0 / Math.min(Math.abs(lsfs[i] - lsfs[i - 1]), Math.abs(lsfs[i + 1] - lsfs[i]));
+
+		// Emphasize low frequency LSFs
+		double tmp = 0.0;
+		for (i = 0; i < P; i++) {
+			lsfWgt[i] = Math.exp(-0.05 * i) * lsfWgt[i];
+			tmp += lsfWgt[i];
+		}
+
+		// Normalize
+		for (i = 0; i < P; i++)
+			lsfWgt[i] /= tmp;
+
+		// Compress dynamic range
+		tmp = 0.0;
+		for (i = 0; i <= P - 1; i++) {
+			lsfWgt[i] = Math.sqrt(lsfWgt[i]);
+			tmp += lsfWgt[i];
+		}
+
+		// Normalize
+		for (i = 0; i < P; i++)
+			lsfWgt[i] /= tmp;
+
+		return lsfWgt;
+	}
 
 	public static double rmsLogSpectralDist(double[] speechFrame1, double[] speechFrame2, int fftSize, int lpOrder) {
 		// Windowing

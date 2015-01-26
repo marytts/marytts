@@ -110,51 +110,50 @@ public class Wagon implements Runnable {
 	 * @param featuresToIgnore
 	 *            a set of Strings containing the names of features that wagon should ignore. Can be null.
 	 */
-	private void createDescFile()
-    throws IOException
-    {
-        PrintWriter out = new PrintWriter(new FileOutputStream(descFile));
-        Set<String> featuresToIgnore = new HashSet<String>();
-        featuresToIgnore.add("unit_logf0");
-        featuresToIgnore.add("unit_duration");
-        
-        int numDiscreteFeatures = featureDefinition.getNumberOfByteFeatures()
-            + featureDefinition.getNumberOfShortFeatures();
-        out.println("(");
-        out.println("(occurid cluster)");
-        for (int i=0, n=featureDefinition.getNumberOfFeatures(); i<n; i++) {            
-            out.print("( ");
-            String featureName = featureDefinition.getFeatureName(i);
-            out.print(featureName);
-            if (featuresToIgnore != null && featuresToIgnore.contains(featureName)) {
-                out.print(" ignore");
-            }
-            if (i<numDiscreteFeatures) { // list values
-                for (int v=0, vmax=featureDefinition.getNumberOfValues(i); v<vmax; v++) {
-                    out.print("  ");
-                    // Print values surrounded by double quotes, and make sure any
-                    // double quotes in the value are preceded by a backslash --
-                    // otherwise, we get problems e.g. for sentence_punc
-                    String val = featureDefinition.getFeatureValueAsString(i, v);
-                    if (val.indexOf('"') != -1) {
-                        StringBuilder buf = new StringBuilder();
-                        for (int c=0; c<val.length(); c++) {
-                            char ch = val.charAt(c);
-                            if (ch == '"') buf.append("\\\"");
-                            else buf.append(ch);
-                        }
-                        val = buf.toString();
-                    }
-                    out.print("\""+val+"\"");
-                }
-                out.println(" )");
-             } else { // float feature
-                 out.println(" float )");
-             }
-        }
-        out.println(")");
-        out.close();
-    }
+	private void createDescFile() throws IOException {
+		PrintWriter out = new PrintWriter(new FileOutputStream(descFile));
+		Set<String> featuresToIgnore = new HashSet<String>();
+		featuresToIgnore.add("unit_logf0");
+		featuresToIgnore.add("unit_duration");
+
+		int numDiscreteFeatures = featureDefinition.getNumberOfByteFeatures() + featureDefinition.getNumberOfShortFeatures();
+		out.println("(");
+		out.println("(occurid cluster)");
+		for (int i = 0, n = featureDefinition.getNumberOfFeatures(); i < n; i++) {
+			out.print("( ");
+			String featureName = featureDefinition.getFeatureName(i);
+			out.print(featureName);
+			if (featuresToIgnore != null && featuresToIgnore.contains(featureName)) {
+				out.print(" ignore");
+			}
+			if (i < numDiscreteFeatures) { // list values
+				for (int v = 0, vmax = featureDefinition.getNumberOfValues(i); v < vmax; v++) {
+					out.print("  ");
+					// Print values surrounded by double quotes, and make sure any
+					// double quotes in the value are preceded by a backslash --
+					// otherwise, we get problems e.g. for sentence_punc
+					String val = featureDefinition.getFeatureValueAsString(i, v);
+					if (val.indexOf('"') != -1) {
+						StringBuilder buf = new StringBuilder();
+						for (int c = 0; c < val.length(); c++) {
+							char ch = val.charAt(c);
+							if (ch == '"')
+								buf.append("\\\"");
+							else
+								buf.append(ch);
+						}
+						val = buf.toString();
+					}
+					out.print("\"" + val + "\"");
+				}
+				out.println(" )");
+			} else { // float feature
+				out.println(" float )");
+			}
+		}
+		out.println(")");
+		out.close();
+	}
 
 	private void dumpFeatureVectors() throws IOException {
 		// open file
@@ -208,75 +207,72 @@ public class Wagon implements Runnable {
 		out.close();
 	}
 
-	public void run()
-    {
-        try {
-            long startTime = System.currentTimeMillis();
-            
-            logger.debug(id+"> Creating "+descFile.getName());
-            createDescFile();
+	public void run() {
+		try {
+			long startTime = System.currentTimeMillis();
 
-            logger.debug(id+"> Dumping features to "+featFile.getName());
-            dumpFeatureVectors();
-            
-            logger.debug(id+"> Dumping distance matrix to "+distFile.getName());
-            binarySaveDistanceMatrix();
-            
-            logger.debug(id+"> Calling wagon as follows:");
-            logger.debug(systemCall);
-            Process p = Runtime.getRuntime().exec(systemCall);
-            //collect the output
-            //read from error stream
-            StreamGobbler errorGobbler = new 
-                StreamGobbler(p.getErrorStream(), id+" err");            
-        
-            //read from output stream
-            StreamGobbler outputGobbler = new 
-                StreamGobbler(p.getInputStream(), id+" out");        
-            //start reading from the streams
-            errorGobbler.start();
-            outputGobbler.start();
-            p.waitFor();
-            if (p.exitValue()!=0) {
-                finished = true;
-                success = false;
-            } else {
-                success = true;
-                logger.debug(id+"> Wagon call took "+(System.currentTimeMillis()-startTime)+" ms");
-                
-                //read in the resulting CART
-                logger.debug(id+"> Reading CART");
-                BufferedReader buf = new BufferedReader(new FileReader(cartFile));
-                WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
-                cart = new CART(wagonReader.load(buf, featureDefinition), featureDefinition);
-                buf.close();
-                
-                // Fix the new cart's leaves:
-                // They are currently the index numbers in featureVectors;
-                // but what we need is the unit index numbers!
-                for (LeafNode leaf : cart.getLeafNodes()) {
-                    int[] data = (int[])leaf.getAllData();
-                    for (int i=0; i<data.length; i++) {
-                        data[i] = fv[data[i]].getUnitIndex();
-                    }
-                }
+			logger.debug(id + "> Creating " + descFile.getName());
+			createDescFile();
 
-                logger.debug(id+"> completed in "+(System.currentTimeMillis()-startTime)+" ms");
-                finished = true;
-            }
-            if (!Boolean.getBoolean("wagon.keepfiles")) {
-                featFile.delete();
-                distFile.delete();
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            finished = true;
-            success = false;
-            throw new RuntimeException("Exception running wagon");
-        }
+			logger.debug(id + "> Dumping features to " + featFile.getName());
+			dumpFeatureVectors();
 
-    }
+			logger.debug(id + "> Dumping distance matrix to " + distFile.getName());
+			binarySaveDistanceMatrix();
+
+			logger.debug(id + "> Calling wagon as follows:");
+			logger.debug(systemCall);
+			Process p = Runtime.getRuntime().exec(systemCall);
+			// collect the output
+			// read from error stream
+			StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), id + " err");
+
+			// read from output stream
+			StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), id + " out");
+			// start reading from the streams
+			errorGobbler.start();
+			outputGobbler.start();
+			p.waitFor();
+			if (p.exitValue() != 0) {
+				finished = true;
+				success = false;
+			} else {
+				success = true;
+				logger.debug(id + "> Wagon call took " + (System.currentTimeMillis() - startTime) + " ms");
+
+				// read in the resulting CART
+				logger.debug(id + "> Reading CART");
+				BufferedReader buf = new BufferedReader(new FileReader(cartFile));
+				WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
+				cart = new CART(wagonReader.load(buf, featureDefinition), featureDefinition);
+				buf.close();
+
+				// Fix the new cart's leaves:
+				// They are currently the index numbers in featureVectors;
+				// but what we need is the unit index numbers!
+				for (LeafNode leaf : cart.getLeafNodes()) {
+					int[] data = (int[]) leaf.getAllData();
+					for (int i = 0; i < data.length; i++) {
+						data[i] = fv[data[i]].getUnitIndex();
+					}
+				}
+
+				logger.debug(id + "> completed in " + (System.currentTimeMillis() - startTime) + " ms");
+				finished = true;
+			}
+			if (!Boolean.getBoolean("wagon.keepfiles")) {
+				featFile.delete();
+				distFile.delete();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			finished = true;
+			success = false;
+			throw new RuntimeException("Exception running wagon");
+		}
+
+	}
 
 	public boolean finished() {
 		return finished;

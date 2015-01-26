@@ -93,51 +93,47 @@ public class VocalisationLabelInspector {
 	}
 
 	private UnitLabel[] removePausesFromLabels(UnitLabel[] vocalLabels) {
-        
-        ArrayList<UnitLabel> uLabels = new ArrayList<UnitLabel>();
-        
-        // put into a list
-        for ( int i=0; i < vocalLabels.length; i++ ) {
-            uLabels.add(vocalLabels[i]);
-        }
-        
-        // remove back pauses first
-        for ( int i = (uLabels.size()-1); i > 0 ; i-- ) {
-            if ( "_".equals(vocalLabels[i].unitName) ) {
-                uLabels.remove(i);
-            }
-            else {
-                break;
-            }
-        }
-        
-        
-        // remove front pauses next
-        for ( int i=0; i < uLabels.size(); i++ ) {
-            if ( "_".equals(vocalLabels[i].unitName) ) {
-                uLabels.remove(i);
-            }
-            else {
-                break;
-            }
-        }
-        
-        // post process unit labels
-        double removedPauseTime = (uLabels.get(0)).getStartTime();
-        for ( int i=0; i < uLabels.size(); i++ ) {
-            
-            UnitLabel ulab  = uLabels.get(i);
-            uLabels.remove(i);
-            double sTime = ulab.getStartTime();
-            double eTime = ulab.getEndTime();
-            ulab.setStartTime(sTime-removedPauseTime);
-            ulab.setEndTime(eTime-removedPauseTime);
-            uLabels.add(i,ulab);
-        }
-        
-        
-        return uLabels.toArray(new UnitLabel[0]);
-    }
+
+		ArrayList<UnitLabel> uLabels = new ArrayList<UnitLabel>();
+
+		// put into a list
+		for (int i = 0; i < vocalLabels.length; i++) {
+			uLabels.add(vocalLabels[i]);
+		}
+
+		// remove back pauses first
+		for (int i = (uLabels.size() - 1); i > 0; i--) {
+			if ("_".equals(vocalLabels[i].unitName)) {
+				uLabels.remove(i);
+			} else {
+				break;
+			}
+		}
+
+		// remove front pauses next
+		for (int i = 0; i < uLabels.size(); i++) {
+			if ("_".equals(vocalLabels[i].unitName)) {
+				uLabels.remove(i);
+			} else {
+				break;
+			}
+		}
+
+		// post process unit labels
+		double removedPauseTime = (uLabels.get(0)).getStartTime();
+		for (int i = 0; i < uLabels.size(); i++) {
+
+			UnitLabel ulab = uLabels.get(i);
+			uLabels.remove(i);
+			double sTime = ulab.getStartTime();
+			double eTime = ulab.getEndTime();
+			ulab.setStartTime(sTime - removedPauseTime);
+			ulab.setEndTime(eTime - removedPauseTime);
+			uLabels.add(i, ulab);
+		}
+
+		return uLabels.toArray(new UnitLabel[0]);
+	}
 
 	/**
 	 * 

@@ -61,122 +61,116 @@ public class Segmenter implements UtteranceProcessor {
 	 */
 	public void processUtterance(Utterance utterance) throws ProcessException {
 
-	// preconditions
-        if (utterance.getRelation(Relation.WORD) == null) {
-            throw new IllegalStateException(
-                "Word relation has not been set");
-        } else if (utterance.getRelation(Relation.SYLLABLE) != null) {
-            throw new IllegalStateException(
-                "Syllable relation has already been set");
-        } else if (utterance.getRelation(Relation.SYLLABLE_STRUCTURE)
-                   != null) {
-            throw new IllegalStateException(
-                "SylStructure relation has already been set");
-        } else if (utterance.getRelation(Relation.SEGMENT) != null) {
-            throw new IllegalStateException(
-                "Segment relation has already been set");
-        }
-
-	String stress = NO_STRESS;
-	Relation syl = utterance.createRelation(Relation.SYLLABLE);
-	Relation sylstructure =
-            utterance.createRelation(Relation.SYLLABLE_STRUCTURE);
-	Relation seg = utterance.createRelation(Relation.SEGMENT);
-	String voicename = utterance.getVoice().getName();
-	Lexicon lex = utterance.getVoice().getLexicon();
-	
-	List syllableList = null;
-
-	for (Item word = utterance.getRelation(Relation.WORD).getHead();
-			word != null; word = word.getNext()) {
-	    Item ssword = sylstructure.appendItem(word);
-	    Item sylItem = null;   // item denoting syllable boundaries
-	    Item segItem = null;   // item denoting phonelist (segments)
-	    Item sssyl = null;     // item denoting syl in word
-
-	    String[] phones = null;
-
-        // Part-of-speech:
-        String pos = "0";
-        FeatureSet wordFeatures = word.getFeatures();
-        if (wordFeatures != null && wordFeatures.isPresent("pos")) {
-            pos = wordFeatures.getString("pos");
-            pos = pos.toLowerCase();
-            // TODO: create a proper mapping for parts of speech:
-            if (pos.charAt(0) == 'd') pos = "d";
-            // here we just distinguish determiners from the rest of the world.
-        }
-
-        Item token = word.getItemAs("Token");
-	    FeatureSet featureSet = null;
-
-	    if (token != null) {
-	        Item parent = token.getParent();
-	        featureSet = parent.getFeatures();
-	    }
-	    String wordString = word.toString();
-	    if (featureSet != null && featureSet.isPresent("phones")) {
-	        phones = (String[]) featureSet.getObject("phones");
-	    } else {
-	        boolean useLTSRules = 
-	            MaryProperties.getBoolean("english.lexicon.useLTSrules", true);
-	        
-	        if (useLTSRules){
-	            //System.out.println("Using LTSRules");
-	            //if word not in lex, use letter to sound rules
-	            phones = lex.getPhones(wordString, pos, true);
-	        } else {
-	            //System.out.println("Not using LTSRules");
-	            //dont use letter to sound rules
-	            phones = lex.getPhones(wordString, pos, false);
-	        }
-		
-	    }
-
-	    if (phones == null){
-	        //System.out.println("Phones = null for word "+wordString);
-	        //phones must be generated with lts rules
-	        //add generated phones to addenda
-	        phones = lex.getPhones(wordString, pos, true);	        
-	        
-	        StringBuffer ltsPhoneString = new StringBuffer();
-	        for (int i=0;i<phones.length;i++){
-	            ltsPhoneString.append(phones[i]+" ");
-	        }
-	        
-	        lex.addAddendum(wordString,null,phones);
-	        if (addenda == null) addenda = new HashMap();
-	        addenda.put(wordString,ltsPhoneString);	           
-	    } 
-	    
-	    for (int j = 0; j < phones.length; j++) {
-		if (sylItem == null) {
-		    sylItem = syl.appendItem();
-		    sssyl = ssword.addDaughter(sylItem);
-		    stress = NO_STRESS;
-		    syllableList = new ArrayList();
+		// preconditions
+		if (utterance.getRelation(Relation.WORD) == null) {
+			throw new IllegalStateException("Word relation has not been set");
+		} else if (utterance.getRelation(Relation.SYLLABLE) != null) {
+			throw new IllegalStateException("Syllable relation has already been set");
+		} else if (utterance.getRelation(Relation.SYLLABLE_STRUCTURE) != null) {
+			throw new IllegalStateException("SylStructure relation has already been set");
+		} else if (utterance.getRelation(Relation.SEGMENT) != null) {
+			throw new IllegalStateException("Segment relation has already been set");
 		}
-		segItem = seg.appendItem();
-		if (isStressed(phones[j])) {
-		    stress = STRESS;
-		    phones[j] = deStress(phones[j]);
+
+		String stress = NO_STRESS;
+		Relation syl = utterance.createRelation(Relation.SYLLABLE);
+		Relation sylstructure = utterance.createRelation(Relation.SYLLABLE_STRUCTURE);
+		Relation seg = utterance.createRelation(Relation.SEGMENT);
+		String voicename = utterance.getVoice().getName();
+		Lexicon lex = utterance.getVoice().getLexicon();
+
+		List syllableList = null;
+
+		for (Item word = utterance.getRelation(Relation.WORD).getHead(); word != null; word = word.getNext()) {
+			Item ssword = sylstructure.appendItem(word);
+			Item sylItem = null; // item denoting syllable boundaries
+			Item segItem = null; // item denoting phonelist (segments)
+			Item sssyl = null; // item denoting syl in word
+
+			String[] phones = null;
+
+			// Part-of-speech:
+			String pos = "0";
+			FeatureSet wordFeatures = word.getFeatures();
+			if (wordFeatures != null && wordFeatures.isPresent("pos")) {
+				pos = wordFeatures.getString("pos");
+				pos = pos.toLowerCase();
+				// TODO: create a proper mapping for parts of speech:
+				if (pos.charAt(0) == 'd')
+					pos = "d";
+				// here we just distinguish determiners from the rest of the world.
+			}
+
+			Item token = word.getItemAs("Token");
+			FeatureSet featureSet = null;
+
+			if (token != null) {
+				Item parent = token.getParent();
+				featureSet = parent.getFeatures();
+			}
+			String wordString = word.toString();
+			if (featureSet != null && featureSet.isPresent("phones")) {
+				phones = (String[]) featureSet.getObject("phones");
+			} else {
+				boolean useLTSRules = MaryProperties.getBoolean("english.lexicon.useLTSrules", true);
+
+				if (useLTSRules) {
+					// System.out.println("Using LTSRules");
+					// if word not in lex, use letter to sound rules
+					phones = lex.getPhones(wordString, pos, true);
+				} else {
+					// System.out.println("Not using LTSRules");
+					// dont use letter to sound rules
+					phones = lex.getPhones(wordString, pos, false);
+				}
+
+			}
+
+			if (phones == null) {
+				// System.out.println("Phones = null for word "+wordString);
+				// phones must be generated with lts rules
+				// add generated phones to addenda
+				phones = lex.getPhones(wordString, pos, true);
+
+				StringBuffer ltsPhoneString = new StringBuffer();
+				for (int i = 0; i < phones.length; i++) {
+					ltsPhoneString.append(phones[i] + " ");
+				}
+
+				lex.addAddendum(wordString, null, phones);
+				if (addenda == null)
+					addenda = new HashMap();
+				addenda.put(wordString, ltsPhoneString);
+			}
+
+			for (int j = 0; j < phones.length; j++) {
+				if (sylItem == null) {
+					sylItem = syl.appendItem();
+					sssyl = ssword.addDaughter(sylItem);
+					stress = NO_STRESS;
+					syllableList = new ArrayList();
+				}
+				segItem = seg.appendItem();
+				if (isStressed(phones[j])) {
+					stress = STRESS;
+					phones[j] = deStress(phones[j]);
+				}
+				segItem.getFeatures().setString("name", phones[j]);
+				sssyl.addDaughter(segItem);
+				syllableList.add(phones[j]);
+				if (lex.isSyllableBoundary(syllableList, phones, j + 1)) {
+					sylItem = null;
+					sssyl.getFeatures().setString("stress", stress);
+				}
+			}
+
 		}
-		segItem.getFeatures().setString("name", phones[j]);
-		sssyl.addDaughter(segItem);
-		syllableList.add(phones[j]);
-		if (lex.isSyllableBoundary(syllableList, phones, j + 1))  { 
-		    sylItem =  null;
-                    sssyl.getFeatures().setString("stress", stress);
-		}
-	    }
-	    
+
+		assert utterance.getRelation(Relation.WORD) != null;
+		assert utterance.getRelation(Relation.SYLLABLE) != null;
+		assert utterance.getRelation(Relation.SYLLABLE_STRUCTURE) != null;
+		assert utterance.getRelation(Relation.SEGMENT) != null;
 	}
-
-	assert utterance.getRelation(Relation.WORD) != null;
-	assert utterance.getRelation(Relation.SYLLABLE) != null;
-	assert utterance.getRelation(Relation.SYLLABLE_STRUCTURE) != null;
-	assert utterance.getRelation(Relation.SEGMENT) != null;
-    }
 
 	/**
 	 * Determines if the given phonene is stressed. To determine stress, this method relies upon a phone ending in the number "1".

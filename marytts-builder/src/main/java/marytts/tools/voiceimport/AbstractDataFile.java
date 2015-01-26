@@ -100,31 +100,31 @@ abstract class AbstractDataFile {
 	 * @return datagrams
 	 */
 	public Datagram[] getDatagrams(int forcedDuration) {
-        // initialize datagrams as a List:
-        ArrayList<Datagram> datagramList = new ArrayList<Datagram>(numFrames);
-        int durationMismatch = forcedDuration;
+		// initialize datagrams as a List:
+		ArrayList<Datagram> datagramList = new ArrayList<Datagram>(numFrames);
+		int durationMismatch = forcedDuration;
 
-        // iterate over all data frames:
-        for (Datagram datagram : datagrams) {
-            durationMismatch -= datagram.getDuration();
-            if (durationMismatch < 0) {
-                // if forcedDuration is exceeded, adjust the final frame's duration and break out of loop:
-                datagram.setDuration(datagram.getDuration() + durationMismatch);
-                datagramList.add(datagram);
-                break;
-            }
-            datagramList.add(datagram);
-        }
+		// iterate over all data frames:
+		for (Datagram datagram : datagrams) {
+			durationMismatch -= datagram.getDuration();
+			if (durationMismatch < 0) {
+				// if forcedDuration is exceeded, adjust the final frame's duration and break out of loop:
+				datagram.setDuration(datagram.getDuration() + durationMismatch);
+				datagramList.add(datagram);
+				break;
+			}
+			datagramList.add(datagram);
+		}
 
-        // if total duration of all Datagrams is less than forcedDuration, pad with empty filler:
-        if (durationMismatch > 0) {
-            byte[] nothing = new byte[] {};
-            Datagram filler = new Datagram(durationMismatch, nothing);
-            datagramList.add(filler);
-        }
+		// if total duration of all Datagrams is less than forcedDuration, pad with empty filler:
+		if (durationMismatch > 0) {
+			byte[] nothing = new byte[] {};
+			Datagram filler = new Datagram(durationMismatch, nothing);
+			datagramList.add(filler);
+		}
 
-        // return datagrams as array:
-        Datagram[] datagramArray = datagramList.toArray(new Datagram[datagramList.size()]);
-        return datagramArray;
-    }
+		// return datagrams as array:
+		Datagram[] datagramArray = datagramList.toArray(new Datagram[datagramList.size()]);
+		return datagramArray;
+	}
 }

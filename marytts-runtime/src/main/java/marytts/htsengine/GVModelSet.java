@@ -209,95 +209,93 @@ public class GVModelSet {
 		data_in.close();
 	}
 
-	private void readBinaryFile(DataInputStream data_in, double mean[], double ivar[], int vectorSize, boolean gradientMethod, double gvWeight)
-  throws IOException {
-      int i;
-      double var;
-      if(gradientMethod){
-          for ( i = 0; i < vectorSize; i++){
-            mean[i] = data_in.readFloat() * gvWeight;
-            var = data_in.readFloat();
-            assert var > 0.0;
-            ivar[i] = 1.0/var;
-          }
-      } else {
-          for ( i = 0; i < vectorSize; i++){
-            mean[i] = data_in.readFloat() * gvWeight;
-            ivar[i] = data_in.readFloat();
-          }
-      }
-  }
+	private void readBinaryFile(DataInputStream data_in, double mean[], double ivar[], int vectorSize, boolean gradientMethod,
+			double gvWeight) throws IOException {
+		int i;
+		double var;
+		if (gradientMethod) {
+			for (i = 0; i < vectorSize; i++) {
+				mean[i] = data_in.readFloat() * gvWeight;
+				var = data_in.readFloat();
+				assert var > 0.0;
+				ivar[i] = 1.0 / var;
+			}
+		} else {
+			for (i = 0; i < vectorSize; i++) {
+				mean[i] = data_in.readFloat() * gvWeight;
+				ivar[i] = data_in.readFloat();
+			}
+		}
+	}
 
-	public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, PhoneTranslator trickyPhones)
-  throws Exception {
-   
-   //featDef = featDefinition;
-   //phTrans = phoneTranslator;
-   PhoneTranslator phTrans = trickyPhones;      
-      
-   int i, j, length, state, feaIndex;
-   BufferedReader s = null;
-   String line, buf, aux;
-   StringTokenizer sline;
-   //phTrans = phTranslator;
-   
-           
-   assert featDef != null : "Feature Definition was not set";
-       
-   try {   
-     /* read lines of tree-*.inf fileName */ 
-     s = new BufferedReader(new InputStreamReader(new FileInputStream(gvFile)));
-     logger.info("load: reading " + gvFile);
-     
-     // skip questions section
-     while((line = s.readLine()) != null) {
-         if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
-     }
-     
-     while((line = s.readLine()) != null) {            
-       if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
-         aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
-         state = Integer.parseInt(aux);
-         
-         sline = new StringTokenizer(aux);
-         
-         /* 1:  gets index node and looks for the node whose idx = buf */
-         buf = sline.nextToken();   
-         
-         /* 2: gets question name and question name val */
-         buf = sline.nextToken();
-         String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
-         feaIndex = featDef.getFeatureIndex(fea_val[0]);
-        
-         /* Replace back punctuation values */
-         /* what about tricky phones, if using halfphones it would not be necessary */
-         if(fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation") || fea_val[0].contentEquals("next_punctuation")){
-             //System.out.print("CART replace punc: " + fea_val[0] + " = " + fea_val[1]);
-             fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
-             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-         }
-         else if(fea_val[0].contains("tobi_") ){
-             //System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
-             fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
-             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-         }
-         else if(fea_val[0].contains("phone") ){
-             //System.out.print("CART replace phone: " + fea_val[0] + " = " + fea_val[1]);
-             fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
-             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-         }
-         
-         // add featureName and featureValue to the switch off gv phones          
-                  
-       }         
-     } /* while */  
-     if (s != null)
-       s.close();
-     
-   } catch (FileNotFoundException e) {
-       logger.debug("FileNotFoundException: " + e.getMessage());
-       throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
-   }
-  
-}
+	public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, PhoneTranslator trickyPhones) throws Exception {
+
+		// featDef = featDefinition;
+		// phTrans = phoneTranslator;
+		PhoneTranslator phTrans = trickyPhones;
+
+		int i, j, length, state, feaIndex;
+		BufferedReader s = null;
+		String line, buf, aux;
+		StringTokenizer sline;
+		// phTrans = phTranslator;
+
+		assert featDef != null : "Feature Definition was not set";
+
+		try {
+			/* read lines of tree-*.inf fileName */
+			s = new BufferedReader(new InputStreamReader(new FileInputStream(gvFile)));
+			logger.info("load: reading " + gvFile);
+
+			// skip questions section
+			while ((line = s.readLine()) != null) {
+				if (line.indexOf("QS") < 0)
+					break; /* a new state is indicated by {*}[2], {*}[3], ... */
+			}
+
+			while ((line = s.readLine()) != null) {
+				if (line.indexOf("{*}") >= 0) { /* this is the indicator of a new state-tree */
+					aux = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+					state = Integer.parseInt(aux);
+
+					sline = new StringTokenizer(aux);
+
+					/* 1: gets index node and looks for the node whose idx = buf */
+					buf = sline.nextToken();
+
+					/* 2: gets question name and question name val */
+					buf = sline.nextToken();
+					String[] fea_val = buf.split("="); /* splits featureName=featureValue */
+					feaIndex = featDef.getFeatureIndex(fea_val[0]);
+
+					/* Replace back punctuation values */
+					/* what about tricky phones, if using halfphones it would not be necessary */
+					if (fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation")
+							|| fea_val[0].contentEquals("next_punctuation")) {
+						// System.out.print("CART replace punc: " + fea_val[0] + " = " + fea_val[1]);
+						fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
+						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+					} else if (fea_val[0].contains("tobi_")) {
+						// System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
+						fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
+						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+					} else if (fea_val[0].contains("phone")) {
+						// System.out.print("CART replace phone: " + fea_val[0] + " = " + fea_val[1]);
+						fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
+						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+					}
+
+					// add featureName and featureValue to the switch off gv phones
+
+				}
+			} /* while */
+			if (s != null)
+				s.close();
+
+		} catch (FileNotFoundException e) {
+			logger.debug("FileNotFoundException: " + e.getMessage());
+			throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
+		}
+
+	}
 }

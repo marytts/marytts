@@ -346,38 +346,37 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	 * Provide a block of data. This method is called from the superclass when data is requested. Note that prepareBlock() will be
 	 * called before this.
 	 */
-	protected int readBlock(double[] target, int targetPos)
-    {
-        // Now, the first blockSize samples can be output:
-        int blockSize = getBlockSize();
-        int validSamplesInFrame = frameProvider.validSamplesInFrame();
-        //System.err.println("OLA: valid samples in current frame: "+validSamplesInFrame);
-        int frameLength = frameProvider.getFrameLengthSamples();
-        if (validSamplesInFrame < frameLength) {
-            assert !frameProvider.hasMoreData();
-            //assert frameLength-validSamplesInFrame < frameProvider.getFrameShiftSamples();
-            // But in the case of speeding up, frameLength-validSamplesInFrame
-            // can still be > blockSize; in that case, copy only blockSize samples,
-            // and discard the rest.
-            int nCopied;
-            if (blockSize < (frameLength-validSamplesInFrame)) {
-                nCopied = blockSize;
-            } else {
-                nCopied = blockSize - (frameLength-validSamplesInFrame);
-            }
-            assert nCopied > 0; // otherwise someone should notice we should not be called
-            //System.err.println("OLA: Outputting last frame: "+nCopied+" samples ("+blockSize+","+frameLength+","+validSamplesInFrame+")");
-            System.arraycopy(memory, 0, target, targetPos, nCopied);
-            return nCopied;
-        } else {
-            //System.err.println("OLA: Outputting normal frame: "+blockSize+" samples (keeping "+(validSamplesInFrame-blockSize)+")");
-            System.arraycopy(memory, 0, target, targetPos, blockSize);
-            // Shift the data left in memory:
-            System.arraycopy(memory, blockSize, memory, 0, memory.length-blockSize);
-            Arrays.fill(memory, memory.length-blockSize, memory.length, 0);
-            return blockSize;
-        }
-    }
+	protected int readBlock(double[] target, int targetPos) {
+		// Now, the first blockSize samples can be output:
+		int blockSize = getBlockSize();
+		int validSamplesInFrame = frameProvider.validSamplesInFrame();
+		// System.err.println("OLA: valid samples in current frame: "+validSamplesInFrame);
+		int frameLength = frameProvider.getFrameLengthSamples();
+		if (validSamplesInFrame < frameLength) {
+			assert !frameProvider.hasMoreData();
+			// assert frameLength-validSamplesInFrame < frameProvider.getFrameShiftSamples();
+			// But in the case of speeding up, frameLength-validSamplesInFrame
+			// can still be > blockSize; in that case, copy only blockSize samples,
+			// and discard the rest.
+			int nCopied;
+			if (blockSize < (frameLength - validSamplesInFrame)) {
+				nCopied = blockSize;
+			} else {
+				nCopied = blockSize - (frameLength - validSamplesInFrame);
+			}
+			assert nCopied > 0; // otherwise someone should notice we should not be called
+			// System.err.println("OLA: Outputting last frame: "+nCopied+" samples ("+blockSize+","+frameLength+","+validSamplesInFrame+")");
+			System.arraycopy(memory, 0, target, targetPos, nCopied);
+			return nCopied;
+		} else {
+			// System.err.println("OLA: Outputting normal frame: "+blockSize+" samples (keeping "+(validSamplesInFrame-blockSize)+")");
+			System.arraycopy(memory, 0, target, targetPos, blockSize);
+			// Shift the data left in memory:
+			System.arraycopy(memory, blockSize, memory, 0, memory.length - blockSize);
+			Arrays.fill(memory, memory.length - blockSize, memory.length, 0);
+			return blockSize;
+		}
+	}
 
 	protected int getInputFrameshift(int outputFrameshift) {
 		return outputFrameshift; // default: inputFrameshift == outputFrameshift

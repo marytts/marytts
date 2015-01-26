@@ -62,45 +62,39 @@ public class TemporalSmoother {
 	// Smooth along each column
 	// i.e. each row corresponds to acoustic features of one frame at a specific instant of time
 	// Windowing based weighting is used
-	public static double[][] smooth(double[][] x, int neighbours, int windowType)
-    {
-        if (neighbours<=0)
-            return x;
-        else
-        {
-            double[][] y = new double[x.length][x[0].length];
-            int i, j, k;
-            int windowSize = 2*neighbours+1;
-            DynamicWindow w = new DynamicWindow(windowType);
-            double[] weights = w.values(windowSize);
-            double weightSum;
-            
-            for (i=1; i<x.length; i++)
-                assert x[i].length==x[0].length;
-            
-            for (i=0; i<x[0].length; i++)
-            {
-                for (j=0; j<x.length; j++)
-                {
-                    y[j][i] = 0.0;
-                    weightSum = 0.0;
-                    for (k=-neighbours; k<=neighbours; k++)
-                    {
-                        if (j+k>=0 && j+k<x.length)
-                        {
-                            y[j][i] += weights[k+neighbours]*x[j+k][i];
-                            weightSum += weights[k+neighbours];
-                        }
-                    }
-                    
-                    if (weightSum>0.0)
-                        y[j][i] /= weightSum;
-                }
-            }
-            
-            return y;
-        }
-    }
+	public static double[][] smooth(double[][] x, int neighbours, int windowType) {
+		if (neighbours <= 0)
+			return x;
+		else {
+			double[][] y = new double[x.length][x[0].length];
+			int i, j, k;
+			int windowSize = 2 * neighbours + 1;
+			DynamicWindow w = new DynamicWindow(windowType);
+			double[] weights = w.values(windowSize);
+			double weightSum;
+
+			for (i = 1; i < x.length; i++)
+				assert x[i].length == x[0].length;
+
+			for (i = 0; i < x[0].length; i++) {
+				for (j = 0; j < x.length; j++) {
+					y[j][i] = 0.0;
+					weightSum = 0.0;
+					for (k = -neighbours; k <= neighbours; k++) {
+						if (j + k >= 0 && j + k < x.length) {
+							y[j][i] += weights[k + neighbours] * x[j + k][i];
+							weightSum += weights[k + neighbours];
+						}
+					}
+
+					if (weightSum > 0.0)
+						y[j][i] /= weightSum;
+				}
+			}
+
+			return y;
+		}
+	}
 
 	public static void main(String[] args) {
 		double[][] xx = new double[10][2];

@@ -58,32 +58,31 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	 * 
 	 * @param d
 	 */
-	protected void splitOffDots(MaryData d)
-    {
-        Document doc = d.getDocument();
-        NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc,
-            NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.TOKEN), false);
-        Element t = null;
-        while ((t = (Element) ni.nextNode()) != null) {
-            String s = MaryDomUtils.tokenText(t);
-            // Any dots to be split off?
-            if (s.length() > 1 && s.endsWith(".")) {
-                String s1 = s.substring(0, s.length()-1);
+	protected void splitOffDots(MaryData d) {
+		Document doc = d.getDocument();
+		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
+				MaryXML.TOKEN), false);
+		Element t = null;
+		while ((t = (Element) ni.nextNode()) != null) {
+			String s = MaryDomUtils.tokenText(t);
+			// Any dots to be split off?
+			if (s.length() > 1 && s.endsWith(".")) {
+				String s1 = s.substring(0, s.length() - 1);
 
-                MaryDomUtils.setTokenText(t, s1);
-                Element sentence = (Element) MaryDomUtils.getAncestor(t, MaryXML.SENTENCE);
-                assert sentence != null;
-                if (!MaryDomUtils.isLastOfItsKindIn(t, sentence)) {
-                    // need to manually add a sentence break
-                    Element firstInSentence = MaryDomUtils.getFirstElementByTagName(sentence, MaryXML.TOKEN);
-                    Element newSentence = MaryDomUtils.encloseNodesWithNewElement(firstInSentence, t, MaryXML.SENTENCE);
-                    sentence.getParentNode().insertBefore(newSentence, sentence);
-                    sentence = newSentence; 
-                }
-                // And actually, we still need to add a token '.'
-                Element newT = MaryXML.appendChildElement(sentence, MaryXML.TOKEN);
-                MaryDomUtils.setTokenText(newT, ".");
-            }
-        }
-    }
+				MaryDomUtils.setTokenText(t, s1);
+				Element sentence = (Element) MaryDomUtils.getAncestor(t, MaryXML.SENTENCE);
+				assert sentence != null;
+				if (!MaryDomUtils.isLastOfItsKindIn(t, sentence)) {
+					// need to manually add a sentence break
+					Element firstInSentence = MaryDomUtils.getFirstElementByTagName(sentence, MaryXML.TOKEN);
+					Element newSentence = MaryDomUtils.encloseNodesWithNewElement(firstInSentence, t, MaryXML.SENTENCE);
+					sentence.getParentNode().insertBefore(newSentence, sentence);
+					sentence = newSentence;
+				}
+				// And actually, we still need to add a token '.'
+				Element newT = MaryXML.appendChildElement(sentence, MaryXML.TOKEN);
+				MaryDomUtils.setTokenText(newT, ".");
+			}
+		}
+	}
 }

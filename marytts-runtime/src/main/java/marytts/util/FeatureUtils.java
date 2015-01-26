@@ -55,20 +55,22 @@ public class FeatureUtils {
 	}
 
 	public static FeatureVector[] readFeatureVectors(String targetFeaturesData) throws IOException {
-        BufferedReader br = new BufferedReader(new StringReader(targetFeaturesData));
-        FeatureDefinition def = new FeatureDefinition(br, false); // false: do not read weights
-        // skip the clear text section: read until an empty line occurs
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.trim().equals("")) break;
-        }
-        // read the binary section
-        List<FeatureVector> fvs = new ArrayList<FeatureVector>();
-        while ((line = br.readLine()) != null) {
-            if (line.trim().equals("")) break;
-            FeatureVector fv = def.toFeatureVector(0, line);
-            fvs.add(fv);
-        }
-        return (FeatureVector[]) fvs.toArray(new FeatureVector[fvs.size()]);
+		BufferedReader br = new BufferedReader(new StringReader(targetFeaturesData));
+		FeatureDefinition def = new FeatureDefinition(br, false); // false: do not read weights
+		// skip the clear text section: read until an empty line occurs
+		String line;
+		while ((line = br.readLine()) != null) {
+			if (line.trim().equals(""))
+				break;
+		}
+		// read the binary section
+		List<FeatureVector> fvs = new ArrayList<FeatureVector>();
+		while ((line = br.readLine()) != null) {
+			if (line.trim().equals(""))
+				break;
+			FeatureVector fv = def.toFeatureVector(0, line);
+			fvs.add(fv);
+		}
+		return (FeatureVector[]) fvs.toArray(new FeatureVector[fvs.size()]);
 	}
 }

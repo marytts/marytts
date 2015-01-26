@@ -129,21 +129,20 @@ public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource {
 		return readSum >= minLength;
 	}
 
-	protected int readDatagram(Datagram d, double[] target, int pos)
-    {
-        int dur = (int) d.getDuration();
-        byte[] frameAudio = d.getData();
-        assert frameAudio.length / 2 == dur : "expected datagram data length to be "+(dur*2)+", found "+frameAudio.length;
-        for (int i=0; i<frameAudio.length; i+=2, pos++) {
-            int sample;
-            byte lobyte;
-            byte hibyte;
-            // big endian:
-            lobyte = frameAudio[i+1];
-            hibyte = frameAudio[i];
-            sample = hibyte<<8 | lobyte&0xFF;
-            target[pos] = sample / 32768.0;// normalise to range [-1, 1];
-        }
-        return dur;
-    }
+	protected int readDatagram(Datagram d, double[] target, int pos) {
+		int dur = (int) d.getDuration();
+		byte[] frameAudio = d.getData();
+		assert frameAudio.length / 2 == dur : "expected datagram data length to be " + (dur * 2) + ", found " + frameAudio.length;
+		for (int i = 0; i < frameAudio.length; i += 2, pos++) {
+			int sample;
+			byte lobyte;
+			byte hibyte;
+			// big endian:
+			lobyte = frameAudio[i + 1];
+			hibyte = frameAudio[i];
+			sample = hibyte << 8 | lobyte & 0xFF;
+			target[pos] = sample / 32768.0;// normalise to range [-1, 1];
+		}
+		return dur;
+	}
 }

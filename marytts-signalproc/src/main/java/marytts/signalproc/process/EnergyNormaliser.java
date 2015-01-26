@@ -135,32 +135,31 @@ public class EnergyNormaliser implements AudioProcessor {
 		return new DDSAudioInputStream(this.apply(adds), adds.getAudioFormat());
 	}
 
-	public DoubleDataSource apply(DoubleDataSource signal)
-    {
-        final double factor;
-        DoubleDataSource source;
-        if (amplitudeFactor >= 0) { // Simple multiplication with amplitude factor
-            factor = amplitudeFactor;
-            source = signal;
-        } else { // reference power -- need to compute average power first.
-            assert referencePower >= 0;
-            double[] signalData = signal.getAllData();
-            double power = determineAveragePower(signalData);
-            if (power == 0) factor = 0;
-            else factor = Math.sqrt(referencePower / power);
-            source = new BufferedDoubleDataSource(signalData);
-        }
-        System.err.println("Applying amplitude factor: "+factor);
-        return new BufferedDoubleDataSource(source, new InlineDataProcessor()
-                {
-                    public void applyInline(double[] buf, int off, int len)
-                    {
-                        for (int i=off; i<off+len; i++) {
-                            buf[i] *= factor;
-                        }
-                    }
-                });
-    }
+	public DoubleDataSource apply(DoubleDataSource signal) {
+		final double factor;
+		DoubleDataSource source;
+		if (amplitudeFactor >= 0) { // Simple multiplication with amplitude factor
+			factor = amplitudeFactor;
+			source = signal;
+		} else { // reference power -- need to compute average power first.
+			assert referencePower >= 0;
+			double[] signalData = signal.getAllData();
+			double power = determineAveragePower(signalData);
+			if (power == 0)
+				factor = 0;
+			else
+				factor = Math.sqrt(referencePower / power);
+			source = new BufferedDoubleDataSource(signalData);
+		}
+		System.err.println("Applying amplitude factor: " + factor);
+		return new BufferedDoubleDataSource(source, new InlineDataProcessor() {
+			public void applyInline(double[] buf, int off, int len) {
+				for (int i = off; i < off + len; i++) {
+					buf[i] *= factor;
+				}
+			}
+		});
+	}
 
 	public static void main(String[] args) throws Exception {
 		/*
