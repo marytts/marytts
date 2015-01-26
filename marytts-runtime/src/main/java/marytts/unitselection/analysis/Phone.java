@@ -499,21 +499,21 @@ public class Phone {
 	 * @return the durations (in seconds) of each Datagram in the unit in an array, or null if unit is null
 	 */
 	private double[] getUnitFrameDurations(SelectedUnit unit) {
-        Datagram[] frames = null;
-        try {
-            frames = getUnitData(unit).getFrames();
-        } catch (NullPointerException e) {
-            return null;
-        }
-        assert frames != null;
+		Datagram[] frames = null;
+		try {
+			frames = getUnitData(unit).getFrames();
+		} catch (NullPointerException e) {
+			return null;
+		}
+		assert frames != null;
 
-        double[] frameDurations = new double[frames.length];
-        for (int f = 0; f < frames.length; f++) {
-            long frameDuration = frames[f].getDuration();
-            frameDurations[f] = frameDuration / sampleRate; // converting to seconds
-        }
-        return frameDurations;
-    }
+		double[] frameDurations = new double[frames.length];
+		for (int f = 0; f < frames.length; f++) {
+			long frameDuration = frames[f].getDuration();
+			frameDurations[f] = frameDuration / sampleRate; // converting to seconds
+		}
+		return frameDurations;
+	}
 
 	/**
 	 * Get the durations (in seconds) of each Datagram in this phone's left unit

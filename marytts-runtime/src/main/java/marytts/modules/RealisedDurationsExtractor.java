@@ -42,49 +42,46 @@ public class RealisedDurationsExtractor extends InternalModule {
 		super("Realised durations extractor", MaryDataType.AUDIO, MaryDataType.REALISED_DURATIONS, null);
 	}
 
-	public MaryData process(MaryData d)
-    throws Exception
-    {
-        Document doc = d.getDocument();
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        StringBuilder buf = new StringBuilder();
-        buf.append("#\n");
-        NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
-                new NameNodeFilter(new String[]{MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY}),
-                false);
-        Element element = null;
-        float end = 0.f;
-        float sentenceEnd = 0;
-        while ((element = (Element) ni.nextNode()) != null) {
-            String sampa = null;
-            String durString = null;
-            String endString = null;
-            if (element.getTagName().equals(MaryXML.PHONE)) {
-                sampa = element.getAttribute("p");
-                //durString = element.getAttribute("d"); // less accurate than end
-                endString = element.getAttribute("end");
-            } else if (element.getTagName().equals(MaryXML.SENTENCE)) {
-                sentenceEnd += end;
-            } else {
-                assert element.getTagName().equals(MaryXML.BOUNDARY);
-                sampa = "_";
-                durString = element.getAttribute("duration");
-            }
-            boolean printme = false;
-            if (endString != null && !endString.equals("")) {
-                end = Float.parseFloat(endString);
-                printme = true;
-            } else if (durString != null && !durString.equals("")) {
-                float dur = Float.parseFloat(durString) * 0.001f;
-                end += dur;
-                printme = true;
-            }
-            if (printme) {                
-                buf.append((end + sentenceEnd) + " 125 "+sampa+"\n");
-            }
-        }
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		MaryData result = new MaryData(outputType(), d.getLocale());
+		StringBuilder buf = new StringBuilder();
+		buf.append("#\n");
+		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
+				new String[] { MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY }), false);
+		Element element = null;
+		float end = 0.f;
+		float sentenceEnd = 0;
+		while ((element = (Element) ni.nextNode()) != null) {
+			String sampa = null;
+			String durString = null;
+			String endString = null;
+			if (element.getTagName().equals(MaryXML.PHONE)) {
+				sampa = element.getAttribute("p");
+				// durString = element.getAttribute("d"); // less accurate than end
+				endString = element.getAttribute("end");
+			} else if (element.getTagName().equals(MaryXML.SENTENCE)) {
+				sentenceEnd += end;
+			} else {
+				assert element.getTagName().equals(MaryXML.BOUNDARY);
+				sampa = "_";
+				durString = element.getAttribute("duration");
+			}
+			boolean printme = false;
+			if (endString != null && !endString.equals("")) {
+				end = Float.parseFloat(endString);
+				printme = true;
+			} else if (durString != null && !durString.equals("")) {
+				float dur = Float.parseFloat(durString) * 0.001f;
+				end += dur;
+				printme = true;
+			}
+			if (printme) {
+				buf.append((end + sentenceEnd) + " 125 " + sampa + "\n");
+			}
+		}
 
-        result.setPlainText(buf.toString());
-        return result;
-    }
+		result.setPlainText(buf.toString());
+		return result;
+	}
 }

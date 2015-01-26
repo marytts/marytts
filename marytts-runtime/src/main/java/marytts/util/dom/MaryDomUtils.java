@@ -62,24 +62,21 @@ public class MaryDomUtils extends DomUtils {
 	 *            attribute is inserted.
 	 * @return the newly created MTU element.
 	 */
-	public static Element encloseWithMTU(Element t, String orig, String accentPosition)
-    {
-        if (!t.getNodeName().equals(MaryXML.TOKEN))
-            throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-                                   "Only t elements allowed, received " +
-                                   t.getNodeName() + ".");
-        Element parent = (Element) t.getParentNode();
-        assert parent != null;
-        Document doc = t.getOwnerDocument();
-        Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
-        mtu.setAttribute("orig", orig);
-        // Which of the components gets a possible accent:
-        if (accentPosition != null)
-            mtu.setAttribute("accent", accentPosition);
-        parent.insertBefore(mtu, t);
-        mtu.appendChild(t);
-        return mtu;
-    }
+	public static Element encloseWithMTU(Element t, String orig, String accentPosition) {
+		if (!t.getNodeName().equals(MaryXML.TOKEN))
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getNodeName() + ".");
+		Element parent = (Element) t.getParentNode();
+		assert parent != null;
+		Document doc = t.getOwnerDocument();
+		Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
+		mtu.setAttribute("orig", orig);
+		// Which of the components gets a possible accent:
+		if (accentPosition != null)
+			mtu.setAttribute("accent", accentPosition);
+		parent.insertBefore(mtu, t);
+		mtu.appendChild(t);
+		return mtu;
+	}
 
 	/**
 	 * Create a new <t> element and insert it after t.

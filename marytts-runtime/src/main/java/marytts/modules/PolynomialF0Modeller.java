@@ -105,130 +105,129 @@ public class PolynomialF0Modeller extends InternalModule {
 				.getFeatureNames());
 	}
 
-	public MaryData process(MaryData d)
-    throws Exception
-    {
-        Document doc = d.getDocument(); 
-        NodeIterator sentenceIt = ((DocumentTraversal)doc).
-            createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
-                           new NameNodeFilter(MaryXML.SENTENCE), false);
-        Element sentence = null;
-        AllophoneSet allophoneSet = null;
-        while ((sentence = (Element) sentenceIt.nextNode()) != null) {
-            // Make sure we have the correct voice:
-            Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
-            Voice maryVoice = Voice.getVoice(voice);
-            if (maryVoice == null) {                
-                maryVoice = d.getDefaultVoice();
-            }
-            if (maryVoice == null) {
-                // Determine Locale in order to use default voice
-                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
-                maryVoice = Voice.getDefaultVoice(locale);
-            }
-            FeatureFileReader currentContours = contourFeatures;
-            DirectedGraph currentGraph = contourGraph;
-            TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice != null) {
-                DirectedGraph voiceGraph = maryVoice.getF0Graph();
-                if (voiceGraph != null) {
-                    currentGraph = voiceGraph;
-                    logger.debug("Using voice graph");
-                    FeatureDefinition voiceFeatDef = voiceGraph.getFeatureDefinition();
-                    currentFeatureComputer = new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
-                    FeatureFileReader voiceContourFeatures = maryVoice.getF0ContourFeatures();
-                    currentContours = voiceContourFeatures;
-                }
-            }
-            
-            TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(sentence, 
-                    NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.SYLLABLE), false);
-            Element syllable;
-            Element previous = null;
-            while ((syllable = (Element)tw.nextNode()) != null) {
-                Element vowel = null;
-                float sylDur = 0;
-                for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils.getNextSiblingElement(s)) {
-                    assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found "+s.getTagName();
-                    if (s.hasAttribute("d")) {
-                        sylDur += Float.parseFloat(s.getAttribute("d"));
-                    }
-                    String phone = s.getAttribute("p");
-                    if (allophoneSet == null) {
-                        allophoneSet = MaryRuntimeUtils.determineAllophoneSet(s);
-                    }
-                    assert allophoneSet != null;
-                    Allophone allophone = allophoneSet.getAllophone(phone);
-                    if (allophone.isVowel()) {
-                        // found a vowel
-                        vowel = s;
-                    }
-                }
-                // only predict F0 values if we have a vowel:
-                if (vowel != null) {
-                    // Now predict the f0 values using the CARTs:ssh 
-                    String phone = vowel.getAttribute("p");
-                    Target t = new Target(phone, vowel);
-                    t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                    //double[] coeffs = ArrayUtils.toDoubleArray((float[]) currentGraph.interpret(t));
-                    int[] leafContours = (int[]) currentGraph.interpret(t);
-                    if (leafContours == null) { // no prediction :-(
-                        continue;
-                    }
-                    // At this stage, use the mean contour.
-                    double[] coeffs = getMeanContour(currentContours, leafContours);
-                    float posInSyl = 0;
-                    float relStart = 0;
-                    float relEnd = 0;
-                    for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils.getNextSiblingElement(s)) {
-                        if (s.hasAttribute("d")) {
-                            float dur = Float.parseFloat(s.getAttribute("d"));
-                            relStart = posInSyl / sylDur;
-                            posInSyl += dur;
-                            relEnd = posInSyl / sylDur;
-                            // Now, predict three values for each phone, at beginning, mid, and end of phone.
-                            double initialLogF0 = Polynomial.getValueAt(coeffs, relStart);
-                            double midLogF0 = Polynomial.getValueAt(coeffs, (relStart+relEnd)/2);
-                            double finalLogF0 = Polynomial.getValueAt(coeffs, relEnd);
-                            StringBuilder f0String = new StringBuilder();
-                            if (!Double.isNaN(initialLogF0)) {
-                                f0String.append("(0,").append((int)Math.exp(initialLogF0)).append(")");
-                            }
-                            if (!Double.isNaN(midLogF0)) {
-                                f0String.append("(50,").append((int)Math.exp(midLogF0)).append(")");
-                            }
-                            if (!Double.isNaN(finalLogF0)) {
-                                f0String.append("(100,").append((int)Math.exp(finalLogF0)).append(")");
-                            }
-                            if (f0String.length() > 0) {
-                                s.setAttribute("f0", f0String.toString());
-                            }
-                        }
-                    }
-                    assert posInSyl == sylDur;
-                    
-                }
-            }
-        }
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setDocument(doc);
-        return output;
-    }
+	public MaryData process(MaryData d) throws Exception {
+		Document doc = d.getDocument();
+		NodeIterator sentenceIt = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
+				MaryXML.SENTENCE), false);
+		Element sentence = null;
+		AllophoneSet allophoneSet = null;
+		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+			// Make sure we have the correct voice:
+			Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
+			Voice maryVoice = Voice.getVoice(voice);
+			if (maryVoice == null) {
+				maryVoice = d.getDefaultVoice();
+			}
+			if (maryVoice == null) {
+				// Determine Locale in order to use default voice
+				Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+				maryVoice = Voice.getDefaultVoice(locale);
+			}
+			FeatureFileReader currentContours = contourFeatures;
+			DirectedGraph currentGraph = contourGraph;
+			TargetFeatureComputer currentFeatureComputer = featureComputer;
+			if (maryVoice != null) {
+				DirectedGraph voiceGraph = maryVoice.getF0Graph();
+				if (voiceGraph != null) {
+					currentGraph = voiceGraph;
+					logger.debug("Using voice graph");
+					FeatureDefinition voiceFeatDef = voiceGraph.getFeatureDefinition();
+					currentFeatureComputer = new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
+					FeatureFileReader voiceContourFeatures = maryVoice.getF0ContourFeatures();
+					currentContours = voiceContourFeatures;
+				}
+			}
 
-	protected double[] getMeanContour(FeatureFileReader currentContours, int[] contourIDs)
-    {
-        double[] coeffs = null;
-        for (int i=0; i<contourIDs.length; i++) {
-            float[] oneCoeffs = currentContours.getFeatureVector(contourIDs[i]).getContinuousFeatures();
-            assert !ArrayUtils.isZero(oneCoeffs) : "Feature vector "+contourIDs[i]+" is zero";
-            if (coeffs == null) coeffs = new double[oneCoeffs.length];
-            for (int j=0; j<oneCoeffs.length; j++) {
-                coeffs[j] += oneCoeffs[j];
-            }
-        }
-        for (int j=0; j<coeffs.length; j++) {
-            coeffs[j] /= contourIDs.length;
-        }
-        return coeffs;
-    }
+			TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(sentence, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
+					MaryXML.SYLLABLE), false);
+			Element syllable;
+			Element previous = null;
+			while ((syllable = (Element) tw.nextNode()) != null) {
+				Element vowel = null;
+				float sylDur = 0;
+				for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils
+						.getNextSiblingElement(s)) {
+					assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found " + s.getTagName();
+					if (s.hasAttribute("d")) {
+						sylDur += Float.parseFloat(s.getAttribute("d"));
+					}
+					String phone = s.getAttribute("p");
+					if (allophoneSet == null) {
+						allophoneSet = MaryRuntimeUtils.determineAllophoneSet(s);
+					}
+					assert allophoneSet != null;
+					Allophone allophone = allophoneSet.getAllophone(phone);
+					if (allophone.isVowel()) {
+						// found a vowel
+						vowel = s;
+					}
+				}
+				// only predict F0 values if we have a vowel:
+				if (vowel != null) {
+					// Now predict the f0 values using the CARTs:ssh
+					String phone = vowel.getAttribute("p");
+					Target t = new Target(phone, vowel);
+					t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+					// double[] coeffs = ArrayUtils.toDoubleArray((float[]) currentGraph.interpret(t));
+					int[] leafContours = (int[]) currentGraph.interpret(t);
+					if (leafContours == null) { // no prediction :-(
+						continue;
+					}
+					// At this stage, use the mean contour.
+					double[] coeffs = getMeanContour(currentContours, leafContours);
+					float posInSyl = 0;
+					float relStart = 0;
+					float relEnd = 0;
+					for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils
+							.getNextSiblingElement(s)) {
+						if (s.hasAttribute("d")) {
+							float dur = Float.parseFloat(s.getAttribute("d"));
+							relStart = posInSyl / sylDur;
+							posInSyl += dur;
+							relEnd = posInSyl / sylDur;
+							// Now, predict three values for each phone, at beginning, mid, and end of phone.
+							double initialLogF0 = Polynomial.getValueAt(coeffs, relStart);
+							double midLogF0 = Polynomial.getValueAt(coeffs, (relStart + relEnd) / 2);
+							double finalLogF0 = Polynomial.getValueAt(coeffs, relEnd);
+							StringBuilder f0String = new StringBuilder();
+							if (!Double.isNaN(initialLogF0)) {
+								f0String.append("(0,").append((int) Math.exp(initialLogF0)).append(")");
+							}
+							if (!Double.isNaN(midLogF0)) {
+								f0String.append("(50,").append((int) Math.exp(midLogF0)).append(")");
+							}
+							if (!Double.isNaN(finalLogF0)) {
+								f0String.append("(100,").append((int) Math.exp(finalLogF0)).append(")");
+							}
+							if (f0String.length() > 0) {
+								s.setAttribute("f0", f0String.toString());
+							}
+						}
+					}
+					assert posInSyl == sylDur;
+
+				}
+			}
+		}
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setDocument(doc);
+		return output;
+	}
+
+	protected double[] getMeanContour(FeatureFileReader currentContours, int[] contourIDs) {
+		double[] coeffs = null;
+		for (int i = 0; i < contourIDs.length; i++) {
+			float[] oneCoeffs = currentContours.getFeatureVector(contourIDs[i]).getContinuousFeatures();
+			assert !ArrayUtils.isZero(oneCoeffs) : "Feature vector " + contourIDs[i] + " is zero";
+			if (coeffs == null)
+				coeffs = new double[oneCoeffs.length];
+			for (int j = 0; j < oneCoeffs.length; j++) {
+				coeffs[j] += oneCoeffs[j];
+			}
+		}
+		for (int j = 0; j < coeffs.length; j++) {
+			coeffs[j] /= contourIDs.length;
+		}
+		return coeffs;
+	}
 }

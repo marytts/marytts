@@ -107,81 +107,74 @@ public class HTSCARTReader {
 	 * @throws IOException
 	 *             if a problem occurs while loading
 	 */
-	public CART[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
-    throws IOException, MaryConfigurationException {
+	public CART[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat,
+			FeatureDefinition featDefinition, PhoneTranslator phTranslator) throws IOException, MaryConfigurationException {
 
-    	featDef = featDefinition;
-    	//phTrans = phoneTranslator;
-    	int i, j, length, state;
-    	BufferedReader s = null;
-    	String line, aux;
+		featDef = featDefinition;
+		// phTrans = phoneTranslator;
+		int i, j, length, state;
+		BufferedReader s = null;
+		String line, aux;
 
-    	phTrans = phTranslator;
+		phTrans = phTranslator;
 
-    	// create the number of carts it is going to read
-    	CART treeSet[] = new CART[numStates];
-    	for(i=0; i<numStates; i++)
-    		treeSet[i] = new CART();
+		// create the number of carts it is going to read
+		CART treeSet[] = new CART[numStates];
+		for (i = 0; i < numStates; i++)
+			treeSet[i] = new CART();
 
-    	// First load pdfs, so when creates the tree fill the leaf nodes with 
-    	// the corresponding mean and variances.
-    	/**
-    	 * load pdf's, mean and variance
-    	 * pdfs format    : pdf[numStates][numPdfs][numStreams][2*vectorSize]
-    	 * -------------------------------------------------------------------
-    	 * for dur        : pdf[   1     ][numPdfs][    1     ][2*numStates ]
-    	 * for mgc,str,mag: pdf[numStates][numPdfs][    1     ][2*vectorSize]; 
-    	 * for joinModel  : pdf[   1     ][numPdfs][    1     ][2*vectorSize]; 
-    	 * for lf0        : pdf[numStates][numPdfs][numStreams][     4      ]
-    	 * for gv-switch  : pdf[   1     ][  1    ][    1     ][     1      ]
-    	 * ------------------------------------------------------------------
-    	 * - numPdf       : corresponds to the unique leaf node id.
-    	 * - 2*vectorSize : means that mean and variance are in the same vector.
-    	 * - 4 in lf0     : means 0: mean, 1: variance, 2: voiced weight and 
-    	 *                  3: unvoiced weight
-    	 * ------------------------------------------------------------------ */
-    	double pdf[][][][];
-    	pdf = loadPdfs(numStates, pdfStream, fileFormat);
+		// First load pdfs, so when creates the tree fill the leaf nodes with
+		// the corresponding mean and variances.
+		/**
+		 * load pdf's, mean and variance pdfs format : pdf[numStates][numPdfs][numStreams][2*vectorSize]
+		 * ------------------------------------------------------------------- for dur : pdf[ 1 ][numPdfs][ 1 ][2*numStates ] for
+		 * mgc,str,mag: pdf[numStates][numPdfs][ 1 ][2*vectorSize]; for joinModel : pdf[ 1 ][numPdfs][ 1 ][2*vectorSize]; for lf0
+		 * : pdf[numStates][numPdfs][numStreams][ 4 ] for gv-switch : pdf[ 1 ][ 1 ][ 1 ][ 1 ]
+		 * ------------------------------------------------------------------ - numPdf : corresponds to the unique leaf node id. -
+		 * 2*vectorSize : means that mean and variance are in the same vector. - 4 in lf0 : means 0: mean, 1: variance, 2: voiced
+		 * weight and 3: unvoiced weight ------------------------------------------------------------------
+		 */
+		double pdf[][][][];
+		pdf = loadPdfs(numStates, pdfStream, fileFormat);
 
-    	assert featDefinition != null : "Feature Definition was not set";
+		assert featDefinition != null : "Feature Definition was not set";
 
+		/* read lines of tree-*.inf fileName */
+		s = new BufferedReader(new InputStreamReader(treeStream, "UTF-8"));
 
-    	/* read lines of tree-*.inf fileName */ 
-    	s = new BufferedReader(new InputStreamReader(treeStream, "UTF-8"));
+		// skip questions section
+		while ((line = s.readLine()) != null) {
+			if (line.indexOf("QS") < 0)
+				break; /* a new state is indicated by {*}[2], {*}[3], ... */
+		}
 
-    	// skip questions section
-    	while((line = s.readLine()) != null) {
-    		if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
-    	}
+		while ((line = s.readLine()) != null) {
+			if (line.indexOf("{*}") >= 0) { /* this is the indicator of a new state-tree */
+				aux = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+				state = Integer.parseInt(aux);
+				// loads one cart tree per state
+				treeSet[state - 2].setRootNode(loadStateTree(s, pdf[state - 2]));
 
-    	while((line = s.readLine()) != null) {            
-    		if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
-    			aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
-    			state = Integer.parseInt(aux);
-    			// loads one cart tree per state
-    			treeSet[state-2].setRootNode(loadStateTree(s, pdf[state-2]));
+				// Now count all data once, so that getNumberOfData()
+				// will return the correct figure.
+				if (treeSet[state - 2].getRootNode() instanceof DecisionNode)
+					((DecisionNode) treeSet[state - 2].getRootNode()).countData();
 
-    			// Now count all data once, so that getNumberOfData()
-    			// will return the correct figure.
-    			if (treeSet[state-2].getRootNode() instanceof DecisionNode)
-    				((DecisionNode)treeSet[state-2].getRootNode()).countData();
+				logger.debug("load: CART[" + (state - 2) + "], total number of nodes in this CART: "
+						+ treeSet[state - 2].getNumNodes());
+			}
+		} /* while */
+		if (s != null)
+			s.close();
 
-    			logger.debug("load: CART[" + (state-2) + "], total number of nodes in this CART: " + treeSet[state-2].getNumNodes());            
-    		}         
-    	} /* while */  
-    	if (s != null)
-    		s.close();
+		/* check that the tree was correctly loaded */
+		if (treeSet.length == 0) {
+			throw new IOException("LoadTreeSet: error no trees loaded");
+		}
 
-    	/* check that the tree was correctly loaded */
-    	if( treeSet.length == 0 ) {
-    		throw new IOException("LoadTreeSet: error no trees loaded");   
-    	}
+		return treeSet;
 
-
-
-    	return treeSet;
-
-    }
+	}
 
 	/**
 	 * Load a tree per state

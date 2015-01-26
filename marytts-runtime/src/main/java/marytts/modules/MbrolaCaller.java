@@ -96,67 +96,68 @@ public class MbrolaCaller extends SynthesisCallerBase {
 	 *             if communication with external module fails
 	 */
 	public AudioInputStream synthesiseOneSection(String mbrolaData, Voice voice) throws IOException {
-        assert getState() == MODULE_RUNNING;
-        if (mbrolaData == null || voice == null) {
-            throw new IllegalArgumentException("Received null argument.");
-        }
-        assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
-        // Construct command line for external program call
-        // mbrola reads from its stdin, writes headerless data to its stdout
-        String[] cmd = new String[] {baseCmd, "-e", ((MbrolaVoice)voice).path(), "-", "-.raw"};
+		assert getState() == MODULE_RUNNING;
+		if (mbrolaData == null || voice == null) {
+			throw new IllegalArgumentException("Received null argument.");
+		}
+		assert voice instanceof MbrolaVoice : "Not an MBROLA voice: " + voice.getName();
+		// Construct command line for external program call
+		// mbrola reads from its stdin, writes headerless data to its stdout
+		String[] cmd = new String[] { baseCmd, "-e", ((MbrolaVoice) voice).path(), "-", "-.raw" };
 
-        // Timeout facility:
-        int MAX_NR_ATTEMPTS = 2;
-        int nrAttempts = 0;
-        do {
-            nrAttempts++;
-            AudioDestination audioDestination = MaryRuntimeUtils.createAudioDestination();
-            logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
-            StringBuilder cmdString = new StringBuilder();
-            for (int i=0; i<cmd.length; i++) {
-                cmdString.append(cmd[i]); cmdString.append(" ");
-            }
-            logger.info("Starting Synthesis with command: " + cmdString.toString().trim());
-            Process process = Runtime.getRuntime().exec(cmd);
-            // Workaround for Java 1.4.1 bug:
-            if (System.getProperty("java.vendor").startsWith("Sun")
-                && System.getProperty("java.version").startsWith("1.4.1")) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                }
-            }
-            // Now attempt the external processing
-            PrintWriter toWriter = new PrintWriter(new OutputStreamWriter(process.getOutputStream()), true);
-            final InputStream from = new BufferedInputStream(process.getInputStream());
-            StreamLogger errorLogger = new StreamLogger(process.getErrorStream(), name() + " err", null);
-            errorLogger.start();
-            AudioReader readingThread = new AudioReader(from, audioDestination);
-            readingThread.start();
-            // ErrorLogger will die when it reads end-of-file.
-            logger.info("Writing to module.");
-            logger.debug("Writing MBROLA input:\n" + mbrolaData + "\n");
-            toWriter.print(mbrolaData);
-            toWriter.flush();
-            toWriter.close();
-            boolean timeoutOccurred = false;
-            do {
-                try {
-                    readingThread.join(timeout);
-                } catch (InterruptedException e) {
-                    logger.warn("Unexpected interruption while waiting for reader thread.");
-                }
-                timeoutOccurred = System.currentTimeMillis() - readingThread.latestSeenTime() >= timeout;
-            } while (readingThread.isAlive() && !timeoutOccurred);
-            // Now, in any case (timeour or not), get rid of Process:
-            if (process != null) process.destroy();
-            if (!timeoutOccurred) {
-                return audioDestination.convertToAudioInputStream(voice.dbAudioFormat());
-            }
-            logger.warn("Timeout occurred in attempt " + nrAttempts + " out of " + MAX_NR_ATTEMPTS);
-        } while (nrAttempts < MAX_NR_ATTEMPTS);
-        throw new IOException("Repeated timeouts -- cannot synthesise.");
-    }
+		// Timeout facility:
+		int MAX_NR_ATTEMPTS = 2;
+		int nrAttempts = 0;
+		do {
+			nrAttempts++;
+			AudioDestination audioDestination = MaryRuntimeUtils.createAudioDestination();
+			logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
+			StringBuilder cmdString = new StringBuilder();
+			for (int i = 0; i < cmd.length; i++) {
+				cmdString.append(cmd[i]);
+				cmdString.append(" ");
+			}
+			logger.info("Starting Synthesis with command: " + cmdString.toString().trim());
+			Process process = Runtime.getRuntime().exec(cmd);
+			// Workaround for Java 1.4.1 bug:
+			if (System.getProperty("java.vendor").startsWith("Sun") && System.getProperty("java.version").startsWith("1.4.1")) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+				}
+			}
+			// Now attempt the external processing
+			PrintWriter toWriter = new PrintWriter(new OutputStreamWriter(process.getOutputStream()), true);
+			final InputStream from = new BufferedInputStream(process.getInputStream());
+			StreamLogger errorLogger = new StreamLogger(process.getErrorStream(), name() + " err", null);
+			errorLogger.start();
+			AudioReader readingThread = new AudioReader(from, audioDestination);
+			readingThread.start();
+			// ErrorLogger will die when it reads end-of-file.
+			logger.info("Writing to module.");
+			logger.debug("Writing MBROLA input:\n" + mbrolaData + "\n");
+			toWriter.print(mbrolaData);
+			toWriter.flush();
+			toWriter.close();
+			boolean timeoutOccurred = false;
+			do {
+				try {
+					readingThread.join(timeout);
+				} catch (InterruptedException e) {
+					logger.warn("Unexpected interruption while waiting for reader thread.");
+				}
+				timeoutOccurred = System.currentTimeMillis() - readingThread.latestSeenTime() >= timeout;
+			} while (readingThread.isAlive() && !timeoutOccurred);
+			// Now, in any case (timeour or not), get rid of Process:
+			if (process != null)
+				process.destroy();
+			if (!timeoutOccurred) {
+				return audioDestination.convertToAudioInputStream(voice.dbAudioFormat());
+			}
+			logger.warn("Timeout occurred in attempt " + nrAttempts + " out of " + MAX_NR_ATTEMPTS);
+		} while (nrAttempts < MAX_NR_ATTEMPTS);
+		throw new IOException("Repeated timeouts -- cannot synthesise.");
+	}
 
 	/**
 	 * Try to find an mbrola binary that can be run on the present platform. Do this in the brute-force way: try out all things in
@@ -166,36 +167,37 @@ public class MbrolaCaller extends SynthesisCallerBase {
 	 * @return the full path of a runnable mbrola binary, or null if none could be found.
 	 */
 	private String findMbrolaBinary(String binPath) {
-        String fileSeparator = System.getProperty("file.separator");
-        if (!binPath.endsWith(fileSeparator)) {
-            binPath += fileSeparator;
-        }
-        String[] mbrolas = new File(binPath).list(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().contains("mbrola");
-            }
-        });
-        String mbrola = null;
-        // Now go through all the files in bin/ called "*mbrola*" and try to run them:
-        for (String exe : mbrolas) {
-            try {
-                Process p = Runtime.getRuntime().exec(new String[] {binPath+exe, "-h"});
-                // The following line causes exitValue() to alternate randomly between 0 and 141 (SIGPIPE);
-                // the latter case leaves mbrola == null and crashes the MARY server at startup:
-                //p.getInputStream().close();
-                p.waitFor();
-                // I don't see how this was intended to work; were we just assuming that the first runnable exe is the right one for Windows?
-                if (p.exitValue() == 0  || System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-                    mbrola = exe;
-                    break;
-                }
-            } catch (Exception e) {
-                // no, this is not the right one
-            }
-        }
-        if (mbrola != null) {
-            return binPath + mbrola;
-        }
-        return null;
-    }
+		String fileSeparator = System.getProperty("file.separator");
+		if (!binPath.endsWith(fileSeparator)) {
+			binPath += fileSeparator;
+		}
+		String[] mbrolas = new File(binPath).list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().contains("mbrola");
+			}
+		});
+		String mbrola = null;
+		// Now go through all the files in bin/ called "*mbrola*" and try to run them:
+		for (String exe : mbrolas) {
+			try {
+				Process p = Runtime.getRuntime().exec(new String[] { binPath + exe, "-h" });
+				// The following line causes exitValue() to alternate randomly between 0 and 141 (SIGPIPE);
+				// the latter case leaves mbrola == null and crashes the MARY server at startup:
+				// p.getInputStream().close();
+				p.waitFor();
+				// I don't see how this was intended to work; were we just assuming that the first runnable exe is the right one
+				// for Windows?
+				if (p.exitValue() == 0 || System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+					mbrola = exe;
+					break;
+				}
+			} catch (Exception e) {
+				// no, this is not the right one
+			}
+		}
+		if (mbrola != null) {
+			return binPath + mbrola;
+		}
+		return null;
+	}
 }
