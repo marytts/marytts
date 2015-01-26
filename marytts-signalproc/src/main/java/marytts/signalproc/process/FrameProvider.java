@@ -194,64 +194,66 @@ public class FrameProvider {
 	 * 
 	 * @return the next frame on success, null on failure.
 	 */
-	public double[] getNextFrame()
-    {
-        frameStart = nextFrameStart;
-        if (!hasMoreData()) {
-            validSamplesInFrame = 0;
-            return null;
-        }
-        // A frame is composed from two sources:
-        // 1. memory and 2. newly read signal.
-        int nFromMemory;
-        // 1. Prepend some memory?
-        if (memoryFilled && posInMemory < memory.length) {
-            nFromMemory = memory.length-posInMemory;
-            //System.err.println("Reusing " + nFromMemory + " samples from previous frame");
-            System.arraycopy(memory, posInMemory, frame, 0, nFromMemory);
-        } else {
-            nFromMemory = 0;
-            //System.err.println("No data to reuse from previous frame.");
-        }
-        // 2. Read new bit of signal:
-        int read = getData(nFromMemory);
-        totalRead += read;
-        // At end of input signal, we are unable to fill the frame completely:
-        if (nFromMemory + read < frameLength) { // zero-pad last frame(s)
-            assert !signal.hasMoreData();
-            // Pad with zeroes.
-            Arrays.fill(frame, nFromMemory+read, frame.length, 0);
-        }
-        validSamplesInFrame = nFromMemory + read; // = frame.length except for last frame
-        // OK, the frame is filled.
-        
-        // For overlapping frames,
-        // remember the frame data in order to reuse part of it for next frame
-        int amountToRemember = frameLength - frameShift;
-        if (validSamplesInFrame < frameLength) {
-            amountToRemember = validSamplesInFrame - frameShift;
-        }
-        if (amountToRemember > 0) {
-            if (memory.length < amountToRemember) {
-                memory = new double[amountToRemember];
-            }
-            System.arraycopy(frame, validSamplesInFrame-amountToRemember, memory, memory.length-amountToRemember, amountToRemember);
-            posInMemory = memory.length - amountToRemember;
-            memoryFilled = true;
-        } else {
-            posInMemory = memory.length;
-            memoryFilled = false;
-        }
-        
-        // Apply the processor to the data:
-        if (processor != null)
-            processor.applyInline(frame, 0, frameLength);
+	public double[] getNextFrame() {
+		frameStart = nextFrameStart;
+		if (!hasMoreData()) {
+			validSamplesInFrame = 0;
+			return null;
+		}
+		// A frame is composed from two sources:
+		// 1. memory and 2. newly read signal.
+		int nFromMemory;
+		// 1. Prepend some memory?
+		if (memoryFilled && posInMemory < memory.length) {
+			nFromMemory = memory.length - posInMemory;
+			// System.err.println("Reusing " + nFromMemory + " samples from previous frame");
+			System.arraycopy(memory, posInMemory, frame, 0, nFromMemory);
+		} else {
+			nFromMemory = 0;
+			// System.err.println("No data to reuse from previous frame.");
+		}
+		// 2. Read new bit of signal:
+		int read = getData(nFromMemory);
+		totalRead += read;
+		// At end of input signal, we are unable to fill the frame completely:
+		if (nFromMemory + read < frameLength) { // zero-pad last frame(s)
+			assert !signal.hasMoreData();
+			// Pad with zeroes.
+			Arrays.fill(frame, nFromMemory + read, frame.length, 0);
+		}
+		validSamplesInFrame = nFromMemory + read; // = frame.length except for last frame
+		// OK, the frame is filled.
 
-        nextFrameStart = frameStart + frameShift;
-        //System.err.println("FrameProvider: Frame "+" (" + frameStartTime+"-"+(frameStartTime+getFrameLengthTime()) + "): read " + read + "(total "+totalRead+"), posInMemory " + posInMemory + ", memory.length " + memory.length + ", valid " + validSamplesInFrame);
+		// For overlapping frames,
+		// remember the frame data in order to reuse part of it for next frame
+		int amountToRemember = frameLength - frameShift;
+		if (validSamplesInFrame < frameLength) {
+			amountToRemember = validSamplesInFrame - frameShift;
+		}
+		if (amountToRemember > 0) {
+			if (memory.length < amountToRemember) {
+				memory = new double[amountToRemember];
+			}
+			System.arraycopy(frame, validSamplesInFrame - amountToRemember, memory, memory.length - amountToRemember,
+					amountToRemember);
+			posInMemory = memory.length - amountToRemember;
+			memoryFilled = true;
+		} else {
+			posInMemory = memory.length;
+			memoryFilled = false;
+		}
 
-        return frame;
-    }
+		// Apply the processor to the data:
+		if (processor != null)
+			processor.applyInline(frame, 0, frameLength);
+
+		nextFrameStart = frameStart + frameShift;
+		// System.err.println("FrameProvider: Frame "+" (" + frameStartTime+"-"+(frameStartTime+getFrameLengthTime()) + "): read "
+		// + read + "(total "+totalRead+"), posInMemory " + posInMemory + ", memory.length " + memory.length + ", valid " +
+		// validSamplesInFrame);
+
+		return frame;
+	}
 
 	public double[] getCurrentFrame() {
 		return frame;

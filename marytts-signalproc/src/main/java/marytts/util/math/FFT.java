@@ -239,82 +239,82 @@ public class FFT {
 	 * @param inverse
 	 *            whether to calculate the FFT or the inverse FFT.
 	 */
-	public static void transform(double[] real, double[] imag, boolean inverse)
-    {
-        if (real == null || imag == null)
-            throw new NullPointerException("Received null argument");
-        if (real.length != imag.length)
-            throw new IllegalArgumentException("Arrays must be equal length");
-        int N = real.length;
-        assert MathUtils.isPowerOfTwo(N);
-        int halfN = N/2;
-        // Re-order arrays for FFT via bit-inversion
-        int iReverse = 0;
-        for (int i=0; i<N; i++) {
-            if (i > iReverse) {
-                //System.err.println("Swapping " + Integer.toBinaryString(i) + " with " + Integer.toBinaryString(iReverse));
-                double tmpReal = real[i];
-                double tmpImag = imag[i];
-                real[i] = real[iReverse];
-                imag[i] = imag[iReverse];
-                real[iReverse] = tmpReal;
-                imag[iReverse] = tmpImag;
-            }
-            // Calculate iReverse for next round:
-            int b = halfN;
-            while (b>=1 && iReverse>=b) {
-                iReverse -= b;
-                b >>= 1;
-            }
-            iReverse += b;
-        }
-        
-        // Now real and imag are in the right order for the FFT.
-        // FFT:
-        // Look at blocks of increasing length blockLength;
-        // in each block, pair the nth and the nPrime-th = (n+blockLength/2)th
-        // element, and combine them using a factor w = exp(n*delta*I),
-        // delta = (-) 2*PI/blockLength.
-        for (int blockLength = 2, powerOfTwo=1; blockLength <= N; blockLength <<= 1, powerOfTwo++) {
-            double wStepReal = cosDelta[powerOfTwo];
-            double wStepImag = sinDelta[powerOfTwo];
-            if (inverse) wStepImag = -wStepImag;
-            double wReal = 1;
-            double wImag = 0;
-            int halfBlockLength = blockLength / 2;
-            for (int n=0; n<halfBlockLength; n++) {
-                // Do this for all blocks at once:
-                for (int i=n; i<N; i+=blockLength) {
-                    int j = i+halfBlockLength;
-                    // And now combine the ith and the jth element,
-                    // according to s(n)=s_even(n)+ w_n*s_odd(n)
-                    // where w_n = exp(-2*PI*I*n/blockLength)
-                    // s[i] = s[i] + w*s[j]
-                    // w_j = w_(i+halfBlockLength) = w_i*exp(-PI*I) = -w_i
-                    // => s[j] = s[i] - w*s[j]
-                    double tmpReal = wReal*real[j] - wImag*imag[j];
-                    double tmpImag = wReal*imag[j] + wImag*real[j];
-                    real[j] = real[i] - tmpReal;
-                    imag[j] = imag[i] - tmpImag;
-                    real[i] += tmpReal;
-                    imag[i] += tmpImag;
-                }
-                // Next w is computed by complex multiplication with wStep
-                // exp(i*(phi+delta)) = exp(i*phi)*exp(i*delta)
-                double oldWReal = wReal;
-                wReal = oldWReal*wStepReal - wImag*wStepImag;
-                wImag = oldWReal*wStepImag + wImag*wStepReal;
-            }
-        }
-        // For the inverse transform, scale down the resulting
-        // signal by a factor of 1/N:
-        if (inverse) {
-            for (int i=0; i<N; i++) {
-                real[i] /= N;
-                imag[i] /= N;
-            }
-        }
-    }
+	public static void transform(double[] real, double[] imag, boolean inverse) {
+		if (real == null || imag == null)
+			throw new NullPointerException("Received null argument");
+		if (real.length != imag.length)
+			throw new IllegalArgumentException("Arrays must be equal length");
+		int N = real.length;
+		assert MathUtils.isPowerOfTwo(N);
+		int halfN = N / 2;
+		// Re-order arrays for FFT via bit-inversion
+		int iReverse = 0;
+		for (int i = 0; i < N; i++) {
+			if (i > iReverse) {
+				// System.err.println("Swapping " + Integer.toBinaryString(i) + " with " + Integer.toBinaryString(iReverse));
+				double tmpReal = real[i];
+				double tmpImag = imag[i];
+				real[i] = real[iReverse];
+				imag[i] = imag[iReverse];
+				real[iReverse] = tmpReal;
+				imag[iReverse] = tmpImag;
+			}
+			// Calculate iReverse for next round:
+			int b = halfN;
+			while (b >= 1 && iReverse >= b) {
+				iReverse -= b;
+				b >>= 1;
+			}
+			iReverse += b;
+		}
+
+		// Now real and imag are in the right order for the FFT.
+		// FFT:
+		// Look at blocks of increasing length blockLength;
+		// in each block, pair the nth and the nPrime-th = (n+blockLength/2)th
+		// element, and combine them using a factor w = exp(n*delta*I),
+		// delta = (-) 2*PI/blockLength.
+		for (int blockLength = 2, powerOfTwo = 1; blockLength <= N; blockLength <<= 1, powerOfTwo++) {
+			double wStepReal = cosDelta[powerOfTwo];
+			double wStepImag = sinDelta[powerOfTwo];
+			if (inverse)
+				wStepImag = -wStepImag;
+			double wReal = 1;
+			double wImag = 0;
+			int halfBlockLength = blockLength / 2;
+			for (int n = 0; n < halfBlockLength; n++) {
+				// Do this for all blocks at once:
+				for (int i = n; i < N; i += blockLength) {
+					int j = i + halfBlockLength;
+					// And now combine the ith and the jth element,
+					// according to s(n)=s_even(n)+ w_n*s_odd(n)
+					// where w_n = exp(-2*PI*I*n/blockLength)
+					// s[i] = s[i] + w*s[j]
+					// w_j = w_(i+halfBlockLength) = w_i*exp(-PI*I) = -w_i
+					// => s[j] = s[i] - w*s[j]
+					double tmpReal = wReal * real[j] - wImag * imag[j];
+					double tmpImag = wReal * imag[j] + wImag * real[j];
+					real[j] = real[i] - tmpReal;
+					imag[j] = imag[i] - tmpImag;
+					real[i] += tmpReal;
+					imag[i] += tmpImag;
+				}
+				// Next w is computed by complex multiplication with wStep
+				// exp(i*(phi+delta)) = exp(i*phi)*exp(i*delta)
+				double oldWReal = wReal;
+				wReal = oldWReal * wStepReal - wImag * wStepImag;
+				wImag = oldWReal * wStepImag + wImag * wStepReal;
+			}
+		}
+		// For the inverse transform, scale down the resulting
+		// signal by a factor of 1/N:
+		if (inverse) {
+			for (int i = 0; i < N; i++) {
+				real[i] /= N;
+				imag[i] /= N;
+			}
+		}
+	}
 
 	/**
 	 * Carry out the FFT or inverse FFT, and return the result in the same arrays given as parameters. This works exactly like
@@ -326,87 +326,87 @@ public class FFT {
 	 * @param inverse
 	 *            whether to calculate the FFT or the inverse FFT.
 	 */
-	public static void transform(double[] realAndImag, boolean inverse)
-    {
-        if (realAndImag == null)
-            throw new NullPointerException("Received null argument");
-        int N = realAndImag.length>>1;
-        assert MathUtils.isPowerOfTwo(N);
-        int halfN = N>>1;
-        // Re-order arrays for FFT via bit-inversion
-        int iReverse = 0;
-        for (int i=0; i<N; i++) {
-            if (i > iReverse) {
-                //System.err.println("Swapping " + Integer.toBinaryString(i) + " with " + Integer.toBinaryString(iReverse));
-                int twoi = i<<1;
-                int twoi1 = twoi+1;
-                int twoirev = iReverse<<1;
-                int twoirev1 = twoirev+1;
-                double tmpReal = realAndImag[twoi];
-                double tmpImag = realAndImag[twoi1];
-                realAndImag[twoi] = realAndImag[twoirev];
-                realAndImag[twoi1] = realAndImag[twoirev1];
-                realAndImag[twoirev] = tmpReal;
-                realAndImag[twoirev1] = tmpImag;
-            }
-            // Calculate iReverse for next round:
-            int b = halfN;
-            while (b>=1 && iReverse>=b) {
-                iReverse -= b;
-                b >>= 1;
-            }
-            iReverse += b;
-        }
-        
-        // Now real and imag are in the right order for the FFT.
-        // FFT:
-        // Look at blocks of increasing length blockLength;
-        // in each block, pair the nth and the nPrime-th = (n+blockLength/2)th
-        // element, and combine them using a factor w = exp(n*delta*I),
-        // delta = (-) 2*PI/blockLength.
-        for (int blockLength = 2, powerOfTwo=1; blockLength <= N; blockLength <<= 1, powerOfTwo++) {
-            double wStepReal = cosDelta[powerOfTwo];
-            double wStepImag = sinDelta[powerOfTwo];
-            if (inverse) wStepImag = -wStepImag;
-            double wReal = 1;
-            double wImag = 0;
-            int halfBlockLength = blockLength>>1;
-            for (int n=0; n<halfBlockLength; n++) {
-                // Do this for all blocks at once:
-                for (int i=n; i<N; i+=blockLength) {
-                    int j = i+halfBlockLength;
-                    // And now combine the ith and the jth element,
-                    // according to s(n)=s_even(n)+ w_n*s_odd(n)
-                    // where w_n = exp(-2*PI*I*n/blockLength)
-                    // s[i] = s[i] + w*s[j]
-                    // w_j = w_(i+halfBlockLength) = w_i*exp(-PI*I) = -w_i
-                    // => s[j] = s[i] - w*s[j]
-                    int twoi = i<<1;
-                    int twoi1 = twoi+1;
-                    int twoj = j<<1;
-                    int twoj1 = twoj+1;
-                    double tmpReal = wReal*realAndImag[twoj] - wImag*realAndImag[twoj1];
-                    double tmpImag = wReal*realAndImag[twoj1] + wImag*realAndImag[twoj];
-                    realAndImag[twoj] = realAndImag[twoi] - tmpReal;
-                    realAndImag[twoj1] = realAndImag[twoi1] - tmpImag;
-                    realAndImag[twoi] += tmpReal;
-                    realAndImag[twoi1] += tmpImag;
-                }
-                // Next w is computed by complex multiplication with wStep
-                // exp(i*(phi+delta)) = exp(i*phi)*exp(i*delta)
-                double oldWReal = wReal;
-                wReal = oldWReal*wStepReal - wImag*wStepImag;
-                wImag = oldWReal*wStepImag + wImag*wStepReal;
-            }
-        }
-        // For the inverse transform, scale down the resulting
-        // signal by a factor of 1/N:
-        if (inverse) {
-            for (int i=0; i<realAndImag.length; i++) {
-                realAndImag[i] /= N;
-            }
-        }
-    }
+	public static void transform(double[] realAndImag, boolean inverse) {
+		if (realAndImag == null)
+			throw new NullPointerException("Received null argument");
+		int N = realAndImag.length >> 1;
+		assert MathUtils.isPowerOfTwo(N);
+		int halfN = N >> 1;
+		// Re-order arrays for FFT via bit-inversion
+		int iReverse = 0;
+		for (int i = 0; i < N; i++) {
+			if (i > iReverse) {
+				// System.err.println("Swapping " + Integer.toBinaryString(i) + " with " + Integer.toBinaryString(iReverse));
+				int twoi = i << 1;
+				int twoi1 = twoi + 1;
+				int twoirev = iReverse << 1;
+				int twoirev1 = twoirev + 1;
+				double tmpReal = realAndImag[twoi];
+				double tmpImag = realAndImag[twoi1];
+				realAndImag[twoi] = realAndImag[twoirev];
+				realAndImag[twoi1] = realAndImag[twoirev1];
+				realAndImag[twoirev] = tmpReal;
+				realAndImag[twoirev1] = tmpImag;
+			}
+			// Calculate iReverse for next round:
+			int b = halfN;
+			while (b >= 1 && iReverse >= b) {
+				iReverse -= b;
+				b >>= 1;
+			}
+			iReverse += b;
+		}
+
+		// Now real and imag are in the right order for the FFT.
+		// FFT:
+		// Look at blocks of increasing length blockLength;
+		// in each block, pair the nth and the nPrime-th = (n+blockLength/2)th
+		// element, and combine them using a factor w = exp(n*delta*I),
+		// delta = (-) 2*PI/blockLength.
+		for (int blockLength = 2, powerOfTwo = 1; blockLength <= N; blockLength <<= 1, powerOfTwo++) {
+			double wStepReal = cosDelta[powerOfTwo];
+			double wStepImag = sinDelta[powerOfTwo];
+			if (inverse)
+				wStepImag = -wStepImag;
+			double wReal = 1;
+			double wImag = 0;
+			int halfBlockLength = blockLength >> 1;
+			for (int n = 0; n < halfBlockLength; n++) {
+				// Do this for all blocks at once:
+				for (int i = n; i < N; i += blockLength) {
+					int j = i + halfBlockLength;
+					// And now combine the ith and the jth element,
+					// according to s(n)=s_even(n)+ w_n*s_odd(n)
+					// where w_n = exp(-2*PI*I*n/blockLength)
+					// s[i] = s[i] + w*s[j]
+					// w_j = w_(i+halfBlockLength) = w_i*exp(-PI*I) = -w_i
+					// => s[j] = s[i] - w*s[j]
+					int twoi = i << 1;
+					int twoi1 = twoi + 1;
+					int twoj = j << 1;
+					int twoj1 = twoj + 1;
+					double tmpReal = wReal * realAndImag[twoj] - wImag * realAndImag[twoj1];
+					double tmpImag = wReal * realAndImag[twoj1] + wImag * realAndImag[twoj];
+					realAndImag[twoj] = realAndImag[twoi] - tmpReal;
+					realAndImag[twoj1] = realAndImag[twoi1] - tmpImag;
+					realAndImag[twoi] += tmpReal;
+					realAndImag[twoi1] += tmpImag;
+				}
+				// Next w is computed by complex multiplication with wStep
+				// exp(i*(phi+delta)) = exp(i*phi)*exp(i*delta)
+				double oldWReal = wReal;
+				wReal = oldWReal * wStepReal - wImag * wStepImag;
+				wImag = oldWReal * wStepImag + wImag * wStepReal;
+			}
+		}
+		// For the inverse transform, scale down the resulting
+		// signal by a factor of 1/N:
+		if (inverse) {
+			for (int i = 0; i < realAndImag.length; i++) {
+				realAndImag[i] /= N;
+			}
+		}
+	}
 
 	/**
 	 * Calculates the Fourier transform of a set of n real-valued data points. Replaces this data (which is stored in array
@@ -550,33 +550,32 @@ public class FFT {
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
 	 */
-	public static double[] convolve(final double[] signal1, final double[] signal2)
-    {
-        if (signal1 == null || signal2 == null)
-            throw new NullPointerException("Received null argument");
-        if (signal1.length != signal2.length)
-            throw new IllegalArgumentException("Arrays must be equal length");
-        int N = signal1.length;
-        assert MathUtils.isPowerOfTwo(N);
-        double[] fft1 = new double[N];
-        System.arraycopy(signal1, 0, fft1, 0, N);
-        double[] fft2 = new double[N];
-        System.arraycopy(signal2, 0, fft2, 0, N);
-        realTransform(fft1, false);
-        realTransform(fft2, false);
-        // Now multiply in the frequency domain,
-        // and save in fft1:
-        fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
-        fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
-        for (int i=2; i<N; i+=2) {
-            double tmp = fft1[i];
-            fft1[i] = fft1[i]*fft2[i] - fft1[i+1]*fft2[i+1];
-            fft1[i+1] = tmp*fft2[i+1] + fft1[i+1]*fft2[i];
-        }
-        // And transform back:
-        realTransform(fft1, true);
-        return fft1;
-    }
+	public static double[] convolve(final double[] signal1, final double[] signal2) {
+		if (signal1 == null || signal2 == null)
+			throw new NullPointerException("Received null argument");
+		if (signal1.length != signal2.length)
+			throw new IllegalArgumentException("Arrays must be equal length");
+		int N = signal1.length;
+		assert MathUtils.isPowerOfTwo(N);
+		double[] fft1 = new double[N];
+		System.arraycopy(signal1, 0, fft1, 0, N);
+		double[] fft2 = new double[N];
+		System.arraycopy(signal2, 0, fft2, 0, N);
+		realTransform(fft1, false);
+		realTransform(fft2, false);
+		// Now multiply in the frequency domain,
+		// and save in fft1:
+		fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
+		fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
+		for (int i = 2; i < N; i += 2) {
+			double tmp = fft1[i];
+			fft1[i] = fft1[i] * fft2[i] - fft1[i + 1] * fft2[i + 1];
+			fft1[i + 1] = tmp * fft2[i + 1] + fft1[i + 1] * fft2[i];
+		}
+		// And transform back:
+		realTransform(fft1, true);
+		return fft1;
+	}
 
 	/**
 	 * Compute the convolution of two signals, by multiplying them in the frequency domain. Normalise the result with respect to
@@ -619,30 +618,29 @@ public class FFT {
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
 	 */
-	public static double[] convolve_FD(final double[] signal1, final double[] fft2)
-    {
-        if (signal1 == null || fft2 == null)
-            throw new NullPointerException("Received null argument");
-        if (signal1.length != fft2.length)
-            throw new IllegalArgumentException("Arrays must be equal length");
-        int N = signal1.length;
-        assert MathUtils.isPowerOfTwo(N);
-        double[] fft1 = new double[N];
-        System.arraycopy(signal1, 0, fft1, 0, N);
-        realTransform(fft1, false);
-        // Now multiply in the frequency domain,
-        // and save in fft1:
-        fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
-        fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
-        for (int i=2; i<N; i+=2) {
-            double tmp = fft1[i];
-            fft1[i] = fft1[i]*fft2[i] - fft1[i+1]*fft2[i+1];
-            fft1[i+1] = tmp*fft2[i+1] + fft1[i+1]*fft2[i];
-        }
-        // And transform back:
-        realTransform(fft1, true);
-        return fft1;
-    }
+	public static double[] convolve_FD(final double[] signal1, final double[] fft2) {
+		if (signal1 == null || fft2 == null)
+			throw new NullPointerException("Received null argument");
+		if (signal1.length != fft2.length)
+			throw new IllegalArgumentException("Arrays must be equal length");
+		int N = signal1.length;
+		assert MathUtils.isPowerOfTwo(N);
+		double[] fft1 = new double[N];
+		System.arraycopy(signal1, 0, fft1, 0, N);
+		realTransform(fft1, false);
+		// Now multiply in the frequency domain,
+		// and save in fft1:
+		fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
+		fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
+		for (int i = 2; i < N; i += 2) {
+			double tmp = fft1[i];
+			fft1[i] = fft1[i] * fft2[i] - fft1[i + 1] * fft2[i + 1];
+			fft1[i + 1] = tmp * fft2[i + 1] + fft1[i + 1] * fft2[i];
+		}
+		// And transform back:
+		realTransform(fft1, true);
+		return fft1;
+	}
 
 	/**
 	 * Compute the correlation of two signals, by multipying them in the frequency domain. This method applies zero padding where
@@ -682,33 +680,32 @@ public class FFT {
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
 	 */
-	public static double[] correlate(final double[] signal1, final double[] signal2)
-    {
-        if (signal1 == null || signal2 == null)
-            throw new NullPointerException("Received null argument");
-        if (signal1.length != signal2.length)
-            throw new IllegalArgumentException("Arrays must be equal length");
-        int N = signal1.length;
-        assert MathUtils.isPowerOfTwo(N);
-        double[] fft1 = new double[N];
-        System.arraycopy(signal1, 0, fft1, 0, N);
-        double[] fft2 = new double[N];
-        System.arraycopy(signal2, 0, fft2, 0, N);
-        realTransform(fft1, false);
-        realTransform(fft2, false);
-        // Now multiply with complex conjugate in the frequency domain,
-        // and save in fft1:
-        fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
-        fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
-        for (int i=2; i<N; i+=2) {
-            double tmp = fft1[i];
-            fft1[i] = fft1[i]*fft2[i] + fft1[i+1]*fft2[i+1];
-            fft1[i+1] = tmp*fft2[i+1] - fft1[i+1]*fft2[i];
-        }
-        // And transform back:
-        realTransform(fft1, true);
-        return fft1;
-    }
+	public static double[] correlate(final double[] signal1, final double[] signal2) {
+		if (signal1 == null || signal2 == null)
+			throw new NullPointerException("Received null argument");
+		if (signal1.length != signal2.length)
+			throw new IllegalArgumentException("Arrays must be equal length");
+		int N = signal1.length;
+		assert MathUtils.isPowerOfTwo(N);
+		double[] fft1 = new double[N];
+		System.arraycopy(signal1, 0, fft1, 0, N);
+		double[] fft2 = new double[N];
+		System.arraycopy(signal2, 0, fft2, 0, N);
+		realTransform(fft1, false);
+		realTransform(fft2, false);
+		// Now multiply with complex conjugate in the frequency domain,
+		// and save in fft1:
+		fft1[0] = fft1[0] * fft2[0]; // because imag[0] is 0
+		fft1[1] = fft1[1] * fft2[1]; // and fft1[1] is actually real[N/2]
+		for (int i = 2; i < N; i += 2) {
+			double tmp = fft1[i];
+			fft1[i] = fft1[i] * fft2[i] + fft1[i + 1] * fft2[i + 1];
+			fft1[i + 1] = tmp * fft2[i + 1] - fft1[i + 1] * fft2[i];
+		}
+		// And transform back:
+		realTransform(fft1, true);
+		return fft1;
+	}
 
 	/**
 	 * Compute the autocorrelation of a signal, by inverse transformation of its power spectrum. This is the core method,
@@ -718,28 +715,27 @@ public class FFT {
 	 * @param signal
 	 * @return the correlated signal, of the same length as the input signal
 	 */
-	public static double[] autoCorrelate(final double[] signal)
-    {
-        if (signal == null)
-            throw new NullPointerException("Received null argument");
-        int N = signal.length;
-        assert MathUtils.isPowerOfTwo(N);
-        double[] fft = new double[N];
-        System.arraycopy(signal, 0, fft, 0, N);
-        realTransform(fft, false);
+	public static double[] autoCorrelate(final double[] signal) {
+		if (signal == null)
+			throw new NullPointerException("Received null argument");
+		int N = signal.length;
+		assert MathUtils.isPowerOfTwo(N);
+		double[] fft = new double[N];
+		System.arraycopy(signal, 0, fft, 0, N);
+		realTransform(fft, false);
 
-        // Now multiply with complex conjugate in the frequency domain,
-        // and save in fft:
-        fft[0] = fft[0] * fft[0]; // because imag[0] is 0
-        fft[1] = fft[1] * fft[1]; // and fft[1] is actually real[N/2]
-        for (int i=2; i<N; i+=2) {
-            fft[i] = fft[i]*fft[i] + fft[i+1]*fft[i+1];
-            fft[i+1] = 0;
-        }
-        // And transform back:
-        realTransform(fft, true);
-        return fft;
-    }
+		// Now multiply with complex conjugate in the frequency domain,
+		// and save in fft:
+		fft[0] = fft[0] * fft[0]; // because imag[0] is 0
+		fft[1] = fft[1] * fft[1]; // and fft[1] is actually real[N/2]
+		for (int i = 2; i < N; i += 2) {
+			fft[i] = fft[i] * fft[i] + fft[i + 1] * fft[i + 1];
+			fft[i + 1] = 0;
+		}
+		// And transform back:
+		realTransform(fft, true);
+		return fft;
+	}
 
 	/**
 	 * Compute the autocorrelation of a signal, by inverse transformation of its power spectrum. This method applies zero padding

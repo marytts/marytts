@@ -221,11 +221,11 @@ public class HTSPStream {
 	}
 
 	public void setVseq(int i, double[] vec) {
-      assert vec.length == ivseq[i].length;
-      for (int j = 0; j < ivseq[i].length; j++) {
-          ivseq[i][j] = HTSParameterGeneration.finv(vec[j]);
-      }
-  }
+		assert vec.length == ivseq[i].length;
+		for (int j = 0; j < ivseq[i].length; j++) {
+			ivseq[i][j] = HTSParameterGeneration.finv(vec[j]);
+		}
+	}
 
 	public void setIvseq(int i, int j, double val) {
 		ivseq[i][j] = val;

@@ -1207,69 +1207,61 @@ public class HntmAnalyzer {
 	}
 
 	// Phase envelope estimation and unwrapping to ensure phase continuity in frequency domain
-	public static double[][] unwrapPhasesAlongHarmonics(HntmSpeechSignal hntmSignal)
-    {
-        
-        double[] maximumFrequencyOfVoicingsInHz = hntmSignal.getMaximumFrequencyOfVoicings();
-        double[][] phases = hntmSignal.getPhasesInRadians();
-        
-        double[][] newPhases = null;
-        
-        if (phases!=null)
-        {
-            int i, k;
-            int maxNumHarmonics = 0;
-            int numHarmonicsCurrentFrame;
-            int totalFrames = maximumFrequencyOfVoicingsInHz.length;
-            assert phases.length == totalFrames;
+	public static double[][] unwrapPhasesAlongHarmonics(HntmSpeechSignal hntmSignal) {
 
-            for (i=0; i<totalFrames; i++)
-            {
-                if (maximumFrequencyOfVoicingsInHz[i]>0.0f && phases[i]!=null)
-                {
-                    numHarmonicsCurrentFrame = phases.length;
-                    if (numHarmonicsCurrentFrame>maxNumHarmonics)
-                        maxNumHarmonics = numHarmonicsCurrentFrame;
-                }  
-            }
+		double[] maximumFrequencyOfVoicingsInHz = hntmSignal.getMaximumFrequencyOfVoicings();
+		double[][] phases = hntmSignal.getPhasesInRadians();
 
-            double[] dphaseks = new double[maxNumHarmonics];
-            Arrays.fill(dphaseks, 0.0f);
+		double[][] newPhases = null;
 
-            newPhases = new double[phases.length][];
-            for (i=0; i<phases.length; i++)
-            {
-                if (phases[i]!=null)
-                    newPhases[i] = new double[phases[i].length];
-            }
+		if (phases != null) {
+			int i, k;
+			int maxNumHarmonics = 0;
+			int numHarmonicsCurrentFrame;
+			int totalFrames = maximumFrequencyOfVoicingsInHz.length;
+			assert phases.length == totalFrames;
 
-            boolean isPrevTrackVoiced;
-            int Mk;
-            for (i=0; i<totalFrames; i++)
-            {
-                if (maximumFrequencyOfVoicingsInHz[i]>0.0f && phases[i]!=null)
-                { 
-                    System.arraycopy(phases[i], 0, newPhases[i], 0, phases[i].length);
+			for (i = 0; i < totalFrames; i++) {
+				if (maximumFrequencyOfVoicingsInHz[i] > 0.0f && phases[i] != null) {
+					numHarmonicsCurrentFrame = phases.length;
+					if (numHarmonicsCurrentFrame > maxNumHarmonics)
+						maxNumHarmonics = numHarmonicsCurrentFrame;
+				}
+			}
 
-                    for (k=1; k<phases[i].length-1; k++)
-                    {     
-                        isPrevTrackVoiced = false;
+			double[] dphaseks = new double[maxNumHarmonics];
+			Arrays.fill(dphaseks, 0.0f);
 
-                        if (i>0 && phases[i-1]!=null && phases[i-1].length>k)
-                            isPrevTrackVoiced = true;
+			newPhases = new double[phases.length][];
+			for (i = 0; i < phases.length; i++) {
+				if (phases[i] != null)
+					newPhases[i] = new double[phases[i].length];
+			}
 
-                        if (!isPrevTrackVoiced) //First voiced frame of a voiced segment
-                            dphaseks[k-1] = phases[i][k]-phases[i][k-1];
+			boolean isPrevTrackVoiced;
+			int Mk;
+			for (i = 0; i < totalFrames; i++) {
+				if (maximumFrequencyOfVoicingsInHz[i] > 0.0f && phases[i] != null) {
+					System.arraycopy(phases[i], 0, newPhases[i], 0, phases[i].length);
 
-                        Mk = (int)(Math.floor((dphaseks[k-1] + phases[i][k] - phases[i][k+1])/(MathUtils.TWOPI)+0.5));
-                        newPhases[i][k+1] += Mk*MathUtils.TWOPI;
+					for (k = 1; k < phases[i].length - 1; k++) {
+						isPrevTrackVoiced = false;
 
-                        dphaseks[k] = newPhases[i][k+1]-phases[i][k];
-                    }
-                }
-            }
-        }
-        
-        return newPhases;
-    }
+						if (i > 0 && phases[i - 1] != null && phases[i - 1].length > k)
+							isPrevTrackVoiced = true;
+
+						if (!isPrevTrackVoiced) // First voiced frame of a voiced segment
+							dphaseks[k - 1] = phases[i][k] - phases[i][k - 1];
+
+						Mk = (int) (Math.floor((dphaseks[k - 1] + phases[i][k] - phases[i][k + 1]) / (MathUtils.TWOPI) + 0.5));
+						newPhases[i][k + 1] += Mk * MathUtils.TWOPI;
+
+						dphaseks[k] = newPhases[i][k + 1] - phases[i][k];
+					}
+				}
+			}
+		}
+
+		return newPhases;
+	}
 }

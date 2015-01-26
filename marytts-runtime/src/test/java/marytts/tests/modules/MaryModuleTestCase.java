@@ -86,35 +86,37 @@ public class MaryModuleTestCase {
 	}
 
 	protected void processAndCompare(String basename, Locale locale) throws Exception {
-        assert inputEnding() != null;
-        assert outputEnding() != null;
-        MaryData input = null;
-        if (inputEnding().equals("txt")) {
-            String in = loadResourceIntoString(basename + "." + inputEnding());
-            input = createMaryDataFromText(in, locale);
-        } else {
-            input = new MaryData(module.inputType(), locale);
-            input.readFrom(this.getClass().getResourceAsStream(basename + "." + inputEnding()), null);
-        }
-        MaryData targetOut = new MaryData(module.outputType(), input.getLocale());
-        targetOut.readFrom(this.getClass().getResourceAsStream(basename + "." + outputEnding()), null);
-        MaryData processedOut = module.process(input);
-        try {
-            DomUtils.compareNodes(targetOut.getDocument(), processedOut.getDocument(), true);
-        } catch (Exception afe) {
-        	StringBuilder msg = new StringBuilder();
-        	msg.append("XML documents are not equal\n");
-        	msg.append("==========target:=============\n");
-            Document target = (Document) targetOut.getDocument().cloneNode(true);
-            DomUtils.trimAllTextNodes(target);
-            msg.append(DomUtils.document2String(target)).append("\n\n");
-            msg.append("==========processed:============\n");
-            Document processed = (Document) processedOut.getDocument().cloneNode(true);
-            DomUtils.trimAllTextNodes(processed);
-            msg.append(DomUtils.document2String(processed)).append("\n");
-            throw new Exception(msg.toString(), afe);
-        }
-    }	/**
+		assert inputEnding() != null;
+		assert outputEnding() != null;
+		MaryData input = null;
+		if (inputEnding().equals("txt")) {
+			String in = loadResourceIntoString(basename + "." + inputEnding());
+			input = createMaryDataFromText(in, locale);
+		} else {
+			input = new MaryData(module.inputType(), locale);
+			input.readFrom(this.getClass().getResourceAsStream(basename + "." + inputEnding()), null);
+		}
+		MaryData targetOut = new MaryData(module.outputType(), input.getLocale());
+		targetOut.readFrom(this.getClass().getResourceAsStream(basename + "." + outputEnding()), null);
+		MaryData processedOut = module.process(input);
+		try {
+			DomUtils.compareNodes(targetOut.getDocument(), processedOut.getDocument(), true);
+		} catch (Exception afe) {
+			StringBuilder msg = new StringBuilder();
+			msg.append("XML documents are not equal\n");
+			msg.append("==========target:=============\n");
+			Document target = (Document) targetOut.getDocument().cloneNode(true);
+			DomUtils.trimAllTextNodes(target);
+			msg.append(DomUtils.document2String(target)).append("\n\n");
+			msg.append("==========processed:============\n");
+			Document processed = (Document) processedOut.getDocument().cloneNode(true);
+			DomUtils.trimAllTextNodes(processed);
+			msg.append(DomUtils.document2String(processed)).append("\n");
+			throw new Exception(msg.toString(), afe);
+		}
+	}
+
+	/**
 	 * To be overridden by subclasses using processAndCompare; this string will be used as the filename ending of result files by
 	 * processAndCompare().
 	 */

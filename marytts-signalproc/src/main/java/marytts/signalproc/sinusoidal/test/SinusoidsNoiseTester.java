@@ -37,144 +37,129 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  **/
 public class SinusoidsNoiseTester extends BaseTester {
-	public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n)
-    {
-        assert s.fs == n.fs;
-        fs = s.fs;
-        
-        int i;
-        int maxLen = 0;
-        if (s.signal!=null)
-            maxLen = s.signal.length;
-        
-        if (n.signal!=null && n.signal.length>maxLen)
-            maxLen = n.signal.length;
-        
-        signal = new double[maxLen];
-        pitchMarks = null;
-        
-        Arrays.fill(signal, 0.0);
-        
-        if (s.signal!=null)
-        {
-            System.arraycopy(s.signal, 0, signal, 0, s.signal.length);
-            
-            //System.out.println("1: " + String.valueOf(MathUtils.getAbsMax(signal)));
-            
-            if (n.signal!=null)
-            {
-                for (i=0; i<n.signal.length; i++)
-                    signal[i] += n.signal[i];
-            }
-            
-            //System.out.println("2: " + String.valueOf(MathUtils.getAbsMax(signal)));
-            
-            for (i=0; i<signal.length; i++)
-                signal[i] *= 0.5;
-            
-            //System.out.println("3: " + String.valueOf(MathUtils.getAbsMax(signal)));
-            
-            if (s.pitchMarks!=null)
-            {
-                if (s.pitchMarks[s.pitchMarks.length-1]>=maxLen-1) //Everything is covered by sinusoids so no need to worry about noise part
-                {
-                    pitchMarks = ArrayUtils.copy(s.pitchMarks);
-                    f0s = ArrayUtils.copy(s.f0s);
-                }
-                else //We need some extra fixed rate marks to cover all signal
-                {
-                    int maxT0 = SignalProcUtils.time2sample(1.0/NoiseTester.FIXED_F0_NOISE, fs);
-                    int pitchMarksLen = s.pitchMarks.length;
-                    int currInd;
-                    
-                    if (n.pitchMarks!=null)
-                    {
-                        int noiseInd = n.pitchMarks.length-1;
-                        
-                         //Compute how much extra we will need:
-                         while (n.pitchMarks[noiseInd]-s.pitchMarks[s.pitchMarks.length-1]>maxT0)
-                         {
-                             noiseInd--;
-                             if (noiseInd<0)
-                             {
-                                 noiseInd=0;
-                                 break;
-                             }
-                         }
-                         
-                         pitchMarksLen += n.pitchMarks.length-noiseInd;
-                         
-                         //Check if there is still a gap between the sinusoid end and noise start:
-                         if (noiseInd==0)
-                         {
-                             currInd = n.pitchMarks[0];
-                             while (currInd-s.pitchMarks[s.pitchMarks.length-1]>maxT0)
-                             {
-                                 pitchMarksLen++;
-                                 currInd-=maxT0;
-                             }
-                         }
-                         
-                         pitchMarks = new int[pitchMarksLen];
+	public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n) {
+		assert s.fs == n.fs;
+		fs = s.fs;
 
-                         System.arraycopy(s.pitchMarks, 0, pitchMarks, 0, s.pitchMarks.length);
-                         
-                         for (i=s.pitchMarks.length; i<s.pitchMarks.length+n.pitchMarks.length-noiseInd; i++)
-                             pitchMarks[i] = n.pitchMarks[i-s.pitchMarks.length+noiseInd];
-                         
-                         for (i=s.pitchMarks.length+n.pitchMarks.length-noiseInd; i<pitchMarksLen; i++)
-                             pitchMarks[i] = Math.min(pitchMarks[i-1]+maxT0, maxLen-1);
-                    }
-                    else //Noise pitch marks do not exist so just generate extra marks at the end to cover all signal
-                    {
-                        currInd = s.pitchMarks[s.pitchMarks.length-1];
-                        while (maxLen-currInd>maxT0)
-                        {
-                            pitchMarksLen++;
-                            currInd+=maxT0;
-                        }
-                        
-                        pitchMarks = new int[pitchMarksLen];
+		int i;
+		int maxLen = 0;
+		if (s.signal != null)
+			maxLen = s.signal.length;
 
-                        System.arraycopy(s.pitchMarks, 0, pitchMarks, 0, s.pitchMarks.length);
-                        
-                        for (i=s.pitchMarks.length; i<pitchMarksLen; i++)
-                            pitchMarks[i] = Math.min(pitchMarks[i-1]+maxT0, maxLen-1);
-                        
-                        float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length-1], fs);
-                        int numfrm = (int)Math.floor((lastTime-0.5*ws)/ss+0.5);
-                        f0s = new double[numfrm];
-                        System.arraycopy(s.f0s, 0, f0s, 0, s.f0s.length);
-                        for (i=s.f0s.length; i<numfrm; i++)
-                            f0s[i] = NoiseTester.FIXED_F0_NOISE;
-                    }
-                }
-            }   
-            else //Generate fixed pitch marks all along the signal
-            {
-                int maxT0 = SignalProcUtils.time2sample(1.0/NoiseTester.FIXED_F0_NOISE, fs);
-                int numPitchMarks = (int)(Math.floor(((double)maxLen)/maxT0+0.5)) + 1; 
-                pitchMarks = new int[numPitchMarks];
-                for (i=0; i<numPitchMarks; i++)
-                    pitchMarks[i] = Math.min(i*maxT0, maxLen-1);
-                
-                float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length-1], fs);
-                int numfrm = (int)Math.floor((lastTime-0.5*ws)/ss+0.5);
-                f0s = new double[numfrm];
-                Arrays.fill(f0s, NoiseTester.FIXED_F0_NOISE);
-            }
-        }
-        else
-        {
-            System.arraycopy(n.signal, 0, signal, 0, n.signal.length);
-            
-            if (n.pitchMarks!=null)
-            {
-                pitchMarks = ArrayUtils.copy(n.pitchMarks);
-                f0s = ArrayUtils.copy(n.f0s);
-            }
-        }
-    }
+		if (n.signal != null && n.signal.length > maxLen)
+			maxLen = n.signal.length;
+
+		signal = new double[maxLen];
+		pitchMarks = null;
+
+		Arrays.fill(signal, 0.0);
+
+		if (s.signal != null) {
+			System.arraycopy(s.signal, 0, signal, 0, s.signal.length);
+
+			// System.out.println("1: " + String.valueOf(MathUtils.getAbsMax(signal)));
+
+			if (n.signal != null) {
+				for (i = 0; i < n.signal.length; i++)
+					signal[i] += n.signal[i];
+			}
+
+			// System.out.println("2: " + String.valueOf(MathUtils.getAbsMax(signal)));
+
+			for (i = 0; i < signal.length; i++)
+				signal[i] *= 0.5;
+
+			// System.out.println("3: " + String.valueOf(MathUtils.getAbsMax(signal)));
+
+			if (s.pitchMarks != null) {
+				if (s.pitchMarks[s.pitchMarks.length - 1] >= maxLen - 1) // Everything is covered by sinusoids so no need to worry
+																			// about noise part
+				{
+					pitchMarks = ArrayUtils.copy(s.pitchMarks);
+					f0s = ArrayUtils.copy(s.f0s);
+				} else // We need some extra fixed rate marks to cover all signal
+				{
+					int maxT0 = SignalProcUtils.time2sample(1.0 / NoiseTester.FIXED_F0_NOISE, fs);
+					int pitchMarksLen = s.pitchMarks.length;
+					int currInd;
+
+					if (n.pitchMarks != null) {
+						int noiseInd = n.pitchMarks.length - 1;
+
+						// Compute how much extra we will need:
+						while (n.pitchMarks[noiseInd] - s.pitchMarks[s.pitchMarks.length - 1] > maxT0) {
+							noiseInd--;
+							if (noiseInd < 0) {
+								noiseInd = 0;
+								break;
+							}
+						}
+
+						pitchMarksLen += n.pitchMarks.length - noiseInd;
+
+						// Check if there is still a gap between the sinusoid end and noise start:
+						if (noiseInd == 0) {
+							currInd = n.pitchMarks[0];
+							while (currInd - s.pitchMarks[s.pitchMarks.length - 1] > maxT0) {
+								pitchMarksLen++;
+								currInd -= maxT0;
+							}
+						}
+
+						pitchMarks = new int[pitchMarksLen];
+
+						System.arraycopy(s.pitchMarks, 0, pitchMarks, 0, s.pitchMarks.length);
+
+						for (i = s.pitchMarks.length; i < s.pitchMarks.length + n.pitchMarks.length - noiseInd; i++)
+							pitchMarks[i] = n.pitchMarks[i - s.pitchMarks.length + noiseInd];
+
+						for (i = s.pitchMarks.length + n.pitchMarks.length - noiseInd; i < pitchMarksLen; i++)
+							pitchMarks[i] = Math.min(pitchMarks[i - 1] + maxT0, maxLen - 1);
+					} else // Noise pitch marks do not exist so just generate extra marks at the end to cover all signal
+					{
+						currInd = s.pitchMarks[s.pitchMarks.length - 1];
+						while (maxLen - currInd > maxT0) {
+							pitchMarksLen++;
+							currInd += maxT0;
+						}
+
+						pitchMarks = new int[pitchMarksLen];
+
+						System.arraycopy(s.pitchMarks, 0, pitchMarks, 0, s.pitchMarks.length);
+
+						for (i = s.pitchMarks.length; i < pitchMarksLen; i++)
+							pitchMarks[i] = Math.min(pitchMarks[i - 1] + maxT0, maxLen - 1);
+
+						float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length - 1], fs);
+						int numfrm = (int) Math.floor((lastTime - 0.5 * ws) / ss + 0.5);
+						f0s = new double[numfrm];
+						System.arraycopy(s.f0s, 0, f0s, 0, s.f0s.length);
+						for (i = s.f0s.length; i < numfrm; i++)
+							f0s[i] = NoiseTester.FIXED_F0_NOISE;
+					}
+				}
+			} else // Generate fixed pitch marks all along the signal
+			{
+				int maxT0 = SignalProcUtils.time2sample(1.0 / NoiseTester.FIXED_F0_NOISE, fs);
+				int numPitchMarks = (int) (Math.floor(((double) maxLen) / maxT0 + 0.5)) + 1;
+				pitchMarks = new int[numPitchMarks];
+				for (i = 0; i < numPitchMarks; i++)
+					pitchMarks[i] = Math.min(i * maxT0, maxLen - 1);
+
+				float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length - 1], fs);
+				int numfrm = (int) Math.floor((lastTime - 0.5 * ws) / ss + 0.5);
+				f0s = new double[numfrm];
+				Arrays.fill(f0s, NoiseTester.FIXED_F0_NOISE);
+			}
+		} else {
+			System.arraycopy(n.signal, 0, signal, 0, n.signal.length);
+
+			if (n.pitchMarks != null) {
+				pitchMarks = ArrayUtils.copy(n.pitchMarks);
+				f0s = ArrayUtils.copy(n.f0s);
+			}
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
 		int i, numSins, numNoises;

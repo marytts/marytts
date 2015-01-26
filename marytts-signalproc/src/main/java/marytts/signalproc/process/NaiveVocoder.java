@@ -79,20 +79,19 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 	 * 
 	 * @return the output length
 	 */
-	public int computeOutputLength(int inputLengthInSamples)
-    {
-        int f = frameProvider.getFrameLengthSamples();
-        int so = blockSize; // output frameshift
-        int si = frameProvider.getFrameShiftSamples(); // input frameshift
-        assert si == getInputFrameshift(so);
-        int n = (int) Math.ceil(((double)inputLengthInSamples - f) / si);
-        int delta = f+n*si - inputLengthInSamples;
-        //System.err.println("li="+inputLengthInSamples+", f="+f+", si="+si+", n="+n+", delta="+delta+", => f+n*si-delta="+(f+n*si-delta));
-        assert delta < si;
-        int lo = f+n*so - delta;
-        //System.err.println("so="+so+", => lo="+lo);
-        return lo;
-    }
+	public int computeOutputLength(int inputLengthInSamples) {
+		int f = frameProvider.getFrameLengthSamples();
+		int so = blockSize; // output frameshift
+		int si = frameProvider.getFrameShiftSamples(); // input frameshift
+		assert si == getInputFrameshift(so);
+		int n = (int) Math.ceil(((double) inputLengthInSamples - f) / si);
+		int delta = f + n * si - inputLengthInSamples;
+		// System.err.println("li="+inputLengthInSamples+", f="+f+", si="+si+", n="+n+", delta="+delta+", => f+n*si-delta="+(f+n*si-delta));
+		assert delta < si;
+		int lo = f + n * so - delta;
+		// System.err.println("so="+so+", => lo="+lo);
+		return lo;
+	}
 
 	public static void main(String[] args) throws Exception {
 		for (int i = 1; i < args.length; i++) {

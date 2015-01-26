@@ -97,64 +97,68 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 	 * @param a
 	 *            the LPC coefficients
 	 */
-	protected void processLPC(LpCoeffs coeffs, double[] residual) 
-    {
-        if (otherFrame1 == null) return; // no more other audio -- leave signal as is
-        LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
-        double[] otherlpcc = otherCoeffs.getLPCC(24);
-        double[] lpcc = coeffs.getLPCC(24);
-        // testing symmetry:
-        double[] a = coeffs.getA();
-        coeffs.setLPCC(lpcc, coeffs.getOrder());
-        double[] newA = coeffs.getA();
-        double err = MathUtils.sumSquaredError(a, newA);
-        if (err > 1.e-5) {
-            System.err.println("Symmetry test failed! Err="+err);
-        } else {
-            System.err.println("Err = "+err);
-        }
-        assert lpcc.length == otherlpcc.length;
-        if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before merging into the signal
-            assert 0 <= relativeWeightOther1;
-            LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
-            double[] other2lpcc = other2Coeffs.getLPCC(24);
-            PrintfFormat f = new PrintfFormat("%      .1f ");
-            System.out.print("LPCC    ");
-            for (int i=0; i<lpcc.length; i++) {
-                System.out.print(f.sprintf(lpcc[i]));
-            }
-            System.out.println();
-            
-            System.out.print("Other1  ");
-            for (int i=0; i<lpcc.length; i++) {
-                System.out.print(f.sprintf(otherlpcc[i]));
-            }
-            System.out.println();
+	protected void processLPC(LpCoeffs coeffs, double[] residual) {
+		if (otherFrame1 == null)
+			return; // no more other audio -- leave signal as is
+		LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
+		double[] otherlpcc = otherCoeffs.getLPCC(24);
+		double[] lpcc = coeffs.getLPCC(24);
+		// testing symmetry:
+		double[] a = coeffs.getA();
+		coeffs.setLPCC(lpcc, coeffs.getOrder());
+		double[] newA = coeffs.getA();
+		double err = MathUtils.sumSquaredError(a, newA);
+		if (err > 1.e-5) {
+			System.err.println("Symmetry test failed! Err=" + err);
+		} else {
+			System.err.println("Err = " + err);
+		}
+		assert lpcc.length == otherlpcc.length;
+		if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before
+																// merging into the signal
+			assert 0 <= relativeWeightOther1;
+			LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
+			double[] other2lpcc = other2Coeffs.getLPCC(24);
+			PrintfFormat f = new PrintfFormat("%      .1f ");
+			System.out.print("LPCC    ");
+			for (int i = 0; i < lpcc.length; i++) {
+				System.out.print(f.sprintf(lpcc[i]));
+			}
+			System.out.println();
 
-            System.out.print("Other2  ");
-            for (int i=0; i<lpcc.length; i++) {
-                System.out.print(f.sprintf(other2lpcc[i]));
-            }
-            System.out.println();
+			System.out.print("Other1  ");
+			for (int i = 0; i < lpcc.length; i++) {
+				System.out.print(f.sprintf(otherlpcc[i]));
+			}
+			System.out.println();
 
-            System.out.println();
-            
-            for (int i=0; i<otherlpcc.length; i++) {
-                otherlpcc[i] = relativeWeightOther1*otherlpcc[i] + (1-relativeWeightOther1)*other2lpcc[i];
-            }
-        }
-        // now interpolate between the two:
-        for (int i=0; i<lpcc.length; i++)
-            lpcc[i] = (1-r)*lpcc[i] + r*otherlpcc[i];
-        coeffs.setLPCC(lpcc, coeffs.getOrder());
-        if (!coeffs.isStable()) System.err.println("filter is unstable!");
-        // Adapt residual gain to also interpolate average energy:
-        double gainFactor = Math.sqrt((1-r)*coeffs.getGain()*coeffs.getGain() + r*otherCoeffs.getGain()*otherCoeffs.getGain())/coeffs.getGain();
-//        System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+otherCoeffs.getGain()+", factor="+gainFactor);
-        for (int i=0; i<residual.length; i++)
-            residual[i] *= gainFactor;
-        
-    }
+			System.out.print("Other2  ");
+			for (int i = 0; i < lpcc.length; i++) {
+				System.out.print(f.sprintf(other2lpcc[i]));
+			}
+			System.out.println();
+
+			System.out.println();
+
+			for (int i = 0; i < otherlpcc.length; i++) {
+				otherlpcc[i] = relativeWeightOther1 * otherlpcc[i] + (1 - relativeWeightOther1) * other2lpcc[i];
+			}
+		}
+		// now interpolate between the two:
+		for (int i = 0; i < lpcc.length; i++)
+			lpcc[i] = (1 - r) * lpcc[i] + r * otherlpcc[i];
+		coeffs.setLPCC(lpcc, coeffs.getOrder());
+		if (!coeffs.isStable())
+			System.err.println("filter is unstable!");
+		// Adapt residual gain to also interpolate average energy:
+		double gainFactor = Math.sqrt((1 - r) * coeffs.getGain() * coeffs.getGain() + r * otherCoeffs.getGain()
+				* otherCoeffs.getGain())
+				/ coeffs.getGain();
+		// System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+otherCoeffs.getGain()+", factor="+gainFactor);
+		for (int i = 0; i < residual.length; i++)
+			residual[i] *= gainFactor;
+
+	}
 
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();

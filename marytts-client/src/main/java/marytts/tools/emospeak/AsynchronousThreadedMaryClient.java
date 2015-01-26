@@ -86,20 +86,14 @@ public class AsynchronousThreadedMaryClient extends Thread {
 	}
 
 	// Call the mary client
-	private void processInput()
-    throws IOException, UnknownHostException, UnsupportedAudioFileException {
-        java.io.ByteArrayOutputStream os = new ByteArrayOutputStream();
-        assert latestRequestVoice != null;
-        processor.process(latestRequest,
-                          "RAWMARYXML",
-                          "AUDIO",
-                          latestRequestVoice.getLocale().toString(),
-                          "AU",
-                          latestRequestVoice.name(),
-                          os);
-        byte[] bytes = os.toByteArray();
-        latestAudio = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
-    }
+	private void processInput() throws IOException, UnknownHostException, UnsupportedAudioFileException {
+		java.io.ByteArrayOutputStream os = new ByteArrayOutputStream();
+		assert latestRequestVoice != null;
+		processor.process(latestRequest, "RAWMARYXML", "AUDIO", latestRequestVoice.getLocale().toString(), "AU",
+				latestRequestVoice.name(), os);
+		byte[] bytes = os.toByteArray();
+		latestAudio = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
+	}
 
 	public String getHost() {
 		return processor.getHost();

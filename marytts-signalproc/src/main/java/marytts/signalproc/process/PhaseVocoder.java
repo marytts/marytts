@@ -91,20 +91,19 @@ public class PhaseVocoder extends FrameOverlapAddSource {
 	 * 
 	 * @return the output length
 	 */
-	public int computeOutputLength(int inputLengthInSamples)
-    {
-        int f = frameProvider.getFrameLengthSamples();
-        int so = blockSize; // output frameshift
-        int si = frameProvider.getFrameShiftSamples(); // input frameshift
-        assert si == getInputFrameshift(so);
-        int n = (int) Math.ceil(((double)inputLengthInSamples - f) / si);
-        int delta = f+n*si - inputLengthInSamples;
-        //System.err.println("li="+inputLengthInSamples+", f="+f+", si="+si+", n="+n+", delta="+delta+", => f+n*si-delta="+(f+n*si-delta));
-        assert delta < si;
-        int lo = f+n*so - delta;
-        //System.err.println("so="+so+", => lo="+lo);
-        return lo;
-    }
+	public int computeOutputLength(int inputLengthInSamples) {
+		int f = frameProvider.getFrameLengthSamples();
+		int so = blockSize; // output frameshift
+		int si = frameProvider.getFrameShiftSamples(); // input frameshift
+		assert si == getInputFrameshift(so);
+		int n = (int) Math.ceil(((double) inputLengthInSamples - f) / si);
+		int delta = f + n * si - inputLengthInSamples;
+		// System.err.println("li="+inputLengthInSamples+", f="+f+", si="+si+", n="+n+", delta="+delta+", => f+n*si-delta="+(f+n*si-delta));
+		assert delta < si;
+		int lo = f + n * so - delta;
+		// System.err.println("so="+so+", => lo="+lo);
+		return lo;
+	}
 
 	public class PhaseUnwrapper extends PolarFrequencyProcessor {
 		/**
@@ -142,20 +141,22 @@ public class PhaseVocoder extends FrameOverlapAddSource {
 		 * @param r
 		 * @param phi
 		 */
-		protected void processPolar(double[] r, double[] phi)
-        {
-            assert phi.length == prevPhi.length;
-            for (int i=0; i<phi.length; i++) {
-                deltaPhi[i] = omega[i] + MathUtils.angleToDefaultAngle(phi[i]-prevPhi[i]-omega[i]);
-                if (i==123) System.err.println("i="+i+": phi="+phi[i]+" prevPhi="+prevPhi[i]+" diff in defaultrange="+MathUtils.angleToDefaultAngle(phi[i]-prevPhi[i]-omega[i])+" omega="+omega[i]+" deltaPhi="+deltaPhi[i]);
-            }
-            System.arraycopy(phi, 0, prevPhi, 0, phi.length);
-            for (int i=0; i<phi.length; i++) {
-                psi[i] = MathUtils.angleToDefaultAngle(psi[i]+deltaPhi[i]/rateChangeFactor);
-            }
-            // And output the result in the input array
-            System.arraycopy(psi, 0, phi, 0, phi.length);
-        }
+		protected void processPolar(double[] r, double[] phi) {
+			assert phi.length == prevPhi.length;
+			for (int i = 0; i < phi.length; i++) {
+				deltaPhi[i] = omega[i] + MathUtils.angleToDefaultAngle(phi[i] - prevPhi[i] - omega[i]);
+				if (i == 123)
+					System.err.println("i=" + i + ": phi=" + phi[i] + " prevPhi=" + prevPhi[i] + " diff in defaultrange="
+							+ MathUtils.angleToDefaultAngle(phi[i] - prevPhi[i] - omega[i]) + " omega=" + omega[i] + " deltaPhi="
+							+ deltaPhi[i]);
+			}
+			System.arraycopy(phi, 0, prevPhi, 0, phi.length);
+			for (int i = 0; i < phi.length; i++) {
+				psi[i] = MathUtils.angleToDefaultAngle(psi[i] + deltaPhi[i] / rateChangeFactor);
+			}
+			// And output the result in the input array
+			System.arraycopy(psi, 0, phi, 0, phi.length);
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

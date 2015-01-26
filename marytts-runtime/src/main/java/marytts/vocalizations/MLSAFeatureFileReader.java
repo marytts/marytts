@@ -85,82 +85,81 @@ public class MLSAFeatureFileReader {
 	 * @throws MaryConfigurationException
 	 *             if runtime configuration fails
 	 */
-	private void load(String fileName) throws IOException, MaryConfigurationException
-    {
-        // Open the file 
-        DataInputStream dis = null;
+	private void load(String fileName) throws IOException, MaryConfigurationException {
+		// Open the file
+		DataInputStream dis = null;
 
-        try {
-            dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
-        } catch ( FileNotFoundException e ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] was not found." );
-        }
+		try {
+			dis = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
+		} catch (FileNotFoundException e) {
+			throw new MaryConfigurationException("File [" + fileName + "] was not found.");
+		}
 
-        // Load the Mary header 
-        hdr = new MaryHeader( dis );
-        if ( hdr.getType() != MaryHeader.LISTENERFEATS ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] is not a valid Mary Units file." );
-        }
+		// Load the Mary header
+		hdr = new MaryHeader(dis);
+		if (hdr.getType() != MaryHeader.LISTENERFEATS) {
+			throw new MaryConfigurationException("File [" + fileName + "] is not a valid Mary Units file.");
+		}
 
-        numberOfUnits = dis.readInt(); // Read the number of units
-        if ( numberOfUnits < 0 ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] has a negative number of units. Aborting." );
-        }
+		numberOfUnits = dis.readInt(); // Read the number of units
+		if (numberOfUnits < 0) {
+			throw new MaryConfigurationException("File [" + fileName + "] has a negative number of units. Aborting.");
+		}
 
-        LF0VECTORSIZE = dis.readInt(); // Read  LF0 vector size
-        MGCVECTORSIZE = dis.readInt(); // Read  MGC vector size
-        STRVECTORSIZE = dis.readInt(); // Read  STR vector size
+		LF0VECTORSIZE = dis.readInt(); // Read LF0 vector size
+		MGCVECTORSIZE = dis.readInt(); // Read MGC vector size
+		STRVECTORSIZE = dis.readInt(); // Read STR vector size
 
-        if ( LF0VECTORSIZE != 1 || MGCVECTORSIZE <= 0 || STRVECTORSIZE <= 0 ) {
-            throw new MaryConfigurationException( "File [" + fileName + "] has no proper feature vector size information... Aborting." );
-        }
+		if (LF0VECTORSIZE != 1 || MGCVECTORSIZE <= 0 || STRVECTORSIZE <= 0) {
+			throw new MaryConfigurationException("File [" + fileName
+					+ "] has no proper feature vector size information... Aborting.");
+		}
 
-        logf0 = new double[numberOfUnits][];
-        voiced = new boolean[numberOfUnits][];
-        mgc = new double[numberOfUnits][][];
-        strengths = new double[numberOfUnits][][];
-        numberOfFrames = new int[numberOfUnits];
+		logf0 = new double[numberOfUnits][];
+		voiced = new boolean[numberOfUnits][];
+		mgc = new double[numberOfUnits][][];
+		strengths = new double[numberOfUnits][][];
+		numberOfFrames = new int[numberOfUnits];
 
+		for (int i = 0; i < numberOfUnits; i++) {
 
-        for ( int i=0; i < numberOfUnits; i++ ) {
+			numberOfFrames[i] = dis.readInt();
 
-            numberOfFrames[i] = dis.readInt();
+			// read LF0 data
+			int checkLF0Size = dis.readInt();
+			assert checkLF0Size == (numberOfFrames[i] * LF0VECTORSIZE) : fileName + " feature file do not has proper format";
+			logf0[i] = new double[numberOfFrames[i]];
+			voiced[i] = new boolean[numberOfFrames[i]];
+			for (int j = 0; j < numberOfFrames[i]; j++) {
+				logf0[i][j] = dis.readFloat();
+				if (logf0[i][j] < 0) {
+					voiced[i][j] = false;
+				} else {
+					voiced[i][j] = true;
+				}
+			}
 
-            // read LF0 data
-            int checkLF0Size = dis.readInt();
-            assert checkLF0Size ==  (numberOfFrames[i] * LF0VECTORSIZE) : fileName + " feature file do not has proper format";
-            logf0[i] = new double[numberOfFrames[i]];
-            voiced[i] = new boolean[numberOfFrames[i]];
-            for ( int j=0; j < numberOfFrames[i]; j++ ) {
-                logf0[i][j] = dis.readFloat();
-                if ( logf0[i][j] < 0 ) {
-                    voiced[i][j] = false;
-                } else {
-                    voiced[i][j] = true;
-                }
-            }
+			// read MGC data
+			int checkMGCSize = dis.readInt();
+			assert checkMGCSize == (numberOfFrames[i] * this.MGCVECTORSIZE) : fileName + " feature file do not has proper format";
+			mgc[i] = new double[numberOfFrames[i]][MGCVECTORSIZE];
+			for (int j = 0; j < numberOfFrames[i]; j++) {
+				for (int k = 0; k < MGCVECTORSIZE; k++) {
+					mgc[i][j][k] = dis.readFloat();
+				}
+			}
 
-            // read MGC data
-            int checkMGCSize = dis.readInt();
-            assert checkMGCSize ==  (numberOfFrames[i] * this.MGCVECTORSIZE) : fileName + " feature file do not has proper format";
-            mgc[i] = new double[numberOfFrames[i]][MGCVECTORSIZE];
-            for ( int j=0; j < numberOfFrames[i]; j++ ) {
-                for ( int k=0; k < MGCVECTORSIZE; k++ ) {
-                    mgc[i][j][k] = dis.readFloat();
-                }
-            }
-
-            // read STR data
-            int checkSTRSize = dis.readInt();
-            assert checkSTRSize ==  (numberOfFrames[i] * this.STRVECTORSIZE) : fileName + " feature file do not has proper format";
-            strengths[i] = new double[numberOfFrames[i]][STRVECTORSIZE];
-            for ( int j=0; j < numberOfFrames[i]; j++ ) {
-                for ( int k=0; k < STRVECTORSIZE; k++ ) {
-                    strengths[i][j][k] = dis.readFloat();
-                }
-            }
-        }
-    }
+			// read STR data
+			int checkSTRSize = dis.readInt();
+			assert checkSTRSize == (numberOfFrames[i] * this.STRVECTORSIZE) : fileName + " feature file do not has proper format";
+			strengths[i] = new double[numberOfFrames[i]][STRVECTORSIZE];
+			for (int j = 0; j < numberOfFrames[i]; j++) {
+				for (int k = 0; k < STRVECTORSIZE; k++) {
+					strengths[i][j][k] = dis.readFloat();
+				}
+			}
+		}
+	}
 
 	/**
 	 * Get the number of units in the file.

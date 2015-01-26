@@ -135,12 +135,12 @@ public class VoiceDataDumper {
 	 * @return total duration in seconds
 	 */
 	protected double getDuration(Datagram[] datagrams) {
-        double totalDuration = 0;
-        for (Datagram datagram : datagrams) {
-            totalDuration += datagram.getDuration() / (float) unitDB.getAudioTimeline().getSampleRate();
-        }
-        return totalDuration;
-    }
+		double totalDuration = 0;
+		for (Datagram datagram : datagrams) {
+			totalDuration += datagram.getDuration() / (float) unitDB.getAudioTimeline().getSampleRate();
+		}
+		return totalDuration;
+	}
 
 	/**
 	 * Get raw samples from all Datagrams in an array
@@ -151,14 +151,14 @@ public class VoiceDataDumper {
 	 * @throws IOException
 	 */
 	protected byte[] getSamples(Datagram[] datagrams) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (Datagram datagram : datagrams) {
-            byte[] data = datagram.getData();
-            baos.write(data);
-        }
-        byte[] samples = baos.toByteArray();
-        return samples;
-    }
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		for (Datagram datagram : datagrams) {
+			byte[] data = datagram.getData();
+			baos.write(data);
+		}
+		byte[] samples = baos.toByteArray();
+		return samples;
+	}
 
 	/**
 	 * Dump units to Praat TextGrid. This will have three tiers:

@@ -47,34 +47,31 @@ public class FIRBandPassFilterBankSynthesiser {
 		return apply(analyser, subbands, true);
 	}
 
-	public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
-    {
-        double[] x = null;
+	public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions) {
+		double[] x = null;
 
-        if (analyser!=null && analyser.filters!=null && subbands!=null)
-        {
-            int i, j, maxLen;
-            
-            assert analyser.filters.length == subbands.length;
-            
-            //Add all subbands up and then apply the smooth gain normalization filter
-            maxLen = subbands[0].waveform.length;
-            for (i=1; i<subbands.length; i++)
-                maxLen = Math.max(maxLen, subbands[i].waveform.length);
-            
-            x = new double[maxLen];
-            Arrays.fill(x, 0.0);
-            for (i=0; i<subbands.length; i++)
-            {
-                for (j=0; j<subbands[i].waveform.length; j++)
-                    x[j] += subbands[i].waveform[j];
-            }
-            
-            x = SignalProcUtils.filterfd(analyser.normalizationFilterTransformedIR, x, subbands[0].samplingRate);
-        }
+		if (analyser != null && analyser.filters != null && subbands != null) {
+			int i, j, maxLen;
 
-        return x;
-    }
+			assert analyser.filters.length == subbands.length;
+
+			// Add all subbands up and then apply the smooth gain normalization filter
+			maxLen = subbands[0].waveform.length;
+			for (i = 1; i < subbands.length; i++)
+				maxLen = Math.max(maxLen, subbands[i].waveform.length);
+
+			x = new double[maxLen];
+			Arrays.fill(x, 0.0);
+			for (i = 0; i < subbands.length; i++) {
+				for (j = 0; j < subbands[i].waveform.length; j++)
+					x[j] += subbands[i].waveform[j];
+			}
+
+			x = SignalProcUtils.filterfd(analyser.normalizationFilterTransformedIR, x, subbands[0].samplingRate);
+		}
+
+		return x;
+	}
 
 	public static void main(String[] args) throws UnsupportedAudioFileException, IOException {
 		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));

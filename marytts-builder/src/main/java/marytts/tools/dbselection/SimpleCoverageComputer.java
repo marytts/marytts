@@ -54,15 +54,16 @@ public class SimpleCoverageComputer {
 		ArrayList<String> lines = new ArrayList<String>();
 		String line;
 		while ((line = in.readLine()) != null) {
-			if (line.trim().isEmpty()) continue;
+			if (line.trim().isEmpty())
+				continue;
 			lines.add(line);
 		}
-		System.out.println("Computing coverage features for "+lines.size()+" sentences from "+args[0]+"...");
+		System.out.println("Computing coverage features for " + lines.size() + " sentences from " + args[0] + "...");
 		byte[][] coverageFeatures = new byte[lines.size()][];
-		for (int i=0, max=lines.size(); i<max; i++) {
+		for (int i = 0, max = lines.size(); i < max; i++) {
 			coverageFeatures[i] = CoverageUtils.sentenceToFeatures(lines.get(i), locale, featureNames, false);
-			if (i%10 == 0) {
-				System.out.print("\r"+i+"/"+max);
+			if (i % 10 == 0) {
+				System.out.print("\r" + i + "/" + max);
 			}
 		}
 		System.out.println();
@@ -73,7 +74,7 @@ public class SimpleCoverageComputer {
 		coverageDefinition.initialiseCoverage();
 		coverageDefinition.printTextCorpusStatistics(out);
 		out.close();
-		System.out.println("done -- see "+args[1]+" for results.");
+		System.out.println("done -- see " + args[1] + " for results.");
 
 	}
 }

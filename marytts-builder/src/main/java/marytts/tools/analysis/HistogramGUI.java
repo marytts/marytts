@@ -68,33 +68,33 @@ public class HistogramGUI extends Thread {
 		hgui.setVisible(true);
 	}
 
-	public double[] getFileData(String file, int index) throws Exception{
-     Double[] sdata;
-     
-     ArrayList<Double> arl = new ArrayList<Double>();
-     BufferedReader bfr = new BufferedReader(new FileReader(new File(file)));
-     String line;
-     while((line=bfr.readLine()) != null){
-         line = line.trim();
-         String[] sval = line.split("\\s+");
-         //**TODO: File reading by assuming it has a single value         
-         //*   Need to modify again
-         if(sval.length <= index){
-             throw new RuntimeException("the file '"+file+"' contains 0 to "+(sval.length-1)
-                     +" columns only. The column "+index+" is not available.");
-         }
-         double xval = Double.valueOf(sval[index]);
-         arl.add(xval);
-     }
-     
-     sdata = (Double []) arl.toArray(new Double[arl.size()]);
-     double[] xdata = new double[sdata.length];
-     for(int i=0; i<sdata.length; i++){
-         xdata[i] = sdata[i].doubleValue();
-     } 
-     return xdata;   
-     
-   }
+	public double[] getFileData(String file, int index) throws Exception {
+		Double[] sdata;
+
+		ArrayList<Double> arl = new ArrayList<Double>();
+		BufferedReader bfr = new BufferedReader(new FileReader(new File(file)));
+		String line;
+		while ((line = bfr.readLine()) != null) {
+			line = line.trim();
+			String[] sval = line.split("\\s+");
+			// **TODO: File reading by assuming it has a single value
+			// * Need to modify again
+			if (sval.length <= index) {
+				throw new RuntimeException("the file '" + file + "' contains 0 to " + (sval.length - 1)
+						+ " columns only. The column " + index + " is not available.");
+			}
+			double xval = Double.valueOf(sval[index]);
+			arl.add(xval);
+		}
+
+		sdata = (Double[]) arl.toArray(new Double[arl.size()]);
+		double[] xdata = new double[sdata.length];
+		for (int i = 0; i < sdata.length; i++) {
+			xdata[i] = sdata[i].doubleValue();
+		}
+		return xdata;
+
+	}
 
 	/**
 	 * @param args

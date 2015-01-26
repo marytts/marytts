@@ -132,53 +132,51 @@ public class PauseFeatureComputer extends VoiceImportComponent {
 		return true;
 	}
 
-	public void computeFeaturesFor(String basename) throws IOException
-    {
-        String text;
-        Locale localVoice = MaryUtils.string2locale(locale);
-        
-        // First, test if there is a corresponding .rawmaryxml file in textdir:
-        File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
-                                + basename + db.getProp(db.MARYXMLEXT));
-        if (rawmaryxmlFile.exists()) {
-            text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
-        } else {
-            text = getMaryXMLHeaderWithInitialBoundary(locale)
-                + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
-                                + basename + db.getProp(db.TEXTEXT)), "UTF-8")
-                + "</maryxml>";
-        }
-        File intonisedxmlFile = new File(getProp(INTONISED)
-                + basename + xmlExt);
-        text = FileUtils.getFileAsString(intonisedxmlFile, "UTF-8");
-        
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( pausefeatureDir, basename + featsExt )));
-        MaryClient maryClient = getMaryClient();
-        
-        Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
-        if (voices == null) {
-            if(locale.equals("en")) {
-               locale  =  "en_US";
-               localVoice = MaryUtils.string2locale(locale);
-               voices = maryClient.getVoices(localVoice);
-            } 
-        }
-        // try again:
-        if (voices == null) {
-            StringBuilder buf = new StringBuilder("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
-            Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
-            for (MaryClient.Voice v: allVoices) {
-                buf.append(v.toString()); buf.append("\n");
-            }
-            throw new RuntimeException(buf.toString());
-        }
-        MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
-        String voiceName = defaultVoice.name();
-        //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
-        maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, os);
-        os.flush();
-        os.close();
-    }
+	public void computeFeaturesFor(String basename) throws IOException {
+		String text;
+		Locale localVoice = MaryUtils.string2locale(locale);
+
+		// First, test if there is a corresponding .rawmaryxml file in textdir:
+		File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + basename + db.getProp(db.MARYXMLEXT));
+		if (rawmaryxmlFile.exists()) {
+			text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
+		} else {
+			text = getMaryXMLHeaderWithInitialBoundary(locale)
+					+ FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8")
+					+ "</maryxml>";
+		}
+		File intonisedxmlFile = new File(getProp(INTONISED) + basename + xmlExt);
+		text = FileUtils.getFileAsString(intonisedxmlFile, "UTF-8");
+
+		OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(pausefeatureDir, basename + featsExt)));
+		MaryClient maryClient = getMaryClient();
+
+		Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
+		if (voices == null) {
+			if (locale.equals("en")) {
+				locale = "en_US";
+				localVoice = MaryUtils.string2locale(locale);
+				voices = maryClient.getVoices(localVoice);
+			}
+		}
+		// try again:
+		if (voices == null) {
+			StringBuilder buf = new StringBuilder("Mary server has no voices for locale '" + localVoice
+					+ "' -- known voices are:\n");
+			Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
+			for (MaryClient.Voice v : allVoices) {
+				buf.append(v.toString());
+				buf.append("\n");
+			}
+			throw new RuntimeException(buf.toString());
+		}
+		MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
+		String voiceName = defaultVoice.name();
+		// maryClient.process(text, maryInputType, maryOutputType, null, null, os);
+		maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, os);
+		os.flush();
+		os.close();
+	}
 
 	/**
 	 * Provide the progress of computation, in percent, or -1 if that feature is not implemented.

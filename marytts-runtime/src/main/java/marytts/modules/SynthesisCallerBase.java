@@ -71,79 +71,74 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 * <code>setAudioType()</code>. Returns a MaryData structure whose data is an input stream from which audio data of the
 	 * specified type can be read.
 	 */
-	public MaryData process(MaryData d)
-        throws TransformerConfigurationException, TransformerException,
-               FileNotFoundException, IOException,
-               ParserConfigurationException, SAXException, Exception
-    {
-        assert d.getAudioFileFormat() != null;
-        assert getState() == MODULE_RUNNING;
+	public MaryData process(MaryData d) throws TransformerConfigurationException, TransformerException, FileNotFoundException,
+			IOException, ParserConfigurationException, SAXException, Exception {
+		assert d.getAudioFileFormat() != null;
+		assert getState() == MODULE_RUNNING;
 
-        // As the input may contain multipe voice sections,
-        // the challenge in this method is to join the audio data
-        // resulting from individual synthesis calls with the respective
-        // voice into one audio stream of the specified type.
-        // Overall strategy:
-        // * In input, identify the sections to be spoken by different voices
-        // * For each of these sections,
-        //   - synthesise the section in the voice's native audio format
-        //   - convert to the common audio format if necessary / possible
-        // * Join the audio input streams
-        // * Return a MaryData structure containing a single audio input stream
-        //   from which the audio data in the desired format can be read.
+		// As the input may contain multipe voice sections,
+		// the challenge in this method is to join the audio data
+		// resulting from individual synthesis calls with the respective
+		// voice into one audio stream of the specified type.
+		// Overall strategy:
+		// * In input, identify the sections to be spoken by different voices
+		// * For each of these sections,
+		// - synthesise the section in the voice's native audio format
+		// - convert to the common audio format if necessary / possible
+		// * Join the audio input streams
+		// * Return a MaryData structure containing a single audio input stream
+		// from which the audio data in the desired format can be read.
 
-        String input = (String) d.getData();
-        Voice defaultVoice = d.getDefaultVoice();
-        if (defaultVoice == null) {
-            defaultVoice = Voice.getDefaultVoice(Locale.GERMAN);
-            assert defaultVoice != null;
-            logger.info("No default voice associated with data. Assuming global default " +
-                         defaultVoice.getName());
-        }
-        
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setAudioFileFormat(d.getAudioFileFormat());
-        AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
-        if (d.getAudio() != null) {
-            // This (empty) AppendableSequenceAudioInputStream object allows a 
-            // thread reading the audio data on the other "end" to get to our data as we are producing it.
-            assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
-            result.setAudio(d.getAudio());
-        }
-        
-        VoiceSectioner sectioner = null;
-        if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
-            sectioner = new FestivalUttSectioner(input, defaultVoice);
-        } else {
-            throw new RuntimeException("Don't know how to handle input type '"+inputType()+"'");
-        }
-        VoiceSection section = null;
-        // A first pass identifying the voice with the highest sampling rate:
-        AudioFormat commonAudioFormat = null;
-        while ((section = sectioner.nextSection()) != null) {
-            if (commonAudioFormat == null)
-                commonAudioFormat = section.voice().dbAudioFormat();
-            else if (section.voice().dbAudioFormat().getSampleRate()
-                     > commonAudioFormat.getSampleRate())
-                commonAudioFormat = section.voice().dbAudioFormat();
-        }
-        // And second pass:
-        if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
-            sectioner = new FestivalUttSectioner(input, defaultVoice);
-        }
-        section = null;
-        while ((section = sectioner.nextSection()) != null) {
-            AudioInputStream ais = synthesiseOneSection(section.text(), section.voice());
-            if (ais != null) {
-                // Conversion required?
-                ais = convertIfNeededAndPossible(ais, commonAudioFormat, section.voice().getName());
-                ais = convertIfNeededAndPossible(ais, targetFormat, section.voice().getName());
-                result.appendAudio(ais);
-            }
-        }
+		String input = (String) d.getData();
+		Voice defaultVoice = d.getDefaultVoice();
+		if (defaultVoice == null) {
+			defaultVoice = Voice.getDefaultVoice(Locale.GERMAN);
+			assert defaultVoice != null;
+			logger.info("No default voice associated with data. Assuming global default " + defaultVoice.getName());
+		}
 
-        return result;
-    }
+		MaryData result = new MaryData(outputType(), d.getLocale());
+		result.setAudioFileFormat(d.getAudioFileFormat());
+		AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
+		if (d.getAudio() != null) {
+			// This (empty) AppendableSequenceAudioInputStream object allows a
+			// thread reading the audio data on the other "end" to get to our data as we are producing it.
+			assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
+			result.setAudio(d.getAudio());
+		}
+
+		VoiceSectioner sectioner = null;
+		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
+			sectioner = new FestivalUttSectioner(input, defaultVoice);
+		} else {
+			throw new RuntimeException("Don't know how to handle input type '" + inputType() + "'");
+		}
+		VoiceSection section = null;
+		// A first pass identifying the voice with the highest sampling rate:
+		AudioFormat commonAudioFormat = null;
+		while ((section = sectioner.nextSection()) != null) {
+			if (commonAudioFormat == null)
+				commonAudioFormat = section.voice().dbAudioFormat();
+			else if (section.voice().dbAudioFormat().getSampleRate() > commonAudioFormat.getSampleRate())
+				commonAudioFormat = section.voice().dbAudioFormat();
+		}
+		// And second pass:
+		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
+			sectioner = new FestivalUttSectioner(input, defaultVoice);
+		}
+		section = null;
+		while ((section = sectioner.nextSection()) != null) {
+			AudioInputStream ais = synthesiseOneSection(section.text(), section.voice());
+			if (ais != null) {
+				// Conversion required?
+				ais = convertIfNeededAndPossible(ais, commonAudioFormat, section.voice().getName());
+				ais = convertIfNeededAndPossible(ais, targetFormat, section.voice().getName());
+				result.appendAudio(ais);
+			}
+		}
+
+		return result;
+	}
 
 	protected AudioInputStream convertIfNeededAndPossible(AudioInputStream input, AudioFormat format, String voiceName) {
 		if (input.getFormat().equals(format)) {

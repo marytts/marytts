@@ -122,22 +122,25 @@ public abstract class F0Tracker {
 
 		protected abstract void findCandidates(F0Candidate[] candidates, double[] frame);
 
-		protected void normaliseCandidatesScores(F0Candidate[] candidates)
-        {
-            assert candidates != null;
-            int iBest = 0;
-            for (int i=0; i<candidates.length; i++) {
-                if (candidates[i] == null) break;
-                else if (candidates[i].betterThan(candidates[iBest])) iBest = i;
-            }
-            double bestScore = candidates[iBest].score;
-            if (bestScore == 0) return;
-            // Normalise scores relative to best score:
-            for (int i=0; i<candidates.length; i++) {
-                if (candidates[i] == null) break;
-                candidates[i].score /= bestScore;
-            }
-        }
+		protected void normaliseCandidatesScores(F0Candidate[] candidates) {
+			assert candidates != null;
+			int iBest = 0;
+			for (int i = 0; i < candidates.length; i++) {
+				if (candidates[i] == null)
+					break;
+				else if (candidates[i].betterThan(candidates[iBest]))
+					iBest = i;
+			}
+			double bestScore = candidates[iBest].score;
+			if (bestScore == 0)
+				return;
+			// Normalise scores relative to best score:
+			for (int i = 0; i < candidates.length; i++) {
+				if (candidates[i] == null)
+					break;
+				candidates[i].score /= bestScore;
+			}
+		}
 
 		protected void addCandidate(F0Candidate[] candidates, F0Candidate newCandidate) {
 			// If there is still space left in candidates, simply add the new candidate;
@@ -178,27 +181,27 @@ public abstract class F0Tracker {
 			candidateLattice.add(candidates);
 		}
 
-		protected void findPath()
-        {
-            assert candidateLattice != null;
-            assert contour == null;
-            contour = new double[candidateLattice.size()];
-            for (int i=0; i<contour.length; i++) {
-                contour[i] = getBest(i).frequency;
-            }
-        }
+		protected void findPath() {
+			assert candidateLattice != null;
+			assert contour == null;
+			contour = new double[candidateLattice.size()];
+			for (int i = 0; i < contour.length; i++) {
+				contour[i] = getBest(i).frequency;
+			}
+		}
 
-		protected F0Candidate getBest(int index)
-        {
-            F0Candidate[] candidates = (F0Candidate[]) candidateLattice.get(index);
-            assert candidates.length >= 1;
-            int iBest = 0;
-            for (int i=0; i<candidates.length; i++) {
-                if (candidates[i] == null) break;
-                if (candidates[i].betterThan(candidates[iBest])) iBest = i;
-            }
-            return candidates[iBest];
-        }
+		protected F0Candidate getBest(int index) {
+			F0Candidate[] candidates = (F0Candidate[]) candidateLattice.get(index);
+			assert candidates.length >= 1;
+			int iBest = 0;
+			for (int i = 0; i < candidates.length; i++) {
+				if (candidates[i] == null)
+					break;
+				if (candidates[i].betterThan(candidates[iBest]))
+					iBest = i;
+			}
+			return candidates[iBest];
+		}
 
 		public double[] getContour() {
 			return contour;

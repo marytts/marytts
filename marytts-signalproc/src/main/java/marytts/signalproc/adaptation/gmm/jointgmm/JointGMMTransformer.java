@@ -74,116 +74,100 @@ public class JointGMMTransformer extends BaselineTransformer {
 		mapper = null;
 	}
 
-	public boolean checkParams() throws IOException
-    {
-        params.inputFolder = StringUtils.checkLastSlash(params.inputFolder);
-        params.outputBaseFolder = StringUtils.checkLastSlash(params.outputBaseFolder);
-        
-        //Read joint GMM file
-        JointGMM nonNullGmm = null;
-        if (!FileUtils.exists(params.jointGmmFile))
-        {
-            System.out.println("Error: Codebook file " + params.jointGmmFile + " not found!");
-            return false;     
-        }
-        else //Read full GMM from the joint GMM file
-        {
-            jointGmmSet = new JointGMMSet(params.jointGmmFile);
-            
-            assert jointGmmSet.gmms!=null;
-            
-            for (int i=0; i<jointGmmSet.gmms.length; i++)
-            {
-                if (jointGmmSet.gmms[i]!=null)
-                {
-                    nonNullGmm = new JointGMM(jointGmmSet.gmms[i]);
-                    break;
-                }
-            }
-            
-            if (nonNullGmm!=null)
-            {
-                if (nonNullGmm.featureType == BaselineFeatureExtractor.LSF_FEATURES)
-                    params.lsfParams = new LsfFileHeader((LsfFileHeader)nonNullGmm.featureParams);
-                else if (nonNullGmm.featureType == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
-                    params.mfccParams = new MfccFileHeader((MfccFileHeader)nonNullGmm.featureParams);
-            }
-        }
-        
-        if (nonNullGmm==null)
-        {
-            System.out.println("Error! All GMMs are null in " + params.jointGmmFile);
-            return false;
-        }
-        //
-        
-        //Read pitch mapping file
-        if (!FileUtils.exists(params.pitchMappingFile))
-        {
-            System.out.println("Error: Pitch mapping file " + params.pitchMappingFile + " not found!");
-            return false;     
-        }
-        else //Read lsfParams from the codebook header
-        {
-            pitchMappingFile = new PitchMappingFile(params.pitchMappingFile, PitchMappingFile.OPEN_FOR_READ);
-            pitchMapping = new PitchMapping();
-            
-            pitchMapping.header = pitchMappingFile.readPitchMappingHeader();
-        }
-        //
-            
-        if (!FileUtils.exists(params.inputFolder) || !FileUtils.isDirectory(params.inputFolder))
-        {
-            System.out.println("Error: Input folder " + params.inputFolder + " not found!");
-            return false; 
-        }
-        
-        if (!FileUtils.isDirectory(params.outputBaseFolder))
-        {
-            System.out.println("Creating output base folder " + params.outputBaseFolder + "...");
-            FileUtils.createDirectory(params.outputBaseFolder);
-        }
-        
-        if (params.outputFolderInfoString!="")
-        {
-            params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + 
-                                  "_mixes" + String.valueOf(nonNullGmm.source.totalComponents) + 
-                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + 
-                                  "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod) +
-                                  "x" + String.valueOf(params.prosodyParams.durationTransformationMethod); 
-        }
-        else
-        {
-            params.outputFolder = params.outputBaseFolder + 
-                                  "_mixes" + String.valueOf(nonNullGmm.source.totalComponents) + 
-                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + 
-                                  "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod) +
-                                  "x" + String.valueOf(params.prosodyParams.durationTransformationMethod);
-        }
-            
-        if (!FileUtils.isDirectory(params.outputFolder))
-        {
-            System.out.println("Creating output folder " + params.outputFolder + "...");
-            FileUtils.createDirectory(params.outputFolder);
-        }
-        
-        if (!params.isSeparateProsody)
-            params.isSaveVocalTractOnlyVersion = false;
-        
-        if (params.isPitchFromTargetFile)
-            params.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
-        
-        if (params.isDurationFromTargetFile)
-            params.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
-        
-        if (params.isEnergyFromTargetFile)
-            params.prosodyParams.energyTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
-        
-        if (!params.isVocalTractTransformation && !params.isLsfsFromTargetFile)
-            params.isTemporalSmoothing = false;
-        
-        return true;
-    }
+	public boolean checkParams() throws IOException {
+		params.inputFolder = StringUtils.checkLastSlash(params.inputFolder);
+		params.outputBaseFolder = StringUtils.checkLastSlash(params.outputBaseFolder);
+
+		// Read joint GMM file
+		JointGMM nonNullGmm = null;
+		if (!FileUtils.exists(params.jointGmmFile)) {
+			System.out.println("Error: Codebook file " + params.jointGmmFile + " not found!");
+			return false;
+		} else // Read full GMM from the joint GMM file
+		{
+			jointGmmSet = new JointGMMSet(params.jointGmmFile);
+
+			assert jointGmmSet.gmms != null;
+
+			for (int i = 0; i < jointGmmSet.gmms.length; i++) {
+				if (jointGmmSet.gmms[i] != null) {
+					nonNullGmm = new JointGMM(jointGmmSet.gmms[i]);
+					break;
+				}
+			}
+
+			if (nonNullGmm != null) {
+				if (nonNullGmm.featureType == BaselineFeatureExtractor.LSF_FEATURES)
+					params.lsfParams = new LsfFileHeader((LsfFileHeader) nonNullGmm.featureParams);
+				else if (nonNullGmm.featureType == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+					params.mfccParams = new MfccFileHeader((MfccFileHeader) nonNullGmm.featureParams);
+			}
+		}
+
+		if (nonNullGmm == null) {
+			System.out.println("Error! All GMMs are null in " + params.jointGmmFile);
+			return false;
+		}
+		//
+
+		// Read pitch mapping file
+		if (!FileUtils.exists(params.pitchMappingFile)) {
+			System.out.println("Error: Pitch mapping file " + params.pitchMappingFile + " not found!");
+			return false;
+		} else // Read lsfParams from the codebook header
+		{
+			pitchMappingFile = new PitchMappingFile(params.pitchMappingFile, PitchMappingFile.OPEN_FOR_READ);
+			pitchMapping = new PitchMapping();
+
+			pitchMapping.header = pitchMappingFile.readPitchMappingHeader();
+		}
+		//
+
+		if (!FileUtils.exists(params.inputFolder) || !FileUtils.isDirectory(params.inputFolder)) {
+			System.out.println("Error: Input folder " + params.inputFolder + " not found!");
+			return false;
+		}
+
+		if (!FileUtils.isDirectory(params.outputBaseFolder)) {
+			System.out.println("Creating output base folder " + params.outputBaseFolder + "...");
+			FileUtils.createDirectory(params.outputBaseFolder);
+		}
+
+		if (params.outputFolderInfoString != "") {
+			params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + "_mixes"
+					+ String.valueOf(nonNullGmm.source.totalComponents) + "_prosody"
+					+ String.valueOf(params.prosodyParams.pitchStatisticsType) + "x"
+					+ String.valueOf(params.prosodyParams.pitchTransformationMethod) + "x"
+					+ String.valueOf(params.prosodyParams.durationTransformationMethod);
+		} else {
+			params.outputFolder = params.outputBaseFolder + "_mixes" + String.valueOf(nonNullGmm.source.totalComponents)
+					+ "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x"
+					+ String.valueOf(params.prosodyParams.pitchTransformationMethod) + "x"
+					+ String.valueOf(params.prosodyParams.durationTransformationMethod);
+		}
+
+		if (!FileUtils.isDirectory(params.outputFolder)) {
+			System.out.println("Creating output folder " + params.outputFolder + "...");
+			FileUtils.createDirectory(params.outputFolder);
+		}
+
+		if (!params.isSeparateProsody)
+			params.isSaveVocalTractOnlyVersion = false;
+
+		if (params.isPitchFromTargetFile)
+			params.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+
+		if (params.isDurationFromTargetFile)
+			params.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+
+		if (params.isEnergyFromTargetFile)
+			params.prosodyParams.energyTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+
+		if (!params.isVocalTractTransformation && !params.isLsfsFromTargetFile)
+			params.isTemporalSmoothing = false;
+
+		return true;
+	}
 
 	public void run() throws IOException, UnsupportedAudioFileException {
 		if (checkParams()) {

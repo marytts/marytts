@@ -38,8 +38,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Base class for acoustic modeling; specific Models should extend this and
- * override methods as needed.
+ * Base class for acoustic modeling; specific Models should extend this and override methods as needed.
  * 
  * @author steiner
  * 
@@ -57,17 +56,15 @@ public abstract class Model {
 	protected String voiceName;
 
 	/**
-	 * The attribute into which the predicted acoustic feature should be
-	 * written.
+	 * The attribute into which the predicted acoustic feature should be written.
 	 */
 	protected String targetAttributeName;
 
 	protected String targetAttributeFormat;
 
 	/**
-	 * The name of the predicted acoustic feature, if any. The feature processor
-	 * that will be created from this will read the value from
-	 * {@link #targetAttributeName}.
+	 * The name of the predicted acoustic feature, if any. The feature processor that will be created from this will read the
+	 * value from {@link #targetAttributeName}.
 	 */
 	protected String featureName;
 
@@ -82,9 +79,8 @@ public abstract class Model {
 	protected String predictionFeatureNames;
 
 	/**
-	 * The producer of feature vectors for the features in
-	 * {@link #predictionFeatureNames} as computed by the feature processors in
-	 * {@link #featureManager}.
+	 * The producer of feature vectors for the features in {@link #predictionFeatureNames} as computed by the feature processors
+	 * in {@link #featureManager}.
 	 */
 	protected TargetFeatureComputer featureComputer;
 
@@ -96,29 +92,23 @@ public abstract class Model {
 	 * Model constructor
 	 * 
 	 * @param featureManager
-	 *            the feature processor manager used to compute the symbolic
-	 *            features used for prediction
+	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param dataFileName
 	 *            data file for this Model
 	 * @param targetAttributeName
 	 *            attribute in MaryXML to predict
 	 * @param targetAttributeFormat
-	 *            printf-style format String to specify the attribute value,
-	 *            i.e. "%.3f" to round to 3 decimal places; "%s" by default
-	 * @param featureName
-	 *            name of the custom continuous feature predicted by this model,
-	 *            or null
-	 * @param predictFrom
-	 *            key of Element Lists from which to predict values; "segments"
-	 *            by default
-	 * @param applyTo
-	 *            key of Element Lists to which to apply values; "segments" by
+	 *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places; "%s" by
 	 *            default
+	 * @param featureName
+	 *            name of the custom continuous feature predicted by this model, or null
+	 * @param predictFrom
+	 *            key of Element Lists from which to predict values; "segments" by default
+	 * @param applyTo
+	 *            key of Element Lists to which to apply values; "segments" by default
 	 */
-	protected Model(FeatureProcessorManager featureManager, String voiceName,
-			InputStream dataStream, String targetAttributeName,
-			String targetAttributeFormat, String featureName,
-			String predictFrom, String applyTo) {
+	protected Model(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
+			String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
 		this.featureManager = featureManager;
 		this.voiceName = voiceName;
 		this.dataStream = dataStream;
@@ -139,9 +129,8 @@ public abstract class Model {
 	}
 
 	/**
-	 * Try to load this model and set the target feature computer appropriately.
-	 * This must be called from the constructor of subclasses, so that the
-	 * subclass implementation of loadDataFile() is visible.
+	 * Try to load this model and set the target feature computer appropriately. This must be called from the constructor of
+	 * subclasses, so that the subclass implementation of loadDataFile() is visible.
 	 * 
 	 * @throws MaryConfigurationException
 	 *             if the model cannot be set up properly.
@@ -150,8 +139,7 @@ public abstract class Model {
 		try {
 			loadData();
 		} catch (IOException ioe) {
-			throw new MaryConfigurationException(
-					"Cannot load model data from stream", ioe);
+			throw new MaryConfigurationException("Cannot load model data from stream", ioe);
 		}
 		setupFeatureComputer();
 	}
@@ -164,56 +152,43 @@ public abstract class Model {
 	 * @throws MaryConfigurationException
 	 *             if files can be read but contain problematic content
 	 */
-	protected abstract void loadData() throws IOException,
-			MaryConfigurationException;
+	protected abstract void loadData() throws IOException, MaryConfigurationException;
 
-	protected final void setupFeatureComputer()
-			throws MaryConfigurationException {
+	protected final void setupFeatureComputer() throws MaryConfigurationException {
 		try {
-			featureComputer = FeatureRegistry.getTargetFeatureComputer(
-					featureManager, predictionFeatureNames);
+			featureComputer = FeatureRegistry.getTargetFeatureComputer(featureManager, predictionFeatureNames);
 		} catch (IllegalArgumentException iae) {
-			throw new MaryConfigurationException(
-					"Incompatible features between model and feature processor manager.\n"
-							+ "The model needs the following features:\n"
-							+ predictionFeatureNames + "\n"
-							+ "The FeatureProcessorManager for locale "
-							+ featureManager.getLocale() + " ("
-							+ featureManager.getClass().toString()
-							+ ") can produce the following features:\n"
-							+ featureManager.listFeatureProcessorNames(), iae);
+			throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
+					+ "The model needs the following features:\n" + predictionFeatureNames + "\n"
+					+ "The FeatureProcessorManager for locale " + featureManager.getLocale() + " ("
+					+ featureManager.getClass().toString() + ") can produce the following features:\n"
+					+ featureManager.listFeatureProcessorNames(), iae);
 		}
 	}
 
 	/**
-	 * Apply this Model to a List of Elements, predicting from those same
-	 * Elements
+	 * Apply this Model to a List of Elements, predicting from those same Elements
 	 * 
 	 * @param elements
 	 *            Elements for which to predict the values
 	 * @throws MaryConfigurationException
-	 *             if attribute values cannot be predicted because of an invalid
-	 *             voice configuration
+	 *             if attribute values cannot be predicted because of an invalid voice configuration
 	 */
-	public void applyTo(List<Element> elements)
-			throws MaryConfigurationException {
+	public void applyTo(List<Element> elements) throws MaryConfigurationException {
 		applyFromTo(elements, elements);
 	}
 
 	/**
-	 * Apply this Model to a List of Elements, predicting from a different List
-	 * of Elements
+	 * Apply this Model to a List of Elements, predicting from a different List of Elements
 	 * 
 	 * @param predictFromElements
 	 *            Elements from which to predict the values
 	 * @param applyToElements
 	 *            Elements to which to apply the values predicted by this Model
 	 * @throws MaryConfigurationException
-	 *             if attribute values cannot be predicted because of an invalid
-	 *             voice configuration
+	 *             if attribute values cannot be predicted because of an invalid voice configuration
 	 */
-	public void applyFromTo(List<Element> predictFromElements,
-			List<Element> applyToElements) throws MaryConfigurationException {
+	public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) throws MaryConfigurationException {
 		assert predictFromElements != null;
 		assert applyToElements != null;
 		assert predictFromElements.size() == applyToElements.size();
@@ -227,9 +202,7 @@ public abstract class Model {
 			try {
 				targetValue = (float) evaluate(target);
 			} catch (Exception e) {
-				throw new MaryConfigurationException(
-						"Could not predict value for target: '" + target + "'",
-						e);
+				throw new MaryConfigurationException("Could not predict value for target: '" + target + "'", e);
 			}
 
 			Element element = applyToElements.get(i);
@@ -245,13 +218,10 @@ public abstract class Model {
 
 			String formattedTargetValue = null;
 			try {
-				formattedTargetValue = String.format(targetAttributeFormat,
-						targetValue);
+				formattedTargetValue = String.format(targetAttributeFormat, targetValue);
 			} catch (Exception e) {
-				throw new MaryConfigurationException(
-						"Could not format target value '" + targetValue
-								+ "' using format '" + targetAttributeFormat
-								+ "'", e);
+				throw new MaryConfigurationException("Could not format target value '" + targetValue + "' using format '"
+						+ targetAttributeFormat + "'", e);
 			}
 
 			// System.out.println("formattedTargetValue = " +
@@ -260,10 +230,7 @@ public abstract class Model {
 			// if the attribute already exists for this element, append
 			// targetValue:
 			if (element.hasAttribute(targetAttributeName)) {
-				formattedTargetValue = element
-						.getAttribute(targetAttributeName)
-						+ " "
-						+ formattedTargetValue;
+				formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
 			}
 
 			// set the new attribute value:
@@ -272,8 +239,8 @@ public abstract class Model {
 	}
 
 	/**
-	 * For a list of <code>PHONE</code> elements, return a list of Targets,
-	 * where each Target is constructed from the corresponding Element.
+	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
+	 * corresponding Element.
 	 * 
 	 * @param elements
 	 *            List of Elements
@@ -287,8 +254,7 @@ public abstract class Model {
 			Target target = new Target(phone, element);
 			targets.add(target);
 			// compute FeatureVectors for Targets:
-			FeatureVector targetFeatureVector = featureComputer
-					.computeFeatureVector(target);
+			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
 			target.setFeatureVector(targetFeatureVector); // this is critical!
 			element.setUserData("target", target, Target.targetFeatureCloner);
 		}

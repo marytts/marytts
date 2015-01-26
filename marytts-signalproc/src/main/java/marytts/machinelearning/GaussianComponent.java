@@ -72,14 +72,13 @@ public class GaussianComponent {
 		}
 	}
 
-	public void init(double[] meanVectorIn, double[][] covMatrixIn)
-    {
-        setMeanVector(meanVectorIn);
-        setCovMatrix(covMatrixIn);
-        
-        for (int i=0; i<covMatrix.length; i++)
-            assert meanVector.length == covMatrix[i].length;
-    }
+	public void init(double[] meanVectorIn, double[][] covMatrixIn) {
+		setMeanVector(meanVectorIn);
+		setCovMatrix(covMatrixIn);
+
+		for (int i = 0; i < covMatrix.length; i++)
+			assert meanVector.length == covMatrix[i].length;
+	}
 
 	public void setMeanVector(double[] meanVectorIn) {
 		setMeanVector(meanVectorIn, 0, meanVectorIn.length);

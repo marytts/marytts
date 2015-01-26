@@ -165,34 +165,33 @@ public class Options extends javax.swing.JFrame {
 	/**
 	 * Get the target data line corresponding to the selected AudioSource, Line and Format.
 	 */
-	public TargetDataLine getTargetDataLine() throws LineUnavailableException 
-    {
-        if (targetDataLine != null) {
-            if (targetDataLine.isOpen()) {
-                Test.output("targetDataLine was open, with format: "+targetDataLine.getFormat());
-                targetDataLine.close();
-            }
-        }
-        Object audioDescriptor = cbAudioSource.getSelectedItem();
-        assert audioDescriptor instanceof Mixer.Info || audioDescriptor instanceof String;
-        if (audioDescriptor instanceof Mixer.Info) {
-            Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
-            Mixer mixer = AudioSystem.getMixer(mixerInfo);
-            Line.Info[] lineInfos = mixer.getTargetLineInfo();
-            assert lineInfos.length > 0 : "Strange, there is no more line info for mixer: "+mixer;
-            Line.Info lineInfo = lineInfos[0];
-            targetDataLine = (TargetDataLine) mixer.getLine(lineInfo);
-        } else {
-            assert ((String)audioDescriptor).equals("AudioSystem");
-            Line.Info lineInfo = new DataLine.Info(TargetDataLine.class, getAudioFormat());
-            targetDataLine = (TargetDataLine) AudioSystem.getLine(lineInfo);
-        }
-        targetDataLine.open(getAudioFormat());
-        Test.output("Target line opened:");
-        Test.output("Format requested: "+getAudioFormat());
-        Test.output("Format opened   : "+targetDataLine.getFormat());
-        return targetDataLine;
-    }
+	public TargetDataLine getTargetDataLine() throws LineUnavailableException {
+		if (targetDataLine != null) {
+			if (targetDataLine.isOpen()) {
+				Test.output("targetDataLine was open, with format: " + targetDataLine.getFormat());
+				targetDataLine.close();
+			}
+		}
+		Object audioDescriptor = cbAudioSource.getSelectedItem();
+		assert audioDescriptor instanceof Mixer.Info || audioDescriptor instanceof String;
+		if (audioDescriptor instanceof Mixer.Info) {
+			Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
+			Mixer mixer = AudioSystem.getMixer(mixerInfo);
+			Line.Info[] lineInfos = mixer.getTargetLineInfo();
+			assert lineInfos.length > 0 : "Strange, there is no more line info for mixer: " + mixer;
+			Line.Info lineInfo = lineInfos[0];
+			targetDataLine = (TargetDataLine) mixer.getLine(lineInfo);
+		} else {
+			assert ((String) audioDescriptor).equals("AudioSystem");
+			Line.Info lineInfo = new DataLine.Info(TargetDataLine.class, getAudioFormat());
+			targetDataLine = (TargetDataLine) AudioSystem.getLine(lineInfo);
+		}
+		targetDataLine.open(getAudioFormat());
+		Test.output("Target line opened:");
+		Test.output("Format requested: " + getAudioFormat());
+		Test.output("Format opened   : " + targetDataLine.getFormat());
+		return targetDataLine;
+	}
 
 	public AudioFormat getAudioFormat() {
 		return new AudioFormat(Float.parseFloat((String) cbSamplingRate.getSelectedItem()),
@@ -224,23 +223,22 @@ public class Options extends javax.swing.JFrame {
 	 * 
 	 * @return a line object, or null if the line could not be created.
 	 */
-	public SourceDataLine getSpeakerOutputLine()
-    {
-        Object audioDescriptor = cbSpeakerOutput.getSelectedItem();
-        assert audioDescriptor instanceof Mixer.Info;
-        Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
-        Mixer mixer = AudioSystem.getMixer(mixerInfo);
-        Line.Info[] lineInfos = mixer.getSourceLineInfo();
-        assert lineInfos.length > 0 : "Strange, there are no more source lines for mixer: "+mixer;
-        Line.Info lineInfo = lineInfos[0];
-        SourceDataLine line = null;
-        try {
-            line = (SourceDataLine) mixer.getLine(lineInfo);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        return line;
-    }
+	public SourceDataLine getSpeakerOutputLine() {
+		Object audioDescriptor = cbSpeakerOutput.getSelectedItem();
+		assert audioDescriptor instanceof Mixer.Info;
+		Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
+		Mixer mixer = AudioSystem.getMixer(mixerInfo);
+		Line.Info[] lineInfos = mixer.getSourceLineInfo();
+		assert lineInfos.length > 0 : "Strange, there are no more source lines for mixer: " + mixer;
+		Line.Info lineInfo = lineInfos[0];
+		SourceDataLine line = null;
+		try {
+			line = (SourceDataLine) mixer.getLine(lineInfo);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		return line;
+	}
 
 	/**
 	 * From the GUI, get the output mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or
@@ -265,24 +263,23 @@ public class Options extends javax.swing.JFrame {
 	 * 
 	 * @return a line object, or null if the line could not be created.
 	 */
-	public SourceDataLine getExpertOutputLine()
-    {
-        Object audioDescriptor = cbExpertOutput.getSelectedItem();
-        assert audioDescriptor instanceof Mixer.Info;
-        Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
-        Mixer mixer = AudioSystem.getMixer(mixerInfo);
-        Line.Info[] lineInfos = mixer.getSourceLineInfo();
-        assert lineInfos.length > 0 : "Strange, there are no more source lines for mixer: "+mixer;
-        Line.Info lineInfo = lineInfos[0];
-        SourceDataLine line = null;
-        try {
-            line = (SourceDataLine) mixer.getLine(lineInfo);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        return line;
-        
-    }
+	public SourceDataLine getExpertOutputLine() {
+		Object audioDescriptor = cbExpertOutput.getSelectedItem();
+		assert audioDescriptor instanceof Mixer.Info;
+		Mixer.Info mixerInfo = (Mixer.Info) audioDescriptor;
+		Mixer mixer = AudioSystem.getMixer(mixerInfo);
+		Line.Info[] lineInfos = mixer.getSourceLineInfo();
+		assert lineInfos.length > 0 : "Strange, there are no more source lines for mixer: " + mixer;
+		Line.Info lineInfo = lineInfos[0];
+		SourceDataLine line = null;
+		try {
+			line = (SourceDataLine) mixer.getLine(lineInfo);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		return line;
+
+	}
 
 	/**
 	 * From the GUI, get the input mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or

@@ -61,8 +61,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	 * @throws InvalidDataException
 	 *             if a manual label is encountered that is not in the AllophoneSet
 	 */
-	public void alignXmlTranscriptions(Document allophones, String labels)
-	throws InvalidDataException {
+	public void alignXmlTranscriptions(Document allophones, String labels) throws InvalidDataException {
 		// get all t and boundary elements
 		NodeIterator tokenIt = MaryDomUtils.createNodeIterator(allophones, MaryXML.TOKEN, MaryXML.BOUNDARY);
 		List<Element> tokens = new ArrayList<Element>();
@@ -73,14 +72,13 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 		String orig = this.collectTranscription(allophones);
 
-		System.err.println("Orig   : "+orig);
-		System.err.println("Correct: "+labels);
-
+		System.err.println("Orig   : " + orig);
+		System.err.println("Correct: " + labels);
 
 		// now we align the transcriptions and split it at the delimiters
-		String al = this.distanceAlign(orig.trim(),labels.trim()) + " ";
+		String al = this.distanceAlign(orig.trim(), labels.trim()) + " ";
 
-		System.err.println("Alignments: "+al);
+		System.err.println("Alignments: " + al);
 		String[] alignments = al.split("#");
 
 		// change the transcription in xml according to the aligned one
@@ -153,128 +151,128 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	 *            the aligned symbols to use in the update.
 	 */
 	private void changeTranscriptions(Document doc, String[] alignments) {
-	    // Algorithm:
-	    // * Go through <ph> and <boundary> elements in doc on the one hand,
-	    // and through alignments on the other hand.
-	    //   - Special steps for the first <ph> in a token:
-	    //     -> if the <ph> is the first <ph> in the current token,
-	    //        and alignment is a pause symbol,
-	    //        insert a new boundary before the token, and skip the alignment entry;
-	    //     -> if the <ph> is the first <ph> in the current token,
-	    //        and the alignment entry is empty, skip the alignment entry.
-	    //   - for <ph> elements:
-	    //     -> if the alignment entry is empty, delete the <ph> and,
-	    //        if it was the only <ph> in the current <syllable>, also
-	    //        delete the syllable;
-	    //     -> else, use the current alignment entry, adding any <ph>
-	    //        elements as necessary.
-	    //   - for <boundary> elements:
-	    //     -> if symbol is pause, keep boundary;
-	    //     -> if symbol is word separator, delete boundary.
-	
-	    NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.PHONE, MaryXML.BOUNDARY);
-	    List<Element> origPhonesAndBoundaries = new ArrayList<Element>();
-	    // We make a copy of the list of original entries, because when
-	    // we add/remove entries later, that get the node iterator confused.
-	    Element elt;
-	    while ((elt = (Element) ni.nextNode()) != null) {
-	        origPhonesAndBoundaries.add(elt);
-	    }
-	    int iAlign = 0;
-	    Element prevToken = null;
-	    boolean prevWasBoundary = false;
-	    for (Element e : origPhonesAndBoundaries) {
-	        if (e.getTagName().equals(MaryXML.PHONE)) {
-	            boolean betweenTokens = false;
-	            Element token = (Element) MaryDomUtils.getAncestor(e, MaryXML.TOKEN);
-	            if (token != prevToken && !prevWasBoundary) {
-	                betweenTokens = true;
-	            }
-	            if (betweenTokens) {
-	                assert !prevWasBoundary;
-	                if (alignments[iAlign].trim().equals(possibleBnd)) {
-	                    // Need to insert a boundary before token
-	                    System.err.println("  inserted boundary in xml");
-	                    Element b = MaryXML.createElement(doc, MaryXML.BOUNDARY);
-	                    b.setAttribute("breakindex", "3");
-	                    if (insertDummyDurations) {
-	                    	b.setAttribute("duration", "1");
-	                    }
-	                    token.getParentNode().insertBefore(b, token);
-	                } else if (!alignments[iAlign].trim().equals("")) {
-	                    // one or more phones were inserted into the transcription
-	                    // -- treat them as word-final, i.e. insert them into the last syllable in prevToken
-	                    Element syllable = null;
-	                    Element ref = null; // insert before null = insert at the end
-	                    NodeList prevSyllables = null;
-	                    // if there is an insertion at the beginning, we don't have a prevToken!
-	                    if (prevToken != null) {
-	                        prevSyllables = prevToken.getElementsByTagNameNS(MaryXML.getNamespace(), MaryXML.SYLLABLE);
-	                    }
-	                    if (prevSyllables != null && prevSyllables.getLength() > 0) { // insert at end of previous token
-	                        syllable = (Element) prevSyllables.item(prevSyllables.getLength() - 1);
-	                        ref = null;
-	                    } else { // insert at beginning of current token
-	                        syllable = (Element) e.getParentNode();
-	                        ref = e; // insert before current phone
-	                    }
-	                    String[] newPh = alignments[iAlign].trim().split("\\s+");
-	                    for (int i=0; i<newPh.length; i++) {
-	                        Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
-	                        newPhElement.setAttribute("p", newPh[i]);
-	                        syllable.insertBefore(newPhElement, ref);
-	                        System.err.println(" inserted phone from transcription: "+newPh[i]);
-	                        if (insertDummyDurations) {
-	                        	newPhElement.setAttribute("d", "1");
-	                        }
-	                    }
-	                } // else it is an empty word boundary marker
-	                iAlign++; // move beyond the marker between tokens
-	            }
-	            prevToken = token;
-	            prevWasBoundary = false;
-	            System.err.println("Ph = "+e.getAttribute("p")+", align = "+ alignments[iAlign]);
-	            if (alignments[iAlign].trim().equals("")) {
-	                // Need to delete the current <ph> element
-	                Element syllable = (Element) e.getParentNode();
-	                assert syllable != null;
-	                assert syllable.getTagName().equals(MaryXML.SYLLABLE);
-	                syllable.removeChild(e);
-	                if (MaryDomUtils.getFirstElementByTagName(syllable, MaryXML.PHONE) == null) {
-	                    // Syllable is now empty, need to delete it as well
-	                    syllable.getParentNode().removeChild(syllable);
-	                }
-	            } else {
-	                // Replace <ph>, add siblings if necessary
-	                String[] newPh = alignments[iAlign].trim().split("\\s+");
-	                e.setAttribute("p", newPh[0]);
-	                if (newPh.length > 1) {
-	                    // any ph to be added
-	                    Element syllable = (Element) e.getParentNode();
-	                    assert syllable != null;
-	                    assert syllable.getTagName().equals(MaryXML.SYLLABLE);
-	                    Node rightNeighbor = e.getNextSibling(); // can be null
-	                    for (int i=1; i<newPh.length; i++) {
-	                        Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
-	                        newPhElement.setAttribute("p", newPh[i]);
-	                        syllable.insertBefore(newPhElement, rightNeighbor);
-	                    }
-	                }
-	            }
-	        } else { // boundary
-	            System.err.println("Boundary, align = "+ alignments[iAlign]);
-	            if (alignments[iAlign].trim().equals(possibleBnd)) {
-	                // keep boundary
-	            } else {
-	                // delete boundary
-	                System.err.println("  deleted boundary from xml");
-	                e.getParentNode().removeChild(e);
-	            }
-	            prevWasBoundary = true;
-	        }
-	        iAlign++;
-	    }
-	    updatePhAttributesFromPhElements(doc);
+		// Algorithm:
+		// * Go through <ph> and <boundary> elements in doc on the one hand,
+		// and through alignments on the other hand.
+		// - Special steps for the first <ph> in a token:
+		// -> if the <ph> is the first <ph> in the current token,
+		// and alignment is a pause symbol,
+		// insert a new boundary before the token, and skip the alignment entry;
+		// -> if the <ph> is the first <ph> in the current token,
+		// and the alignment entry is empty, skip the alignment entry.
+		// - for <ph> elements:
+		// -> if the alignment entry is empty, delete the <ph> and,
+		// if it was the only <ph> in the current <syllable>, also
+		// delete the syllable;
+		// -> else, use the current alignment entry, adding any <ph>
+		// elements as necessary.
+		// - for <boundary> elements:
+		// -> if symbol is pause, keep boundary;
+		// -> if symbol is word separator, delete boundary.
+
+		NodeIterator ni = MaryDomUtils.createNodeIterator(doc, MaryXML.PHONE, MaryXML.BOUNDARY);
+		List<Element> origPhonesAndBoundaries = new ArrayList<Element>();
+		// We make a copy of the list of original entries, because when
+		// we add/remove entries later, that get the node iterator confused.
+		Element elt;
+		while ((elt = (Element) ni.nextNode()) != null) {
+			origPhonesAndBoundaries.add(elt);
+		}
+		int iAlign = 0;
+		Element prevToken = null;
+		boolean prevWasBoundary = false;
+		for (Element e : origPhonesAndBoundaries) {
+			if (e.getTagName().equals(MaryXML.PHONE)) {
+				boolean betweenTokens = false;
+				Element token = (Element) MaryDomUtils.getAncestor(e, MaryXML.TOKEN);
+				if (token != prevToken && !prevWasBoundary) {
+					betweenTokens = true;
+				}
+				if (betweenTokens) {
+					assert !prevWasBoundary;
+					if (alignments[iAlign].trim().equals(possibleBnd)) {
+						// Need to insert a boundary before token
+						System.err.println("  inserted boundary in xml");
+						Element b = MaryXML.createElement(doc, MaryXML.BOUNDARY);
+						b.setAttribute("breakindex", "3");
+						if (insertDummyDurations) {
+							b.setAttribute("duration", "1");
+						}
+						token.getParentNode().insertBefore(b, token);
+					} else if (!alignments[iAlign].trim().equals("")) {
+						// one or more phones were inserted into the transcription
+						// -- treat them as word-final, i.e. insert them into the last syllable in prevToken
+						Element syllable = null;
+						Element ref = null; // insert before null = insert at the end
+						NodeList prevSyllables = null;
+						// if there is an insertion at the beginning, we don't have a prevToken!
+						if (prevToken != null) {
+							prevSyllables = prevToken.getElementsByTagNameNS(MaryXML.getNamespace(), MaryXML.SYLLABLE);
+						}
+						if (prevSyllables != null && prevSyllables.getLength() > 0) { // insert at end of previous token
+							syllable = (Element) prevSyllables.item(prevSyllables.getLength() - 1);
+							ref = null;
+						} else { // insert at beginning of current token
+							syllable = (Element) e.getParentNode();
+							ref = e; // insert before current phone
+						}
+						String[] newPh = alignments[iAlign].trim().split("\\s+");
+						for (int i = 0; i < newPh.length; i++) {
+							Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
+							newPhElement.setAttribute("p", newPh[i]);
+							syllable.insertBefore(newPhElement, ref);
+							System.err.println(" inserted phone from transcription: " + newPh[i]);
+							if (insertDummyDurations) {
+								newPhElement.setAttribute("d", "1");
+							}
+						}
+					} // else it is an empty word boundary marker
+					iAlign++; // move beyond the marker between tokens
+				}
+				prevToken = token;
+				prevWasBoundary = false;
+				System.err.println("Ph = " + e.getAttribute("p") + ", align = " + alignments[iAlign]);
+				if (alignments[iAlign].trim().equals("")) {
+					// Need to delete the current <ph> element
+					Element syllable = (Element) e.getParentNode();
+					assert syllable != null;
+					assert syllable.getTagName().equals(MaryXML.SYLLABLE);
+					syllable.removeChild(e);
+					if (MaryDomUtils.getFirstElementByTagName(syllable, MaryXML.PHONE) == null) {
+						// Syllable is now empty, need to delete it as well
+						syllable.getParentNode().removeChild(syllable);
+					}
+				} else {
+					// Replace <ph>, add siblings if necessary
+					String[] newPh = alignments[iAlign].trim().split("\\s+");
+					e.setAttribute("p", newPh[0]);
+					if (newPh.length > 1) {
+						// any ph to be added
+						Element syllable = (Element) e.getParentNode();
+						assert syllable != null;
+						assert syllable.getTagName().equals(MaryXML.SYLLABLE);
+						Node rightNeighbor = e.getNextSibling(); // can be null
+						for (int i = 1; i < newPh.length; i++) {
+							Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
+							newPhElement.setAttribute("p", newPh[i]);
+							syllable.insertBefore(newPhElement, rightNeighbor);
+						}
+					}
+				}
+			} else { // boundary
+				System.err.println("Boundary, align = " + alignments[iAlign]);
+				if (alignments[iAlign].trim().equals(possibleBnd)) {
+					// keep boundary
+				} else {
+					// delete boundary
+					System.err.println("  deleted boundary from xml");
+					e.getParentNode().removeChild(e);
+				}
+				prevWasBoundary = true;
+			}
+			iAlign++;
+		}
+		updatePhAttributesFromPhElements(doc);
 	}
 
 	private void updatePhAttributesFromPhElements(Document doc) {

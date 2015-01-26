@@ -33,47 +33,44 @@ public class DistanceComputer {
 
 	// Computes absolute value distance
 	// dist = sum(|x(i)-y(i)|)
-	public static double getAbsoluteValueDistance(double[] x, double[] y)
-    {
-        assert x.length==y.length;
-        
-        double dist = 0.0;
-        for (int i=0; i<x.length; i++)
-           dist += Math.abs(x[i]-y[i]);
-        
-        return dist;
-    }
+	public static double getAbsoluteValueDistance(double[] x, double[] y) {
+		assert x.length == y.length;
+
+		double dist = 0.0;
+		for (int i = 0; i < x.length; i++)
+			dist += Math.abs(x[i] - y[i]);
+
+		return dist;
+	}
 
 	// Computes the Euclidean distance metric
 	// dist = sqrt( sum( (x[i]-y[i])^2 ) )
-	public static double getEuclideanDistance(double[] x, double[] y)
-    {
-        assert x.length==y.length;
-        
-        double dist = 0.0;
-        for (int i=0; i<x.length; i++)
-           dist += (x[i]-y[i])*(x[i]-y[i]);
+	public static double getEuclideanDistance(double[] x, double[] y) {
+		assert x.length == y.length;
 
-        dist = Math.sqrt(dist);
-        
-        return dist;
-    }
+		double dist = 0.0;
+		for (int i = 0; i < x.length; i++)
+			dist += (x[i] - y[i]) * (x[i] - y[i]);
+
+		dist = Math.sqrt(dist);
+
+		return dist;
+	}
 
 	// Computes the normalized Euclidean distance metric
 	// dist = sqrt( sum( (x[i]-y[i])^2 / var[i] ) )
-	public static double getNormalizedEuclideanDistance(double[] x, double[] y, double[] variances)
-    {
-        assert x.length==y.length;
-        assert x.length==variances.length;
-        
-        double dist = 0.0;
-        for (int i=0; i<x.length; i++)
-           dist += (x[i]-y[i])*(x[i]-y[i])/variances[i];
+	public static double getNormalizedEuclideanDistance(double[] x, double[] y, double[] variances) {
+		assert x.length == y.length;
+		assert x.length == variances.length;
 
-        dist = Math.sqrt(dist);
-        
-        return dist;
-    }
+		double dist = 0.0;
+		for (int i = 0; i < x.length; i++)
+			dist += (x[i] - y[i]) * (x[i] - y[i]) / variances[i];
+
+		dist = Math.sqrt(dist);
+
+		return dist;
+	}
 
 	/*
 	 * Inverse LSF harmonic distance which is used to find closest LSF matches for a given source LSF vector in the source
@@ -86,43 +83,40 @@ public class DistanceComputer {
 	 * function is called many times during transformation. The length of the array should be equal to the length of the lsf
 	 * vectors
 	 */
-	public static double getLsfInverseHarmonicDistance(double[] lsfs1, double[] lsfs2, double freqRange)
-    {
-        assert lsfs1.length==lsfs2.length;
-       
-        double[] lsfWeights = getLsfWeights(lsfs1, freqRange);
+	public static double getLsfInverseHarmonicDistance(double[] lsfs1, double[] lsfs2, double freqRange) {
+		assert lsfs1.length == lsfs2.length;
 
-        double dist = 0.0;
-        
-        for (int i=0; i<lsfs1.length; i++)
-            dist += lsfWeights[i]*Math.abs(lsfs1[i]-lsfs2[i]);
-        
-        return dist;
-    }
+		double[] lsfWeights = getLsfWeights(lsfs1, freqRange);
+
+		double dist = 0.0;
+
+		for (int i = 0; i < lsfs1.length; i++)
+			dist += lsfWeights[i] * Math.abs(lsfs1[i] - lsfs2[i]);
+
+		return dist;
+	}
 
 	// A symmetric version of the inverse harmonic based lsf distance
 	// The weights are averaged in a weighted manner using alpha prior to distance computation
 	// alpha should be in the range [0.0,1.0].
 	// If it is 0.0 lsfWeights1 get all the weighting, so the function is identical to getLsfInverseHarmonicDistance.
 	// lsfWeights should be provided outside of the function and their length should match the
-	public static double getLsfInverseHarmonicDistanceSymmetric(double[] lsfs1, double[] lsfs2, double alpha, double freqRange)
-    {
-        assert lsfs1.length==lsfs2.length;
-       
-        double[] lsfWeights1 = getLsfWeights(lsfs1, freqRange);
-        double[] lsfWeights2 = getLsfWeights(lsfs2, freqRange);
-        
-        double dist = 0.0;
-        double oneMinusAlpha = 1.0-alpha;
-        double absVal;
-        for (int i=0; i<lsfs1.length; i++)
-        {
-            absVal = Math.abs(lsfs1[i]-lsfs2[i]);
-            dist += oneMinusAlpha*lsfWeights1[i]*absVal + alpha*lsfWeights2[i]*absVal;
-        }
-        
-        return dist;
-    }
+	public static double getLsfInverseHarmonicDistanceSymmetric(double[] lsfs1, double[] lsfs2, double alpha, double freqRange) {
+		assert lsfs1.length == lsfs2.length;
+
+		double[] lsfWeights1 = getLsfWeights(lsfs1, freqRange);
+		double[] lsfWeights2 = getLsfWeights(lsfs2, freqRange);
+
+		double dist = 0.0;
+		double oneMinusAlpha = 1.0 - alpha;
+		double absVal;
+		for (int i = 0; i < lsfs1.length; i++) {
+			absVal = Math.abs(lsfs1[i] - lsfs2[i]);
+			dist += oneMinusAlpha * lsfWeights1[i] * absVal + alpha * lsfWeights2[i] * absVal;
+		}
+
+		return dist;
+	}
 
 	// Fills in the lsfWeights array with weights estimated for lsfs
 	// Note that the function requires the lsfWeights array to be created outside of this function
@@ -168,26 +162,24 @@ public class DistanceComputer {
 	// If you have a diagonal matrix only, then the Mahalanobis distance reduces to
 	// Normalized Eucledian distance
 	// dist = sqrt( sum( (x-meanX)' * (covarianceMatrix^-1) * (x-meanX) ) )
-	public static double getMahalanobisDistance(double[] x, double[] mean, double[][] inverseCovarianceMatrix)
-    {
-        assert x.length==mean.length;
-        assert x.length==inverseCovarianceMatrix.length;
-        
-        int i, j;
-        double dist = 0.0;
-        double tmpDist;
-        
-        for (i=0; i<x.length; i++)
-        {
-            tmpDist = 0.0;
-            for (j=0; j<x.length; j++)
-                tmpDist += (x[j]-mean[j])*inverseCovarianceMatrix[j][i];
-            
-            dist += tmpDist*(x[i]-mean[i]);
-        }
-        
-        dist = Math.sqrt(dist); 
-        
-        return dist;
-    }
+	public static double getMahalanobisDistance(double[] x, double[] mean, double[][] inverseCovarianceMatrix) {
+		assert x.length == mean.length;
+		assert x.length == inverseCovarianceMatrix.length;
+
+		int i, j;
+		double dist = 0.0;
+		double tmpDist;
+
+		for (i = 0; i < x.length; i++) {
+			tmpDist = 0.0;
+			for (j = 0; j < x.length; j++)
+				tmpDist += (x[j] - mean[j]) * inverseCovarianceMatrix[j][i];
+
+			dist += tmpDist * (x[i] - mean[i]);
+		}
+
+		dist = Math.sqrt(dist);
+
+		return dist;
+	}
 }

@@ -95,15 +95,16 @@ public class Target {
 	 * @param newDuration
 	 */
 	public void setTargetDurationInSeconds(float newDuration) {
-        if (maryxmlElement != null) {
-            if (maryxmlElement.getTagName().equals(MaryXML.PHONE)){
-                maryxmlElement.setAttribute("d", Float.toString(newDuration));
-            } else {
-                assert maryxmlElement.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a " + maryxmlElement.getTagName();
-                maryxmlElement.setAttribute("duration", Float.toString(newDuration));
-            }
-        }
-    }
+		if (maryxmlElement != null) {
+			if (maryxmlElement.getTagName().equals(MaryXML.PHONE)) {
+				maryxmlElement.setAttribute("d", Float.toString(newDuration));
+			} else {
+				assert maryxmlElement.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "
+						+ maryxmlElement.getTagName();
+				maryxmlElement.setAttribute("duration", Float.toString(newDuration));
+			}
+		}
+	}
 
 	public float getTargetF0InHz() {
 		if (f0 != -1) {
@@ -154,36 +155,35 @@ public class Target {
 		return isSilence == 1;
 	}
 
-	public Allophone getAllophone()
-    {
-        if (maryxmlElement != null) {
-            AllophoneSet allophoneSet = null;
-            Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
-            if (voiceElement != null) {
-                Voice v = Voice.getVoice(voiceElement);
-                if (v != null) {
-                    allophoneSet = v.getAllophoneSet();
-                }
-            }
-            if (allophoneSet == null) {
-                try {
-                    allophoneSet = MaryRuntimeUtils.determineAllophoneSet(maryxmlElement);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }                
-            String sampa;
-            if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
-                sampa = maryxmlElement.getAttribute("p");
-            } else {
-                assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
-                sampa = "_";
-            }
-            return allophoneSet.getAllophone(sampa);
-        }
-        return null;
-    }
+	public Allophone getAllophone() {
+		if (maryxmlElement != null) {
+			AllophoneSet allophoneSet = null;
+			Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
+			if (voiceElement != null) {
+				Voice v = Voice.getVoice(voiceElement);
+				if (v != null) {
+					allophoneSet = v.getAllophoneSet();
+				}
+			}
+			if (allophoneSet == null) {
+				try {
+					allophoneSet = MaryRuntimeUtils.determineAllophoneSet(maryxmlElement);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			String sampa;
+			if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
+				sampa = maryxmlElement.getAttribute("p");
+			} else {
+				assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
+				sampa = "_";
+			}
+			return allophoneSet.getAllophone(sampa);
+		}
+		return null;
+	}
 
 	public String toString() {
 		return name;

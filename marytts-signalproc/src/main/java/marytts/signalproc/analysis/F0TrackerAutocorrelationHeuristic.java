@@ -247,145 +247,129 @@ public class F0TrackerAutocorrelationHeuristic {
 		}
 	}
 
-	private double pitchFrameAutocorrelation(double[] frmIn)
-    {
-        assert pitchFrm.length == frmIn.length;
-        System.arraycopy(pitchFrm, 0, frmIn, 0, frmIn.length);
-        
-        averageSampleEnergy = SignalProcUtils.getAverageSampleEnergy(pitchFrm);
-        
-        double f0 = 0.0;
-        
-        double probabilityOfVoicing;
-        double tmp;
-        int i, j;
-         
-        if (params.centerClippingRatio>0.0)
-            SignalProcUtils.centerClip(pitchFrm, params.centerClippingRatio);
-        
-        double r0=0.0;
-        for (i=0; i<pitchFrm.length; i++)
-            r0 += pitchFrm[i]*pitchFrm[i];
-        
-        int maxIndex=0;
-        double maxR=-1.0e10;
+	private double pitchFrameAutocorrelation(double[] frmIn) {
+		assert pitchFrm.length == frmIn.length;
+		System.arraycopy(pitchFrm, 0, frmIn, 0, frmIn.length);
 
-        for (i=minT0Index; i<=maxT0Index; i++)
-        {
-            tmp = 0.0;
-            for (j=0; j<pitchFrm.length-i; j++)
-                tmp += pitchFrm[j]*pitchFrm[j+i];
-            
-            if (tmp>maxR)
-            {
-                maxIndex = i;
-                maxR = tmp;
-            }
-        } 
-        
-        if (maxIndex==minT0Index || maxIndex==maxT0Index)
-            probabilityOfVoicing = 0.0;
-        else
-            probabilityOfVoicing = maxR/r0;
-        
-        f0 = ((double)params.fs)/maxIndex;
-        
-        //look at previous two frame voicing decision to correct F0 estimate 
-        if (probabilityOfVoicing>params.voicingThreshold)
-        {
-            if (voicingProbabilities[0]<params.voicingThreshold && voicingProbabilities[1]>params.voicingThreshold)
-                voicingProbabilities[0] = params.voicingThreshold+0.01;
-        }
-        else if (probabilityOfVoicing>params.voicingThreshold-0.1)
-        {
-            if (voicingProbabilities[0]>params.voicingThreshold && voicingProbabilities[1]>params.voicingThreshold)
-                probabilityOfVoicing = params.voicingThreshold+0.01;
-        }
-        
-        if (probabilityOfVoicing<params.voicingThreshold)
-            f0 = 0.0;
+		averageSampleEnergy = SignalProcUtils.getAverageSampleEnergy(pitchFrm);
 
-        if (averageSampleEnergy < MINIMUM_SPEECH_ENERGY)
-            f0 = 0.0;
-        
-        for (i=voicingProbabilities.length-1; i>0; i--)
-            voicingProbabilities[i] = voicingProbabilities[i-1];
-        
-        voicingProbabilities[0] = probabilityOfVoicing;  
-        
-        if (f0>10.0)
-            totalVoicedFrames++;
-        
-        if (params.isDoublingCheck || params.isHalvingCheck)
-        {
-            if (f0>10.0)
-            {
-                totalVoicedFrames++;
-                if (totalVoicedFrames>voicedF0s.length)
-                {
-                    boolean bNeighVoiced = true;
-                    for (i=0; i<voicingProbabilities.length; i++)
-                    {
-                        if (voicingProbabilities[i]<params.voicingThreshold)
-                        {
-                            bNeighVoiced = false;
-                            break;
-                        }
-                    }
-                    
-                    if (bNeighVoiced)
-                    {
-                        if (params.isDoublingCheck && f0>1.25*longTermAverageF0 && f0>1.33*shortTermAverageF0)
-                            f0 *= 0.5;
-                        if (params.isHalvingCheck && f0<0.80*longTermAverageF0 && f0<0.66*shortTermAverageF0)
-                            f0 *= 2.0;
-                    }
-                }
-            }
-        }
-        
-        if (f0>10.0)
-        {
-            longTermAverageF0 = 0.99*longTermAverageF0 + 0.01*f0;
-            shortTermAverageF0 = 0.90*shortTermAverageF0 + 0.10*f0;
-        }
-        
-        //Smooth the F0 contour both with a median and linear filter  
-        
-        prevF0s[2] = f0;
-        
-        boolean bAllVoiced = true;
-        for (i=0; i<prevF0s.length; i++)
-        {
-            if (prevF0s[i]<10.0)
-            {    
-                bAllVoiced = false;
-                break;
-            }
-        }
+		double f0 = 0.0;
 
-        if (bAllVoiced)
-        {
-            f0 = MathUtils.median(prevF0s);
+		double probabilityOfVoicing;
+		double tmp;
+		int i, j;
 
-            tmp = 0.5*prevF0s[2]+0.25*prevF0s[1]+0.25*prevF0s[0];
-            if (Math.abs(tmp-f0)<10.0)
-                f0 = tmp;
+		if (params.centerClippingRatio > 0.0)
+			SignalProcUtils.centerClip(pitchFrm, params.centerClippingRatio);
 
-            prevF0s[0] = prevF0s[1];
-            prevF0s[1] = prevF0s[2];
+		double r0 = 0.0;
+		for (i = 0; i < pitchFrm.length; i++)
+			r0 += pitchFrm[i] * pitchFrm[i];
 
-            if (totalVoicedFrames==voicedF0s.length)
-            {   
-                longTermAverageF0 = MathUtils.median(voicedF0s);
-                shortTermAverageF0 = longTermAverageF0;
-            }  
-        }
-        
-        //System.out.println("Frame=" + String.valueOf(frameIndex) + " " + String.valueOf(averageSampleEnergy) + " " + String.valueOf(probabilityOfVoicing) + " " + String.valueOf(f0));
-        
-        return f0;
-    }
+		int maxIndex = 0;
+		double maxR = -1.0e10;
+
+		for (i = minT0Index; i <= maxT0Index; i++) {
+			tmp = 0.0;
+			for (j = 0; j < pitchFrm.length - i; j++)
+				tmp += pitchFrm[j] * pitchFrm[j + i];
+
+			if (tmp > maxR) {
+				maxIndex = i;
+				maxR = tmp;
+			}
+		}
+
+		if (maxIndex == minT0Index || maxIndex == maxT0Index)
+			probabilityOfVoicing = 0.0;
+		else
+			probabilityOfVoicing = maxR / r0;
+
+		f0 = ((double) params.fs) / maxIndex;
+
+		// look at previous two frame voicing decision to correct F0 estimate
+		if (probabilityOfVoicing > params.voicingThreshold) {
+			if (voicingProbabilities[0] < params.voicingThreshold && voicingProbabilities[1] > params.voicingThreshold)
+				voicingProbabilities[0] = params.voicingThreshold + 0.01;
+		} else if (probabilityOfVoicing > params.voicingThreshold - 0.1) {
+			if (voicingProbabilities[0] > params.voicingThreshold && voicingProbabilities[1] > params.voicingThreshold)
+				probabilityOfVoicing = params.voicingThreshold + 0.01;
+		}
+
+		if (probabilityOfVoicing < params.voicingThreshold)
+			f0 = 0.0;
+
+		if (averageSampleEnergy < MINIMUM_SPEECH_ENERGY)
+			f0 = 0.0;
+
+		for (i = voicingProbabilities.length - 1; i > 0; i--)
+			voicingProbabilities[i] = voicingProbabilities[i - 1];
+
+		voicingProbabilities[0] = probabilityOfVoicing;
+
+		if (f0 > 10.0)
+			totalVoicedFrames++;
+
+		if (params.isDoublingCheck || params.isHalvingCheck) {
+			if (f0 > 10.0) {
+				totalVoicedFrames++;
+				if (totalVoicedFrames > voicedF0s.length) {
+					boolean bNeighVoiced = true;
+					for (i = 0; i < voicingProbabilities.length; i++) {
+						if (voicingProbabilities[i] < params.voicingThreshold) {
+							bNeighVoiced = false;
+							break;
+						}
+					}
+
+					if (bNeighVoiced) {
+						if (params.isDoublingCheck && f0 > 1.25 * longTermAverageF0 && f0 > 1.33 * shortTermAverageF0)
+							f0 *= 0.5;
+						if (params.isHalvingCheck && f0 < 0.80 * longTermAverageF0 && f0 < 0.66 * shortTermAverageF0)
+							f0 *= 2.0;
+					}
+				}
+			}
+		}
+
+		if (f0 > 10.0) {
+			longTermAverageF0 = 0.99 * longTermAverageF0 + 0.01 * f0;
+			shortTermAverageF0 = 0.90 * shortTermAverageF0 + 0.10 * f0;
+		}
+
+		// Smooth the F0 contour both with a median and linear filter
+
+		prevF0s[2] = f0;
+
+		boolean bAllVoiced = true;
+		for (i = 0; i < prevF0s.length; i++) {
+			if (prevF0s[i] < 10.0) {
+				bAllVoiced = false;
+				break;
+			}
+		}
+
+		if (bAllVoiced) {
+			f0 = MathUtils.median(prevF0s);
+
+			tmp = 0.5 * prevF0s[2] + 0.25 * prevF0s[1] + 0.25 * prevF0s[0];
+			if (Math.abs(tmp - f0) < 10.0)
+				f0 = tmp;
+
+			prevF0s[0] = prevF0s[1];
+			prevF0s[1] = prevF0s[2];
+
+			if (totalVoicedFrames == voicedF0s.length) {
+				longTermAverageF0 = MathUtils.median(voicedF0s);
+				shortTermAverageF0 = longTermAverageF0;
+			}
+		}
+
+		// System.out.println("Frame=" + String.valueOf(frameIndex) + " " + String.valueOf(averageSampleEnergy) + " " +
+		// String.valueOf(probabilityOfVoicing) + " " + String.valueOf(f0));
+
+		return f0;
+	}
 
 	/**
 	 * The frame shift time, in seconds.

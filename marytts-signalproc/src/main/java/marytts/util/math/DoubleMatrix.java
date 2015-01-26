@@ -51,23 +51,20 @@ public class DoubleMatrix {
 		setVectors(x);
 	}
 
-	public void setVectors(double[][] x)
-    {
-        if (x!=null)
-        {
-            int i;
-            int dimensionIn = x[0].length;
-            for (i=1; i<x.length; i++)
-                assert x[i].length == dimensionIn;
-            
-            allocate(x.length, dimensionIn);
-            
-            for (i=0; i<numVectors; i++)
-                System.arraycopy(x[i], 0, vectors[i], 0, dimension);
-        }
-        else
-            allocate(0, 0);
-    }
+	public void setVectors(double[][] x) {
+		if (x != null) {
+			int i;
+			int dimensionIn = x[0].length;
+			for (i = 1; i < x.length; i++)
+				assert x[i].length == dimensionIn;
+
+			allocate(x.length, dimensionIn);
+
+			for (i = 0; i < numVectors; i++)
+				System.arraycopy(x[i], 0, vectors[i], 0, dimension);
+		} else
+			allocate(0, 0);
+	}
 
 	public void allocate(int numVectorsIn, int dimensionIn) {
 		if (numVectorsIn > 0) {

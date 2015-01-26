@@ -66,107 +66,107 @@ public class FreeTTS2FestivalUtt extends InternalModule {
 	 * @return a String representing utt in FESTIVAL_UTT format.
 	 */
 	public String convertUtt(Utterance utt) {
-        StringBuilder buf = new StringBuilder();
-        buf.append("===Utterance===\n");
-        buf.append(VOICEMARKER + FreeTTSVoices.getMaryVoice(utt.getVoice()).getName() + "\n");
-        // Segment relation for this utterance
-        buf.append("==Segment==\n");
-        buf.append("#\n");
-        Relation segmentRelation = utt.getRelation(Relation.SEGMENT);
-        assert segmentRelation != null;
-        Item segmentItem = segmentRelation.getHead();
-        while (segmentItem != null) {
-        	float endInSeconds = segmentItem.getFeatures().getFloat("end");
-        	String segmentString = segmentItem.toString();
-        	buf.append(String.valueOf(endInSeconds) + " 100 " + segmentString + "\n");
-        	segmentItem = segmentItem.getNext();
-        }
-        
-        // Target relation for this utterance
-        buf.append("==Target==\n");
-        buf.append("#\n");
-        Relation targetRelation = utt.getRelation(Relation.TARGET);
-        assert targetRelation != null;
-        Item targetItem = targetRelation.getHead();
-        while(targetItem != null){
-        	float posInSeconds = targetItem.getFeatures().getFloat("pos");
-        	float f0Value = targetItem.getFeatures().getFloat("f0");
-        	buf.append(String.valueOf(posInSeconds) + " 100 " + String.valueOf(f0Value) + "\n");
-        	targetItem = targetItem.getNext();
-        }
-        // Syllable Word IntEvent and Phrase relations for this utterance
-        buf.append("==Syllable==\n");
-        buf.append("#\n");
-        Relation syllStrucRelation = utt.getRelation(Relation.SYLLABLE_STRUCTURE);
-        assert syllStrucRelation != null;
-        StringBuilder word = new StringBuilder();
-        word.append("==Word==\n");
-        word.append("#\n");
-        StringBuilder iE = new StringBuilder();
-        iE.append("==IntEvent==\n");
-        iE.append("#\n");
-        Item syllStrucItem = syllStrucRelation.getHead();
-        while (syllStrucItem != null){
-        	Item syllItem = syllStrucItem.getDaughter();
-        	float end = 0;
-        	while(syllItem != null){
-        		end = syllItem.getLastDaughter().getFeatures().getFloat("end");
-        		StringBuilder syllable = new StringBuilder();
-        		Item segItem = syllItem.getDaughter();
-        		while(segItem != null){
-        			syllable.append(segItem.toString());
-        			segItem = segItem.getNext();
-        		}
-        		String stress = syllItem.getFeatures().getString("stress");
-        		buf.append(String.valueOf(end) + " 100 "+ syllable.toString() +" ; stress " + stress + "\n");
-                if(syllItem.getFeatures().isPresent("accent")){
-                    iE.append(String.valueOf(end) + " 100 " + syllItem.getFeatures().getString("accent") + "\n");
-                }
-        		if(syllItem.getFeatures().isPresent("endtone")){
-        			iE.append(String.valueOf(end) + " 100 " +syllItem.getFeatures().getString("endtone") + "\n");
-        		}
-        		syllItem = syllItem.getNext();
-        	}
-        	word.append(String.valueOf(end) + " 100 " + syllStrucItem.toString() + "\n");
-        	syllStrucItem = syllStrucItem.getNext();
-        }
-        buf.append(word.toString());
-        buf.append(iE.toString());
-        buf.append("==Phrase==\n");
-        buf.append("#\n");
-        Relation phraseRelation = utt.getRelation(Relation.PHRASE);
-        assert phraseRelation != null;
-        Item phraseItem = phraseRelation.getHead();
-        while (phraseItem != null) {
-            float end = 0;
-            int phraseBreak;
-            if (phraseItem.getFeatures().getString("name").equals("BB")) {
-                phraseBreak = 4; // major IP break
-            } else if (phraseItem.getFeatures().getString("name").equals("B")) {
-                phraseBreak = 3; // minor ip break
-            } else {
-                logger.debug("Unexpected phrase name: '" + phraseItem.getFeatures().getString("name") + "'");
-                phraseBreak = 1; // Fallback: word break
-            }
-            // now loop over the word daughters of this phrase item:
-            Item wordItemInPhrase = phraseItem.getDaughter();
-            while (wordItemInPhrase != null) {
-                Item next = wordItemInPhrase.getNext();
-                Item lastSegmentItem = wordItemInPhrase.findItem("R:SylStructure.daughtern.daughtern");
-                if (lastSegmentItem != null) {
-                    end = lastSegmentItem.getFeatures().getFloat("end");
-                    int thisBreak = 1; 
-                    if (next == null) {
-                        thisBreak = phraseBreak;
-                    }
-                    buf.append(end + " 100 " + thisBreak + "\n");
-                }
-                wordItemInPhrase = next;
-            }
-            phraseItem = phraseItem.getNext();
-        }
-        return buf.toString();
-    }
+		StringBuilder buf = new StringBuilder();
+		buf.append("===Utterance===\n");
+		buf.append(VOICEMARKER + FreeTTSVoices.getMaryVoice(utt.getVoice()).getName() + "\n");
+		// Segment relation for this utterance
+		buf.append("==Segment==\n");
+		buf.append("#\n");
+		Relation segmentRelation = utt.getRelation(Relation.SEGMENT);
+		assert segmentRelation != null;
+		Item segmentItem = segmentRelation.getHead();
+		while (segmentItem != null) {
+			float endInSeconds = segmentItem.getFeatures().getFloat("end");
+			String segmentString = segmentItem.toString();
+			buf.append(String.valueOf(endInSeconds) + " 100 " + segmentString + "\n");
+			segmentItem = segmentItem.getNext();
+		}
+
+		// Target relation for this utterance
+		buf.append("==Target==\n");
+		buf.append("#\n");
+		Relation targetRelation = utt.getRelation(Relation.TARGET);
+		assert targetRelation != null;
+		Item targetItem = targetRelation.getHead();
+		while (targetItem != null) {
+			float posInSeconds = targetItem.getFeatures().getFloat("pos");
+			float f0Value = targetItem.getFeatures().getFloat("f0");
+			buf.append(String.valueOf(posInSeconds) + " 100 " + String.valueOf(f0Value) + "\n");
+			targetItem = targetItem.getNext();
+		}
+		// Syllable Word IntEvent and Phrase relations for this utterance
+		buf.append("==Syllable==\n");
+		buf.append("#\n");
+		Relation syllStrucRelation = utt.getRelation(Relation.SYLLABLE_STRUCTURE);
+		assert syllStrucRelation != null;
+		StringBuilder word = new StringBuilder();
+		word.append("==Word==\n");
+		word.append("#\n");
+		StringBuilder iE = new StringBuilder();
+		iE.append("==IntEvent==\n");
+		iE.append("#\n");
+		Item syllStrucItem = syllStrucRelation.getHead();
+		while (syllStrucItem != null) {
+			Item syllItem = syllStrucItem.getDaughter();
+			float end = 0;
+			while (syllItem != null) {
+				end = syllItem.getLastDaughter().getFeatures().getFloat("end");
+				StringBuilder syllable = new StringBuilder();
+				Item segItem = syllItem.getDaughter();
+				while (segItem != null) {
+					syllable.append(segItem.toString());
+					segItem = segItem.getNext();
+				}
+				String stress = syllItem.getFeatures().getString("stress");
+				buf.append(String.valueOf(end) + " 100 " + syllable.toString() + " ; stress " + stress + "\n");
+				if (syllItem.getFeatures().isPresent("accent")) {
+					iE.append(String.valueOf(end) + " 100 " + syllItem.getFeatures().getString("accent") + "\n");
+				}
+				if (syllItem.getFeatures().isPresent("endtone")) {
+					iE.append(String.valueOf(end) + " 100 " + syllItem.getFeatures().getString("endtone") + "\n");
+				}
+				syllItem = syllItem.getNext();
+			}
+			word.append(String.valueOf(end) + " 100 " + syllStrucItem.toString() + "\n");
+			syllStrucItem = syllStrucItem.getNext();
+		}
+		buf.append(word.toString());
+		buf.append(iE.toString());
+		buf.append("==Phrase==\n");
+		buf.append("#\n");
+		Relation phraseRelation = utt.getRelation(Relation.PHRASE);
+		assert phraseRelation != null;
+		Item phraseItem = phraseRelation.getHead();
+		while (phraseItem != null) {
+			float end = 0;
+			int phraseBreak;
+			if (phraseItem.getFeatures().getString("name").equals("BB")) {
+				phraseBreak = 4; // major IP break
+			} else if (phraseItem.getFeatures().getString("name").equals("B")) {
+				phraseBreak = 3; // minor ip break
+			} else {
+				logger.debug("Unexpected phrase name: '" + phraseItem.getFeatures().getString("name") + "'");
+				phraseBreak = 1; // Fallback: word break
+			}
+			// now loop over the word daughters of this phrase item:
+			Item wordItemInPhrase = phraseItem.getDaughter();
+			while (wordItemInPhrase != null) {
+				Item next = wordItemInPhrase.getNext();
+				Item lastSegmentItem = wordItemInPhrase.findItem("R:SylStructure.daughtern.daughtern");
+				if (lastSegmentItem != null) {
+					end = lastSegmentItem.getFeatures().getFloat("end");
+					int thisBreak = 1;
+					if (next == null) {
+						thisBreak = phraseBreak;
+					}
+					buf.append(end + " 100 " + thisBreak + "\n");
+				}
+				wordItemInPhrase = next;
+			}
+			phraseItem = phraseItem.getNext();
+		}
+		return buf.toString();
+	}
 	/*
 	 * String defaultFestivalVoiceCmd = "voice_german_de1_os"; // female if (mbrola.startsWith("; speaker=male"))
 	 * defaultFestivalVoiceCmd = "voice_german_de2_os"; // male festivalSynthesise(basename, defaultFestivalVoiceCmd);

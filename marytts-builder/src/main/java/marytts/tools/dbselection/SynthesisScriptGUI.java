@@ -618,68 +618,66 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener {
 
 	// show list of tables for this local
 	public void showListOfTables() {
-        final JFrame f = new JFrame("Read Mysql parameters");
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.getContentPane().add(createMysqlParamTextForm(true), BorderLayout.NORTH);
-        JPanel p = new JPanel();
- 
-        JButton okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                locale = fields[0].getText();
-                mysqlHost = fields[1].getText();
-                mysqlUser = fields[2].getText();
-                mysqlPasswd = fields[3].getText();
-                mysqlDB = fields[4].getText();
-               
-                if(locale.length()>0 && mysqlHost.length()>0 && mysqlDB.length()>0 && 
-                        mysqlUser.length()>0 && mysqlPasswd.length()>0 ){
-                    if(wikiToDB != null)
-                        wikiToDB.closeDBConnection();         
-                    wikiToDB=null;
-                    mysqlInfo=false;
-                    connectionProblems=false;       
-                    wikiToDB = new DBHandler(locale); 
-                    if( wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd) ){
-                      mysqlInfo=true;
-                      ArrayList<String> tables = wikiToDB.getListOfTables();
-                      output.append("\nLIST OF " + locale + " TABLES IN DB:\n");
-                      for(int i=0; i<tables.size(); i++)
-                          output.append("   " + tables.get(i) + "\n");  
-                      // to point to the end of the JTextArea
-                      output.setCaretPosition(output.getDocument().getLength());
-                    }
-                    else{
-                      connectionProblems=true;
-                      wikiToDB=null;
-                    }       
-                }
-                else {
-                  if(locale.length()==0)  
-                    output.append("\nERROR PARAMETER: locale is empty\n");
-                  if(mysqlHost.length()==0)  
-                      output.append("\nERROR PARAMETER: Mysql host name is empty\n");
-                  if(mysqlDB.length()==0)  
-                      output.append("\nERROR PARAMETER: Mysql Data base name is empty\n");
-                  if(mysqlUser.length()==0)  
-                      output.append("\nERROR PARAMETER: Mysql user name is empty\n");
-                  if(mysqlPasswd.length()==0)  
-                      output.append("\nERROR PARAMETER: Mysql password is empty\n");
-                }
-                
-                f.dispose();
-            }
-        });
-        JButton cancelJButton = new JButton("Cancel");
-        cancelJButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                f.dispose();
-            }
-        });
-        p.add(okButton);
-        p.add(cancelJButton);
-        f.getContentPane().add(p, BorderLayout.SOUTH);
-        f.pack();
-        f.setVisible(true);    
-    }
+		final JFrame f = new JFrame("Read Mysql parameters");
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.getContentPane().add(createMysqlParamTextForm(true), BorderLayout.NORTH);
+		JPanel p = new JPanel();
+
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				locale = fields[0].getText();
+				mysqlHost = fields[1].getText();
+				mysqlUser = fields[2].getText();
+				mysqlPasswd = fields[3].getText();
+				mysqlDB = fields[4].getText();
+
+				if (locale.length() > 0 && mysqlHost.length() > 0 && mysqlDB.length() > 0 && mysqlUser.length() > 0
+						&& mysqlPasswd.length() > 0) {
+					if (wikiToDB != null)
+						wikiToDB.closeDBConnection();
+					wikiToDB = null;
+					mysqlInfo = false;
+					connectionProblems = false;
+					wikiToDB = new DBHandler(locale);
+					if (wikiToDB.createDBConnection(mysqlHost, mysqlDB, mysqlUser, mysqlPasswd)) {
+						mysqlInfo = true;
+						ArrayList<String> tables = wikiToDB.getListOfTables();
+						output.append("\nLIST OF " + locale + " TABLES IN DB:\n");
+						for (int i = 0; i < tables.size(); i++)
+							output.append("   " + tables.get(i) + "\n");
+						// to point to the end of the JTextArea
+						output.setCaretPosition(output.getDocument().getLength());
+					} else {
+						connectionProblems = true;
+						wikiToDB = null;
+					}
+				} else {
+					if (locale.length() == 0)
+						output.append("\nERROR PARAMETER: locale is empty\n");
+					if (mysqlHost.length() == 0)
+						output.append("\nERROR PARAMETER: Mysql host name is empty\n");
+					if (mysqlDB.length() == 0)
+						output.append("\nERROR PARAMETER: Mysql Data base name is empty\n");
+					if (mysqlUser.length() == 0)
+						output.append("\nERROR PARAMETER: Mysql user name is empty\n");
+					if (mysqlPasswd.length() == 0)
+						output.append("\nERROR PARAMETER: Mysql password is empty\n");
+				}
+
+				f.dispose();
+			}
+		});
+		JButton cancelJButton = new JButton("Cancel");
+		cancelJButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				f.dispose();
+			}
+		});
+		p.add(okButton);
+		p.add(cancelJButton);
+		f.getContentPane().add(p, BorderLayout.SOUTH);
+		f.pack();
+		f.setVisible(true);
+	}
 }

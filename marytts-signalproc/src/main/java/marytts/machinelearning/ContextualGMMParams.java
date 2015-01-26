@@ -77,52 +77,45 @@ public class ContextualGMMParams {
 		this(allophoneSet, commonParams, NO_PHONEME_CLASS);
 	}
 
-	public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams commonParams, int contextClassificationTypeIn)
-    {
-        //To do: Use contextClassificationType to actually create classes here
-        contextClassificationType = contextClassificationTypeIn;
-        
-        if (allophoneSet!=null)
-        {
-            Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
-            
-            allocate(tmpPhonemes.size());
-            int count = 0;
-            Allophone[] phns = new Allophone[tmpPhonemes.size()];
-            for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
-            {
-                phns[count] = allophoneSet.getAllophone(it.next());
-                count++;
-                
-                if (count>=tmpPhonemes.size())
-                    break;
-            }
-            
-            setClasses(phns, commonParams);
-        }
-        else
-        {
-            allocate(0);
-        }
-    }
+	public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams commonParams, int contextClassificationTypeIn) {
+		// To do: Use contextClassificationType to actually create classes here
+		contextClassificationType = contextClassificationTypeIn;
 
-	public static Allophone[] getAllophones(AllophoneSet allophoneSet)
-    {
-        Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
+		if (allophoneSet != null) {
+			Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
 
-        int count = 0;
-        Allophone[] phns = new Allophone[tmpPhonemes.size()];
-        for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
-        {
-            phns[count] = allophoneSet.getAllophone(it.next());
-            count++;
-            
-            if (count>=tmpPhonemes.size())
-                break;
-        }
-        
-        return phns;
-    }
+			allocate(tmpPhonemes.size());
+			int count = 0;
+			Allophone[] phns = new Allophone[tmpPhonemes.size()];
+			for (Iterator<String> it = tmpPhonemes.iterator(); it.hasNext();) {
+				phns[count] = allophoneSet.getAllophone(it.next());
+				count++;
+
+				if (count >= tmpPhonemes.size())
+					break;
+			}
+
+			setClasses(phns, commonParams);
+		} else {
+			allocate(0);
+		}
+	}
+
+	public static Allophone[] getAllophones(AllophoneSet allophoneSet) {
+		Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
+
+		int count = 0;
+		Allophone[] phns = new Allophone[tmpPhonemes.size()];
+		for (Iterator<String> it = tmpPhonemes.iterator(); it.hasNext();) {
+			phns[count] = allophoneSet.getAllophone(it.next());
+			count++;
+
+			if (count >= tmpPhonemes.size())
+				break;
+		}
+
+		return phns;
+	}
 
 	public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams[] params, int contextClassificationTypeIn) {
 		// To do: Use contextClassificationType to actually create classes here
