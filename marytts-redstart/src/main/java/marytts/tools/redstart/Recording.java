@@ -186,22 +186,22 @@ public class Recording extends Speech {
 	}
 
 	public double getPeakAmplitude() {
-        File f = getFile();
-        assert f.exists();
-        try {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(f);
-            double[] audio = new AudioDoubleDataSource(ais).getAllData();
-            double max = MathUtils.absMax(audio);
-            int bits = ais.getFormat().getSampleSizeInBits();
-            double possibleMax = 1.; // normalised scale
-            return MathUtils.db((max*max)/(possibleMax*possibleMax));
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -30;
-        }
-        
-    }
+		File f = getFile();
+		assert f.exists();
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(f);
+			double[] audio = new AudioDoubleDataSource(ais).getAllData();
+			double max = MathUtils.absMax(audio);
+			int bits = ais.getFormat().getSampleSizeInBits();
+			double possibleMax = 1.; // normalised scale
+			return MathUtils.db((max * max) / (possibleMax * possibleMax));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -30;
+		}
+
+	}
 
 	// ______________________________________________________________________
 	// Constructors
