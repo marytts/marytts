@@ -1,9 +1,11 @@
 MaryTTS Software User Agreement
-==========================
+===============================
 
 *26 January 2014*
 
-## MaryTTS licensing
+MaryTTS licensing
+-----------------
+
 MaryTTS is licensed under the following terms.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, version 3 of the License.
@@ -12,8 +14,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU Lesser General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-## Applicable Licenses
+Applicable Licenses
+-------------------
 
 MaryTTS is built upon a number of other open source technologies and products. Here is a list of those products with links to their licenses.
 
