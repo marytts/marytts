@@ -383,37 +383,35 @@ public class EmoSpeakPanel extends javax.swing.JPanel implements AudioFileReceiv
 		return (Locale) localeByDisplayLanguage.get(displayLanguage);
 	}
 
-	private void updateVoices()
-    {
-        Locale locale = getSelectedLanguage();
-        cbVoice.removeAllItems();
-        Vector voices = (Vector) voicesByLocale.get(locale);
-        assert voices != null;
-        for (Iterator it = voices.iterator(); it.hasNext(); ) {
-            MaryClient.Voice v = (MaryClient.Voice) it.next();
-            cbVoice.addItem(v);
-            if (v.name().equals("de7") || v.name().equals("de6") || v.name().equals("us1")) {
-                cbVoice.setSelectedItem(v);
-            }
-        }
-    }
+	private void updateVoices() {
+		Locale locale = getSelectedLanguage();
+		cbVoice.removeAllItems();
+		Vector voices = (Vector) voicesByLocale.get(locale);
+		assert voices != null;
+		for (Iterator it = voices.iterator(); it.hasNext();) {
+			MaryClient.Voice v = (MaryClient.Voice) it.next();
+			cbVoice.addItem(v);
+			if (v.name().equals("de7") || v.name().equals("de6") || v.name().equals("us1")) {
+				cbVoice.setSelectedItem(v);
+			}
+		}
+	}
 
-	private void updateSampleTexts()
-    {
-        Locale locale = getSelectedLanguage();
-        cbInputText.removeAllItems();
-        Vector texts = (Vector) sampleTextsByLocale.get(locale);
-        assert texts != null;
-        if (texts.size() == 0) {
-            return;
-        }
-        for (Iterator it = texts.iterator(); it.hasNext(); ) {
-            String s = (String) it.next();
-            cbInputText.addItem(s);
-        }
-        cbInputText.removeItemAt(0);
-        cbInputText.setSelectedIndex(0);
-    }
+	private void updateSampleTexts() {
+		Locale locale = getSelectedLanguage();
+		cbInputText.removeAllItems();
+		Vector texts = (Vector) sampleTextsByLocale.get(locale);
+		assert texts != null;
+		if (texts.size() == 0) {
+			return;
+		}
+		for (Iterator it = texts.iterator(); it.hasNext();) {
+			String s = (String) it.next();
+			cbInputText.addItem(s);
+		}
+		cbInputText.removeItemAt(0);
+		cbInputText.setSelectedIndex(0);
+	}
 
 	private void showPowerMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {// GEN-FIRST:event_showPowerMenuItemItemStateChanged
 		if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) { // new item selected
@@ -633,13 +631,13 @@ public class EmoSpeakPanel extends javax.swing.JPanel implements AudioFileReceiv
 	}
 
 	public synchronized void updateProsodyXML(String prosodyxmlString, int r1) {
-        tpProsodyXML.setText(prosodyxmlString);
-        if (synthesiseAsynchronously) {
+		tpProsodyXML.setText(prosodyxmlString);
+		if (synthesiseAsynchronously) {
 			MaryClient.Voice maryClientVoice = (MaryClient.Voice) cbVoice.getSelectedItem();
-			assert maryClientVoice != null; 
+			assert maryClientVoice != null;
 			asynchronousSynthesiser.scheduleRequest(prosodyxmlString, maryClientVoice, r1);
-        }
-    }
+		}
+	}
 
 	private void preparePlayAudio() throws Exception {
 		if (synthesiseAsynchronously) {
@@ -682,9 +680,9 @@ public class EmoSpeakPanel extends javax.swing.JPanel implements AudioFileReceiv
 	}
 
 	private void playAudio() {
-            assert clip != null && clip.isOpen();
-            clip.start();
-    }
+		assert clip != null && clip.isOpen();
+		clip.start();
+	}
 
 	private void closeAudio() {
 		bPlay.setText("Play");
