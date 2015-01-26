@@ -180,13 +180,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.writeBoolean(v);
 	}
 
-	public final void writeBoolean( boolean [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeBoolean(v[i]);
-    }
+	public final void writeBoolean(boolean[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeBoolean(v[i]);
+	}
 
 	public final void writeBoolean(boolean[] v) throws IOException {
 		writeBoolean(v, 0, v.length);
@@ -206,13 +205,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.writeByte(v);
 	}
 
-	public final void writeByte( byte [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeByte(v[i]);
-    }
+	public final void writeByte(byte[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeByte(v[i]);
+	}
 
 	public final void writeByte(byte[] v) throws IOException {
 		writeByte(v, 0, v.length);
@@ -248,13 +246,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.write(work, 0, 2);
 	}
 
-	public final void writeChar( char [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeChar(v[i]);
-    }
+	public final void writeChar(char[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeChar(v[i]);
+	}
 
 	public final void writeChar(char[] v) throws IOException {
 		writeChar(v, 0, v.length);
@@ -338,13 +335,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.write(work, 0, 4);
 	}
 
-	public final void writeInt( int [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeInt(v[i]);
-    }
+	public final void writeInt(int[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeInt(v[i]);
+	}
 
 	public final void writeInt(int[] v) throws IOException {
 		writeInt(v, 0, v.length);
@@ -371,13 +367,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.write(work, 0, 8);
 	}
 
-	public final void writeLong (long [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeLong(v[i]);
-    }
+	public final void writeLong(long[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeLong(v[i]);
+	}
 
 	public final void writeLong(long[] v) throws IOException {
 		writeLong(v, 0, v.length);
@@ -398,13 +393,12 @@ public class LEDataOutputStream implements DataOutput {
 		dis.write(work, 0, 2);
 	}
 
-	public final void writeShort( short [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
-        for (int i=startPos; i<startPos+len; i++)
-            writeShort(v[i]);
-    }
+	public final void writeShort(short[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
+
+		for (int i = startPos; i < startPos + len; i++)
+			writeShort(v[i]);
+	}
 
 	public final void writeShort(short[] v) throws IOException {
 		writeShort(v, 0, v.length);

@@ -49,18 +49,17 @@ public class StreamUtils {
 		return data;
 	}
 
-	public static void writeDoubleArray(DataOutput stream, double[] data)
-    throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(baos);
-        for (int i=0; i<data.length; i++) {
-            out.writeDouble(data[i]);
-        }
-        out.close();
-        byte[] raw = baos.toByteArray();
-        assert raw.length == data.length * Double.SIZE / 8;
-        stream.write(raw);
-    }
+	public static void writeDoubleArray(DataOutput stream, double[] data) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(baos);
+		for (int i = 0; i < data.length; i++) {
+			out.writeDouble(data[i]);
+		}
+		out.close();
+		byte[] raw = baos.toByteArray();
+		assert raw.length == data.length * Double.SIZE / 8;
+		stream.write(raw);
+	}
 
 	/**
 	 * Reads from the bytebuffer <code>bb</code> a representation of a Unicode character string encoded in <a

@@ -309,21 +309,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeBoolean(v);
 	}
 
-	public final void writeBoolean(boolean [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeBoolean(boolean[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeBoolean(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeBoolean(v[i]);
+	}
 
-	public final void writeBooleanEndian(boolean [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeBooleanEndian(boolean[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeBooleanEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeBooleanEndian(v[i]);
+	}
 
 	public final void writeBoolean(boolean[] v) throws IOException {
 		writeBoolean(v, 0, v.length);
@@ -337,21 +335,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeByte(v);
 	}
 
-	public final void writeByte(byte [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeByte(byte[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeByte(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeByte(v[i]);
+	}
 
-	public final void writeByteEndian(byte [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeByteEndian(byte[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeByteEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeByteEndian(v[i]);
+	}
 
 	public final void writeByte(byte[] v) throws IOException {
 		writeByte(v, 0, v.length);
@@ -365,21 +361,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeByte((byte) c);
 	}
 
-	public final void writeChar(char [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeChar(char[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeChar(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeChar(v[i]);
+	}
 
-	public final void writeCharEndian(char [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeCharEndian(char[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeCharEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeCharEndian(v[i]);
+	}
 
 	public final void writeChar(char[] v) throws IOException {
 		writeChar(v, 0, v.length);
@@ -415,21 +409,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeFloat(v);
 	}
 
-	public final void writeFloat(float [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeFloat(float[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeFloat(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeFloat(v[i]);
+	}
 
-	public final void writeFloatEndian(float [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeFloatEndian(float[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeFloatEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeFloatEndian(v[i]);
+	}
 
 	public final void writeFloat(float[] v) throws IOException {
 		writeFloat(v, 0, v.length);
@@ -443,21 +435,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeInt(v);
 	}
 
-	public final void writeInt(int [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeInt(int[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeInt(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeInt(v[i]);
+	}
 
-	public final void writeIntEndian(int [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeIntEndian(int[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeIntEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeIntEndian(v[i]);
+	}
 
 	public final void writeInt(int[] v) throws IOException {
 		writeInt(v, 0, v.length);
@@ -471,21 +461,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeInt((int) v);
 	}
 
-	public final void writeLong (long [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeLong(long[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeLong(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeLong(v[i]);
+	}
 
-	public final void writeLongEndian(long [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeLongEndian(long[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeLongEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeLongEndian(v[i]);
+	}
 
 	public final void writeLong(long[] v) throws IOException {
 		writeLong(v, 0, v.length);
@@ -499,21 +487,19 @@ public final class MaryRandomAccessFile extends RandomAccessFile {
 		writeShort(v);
 	}
 
-	public final void writeShort(short [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeShort(short[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeShort(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeShort(v[i]);
+	}
 
-	public final void writeShortEndian(short [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
+	public final void writeShortEndian(short[] v, int startPos, int len) throws IOException {
+		assert v.length < startPos + len;
 
-        for (int i=startPos; i<startPos+len; i++)
-            writeShortEndian(v[i]);
-    }
+		for (int i = startPos; i < startPos + len; i++)
+			writeShortEndian(v[i]);
+	}
 
 	public final void writeShort(short[] v) throws IOException {
 		writeShort(v, 0, v.length);

@@ -133,64 +133,61 @@ public class FST {
 		loadHeaderless(inStream, encoding, false);
 	}
 
-	private void load(InputStream inStream)
-    throws IOException, UnsupportedEncodingException
-    {
-        int i;
-        DataInputStream in = new DataInputStream(new BufferedInputStream(inStream));
-        //int fileSize= (int) f.length();
-        int fileSize = in.available(); // TODO: how robust is this??
-        
-        int encLen = in.readInt(); 
-        byte[] encBytes = new byte[encLen];
-        
-        in.read(encBytes,0,encLen);
-        String encoding = new String(encBytes,"UTF-8");
-        
-        
-        if (!Charset.isSupported(encoding)) 
-            throw new IOException("Encoding of FST file not correctly specified. Maybe file in old format.");
-        
-        int overallBits = in.readInt();
-        int arcOffBits = in.readInt();
-        
-        //System.out.println("bits: " + overallBits + "-" + arcOffBits);
-        
-        // todo: allow for more flexibility
-        if (overallBits != 32 || arcOffBits != 20){
-            throw new IOException("Cannot handle non-standard bit allocation for label and arc id's.");
-        }
-        
-        int nArcs=in.readInt();
-        // arcs = new int[nArcs];
-        
-        targets = new int[nArcs];
-        labels = new short[nArcs];
-        isLast = new boolean[nArcs];
-        
-        for(i=0; i<nArcs; i++) {
-            int thisArc = in.readInt();
-            
-            targets[i]= thisArc&1048575;
-            labels[i]=(short)((thisArc>>20) & 2047);
-            isLast[i]=((byte)(thisArc >> 31))!=0;
-            
-        }
-        
-        int nPairs=in.readInt();
-        offsets = new short[2*nPairs];
-        for(i=0; i<2*nPairs; i++)
-            offsets[i] = in.readShort();
-        //int nBytes = fileSize - 8 - 4 * (nPairs + nArcs);
-        int nBytes = fileSize - 20 - encLen - 4 * (nPairs + nArcs);
-        mapping=new int[nBytes];
-        bytes = new byte[nBytes];
-        in.readFully(bytes);
-        assert in.available() == 0 : "Partial file read... not good";
+	private void load(InputStream inStream) throws IOException, UnsupportedEncodingException {
+		int i;
+		DataInputStream in = new DataInputStream(new BufferedInputStream(inStream));
+		// int fileSize= (int) f.length();
+		int fileSize = in.available(); // TODO: how robust is this??
 
-        in.close();
-        createMapping(mapping, bytes, encoding);
-    }
+		int encLen = in.readInt();
+		byte[] encBytes = new byte[encLen];
+
+		in.read(encBytes, 0, encLen);
+		String encoding = new String(encBytes, "UTF-8");
+
+		if (!Charset.isSupported(encoding))
+			throw new IOException("Encoding of FST file not correctly specified. Maybe file in old format.");
+
+		int overallBits = in.readInt();
+		int arcOffBits = in.readInt();
+
+		// System.out.println("bits: " + overallBits + "-" + arcOffBits);
+
+		// todo: allow for more flexibility
+		if (overallBits != 32 || arcOffBits != 20) {
+			throw new IOException("Cannot handle non-standard bit allocation for label and arc id's.");
+		}
+
+		int nArcs = in.readInt();
+		// arcs = new int[nArcs];
+
+		targets = new int[nArcs];
+		labels = new short[nArcs];
+		isLast = new boolean[nArcs];
+
+		for (i = 0; i < nArcs; i++) {
+			int thisArc = in.readInt();
+
+			targets[i] = thisArc & 1048575;
+			labels[i] = (short) ((thisArc >> 20) & 2047);
+			isLast[i] = ((byte) (thisArc >> 31)) != 0;
+
+		}
+
+		int nPairs = in.readInt();
+		offsets = new short[2 * nPairs];
+		for (i = 0; i < 2 * nPairs; i++)
+			offsets[i] = in.readShort();
+		// int nBytes = fileSize - 8 - 4 * (nPairs + nArcs);
+		int nBytes = fileSize - 20 - encLen - 4 * (nPairs + nArcs);
+		mapping = new int[nBytes];
+		bytes = new byte[nBytes];
+		in.readFully(bytes);
+		assert in.available() == 0 : "Partial file read... not good";
+
+		in.close();
+		createMapping(mapping, bytes, encoding);
+	}
 
 	private void loadHeaderless(InputStream inStream, String encoding, boolean verbose) throws IOException,
 			UnsupportedEncodingException {

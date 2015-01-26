@@ -114,17 +114,17 @@ public class MaryHeader {
 	 * @throws IllegalArgumentException
 	 *             if the input type is unknown.
 	 */
-	public MaryHeader( int newType ) {
-        if ( (newType > TIMELINE) || (newType < UNKNOWN) ) {
-            throw new IllegalArgumentException( "Unauthorized Mary file type [" + type + "]." );
-        }
-        type = newType;
-        
-        // post-conditions:
-        assert version == VERSION;
-        assert hasLegalMagic();
-        assert hasLegalType();
-    }
+	public MaryHeader(int newType) {
+		if ((newType > TIMELINE) || (newType < UNKNOWN)) {
+			throw new IllegalArgumentException("Unauthorized Mary file type [" + type + "].");
+		}
+		type = newType;
+
+		// post-conditions:
+		assert version == VERSION;
+		assert hasLegalMagic();
+		assert hasLegalType();
+	}
 
 	/**
 	 * Construct a MaryHeader by reading from a file. Fundamental guarantee: after construction, the MaryHeader has a valid magic
@@ -136,20 +136,20 @@ public class MaryHeader {
 	 * @throws MaryConfigurationException
 	 *             if no mary header can be read from input.
 	 */
-	public MaryHeader( DataInput input ) throws MaryConfigurationException {
-        try {
-            this.load( input );
-        } catch (IOException e) {
-            throw new MaryConfigurationException("Cannot load mary header", e);
-        }
-        if ( !hasLegalMagic() || !hasLegalType() ) {
-            throw new MaryConfigurationException( "Ill-formed Mary header!" );
-        }
+	public MaryHeader(DataInput input) throws MaryConfigurationException {
+		try {
+			this.load(input);
+		} catch (IOException e) {
+			throw new MaryConfigurationException("Cannot load mary header", e);
+		}
+		if (!hasLegalMagic() || !hasLegalType()) {
+			throw new MaryConfigurationException("Ill-formed Mary header!");
+		}
 
-        // post-conditions:
-        assert hasLegalMagic();
-        assert hasLegalType();
-    }
+		// post-conditions:
+		assert hasLegalMagic();
+		assert hasLegalType();
+	}
 
 	/**
 	 * Construct a MaryHeader by reading from a file. Fundamental guarantee: after construction, the MaryHeader has a valid magic
@@ -161,20 +161,20 @@ public class MaryHeader {
 	 * @throws MaryConfigurationException
 	 *             if no mary header can be read from input.
 	 */
-	public MaryHeader( ByteBuffer input ) throws MaryConfigurationException  {
-        try {
-            this.load( input );
-        } catch (BufferUnderflowException e) {
-            throw new MaryConfigurationException("Cannot load mary header", e);
-        }
-        if ( !hasLegalMagic() || !hasLegalType() ) {
-            throw new MaryConfigurationException( "Ill-formed Mary header!" );
-        }
+	public MaryHeader(ByteBuffer input) throws MaryConfigurationException {
+		try {
+			this.load(input);
+		} catch (BufferUnderflowException e) {
+			throw new MaryConfigurationException("Cannot load mary header", e);
+		}
+		if (!hasLegalMagic() || !hasLegalType()) {
+			throw new MaryConfigurationException("Ill-formed Mary header!");
+		}
 
-        // post-conditions:
-        assert hasLegalMagic();
-        assert hasLegalType();
-    }
+		// post-conditions:
+		assert hasLegalMagic();
+		assert hasLegalType();
+	}
 
 	/*****************/
 	/* OTHER METHODS */
@@ -191,18 +191,21 @@ public class MaryHeader {
 	 * @throws IOException
 	 *             if the file type is unknown.
 	 */
-	public long writeTo( DataOutput output ) throws IOException {
-        
-        long nBytes = 0;
-        
-        assert this.hasLegalType() : "Unknown Mary file type [" + type + "].";
-        
-        output.writeInt( magic );   nBytes += 4;
-        output.writeInt( version ); nBytes += 4;
-        output.writeInt( type );    nBytes += 4;
-        
-        return( nBytes );
-    }
+	public long writeTo(DataOutput output) throws IOException {
+
+		long nBytes = 0;
+
+		assert this.hasLegalType() : "Unknown Mary file type [" + type + "].";
+
+		output.writeInt(magic);
+		nBytes += 4;
+		output.writeInt(version);
+		nBytes += 4;
+		output.writeInt(type);
+		nBytes += 4;
+
+		return (nBytes);
+	}
 
 	/**
 	 * Load a mary header.

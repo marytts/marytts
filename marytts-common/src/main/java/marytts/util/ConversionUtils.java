@@ -160,52 +160,46 @@ public class ConversionUtils {
 		return (data == null) ? null : data.getBytes();
 	}
 
-	public static byte[] toByteArray(String[] data) 
-    {
-        if (data == null) 
-            return null;
+	public static byte[] toByteArray(String[] data) {
+		if (data == null)
+			return null;
 
-        int totalLength = 0;
-        int bytesPos = 0;
+		int totalLength = 0;
+		int bytesPos = 0;
 
-        byte[] dLen = toByteArray(data.length);
-        totalLength += dLen.length;
-        
-        int[] sLens = new int[data.length];
-        totalLength += (sLens.length * 4);
-        byte[][] strs = new byte[data.length][];
+		byte[] dLen = toByteArray(data.length);
+		totalLength += dLen.length;
 
-        for (int i = 0; i < data.length; i++) 
-        {
-            if (data[i] != null) 
-            {
-                strs[i] = toByteArray(data[i]);
-                sLens[i] = strs[i].length;
-                totalLength += strs[i].length;
-            } 
-            else 
-            {
-                sLens[i] = 0;
-                strs[i] = new byte[0];
-            }
-        }
+		int[] sLens = new int[data.length];
+		totalLength += (sLens.length * 4);
+		byte[][] strs = new byte[data.length][];
 
-        byte[] bytes = new byte[totalLength];
-        System.arraycopy(dLen, 0, bytes, 0, 4);
-        
-        byte[] bsLens = toByteArray(sLens);
-        System.arraycopy(bsLens, 0, bytes, 4, bsLens.length);
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] != null) {
+				strs[i] = toByteArray(data[i]);
+				sLens[i] = strs[i].length;
+				totalLength += strs[i].length;
+			} else {
+				sLens[i] = 0;
+				strs[i] = new byte[0];
+			}
+		}
 
-        bytesPos += 4 + bsLens.length; // mark position
+		byte[] bytes = new byte[totalLength];
+		System.arraycopy(dLen, 0, bytes, 0, 4);
 
-        for (byte[] sba : strs) 
-        {
-            System.arraycopy(sba, 0, bytes, bytesPos, sba.length);
-            bytesPos += sba.length;
-        }
+		byte[] bsLens = toByteArray(sLens);
+		System.arraycopy(bsLens, 0, bytes, 4, bsLens.length);
 
-        return bytes;
-    }
+		bytesPos += 4 + bsLens.length; // mark position
+
+		for (byte[] sba : strs) {
+			System.arraycopy(sba, 0, bytes, bytesPos, sba.length);
+			bytesPos += sba.length;
+		}
+
+		return bytes;
+	}
 
 	public static byte toByte(byte[] byteArray) {
 		return (byteArray == null || byteArray.length == 0) ? 0x0 : byteArray[0];
