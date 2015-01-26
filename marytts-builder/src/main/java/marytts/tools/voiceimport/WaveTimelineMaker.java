@@ -77,117 +77,112 @@ public class WaveTimelineMaker extends VoiceImportComponent {
 	 * Reads and concatenates a list of waveforms into one single timeline file.
 	 * 
 	 */
-	public boolean compute()
-    {
-        System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
-        
-        /* Export the basename list into an array of strings */
-        String[] baseNameArray = bnl.getListAsArray();
-        System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
-        
-       
-        
-        try{
-            /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
-             *    wav file */
-            WavReader wav = new WavReader( db.getProp(db.WAVDIR) 
-                    + baseNameArray[0] + db.getProp(db.WAVEXT));
-            int globSampleRate = wav.getSampleRate();
-            System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
-            
-            System.out.println("---- Folding the wav files according to the pitchmarks..." );
-            
-            /* 2) Open the destination timeline file */
-            
-            /* Make the file name */
-            String waveTimelineName = getProp(WAVETIMELINE);
-            System.out.println( "Will create the waveform timeline in file [" + waveTimelineName + "]." );
-            
-            /* Processing header: */
-            String processingHeader = "\n";
-            
-            /* Instantiate the TimelineWriter: */
-            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 0.1 );
-            
-            /* 3) Write the datagrams and feed the index */
-            
-            float totalDuration = 0.0f;  // Accumulator for the total timeline duration
-            long totalTime = 0l;
-            int numDatagrams = 0;
-            
-            /* For each EST track file: */
-            ESTTrackReader pmFile = null;
-            for ( int i = 0; i < baseNameArray.length; i++ ) {
-                percent = 100*i/baseNameArray.length;
+	public boolean compute() {
+		System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
 
-                /* - open+load */
-                System.out.println( baseNameArray[i] );
-                pmFile = new ESTTrackReader( db.getProp(PMDIR)
-                        		+ baseNameArray[i] + db.getProp(PMEXT));
-                totalDuration += pmFile.getTimeSpan();
-                wav = new WavReader( db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT) );
-                short[] wave = wav.getSamples();
-                /* - Reset the frame locations in the local file */
-                int frameStart = 0;
-                int frameEnd = 0;
-                int duration = 0;
-                long localTime = 0l;
-                /* - For each frame in the WAV file: */
-                for ( int f = 0; f < pmFile.getNumFrames(); f++ ) {
-                    
-                    /* Locate the corresponding segment in the wave file */
-                    frameStart = frameEnd;
-                    frameEnd = (int)( (double)pmFile.getTime( f ) * (double)(globSampleRate) );
-                    assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
-                    
-                    duration = frameEnd - frameStart;
-                    ByteArrayOutputStream buff =  new ByteArrayOutputStream(2*duration);
-                    DataOutputStream subWave = new DataOutputStream( buff );
-                    for (int k = 0; k < duration; k++) 
-                    {
-                        subWave.writeShort( wave[frameStart+k] );
-                    }
-                    
-                    //Handle the case when the last pitch marks falls beyond the end of the signal
-                    
-                    
-                    /* Feed the datagram to the timeline */
-                    waveTimeline.feed( new Datagram(duration, buff.toByteArray()), globSampleRate );
-                    totalTime += duration;
-                    localTime += duration;
-                    numDatagrams++;
-                }
-                // System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
-            }
-            waveTimeline.close();
-            
-            System.out.println("---- Done." );
-            
-            /* 7) Print some stats and close the file */
-            System.out.println( "---- Waveform timeline result:");
-            System.out.println( "Number of files scanned: " + baseNameArray.length );
-            System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
-            System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
-            System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + waveTimeline.getIndex().getNumIdx() + "] ("
-                    + (waveTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + new DecimalFormat("#.##").format((double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
-            System.out.println( "---- Waveform timeline done.");
-            
-        }
-        catch ( SecurityException e ) {
-            System.err.println( "Error: you don't have write access to the target database directory." );
-            e.printStackTrace();
-            return false;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(e);
-            return false;
-        }
-        
-        return( true );
-    }
+		/* Export the basename list into an array of strings */
+		String[] baseNameArray = bnl.getListAsArray();
+		System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
+
+		try {
+			/*
+			 * 1) Determine the reference sampling rate as being the sample rate of the first encountered wav file
+			 */
+			WavReader wav = new WavReader(db.getProp(db.WAVDIR) + baseNameArray[0] + db.getProp(db.WAVEXT));
+			int globSampleRate = wav.getSampleRate();
+			System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz.");
+
+			System.out.println("---- Folding the wav files according to the pitchmarks...");
+
+			/* 2) Open the destination timeline file */
+
+			/* Make the file name */
+			String waveTimelineName = getProp(WAVETIMELINE);
+			System.out.println("Will create the waveform timeline in file [" + waveTimelineName + "].");
+
+			/* Processing header: */
+			String processingHeader = "\n";
+
+			/* Instantiate the TimelineWriter: */
+			TimelineWriter waveTimeline = new TimelineWriter(waveTimelineName, processingHeader, globSampleRate, 0.1);
+
+			/* 3) Write the datagrams and feed the index */
+
+			float totalDuration = 0.0f; // Accumulator for the total timeline duration
+			long totalTime = 0l;
+			int numDatagrams = 0;
+
+			/* For each EST track file: */
+			ESTTrackReader pmFile = null;
+			for (int i = 0; i < baseNameArray.length; i++) {
+				percent = 100 * i / baseNameArray.length;
+
+				/* - open+load */
+				System.out.println(baseNameArray[i]);
+				pmFile = new ESTTrackReader(db.getProp(PMDIR) + baseNameArray[i] + db.getProp(PMEXT));
+				totalDuration += pmFile.getTimeSpan();
+				wav = new WavReader(db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT));
+				short[] wave = wav.getSamples();
+				/* - Reset the frame locations in the local file */
+				int frameStart = 0;
+				int frameEnd = 0;
+				int duration = 0;
+				long localTime = 0l;
+				/* - For each frame in the WAV file: */
+				for (int f = 0; f < pmFile.getNumFrames(); f++) {
+
+					/* Locate the corresponding segment in the wave file */
+					frameStart = frameEnd;
+					frameEnd = (int) ((double) pmFile.getTime(f) * (double) (globSampleRate));
+					assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
+
+					duration = frameEnd - frameStart;
+					ByteArrayOutputStream buff = new ByteArrayOutputStream(2 * duration);
+					DataOutputStream subWave = new DataOutputStream(buff);
+					for (int k = 0; k < duration; k++) {
+						subWave.writeShort(wave[frameStart + k]);
+					}
+
+					// Handle the case when the last pitch marks falls beyond the end of the signal
+
+					/* Feed the datagram to the timeline */
+					waveTimeline.feed(new Datagram(duration, buff.toByteArray()), globSampleRate);
+					totalTime += duration;
+					localTime += duration;
+					numDatagrams++;
+				}
+				// System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+
+				// wav.getNumSamples() + "] samples." );
+			}
+			waveTimeline.close();
+
+			System.out.println("---- Done.");
+
+			/* 7) Print some stats and close the file */
+			System.out.println("---- Waveform timeline result:");
+			System.out.println("Number of files scanned: " + baseNameArray.length);
+			System.out.println("Total speech duration: [" + totalTime + "] samples / ["
+					+ ((float) (totalTime) / (float) (globSampleRate)) + "] seconds.");
+			System.out.println("(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)");
+			System.out.println("Number of frames: [" + numDatagrams + "].");
+			System.out.println("Size of the index: [" + waveTimeline.getIndex().getNumIdx() + "] ("
+					+ (waveTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+					+ new DecimalFormat("#.##").format((double) (waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)
+					+ " megs).");
+			System.out.println("---- Waveform timeline done.");
+
+		} catch (SecurityException e) {
+			System.err.println("Error: you don't have write access to the target database directory.");
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println(e);
+			return false;
+		}
+
+		return (true);
+	}
 
 	/**
 	 * Provide the progress of computation, in percent, or -1 if that feature is not implemented.

@@ -163,71 +163,74 @@ public class TreeConverter {
 		return returnNode;
 	}
 
-	private static Node toStringTreeNode(C45PruneableClassifierTree c45Tree, Node aMother, int aNodeIndex, FeatureDefinition fd, Instances inst, int fid, String[] targetVals){
-	        Node returnNode;
+	private static Node toStringTreeNode(C45PruneableClassifierTree c45Tree, Node aMother, int aNodeIndex, FeatureDefinition fd,
+			Instances inst, int fid, String[] targetVals) {
+		Node returnNode;
 
-	        if ( c45Tree.m_isLeaf ){
-	            // get the distribution at this leaf
-	            Distribution dist = c45Tree.m_localModel.distribution();
-	            
-	            List<Integer> dataList = new ArrayList<Integer>();
-	            List<Float> probList = new ArrayList<Float>();
+		if (c45Tree.m_isLeaf) {
+			// get the distribution at this leaf
+			Distribution dist = c45Tree.m_localModel.distribution();
 
-	            // bring everything into the feature definition world
-	            for (int classNr = 0; classNr < dist.numClasses(); classNr ++){
-	                
-	                float p = (float) dist.prob(classNr);
-	                
-	                if (p > 0f){
-	                    // Mapping from weka class value to feature definition index
-	                    int fdInd = fd.getFeatureValueAsShort(fid, targetVals[classNr]);
-	                    dataList.add(fdInd);
-	                    probList.add(p);
-	                }
-	            }
-	            
-	            assert(dataList.size() == probList.size());
-	            
-	            // convert to arrays
-                int[] data = new int[dataList.size()];
-                float[] probs = new float[probList.size()];
-                
-                for (int i = 0 ; i < data.length ; i++){
-                    data[i]  = dataList.get(i);
-                    probs[i] = probList.get(i);
-                }
-	            
-	            // a return node is made and everything set
-                //System.err.println("creating StringAnfFloatLeafNode");
-	            returnNode = new LeafNode.StringAndFloatLeafNode(data, probs);
-	        } else {
-	            // TODO: perform test if attributes are nominal/numerical... (both in instances and feature def)
-	            // we preliminarily assume binary split with nomimal attribute 
-	            
-	            // the left side of the condition contains the name of the attribute
-	            String attName = c45Tree.m_localModel.leftSide( inst );
-	            
-	            String rightSide = c45Tree.m_localModel.rightSide(0, inst );
-	            
-	            if (! (c45Tree.m_localModel instanceof BinC45Split) )
-	                throw new IllegalStateException("Cannot convert non-binary WEKA tree to wagon format");
-	            
-	            if (! rightSide.startsWith(" = ") )
-	                throw new RuntimeException("Weka question in binary tree does not start with \" = \"");
+			List<Integer> dataList = new ArrayList<Integer>();
+			List<Float> probList = new ArrayList<Float>();
 
-	            String attVal = rightSide.substring(3);
-	            
-	            // TODO: also handle other than byte features...
-	            if (! fd.isByteFeature(attName))
-	                throw new RuntimeException("Can not handle non-byte features");
+			// bring everything into the feature definition world
+			for (int classNr = 0; classNr < dist.numClasses(); classNr++) {
 
-	            // make node and set fields..
-	            returnNode = new DecisionNode.BinaryByteDecisionNode(attName, attVal, fd);
-	            // set the recursively generated child nodes
-	            // TODO: be aware at this point when allowing for non-binary splits
-	            ((DecisionNode) returnNode).addDaughter( toStringTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[0],returnNode, 0, fd, inst, fid, targetVals) );
-	            ((DecisionNode) returnNode).addDaughter( toStringTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[1],returnNode, 1, fd, inst, fid, targetVals) );
-	        }
-	        return returnNode;
-	    }
+				float p = (float) dist.prob(classNr);
+
+				if (p > 0f) {
+					// Mapping from weka class value to feature definition index
+					int fdInd = fd.getFeatureValueAsShort(fid, targetVals[classNr]);
+					dataList.add(fdInd);
+					probList.add(p);
+				}
+			}
+
+			assert (dataList.size() == probList.size());
+
+			// convert to arrays
+			int[] data = new int[dataList.size()];
+			float[] probs = new float[probList.size()];
+
+			for (int i = 0; i < data.length; i++) {
+				data[i] = dataList.get(i);
+				probs[i] = probList.get(i);
+			}
+
+			// a return node is made and everything set
+			// System.err.println("creating StringAnfFloatLeafNode");
+			returnNode = new LeafNode.StringAndFloatLeafNode(data, probs);
+		} else {
+			// TODO: perform test if attributes are nominal/numerical... (both in instances and feature def)
+			// we preliminarily assume binary split with nomimal attribute
+
+			// the left side of the condition contains the name of the attribute
+			String attName = c45Tree.m_localModel.leftSide(inst);
+
+			String rightSide = c45Tree.m_localModel.rightSide(0, inst);
+
+			if (!(c45Tree.m_localModel instanceof BinC45Split))
+				throw new IllegalStateException("Cannot convert non-binary WEKA tree to wagon format");
+
+			if (!rightSide.startsWith(" = "))
+				throw new RuntimeException("Weka question in binary tree does not start with \" = \"");
+
+			String attVal = rightSide.substring(3);
+
+			// TODO: also handle other than byte features...
+			if (!fd.isByteFeature(attName))
+				throw new RuntimeException("Can not handle non-byte features");
+
+			// make node and set fields..
+			returnNode = new DecisionNode.BinaryByteDecisionNode(attName, attVal, fd);
+			// set the recursively generated child nodes
+			// TODO: be aware at this point when allowing for non-binary splits
+			((DecisionNode) returnNode).addDaughter(toStringTreeNode((C45PruneableClassifierTree) c45Tree.m_sons[0], returnNode,
+					0, fd, inst, fid, targetVals));
+			((DecisionNode) returnNode).addDaughter(toStringTreeNode((C45PruneableClassifierTree) c45Tree.m_sons[1], returnNode,
+					1, fd, inst, fid, targetVals));
+		}
+		return returnNode;
+	}
 }

@@ -202,18 +202,19 @@ public class WikipediaDumpSplitter {
 
 	}
 
-	public static void main(String[] args) throws Exception{
-        String wFile, cmdLine;
-        Vector<String> filesToProcess;
-        Vector<String> filesDone;
-        
-        WikipediaDumpSplitter wiki = new WikipediaDumpSplitter(); 
-      
-        /* check the arguments */
-        if (!wiki.readArgs(args))
-            return;
-        wiki.printParameters();
-      
-        wiki.splitWikipediaDump(wiki.getXmlWikipediaDumpFile(), wiki.getDirOuputFiles(), wiki.getMaxPages());
-        
-    }}
+	public static void main(String[] args) throws Exception {
+		String wFile, cmdLine;
+		Vector<String> filesToProcess;
+		Vector<String> filesDone;
+
+		WikipediaDumpSplitter wiki = new WikipediaDumpSplitter();
+
+		/* check the arguments */
+		if (!wiki.readArgs(args))
+			return;
+		wiki.printParameters();
+
+		wiki.splitWikipediaDump(wiki.getXmlWikipediaDumpFile(), wiki.getDirOuputFiles(), wiki.getMaxPages());
+
+	}
+}
