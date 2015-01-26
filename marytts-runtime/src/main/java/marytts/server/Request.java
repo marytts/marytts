@@ -501,8 +501,8 @@ public class Request {
 		if (neededModules == null) {
 			// The modules we have cannot be combined such that
 			// the outputType can be generated from the inputData type.
-            String message = "No known way of generating output ("+ oneOutputType.name() +") from input(" +
-                oneInputData.getType().name() + "), no processing path through modules.";
+			String message = "No known way of generating output (" + oneOutputType.name() + ") from input("
+					+ oneInputData.getType().name() + "), no processing path through modules.";
 			throw new UnsupportedOperationException(message);
 		}
 		usedModules.addAll(neededModules);
