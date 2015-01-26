@@ -208,6 +208,10 @@ public abstract class MaryConfig {
 		return false;
 	}
 
+   public boolean isSynthesisConfig() {
+        return false;
+   }
+
 	public Properties getProperties() {
 		return props;
 	}
