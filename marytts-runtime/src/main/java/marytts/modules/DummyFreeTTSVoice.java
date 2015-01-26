@@ -34,7 +34,6 @@ package marytts.modules;
 import java.io.IOException;
 import java.util.Locale;
 
-import marytts.modules.synthesis.MbrolaVoice;
 
 import com.sun.speech.freetts.Tokenizer;
 import com.sun.speech.freetts.UtteranceProcessor;
@@ -97,24 +96,9 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
 			}
 		}
 		setRate(135f);
-		try {
-			if (aMaryVoice instanceof MbrolaVoice) {
-				MbrolaVoice mv = (MbrolaVoice) aMaryVoice;
-				float topMean = (mv.topStart() + mv.topEnd()) * 0.5f;
-				float baseMean = (mv.baseStart() + mv.baseEnd()) * 0.5f;
-				setPitch((baseMean + topMean) / 2);
-				setPitchRange((topMean - baseMean) / 2);
-			} else {
-				setPitch(100);
-				setPitchRange(30);
-			}
 
-		} catch (NoClassDefFoundError err) {
-			// no Mbrola voice -- use "else" case:
-			setPitch(100);
-			setPitchRange(30);
-		}
-
+		setPitch(100);
+		setPitchRange(30);
 	}
 
 	/**

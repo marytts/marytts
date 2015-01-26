@@ -41,7 +41,7 @@ public class DummyModule implements MaryModule {
 	}
 
 	public MaryDataType getInputType() {
-		return MaryDataType.MBROLA;
+		return MaryDataType.TEXT;
 	}
 
 	@Deprecated
