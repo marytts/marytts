@@ -111,25 +111,26 @@ public class Phasogram extends Spectrogram {
 		return null; // no controls
 	}
 
-	protected void drawSpectrum(Graphics2D g, double[] spectrum, int image_X, int image_width, int image_refY, int image_height)
-    {
-        double yScaleFactor = (double) image_height / spectra_indexmax;
-        if (image_width < 2) image_width = 2;
-        int rect_height = (int) Math.ceil(yScaleFactor);
-        if (rect_height < 2) rect_height = 2;
-        for (int i=0; i<spectra_indexmax; i++) {
-            int color;
-            // 0 phase is white, +-Pi is black.
-            assert spectrum[i] >= -Math.PI && spectrum[i] <= Math.PI;
-            if (Double.isNaN(spectrum[i])) {
-                color = 255; // white
-            } else {
-                color = (int) (255 * (Math.PI+spectrum[i])/(2*Math.PI));
-            }
-            g.setColor(new Color(color, color, color));
-            g.fillRect(image_X, image_refY-(int)(i*yScaleFactor), image_width, rect_height);
-        }
-    }
+	protected void drawSpectrum(Graphics2D g, double[] spectrum, int image_X, int image_width, int image_refY, int image_height) {
+		double yScaleFactor = (double) image_height / spectra_indexmax;
+		if (image_width < 2)
+			image_width = 2;
+		int rect_height = (int) Math.ceil(yScaleFactor);
+		if (rect_height < 2)
+			rect_height = 2;
+		for (int i = 0; i < spectra_indexmax; i++) {
+			int color;
+			// 0 phase is white, +-Pi is black.
+			assert spectrum[i] >= -Math.PI && spectrum[i] <= Math.PI;
+			if (Double.isNaN(spectrum[i])) {
+				color = 255; // white
+			} else {
+				color = (int) (255 * (Math.PI + spectrum[i]) / (2 * Math.PI));
+			}
+			g.setColor(new Color(color, color, color));
+			g.fillRect(image_X, image_refY - (int) (i * yScaleFactor), image_width, rect_height);
+		}
+	}
 
 	public static void main(String[] args) throws Exception {
 		for (int i = 0; i < args.length; i++) {

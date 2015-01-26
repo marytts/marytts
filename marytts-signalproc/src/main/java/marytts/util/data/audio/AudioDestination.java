@@ -87,29 +87,22 @@ public class AudioDestination {
 	 * @throws IOException
 	 *             if a problem occurred with the temporary file (only applies when using files as temporary storage).
 	 */
-	public AudioInputStream convertToAudioInputStream(AudioFormat audioFormat)
-    throws IOException
-    {
-        if (ram) {
-            assert os instanceof ByteArrayOutputStream;
-            assert f == null;
-            byte[] audioData = ((ByteArrayOutputStream)os).toByteArray();
-            //logger.debug("Total of " + audioData.length + " bytes of audio data for this section.");
-            return new AudioInputStream(
-                new ByteArrayInputStream(audioData),
-                audioFormat,
-                audioData.length / audioFormat.getFrameSize());
-        } else {
-            assert os instanceof FileOutputStream;
-            assert f != null; 
-            os.close();
-            long byteLength = f.length();
-            return new AudioInputStream(
-                new FileInputStream(f),
-                audioFormat,
-                byteLength / audioFormat.getFrameSize());
-        }
-    }
+	public AudioInputStream convertToAudioInputStream(AudioFormat audioFormat) throws IOException {
+		if (ram) {
+			assert os instanceof ByteArrayOutputStream;
+			assert f == null;
+			byte[] audioData = ((ByteArrayOutputStream) os).toByteArray();
+			// logger.debug("Total of " + audioData.length + " bytes of audio data for this section.");
+			return new AudioInputStream(new ByteArrayInputStream(audioData), audioFormat, audioData.length
+					/ audioFormat.getFrameSize());
+		} else {
+			assert os instanceof FileOutputStream;
+			assert f != null;
+			os.close();
+			long byteLength = f.length();
+			return new AudioInputStream(new FileInputStream(f), audioFormat, byteLength / audioFormat.getFrameSize());
+		}
+	}
 
 	/**
 	 * Convert the audio data into an AudioInputStream of the proper AudioFormat. This method assumes that the audio data starts
@@ -119,24 +112,21 @@ public class AudioDestination {
 	 * @throws IOException
 	 *             if a problem occurred with the temporary file (only applies when using files as temporary storage).
 	 */
-	public AudioInputStream convertToAudioInputStream()
-    throws IOException, UnsupportedAudioFileException
-    {
-        if (ram) {
-            assert os instanceof ByteArrayOutputStream;
-            assert f == null;
-            byte[] audioData = ((ByteArrayOutputStream)os).toByteArray();
-            //logger.debug("Total of " + audioData.length + " bytes of audio data for this section.");
-            return AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(audioData));
-        } else {
-            assert os instanceof FileOutputStream;
-            assert f != null; 
-            os.close();
-            long byteLength = f.length();
-            return AudioSystem.getAudioInputStream(f);
-        }
-    }
+	public AudioInputStream convertToAudioInputStream() throws IOException, UnsupportedAudioFileException {
+		if (ram) {
+			assert os instanceof ByteArrayOutputStream;
+			assert f == null;
+			byte[] audioData = ((ByteArrayOutputStream) os).toByteArray();
+			// logger.debug("Total of " + audioData.length + " bytes of audio data for this section.");
+			return AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioData));
+		} else {
+			assert os instanceof FileOutputStream;
+			assert f != null;
+			os.close();
+			long byteLength = f.length();
+			return AudioSystem.getAudioInputStream(f);
+		}
+	}
 
 	public static void plot(double[] x) {
 		plot(x, false);

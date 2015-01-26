@@ -83,32 +83,32 @@ public class Histogram {
 	 * @param min
 	 * @param max
 	 */
-	public void setHistogram(double[] data, int nbins, double min, double max){
-        m_nbins = nbins;
-        m_min = min;
-        m_max = max;
-        m_data = data;
-        m_hist = new double[m_nbins];
-        m_binCenters = new double[m_nbins];
-        m_underflow = 0;
-        m_overflow = 0;
-        setBandWidth(); 
-        for(double x: m_data){
-            fill(x);
-        }
-        m_binCenters = this.setSampleArray();
-    }
+	public void setHistogram(double[] data, int nbins, double min, double max) {
+		m_nbins = nbins;
+		m_min = min;
+		m_max = max;
+		m_data = data;
+		m_hist = new double[m_nbins];
+		m_binCenters = new double[m_nbins];
+		m_underflow = 0;
+		m_overflow = 0;
+		setBandWidth();
+		for (double x : m_data) {
+			fill(x);
+		}
+		m_binCenters = this.setSampleArray();
+	}
 
-	public void changeSettings(int nbins){
-        m_nbins = nbins;
-        m_binCenters = new double[m_nbins];
-        m_hist = new double[m_nbins];
-        setBandWidth(); 
-        for(double x: m_data){
-            fill(x);
-        }
-        m_binCenters = this.setSampleArray();
-    }
+	public void changeSettings(int nbins) {
+		m_nbins = nbins;
+		m_binCenters = new double[m_nbins];
+		m_hist = new double[m_nbins];
+		setBandWidth();
+		for (double x : m_data) {
+			fill(x);
+		}
+		m_binCenters = this.setSampleArray();
+	}
 
 	/**
 	 * Enter data into the histogram. The fill method takes the given value, works out which bin this corresponds to, and

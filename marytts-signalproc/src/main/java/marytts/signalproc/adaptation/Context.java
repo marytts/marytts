@@ -215,35 +215,31 @@ public class Context {
 		setScores();
 	}
 
-	public double matchScore(Context context)
-    {
-        assert leftContexts.length == context.leftContexts.length;
-        assert rightContexts.length == context.rightContexts.length;
-        
-        int i;
-        double score = 0.0;
-        if (currentContext.compareTo(context.currentContext)==0)
-        {
-            score += scores[scores.length-1]; //current context
-            for (i=leftContexts.length-1; i>=0; i--)
-            {
-                if (leftContexts[i].compareTo(context.leftContexts[i])==0)
-                    score += scores[i];
-                else
-                    break;
-            }
-            
-            for (i=0; i<rightContexts.length; i++)
-            {
-                if (rightContexts[i].compareTo(context.rightContexts[i])==0)
-                    score += scores[scores.length-2-i];
-                else
-                    break;
-            }
-        }
-        
-        return score;
-    }
+	public double matchScore(Context context) {
+		assert leftContexts.length == context.leftContexts.length;
+		assert rightContexts.length == context.rightContexts.length;
+
+		int i;
+		double score = 0.0;
+		if (currentContext.compareTo(context.currentContext) == 0) {
+			score += scores[scores.length - 1]; // current context
+			for (i = leftContexts.length - 1; i >= 0; i--) {
+				if (leftContexts[i].compareTo(context.leftContexts[i]) == 0)
+					score += scores[i];
+				else
+					break;
+			}
+
+			for (i = 0; i < rightContexts.length; i++) {
+				if (rightContexts[i].compareTo(context.rightContexts[i]) == 0)
+					score += scores[scores.length - 2 - i];
+				else
+					break;
+			}
+		}
+
+		return score;
+	}
 
 	public static void main(String[] args) {
 		Label[] items1 = new Label[5];

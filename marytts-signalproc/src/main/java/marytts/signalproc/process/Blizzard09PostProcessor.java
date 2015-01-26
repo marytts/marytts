@@ -218,299 +218,266 @@ public class Blizzard09PostProcessor {
 	// Multiplies consonant gains with a window to increase their relative energy level
 	// The window is 1.0 at both ends to ensure continuity
 	// Maximum gain occurs in the middle of the window
-	public static double[] processGains(double[] x, int samplingRateInHz, Labels labels, boolean[] toBeProcesseds, double extremumGainFactor, double extremumGainRelativeDuration)
-    {
-        assert labels.items.length == toBeProcesseds.length;
-        
-        boolean isIncreasing = true;
-        if (extremumGainFactor<1.0)
-            isIncreasing = false;
-        
-        double[] y = null;
-        double[] w = null;
-        int startIndex = 0;
-        int endIndex;
-        int ws = SignalProcUtils.time2sample(WINDOW_SIZE_IN_SECONDS_GAIN, samplingRateInHz);
-        int ss = SignalProcUtils.time2sample(SKIP_SIZE_IN_SECONDS_GAIN, samplingRateInHz);
-        Window wfrm = new HammingWindow(ws);
-        wfrm.normalizePeakValue(1.0f);
-        double[] frmWgt = wfrm.getCoeffs();
-        
-        if (x!=null && x.length>0)
-        {
-            y = new double[x.length];
-            w = new double[x.length];
-            Arrays.fill(y, 0.0);
-            Arrays.fill(w, 0.0);
-            
-            double[] frm = new double[ws];
-            int i, j, k;
-            for (i=0; i<labels.items.length; i++)
-            {        
-                boolean bProcessed = false;
-                endIndex = SignalProcUtils.time2sample(labels.items[i].time, samplingRateInHz)-1;
-                endIndex = Math.min(endIndex, x.length-1);
+	public static double[] processGains(double[] x, int samplingRateInHz, Labels labels, boolean[] toBeProcesseds,
+			double extremumGainFactor, double extremumGainRelativeDuration) {
+		assert labels.items.length == toBeProcesseds.length;
 
-                int numfrm = (int)Math.floor((endIndex-startIndex+1.0)/(double)ss + 0.5)+1;
+		boolean isIncreasing = true;
+		if (extremumGainFactor < 1.0)
+			isIncreasing = false;
 
-                if (numfrm>0)
-                {
-                    int windowLen = (int)Math.floor(numfrm*(1.0-extremumGainRelativeDuration/100.0)+0.5);
-                    double[] wgt = new double[numfrm];
-                    if (toBeProcesseds[i])
-                        Arrays.fill(wgt, extremumGainFactor);    
-                    else
-                        Arrays.fill(wgt, 1.0);
+		double[] y = null;
+		double[] w = null;
+		int startIndex = 0;
+		int endIndex;
+		int ws = SignalProcUtils.time2sample(WINDOW_SIZE_IN_SECONDS_GAIN, samplingRateInHz);
+		int ss = SignalProcUtils.time2sample(SKIP_SIZE_IN_SECONDS_GAIN, samplingRateInHz);
+		Window wfrm = new HammingWindow(ws);
+		wfrm.normalizePeakValue(1.0f);
+		double[] frmWgt = wfrm.getCoeffs();
 
-                    if (windowLen>0 && toBeProcesseds[i])
-                    {
-                        Window wConsonant = new HammingWindow(windowLen);
-                        if (isIncreasing)
-                            wConsonant.normalizeRange(1.0f, (float)extremumGainFactor);
-                        else
-                            wConsonant.normalizeRange((float)extremumGainFactor, 1.0f);
-                            
-                        double[] lWgt = null;
-                        double[] rWgt = null;
-                        
-                        if (isIncreasing)
-                        {
-                            lWgt = wConsonant.getCoeffsLeftHalf();
-                            rWgt = wConsonant.getCoeffsRightHalf();
-                        }
-                        else
-                        {
-                            lWgt = wConsonant.getCoeffsRightHalf();
-                            rWgt = wConsonant.getCoeffsLeftHalf();
-                        }
-                        
-                        if (lWgt!=null)
-                        {
-                            for (j=0; j<lWgt.length; j++)
-                                wgt[j] = lWgt[j]; 
-                        }
+		if (x != null && x.length > 0) {
+			y = new double[x.length];
+			w = new double[x.length];
+			Arrays.fill(y, 0.0);
+			Arrays.fill(w, 0.0);
 
-                        if (rWgt!=null)
-                        {
-                            for (j=0; j<rWgt.length; j++)
-                                wgt[j+numfrm-rWgt.length] = rWgt[j]; 
-                        }
+			double[] frm = new double[ws];
+			int i, j, k;
+			for (i = 0; i < labels.items.length; i++) {
+				boolean bProcessed = false;
+				endIndex = SignalProcUtils.time2sample(labels.items[i].time, samplingRateInHz) - 1;
+				endIndex = Math.min(endIndex, x.length - 1);
 
-                        //MaryUtils.plot(wgt);
+				int numfrm = (int) Math.floor((endIndex - startIndex + 1.0) / (double) ss + 0.5) + 1;
 
-                        for (j=0; j<numfrm; j++)
-                        {
-                            System.arraycopy(x, j*ss+startIndex, frm, 0, Math.min(ws,x.length-(j*ss+startIndex)));
-                            for (k=0; k<Math.min(ws,x.length-(j*ss+startIndex)); k++)
-                            {
-                                y[j*ss+startIndex+k] += x[j*ss+startIndex+k]*frmWgt[k]*wgt[j];
-                                w[j*ss+startIndex+k] += frmWgt[k];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Window wShort = new HammingWindow(endIndex-startIndex+1);
-                        double[] wShortWgt = wShort.getCoeffs();
-                        for (k=startIndex; k<=endIndex; k++)
-                        {
-                            y[k] += x[k]*wShortWgt[k-startIndex];
-                            w[k] += wShortWgt[k-startIndex];
-                        }
-                    }
-                }
-                else
-                {
-                    Window wShort = new HammingWindow(endIndex-startIndex+1);
-                    double[] wShortWgt = wShort.getCoeffs();
-                    for (k=startIndex; k<=endIndex; k++)
-                    {
-                        y[k] += x[k]*wShortWgt[k-startIndex];
-                        w[k] += wShortWgt[k-startIndex];
-                    }
-                }
-                
-                startIndex = endIndex+1;
-            }
-            
-            for (i=0; i<x.length; i++)
-            {
-                if (w[i]>0.0)
-                    y[i] /= w[i];
-            }
-        }
- 
-        return y;
-    }
+				if (numfrm > 0) {
+					int windowLen = (int) Math.floor(numfrm * (1.0 - extremumGainRelativeDuration / 100.0) + 0.5);
+					double[] wgt = new double[numfrm];
+					if (toBeProcesseds[i])
+						Arrays.fill(wgt, extremumGainFactor);
+					else
+						Arrays.fill(wgt, 1.0);
+
+					if (windowLen > 0 && toBeProcesseds[i]) {
+						Window wConsonant = new HammingWindow(windowLen);
+						if (isIncreasing)
+							wConsonant.normalizeRange(1.0f, (float) extremumGainFactor);
+						else
+							wConsonant.normalizeRange((float) extremumGainFactor, 1.0f);
+
+						double[] lWgt = null;
+						double[] rWgt = null;
+
+						if (isIncreasing) {
+							lWgt = wConsonant.getCoeffsLeftHalf();
+							rWgt = wConsonant.getCoeffsRightHalf();
+						} else {
+							lWgt = wConsonant.getCoeffsRightHalf();
+							rWgt = wConsonant.getCoeffsLeftHalf();
+						}
+
+						if (lWgt != null) {
+							for (j = 0; j < lWgt.length; j++)
+								wgt[j] = lWgt[j];
+						}
+
+						if (rWgt != null) {
+							for (j = 0; j < rWgt.length; j++)
+								wgt[j + numfrm - rWgt.length] = rWgt[j];
+						}
+
+						// MaryUtils.plot(wgt);
+
+						for (j = 0; j < numfrm; j++) {
+							System.arraycopy(x, j * ss + startIndex, frm, 0, Math.min(ws, x.length - (j * ss + startIndex)));
+							for (k = 0; k < Math.min(ws, x.length - (j * ss + startIndex)); k++) {
+								y[j * ss + startIndex + k] += x[j * ss + startIndex + k] * frmWgt[k] * wgt[j];
+								w[j * ss + startIndex + k] += frmWgt[k];
+							}
+						}
+					} else {
+						Window wShort = new HammingWindow(endIndex - startIndex + 1);
+						double[] wShortWgt = wShort.getCoeffs();
+						for (k = startIndex; k <= endIndex; k++) {
+							y[k] += x[k] * wShortWgt[k - startIndex];
+							w[k] += wShortWgt[k - startIndex];
+						}
+					}
+				} else {
+					Window wShort = new HammingWindow(endIndex - startIndex + 1);
+					double[] wShortWgt = wShort.getCoeffs();
+					for (k = startIndex; k <= endIndex; k++) {
+						y[k] += x[k] * wShortWgt[k - startIndex];
+						w[k] += wShortWgt[k - startIndex];
+					}
+				}
+
+				startIndex = endIndex + 1;
+			}
+
+			for (i = 0; i < x.length; i++) {
+				if (w[i] > 0.0)
+					y[i] /= w[i];
+			}
+		}
+
+		return y;
+	}
 
 	// Detects closest LSF pairs within a frequency range
 	// Makes these LSF pairs closer
 	// Re-synthesizes the output using modified LSFs and frequency domain AR filtering
-	public static double[] processLSFs(double[] x, int samplingRateInHz, Labels labels, boolean[] isVowels, boolean[] isPauses)
-    {
-        assert labels.items.length == isVowels.length;
-        assert labels.items.length == isPauses.length;
-        
-        double[] y = null;
-        double[] w = null;
-        int startIndex = 0;
-        int endIndex;
-        int ws = SignalProcUtils.time2sample(WINDOW_SIZE_IN_SECONDS_LSF, samplingRateInHz);
-        int ss = SignalProcUtils.time2sample(SKIP_SIZE_IN_SECONDS_LSF, samplingRateInHz);
-        Window wfrm = new HammingWindow(ws);
-        wfrm.normalizePeakValue(1.0f);
-        double[] frmWgt = wfrm.getCoeffs();
-        
-        if (x!=null && x.length>0)
-        {
-            int lpOrder = SignalProcUtils.getLPOrder(samplingRateInHz);
-            y = new double[x.length];
-            w = new double[x.length];
-            Arrays.fill(y, 0.0);
-            Arrays.fill(w, 0.0);
-            
-            double[] frm = new double[ws];
-            int i, j, k;
-            int fftSize = SignalProcUtils.getDFTSize(samplingRateInHz);
-            
-            for (i=0; i<labels.items.length; i++)
-            {        
-                boolean bProcessed = false;
-                endIndex = SignalProcUtils.time2sample(labels.items[i].time+WINDOW_SIZE_IN_SECONDS_LSF, samplingRateInHz)-1;
-                int numfrm = (int)Math.floor((endIndex-startIndex+1.0)/(double)ss + 0.5)+1;
+	public static double[] processLSFs(double[] x, int samplingRateInHz, Labels labels, boolean[] isVowels, boolean[] isPauses) {
+		assert labels.items.length == isVowels.length;
+		assert labels.items.length == isPauses.length;
 
-                //if (isVowels[i] && numfrm>0)
-                if (numfrm>0)
-                {
-                    for (j=0; j<numfrm; j++)
-                    {
-                        Arrays.fill(frm, 0.0);
-                        if (j*ss+startIndex<x.length)
-                        {
-                            System.arraycopy(x, j*ss+startIndex, frm, 0, Math.min(ws,x.length-(j*ss+startIndex)));
-                            double[] frmOrig = ArrayUtils.copy(frm);
-                            double origEn = SignalProcUtils.energy(frmOrig);
+		double[] y = null;
+		double[] w = null;
+		int startIndex = 0;
+		int endIndex;
+		int ws = SignalProcUtils.time2sample(WINDOW_SIZE_IN_SECONDS_LSF, samplingRateInHz);
+		int ss = SignalProcUtils.time2sample(SKIP_SIZE_IN_SECONDS_LSF, samplingRateInHz);
+		Window wfrm = new HammingWindow(ws);
+		wfrm.normalizePeakValue(1.0f);
+		double[] frmWgt = wfrm.getCoeffs();
 
-                            wfrm.apply(frm, 0);
-                            LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, 0.0f);
-                            double[] lsfs = LsfAnalyser.lpc2lsfInHz(lpcs.getOneMinusA(), samplingRateInHz);
-                            double[] lsfsMod = ArrayUtils.copy(lsfs);
+		if (x != null && x.length > 0) {
+			int lpOrder = SignalProcUtils.getLPOrder(samplingRateInHz);
+			y = new double[x.length];
+			w = new double[x.length];
+			Arrays.fill(y, 0.0);
+			Arrays.fill(w, 0.0);
 
-                            if (isVowels[i])
-                            {
-                                double[] dists = new double[lsfs.length-1];
-                                for (k=0; k<lsfsMod.length-1; k++)
-                                    dists[k] = lsfs[k+1]-lsfs[k];
+			double[] frm = new double[ws];
+			int i, j, k;
+			int fftSize = SignalProcUtils.getDFTSize(samplingRateInHz);
 
-                                for (k=1; k<dists.length-1; k++)
-                                {
-                                    if (dists[k]<Math.min(dists[k+1], MAX_LSF_PAIR_SEPARATION_IN_HZ)) //lsfs[k] and lsfs[k+1] might be pairs
-                                    {
-                                        double meanFreq = 0.5*(lsfs[k]+lsfs[k+1]);
-                                        if (meanFreq>=FORMANT_SHARPENING_START_FREQ && meanFreq<FORMANT_SHARPENING_END_FREQ)
-                                        {
-                                            double shift = 0.5*RELATIVE_DECREASE_IN_LSF_PAIR_SEPARATION/100.0*dists[k];
-                                            lsfsMod[k] = lsfs[k-1]+shift;
-                                            lsfsMod[k+1] = lsfs[k-1]-shift;
-                                            k+=2;
-                                        }
-                                    }
-                                    else if (dists[k+1]<Math.min(dists[k], MAX_LSF_PAIR_SEPARATION_IN_HZ)) //lsfs[k+1] and lsfs[k+2] might be pairs
-                                    {
-                                        double meanFreq = 0.5*(lsfs[k+1]+lsfs[k+2]);
-                                        if (meanFreq>=FORMANT_SHARPENING_START_FREQ && meanFreq<FORMANT_SHARPENING_END_FREQ)
-                                        {
-                                            double shift = 0.5*RELATIVE_DECREASE_IN_LSF_PAIR_SEPARATION/100.0*dists[k];
-                                            lsfsMod[k+1] = lsfs[k+1]+shift;
-                                            lsfsMod[k+2] = lsfs[k+2]-shift;
-                                            k+=2;
-                                        }
-                                    }
-                                }
-                            }
+			for (i = 0; i < labels.items.length; i++) {
+				boolean bProcessed = false;
+				endIndex = SignalProcUtils.time2sample(labels.items[i].time + WINDOW_SIZE_IN_SECONDS_LSF, samplingRateInHz) - 1;
+				int numfrm = (int) Math.floor((endIndex - startIndex + 1.0) / (double) ss + 0.5) + 1;
 
-                            double[] newOneMinusAs = LsfAnalyser.lsfInHz2lpc(lsfsMod, samplingRateInHz);
-                            double[] newLpcs = ArrayUtils.subarray(newOneMinusAs, 1, lpOrder);
-                            newLpcs = MathUtils.multiply(newLpcs, -1.0);
-                            double[] H = LpcAnalyser.calcSpecLinear(lpcs.getA(), lpcs.getGain(), fftSize);
-                            double[] HNew = LpcAnalyser.calcSpecLinear(newLpcs, lpcs.getGain(), fftSize);
-                            //MaryUtils.plot(MathUtils.amp2db(H));
-                            //MaryUtils.plot(MathUtils.amp2db(HNew));
-                            double[] HT = MathUtils.divide(HNew, H);
+				// if (isVowels[i] && numfrm>0)
+				if (numfrm > 0) {
+					for (j = 0; j < numfrm; j++) {
+						Arrays.fill(frm, 0.0);
+						if (j * ss + startIndex < x.length) {
+							System.arraycopy(x, j * ss + startIndex, frm, 0, Math.min(ws, x.length - (j * ss + startIndex)));
+							double[] frmOrig = ArrayUtils.copy(frm);
+							double origEn = SignalProcUtils.energy(frmOrig);
 
-                            //SignalProcUtils.displayDFTSpectrumInDB(frmOrig);
-                            frm = SignalProcUtils.filterfd(HT, frmOrig, samplingRateInHz);
-                            //SignalProcUtils.displayDFTSpectrumInDB(frm);
+							wfrm.apply(frm, 0);
+							LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, 0.0f);
+							double[] lsfs = LsfAnalyser.lpc2lsfInHz(lpcs.getOneMinusA(), samplingRateInHz);
+							double[] lsfsMod = ArrayUtils.copy(lsfs);
 
-                            double newEn = SignalProcUtils.energy(frm);
-                            double gain = Math.sqrt(origEn)/Math.sqrt(newEn);
+							if (isVowels[i]) {
+								double[] dists = new double[lsfs.length - 1];
+								for (k = 0; k < lsfsMod.length - 1; k++)
+									dists[k] = lsfs[k + 1] - lsfs[k];
 
-                            for (k=0; k<Math.min(ws,x.length-(j*ss+startIndex)); k++)
-                            {
-                                y[j*ss+startIndex+k] += gain*frm[k]*frmWgt[k];
-                                w[j*ss+startIndex+k] += frmWgt[k];
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Window wShort = new HammingWindow(endIndex-startIndex+1);
-                    double[] wShortWgt = wShort.getCoeffs();
-                    for (k=startIndex; k<=endIndex; k++)
-                    {
-                        y[k] += x[k]*wShortWgt[k-startIndex];
-                        w[k] += wShortWgt[k-startIndex];
-                    }
-                }
-                
-                startIndex = endIndex-ws;
-            }
-            
-            for (i=0; i<x.length; i++)
-            {
-                if (w[i]>0.0)
-                    y[i] /= w[i];
-            }
-        }
- 
-        return y;
-    }
+								for (k = 1; k < dists.length - 1; k++) {
+									if (dists[k] < Math.min(dists[k + 1], MAX_LSF_PAIR_SEPARATION_IN_HZ)) // lsfs[k] and lsfs[k+1]
+																											// might be pairs
+									{
+										double meanFreq = 0.5 * (lsfs[k] + lsfs[k + 1]);
+										if (meanFreq >= FORMANT_SHARPENING_START_FREQ && meanFreq < FORMANT_SHARPENING_END_FREQ) {
+											double shift = 0.5 * RELATIVE_DECREASE_IN_LSF_PAIR_SEPARATION / 100.0 * dists[k];
+											lsfsMod[k] = lsfs[k - 1] + shift;
+											lsfsMod[k + 1] = lsfs[k - 1] - shift;
+											k += 2;
+										}
+									} else if (dists[k + 1] < Math.min(dists[k], MAX_LSF_PAIR_SEPARATION_IN_HZ)) // lsfs[k+1] and
+																													// lsfs[k+2]
+																													// might be
+																													// pairs
+									{
+										double meanFreq = 0.5 * (lsfs[k + 1] + lsfs[k + 2]);
+										if (meanFreq >= FORMANT_SHARPENING_START_FREQ && meanFreq < FORMANT_SHARPENING_END_FREQ) {
+											double shift = 0.5 * RELATIVE_DECREASE_IN_LSF_PAIR_SEPARATION / 100.0 * dists[k];
+											lsfsMod[k + 1] = lsfs[k + 1] + shift;
+											lsfsMod[k + 2] = lsfs[k + 2] - shift;
+											k += 2;
+										}
+									}
+								}
+							}
 
-	public static double[] processHigherFormantGains(double[] x, int samplingRateInHz, Labels labels, boolean[] isPauses)
-    {
-        assert labels.items.length == isPauses.length;
-        
-        double[] y = null;
-        
-        if (x!=null && x.length>0)
-        {
-            int i, j;
-            HighPassFilter hpf = new HighPassFilter(HIGHPASS_FILTER_CUTOFF/samplingRateInHz);
-            double[] xhpf = hpf.apply(x);
-            
-            for (i=0; i<x.length; i++)
-                xhpf[i] = (1.0-HIGHPASS_FILTER_RELATIVE_GAIN)*x[i] + HIGHPASS_FILTER_RELATIVE_GAIN*xhpf[i];
-            
-            y = new double[x.length];
-            
-            int startIndex = 0;
-            int endIndex;
-            for (i=0; i<labels.items.length; i++)
-            {
-                endIndex = SignalProcUtils.time2sample(labels.items[i].time, samplingRateInHz)-1;
-                endIndex = Math.min(endIndex, x.length-1);
-                if (isPauses[i])
-                    System.arraycopy(x, startIndex, y, startIndex, endIndex-startIndex+1);
-                else
-                    System.arraycopy(xhpf, startIndex, y, startIndex, endIndex-startIndex+1);
-                
-                startIndex = endIndex+1;
-            }
-        }
-        
-        return y;
-    }
+							double[] newOneMinusAs = LsfAnalyser.lsfInHz2lpc(lsfsMod, samplingRateInHz);
+							double[] newLpcs = ArrayUtils.subarray(newOneMinusAs, 1, lpOrder);
+							newLpcs = MathUtils.multiply(newLpcs, -1.0);
+							double[] H = LpcAnalyser.calcSpecLinear(lpcs.getA(), lpcs.getGain(), fftSize);
+							double[] HNew = LpcAnalyser.calcSpecLinear(newLpcs, lpcs.getGain(), fftSize);
+							// MaryUtils.plot(MathUtils.amp2db(H));
+							// MaryUtils.plot(MathUtils.amp2db(HNew));
+							double[] HT = MathUtils.divide(HNew, H);
+
+							// SignalProcUtils.displayDFTSpectrumInDB(frmOrig);
+							frm = SignalProcUtils.filterfd(HT, frmOrig, samplingRateInHz);
+							// SignalProcUtils.displayDFTSpectrumInDB(frm);
+
+							double newEn = SignalProcUtils.energy(frm);
+							double gain = Math.sqrt(origEn) / Math.sqrt(newEn);
+
+							for (k = 0; k < Math.min(ws, x.length - (j * ss + startIndex)); k++) {
+								y[j * ss + startIndex + k] += gain * frm[k] * frmWgt[k];
+								w[j * ss + startIndex + k] += frmWgt[k];
+							}
+						}
+					}
+				} else {
+					Window wShort = new HammingWindow(endIndex - startIndex + 1);
+					double[] wShortWgt = wShort.getCoeffs();
+					for (k = startIndex; k <= endIndex; k++) {
+						y[k] += x[k] * wShortWgt[k - startIndex];
+						w[k] += wShortWgt[k - startIndex];
+					}
+				}
+
+				startIndex = endIndex - ws;
+			}
+
+			for (i = 0; i < x.length; i++) {
+				if (w[i] > 0.0)
+					y[i] /= w[i];
+			}
+		}
+
+		return y;
+	}
+
+	public static double[] processHigherFormantGains(double[] x, int samplingRateInHz, Labels labels, boolean[] isPauses) {
+		assert labels.items.length == isPauses.length;
+
+		double[] y = null;
+
+		if (x != null && x.length > 0) {
+			int i, j;
+			HighPassFilter hpf = new HighPassFilter(HIGHPASS_FILTER_CUTOFF / samplingRateInHz);
+			double[] xhpf = hpf.apply(x);
+
+			for (i = 0; i < x.length; i++)
+				xhpf[i] = (1.0 - HIGHPASS_FILTER_RELATIVE_GAIN) * x[i] + HIGHPASS_FILTER_RELATIVE_GAIN * xhpf[i];
+
+			y = new double[x.length];
+
+			int startIndex = 0;
+			int endIndex;
+			for (i = 0; i < labels.items.length; i++) {
+				endIndex = SignalProcUtils.time2sample(labels.items[i].time, samplingRateInHz) - 1;
+				endIndex = Math.min(endIndex, x.length - 1);
+				if (isPauses[i])
+					System.arraycopy(x, startIndex, y, startIndex, endIndex - startIndex + 1);
+				else
+					System.arraycopy(xhpf, startIndex, y, startIndex, endIndex - startIndex + 1);
+
+				startIndex = endIndex + 1;
+			}
+		}
+
+		return y;
+	}
 
 	public static void mainSingleFile(String inputWavFile, String outputWavFile, Allophone[] allophones)
 			throws UnsupportedAudioFileException, IOException {
@@ -536,56 +503,48 @@ public class Blizzard09PostProcessor {
 		}
 	}
 
-	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
-    {
-        if (args.length<3)
-        {
-            System.out.println("Missing parameters:");
-            System.out.println("<input wav file or directory> <output wav file or directory> <full path of phone set file>");
-            System.out.println("Example phone set file: .../lib/modules/en/us/lexicon/allophones.en_US.xml");
-        }
-        else
-        {
-            String phoneSetFile = args[2];
-            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
-            
-            Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
-            int count = 0;
-            Allophone[] allophones = new Allophone[tmpPhonemes.size()];
-            for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
-            {
-                allophones[count] = allophoneSet.getAllophone(it.next());
-                count++;
-                
-                if (count>=tmpPhonemes.size())
-                    break;
-            }
-            
-            
-            if (FileUtils.isDirectory(args[0])) //Process folder
-            {
-                if (!FileUtils.exists(args[1]))
-                    FileUtils.createDirectory(args[1]);
-                
-                String[] fileList = FileUtils.getFileList(args[0], "wav");
-                String outputFolder = StringUtils.checkLastSlash(args[1]);
-                if (fileList!=null)
-                {
-                    for (int i=0; i<fileList.length; i++)
-                    {
-                        String baseFileName = StringUtils.getFileName(fileList[i], true);
-                        String outputFile = outputFolder + baseFileName + ".wav";
-                        mainSingleFile(fileList[i], outputFile, allophones);
-                        System.out.println("Processing completed for file " + String.valueOf(i+1) + " of " + String.valueOf(fileList.length));
-                    }
-                }
-                else
-                    System.out.println("No wav files found!");
-            }
-            else //Process file
-                mainSingleFile(args[0], args[1], allophones);
-            
-            System.out.println("Processing completed...");
-        }
-    }
+	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException {
+		if (args.length < 3) {
+			System.out.println("Missing parameters:");
+			System.out.println("<input wav file or directory> <output wav file or directory> <full path of phone set file>");
+			System.out.println("Example phone set file: .../lib/modules/en/us/lexicon/allophones.en_US.xml");
+		} else {
+			String phoneSetFile = args[2];
+			AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
+
+			Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
+			int count = 0;
+			Allophone[] allophones = new Allophone[tmpPhonemes.size()];
+			for (Iterator<String> it = tmpPhonemes.iterator(); it.hasNext();) {
+				allophones[count] = allophoneSet.getAllophone(it.next());
+				count++;
+
+				if (count >= tmpPhonemes.size())
+					break;
+			}
+
+			if (FileUtils.isDirectory(args[0])) // Process folder
+			{
+				if (!FileUtils.exists(args[1]))
+					FileUtils.createDirectory(args[1]);
+
+				String[] fileList = FileUtils.getFileList(args[0], "wav");
+				String outputFolder = StringUtils.checkLastSlash(args[1]);
+				if (fileList != null) {
+					for (int i = 0; i < fileList.length; i++) {
+						String baseFileName = StringUtils.getFileName(fileList[i], true);
+						String outputFile = outputFolder + baseFileName + ".wav";
+						mainSingleFile(fileList[i], outputFile, allophones);
+						System.out.println("Processing completed for file " + String.valueOf(i + 1) + " of "
+								+ String.valueOf(fileList.length));
+					}
+				} else
+					System.out.println("No wav files found!");
+			} else
+				// Process file
+				mainSingleFile(args[0], args[1], allophones);
+
+			System.out.println("Processing completed...");
+		}
+	}
 }

@@ -68,7 +68,7 @@ public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser<double[]> {
 	 * 
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 *            @see{#getFrameLengthSamples()}.
+	 * @see{#getFrameLengthSamples() .
 	 * @return a double array of half the frame length
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length

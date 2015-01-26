@@ -76,86 +76,81 @@ public class VocalTractModifier implements InlineDataProcessor {
 		this.bAnalysisOnly = bAnalysisOnlyIn;
 	}
 
-	public void applyInline(double [] data, int pos, int len) {   
-        int k;
-        assert pos==0;
-        assert len==data.length;
-        
-        tmpCount++;
-        
-        if (len > fftSize)
-            len = fftSize;
-        
-        if (len < fftSize)
-        {
-            double [] data2 = new double[fftSize];
-            System.arraycopy(data, 0, data2, 0, data.length);
-            Arrays.fill(data2, data.length, data2.length-1, 0);
-            data = new double[data2.length];
-            System.arraycopy(data2, 0, data, 0, data2.length);
-        }
-        
-        double origAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data);
-        
-        // Compute LPC coefficients
-        LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
-        double sqrtGain = coeffs.getGain();
-        
-        System.arraycopy(data, 0, h.real, 0, Math.min(len, h.real.length));
-        
-        if (h.real.length > len)
-            Arrays.fill(h.real, h.real.length-len, h.real.length-1, 0);
-        
-        Arrays.fill(h.imag, 0, h.imag.length-1, 0);
-        
-        // Convert to polar coordinates in frequency domain
-        //h = FFTMixedRadix.fftComplexArray(h);
-        FFT.transform(h.real, h.imag, false);
-        
-        vtSpectrum = LpcAnalyser.calcSpecLinear(coeffs.getA(), p, fftSize, expTerm);
-        
-        for (k=0; k<maxFreq; k++)
-            vtSpectrum[k] *= sqrtGain;
-        
-        // Filter out vocal tract to obtain residual spectrum
-        for (k=0; k<maxFreq; k++)
-        {
-            h.real[k] /= vtSpectrum[k];
-            h.imag[k] /= vtSpectrum[k];
-        }
-        
-        if (!bAnalysisOnly)
-        {
-            // Process vocal tract spectrum
-            processSpectrum(vtSpectrum);
+	public void applyInline(double[] data, int pos, int len) {
+		int k;
+		assert pos == 0;
+		assert len == data.length;
 
-            //Apply modified vocal tract filter on the residual spectrum
-            for (k=0; k<maxFreq; k++)
-            {
-                h.real[k] *= vtSpectrum[k];
-                h.imag[k] *= vtSpectrum[k];
-            }
+		tmpCount++;
 
-            //Generate the complex conjugate part to make the output the DFT of a real-valued signal
-            for (k=maxFreq; k<fftSize; k++)
-            {
-                h.real[k] = h.real[2*maxFreq-k];
-                h.imag[k] = -1*h.imag[2*maxFreq-k];
-            }
-            //
+		if (len > fftSize)
+			len = fftSize;
 
-            //h = FFTMixedRadix.ifft(h);
-            FFT.transform(h.real, h.imag, true);
-            
-            double newAvgEnergy = SignalProcUtils.getAverageSampleEnergy(h.real, len);
-            double scale = origAvgEnergy/newAvgEnergy;
-            
-            for (k=0; k<len; k++)
-                h.real[k] *= scale;
-            
-            System.arraycopy(h.real, 0, data, 0, len);
-        }
-    }
+		if (len < fftSize) {
+			double[] data2 = new double[fftSize];
+			System.arraycopy(data, 0, data2, 0, data.length);
+			Arrays.fill(data2, data.length, data2.length - 1, 0);
+			data = new double[data2.length];
+			System.arraycopy(data2, 0, data, 0, data2.length);
+		}
+
+		double origAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data);
+
+		// Compute LPC coefficients
+		LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
+		double sqrtGain = coeffs.getGain();
+
+		System.arraycopy(data, 0, h.real, 0, Math.min(len, h.real.length));
+
+		if (h.real.length > len)
+			Arrays.fill(h.real, h.real.length - len, h.real.length - 1, 0);
+
+		Arrays.fill(h.imag, 0, h.imag.length - 1, 0);
+
+		// Convert to polar coordinates in frequency domain
+		// h = FFTMixedRadix.fftComplexArray(h);
+		FFT.transform(h.real, h.imag, false);
+
+		vtSpectrum = LpcAnalyser.calcSpecLinear(coeffs.getA(), p, fftSize, expTerm);
+
+		for (k = 0; k < maxFreq; k++)
+			vtSpectrum[k] *= sqrtGain;
+
+		// Filter out vocal tract to obtain residual spectrum
+		for (k = 0; k < maxFreq; k++) {
+			h.real[k] /= vtSpectrum[k];
+			h.imag[k] /= vtSpectrum[k];
+		}
+
+		if (!bAnalysisOnly) {
+			// Process vocal tract spectrum
+			processSpectrum(vtSpectrum);
+
+			// Apply modified vocal tract filter on the residual spectrum
+			for (k = 0; k < maxFreq; k++) {
+				h.real[k] *= vtSpectrum[k];
+				h.imag[k] *= vtSpectrum[k];
+			}
+
+			// Generate the complex conjugate part to make the output the DFT of a real-valued signal
+			for (k = maxFreq; k < fftSize; k++) {
+				h.real[k] = h.real[2 * maxFreq - k];
+				h.imag[k] = -1 * h.imag[2 * maxFreq - k];
+			}
+			//
+
+			// h = FFTMixedRadix.ifft(h);
+			FFT.transform(h.real, h.imag, true);
+
+			double newAvgEnergy = SignalProcUtils.getAverageSampleEnergy(h.real, len);
+			double scale = origAvgEnergy / newAvgEnergy;
+
+			for (k = 0; k < len; k++)
+				h.real[k] *= scale;
+
+			System.arraycopy(h.real, 0, data, 0, len);
+		}
+	}
 
 	// Overload this function in the derived classes to modify the vocal tract spectrum Px in anyway you wish
 	protected void processSpectrum(double[] Px) {

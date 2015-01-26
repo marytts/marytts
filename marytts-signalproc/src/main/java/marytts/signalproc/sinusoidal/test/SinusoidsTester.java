@@ -134,82 +134,78 @@ public class SinusoidsTester extends BaseTester {
 		init(sinsIn, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
 	}
 
-	public void init(Sinusoid[] sinsIn, float[] startTimesInSeconds, float[] endTimesInSeconds, int samplingRateInHz)
-    {
-        fs = samplingRateInHz;
-        signal = null;
-        pitchMarks = null;
-        int i, j;
-        
-        if (sinsIn!=null)
-        {
-            assert startTimesInSeconds.length==endTimesInSeconds.length;
-            assert sinsIn.length==endTimesInSeconds.length;
-            
-            float minFreq = 2*fs;
-            int minFreqInd = -1;
-            for (i=0; i<sinsIn.length; i++)
-            {
-                if (sinsIn[i].freq>0.0f && sinsIn[i].freq<minFreq)
-                {
-                    minFreq = sinsIn[i].freq;
-                    minFreqInd = i;
-                }
-            }
-            
-            int [] startSampleIndices = new int[sinsIn.length];
-            int [] endSampleIndices = new int[sinsIn.length];
-            
-            for (i=0; i<startTimesInSeconds.length; i++)
-            {
-                if (startTimesInSeconds[i]<0.0f)
-                    startTimesInSeconds[i]=0.0f;
-                if (endTimesInSeconds[i]<0.0f)
-                    endTimesInSeconds[i]=0.0f;
-                if (startTimesInSeconds[i]>endTimesInSeconds[i])
-                    startTimesInSeconds[i] = endTimesInSeconds[i];
-                
-                startSampleIndices[i] = (int)(Math.floor(startTimesInSeconds[i]*fs+0.5));
-                endSampleIndices[i] = (int)(Math.floor(endTimesInSeconds[i]*fs+0.5))-1;
-            }
-            
-            //int minStartSampleIndex = MathUtils.getMin(startSampleIndices);
-            int minStartSampleIndex = 0; //To ensure pitch marks being generated starting from 0th sample
-            int maxEndSampleIndex = MathUtils.getMax(endSampleIndices);
-            
-            //Create pitch marks by finding the longest period
-            int maxT0;
-            
-            if (minFreqInd>=0)
-                maxT0 = (int)(Math.floor(fs/minFreq+0.5));
-            else //No non-zero Hz sinusoids found, therefore set maxT0 to a fixed number
-                maxT0 = (int)Math.floor(0.010f*fs+0.5);
-            
-            int numPitchMarks = (int)(Math.floor(((double)(maxEndSampleIndex-minStartSampleIndex+1))/maxT0+0.5)) + 1; 
-            pitchMarks = new int[numPitchMarks];
-            for (i=0; i<numPitchMarks; i++)
-                pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
-            //
-            
-            float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length-1], fs);
-            int numfrm = (int)Math.floor((lastTime-0.5*ws)/ss+0.5);
-            f0s = new double[numfrm];
-            Arrays.fill(f0s, minFreq);
-            
-            if (maxEndSampleIndex>0)
-            {
-                signal = new double[maxEndSampleIndex+1];
-                Arrays.fill(signal, 0.0);
+	public void init(Sinusoid[] sinsIn, float[] startTimesInSeconds, float[] endTimesInSeconds, int samplingRateInHz) {
+		fs = samplingRateInHz;
+		signal = null;
+		pitchMarks = null;
+		int i, j;
 
-                //Synthesize sinusoids
-                for (i=0; i<sinsIn.length; i++)
-                {
-                    for (j=startSampleIndices[i]; j<endSampleIndices[i]; j++)
-                        signal[j] += sinsIn[i].amp * Math.sin(MathUtils.TWOPI*((j-startSampleIndices[i])*(sinsIn[i].freq/fs) + sinsIn[i].phase/360.0));
-                }  
-            }
-        }
-    }
+		if (sinsIn != null) {
+			assert startTimesInSeconds.length == endTimesInSeconds.length;
+			assert sinsIn.length == endTimesInSeconds.length;
+
+			float minFreq = 2 * fs;
+			int minFreqInd = -1;
+			for (i = 0; i < sinsIn.length; i++) {
+				if (sinsIn[i].freq > 0.0f && sinsIn[i].freq < minFreq) {
+					minFreq = sinsIn[i].freq;
+					minFreqInd = i;
+				}
+			}
+
+			int[] startSampleIndices = new int[sinsIn.length];
+			int[] endSampleIndices = new int[sinsIn.length];
+
+			for (i = 0; i < startTimesInSeconds.length; i++) {
+				if (startTimesInSeconds[i] < 0.0f)
+					startTimesInSeconds[i] = 0.0f;
+				if (endTimesInSeconds[i] < 0.0f)
+					endTimesInSeconds[i] = 0.0f;
+				if (startTimesInSeconds[i] > endTimesInSeconds[i])
+					startTimesInSeconds[i] = endTimesInSeconds[i];
+
+				startSampleIndices[i] = (int) (Math.floor(startTimesInSeconds[i] * fs + 0.5));
+				endSampleIndices[i] = (int) (Math.floor(endTimesInSeconds[i] * fs + 0.5)) - 1;
+			}
+
+			// int minStartSampleIndex = MathUtils.getMin(startSampleIndices);
+			int minStartSampleIndex = 0; // To ensure pitch marks being generated starting from 0th sample
+			int maxEndSampleIndex = MathUtils.getMax(endSampleIndices);
+
+			// Create pitch marks by finding the longest period
+			int maxT0;
+
+			if (minFreqInd >= 0)
+				maxT0 = (int) (Math.floor(fs / minFreq + 0.5));
+			else
+				// No non-zero Hz sinusoids found, therefore set maxT0 to a fixed number
+				maxT0 = (int) Math.floor(0.010f * fs + 0.5);
+
+			int numPitchMarks = (int) (Math.floor(((double) (maxEndSampleIndex - minStartSampleIndex + 1)) / maxT0 + 0.5)) + 1;
+			pitchMarks = new int[numPitchMarks];
+			for (i = 0; i < numPitchMarks; i++)
+				pitchMarks[i] = Math.min(i * maxT0 + minStartSampleIndex, maxEndSampleIndex);
+			//
+
+			float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length - 1], fs);
+			int numfrm = (int) Math.floor((lastTime - 0.5 * ws) / ss + 0.5);
+			f0s = new double[numfrm];
+			Arrays.fill(f0s, minFreq);
+
+			if (maxEndSampleIndex > 0) {
+				signal = new double[maxEndSampleIndex + 1];
+				Arrays.fill(signal, 0.0);
+
+				// Synthesize sinusoids
+				for (i = 0; i < sinsIn.length; i++) {
+					for (j = startSampleIndices[i]; j < endSampleIndices[i]; j++)
+						signal[j] += sinsIn[i].amp
+								* Math.sin(MathUtils.TWOPI
+										* ((j - startSampleIndices[i]) * (sinsIn[i].freq / fs) + sinsIn[i].phase / 360.0));
+				}
+			}
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
 		int i, numSins;

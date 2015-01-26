@@ -186,47 +186,47 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
 		return harmonicPart;
 	}
 
-	public double[] synthesizeNext()
-    {
-        assert currentFrameIndex<hnmSignal.frames.length;
-        
-        double[] output = null;
+	public double[] synthesizeNext() {
+		assert currentFrameIndex < hnmSignal.frames.length;
 
-        HntmSpeechFrame prevFrame, nextFrame;
+		double[] output = null;
 
-        if (currentFrameIndex>0)
-            prevFrame = hnmSignal.frames[currentFrameIndex-1];
-        else
-            prevFrame = null;
+		HntmSpeechFrame prevFrame, nextFrame;
 
-        if (currentFrameIndex<hnmSignal.frames.length-1)
-            nextFrame = hnmSignal.frames[currentFrameIndex+1];
-        else
-            nextFrame = null;
+		if (currentFrameIndex > 0)
+			prevFrame = hnmSignal.frames[currentFrameIndex - 1];
+		else
+			prevFrame = null;
 
-        boolean isFirstSynthesisFrame = false;
-        if (currentFrameIndex==0)
-            isFirstSynthesisFrame = true;
+		if (currentFrameIndex < hnmSignal.frames.length - 1)
+			nextFrame = hnmSignal.frames[currentFrameIndex + 1];
+		else
+			nextFrame = null;
 
-        boolean isLastSynthesisFrame = false;
-        if (currentFrameIndex==hnmSignal.frames.length-1)
-            isLastSynthesisFrame = true;
+		boolean isFirstSynthesisFrame = false;
+		if (currentFrameIndex == 0)
+			isFirstSynthesisFrame = true;
 
-        processFrame(prevFrame, hnmSignal.frames[currentFrameIndex], nextFrame, isFirstSynthesisFrame, isLastSynthesisFrame);
+		boolean isLastSynthesisFrame = false;
+		if (currentFrameIndex == hnmSignal.frames.length - 1)
+			isLastSynthesisFrame = true;
 
-        //Start to generate output as soon as a few frames are processed
-        if (currentFrameIndex>synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration)
-        {
-            pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[currentFrameIndex-synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
-            output = generateOutput(false);
-        }
-        //
+		processFrame(prevFrame, hnmSignal.frames[currentFrameIndex], nextFrame, isFirstSynthesisFrame, isLastSynthesisFrame);
 
-        isReseted = false;
-        currentFrameIndex++;
-        
-        return output;
-    }
+		// Start to generate output as soon as a few frames are processed
+		if (currentFrameIndex > synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration) {
+			pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[currentFrameIndex
+					- synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds,
+					hnmSignal.samplingRateInHz);
+			output = generateOutput(false);
+		}
+		//
+
+		isReseted = false;
+		currentFrameIndex++;
+
+		return output;
+	}
 
 	private void processFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame,
 			boolean isFirstSynthesisFrame, boolean isLastSynthesisFrame) {

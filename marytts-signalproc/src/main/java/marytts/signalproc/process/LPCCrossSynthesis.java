@@ -50,27 +50,26 @@ public class LPCCrossSynthesis extends LPCAnalysisResynthesis {
 	/**
 	 * Replace residual with new residual from audio signal, adapting the gain in order to maintain overall volume.
 	 */
-	protected void processLPC(LpCoeffs coeffs, double[] residual)
-    {
-        double gain = coeffs.getGain();
-        double[] frame = newResidualAudioFrames.getNextFrame();
-        assert frame.length == residual.length;
-        int excP = 3;
-        LpCoeffs newCoeffs = LpcAnalyser.calcLPC(frame, excP);
-        double newResidualGain = newCoeffs.getGain();
-        //double[] newResidual = ArrayUtils.subarray(new FIRFilter(oneMinusA).apply(frame),0,frame.length);
-        //System.arraycopy(newResidual, 0, residual, 0, residual.length);
-        double gainFactor = gain/newResidualGain;
-        Arrays.fill(residual, 0);
-        for (int n=0; n<residual.length; n++) {
-            for (int i=0; i<=excP && i<=n; i++) {
-                residual[n] += newCoeffs.getOneMinusA(i) * frame[n-i];
-            }
-            residual[n] *= gainFactor;
-        }
-//      System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+newCoeffs.getGain()+", factor="+gainFactor);
+	protected void processLPC(LpCoeffs coeffs, double[] residual) {
+		double gain = coeffs.getGain();
+		double[] frame = newResidualAudioFrames.getNextFrame();
+		assert frame.length == residual.length;
+		int excP = 3;
+		LpCoeffs newCoeffs = LpcAnalyser.calcLPC(frame, excP);
+		double newResidualGain = newCoeffs.getGain();
+		// double[] newResidual = ArrayUtils.subarray(new FIRFilter(oneMinusA).apply(frame),0,frame.length);
+		// System.arraycopy(newResidual, 0, residual, 0, residual.length);
+		double gainFactor = gain / newResidualGain;
+		Arrays.fill(residual, 0);
+		for (int n = 0; n < residual.length; n++) {
+			for (int i = 0; i <= excP && i <= n; i++) {
+				residual[n] += newCoeffs.getOneMinusA(i) * frame[n - i];
+			}
+			residual[n] *= gainFactor;
+		}
+		// System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+newCoeffs.getGain()+", factor="+gainFactor);
 
-    }
+	}
 
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();

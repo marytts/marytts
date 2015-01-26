@@ -120,17 +120,16 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * @return an array containing the frame analysis results for the data that is currently available, or an empty array if no
 	 *         new data is available.
 	 */
-	public FrameAnalysisResult[] analyseAvailableFrames()
-    {
-        List results = new ArrayList();
-        FrameAnalysisResult oneResult;
-        while (signal.available() >= frameLength) {
-            oneResult = analyseNextFrame();
-            assert oneResult != null;
-            results.add(oneResult);
-        }
-        return (FrameAnalysisResult[]) results.toArray(new FrameAnalysisResult[0]);
-    }
+	public FrameAnalysisResult[] analyseAvailableFrames() {
+		List results = new ArrayList();
+		FrameAnalysisResult oneResult;
+		while (signal.available() >= frameLength) {
+			oneResult = analyseNextFrame();
+			assert oneResult != null;
+			results.add(oneResult);
+		}
+		return (FrameAnalysisResult[]) results.toArray(new FrameAnalysisResult[0]);
+	}
 
 	/**
 	 * Apply this PitchFrameAnalyser to the given data.

@@ -129,29 +129,28 @@ public class BaseDoubleDataSource implements DoubleDataSource {
 	 * @return a double array of exactly the length required to contain all the data that can be read from this source. Returns an
 	 *         array of length 0 if no data can be read from this source.
 	 */
-	public double[] getAllData()
-    {
-        double[] all = new double[BufferedDoubleDataSource.DEFAULT_BUFFERSIZE];
-        int currentPos = 0;
-        while (hasMoreData()) {
-            int nRead = getData(all, currentPos, all.length-currentPos);
-            if (nRead < all.length-currentPos) {
-                // done
-                assert !hasMoreData();
-                currentPos += nRead;
-                break; // leave while loop
-            } else {
-                assert currentPos + nRead == all.length;
-                double[] newAll = new double[2*all.length];
-                System.arraycopy(all, 0, newAll, 0, all.length);
-                currentPos = all.length;
-                all = newAll;
-            }
-        }
-        double[] result = new double[currentPos];
-        System.arraycopy(all, 0, result, 0, currentPos);
-        return result;
-    }
+	public double[] getAllData() {
+		double[] all = new double[BufferedDoubleDataSource.DEFAULT_BUFFERSIZE];
+		int currentPos = 0;
+		while (hasMoreData()) {
+			int nRead = getData(all, currentPos, all.length - currentPos);
+			if (nRead < all.length - currentPos) {
+				// done
+				assert !hasMoreData();
+				currentPos += nRead;
+				break; // leave while loop
+			} else {
+				assert currentPos + nRead == all.length;
+				double[] newAll = new double[2 * all.length];
+				System.arraycopy(all, 0, newAll, 0, all.length);
+				currentPos = all.length;
+				all = newAll;
+			}
+		}
+		double[] result = new double[currentPos];
+		System.arraycopy(all, 0, result, 0, currentPos);
+		return result;
+	}
 
 	/**
 	 * Get the total length of the data in this data source, if available. For a BufferedDoubleDataSource created from a double[],

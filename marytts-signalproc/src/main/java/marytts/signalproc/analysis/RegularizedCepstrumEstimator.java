@@ -38,70 +38,64 @@ public class RegularizedCepstrumEstimator {
 	// lambda: regularization term (typically on the order of 0.0001
 	// Note that cepstrum is always computed using log amps, therefore the fitted spectrum computed from these cepstrum coeffs
 	// will be in log amp domain
-	protected static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, boolean isPreWarping, double[] weights, double lambda)
-    { 
-        assert linearAmps.length==freqsInHz.length;
-        
-        double[] a = MathUtils.amp2db(linearAmps);
-        int L = linearAmps.length;
-        int p = cepsOrder;
-        double[][] M = new double[L][p+1];
-        int i, j;
-        double f;
-        double denum = 1.0;
-        
-        if (isPreWarping)
-            denum = (2.0*SignalProcUtils.freq2barkNew(0.5*samplingRateInHz));
-            
-        for (i=0; i<L; i++)
-        {
-            M[i][0] = 1.0;
-            if (isPreWarping)
-            {
-                f = SignalProcUtils.freq2barkNew(freqsInHz[i])/denum;
-                for (j=1; j<p+1; j++)  
-                    M[i][j] = 2.0*Math.cos(MathUtils.TWOPI*f*j);
-            }
-            else
-            {
-                f = SignalProcUtils.hz2radian(freqsInHz[i], samplingRateInHz); 
-                for (j=1; j<p+1; j++)  
-                    M[i][j] = 2.0*Math.cos(f*j);
-            }
-        }
-        
-        double[] diagR = new double[p+1];
-        double tmp = 8.0*(Math.PI)*(Math.PI);
-        for (i=0; i<p+1; i++)
-            diagR[i] = tmp*i*i;
-        double[][] R = MathUtils.toDiagonalMatrix(diagR);
-        
-        double[] cepsDouble = null;
-        if (weights!=null)
-        {
-            double[][] W = MathUtils.toDiagonalMatrix(weights);
-            double[][] MTrans = MathUtils.transpoze(M);
-            double[][] MTransW = MathUtils.matrixProduct(MTrans, W);
-            double[][] MTransWM = MathUtils.matrixProduct(MTransW, M);
-            double[][] lambdaR = MathUtils.multiply(lambda, R);
-            double[] MTransWa = MathUtils.matrixProduct(MTransW, a);
-            double[][] inverted = MathUtils.inverse(MathUtils.add(MTransWM, lambdaR));
-            cepsDouble = MathUtils.matrixProduct(inverted, MTransWa);
-        }
-        else //No weights given
-        {
-            double[][] MTrans = MathUtils.transpoze(M);
-            double[][] MTransM = MathUtils.matrixProduct(MTrans, M);
-            double[][] lambdaR = MathUtils.multiply(lambda, R);
-            double[] MTransa = MathUtils.matrixProduct(MTrans, a);
-            double[][] inverted = MathUtils.inverse(MathUtils.add(MTransM, lambdaR));
-            cepsDouble = MathUtils.matrixProduct(inverted, MTransa);
-        }
-        
-        float[] ceps = ArrayUtils.copyDouble2Float(cepsDouble);
-        
-        return ceps;
-    }
+	protected static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz,
+			int cepsOrder, boolean isPreWarping, double[] weights, double lambda) {
+		assert linearAmps.length == freqsInHz.length;
+
+		double[] a = MathUtils.amp2db(linearAmps);
+		int L = linearAmps.length;
+		int p = cepsOrder;
+		double[][] M = new double[L][p + 1];
+		int i, j;
+		double f;
+		double denum = 1.0;
+
+		if (isPreWarping)
+			denum = (2.0 * SignalProcUtils.freq2barkNew(0.5 * samplingRateInHz));
+
+		for (i = 0; i < L; i++) {
+			M[i][0] = 1.0;
+			if (isPreWarping) {
+				f = SignalProcUtils.freq2barkNew(freqsInHz[i]) / denum;
+				for (j = 1; j < p + 1; j++)
+					M[i][j] = 2.0 * Math.cos(MathUtils.TWOPI * f * j);
+			} else {
+				f = SignalProcUtils.hz2radian(freqsInHz[i], samplingRateInHz);
+				for (j = 1; j < p + 1; j++)
+					M[i][j] = 2.0 * Math.cos(f * j);
+			}
+		}
+
+		double[] diagR = new double[p + 1];
+		double tmp = 8.0 * (Math.PI) * (Math.PI);
+		for (i = 0; i < p + 1; i++)
+			diagR[i] = tmp * i * i;
+		double[][] R = MathUtils.toDiagonalMatrix(diagR);
+
+		double[] cepsDouble = null;
+		if (weights != null) {
+			double[][] W = MathUtils.toDiagonalMatrix(weights);
+			double[][] MTrans = MathUtils.transpoze(M);
+			double[][] MTransW = MathUtils.matrixProduct(MTrans, W);
+			double[][] MTransWM = MathUtils.matrixProduct(MTransW, M);
+			double[][] lambdaR = MathUtils.multiply(lambda, R);
+			double[] MTransWa = MathUtils.matrixProduct(MTransW, a);
+			double[][] inverted = MathUtils.inverse(MathUtils.add(MTransWM, lambdaR));
+			cepsDouble = MathUtils.matrixProduct(inverted, MTransWa);
+		} else // No weights given
+		{
+			double[][] MTrans = MathUtils.transpoze(M);
+			double[][] MTransM = MathUtils.matrixProduct(MTrans, M);
+			double[][] lambdaR = MathUtils.multiply(lambda, R);
+			double[] MTransa = MathUtils.matrixProduct(MTrans, a);
+			double[][] inverted = MathUtils.inverse(MathUtils.add(MTransM, lambdaR));
+			cepsDouble = MathUtils.matrixProduct(inverted, MTransa);
+		}
+
+		float[] ceps = ArrayUtils.copyDouble2Float(cepsDouble);
+
+		return ceps;
+	}
 
 	protected static double[][] precomputeM(double[] freqsInHz, int samplingRateInHz, int cepsOrder, boolean isPreWarping) {
 		int L = freqsInHz.length;

@@ -377,16 +377,15 @@ public class LsfAnalyser {
 	 *            the sampling rate of the underlying audio data
 	 * @return an array of length lsf.length+1, containing the LPC coefficients as in A(z) = a0 - sum { ai * z^-i } . a0 = 1.
 	 */
-	public static double[] lsfInHz2lpc(double[] lsf, int samplingRate)
-    {   
-        double[] normalised_lsf = new double[lsf.length];
-        for (int i=0; i<lsf.length; i++) {
-            normalised_lsf[i] = lsf[i]/samplingRate;
-            assert 0 <= normalised_lsf[i];
-            assert normalised_lsf[i] <= 0.5;
-        }
-        return lsf2lpc(normalised_lsf);
-    }
+	public static double[] lsfInHz2lpc(double[] lsf, int samplingRate) {
+		double[] normalised_lsf = new double[lsf.length];
+		for (int i = 0; i < lsf.length; i++) {
+			normalised_lsf[i] = lsf[i] / samplingRate;
+			assert 0 <= normalised_lsf[i];
+			assert normalised_lsf[i] <= 0.5;
+		}
+		return lsf2lpc(normalised_lsf);
+	}
 
 	public static double[] lsfInBark2lpc(double[] lsfsInBark, int samplingRate) {
 		return lsfInHz2lpc(SignalProcUtils.bark2freq(lsfsInBark, samplingRate), samplingRate);

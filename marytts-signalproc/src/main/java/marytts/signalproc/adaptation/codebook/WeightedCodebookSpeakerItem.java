@@ -205,114 +205,106 @@ public class WeightedCodebookSpeakerItem {
 		}
 	}
 
-	public void read(MaryRandomAccessFile ler, int lpOrder, int mfccDimension)
-    {
-        allocate(lpOrder, mfccDimension);
-        
-        if ((lsfs!=null && lpOrder>0) || (mfccs!=null && mfccDimension>0))
-        {
-            int lpOrderInFile = 0;
+	public void read(MaryRandomAccessFile ler, int lpOrder, int mfccDimension) {
+		allocate(lpOrder, mfccDimension);
 
-            try {
-                lpOrderInFile = ler.readInt();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            assert lpOrderInFile==lpOrder;
+		if ((lsfs != null && lpOrder > 0) || (mfccs != null && mfccDimension > 0)) {
+			int lpOrderInFile = 0;
 
-            if (lpOrderInFile>0)
-            {
-                try {
-                    lsfs = ler.readDouble(lpOrderInFile);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            else
-                lsfs = null;
+			try {
+				lpOrderInFile = ler.readInt();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			assert lpOrderInFile == lpOrder;
 
-            int mfccDimensionInFile = 0;
+			if (lpOrderInFile > 0) {
+				try {
+					lsfs = ler.readDouble(lpOrderInFile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else
+				lsfs = null;
 
-            try {
-                mfccDimensionInFile = ler.readInt();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            assert mfccDimensionInFile==mfccDimension;
+			int mfccDimensionInFile = 0;
 
-            if (mfccDimensionInFile>0)
-            {
-                try {
-                    mfccs = ler.readDouble(mfccDimensionInFile);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            else
-                mfccs = null;
-            
-            try {
-                f0 = ler.readDouble();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            try {
-                duration = ler.readDouble();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            try {
-                energy = ler.readDouble();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            int tmpLen = 0;
-            try {
-                tmpLen = ler.readInt();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            phn = "";
-            if (tmpLen>0)
-            {
-                try {
-                    phn = String.copyValueOf(ler.readChar(tmpLen));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            
-            tmpLen = 0;
-            try {
-                tmpLen = ler.readInt();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            context = null;
-            if (tmpLen>0)
-            {
-                try {
-                    context = new Context(String.copyValueOf(ler.readChar(tmpLen)));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+			try {
+				mfccDimensionInFile = ler.readInt();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			assert mfccDimensionInFile == mfccDimension;
+
+			if (mfccDimensionInFile > 0) {
+				try {
+					mfccs = ler.readDouble(mfccDimensionInFile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else
+				mfccs = null;
+
+			try {
+				f0 = ler.readDouble();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				duration = ler.readDouble();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				energy = ler.readDouble();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			int tmpLen = 0;
+			try {
+				tmpLen = ler.readInt();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			phn = "";
+			if (tmpLen > 0) {
+				try {
+					phn = String.copyValueOf(ler.readChar(tmpLen));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			tmpLen = 0;
+			try {
+				tmpLen = ler.readInt();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			context = null;
+			if (tmpLen > 0) {
+				try {
+					context = new Context(String.copyValueOf(ler.readChar(tmpLen)));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
