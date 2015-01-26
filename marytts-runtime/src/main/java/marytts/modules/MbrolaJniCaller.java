@@ -83,20 +83,20 @@ public class MbrolaJniCaller extends MbrolaCaller {
 	}
 
 	private void setVoice(Voice voice) {
-        // This is what we would like to have done in order to have fast synthesis;
-        // unfortunately, it leads to small deviations in the length of the audio data
-        // from one call to another.
-        //if (currentlyLoadedVoice != null && currentlyLoadedVoice.equals(voice)) {
-        //	return;
-        //}
-        // So instead we use the slow, but reliable variant, namely to reload
-        // the voice every time.
-        if (currentlyLoadedVoice != null)
-            mbrolaClose();
-        assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
-        mbrolaInitVoice(((MbrolaVoice)voice).path(), true); // true = tolerant, don't abort at missing diphones
-        currentlyLoadedVoice = voice;
-    }
+		// This is what we would like to have done in order to have fast synthesis;
+		// unfortunately, it leads to small deviations in the length of the audio data
+		// from one call to another.
+		// if (currentlyLoadedVoice != null && currentlyLoadedVoice.equals(voice)) {
+		// return;
+		// }
+		// So instead we use the slow, but reliable variant, namely to reload
+		// the voice every time.
+		if (currentlyLoadedVoice != null)
+			mbrolaClose();
+		assert voice instanceof MbrolaVoice : "Not an MBROLA voice: " + voice.getName();
+		mbrolaInitVoice(((MbrolaVoice) voice).path(), true); // true = tolerant, don't abort at missing diphones
+		currentlyLoadedVoice = voice;
+	}
 
 	private void handleNativeError() throws IOException {
 		currentlyLoadedVoice = null;
@@ -116,11 +116,11 @@ public class MbrolaJniCaller extends MbrolaCaller {
 	 * @return an AudioInputStream in the native audio format of the voice
 	 */
 	public synchronized AudioInputStream synthesiseOneSection(String mbrolaMarkup, Voice voice) throws IOException {
-        if (mbrolaMarkup == null || voice == null) {
-            throw new IllegalArgumentException("Received null argument.");
-        }
-        audioDestination = MaryRuntimeUtils.createAudioDestination();
-        logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
+		if (mbrolaMarkup == null || voice == null) {
+			throw new IllegalArgumentException("Received null argument.");
+		}
+		audioDestination = MaryRuntimeUtils.createAudioDestination();
+		logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
 		// Workaround: Mbrola.dll code seems to have difficulties with mbrola data
 		// longer than about 8300 bytes.
 		int index = 0;
@@ -132,19 +132,19 @@ public class MbrolaJniCaller extends MbrolaCaller {
 			else
 				endIndex = mbrolaMarkup.lastIndexOf("#\n", endIndex) + 2;
 			String toSynthesise = mbrolaMarkup.substring(index, endIndex);
-            assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
-			logger.info("Setting Mbrola voice `" + voice.getName() + "' (" + ((MbrolaVoice)voice).path() + ")");
+			assert voice instanceof MbrolaVoice : "Not an MBROLA voice: " + voice.getName();
+			logger.info("Setting Mbrola voice `" + voice.getName() + "' (" + ((MbrolaVoice) voice).path() + ")");
 			setVoice(voice);
 			logger.info("Synthesising audio data.");
 			logger.debug("Writing MbrolaMarkup input:\n" + toSynthesise + "\n");
 			ok = mbrolaSynthesise(toSynthesise);
 			index = endIndex;
 		}
-        if (!ok)
-            handleNativeError();
-        logger.info("Finished synthesising.");
-        return audioDestination.convertToAudioInputStream(voice.dbAudioFormat());
-    }
+		if (!ok)
+			handleNativeError();
+		logger.info("Finished synthesising.");
+		return audioDestination.convertToAudioInputStream(voice.dbAudioFormat());
+	}
 
 	/* To be called from native code. */
 	private void callbackSaveAudioData(byte[] audioData) {

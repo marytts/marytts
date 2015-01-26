@@ -165,14 +165,15 @@ public class VocalizationSynthesizer {
 	 *             if it can't synthesize vocalization
 	 */
 	private AudioInputStream synthesizeVocalization(AudioFileFormat aft, Element domElement) throws SynthesisException {
-        
-        int numberOfBackChannels = unitFileReader.getNumberOfUnits();
-        int backchannelNumber = vSelector.getBestMatchingCandidate(domElement);
-        // here it is a bug, if getBestMatchingCandidate select a backchannelNumber greater than numberOfBackChannels
-        assert backchannelNumber < numberOfBackChannels : "This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+backchannelNumber;
-        
-        return synthesizeSelectedVocalization(backchannelNumber, aft, domElement);
-    }
+
+		int numberOfBackChannels = unitFileReader.getNumberOfUnits();
+		int backchannelNumber = vSelector.getBestMatchingCandidate(domElement);
+		// here it is a bug, if getBestMatchingCandidate select a backchannelNumber greater than numberOfBackChannels
+		assert backchannelNumber < numberOfBackChannels : "This voice has " + numberOfBackChannels
+				+ " backchannels only. so it doesn't support unit number " + backchannelNumber;
+
+		return synthesizeSelectedVocalization(backchannelNumber, aft, domElement);
+	}
 
 	/**
 	 * Synthesize a vocalization which fits better for given target, in addition, impose intonation from closest best vocalization
@@ -296,9 +297,9 @@ public class VocalizationSynthesizer {
 	 * @return an array of Strings, each string containing one unique vocalization name.
 	 */
 	public String[] listAvailableVocalizations() {
-        FeatureDefinition featureDefinition = vSelector.getFeatureDefinition();
-        assert featureDefinition.hasFeature("name");
-        int nameIndex = featureDefinition.getFeatureIndex("name");
-        return featureDefinition.getPossibleValues(nameIndex);
-    }
+		FeatureDefinition featureDefinition = vSelector.getFeatureDefinition();
+		assert featureDefinition.hasFeature("name");
+		int nameIndex = featureDefinition.getFeatureIndex("name");
+		return featureDefinition.getPossibleValues(nameIndex);
+	}
 }

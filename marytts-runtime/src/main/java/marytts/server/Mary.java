@@ -102,93 +102,91 @@ public class Mary {
 	 * 
 	 * @throws Exception
 	 */
-	protected static void addJarsToClasspath() throws Exception
-    {
-    	if (true) return;
-    	// TODO: clean this up when the new modularity mechanism is in place
-        if (jarsAdded) return; // have done this already
-        File jarDir = new File(MaryProperties.maryBase()+"/java");
-        File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
-        assert jarFiles != null;
-        URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
-        method.setAccessible(true);
-        for (int i=0; i<jarFiles.length; i++) {
-            URL jarURL = new URL("file:"+jarFiles[i].getPath());
-            method.invoke(sysloader, new Object[] {jarURL});
-        }
-        jarsAdded = true;
-    }
+	protected static void addJarsToClasspath() throws Exception {
+		if (true)
+			return;
+		// TODO: clean this up when the new modularity mechanism is in place
+		if (jarsAdded)
+			return; // have done this already
+		File jarDir = new File(MaryProperties.maryBase() + "/java");
+		File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".jar");
+			}
+		});
+		assert jarFiles != null;
+		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+		Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
+		method.setAccessible(true);
+		for (int i = 0; i < jarFiles.length; i++) {
+			URL jarURL = new URL("file:" + jarFiles[i].getPath());
+			method.invoke(sysloader, new Object[] { jarURL });
+		}
+		jarsAdded = true;
+	}
 
-	private static void startModules()
-        throws ClassNotFoundException, InstantiationException, Exception {
-        for (String moduleClassName : MaryProperties.moduleInitInfo()) {
-            MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
-            // Partially fill module repository here; 
-            // TODO: voice-specific entries will be added when each voice is loaded.
-            ModuleRegistry.registerModule(m, m.getLocale(), null);
-        }
-        ModuleRegistry.setRegistrationComplete();
-        
-        List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule,Long>>();
-        
-        // Separate loop for startup allows modules to cross-reference to each
-        // other via Mary.getModule(Class) even if some have not yet been
-        // started.
-        for (MaryModule m : ModuleRegistry.getAllModules()) {
-            // Only start the modules here if in server mode: 
-            if (((!MaryProperties.getProperty("server").equals("commandline")) || m instanceof Synthesis) 
-                    && m.getState() == MaryModule.MODULE_OFFLINE) {
-                long before = System.currentTimeMillis();
-                try {
-                    m.startup();
-                } catch (Throwable t) {
-                    throw new Exception("Problem starting module "+ m.name(), t);
-                }
-                long after = System.currentTimeMillis();
-                startupTimes.add(new Pair<MaryModule, Long>(m, after-before));
-            }
-            if (MaryProperties.getAutoBoolean("modules.poweronselftest", false)) {
-                m.powerOnSelfTest();
-            }
-        }
-        
-        if (startupTimes.size() > 0) {
-            Collections.sort(startupTimes, new Comparator<Pair<MaryModule, Long>>() {
-                public int compare(Pair<MaryModule, Long> o1, Pair<MaryModule, Long> o2) {
-                    return -o1.getSecond().compareTo(o2.getSecond());
-                }
-            });
-            logger.debug("Startup times:");
-            for (Pair<MaryModule, Long> p : startupTimes) {
-                logger.debug(p.getFirst().name()+": "+p.getSecond()+" ms");
-            }
-        }
-    }
+	private static void startModules() throws ClassNotFoundException, InstantiationException, Exception {
+		for (String moduleClassName : MaryProperties.moduleInitInfo()) {
+			MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
+			// Partially fill module repository here;
+			// TODO: voice-specific entries will be added when each voice is loaded.
+			ModuleRegistry.registerModule(m, m.getLocale(), null);
+		}
+		ModuleRegistry.setRegistrationComplete();
 
-	private static void setupFeatureProcessors()
-    throws Exception
-    {
-        for (String fpmInitInfo : MaryProperties.getList("featuremanager.classes.list")) {
-            try {
+		List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
 
-                FeatureProcessorManager mgr = (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(fpmInitInfo);
-                Locale locale = mgr.getLocale();
-                if (locale != null) {
-                    FeatureRegistry.setFeatureProcessorManager(locale, mgr);
-                } else {
-                    logger.debug("Setting fallback feature processor manager to '"+fpmInitInfo+"'");
-                    FeatureRegistry.setFallbackFeatureProcessorManager(mgr);
-                }
-            } catch (Throwable t) {
-                throw new Exception("Cannot instantiate feature processor manager '"+fpmInitInfo+"'", t);
-            }
-        }
-    }
+		// Separate loop for startup allows modules to cross-reference to each
+		// other via Mary.getModule(Class) even if some have not yet been
+		// started.
+		for (MaryModule m : ModuleRegistry.getAllModules()) {
+			// Only start the modules here if in server mode:
+			if (((!MaryProperties.getProperty("server").equals("commandline")) || m instanceof Synthesis)
+					&& m.getState() == MaryModule.MODULE_OFFLINE) {
+				long before = System.currentTimeMillis();
+				try {
+					m.startup();
+				} catch (Throwable t) {
+					throw new Exception("Problem starting module " + m.name(), t);
+				}
+				long after = System.currentTimeMillis();
+				startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
+			}
+			if (MaryProperties.getAutoBoolean("modules.poweronselftest", false)) {
+				m.powerOnSelfTest();
+			}
+		}
+
+		if (startupTimes.size() > 0) {
+			Collections.sort(startupTimes, new Comparator<Pair<MaryModule, Long>>() {
+				public int compare(Pair<MaryModule, Long> o1, Pair<MaryModule, Long> o2) {
+					return -o1.getSecond().compareTo(o2.getSecond());
+				}
+			});
+			logger.debug("Startup times:");
+			for (Pair<MaryModule, Long> p : startupTimes) {
+				logger.debug(p.getFirst().name() + ": " + p.getSecond() + " ms");
+			}
+		}
+	}
+
+	private static void setupFeatureProcessors() throws Exception {
+		for (String fpmInitInfo : MaryProperties.getList("featuremanager.classes.list")) {
+			try {
+
+				FeatureProcessorManager mgr = (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(fpmInitInfo);
+				Locale locale = mgr.getLocale();
+				if (locale != null) {
+					FeatureRegistry.setFeatureProcessorManager(locale, mgr);
+				} else {
+					logger.debug("Setting fallback feature processor manager to '" + fpmInitInfo + "'");
+					FeatureRegistry.setFallbackFeatureProcessorManager(mgr);
+				}
+			} catch (Throwable t) {
+				throw new Exception("Cannot instantiate feature processor manager '" + fpmInitInfo + "'", t);
+			}
+		}
+	}
 
 	/**
 	 * Start the MARY system and all modules. This method must be called once before any calls to {@link #process()} are possible.
@@ -213,91 +211,88 @@ public class Mary {
 	 *             if the system is not offline.
 	 * @throws Exception
 	 */
-	public static void startup(boolean addJarsToClasspath) throws Exception
-    {
-        if (currentState != STATE_OFF) throw new IllegalStateException("Cannot start system: it is not offline");
-        currentState = STATE_STARTING;
+	public static void startup(boolean addJarsToClasspath) throws Exception {
+		if (currentState != STATE_OFF)
+			throw new IllegalStateException("Cannot start system: it is not offline");
+		currentState = STATE_STARTING;
 
-        if (addJarsToClasspath) {
-            addJarsToClasspath();
-        }
+		if (addJarsToClasspath) {
+			addJarsToClasspath();
+		}
 
-        configureLogging();
-        
-        logger.info("Mary starting up...");
-        logger.info("Specification version " + Version.specificationVersion());
-        logger.info("Implementation version " + Version.implementationVersion());
-        logger.info("Running on a Java " + System.getProperty("java.version")
-                + " implementation by " + System.getProperty("java.vendor")
-                + ", on a " + System.getProperty("os.name") + " platform ("
-                + System.getProperty("os.arch") + ", " + System.getProperty("os.version")
-                + ")");
-        logger.debug("MARY_BASE: "+MaryProperties.maryBase());
-        String[] installedFilenames = new File(MaryProperties.maryBase()+"/installed").list();
-        if (installedFilenames == null) {
-        	logger.debug("The installed/ folder does not exist.");
-        } else {
-            StringBuilder installedMsg = new StringBuilder();
-            for (String filename : installedFilenames) {
-                if (installedMsg.length() > 0) {
-                    installedMsg.append(", ");
-                }
-                installedMsg.append(filename);
-            }
-            logger.debug("Content of installed/ folder: "+installedMsg);
-        }
-        String[] confFilenames = new File(MaryProperties.maryBase()+"/conf").list();
-        if (confFilenames == null) {
-        	logger.debug("The conf/ folder does not exist.");
-        } else {
-            StringBuilder confMsg = new StringBuilder();
-            for (String filename : confFilenames) {
-                if (confMsg.length() > 0) {
-                    confMsg.append(", ");
-                }
-                confMsg.append(filename);
-            }
-            logger.debug("Content of conf/ folder: "+confMsg);
-        }
-        logger.debug("Full dump of system properties:");
-        for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
-            logger.debug(key + " = " + System.getProperties().get(key));
-        }
-        logger.debug("XML libraries used:");
-        logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
-        try {
-            Class<? extends Object> xercesVersion = Class.forName("org.apache.xerces.impl.Version");
-            logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
-        } catch (Exception e) {
-            // Not xerces, no version number
-        }
-        logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
-        try {
-            // Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
-            //Class xalanVersion = Class.forName("org.apache.xalan.Version");
-            //logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
-        } catch (Exception e) {
-            // Not xalan, no version number
-        }
+		configureLogging();
 
-        // Essential environment checks:
-        EnvironmentChecks.check();
-        
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                shutdown();
-            }
-        });
+		logger.info("Mary starting up...");
+		logger.info("Specification version " + Version.specificationVersion());
+		logger.info("Implementation version " + Version.implementationVersion());
+		logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "
+				+ System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
+				+ System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
+		logger.debug("MARY_BASE: " + MaryProperties.maryBase());
+		String[] installedFilenames = new File(MaryProperties.maryBase() + "/installed").list();
+		if (installedFilenames == null) {
+			logger.debug("The installed/ folder does not exist.");
+		} else {
+			StringBuilder installedMsg = new StringBuilder();
+			for (String filename : installedFilenames) {
+				if (installedMsg.length() > 0) {
+					installedMsg.append(", ");
+				}
+				installedMsg.append(filename);
+			}
+			logger.debug("Content of installed/ folder: " + installedMsg);
+		}
+		String[] confFilenames = new File(MaryProperties.maryBase() + "/conf").list();
+		if (confFilenames == null) {
+			logger.debug("The conf/ folder does not exist.");
+		} else {
+			StringBuilder confMsg = new StringBuilder();
+			for (String filename : confFilenames) {
+				if (confMsg.length() > 0) {
+					confMsg.append(", ");
+				}
+				confMsg.append(filename);
+			}
+			logger.debug("Content of conf/ folder: " + confMsg);
+		}
+		logger.debug("Full dump of system properties:");
+		for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
+			logger.debug(key + " = " + System.getProperties().get(key));
+		}
+		logger.debug("XML libraries used:");
+		logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
+		try {
+			Class<? extends Object> xercesVersion = Class.forName("org.apache.xerces.impl.Version");
+			logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
+		} catch (Exception e) {
+			// Not xerces, no version number
+		}
+		logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
+		try {
+			// Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
+			// Class xalanVersion = Class.forName("org.apache.xalan.Version");
+			// logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
+		} catch (Exception e) {
+			// Not xalan, no version number
+		}
 
+		// Essential environment checks:
+		EnvironmentChecks.check();
 
-        setupFeatureProcessors();
-        
-        // Instantiate module classes and startup modules:
-        startModules();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				shutdown();
+			}
+		});
 
-        logger.info("Startup complete.");
-        currentState = STATE_RUNNING;
-    }
+		setupFeatureProcessors();
+
+		// Instantiate module classes and startup modules:
+		startModules();
+
+		logger.info("Startup complete.");
+		currentState = STATE_RUNNING;
+	}
 
 	/**
 	 * Log4j initialisation, called from {@link #startup(boolean)}.
@@ -306,73 +301,56 @@ public class Mary {
 	 * @throws IOException
 	 */
 	private static void configureLogging() throws MaryConfigurationException, IOException {
-        if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
-            // Configure logging:
-            /*        logger = MaryUtils.getLogger("main");
-                    Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
-                    PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
-                    File logFile = null;
-                    if (MaryProperties.needAutoBoolean("log.tofile")) {
-                        String filename = MaryProperties.getFilename("log.filename", "mary.log");
-                        logFile = new File(filename);
-                        File parentFile = logFile.getParentFile();
-                        // prevent a NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
-                        if (parentFile == null) {
-                            parentFile = new File(logFile.getAbsolutePath()).getParentFile();
-                        }
-                        if (!(logFile.exists()&&logFile.canWrite() // exists and writable
-                                || parentFile.exists() && parentFile.canWrite())) { // parent exists and writable
-                            // cannot write to file
-                            System.err.print("\nCannot write to log file '"+filename+"' -- ");
-                            File fallbackLogFile = new File(System.getProperty("user.home")+"/mary.log");
-                            if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() // exists and writable 
-                                    || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable
-                                // fallback log file is OK
-                                System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead.");
-                                logFile = fallbackLogFile;
-                            } else {
-                                // cannot write to fallback log either
-                                System.err.println("will log to standard output instead.");
-                                logFile = null;
-                            }
-                        }
-                        if (logFile != null && logFile.exists()) logFile.delete();
-                    }
-                    if (logFile != null) {
-                        BasicConfigurator.configure(new FileAppender(layout, logFile.getAbsolutePath()));
-                    } else {
-                        BasicConfigurator.configure(new WriterAppender(layout, System.err));
-                    }
-                    */
-            Properties logprops = new Properties();
-            InputStream propIS = new BufferedInputStream(MaryProperties.needStream("log.config"));
-            logprops.load(propIS);
-            propIS.close();
-            // Now replace MARY_BASE with the install location of MARY in every property:
-            for (Object key : logprops.keySet()) {
-                String val = (String) logprops.get(key);
-                if (val.contains("MARY_BASE")) {
-                    String maryBase = MaryProperties.maryBase();
-                    if (maryBase.contains("\\")) {
-                        maryBase = maryBase.replaceAll("\\\\", "/");
-                    }
-                    val = val.replaceAll("MARY_BASE", maryBase);
-                    logprops.put(key, val);
-                }
-            }
-            // And allow MaryProperties (and thus System properties) to overwrite the single entry
-            // log4j.logger.marytts:
-            String loggerMaryttsKey = "log4j.logger.marytts";
-            String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
-            if (loggerMaryttsValue != null) {
-                logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
-            }
-            PropertyConfigurator.configure(logprops);
-        }
-        
-        logger = MaryUtils.getLogger("main");
-        
-    }
+		if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
+			// Configure logging:
+			/*
+			 * logger = MaryUtils.getLogger("main");
+			 * Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level"))); PatternLayout layout =
+			 * new PatternLayout("%d [%t] %-5p %-10c %m\n"); File logFile = null; if
+			 * (MaryProperties.needAutoBoolean("log.tofile")) { String filename = MaryProperties.getFilename("log.filename",
+			 * "mary.log"); logFile = new File(filename); File parentFile = logFile.getParentFile(); // prevent a
+			 * NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
+			 * if (parentFile == null) { parentFile = new File(logFile.getAbsolutePath()).getParentFile(); } if
+			 * (!(logFile.exists()&&logFile.canWrite() // exists and writable || parentFile.exists() && parentFile.canWrite())) {
+			 * // parent exists and writable // cannot write to file
+			 * System.err.print("\nCannot write to log file '"+filename+"' -- "); File fallbackLogFile = new
+			 * File(System.getProperty("user.home")+"/mary.log"); if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() //
+			 * exists and writable || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable //
+			 * fallback log file is OK System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead."); logFile
+			 * = fallbackLogFile; } else { // cannot write to fallback log either
+			 * System.err.println("will log to standard output instead."); logFile = null; } } if (logFile != null &&
+			 * logFile.exists()) logFile.delete(); } if (logFile != null) { BasicConfigurator.configure(new FileAppender(layout,
+			 * logFile.getAbsolutePath())); } else { BasicConfigurator.configure(new WriterAppender(layout, System.err)); }
+			 */
+			Properties logprops = new Properties();
+			InputStream propIS = new BufferedInputStream(MaryProperties.needStream("log.config"));
+			logprops.load(propIS);
+			propIS.close();
+			// Now replace MARY_BASE with the install location of MARY in every property:
+			for (Object key : logprops.keySet()) {
+				String val = (String) logprops.get(key);
+				if (val.contains("MARY_BASE")) {
+					String maryBase = MaryProperties.maryBase();
+					if (maryBase.contains("\\")) {
+						maryBase = maryBase.replaceAll("\\\\", "/");
+					}
+					val = val.replaceAll("MARY_BASE", maryBase);
+					logprops.put(key, val);
+				}
+			}
+			// And allow MaryProperties (and thus System properties) to overwrite the single entry
+			// log4j.logger.marytts:
+			String loggerMaryttsKey = "log4j.logger.marytts";
+			String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
+			if (loggerMaryttsValue != null) {
+				logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
+			}
+			PropertyConfigurator.configure(logprops);
+		}
+
+		logger = MaryUtils.getLogger("main");
+
+	}
 
 	/**
 	 * Orderly shut down the MARY system.
@@ -380,28 +358,28 @@ public class Mary {
 	 * @throws IllegalStateException
 	 *             if the MARY system is not running.
 	 */
-	public static void shutdown()
-    {
-        if (currentState != STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
-        currentState = STATE_SHUTTING_DOWN;
-        logger.info("Shutting down modules...");
-        // Shut down modules:
-        for (MaryModule m : ModuleRegistry.getAllModules()) {
-            if (m.getState() == MaryModule.MODULE_RUNNING)
-                m.shutdown();
-        }
-        
-        if (MaryCache.haveCache()) {
-            MaryCache cache = MaryCache.getCache();
-            try {
-                cache.shutdown();
-            } catch (SQLException e) {
-                logger.warn("Cannot shutdown cache: ", e);
-            }
-        }
-        logger.info("Shutdown complete.");
-        currentState = STATE_OFF;
-    }
+	public static void shutdown() {
+		if (currentState != STATE_RUNNING)
+			throw new IllegalStateException("MARY system is not running");
+		currentState = STATE_SHUTTING_DOWN;
+		logger.info("Shutting down modules...");
+		// Shut down modules:
+		for (MaryModule m : ModuleRegistry.getAllModules()) {
+			if (m.getState() == MaryModule.MODULE_RUNNING)
+				m.shutdown();
+		}
+
+		if (MaryCache.haveCache()) {
+			MaryCache cache = MaryCache.getCache();
+			try {
+				cache.shutdown();
+			} catch (SQLException e) {
+				logger.warn("Cannot shutdown cache: ", e);
+			}
+		}
+		logger.info("Shutdown complete.");
+		currentState = STATE_OFF;
+	}
 
 	/**
 	 * Process input into output using the MARY system. For inputType TEXT and output type AUDIO, this does text-to-speech

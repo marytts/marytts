@@ -114,34 +114,29 @@ public class CART extends DirectedGraph {
 	 * @return the Node
 	 */
 	public Node interpretToNode(FeatureVector featureVector, int minNumberOfData) {
-        Node currentNode = rootNode;
-        Node prevNode = null;
+		Node currentNode = rootNode;
+		Node prevNode = null;
 
-        // logger.debug("Starting cart at "+nodeIndex);
-        while (currentNode != null && currentNode.getNumberOfData() > minNumberOfData
-                && !(currentNode instanceof LeafNode)) {
-            // while we have not reached the bottom,
-            // get the next node based on the features of the target
-            prevNode = currentNode;
-            currentNode = ((DecisionNode) currentNode)
-                    .getNextNode(featureVector);
-            // logger.debug(decision.toString() + " result '"+
-            // decision.findFeature(item) + "' => "+ nodeIndex);
-        }
-        // Now usually we will have gone down one level too far
-        if (currentNode == null 
-                || currentNode.getNumberOfData() < minNumberOfData
-                   && prevNode != null) {
-            currentNode = prevNode;
-        }
+		// logger.debug("Starting cart at "+nodeIndex);
+		while (currentNode != null && currentNode.getNumberOfData() > minNumberOfData && !(currentNode instanceof LeafNode)) {
+			// while we have not reached the bottom,
+			// get the next node based on the features of the target
+			prevNode = currentNode;
+			currentNode = ((DecisionNode) currentNode).getNextNode(featureVector);
+			// logger.debug(decision.toString() + " result '"+
+			// decision.findFeature(item) + "' => "+ nodeIndex);
+		}
+		// Now usually we will have gone down one level too far
+		if (currentNode == null || currentNode.getNumberOfData() < minNumberOfData && prevNode != null) {
+			currentNode = prevNode;
+		}
 
-        assert currentNode.getNumberOfData() >= minNumberOfData
-            || currentNode == rootNode; 
-        
-        assert minNumberOfData > 0 || (currentNode instanceof LeafNode);
-        return currentNode;
-        
-    }
+		assert currentNode.getNumberOfData() >= minNumberOfData || currentNode == rootNode;
+
+		assert minNumberOfData > 0 || (currentNode instanceof LeafNode);
+		return currentNode;
+
+	}
 
 	/**
 	 * Passes the given item through this CART and returns the interpretation.

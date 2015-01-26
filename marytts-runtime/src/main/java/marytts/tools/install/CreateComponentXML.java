@@ -79,181 +79,190 @@ public class CreateComponentXML {
 	 *            zip files for which component xml is to be generated
 	 */
 	public static void main(String[] args) throws Exception {
-        // Write some documentation if appropriate:
-        if (System.getProperty(PROPERTY_XML_OUTPUTFILE) == null) {
-            System.out.println("You can indicate a single output file for the generated XML with -D"+PROPERTY_XML_OUTPUTFILE+"=(filename)");
-            System.out.println();
-        }
-        if (System.getProperty(PROPERTY_XML_FOLDER) == null) {
-            System.out.println("You can indicate a folder containing existing component XML files with -D"+PROPERTY_XML_FOLDER+"=(foldername)");
-            System.out.println();
-        }
-        
-        // Where to write output
-        boolean writeIndividualXML = true;
-        File outputFile = null;
-        Document allXML = null;
-        String outputFilename = System.getProperty(PROPERTY_XML_OUTPUTFILE);
-        if (outputFilename != null) {
-            outputFile = new File(outputFilename);
-            writeIndividualXML = false;
-            
-        }
-        // Where to look for known records:
-        Set<File> xmlFolders = new HashSet<File>();
-        boolean haveCustomXMLFolder = false;
-        String customXMLFolder = System.getProperty(PROPERTY_XML_FOLDER);
-        if (customXMLFolder != null) {
-            haveCustomXMLFolder = true;
-            File custom = new File(customXMLFolder);
-            if (!custom.isDirectory()) {
-                throw new FileNotFoundException("Custom XML folder '"+customXMLFolder+"' was specified in system properties but does not exist!");
-            }
-            xmlFolders.add(custom);
-        } else {
-            xmlFolders.add(new File("."));
-            File downloadFolder = new File("./download");
-            if (downloadFolder.isDirectory()) {
-                xmlFolders.add(downloadFolder);
-            }
-            File installedFolder = new File("./installed");
-            if (installedFolder.isDirectory()) {
-                xmlFolders.add(installedFolder);
-            }
-        }
-        // Jobs
-        List<File> zips = new ArrayList<File>(args.length);
-        for (String a : args) {
-            File f = new File(a);
-            if (!f.canRead()) {
-                throw new FileNotFoundException("Cannot read file: "+a);
-            }
-            if (!f.getName().startsWith("mary-") || !f.getName().endsWith(".zip")) {
-                throw new IllegalArgumentException("File '"+f.getName()+" doesn't follow convention 'mary-(name)-(version).zip'");
-            }
-            zips.add(f);
-            if (!haveCustomXMLFolder) {
-                xmlFolders.add(f.getAbsoluteFile().getParentFile());
-            }
-        }
-        // Read known records
-        Map<String, ComponentDescription> knownComponents = new TreeMap<String, ComponentDescription>();
-        for (File folder : xmlFolders) {
-            File[] xmlFiles = folder.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".xml");
-                }
-            });
-            for (File xmlFile : xmlFiles) {
-                try {
-                    InstallFileParser ifp = new InstallFileParser(xmlFile.toURI().toURL());
-                    for (ComponentDescription cd : ifp.getLanguageDescriptions()) {
-                        knownComponents.put(cd.getName(), cd);
-                    }
-                    for (ComponentDescription cd : ifp.getVoiceDescriptions()) {
-                        knownComponents.put(cd.getName(), cd);
-                    }
-                } catch (Exception e) {
-                    /*
-                    System.err.println("Cannot load existing xml file "+xmlFile.getAbsolutePath()+" -- ignoring.");
-                    e.printStackTrace();
-                    */
-                }
-            }
-        }
-        System.out.print("Loaded known component descriptions: ");
-        for (String componentName : knownComponents.keySet()) {
-            System.out.print(componentName+"("+knownComponents.get(componentName).getVersion()+") ");
-        }
-        System.out.println();
-        System.out.println();
+		// Write some documentation if appropriate:
+		if (System.getProperty(PROPERTY_XML_OUTPUTFILE) == null) {
+			System.out.println("You can indicate a single output file for the generated XML with -D" + PROPERTY_XML_OUTPUTFILE
+					+ "=(filename)");
+			System.out.println();
+		}
+		if (System.getProperty(PROPERTY_XML_FOLDER) == null) {
+			System.out.println("You can indicate a folder containing existing component XML files with -D" + PROPERTY_XML_FOLDER
+					+ "=(foldername)");
+			System.out.println();
+		}
 
-        // Now go through the zip files and try to create suitable component descriptions
-        Set<ComponentDescription> newDescriptions = new TreeSet<ComponentDescription>();
-        Set<Locale> existingLocales = new HashSet<Locale>(Arrays.asList(Locale.getAvailableLocales()));
-        existingLocales.add(new Locale("te")); // Telugu
-        for (File zip : zips) {
-            String name;
-            String version;
-            // Filename convention: mary-(name)-(version).zip
-            String filename = zip.getName();
-            assert filename.startsWith("mary-");
-            int nameStart = "mary-".length();
-            int versionEnd = filename.length() - ".zip".length();
-            int lastDash = filename.lastIndexOf('-', versionEnd);
-            if (lastDash != -1) { // have a dash, normal
-                name = filename.substring(nameStart, lastDash);
-                version = filename.substring(lastDash+1, versionEnd);
-            } else { // no dash, treat as version "unknown"
-                name = filename.substring(nameStart, versionEnd);
-                version = "unknown";
-            }
-            Locale l = MaryUtils.string2locale(name); // this will work even if it's nonsense
-            boolean isLanguageComponent = existingLocales.contains(l);
-            boolean haveKnownComponent = knownComponents.containsKey(name);
-            System.out.println((isLanguageComponent ? "Language" : "Voice") + " component "+name+", version "+version
-                    + (haveKnownComponent ? " (have component description for version "+knownComponents.get(name).getVersion()+")" : ""));
-            // Create a component description that describes this zip file as appropriately as possible
-            ComponentDescription cd;
-            if (isLanguageComponent) {
-                cd = new LanguageComponentDescription(name, version, filename);
-                cd.setLocale(MaryUtils.string2locale(name));
-            } else {
-                VoiceComponentDescription vcd = new VoiceComponentDescription(name, version, filename);
-                if (haveKnownComponent) {
-                    VoiceComponentDescription old = (VoiceComponentDescription) knownComponents.get(name);
-                    vcd.setGender(old.getGender());
-                    vcd.setType(old.getType());
-                    vcd.setDependsLanguage(old.getDependsLanguage());
-                    vcd.setDependsVersion(old.getDependsVersion());
-                    vcd.setLocale(old.getLocale());
-                } else {
-                    vcd.setGender("unknown");
-                    vcd.setType("unknown");
-                    vcd.setDependsLanguage("unknown");
-                    vcd.setDependsVersion(version);
-                    vcd.setLocale(new Locale("unknown"));
-                }
-                cd = vcd;
-            }
-            // Hard facts:
-            cd.setPackageSize((int)zip.length());
-            cd.setPackageMD5Sum(MD5.asHex(MD5.getHash(zip)));
-            // Further description elements:
-            if (haveKnownComponent) {
-                ComponentDescription old = knownComponents.get(name);
-                cd.setDescription(old.getDescription());
-                cd.setLicenseURL(old.getLicenseURL());
-                for (URL loc : old.getLocations()) {
-                    cd.addLocation(loc);
-                }
-            } else { // need to guess
-                cd.setDescription(" ");
-                if (isLanguageComponent) { // assume LGPL
-                    cd.setLicenseURL(new URL("http://www.gnu.org/licenses/lgpl-3.0-standalone.html"));
-                } else { // voice, assume by-nd
-                    cd.setLicenseURL(new URL("http://mary.dfki.de/download/by-nd-3.0.html"));
-                }
-                cd.addLocation(new URL("http://mary.dfki.de/download/"+version+"/"+filename));
-            }
-            // Now get the XML description to the right place:
-            Document oneXML = cd.createComponentXML(); 
-            if (writeIndividualXML) {
-                File oneXMLFile = new File(zip.getParentFile(), "mary-"+name+"-"+version+"-component.xml");
-                DomUtils.document2File(oneXML, oneXMLFile);
-                System.out.println("Wrote "+oneXMLFile.getPath());
-            } else { // combine them all into allXML, then write at the end
-                if (allXML == null) {
-                    allXML = oneXML;
-                } else {
-                    Node compDesc = oneXML.getDocumentElement().getElementsByTagName(cd.getComponentTypeString()).item(0);
-                    allXML.getDocumentElement().appendChild(allXML.adoptNode(compDesc));
-                }
-            }
-        }
-        if (!writeIndividualXML && allXML != null) {
-            DomUtils.document2File(allXML, outputFile);
-            System.out.println("Wrote "+outputFile.getPath());
-        }
-    }
+		// Where to write output
+		boolean writeIndividualXML = true;
+		File outputFile = null;
+		Document allXML = null;
+		String outputFilename = System.getProperty(PROPERTY_XML_OUTPUTFILE);
+		if (outputFilename != null) {
+			outputFile = new File(outputFilename);
+			writeIndividualXML = false;
+
+		}
+		// Where to look for known records:
+		Set<File> xmlFolders = new HashSet<File>();
+		boolean haveCustomXMLFolder = false;
+		String customXMLFolder = System.getProperty(PROPERTY_XML_FOLDER);
+		if (customXMLFolder != null) {
+			haveCustomXMLFolder = true;
+			File custom = new File(customXMLFolder);
+			if (!custom.isDirectory()) {
+				throw new FileNotFoundException("Custom XML folder '" + customXMLFolder
+						+ "' was specified in system properties but does not exist!");
+			}
+			xmlFolders.add(custom);
+		} else {
+			xmlFolders.add(new File("."));
+			File downloadFolder = new File("./download");
+			if (downloadFolder.isDirectory()) {
+				xmlFolders.add(downloadFolder);
+			}
+			File installedFolder = new File("./installed");
+			if (installedFolder.isDirectory()) {
+				xmlFolders.add(installedFolder);
+			}
+		}
+		// Jobs
+		List<File> zips = new ArrayList<File>(args.length);
+		for (String a : args) {
+			File f = new File(a);
+			if (!f.canRead()) {
+				throw new FileNotFoundException("Cannot read file: " + a);
+			}
+			if (!f.getName().startsWith("mary-") || !f.getName().endsWith(".zip")) {
+				throw new IllegalArgumentException("File '" + f.getName()
+						+ " doesn't follow convention 'mary-(name)-(version).zip'");
+			}
+			zips.add(f);
+			if (!haveCustomXMLFolder) {
+				xmlFolders.add(f.getAbsoluteFile().getParentFile());
+			}
+		}
+		// Read known records
+		Map<String, ComponentDescription> knownComponents = new TreeMap<String, ComponentDescription>();
+		for (File folder : xmlFolders) {
+			File[] xmlFiles = folder.listFiles(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.endsWith(".xml");
+				}
+			});
+			for (File xmlFile : xmlFiles) {
+				try {
+					InstallFileParser ifp = new InstallFileParser(xmlFile.toURI().toURL());
+					for (ComponentDescription cd : ifp.getLanguageDescriptions()) {
+						knownComponents.put(cd.getName(), cd);
+					}
+					for (ComponentDescription cd : ifp.getVoiceDescriptions()) {
+						knownComponents.put(cd.getName(), cd);
+					}
+				} catch (Exception e) {
+					/*
+					 * System.err.println("Cannot load existing xml file "+xmlFile.getAbsolutePath()+" -- ignoring.");
+					 * e.printStackTrace();
+					 */
+				}
+			}
+		}
+		System.out.print("Loaded known component descriptions: ");
+		for (String componentName : knownComponents.keySet()) {
+			System.out.print(componentName + "(" + knownComponents.get(componentName).getVersion() + ") ");
+		}
+		System.out.println();
+		System.out.println();
+
+		// Now go through the zip files and try to create suitable component descriptions
+		Set<ComponentDescription> newDescriptions = new TreeSet<ComponentDescription>();
+		Set<Locale> existingLocales = new HashSet<Locale>(Arrays.asList(Locale.getAvailableLocales()));
+		existingLocales.add(new Locale("te")); // Telugu
+		for (File zip : zips) {
+			String name;
+			String version;
+			// Filename convention: mary-(name)-(version).zip
+			String filename = zip.getName();
+			assert filename.startsWith("mary-");
+			int nameStart = "mary-".length();
+			int versionEnd = filename.length() - ".zip".length();
+			int lastDash = filename.lastIndexOf('-', versionEnd);
+			if (lastDash != -1) { // have a dash, normal
+				name = filename.substring(nameStart, lastDash);
+				version = filename.substring(lastDash + 1, versionEnd);
+			} else { // no dash, treat as version "unknown"
+				name = filename.substring(nameStart, versionEnd);
+				version = "unknown";
+			}
+			Locale l = MaryUtils.string2locale(name); // this will work even if it's nonsense
+			boolean isLanguageComponent = existingLocales.contains(l);
+			boolean haveKnownComponent = knownComponents.containsKey(name);
+			System.out.println((isLanguageComponent ? "Language" : "Voice")
+					+ " component "
+					+ name
+					+ ", version "
+					+ version
+					+ (haveKnownComponent ? " (have component description for version " + knownComponents.get(name).getVersion()
+							+ ")" : ""));
+			// Create a component description that describes this zip file as appropriately as possible
+			ComponentDescription cd;
+			if (isLanguageComponent) {
+				cd = new LanguageComponentDescription(name, version, filename);
+				cd.setLocale(MaryUtils.string2locale(name));
+			} else {
+				VoiceComponentDescription vcd = new VoiceComponentDescription(name, version, filename);
+				if (haveKnownComponent) {
+					VoiceComponentDescription old = (VoiceComponentDescription) knownComponents.get(name);
+					vcd.setGender(old.getGender());
+					vcd.setType(old.getType());
+					vcd.setDependsLanguage(old.getDependsLanguage());
+					vcd.setDependsVersion(old.getDependsVersion());
+					vcd.setLocale(old.getLocale());
+				} else {
+					vcd.setGender("unknown");
+					vcd.setType("unknown");
+					vcd.setDependsLanguage("unknown");
+					vcd.setDependsVersion(version);
+					vcd.setLocale(new Locale("unknown"));
+				}
+				cd = vcd;
+			}
+			// Hard facts:
+			cd.setPackageSize((int) zip.length());
+			cd.setPackageMD5Sum(MD5.asHex(MD5.getHash(zip)));
+			// Further description elements:
+			if (haveKnownComponent) {
+				ComponentDescription old = knownComponents.get(name);
+				cd.setDescription(old.getDescription());
+				cd.setLicenseURL(old.getLicenseURL());
+				for (URL loc : old.getLocations()) {
+					cd.addLocation(loc);
+				}
+			} else { // need to guess
+				cd.setDescription(" ");
+				if (isLanguageComponent) { // assume LGPL
+					cd.setLicenseURL(new URL("http://www.gnu.org/licenses/lgpl-3.0-standalone.html"));
+				} else { // voice, assume by-nd
+					cd.setLicenseURL(new URL("http://mary.dfki.de/download/by-nd-3.0.html"));
+				}
+				cd.addLocation(new URL("http://mary.dfki.de/download/" + version + "/" + filename));
+			}
+			// Now get the XML description to the right place:
+			Document oneXML = cd.createComponentXML();
+			if (writeIndividualXML) {
+				File oneXMLFile = new File(zip.getParentFile(), "mary-" + name + "-" + version + "-component.xml");
+				DomUtils.document2File(oneXML, oneXMLFile);
+				System.out.println("Wrote " + oneXMLFile.getPath());
+			} else { // combine them all into allXML, then write at the end
+				if (allXML == null) {
+					allXML = oneXML;
+				} else {
+					Node compDesc = oneXML.getDocumentElement().getElementsByTagName(cd.getComponentTypeString()).item(0);
+					allXML.getDocumentElement().appendChild(allXML.adoptNode(compDesc));
+				}
+			}
+		}
+		if (!writeIndividualXML && allXML != null) {
+			DomUtils.document2File(allXML, outputFile);
+			System.out.println("Wrote " + outputFile.getPath());
+		}
+	}
 }

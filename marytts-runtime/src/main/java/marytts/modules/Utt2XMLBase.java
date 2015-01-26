@@ -79,153 +79,153 @@ public abstract class Utt2XMLBase extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-        Document doc = MaryXML.newDocument();
-        Element root = doc.getDocumentElement();
-        Locale locale = d.getLocale();
-        if (locale != null) {
-            root.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
-        }
-        Element paragraph = MaryXML.appendChildElement(root, MaryXML.PARAGRAPH);
+		Document doc = MaryXML.newDocument();
+		Element root = doc.getDocumentElement();
+		Locale locale = d.getLocale();
+		if (locale != null) {
+			root.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
+		}
+		Element paragraph = MaryXML.appendChildElement(root, MaryXML.PARAGRAPH);
 
-        List<Utterance> utterances = d.getUtterances();
-        Iterator<Utterance> it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = it.next();
-            Element insertHere = paragraph;
+		List<Utterance> utterances = d.getUtterances();
+		Iterator<Utterance> it = utterances.iterator();
+		while (it.hasNext()) {
+			Utterance utterance = it.next();
+			Element insertHere = paragraph;
 
-            if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                utterance.dump(pw, 2, name(), true); // padding, justRelations
-                logger.debug("Converting the following Utterance to XML:\n"+sw.toString());
-            }
+			if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				utterance.dump(pw, 2, name(), true); // padding, justRelations
+				logger.debug("Converting the following Utterance to XML:\n" + sw.toString());
+			}
 
-            // Make sure we have the correct voice:
-            Voice maryVoice = null;
-            if (utterance.getVoice() != null) {
-                maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
-            }
-            if (maryVoice != null) {
-                if (insertHere.getTagName().equals(MaryXML.VOICE)) {
-                    // Are utterance voice and voiceElement voice the same?
-                    if (maryVoice.hasName(insertHere.getAttribute("name"))) {
-                        // then insertHere is set OK, leave it like it is
-                    } else {
-                        // get one higher up, create new voice element after this
-                        // one, and make insertHere point to the new voice element
-                        Element parent = (Element) insertHere.getParentNode();
-                        Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
-                        parent.appendChild(newVoice);
-                        newVoice.setAttribute("name", maryVoice.getName());
-                        insertHere = newVoice;
-                    }
-                } else {
-                    // Check if the last child of insertHere is a voice with the right name
-                    Element lastChild = MaryDomUtils.getLastChildElement(insertHere);
-                    if (lastChild != null && lastChild.getTagName().equals(MaryXML.VOICE)
-                            && maryVoice.hasName(lastChild.getAttribute("name"))) {
-                        insertHere = lastChild;
-                    } else {
-                        // create a new voice element, insert it as a child of this
-                        // node, and let insertHere point to it
-                        Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
-                        insertHere.appendChild(newVoice);
-                        newVoice.setAttribute("name", maryVoice.getName());
-                        insertHere = newVoice;
-                    }
-                }
-                // Now insertHere is the correct <voice> element.
+			// Make sure we have the correct voice:
+			Voice maryVoice = null;
+			if (utterance.getVoice() != null) {
+				maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+			}
+			if (maryVoice != null) {
+				if (insertHere.getTagName().equals(MaryXML.VOICE)) {
+					// Are utterance voice and voiceElement voice the same?
+					if (maryVoice.hasName(insertHere.getAttribute("name"))) {
+						// then insertHere is set OK, leave it like it is
+					} else {
+						// get one higher up, create new voice element after this
+						// one, and make insertHere point to the new voice element
+						Element parent = (Element) insertHere.getParentNode();
+						Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
+						parent.appendChild(newVoice);
+						newVoice.setAttribute("name", maryVoice.getName());
+						insertHere = newVoice;
+					}
+				} else {
+					// Check if the last child of insertHere is a voice with the right name
+					Element lastChild = MaryDomUtils.getLastChildElement(insertHere);
+					if (lastChild != null && lastChild.getTagName().equals(MaryXML.VOICE)
+							&& maryVoice.hasName(lastChild.getAttribute("name"))) {
+						insertHere = lastChild;
+					} else {
+						// create a new voice element, insert it as a child of this
+						// node, and let insertHere point to it
+						Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
+						insertHere.appendChild(newVoice);
+						newVoice.setAttribute("name", maryVoice.getName());
+						insertHere = newVoice;
+					}
+				}
+				// Now insertHere is the correct <voice> element.
 
-                // Any prosodic settings to insert?
-                Element  prosody = insertProsodySettings(insertHere, utterance);
-                if (prosody != null) insertHere = prosody;
-                
-            }
-            // Create a sentence element <s> for this utterance:
-            Element sentence = MaryXML.createElement(doc, MaryXML.SENTENCE);
-            insertHere.appendChild(sentence);
+				// Any prosodic settings to insert?
+				Element prosody = insertProsodySettings(insertHere, utterance);
+				if (prosody != null)
+					insertHere = prosody;
 
-            fillSentence(sentence, utterance);
-        }
+			}
+			// Create a sentence element <s> for this utterance:
+			Element sentence = MaryXML.createElement(doc, MaryXML.SENTENCE);
+			insertHere.appendChild(sentence);
 
-        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-            logger.debug("Constructed the following XML structure:");
-            MaryNormalisedWriter mnw = new MaryNormalisedWriter();
-            ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
-            mnw.output(doc, debugOut);
-            logger.debug(debugOut.toString());
-        }
+			fillSentence(sentence, utterance);
+		}
 
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setDocument(doc);
-        return output;
-    }
+		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+			logger.debug("Constructed the following XML structure:");
+			MaryNormalisedWriter mnw = new MaryNormalisedWriter();
+			ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
+			mnw.output(doc, debugOut);
+			logger.debug(debugOut.toString());
+		}
+
+		MaryData output = new MaryData(outputType(), d.getLocale());
+		output.setDocument(doc);
+		return output;
+	}
 
 	/**
 	 * Depending on the data type, find the right information in the utterance and insert it into the sentence.
 	 */
-	protected final void fillSentence(Element sentence, Utterance utterance)
-    {
-        Document doc = sentence.getOwnerDocument();
-        Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
-        if (tokenRelation == null) return;
-        Item tokenItem = tokenRelation.getHead();
-        Relation phraseRelation = utterance.getRelation(Relation.PHRASE);
-        Item phraseItem = null;
-        if (phraseRelation != null) {
-            phraseItem = phraseRelation.getHead();
-            // Challenge: Bring token and phrase relations together. They have
-            // common children, which can be interpreted as Word or SylStructure
-            // items. Algorithm: For a given phrase, look at tokens. If a token's
-            // first child, interpreted in the phrase relation, has the phrase as
-            // its parent, then insert the token and all its children, and move to
-            // the next token. If not, move to the next phrase.
-            while (phraseItem != null) {
-                // The phrases:
-                Element phrase = MaryXML.createElement(doc, MaryXML.PHRASE);
-                sentence.appendChild(phrase);
-                Element insertHere = phrase;
-                // Is this token part of this phrase?
-                while (tokenItem != null &&
-                       tokenItem.getDaughter().findItem("R:Phrase.parent").equals(phraseItem)) {
-                    FeatureSet tokenFeatures = tokenItem.getFeatures();
-                    if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
-                        Element prosody = insertProsodySettings(insertHere, tokenFeatures);
-                        if (prosody != null) {
-                            insertHere = prosody;
-                        }
-                    }
-                    insertToken(tokenItem, phrase, true); // create deep structure
-                    if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
-                        assert insertHere.getTagName().equals(MaryXML.PROSODY);
-                        insertHere = (Element) insertHere.getParentNode();
-                    }
-                    tokenItem = tokenItem.getNext();
-                }
-                phraseItem = phraseItem.getNext();
-            }
-        } else {
-            // No phrase relation, simply create tokens.
-            Element insertHere = sentence;
-            while (tokenItem != null) {
-                FeatureSet tokenFeatures = tokenItem.getFeatures();
-                if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
-                    Element prosody = insertProsodySettings(insertHere, tokenFeatures);
-                    if (prosody != null) {
-                        insertHere = prosody;
-                    }
-                }
-                insertToken(tokenItem, insertHere);
-                if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
-                    if (insertHere.getTagName().equals(MaryXML.PROSODY)) {
-                        insertHere = (Element) insertHere.getParentNode();
-                    } // else, we are looking at an empty prosody tag with no arguments, which is being deleted right now.
-                }
-                tokenItem = tokenItem.getNext();
-            }
+	protected final void fillSentence(Element sentence, Utterance utterance) {
+		Document doc = sentence.getOwnerDocument();
+		Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
+		if (tokenRelation == null)
+			return;
+		Item tokenItem = tokenRelation.getHead();
+		Relation phraseRelation = utterance.getRelation(Relation.PHRASE);
+		Item phraseItem = null;
+		if (phraseRelation != null) {
+			phraseItem = phraseRelation.getHead();
+			// Challenge: Bring token and phrase relations together. They have
+			// common children, which can be interpreted as Word or SylStructure
+			// items. Algorithm: For a given phrase, look at tokens. If a token's
+			// first child, interpreted in the phrase relation, has the phrase as
+			// its parent, then insert the token and all its children, and move to
+			// the next token. If not, move to the next phrase.
+			while (phraseItem != null) {
+				// The phrases:
+				Element phrase = MaryXML.createElement(doc, MaryXML.PHRASE);
+				sentence.appendChild(phrase);
+				Element insertHere = phrase;
+				// Is this token part of this phrase?
+				while (tokenItem != null && tokenItem.getDaughter().findItem("R:Phrase.parent").equals(phraseItem)) {
+					FeatureSet tokenFeatures = tokenItem.getFeatures();
+					if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
+						Element prosody = insertProsodySettings(insertHere, tokenFeatures);
+						if (prosody != null) {
+							insertHere = prosody;
+						}
+					}
+					insertToken(tokenItem, phrase, true); // create deep structure
+					if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
+						assert insertHere.getTagName().equals(MaryXML.PROSODY);
+						insertHere = (Element) insertHere.getParentNode();
+					}
+					tokenItem = tokenItem.getNext();
+				}
+				phraseItem = phraseItem.getNext();
+			}
+		} else {
+			// No phrase relation, simply create tokens.
+			Element insertHere = sentence;
+			while (tokenItem != null) {
+				FeatureSet tokenFeatures = tokenItem.getFeatures();
+				if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
+					Element prosody = insertProsodySettings(insertHere, tokenFeatures);
+					if (prosody != null) {
+						insertHere = prosody;
+					}
+				}
+				insertToken(tokenItem, insertHere);
+				if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
+					if (insertHere.getTagName().equals(MaryXML.PROSODY)) {
+						insertHere = (Element) insertHere.getParentNode();
+					} // else, we are looking at an empty prosody tag with no arguments, which is being deleted right now.
+				}
+				tokenItem = tokenItem.getNext();
+			}
 
-        }
-    }
+		}
+	}
 
 	/**
 	 * Convert an item in the Token relation into XML, inserting it at the specified location in the XML tree.
@@ -427,13 +427,12 @@ public abstract class Utt2XMLBase extends InternalModule {
 	 * @param tokenItem
 	 * @return
 	 */
-	private boolean tokenItemHasFollowingBoundary(Item tokenItem)
-    {
-        assert tokenItem.getOwnerRelation().getName().equals(Relation.TOKEN);
-        return tokenItem.getFeatures().isPresent("followingBoundaryTone")
-                || tokenItem.getFeatures().isPresent("followingBoundaryBreakindex")
-                || tokenItem.getFeatures().isPresent("followingBoundaryDuration");
-    }
+	private boolean tokenItemHasFollowingBoundary(Item tokenItem) {
+		assert tokenItem.getOwnerRelation().getName().equals(Relation.TOKEN);
+		return tokenItem.getFeatures().isPresent("followingBoundaryTone")
+				|| tokenItem.getFeatures().isPresent("followingBoundaryBreakindex")
+				|| tokenItem.getFeatures().isPresent("followingBoundaryDuration");
+	}
 
 	/**
 	 * Convert an item in the Syllable relation into XML, inserting it at the specified location in the XML tree.
@@ -550,29 +549,29 @@ public abstract class Utt2XMLBase extends InternalModule {
 	 * @return the new prosody element, or null if none was created.
 	 */
 	protected Element insertProsodySettings(Element insertHere, FeatureSet featureSet) {
-        if (insertHere == null || featureSet == null)
-            throw new NullPointerException("I thoroughly dislike getting null arguments!");
-        boolean haveProsodyInfo = false;
-        for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
-            if (featureSet.getString(att) != null) {
-                haveProsodyInfo = true;
-                break;
-            }
-        }
-        if (!haveProsodyInfo) {
-            return null;
-        }
-        Document doc = insertHere.getOwnerDocument();
-        Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
-        insertHere.appendChild(prosody);
-        for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
-            String val = featureSet.getString(att);
-            if (val != null) {
-                prosody.setAttribute(att, val);
-            }
-        }
-        return prosody;
-    }
+		if (insertHere == null || featureSet == null)
+			throw new NullPointerException("I thoroughly dislike getting null arguments!");
+		boolean haveProsodyInfo = false;
+		for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
+			if (featureSet.getString(att) != null) {
+				haveProsodyInfo = true;
+				break;
+			}
+		}
+		if (!haveProsodyInfo) {
+			return null;
+		}
+		Document doc = insertHere.getOwnerDocument();
+		Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
+		insertHere.appendChild(prosody);
+		for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
+			String val = featureSet.getString(att);
+			if (val != null) {
+				prosody.setAttribute(att, val);
+			}
+		}
+		return prosody;
+	}
 
 	/**
 	 * Converts an array of phone symbol strings into a single phone string. If stress is marked on input phone symbols ("1"
