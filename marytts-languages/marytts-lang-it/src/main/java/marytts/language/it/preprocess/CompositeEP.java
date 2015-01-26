@@ -129,128 +129,125 @@ public class CompositeEP extends ExpansionPattern {
 	 *         expansion may be necessary. CompositeEP always returns false, in order to have other ExpansionPatterns look at the
 	 *         components as well.
 	 */
-	public boolean process(Element t, final List expanded)
-    {
-        if (t == null || expanded == null)
-            throw new NullPointerException("Received null argument");
-        if (!t.getTagName().equals(MaryXML.TOKEN))
-            throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected t element");
-        if (!expanded.isEmpty())
-            throw new IllegalArgumentException("Expected empty list, but list has " + expanded.size() + " elements.");
-        // Only modify tokens for which no pronunciation is given:
-        if (t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
-            return false;
-        }
+	public boolean process(Element t, final List expanded) {
+		if (t == null || expanded == null)
+			throw new NullPointerException("Received null argument");
+		if (!t.getTagName().equals(MaryXML.TOKEN))
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected t element");
+		if (!expanded.isEmpty())
+			throw new IllegalArgumentException("Expected empty list, but list has " + expanded.size() + " elements.");
+		// Only modify tokens for which no pronunciation is given:
+		if (t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
+			return false;
+		}
 
-        ///// First, some cleaning up of the token: /////
-        String s = MaryDomUtils.tokenText(t);
-        //System.err.println("Trying to split " + s);
-        if (reTrailingHyphen.matcher(s).find()) {
-            //System.err.println("reTrailingHyphen");
-            // remove trailing hyphens after letters:
-            s = reTrailingHyphen.matcher(s).replaceFirst("$1");
-            MaryDomUtils.setTokenText(t, s);
-            }
-        if (reLeadingHyphen.matcher(s).find()) {
-            //System.err.println("reLeadingHyphen");
-            // remove leading hyphens before letters:
-            s = reLeadingHyphen.matcher(s).replaceFirst("$1");
-            MaryDomUtils.setTokenText(t, s);
-        }
+		// /// First, some cleaning up of the token: /////
+		String s = MaryDomUtils.tokenText(t);
+		// System.err.println("Trying to split " + s);
+		if (reTrailingHyphen.matcher(s).find()) {
+			// System.err.println("reTrailingHyphen");
+			// remove trailing hyphens after letters:
+			s = reTrailingHyphen.matcher(s).replaceFirst("$1");
+			MaryDomUtils.setTokenText(t, s);
+		}
+		if (reLeadingHyphen.matcher(s).find()) {
+			// System.err.println("reLeadingHyphen");
+			// remove leading hyphens before letters:
+			s = reLeadingHyphen.matcher(s).replaceFirst("$1");
+			MaryDomUtils.setTokenText(t, s);
+		}
 
-        ///// Then, see if we can split it: /////
-        //System.err.println("Then, see if we can split it: /////");
-        if (reLettersDigitsAndHyphens.matcher(s).matches()) {
-            // OK, a hyphen between parts containing letters and/or digits.
-            // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
-            StringTokenizer st = new StringTokenizer(s, "-");
-            assert st.hasMoreTokens();
-            MaryDomUtils.setTokenText(t, st.nextToken());
-            expanded.add(t);
-            while (st.hasMoreTokens()) {
-                t = MaryDomUtils.appendToken(t, st.nextToken());
-                expanded.add(t);
-            }
-        }         
-        
-        // This is for one letter proclitics (c'X, d'X, ...) and qual'X
-        else if (reOneLetterAndApostrophe.matcher(s).matches()) {
-            //System.err.println("one letter and apostrophe");
-            // OK, a hyphen between parts containing letters and/or digits.
-            // In pseudo-composita, accent is on the first component:
-            // c'X l'X d'X  c' is the first-proclitics part
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last-proclitics");
-            StringTokenizer st = new StringTokenizer(s, "'");
-            assert st.hasMoreTokens();
-            MaryDomUtils.setTokenText(t, st.nextToken()+"'");
-            expanded.add(t);
-            while (st.hasMoreTokens()) {
-                t = MaryDomUtils.appendToken(t, st.nextToken());
-                expanded.add(t);
-            }
-        }
-        else if (reLettersAndDigits.matcher(s).matches()) {
-            // Token consists only of letters and digits.
-            // Split between letters and digits.
-            // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
-            String s1 = s;
-            boolean isFirst = true;
-            while (s1.length() > 0) {
-                String part;
-                Matcher reMatcher = REPattern.initialNonDigits.matcher(s1);
-                if (reMatcher.find()) {
-                    part = reMatcher.group();
-                    s1 = reMatcher.replaceFirst("");
-                } else {
-                    reMatcher = REPattern.initialDigits.matcher(s1);
-                    reMatcher.find();
-                    part = reMatcher.group();
-                    s1 = reMatcher.replaceFirst("");
-                }
-                if (isFirst) MaryDomUtils.setTokenText(t, part);
-                else t = MaryDomUtils.appendToken(t, part);
-                expanded.add(t);
-                isFirst = false;
-            }
-        } else if (s.equals("'s")) {
-            // a standalone 's: simply pronounce it as [s].
-            t.setAttribute("ph", "s");
-            expanded.add(t);
-        } else if (s.endsWith("'s")) {
-            // Cases like "geht's": Simply have it pronounced like "gehts".
-            // No iteration.
-            t.setAttribute("sounds_like", s.substring(0, s.length()-2));
-            t.setAttribute("ph", "*s");
-            expanded.add(t);
-        } else if (ExpansionPattern.reSplitAtChars().matcher(s).find()
-                   && (REPattern.letter.matcher(s).find()
-                       || REPattern.digit.matcher(s).find())) {
-            // Split into parts, keeping each special char as one part
-            // For special characters, accent is on the last component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last");
-            StringTokenizer st = new StringTokenizer
-                (s, ExpansionPattern.getSplitAtChars(),
-                 true); // return delimiters
-            MaryDomUtils.setTokenText(t, st.nextToken());
-            expanded.add(t);
-            while (st.hasMoreTokens()) {
-                t = MaryDomUtils.appendToken(t, st.nextToken());
-                expanded.add(t);
-            }
-        }
-        // iterative call:
-        if (expanded.size() > 0) {
-            List newExpanded = process(expanded);
-            expanded.clear();
-            expanded.addAll(newExpanded);
-        }
+		// /// Then, see if we can split it: /////
+		// System.err.println("Then, see if we can split it: /////");
+		if (reLettersDigitsAndHyphens.matcher(s).matches()) {
+			// OK, a hyphen between parts containing letters and/or digits.
+			// In pseudo-composita, accent is on the first component:
+			Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
+			StringTokenizer st = new StringTokenizer(s, "-");
+			assert st.hasMoreTokens();
+			MaryDomUtils.setTokenText(t, st.nextToken());
+			expanded.add(t);
+			while (st.hasMoreTokens()) {
+				t = MaryDomUtils.appendToken(t, st.nextToken());
+				expanded.add(t);
+			}
+		}
 
-        // Never return true, in order to allow other ExpansionPatterns to
-        // expand the components.
-        return false;
-    }
+		// This is for one letter proclitics (c'X, d'X, ...) and qual'X
+		else if (reOneLetterAndApostrophe.matcher(s).matches()) {
+			// System.err.println("one letter and apostrophe");
+			// OK, a hyphen between parts containing letters and/or digits.
+			// In pseudo-composita, accent is on the first component:
+			// c'X l'X d'X c' is the first-proclitics part
+			Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last-proclitics");
+			StringTokenizer st = new StringTokenizer(s, "'");
+			assert st.hasMoreTokens();
+			MaryDomUtils.setTokenText(t, st.nextToken() + "'");
+			expanded.add(t);
+			while (st.hasMoreTokens()) {
+				t = MaryDomUtils.appendToken(t, st.nextToken());
+				expanded.add(t);
+			}
+		} else if (reLettersAndDigits.matcher(s).matches()) {
+			// Token consists only of letters and digits.
+			// Split between letters and digits.
+			// In pseudo-composita, accent is on the first component:
+			Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
+			String s1 = s;
+			boolean isFirst = true;
+			while (s1.length() > 0) {
+				String part;
+				Matcher reMatcher = REPattern.initialNonDigits.matcher(s1);
+				if (reMatcher.find()) {
+					part = reMatcher.group();
+					s1 = reMatcher.replaceFirst("");
+				} else {
+					reMatcher = REPattern.initialDigits.matcher(s1);
+					reMatcher.find();
+					part = reMatcher.group();
+					s1 = reMatcher.replaceFirst("");
+				}
+				if (isFirst)
+					MaryDomUtils.setTokenText(t, part);
+				else
+					t = MaryDomUtils.appendToken(t, part);
+				expanded.add(t);
+				isFirst = false;
+			}
+		} else if (s.equals("'s")) {
+			// a standalone 's: simply pronounce it as [s].
+			t.setAttribute("ph", "s");
+			expanded.add(t);
+		} else if (s.endsWith("'s")) {
+			// Cases like "geht's": Simply have it pronounced like "gehts".
+			// No iteration.
+			t.setAttribute("sounds_like", s.substring(0, s.length() - 2));
+			t.setAttribute("ph", "*s");
+			expanded.add(t);
+		} else if (ExpansionPattern.reSplitAtChars().matcher(s).find()
+				&& (REPattern.letter.matcher(s).find() || REPattern.digit.matcher(s).find())) {
+			// Split into parts, keeping each special char as one part
+			// For special characters, accent is on the last component:
+			Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last");
+			StringTokenizer st = new StringTokenizer(s, ExpansionPattern.getSplitAtChars(), true); // return delimiters
+			MaryDomUtils.setTokenText(t, st.nextToken());
+			expanded.add(t);
+			while (st.hasMoreTokens()) {
+				t = MaryDomUtils.appendToken(t, st.nextToken());
+				expanded.add(t);
+			}
+		}
+		// iterative call:
+		if (expanded.size() > 0) {
+			List newExpanded = process(expanded);
+			expanded.clear();
+			expanded.addAll(newExpanded);
+		}
+
+		// Never return true, in order to allow other ExpansionPatterns to
+		// expand the components.
+		return false;
+	}
 
 	protected int canDealWith(String input, int typeCode) {
 		return match(input, typeCode);

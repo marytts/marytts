@@ -84,57 +84,55 @@ public class Preprocess extends InternalModule {
 		}
 	}
 
-	private void matchAndExpandPatterns(Document doc)
-    {
-        TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(
-            doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.TOKEN), false);
-        Element t = null;
-        while ((t = (Element) tw.nextNode()) != null) {
-            //System.err.println("matching and expanding " + MaryDomUtils.tokenText(t));
-            // Skip tokens inside say-as tags, as well as tokens
-            // for which a pronunciation is given:
-            if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) ||
-                t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
-                // ignore token
-                continue;
-            }
-            Iterator it = ExpansionPattern.allPatterns().iterator();
-            boolean fullyExpanded = false;
-            while (!fullyExpanded && it.hasNext()) {
-                ExpansionPattern ep = (ExpansionPattern)it.next();
-                logger.debug("Now applying ep " + ep + " to token " + MaryDomUtils.getPlainTextBelow(t));
-                List expanded = new ArrayList();
-                fullyExpanded = ep.process(t, expanded);
-                // Element replacements may have been caused by ep.process());
-                // Update t and tw accordingly: the next position to look at is
-                // - if fully expanded,  the token after the last expanded token
-                // - else,
-                //    -- if no expansion occurred, the same position as before;
-                //    -- if partial expansion occurred, the first of the expanded tokens.
-                if (fullyExpanded) {
-                    logger.debug("fully expanded");
-                    assert !expanded.isEmpty();
-                    // need to correct tw
-                    Element lastToken = getLastToken(expanded);
-                    assert lastToken != null;
-                    tw.setCurrentNode(lastToken);
-                    logger.debug("set treewalker position:" + MaryDomUtils.getPlainTextBelow((Element)tw.getCurrentNode()));
-                } else { // not fully expanded
-                    if (!expanded.isEmpty()) { // partial expansion
-                        logger.debug("non-final expansion");
-                        // need to set t
-                        t = getFirstToken(expanded);
-                        assert t != null;
-                        // set tw as if fully expanded, just in case no further expansions occur
-                        //Element lastToken = getLastToken(expanded);
-                        //assert lastToken != null;
-                        tw.setCurrentNode(t);
-                    }
-                }
-                
-            } // all patterns
-        } // all tokens
-    }
+	private void matchAndExpandPatterns(Document doc) {
+		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
+				new NameNodeFilter(MaryXML.TOKEN), false);
+		Element t = null;
+		while ((t = (Element) tw.nextNode()) != null) {
+			// System.err.println("matching and expanding " + MaryDomUtils.tokenText(t));
+			// Skip tokens inside say-as tags, as well as tokens
+			// for which a pronunciation is given:
+			if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) || t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
+				// ignore token
+				continue;
+			}
+			Iterator it = ExpansionPattern.allPatterns().iterator();
+			boolean fullyExpanded = false;
+			while (!fullyExpanded && it.hasNext()) {
+				ExpansionPattern ep = (ExpansionPattern) it.next();
+				logger.debug("Now applying ep " + ep + " to token " + MaryDomUtils.getPlainTextBelow(t));
+				List expanded = new ArrayList();
+				fullyExpanded = ep.process(t, expanded);
+				// Element replacements may have been caused by ep.process());
+				// Update t and tw accordingly: the next position to look at is
+				// - if fully expanded, the token after the last expanded token
+				// - else,
+				// -- if no expansion occurred, the same position as before;
+				// -- if partial expansion occurred, the first of the expanded tokens.
+				if (fullyExpanded) {
+					logger.debug("fully expanded");
+					assert !expanded.isEmpty();
+					// need to correct tw
+					Element lastToken = getLastToken(expanded);
+					assert lastToken != null;
+					tw.setCurrentNode(lastToken);
+					logger.debug("set treewalker position:" + MaryDomUtils.getPlainTextBelow((Element) tw.getCurrentNode()));
+				} else { // not fully expanded
+					if (!expanded.isEmpty()) { // partial expansion
+						logger.debug("non-final expansion");
+						// need to set t
+						t = getFirstToken(expanded);
+						assert t != null;
+						// set tw as if fully expanded, just in case no further expansions occur
+						// Element lastToken = getLastToken(expanded);
+						// assert lastToken != null;
+						tw.setCurrentNode(t);
+					}
+				}
+
+			} // all patterns
+		} // all tokens
+	}
 
 	/**
 	 * Find the last token in the list of elements l. Starting from the last element in the list, if the element itself is a
