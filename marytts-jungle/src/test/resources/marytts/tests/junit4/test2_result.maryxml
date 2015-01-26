@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<maryxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://mary.dfki.de/2002/MaryXML" version="0.4" xml:lang="en-US">
-<prosody pitch="-21%" pitch-dynamics="-32%" range="1.72st" range-dynamics="-100%" preferred-accent-shape="falling" accent-slope="-37%" accent-prominence="-8%" preferred-boundary-type="high" rate="-36%" number-of-pauses="-40%" pause-duration="+11%" vowel-duration="-12%" nasal-duration="-12%" liquid-duration="-12%" plosive-duration="-16%" fricative-duration="-16%" volume="31">
-<p>
-I'm so excited! I can hardly await it!
-</p>
-</prosody>
-</maryxml>
