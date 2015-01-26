@@ -117,18 +117,18 @@ public class SynthesizeToPitchTier {
 			String basename = StringUtils.removeEnd(textfile, ".txt");
 			Labels reference = null;
 			if (stretchToReference) {
-				reference = new Labels(basename+".lab");
+				reference = new Labels(basename + ".lab");
 			}
-			
-			String filename = basename+"."+voice;
+
+			String filename = basename + "." + voice;
 			if (synthPredicted) {
-				synth.synthPredictedPitchTier(text, reference, filename+".predicted.PitchTier");
+				synth.synthPredictedPitchTier(text, reference, filename + ".predicted.PitchTier");
 			}
 			if (synthRealised) {
-				synth.synthRealisedPitchTier(text, filename+".realised.PitchTier");
+				synth.synthRealisedPitchTier(text, filename + ".realised.PitchTier");
 			}
 			if (synthAudio) {
-				synth.synthAudioToFile(text, filename+".wav");
+				synth.synthAudioToFile(text, filename + ".wav");
 			}
 			System.out.println(basename);
 		}

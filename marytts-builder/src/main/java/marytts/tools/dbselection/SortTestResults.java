@@ -50,136 +50,115 @@ public class SortTestResults {
 	 *            comand line arguments
 	 * @throws Exception
 	 */
-	public static void main(String[] args) throws Exception{
-        File logFile = new File(args[0]);
-        boolean justSettings = false;
-        boolean shortResults = false;
-        if (args.length>1){
-            if (args[1].equals("justSettings")){
-                justSettings = true;
-            }
-            if (args[1].equals("shortResults")){
-                shortResults = true;
-            }
-        }
-        
-        /* there is one file for each coverage measure
-         * and one for the settings which led to the 
-         * same results */
-        File simpleDiphoneSortFile = new File("./simpleDiphoneSort.txt");
-        File clusteredDiphoneSortFile = new File("./clusteredDiphoneSort.txt");
-        File simpleProsodySortFile = new File("./simpleProsodySort.txt");
-        File clusteredProsodySortFile = new File("./clusteredProsodySort.txt");
-        File sameResultsFile = new File("./sameResults.txt");
-        File numSentencesFile = new File("./numSentencesSort.txt");
-        
-        List<TestResult> resultList = new ArrayList<TestResult>();
-        BufferedReader logIn = 
-            new BufferedReader(
-                    new InputStreamReader(
-                            new FileInputStream(logFile),"UTF-8"));
-        String line;
-        while((line=logIn.readLine())!=null){
-            if (line.equals("")) continue;
-            if (line.startsWith("***")){
-                resultList.add(new TestResult(logIn));
-            }
-        }
-        
-        /* sort */
-        SortedMap<Double,TestResult> simpleDiphone2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
-        SortedMap<Double,TestResult> clusteredDiphone2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
-        SortedMap<Double,TestResult> simpleProsody2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
-        SortedMap<Double,TestResult> clusteredProsody2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
-        SortedMap<Integer,TestResult> numSentences2Results = new TreeMap<Integer,TestResult>();
-        double[] sdCovArray = new double[resultList.size()];
-        double[] soCovArray = new double[resultList.size()];
-        double[] cdCovArray = new double[resultList.size()];
-        double[] coCovArray = new double[resultList.size()];
-        int index = 0;
-        for (Iterator it = resultList.iterator();it.hasNext();){
-            TestResult nextResult = (TestResult) it.next();
-            //sort according to simpleDiphone coverage
-            double cov = nextResult.getSimpleDiphoneCoverage();
-            sdCovArray[index] = cov;
-            Double coverage = new Double(cov);
-            sort(simpleDiphone2Results, nextResult, coverage);
-            
-            //sort according to simpleProsody coverage
-            cov = nextResult.getSimpleProsodyCoverage();
-            soCovArray[index] = cov;
-            coverage = new Double(cov);
-            sort(simpleProsody2Results, nextResult, coverage);
-            
-            //sort according to clusteredDiphone coverage
-            cov = nextResult.getClusteredDiphoneCoverage();
-            cdCovArray[index] = cov;
-            coverage = new Double(cov);
-            sort(clusteredDiphone2Results, nextResult, coverage);
-            
-            //sort according to clusteredProsody coverage
-            cov = nextResult.getClusteredProsodyCoverage();
-            coCovArray[index] = cov;
-            coverage = new Double(cov);
-            sort(clusteredProsody2Results, nextResult, coverage);
-            
-            //sort according to number of sentences
-            Integer numSents = new Integer(nextResult.getNumSentences());
-            sort(numSentences2Results,nextResult,numSents);
-            
-            index++;
-        }
-        
-        
-        /* print out results */
-        //simpleDiphoneCoverage
-        PrintWriter out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(simpleDiphoneSortFile),"UTF-8"),true);
-        TestResult result1 = (TestResult)resultList.get(0);
-        double maxCoverage = result1.getMaxSimpleDiphoneCoverage();
-        print(simpleDiphone2Results,out,shortResults,justSettings,"simple diphone coverage (max: "+maxCoverage+")");
-        
-        //simpleProsodyCoverage
-        out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(simpleProsodySortFile),"UTF-8"),true);
-        maxCoverage = result1.getMaxSimpleProsodyCoverage();
-        print(simpleProsody2Results,out,shortResults,justSettings,"simple Prosody coverage (max: "+maxCoverage+")");
-        
-        //clusteredDiphoneCoverage
-        out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(clusteredDiphoneSortFile),"UTF-8"),true);
-        maxCoverage = result1.getMaxClusteredDiphoneCoverage();
-        print(clusteredDiphone2Results,out,shortResults,justSettings,"clustered diphone coverage (max: "+maxCoverage+")");
-        
-        //clusteredProsodyCoverage
-        out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(clusteredProsodySortFile),"UTF-8"),true);
-        maxCoverage = result1.getMaxClusteredProsodyCoverage();
-        print(clusteredProsody2Results,out,shortResults,justSettings,"clustered Prosody coverage (max: "+maxCoverage+")");
-      
-        //same Results
-        out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(sameResultsFile),"UTF-8"),true);
-        printSameResults(out,resultList, sdCovArray, soCovArray, cdCovArray, coCovArray,justSettings);
-     
-        //numSentences
-        out =
-            new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(numSentencesFile),"UTF-8"),true);
-        printNumSentences(out,resultList,numSentences2Results,shortResults,justSettings);
-        
-    }
+	public static void main(String[] args) throws Exception {
+		File logFile = new File(args[0]);
+		boolean justSettings = false;
+		boolean shortResults = false;
+		if (args.length > 1) {
+			if (args[1].equals("justSettings")) {
+				justSettings = true;
+			}
+			if (args[1].equals("shortResults")) {
+				shortResults = true;
+			}
+		}
+
+		/*
+		 * there is one file for each coverage measure and one for the settings which led to the same results
+		 */
+		File simpleDiphoneSortFile = new File("./simpleDiphoneSort.txt");
+		File clusteredDiphoneSortFile = new File("./clusteredDiphoneSort.txt");
+		File simpleProsodySortFile = new File("./simpleProsodySort.txt");
+		File clusteredProsodySortFile = new File("./clusteredProsodySort.txt");
+		File sameResultsFile = new File("./sameResults.txt");
+		File numSentencesFile = new File("./numSentencesSort.txt");
+
+		List<TestResult> resultList = new ArrayList<TestResult>();
+		BufferedReader logIn = new BufferedReader(new InputStreamReader(new FileInputStream(logFile), "UTF-8"));
+		String line;
+		while ((line = logIn.readLine()) != null) {
+			if (line.equals(""))
+				continue;
+			if (line.startsWith("***")) {
+				resultList.add(new TestResult(logIn));
+			}
+		}
+
+		/* sort */
+		SortedMap<Double, TestResult> simpleDiphone2Results = new TreeMap<Double, TestResult>(Collections.reverseOrder());
+		SortedMap<Double, TestResult> clusteredDiphone2Results = new TreeMap<Double, TestResult>(Collections.reverseOrder());
+		SortedMap<Double, TestResult> simpleProsody2Results = new TreeMap<Double, TestResult>(Collections.reverseOrder());
+		SortedMap<Double, TestResult> clusteredProsody2Results = new TreeMap<Double, TestResult>(Collections.reverseOrder());
+		SortedMap<Integer, TestResult> numSentences2Results = new TreeMap<Integer, TestResult>();
+		double[] sdCovArray = new double[resultList.size()];
+		double[] soCovArray = new double[resultList.size()];
+		double[] cdCovArray = new double[resultList.size()];
+		double[] coCovArray = new double[resultList.size()];
+		int index = 0;
+		for (Iterator it = resultList.iterator(); it.hasNext();) {
+			TestResult nextResult = (TestResult) it.next();
+			// sort according to simpleDiphone coverage
+			double cov = nextResult.getSimpleDiphoneCoverage();
+			sdCovArray[index] = cov;
+			Double coverage = new Double(cov);
+			sort(simpleDiphone2Results, nextResult, coverage);
+
+			// sort according to simpleProsody coverage
+			cov = nextResult.getSimpleProsodyCoverage();
+			soCovArray[index] = cov;
+			coverage = new Double(cov);
+			sort(simpleProsody2Results, nextResult, coverage);
+
+			// sort according to clusteredDiphone coverage
+			cov = nextResult.getClusteredDiphoneCoverage();
+			cdCovArray[index] = cov;
+			coverage = new Double(cov);
+			sort(clusteredDiphone2Results, nextResult, coverage);
+
+			// sort according to clusteredProsody coverage
+			cov = nextResult.getClusteredProsodyCoverage();
+			coCovArray[index] = cov;
+			coverage = new Double(cov);
+			sort(clusteredProsody2Results, nextResult, coverage);
+
+			// sort according to number of sentences
+			Integer numSents = new Integer(nextResult.getNumSentences());
+			sort(numSentences2Results, nextResult, numSents);
+
+			index++;
+		}
+
+		/* print out results */
+		// simpleDiphoneCoverage
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(simpleDiphoneSortFile), "UTF-8"), true);
+		TestResult result1 = (TestResult) resultList.get(0);
+		double maxCoverage = result1.getMaxSimpleDiphoneCoverage();
+		print(simpleDiphone2Results, out, shortResults, justSettings, "simple diphone coverage (max: " + maxCoverage + ")");
+
+		// simpleProsodyCoverage
+		out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(simpleProsodySortFile), "UTF-8"), true);
+		maxCoverage = result1.getMaxSimpleProsodyCoverage();
+		print(simpleProsody2Results, out, shortResults, justSettings, "simple Prosody coverage (max: " + maxCoverage + ")");
+
+		// clusteredDiphoneCoverage
+		out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(clusteredDiphoneSortFile), "UTF-8"), true);
+		maxCoverage = result1.getMaxClusteredDiphoneCoverage();
+		print(clusteredDiphone2Results, out, shortResults, justSettings, "clustered diphone coverage (max: " + maxCoverage + ")");
+
+		// clusteredProsodyCoverage
+		out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(clusteredProsodySortFile), "UTF-8"), true);
+		maxCoverage = result1.getMaxClusteredProsodyCoverage();
+		print(clusteredProsody2Results, out, shortResults, justSettings, "clustered Prosody coverage (max: " + maxCoverage + ")");
+
+		// same Results
+		out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(sameResultsFile), "UTF-8"), true);
+		printSameResults(out, resultList, sdCovArray, soCovArray, cdCovArray, coCovArray, justSettings);
+
+		// numSentences
+		out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(numSentencesFile), "UTF-8"), true);
+		printNumSentences(out, resultList, numSentences2Results, shortResults, justSettings);
+
+	}
 
 	private static void sort(SortedMap sortMap, TestResult result, Object coverage) {
 		if (sortMap.containsKey(coverage)) {
