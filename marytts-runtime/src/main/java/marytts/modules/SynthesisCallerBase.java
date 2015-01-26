@@ -33,7 +33,6 @@ import javax.xml.transform.TransformerException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.FestivalUttSectioner;
-import marytts.modules.synthesis.MbrolaVoiceSectioner;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.VoiceSection;
 import marytts.modules.synthesis.VoiceSectioner;
@@ -111,8 +110,6 @@ public abstract class SynthesisCallerBase extends InternalModule {
 		VoiceSectioner sectioner = null;
 		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
 			sectioner = new FestivalUttSectioner(input, defaultVoice);
-		} else if (MaryDataType.get("MBROLA") != null && inputType().equals(MaryDataType.get("MBROLA"))) {
-			sectioner = new MbrolaVoiceSectioner(input, defaultVoice);
 		} else {
 			throw new RuntimeException("Don't know how to handle input type '" + inputType() + "'");
 		}
@@ -128,8 +125,6 @@ public abstract class SynthesisCallerBase extends InternalModule {
 		// And second pass:
 		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
 			sectioner = new FestivalUttSectioner(input, defaultVoice);
-		} else {
-			sectioner = new MbrolaVoiceSectioner(input, defaultVoice);
 		}
 		section = null;
 		while ((section = sectioner.nextSection()) != null) {
