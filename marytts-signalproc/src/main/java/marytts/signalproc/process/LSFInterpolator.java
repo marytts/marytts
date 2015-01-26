@@ -95,53 +95,47 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
 	 * @param a
 	 *            the LPC coefficients
 	 */
-	protected void processLPC(LpCoeffs coeffs, double[] residual) 
-    {
-        if (otherFrame1 == null) return; // no more other audio -- leave signal as is
-        LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
-        double[] otherlsf = otherCoeffs.getLSF();
-        double[] lsf = coeffs.getLSF();
-        assert lsf.length == otherlsf.length;
-        if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before merging into the signal
-            assert 0 <= relativeWeightOther1;
-            LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
-            double[] other2lsf = other2Coeffs.getLSF();
-            /*PrintfFormat f = new PrintfFormat("%      .1f ");
-            System.out.print("LSF     ");
-            for (int i=0; i<lsf.length; i++) {
-                System.out.print(f.sprintf(lsf[i]*16000));
-            }
-            System.out.println();
-            
-            System.out.print("Other1  ");
-            for (int i=0; i<lsf.length; i++) {
-                System.out.print(f.sprintf(otherlsf[i]*16000));
-            }
-            System.out.println();
+	protected void processLPC(LpCoeffs coeffs, double[] residual) {
+		if (otherFrame1 == null)
+			return; // no more other audio -- leave signal as is
+		LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
+		double[] otherlsf = otherCoeffs.getLSF();
+		double[] lsf = coeffs.getLSF();
+		assert lsf.length == otherlsf.length;
+		if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before
+																// merging into the signal
+			assert 0 <= relativeWeightOther1;
+			LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
+			double[] other2lsf = other2Coeffs.getLSF();
+			/*
+			 * PrintfFormat f = new PrintfFormat("%      .1f "); System.out.print("LSF     "); for (int i=0; i<lsf.length; i++) {
+			 * System.out.print(f.sprintf(lsf[i]*16000)); } System.out.println();
+			 * 
+			 * System.out.print("Other1  "); for (int i=0; i<lsf.length; i++) { System.out.print(f.sprintf(otherlsf[i]*16000)); }
+			 * System.out.println();
+			 * 
+			 * System.out.print("Other2  "); for (int i=0; i<lsf.length; i++) { System.out.print(f.sprintf(other2lsf[i]*16000)); }
+			 * System.out.println();
+			 * 
+			 * System.out.println();
+			 */
+			for (int i = 0; i < otherlsf.length; i++) {
+				otherlsf[i] = relativeWeightOther1 * otherlsf[i] + (1 - relativeWeightOther1) * other2lsf[i];
+			}
+		}
+		// now interpolate between the two:
+		for (int i = 0; i < lsf.length; i++)
+			lsf[i] = (1 - r) * lsf[i] + r * otherlsf[i];
+		coeffs.setLSF(lsf);
+		// Adapt residual gain to also interpolate average energy:
+		double gainFactor = Math.sqrt((1 - r) * coeffs.getGain() * coeffs.getGain() + r * otherCoeffs.getGain()
+				* otherCoeffs.getGain())
+				/ coeffs.getGain();
+		// System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+otherCoeffs.getGain()+", factor="+gainFactor);
+		for (int i = 0; i < residual.length; i++)
+			residual[i] *= gainFactor;
 
-            System.out.print("Other2  ");
-            for (int i=0; i<lsf.length; i++) {
-                System.out.print(f.sprintf(other2lsf[i]*16000));
-            }
-            System.out.println();
-
-            System.out.println();
-            */
-            for (int i=0; i<otherlsf.length; i++) {
-                otherlsf[i] = relativeWeightOther1*otherlsf[i] + (1-relativeWeightOther1)*other2lsf[i];
-            }
-        }
-        // now interpolate between the two:
-        for (int i=0; i<lsf.length; i++)
-            lsf[i] = (1-r)*lsf[i] + r*otherlsf[i];
-        coeffs.setLSF(lsf);
-        // Adapt residual gain to also interpolate average energy:
-        double gainFactor = Math.sqrt((1-r)*coeffs.getGain()*coeffs.getGain() + r*otherCoeffs.getGain()*otherCoeffs.getGain())/coeffs.getGain();
-//        System.out.println("Gain:" + coeffs.getGain() + ", otherGain:"+otherCoeffs.getGain()+", factor="+gainFactor);
-        for (int i=0; i<residual.length; i++)
-            residual[i] *= gainFactor;
-        
-    }
+	}
 
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();

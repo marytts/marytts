@@ -77,102 +77,101 @@ public class XwavesLabelfileReader {
 	 * 
 	 * @throws IOException
 	 */
-	private void parseLabels()
-    throws IOException {
-        // initialize some variables
-        String line;
-        boolean headerComplete = false;
-        ArrayList<Double> timesList = new ArrayList<Double>();
-        ArrayList<String> labelsList = new ArrayList<String>();
-        ArrayList<String> headersList = new ArrayList<String>();
+	private void parseLabels() throws IOException {
+		// initialize some variables
+		String line;
+		boolean headerComplete = false;
+		ArrayList<Double> timesList = new ArrayList<Double>();
+		ArrayList<String> labelsList = new ArrayList<String>();
+		ArrayList<String> headersList = new ArrayList<String>();
 
-        // Legend for regular expression:
-        // 
-        // ^      start of line 
-        // \\s*   leading whitespace 
-        // (      start of first captured group (time) 
-        // \\d+   one or more digits 
-        // (?:    followed by a non-capturing group containing 
-        // \\.    a period and 
-        // \\d+   one or more digits 
-        // )?     this group is optional 
-        // )      end of first captured group 
-        // \\s+   whitespace 
-        // .+?    second column, which is ignored (not captured)
-        // \\s+?  whitespace 
-        // (.*)   second captured group (label)
-        // $      end of line
-        Pattern linePattern = Pattern.compile("^\\s*(\\d+(?:\\.\\d+)?)\\s+.+?\\s+?(.*)$");
-        boolean matches = false;
+		// Legend for regular expression:
+		//
+		// ^ start of line
+		// \\s* leading whitespace
+		// ( start of first captured group (time)
+		// \\d+ one or more digits
+		// (?: followed by a non-capturing group containing
+		// \\. a period and
+		// \\d+ one or more digits
+		// )? this group is optional
+		// ) end of first captured group
+		// \\s+ whitespace
+		// .+? second column, which is ignored (not captured)
+		// \\s+? whitespace
+		// (.*) second captured group (label)
+		// $ end of line
+		Pattern linePattern = Pattern.compile("^\\s*(\\d+(?:\\.\\d+)?)\\s+.+?\\s+?(.*)$");
+		boolean matches = false;
 
-        // initialize some more variables for each line's captured groups
-        String timeStr = null;
-        String label = null;
-        double time;
+		// initialize some more variables for each line's captured groups
+		String timeStr = null;
+		String label = null;
+		double time;
 
-        // read the file line by line
-        while ((line = reader.readLine()) != null) {
-            // apply the regex Pattern to the current line...
-            Matcher lineMatcher = linePattern.matcher(line);
-            // ...and see if it matches
-            matches = lineMatcher.matches();
+		// read the file line by line
+		while ((line = reader.readLine()) != null) {
+			// apply the regex Pattern to the current line...
+			Matcher lineMatcher = linePattern.matcher(line);
+			// ...and see if it matches
+			matches = lineMatcher.matches();
 
-            if (matches) {
-                // some label files might be headerless;
-                // in that case, a well-formed line indicates that we are already seeing label data
-                headerComplete = true;
+			if (matches) {
+				// some label files might be headerless;
+				// in that case, a well-formed line indicates that we are already seeing label data
+				headerComplete = true;
 
-                // parse the line by accessing the groups captured by the regex Matcher
-                // the first group is the label's end time
-                timeStr = lineMatcher.group(1);
-                // the second group is the label itself
-                label = lineMatcher.group(2);
+				// parse the line by accessing the groups captured by the regex Matcher
+				// the first group is the label's end time
+				timeStr = lineMatcher.group(1);
+				// the second group is the label itself
+				label = lineMatcher.group(2);
 
-                try {
-                    // parse the end time into a Double and append it to times
-                    time = Double.parseDouble(timeStr);
-                    timesList.add(time);
-                } catch (NumberFormatException nfe) {
-                    // number could not be parsed; this should never actually happen!
-                    throw nfe;
-                }
+				try {
+					// parse the end time into a Double and append it to times
+					time = Double.parseDouble(timeStr);
+					timesList.add(time);
+				} catch (NumberFormatException nfe) {
+					// number could not be parsed; this should never actually happen!
+					throw nfe;
+				}
 
-                // append label to labels
-                labelsList.add(label);
+				// append label to labels
+				labelsList.add(label);
 
-            } else {
-                // line could not be parsed by regex; are we still in the header?
-                if (!headerComplete) {
-                    if (line.trim().startsWith("#"))
-                        // hash line signals end of header (but is not itself part of the header)
-                        headerComplete = true;
-                    else
-                        // no hash line seen so far, line seems to be part of header
-                        headersList.add(line);
-                } else {
-                    // header was already complete, or we are dealing with a headerless label file,
-                    // but we found a line that could not be parsed!
-                    System.err.println("Malformed line found outside of header:\n" + line);
-                    throw new IOException();
-                }
-            }
-        }
+			} else {
+				// line could not be parsed by regex; are we still in the header?
+				if (!headerComplete) {
+					if (line.trim().startsWith("#"))
+						// hash line signals end of header (but is not itself part of the header)
+						headerComplete = true;
+					else
+						// no hash line seen so far, line seems to be part of header
+						headersList.add(line);
+				} else {
+					// header was already complete, or we are dealing with a headerless label file,
+					// but we found a line that could not be parsed!
+					System.err.println("Malformed line found outside of header:\n" + line);
+					throw new IOException();
+				}
+			}
+		}
 
-        // it should never happen that times and labels do not have the same number of elements!
-        assert timesList.size() == labelsList.size() : "";
-        
-        times = new Double[timesList.size()];
-        int t;
-        for (t = 0; t < timesList.size(); t++) {
-            times[t] = timesList.get(t);
-        }
-        
-        labels = (String[]) labelsList.toArray(new String[0]);
-        header = (String[]) headersList.toArray(new String[0]);
-        
-        return;
+		// it should never happen that times and labels do not have the same number of elements!
+		assert timesList.size() == labelsList.size() : "";
 
-    }
+		times = new Double[timesList.size()];
+		int t;
+		for (t = 0; t < timesList.size(); t++) {
+			times[t] = timesList.get(t);
+		}
+
+		labels = (String[]) labelsList.toArray(new String[0]);
+		header = (String[]) headersList.toArray(new String[0]);
+
+		return;
+
+	}
 
 	/**
 	 * getter method for times
@@ -193,13 +192,13 @@ public class XwavesLabelfileReader {
 	}
 
 	public Labels getLabels() {
-    	Label[] items = new Label[labels.length];
-    	assert times.length == labels.length;
-    	for (int i=0; i<items.length; i++) {
-    		items[i] = new Label(times[i], labels[i]);
-    	}
-    	return new Labels(items);
-    }
+		Label[] items = new Label[labels.length];
+		assert times.length == labels.length;
+		for (int i = 0; i < items.length; i++) {
+			items[i] = new Label(times[i], labels[i]);
+		}
+		return new Labels(items);
+	}
 
 	/**
 	 * getter method for header

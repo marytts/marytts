@@ -87,22 +87,22 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource {
 		return available;
 	}
 
-	public int getData(double[] target, int targetPos, int length)
-    {
-        if (target.length - targetPos < length) {
-            throw new IllegalArgumentException("Target array cannot hold enough data ("+(target.length-targetPos) + " left, but " + length + " requested)");
-        }
-        int copied = 0;
-        while (!sources.isEmpty() && copied < length) {
-            DoubleDataSource source = (DoubleDataSource) sources.getFirst();
-            int read = source.getData(target, targetPos+copied, length-copied);
-            //System.err.println("Read " + read + " samples from " + source.getClass().toString());
-            if (read < length-copied) {
-                assert !source.hasMoreData();
-                sources.removeFirst();
-            }
-            copied += read;
-        }
-        return copied;
-    }
+	public int getData(double[] target, int targetPos, int length) {
+		if (target.length - targetPos < length) {
+			throw new IllegalArgumentException("Target array cannot hold enough data (" + (target.length - targetPos)
+					+ " left, but " + length + " requested)");
+		}
+		int copied = 0;
+		while (!sources.isEmpty() && copied < length) {
+			DoubleDataSource source = (DoubleDataSource) sources.getFirst();
+			int read = source.getData(target, targetPos + copied, length - copied);
+			// System.err.println("Read " + read + " samples from " + source.getClass().toString());
+			if (read < length - copied) {
+				assert !source.hasMoreData();
+				sources.removeFirst();
+			}
+			copied += read;
+		}
+		return copied;
+	}
 }

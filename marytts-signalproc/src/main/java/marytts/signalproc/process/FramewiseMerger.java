@@ -65,63 +65,63 @@ public class FramewiseMerger extends FrameOverlapAddSource {
 	 *            the signal processing method used for merging the properties of the "other" into the corresponding frame in the
 	 *            "signal".
 	 */
-	public FramewiseMerger(DoubleDataSource inputSource, DoubleDataSource pitchmarks,
-            int samplingRate, DoubleDataSource labelTimes,
-            DoubleDataSource otherSource, DoubleDataSource otherPitchmarks, 
-            int otherSamplingRate, DoubleDataSource otherLabelTimes,
-            InlineFrameMerger merger)
-    {
-        // Set up label times for time stretching:
-        this.labelTimes = labelTimes;
-        this.otherLabelTimes = otherLabelTimes;
-        // set all current and previous labels to 0:
-        prevLabel = 0;
-        currentLabel = 0;
-        prevOtherLabel = 0;
-        currentOtherLabel = 0;
+	public FramewiseMerger(DoubleDataSource inputSource, DoubleDataSource pitchmarks, int samplingRate,
+			DoubleDataSource labelTimes, DoubleDataSource otherSource, DoubleDataSource otherPitchmarks, int otherSamplingRate,
+			DoubleDataSource otherLabelTimes, InlineFrameMerger merger) {
+		// Set up label times for time stretching:
+		this.labelTimes = labelTimes;
+		this.otherLabelTimes = otherLabelTimes;
+		// set all current and previous labels to 0:
+		prevLabel = 0;
+		currentLabel = 0;
+		prevOtherLabel = 0;
+		currentOtherLabel = 0;
 
-        InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANNING, 0.5);
-        // Overlap-add a properly windowed first period by hand:
-        // Read out the first pitchmark:
-        double firstPitchmark = pitchmarks.getData(1)[0];
-        assert firstPitchmark > 0;
-        // If the first pitchmark is too close (closer than 1ms) to origin, skip it:
-        if (firstPitchmark < 0.001*samplingRate) 
-            firstPitchmark = pitchmarks.getData(1)[0];
-        pitchmarks = new SequenceDoubleDataSource(new DoubleDataSource[] {new BufferedDoubleDataSource(new double[]{firstPitchmark}), pitchmarks});
-        int firstPeriodLength = (int) (firstPitchmark*samplingRate);
-        double[] firstPeriod = new double[firstPeriodLength];
-        inputSource.getData(firstPeriod, 0, firstPeriodLength);
-        inputSource = new SequenceDoubleDataSource(new DoubleDataSource[] {new BufferedDoubleDataSource(firstPeriod), inputSource});
-        this.memory = new double[2*firstPeriodLength];
-        System.arraycopy(firstPeriod, 0, memory, firstPeriodLength, firstPeriodLength);
-        analysisWindow.applyInline(memory, 0, memory.length);
-        if (merger != null) {
-            // Read out the first pitchmark:
-            double firstOtherPitchmark = otherPitchmarks.getData(1)[0];
-            assert firstOtherPitchmark > 0;
-            // If the first other pitchmark is too close (closer than 1ms) to origin, skip it:
-            if (firstOtherPitchmark < 0.001*otherSamplingRate) 
-                firstPitchmark = otherPitchmarks.getData(1)[0];
-            otherPitchmarks = new SequenceDoubleDataSource(new DoubleDataSource[] {new BufferedDoubleDataSource(new double[]{firstOtherPitchmark}), otherPitchmarks});
-            int firstOtherPeriodLength = (int) (firstOtherPitchmark*otherSamplingRate);
-            double[] firstOtherPeriod = new double[firstOtherPeriodLength];
-            otherSource.getData(firstOtherPeriod, 0, firstOtherPeriodLength);
-            otherSource = new SequenceDoubleDataSource(new DoubleDataSource[] {new BufferedDoubleDataSource(firstOtherPeriod), otherSource});
-            double[] frameToMerge = new double[2*firstOtherPeriodLength];
-            System.arraycopy(firstOtherPeriod, 0, frameToMerge, firstOtherPeriodLength, firstOtherPeriodLength);
-            merger.setFrameToMerge(frameToMerge);
-            merger.applyInline(memory, 0, memory.length);
-        }
-        // Shift the data left in memory:
-        System.arraycopy(memory, firstPeriodLength, memory, 0, firstPeriodLength);
-        Arrays.fill(memory, firstPeriodLength, memory.length, 0);
-        // And initialise frame providers for normal operation:
-        this.frameProvider = new PitchFrameProvider(inputSource, pitchmarks, analysisWindow, samplingRate, 8, 1);
-        this.otherFrameProvider = new PitchFrameProvider(otherSource, otherPitchmarks, 
-                analysisWindow, otherSamplingRate, 8, 1);
-        this.processor = merger;
-    }
+		InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANNING, 0.5);
+		// Overlap-add a properly windowed first period by hand:
+		// Read out the first pitchmark:
+		double firstPitchmark = pitchmarks.getData(1)[0];
+		assert firstPitchmark > 0;
+		// If the first pitchmark is too close (closer than 1ms) to origin, skip it:
+		if (firstPitchmark < 0.001 * samplingRate)
+			firstPitchmark = pitchmarks.getData(1)[0];
+		pitchmarks = new SequenceDoubleDataSource(new DoubleDataSource[] {
+				new BufferedDoubleDataSource(new double[] { firstPitchmark }), pitchmarks });
+		int firstPeriodLength = (int) (firstPitchmark * samplingRate);
+		double[] firstPeriod = new double[firstPeriodLength];
+		inputSource.getData(firstPeriod, 0, firstPeriodLength);
+		inputSource = new SequenceDoubleDataSource(new DoubleDataSource[] { new BufferedDoubleDataSource(firstPeriod),
+				inputSource });
+		this.memory = new double[2 * firstPeriodLength];
+		System.arraycopy(firstPeriod, 0, memory, firstPeriodLength, firstPeriodLength);
+		analysisWindow.applyInline(memory, 0, memory.length);
+		if (merger != null) {
+			// Read out the first pitchmark:
+			double firstOtherPitchmark = otherPitchmarks.getData(1)[0];
+			assert firstOtherPitchmark > 0;
+			// If the first other pitchmark is too close (closer than 1ms) to origin, skip it:
+			if (firstOtherPitchmark < 0.001 * otherSamplingRate)
+				firstPitchmark = otherPitchmarks.getData(1)[0];
+			otherPitchmarks = new SequenceDoubleDataSource(new DoubleDataSource[] {
+					new BufferedDoubleDataSource(new double[] { firstOtherPitchmark }), otherPitchmarks });
+			int firstOtherPeriodLength = (int) (firstOtherPitchmark * otherSamplingRate);
+			double[] firstOtherPeriod = new double[firstOtherPeriodLength];
+			otherSource.getData(firstOtherPeriod, 0, firstOtherPeriodLength);
+			otherSource = new SequenceDoubleDataSource(new DoubleDataSource[] { new BufferedDoubleDataSource(firstOtherPeriod),
+					otherSource });
+			double[] frameToMerge = new double[2 * firstOtherPeriodLength];
+			System.arraycopy(firstOtherPeriod, 0, frameToMerge, firstOtherPeriodLength, firstOtherPeriodLength);
+			merger.setFrameToMerge(frameToMerge);
+			merger.applyInline(memory, 0, memory.length);
+		}
+		// Shift the data left in memory:
+		System.arraycopy(memory, firstPeriodLength, memory, 0, firstPeriodLength);
+		Arrays.fill(memory, firstPeriodLength, memory.length, 0);
+		// And initialise frame providers for normal operation:
+		this.frameProvider = new PitchFrameProvider(inputSource, pitchmarks, analysisWindow, samplingRate, 8, 1);
+		this.otherFrameProvider = new PitchFrameProvider(otherSource, otherPitchmarks, analysisWindow, otherSamplingRate, 8, 1);
+		this.processor = merger;
+	}
 
 	/**
 	 * Create a new merger, creating audio by merging of audio frames at a fixed frame rate, from a source (aka the "signal") and
@@ -196,81 +196,79 @@ public class FramewiseMerger extends FrameOverlapAddSource {
 	 * 
 	 * @return the next signal frame.
 	 */
-	protected double[] getNextFrame()
-    {
-        double[] nextSignalFrame = frameProvider.getNextFrame();
-        double frameStart = frameProvider.getFrameStartTime();
-        //System.out.println("Getting signal frame, start time = "+frameStart);
-        while (frameStart >= currentLabel) {
-            // move to next label
-            if (labelTimes == null || otherLabelTimes == null
-                    || !labelTimes.hasMoreData()  || !otherLabelTimes.hasMoreData()) {
-                currentLabel = Double.POSITIVE_INFINITY;
-                localTimeStretchFactor = 1;
-            } else {
-                prevLabel = currentLabel;
-                currentLabel = labelTimes.getData(1)[0];
-                assert currentLabel >= prevLabel;
-                prevOtherLabel = currentOtherLabel;
-                currentOtherLabel = otherLabelTimes.getData(1)[0];
-                assert currentOtherLabel >= prevOtherLabel;
-                //System.out.println("current label: "+currentLabel+"("+prevLabel+")");
-                //System.out.println("other   label: "+currentOtherLabel+"("+prevOtherLabel+")");
-                if (currentLabel == prevLabel || currentOtherLabel == prevOtherLabel) {
-                    localTimeStretchFactor = 1;
-                } else {
-                    localTimeStretchFactor = (currentOtherLabel - prevOtherLabel) / (currentLabel - prevLabel);
-                }
-            }
-        }
-        assert prevLabel <= frameStart && frameStart < currentLabel;
-        //System.out.println("Local time stretch = "+localTimeStretchFactor);
-        double targetOtherStart = prevOtherLabel + (frameStart - prevLabel) * localTimeStretchFactor;
-        //System.out.println("Target other start = "+targetOtherStart);
-        double otherStart = otherFrameProvider.getFrameStartTime();
-        double[] otherFrame = otherFrameProvider.getCurrentFrame();
-        double prevOtherStart = -1;
-        double[] prevOtherFrame = null;
-        //System.out.println("Current other frame starts at "+otherStart);
-        if (otherStart < 0) { // no other frame yet
-            otherFrame = otherFrameProvider.getNextFrame();
-            otherStart = otherFrameProvider.getFrameStartTime();
-            //System.out.println("Getting first other frame -- starts at "+otherStart);
-        }
-        assert otherStart >= 0;
-        // Now skip other frames until the current otherStart is closer to targetOtherStart
-        // then the next one would be.
-        double expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
-        //while (Math.abs(expectedNextOtherStart-targetOtherStart)<Math.abs(otherStart-targetOtherStart)
-        while (otherStart<targetOtherStart
-                && otherFrameProvider.hasMoreData()) {
-            prevOtherFrame = (double[]) otherFrame.clone();
-            prevOtherStart = otherStart;
-            otherFrame = otherFrameProvider.getNextFrame();
-            otherStart = otherFrameProvider.getFrameStartTime();
-            //System.out.println("Skipping frame -- new one starts at "+otherStart);
-            assert Math.abs(otherStart - expectedNextOtherStart) < 1e-10 : "Other frame starts at "+otherStart+" -- expected was "+expectedNextOtherStart;
-            expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
-        }
-        if (prevOtherFrame == null) {
-            ((InlineFrameMerger)processor).setFrameToMerge(otherFrame);
-        } else {
-            assert prevOtherStart < targetOtherStart;
-            assert targetOtherStart <= otherStart || !otherFrameProvider.hasMoreData();
-            if (targetOtherStart > otherStart) targetOtherStart = otherStart;
-            // Request interpolation between prevOtherFrame and otherFrame in relation to their distance to targetOtherStart
-            // Linear interpolation:
-            double rPrev = 1 - (targetOtherStart - prevOtherStart)/(otherStart - prevOtherStart);
-            assert 0 <= rPrev;
-            assert rPrev < 1;
-            //PrintfFormat f = new PrintfFormat("%.3f");
-            //System.out.println("Prev: "+f.sprintf(prevOtherStart)+" Target: "+f.sprintf(targetOtherStart)+" Other: "+f.sprintf(otherStart)+" rPrev: "+f.sprintf(rPrev));
-            ((InlineFrameMerger)processor).setFrameToMerge(prevOtherFrame, otherFrame, rPrev);
-        }
-        
+	protected double[] getNextFrame() {
+		double[] nextSignalFrame = frameProvider.getNextFrame();
+		double frameStart = frameProvider.getFrameStartTime();
+		// System.out.println("Getting signal frame, start time = "+frameStart);
+		while (frameStart >= currentLabel) {
+			// move to next label
+			if (labelTimes == null || otherLabelTimes == null || !labelTimes.hasMoreData() || !otherLabelTimes.hasMoreData()) {
+				currentLabel = Double.POSITIVE_INFINITY;
+				localTimeStretchFactor = 1;
+			} else {
+				prevLabel = currentLabel;
+				currentLabel = labelTimes.getData(1)[0];
+				assert currentLabel >= prevLabel;
+				prevOtherLabel = currentOtherLabel;
+				currentOtherLabel = otherLabelTimes.getData(1)[0];
+				assert currentOtherLabel >= prevOtherLabel;
+				// System.out.println("current label: "+currentLabel+"("+prevLabel+")");
+				// System.out.println("other   label: "+currentOtherLabel+"("+prevOtherLabel+")");
+				if (currentLabel == prevLabel || currentOtherLabel == prevOtherLabel) {
+					localTimeStretchFactor = 1;
+				} else {
+					localTimeStretchFactor = (currentOtherLabel - prevOtherLabel) / (currentLabel - prevLabel);
+				}
+			}
+		}
+		assert prevLabel <= frameStart && frameStart < currentLabel;
+		// System.out.println("Local time stretch = "+localTimeStretchFactor);
+		double targetOtherStart = prevOtherLabel + (frameStart - prevLabel) * localTimeStretchFactor;
+		// System.out.println("Target other start = "+targetOtherStart);
+		double otherStart = otherFrameProvider.getFrameStartTime();
+		double[] otherFrame = otherFrameProvider.getCurrentFrame();
+		double prevOtherStart = -1;
+		double[] prevOtherFrame = null;
+		// System.out.println("Current other frame starts at "+otherStart);
+		if (otherStart < 0) { // no other frame yet
+			otherFrame = otherFrameProvider.getNextFrame();
+			otherStart = otherFrameProvider.getFrameStartTime();
+			// System.out.println("Getting first other frame -- starts at "+otherStart);
+		}
+		assert otherStart >= 0;
+		// Now skip other frames until the current otherStart is closer to targetOtherStart
+		// then the next one would be.
+		double expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
+		// while (Math.abs(expectedNextOtherStart-targetOtherStart)<Math.abs(otherStart-targetOtherStart)
+		while (otherStart < targetOtherStart && otherFrameProvider.hasMoreData()) {
+			prevOtherFrame = (double[]) otherFrame.clone();
+			prevOtherStart = otherStart;
+			otherFrame = otherFrameProvider.getNextFrame();
+			otherStart = otherFrameProvider.getFrameStartTime();
+			// System.out.println("Skipping frame -- new one starts at "+otherStart);
+			assert Math.abs(otherStart - expectedNextOtherStart) < 1e-10 : "Other frame starts at " + otherStart
+					+ " -- expected was " + expectedNextOtherStart;
+			expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
+		}
+		if (prevOtherFrame == null) {
+			((InlineFrameMerger) processor).setFrameToMerge(otherFrame);
+		} else {
+			assert prevOtherStart < targetOtherStart;
+			assert targetOtherStart <= otherStart || !otherFrameProvider.hasMoreData();
+			if (targetOtherStart > otherStart)
+				targetOtherStart = otherStart;
+			// Request interpolation between prevOtherFrame and otherFrame in relation to their distance to targetOtherStart
+			// Linear interpolation:
+			double rPrev = 1 - (targetOtherStart - prevOtherStart) / (otherStart - prevOtherStart);
+			assert 0 <= rPrev;
+			assert rPrev < 1;
+			// PrintfFormat f = new PrintfFormat("%.3f");
+			// System.out.println("Prev: "+f.sprintf(prevOtherStart)+" Target: "+f.sprintf(targetOtherStart)+" Other: "+f.sprintf(otherStart)+" rPrev: "+f.sprintf(rPrev));
+			((InlineFrameMerger) processor).setFrameToMerge(prevOtherFrame, otherFrame, rPrev);
+		}
 
-        return nextSignalFrame;
-    }
+		return nextSignalFrame;
+	}
 
 	/**
 	 * Output blocksize -- here, this is the same as the input frame shift.

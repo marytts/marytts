@@ -100,78 +100,71 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
 		initialise(lowerCutOffsInHzIn, upperCutOffsInHzIn, overlapAround1000HzIn);
 	}
 
-	public void initialise(double[] lowerCutOffsInHzIn, double[] upperCutOffsInHzIn, double overlapAround1000HzIn)
-    {
-        normalizationFilterTransformedIR = null;
-        
-        if (lowerCutOffsInHzIn!=null && upperCutOffsInHzIn!=null)
-        {
-            assert lowerCutOffsInHzIn.length == upperCutOffsInHzIn.length;
-            lowerCutOffsInHz = new double[lowerCutOffsInHzIn.length];
-            upperCutOffsInHz = new double[upperCutOffsInHzIn.length];
-            System.arraycopy(lowerCutOffsInHzIn, 0, lowerCutOffsInHz, 0, lowerCutOffsInHzIn.length);
-            System.arraycopy(upperCutOffsInHzIn, 0, upperCutOffsInHz, 0, upperCutOffsInHzIn.length);
-            
-            int i;
-            filters = new FIRFilter[lowerCutOffsInHz.length];
-            int filterOrder = SignalProcUtils.getFIRFilterOrder(samplingRateInHz);
-            double normalizedLowerCutoff;
-            double normalizedUpperCutoff;
-            
-            overlapAround1000Hz = overlapAround1000HzIn;
-            
-            for (i=0; i<lowerCutOffsInHz.length; i++)
-                assert lowerCutOffsInHz[i]<upperCutOffsInHz[i];
-            
-            for (i=0; i<lowerCutOffsInHz.length; i++)
-            {
-                if (lowerCutOffsInHz[i]<=0.0)
-                {
-                    normalizedUpperCutoff = Math.min(upperCutOffsInHz[i]/samplingRateInHz, 0.5);
-                    normalizedUpperCutoff = Math.max(normalizedUpperCutoff, 0.0);
-                    filters[i] = new LowPassFilter(normalizedUpperCutoff, filterOrder);
-                }
-                else if (upperCutOffsInHz[i]>=0.5*samplingRateInHz)
-                {
-                    normalizedLowerCutoff = Math.max(lowerCutOffsInHz[i]/samplingRateInHz, 0.0);
-                    normalizedLowerCutoff = Math.min(normalizedLowerCutoff, 0.5);
-                    filters[i] = new HighPassFilter(normalizedLowerCutoff, filterOrder);
-                }
-                else
-                {
-                    normalizedLowerCutoff = Math.max(lowerCutOffsInHz[i]/samplingRateInHz, 0.0);
-                    normalizedLowerCutoff = Math.min(normalizedLowerCutoff, 0.5);
-                    normalizedUpperCutoff = Math.min(upperCutOffsInHz[i]/samplingRateInHz, 0.5);
-                    normalizedUpperCutoff = Math.max(normalizedUpperCutoff, 0.0);
-                    
-                    assert normalizedLowerCutoff<normalizedUpperCutoff;
-                    
-                    filters[i] = new BandPassFilter(normalizedLowerCutoff, normalizedUpperCutoff, filterOrder);
-                }
-            } 
-            
-            int maxFreq = filters[0].transformedIR.length/2 + 1;
+	public void initialise(double[] lowerCutOffsInHzIn, double[] upperCutOffsInHzIn, double overlapAround1000HzIn) {
+		normalizationFilterTransformedIR = null;
 
-            //Estimate a smooth gain normalization filter
-            normalizationFilterTransformedIR = new double[maxFreq];
-            Arrays.fill(normalizationFilterTransformedIR, 0.0);
+		if (lowerCutOffsInHzIn != null && upperCutOffsInHzIn != null) {
+			assert lowerCutOffsInHzIn.length == upperCutOffsInHzIn.length;
+			lowerCutOffsInHz = new double[lowerCutOffsInHzIn.length];
+			upperCutOffsInHz = new double[upperCutOffsInHzIn.length];
+			System.arraycopy(lowerCutOffsInHzIn, 0, lowerCutOffsInHz, 0, lowerCutOffsInHzIn.length);
+			System.arraycopy(upperCutOffsInHzIn, 0, upperCutOffsInHz, 0, upperCutOffsInHzIn.length);
 
-            int j;
-            for (i=0; i<filters.length; i++)
-            {
-                normalizationFilterTransformedIR[0] += Math.abs(filters[i].transformedIR[0]);
-                normalizationFilterTransformedIR[maxFreq-1] += Math.abs(filters[i].transformedIR[1]);
-                for (j=1; j<maxFreq-1; j++)   
-                    normalizationFilterTransformedIR[j] += Math.sqrt(filters[i].transformedIR[2*j]*filters[i].transformedIR[2*j] + filters[i].transformedIR[2*j+1]*filters[i].transformedIR[2*j+1]);    
-            }
-            
-            for (j=0; j<maxFreq; j++)
-                normalizationFilterTransformedIR[j] = 1.0/normalizationFilterTransformedIR[j];
+			int i;
+			filters = new FIRFilter[lowerCutOffsInHz.length];
+			int filterOrder = SignalProcUtils.getFIRFilterOrder(samplingRateInHz);
+			double normalizedLowerCutoff;
+			double normalizedUpperCutoff;
 
-            //MaryUtils.plot(normalizationFilterTransformedIR, "Normalization filter");
-            //
-        }
-    }
+			overlapAround1000Hz = overlapAround1000HzIn;
+
+			for (i = 0; i < lowerCutOffsInHz.length; i++)
+				assert lowerCutOffsInHz[i] < upperCutOffsInHz[i];
+
+			for (i = 0; i < lowerCutOffsInHz.length; i++) {
+				if (lowerCutOffsInHz[i] <= 0.0) {
+					normalizedUpperCutoff = Math.min(upperCutOffsInHz[i] / samplingRateInHz, 0.5);
+					normalizedUpperCutoff = Math.max(normalizedUpperCutoff, 0.0);
+					filters[i] = new LowPassFilter(normalizedUpperCutoff, filterOrder);
+				} else if (upperCutOffsInHz[i] >= 0.5 * samplingRateInHz) {
+					normalizedLowerCutoff = Math.max(lowerCutOffsInHz[i] / samplingRateInHz, 0.0);
+					normalizedLowerCutoff = Math.min(normalizedLowerCutoff, 0.5);
+					filters[i] = new HighPassFilter(normalizedLowerCutoff, filterOrder);
+				} else {
+					normalizedLowerCutoff = Math.max(lowerCutOffsInHz[i] / samplingRateInHz, 0.0);
+					normalizedLowerCutoff = Math.min(normalizedLowerCutoff, 0.5);
+					normalizedUpperCutoff = Math.min(upperCutOffsInHz[i] / samplingRateInHz, 0.5);
+					normalizedUpperCutoff = Math.max(normalizedUpperCutoff, 0.0);
+
+					assert normalizedLowerCutoff < normalizedUpperCutoff;
+
+					filters[i] = new BandPassFilter(normalizedLowerCutoff, normalizedUpperCutoff, filterOrder);
+				}
+			}
+
+			int maxFreq = filters[0].transformedIR.length / 2 + 1;
+
+			// Estimate a smooth gain normalization filter
+			normalizationFilterTransformedIR = new double[maxFreq];
+			Arrays.fill(normalizationFilterTransformedIR, 0.0);
+
+			int j;
+			for (i = 0; i < filters.length; i++) {
+				normalizationFilterTransformedIR[0] += Math.abs(filters[i].transformedIR[0]);
+				normalizationFilterTransformedIR[maxFreq - 1] += Math.abs(filters[i].transformedIR[1]);
+				for (j = 1; j < maxFreq - 1; j++)
+					normalizationFilterTransformedIR[j] += Math.sqrt(filters[i].transformedIR[2 * j]
+							* filters[i].transformedIR[2 * j] + filters[i].transformedIR[2 * j + 1]
+							* filters[i].transformedIR[2 * j + 1]);
+			}
+
+			for (j = 0; j < maxFreq; j++)
+				normalizationFilterTransformedIR[j] = 1.0 / normalizationFilterTransformedIR[j];
+
+			// MaryUtils.plot(normalizationFilterTransformedIR, "Normalization filter");
+			//
+		}
+	}
 
 	public Subband[] apply(double[] x) {
 		Subband[] subbands = null;

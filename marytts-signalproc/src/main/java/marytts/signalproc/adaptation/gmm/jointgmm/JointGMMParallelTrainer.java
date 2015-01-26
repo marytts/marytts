@@ -1180,13 +1180,12 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
 		t.run();
 	}
 
-	public static ContextualGMMParams getContextualGMMParams(String phoneSetFile, GMMTrainerParams[] params, int contextClassificationType)
-    throws MaryConfigurationException
-    {
-        AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
-        assert allophoneSet != null;
-        ContextualGMMParams cg = new ContextualGMMParams(allophoneSet, params, contextClassificationType);
+	public static ContextualGMMParams getContextualGMMParams(String phoneSetFile, GMMTrainerParams[] params,
+			int contextClassificationType) throws MaryConfigurationException {
+		AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
+		assert allophoneSet != null;
+		ContextualGMMParams cg = new ContextualGMMParams(allophoneSet, params, contextClassificationType);
 
-        return cg;
-    }
+		return cg;
+	}
 }

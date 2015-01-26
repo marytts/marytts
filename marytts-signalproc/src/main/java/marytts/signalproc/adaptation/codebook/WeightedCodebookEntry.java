@@ -39,31 +39,28 @@ public class WeightedCodebookEntry {
 		allocate(lpOrder, mfccDimension);
 	}
 
-	public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs, double[] sourceMfccs, double[] targetMfccs)
-    {
-        int lsfDimension = 0;
-        int mfccDimension = 0;
-        
-        if (sourceLsfs!=null && targetLsfs!=null)
-        {
-            assert sourceLsfs.length==targetLsfs.length;
-            lsfDimension = sourceLsfs.length;
-        }
+	public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs, double[] sourceMfccs, double[] targetMfccs) {
+		int lsfDimension = 0;
+		int mfccDimension = 0;
 
-        if (sourceMfccs!=null && targetMfccs!=null)
-        {
-            assert sourceMfccs.length==targetMfccs.length;
-            mfccDimension = sourceMfccs.length;
-        }
+		if (sourceLsfs != null && targetLsfs != null) {
+			assert sourceLsfs.length == targetLsfs.length;
+			lsfDimension = sourceLsfs.length;
+		}
 
-        allocate(lsfDimension, mfccDimension);
-        
-        if (lsfDimension>0)
-            setLsfs(sourceLsfs, targetLsfs);
-        
-        if (mfccDimension>0)
-            setMfccs(sourceMfccs, targetMfccs);
-    }
+		if (sourceMfccs != null && targetMfccs != null) {
+			assert sourceMfccs.length == targetMfccs.length;
+			mfccDimension = sourceMfccs.length;
+		}
+
+		allocate(lsfDimension, mfccDimension);
+
+		if (lsfDimension > 0)
+			setLsfs(sourceLsfs, targetLsfs);
+
+		if (mfccDimension > 0)
+			setMfccs(sourceMfccs, targetMfccs);
+	}
 
 	public void allocate(int lpOrder, int mfccDimension) {
 		if (lpOrder > 0 || mfccDimension > 0) {

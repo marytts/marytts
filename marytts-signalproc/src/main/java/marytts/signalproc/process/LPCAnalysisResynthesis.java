@@ -54,21 +54,20 @@ public class LPCAnalysisResynthesis implements InlineDataProcessor {
 		this.p = p;
 	}
 
-	public void applyInline(double[] data, int off, int len)
-    {
-        assert off==0;
-        assert len==data.length;
-        // Compute LPC coefficients and residual
-        LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
-        //double gain = coeffs.getGain();
-        double[] residual = ArrayUtils.subarray(new FIRFilter(coeffs.getOneMinusA()).apply(data),0,len);
-        // Do something fancy with the lpc coefficients and/or the residual
-        processLPC(coeffs, residual);
-        // Resynthesise audio from residual and LPC coefficients
-        double[] newData = new RecursiveFilter(coeffs.getA()).apply(residual);
-        //System.err.println("Sum squared error:"+MathUtils.sumSquaredError(data, newData));
-        System.arraycopy(newData, 0, data, 0, len);
-    }
+	public void applyInline(double[] data, int off, int len) {
+		assert off == 0;
+		assert len == data.length;
+		// Compute LPC coefficients and residual
+		LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
+		// double gain = coeffs.getGain();
+		double[] residual = ArrayUtils.subarray(new FIRFilter(coeffs.getOneMinusA()).apply(data), 0, len);
+		// Do something fancy with the lpc coefficients and/or the residual
+		processLPC(coeffs, residual);
+		// Resynthesise audio from residual and LPC coefficients
+		double[] newData = new RecursiveFilter(coeffs.getA()).apply(residual);
+		// System.err.println("Sum squared error:"+MathUtils.sumSquaredError(data, newData));
+		System.arraycopy(newData, 0, data, 0, len);
+	}
 
 	/**
 	 * Process the LPC coefficients and/or the residual in place. This method does nothing; subclasses may want to override it to

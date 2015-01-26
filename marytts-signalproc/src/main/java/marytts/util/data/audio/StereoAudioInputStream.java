@@ -72,77 +72,81 @@ public class StereoAudioInputStream extends AudioInputStream {
 	 * @see #available
 	 */
 	public int read(byte[] b, int off, int len) throws IOException {
-        int sampleSizeInBytes = frameSize / inputChannels;
-        int outputFrameSize = sampleSizeInBytes * 2;
-        int nFrames = len/outputFrameSize;
-        byte[] inputBytes = new byte[nFrames*frameSize];
-        int nInputBytes = super.read(inputBytes, 0, inputBytes.length);
-        if (nInputBytes <= 0) return nInputBytes;
-        // For mono input, copy the mono signal to the output channels indicated in outputMode:
-        if (inputChannels == 1) {
-            if (outputMode == AudioPlayer.STEREO) {
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    for (int k=0; k<sampleSizeInBytes; k++) {
-                        b[j+k] = b[j+sampleSizeInBytes+k] = inputBytes[i+k];
-                    }
-                }
-            } else if (outputMode == AudioPlayer.LEFT_ONLY) {
-                if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
-                    throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "+getFormat().getEncoding());
-                }
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    for (int k=0; k<sampleSizeInBytes; k++) {
-                        b[j+k] = inputBytes[i+k];
-                        b[j+sampleSizeInBytes+k] = 0;
-                    }
-                }
-            } else {
-                assert outputMode == AudioPlayer.RIGHT_ONLY : "Unexpected output mode: "+outputMode;
-                if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
-                    throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "+getFormat().getEncoding());
-                }
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    for (int k=0; k<sampleSizeInBytes; k++) {
-                        b[j+k] = 0;
-                        b[j+sampleSizeInBytes+k] = inputBytes[i+k];
-                    }
-                }
-            }
-        } else {
-            // For stereo or more channels' input, retain the first two channels according to outputMode:
-            if (outputMode == AudioPlayer.STEREO) {
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    // copy the first two samples in every frame:
-                    System.arraycopy(inputBytes, i, b, j, outputFrameSize);
-                }
-            } else if (outputMode == AudioPlayer.LEFT_ONLY) {
-                if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
-                    throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "+getFormat().getEncoding());
-                }
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    for (int k=0; k<sampleSizeInBytes; k++) {
-                        b[j+k] = inputBytes[i+k];
-                        b[j+sampleSizeInBytes+k] = 0;
-                    }
-                }
-            } else {
-                assert outputMode == AudioPlayer.RIGHT_ONLY : "Unexpected output mode: "+outputMode;
-                if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
-                    throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "+getFormat().getEncoding());
-                }
-                for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
-                    for (int k=0; k<sampleSizeInBytes; k++) {
-                        b[j+k] = 0;
-                        b[j+sampleSizeInBytes+k] = inputBytes[i+sampleSizeInBytes+k];
-                    }
-                }
-                
-            }
-        }
-        
-        
-        return 2*nInputBytes/inputChannels;
-    }
+		int sampleSizeInBytes = frameSize / inputChannels;
+		int outputFrameSize = sampleSizeInBytes * 2;
+		int nFrames = len / outputFrameSize;
+		byte[] inputBytes = new byte[nFrames * frameSize];
+		int nInputBytes = super.read(inputBytes, 0, inputBytes.length);
+		if (nInputBytes <= 0)
+			return nInputBytes;
+		// For mono input, copy the mono signal to the output channels indicated in outputMode:
+		if (inputChannels == 1) {
+			if (outputMode == AudioPlayer.STEREO) {
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					for (int k = 0; k < sampleSizeInBytes; k++) {
+						b[j + k] = b[j + sampleSizeInBytes + k] = inputBytes[i + k];
+					}
+				}
+			} else if (outputMode == AudioPlayer.LEFT_ONLY) {
+				if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
+					throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "
+							+ getFormat().getEncoding());
+				}
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					for (int k = 0; k < sampleSizeInBytes; k++) {
+						b[j + k] = inputBytes[i + k];
+						b[j + sampleSizeInBytes + k] = 0;
+					}
+				}
+			} else {
+				assert outputMode == AudioPlayer.RIGHT_ONLY : "Unexpected output mode: " + outputMode;
+				if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
+					throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "
+							+ getFormat().getEncoding());
+				}
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					for (int k = 0; k < sampleSizeInBytes; k++) {
+						b[j + k] = 0;
+						b[j + sampleSizeInBytes + k] = inputBytes[i + k];
+					}
+				}
+			}
+		} else {
+			// For stereo or more channels' input, retain the first two channels according to outputMode:
+			if (outputMode == AudioPlayer.STEREO) {
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					// copy the first two samples in every frame:
+					System.arraycopy(inputBytes, i, b, j, outputFrameSize);
+				}
+			} else if (outputMode == AudioPlayer.LEFT_ONLY) {
+				if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
+					throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "
+							+ getFormat().getEncoding());
+				}
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					for (int k = 0; k < sampleSizeInBytes; k++) {
+						b[j + k] = inputBytes[i + k];
+						b[j + sampleSizeInBytes + k] = 0;
+					}
+				}
+			} else {
+				assert outputMode == AudioPlayer.RIGHT_ONLY : "Unexpected output mode: " + outputMode;
+				if (!getFormat().getEncoding().equals(Encoding.PCM_SIGNED)) {
+					throw new IllegalArgumentException("Channel muting supported only for PCM_SIGNED encoding, got "
+							+ getFormat().getEncoding());
+				}
+				for (int i = 0, j = off; i < nInputBytes; i += frameSize, j += outputFrameSize) {
+					for (int k = 0; k < sampleSizeInBytes; k++) {
+						b[j + k] = 0;
+						b[j + sampleSizeInBytes + k] = inputBytes[i + sampleSizeInBytes + k];
+					}
+				}
+
+			}
+		}
+
+		return 2 * nInputBytes / inputChannels;
+	}
 
 	/**
 	 * Skips over and discards a specified number of bytes from this audio input stream.

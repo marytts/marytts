@@ -688,62 +688,56 @@ public class MathUtils {
 
 	// If isAlongRows==true, the observations are row-by-row
 	// if isAlongRows==false, they are column-by-column
-	public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows, int[] indicesOfX)
-    {
-        int numObservations;
-        int dimension;
-        int i, j, p;
-        double[][] cov = null;
-        double[][] tmpMatrix = null;
-        double[][] zeroMean = null;
-        double[][] zeroMeanTranspoze = null;
+	public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows, int[] indicesOfX) {
+		int numObservations;
+		int dimension;
+		int i, j, p;
+		double[][] cov = null;
+		double[][] tmpMatrix = null;
+		double[][] zeroMean = null;
+		double[][] zeroMeanTranspoze = null;
 
-        if (x!=null && meanVector!=null)
-        {
-            if (isAlongRows)
-            {
-                for (i=0; i<indicesOfX.length; i++)
-                    assert meanVector.length == x[indicesOfX[i]].length;
+		if (x != null && meanVector != null) {
+			if (isAlongRows) {
+				for (i = 0; i < indicesOfX.length; i++)
+					assert meanVector.length == x[indicesOfX[i]].length;
 
-                numObservations = indicesOfX.length;
-                dimension = x[indicesOfX[0]].length;
+				numObservations = indicesOfX.length;
+				dimension = x[indicesOfX[0]].length;
 
-                cov = new double[dimension][dimension];
-                tmpMatrix = new double[dimension][dimension];
-                zeroMean = new double[dimension][1];
-                double[] tmpVector;
+				cov = new double[dimension][dimension];
+				tmpMatrix = new double[dimension][dimension];
+				zeroMean = new double[dimension][1];
+				double[] tmpVector;
 
-                for (i=0; i<dimension; i++)
-                    Arrays.fill(cov[i], 0.0);
+				for (i = 0; i < dimension; i++)
+					Arrays.fill(cov[i], 0.0);
 
-                for (i=0; i<numObservations; i++)
-                {
-                    tmpVector = subtract(x[indicesOfX[i]], meanVector);
-                    zeroMean = transpoze(tmpVector);
-                    zeroMeanTranspoze = transpoze(zeroMean);
+				for (i = 0; i < numObservations; i++) {
+					tmpVector = subtract(x[indicesOfX[i]], meanVector);
+					zeroMean = transpoze(tmpVector);
+					zeroMeanTranspoze = transpoze(zeroMean);
 
-                    tmpMatrix = matrixProduct(zeroMean, zeroMeanTranspoze);
-                    cov = add(cov, tmpMatrix);
-                }
+					tmpMatrix = matrixProduct(zeroMean, zeroMeanTranspoze);
+					cov = add(cov, tmpMatrix);
+				}
 
-                cov = divide(cov, numObservations-1);
-            }
-            else
-            {
-                assert meanVector.length == x.length;
-                numObservations = indicesOfX.length;
+				cov = divide(cov, numObservations - 1);
+			} else {
+				assert meanVector.length == x.length;
+				numObservations = indicesOfX.length;
 
-                for (i=1; i<indicesOfX.length; i++)
-                    assert x[indicesOfX[i]].length==x[indicesOfX[0]].length;
+				for (i = 1; i < indicesOfX.length; i++)
+					assert x[indicesOfX[i]].length == x[indicesOfX[0]].length;
 
-                dimension = x.length;
+				dimension = x.length;
 
-                cov = transpoze(covariance(transpoze(x), meanVector, true, indicesOfX));
-            }
-        }
+				cov = transpoze(covariance(transpoze(x), meanVector, true, indicesOfX));
+			}
+		}
 
-        return cov;
-    }
+		return cov;
+	}
 
 	/***
 	 * Sample correlation coefficient Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
@@ -772,24 +766,22 @@ public class MathUtils {
 			throw new IllegalArgumentException("vectors of different size");
 	}
 
-	public static double[] diagonal(double[][]x)
-    {
-        double[] d = null;
-        int dim = x.length;
-        int i;
-        for (i=1; i<dim; i++)
-            assert x[i].length==dim;
+	public static double[] diagonal(double[][] x) {
+		double[] d = null;
+		int dim = x.length;
+		int i;
+		for (i = 1; i < dim; i++)
+			assert x[i].length == dim;
 
-        if (x!=null)
-        {
-            d = new double[dim];
+		if (x != null) {
+			d = new double[dim];
 
-            for (i=0; i<x.length; i++)
-                d[i] = x[i][i]; 
-        }
+			for (i = 0; i < x.length; i++)
+				d[i] = x[i][i];
+		}
 
-        return d;
-    }
+		return d;
+	}
 
 	public static double[][] toDiagonalMatrix(double[] x) {
 		double[][] m = null;
@@ -815,74 +807,65 @@ public class MathUtils {
 		return y;
 	}
 
-	public static double[][] transpoze(double[][] x)
-    {
-        double[][] y = null;
+	public static double[][] transpoze(double[][] x) {
+		double[][] y = null;
 
-        if (x!=null)
-        {
-            int i, j;
-            int rowSizex = x.length;
-            int colSizex = x[0].length;
-            for (i=1; i<rowSizex; i++)
-                assert x[i].length==colSizex;
+		if (x != null) {
+			int i, j;
+			int rowSizex = x.length;
+			int colSizex = x[0].length;
+			for (i = 1; i < rowSizex; i++)
+				assert x[i].length == colSizex;
 
-            y = new double[colSizex][rowSizex];
-            for (i=0; i<rowSizex; i++)
-            {
-                for (j=0; j<colSizex; j++)
-                    y[j][i] = x[i][j];
-            }
-        }
+			y = new double[colSizex][rowSizex];
+			for (i = 0; i < rowSizex; i++) {
+				for (j = 0; j < colSizex; j++)
+					y[j][i] = x[i][j];
+			}
+		}
 
-        return y;
-    }
+		return y;
+	}
 
-	public static ComplexNumber[][] transpoze(ComplexNumber[][] x)
-    {
-        ComplexNumber[][] y = null;
+	public static ComplexNumber[][] transpoze(ComplexNumber[][] x) {
+		ComplexNumber[][] y = null;
 
-        if (x!=null)
-        {
-            int i, j;
-            int rowSizex = x.length;
-            int colSizex = x[0].length;
-            for (i=1; i<rowSizex; i++)
-                assert x[i].length==colSizex;
+		if (x != null) {
+			int i, j;
+			int rowSizex = x.length;
+			int colSizex = x[0].length;
+			for (i = 1; i < rowSizex; i++)
+				assert x[i].length == colSizex;
 
-            y = new ComplexNumber[colSizex][rowSizex];
-            for (i=0; i<rowSizex; i++)
-            {
-                for (j=0; j<colSizex; j++)
-                    y[j][i] = new ComplexNumber(x[i][j]);
-            }
-        }
+			y = new ComplexNumber[colSizex][rowSizex];
+			for (i = 0; i < rowSizex; i++) {
+				for (j = 0; j < colSizex; j++)
+					y[j][i] = new ComplexNumber(x[i][j]);
+			}
+		}
 
-        return y;
-    }
+		return y;
+	}
 
-	public static ComplexNumber[][] hermitianTranspoze(ComplexNumber[][] x)
-    {
-        ComplexNumber[][] y = null;
+	public static ComplexNumber[][] hermitianTranspoze(ComplexNumber[][] x) {
+		ComplexNumber[][] y = null;
 
-        if (x!=null)
-        {
-            int i, j;
-            int rowSizex = x.length;
-            int colSizex = x[0].length;
-            for (i=1; i<rowSizex; i++)
-                assert x[i].length==colSizex;
+		if (x != null) {
+			int i, j;
+			int rowSizex = x.length;
+			int colSizex = x[0].length;
+			for (i = 1; i < rowSizex; i++)
+				assert x[i].length == colSizex;
 
-            y = new ComplexNumber[colSizex][rowSizex];
-            for (i=0; i<rowSizex; i++)
-            {
-                for (j=0; j<colSizex; j++)
-                    y[j][i] = new ComplexNumber(x[i][j].real, -1.0*x[i][j].imag);
-            }
-        }
+			y = new ComplexNumber[colSizex][rowSizex];
+			for (i = 0; i < rowSizex; i++) {
+				for (j = 0; j < colSizex; j++)
+					y[j][i] = new ComplexNumber(x[i][j].real, -1.0 * x[i][j].imag);
+			}
+		}
 
-        return y;
-    }
+		return y;
+	}
 
 	public static ComplexNumber[][] diagonalComplexMatrix(double[] diag) {
 		ComplexNumber[][] x = null;
@@ -950,15 +933,14 @@ public class MathUtils {
 		return comps;
 	}
 
-	public static double[] add(double[] x, double[] y)
-    {
-        assert x.length==y.length;
-        double[] z = new double[x.length];
-        for (int i=0; i<x.length; i++)
-            z[i] = x[i]+y[i];
+	public static double[] add(double[] x, double[] y) {
+		assert x.length == y.length;
+		double[] z = new double[x.length];
+		for (int i = 0; i < x.length; i++)
+			z[i] = x[i] + y[i];
 
-        return z;
-    }
+		return z;
+	}
 
 	public static double[] add(double[] a, double b) {
 		double[] c = new double[a.length];
@@ -1181,16 +1163,15 @@ public class MathUtils {
 		return mags;
 	}
 
-	public static double[] magnitudeComplex(ComplexArray x)
-    {
-        assert x.real.length == x.imag.length;
-        double[] mags = new double[x.real.length];
-        
-        for (int i=0; i<x.real.length; i++)
-            mags[i] = magnitudeComplex(new ComplexNumber(x.real[i], x.imag[i]));
-        
-        return mags;
-    }
+	public static double[] magnitudeComplex(ComplexArray x) {
+		assert x.real.length == x.imag.length;
+		double[] mags = new double[x.real.length];
+
+		for (int i = 0; i < x.real.length; i++)
+			mags[i] = magnitudeComplex(new ComplexNumber(x.real[i], x.imag[i]));
+
+		return mags;
+	}
 
 	public static double magnitudeComplex(double xReal, double xImag) {
 		return Math.sqrt(magnitudeComplexSquared(xReal, xImag));
@@ -1239,17 +1220,16 @@ public class MathUtils {
 		return phases;
 	}
 
-	public static double[] phaseInRadians(ComplexArray x)
-    {
-        assert x.real.length==x.imag.length;
-        
-        double[] phases = new double[x.real.length];
-        
-        for (int i=0; i<x.real.length; i++)
-            phases[i] = phaseInRadians(x.real[i], x.imag[i]);
-        
-        return phases;
-    }
+	public static double[] phaseInRadians(ComplexArray x) {
+		assert x.real.length == x.imag.length;
+
+		double[] phases = new double[x.real.length];
+
+		for (int i = 0; i < x.real.length; i++)
+			phases[i] = phaseInRadians(x.real[i], x.imag[i]);
+
+		return phases;
+	}
 
 	// Returns a+jb such that a+jb=r.exp(j.theta) where theta is in radians
 	public static ComplexNumber complexNumber(double r, double theta) {
@@ -1277,85 +1257,72 @@ public class MathUtils {
 
 	// Returns the summ of two matrices, i.e. x+y
 	// x and y should be of same size
-	public static double[][] add(double[][] x, double[][] y)
-    {
-        double[][] z = null;
+	public static double[][] add(double[][] x, double[][] y) {
+		double[][] z = null;
 
-        if (x!=null && y!=null)
-        {
-            int i, j;
-            assert x.length==y.length;
-            for (i=0; i<x.length; i++)
-            {
-                assert x[i].length==x[0].length;
-                assert x[i].length==y[i].length;
-            }
+		if (x != null && y != null) {
+			int i, j;
+			assert x.length == y.length;
+			for (i = 0; i < x.length; i++) {
+				assert x[i].length == x[0].length;
+				assert x[i].length == y[i].length;
+			}
 
-            z = new double[x.length][x[0].length];
+			z = new double[x.length][x[0].length];
 
+			for (i = 0; i < x.length; i++) {
+				for (j = 0; j < x[i].length; j++)
+					z[i][j] = x[i][j] + y[i][j];
+			}
+		}
 
-            for (i=0; i<x.length; i++)
-            {
-                for (j=0; j<x[i].length; j++)
-                    z[i][j] = x[i][j]+y[i][j];
-            }
-        }
-
-        return z;
-    }
+		return z;
+	}
 
 	// Returns the difference of two matrices, i.e. x-y
 	// x and y should be of same size
-	public static double[][] subtract(double[][] x, double[][] y)
-    {
-        double[][] z = null;
+	public static double[][] subtract(double[][] x, double[][] y) {
+		double[][] z = null;
 
-        if (x!=null && y!=null)
-        {
-            int i, j;
-            assert x.length==y.length;
-            for (i=0; i<x.length; i++)
-            {
-                assert x[i].length==x[0].length;
-                assert x[i].length==y[i].length;
-            }
+		if (x != null && y != null) {
+			int i, j;
+			assert x.length == y.length;
+			for (i = 0; i < x.length; i++) {
+				assert x[i].length == x[0].length;
+				assert x[i].length == y[i].length;
+			}
 
-            z = new double[x.length][x[0].length];
+			z = new double[x.length][x[0].length];
 
+			for (i = 0; i < x.length; i++) {
+				for (j = 0; j < x[i].length; j++)
+					z[i][j] = x[i][j] - y[i][j];
+			}
+		}
 
-            for (i=0; i<x.length; i++)
-            {
-                for (j=0; j<x[i].length; j++)
-                    z[i][j] = x[i][j]-y[i][j];
-            }
-        }
-
-        return z;
-    }
+		return z;
+	}
 
 	// Returns multiplication of matrix entries with a constant, i.e. ax
 	// x and y should be of same size
-	public static double[][] multiply(double a, double[][] x)
-    {
-        double[][] z = null;
+	public static double[][] multiply(double a, double[][] x) {
+		double[][] z = null;
 
-        if (x!=null)
-        {
-            int i, j;
-            for (i=1; i<x.length; i++)
-                assert x[i].length==x[0].length;
+		if (x != null) {
+			int i, j;
+			for (i = 1; i < x.length; i++)
+				assert x[i].length == x[0].length;
 
-            z = new double[x.length][x[0].length];
+			z = new double[x.length][x[0].length];
 
-            for (i=0; i<x.length; i++)
-            {
-                for (j=0; j<x[i].length; j++)
-                    z[i][j] = a*x[i][j];
-            }
-        }
+			for (i = 0; i < x.length; i++) {
+				for (j = 0; j < x[i].length; j++)
+					z[i][j] = a * x[i][j];
+			}
+		}
 
-        return z;
-    }
+		return z;
+	}
 
 	// Returns the division of matrix entries with a constant, i.e. x/a
 	// x and y should be of same size
@@ -1445,118 +1412,98 @@ public class MathUtils {
 	}
 
 	// This is a "*" product --> should return a matrix provided that the sizes are appropriate
-	public static double[][] matrixProduct(double[][] x, double[][] y)
-    {
-        double[][] z = null;
+	public static double[][] matrixProduct(double[][] x, double[][] y) {
+		double[][] z = null;
 
-        if (x!=null && y!=null)
-        {
-            if (x.length==1 && y.length==1) //Special case -- diagonal matrix multiplication, returns a diagonal matrix
-            {
-                assert x[0].length==y[0].length;
-                z = new double[1][x[0].length];
-                for (int i=0; i<x[0].length; i++)
-                    z[0][i] = x[0][i]*y[0][i];
-            }
-            else
-            {
-                int i, j, m;
-                int rowSizex = x.length;
-                int colSizex = x[0].length;
-                int rowSizey = y.length;
-                int colSizey = y[0].length;
-                for (i=1; i<x.length; i++)
-                    assert x[i].length == colSizex;
-                for (i=1; i<y.length; i++)
-                    assert y[i].length == colSizey;
-                assert colSizex==rowSizey;
+		if (x != null && y != null) {
+			if (x.length == 1 && y.length == 1) // Special case -- diagonal matrix multiplication, returns a diagonal matrix
+			{
+				assert x[0].length == y[0].length;
+				z = new double[1][x[0].length];
+				for (int i = 0; i < x[0].length; i++)
+					z[0][i] = x[0][i] * y[0][i];
+			} else {
+				int i, j, m;
+				int rowSizex = x.length;
+				int colSizex = x[0].length;
+				int rowSizey = y.length;
+				int colSizey = y[0].length;
+				for (i = 1; i < x.length; i++)
+					assert x[i].length == colSizex;
+				for (i = 1; i < y.length; i++)
+					assert y[i].length == colSizey;
+				assert colSizex == rowSizey;
 
-                z = new double[rowSizex][colSizey];
-                double tmpSum;
-                for (i=0; i<rowSizex; i++)
-                {
-                    for (j=0; j<colSizey; j++)
-                    {
-                        tmpSum = 0.0;
-                        for (m=0; m<x[i].length; m++)
-                            tmpSum += x[i][m]*y[m][j];
+				z = new double[rowSizex][colSizey];
+				double tmpSum;
+				for (i = 0; i < rowSizex; i++) {
+					for (j = 0; j < colSizey; j++) {
+						tmpSum = 0.0;
+						for (m = 0; m < x[i].length; m++)
+							tmpSum += x[i][m] * y[m][j];
 
-                        z[i][j] = tmpSum;
-                    }
-                }
-            }
-        }
+						z[i][j] = tmpSum;
+					}
+				}
+			}
+		}
 
-        return z;
-    }
+		return z;
+	}
 
 	// This is a "*" product --> should return a matrix provided that the sizes are appropriate
-	public static ComplexNumber[][] matrixProduct(ComplexNumber[][] x, ComplexNumber[][] y)
-    {
-        ComplexNumber[][] z = null;
+	public static ComplexNumber[][] matrixProduct(ComplexNumber[][] x, ComplexNumber[][] y) {
+		ComplexNumber[][] z = null;
 
-        if (x!=null && y!=null)
-        {
-            if (x.length==1 && y.length==1) //Special case -- diagonal matrix multiplication, returns a diagonal matrix
-            {
-                assert x[0].length==y[0].length;
-                z = new ComplexNumber[1][x[0].length];
-                for (int i=0; i<x[0].length; i++)
-                    z[0][i] = multiplyComplex(x[0][i],y[0][i]);
-            }
-            else
-            {
-                int i, j, m;
-                int rowSizex = x.length;
-                int colSizex = x[0].length;
-                int rowSizey = y.length;
-                int colSizey = y[0].length;
-                for (i=1; i<x.length; i++)
-                    assert x[i].length == colSizex;
-                for (i=1; i<y.length; i++)
-                    assert y[i].length == colSizey;
-                assert colSizex==rowSizey;
+		if (x != null && y != null) {
+			if (x.length == 1 && y.length == 1) // Special case -- diagonal matrix multiplication, returns a diagonal matrix
+			{
+				assert x[0].length == y[0].length;
+				z = new ComplexNumber[1][x[0].length];
+				for (int i = 0; i < x[0].length; i++)
+					z[0][i] = multiplyComplex(x[0][i], y[0][i]);
+			} else {
+				int i, j, m;
+				int rowSizex = x.length;
+				int colSizex = x[0].length;
+				int rowSizey = y.length;
+				int colSizey = y[0].length;
+				for (i = 1; i < x.length; i++)
+					assert x[i].length == colSizex;
+				for (i = 1; i < y.length; i++)
+					assert y[i].length == colSizey;
+				assert colSizex == rowSizey;
 
-                z = new ComplexNumber[rowSizex][colSizey];
-               
-                /** Marc Schröder, 3 July 2009: The following implementation used up
-                 * about 93% of total processing time. Replacing it with a less elegant
-                 * but more efficient implementation:
-                
-                ComplexNumber tmpSum;
-                for (i=0; i<rowSizex; i++)
-                {
-                    for (j=0; j<colSizey; j++)
-                    {
-                        tmpSum = new ComplexNumber(0.0, 0.0);
-                        for (m=0; m<x[i].length; m++)
-                            tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
+				z = new ComplexNumber[rowSizex][colSizey];
 
-                        z[i][j] = new ComplexNumber(tmpSum);
-                    }
-                }
-                 */
-                
-                for (i=0; i<rowSizex; i++)
-                {
-                    for (j=0; j<colSizey; j++)
-                    {
-                        float real = 0f, imag = 0f;
-                        for (m=0; m<x[i].length; m++) {
-                            ComplexNumber x1 = x[i][m];
-                            ComplexNumber x2 = y[m][j];
-                            real += x1.real*x2.real-x1.imag*x2.imag;
-                            imag += x1.real*x2.imag+x1.imag*x2.real;
-                        }
+				/**
+				 * Marc Schröder, 3 July 2009: The following implementation used up about 93% of total processing time. Replacing
+				 * it with a less elegant but more efficient implementation:
+				 * 
+				 * ComplexNumber tmpSum; for (i=0; i<rowSizex; i++) { for (j=0; j<colSizey; j++) { tmpSum = new ComplexNumber(0.0,
+				 * 0.0); for (m=0; m<x[i].length; m++) tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
+				 * 
+				 * z[i][j] = new ComplexNumber(tmpSum); } }
+				 */
 
-                        z[i][j] = new ComplexNumber(real, imag);
-                    }
-                }
-            }
-        }
+				for (i = 0; i < rowSizex; i++) {
+					for (j = 0; j < colSizey; j++) {
+						float real = 0f, imag = 0f;
+						for (m = 0; m < x[i].length; m++) {
+							ComplexNumber x1 = x[i][m];
+							ComplexNumber x2 = y[m][j];
+							real += x1.real * x2.real - x1.imag * x2.imag;
+							imag += x1.real * x2.imag + x1.imag * x2.real;
+						}
 
-        return z;
-    }
+						z[i][j] = new ComplexNumber(real, imag);
+					}
+				}
+			}
+		}
+
+		return z;
+	}
 
 	// "x" product of two vectors
 	public static double[][] vectorProduct(double[] x, boolean isColumnVectorX, double[] y, boolean isColumnVectorY) {
@@ -1584,43 +1531,38 @@ public class MathUtils {
 		return matrixProduct(xx, yy);
 	}
 
-	public static double dotProduct(double[] x, double[] y)
-    {
-        assert x.length==y.length;
+	public static double dotProduct(double[] x, double[] y) {
+		assert x.length == y.length;
 
-        double tmpSum = 0.0;
-        for (int i=0; i<x.length; i++)
-            tmpSum += x[i]*y[i];
+		double tmpSum = 0.0;
+		for (int i = 0; i < x.length; i++)
+			tmpSum += x[i] * y[i];
 
-        return tmpSum;
-    }
+		return tmpSum;
+	}
 
-	public static double[][] dotProduct(double[][] x, double[][] y)
-    {
-        double[][] z = null;
-        assert x.length==y.length;
-        int numRows = x.length;
-        int numCols = x[0].length;
-        int i;
-        for (i=1; i<numRows; i++)
-        {
-            assert numCols == x[i].length;
-            assert numCols == y[i].length;
-        }
+	public static double[][] dotProduct(double[][] x, double[][] y) {
+		double[][] z = null;
+		assert x.length == y.length;
+		int numRows = x.length;
+		int numCols = x[0].length;
+		int i;
+		for (i = 1; i < numRows; i++) {
+			assert numCols == x[i].length;
+			assert numCols == y[i].length;
+		}
 
-        if (x!=null)
-        {
-            int j;
-            z = new double[numRows][numCols];
-            for (i=0; i<numRows; i++)
-            {
-                for (j=0; j<numCols; j++)
-                    z[i][j] = x[i][j]*y[i][j];
-            }
-        }
+		if (x != null) {
+			int j;
+			z = new double[numRows][numCols];
+			for (i = 0; i < numRows; i++) {
+				for (j = 0; j < numCols; j++)
+					z[i][j] = x[i][j] * y[i][j];
+			}
+		}
 
-        return z;
-    }
+		return z;
+	}
 
 	/**
 	 * Convert energy from linear scale to db SPL scale (comparing energies to the minimum audible energy, one Pascal squared).
@@ -2072,84 +2014,81 @@ public class MathUtils {
 	//
 	// r : Complex vector of length N containing the first row of the correlation matrix R
 	// c : Complex vector containing the right handside of the equation
-	public static ComplexNumber[] levinson(ComplexNumber[] r, ComplexNumber[] c)
-    {
-        assert r.length == c.length;
-        
-        int M = r.length; //Order of equations to be solved
-        ComplexNumber[] a = new ComplexNumber[M]; //Temporary array for computations
-        ComplexNumber[] b = new ComplexNumber[M]; //Temporary array for computations
-        ComplexNumber[] h = new ComplexNumber[M]; //Output
-        ComplexNumber alpha, beta, gamma, xk, q;
-        int i;
-        
-        //Check for zero input
-        if (r[0].real==0.0 && r[0].imag==0.0)
-        {
-            for (i=1; i<=M; i++)
-                h[i-1] = new ComplexNumber(0.0, 0.0);
+	public static ComplexNumber[] levinson(ComplexNumber[] r, ComplexNumber[] c) {
+		assert r.length == c.length;
 
-            return h;
-        }
-        
-        //First order solution
-        a[0] = new ComplexNumber(1.0, 0.0);
-        beta = new ComplexNumber(r[1]);
-        alpha = new ComplexNumber(r[0]);
-        h[0] = MathUtils.divideComplex(c[0], r[0]);
-        if (M==1)
-            return h;
-        
-        //Second order solution
-        gamma = MathUtils.multiplyComplex(h[0], r[1]);
-        xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), alpha);
-        a[1] = new ComplexNumber(xk);
-        alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
-        q = MathUtils.divideComplex((MathUtils.subtractComplex(c[1], gamma)), MathUtils.complexConjugate(alpha));                                       
-        h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[1])));
-        h[1] = new ComplexNumber(q);                                        
-        if (M==2)
-            return h;
-                                                             
-        // Recursion for orders >= 3
-        beta = MathUtils.addComplex(r[2], MathUtils.multiplyComplex(a[1], r[1]));
-        gamma = MathUtils.addComplex(MathUtils.multiplyComplex(h[0], r[2]), MathUtils.multiplyComplex(h[1], r[1]));
-        int M1 = M-1;
-                                                          
-        for (int N=2; N<=M1; N++)
-        {
-            xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), MathUtils.complexConjugate(alpha));
+		int M = r.length; // Order of equations to be solved
+		ComplexNumber[] a = new ComplexNumber[M]; // Temporary array for computations
+		ComplexNumber[] b = new ComplexNumber[M]; // Temporary array for computations
+		ComplexNumber[] h = new ComplexNumber[M]; // Output
+		ComplexNumber alpha, beta, gamma, xk, q;
+		int i;
 
-            for (i=2; i<=N; i++)                                                   
-                b[i-1] = MathUtils.addComplex(a[i-1], MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(a[N+1-i])));                              
+		// Check for zero input
+		if (r[0].real == 0.0 && r[0].imag == 0.0) {
+			for (i = 1; i <= M; i++)
+				h[i - 1] = new ComplexNumber(0.0, 0.0);
 
-            for (i=2; i<=N; i++)                                                   
-                a[i-1] = new ComplexNumber(b[i-1]);
-                                                                        
-            a[N] = new ComplexNumber(xk);      
-            alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
-            q = MathUtils.divideComplex(MathUtils.subtractComplex(c[N], gamma), MathUtils.complexConjugate(alpha));
-            h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N])));                            
-            for (i=2; i<=N; i++)                                   
-                h[i-1] = MathUtils.addComplex(h[i-1], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N+1-i])));                                                   
-                              
-            h[N] = new ComplexNumber(q);                                                     
-            
-            if (N==M1)
-                return h;
-                  
-            gamma = new ComplexNumber(0.0, 0.0);
-            beta = new ComplexNumber(0.0, 0.0);
+			return h;
+		}
 
-            for (i=1; i<=N+1; i++)
-            {
-                beta = MathUtils.addComplex(beta, MathUtils.multiplyComplex(a[i-1], r[N-i+2]));                                   
-                gamma = MathUtils.addComplex(gamma, MathUtils.multiplyComplex(h[i-1], r[N-i+2]));
-            }                                                     
-        }                                                         
+		// First order solution
+		a[0] = new ComplexNumber(1.0, 0.0);
+		beta = new ComplexNumber(r[1]);
+		alpha = new ComplexNumber(r[0]);
+		h[0] = MathUtils.divideComplex(c[0], r[0]);
+		if (M == 1)
+			return h;
 
-        return h;
-    }
+		// Second order solution
+		gamma = MathUtils.multiplyComplex(h[0], r[1]);
+		xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), alpha);
+		a[1] = new ComplexNumber(xk);
+		alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
+		q = MathUtils.divideComplex((MathUtils.subtractComplex(c[1], gamma)), MathUtils.complexConjugate(alpha));
+		h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[1])));
+		h[1] = new ComplexNumber(q);
+		if (M == 2)
+			return h;
+
+		// Recursion for orders >= 3
+		beta = MathUtils.addComplex(r[2], MathUtils.multiplyComplex(a[1], r[1]));
+		gamma = MathUtils.addComplex(MathUtils.multiplyComplex(h[0], r[2]), MathUtils.multiplyComplex(h[1], r[1]));
+		int M1 = M - 1;
+
+		for (int N = 2; N <= M1; N++) {
+			xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), MathUtils.complexConjugate(alpha));
+
+			for (i = 2; i <= N; i++)
+				b[i - 1] = MathUtils
+						.addComplex(a[i - 1], MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(a[N + 1 - i])));
+
+			for (i = 2; i <= N; i++)
+				a[i - 1] = new ComplexNumber(b[i - 1]);
+
+			a[N] = new ComplexNumber(xk);
+			alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
+			q = MathUtils.divideComplex(MathUtils.subtractComplex(c[N], gamma), MathUtils.complexConjugate(alpha));
+			h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N])));
+			for (i = 2; i <= N; i++)
+				h[i - 1] = MathUtils.addComplex(h[i - 1], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N + 1 - i])));
+
+			h[N] = new ComplexNumber(q);
+
+			if (N == M1)
+				return h;
+
+			gamma = new ComplexNumber(0.0, 0.0);
+			beta = new ComplexNumber(0.0, 0.0);
+
+			for (i = 1; i <= N + 1; i++) {
+				beta = MathUtils.addComplex(beta, MathUtils.multiplyComplex(a[i - 1], r[N - i + 2]));
+				gamma = MathUtils.addComplex(gamma, MathUtils.multiplyComplex(h[i - 1], r[N - i + 2]));
+			}
+		}
+
+		return h;
+	}
 
 	public static float[] interpolate(float[] x, int newLength) {
 		if (x != null) {
@@ -2252,44 +2191,41 @@ public class MathUtils {
 	}
 
 	// Linear interpolation of values in xVals at indices xInds to give values at indices xInds2
-	public static double[] interpolate(int[] xInds, double[] xVals, int[] xInds2)
-    {
-        double[] xVals2 = new double[xInds2.length];
-        assert xInds.length==xVals.length;
-        
-        for (int i=0; i<xInds2.length; i++)
-        {
-            int closestInd = MathUtils.findClosest(xInds, xInds2[i]);
-            if (closestInd==xInds2[i])
-                xVals2[i] = xVals[closestInd];
-            else if (closestInd>xInds2[i])
-            {
-                if (closestInd>0)
-                    xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd-1], xInds2[i], xInds[closestInd], xVals[closestInd-1], xVals[closestInd]);
-                else
-                {
-                    if (closestInd+1<xVals.length)
-                        xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd]-1, xInds2[i], xInds[closestInd], 2*xVals[closestInd]-xVals[closestInd+1], xVals[closestInd]);
-                    else
-                        xVals2[i] = xVals[closestInd];
-                }
-            }
-            else
-            {
-                if (closestInd+1<xVals.length)
-                    xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd+1], xVals[closestInd], xVals[closestInd+1]);
-                else
-                {
-                    if (closestInd-1>=0)
-                        xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd]+1, xVals[closestInd], 2*xVals[closestInd]-xVals[closestInd-1]);
-                    else
-                        xVals2[i] = xVals[closestInd];
-                }
-            }
-        }
-        
-        return xVals2;
-    }
+	public static double[] interpolate(int[] xInds, double[] xVals, int[] xInds2) {
+		double[] xVals2 = new double[xInds2.length];
+		assert xInds.length == xVals.length;
+
+		for (int i = 0; i < xInds2.length; i++) {
+			int closestInd = MathUtils.findClosest(xInds, xInds2[i]);
+			if (closestInd == xInds2[i])
+				xVals2[i] = xVals[closestInd];
+			else if (closestInd > xInds2[i]) {
+				if (closestInd > 0)
+					xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd - 1], xInds2[i], xInds[closestInd],
+							xVals[closestInd - 1], xVals[closestInd]);
+				else {
+					if (closestInd + 1 < xVals.length)
+						xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd] - 1, xInds2[i], xInds[closestInd], 2
+								* xVals[closestInd] - xVals[closestInd + 1], xVals[closestInd]);
+					else
+						xVals2[i] = xVals[closestInd];
+				}
+			} else {
+				if (closestInd + 1 < xVals.length)
+					xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd + 1],
+							xVals[closestInd], xVals[closestInd + 1]);
+				else {
+					if (closestInd - 1 >= 0)
+						xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd] + 1,
+								xVals[closestInd], 2 * xVals[closestInd] - xVals[closestInd - 1]);
+					else
+						xVals2[i] = xVals[closestInd];
+				}
+			}
+		}
+
+		return xVals2;
+	}
 
 	public static double interpolatedSample(double xStart, double xVal, double xEnd, double yStart, double yEnd) {
 		return (xVal - xStart) * (yEnd - yStart) / (xEnd - xStart) + yStart;
@@ -2858,7 +2794,7 @@ public class MathUtils {
 	}
 
 	public static double[] interpolate_linear(int[] x, double[] y, int[] xi) {
-		assert(x.length == y.length);
+		assert (x.length == y.length);
 
 		double[] yi = new double[xi.length];
 		int i, j;
@@ -3268,22 +3204,21 @@ public class MathUtils {
 	// Returns the index of the smallest element that is larger than %percentSmallerThan of the data in x
 	// It simply sorts the data in x and then finds the smallest value that is larger than
 	// the [percentSmallerThan/100.0*(x.length-1)]th entry
-	public static double getSortedValue(double [] x, double percentSmallerThan)
-    {
-        int retInd = -1;
+	public static double getSortedValue(double[] x, double percentSmallerThan) {
+		int retInd = -1;
 
-        Vector<Double> v = new Vector<Double>();
-        for (int i=0; i<x.length; i++)
-            v.add(x[i]);
+		Vector<Double> v = new Vector<Double>();
+		for (int i = 0; i < x.length; i++)
+			v.add(x[i]);
 
-        Collections.sort(v);
+		Collections.sort(v);
 
-        int index = (int)Math.floor(percentSmallerThan/100.0*(x.length-1)+0.5);
-        index = Math.max(0, index);
-        index = Math.min(index, x.length-1);
+		int index = (int) Math.floor(percentSmallerThan / 100.0 * (x.length - 1) + 0.5);
+		index = Math.max(0, index);
+		index = Math.min(index, x.length - 1);
 
-        return ((Double)(v.get(index))).doubleValue();
-    }
+		return ((Double) (v.get(index))).doubleValue();
+	}
 
 	// Factorial design of all possible paths
 	// totalItemsInNodes is a vector containing the total number of element at each node,
@@ -3436,21 +3371,19 @@ public class MathUtils {
 
 	// Sorts x, y is also sorted as x so it can be used to obtain sorted indices
 	// Sorting is from lowest to highest
-	public static void quickSort(double[] x, int[] y)
-    {
-        assert x.length==y.length;
+	public static void quickSort(double[] x, int[] y) {
+		assert x.length == y.length;
 
-        quickSort(x, y, 0, x.length-1);
-    }
+		quickSort(x, y, 0, x.length - 1);
+	}
 
 	// Sorts x, y is also sorted as x so it can be used to obtain sorted indices
 	// Sorting is from lowest to highest
-	public static void quickSort(float[] x, int[] y)
-    {
-        assert x.length==y.length;
+	public static void quickSort(float[] x, int[] y) {
+		assert x.length == y.length;
 
-        quickSort(x, y, 0, x.length-1);
-    }
+		quickSort(x, y, 0, x.length - 1);
+	}
 
 	// Sorting is from lowest to highest
 	public static void quickSort(double[] x, int[] y, int startIndex, int endIndex) {
@@ -3553,39 +3486,35 @@ public class MathUtils {
 	}
 
 	// Returns a sorted version of x using sorted indices
-	public static double[] sortAs(double[] x, int[] sortedIndices)
-    {
-        if (x==null)
-            return null;
-        else if (sortedIndices==null)
-            return ArrayUtils.copy(x);
-        else
-        {
-            assert x.length==sortedIndices.length;
-            double[] y = new double[x.length];
-            for (int i=0; i<sortedIndices.length; i++)
-                y[i] = x[sortedIndices[i]];
-        
-            return y;
-        }
-    }
+	public static double[] sortAs(double[] x, int[] sortedIndices) {
+		if (x == null)
+			return null;
+		else if (sortedIndices == null)
+			return ArrayUtils.copy(x);
+		else {
+			assert x.length == sortedIndices.length;
+			double[] y = new double[x.length];
+			for (int i = 0; i < sortedIndices.length; i++)
+				y[i] = x[sortedIndices[i]];
 
-	public static float[] sortAs(float[] x, int[] sortedIndices)
-    {
-        if (x==null)
-            return null;
-        else if (sortedIndices==null)
-            return ArrayUtils.copy(x);
-        else
-        {
-            assert x.length==sortedIndices.length;
-            float[] y = new float[x.length];
-            for (int i=0; i<sortedIndices.length; i++)
-                y[i] = x[sortedIndices[i]];
-        
-            return y;
-        }
-    }
+			return y;
+		}
+	}
+
+	public static float[] sortAs(float[] x, int[] sortedIndices) {
+		if (x == null)
+			return null;
+		else if (sortedIndices == null)
+			return ArrayUtils.copy(x);
+		else {
+			assert x.length == sortedIndices.length;
+			float[] y = new float[x.length];
+			for (int i = 0; i < sortedIndices.length; i++)
+				y[i] = x[sortedIndices[i]];
+
+			return y;
+		}
+	}
 
 	/***
 	 * Calcualtes x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
@@ -4455,13 +4384,13 @@ public class MathUtils {
 	 * @return true if at least one value in x is Infinity, false otherwise
 	 */
 	public static boolean isAnyInfinity(double[] x) {
-        for (double value : x) {
-            if (Double.isInfinite(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
+		for (double value : x) {
+			if (Double.isInfinite(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static boolean allZeros(double[] x) {
 		boolean bRet = true;
@@ -4661,24 +4590,21 @@ public class MathUtils {
 		return y;
 	}
 
-	public static String[] toStringLines(ComplexArray x)
-	{
-	    String[] y = null;
-	    
-	    if (x!=null && x.real.length>0 && x.imag.length>0)
-	    {
-	        assert x.real.length==x.imag.length;
-	        y = new String[x.real.length];
-	        for (int i=0; i<x.real.length; i++)
-	        {
-	            if (x.imag[i]>=0)
-	                y[i] = String.valueOf(x.real[i]) + "+i*" + String.valueOf(x.imag[i]);
-	            else
-	                y[i] = String.valueOf(x.real[i]) + "-i*" + String.valueOf(Math.abs(x.imag[i])); 
-	        }
-	    }
-	    
-	    return y;
+	public static String[] toStringLines(ComplexArray x) {
+		String[] y = null;
+
+		if (x != null && x.real.length > 0 && x.imag.length > 0) {
+			assert x.real.length == x.imag.length;
+			y = new String[x.real.length];
+			for (int i = 0; i < x.real.length; i++) {
+				if (x.imag[i] >= 0)
+					y[i] = String.valueOf(x.real[i]) + "+i*" + String.valueOf(x.imag[i]);
+				else
+					y[i] = String.valueOf(x.real[i]) + "-i*" + String.valueOf(Math.abs(x.imag[i]));
+			}
+		}
+
+		return y;
 	}
 
 	public static String toString(ComplexNumber[][] array) {

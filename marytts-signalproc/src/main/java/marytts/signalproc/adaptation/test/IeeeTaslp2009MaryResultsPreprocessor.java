@@ -51,71 +51,63 @@ import marytts.util.string.StringUtils;
 public class IeeeTaslp2009MaryResultsPreprocessor {
 	// Search for all .txt files, read them, extract test results, and write all results to a separate, single file
 	// Also compute total time it took for each .txt file to be completed by the subject
-	public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile)
-    throws IOException
-    {
-        String strTmp;
-        String strOut;
-        Vector<String> allResults = new Vector<String>();
-        Vector<String> subjectDurations = new Vector<String>();
-        for (int i=0; i<folders.length; i++)
-        {
-            System.out.println("----------------");
+	public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile) throws IOException {
+		String strTmp;
+		String strOut;
+		Vector<String> allResults = new Vector<String>();
+		Vector<String> subjectDurations = new Vector<String>();
+		for (int i = 0; i < folders.length; i++) {
+			System.out.println("----------------");
 
-            String[] resultFiles = FileUtils.getFileList(folders[i], ".txt");
-            
-            for (int j=0; j<resultFiles.length; j++)
-            {
-                String[] currentResults = StringUtils.readTextFile(resultFiles[j], "ASCII");
-                double currentTotalTimeInMiliseconds = 0.0;
-                
-                for (int k=0; k<currentResults.length; k++)
-                {
-                    if (currentResults[k].startsWith("Response"))
-                    {
-                        StringTokenizer st = new StringTokenizer(currentResults[k], " ");
-                        
-                        strTmp = st.nextToken(); //Skip "Response:"
-                        
-                        String filename = st.nextToken(); //Filename
-                        int beginIndex = filename.lastIndexOf("/");
-                        filename = filename.substring(beginIndex+1);
-                        
-                        String duration = st.nextToken(); //Skip "XXXXms"
-                        int endIndex = duration.indexOf("ms");
-                        duration = duration.substring(0, endIndex);
-                        currentTotalTimeInMiliseconds += Double.valueOf(duration);
-                        
-                        strTmp = st.nextToken(); //Skip "selected"
-                        
-                        strTmp = st.nextToken(); //Skip "="
-                        
-                        String score = st.nextToken(); //Score
-                        
-                        if (filename!=null && score!=null)
-                        {
-                            strOut = filename + " " + score;
-                            allResults.add(strOut);
-                        }
-                    }
-                }
-                
-                subjectDurations.add(String.valueOf(currentTotalTimeInMiliseconds/1000.0)); //In seconds
-                
-                System.out.println("Folder"+ String.valueOf(i+1) + ", processed file " + String.valueOf(j+1) + " of " + String.valueOf(resultFiles.length));
-            }
-        }
-        
-        
-        if (subjectDurations.size()>0)
-            FileUtils.writeTextFile(subjectDurations, totalDurationsFile);
-        
-        if (allResults.size()>0)
-        {
-            Collections.sort(allResults);
-            FileUtils.writeTextFile(allResults, completeResultsFile);
-        }
-    }
+			String[] resultFiles = FileUtils.getFileList(folders[i], ".txt");
+
+			for (int j = 0; j < resultFiles.length; j++) {
+				String[] currentResults = StringUtils.readTextFile(resultFiles[j], "ASCII");
+				double currentTotalTimeInMiliseconds = 0.0;
+
+				for (int k = 0; k < currentResults.length; k++) {
+					if (currentResults[k].startsWith("Response")) {
+						StringTokenizer st = new StringTokenizer(currentResults[k], " ");
+
+						strTmp = st.nextToken(); // Skip "Response:"
+
+						String filename = st.nextToken(); // Filename
+						int beginIndex = filename.lastIndexOf("/");
+						filename = filename.substring(beginIndex + 1);
+
+						String duration = st.nextToken(); // Skip "XXXXms"
+						int endIndex = duration.indexOf("ms");
+						duration = duration.substring(0, endIndex);
+						currentTotalTimeInMiliseconds += Double.valueOf(duration);
+
+						strTmp = st.nextToken(); // Skip "selected"
+
+						strTmp = st.nextToken(); // Skip "="
+
+						String score = st.nextToken(); // Score
+
+						if (filename != null && score != null) {
+							strOut = filename + " " + score;
+							allResults.add(strOut);
+						}
+					}
+				}
+
+				subjectDurations.add(String.valueOf(currentTotalTimeInMiliseconds / 1000.0)); // In seconds
+
+				System.out.println("Folder" + String.valueOf(i + 1) + ", processed file " + String.valueOf(j + 1) + " of "
+						+ String.valueOf(resultFiles.length));
+			}
+		}
+
+		if (subjectDurations.size() > 0)
+			FileUtils.writeTextFile(subjectDurations, totalDurationsFile);
+
+		if (allResults.size() > 0) {
+			Collections.sort(allResults);
+			FileUtils.writeTextFile(allResults, completeResultsFile);
+		}
+	}
 
 	/**
 	 * @param args
