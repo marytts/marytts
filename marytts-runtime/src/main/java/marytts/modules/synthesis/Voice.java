@@ -67,7 +67,6 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -140,7 +139,6 @@ public class Voice {
 	String preferredModulesClasses;
 	private Vector<MaryModule> preferredModules;
 	private boolean vocalizationSupport;
-	private VocalizationSynthesizer vocalizationSynthesizer;
 	protected DirectedGraph durationGraph;
 	protected DirectedGraph f0Graph;
 	protected FeatureFileReader f0ContourFeatures;
@@ -223,10 +221,7 @@ public class Voice {
 
 		String lexiconClass = MaryProperties.getProperty(header + ".lexiconClass");
 		String lexiconName = MaryProperties.getProperty(header + ".lexicon");
-		vocalizationSupport = MaryProperties.getBoolean(header + ".vocalizationSupport", false);
-		if (vocalizationSupport) {
-			vocalizationSynthesizer = new VocalizationSynthesizer(this);
-		}
+		lexicon = getLexicon(lexiconClass, lexiconName);
 
 		loadOldStyleProsodyModels(header);
 		loadAcousticModels(header);
@@ -496,10 +491,6 @@ public class Voice {
 
 	public boolean hasVocalizationSupport() {
 		return vocalizationSupport;
-	}
-
-	public VocalizationSynthesizer getVocalizationSynthesizer() {
-		return vocalizationSynthesizer;
 	}
 
 	/**

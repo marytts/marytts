@@ -30,7 +30,6 @@ import java.util.Map;
 
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;

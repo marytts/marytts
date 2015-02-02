@@ -144,19 +144,6 @@ public class Synthesis extends InternalModule {
 			Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
 			Element s = (Element) MaryDomUtils.getAncestor(element, MaryXML.SENTENCE);
 
-			// Check for non-verbal elements
-			if (element.getNodeName().equals(MaryXML.NONVERBAL)) {
-				if (v != null) {
-					Voice newvoice = Voice.getVoice(v);
-					if (newvoice != null && newvoice.hasVocalizationSupport()) {
-						AudioInputStream ais = newvoice.getVocalizationSynthesizer().synthesize(newvoice, d.getAudioFileFormat(),
-								element);
-						result.appendAudio(ais);
-					}
-				}
-				continue;
-			}
-
 			// Chunk at boundaries between voice sections
 			if (v == null) {
 				if (currentVoiceElement != null) {
