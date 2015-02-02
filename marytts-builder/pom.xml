@@ -37,6 +37,11 @@
 			<artifactId>marytts-signalproc</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-unitselection</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-lang</groupId>
