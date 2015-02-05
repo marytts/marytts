@@ -196,5 +196,25 @@ public class MaryDomUtils extends DomUtils {
 		}
 		return true;
 	}
+	
+	/**
+	 * @author hamilton
+	 * 
+	 * method taken from UnitSelector class, used by several modules in runtime
+	 * @param segmentOrBoundary
+	 * @return
+	 */
+	public static String getPhoneSymbol(Element segmentOrBoundary) {
+		String phone;
+		if (segmentOrBoundary.getTagName().equals(MaryXML.PHONE)) {
+			phone = segmentOrBoundary.getAttribute("p");
+		} else {
+			assert segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY) : "Expected boundary element, but got "
+					+ segmentOrBoundary.getTagName();
+			// TODO: how can we know the silence symbol here?
+			phone = "_";
+		}
+		return phone;
+	}
 
 }
