@@ -8,11 +8,17 @@
   
   <artifactId>marytts-unitselection</artifactId>
   <name>${project.artifactId}</name>
+  
   <dependencies>
   	<dependency>
-  		<groupId>de.dfki.mary</groupId>
+  		<groupId>${project.groupId}</groupId>
   		<artifactId>marytts-runtime</artifactId>
-  		<version>5.2-SNAPSHOT</version>
+  		<version>${project.version}</version>
   	</dependency>
+  	
+  	<dependency>
+		<groupId>net.sf.trove4j</groupId>
+		<artifactId>trove4j</artifactId>
+	</dependency>
   </dependencies>
 </project>
