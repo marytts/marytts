@@ -180,7 +180,7 @@ public class CARTDurationModeller extends InternalModule {
 			Element segmentOrBoundary;
 			Element previous = null;
 			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
-				String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
+				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
 				Target t = new Target(phone, segmentOrBoundary);
 				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
 				float durInSeconds;

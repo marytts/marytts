@@ -24,7 +24,6 @@ import java.util.List;
 
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.unitselection.select.UnitSelector;
 import marytts.features.Target;
 import marytts.features.HalfPhoneTarget;
 import marytts.util.dom.MaryDomUtils;
@@ -70,7 +69,7 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 			segmentsAndBoundaries.add(finalPause);
 		}
 		for (Element sOrB : segmentsAndBoundaries) {
-			String phone = UnitSelector.getPhoneSymbol(sOrB);
+			String phone = MaryDomUtils.getPhoneSymbol(sOrB);
 			targets.add(new HalfPhoneTarget(phone + "_L", sOrB, true));
 			targets.add(new HalfPhoneTarget(phone + "_R", sOrB, false));
 		}
