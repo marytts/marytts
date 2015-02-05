@@ -29,7 +29,7 @@ import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.server.Mary;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.junit.BeforeClass;
