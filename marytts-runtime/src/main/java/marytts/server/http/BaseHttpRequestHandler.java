@@ -44,7 +44,6 @@ import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
 import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;

@@ -66,8 +66,6 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingSynthesizer;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.vocalizations.VocalizationSynthesizer;
@@ -638,27 +636,6 @@ public class Voice {
 			Voice v = it.next();
 			if (v.hasName(name))
 				return v;
-		}
-		// Interpolating voices are created as needed:
-		if (InterpolatingVoice.isInterpolatingVoiceName(name)) {
-			InterpolatingSynthesizer interpolatingSynthesizer = null;
-			for (Iterator<Voice> it = allVoices.iterator(); it.hasNext();) {
-				Voice v = it.next();
-				if (v instanceof InterpolatingVoice) {
-					interpolatingSynthesizer = (InterpolatingSynthesizer) v.synthesizer();
-					break;
-				}
-			}
-			if (interpolatingSynthesizer == null)
-				return null;
-			try {
-				Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
-				registerVoice(v);
-				return v;
-			} catch (Exception e) {
-				logger.warn("Could not create Interpolating voice:", e);
-				return null;
-			}
 		}
 		return null; // no such voice found
 	}

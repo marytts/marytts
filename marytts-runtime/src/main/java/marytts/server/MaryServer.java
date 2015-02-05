@@ -53,7 +53,6 @@ import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
 import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
@@ -576,9 +575,7 @@ public class MaryServer implements Runnable {
 		private boolean listVoices() {
 			// list all known voices
 			for (Voice v : Voice.getAvailableVoices()) {
-				if (v instanceof InterpolatingVoice) {
-					// do not list interpolating voice
-				} else if (v instanceof UnitSelectionVoice) {
+				if (v instanceof UnitSelectionVoice) {
 					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection"
 							+ " " + ((UnitSelectionVoice) v).getDomain());
 				} else if (v instanceof HMMVoice) {
