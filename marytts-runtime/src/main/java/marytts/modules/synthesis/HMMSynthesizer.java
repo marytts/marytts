@@ -86,7 +86,7 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.TargetFeatureLister;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 

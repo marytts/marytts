@@ -34,7 +34,7 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;

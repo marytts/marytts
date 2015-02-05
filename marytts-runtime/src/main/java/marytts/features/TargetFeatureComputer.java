@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import marytts.unitselection.select.Target;
 
 /**
  * Compute a given set of features for a Target.
