@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
@@ -51,6 +52,8 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
+import marytts.features.FeatureFileReader;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -62,7 +65,7 @@ import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
-import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
