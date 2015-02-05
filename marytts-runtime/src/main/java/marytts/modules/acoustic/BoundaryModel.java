@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import marytts.features.FeatureProcessorManager;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 
 import org.w3c.dom.Element;
 

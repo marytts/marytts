@@ -31,7 +31,6 @@
  */
 package marytts.features;
 
-import marytts.unitselection.select.Target;
 
 /**
  * Performs a specific type of processing on an item and returns an object.

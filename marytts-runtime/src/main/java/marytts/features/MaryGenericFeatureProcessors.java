@@ -39,9 +39,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryXML;
-import marytts.unitselection.select.DiphoneTarget;
-import marytts.unitselection.select.HalfPhoneTarget;
-import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.ByteStringTranslator;
 

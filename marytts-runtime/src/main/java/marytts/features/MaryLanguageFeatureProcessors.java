@@ -37,8 +37,6 @@ import java.util.Map;
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.unitselection.select.HalfPhoneTarget;
-import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.ByteStringTranslator;
 

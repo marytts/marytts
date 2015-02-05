@@ -24,9 +24,9 @@ import java.util.List;
 
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.unitselection.select.HalfPhoneTarget;
-import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
+import marytts.features.Target;
+import marytts.features.HalfPhoneTarget;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;

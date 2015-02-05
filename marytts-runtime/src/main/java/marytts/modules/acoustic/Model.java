@@ -31,8 +31,8 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
+import marytts.features.Target;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

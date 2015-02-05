@@ -28,7 +28,7 @@ import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureProcessorManager;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 
 /**
  * Model for applying a CART to a list of Targets

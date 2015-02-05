@@ -28,7 +28,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 
 //import com.sun.tools.javac.code.Attribute.Array;
 
