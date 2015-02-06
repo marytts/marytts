@@ -50,7 +50,6 @@ import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
-import marytts.unitselection.UnitSelectionVoice;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -429,9 +428,7 @@ public class MaryRuntimeUtils {
 
 	public static String getVoiceExampleText(String voiceName) {
 		Voice v = Voice.getVoice(voiceName);
-		if (v instanceof marytts.unitselection.UnitSelectionVoice)
-			return ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
-		return "";
+		return v.getExampleText();
 	}
 
 	/**
@@ -516,4 +513,14 @@ public class MaryRuntimeUtils {
 		return effect.isHMMEffect() ? "yes" : "no";
 	}
 
+	/**
+	 * returns a list of strings of voice names, depending on voice type wanted
+	 * parameter passed-> a string such as "unitselection" or "hmm" 
+	 * @param voicetype
+	 * @return VoiceNames
+	 */
+	public static List<String> getVoicesList(String voicetype) {
+		List<String> VoiceNames = MaryProperties.getList(voicetype + ".voices.list");
+		return VoiceNames;
+	}
 }
