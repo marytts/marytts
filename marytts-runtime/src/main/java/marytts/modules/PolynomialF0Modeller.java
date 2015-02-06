@@ -33,7 +33,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.data.FeatureFileReader;
+import marytts.features.FeatureFileReader;
 import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
