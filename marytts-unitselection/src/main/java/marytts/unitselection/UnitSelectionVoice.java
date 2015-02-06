@@ -72,10 +72,8 @@ public class UnitSelectionVoice extends Voice {
 	protected UnitSelector unitSelector;
 	protected UnitConcatenator concatenator;
 	protected UnitConcatenator modificationConcatenator;
-	protected String domain;
 	protected String name;
 	protected CART[] f0Carts;
-	protected String exampleText;
 
 	public UnitSelectionVoice(String name, WaveformSynthesizer synthesizer) throws MaryConfigurationException {
 		super(name, synthesizer);
@@ -83,17 +81,6 @@ public class UnitSelectionVoice extends Voice {
 		try {
 			this.name = name;
 			String header = "voice." + name;
-
-			domain = MaryProperties.needProperty(header + ".domain");
-			InputStream exampleTextStream = null;
-			if (!domain.equals("general")) { // limited domain voices must have example text;
-				exampleTextStream = MaryProperties.needStream(header + ".exampleTextFile");
-			} else { // general domain voices can have example text:
-				exampleTextStream = MaryProperties.getStream(header + ".exampleTextFile");
-			}
-			if (exampleTextStream != null) {
-				readExampleText(exampleTextStream);
-			}
 
 			FeatureProcessorManager featProcManager = FeatureRegistry.getFeatureProcessorManager(this);
 			if (featProcManager == null)
@@ -280,36 +267,6 @@ public class UnitSelectionVoice extends Voice {
 			modificationConcatenator.load(database);
 		}
 		return modificationConcatenator;
-	}
-
-	/**
-	 * Gets the domain of this voice
-	 * 
-	 * @return the domain
-	 */
-	public String getDomain() {
-		return domain;
-	}
-
-	public String getExampleText() {
-		if (exampleText == null) {
-			return "";
-		} else {
-			return exampleText;
-		}
-	}
-
-	public void readExampleText(InputStream in) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-		StringBuilder sb = new StringBuilder();
-		String line = reader.readLine();
-		while (line != null) {
-			if (!line.startsWith("***")) {
-				sb.append(line + "\n");
-			}
-			line = reader.readLine();
-		}
-		exampleText = sb.toString();
 	}
 
 	public CART[] getF0Trees() {
