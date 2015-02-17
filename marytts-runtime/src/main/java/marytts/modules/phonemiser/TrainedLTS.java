@@ -160,10 +160,7 @@ public class TrainedLTS {
 	 * @return phone chain, with syllable sepeators "-" and stress symbols "'"
 	 */
 	public String syllabify(String phones) {
-
-		Syllabifier sfr = new Syllabifier(this.allophoneSet, this.removeTrailingOneFromPhones);
-
-		return sfr.syllabify(phones);
+		return allophoneSet.syllabify(phones);
 	}
 
 	public static void main(String[] args) throws IOException, MaryConfigurationException {
