@@ -434,7 +434,8 @@ public class AllophoneSet {
 	 * University Press.</blockquote>
 	 *
 	 * @param phoneString
-	 * @return a syllabified string; individual allophones are separated by spaces, and syllables, by dashes.
+	 * @return a syllabified string, or null if the input is empty; individual allophones are separated by spaces, and syllables,
+	 *         by dashes.
 	 * @throws IllegalArgumentException
 	 *             if the <b>phoneString</b> contains a symbol that satisfies none of the following conditions:
 	 *             <ol>
@@ -445,6 +446,12 @@ public class AllophoneSet {
 	 * 
 	 */
 	public String syllabify(String phoneString) {
+		// Before we process, a sanity check:
+		if (phoneString.trim().isEmpty()) {
+			// TODO really we should be throwing an Exception!
+			// throw new IllegalArgumentException("Cannot syllabify empty phone string");
+			return null;
+		}
 		// First, split phoneString into a List of allophone Strings...
 		List<String> allophoneStrings = splitIntoAllophoneList(phoneString, true);
 		// ...and create from it a List of generic Objects
