@@ -61,6 +61,13 @@ public class MaryInterfaceEnIT {
 		String tf = mary.generateText("Hello world");
 		assertNotNull(tf);
 	}
+    
+	@Test
+	public void convertTextToPhonemes() throws Exception {
+		mary.setOutputType(MaryDataType.PHONEMES.name());
+		Document doc = mary.generateXML("Applejuice");
+		assertNotNull(doc);
+	}
 
 	@Test
 	public void canSelectTargetfeatures() throws Exception {

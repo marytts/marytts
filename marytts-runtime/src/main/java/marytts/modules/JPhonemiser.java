@@ -30,7 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
+import marytts.MaryConstants;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -118,7 +121,9 @@ public class JPhonemiser extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
+		Pattern p = Pattern.compile(MaryConstants.PUNCT_POS_REGEXP);
 		Document doc = d.getDocument();
+
 		NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
 		Element t = null;
 		while ((t = (Element) it.nextNode()) != null) {
@@ -134,13 +139,19 @@ public class JPhonemiser extends InternalModule {
 			else
 				text = MaryDomUtils.tokenText(t);
 
-			String pos = null;
 			// use part-of-speech if available
+			String pos = null;
+			boolean is_punct = false;
 			if (t.hasAttribute("pos")) {
 				pos = t.getAttribute("pos");
+
+				Matcher m = p.matcher(pos);
+				if (m.find()) {
+					is_punct = true;
+				}
 			}
 
-			if (text != null && !text.equals("")) {
+			if (text != null && !text.equals("") && !is_punct) {
 				// If text consists of several parts (e.g., because that was
 				// inserted into the sounds_like attribute), each part
 				// is transcribed separately.
