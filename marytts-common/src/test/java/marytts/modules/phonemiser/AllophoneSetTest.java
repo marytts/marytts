@@ -106,6 +106,11 @@ public class AllophoneSetTest {
 		Assert.assertNull(allophoneSet.splitIntoAllophoneList("!@#$%^"));
 	}
 
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void testSyllabifyWithEmptyInput() {
+		allophoneSet.syllabify("");
+	}
+
 	@Test(dataProvider = "syllabifierData")
 	public void testSyllabify(String phones, String expected) {
 		String actual = allophoneSet.syllabify(phones);
