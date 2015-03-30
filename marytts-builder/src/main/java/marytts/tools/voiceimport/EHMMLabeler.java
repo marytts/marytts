@@ -172,6 +172,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 		System.out.println(" ... done.");
 
 		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+		System.out.println("Converting Feature Vectors to Binary Format ...");
+		convertToBinaryFeatures();
+		System.out.println(" ... done.");
+
+		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 		System.out.println("Intializing EHMM Model ...");
 		intializeEHMMModels();
 		System.out.println(" ... done.");
@@ -352,6 +357,43 @@ public class EHMMLabeler extends VoiceImportComponent {
 	}
 
 	/**
+	 * Convert Features to Binary Format (EHMM2.7 instead of EHMM2.1) for EHMM Training
+	 * 
+	 * @throws IOException
+	 *             , InterruptedException
+	 * @throws MaryConfigurationException
+	 */
+	private void convertToBinaryFeatures() throws IOException, InterruptedException, MaryConfigurationException {
+
+		String task = "convertToBinaryFeatures";
+		String line = null;
+
+		Runtime rtime = Runtime.getRuntime();
+		// get a shell
+		Process process = rtime.exec("/bin/bash");
+		// get an output stream to write to the shell
+		PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
+		String cmd = "( cd " + ehmm.getAbsolutePath() + "/feat; for file in *.ft; do " + getProp(EHMMDIR) 
+				+ "/bin/ConvertFeatsFileToBinaryFormat $file ${file%%.ft}.bft >> ../log.txt; done; exit )\n";
+		System.out.println(cmd);
+		pw.print(cmd);
+		pw.flush();
+		// shut down
+		pw.close();
+		process.waitFor();
+		// check exit value
+		if (process.exitValue() != 0) {
+			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			while ((line = errorReader.readLine()) != null) {
+				System.err.println("ERR> " + line);
+			}
+			errorReader.close();
+			throw new MaryConfigurationException(task + " computation failed.\nError: " + line);
+		}
+
+	}
+
+	/**
 	 * Initializing EHMM Models
 	 * 
 	 * @throws IOException
@@ -414,32 +456,18 @@ public class EHMMLabeler extends VoiceImportComponent {
 		// get an output stream to write to the shell
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
 
+		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/"
+				+ "ehmm" + ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath()
+				+ "/feat bft " + ehmm.getAbsolutePath() + "/mod 0 0 0 48 " + rtime.availableProcessors() + " >> log.txt" + "; exit )\n";
+		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 		if (getProp(INITEHMMDIR).equals("/")) {
-
-			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 			System.out.println("EHMM baum-welch re-estimation ...");
-			System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
-
-			System.out.println("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/"
-					+ "ehmm" + ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath()
-					+ "/feat ft " + ehmm.getAbsolutePath() + "/mod 0 0 0 >> log.txt" + "; exit )\n");
-
-			pw.print("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/" + "ehmm"
-					+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath() + "/feat ft "
-					+ ehmm.getAbsolutePath() + "/mod 0 0 0 >> log.txt" + "; exit )\n");
 		} else if (getProp(RETRAIN).equals("true")) {
-			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 			System.out.println("EHMM baum-welch re-estimation ... Re-Training... ");
-			System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
-
-			System.out.println("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/"
-					+ "ehmm" + ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 1 " + ehmm.getAbsolutePath()
-					+ "/feat ft " + ehmm.getAbsolutePath() + "/mod 0 0 0 >> log.txt" + "; exit )\n");
-
-			pw.print("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/" + "ehmm"
-					+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 1 " + ehmm.getAbsolutePath() + "/feat ft "
-					+ ehmm.getAbsolutePath() + "/mod 0 0 0 >> log.txt" + "; exit )\n");
 		}
+		System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
+		System.out.println(cmd);
+		pw.print(cmd);
 		pw.flush();
 		// shut down
 		pw.close();
@@ -470,18 +498,14 @@ public class EHMMLabeler extends VoiceImportComponent {
 		Process process = rtime.exec("/bin/bash");
 		// get an output stream to write to the shell
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
-
-		System.out.println("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/edec " + outputDir + "/" + "ehmm"
-				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 " + ehmm.getAbsolutePath() + "/feat ft "
+		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/edec " + outputDir + "/" + "ehmm"
+				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 " + ehmm.getAbsolutePath() + "/feat bft "
 				+ outputDir + "/" + "ehmm" + ".featSettings " + ehmm.getAbsolutePath() + "/mod " + getProp(NONDETENDFLAG) + " "
-				+ ehmm.getAbsolutePath() + "/lab >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
-				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int >> log.txt" + "; exit )\n");
+				+ ehmm.getAbsolutePath() + "/lab " + rtime.availableProcessors() + " >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
+				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int " + rtime.availableProcessors() + " >> log.txt" + "; exit )\n";
 
-		pw.print("( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/edec " + outputDir + "/" + "ehmm"
-				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 " + ehmm.getAbsolutePath() + "/feat ft "
-				+ outputDir + "/" + "ehmm" + ".featSettings " + ehmm.getAbsolutePath() + "/mod " + getProp(NONDETENDFLAG) + " "
-				+ ehmm.getAbsolutePath() + "/lab >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
-				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int >> log.txt" + "; exit )\n");
+		System.out.println(cmd);
+		pw.print(cmd);
 
 		pw.flush();
 		// shut down
