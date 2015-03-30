@@ -1,0 +1,187 @@
+#!/bin/sh
+#####################################################-*-mode:shell-script-*-
+##                                                                       ##
+##                     Carnegie Mellon University                        ##
+##                        Copyright (c) 2005                             ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+##                                                                       ##
+##  Do EHMM labeling                                                     ##
+##                                                                       ##
+###########################################################################
+
+LANG=C; export LANG
+
+if [ ! "$FESTVOXDIR" ]
+then
+   echo "environment variable FESTVOXDIR is unset"
+   echo "set it to your local festvox directory e.g."
+   echo '   bash$ export FESTVOXDIR=/home/awb/projects/festvox/'
+   echo or
+   echo '   csh% setenv FESTVOXDIR /home/awb/projects/festvox/'
+   exit 1
+fi
+
+export EHMMDIR=$FESTVOXDIR/src/ehmm
+
+. etc/voice.defs
+
+if [ "$PROMPTFILE" = "" ]
+then
+   PROMPTFILE=etc/txt.done.data
+fi
+
+if [ $# = 0 ]
+then
+   $0 setup
+   $0 phseq
+   $0 feats
+   $0 bw
+   $0 align
+   exit
+fi
+
+if [ "$1" = "help" ]
+then
+   echo "setup"
+   echo "phseq"
+   echo "feats"
+   echo "bw"
+   echo "align"
+   exit
+fi
+
+
+if [ "$1" = "setup" ]
+then
+    echo "EHMM setup"
+    mkdir ehmm
+    mkdir ehmm/feat
+    mkdir ehmm/etc
+    mkdir ehmm/mod
+    cp -p $EHMMDIR/etc/mysp_settings ehmm/etc
+fi
+
+if [ "$1" = "phseq" ]
+then
+    echo "EHMM extract phone sequences and base hmm state numbers"
+    $ESTDIR/../festival/bin/festival -b $EHMMDIR/bin/phseq.scm '(phseq "'$PROMPTFILE'" "ehmm/etc/txt.phseq.data")'
+    perl $EHMMDIR/bin/phfromutt.pl ehmm/etc/txt.phseq.data ehmm/etc/ph_list 5
+    perl $EHMMDIR/bin/getwavlist.pl ehmm/etc/txt.phseq.data ehmm/etc/mywavelist
+fi
+
+if [ "$1" = "feats" ]
+then
+    echo "EHMM feature extraction and normalization"
+    $EHMMDIR/bin/FeatureExtraction ehmm/etc/mysp_settings ehmm/etc/mywavelist
+    perl $EHMMDIR/bin/comp_dcep.pl ehmm/etc/mywavelist ehmm/feat mfcc ft 0 0
+          # (0, 0):  delta-cepstrals and delta-delta-cepstrals
+    perl $EHMMDIR/bin/scale_feat.pl ehmm/etc/mywavelist ehmm/feat ehmm/mod ft 4
+          # (4): Scaling factor 
+    perl $EHMMDIR/bin/seqproc.pl ehmm/etc/txt.phseq.data ehmm/etc/ph_list 2 2 13
+          #Last params: no.gaussains, no. of connections, feature_dimension
+fi
+
+if [ "$1" = "bw" ]
+then
+    echo "EHMM baum-welch re-estimation"
+    $EHMMDIR/bin/ehmm ehmm/etc/ph_list.int ehmm/etc/txt.phseq.data.int 1 0 ehmm/feat ft ehmm/mod 0 0 0
+            #Numbers (1, 0): Sequential Flag, Retrain Flag
+            #Numbers (0, 0, 0): Fully-Connected Flag, Perturbation Flag, Skip-Flag
+fi
+
+if [ "$1" = "align" ]
+then
+    echo "EHMM align"
+    $EHMMDIR/bin/edec ehmm/etc/ph_list.int ehmm/etc/txt.phseq.data.int 1 ehmm/feat ft ehmm/etc/mysp_settings ehmm/mod
+           # (1): Sequential Flag..
+    perl $EHMMDIR/bin/sym2nm.pl lab ehmm/etc/ph_list.int  #Earlier it was .map
+    ###perl $EHMMDIR/bin/check_lab.pl lab ehmm/etc/txt.phseq.data  #commented due to use of short pause..
+    if [ ! -f etc/silence ]
+    then
+       $ESTDIR/../festival/bin/festival -b festvox/build_clunits.scm "(find_silence_name)"
+    fi
+    SILENCE=`awk '{print $1}' etc/silence`
+    cat ehmm/etc/ph_list.int_log |
+    awk '{if (NF > 1)
+          {
+             printf("%s ",$1);
+             for (i=4; i<(4+$2-2); i++)
+                printf("%s_%s ",$1,$i);
+             printf("\n");
+          }}' |
+    sed 's/ ssil/ '$SILENCE'/g' >etc/statenames
+fi
+
+if [ "$1" = "standardize_statenames" ]
+then
+    echo "EHMM standardize_statenames"
+    mv etc/statenames etc/statenames.ehmm
+    cat etc/statenames.ehmm |
+    tr "_" " " |
+    awk '{if (NF == 7)
+             printf("%s %s_1 %s_2 %s_3\n",$1,$2,$4,$6);
+          else
+             printf("%s %s_5\n",$1,$2);
+         }' >etc/statenames
+    cat etc/statenames.ehmm |
+    tr "_" " " |
+    awk 'BEGIN { printf("BEGIN { \n");}
+         {if (NF == 7)
+          {
+             printf("statenamemap[%d] = 1;\n",$3);
+             printf("statename[%d] = \"%s\";\n",$3,$2);
+             printf("statenamemap[%d] = 2;\n",$5);
+             printf("statename[%d] = \"%s\";\n",$5,$4);
+             printf("statenamemap[%d] = 3;\n",$7);
+             printf("statename[%d] = \"%s\";\n",$7,$6);
+          }
+          else
+          {
+             printf("statenamemap[%d] = 5;\n",$3);
+             printf("statename[%d] = \"%s\";\n",$3,$2);
+          }
+         }
+         END {printf("}\n");
+              printf("{ if (NF < 3)\n");
+              printf("     print $0;\n");
+              printf("  else\n");
+              printf("     printf(\"%%s 125 %%d %%s\\n\",$1,statenamemap[$3],statename[$3])\n");
+              printf("}\n");}' >etc/mapstatenames.awk
+   cat etc/txt.done.data |
+   awk '{print $2}' |
+   while read x
+   do
+      mv lab/$x.sl lab/$x.slehmm
+      awk -f etc/mapstatenames.awk lab/$x.slehmm >lab/$x.sl
+   done
+fi
+
+exit
+
+
