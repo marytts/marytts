@@ -43,8 +43,8 @@ TOP=../
 DIRNAME=src/ehmm/src
 BUILD_DIRS = 
 ALL_DIRS = $(BUILD_DIRS)
-SRCS = FeatureExtraction.cc edec.cc ehmm.cc
-H = header.h hmmstate.h hmmword.h
+SRCS = FeatureExtraction.cc edec.cc ehmm.cc ConvertFeatsFileToBinaryFormat.cc ScaleBinaryFeats.cc threading.cc
+H = header.h hmmstate.h hmmword.h threading.h
 FILES = Makefile $(SRCS) $(H)
 
 EHMMBINDIR=../bin
@@ -52,6 +52,8 @@ EHMMBINDIR=../bin
 ALL = $(EHMMBINDIR)/FeatureExtraction \
       $(EHMMBINDIR)/edec \
       $(EHMMBINDIR)/ehmm \
+      $(EHMMBINDIR)/ConvertFeatsFileToBinaryFormat \
+      $(EHMMBINDIR)/ScaleBinaryFeats \
 
 include $(TOP)/common_make_rules
 
@@ -67,15 +69,41 @@ include $(TOP)/common_make_rules
 #ESTINC=
 #ESTLIBS=
 
-#CXXFLAGS += -O2 $(ESTINC)
+CXXFLAGS += -O2 $(ESTINC)
 CXX=g++
+LINK_COMMAND = g++
 
 LOCAL_CLEAN = $(ALL)
-LINK_COMMAND = g++
+
+ifdef NOPTHREADFLAGS
+CXXFLAGS += "-DFESTVOX_NO_THREADS"
+endif
 
 $(EHMMBINDIR)/FeatureExtraction: FeatureExtraction.o $(H)
 	$(strip $(LINK_COMMAND)) -o $@ FeatureExtraction.o
+$(EHMMBINDIR)/ConvertFeatsFileToBinaryFormat: ConvertFeatsFileToBinaryFormat.o
+	$(strip $(LINK_COMMAND)) -o $@ ConvertFeatsFileToBinaryFormat.o
+
+ifndef NOPTHREADFLAGS
+$(EHMMBINDIR)/edec: edec.o threading.o $(H)
+	$(strip $(LINK_COMMAND)) -o $@ edec.o threading.o -lpthread
+
+$(EHMMBINDIR)/ehmm: ehmm.o threading.o $(H)
+	$(strip $(LINK_COMMAND)) -o $@ ehmm.o threading.o -lpthread
+
+$(EHMMBINDIR)/ScaleBinaryFeats: ScaleBinaryFeats.o
+	$(strip $(LINK_COMMAND)) -o $@ ScaleBinaryFeats.o threading.o -lpthread
+else
 $(EHMMBINDIR)/edec: edec.o $(H)
 	$(strip $(LINK_COMMAND)) -o $@ edec.o
+
 $(EHMMBINDIR)/ehmm: ehmm.o $(H)
+	@echo
+	@echo "*****************************************************"
+	@echo "NOTE: Compiling EHMM without multithreading support"
+	@echo "*****************************************************"
+	@echo
 	$(strip $(LINK_COMMAND)) -o $@ ehmm.o
+$(EHMMBINDIR)/ScaleBinaryFeats: ScaleBinaryFeats.o
+	$(strip $(LINK_COMMAND)) -o $@ ScaleBinaryFeats.o
+endif

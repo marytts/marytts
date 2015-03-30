@@ -60,7 +60,7 @@ for (my $i = 0; $i <= $#inL; $i++) {
 }
 
 open(fp_o, ">$ouF");
-foreach my $k (keys(%unit)) {
+foreach my $k (sort {$a cmp $b} keys(%unit)) {
    #print fp_o "$k $unit{$k}\n";
    print fp_o "$k $ns\n";
 }

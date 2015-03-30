@@ -1,7 +1,7 @@
 /*************************************************************************/
 /*                                                                       */
 /*                     Carnegie Mellon University                        */
-/*                         Copyright (c) 2005                            */
+/*                         Copyright (c) 2011                            */
 /*                        All Rights Reserved.                           */
 /*                                                                       */
 /*  Permission is hereby granted, free of charge, to use and distribute  */
@@ -30,51 +30,93 @@
 /*                                                                       */
 /*************************************************************************/
 /*                                                                       */
-/*            Authors: Kishore Prahallad                                 */
-/*            Email:   skishore@cs.cmu.edu                               */
-/*            Date Created: 05/25/2005                                   */
-/*            Last Modified: 05/25/2005                                  */
-/*            Purpose: A state class for HMM implementation              */
+/*               Authors: Alok Parlikar                                  */
+/*               Email  : aup@cs.cmu.edu                                 */
+/*               Date Created: 11/12/2011                                */
+/*************************************************************************/
+/* Classes and helper functions for enabling threading in EHMM training  */
 /*                                                                       */
 /*************************************************************************/
-#ifndef SRC_EHMM_SRC_HMMWORD_H_
-#define SRC_EHMM_SRC_HMMWORD_H_
 
-class wrdC {
+#ifndef SRC_EHMM_SRC_THREADING_H_
+#define SRC_EHMM_SRC_THREADING_H_
+
+#include <pthread.h>
+#include <sys/time.h>
+
+// An interface for a runnable class.
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class,
+// preferably at the very end of the class.
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+
+class Thread {
  public:
-  int bst;  // begining state number
-  int est;  // ending state number
-  int nst;  // no of states
-  int wid;  // word id
-  char nm[kNmLimit];
+  virtual ~Thread() { }
 
-  wrdC();
-  void init(int, int, int, int, char*);
-  int getbst();
-  int getest();
-  int getnst();
+  // Block until this thread has finished.  Deletes this object upon return.
+  virtual void Join() = 0;
 };
 
-int wrdC::getbst() {
-  return bst;
-}
+class PthreadThread : public Thread {
+ public:
+  explicit PthreadThread(pthread_t *thread)
+    : thread_(thread) { }
 
-int wrdC::getest() {
-  return est;
-}
+  virtual void Join() {
+    pthread_join(*thread_, NULL);
+    delete thread_;
+  }
+ private:
+  pthread_t* thread_;
+};
 
-int wrdC::getnst() {
-  return nst;
-}
 
-wrdC::wrdC() {
-}
-void wrdC::init(int t_bst, int t_est, int t_nst, int t_wid, char *t_nm) {
-  bst = t_bst;
-  est = t_est;
-  nst = t_nst;
-  wid = t_wid;
-  strcpy(nm, t_nm);
-}
+// A simple mutex.  Only one thread can hold the lock at a time.
+class Mutex {
+ public:
+  virtual ~Mutex() { }
 
-#endif  // SRC_EHMM_SRC_HMMWORD_H_
+  virtual void Lock() = 0;
+  virtual void Unlock() = 0;
+};
+
+class PthreadMutex : public Mutex {
+ public:
+  PthreadMutex();
+  virtual ~PthreadMutex();
+  void Lock();
+  void Unlock();
+ private:
+  pthread_mutex_t mutex_;
+};
+
+
+// Scoped lock: locks a Mutex in the constructor, unlocks the same
+// Mutex in the destructor.  Useful to make sure that a lock is
+// unlocked on all exits (normal and error-related) from a lexical
+// scope.
+
+class ScopedLock {
+ public:
+  explicit ScopedLock(Mutex *mutex) : mutex_(mutex) {
+    mutex_->Lock();
+  }
+
+  ~ScopedLock() {
+    mutex_->Unlock();
+  }
+
+ private:
+  Mutex *mutex_;  // Not owned.
+
+  DISALLOW_COPY_AND_ASSIGN(ScopedLock);
+};
+
+typedef void* (thread_function)(void* data);
+
+Thread* StartJoinableThread(thread_function* func, void* userdata = NULL);
+
+#endif  // SRC_EHMM_SRC_THREADING_H_
