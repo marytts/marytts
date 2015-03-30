@@ -1,7 +1,7 @@
 /*************************************************************************/
 /*                                                                       */
 /*                     Carnegie Mellon University                        */
-/*                         Copyright (c) 2005                            */
+/*                         Copyright (c) 2011                            */
 /*                        All Rights Reserved.                           */
 /*                                                                       */
 /*  Permission is hereby granted, free of charge, to use and distribute  */
@@ -30,51 +30,33 @@
 /*                                                                       */
 /*************************************************************************/
 /*                                                                       */
-/*            Authors: Kishore Prahallad                                 */
-/*            Email:   skishore@cs.cmu.edu                               */
-/*            Date Created: 05/25/2005                                   */
-/*            Last Modified: 05/25/2005                                  */
-/*            Purpose: A state class for HMM implementation              */
+/*               Authors: Alok Parlikar                                  */
+/*               Email  : aup@cs.cmu.edu                                 */
+/*               Date Created: 11/12/2011                                */
+/*************************************************************************/
+/* Classes and helper functions for enabling threading in EHMM training  */
 /*                                                                       */
 /*************************************************************************/
-#ifndef SRC_EHMM_SRC_HMMWORD_H_
-#define SRC_EHMM_SRC_HMMWORD_H_
 
-class wrdC {
- public:
-  int bst;  // begining state number
-  int est;  // ending state number
-  int nst;  // no of states
-  int wid;  // word id
-  char nm[kNmLimit];
+#include "threading.h"
 
-  wrdC();
-  void init(int, int, int, int, char*);
-  int getbst();
-  int getest();
-  int getnst();
-};
-
-int wrdC::getbst() {
-  return bst;
+// Implementation of a Mutex using pthreads
+PthreadMutex::PthreadMutex() {
+  pthread_mutex_init(&mutex_, NULL);
+}
+PthreadMutex::~PthreadMutex() {
+  pthread_mutex_destroy(&mutex_);
+}
+void PthreadMutex::Lock() {
+  pthread_mutex_lock(&mutex_);
+}
+void PthreadMutex::Unlock() {
+  pthread_mutex_unlock(&mutex_);
 }
 
-int wrdC::getest() {
-  return est;
-}
+Thread* StartJoinableThread(thread_function* func, void*userdata) {
+  pthread_t* thread = new pthread_t;
+  pthread_create(thread, NULL, func, userdata);
 
-int wrdC::getnst() {
-  return nst;
+  return new PthreadThread(thread);
 }
-
-wrdC::wrdC() {
-}
-void wrdC::init(int t_bst, int t_est, int t_nst, int t_wid, char *t_nm) {
-  bst = t_bst;
-  est = t_est;
-  nst = t_nst;
-  wid = t_wid;
-  strcpy(nm, t_nm);
-}
-
-#endif  // SRC_EHMM_SRC_HMMWORD_H_
