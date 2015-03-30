@@ -1,0 +1,81 @@
+#!/bin/sh
+#####################################################-*-mode:shell-script-*-
+##                                                                       ##
+##                     Carnegie Mellon University                        ##
+##                        Copyright (c) 2013                             ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+##                                                                       ##
+##  After an EHMM build find the persistant NaN discarded utts and       ##
+##  remove the ones that appear more than once in the nohup.out file     ##
+##  from txt.done.data                                                   ##
+##                                                                       ##
+##  $FESTVOXDIR/src/ehmm/scripts/rm_nan_utts nohup.out etc/txt.done.data ##
+##                                                                       ##
+###########################################################################
+
+LANG=C; export LANG
+
+if [ ! "$FESTVOXDIR" ]
+then
+   echo "environment variable FESTVOXDIR is unset"
+   echo "set it to your local festvox directory e.g."
+   echo '   bash$ export FESTVOXDIR=/home/awb/projects/festvox/'
+   echo or
+   echo '   csh% setenv FESTVOXDIR /home/awb/projects/festvox/'
+   exit 1
+fi
+
+NOHUP=nohup.out
+TTD=etc/txt.done.data
+
+if [ $# = 2 ]
+then
+   NOHUP=$1
+   TTD=$2
+fi
+
+grep "discarded due to NAN problem" $NOHUP |
+awk '{ freq[$2]++ }
+     END { printf("BEGIN {\n");
+           for (badutt in freq)
+           {
+              if (freq[badutt] > 1)
+                 printf(" badutt[%d]=1;\n",badutt+1);
+           }
+           printf("}\n");
+           printf("{ if (badutt[NR]!=1) print $0 }\n");
+         }' >bad_utts.awk
+
+mv $TTD $TTD.withnan
+awk -f bad_utts.awk $TTD.withnan >$TTD
+
+rm -f bad_utts.awk
+
+
+exit 

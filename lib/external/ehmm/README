@@ -1,0 +1,164 @@
+##Author: Kishore Prahallad
+##Email:  skishore@cs.cmu.edu
+
+SYSTEM Requirements: 
+OS:      Linux
+Software: Festival, Speech Tools, Festvox
+Compiler: Perl, C++
+
+STEP 1:
+_______
+
+$./bin/phseq.sh ~awb/data/arctic/cmu_us_bdl_arctic/festival/utts/*.utt
+
+DESC: This program will extract the prompt file in terms of the phone sequence. This is done from the 
+festival utterance structures.
+
+INPUT: ~awb/data/arctic/cmu_us_bdl_arctic/festival/utts/*.utt
+OUTPUT: it is stored in etc/txt.mod.data 
+
+STEP 2:
+_______
+
+$perl bin/phfromutt.pl etc/txt.mod.data etc/ph_list 3
+
+DESC: Given a phone sequence files (prompt files written in terms of phones) extracted from utt 
+(of festival), this script extract unique sequence of phones and keep them in the ph_list   
+
+INPUT:  etc/txt.mod.data 
+OUTPUT: etc/ph_list
+
+This program assigns uniform number of states to each of the phone. In case you want to change 
+number of states modify the file etc/ph_list manually.
+
+STEP 3:
+________
+
+$perl bin/getwavlist.pl etc/txt.mod.data etc/mywavelist
+
+DESC: This extracts the list of wave file names for feature extraction;
+
+INPUT: etc/txt.mod.data 
+OUTPUT: etc/mywavelist
+
+STEP 4:
+_______
+
+$./bin/FeatureExtraction_v3 etc/mysp_settings etc/mywavelist
+
+DESC: This program extract cepstral coefficients from the wavefiles. It extracts both LPCCs and MFCCs.
+Pls modify etc/mysp_settings for feature extraction parameters and wave-file, path-names..
+
+INPUT: etc/mysp_settings
+       etc/mywavelist   
+OUTPUT: ./feat/*.*   (all features are stored in feat directory).
+                         
+
+MISC: to compile FeatureExtraction program: 
+      $cd src
+      $c++ -o FeatureExtraction_v3 FeatureExtraction_v3.cpp 
+      $mv FeatureExtraction ../bin
+      $cd ..
+
+STEP 5:
+_______
+
+$perl bin/comp_dcep.pl etc/mywavelist feat mfcc ft 1 1
+
+DESC: This program generates the deltas and delta-delta features of mfccs/lpccs....
+
+INPUT: etc/mywavelist 
+       feat  [directory where the features are stored...]
+       mfcc  [type of features you want to use lpcc/mfcc..]
+       ft    [modified extension used to store the files...]
+       1     [delta-flag]
+       1     [delta-delta-flag]
+
+OUTPUT: ./feat/*.ft
+
+STEP 6: 
+_______
+
+$perl bin/scale_feat.pl etc/mywavelist feat ft 4
+
+DESC: This program scales the feature vectors...
+
+INPUT: etc/mywavelist 
+       feat 
+       ft    [extension of the feature files]
+       4     [ scaling factor -- std. deviation of the scaled features]
+
+OUTPUT: feat/*.ft  [rewrites the existing files...]     
+
+NOTES: If you stop this program in the middle or want to rerun it, START from STEP 5.
+
+
+STEP 7:
+_______
+
+$perl bin/seqproc.pl etc/txt.mod.data etc/ph_list 2 2 39
+
+DESC: seqproc.pl modifies the prompt file in terms of integer, where each integer code is assigned
+with to a phone-identity. This mapping is done for convenience purpose.
+
+INPUT: etc/txt.mod.data (prompt-file) 
+       etc/ph_list (phone-states file) 
+       2           (number of gaussians per state) 
+       2 	   (number of connections; > 2 would introduce skip state) 
+       39          (dimension of the feature vector) 
+
+If you are not sure of the dimension of the feature vector, pls look at header (first line) of one of the feat/*.ft files.
+
+OUTPUT: etc/txt.mod.data.int (an integer sequenced prompt file) 
+        etc/ph_list.map (a mapping file of phone to an integer)
+	etc/ph_list.int (phone-states file where each phone is denoted by an integer)
+
+
+STEP 8: 
+_______
+
+Train the HMMs (finally....)
+
+$./bin/ehmm_v2 etc/ph_list.int etc/txt.mod.data.int 1 0 feat ft
+
+DESC: This is a HMM training program using Baum-Welsh algorithm.
+      It stops when the difference in the avg likelihood < 0.001 
+
+INPUT: etc/ph_list.int  
+       etc/txt.mod.data.int
+       1   [Flag for Sequential HMM model - Recommended]
+       0   [Retrain Flag]
+       feat [feature files path]
+       ft   [feature files extension]
+
+OUTPUT: mod/model101.txt  [models are stored here....]
+        mod/log100.txt    [logfile to check the decrease in log-likelihood]
+
+NOTES: To compile, 
+       $cd src 
+       $c++ -o ../bin/ehmm_v2 ehmm_v2.cpp
+
+
+STEP 9:  
+_______
+
+Decoder/Aligner...
+
+$./bin/edec_v2 etc/ph_list.int etc/txt.mod.data.int 1 feat ft
+
+OUTPUT: mylab/*.lab [in EMULabel format]..
+
+NOTES: To compile, 
+       $cd src 
+       $c++ -o ../bin/edec_v2 edec_v2.cpp
+
+STEP 10:
+________
+
+$perl bin/sym2nm.pl mylab etc/ph_list.map
+
+DESC: This program converts the interger indices of mylab/*.lab into phone names..
+
+INPUT: mylab [label directory]
+       etc/ph_list.map [mapping table]
+OUTPUT: mylab/*.lab

@@ -1,0 +1,9 @@
+WaveDir: wav/ 
+HeaderBytes: 44
+SamplingFreq: 16000
+FrameSize: 160
+FrameShift: 80
+Lporder: 12
+CepsNum: 16
+FeatDir: ./ehmm/feat
+Ext: .wav
