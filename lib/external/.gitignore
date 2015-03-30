@@ -6,3 +6,5 @@ include
 lib
 sw
 autom4te.cache/
+
+ehmm/src/*.o
