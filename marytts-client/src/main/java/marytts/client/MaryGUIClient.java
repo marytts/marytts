@@ -984,10 +984,12 @@ public class MaryGUIClient extends JPanel {
 					if (audioType == null) { // file has unknown extension
 						showErrorMessage("Unknown audio type", "Cannot write file of type `." + ext + "'");
 					} else { // OK, we know what to do
+						FileOutputStream fos = new FileOutputStream(saveFile);
 						processor.process(inputText.getText(), ((MaryClient.DataType) cbInputType.getSelectedItem()).name(),
 								"AUDIO", ((MaryClient.Voice) cbDefaultVoice.getSelectedItem()).getLocale().toString(), audioType,
 								((MaryClient.Voice) cbDefaultVoice.getSelectedItem()).name(), "", getAudioEffectsString(), null,
-								new FileOutputStream(saveFile));
+								fos);
+						fos.close();
 					}
 				}
 			}
