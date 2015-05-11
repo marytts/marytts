@@ -42,6 +42,7 @@ import marytts.config.MaryConfig;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.fst.FSTLookup;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -324,6 +325,13 @@ public class MaryRuntimeUtils {
 		}
 		assert alloStream != null;
 		return AllophoneSet.getAllophoneSet(alloStream, propertyValue);
+	}
+
+	public static String[] checkLexicon(String propertyName, String token) throws IOException, MaryConfigurationException {
+		String lexiconProperty = propertyName + ".lexicon";
+		InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
+		FSTLookup lexicon = new FSTLookup(lexiconStream, lexiconProperty);
+		return lexicon.lookup(token);
 	}
 
 	public static String getMaryVersion() {
