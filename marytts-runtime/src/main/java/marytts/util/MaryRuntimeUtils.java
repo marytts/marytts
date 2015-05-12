@@ -331,7 +331,7 @@ public class MaryRuntimeUtils {
 		String lexiconProperty = propertyName + ".lexicon";
 		InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
 		FSTLookup lexicon = new FSTLookup(lexiconStream, lexiconProperty);
-		return lexicon.lookup(token);
+		return lexicon.lookup(token.toLowerCase());
 	}
 
 	public static String getMaryVersion() {
