@@ -75,6 +75,13 @@ public class EHMMLabeler extends VoiceImportComponent {
 	public final String RETRAIN = "EHMMLabeler.reTrainFlag";
 	public final String NONDETENDFLAG = "EHMMLabeler.nonDetEndFlag";
 
+	public final String PREPAREFILESFLAG = "EHMMLabeler.prepareFiles";
+	public final String TRAININGFLAG = "EHMMLabeler.doTraining";
+	public final String ALIGNMENTFLAG = "EHMMLabeler.doAlignment";
+
+	private final int EHMM_TRAIN_NUM_THREADS = Math.min(4, Runtime.getRuntime().availableProcessors()); // more than 4 threads don't help for ehmm training
+	private final int EHMM_ALIGN_NUM_THREADS = Runtime.getRuntime().availableProcessors();
+
 	public final String getName() {
 		return "EHMMLabeler";
 	}
@@ -99,6 +106,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 			props.put(INITEHMMDIR, "/");
 			props.put(RETRAIN, "false");
 			props.put(NONDETENDFLAG, "0");
+			props.put(PREPAREFILESFLAG, "true");
+			props.put(TRAININGFLAG, "true");
+			props.put(ALIGNMENTFLAG, "true");
 		}
 		return props;
 	}
@@ -110,12 +120,14 @@ public class EHMMLabeler extends VoiceImportComponent {
 				"directory containing all files used for training and labeling. Will be created if it does not exist.");
 		props2Help.put(ALLOPHONESDIR, "directory containing the IntonisedXML files.");
 		props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
-		props2Help
-				.put(INITEHMMDIR,
-						"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
+		props2Help.put(INITEHMMDIR,
+					"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
 		props2Help.put(RETRAIN, "true - Do re-training by initializing with given models. false - Do just Decoding");
 		props2Help.put(NONDETENDFLAG, "(0,1) - Viterbi decoding with non deterministic ending (festvox 2.4)");
 
+		props2Help.put(PREPAREFILESFLAG, "(true/false) -- initialize files in the etc/ and feat/ directories");
+		props2Help.put(TRAININGFLAG, "(true/false) -- perform model training");
+		props2Help.put(ALIGNMENTFLAG, "(true/false) -- perform alignment");
 	}
 
 	@Override
@@ -135,63 +147,74 @@ public class EHMMLabeler extends VoiceImportComponent {
 		if (!ehmmFile.exists()) {
 			throw new IOException("EHMM path setting is wrong. Because file " + ehmmFile.getAbsolutePath() + " does not exist");
 		}
-		System.out.println("Preparing voice database for labelling using EHMM :");
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 		// get the voicename
 		voicename = db.getProp(db.VOICENAME);
 		// make new directories ehmm and etc
 		ehmm = new File(getProp(EDIR));
 		// get the output directory of files used by EHMM
 		outputDir = ehmm.getAbsolutePath() + "/etc";
+		if ("true".equals(getProp(PREPAREFILESFLAG))) {
+			System.out.println("Preparing voice database for labelling using EHMM :");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			// setup the EHMM directory
+			System.out.println("Setting up EHMM directory ...");
+			setup();
+			System.out.println(" ... done.");
 
-		// setup the EHMM directory
-		System.out.println("Setting up EHMM directory ...");
-		setup();
-		System.out.println(" ... done.");
+			// Getting Phone Sequence for Force Alignment
+			System.out.println("Getting Phone Sequence from Phone Features...");
+			getPhoneSequence();
+			System.out.println(" ... done.");
 
-		// Getting Phone Sequence for Force Alignment
-		System.out.println("Getting Phone Sequence from Phone Features...");
-		getPhoneSequence();
-		System.out.println(" ... done.");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			// dump the filenames
+			System.out.println("Dumping required files ....");
+			dumpRequiredFiles();
+			System.out.println(" ... done.");
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		// dump the filenames
-		System.out.println("Dumping required files ....");
-		dumpRequiredFiles();
-		System.out.println(" ... done.");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			// Computing Features (MFCCs) for EHMM
+			System.out.println("Computing MFCCs ...");
+			computeFeatures();
+			System.out.println(" ... done.");
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		// Computing Features (MFCCs) for EHMM
-		System.out.println("Computing MFCCs ...");
-		computeFeatures();
-		System.out.println(" ... done.");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			System.out.println("Scaling Feature Vectors ...");
+			scaleFeatures();
+			System.out.println(" ... done.");
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		System.out.println("Scaling Feature Vectors ...");
-		scaleFeatures();
-		System.out.println(" ... done.");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			System.out.println("Converting Feature Vectors to Binary Format ...");
+			convertToBinaryFeatures();
+			System.out.println(" ... done.");
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		System.out.println("Converting Feature Vectors to Binary Format ...");
-		convertToBinaryFeatures();
-		System.out.println(" ... done.");
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			System.out.println("Intializing EHMM Model ...");
+			intializeEHMMModels();
+			System.out.println(" ... done.");
+		} else {
+			System.out.println("Skipping preparatory steps.");
+		}
+		
+		if ("true".equals(getProp(TRAININGFLAG))) {
+			baumWelchEHMM();
+		} else {
+			System.out.println("Skipping training.");
+		}
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		System.out.println("Intializing EHMM Model ...");
-		intializeEHMMModels();
-		System.out.println(" ... done.");
+		if ("true".equals(getProp(ALIGNMENTFLAG))) {
+			System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+			System.out.println("Aligning EHMM for labelling ...");
+			alignEHMM();
 
-		baumWelchEHMM();
+			// System.out.println("And Copying label files into lab directory ...");
+			// getProperLabelFormat();
+			// System.out.println(" ... done.");
 
-		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-		System.out.println("Aligning EHMM for labelling ...");
-		alignEHMM();
-
-		// System.out.println("And Copying label files into lab directory ...");
-		// getProperLabelFormat();
-		// System.out.println(" ... done.");
-
-		System.out.println("Label file Generation Successfully completed using EHMM !");
+			System.out.println("Label file Generation Successfully completed using EHMM !");
+		} else {
+			System.out.println("Skipping alignment.");
+		}
 
 		return true;
 	}
@@ -458,7 +481,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 
 		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/"
 				+ "ehmm" + ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath()
-				+ "/feat bft " + ehmm.getAbsolutePath() + "/mod 0 0 0 48 " + rtime.availableProcessors() + " >> log.txt" + "; exit )\n";
+				+ "/feat bft " + ehmm.getAbsolutePath() + "/mod 0 0 0 48 " + EHMM_TRAIN_NUM_THREADS + " >> log.txt" + "; exit )\n";
 		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 		if (getProp(INITEHMMDIR).equals("/")) {
 			System.out.println("EHMM baum-welch re-estimation ...");
@@ -501,8 +524,8 @@ public class EHMMLabeler extends VoiceImportComponent {
 		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/edec " + outputDir + "/" + "ehmm"
 				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 " + ehmm.getAbsolutePath() + "/feat bft "
 				+ outputDir + "/" + "ehmm" + ".featSettings " + ehmm.getAbsolutePath() + "/mod " + getProp(NONDETENDFLAG) + " "
-				+ ehmm.getAbsolutePath() + "/lab " + rtime.availableProcessors() + " >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
-				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int " + rtime.availableProcessors() + " >> log.txt" + "; exit )\n";
+				+ ehmm.getAbsolutePath() + "/lab " + EHMM_ALIGN_NUM_THREADS + " >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
+				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int >> log.txt" + "; exit )\n";
 
 		System.out.println(cmd);
 		pw.print(cmd);
