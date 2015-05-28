@@ -29,10 +29,6 @@ products. Here is a list of those products with links to their licenses.
   HTS, ported to Java by DFKI. The original HTS can be obtained from
   http://hts-engine.sourceforge.net/ -- it is released under the New and
   Simplified BSD License.
-* **freetts:** MaryTTS uses code from FreeTTS (http://freetts.sf.net) for
-  various processing modules and as the source of one method for waveform
-  synthesis. FreeTTS is licensed under the (BSD-style) FreeTTS license, see
-  doc/licenses/freetts-license.txt.
 * **JTok:** The JTok tokenizer from http://heartofgold.dfki.de is distributed
   under the GNU Lesser General Public License, see http://www.gnu.org or
   doc/licenses/LGPL.txt.
