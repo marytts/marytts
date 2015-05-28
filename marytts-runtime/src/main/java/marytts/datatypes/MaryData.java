@@ -30,7 +30,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -58,8 +57,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sun.speech.freetts.Utterance;
-
 import com.google.common.base.Objects;
 
 /**
@@ -79,7 +76,6 @@ public class MaryData {
 	private String plainText = null;
 	private AudioInputStream audio = null;
 	private AudioFileFormat audioFileFormat = null;
-	private List<Utterance> utterances = null;
 	private Logger logger = MaryUtils.getLogger("IO");
 
 	// for plainText, allow additional information:
@@ -155,9 +151,6 @@ public class MaryData {
 	 */
 	public void readFrom(InputStream is, String endMarker) throws ParserConfigurationException, SAXException, IOException,
 			TransformerConfigurationException, TransformerException {
-		if (type.isUtterances())
-			throw new IOException("Cannot read into utterance-based data type!");
-
 		if (type.isXMLType() || type.isTextType())
 			readFrom(new InputStreamReader(is, "UTF-8"), endMarker);
 		else { // audio
@@ -233,9 +226,6 @@ public class MaryData {
 	 */
 	public void writeTo(OutputStream os) throws TransformerConfigurationException, FileNotFoundException, TransformerException,
 			IOException, Exception {
-		if (type.isUtterances())
-			throw new IOException("Cannot write out utterance-based data type!");
-
 		if (type.isXMLType()) {
 			if (writer == null)
 				writer = new MaryNormalisedWriter();
@@ -289,8 +279,6 @@ public class MaryData {
 	 */
 	public void writeTo(Writer w) throws TransformerConfigurationException, FileNotFoundException, TransformerException,
 			IOException, Exception {
-		if (type.isUtterances())
-			throw new IOException("Cannot write out utterance-based data type!");
 		if (type.isXMLType()) {
 			throw new IOException("Better write XML data to an OutputStream, not to a Writer");
 		} else if (type.isTextType()) { // caution: XML types are text types!
@@ -307,8 +295,6 @@ public class MaryData {
 			return xmlDocument;
 		} else if (type.isTextType()) {
 			return plainText;
-		} else if (type.isUtterances()) {
-			return utterances;
 		} else { // audio
 			return audio;
 		}
@@ -342,14 +328,6 @@ public class MaryData {
 	 */
 	public void setAudio(AudioInputStream audio) {
 		this.audio = audio;
-	}
-
-	public List<Utterance> getUtterances() {
-		return utterances;
-	}
-
-	public void setUtterances(List<Utterance> utterances) {
-		this.utterances = utterances;
 	}
 
 	public void setDefaultVoice(Voice voice) {
@@ -461,7 +439,7 @@ public class MaryData {
 		return Objects.toStringHelper(this).add("type", getType()).add("locale", getLocale())
 				.add("output parameters", getOutputParams()).add("data", getData())
 				.add("document", DomUtils.serializeToString(getDocument())).add("validating", getValidating())
-				.add("plain text", getPlainText()).add("utterances", getUtterances()).add("audio", getAudio())
-				.add("audio file format", getAudioFileFormat()).toString();
+				.add("plain text", getPlainText()).add("audio", getAudio()).add("audio file format", getAudioFileFormat())
+				.toString();
 	}
 }
