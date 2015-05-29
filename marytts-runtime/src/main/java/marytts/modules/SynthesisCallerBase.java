@@ -32,10 +32,7 @@ import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.modules.synthesis.FestivalUttSectioner;
 import marytts.modules.synthesis.Voice;
-import marytts.modules.synthesis.VoiceSection;
-import marytts.modules.synthesis.VoiceSectioner;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 
 import org.xml.sax.SAXException;
@@ -105,36 +102,6 @@ public abstract class SynthesisCallerBase extends InternalModule {
 			// thread reading the audio data on the other "end" to get to our data as we are producing it.
 			assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
 			result.setAudio(d.getAudio());
-		}
-
-		VoiceSectioner sectioner = null;
-		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
-			sectioner = new FestivalUttSectioner(input, defaultVoice);
-		} else {
-			throw new RuntimeException("Don't know how to handle input type '" + inputType() + "'");
-		}
-		VoiceSection section = null;
-		// A first pass identifying the voice with the highest sampling rate:
-		AudioFormat commonAudioFormat = null;
-		while ((section = sectioner.nextSection()) != null) {
-			if (commonAudioFormat == null)
-				commonAudioFormat = section.voice().dbAudioFormat();
-			else if (section.voice().dbAudioFormat().getSampleRate() > commonAudioFormat.getSampleRate())
-				commonAudioFormat = section.voice().dbAudioFormat();
-		}
-		// And second pass:
-		if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
-			sectioner = new FestivalUttSectioner(input, defaultVoice);
-		}
-		section = null;
-		while ((section = sectioner.nextSection()) != null) {
-			AudioInputStream ais = synthesiseOneSection(section.text(), section.voice());
-			if (ais != null) {
-				// Conversion required?
-				ais = convertIfNeededAndPossible(ais, commonAudioFormat, section.voice().getName());
-				ais = convertIfNeededAndPossible(ais, targetFormat, section.voice().getName());
-				result.appendAudio(ais);
-			}
 		}
 
 		return result;
