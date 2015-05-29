@@ -253,22 +253,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts-de</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts-en_us</artifactId>
-				<version>1.0</version>
-			</dependency>
-
-			<dependency>
 				<groupId>gov.noaa.pmel.sgt</groupId>
 				<artifactId>sgt</artifactId>
 				<version>3.0</version>

@@ -83,9 +83,6 @@ public class MaryDataType {
 	public static final MaryDataType TOKENS = new MaryDataType("TOKENS", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType WORDS = new MaryDataType("WORDS", true, true, MARYXML, MaryXML.MARYXML);
 
-	// until we have moved the feature processors to XML:
-	public static final MaryDataType FREETTS_ACOUSTPARAMS = new MaryDataType("FREETTS_ACOUSTPARAMS", false, false, UTTERANCES);
-
 	// ///////////////////////////////////////////////////////////////////
 	// //////////////////////// One MaryDataType /////////////////////////
 	// ///////////////////////////////////////////////////////////////////
@@ -131,10 +128,6 @@ public class MaryDataType {
 
 	public boolean isMaryXML() {
 		return traits.isMaryXML();
-	}
-
-	public boolean isUtterances() {
-		return traits.isUtterances();
 	}
 
 	public String rootElement() {
