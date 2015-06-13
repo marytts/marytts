@@ -477,8 +477,8 @@ public class Mary {
 			System.err.print("command-line application...");
 
 		// first thing we do, let's test if the port is available:
+        int localPort = MaryProperties.needInteger("socket.port");
 		if (!server.equals("commandline")) {
-			int localPort = MaryProperties.needInteger("socket.port");
 			try {
 				ServerSocket serverSocket = new ServerSocket(localPort);
 				serverSocket.close();
@@ -489,7 +489,7 @@ public class Mary {
 		}
 
 		startup();
-		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s");
+		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s on port " + localPort);
 
 		Runnable main = null;
 
