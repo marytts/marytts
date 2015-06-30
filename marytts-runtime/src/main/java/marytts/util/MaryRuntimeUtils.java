@@ -370,9 +370,9 @@ public class MaryRuntimeUtils {
 		Collection<Voice> voices = Voice.getAvailableVoices();
 		for (Iterator<Voice> it = voices.iterator(); it.hasNext();) {
 			Voice v = (Voice) it.next();
-		        if (v instanceof UnitSelectionVoice) {
+		        if (v.isUnitSelection()) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " "
-						+ ((UnitSelectionVoice) v).getDomain() + System.getProperty("line.separator");
+						+ (v.getDomain() + System.getProperty("line.separator"));
 			} else if (v instanceof HMMVoice) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm"
 						+ System.getProperty("line.separator");
