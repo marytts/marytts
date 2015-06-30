@@ -10,17 +10,19 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.modules.synthesis.Voice;
+import marytts.config.LanguageConfig;
+import marytts.config.SynthesisConfig;
 import marytts.config.VoiceConfig;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.DomUtils;
 import marytts.config.MaryConfig;
-
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+
+import static org.junit.Assert.*;
 
 import org.mockito.Mockito;
 
@@ -36,6 +38,11 @@ public class UnitSelectionIT {
 	@Test
 	public void canReadUnitSelectionConfig() throws Exception {
 		assertThat(marytts.config.MaryConfig.getConfigs(), hasItem(isA(UnitSelectionConfig.class)));
+	}
+	
+	@Test
+	public void canReadUnitSelectionConfig2() throws Exception {	
+		assertNotNull(MaryConfig.getSynthesisConfig("unitselection"));
 	}
 	
 	/**
