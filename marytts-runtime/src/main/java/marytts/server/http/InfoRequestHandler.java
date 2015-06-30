@@ -190,15 +190,6 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 			}
 			MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice' or 'locale'");
 			return null;
-		} else if (request.equals("vocalizations")) {
-			if (queryItems != null) {
-				String voice = queryItems.get("voice");
-				if (voice != null) {
-					return MaryRuntimeUtils.getVocalizations(voice);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice'");
-			return null;
 		} else if (request.equals("styles")) {
 			if (queryItems != null) {
 				String voice = queryItems.get("voice");
