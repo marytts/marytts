@@ -20,8 +20,10 @@
  */
 package marytts.modules.synthesis;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -218,10 +220,6 @@ public class Voice {
 			}
 		}
 		preferredModulesClasses = MaryProperties.getProperty(header + ".preferredModules");
-
-		String lexiconClass = MaryProperties.getProperty(header + ".lexiconClass");
-		String lexiconName = MaryProperties.getProperty(header + ".lexicon");
-		lexicon = getLexicon(lexiconClass, lexiconName);
 
 		loadOldStyleProsodyModels(header);
 		loadAcousticModels(header);
@@ -514,15 +512,6 @@ public class Voice {
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams) throws SynthesisException {
 		return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
 	}
-
-	/**
-	 * Return the lexicon associated to this voice
-	 * 
-	 * @return
-	 */
-	public Lexicon getLexicon() {
-		return lexicon;
-	}
 	
 	/**
 	 * Gets the domain of this voice
@@ -788,67 +777,6 @@ public class Voice {
 			logger.debug("Couldn't find any voice at all");
 
 		return guessedVoice;
-	}
-
-	/**
-	 * Look up in the list of already-loaded lexicons whether the requested lexicon is known; otherwise, load it.
-	 * 
-	 * @param lexiconClass
-	 * @param lexiconName
-	 * @return the requested lexicon, or null.
-	 */
-	private static Lexicon getLexicon(String lexiconClass, String lexiconName) {
-		if (lexiconClass == null)
-			return null;
-		// build the lexicon if not already built
-		Lexicon lexicon = null;
-		if (lexicons.containsKey(lexiconClass + lexiconName)) {
-			return lexicons.get(lexiconClass + lexiconName);
-		}
-		// need to create a new lexicon instance
-		try {
-			logger.debug("...loading lexicon...");
-			if (lexiconName == null) {
-				lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
-			} else { // lexiconName is String argument to constructor
-				Class lexCl = Class.forName(lexiconClass);
-				Constructor lexConstr = lexCl.getConstructor(new Class[] { String.class });
-				// will throw a NoSuchMethodError if constructor does not exist
-				lexicon = (Lexicon) lexConstr.newInstance(new Object[] { lexiconName });
-
-				// Apply our own custom addenda only for cmudict04:
-				if (lexiconName.equals("cmudict04")) {
-					assert lexicon instanceof CMULexicon : "Expected lexicon to be a CMULexicon";
-					String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
-					if (customAddenda != null) {
-						// create lexicon with custom addenda
-						logger.debug("...loading custom addenda...");
-						lexicon.load();
-						// open addenda file
-						BufferedReader addendaIn = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-								customAddenda)), "UTF-8"));
-						String line;
-						while ((line = addendaIn.readLine()) != null) {
-							if (!line.startsWith("#") && !line.equals("")) {
-								// add all words in addenda to lexicon
-								StringTokenizer tok = new StringTokenizer(line);
-								String word = tok.nextToken();
-								int numPhones = tok.countTokens();
-								String[] phones = new String[numPhones];
-								for (int i = 0; i < phones.length; i++) {
-									phones[i] = tok.nextToken();
-								}
-								((CMULexicon) lexicon).addAddendum(word, null, phones);
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not load lexicon " + lexiconClass + "('" + lexiconName + "')", ex);
-		}
-		lexicons.put(lexiconClass + lexiconName, lexicon);
-		return lexicon;
 	}
 	
 	public void readExampleText(InputStream in) throws IOException {
