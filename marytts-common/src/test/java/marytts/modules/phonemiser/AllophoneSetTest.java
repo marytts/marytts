@@ -145,4 +145,11 @@ public class AllophoneSetTest {
 		};
 		// @formatter:on
 	}
+
+	@Test
+	public void testSyllabifyWithoutNucleus() {
+		String actual = allophoneSet.syllabify("s");
+		String expected = "' s";
+		Assert.assertEquals(actual, expected);
+	}
 }
