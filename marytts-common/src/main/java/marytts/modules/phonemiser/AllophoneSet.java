@@ -438,8 +438,9 @@ public class AllophoneSet {
 	 * @throws IllegalArgumentException
 	 *             if the <b>phoneString</b> is empty or contains a symbol that satisfies none of the following conditions:
 	 *             <ol>
-	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
-	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
+	 *             <li>the symbol corresponds to an Allophone, or</li>
+	 *             <li>the symbol is a stress symbol (cf. {@link Stress}), or</li>
+	 *             <li>the symbol is a syllable boundary (<code>-</code>)</li>
 	 *             </ol>
 	 * @author ingmar
 	 * 
@@ -551,7 +552,13 @@ public class AllophoneSet {
 					if (currentSyllable == null) {
 						// haven't seen a Syllable yet in this iteration
 						iterator.remove();
-						initialSyllable.prependAllophone(allophone);
+						if (initialSyllable == null) {
+							// haven't seen any syllable at all
+							initialSyllable = new Syllable(allophone);
+							iterator.add(initialSyllable);
+						} else {
+							initialSyllable.prependAllophone(allophone);
+						}
 					} else {
 						// append it to the last seen Syllable
 						iterator.remove();

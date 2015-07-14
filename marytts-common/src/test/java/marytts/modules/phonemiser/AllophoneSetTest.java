@@ -146,7 +146,7 @@ public class AllophoneSetTest {
 		// @formatter:on
 	}
 
-	@Test(expectedExceptions = NullPointerException.class)
+	@Test
 	public void testSyllabifyWithoutNucleus() {
 		String actual = allophoneSet.syllabify("s");
 		String expected = "' s";
