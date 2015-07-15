@@ -462,7 +462,7 @@ public class AllophoneSet {
 	 * @author ingmar
 	 * 
 	 */
-	public String syllabify(String phoneString) {
+	public String syllabify(String phoneString) throws IllegalArgumentException {
 		// Before we process, a sanity check:
 		if (phoneString.trim().isEmpty()) {
 			throw new IllegalArgumentException("Cannot syllabify empty phone string");
