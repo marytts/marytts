@@ -358,7 +358,11 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		// to the normalised form
 
 		String phones = lts.predictPronunciation(normalised);
-		result = lts.syllabify(phones);
+		try {
+			result = lts.syllabify(phones);
+		} catch (IllegalArgumentException e) {
+			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
+		}
 		if (result != null) {
 			if (logUnknownFileName != null) {
 				String unknownText = text.trim();
