@@ -152,4 +152,36 @@ public class AllophoneSetTest {
 		String expected = "' s";
 		Assert.assertEquals(actual, expected);
 	}
+
+	@Test(dataProvider = "legacySyllabifierData")
+	public void testLegacySyllabify(String phones, String expected) {
+		String actual = allophoneSet.syllabify(phones);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@DataProvider
+	private Object[][] legacySyllabifierData() {
+		// @formatter:off
+		return new Object[][] {
+				{ "ma1", "' m a" },
+				{ "ma1ma", "' m a - m a" },
+				{ "mama1", "m a - ' m a" },
+				{ "ma1mama", "' m a - m a - m a" },
+				{ "mama1ma", "m a - ' m a - m a" },
+				{ "mamama1", "m a - m a - ' m a" },
+				{ "ma1mamama", "' m a - m a - m a - m a" },
+				{ "mama1mama", "m a - ' m a - m a - m a" },
+				{ "mamama1ma", "m a - m a - ' m a - m a" },
+				{ "mamamama1", "m a - m a - m a - ' m a" }
+		};
+		// @formatter:on
+	}
+
+	@Test
+	public void testLegacySyllabifyWithoutNucleus() {
+		String actual = allophoneSet.syllabify("s1");
+		String expected = "' s";
+		Assert.assertEquals(actual, expected);
+	}
+
 }
