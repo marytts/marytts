@@ -177,7 +177,7 @@ public class AllophoneSetTest {
 		// @formatter:on
 	}
 
-	@Test(expectedExceptions = IllegalArgumentException.class)
+	@Test
 	public void testLegacySyllabifyWithoutNucleus() {
 		String actual = allophoneSet.syllabify("s1");
 		String expected = "' s";
