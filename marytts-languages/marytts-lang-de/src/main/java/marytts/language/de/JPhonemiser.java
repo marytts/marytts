@@ -243,6 +243,10 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 					if (phon == null) {
 						phon = phonemise(graph, pos, helper);
 					}
+					// null result should not be processed
+					if (phon == null) {
+						continue;
+					}
 					if (ph.length() == 0) { // first part
 						// The g2pMethod of the combined beast is
 						// the g2pMethod of the first constituant.
@@ -358,7 +362,11 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		// to the normalised form
 
 		String phones = lts.predictPronunciation(normalised);
-		result = lts.syllabify(phones);
+		try {
+			result = lts.syllabify(phones);
+		} catch (IllegalArgumentException e) {
+			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
+		}
 		if (result != null) {
 			if (logUnknownFileName != null) {
 				String unknownText = text.trim();
