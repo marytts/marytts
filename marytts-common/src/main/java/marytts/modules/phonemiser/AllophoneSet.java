@@ -402,8 +402,25 @@ public class AllophoneSet {
 				// have found a valid phone
 				phones.add(ph);
 			} else {
-				throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
-						+ "' in phonetic string `" + allophoneString + "' -- ignoring.");
+				// FIXME: temporarily handle digit suffix stress notation from legacy LTS CARTs until these are rebuilt
+				String stress = null;
+				switch (ph) {
+				case "1":
+					stress = Stress.PRIMARY;
+					break;
+				case "2":
+					stress = Stress.SECONDARY;
+					break;
+				case "0":
+					stress = Stress.NONE;
+					break;
+				}
+				if (stress != null && phones.size() > 0) {
+					phones.add(phones.size() - 1, stress);
+				} else {
+					throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
+							+ "' in phonetic string `" + allophoneString + "' -- ignoring.");
+				}
 			}
 		}
 		return phones;
@@ -451,9 +468,6 @@ public class AllophoneSet {
 			throw new IllegalArgumentException("Cannot syllabify empty phone string");
 		}
 
-        // FIXME: hack for CMU to work with inner mary phone encoding
-        phoneString = phoneString.replace("0", Stress.NONE).replace("1", Stress.PRIMARY).replace("2", Stress.SECONDARY);
-            
 		// First, split phoneString into a List of allophone Strings...
 		List<String> allophoneStrings = splitIntoAllophoneList(phoneString, true);
 		// ...and create from it a List of generic Objects
@@ -548,7 +562,18 @@ public class AllophoneSet {
 				String phone = (String) phoneOrSyllable;
 				try {
 					// it's an Allophone -- append to the Syllable
-					Allophone allophone = getAllophone(phone);
+					Allophone allophone;
+					try {
+						allophone = getAllophone(phone);
+					} catch (IllegalArgumentException e) {
+						// or a stress or boundary marker -- remove
+						if (getIgnoreChars().contains(phone)) {
+							iterator.remove();
+							continue;
+						} else {
+							throw e;
+						}
+					}
 					if (currentSyllable == null) {
 						// haven't seen a Syllable yet in this iteration
 						iterator.remove();
