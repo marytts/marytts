@@ -162,6 +162,10 @@ public class JPhonemiser extends InternalModule {
 					String graph = st.nextToken();
 					StringBuilder helper = new StringBuilder();
 					String phon = phonemise(graph, pos, helper);
+					// null result should not be processed
+					if (phon == null) {
+						continue;
+					}
 					if (ph.length() == 0) { // first part
 						// The g2pMethod of the combined beast is
 						// the g2pMethod of the first constituant.
