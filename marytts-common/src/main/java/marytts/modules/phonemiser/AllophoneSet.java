@@ -562,7 +562,18 @@ public class AllophoneSet {
 				String phone = (String) phoneOrSyllable;
 				try {
 					// it's an Allophone -- append to the Syllable
-					Allophone allophone = getAllophone(phone);
+					Allophone allophone;
+					try {
+						allophone = getAllophone(phone);
+					} catch (IllegalArgumentException e) {
+						// or a stress or boundary marker -- remove
+						if (getIgnoreChars().contains(phone)) {
+							iterator.remove();
+							continue;
+						} else {
+							throw e;
+						}
+					}
 					if (currentSyllable == null) {
 						// haven't seen a Syllable yet in this iteration
 						iterator.remove();
