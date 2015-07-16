@@ -35,10 +35,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-import marytts.MaryConstants;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -187,7 +183,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 	@Override
 	public MaryData process(MaryData d) throws Exception {
-		Pattern p = Pattern.compile(MaryConstants.PUNCT_POS_REGEXP);
 		Document doc = d.getDocument();
 		inflection.determineEndings(doc);
 
@@ -208,14 +203,8 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 			// use part-of-speech if available
 			String pos = null;
-			boolean is_punct = false;
 			if (t.hasAttribute("pos")) {
 				pos = t.getAttribute("pos");
-
-				Matcher m = p.matcher(pos);
-				if (m.find()) {
-					is_punct = true;
-				}
 			}
 
 			boolean isEnglish = false;
