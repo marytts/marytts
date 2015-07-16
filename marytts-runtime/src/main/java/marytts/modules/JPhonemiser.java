@@ -123,6 +123,11 @@ public class JPhonemiser extends InternalModule {
 		lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
 	}
 
+	public void startup() throws Exception {
+		super.startup();
+		setPunctuationPosRegex();
+	}
+
 	public MaryData process(MaryData d) throws Exception {
 		Pattern p = Pattern.compile(MaryConstants.PUNCT_POS_REGEXP);
 		Document doc = d.getDocument();
@@ -154,7 +159,7 @@ public class JPhonemiser extends InternalModule {
 				}
 			}
 
-			if (text != null && !text.equals("") && !is_punct) {
+			if (text != null && !text.equals("") && !isPosPunctuation(pos)) {
 				// If text consists of several parts (e.g., because that was
 				// inserted into the sounds_like attribute), each part
 				// is transcribed separately.
