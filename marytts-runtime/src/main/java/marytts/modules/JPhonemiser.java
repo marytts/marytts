@@ -31,9 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
-import marytts.MaryConstants;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -65,6 +64,8 @@ public class JPhonemiser extends InternalModule {
 	protected boolean removeTrailingOneFromPhones = true;
 
 	protected AllophoneSet allophoneSet;
+
+	protected Pattern punctuationPosRegex;
 
 	public JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
 		this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, propertyPrefix + "allophoneset", propertyPrefix
@@ -120,8 +121,12 @@ public class JPhonemiser extends InternalModule {
 		lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
 	}
 
+	public void startup() throws Exception {
+		super.startup();
+		setPunctuationPosRegex();
+	}
+
 	public MaryData process(MaryData d) throws Exception {
-		Pattern p = Pattern.compile(MaryConstants.PUNCT_POS_REGEXP);
 		Document doc = d.getDocument();
 
 		NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
@@ -141,17 +146,11 @@ public class JPhonemiser extends InternalModule {
 
 			// use part-of-speech if available
 			String pos = null;
-			boolean is_punct = false;
 			if (t.hasAttribute("pos")) {
 				pos = t.getAttribute("pos");
-
-				Matcher m = p.matcher(pos);
-				if (m.find()) {
-					is_punct = true;
-				}
 			}
 
-			if (text != null && !text.equals("") && !is_punct) {
+			if (text != null && !text.equals("") && !isPosPunctuation(pos)) {
 				// If text consists of several parts (e.g., because that was
 				// inserted into the sounds_like attribute), each part
 				// is transcribed separately.
@@ -404,4 +403,43 @@ public class JPhonemiser extends InternalModule {
 		}
 	}
 
+	/**
+	 * Compile a regex pattern used to determine whether tokens are processed as punctuation or not, based on whether their
+	 * <code>pos</code> attribute matches the pattern.
+	 * 
+	 * @author ingmar
+	 */
+	protected void setPunctuationPosRegex() {
+		String language = getLocale().getLanguage();
+		String propertyName = language + ".pos.punct.regex";
+		String defaultRegex = "\\$PUNCT";
+		String regex = MaryProperties.getProperty(propertyName);
+		if (regex == null) {
+			logger.debug(String.format("Property %s not set, using default", propertyName));
+			regex = defaultRegex;
+		} else {
+			logger.debug(String.format("Using property %s", propertyName));
+		}
+		try {
+			punctuationPosRegex = Pattern.compile(regex);
+		} catch (PatternSyntaxException e) {
+			logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+			punctuationPosRegex = Pattern.compile(defaultRegex);
+		}
+		logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
+		return;
+	}
+
+	/**
+	 * Based on the regex compiled in {@link #setPunctuationPosRegex()}, determine whether a given POS string is classified as
+	 * punctuation
+	 * 
+	 * @author ingmar
+	 */
+	public boolean isPosPunctuation(String pos) {
+		if (pos != null && punctuationPosRegex.matcher(pos).matches()) {
+			return true;
+		}
+		return false;
+	}
 }
