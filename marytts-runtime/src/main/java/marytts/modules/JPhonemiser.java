@@ -31,10 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
-import marytts.MaryConstants;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -129,7 +127,6 @@ public class JPhonemiser extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Pattern p = Pattern.compile(MaryConstants.PUNCT_POS_REGEXP);
 		Document doc = d.getDocument();
 
 		NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
@@ -149,14 +146,8 @@ public class JPhonemiser extends InternalModule {
 
 			// use part-of-speech if available
 			String pos = null;
-			boolean is_punct = false;
 			if (t.hasAttribute("pos")) {
 				pos = t.getAttribute("pos");
-
-				Matcher m = p.matcher(pos);
-				if (m.find()) {
-					is_punct = true;
-				}
 			}
 
 			if (text != null && !text.equals("") && !isPosPunctuation(pos)) {
