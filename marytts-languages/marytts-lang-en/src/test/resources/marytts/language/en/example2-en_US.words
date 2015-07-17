@@ -23,7 +23,7 @@ speech
 <t>
 synthesis
 </t>
-<t pos="$PUNCT">
+<t pos=".">
 !
 </t>
 </s>
