@@ -26,12 +26,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -46,8 +44,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.sun.speech.freetts.Utterance;
 
 /**
  * Takes text and converts to features Needs a running Mary server
@@ -391,22 +387,8 @@ public class FeatureMakerMaryServer {
 						System.out.println("Error processing sentence " + ": \"" + nextSentence + "\":\n" + docBuf.toString()
 								+ "; skipping sentence");
 					} else {
-						if (d.getUtterances() != null) {
-							List utterances = d.getUtterances();
-							Iterator it = utterances.iterator();
-							System.out.println("Error processing sentence " + ": \"" + nextSentence + "\":\n");
-							while (it.hasNext()) {
-								Utterance utterance = (Utterance) it.next();
-								StringWriter sw = new StringWriter();
-								PrintWriter pw = new PrintWriter(sw);
-								utterance.dump(pw, 2, "", true); // padding, justRelations
-								System.out.println(sw.toString());
-							}
-							System.out.println("; skipping sentence");
-						} else {
-							System.out.println("Error processing sentence " + textId + ": \"" + nextSentence
-									+ "\"; skipping sentence");
-						}
+						System.out.println("Error processing sentence " + textId + ": \"" + nextSentence
+								+ "\"; skipping sentence");
 					}
 				}
 			} else {
