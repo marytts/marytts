@@ -150,7 +150,7 @@ public class JPhonemiser extends InternalModule {
 				pos = t.getAttribute("pos");
 			}
 
-			if (text != null && !text.equals("") && !isPosPunctuation(pos)) {
+			if (maybePronounceable(text, pos)) {
 				// If text consists of several parts (e.g., because that was
 				// inserted into the sounds_like attribute), each part
 				// is transcribed separately.
@@ -441,5 +441,36 @@ public class JPhonemiser extends InternalModule {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Determine whether token should be pronounceable, based on text and POS tag.
+	 * 
+	 * @param text
+	 *            the text of the token
+	 * @param pos
+	 *            the POS tag of the token
+	 * @return <b>false</b> if the text is empty, or if it contains no word characters <em>and</em> the POS tag indicates
+	 *         punctuation; <b>true</b> otherwise
+	 * @author ingmar
+	 */
+	public boolean maybePronounceable(String text, String pos) {
+		// does text contain anything at all?
+		if (text == null || text.isEmpty()) {
+			return false;
+		}
+
+		// does text contain at least one word character?
+		if (text.matches(".*\\w.*")) {
+			return true;
+		}
+
+		// does POS tag indicate punctuation?
+		if (isPosPunctuation(pos)) {
+			return false;
+		}
+
+		// by default, just try to pronounce anyway
+		return true;
 	}
 }
