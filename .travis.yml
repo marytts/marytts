@@ -3,7 +3,7 @@ sudo: false
 branches:
   only:
     - master
-    - 5.1.x
+    - 6.x
 
 language: java
 install: mvn install -DskipTests=true -P!standard-with-extra-repos
