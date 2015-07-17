@@ -19,9 +19,23 @@ public class JPhonemiserIT extends MaryModuleTestCase {
 
 	@Test
 	public void testIsPosPunctuation() {
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("."));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation(","));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation(":"));
-		Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
+		JPhonemiser phonemiser = (JPhonemiser) module;
+		Assert.assertTrue(phonemiser.isPosPunctuation("."));
+		Assert.assertTrue(phonemiser.isPosPunctuation(","));
+		Assert.assertTrue(phonemiser.isPosPunctuation(":"));
+		Assert.assertFalse(phonemiser.isPosPunctuation("NN"));
+	}
+
+	@Test
+	public void testMaybePronounceable() {
+		JPhonemiser phonemiser = (JPhonemiser) module;
+		Assert.assertFalse(phonemiser.maybePronounceable(null, "NN"));
+		Assert.assertFalse(phonemiser.maybePronounceable(null, "."));
+		Assert.assertFalse(phonemiser.maybePronounceable("", "NN"));
+		Assert.assertFalse(phonemiser.maybePronounceable("", "."));
+		Assert.assertTrue(phonemiser.maybePronounceable("foo", "NN"));
+		Assert.assertTrue(phonemiser.maybePronounceable("foo", "."));
+		Assert.assertTrue(phonemiser.maybePronounceable("@", "NN"));
+		Assert.assertFalse(phonemiser.maybePronounceable("@", "."));
 	}
 }
