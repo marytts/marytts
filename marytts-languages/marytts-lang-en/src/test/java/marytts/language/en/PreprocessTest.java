@@ -178,6 +178,13 @@ public class PreprocessTest {
 		Assert.assertEquals(actual, word);
 	}
 
+	@Test(expectedExceptions = NullPointerException.class)
+	public void testExpandUnknownAbbrev() throws ParseException {
+		String word = "qlsv234toinsdcsdl.";
+		String actual = module.expandAbbreviation(word, false);
+		Assert.assertEquals(actual, word);
+	}
+
 	@Test
 	public void testSplitContraction() {
 		String test = "cat's";
