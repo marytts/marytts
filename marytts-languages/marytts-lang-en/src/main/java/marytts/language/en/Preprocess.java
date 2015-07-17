@@ -562,6 +562,10 @@ public class Preprocess extends InternalModule {
 	 */
 	protected String expandAbbreviation(String abbrev, boolean isCapital) {
 		String expAbb = abbrev.replaceAll("\\.", "").toLowerCase();
+		if (!abbrevMap.containsKey(expAbb)) {
+			logger.warn(String.format("Could not expand unknown abbreviation \"%s\", ignoring", abbrev));
+			return abbrev;
+		}
 		expAbb = (String) this.abbrevMap.get(expAbb);
 		String[] multiExp = expAbb.split(",");
 		if (multiExp.length > 1) {
