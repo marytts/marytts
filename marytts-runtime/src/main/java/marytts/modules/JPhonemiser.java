@@ -434,6 +434,12 @@ public class JPhonemiser extends InternalModule {
 	 * Based on the regex compiled in {@link #setPunctuationPosRegex()}, determine whether a given POS string is classified as
 	 * punctuation
 	 * 
+	 * @param pos
+	 *            the POS tag
+	 * @return <b>true</b> if the POS tag matches the regex pattern; <b>false</b> otherwise
+	 * @throws NullPointerException
+	 *             if the regex pattern is null (because it hasn't been set during module startup)
+	 * 
 	 * @author ingmar
 	 */
 	public boolean isPosPunctuation(String pos) {
