@@ -213,7 +213,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				isEnglish = true;
 			}
 
-			if (text != null && !text.equals("") && !isPosPunctuation(pos)) {
+			if (maybePronounceable(text, pos)) {
 				// If text consists of several parts (e.g., because that was
 				// inserted into the sounds_like attribute), each part
 				// is transcribed separately.
