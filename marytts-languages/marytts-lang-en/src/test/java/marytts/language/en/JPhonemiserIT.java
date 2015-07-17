@@ -19,9 +19,10 @@ public class JPhonemiserIT extends MaryModuleTestCase {
 
 	@Test
 	public void testIsPosPunctuation() {
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("."));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation(","));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation(":"));
-		Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
+		JPhonemiser phonemiser = (JPhonemiser) module;
+		Assert.assertTrue(phonemiser.isPosPunctuation("."));
+		Assert.assertTrue(phonemiser.isPosPunctuation(","));
+		Assert.assertTrue(phonemiser.isPosPunctuation(":"));
+		Assert.assertFalse(phonemiser.isPosPunctuation("NN"));
 	}
 }
