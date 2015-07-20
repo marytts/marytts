@@ -19,12 +19,8 @@
  */
 package marytts.modules.synthesis;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,9 +71,6 @@ import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.en.us.CMULexicon;
-import com.sun.speech.freetts.lexicon.Lexicon;
 
 /**
  * A helper class for the synthesis module; each Voice object represents one available voice database.
@@ -135,9 +128,6 @@ public class Voice {
 
 	protected static Logger logger = MaryUtils.getLogger("Voice");
 
-	/** A local map of already-instantiated Lexicons */
-	private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
-
 	private String voiceName;
 	private Locale locale;
 	private AudioFormat dbAudioFormat = null;
@@ -147,7 +137,6 @@ public class Voice {
 	private AllophoneSet allophoneSet;
 	String preferredModulesClasses;
 	private Vector<MaryModule> preferredModules;
-	private Lexicon lexicon;
 	private boolean vocalizationSupport;
 	private VocalizationSynthesizer vocalizationSynthesizer;
 	protected DirectedGraph durationGraph;
@@ -219,7 +208,6 @@ public class Voice {
 
 		String lexiconClass = MaryProperties.getProperty(header + ".lexiconClass");
 		String lexiconName = MaryProperties.getProperty(header + ".lexicon");
-		lexicon = getLexicon(lexiconClass, lexiconName);
 		vocalizationSupport = MaryProperties.getBoolean(header + ".vocalizationSupport", false);
 		if (vocalizationSupport) {
 			vocalizationSynthesizer = new VocalizationSynthesizer(this);
@@ -521,15 +509,6 @@ public class Voice {
 		return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
 	}
 
-	/**
-	 * Return the lexicon associated to this voice
-	 * 
-	 * @return
-	 */
-	public Lexicon getLexicon() {
-		return lexicon;
-	}
-
 	public DirectedGraph getDurationGraph() {
 		return durationGraph;
 	}
@@ -625,11 +604,6 @@ public class Voice {
 		if (!allVoices.contains(voice)) {
 			logger.info("Registering voice `" + voice.getName() + "': " + voice.gender() + ", locale " + voice.getLocale());
 			allVoices.add(voice);
-			try {
-				FreeTTSVoices.load(voice);
-			} catch (NoClassDefFoundError err) {
-				// do nothing
-			}
 		}
 		checkIfDefaultVoice(voice);
 	}
@@ -811,67 +785,6 @@ public class Voice {
 			logger.debug("Couldn't find any voice at all");
 
 		return guessedVoice;
-	}
-
-	/**
-	 * Look up in the list of already-loaded lexicons whether the requested lexicon is known; otherwise, load it.
-	 * 
-	 * @param lexiconClass
-	 * @param lexiconName
-	 * @return the requested lexicon, or null.
-	 */
-	private static Lexicon getLexicon(String lexiconClass, String lexiconName) {
-		if (lexiconClass == null)
-			return null;
-		// build the lexicon if not already built
-		Lexicon lexicon = null;
-		if (lexicons.containsKey(lexiconClass + lexiconName)) {
-			return lexicons.get(lexiconClass + lexiconName);
-		}
-		// need to create a new lexicon instance
-		try {
-			logger.debug("...loading lexicon...");
-			if (lexiconName == null) {
-				lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
-			} else { // lexiconName is String argument to constructor
-				Class lexCl = Class.forName(lexiconClass);
-				Constructor lexConstr = lexCl.getConstructor(new Class[] { String.class });
-				// will throw a NoSuchMethodError if constructor does not exist
-				lexicon = (Lexicon) lexConstr.newInstance(new Object[] { lexiconName });
-
-				// Apply our own custom addenda only for cmudict04:
-				if (lexiconName.equals("cmudict04")) {
-					assert lexicon instanceof CMULexicon : "Expected lexicon to be a CMULexicon";
-					String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
-					if (customAddenda != null) {
-						// create lexicon with custom addenda
-						logger.debug("...loading custom addenda...");
-						lexicon.load();
-						// open addenda file
-						BufferedReader addendaIn = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-								customAddenda)), "UTF-8"));
-						String line;
-						while ((line = addendaIn.readLine()) != null) {
-							if (!line.startsWith("#") && !line.equals("")) {
-								// add all words in addenda to lexicon
-								StringTokenizer tok = new StringTokenizer(line);
-								String word = tok.nextToken();
-								int numPhones = tok.countTokens();
-								String[] phones = new String[numPhones];
-								for (int i = 0; i < phones.length; i++) {
-									phones[i] = tok.nextToken();
-								}
-								((CMULexicon) lexicon).addAddendum(word, null, phones);
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not load lexicon " + lexiconClass + "('" + lexiconName + "')", ex);
-		}
-		lexicons.put(lexiconClass + lexiconName, lexicon);
-		return lexicon;
 	}
 
 	public static class Gender {
