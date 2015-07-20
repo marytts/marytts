@@ -130,11 +130,8 @@
 			<unsubscribe>mary-users-request@dfki.de?subject=unsubscribe</unsubscribe>
 		</mailingList>
 		<mailingList>
-			<name>mary-dev</name>
+			<name>mary-dev (archived)</name>
 			<archive>http://www.dfki.de/pipermail/mary-dev/</archive>
-			<post>mary-dev@dfki.de</post>
-			<subscribe>mary-dev-request@dfki.de?subject=subscribe</subscribe>
-			<unsubscribe>mary-dev-request@dfki.de?subject=unsubscribe</unsubscribe>
 		</mailingList>
 	</mailingLists>
 
