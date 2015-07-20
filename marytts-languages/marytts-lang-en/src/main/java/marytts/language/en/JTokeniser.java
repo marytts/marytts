@@ -50,7 +50,6 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	public MaryData process(MaryData d) throws Exception {
 		MaryData result = super.process(d);
 		normaliseToAscii(result);
-		propagateForceAccent(result);
 		return result;
 	}
 
@@ -72,7 +71,9 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	 * In current FreeTTS code, prosody elements get lost. So remember at least the force-accent element on individual tokens:
 	 * 
 	 * @param d
+	 * @deprecated FreeTTS is no longer used, so this method no longer serves a purpose.
 	 */
+	@Deprecated
 	protected void propagateForceAccent(MaryData d) {
 		Document doc = d.getDocument();
 		NodeIterator prosodyNI = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
