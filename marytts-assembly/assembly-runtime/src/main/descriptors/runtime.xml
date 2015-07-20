@@ -21,7 +21,6 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README*</include>
-        <include>doc/examples/**/*</include>
       </includes>
     </fileSet>
         
