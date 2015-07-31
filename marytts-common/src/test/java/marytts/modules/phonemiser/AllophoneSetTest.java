@@ -138,7 +138,8 @@ public class AllophoneSetTest {
 				{ ",mama'mama", ", m a - m a - ' m a - m a" },
 				{ "StaInSla:k", "' S t aI n - S l a: k" },
 				{ "StRUntsdUm", "' S t R U n ts - d U m" },
-				{ "hansvU6st", "' h a n s - v U 6 s t" },
+				{ "a:b6", "' a: - b 6" },
+				{ "daU6vU6st", "' d aU - 6 - v U 6 s t" },
 				{ "fOY6maU6", "' f OY - 6 - m aU - 6" },
 				{ ",ha6tbE6ktU6mg@'ve:6", ", h a 6 t - b E 6 k - t U 6 m - g @ - ' v e: 6" },
 				{ "'pfaU@n,SlOY@", "' pf aU - @ n - , S l OY - @" }
