@@ -486,8 +486,21 @@ public class AllophoneSet {
 				Allophone allophone = getAllophone(phone);
 				if (allophone.isSyllabic()) {
 					// if /6/ immediately follows a non-diphthong vowel, it should be appended instead of forming its own syllable
-					if (allophone.getFeature("ctype").equals("r") && currentSyllable != null
-							&& !currentSyllable.getLastAllophone().isDiphthong()) {
+					boolean appendR = false;
+					if (allophone.getFeature("ctype").equals("r")) {
+						// it's an /6/
+						if (iterator.previousIndex() > 1) {
+							Object previousPhoneOrSyllable = phonesAndSyllables.get(iterator.previousIndex() - 1);
+							if (previousPhoneOrSyllable == currentSyllable) {
+								// the /6/ immediately follows the current syllable
+								if (!currentSyllable.getLastAllophone().isDiphthong()) {
+									// the vowel immediately preceding the /6/ is not a diphthong
+									appendR = true;
+								}
+							}
+						}
+					}
+					if (appendR) {
 						iterator.remove();
 						currentSyllable.appendAllophone(allophone);
 					} else {
