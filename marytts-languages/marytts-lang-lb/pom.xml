@@ -26,4 +26,12 @@
 			<url>https://github.com/mochanz</url>
 		</developer>
 	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 </project>
