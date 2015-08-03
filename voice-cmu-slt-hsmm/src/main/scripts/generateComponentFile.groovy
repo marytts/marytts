@@ -1,13 +1,21 @@
+import groovy.xml.*
 import com.twmacinta.util.MD5
 
-// First, fill the zip file's size and md5 sum into properties:
-def zipfile = new File("$project.build.directory/$project.artifactId-${project.version}.zip")
-def zip_size = zipfile.size()
-def zip_md5 = MD5.asHex(MD5.getHash(zipfile))
-
-// Second, copy component file template into target space with the right name
-def tempdir = new File("$project.build.directory/tmp-component/")
-tempdir.mkdirs()
-def target = new File("$tempdir/$project.artifactId-$project.version-component.xml")
-def source = new File("$project.basedir.path/src/non-packaged-resources/voice-component.xml")
-target.write(source.text)
+def zipFile = new File(project.build.directory, "${project.build.finalName}.zip")
+def zipFileHash = MD5.asHex(MD5.getHash(zipFile))
+def builder = new StreamingMarkupBuilder()
+def xml = builder.bind {
+	'marytts-install'(xmlns: 'http://mary.dfki.de/installer') {
+		voice(gender: 'female', locale: 'en-US', name: project.properties.voicename, type: 'hsmm', version: project.version) {
+			delegate.description 'A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University.'
+			license(href: 'http://mary.dfki.de/download/voices/arctic-license.html')
+			'package'(filename: zipFile.name, md5sum: zipFileHash, size: zipFile.size()) {
+				location(folder: true, href: "http://mary.dfki.de/download/$project.version/")
+			}
+			files "lib/${project.build.finalName}.jar"
+			depends(language: 'en-US', version: project.version)
+		}
+	}
+}
+def xmlFile = new File(project.build.directory, "$project.build.finalName-component.xml")
+xmlFile.text = XmlUtil.serialize(xml)
