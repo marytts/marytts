@@ -570,6 +570,9 @@
 						<!--exclude>**/util/**/*.java</exclude -->
 						<exclude>**/modules/MaryModuleTestCase.java</exclude>
 					</excludes>
+					<systemPropertyVariables>
+						<mary.base>${project.parent.basedir.path}</mary.base>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 
