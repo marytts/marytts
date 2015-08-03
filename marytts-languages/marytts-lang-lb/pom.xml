@@ -33,6 +33,11 @@
 			<artifactId>marytts-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-fr</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
