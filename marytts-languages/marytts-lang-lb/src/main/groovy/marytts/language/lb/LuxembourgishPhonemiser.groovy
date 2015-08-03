@@ -1,5 +1,6 @@
 package marytts.language.lb
 
+import groovy.util.logging.Log4j;
 import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
@@ -9,6 +10,7 @@ import marytts.util.dom.DomUtils
 /**
  * @author ingmar
  */
+@Log4j
 class LuxembourgishPhonemiser extends JPhonemiser {
 
     def french
@@ -51,7 +53,7 @@ class LuxembourgishPhonemiser extends JPhonemiser {
                         token.@ph = lts.syllabify(phones)
                         token.@g2p_method = 'rules'
                     } catch (IllegalArgumentException e) {
-                        System.err.println "Problem with token <$text> [$phones]: $e.message"
+                        log.error "Problem with token <$text> [$phones]: $e.message"
                     }
                 }
             }
