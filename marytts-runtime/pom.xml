@@ -53,26 +53,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.dfki.mary</groupId>
-			<artifactId>freetts</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.dfki.mary</groupId>
-			<artifactId>freetts-de</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.dfki.mary</groupId>
-			<artifactId>freetts-en_us</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.trove4j</groupId>
-			<artifactId>trove4j</artifactId>
 		</dependency>
 
 		<dependency>

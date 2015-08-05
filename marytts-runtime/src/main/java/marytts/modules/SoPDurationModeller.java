@@ -36,8 +36,7 @@ import marytts.machinelearning.SoP;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.UnitSelector;
+import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -190,7 +189,7 @@ public class SoPDurationModeller extends InternalModule {
 			Element segmentOrBoundary;
 			Element previous = null;
 			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
-				String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
+				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
 
 				Target t = new Target(phone, segmentOrBoundary);
 				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));

@@ -166,7 +166,7 @@ set MARY_BASE=drive:\path\to\mary
 
 set CLASSPATH="%MARY_BASE%\java\mary-common.jar;
 %MARY_BASE%\java\log4j-1.2.8.jar;%MARY_BASE%\java\mary-german.jar; 
-%MARY_BASE%\java\freetts.jar;%MARY_BASE%\java\jsresources.jar"
+%MARY_BASE%\java\jsresources.jar"
 
 java -Xmx512m -cp %CLASSPATH%
 "-Djava.endorsed.dirs=%MARY_BASE%\lib\endorsed"  
@@ -180,7 +180,7 @@ export MARY_BASE="/path/to/mary"
 
 export CLASSPATH="$MARY_BASE/java/mary-common.jar:
 $MARY_BASE/java/log4j-1.2.8.jar:$MARY_BASE/java/mary-german.jar:
-$MARY_BASE/java/freetts.jar:$MARY_BASE/java/jsresources.jar"
+$MARY_BASE/java/jsresources.jar"
 
 java -classpath $CLASSPATH 
 -Djava.endorsed.dirs=$MARY_BASE/lib/endorsed 

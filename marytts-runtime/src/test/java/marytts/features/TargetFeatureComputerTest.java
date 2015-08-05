@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Locale;
 
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.string.ByteStringTranslator;
 
 import org.junit.Before;

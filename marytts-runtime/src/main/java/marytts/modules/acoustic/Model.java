@@ -31,8 +31,8 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.UnitSelector;
+import marytts.features.Target;
+import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -250,7 +250,7 @@ public abstract class Model {
 		List<Target> targets = new ArrayList<Target>(elements.size());
 		for (Element element : elements) {
 			assert element.getTagName() == MaryXML.PHONE;
-			String phone = UnitSelector.getPhoneSymbol(element);
+			String phone = MaryDomUtils.getPhoneSymbol(element);
 			Target target = new Target(phone, element);
 			targets.add(target);
 			// compute FeatureVectors for Targets:

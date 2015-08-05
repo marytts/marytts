@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
@@ -20,8 +21,6 @@
 package marytts.modules.synthesis;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,6 +54,8 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
+import marytts.features.FeatureFileReader;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -66,18 +67,11 @@ import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
-import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.interpolation.InterpolatingSynthesizer;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.en.us.CMULexicon;
-import com.sun.speech.freetts.lexicon.Lexicon;
 
 /**
  * A helper class for the synthesis module; each Voice object represents one available voice database.
@@ -135,21 +129,18 @@ public class Voice {
 
 	protected static Logger logger = MaryUtils.getLogger("Voice");
 
-	/** A local map of already-instantiated Lexicons */
-	private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
-
 	private String voiceName;
 	private Locale locale;
 	private AudioFormat dbAudioFormat = null;
 	private WaveformSynthesizer synthesizer;
 	private Gender gender;
+	protected String domain;
+	protected String exampleText;
 	private int wantToBeDefault;
 	private AllophoneSet allophoneSet;
 	String preferredModulesClasses;
 	private Vector<MaryModule> preferredModules;
-	private Lexicon lexicon;
 	private boolean vocalizationSupport;
-	private VocalizationSynthesizer vocalizationSynthesizer;
 	protected DirectedGraph durationGraph;
 	protected DirectedGraph f0Graph;
 	protected FeatureFileReader f0ContourFeatures;
@@ -188,7 +179,20 @@ public class Voice {
 				false);
 
 		this.gender = new Gender(MaryProperties.needProperty("voice." + voiceName + ".gender"));
-
+		
+		//taken from UnitSeletionVoice
+		String header = "voice." + name;
+		this.domain = MaryProperties.getProperty(header + ".domain");
+		InputStream exampleTextStream = null;
+		try {
+			exampleTextStream = MaryProperties.getStream(header + ".exampleTextFile");
+			if (exampleTextStream != null) {
+				readExampleText(exampleTextStream);
+			}
+		} catch (Exception ex) {
+			throw new MaryConfigurationException("No .exampleTextFile found", ex);
+		}
+		
 		try {
 			init();
 		} catch (Exception n) {
@@ -216,14 +220,6 @@ public class Voice {
 			}
 		}
 		preferredModulesClasses = MaryProperties.getProperty(header + ".preferredModules");
-
-		String lexiconClass = MaryProperties.getProperty(header + ".lexiconClass");
-		String lexiconName = MaryProperties.getProperty(header + ".lexicon");
-		lexicon = getLexicon(lexiconClass, lexiconName);
-		vocalizationSupport = MaryProperties.getBoolean(header + ".vocalizationSupport", false);
-		if (vocalizationSupport) {
-			vocalizationSynthesizer = new VocalizationSynthesizer(this);
-		}
 
 		loadOldStyleProsodyModels(header);
 		loadAcousticModels(header);
@@ -495,10 +491,6 @@ public class Voice {
 		return vocalizationSupport;
 	}
 
-	public VocalizationSynthesizer getVocalizationSynthesizer() {
-		return vocalizationSynthesizer;
-	}
-
 	/**
 	 * Get any styles supported by this voice.
 	 * 
@@ -520,14 +512,14 @@ public class Voice {
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams) throws SynthesisException {
 		return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
 	}
-
+	
 	/**
-	 * Return the lexicon associated to this voice
+	 * Gets the domain of this voice
 	 * 
-	 * @return
+	 * @return the domain
 	 */
-	public Lexicon getLexicon() {
-		return lexicon;
+	public String getDomain() {
+		return domain;
 	}
 
 	public DirectedGraph getDurationGraph() {
@@ -625,11 +617,6 @@ public class Voice {
 		if (!allVoices.contains(voice)) {
 			logger.info("Registering voice `" + voice.getName() + "': " + voice.gender() + ", locale " + voice.getLocale());
 			allVoices.add(voice);
-			try {
-				FreeTTSVoices.load(voice);
-			} catch (NoClassDefFoundError err) {
-				// do nothing
-			}
 		}
 		checkIfDefaultVoice(voice);
 	}
@@ -661,27 +648,6 @@ public class Voice {
 			Voice v = it.next();
 			if (v.hasName(name))
 				return v;
-		}
-		// Interpolating voices are created as needed:
-		if (InterpolatingVoice.isInterpolatingVoiceName(name)) {
-			InterpolatingSynthesizer interpolatingSynthesizer = null;
-			for (Iterator<Voice> it = allVoices.iterator(); it.hasNext();) {
-				Voice v = it.next();
-				if (v instanceof InterpolatingVoice) {
-					interpolatingSynthesizer = (InterpolatingSynthesizer) v.synthesizer();
-					break;
-				}
-			}
-			if (interpolatingSynthesizer == null)
-				return null;
-			try {
-				Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
-				registerVoice(v);
-				return v;
-			} catch (Exception e) {
-				logger.warn("Could not create Interpolating voice:", e);
-				return null;
-			}
 		}
 		return null; // no such voice found
 	}
@@ -812,66 +778,30 @@ public class Voice {
 
 		return guessedVoice;
 	}
-
-	/**
-	 * Look up in the list of already-loaded lexicons whether the requested lexicon is known; otherwise, load it.
-	 * 
-	 * @param lexiconClass
-	 * @param lexiconName
-	 * @return the requested lexicon, or null.
-	 */
-	private static Lexicon getLexicon(String lexiconClass, String lexiconName) {
-		if (lexiconClass == null)
-			return null;
-		// build the lexicon if not already built
-		Lexicon lexicon = null;
-		if (lexicons.containsKey(lexiconClass + lexiconName)) {
-			return lexicons.get(lexiconClass + lexiconName);
-		}
-		// need to create a new lexicon instance
-		try {
-			logger.debug("...loading lexicon...");
-			if (lexiconName == null) {
-				lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
-			} else { // lexiconName is String argument to constructor
-				Class lexCl = Class.forName(lexiconClass);
-				Constructor lexConstr = lexCl.getConstructor(new Class[] { String.class });
-				// will throw a NoSuchMethodError if constructor does not exist
-				lexicon = (Lexicon) lexConstr.newInstance(new Object[] { lexiconName });
-
-				// Apply our own custom addenda only for cmudict04:
-				if (lexiconName.equals("cmudict04")) {
-					assert lexicon instanceof CMULexicon : "Expected lexicon to be a CMULexicon";
-					String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
-					if (customAddenda != null) {
-						// create lexicon with custom addenda
-						logger.debug("...loading custom addenda...");
-						lexicon.load();
-						// open addenda file
-						BufferedReader addendaIn = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-								customAddenda)), "UTF-8"));
-						String line;
-						while ((line = addendaIn.readLine()) != null) {
-							if (!line.startsWith("#") && !line.equals("")) {
-								// add all words in addenda to lexicon
-								StringTokenizer tok = new StringTokenizer(line);
-								String word = tok.nextToken();
-								int numPhones = tok.countTokens();
-								String[] phones = new String[numPhones];
-								for (int i = 0; i < phones.length; i++) {
-									phones[i] = tok.nextToken();
-								}
-								((CMULexicon) lexicon).addAddendum(word, null, phones);
-							}
-						}
-					}
-				}
+	
+	public void readExampleText(InputStream in) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		StringBuilder sb = new StringBuilder();
+		String line = reader.readLine();
+		while (line != null) {
+			if (!line.startsWith("***")) {
+				sb.append(line + "\n");
 			}
-		} catch (Exception ex) {
-			logger.error("Could not load lexicon " + lexiconClass + "('" + lexiconName + "')", ex);
+			line = reader.readLine();
 		}
-		lexicons.put(lexiconClass + lexiconName, lexicon);
-		return lexicon;
+		this.exampleText = sb.toString();
+	}
+	
+	public String getExampleText() {
+		if (exampleText == null) {
+			return "";
+		} else {
+			return exampleText;
+		}
+	}
+	
+	public boolean isUnitSelection() {
+		return MaryRuntimeUtils.getVoicesList("unitselection").contains(this.getName());
 	}
 
 	public static class Gender {

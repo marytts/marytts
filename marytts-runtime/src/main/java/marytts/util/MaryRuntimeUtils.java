@@ -42,6 +42,7 @@ import marytts.config.MaryConfig;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.fst.FSTLookup;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -49,13 +50,10 @@ import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.StringUtils;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.w3c.dom.Element;
 
@@ -326,6 +324,13 @@ public class MaryRuntimeUtils {
 		return AllophoneSet.getAllophoneSet(alloStream, propertyValue);
 	}
 
+	public static String[] checkLexicon(String propertyName, String token) throws IOException, MaryConfigurationException {
+		String lexiconProperty = propertyName + ".lexicon";
+		InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
+		FSTLookup lexicon = new FSTLookup(lexiconStream, lexiconProperty);
+		return lexicon.lookup(token.toLowerCase());
+	}
+
 	public static String getMaryVersion() {
 		String output = "Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")";
 
@@ -365,11 +370,9 @@ public class MaryRuntimeUtils {
 		Collection<Voice> voices = Voice.getAvailableVoices();
 		for (Iterator<Voice> it = voices.iterator(); it.hasNext();) {
 			Voice v = (Voice) it.next();
-			if (v instanceof InterpolatingVoice) {
-				// do not list interpolating voice
-			} else if (v instanceof UnitSelectionVoice) {
+		        if (v.isUnitSelection()) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " "
-						+ ((UnitSelectionVoice) v).getDomain() + System.getProperty("line.separator");
+						+ (v.getDomain() + System.getProperty("line.separator"));
 			} else if (v instanceof HMMVoice) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm"
 						+ System.getProperty("line.separator");
@@ -424,28 +427,7 @@ public class MaryRuntimeUtils {
 
 	public static String getVoiceExampleText(String voiceName) {
 		Voice v = Voice.getVoice(voiceName);
-		if (v instanceof marytts.unitselection.UnitSelectionVoice)
-			return ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
-		return "";
-	}
-
-	/**
-	 * For the voice with the given name, return the list of vocalizations supported by this voice, one vocalization per line.
-	 * These values can be used in the "name" attribute of the vocalization tag.
-	 * 
-	 * @param voiceName
-	 * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
-	 */
-	public static String getVocalizations(String voiceName) {
-		Voice v = Voice.getVoice(voiceName);
-		if (v == null || !v.hasVocalizationSupport()) {
-			return "";
-		}
-		VocalizationSynthesizer vs = v.getVocalizationSynthesizer();
-		assert vs != null;
-		String[] vocalizations = vs.listAvailableVocalizations();
-		assert vocalizations != null;
-		return StringUtils.toString(vocalizations);
+		return v.getExampleText();
 	}
 
 	/**
@@ -511,4 +493,14 @@ public class MaryRuntimeUtils {
 		return effect.isHMMEffect() ? "yes" : "no";
 	}
 
+	/**
+	 * returns a list of strings of voice names, depending on voice type wanted
+	 * parameter passed-> a string such as "unitselection" or "hmm" 
+	 * @param voicetype
+	 * @return VoiceNames
+	 */
+	public static List<String> getVoicesList(String voicetype) {
+		List<String> VoiceNames = MaryProperties.getList(voicetype + ".voices.list");
+		return VoiceNames;
+	}
 }

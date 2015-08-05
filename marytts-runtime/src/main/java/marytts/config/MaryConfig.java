@@ -144,6 +144,24 @@ public abstract class MaryConfig {
 		}
 		return null;
 	}
+	
+	/***
+	 * get a synthesis config
+	 * @param type
+	 * 			the type of synthesis, equal to the configs name. e.g. 'unitselection'
+	 * @return
+	 */
+	public static SynthesisConfig getSynthesisConfig(String type) {
+		for (MaryConfig mc : configLoader) {
+			if (mc.isSynthesisConfig()) {
+				SynthesisConfig sc = (SynthesisConfig) mc;
+				if (sc.getProperty("name", null).equals(type)) {
+					return sc;
+				}
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Get the voice config for the given voice name, or null if there is no such voice config.

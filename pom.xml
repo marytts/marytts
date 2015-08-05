@@ -178,6 +178,7 @@
 		<module>marytts-transcription</module>
 		<module>voice-cmu-slt-hsmm</module>
 		<module>marytts-assembly</module>
+		<module>marytts-unitselection</module>
 	</modules>
 
 	<dependencyManagement>
@@ -204,6 +205,12 @@
 				<version>1.1</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-integration</artifactId>
+				<version>1.3</version>
+			</dependency>
+			
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -253,22 +260,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts-de</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>de.dfki.mary</groupId>
-				<artifactId>freetts-en_us</artifactId>
-				<version>1.0</version>
-			</dependency>
-
-			<dependency>
 				<groupId>gov.noaa.pmel.sgt</groupId>
 				<artifactId>sgt</artifactId>
 				<version>3.0</version>
@@ -313,13 +304,8 @@
 				<artifactId>fest-assert</artifactId>
 				<version>1.4</version>
 			</dependency>
-
-			<dependency>
-				<groupId>org.hamcrest</groupId>
-				<artifactId>hamcrest-all</artifactId>
-				<version>1.3</version>
-			</dependency>
-
+			
+	
 			<dependency>
 				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
@@ -331,6 +317,13 @@
 				<artifactId>java-diff</artifactId>
 				<version>1.1</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.10.19</version>
+			</dependency>
+			
 
 			<dependency>
 				<groupId>org.swinglabs</groupId>

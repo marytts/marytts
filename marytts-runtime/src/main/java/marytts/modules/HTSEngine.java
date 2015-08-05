@@ -93,7 +93,7 @@ import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;

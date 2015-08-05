@@ -26,12 +26,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
@@ -46,7 +44,7 @@ import marytts.features.TargetFeatureComputer;
 import marytts.modules.TargetFeatureLister;
 import marytts.server.Mary;
 import marytts.server.Request;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -56,8 +54,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.TreeWalker;
-
-import com.sun.speech.freetts.Utterance;
 
 /**
  * Takes text and converts to features Needs a running Mary server
@@ -407,22 +403,8 @@ public class FeatureMaker {
 						System.out.println("Error processing sentence " + ": \"" + nextSentence + "\":\n" + docBuf.toString()
 								+ "; skipping sentence");
 					} else {
-						if (d.getUtterances() != null) {
-							List utterances = d.getUtterances();
-							Iterator it = utterances.iterator();
-							System.out.println("Error processing sentence " + ": \"" + nextSentence + "\":\n");
-							while (it.hasNext()) {
-								Utterance utterance = (Utterance) it.next();
-								StringWriter sw = new StringWriter();
-								PrintWriter pw = new PrintWriter(sw);
-								utterance.dump(pw, 2, "", true); // padding, justRelations
-								System.out.println(sw.toString());
-							}
-							System.out.println("; skipping sentence");
-						} else {
-							System.out.println("Error processing sentence " + textId + ": \"" + nextSentence
-									+ "\"; skipping sentence");
-						}
+						System.out.println("Error processing sentence " + textId + ": \"" + nextSentence
+								+ "\"; skipping sentence");
 					}
 				}
 			} else {

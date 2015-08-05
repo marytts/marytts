@@ -35,10 +35,9 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
+import marytts.features.Target;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -181,7 +180,7 @@ public class CARTDurationModeller extends InternalModule {
 			Element segmentOrBoundary;
 			Element previous = null;
 			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
-				String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
+				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
 				Target t = new Target(phone, segmentOrBoundary);
 				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
 				float durInSeconds;

@@ -36,7 +36,7 @@ import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
