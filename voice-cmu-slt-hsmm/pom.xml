@@ -68,8 +68,15 @@
 
 			<plugin>
 				<groupId>org.codehaus.gmaven</groupId>
-				<artifactId>gmaven-plugin</artifactId>
-				<version>1.5</version>
+				<artifactId>groovy-maven-plugin</artifactId>
+				<version>2.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.twmacinta</groupId>
+						<artifactId>fast-md5</artifactId>
+						<version>2.7.1</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -77,48 +84,7 @@
 							<goal>execute</goal>
 						</goals>
 						<configuration>
-							<classpath>
-								<element>
-									<groupId>de.dfki.mary</groupId>
-									<artifactId>marytts-common</artifactId>
-								</element>
-							</classpath>
-							<source>
-								import com.twmacinta.util.MD5
-								// First, fill the zip file's size and md5 sum into properties:
-								def zipfile = new File(project.build.directory+'/'+project.artifactId+'-'+project.version+'.zip')
-								project.properties.zip_size = ''+zipfile.size()
-								project.properties.zip_md5 = MD5.asHex(MD5.getHash(zipfile))
-								// Second, copy component file template into target space with the right name
-								def tempdir = new File(project.build.directory+'/tmp-component/')
-								tempdir.mkdirs()
-								def target = new File(tempdir, project.artifactId+'-'+project.version+'-component.xml')
-								def source = new File(project.basedir.getPath()+'/src/non-packaged-resources/voice-component.xml')
-								target.write(source.text)
-							</source>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<!-- here the phase you need -->
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}/tmp-component</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-							<outputDirectory>${project.build.directory}</outputDirectory>
+							<source>${project.basedir}/src/main/scripts/generateComponentFile.groovy</source>
 						</configuration>
 					</execution>
 				</executions>
@@ -127,7 +93,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9</version>
+				<version>1.9.1</version>
 				<executions>
 					<execution>
 						<id>attach-artifacts</id>

@@ -179,6 +179,13 @@ public class PreprocessTest {
 	}
 
 	@Test
+	public void testExpandUnknownAbbrev() throws ParseException {
+		String word = "qlsv234toinsdcsdl.";
+		String actual = module.expandAbbreviation(word, false);
+		Assert.assertEquals(actual, word);
+	}
+
+	@Test
 	public void testSplitContraction() {
 		String test = "cat's";
 		String expected = "cat 's";
