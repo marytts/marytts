@@ -355,6 +355,7 @@ public class JPhonemiser extends InternalModule {
 	 * @return
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
+		logger.debug(String.format("Reading lexicon from '%s'", lexiconFilename));
 		String line;
 		Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
 
@@ -366,11 +367,18 @@ public class JPhonemiser extends InternalModule {
 
 			String[] lineParts = line.split("\\s*\\|\\s*");
 			String graphStr = lineParts[0];
-			String phonStr = lineParts[1];
+			String phonStr = null;
+			try {
+				phonStr = lineParts[1];
+			} catch (ArrayIndexOutOfBoundsException e) {
+				logger.warn(String.format("Lexicon '%s': missing transcription for '%s'", lexiconFilename, graphStr));
+				continue;
+			}
 			try {
 				allophoneSet.splitIntoAllophones(phonStr);
-			} catch (RuntimeException re) {
-				logger.warn("Lexicon '" + lexiconFilename + "': invalid entry for '" + graphStr + "'", re);
+			} catch (IllegalArgumentException e) {
+				logger.warn(String.format("Lexicon '%s': invalid entry for '%s': %s", lexiconFilename, graphStr, e.getMessage()));
+				continue;
 			}
 			String phonPosStr = phonStr;
 			if (lineParts.length > 2) {
