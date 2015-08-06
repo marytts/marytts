@@ -130,15 +130,6 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 			}
 			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
 			return null;
-		} else if (request.equals("audioeffect-is-hmm-effect")) {
-			if (queryItems != null) {
-				String effect = queryItems.get("effect");
-				if (effect != null) {
-					return MaryRuntimeUtils.isHmmAudioEffect(effect);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
-			return null;
 		} else if (request.equals("features") || request.equals("features-discrete")) {
 			if (queryItems != null) {
 				// List of features that can be computed for the voice

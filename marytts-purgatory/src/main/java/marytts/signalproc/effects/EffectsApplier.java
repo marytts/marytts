@@ -29,6 +29,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -214,6 +215,12 @@ public class EffectsApplier {
 			return new LpcWhisperiserEffect(samplingRate);
 		else if (strEffectName.compareToIgnoreCase("TractScaler") == 0)
 			return new VocalTractLinearScalerEffect(samplingRate);
+		else if (strEffectName.compareToIgnoreCase("F0Add") == 0)
+			return new HMMF0AddEffect();
+		else if (strEffectName.compareToIgnoreCase("F0Scale") == 0)
+			return new HMMF0ScaleEffect();
+		else if (strEffectName.compareToIgnoreCase("Rate") == 0)
+			return new HMMDurationScaleEffect();
 		else
 			return null;
 	}
@@ -276,6 +283,34 @@ public class EffectsApplier {
 			}
 		} else
 			optimumEffectIndices = null;
+	}
+
+	// Check if any effects are selected for which the corresponding parameters should be fed to the HMM synthesizer
+	public void setHMMEffectParameters(Voice voice, String currentEffect) {
+
+		if (voice instanceof HMMVoice) {
+			// Just create dummy effects to set default values for HMM voices
+			HMMF0AddEffect dummy1 = new HMMF0AddEffect();
+			HMMF0ScaleEffect dummy2 = new HMMF0ScaleEffect();
+			HMMDurationScaleEffect dummy3 = new HMMDurationScaleEffect();
+			((HMMVoice) voice).setF0Mean(dummy1.NO_MODIFICATION);
+			((HMMVoice) voice).setF0Std(dummy2.NO_MODIFICATION);
+			((HMMVoice) voice).setDurationScale(dummy3.NO_MODIFICATION);
+			//
+
+			parseEffectsAndParams(currentEffect);
+
+			if (audioEffects != null) {
+				for (int i = 0; i < audioEffects.length; i++) {
+					if (audioEffects[i] instanceof HMMF0AddEffect)
+						((HMMVoice) voice).setF0Mean((double) ((HMMF0AddEffect) audioEffects[i]).f0Add);
+					else if (audioEffects[i] instanceof HMMF0ScaleEffect)
+						((HMMVoice) voice).setF0Std(((HMMF0ScaleEffect) audioEffects[i]).f0Scale);
+					else if (audioEffects[i] instanceof HMMDurationScaleEffect)
+						((HMMVoice) voice).setDurationScale(((HMMDurationScaleEffect) audioEffects[i]).durScale);
+				}
+			}
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

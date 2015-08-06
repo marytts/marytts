@@ -515,42 +515,4 @@ public class HTSCARTReader {
 		return pdf;
 
 	} /* method loadPdfs */
-
-	public static void main(String[] args) throws IOException, InterruptedException {
-		/* configure log info */
-		org.apache.log4j.BasicConfigurator.configure();
-
-		String contextFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";
-		Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
-		String strContext = "";
-		while (context.hasNext()) {
-			strContext += context.nextLine();
-			strContext += "\n";
-		}
-		context.close();
-		// System.out.println(strContext);
-		FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-
-		CART[] mgcTree = null;
-		int numStates = 5;
-		String trickyPhones = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/trickyPhones.txt";
-		String treefile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/tree-dur.inf";
-		String pdffile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/dur.pdf";
-		int vSize;
-
-		// Check if there are tricky phones, and create a PhoneTranslator object
-		PhoneTranslator phTranslator = new PhoneTranslator(new FileInputStream(trickyPhones));
-
-		HTSCARTReader htsReader = new HTSCARTReader();
-		try {
-			mgcTree = htsReader.load(numStates, new FileInputStream(treefile), new FileInputStream(pdffile), PdfFileFormat.dur,
-					feaDef, phTranslator);
-			vSize = htsReader.getVectorSize();
-			System.out.println("loaded " + pdffile + "  vector size=" + vSize);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-
-	}
-
 }

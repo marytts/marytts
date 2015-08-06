@@ -230,9 +230,6 @@ public class Synthesis extends InternalModule {
 		}
 
 		EffectsApplier ef = new EffectsApplier();
-
-		// HMM-only effects need to get their parameters prior to synthesis
-		ef.setHMMEffectParameters(voice, currentEffect);
 		//
 
 		AudioInputStream ais = null;

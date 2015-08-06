@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
@@ -55,12 +54,10 @@ import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureFileReader;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
 import marytts.modules.acoustic.CARTModel;
-import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ModelType;
 import marytts.modules.acoustic.SoPModel;
@@ -129,7 +126,7 @@ public class Voice {
 
 	protected static Logger logger = MaryUtils.getLogger("Voice");
 
-	private String voiceName;
+	protected String voiceName;
 	private Locale locale;
 	private AudioFormat dbAudioFormat = null;
 	private WaveformSynthesizer synthesizer;
@@ -263,7 +260,7 @@ public class Voice {
 	 * @throws MaryConfigurationException
 	 * @throws NoSuchPropertyException
 	 */
-	private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
+	protected void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
 		// The feature processor manager that all acoustic models will use to predict their acoustics:
 		FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
 
@@ -312,24 +309,6 @@ public class Voice {
 					case SOP:
 						model = new SoPModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName, modelAttributeFormat,
 								modelFeatureName, modelPredictFrom, modelApplyTo);
-						break;
-
-					case HMM:
-						// if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
-						// and they use the same dataFile, then let them be the same instance:
-						// if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
-						if (getDurationModel() != null && getDurationModel() instanceof HMMModel
-								&& modelName.equalsIgnoreCase("F0") && voiceName.equals(getDurationModel().getVoiceName())) {
-							model = getDurationModel();
-							((HMMModel) model).setPredictDurAndF0(true);
-						} else if (getF0Model() != null && getF0Model() instanceof HMMModel
-								&& modelName.equalsIgnoreCase("duration") && voiceName.equals(getF0Model().getVoiceName())) {
-							model = getF0Model();
-							((HMMModel) model).setPredictDurAndF0(true);
-						} else {
-							model = new HMMModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName,
-									modelAttributeFormat, modelFeatureName, modelPredictFrom, modelApplyTo);
-						}
 						break;
 					}
 				} catch (Throwable t) {

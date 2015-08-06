@@ -35,8 +35,6 @@ public class HMMDurationScaleEffect extends BaseAudioEffect {
 	public HMMDurationScaleEffect() {
 		super(16000);
 
-		setHMMEffect(true);
-
 		setExampleParameters("durScale" + chParamEquals + Float.toString(DEFAULT_DUR_SCALE) + chParamSeparator);
 	}
 

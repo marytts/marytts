@@ -194,7 +194,7 @@ public class MaryHttpServer extends Thread {
 		registry.register("/audioeffect-default-param", infoRH);
 		registry.register("/audioeffect-full", infoRH);
 		registry.register("/audioeffect-help", infoRH);
-		registry.register("/audioeffect-is-hmm-effect", infoRH);
+		// registry.register("/audioeffect-is-hmm-effect", infoRH);
 		registry.register("/features", infoRH);
 		registry.register("/features-discrete", infoRH);
 		registry.register("/vocalizations", infoRH);

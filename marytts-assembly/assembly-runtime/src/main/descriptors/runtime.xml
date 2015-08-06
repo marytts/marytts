@@ -106,6 +106,8 @@
         <include>${project.groupId}:marytts-client:jar:jar-with-dependencies</include>
         <include>${project.groupId}:marytts-lang-*:jar</include>
         <include>${project.groupId}:voice-*:jar</include>
+        <include>${project.groupId}:marytts-hsmm:jar</include>
+        <include>${project.groupId}:marytts-unitselection:jar</include>
       </includes>
     </dependencySet>
     <dependencySet>

@@ -66,4 +66,6 @@ public interface AudioEffect {
 	public void parseParameters(String param);
 
 	public void checkParameters();
+
+	public boolean isHMMEffect();
 }

@@ -66,7 +66,6 @@ public class MaryDataType {
 	public static final MaryDataType FESTIVAL_UTT = new MaryDataType("FESTIVAL_UTT", true, true, PLAIN_TEXT);
 	public static final MaryDataType HALFPHONE_TARGETFEATURES = new MaryDataType("HALFPHONE_TARGETFEATURES", false, true,
 			PLAIN_TEXT);
-	public static final MaryDataType HTSCONTEXT = new MaryDataType("HTSCONTEXT", true, true, PLAIN_TEXT);
 	public static final MaryDataType INTONATION = new MaryDataType("INTONATION", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PARTSOFSPEECH = new MaryDataType("PARTSOFSPEECH", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PHONEMES = new MaryDataType("PHONEMES", true, true, MARYXML, MaryXML.MARYXML);

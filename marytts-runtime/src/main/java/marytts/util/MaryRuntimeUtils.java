@@ -43,7 +43,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
@@ -373,9 +372,6 @@ public class MaryRuntimeUtils {
 		        if (v.isUnitSelection()) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " "
 						+ (v.getDomain() + System.getProperty("line.separator"));
-			} else if (v instanceof HMMVoice) {
-				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm"
-						+ System.getProperty("line.separator");
 			} else {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "other"
 						+ System.getProperty("line.separator");
@@ -483,14 +479,6 @@ public class MaryRuntimeUtils {
 			return "";
 		}
 		return effect.getHelpText().trim();
-	}
-
-	public static String isHmmAudioEffect(String effectName) {
-		AudioEffect effect = AudioEffects.getEffect(effectName);
-		if (effect == null) {
-			return "";
-		}
-		return effect.isHMMEffect() ? "yes" : "no";
 	}
 
 	/**

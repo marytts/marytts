@@ -67,11 +67,29 @@ import java.util.Locale;
 
 import javax.sound.sampled.AudioFormat;
 
+import java.util.StringTokenizer;
+
 import marytts.config.MaryConfig;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
+
+import java.io.InputStream;
+import java.util.HashMap;
+
+import marytts.modules.acoustic.BoundaryModel;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
+
+import marytts.modules.acoustic.HMMModel;
+import marytts.modules.acoustic.Model;
+import marytts.modules.acoustic.ModelType;
+
+import marytts.exceptions.NoSuchPropertyException;
+
+import java.io.IOException;
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.log4j.Logger;
 
@@ -111,5 +129,67 @@ public class HMMVoice extends Voice {
 	public void setDurationScale(double dval) {
 		htsData.setDurationScale(dval);
 	}
+
+    protected void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
+		// The feature processor manager that all acoustic models will use to predict their acoustics:
+		FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
+
+		// Acoustic models:
+		String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
+		if (acousticModelsString != null) {
+			acousticModels = new HashMap<String, Model>();
+
+			// add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
+			acousticModels.put("boundary", new BoundaryModel(symbolicFPM, voiceName, null, "duration", null, null, null,
+					"boundaries"));
+
+			StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
+			do {
+				String modelName = acousticModelStrings.nextToken();
+
+				// get more properties from voice config, depending on the model name:
+				String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
+
+				InputStream modelDataStream = MaryProperties.getStream(header + "." + modelName + ".data"); // not used for hmm
+																											// models
+				String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
+
+				// the following are null if not defined; this is handled in the Model constructor:
+				String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
+				String modelFeatureName = MaryProperties.getProperty(header + "." + modelName + ".feature");
+				String modelPredictFrom = MaryProperties.getProperty(header + "." + modelName + ".predictFrom");
+				String modelApplyTo = MaryProperties.getProperty(header + "." + modelName + ".applyTo");
+
+
+				// ...and instantiate it in a switch statement:
+				Model model = null;
+				try {
+                    // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
+                    // and they use the same dataFile, then let them be the same instance:
+                    // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
+                    if (getDurationModel() != null && getDurationModel() instanceof HMMModel
+                        && modelName.equalsIgnoreCase("F0") && voiceName.equals(getDurationModel().getVoiceName())) {
+                        model = getDurationModel();
+                        ((HMMModel) model).setPredictDurAndF0(true);
+                    } else if (getF0Model() != null && getF0Model() instanceof HMMModel
+                               && modelName.equalsIgnoreCase("duration") && voiceName.equals(getF0Model().getVoiceName())) {
+                        model = getF0Model();
+                        ((HMMModel) model).setPredictDurAndF0(true);
+                    } else {
+                        model = new HMMModel(symbolicFPM, voiceName, modelDataStream, modelAttributeName,
+                                             modelAttributeFormat, modelFeatureName, modelPredictFrom, modelApplyTo);
+                    }
+				} catch (Throwable t) {
+					throw new MaryConfigurationException("Cannot instantiate model '" + modelName + "' of type 'HMM' from '" + MaryProperties.getProperty(header + "." + modelName + ".data") + "'", t);
+				}
+
+				// if we got this far, model should not be null:
+				assert model != null;
+
+				// put the model in the Model Map:
+				acousticModels.put(modelName, model);
+			} while (acousticModelStrings.hasMoreTokens());
+		}
+    }
 
 } /* class HMMVoice */

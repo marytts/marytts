@@ -47,7 +47,6 @@ import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.datatypes.MaryDataType;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
@@ -279,8 +278,8 @@ public class MaryServer implements Runnable {
 				return voiceGetFullAudioEffect(inputLine);
 			} else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT ")) {
 				return getAudioEffectHelpText(inputLine);
-			} else if (inputLine.startsWith("MARY VOICE ISHMMAUDIOEFFECT ")) {
-				return isHMMAudioEffect(inputLine);
+			// } else if (inputLine.startsWith("MARY VOICE ISHMMAUDIOEFFECT ")) {
+			// 	return isHMMAudioEffect(inputLine);
 			} else {
 				return false;
 			}
@@ -519,19 +518,19 @@ public class MaryServer implements Runnable {
 			return true;
 		}
 
-		private boolean isHMMAudioEffect(String inputLine) {
-			String prefix = "MARY VOICE ISHMMAUDIOEFFECT ";
-			assert inputLine.startsWith(prefix);
-			String effectName = inputLine.substring(prefix.length());
-			AudioEffect effect = AudioEffects.getEffect(effectName);
-			if (effect == null) {
-				return false;
-			}
-			logger.debug("InfoRequest " + inputLine);
-			clientOut.println(effect.isHMMEffect() ? "yes" : "no");
-			clientOut.println();
-			return true;
-		}
+		// private boolean isHMMAudioEffect(String inputLine) {
+		// 	String prefix = "MARY VOICE ISHMMAUDIOEFFECT ";
+		// 	assert inputLine.startsWith(prefix);
+		// 	String effectName = inputLine.substring(prefix.length());
+		// 	AudioEffect effect = AudioEffects.getEffect(effectName);
+		// 	if (effect == null) {
+		// 		return false;
+		// 	}
+		// 	logger.debug("InfoRequest " + inputLine);
+		// 	clientOut.println(effect.isHMMEffect() ? "yes" : "no");
+		// 	clientOut.println();
+		// 	return true;
+		// }
 
 		private boolean listAudioFileFormatTypes() {
 			String info = MaryRuntimeUtils.getAudioFileFormatTypes();
@@ -577,8 +576,6 @@ public class MaryServer implements Runnable {
 				if (v.isUnitSelection()) {
 					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection"
 							+ " " + v.getDomain());
-				} else if (v instanceof HMMVoice) {
-					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm");
 				} else {
 					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "other");
 				}

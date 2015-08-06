@@ -10,6 +10,13 @@
   <name>${project.artifactId}</name>
   
   <dependencies>
+    <!-- This dependency is a trick to use HTS cart in the join cost model ! -->
+    <dependency>
+  		<groupId>${project.groupId}</groupId>
+  		<artifactId>marytts-hsmm</artifactId>
+  		<version>${project.version}</version>
+  	</dependency>
+
   	<dependency>
   		<groupId>${project.groupId}</groupId>
   		<artifactId>marytts-runtime</artifactId>
