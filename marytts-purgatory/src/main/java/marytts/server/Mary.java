@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.server;
+package marytts.runtime;
 
 // General Java Classes
 import java.io.BufferedInputStream;
@@ -448,13 +448,13 @@ public class Mary {
 	 * As a socket server:
 	 * 
 	 * <pre>
-	 * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
+	 * java -Dmary.base=$MARY_BASE -Dserver=true marytts.runtime.Mary
 	 * </pre>
 	 * <p>
 	 * As a stand-alone program:
 	 * 
 	 * <pre>
-	 * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
+	 * java -Dmary.base=$MARY_BASE marytts.runtime.Mary myfile.txt
 	 * </pre>
 	 * 
 	 * @see MaryProperties
@@ -494,9 +494,9 @@ public class Mary {
 		Runnable main = null;
 
 		if (server.equals("socket")) { // socket server mode
-			main = (Runnable) Class.forName("marytts.server.MaryServer").newInstance();
+			main = (Runnable) Class.forName("marytts.runtime.MaryServer").newInstance();
 		} else if (server.equals("http")) { // http server mode
-			main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
+			main = (Runnable) Class.forName("marytts.runtime.http.MaryHttpServer").newInstance();
 		} else { // command-line mode
 			main = new Runnable() {
 				public void run() {

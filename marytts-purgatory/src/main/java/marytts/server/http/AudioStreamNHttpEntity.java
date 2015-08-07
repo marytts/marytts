@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.server.http;
+package marytts.runtime.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.server.Request;
+import marytts.runtime.Request;
 import marytts.util.MaryUtils;
 
 import org.apache.http.entity.AbstractHttpEntity;

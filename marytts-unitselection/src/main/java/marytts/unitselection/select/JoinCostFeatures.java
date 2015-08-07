@@ -43,7 +43,7 @@ import marytts.features.Target;
 import marytts.features.DiphoneTarget;
 import marytts.features.HalfPhoneTarget;
 import marytts.modules.phonemiser.Allophone;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;

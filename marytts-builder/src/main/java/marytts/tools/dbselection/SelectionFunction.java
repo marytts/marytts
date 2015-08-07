@@ -42,7 +42,7 @@ import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.server.Mary;
+import marytts.runtime.Mary;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;
 

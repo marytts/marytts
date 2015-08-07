@@ -29,7 +29,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 

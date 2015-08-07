@@ -40,7 +40,7 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;

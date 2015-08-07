@@ -6,7 +6,7 @@ package marytts.config;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 
 import org.junit.Before;
 import org.junit.Test;

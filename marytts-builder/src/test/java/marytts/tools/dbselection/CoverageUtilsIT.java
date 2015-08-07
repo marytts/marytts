@@ -25,7 +25,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
-import marytts.server.Mary;
+import marytts.runtime.Mary;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

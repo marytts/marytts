@@ -44,7 +44,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;

@@ -21,7 +21,7 @@ package marytts.signalproc.effects;
 
 import java.util.ArrayList;
 
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 
 /**
  * @author marc

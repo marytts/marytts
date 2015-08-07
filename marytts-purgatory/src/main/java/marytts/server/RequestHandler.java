@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.server;
+package marytts.runtime;
 
 // General Java Classes
 import java.io.BufferedWriter;
@@ -35,7 +35,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryDataType;
-import marytts.server.http.MaryHttpServerUtils;
+import marytts.runtime.http.MaryHttpServerUtils;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;

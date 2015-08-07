@@ -72,7 +72,7 @@ import java.util.StringTokenizer;
 import marytts.config.MaryConfig;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryUtils;
 
 import java.io.InputStream;

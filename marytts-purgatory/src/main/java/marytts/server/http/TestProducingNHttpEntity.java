@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.server.http;
+package marytts.runtime.http;
 
 import java.io.FileInputStream;
 import java.io.IOException;

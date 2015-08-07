@@ -25,7 +25,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 

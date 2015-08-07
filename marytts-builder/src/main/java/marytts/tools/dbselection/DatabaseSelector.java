@@ -53,7 +53,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
-import marytts.server.Mary;
+import marytts.runtime.Mary;
 import marytts.util.Pair;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.http.Address;

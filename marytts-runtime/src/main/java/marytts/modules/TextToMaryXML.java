@@ -27,7 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.w3c.dom.Document;

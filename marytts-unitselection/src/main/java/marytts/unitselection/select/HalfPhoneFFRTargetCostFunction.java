@@ -32,7 +32,7 @@ import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
 import marytts.features.Target;
 import marytts.features.HalfPhoneTarget;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HalfPhoneFeatureFileReader;

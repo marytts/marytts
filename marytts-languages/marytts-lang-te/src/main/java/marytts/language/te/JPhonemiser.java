@@ -40,7 +40,7 @@ import marytts.fst.FSTLookup;
 import marytts.language.te.phonemiser.TeluguLTS;
 import marytts.modules.InternalModule;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 

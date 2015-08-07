@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
 import marytts.features.Target;

@@ -30,7 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 
 /**
  * @author marc

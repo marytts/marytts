@@ -54,7 +54,7 @@ import marytts.util.string.StringUtils;
  * 
  * @author Marc Schr&ouml;der, oytun.turk
  * @see MaryGUIClient A GUI interface to this client
- * @see marytts.server.MaryServer Description of the MARY protocol
+ * @see marytts.runtime.MaryServer Description of the MARY protocol
  */
 
 public class MaryHttpClient extends MaryClient {

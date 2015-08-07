@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 
 import marytts.fst.FSTLookup;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

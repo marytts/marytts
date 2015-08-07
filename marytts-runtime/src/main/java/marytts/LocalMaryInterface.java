@@ -37,7 +37,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Request;
+import marytts.runtime.Request;
 import marytts.util.MaryRuntimeUtils;
 
 /**

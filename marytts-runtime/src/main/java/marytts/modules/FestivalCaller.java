@@ -36,7 +36,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDestination;

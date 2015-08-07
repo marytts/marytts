@@ -27,7 +27,7 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.modules.phonemiser.Allophone;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.analysis.Phone;
 import marytts.unitselection.select.SelectedUnit;

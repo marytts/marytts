@@ -50,7 +50,7 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.concat.FdpsolaUnitConcatenator;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.TimelineReader;

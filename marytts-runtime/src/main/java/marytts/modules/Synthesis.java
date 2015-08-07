@@ -35,7 +35,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.MaryDomUtils;

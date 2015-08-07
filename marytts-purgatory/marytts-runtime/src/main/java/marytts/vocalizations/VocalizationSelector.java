@@ -31,7 +31,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.VocalizationFFRTargetCostFunction;

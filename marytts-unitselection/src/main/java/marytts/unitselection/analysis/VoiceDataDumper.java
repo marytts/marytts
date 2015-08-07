@@ -32,7 +32,7 @@ import java.nio.BufferUnderflowException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;

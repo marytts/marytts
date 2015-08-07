@@ -29,7 +29,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
-import marytts.server.Mary;
+import marytts.runtime.Mary;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 

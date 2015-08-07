@@ -37,7 +37,7 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.features.Target;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;

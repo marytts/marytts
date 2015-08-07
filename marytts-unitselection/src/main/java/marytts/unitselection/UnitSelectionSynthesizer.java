@@ -41,7 +41,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.modules.synthesis.Voice.Gender;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.data.Unit;

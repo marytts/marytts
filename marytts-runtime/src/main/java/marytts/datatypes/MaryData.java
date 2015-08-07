@@ -40,7 +40,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.SequenceAudioInputStream;

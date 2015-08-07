@@ -28,7 +28,7 @@ import marytts.datatypes.MaryXML;
 import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
-import marytts.server.Mary;
+import marytts.runtime.Mary;
 import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
 

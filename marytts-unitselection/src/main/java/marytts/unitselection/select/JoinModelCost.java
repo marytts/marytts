@@ -35,7 +35,7 @@ import marytts.features.DiphoneTarget;
 import marytts.features.HalfPhoneTarget;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HMMData.PdfFileFormat;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;

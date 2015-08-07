@@ -16,7 +16,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
-import marytts.server.http.MaryHttpServer;
+import marytts.runtime.http.MaryHttpServer;
 import marytts.util.FeatureUtils;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.DomUtils;

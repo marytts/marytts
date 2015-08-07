@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.server.http;
+package marytts.runtime.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,9 +36,9 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Request;
-import marytts.server.RequestHandler.StreamingOutputPiper;
-import marytts.server.RequestHandler.StreamingOutputWriter;
+import marytts.runtime.Request;
+import marytts.runtime.RequestHandler.StreamingOutputPiper;
+import marytts.runtime.RequestHandler.StreamingOutputWriter;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;

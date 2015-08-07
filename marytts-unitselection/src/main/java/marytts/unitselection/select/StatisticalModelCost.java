@@ -20,7 +20,7 @@
 package marytts.unitselection.select;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.SCostFileReader;
 import marytts.unitselection.data.Unit;

@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.ProsodyGeneric;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 
 public class Prosody extends ProsodyGeneric {
 	public Prosody() {

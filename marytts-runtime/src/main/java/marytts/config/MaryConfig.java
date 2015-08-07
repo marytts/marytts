@@ -35,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.runtime.MaryProperties;
 import marytts.util.io.PropertiesAccessor;
 import marytts.util.io.PropertiesTrimTrailingWhitespace;
 
