@@ -169,9 +169,9 @@
 		<module>marytts-languages</module>
 		<module>marytts-signalproc</module>
 		<module>marytts-runtime</module>
-		<module>marytts-builder</module>
-		<module>marytts-redstart</module>
-		<module>marytts-transcription</module>
+        <!-- <module>marytts-builder</module> -->
+        <module>marytts-redstart</module>
+        <!-- <module>marytts-transcription</module> -->
 
         <!-- Acoustic modelling -->
 		<module>marytts-hsmm</module>

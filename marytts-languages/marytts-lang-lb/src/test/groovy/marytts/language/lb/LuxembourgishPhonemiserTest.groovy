@@ -48,6 +48,7 @@ class LuxembourgishPhonemiserTest {
             }
         }.toString()
 
+        println(xmlStr)
         // wrap XML into input MaryData
         def input = new MaryData(phonemiser.inputType, new Locale('lb'))
         input.document = DomUtils.parseDocument(xmlStr)
