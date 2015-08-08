@@ -136,6 +136,7 @@ başladı baS-la-'d@ functional
 ilgili IL-gI-'LI functional
 kez 'kez functional
 Bey 'bej functional
+Beyza 'bejj-za functional
 tarihinde ta-rI-hIn-'de functional
 Roma 'ro-ma functional
 az 'az functional
@@ -144,7 +145,7 @@ nda functional
 boyunca bo-jun-'dZa functional
 yaklaşık jak-la-'S@k functional
 elde eL-'de functional
-II
+II 
 süre sy-'re functional
 yerine je-rI-'ne functional
 rağmen raG-'men functional
@@ -161,7 +162,7 @@ Bunun bu-'nun functional
 Daha da-'ha functional
 sırasında s@-ra-s@n-'da functional
 gün 'gyn functional
-ABD
+ABD 'abeedee functional
 zamanda za-man-'da functional
 genel ge-'neL functional
 Ocak o-'dZak functional
@@ -182,7 +183,7 @@ yol 'jol functional
 İlk 'ILk functional
 Mayıs ma-'j@s functional
 devlet dev-'Let functional
-The 'the
+The 'd@ functional
 Dış 'd@S functional
 ardından ar-d@n-'dan functional
 aldı al-'d@ functional
@@ -338,7 +339,7 @@ ayrı aj-'r@ functional
 Böylece b@'j-le-'dZe functional
 yok 'jok functional
 bunun bu-'nun functional
-to 'to
+to 'tu
 şeklinde Sek-lIn-'de functional
 grup gu-'rup functional
 Fransız 'f@-ran-s@z functional
@@ -356,7 +357,7 @@ on 'on functional
 sırada s@-ra-'da functional
 müzik my-'zIk functional
 geldi gel-'dI functional
-DNA 'dna
+DNA 'dEnEa functional
 ilçe Il-'tSe functional
 resmi res-'mI functional
 içerisinde I-tSe-rI-sIn-'de functional
@@ -405,7 +406,7 @@ dahil daa-'hIl functional
 halk 'halk functional
 el 'el functional
 ileri I-le-'rI functional
-thumb 'thumb
+thumb 'tamb
 üst functional
 İzmir functional
 almıştır functional
@@ -429,7 +430,7 @@ belli functional
 sayesinde functional
 almaktadır functional
 sosyal functional
-px
+px pik'sel fuctional
 hava functional
 Devlet functional
 veren functional
@@ -790,7 +791,7 @@ gereken functional
 adına functional
 sezonunda functional
 göstermektedir functional
-RNA
+RNA rEnEa functional
 gelmektedir functional
 Bugün functional
 kaynağı functional
@@ -800,7 +801,7 @@ politik po-LI-'tIk functional
 görülmektedir g@'-ryl-mek-te-'dIr functional
 geleneksel ge-Le-nek-'seL functional
 Japonya 'Za-pon-ja functional
-eline functional
+eline 'e-line functional
 sonradan functional
 lı
 dünyada functional
@@ -854,7 +855,7 @@ Denizi functional
 sert functional
 üye functional
 bölgenin functional
-Michael
+Michael May-'k@l functional
 demir functional
 petrol pet-'roL functional
 Dağı functional
@@ -868,8 +869,8 @@ olduğuna functional
 Bunlardan functional
 olmakla functional
 çoğunluğu functional
-John
-Sweden
+John 'Con functional
+Sweden 's@veden functional
 bilgiler functional
 verilmiştir functional
 Savaş functional
@@ -906,7 +907,7 @@ göz functional
 tespit functional
 hakkı functional
 bölgesinde functional
-CHP
+CHP ce-he-pe functional
 Antlaşması functional
 adlandırılan functional
 grubun functional
@@ -1024,6 +1025,7 @@ oluşmaktadır functional
 İsviçre functional
 ortadan functional
 Kanada functional
+TBMM te-be-me-me functional
 amacı
 protein
 Şehir
@@ -152532,7 +152534,6 @@ kaçırabilme
 söndürülemez
 dısrupted
 parafe
-Tbmm
 Pesaro
 cûlus
 sloganda
