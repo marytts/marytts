@@ -236,6 +236,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			m.put("VOICENAME", voiceName);
 			m.put("LOCALE", MaryUtils.locale2xmllang(locale));
 			m.put("LANG", locale.getLanguage());
+			m.put("DISPLAYLANG", locale.getDisplayLanguage());
 			m.put("GENDER", gender);
 			m.put("DOMAIN", domain);
 			m.put("SAMPLINGRATE", String.valueOf(samplingRate));
