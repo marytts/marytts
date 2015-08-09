@@ -274,7 +274,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 		public void copyTemplateFiles() throws IOException {
 			copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
-			copyWithVarSubstitution("component.xml", new File(nonPackagedResourcesDir, "voice-component.xml"));
+			copyWithVarSubstitution("generateComponentFile.groovy", new File(nonPackagedResourcesDir, "generateComponentFile.groovy"));
 			copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
 			copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
 			copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
