@@ -8,6 +8,13 @@
 	</parent>
 	<artifactId>voice-${VOICENAME}</artifactId>
 	<name>voice-${VOICENAME}</name>
+	<description>A ${GENDER} ${DISPLAYLANG} ${DOMAIN} voice</description>
+	<licenses>
+		<license>
+			<name>Creative Commons License Attribution-NoDerivs 3.0 Unported</name>
+			<url>http://mary.dfki.de/download/by-nd-3.0.html</url>
+		</license>
+	</licenses>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<voicename>${VOICENAME}</voicename>
