@@ -9,6 +9,7 @@
 
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
 	<name>${project.artifactId}</name>
+	<description>A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University</description>
 
 	<properties>
 		<voicename>cmu-slt-hsmm</voicename>

@@ -7,7 +7,7 @@ def builder = new StreamingMarkupBuilder()
 def xml = builder.bind {
 	'marytts-install'(xmlns: 'http://mary.dfki.de/installer') {
 		voice(gender: 'female', locale: 'en-US', name: project.properties.voicename, type: 'hsmm', version: project.version) {
-			delegate.description 'A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University.'
+			delegate.description project.description
 			license(href: 'http://mary.dfki.de/download/voices/arctic-license.html')
 			'package'(filename: zipFile.name, md5sum: zipFileHash, size: zipFile.size()) {
 				location(folder: true, href: "http://mary.dfki.de/download/$project.version/")
