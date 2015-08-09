@@ -170,7 +170,6 @@
 		<module>marytts-signalproc</module>
 		<module>marytts-runtime</module>
         <!-- <module>marytts-builder</module> -->
-        <module>marytts-redstart</module>
         <!-- <module>marytts-transcription</module> -->
 
         <!-- Acoustic modelling -->
