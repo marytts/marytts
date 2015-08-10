@@ -1,5 +1,7 @@
 .gradle
+.gradletasknamecache
 build/
+
 target/
 .settings/
 .project

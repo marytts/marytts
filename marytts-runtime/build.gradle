@@ -3,6 +3,8 @@
 apply plugin: 'groovy'
 apply plugin: 'java'
 
+version = "6.0-SNAPSHOT"
+
 task wrapper(type: Wrapper) {
     gradleVersion '2.4'
 }
@@ -15,9 +17,8 @@ repositories {
 
 
 dependencies {
-    
-    compile group: 'de.dfki.mary', name: 'marytts-common', version: '6.0-SNAPSHOT'
-    compile group: 'de.dfki.mary', name: 'marytts-signalproc', version: '6.0-SNAPSHOT'
+    compile project(":marytts-common")
+    compile project(":marytts-signalproc")
 
     compile group: 'com.ibm.icu', name: 'icu4j', version: '55.1'
     
@@ -42,3 +43,7 @@ dependencies {
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
 }
 
+task testJar(type: Jar) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}

@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+version = "6.0-SNAPSHOT"
+
+task wrapper(type: Wrapper) {
+    gradleVersion '2.4'
+}
+
+repositories {
+    maven { url "http://jcenter.bintray.com" }
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    compile project(":marytts-common")
+    compile project(":marytts-runtime")
+    compile project(":marytts-languages/marytts-lang-fr")
+
+    compile group: 'xmlunit', name: 'xmlunit', version: '1.4'
+
+    compile group: 'com.ibm.icu', name: 'icu4j', version: '55.1'
+    
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
+    testCompile project(':marytts-runtime').sourceSets.test.output
+}
+

@@ -11,10 +11,3 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-
-
-dependencies {
-    compile project(":marytts-common")
-    compile project(":marytts-runtime")
-}
-
