@@ -1,0 +1,22 @@
+// "basic" configuration in it
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+    gradleVersion '2.4'
+}
+
+repositories {
+    maven { url "http://jcenter.bintray.com" }
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    
+    compile group: 'de.dfki.mary', name: 'marytts-common', version: '6.0-SNAPSHOT'
+    compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '6.0-SNAPSHOT'
+}
+

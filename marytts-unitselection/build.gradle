@@ -1,0 +1,33 @@
+// "basic" configuration in it
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+    gradleVersion '2.4'
+}
+
+repositories {
+    maven { url "http://jcenter.bintray.com" }
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    
+    compile group: 'de.dfki.mary', name: 'marytts-common', version: '6.0-SNAPSHOT'
+    compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '6.0-SNAPSHOT'
+    compile group: 'de.dfki.mary', name: 'marytts-hsmm', version: '6.0-SNAPSHOT'
+
+    compile group: 'net.sf.trove4j', name: 'trove4j', version: '2.0.2'
+    
+    compile group: 'com.google.guava', name: 'guava', version:'18.0'
+
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-integration', version: '1.3'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
+    testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+}
+
