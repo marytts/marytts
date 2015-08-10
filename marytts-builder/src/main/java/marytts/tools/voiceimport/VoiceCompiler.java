@@ -55,6 +55,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	public static final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
+	public final String COMPILEDIR = getName() + ".compileDir";
+
 	public final String MVN = getName() + ".mavenBin";
 
 	protected MavenVoiceCompiler compiler;
@@ -73,7 +75,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
-		File compileDir = new File(getProp(getCompileDirProp()));
+		File compileDir = new File(getProp(COMPILEDIR));
 		compiler = createCompiler(compileDir);
 
 		if (!isUnitSelectionVoice()) {
@@ -117,7 +119,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
 		if (props == null) {
 			props = new TreeMap<String, String>();
-			props.put(getCompileDirProp(), new File(db.getVoiceFileDir(), "voice-" + getVoiceName(db)).getAbsolutePath());
+			props.put(COMPILEDIR, new File(db.getVoiceFileDir(), "voice-" + getVoiceName(db)).getAbsolutePath());
 			props.put(MVN, "/usr/bin/mvn");
 		}
 		return props;
@@ -125,10 +127,6 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	protected String getVoiceName(DatabaseLayout db) {
 		return db.getVoiceName();
-	}
-
-	protected String getCompileDirProp() {
-		return "VoiceCompiler.compileDir";
 	}
 
 	/*
@@ -159,7 +157,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	protected void setupHelp() {
 		props2Help = new TreeMap<String, String>();
-		props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
+		props2Help.put(COMPILEDIR, "The directory in which the files for compiling the voice will be copied.");
 		props2Help.put(MVN, "The path to the Maven binary (i.e., mvn).");
 	}
 
@@ -291,7 +289,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 		public void copyTemplateFiles() throws IOException {
 			copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
-			copyWithVarSubstitution("generateComponentFile.groovy", new File(nonPackagedResourcesDir, "generateComponentFile.groovy"));
+			copyWithVarSubstitution("generateComponentFile.groovy", new File(nonPackagedResourcesDir,
+					"generateComponentFile.groovy"));
 			copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
 			copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
 			copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
