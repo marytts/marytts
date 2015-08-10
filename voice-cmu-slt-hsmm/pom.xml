@@ -9,6 +9,7 @@
 
 	<artifactId>voice-cmu-slt-hsmm</artifactId>
 	<name>${project.artifactId}</name>
+	<description>A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University</description>
 
 	<properties>
 		<voicename>cmu-slt-hsmm</voicename>
@@ -18,17 +19,17 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-common</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-runtime</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-en</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
@@ -64,7 +65,6 @@
 			<plugin>
 				<groupId>org.codehaus.gmaven</groupId>
 				<artifactId>groovy-maven-plugin</artifactId>
-				<version>2.0</version>
 				<dependencies>
 					<dependency>
 						<groupId>com.twmacinta</groupId>
@@ -88,7 +88,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9.1</version>
 				<executions>
 					<execution>
 						<id>attach-artifacts</id>
