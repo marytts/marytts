@@ -15,6 +15,9 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    testOutput
+}
 
 dependencies {
     compile project(":marytts-common")
@@ -41,6 +44,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+    
+    testOutput sourceSets.test.output
 }
 
 task testJar(type: Jar) {
