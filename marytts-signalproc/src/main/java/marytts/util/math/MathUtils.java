@@ -4472,7 +4472,7 @@ public class MathUtils {
 						if (i == 0) {
 							contour[j] = contour[index];
 						} else {
-							contour[j] = contour[j - 1] + ((contour[index] - contour[i - 1]) / (index - i));
+							contour[j] = contour[j - 1] + ((contour[index] - contour[i - 1]) / (index - i + 1));
 						}
 					}
 					i = index - 1;
