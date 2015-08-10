@@ -1,20 +1,23 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.dfki.mary</groupId>
 		<artifactId>marytts</artifactId>
-		<version>6.0-SNAPSHOT</version>
+		<version>${MARYVERSION}</version>
 	</parent>
-
-	<artifactId>voice-cmu-slt-hsmm</artifactId>
-	<name>${project.artifactId}</name>
-	<description>A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University</description>
-
+	<artifactId>voice-${VOICENAME}</artifactId>
+	<name>voice-${VOICENAME}</name>
+	<description>A ${GENDER} ${DISPLAYLANG} ${DOMAIN} voice</description>
+	<licenses>
+		<license>
+			<name>Creative Commons License Attribution-NoDerivs 3.0 Unported</name>
+			<url>http://mary.dfki.de/download/by-nd-3.0.html</url>
+		</license>
+	</licenses>
 	<properties>
-		<voicename>cmu-slt-hsmm</voicename>
+		<voicename>${VOICENAME}</voicename>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -28,12 +31,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>marytts-hsmm</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>marytts-lang-en</artifactId>
+			<artifactId>marytts-lang-${LANG}</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
@@ -47,13 +45,39 @@
 	<build>
 		<plugins>
 			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<argLine>-Xms256m -Xmx512m</argLine>
+					<systemPropertyVariables>
+						<!-- The MARY installation directory, setting to the project dir for 
+							the purposes of our integration test: -->
+						<mary.base>${basedir}</mary.base>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<finalName>${project.artifactId}-${project.version}</finalName>
 					<outputDirectory>${project.build.directory}</outputDirectory>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptors>
-						<descriptor>src/main/descriptors/voice-pkg.xml</descriptor>
+						<descriptor>src/main/descriptors/installable.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
@@ -84,7 +108,7 @@
 							<goal>execute</goal>
 						</goals>
 						<configuration>
-							<source>${project.basedir}/src/main/scripts/generateComponentFile.groovy</source>
+							<source>${project.basedir}/src/non-packaged-resources/generateComponentFile.groovy</source>
 						</configuration>
 					</execution>
 				</executions>
