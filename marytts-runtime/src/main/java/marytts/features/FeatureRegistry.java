@@ -30,7 +30,7 @@ import java.util.TreeSet;
 
 import marytts.modules.synthesis.Voice;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 /**
  * @author marc

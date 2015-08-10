@@ -1,0 +1,24 @@
+// "basic" configuration in it
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+    gradleVersion '2.4'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.4'
+}
+

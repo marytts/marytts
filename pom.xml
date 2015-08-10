@@ -180,7 +180,7 @@
 		<module>voice-cmu-slt-hsmm</module>
         
         <!-- Meta package to generate the target -->
-		<module>marytts-assembly</module>
+        <!-- <module>marytts-assembly</module> -->
 	</modules>
 
 	<dependencyManagement>

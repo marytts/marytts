@@ -6,7 +6,7 @@ import java.util.List;
 
 import marytts.exceptions.MaryConfigurationException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.*;
 

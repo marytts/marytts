@@ -1,0 +1,44 @@
+// "basic" configuration in it
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+    gradleVersion '2.4'
+}
+
+repositories {
+    maven { url "http://jcenter.bintray.com" }
+    mavenLocal()
+    mavenCentral()
+}
+
+
+dependencies {
+    
+    compile group: 'de.dfki.mary', name: 'marytts-common', version: '6.0-SNAPSHOT'
+    compile group: 'de.dfki.mary', name: 'marytts-signalproc', version: '6.0-SNAPSHOT'
+
+    compile group: 'com.ibm.icu', name: 'icu4j', version: '55.1'
+    
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+
+    compile group: 'de.dfki.mary', name: 'emotionml-checker-java', version: '1.1'
+    compile group: 'de.dfki.lt.jtok', name: 'jtok-core', version: '1.9.1'
+    compile group: 'com.google.guava', name: 'guava', version:'18.0'
+
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.1'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.1'
+
+    compile group: 'org.apache.opennlp', name: 'opennlp-maxent', version: '3.0.3'
+    compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: '1.6.0'
+
+    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.3'
+    
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
+    testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+}
+

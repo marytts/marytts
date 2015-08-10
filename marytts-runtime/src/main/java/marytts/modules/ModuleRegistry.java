@@ -33,7 +33,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.log4j.Logger;
 
 /**
