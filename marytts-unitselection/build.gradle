@@ -18,6 +18,7 @@ dependencies {
     compile project(":marytts-runtime")
     compile project(":marytts-hsmm") // Default dependencies as U.S. store decision trees in the HTS format
 
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
     compile group: 'net.sf.trove4j', name: 'trove4j', version: '2.0.2'
     
     compile group: 'com.google.guava', name: 'guava', version:'18.0'

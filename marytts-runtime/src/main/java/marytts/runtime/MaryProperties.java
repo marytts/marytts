@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;

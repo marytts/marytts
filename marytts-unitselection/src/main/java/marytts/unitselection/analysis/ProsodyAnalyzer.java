@@ -33,7 +33,7 @@ import marytts.features.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.MaryUtils;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
