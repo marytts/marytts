@@ -212,10 +212,23 @@ public class VoiceCompiler extends VoiceImportComponent {
 		protected File metaInfDir;
 		protected File testJavaDir;
 		protected File libVoiceDir;
+		protected String mvn;
 
+		/**
+		 * @deprecated Use constructor with path to Maven instead.
+		 */
+		@Deprecated
 		public MavenVoiceCompiler(File compileDir, String voiceName, String voiceVersion, Locale locale, String gender,
 				String domain, int samplingRate, boolean isUnitSelectionVoice, File[] filesForResources,
 				File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
+			this("mvn", compileDir, voiceName, voiceVersion, locale, gender, domain, samplingRate, isUnitSelectionVoice,
+					filesForResources, filesForFilesystem, extraVariablesToSubstitute);
+		}
+
+		public MavenVoiceCompiler(String mvn, File compileDir, String voiceName, String voiceVersion, Locale locale,
+				String gender, String domain, int samplingRate, boolean isUnitSelectionVoice, File[] filesForResources,
+				File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
+			this.mvn = mvn;
 			this.compileDir = compileDir;
 			this.voiceName = voiceName;
 			this.voiceVersion = voiceVersion;
@@ -327,7 +340,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		}
 
 		public void compileWithMaven() throws IOException, InterruptedException {
-			Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
+			Process maven = Runtime.getRuntime().exec(this.mvn + " verify", null, compileDir);
 			StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
 			StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
 			merr.start();
