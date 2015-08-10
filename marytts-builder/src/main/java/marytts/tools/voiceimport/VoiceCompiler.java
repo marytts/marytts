@@ -55,6 +55,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	public static final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
+	public final String MVN = getName() + ".mavenBin";
+
 	protected MavenVoiceCompiler compiler;
 
 	/**
@@ -116,6 +118,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		if (props == null) {
 			props = new TreeMap<String, String>();
 			props.put(getCompileDirProp(), new File(db.getVoiceFileDir(), "voice-" + getVoiceName(db)).getAbsolutePath());
+			props.put(MVN, "/usr/bin/mvn");
 		}
 		return props;
 	}
@@ -157,6 +160,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	protected void setupHelp() {
 		props2Help = new TreeMap<String, String>();
 		props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
+		props2Help.put(MVN, "The path to the Maven binary (i.e., mvn).");
 	}
 
 	protected Map<String, String> getExtraVariableSubstitutionMap() {
@@ -186,9 +190,9 @@ public class VoiceCompiler extends VoiceImportComponent {
 		File[] filesForResources = getFilesForResources();
 		File[] filesForFilesystem = getFilesForFilesystem();
 		Map<String, String> extraVariablesToSubstitute = getExtraVariableSubstitutionMap();
-		return new MavenVoiceCompiler(compileDir, getVoiceName(db), db.getMaryVersion(), db.getLocale(), db.getGender(),
-				db.getDomain(), db.getSamplingRate(), isUnitSelectionVoice(), filesForResources, filesForFilesystem,
-				extraVariablesToSubstitute);
+		return new MavenVoiceCompiler(getProp(MVN), compileDir, getVoiceName(db), db.getMaryVersion(), db.getLocale(),
+				db.getGender(), db.getDomain(), db.getSamplingRate(), isUnitSelectionVoice(), filesForResources,
+				filesForFilesystem, extraVariablesToSubstitute);
 	}
 
 	public static class MavenVoiceCompiler {
