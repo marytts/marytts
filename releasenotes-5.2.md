@@ -11,7 +11,7 @@ Improvements
 Development news
 ----------------
 
-* [#393](https://github.com/marytts/marytts/issues/393): 'package.html' files converted into 'package-info.java' files
+* [#393](https://github.com/marytts/marytts/issues/393): `package.html` files converted into `package-info.java` files
 * [#362](https://github.com/marytts/marytts/issues/362): add support for Groovy
 * [#353](https://github.com/marytts/marytts/issues/353): replace inline code from Jama with external dependency to fix swapped inlined code
 * [#351](https://github.com/marytts/marytts/issues/351): update of maven plugins used for the website and build plugins
