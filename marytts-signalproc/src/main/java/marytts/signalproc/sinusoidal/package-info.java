@@ -1,15 +1,11 @@
 /**
- * Sinusoidal analysis/synthesis framework supporting various approaches:<br>
+ * Sinusoidal analysis/synthesis framework supporting various approaches:
  * <ul>
  *   <li>Conventional sinusoidal analysis/modification/synthesis</li>
- *   <li>Harmonic plus Noise Model (HNM) based
-analysis/modification/synthesis</li>
- *   <li>Multiresolution sinusoidal analysis/modification/snythesis -
- * Warning: This is a very basic implementation and it does not work
- * properly!<br>
- *   </li>
- *   <li>Sines+transients+noise based analysis/modification/synthesis<br>
- *   </li>
+ *   <li>Harmonic plus Noise Model (HNM) based analysis/modification/synthesis</li>
+ *   <li>Multiresolution sinusoidal analysis/modification/snythesis<br>
+ *   Warning: This is a very basic implementation and it does not work properly!</li>
+ *   <li>Sines+transients+noise based analysis/modification/synthesis</li>
  * </ul>
  */
 package marytts.signalproc.sinusoidal;
