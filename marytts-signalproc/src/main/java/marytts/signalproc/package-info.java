@@ -1,7 +1,6 @@
 /**
- * <p>Signal processing package for Mary consisting of the following
- * sub-packages:<br>
- * </p>
+ * Signal processing package for Mary consisting of the following
+ * sub-packages:
  * <ul>
  *   <li>adaptation: speaker adaptation using various voice conversion
  * techniques</li>
