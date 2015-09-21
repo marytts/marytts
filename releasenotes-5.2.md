@@ -37,7 +37,7 @@ Fixed Issues/Bugs
 * [#213](https://github.com/marytts/marytts/issues/213): fix for rate adjustment 
 * [#206](https://github.com/marytts/marytts/issues/206): fix for LTSTrainerTest failure on unexpected file.encoding
 * [#204](https://github.com/marytts/marytts/issues/204): fix for Locale null breaking MaryServer
-* [#204](https://github.com/marytts/marytts/issues/202): URISyntaxException avoids WikipediaMarkupCleanerTest failing if workspace contains space
+* [#202](https://github.com/marytts/marytts/issues/202): URISyntaxException avoids WikipediaMarkupCleanerTest failing if workspace contains space
 * [#198](https://github.com/marytts/marytts/issues/198): fix for closing fileOutputStream after audio save
 * [#185](https://github.com/marytts/marytts/issues/185): fix for EnvironmentTest failure on Java 8
 
