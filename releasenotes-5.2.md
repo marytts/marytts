@@ -15,7 +15,7 @@ Development news
 
 Fixed Issues/Bugs
 ------------------
-* [375](https://github.com/marytts/marytts/issues/375): add Groovy script to generate component descriptor XML and fix POM template
+* [#375](https://github.com/marytts/marytts/issues/375): add Groovy script to generate component descriptor XML and fix POM template
 * [#369](https://github.com/marytts/marytts/issues/369): handle exceptions on missing or malformed userdict entries
 * [#365](https://github.com/marytts/marytts/issues/365): upgrade groovy-maven (formerly gmaven) plugin to solve noClassDefFoundError when running MaryTTS server
 * [#362](https://github.com/marytts/marytts/issues/362): add support for Groovy
