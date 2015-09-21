@@ -1,8 +1,8 @@
 /**
  * Synthesis package for harmonics plus noise model consisting of the
- * following modules:<br>
+ * following modules:
  * <ul>
-  *  <li>HarmonicPartLinearPhaseInterpolatorSynthesizer: harmonic part
+ *  <li>HarmonicPartLinearPhaseInterpolatorSynthesizer: harmonic part
  * synthesis with a linear phase interpolator</li>
  *   <li>NoisePartWaveformSynthesizer: Noise part synthesizer when the
  * noise is kept as original-harmonic waveform</li>
