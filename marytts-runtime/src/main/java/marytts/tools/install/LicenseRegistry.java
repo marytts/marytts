@@ -20,13 +20,12 @@
 
 package marytts.tools.install;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -35,6 +34,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * A central book-keeping place for the licenses referenced by installable components. Licenses are identified by their URL and
@@ -86,10 +87,10 @@ public class LicenseRegistry {
 		if (!licenseIndexFile.canRead()) {
 			return; // nothing to load
 		}
-		try {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(licenseIndexFile), "UTF-8"))){
 			// Each line in licenseIndexFile is expected to be a pair of local file name (relative to downloadDir) and URL string,
 			// separated by a | (pipe) character.
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(licenseIndexFile), "UTF-8"));
+			
 			String line;
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
@@ -111,50 +112,42 @@ public class LicenseRegistry {
 				URL remoteURL = new URL(remoteURLString);
 				remote2local.put(remoteURL, localFilename);
 			}
-			br.close();
 		} catch (IOException e) {
 			System.err.println("Problem reading local license index file " + licenseIndexFile.getAbsolutePath() + ":");
 			e.printStackTrace();
 		}
 	}
 
-	private static void downloadLicense(URL licenseURL) {
+    private static void downloadLicense(URL licenseURL) {
+		
 		assert remote2local != null;
 		File downloadDir = new File(System.getProperty("mary.downloadDir", "."));
 		String filename = licenseURL.toString().replace('/', '_').replace(':', '_');
 		File licenseFile = new File(downloadDir, filename);
 		System.out.println("Downloading license from " + licenseURL.toString());
-		try {
-
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(licenseFile));
-			BufferedInputStream in = new BufferedInputStream(licenseURL.openStream());
-			byte[] buf = new byte[4096];
-			int n = -1;
-			while ((n = in.read(buf)) >= 0) {
-				out.write(buf, 0, n);
-			}
-			in.close();
-			out.close();
+		try (FileOutputStream out = new FileOutputStream(licenseFile);
+				InputStream in = licenseURL.openStream()){
+			IOUtils.copy(in, out);
 		} catch (IOException e) {
 			System.err.println("Cannot download license from " + licenseURL.toString());
 			e.printStackTrace();
 		}
-
+		
 		// Now we need to update remote2local and write an updated license-index.txt:
 		remote2local.put(licenseURL, filename);
 		saveIndex();
+		
 	}
+
 
 	private static void saveIndex() {
 		assert remote2local != null;
 		File downloadDir = new File(System.getProperty("mary.downloadDir", "."));
 		File licenseIndexFile = new File(downloadDir, "license-index.txt");
-		try {
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(licenseIndexFile), "UTF-8"));
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(licenseIndexFile), "UTF-8"))){
 			for (URL remote : remote2local.keySet()) {
 				pw.println(remote2local.get(remote) + "|" + remote.toString());
 			}
-			pw.close();
 		} catch (IOException e) {
 			System.err.println("Problem updating the index file " + licenseIndexFile.getAbsolutePath());
 			e.printStackTrace();
