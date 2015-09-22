@@ -159,7 +159,7 @@ public class FeatureArrayIndexer {
 	 * Launches a deep sort on the array of feature vectors. This is public because it can be used to re-index the previously read
 	 * feature file.
 	 * 
-	 * @param featureIdx
+	 * @param setFeatureSequence
 	 *            An array of feature indexes, indicating the sequence of features according to which the sorting should be
 	 *            performed.
 	 */
@@ -174,7 +174,7 @@ public class FeatureArrayIndexer {
 	 * Launches a deep sort on the array of feature vectors. This is public because it can be used to re-index the previously read
 	 * feature file.
 	 * 
-	 * @param featureIdx
+	 * @param setFeatureSequence
 	 *            An array of feature names, indicating the sequence of features according to which the sorting should be
 	 *            performed.
 	 */
@@ -241,9 +241,9 @@ public class FeatureArrayIndexer {
 	/**
 	 * Fill a tree which specifies a feature hierarchy but no corresponding units.
 	 * 
-	 * @param featureIdx
-	 *            An array of feature indexes, indicating the sequence of features according to which the sorting should be
-	 *            performed.
+	 * @param specTree
+	 *            A specific tree
+	 *            
 	 */
 	public void deepFill(MaryNode specTree) {
 		tree = specTree;
@@ -289,6 +289,10 @@ public class FeatureArrayIndexer {
 		return (qr);
 	}
 
+	public static final int MAXDEPTH = 0;
+	public static final int MAXLEVEL = 1;
+	public static final int MINUNITS = 2;	
+	
 	/**
 	 * Retrieve an array of unit features which complies with a specific target specification, according to an underlying tree,
 	 * and given a stopping condition.
@@ -308,10 +312,6 @@ public class FeatureArrayIndexer {
 	 * @see FeatureArrayIndexer#deepSort(int[])
 	 * @see FeatureArrayIndexer#deepFill(MaryNode)
 	 */
-	public static final int MAXDEPTH = 0;
-	public static final int MAXLEVEL = 1;
-	public static final int MINUNITS = 2;
-
 	public FeatureFileIndexingResult retrieve(FeatureVector v, int condition, int parameter) {
 		int level = 0;
 		/* Check if the tree is there */

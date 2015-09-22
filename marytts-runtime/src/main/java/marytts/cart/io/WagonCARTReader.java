@@ -62,7 +62,7 @@ public class WagonCARTReader {
 	/**
 	 * When creating a WagonCARTReader provide a tree type
 	 * 
-	 * @param treeType
+	 * @param leafType
 	 *            ClasificationTree, ExtendedClassificationTree, RegressionTree, or TopLevelTree.
 	 * 
 	 *            <p>

@@ -386,7 +386,7 @@ public class Voice {
 	/**
 	 * Get the allophone set associated with this voice.
 	 * 
-	 * @return
+	 * @return allophoneSet
 	 */
 	public AllophoneSet getAllophoneSet() {
 		return allophoneSet;
@@ -628,7 +628,7 @@ public class Voice {
 	 * Get the voice with the given name, or null if there is no voice with that name.
 	 * 
 	 * @param name
-	 * @return
+	 * @return v if it has name
 	 */
 	public static Voice getVoice(String name) {
 		for (Iterator<Voice> it = allVoices.iterator(); it.hasNext();) {

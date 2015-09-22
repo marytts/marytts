@@ -453,7 +453,7 @@ public class MaryProperties {
 	 * locale as produced by locale.toString(), e.g. "en_GB"; if locale is null, return null.
 	 * 
 	 * @param locale
-	 * @return
+	 * @return locale converted to string
 	 */
 	public static String localePrefix(Locale locale) {
 		if (locale == null)

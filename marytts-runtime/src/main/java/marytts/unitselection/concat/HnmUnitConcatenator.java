@@ -109,7 +109,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 * @return new DDSAudioInputStream(audioSource, audioformat)
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) {
 		int len = units.size();

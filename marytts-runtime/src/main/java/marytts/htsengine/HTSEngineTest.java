@@ -129,7 +129,7 @@ public class HTSEngineTest {
 	 * The TARGETFEATURES (.pfeats) file including ContinuousFeatureProcessors values can be generated with a unitselection voice
 	 * or a mbrola voice, it can NOT be generated with HMM voices.
 	 * 
-	 * @param args
+	 * 
 	 * @throws IOException
 	 */
 	public void synthesisWithContinuousFeatureProcessors() throws Exception {
@@ -211,7 +211,7 @@ public class HTSEngineTest {
 	 * Generation of speech using external specification of duration: duration and logf0 in external files Input: a TARGETFEATURES
 	 * (.pfeats) file
 	 * 
-	 * @param args
+	 * 
 	 * @throws IOException
 	 */
 	public void synthesisWithProsodySpecificationInExternalFiles() throws Exception {
@@ -309,7 +309,7 @@ public class HTSEngineTest {
 	 * 
 	 * @param fileName
 	 *            the format is the same as for phonelab.
-	 * @return
+	 * @return totalDuration
 	 */
 	public float loadDurationsForAlignment(String fileName, Vector<PhonemeDuration> alignDur) {
 
@@ -425,8 +425,8 @@ public class HTSEngineTest {
 	 * Stand alone testing using a TARGETFEATURES file as input. Generates duration: file.lab, duration state level: file.slab,
 	 * f0: file.f0, mfcc: file.mfcc and sound file: file.wav out of HMM models
 	 * 
-	 * @param args
-	 *            file.pfeats and hmm voice
+	 * 
+	 * 
 	 * @throws IOException
 	 */
 	public void generateParameters() throws IOException, InterruptedException, Exception {

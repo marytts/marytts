@@ -389,7 +389,7 @@ public class Mary {
 	 * @param inputTypeName
 	 * @param outputTypeName
 	 * @param localeString
-	 * @param audioType
+	 * @param audioTypeName
 	 * @param voiceName
 	 * @param style
 	 * @param effects

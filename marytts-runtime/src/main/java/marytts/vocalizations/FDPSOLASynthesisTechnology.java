@@ -83,7 +83,7 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
 	/**
 	 * Synthesize given vocalization (i.e. unit-selection)
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format
@@ -120,7 +120,7 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
 	/**
 	 * Re-synthesize given vocalization using FDPSOLA technology
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format

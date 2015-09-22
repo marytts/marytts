@@ -160,7 +160,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 * @return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat)
 	 * @throws IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {

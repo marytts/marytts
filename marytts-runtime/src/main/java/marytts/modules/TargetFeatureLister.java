@@ -130,8 +130,9 @@ public class TargetFeatureLister extends InternalModule {
 	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
 	 * method in local code.
 	 * 
-	 * @param segs
-	 * @return
+	 * @param segmentsAndBoundaries
+	 * @param pauseSymbol
+	 * @return TargetFeatureLister
 	 */
 	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
 		return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);

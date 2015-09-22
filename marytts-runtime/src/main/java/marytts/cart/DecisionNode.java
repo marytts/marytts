@@ -220,7 +220,7 @@ public abstract class DecisionNode extends Node {
 	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
 	 * and leaf nodes in the tree.
 	 * 
-	 * @return
+	 * @return the number of nodes
 	 */
 	public int getNumberOfNodes() {
 		int nNodes = 1; // this node
@@ -265,7 +265,7 @@ public abstract class DecisionNode extends Node {
 	 * Get the path leading to the daughter with the given index. This will recursively go up to the root node.
 	 * 
 	 * @param daughterIndex
-	 * @return
+	 * @return the unique decision node id
 	 */
 	public abstract String getDecisionPath(int daughterIndex);
 
@@ -288,15 +288,15 @@ public abstract class DecisionNode extends Node {
 	/**
 	 * Get the decision node type
 	 * 
-	 * @return
+	 * @return the decision node type
 	 */
 	public abstract Type getDecisionNodeType();
 
 	/**
 	 * Select a daughter node according to the value in the given target
 	 * 
-	 * @param target
-	 *            the target
+	 * @param featureVector
+	 *            the feature vector
 	 * @return a daughter
 	 */
 	public abstract Node getNextNode(FeatureVector featureVector);
@@ -364,8 +364,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Select a daughter node according to the value in the given target
 		 * 
-		 * @param target
-		 *            the target
+		 * @param featureVector
+		 *            the feature vector
 		 * @return a daughter
 		 */
 		public Node getNextNode(FeatureVector featureVector) {
@@ -453,8 +453,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Select a daughter node according to the value in the given target
 		 * 
-		 * @param target
-		 *            the target
+		 * @param featureVector
+		 *            the feature vector
 		 * @return a daughter
 		 */
 		public Node getNextNode(FeatureVector featureVector) {
@@ -517,7 +517,7 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Create a new binary String DecisionNode.
 		 * 
-		 * @param feature
+		 * @param featureIndex
 		 *            the string used to get a value from an Item
 		 * @param value
 		 *            the value to compare to
@@ -548,8 +548,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Select a daughter node according to the value in the given target
 		 * 
-		 * @param target
-		 *            the target
+		 * @param featureVector
+		 *            the feature vector
 		 * @return a daughter
 		 */
 		public Node getNextNode(FeatureVector featureVector) {
@@ -626,8 +626,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Build a new byte decision node
 		 * 
-		 * @param feature
-		 *            the feature name
+		 * @param featureIndex
+		 *            the feature index
 		 * @param numDaughters
 		 *            the number of daughters
 		 */
@@ -638,8 +638,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Select a daughter node according to the value in the given target
 		 * 
-		 * @param target
-		 *            the target
+		 * @param featureVector
+		 *            the feature vector
 		 * @return a daughter
 		 */
 		public Node getNextNode(FeatureVector featureVector) {
@@ -708,8 +708,8 @@ public abstract class DecisionNode extends Node {
 		/**
 		 * Select a daughter node according to the value in the given target
 		 * 
-		 * @param target
-		 *            the target
+		 * @param featureVector
+		 *            the feature vector
 		 * @return a daughter
 		 */
 		public Node getNextNode(FeatureVector featureVector) {

@@ -74,8 +74,8 @@ public class DirectedGraphReader {
 	/**
 	 * Load the directed graph from the given file
 	 * 
-	 * @param fileName
-	 *            the file to load the cart from
+	 * @param inStream
+	 *            the input stream
 	 * @param featDefinition
 	 *            the feature definition
 	 * @param dummy

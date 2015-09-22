@@ -62,14 +62,14 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	/**
 	 * Compares two feature vectors according to their values at an internal index previously set by this.setFeatureIdx().
 	 * 
-	 * @param v1
+	 * @param a
 	 *            The first vector.
-	 * @param v2
+	 * @param b
 	 *            The second vector.
 	 * @return a negative integer, zero, or a positive integer as the feature at index I for v1 is less than, equal to, or greater
 	 *         than the feature at index I for v2.
 	 * 
-	 * @see FeatureComparator#setFeatureIdx(int)
+	 * @see FeatureComparator#setFeatureIdx(setI, featureType)
 	 */
 	public int compare(FeatureVector a, FeatureVector b) {
 		switch (type) {

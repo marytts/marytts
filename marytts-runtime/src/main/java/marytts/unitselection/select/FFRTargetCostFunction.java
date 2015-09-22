@@ -228,7 +228,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 	 * 
 	 * @param featureFileName
 	 *            name of a file containing the unit features
-	 * @param weightsFile
+	 * @param weightsStream
 	 *            an optional weights file -- if non-null, contains feature weights that override the ones present in the feature
 	 *            file.
 	 * @param featProc

@@ -117,7 +117,7 @@ public class DirectedGraphNode extends Node {
 	 * Return this node's index in the given mother's array of daughters.
 	 * 
 	 * @param aMother
-	 * @return
+	 * @return motherToIndex.get(aMother)
 	 * @throws IllegalArgumentException
 	 *             if mother is not a mother of this node.
 	 */
