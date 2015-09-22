@@ -7,7 +7,7 @@ ${project.name} is an open-source, multilingual Text-to-Speech Synthesis platfor
 It was originally developed as a collaborative project of [DFKI](http://www.dfki.de/web)'s [Language Technology Lab](http://www.dfki.de/lt/) and the [Institute of Phonetics](http://www.coli.uni-saarland.de/groups/WB/Phonetics/) at [Saarland University](http://www.uni-saarland.de).
 It is now maintained by the [Multimodal Speech Processing](http://m2ci.org/en/irg/msp) Group in the [Cluster of Excellence MMCI](http://m2ci.org/) and DFKI.
 
-As of version ${project.version}, MaryTTS supports German, British and American English, French, Italian, Swedish, Russian, Turkish, and Telugu; more languages are in preparation.
+As of version ${project.version}, MaryTTS supports German, British and American English, French, Italian, Luxembourgish, Russian, Swedish, Telugu, and Turkish; more languages are in preparation.
 ${project.name} comes with toolkits for quickly [adding support for new languages](https://github.com/marytts/marytts/wiki/New-Language-Support) and for building [unit selection](https://github.com/marytts/marytts/wiki/VoiceImportToolsTutorial) and [HMM-based synthesis voices](https://github.com/marytts/marytts/wiki/HMMVoiceCreation).
 
 New to ${project.name}?
