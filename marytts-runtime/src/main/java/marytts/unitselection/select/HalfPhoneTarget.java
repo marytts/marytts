@@ -29,7 +29,7 @@ public class HalfPhoneTarget extends Target {
 	 * 
 	 * @param name
 	 *            a name for the target, which may or may not coincide with the segment name.
-	 * @param item
+	 * @param maryxmlElement
 	 *            the phone segment item in the Utterance structure, to be associated to this target
 	 * @param isLeftHalf
 	 *            true if this target represents the left half of the phone, false if it represents the right half of the phone
@@ -42,7 +42,7 @@ public class HalfPhoneTarget extends Target {
 	/**
 	 * Is this target the left half of a phone?
 	 * 
-	 * @return
+	 * @return isLeftHalf
 	 */
 	public boolean isLeftHalf() {
 		return isLeftHalf;
@@ -51,7 +51,7 @@ public class HalfPhoneTarget extends Target {
 	/**
 	 * Is this target the right half of a phone?
 	 * 
-	 * @return
+	 * @return !isLeftHalf
 	 */
 	public boolean isRightHalf() {
 		return !isLeftHalf;

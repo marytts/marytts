@@ -112,7 +112,7 @@ public interface TargetCostFunction {
 	 * Get the target cost feature vector for the given unit.
 	 * 
 	 * @param unit
-	 * @return
+	 * @return the feature vector
 	 */
 	public FeatureVector getFeatureVector(Unit unit);
 

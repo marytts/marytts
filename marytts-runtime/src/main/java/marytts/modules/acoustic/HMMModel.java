@@ -86,7 +86,7 @@ public class HMMModel extends Model {
 	 * 
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
-	 * @param dataFileName
+	 * @param voiceName
 	 *            in HMM models this data file corresponds to the configuration file of the HMM voice
 	 * @param targetAttributeName
 	 *            attribute in MARYXML to predict

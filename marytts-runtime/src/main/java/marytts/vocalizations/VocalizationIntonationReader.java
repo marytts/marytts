@@ -164,7 +164,7 @@ public class VocalizationIntonationReader {
 	 * get an intonation contour
 	 * 
 	 * @param unitIndexNumber
-	 * @return
+	 * @return self.contours[unitIndexNumber]
 	 */
 	public double[] getContour(int unitIndexNumber) {
 		return this.contours[unitIndexNumber];
@@ -186,7 +186,7 @@ public class VocalizationIntonationReader {
 	 * get an intonation polynomial coeffs
 	 * 
 	 * @param unitIndexNumber
-	 * @return
+	 * @return self.coeffs[unitIndexNumber]
 	 */
 	public double[] getIntonationCoeffs(int unitIndexNumber) {
 		return this.coeffs[unitIndexNumber];

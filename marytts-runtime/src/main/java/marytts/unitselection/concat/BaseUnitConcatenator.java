@@ -176,7 +176,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 * @return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat)
 	 * @throws IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {
@@ -199,7 +199,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * 
 	 * @param length
 	 *            the number of zeros that the datagram should contain
-	 * @return
+	 * @return new Datagram(length, new byte[2 * length])
 	 */
 	protected Datagram createZeroDatagram(int length) {
 		return new Datagram(length, new byte[2 * length]);
@@ -305,7 +305,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		/**
 		 * Get the realised duration of this unit, in samples
 		 * 
-		 * @return
+		 * @return unitDuration
 		 */
 		public int getUnitDuration() {
 			return unitDuration;

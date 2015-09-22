@@ -517,7 +517,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 * @return stream
 	 * @throws IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {

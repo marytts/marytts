@@ -512,7 +512,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	/**
 	 * Inform whether an update is available for this component.
 	 * 
-	 * @return
+	 * @return availableUpdate != null
 	 */
 	public boolean isUpdateAvailable() {
 		return availableUpdate != null;
@@ -577,7 +577,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	 * </ol>
 	 * 
 	 * @param other
-	 * @return
+	 * @return false if other == null or !this.getClass.equals(other.getClass) or !name.equals(other.getName)
+	 *        or other.getStatus or != Status.INSTALLED or !(isVersionNewerThan(version, other.getVersion),
+	 *        otherwise true
 	 */
 	public boolean isUpdateOf(ComponentDescription other) {
 		if (other == null || !this.getClass().equals(other.getClass()) || !name.equals(other.getName())

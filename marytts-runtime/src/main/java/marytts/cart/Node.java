@@ -132,7 +132,7 @@ public abstract class Node {
 	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
 	 * and leaf nodes in the tree.
 	 * 
-	 * @return
+	 * @return number of nodes
 	 */
 	public abstract int getNumberOfNodes();
 
@@ -156,7 +156,7 @@ public abstract class Node {
 	 * Write this node's data into the target object at pos, making sure that exactly len data are written. The type of data
 	 * written depends on the type of nodes; for example, when IntArrayLeafNodes are used, target would be an int[].
 	 * 
-	 * @param array
+	 * @param target
 	 *            the object to write to, usually an array.
 	 * @param pos
 	 *            the position in the target at which to start writing

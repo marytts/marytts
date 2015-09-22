@@ -215,7 +215,7 @@ public class HTSVocoder {
 	/**
 	 * get the audio format produced by the hts vocoder
 	 * 
-	 * @return
+	 * @return audioformat
 	 */
 	public static AudioFormat getHTSAudioFormat(HMMData htsData) {
 		float sampleRate = htsData.getRate(); // 8000,11025,16000,22050,44100,48000
@@ -530,7 +530,7 @@ public class HTSVocoder {
 	 * 
 	 * @param mcepPst
 	 * @param htsData
-	 * @return
+	 * @return mcepPst.getT * htsData.getFperiod
 	 */
 	private int computeAudioSize(HTSPStream mcepPst, HMMData htsData) {
 		return mcepPst.getT() * htsData.getFperiod();

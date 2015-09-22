@@ -45,12 +45,12 @@ public class StringPredictionTree extends CART {
 
 	/**
 	 * 
-	 * @param rootNode
+	 * @param  aRootNode
 	 *            the root node of this tree. This node has to be set to be a root node beforehand.
-	 * @param featDef
+	 * @param aFeatDef
 	 *            the featureDefinition used in this tree
 	 * 
-	 * @author ben
+	 * 
 	 */
 	public StringPredictionTree(Node aRootNode, FeatureDefinition aFeatDef, String[] aTargetDecoding) {
 		if (!aRootNode.isRoot())
@@ -150,8 +150,8 @@ public class StringPredictionTree extends CART {
 	 * 
 	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
 	 * 
-	 * @param target
-	 *            the target to analyze
+	 * @param featureVector
+	 *            the feature vector to analyze
 	 * @param minNumberOfData
 	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
 	 * 

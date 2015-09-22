@@ -65,7 +65,7 @@ public class SoPF0Modeller extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * @param propertyPrefix
+	 * @param sopFile
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
 	 * @throws Exception
 	 */
@@ -80,9 +80,9 @@ public class SoPF0Modeller extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * @param propertyPrefix
+	 * @param sopFile
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-	 * @param featprocClass
+	 * @param featprocClassInfo
 	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
 	 * @throws Exception
 	 */
@@ -95,9 +95,9 @@ public class SoPF0Modeller extends InternalModule {
 	 * Constructor to be called with instantiated objects.
 	 * 
 	 * @param locale
-	 * @param propertyPrefix
+	 * @param sopFile
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 * @param featureProcessorManager the manager to use when looking up feature processors.
 	 */
 	protected SoPF0Modeller(Locale locale, String sopFile, FeatureProcessorManager featureProcessorManager) {
 		super("SoPF0Modeller", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, locale);

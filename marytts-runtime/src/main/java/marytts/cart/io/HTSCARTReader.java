@@ -93,16 +93,16 @@ public class HTSCARTReader {
 	/**
 	 * Load the cart from the given file
 	 * 
-	 * @param nummStates
+	 * @param numStates
 	 *            number of states in the HTS model, it will create one cart tree per state.
-	 * @param treefileName
+	 * @param treeStream
 	 *            the HTS tree text file, example tree-mgc.inf.
-	 * @param pdfFileName
+	 * @param pdfStream
 	 *            the corresponding HTS pdf binary file, example mgc.pdf.
 	 * @param featDefinition
 	 *            the feature definition
-	 * @param CART
-	 *            [] Fills this array of CART trees, one per state.
+	 * @param phTranslator
+	 *            a phone translator
 	 * @return the size of the mean and variance vectors on the leaves.
 	 * @throws IOException
 	 *             if a problem occurs while loading
@@ -298,7 +298,7 @@ public class HTSCARTReader {
 	 *            , decision node
 	 * @param numId
 	 *            , index to look for.
-	 * @return
+	 * @return node if node is instance of decision node, aux if aux != null, return aux otherwise
 	 */
 	private Node findDecisionNode(Node node, int numId) {
 

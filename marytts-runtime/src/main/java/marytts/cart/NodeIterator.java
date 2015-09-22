@@ -144,7 +144,7 @@ public class NodeIterator<T extends Node> implements Iterator<T> {
 	 * Test whether the given node is unseen. If so, move current to it, and remember it as a seen node.
 	 * 
 	 * @param candidate
-	 * @return
+	 * @return True if candidate != null and !alreadySeen.contains(candidate)
 	 */
 	private boolean unseenNode(Node candidate) {
 		if (candidate != null && !alreadySeen.contains(candidate)) {
