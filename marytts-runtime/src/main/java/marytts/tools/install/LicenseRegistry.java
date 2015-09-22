@@ -87,10 +87,10 @@ public class LicenseRegistry {
 		if (!licenseIndexFile.canRead()) {
 			return; // nothing to load
 		}
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(licenseIndexFile), "UTF-8"))){
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(licenseIndexFile), "UTF-8"))) {
 			// Each line in licenseIndexFile is expected to be a pair of local file name (relative to downloadDir) and URL string,
 			// separated by a | (pipe) character.
-			
+
 			String line;
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
@@ -118,33 +118,31 @@ public class LicenseRegistry {
 		}
 	}
 
-    private static void downloadLicense(URL licenseURL) {
-		
+	private static void downloadLicense(URL licenseURL) {
+
 		assert remote2local != null;
 		File downloadDir = new File(System.getProperty("mary.downloadDir", "."));
 		String filename = licenseURL.toString().replace('/', '_').replace(':', '_');
 		File licenseFile = new File(downloadDir, filename);
 		System.out.println("Downloading license from " + licenseURL.toString());
-		try (FileOutputStream out = new FileOutputStream(licenseFile);
-				InputStream in = licenseURL.openStream()){
+		try (FileOutputStream out = new FileOutputStream(licenseFile); InputStream in = licenseURL.openStream()) {
 			IOUtils.copy(in, out);
 		} catch (IOException e) {
 			System.err.println("Cannot download license from " + licenseURL.toString());
 			e.printStackTrace();
 		}
-		
+
 		// Now we need to update remote2local and write an updated license-index.txt:
 		remote2local.put(licenseURL, filename);
 		saveIndex();
-		
-	}
 
+	}
 
 	private static void saveIndex() {
 		assert remote2local != null;
 		File downloadDir = new File(System.getProperty("mary.downloadDir", "."));
 		File licenseIndexFile = new File(downloadDir, "license-index.txt");
-		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(licenseIndexFile), "UTF-8"))){
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(licenseIndexFile), "UTF-8"))) {
 			for (URL remote : remote2local.keySet()) {
 				pw.println(remote2local.get(remote) + "|" + remote.toString());
 			}
