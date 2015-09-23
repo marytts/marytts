@@ -191,7 +191,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 	}
 
 	/**
-	 * @param out
+	 * @param baseName
 	 * @throws IOException
 	 * @throws UnsupportedAudioFileException
 	 * @throws UnsupportedEncodingException

@@ -19,7 +19,7 @@ public class Z1 {
 	 * 
 	 * @param n
 	 *            a positive integer
-	 * @return A Z1 of length n
+	 * 
 	 * @exception JampackException
 	 *                Thrown if n<=0.
 	 */
@@ -54,7 +54,7 @@ public class Z1 {
 	 *            an integer
 	 * @param z
 	 *            a Z
-	 * @return resets the ith element of this Z1 to z
+	 * 
 	 */
 
 	public void put(int i, Z z) {
@@ -73,7 +73,7 @@ public class Z1 {
 	 *            a double
 	 * @param imag
 	 *            a double
-	 * @return resets the ith component of this Z1 to real + i*imag
+	 * 
 	 */
 
 	public void put(int i, double real, double imag) {
@@ -88,7 +88,7 @@ public class Z1 {
 	 *            an integer
 	 * @param z
 	 *            a Z
-	 * @return multiplies the ith element of this Z1 by z.
+	 * 
 	 */
 
 	public void Times(int i, Z z) {

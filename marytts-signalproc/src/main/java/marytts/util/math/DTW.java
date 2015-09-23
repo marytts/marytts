@@ -337,7 +337,7 @@ public class DTW {
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return sum
 	 */
 	public double AbsDistance(double[] x, double[] y) {
 

@@ -48,7 +48,7 @@ public class Z {
 	/**
 	 * Creates a Z and initializes it to zero.
 	 * 
-	 * @return a Z initialized to zero.
+	 * 
 	 */
 	public Z() {
 		re = 0.;
@@ -62,7 +62,7 @@ public class Z {
 	 *            a double
 	 * @param y
 	 *            a double
-	 * @return x + iy
+	 * 
 	 */
 
 	public Z(double x, double y) {
@@ -75,7 +75,7 @@ public class Z {
 	 * 
 	 * @param x
 	 *            a double
-	 * @return x + i*0
+	 * 
 	 */
 
 	public Z(double x) {
@@ -88,7 +88,7 @@ public class Z {
 	 * 
 	 * @param a
 	 *            a Z
-	 * @return a
+	 *
 	 */
 
 	public Z(Z a) {
@@ -340,7 +340,7 @@ public class Z {
 	 * 
 	 * @param a
 	 *            a Z
-	 * @param this = sqrt(a)
+	 * 
 	 */
 
 	public Z Sqrt(Z a) {

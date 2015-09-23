@@ -304,8 +304,8 @@ public class Mary4To5VoiceConverter {
 	/**
 	 * Returns true for a unit selection voice, false for an HMM-based voice.
 	 * 
-	 * @return
-	 * @throw {@link UnsupportedOperationException} if the voice is neither a unit selection nor an HMM-based voice.
+	 * @return true if config.containsKey("unitselection.voices.list"), false if config.containsKey("hmm.voices.list")
+	 * @throws {@link UnsupportedOperationException} if the voice is neither a unit selection nor an HMM-based voice.
 	 */
 	protected boolean isUnitSelectionVoice() throws UnsupportedOperationException {
 		if (config.containsKey("unitselection.voices.list")) {

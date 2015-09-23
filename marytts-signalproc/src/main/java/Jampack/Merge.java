@@ -93,7 +93,7 @@ public class Merge {
 	 *    A = | B00 B01 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -118,7 +118,7 @@ public class Merge {
 	 *        | B10 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -142,7 +142,7 @@ public class Merge {
 	 *        | B10 B11|
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -167,7 +167,7 @@ public class Merge {
 	 *    A = | B00 B01 B02 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -193,7 +193,7 @@ public class Merge {
 	 *        | B10 B11 B12 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -223,7 +223,7 @@ public class Merge {
 	 *        | B20 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -250,7 +250,7 @@ public class Merge {
 	 *        | B20 B21 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException
@@ -279,7 +279,7 @@ public class Merge {
 	 *        | B20 B21 B22 |
 	 * </pre>
 	 * 
-	 * @param Bij
+	 * @param B00
 	 *            The Zmats to be merged
 	 * @return The composite Zmat A
 	 * @exception JampackException

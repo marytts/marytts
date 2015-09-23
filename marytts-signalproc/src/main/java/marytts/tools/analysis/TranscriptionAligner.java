@@ -185,7 +185,7 @@ public class TranscriptionAligner {
 	 * 
 	 * @param in
 	 * @param out
-	 * @return
+	 * @return p_al[ostr.length]
 	 */
 	protected String distanceAlign(String in, String out) {
 		String[] istr = in.split(Pattern.quote(entrySeparator));

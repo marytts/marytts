@@ -36,7 +36,7 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	/**
 	 * Read Double data from a Text file. Read one double per line.
 	 * 
-	 * @param reader
+	 * @param file
 	 */
 	public SnackTextfileDoubleDataSource(File file) throws FileNotFoundException {
 		this(new FileReader(file));

@@ -218,7 +218,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * get f0 contour of vocalization f0
 	 * 
 	 * @param baseName
-	 * @return
+	 * @return interpolateF0Array(f0Array) if doInterpolate, f0Array otherwise
 	 * @throws UnsupportedAudioFileException
 	 * @throws IOException
 	 */
@@ -271,7 +271,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * to get polynomial coeffs of f0 contour
 	 * 
 	 * @param f0Array
-	 * @return
+	 * @return null if f0Array == null, coeffs otherwise
 	 */
 	private double[] getPolynomialCoeffs(double[] f0Array) {
 
@@ -290,7 +290,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * to interpolate F0 contour values
 	 * 
 	 * @param f0Array
-	 * @return
+	 * @return null if f0Array == null, f0AndInterpolate
 	 */
 	private double[] interpolateF0Array(double[] f0Array) {
 
@@ -345,7 +345,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * cut begin-end unvoiced segments
 	 * 
 	 * @param array
-	 * @return
+	 * @return null if array == null, newArray
 	 */
 	private double[] cutStartEndUnvoicedSegments(double[] array) {
 
@@ -388,7 +388,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * 
 	 * @param f0Array
 	 * @param interpol
-	 * @return
+	 * @return f0AndInterpolate
 	 */
 	private double[] combineF0andInterpolate(double[] f0Array, double[] interpol) {
 

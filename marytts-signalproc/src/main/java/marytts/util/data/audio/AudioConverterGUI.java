@@ -765,7 +765,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
 		 *
 		 * @param wavFileNames
 		 * @param targetBitsPerSample
-		 * @return
+		 * @return globalBestShift
 		 * @throws Exception
 		 */
 		@Deprecated

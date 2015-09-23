@@ -230,7 +230,7 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param labFile
-	 * @return
+	 * @return ulab
 	 */
 	private UnitLabel[] readLabFile(String labFile) throws IOException {
 
