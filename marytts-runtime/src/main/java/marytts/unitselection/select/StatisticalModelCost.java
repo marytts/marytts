@@ -59,6 +59,8 @@ public class StatisticalModelCost implements StatisticalCostFunction {
 	 * 
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException {
 		try {
@@ -76,6 +78,8 @@ public class StatisticalModelCost implements StatisticalCostFunction {
 
 	/**
 	 * Get the number of units.
+	 * 
+	 * @return sCostReader.getNumberOfUnits()
 	 */
 	public int getNumberOfUnits() {
 		return (sCostReader.getNumberOfUnits());
@@ -113,9 +117,12 @@ public class StatisticalModelCost implements StatisticalCostFunction {
 	 * Cost function for a given units if consecutive == true, and if they are consecutive units make cost = 0
 	 * 
 	 * @param u1
+	 *            u1
 	 * @param u2
+	 *            u2
 	 * @param consecutive
-	 * @return
+	 *            consecutive
+	 * @return ((sCost1 + sCost2) / 2.0)
 	 */
 	public double cost(Unit u1, Unit u2, boolean consecutive) {
 

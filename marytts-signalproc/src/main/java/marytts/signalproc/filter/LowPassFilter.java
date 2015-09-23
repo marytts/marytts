@@ -44,7 +44,7 @@ public class LowPassFilter extends FIRFilter {
 	public double normalisedCutoffFrequency;
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and a default transition band width.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and a default transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -56,7 +56,7 @@ public class LowPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and the given normalised transition band width.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and the given normalized transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -72,7 +72,7 @@ public class LowPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and the given length of the filter kernel.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and the given length of the filter kernel.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -112,6 +112,7 @@ public class LowPassFilter extends FIRFilter {
 	 * 
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
+	 * @return samplingRate
 	 */
 	public double getTransitionBandWidth(int samplingRate) {
 		return samplingRate * kernelLength2bandwidth(impulseResponseLength);
@@ -119,6 +120,12 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Compute the low-pass filter kernel, using a Blackman window.
+	 * 
+	 * @param normalisedCutoffFrequencyIn
+	 *            normalizedCutoffFrequencyIn
+	 * @param kernelLength
+	 *            kernel Length
+	 * @return kernel
 	 */
 	protected static double[] getKernel(double normalisedCutoffFrequencyIn, int kernelLength) {
 		double[] kernel = new double[kernelLength];
@@ -144,6 +151,7 @@ public class LowPassFilter extends FIRFilter {
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
 	 * 
 	 * @param normalisedTransitionBandwidth
+	 *            normalisedTransitionBandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
 	 */
 	protected static int bandwidth2kernelLength(double normalisedTransitionBandwidth) {
@@ -158,7 +166,8 @@ public class LowPassFilter extends FIRFilter {
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
 	 * 
 	 * @param kernelLength
-	 * @return the corresponding normalised transition bandwidth.
+	 *            kernelLength
+	 * @return the corresponding normalized transition bandwidth.
 	 */
 	protected static double kernelLength2bandwidth(int kernelLength) {
 		return (double) 4 / kernelLength;

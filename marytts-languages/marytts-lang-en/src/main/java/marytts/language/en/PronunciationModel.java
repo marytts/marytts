@@ -47,9 +47,10 @@ public class PronunciationModel extends marytts.modules.PronunciationModel {
 	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
 	 * 
 	 * @param token
-	 *            a <t> element with a <syllable> and <ph> substructure.
+	 *            a &lt;t&gt; element with a &lt;syllable&gt; and &lt;ph&gt; substructure.
 	 * @param allophoneSet
-	 * @return true if something was changed in the content of the <ph> elements for this <t>, false otherwise
+	 *            allophoneSet
+	 * @return true if something was changed in the content of the &lt;ph&gt; elements for this &lt;t&gt;, false otherwise
 	 */
 	@Override
 	protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet) {

@@ -59,7 +59,7 @@ public class FeatureFileReader {
 	/**
 	 * Empty constructor; need to call load() separately when using this.
 	 * 
-	 * @see load(String)
+	 * @see #load(String fileName)
 	 */
 	public FeatureFileReader() {
 	}
@@ -146,6 +146,7 @@ public class FeatureFileReader {
 	 * feature definition
 	 * 
 	 * @param newFeatureDefinition
+	 *            newFeatureDefinition
 	 * @return newFV
 	 */
 	public FeatureVector[] featureVectorMapping(FeatureDefinition newFeatureDefinition) {

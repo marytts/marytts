@@ -31,7 +31,7 @@ import marytts.util.math.ArrayUtils;
  * constant "virtual" f0. Cepstral amplitudes are kept only. Synthesis handles noise part generation using the cepstral amplitudes
  * and random phase generation above maximum frequency of voicing
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {

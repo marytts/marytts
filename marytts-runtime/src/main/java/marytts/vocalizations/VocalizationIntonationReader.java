@@ -68,6 +68,8 @@ public class VocalizationIntonationReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public VocalizationIntonationReader(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName);
@@ -80,6 +82,8 @@ public class VocalizationIntonationReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String fileName) throws IOException, MaryConfigurationException {
 		/* Open the file */
@@ -164,6 +168,7 @@ public class VocalizationIntonationReader {
 	 * get an intonation contour
 	 * 
 	 * @param unitIndexNumber
+	 *            unitIndexNumber
 	 * @return self.contours[unitIndexNumber]
 	 */
 	public double[] getContour(int unitIndexNumber) {
@@ -186,6 +191,7 @@ public class VocalizationIntonationReader {
 	 * get an intonation polynomial coeffs
 	 * 
 	 * @param unitIndexNumber
+	 *            unitIndexNumber
 	 * @return self.coeffs[unitIndexNumber]
 	 */
 	public double[] getIntonationCoeffs(int unitIndexNumber) {

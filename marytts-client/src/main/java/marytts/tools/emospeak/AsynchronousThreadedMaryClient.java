@@ -49,13 +49,39 @@ public class AsynchronousThreadedMaryClient extends Thread {
 	private AudioInputStream latestAudio = null;
 	private boolean exitRequested = false;
 
-	/** Creates new AsynchronousThreadedMaryClient */
+	/**
+	 * Creates new AsynchronousThreadedMaryClient
+	 * 
+	 * @param emoSpeak
+	 *            emoSpeak
+	 * @throws IOException
+	 *             IOException
+	 * @throws UnknownHostException
+	 *             UnknownHostException
+	 */
 	public AsynchronousThreadedMaryClient(AudioFileReceiver emoSpeak) throws IOException, UnknownHostException {
 		this.emoSpeak = emoSpeak;
 		processor = MaryClient.getMaryClient();
 	}
 
-	/** Constructor to be used by applets */
+	/**
+	 * Constructor to be used by applets
+	 * 
+	 * @param emoSpeak
+	 *            emoSpeak
+	 * @param serverHost
+	 *            serverHost
+	 * @param serverPort
+	 *            serverPort
+	 * @param printProfilingInfo
+	 *            printProfilingInfo
+	 * @param beQuiet
+	 *            beQuiet
+	 * @throws IOException
+	 *             IOException
+	 * @throws UnknownHostException
+	 *             UnknownHostException
+	 */
 	public AsynchronousThreadedMaryClient(AudioFileReceiver emoSpeak, String serverHost, int serverPort,
 			boolean printProfilingInfo, boolean beQuiet) throws IOException, UnknownHostException {
 		this.emoSpeak = emoSpeak;

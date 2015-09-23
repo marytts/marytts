@@ -26,6 +26,17 @@ package marytts.signalproc.process;
 public interface CopyingDataProcessor {
 	/**
 	 * Perform some processing on the input data while copying it to the output location.
+	 * 
+	 * @param src
+	 *            src
+	 * @param srcOff
+	 *            srcOff
+	 * @param dest
+	 *            dest
+	 * @param destOff
+	 *            destOff
+	 * @param len
+	 *            len
 	 */
 	public void apply(final double[] src, int srcOff, double[] dest, int destOff, int len);
 }

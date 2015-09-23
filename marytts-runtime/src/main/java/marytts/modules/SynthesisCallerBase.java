@@ -56,9 +56,6 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	/**
 	 * Perform a power-on self test by processing some example input data. This implementation does nothing; instead, the module
 	 * test is carried out via Synthesis in the WaveformSynthesizer associated with this Caller.
-	 * 
-	 * @throws Exception
-	 *             if the module does not work properly.
 	 */
 	public synchronized void powerOnSelfTest() {
 	}
@@ -67,6 +64,23 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 * From synthesis markup input <code>d</code>, create audio output of the type specified by a preceding call to
 	 * <code>setAudioType()</code>. Returns a MaryData structure whose data is an input stream from which audio data of the
 	 * specified type can be read.
+	 * 
+	 * @param d
+	 *            d
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws TransformerException
+	 *             TransformerException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws IOException
+	 *             IOException
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public MaryData process(MaryData d) throws TransformerConfigurationException, TransformerException, FileNotFoundException,
 			IOException, ParserConfigurationException, SAXException, Exception {
@@ -130,6 +144,8 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 *            the input data in the native format expected by the synthesis engine
 	 * @param voice
 	 *            the voice with which to synthesise the data
+	 * @throws IOException
+	 *             IOException
 	 * @return an AudioInputStream in the native audio format of the voice
 	 */
 	public abstract AudioInputStream synthesiseOneSection(String synthesisMarkup, Voice voice) throws IOException;

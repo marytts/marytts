@@ -60,6 +60,7 @@ public class ESTTrackWriter {
 	 *            true for a big endian write (PowerPC or SPARC), or false for a little endian write (Intel).
 	 * 
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public void doWriteAndClose(String fName, boolean isBinary, boolean isBigEndian) throws IOException {
 

@@ -82,13 +82,20 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
 	 * 
-	 * @see #load(String)
+	 * @see #load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 	 */
 	public JoinCostFeatures() {
 	}
 
 	/**
 	 * Constructor which read a Mary Join Cost file.
+	 * 
+	 * @param fileName
+	 *            fileName
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JoinCostFeatures(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName, null, null, (float) 0.5);
@@ -100,6 +107,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 * 
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException {
 		String joinFileName = MaryProperties.needFilename(configPrefix + ".joinCostFile");
@@ -124,6 +133,10 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *            an optional file containing precompiled join costs
 	 * @param wSignal
 	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 			throws IOException, MaryConfigurationException {
@@ -141,6 +154,10 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *            an optional file containing precompiled join costs
 	 * @param wSignal
 	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void loadFromByteBuffer(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 			throws IOException, MaryConfigurationException {
@@ -230,6 +247,10 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *            an optional file containing precompiled join costs
 	 * @param wSignal
 	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void loadFromStream(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 			throws IOException, MaryConfigurationException {
@@ -315,6 +336,11 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 * 
 	 * @param fileName
 	 *            the text file containing the join weights
+	 * @throws IOException
+	 *             IOException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @return readJoinCostWeightsStream(new FileInputStream(fileName))
 	 * */
 	public static Object[] readJoinCostWeightsFile(String fileName) throws IOException, FileNotFoundException {
 		return readJoinCostWeightsStream(new FileInputStream(fileName));
@@ -323,8 +349,13 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * Read the join cost weight specifications from the given file. The weights will be normalized such that they sum to one.
 	 * 
-	 * @param fileName
+	 * @param weightStream
 	 *            the text file containing the join weights
+	 * @throws IOException
+	 *             IOException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @return Object[] { fw, wfun }
 	 * */
 	public static Object[] readJoinCostWeightsStream(InputStream weightStream) throws IOException, FileNotFoundException {
 		Vector v = new Vector(16, 16);
@@ -372,6 +403,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of feature weights and weighting functions.
+	 * 
+	 * @return (featureWeight.length)
 	 */
 	public int getNumberOfFeatures() {
 		return (featureWeight.length);
@@ -379,6 +412,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of units.
+	 * 
+	 * @return (leftJCF.length)
 	 */
 	public int getNumberOfUnits() {
 		return (leftJCF.length);

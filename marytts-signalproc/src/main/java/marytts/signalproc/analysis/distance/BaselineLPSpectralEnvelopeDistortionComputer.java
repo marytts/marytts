@@ -40,7 +40,7 @@ import marytts.util.string.StringUtils;
 /**
  * Implements an LP spectral envelope based distortion measure
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistortionComputer {
 	public static final double DEFAULT_WINDOWSIZE = 0.020;

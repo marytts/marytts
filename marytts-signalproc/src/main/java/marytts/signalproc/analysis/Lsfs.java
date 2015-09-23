@@ -27,7 +27,7 @@ import java.io.IOException;
  * 
  * A wrapper class for line spectral frequencies. For Actual LSF analysis, check LsfAnalyser.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Lsfs {
 	public double[][] lsfs;

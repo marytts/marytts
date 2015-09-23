@@ -71,6 +71,8 @@ public class SCostFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public SCostFileReader(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName);
@@ -83,6 +85,8 @@ public class SCostFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String fileName) throws IOException, MaryConfigurationException {
 		/* Open the file */
@@ -131,6 +135,8 @@ public class SCostFileReader {
 	/**
 	 * Get sCost for a unit index
 	 * 
+	 * @param index
+	 *            index
 	 * @return sCost
 	 */
 	public double getSCost(int index) {

@@ -83,6 +83,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * number of Units, and each element contains that Unit's Datagrams as an array.
 	 * 
 	 * @param units
+	 *            units
 	 * @return array of Datagram arrays
 	 */
 	private Datagram[][] getDatagrams(List<SelectedUnit> units) {
@@ -98,6 +99,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * Convenience method to return the rightmost Datagram from each element in a List of SelectedUnits
 	 * 
 	 * @param units
+	 *            units
 	 * @return rightmost Datagrams as an array
 	 */
 	private Datagram[] getRightContexts(List<SelectedUnit> units) {
@@ -115,6 +117,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * voicedness value for the Target as defined in the AllophoneSet
 	 * 
 	 * @param units
+	 *            units
 	 * @return array of boolean voicing arrays
 	 */
 	private boolean[][] getVoicings(List<SelectedUnit> units) {
@@ -367,6 +370,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * Convenience method to grep those SelectedUnits from a List which have positive duration
 	 * 
 	 * @param units
+	 *            units
 	 * @return units with positive duration
 	 */
 	@Deprecated
@@ -517,8 +521,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
+	 *            units
 	 * @return stream
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {
 		// gather arguments for FDPSOLA processing:

@@ -37,7 +37,7 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * A pitch synchronous analyzer for sinusoidal models
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {

@@ -206,6 +206,7 @@ public class PhoneTranslator {
 	 * Translation table for labels which are incompatible with HTK or shell filenames See common_routines.pl in HTS training.
 	 * 
 	 * @param lab
+	 *            lab
 	 * @return String
 	 */
 	public String replaceTrickyPhones(String lab) {
@@ -224,6 +225,7 @@ public class PhoneTranslator {
 	 * when correcting the actual durations of AcousticPhonemes.
 	 * 
 	 * @param lab
+	 *            lab
 	 * @return String
 	 */
 	public String replaceBackTrickyPhones(String lab) {
@@ -238,6 +240,10 @@ public class PhoneTranslator {
 
 	/**
 	 * Shorten the key name (to make the full context names shorter) See common_routines.pl in HTS training. not needed CHECK
+	 * 
+	 * @param fea
+	 *            fea
+	 * @return string
 	 */
 	public String shortenPfeat(String fea) {
 

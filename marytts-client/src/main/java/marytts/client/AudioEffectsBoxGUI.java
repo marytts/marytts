@@ -29,7 +29,7 @@ import javax.swing.JScrollPane;
 /**
  * GUI for a set of audio effects.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class AudioEffectsBoxGUI {
 	private AudioEffectsBoxData data;

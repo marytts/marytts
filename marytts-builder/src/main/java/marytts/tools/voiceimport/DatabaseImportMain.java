@@ -445,10 +445,14 @@ public class DatabaseImportMain extends JFrame {
 
 	/**
 	 * @param groups2comps
+	 *            groups2comps
 	 * @return compsList.toArray(new VoiceImportComponent[compsList.size()])
 	 * @throws InstantiationException
+	 *             InstantiationException
 	 * @throws IllegalAccessException
+	 *             IllegalAccessException
 	 * @throws ClassNotFoundException
+	 *             ClassNotFoundException
 	 */
 	private static VoiceImportComponent[] createComponents(String[][] groups2comps) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {

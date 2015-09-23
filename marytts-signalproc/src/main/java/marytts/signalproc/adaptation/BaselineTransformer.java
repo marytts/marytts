@@ -28,7 +28,7 @@ import marytts.signalproc.adaptation.prosody.PitchTransformationData;
 /**
  * Baseline class for voice conversion transformation
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineTransformer {
 	public BaselinePreprocessor preprocessor;

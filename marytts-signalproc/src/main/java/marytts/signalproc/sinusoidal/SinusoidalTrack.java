@@ -26,7 +26,7 @@ import marytts.util.signal.SignalProcUtils;
  * A sinusoidal track is a collection of matched (amplitude,frequency,phase) triplets which represents a "relatively" stationary
  * time-frequency partition of a signal
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class SinusoidalTrack {
 

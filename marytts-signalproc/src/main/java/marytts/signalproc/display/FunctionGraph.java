@@ -101,6 +101,13 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
 	/**
 	 * Display a 2d graph showing y(x), with labelled scales.
+	 * 
+	 * @param x0
+	 *            x0
+	 * @param xStep
+	 *            xStep
+	 * @param y
+	 *            y
 	 */
 	public FunctionGraph(double x0, double xStep, double[] y) {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT, x0, xStep, y);
@@ -108,6 +115,17 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
 	/**
 	 * Display a 2d graph showing y(x), with labelled scales.
+	 * 
+	 * @param width
+	 *            width
+	 * @param height
+	 *            height
+	 * @param x0
+	 *            x0
+	 * @param xStep
+	 *            xStep
+	 * @param y
+	 *            y
 	 */
 	public FunctionGraph(int width, int height, double x0, double xStep, double[] y) {
 		super();
@@ -237,7 +255,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 	 * Manually set the min and max values for the y axis.
 	 * 
 	 * @param theYMin
+	 *            the Y min
 	 * @param theYMax
+	 *            the Y max
 	 */
 	public void setYMinMax(double theYMin, double theYMax) {
 		autoYMinMax = false;
@@ -419,14 +439,18 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 	 *            X coordinate of the origin, in the display area
 	 * @param image_refY
 	 *            Y coordinate of the origin, in the display area
-	 * @param xScaleFactor
-	 *            conversion factor between data space and image space, image_x = xScaleFactor * data_x
-	 * @param yScaleFactor
-	 *            conversion factor between data space and image space, image_y = yScaleFactor * data_y
 	 * @param startY
 	 *            the start position on the Y axis (= the lower bound of the drawing area)
 	 * @param image_height
 	 *            the height of the drawable region for the y values
+	 * @param data
+	 *            data
+	 * @param currentGraphColor
+	 *            current graph color
+	 * @param currentGraphStyle
+	 *            current graph style
+	 * @param currentDotStyle
+	 *            current dot style
 	 */
 	protected void drawData(Graphics2D g, int image_fromX, int image_toX, int image_refX, int image_refY, int startY,
 			int image_height, double[] data, Color currentGraphColor, int currentGraphStyle, int currentDotStyle) {
@@ -703,6 +727,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 	 * Used when keeping several FunctionGraphs' cursor positions in synchrony. Register each other as cursor listeners before the
 	 * glass pane; whichever gets clicked causes the others to be updated. Make sure to add any peers _before_ any displaying
 	 * cursor listeners, to make sure all are in line before being displayed.
+	 * 
+	 * @param e
+	 *            e cursor event
 	 */
 	public void updateCursorPosition(CursorEvent e) {
 		FunctionGraph source = e.getSource();

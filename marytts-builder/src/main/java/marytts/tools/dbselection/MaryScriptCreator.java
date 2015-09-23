@@ -31,6 +31,9 @@ public class MaryScriptCreator {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		// input: one line ( dummy "text" )

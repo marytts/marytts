@@ -29,7 +29,7 @@ import marytts.util.io.StreamUtils;
 /**
  * A wrapper class for frame based mel frequency cepstral coefficient vectors.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Mfccs {
 	public double[][] mfccs;

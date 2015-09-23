@@ -44,7 +44,7 @@ import marytts.util.signal.SignalProcUtils;
  * sinusoidal parameters are extracted from the subbands using different window and skip sizes. This class has not been tested
  * sufficiently and the subband decomposition procedure does not seem to be appropriate for this kind of analysis.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {

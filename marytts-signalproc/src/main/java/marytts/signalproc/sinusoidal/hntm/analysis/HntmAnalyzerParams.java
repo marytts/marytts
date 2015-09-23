@@ -44,7 +44,7 @@ import marytts.signalproc.window.Window;
 /**
  * Analysis parameters for harmonics plus noise model (HNM)
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HntmAnalyzerParams {

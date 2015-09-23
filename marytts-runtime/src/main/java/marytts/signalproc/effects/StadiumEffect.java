@@ -22,7 +22,7 @@ package marytts.signalproc.effects;
 import marytts.util.math.MathUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class StadiumEffect extends ChorusEffectBase {
 

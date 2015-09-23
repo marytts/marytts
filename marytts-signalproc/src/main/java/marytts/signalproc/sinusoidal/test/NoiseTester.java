@@ -28,7 +28,7 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * Generates test signals that consist of artificially generated noise
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class NoiseTester extends BaseTester {
 	public static final float DEFAULT_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;

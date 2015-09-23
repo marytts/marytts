@@ -123,6 +123,7 @@ public class BandPassFilter extends FIRFilter {
 	 * 
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
+	 * @return samplingRate
 	 */
 	public double getTransitionBandWidth(int samplingRate) {
 		return samplingRate * kernelLength2bandwidth(impulseResponseLength);
@@ -130,6 +131,14 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Compute the bandpass filter kernel, as the spectral inversion of the corresponding band-reject filter.
+	 * 
+	 * @param lowerNormalisedCutoffFrequencyIn
+	 *            lowerNormalisedCutoffFrequencyIn
+	 * @param upperNormalisedCutoffFrequencyIn
+	 *            upperNormalisedCutoffFrequencyIn
+	 * @param kernelLength
+	 *            kernelLength
+	 * @return kernel
 	 */
 	protected static double[] getKernel(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn,
 			int kernelLength) {
@@ -148,6 +157,7 @@ public class BandPassFilter extends FIRFilter {
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
 	 * 
 	 * @param normalisedTransitionBandwidth
+	 *            normalized transition bandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
 	 */
 	protected static int bandwidth2kernelLength(double normalisedTransitionBandwidth) {
@@ -162,6 +172,7 @@ public class BandPassFilter extends FIRFilter {
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
 	 * 
 	 * @param kernelLength
+	 *            kernelLength
 	 * @return the corresponding normalised transition bandwidth.
 	 */
 	protected static double kernelLength2bandwidth(int kernelLength) {

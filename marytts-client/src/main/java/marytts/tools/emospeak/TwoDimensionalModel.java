@@ -26,35 +26,74 @@ package marytts.tools.emospeak;
 public interface TwoDimensionalModel {
 	/**
 	 * Jointly set x and y values. If one of the values is beyond the respective Max and Min range, both values are ignored.
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
 	 */
 	public void setXY(int x, int y);
 
 	/**
 	 * Set X value. If beyond the Max and Min range, value is ignored.
+	 * 
+	 * @param x
+	 *            x
 	 */
 	public void setX(int x);
 
 	/**
 	 * Set Y value. If beyond the Max and Min range, value is ignored.
+	 * 
+	 * @param y
+	 *            y
 	 */
 	public void setY(int y);
 
-	/** Set the Maximum X value. */
+	/**
+	 * Set the Maximum X value.
+	 * 
+	 * @param maxX
+	 *            maxX
+	 */
 	public void setMaxX(int maxX);
 
-	/** Set the Minimum X value. */
+	/**
+	 * Set the Minimum X value.
+	 * 
+	 * @param minX
+	 *            minX
+	 */
 	public void setMinX(int minX);
 
-	/** Set the Maximum Y value. */
+	/**
+	 * Set the Maximum Y value.
+	 * 
+	 * @param maxY
+	 *            maxY
+	 */
 	public void setMaxY(int maxY);
 
-	/** Set the Minimum Y value. */
+	/**
+	 * Set the Minimum Y value.
+	 * 
+	 * @param minY
+	 *            minY
+	 */
 	public void setMinY(int minY);
 
-	/** Get the X value. */
+	/**
+	 * Get the X value.
+	 * 
+	 * @return x
+	 */
 	public int getX();
 
-	/** Get the Y value. */
+	/**
+	 * Get the Y value.
+	 * 
+	 * @return Y
+	 */
 	public int getY();
 
 	public int getMaxX();
@@ -65,9 +104,19 @@ public interface TwoDimensionalModel {
 
 	public int getMinY();
 
-	/** Adds a ChangeListener to the model's listener list. */
+	/**
+	 * Adds a ChangeListener to the model's listener list.
+	 * 
+	 * @param l
+	 *            l
+	 */
 	public void addChangeListener(javax.swing.event.ChangeListener l);
 
-	/** Removes a ChangeListener from the model's listener list. */
+	/**
+	 * Removes a ChangeListener from the model's listener list.
+	 * 
+	 * @param l
+	 *            l
+	 */
 	public void removeChangeListener(javax.swing.event.ChangeListener l);
 }

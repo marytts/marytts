@@ -52,6 +52,7 @@ public class SelectedUnit {
 	 * the UnitConcatenator used.
 	 * 
 	 * @param concatenationData
+	 *            concatenationData
 	 */
 	public void setConcatenationData(Object concatenationData) {
 		this.concatenationData = concatenationData;

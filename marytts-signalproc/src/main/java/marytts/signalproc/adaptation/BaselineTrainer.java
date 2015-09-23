@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation;
 /**
  * Baseline class for voice conversion training
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineTrainer {
 

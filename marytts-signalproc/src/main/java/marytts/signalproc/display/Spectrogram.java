@@ -217,14 +217,18 @@ public class Spectrogram extends FunctionGraph {
 	 *            X coordinate of the origin, in the display area
 	 * @param image_refY
 	 *            Y coordinate of the origin, in the display area
-	 * @param xScaleFactor
-	 *            conversion factor between data space and image space, image_x = xScaleFactor * data_x
-	 * @param yScaleFactor
-	 *            conversion factor between data space and image space, image_y = yScaleFactor * data_y
 	 * @param startY
 	 *            the start position on the Y axis (= the lower bound of the drawing area)
 	 * @param image_height
 	 *            the height of the drawable region for the y values
+	 * @param data
+	 *            data
+	 * @param currentGraphColor
+	 *            currentGraphColor
+	 * @param currentGraphStyle
+	 *            current graph style
+	 * @param currentDotStyle
+	 *            current dot style
 	 */
 	@Override
 	protected void drawData(Graphics2D g, int image_fromX, int image_toX, int image_refX, int image_refY, int startY,
@@ -383,6 +387,7 @@ public class Spectrogram extends FunctionGraph {
 	 * Determine the next free location for a dependent and put the window there.
 	 * 
 	 * @param jf
+	 *            jf
 	 */
 	protected void setDependentWindowLocation(JFrame jf) {
 		if (nextDependentWindowX == 0 && nextDependentWindowY == 0) {

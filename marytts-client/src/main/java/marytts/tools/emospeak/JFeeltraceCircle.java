@@ -52,7 +52,14 @@ public class JFeeltraceCircle extends javax.swing.JPanel {
 		return requestedSize;
 	}
 
-	/** Creates new form JFeeltraceCircle */
+	/**
+	 * Creates new form JFeeltraceCircle
+	 * 
+	 * @param isCircular
+	 *            isCircular
+	 * @param requestedSize
+	 *            requestedSize
+	 */
 	public JFeeltraceCircle(boolean isCircular, java.awt.Dimension requestedSize) {
 		this.isCircular = isCircular;
 		this.requestedSize = requestedSize;
@@ -155,6 +162,9 @@ public class JFeeltraceCircle extends javax.swing.JPanel {
 
 	/**
 	 * Define the location of the cursor; the actual drawing is done in paintComponents().
+	 * 
+	 * @param p
+	 *            p
 	 */
 	private void setFeeltraceCursor(java.awt.Point p) {
 		java.awt.Point newLocation;

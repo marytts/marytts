@@ -58,7 +58,7 @@ public class Datagram {
 	/**
 	 * Constructor for subclasses which want to represent data in a different format.
 	 * 
-	 * @param setDuration
+	 * @param duration
 	 *            the datagram duration, in samples. Must be non-negative.
 	 * @throws IllegalArgumentException
 	 *             if duration is negative
@@ -75,8 +75,8 @@ public class Datagram {
 	 * 
 	 * @param setDuration
 	 *            the datagram duration, in samples. Must be non-negative.
-	 * @param setBuff
-	 *            the byte buffer to use as the datagram's data field. Must not be null.
+	 * @param setData
+	 *            the datagram.
 	 * @throws IllegalArgumentException
 	 *             if duration is negative
 	 * @throws NullPointerException

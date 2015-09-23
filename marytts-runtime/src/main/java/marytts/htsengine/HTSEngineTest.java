@@ -130,7 +130,8 @@ public class HTSEngineTest {
 	 * or a mbrola voice, it can NOT be generated with HMM voices.
 	 * 
 	 * 
-	 * @throws IOException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void synthesisWithContinuousFeatureProcessors() throws Exception {
 
@@ -212,7 +213,8 @@ public class HTSEngineTest {
 	 * (.pfeats) file
 	 * 
 	 * 
-	 * @throws IOException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void synthesisWithProsodySpecificationInExternalFiles() throws Exception {
 
@@ -309,6 +311,8 @@ public class HTSEngineTest {
 	 * 
 	 * @param fileName
 	 *            the format is the same as for phonelab.
+	 * @param alignDur
+	 *            alignDur
 	 * @return totalDuration
 	 */
 	public float loadDurationsForAlignment(String fileName, Vector<PhonemeDuration> alignDur) {
@@ -425,9 +429,12 @@ public class HTSEngineTest {
 	 * Stand alone testing using a TARGETFEATURES file as input. Generates duration: file.lab, duration state level: file.slab,
 	 * f0: file.f0, mfcc: file.mfcc and sound file: file.wav out of HMM models
 	 * 
-	 * 
-	 * 
 	 * @throws IOException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void generateParameters() throws IOException, InterruptedException, Exception {
 
@@ -540,11 +547,14 @@ public class HTSEngineTest {
 	} /* main method */
 
 	/***
-	 * Calculate mfcc using SPTK, uses sox to convert wav-->raw
+	 * Calculate mfcc using SPTK, uses sox to convert wav&rarr;raw
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 * @throws InterruptedException
+	 *             InterruptedException
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void getSptkMfcc() throws IOException, InterruptedException, Exception {
 
@@ -619,11 +629,14 @@ public class HTSEngineTest {
 	}
 
 	/***
-	 * Calculate mfcc using SPTK, uses sox to convert wav-->raw
+	 * Calculate mfcc using SPTK, uses sox to convert wav&rarr;raw
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 * @throws InterruptedException
+	 *             InterruptedException
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void getSptkSnackLf0() throws IOException, InterruptedException, Exception {
 
@@ -719,7 +732,7 @@ public class HTSEngineTest {
 	 *            the command line to be launched.
 	 * @param task
 	 *            a task tag for error messages, such as "Pitchmarks" or "LPC".
-	 * @param the
+	 * @param baseName
 	 *            basename of the file currently processed, for error messages.
 	 */
 	private void launchProc(String cmdLine, String task, String baseName) {
@@ -759,7 +772,7 @@ public class HTSEngineTest {
 	 *            the command line to be launched.
 	 * @param task
 	 *            a task tag for error messages, such as "Pitchmarks" or "LPC".
-	 * @param the
+	 * @param baseName
 	 *            basename of the file currently processed, for error messages.
 	 */
 	private void launchBatchProc(String cmdLine, String task, String baseName) {

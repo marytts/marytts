@@ -173,6 +173,9 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * This module is actually tested as part of the HMMSynthesizer test, for which reason this method does nothing.
+	 * 
+	 * @throws Error
+	 *             Error
 	 */
 	public synchronized void powerOnSelfTest() throws Error {
 	}
@@ -191,6 +194,8 @@ public class HTSEngine extends InternalModule {
 	 * @param tokensAndBoundaries
 	 *            :
 	 * @throws Exception
+	 *             Exception
+	 * @return output
 	 */
 	public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries,
 			List<Element> tokensAndBoundaries) throws Exception {
@@ -303,6 +308,12 @@ public class HTSEngine extends InternalModule {
 	 * Reads the Label file, the file which contains the Mary context features, creates an scanner object and calls getTargets
 	 * 
 	 * @param LabFile
+	 *            LabFile
+	 * @param htsData
+	 *            htsData
+	 * @throws Exception
+	 *             Exception
+	 * @return targets
 	 */
 	public static List<Target> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
 		List<Target> targets = null;
@@ -325,6 +336,12 @@ public class HTSEngine extends InternalModule {
 	 * Creates a scanner object with the Mary context features contained in Labtext and calls getTargets
 	 * 
 	 * @param LabText
+	 *            LabText
+	 * @param htsData
+	 *            htsData
+	 * @throws Exception
+	 *             Exception
+	 * @return targets
 	 */
 	public List<Target> getTargetsFromText(String LabText, HMMData htsData) throws Exception {
 		List<Target> targets;
@@ -381,11 +398,11 @@ public class HTSEngine extends InternalModule {
 	 *            : each target must contain the corresponding feature vector
 	 * @param segmentsAndBoundaries
 	 *            : if applying external prosody provide acoust params as a list of elements
-	 * @param um
-	 *            : as a result of this process a utterance model list is created for generation and then realisation
 	 * @param htsData
 	 *            : parameters and configuration of the voice
 	 * @throws Exception
+	 *             Exception
+	 * @return um
 	 */
 	protected HTSUttModel processTargetList(List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
 			throws Exception {
@@ -444,7 +461,7 @@ public class HTSEngine extends InternalModule {
 					// m.getTotalDur() + " frames)" );
 					// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states in
 					// frames
-					//double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+					// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
 					m.setTotalDur(0);
 					for (int k = 0; k < cart.getNumStates(); k++) {
 						// System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));
@@ -573,7 +590,13 @@ public class HTSEngine extends InternalModule {
 	 * Stand alone testing using a TARGETFEATURES file as input.
 	 * 
 	 * @param args
+	 *            args
 	 * @throws IOException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException, Exception {
 

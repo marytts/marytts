@@ -20,7 +20,7 @@
 package marytts.util;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class ConversionUtils {

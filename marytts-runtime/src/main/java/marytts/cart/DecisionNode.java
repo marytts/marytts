@@ -61,6 +61,8 @@ public abstract class DecisionNode extends Node {
 	 *            the feature
 	 * @param numDaughters
 	 *            the number of daughters
+	 * @param featureDefinition
+	 *            feature definition
 	 */
 	public DecisionNode(String feature, int numDaughters, FeatureDefinition featureDefinition) {
 		this.feature = feature;
@@ -78,6 +80,8 @@ public abstract class DecisionNode extends Node {
 	 *            the feature index
 	 * @param numDaughters
 	 *            the number of daughters
+	 * @param featureDefinition
+	 *            feature definition
 	 */
 	public DecisionNode(int featureIndex, int numDaughters, FeatureDefinition featureDefinition) {
 		this.featureIndex = featureIndex;
@@ -93,6 +97,8 @@ public abstract class DecisionNode extends Node {
 	 * 
 	 * @param numDaughters
 	 *            the number of daughters
+	 * @param featureDefinition
+	 *            feature definition
 	 */
 	public DecisionNode(int numDaughters, FeatureDefinition featureDefinition) {
 		daughters = new Node[numDaughters];
@@ -235,7 +241,11 @@ public abstract class DecisionNode extends Node {
 		return nData;
 	}
 
-	/** Number of daughters of current node. */
+	/**
+	 * Number of daughters of current node.
+	 * 
+	 * @return daughters.length
+	 */
 	public int getNumberOfDaugthers() {
 		return daughters.length;
 	}
@@ -265,6 +275,7 @@ public abstract class DecisionNode extends Node {
 	 * Get the path leading to the daughter with the given index. This will recursively go up to the root node.
 	 * 
 	 * @param daughterIndex
+	 *            daughterIndex
 	 * @return the unique decision node id
 	 */
 	public abstract String getDecisionPath(int daughterIndex);
@@ -316,6 +327,8 @@ public abstract class DecisionNode extends Node {
 		 *            the string used to get a value from an Item
 		 * @param value
 		 *            the value to compare to
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public BinaryByteDecisionNode(String feature, String value, FeatureDefinition featureDefinition) {
 			super(feature, 2, featureDefinition);
@@ -334,6 +347,7 @@ public abstract class DecisionNode extends Node {
 		 * @param uniqueId
 		 *            unique index from tree HTS test file.
 		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public BinaryByteDecisionNode(int uniqueId, FeatureDefinition featureDefinition) {
 			super(2, featureDefinition);
@@ -345,7 +359,9 @@ public abstract class DecisionNode extends Node {
 		 * Fill the feature and feature value of an already created (empty) BinaryByteDecisionNode.
 		 * 
 		 * @param feature
+		 *            feature
 		 * @param value
+		 *            value
 		 */
 		public void setFeatureAndFeatureValue(String feature, String value) {
 			this.feature = feature;
@@ -431,6 +447,8 @@ public abstract class DecisionNode extends Node {
 		 *            the string used to get a value from an Item
 		 * @param value
 		 *            the value to compare to
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public BinaryShortDecisionNode(String feature, String value, FeatureDefinition featureDefinition) {
 			super(feature, 2, featureDefinition);
@@ -521,6 +539,8 @@ public abstract class DecisionNode extends Node {
 		 *            the string used to get a value from an Item
 		 * @param value
 		 *            the value to compare to
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public BinaryFloatDecisionNode(int featureIndex, float value, FeatureDefinition featureDefinition) {
 			this(featureDefinition.getFeatureName(featureIndex), value, featureDefinition);
@@ -618,6 +638,8 @@ public abstract class DecisionNode extends Node {
 		 *            the feature name
 		 * @param numDaughters
 		 *            the number of daughters
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public ByteDecisionNode(String feature, int numDaughters, FeatureDefinition featureDefinition) {
 			super(feature, numDaughters, featureDefinition);
@@ -630,6 +652,8 @@ public abstract class DecisionNode extends Node {
 		 *            the feature index
 		 * @param numDaughters
 		 *            the number of daughters
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public ByteDecisionNode(int featureIndex, int numDaughters, FeatureDefinition featureDefinition) {
 			super(featureIndex, numDaughters, featureDefinition);
@@ -688,6 +712,8 @@ public abstract class DecisionNode extends Node {
 		 *            the feature name
 		 * @param numDaughters
 		 *            the number of daughters
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public ShortDecisionNode(String feature, int numDaughters, FeatureDefinition featureDefinition) {
 			super(feature, numDaughters, featureDefinition);
@@ -700,6 +726,8 @@ public abstract class DecisionNode extends Node {
 		 *            the feature index
 		 * @param numDaughters
 		 *            the number of daughters
+		 * @param featureDefinition
+		 *            featureDefinition
 		 */
 		public ShortDecisionNode(int featureIndex, int numDaughters, FeatureDefinition featureDefinition) {
 			super(featureIndex, numDaughters, featureDefinition);

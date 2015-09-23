@@ -42,6 +42,8 @@ public class TreeConverter {
 	 * This converts the WEKA-style ClassifierTree into a Mary CART tree. The FeatureDefinition and the Instances should conform
 	 * with respect to the possible attributes and values.
 	 * 
+	 * @param c45Tree
+	 *            c45Tree
 	 * @param aFeatDef
 	 *            a FeatureDefinition storing possible attributes and values as they are used within MARY.
 	 * @param inst
@@ -76,6 +78,8 @@ public class TreeConverter {
 	 * This converts the WEKA-style ClassifierTree into a Mary CART tree. The FeatureDefinition and the Instances should conform
 	 * with respect to the possible attributes and values.
 	 * 
+	 * @param c45Tree
+	 *            c45Tree
 	 * @param aFeatDef
 	 *            a FeatureDefinition storing possible attributes and values as they are used within MARY.
 	 * @param inst

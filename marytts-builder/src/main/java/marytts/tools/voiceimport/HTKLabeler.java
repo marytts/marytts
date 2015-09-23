@@ -178,6 +178,8 @@ public class HTKLabeler extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -268,8 +270,11 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Setup the HTK directory
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void setup() throws IOException, InterruptedException, MaryConfigurationException {
 
@@ -300,6 +305,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Creating phone dictionary (one-one mapping) and lists
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createPhoneDictionary() throws Exception {
 		PrintWriter transLabelOut = new PrintWriter(new FileOutputStream(new File(getProp(HTDIR) + File.separator + "etc"
@@ -367,6 +373,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Create all required files(config files and HMM prototypes) for HTK Training
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createRequiredFiles() throws Exception {
 
@@ -534,7 +541,12 @@ public class HTKLabeler extends VoiceImportComponent {
 	/**
 	 * delete sp repetition on htk.phones3.mlf
 	 * 
+	 * @param filein
+	 *            filein
+	 * @param fileout
+	 *            fileout
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void delete_multiple_sp_in_PhoneMLFile(String filein, String fileout) throws Exception {
 		String hled = getProp(HTKDIR) + File.separator + "HLEd";
@@ -575,6 +587,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * create phone master label file (Not used?)
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createPhoneMLFile() throws Exception {
 		String hled = getProp(HTKDIR) + File.separator + "HLEd";
@@ -614,6 +627,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Feature Extraction for HTK Training
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void featureExtraction() throws Exception {
 
@@ -648,6 +662,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Initialize HTK Training process
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void initialiseHTKTrain() throws Exception {
 
@@ -690,6 +705,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Create HMMs for each phone from Global HMMs
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createTrainFile() throws Exception {
 
@@ -744,6 +760,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Flat-start initialization for automatic labeling
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void herestTraining() throws Exception {
 
@@ -1251,6 +1268,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Force Align database for Automatic labels
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void hviteAligning() throws Exception {
 
@@ -1399,6 +1417,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Create phone sequence file, which is used for Alignment
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 
 	private void getPhoneSequence() throws Exception {
@@ -1439,8 +1458,14 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Get phone sequence from a single feature file
 	 * 
 	 * @param basename
+	 *            basename
+	 * @param spause
+	 *            spause
+	 * @param vpause
+	 *            vpause
 	 * @return String
 	 * @throws Exception
+	 *             Exception
 	 */
 	private String getLineFromXML(String basename, boolean spause, boolean vpause) throws Exception {
 
@@ -1508,7 +1533,8 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * attribute
 	 * 
 	 * @param tokens
-	 * @return
+	 *            tokens
+	 * @return orig
 	 */
 	private String collectTranscription(NodeList tokens) {
 
@@ -1575,7 +1601,9 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Post Processing single Label file and write on OUTLABDIR
 	 * 
 	 * @param basename
+	 *            basename
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void convertSingleLabelFile(String basename) throws Exception {
 
@@ -1630,6 +1658,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * To convert HTK Label format to MARY lab format
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void getProperLabelFormat() throws Exception {
 		String alignedMlf = getProp(HTDIR) + File.separator + "aligned.mlf";
@@ -1715,7 +1744,10 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Converting text to RAWMARYXML with Locale
 	 * 
 	 * @param locale
-	 * @return
+	 *            locale
+	 * @return "&lt;?xml version=\"1.0\" encoding=\"UTF-8\" ?&gt;\n" + "&lt;maryxml version=\"0.4\"\n" +
+	 *         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
+	 *         "xml:lang=\"" + locale + "\"&gt;\n" + "&lt;boundary duration=\"100\"/&gt;\n"
 	 */
 	public static String getMaryXMLHeaderWithInitialBoundary(String locale) {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"
@@ -1737,6 +1769,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Translation table for labels which are incompatible with HTK or shell filenames See common_routines.pl in HTS training.
 	 * 
 	 * @param lab
+	 *            lab
 	 * @return String
 	 */
 	public String replaceTrickyPhones(String lab) {
@@ -1779,6 +1812,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * when correcting the actual durations of AcousticPhonemes.
 	 * 
 	 * @param lab
+	 *            lab
 	 * @return String
 	 */
 	public String replaceBackTrickyPhones(String lab) {

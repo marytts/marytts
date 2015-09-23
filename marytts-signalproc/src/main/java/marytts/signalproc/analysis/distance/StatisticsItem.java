@@ -22,7 +22,7 @@ package marytts.signalproc.analysis.distance;
 import marytts.util.math.MathUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class StatisticsItem {
 	public double mean;

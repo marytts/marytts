@@ -86,7 +86,9 @@ public class TargetFeatureLister extends InternalModule {
 	 * For the given elements and using the given feature computer, create a string representation of the target features.
 	 * 
 	 * @param featureComputer
+	 *            featureComputer
 	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
 	 * @return a multi-line string.
 	 */
 	public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
@@ -111,8 +113,10 @@ public class TargetFeatureLister extends InternalModule {
 	 * Return directly the targets, and set in each target its feature vector
 	 * 
 	 * @param featureComputer
+	 *            featureComputer
 	 * @param segmentsAndBoundaries
-	 * @return
+	 *            segmentsAndBoundaries
+	 * @return targets
 	 */
 	public List<Target> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
 		String pauseSymbol = featureComputer.getPauseSymbol();
@@ -131,7 +135,9 @@ public class TargetFeatureLister extends InternalModule {
 	 * method in local code.
 	 * 
 	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
 	 * @param pauseSymbol
+	 *            pauseSymbol
 	 * @return TargetFeatureLister
 	 */
 	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
@@ -143,6 +149,8 @@ public class TargetFeatureLister extends InternalModule {
 	 * 
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
+	 * @param silenceSymbol
+	 *            silenceSymbol
 	 * @return a list of Target objects
 	 */
 	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {

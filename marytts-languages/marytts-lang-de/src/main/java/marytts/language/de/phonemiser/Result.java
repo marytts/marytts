@@ -48,6 +48,7 @@ public class Result {
 
 	/**
 	 * @param string
+	 *            string
 	 */
 	public void setTranscription(String string) {
 		transcription = string;
@@ -55,6 +56,7 @@ public class Result {
 
 	/**
 	 * @param b
+	 *            b
 	 */
 	public void setUsedOtherLanguageToPhonemise(boolean b) {
 		usedOtherLanguageToPhonemise = b;

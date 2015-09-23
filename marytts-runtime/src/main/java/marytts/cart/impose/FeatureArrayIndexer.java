@@ -243,7 +243,7 @@ public class FeatureArrayIndexer {
 	 * 
 	 * @param specTree
 	 *            A specific tree
-	 *            
+	 * 
 	 */
 	public void deepFill(MaryNode specTree) {
 		tree = specTree;
@@ -291,8 +291,8 @@ public class FeatureArrayIndexer {
 
 	public static final int MAXDEPTH = 0;
 	public static final int MAXLEVEL = 1;
-	public static final int MINUNITS = 2;	
-	
+	public static final int MINUNITS = 2;
+
 	/**
 	 * Retrieve an array of unit features which complies with a specific target specification, according to an underlying tree,
 	 * and given a stopping condition.
@@ -304,8 +304,8 @@ public class FeatureArrayIndexer {
 	 *            (maximum depth); FeatureFileIndexer.MAXLEVEL : walk the tree until a certain depth level;
 	 *            FeatureFileIndexer.MINUNITS : walk the tree until a certain number of units is reached.
 	 * @param parameter
-	 *            A parameter interpreted according to the above condition: MAXDEPTH -> parameter is ignored; MAXLEVEL ->
-	 *            parameter = maximum level to reach; MINUNITS -> parameter = lower bound on the number of units to return.
+	 *            A parameter interpreted according to the above condition: MAXDEPTH &rarr; parameter is ignored; MAXLEVEL &rarr;
+	 *            parameter = maximum level to reach; MINUNITS &rarr; parameter = lower bound on the number of units to return.
 	 * 
 	 * @return A query result, comprising an array of feature vectors and the depth level which was actually reached.
 	 * 
@@ -405,6 +405,8 @@ public class FeatureArrayIndexer {
 	/**
 	 * Get the theoretical number of leaves, given a feature sequence.
 	 * 
+	 * @param feaSeq
+	 *            feaSeq
 	 * @return The number of leaves, or -1 if the capacity of the long integer was blown.
 	 */
 	public long getTheoreticalNumberOfLeaves(int[] feaSeq) {

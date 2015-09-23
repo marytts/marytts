@@ -36,7 +36,7 @@ public class MCepDatagram extends Datagram {
 	/**
 	 * Construct a MCep datagram from a float vector.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param coeffs
 	 *            the array of Mel-Cepstrum coefficients.
@@ -51,9 +51,12 @@ public class MCepDatagram extends Datagram {
 	 * 
 	 * @param raf
 	 *            the random access file to pop the datagram from.
-	 * 
+	 * @param order
+	 *            order
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public MCepDatagram(RandomAccessFile raf, int order) throws IOException, EOFException {
 		super(raf.readLong()); // duration
@@ -79,11 +82,14 @@ public class MCepDatagram extends Datagram {
 	/**
 	 * Constructor which pops a datagram from a byte buffer.
 	 * 
-	 * @param raf
+	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param order
+	 *            order
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public MCepDatagram(ByteBuffer bb, int order) throws IOException, EOFException {
 		super(bb.getLong()); // duration
@@ -120,6 +126,8 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Get the array of Mel-Cepstrum coefficients.
+	 * 
+	 * @return coeffs
 	 */
 	public float[] getCoeffs() {
 		return coeffs;
@@ -127,6 +135,8 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Get the array of Mel-Cepstrum coefficients.
+	 * 
+	 * @return ret
 	 */
 	public double[] getCoeffsAsDouble() {
 		double[] ret = new double[coeffs.length];
@@ -138,6 +148,10 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Get a particular Mel-Cepstrum coefficient.
+	 * 
+	 * @param i
+	 *            i
+	 * @return coeffs[i]
 	 */
 	public float getCoeff(int i) {
 		return coeffs[i];
@@ -145,6 +159,11 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @param out
+	 *            out
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(duration);
@@ -156,6 +175,10 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Tests if this datagram is equal to another datagram.
+	 * 
+	 * @param other
+	 *            other
+	 * @return true if everything passes
 	 */
 	public boolean equals(Datagram other) {
 		if (!(other instanceof MCepDatagram))

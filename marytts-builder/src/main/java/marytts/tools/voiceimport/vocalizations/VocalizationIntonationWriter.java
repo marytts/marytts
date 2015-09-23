@@ -143,6 +143,9 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * Reads and concatenates a list of waveforms into one single timeline file.
 	 * 
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	@Override
 	public boolean compute() throws IOException, MaryConfigurationException {
@@ -169,7 +172,9 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	/**
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException {
 
@@ -218,9 +223,14 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * get f0 contour of vocalization f0
 	 * 
 	 * @param baseName
+	 *            baseName
+	 * @param doInterpolate
+	 *            doInterpolate
 	 * @return interpolateF0Array(f0Array) if doInterpolate, f0Array otherwise
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	private double[] getVocalizationF0(String baseName, boolean doInterpolate) throws UnsupportedAudioFileException, IOException {
 
@@ -271,6 +281,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * to get polynomial coeffs of f0 contour
 	 * 
 	 * @param f0Array
+	 *            f0Array
 	 * @return null if f0Array == null, coeffs otherwise
 	 */
 	private double[] getPolynomialCoeffs(double[] f0Array) {
@@ -290,6 +301,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * to interpolate F0 contour values
 	 * 
 	 * @param f0Array
+	 *            f0Array
 	 * @return null if f0Array == null, f0AndInterpolate
 	 */
 	private double[] interpolateF0Array(double[] f0Array) {
@@ -345,6 +357,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * cut begin-end unvoiced segments
 	 * 
 	 * @param array
+	 *            array
 	 * @return null if array == null, newArray
 	 */
 	private double[] cutStartEndUnvoicedSegments(double[] array) {
@@ -387,7 +400,9 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * interpolate f0
 	 * 
 	 * @param f0Array
+	 *            f0Array
 	 * @param interpol
+	 *            interpol
 	 * @return f0AndInterpolate
 	 */
 	private double[] combineF0andInterpolate(double[] f0Array, double[] interpol) {
@@ -409,7 +424,9 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
@@ -426,6 +443,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

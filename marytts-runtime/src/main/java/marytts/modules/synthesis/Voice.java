@@ -187,7 +187,11 @@ public class Voice {
 
 	/**
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 * @throws NoSuchPropertyException
+	 *             NoSuchPropertyException
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void init() throws MaryConfigurationException, NoSuchPropertyException, IOException {
 		// Read settings from config file:
@@ -252,8 +256,13 @@ public class Voice {
 	 * Load a flexibly configurable list of acoustic models as specified in the config file.
 	 * 
 	 * @param header
+	 *            header
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 * @throws NoSuchPropertyException
+	 *             NoSuchPropertyException
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
 		// The feature processor manager that all acoustic models will use to predict their acoustics:
@@ -396,6 +405,7 @@ public class Voice {
 	 * Get the Allophone set for the given phone symbol.
 	 * 
 	 * @param phoneSymbol
+	 *            phoneSymbol
 	 * @return an Allophone object if phoneSymbol is a known phone symbol in the voice's AllophoneSet.
 	 * @deprecated use {@link AllophoneSet#getAllophone(String)} directly instead
 	 */
@@ -453,6 +463,8 @@ public class Voice {
 
 	/**
 	 * Return the name of this voice. If the voice has several possible names, the first one is returned.
+	 * 
+	 * @return voiceName
 	 */
 	public String getName() {
 		return voiceName;
@@ -503,7 +515,13 @@ public class Voice {
 	/**
 	 * Synthesize a list of tokens and boundaries with the waveform synthesizer providing this voice.
 	 * 
+	 * @param tokensAndBoundaries
+	 *            tokensAndBoundaries
 	 * @param outputParams
+	 *            outputParams
+	 * @throws SynthesisException
+	 *             SynthesisException
+	 * @return f0ContourFeatures
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams) throws SynthesisException {
 		return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
@@ -597,6 +615,9 @@ public class Voice {
 	 * getAvailableVoices(). If the voice has the highest value of <code>wantToBeDefault</code> for its locale it will be
 	 * registered as the default voice for its locale. This value is set in the config file setting
 	 * <code>voice.(name).want.to.be.default.voice</code>.
+	 * 
+	 * @param voice
+	 *            voicwe
 	 */
 	public static void registerVoice(Voice voice) {
 		if (voice == null)
@@ -612,6 +633,7 @@ public class Voice {
 	 * Check if this voice should be registered as default.
 	 * 
 	 * @param voice
+	 *            voice
 	 */
 	private static void checkIfDefaultVoice(Voice voice) {
 
@@ -628,6 +650,7 @@ public class Voice {
 	 * Get the voice with the given name, or null if there is no voice with that name.
 	 * 
 	 * @param name
+	 *            name
 	 * @return v if it has name
 	 */
 	public static Voice getVoice(String name) {
@@ -663,6 +686,8 @@ public class Voice {
 	/**
 	 * Get the list of all available voices. The iterator of the collection returned will return the voices in decreasing order of
 	 * their "wantToBeDefault" value.
+	 * 
+	 * @return Collections.unmodifiableSet(allVoices)
 	 */
 	public static Collection<Voice> getAvailableVoices() {
 		return Collections.unmodifiableSet(allVoices);
@@ -673,6 +698,7 @@ public class Voice {
 	 * decreasing order of their "wantToBeDefault" value.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
 	 */
 	public static Collection<Voice> getAvailableVoices(Locale locale) {
@@ -689,6 +715,8 @@ public class Voice {
 	 * Get the list of all available voices for a given waveform synthesizer. The iterator of the collection returned will return
 	 * the voices in decreasing order of their "wantToBeDefault" value.
 	 * 
+	 * @param synth
+	 *            synth
 	 * @return a collection of Voice objects, or an empty collection if no voice is available for the given waveform synthesizer.
 	 */
 	public static Collection<Voice> getAvailableVoices(WaveformSynthesizer synth) {
@@ -708,6 +736,10 @@ public class Voice {
 	 * Get the list of all available voices for a given waveform synthesizer and locale. The iterator of the collection returned
 	 * will return the voices in decreasing order of their "wantToBeDefault" value.
 	 * 
+	 * @param synth
+	 *            synth
+	 * @param locale
+	 *            locale
 	 * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
 	 */
 	public static Collection<Voice> getAvailableVoices(WaveformSynthesizer synth, Locale locale) {
