@@ -77,10 +77,8 @@ public class MarySocketClient extends MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
 	 * @throws UnknownHostException
@@ -95,10 +93,8 @@ public class MarySocketClient extends MaryClient {
 	 * given host and port. Note that in applets, the host must be the same as the one from which the applet was loaded;
 	 * otherwise, a security exception is thrown.
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @param profile
 	 *            determines whether profiling (timing) information is calculated
 	 * @param quiet
@@ -352,7 +348,6 @@ public class MarySocketClient extends MaryClient {
 	 * Get the version info from the server. This is optional information which is not required for the normal operation of the
 	 * client, but may help to avoid incompatibilities.
 	 * 
-	 * @return a string array, each String representing one line of info without the trailing newline character.
 	 * @throws IOException
 	 *             if communication with the server fails
 	 * @throws UnknownHostException
@@ -429,8 +424,6 @@ public class MarySocketClient extends MaryClient {
 	/**
 	 * Request the available audio effects for a voice from the server
 	 * 
-	 * @param voicename
-	 *            the voice
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
 	 * @throws UnknownHostException

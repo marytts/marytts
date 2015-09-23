@@ -183,8 +183,8 @@ public class MaryGUIClient extends JPanel {
 	/**
 	 * Create a MaryGUIClient instance that connects to the given server host and port. This is meant to be used from Applets.
 	 * 
-	 * @param host
-	 * @param port
+	 * @param hostAddress
+	 * @param applet
 	 * @throws IOException
 	 * @throws UnknownHostException
 	 */
