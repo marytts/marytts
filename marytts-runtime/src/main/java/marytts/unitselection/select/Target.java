@@ -90,7 +90,7 @@ public class Target {
 	}
 
 	/**
-	 * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
+	 * adapted from {@link MaryGenericFeatureProcessors#UnitDurationprocess}
 	 * 
 	 * @param newDuration
 	 */
