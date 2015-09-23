@@ -160,12 +160,12 @@ public class CoverageDefinition {
 	/**
 	 * Build a new coverage definition and read in the config file
 	 * 
-	 * @param readConfigFile
-	 *            if true, read the config file, else use default values
+	 * 
+	 *        
 	 * @param featDef
 	 *            the feature definition for the vectors
-	 * @param holdVectorsInMemory
-	 *            if true, vectors are stored in memory
+	 * @param cfProvider
+	 *            coverage feature provider
 	 * @param configFile
 	 *            optionally, the coverage config file name. if this is null, default settings will be used.
 	 * 
@@ -511,7 +511,7 @@ public class CoverageDefinition {
 	/**
 	 * Get descriptive statistics for the full corpus. These values are independent of the selection of any sentences.
 	 * 
-	 * @return
+	 * @return cs
 	 */
 	public CoverageStatistics getCorpusStatistics() {
 		CoverageStatistics cs = new CoverageStatistics();
@@ -1114,10 +1114,10 @@ public class CoverageDefinition {
 	 * 
 	 * @param filename
 	 *            the file containing the cover sets
-	 * @param featDef
-	 *            the feature definition for the features
-	 * @param basenames
-	 *            the list of basenames
+	 * @param idSentenceList
+	 *            the id of the sentence list
+	 * 
+	 *            
 	 * @throws Exception
 	 */
 	// public void readCoverageBin(String filename, FeatureDefinition fDef, String[] basenames)throws Exception{

@@ -123,7 +123,7 @@ public class Speech {
 	/**
 	 * Get the number of files in filePath containing basename in their file name.
 	 * 
-	 * @return
+	 * @return fileCount
 	 */
 	public int getFileCount() {
 		return fileCount;

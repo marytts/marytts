@@ -121,7 +121,7 @@ public class DatabaseSelector {
 	 * @param args
 	 *            the command line args (see printUsage for details)
 	 * 
-	 * @return the array of feature vectors used in the current pass
+	 * 
 	 */
 	public static void main2(String[] args) throws Exception {
 		/* Sort out the filenames and dirs for the logfiles */

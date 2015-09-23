@@ -57,7 +57,7 @@ public class TrainedLTS {
 	 * 
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
-	 * @param treeFilename
+	 * @param treeStream
 	 * @param removeTrailingOneFromPhones
 	 * @throws IOException
 	 * 
@@ -75,7 +75,7 @@ public class TrainedLTS {
 	 * 
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
-	 * @param treeFilename
+	 * @param treeStream
 	 * @throws IOException
 	 * 
 	 */

@@ -266,7 +266,7 @@ public abstract class MaryClient {
 	/**
 	 * Get the audio file format types known by the server, one per line. Each line has the format: <code>extension name</code>
 	 * 
-	 * @return
+	 * @return data.audioFileFormatTypes if data.audioFileFormatTypes == null || data.audioOutTypes == null
 	 * @throws IOException
 	 * @throws UnknownHostException
 	 */
@@ -547,8 +547,7 @@ public abstract class MaryClient {
 	/**
 	 * Request the available audio effects for a voice from the server
 	 * 
-	 * @param voicename
-	 *            the voice
+	 * 
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
 	 * @throws UnknownHostException

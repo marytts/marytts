@@ -73,7 +73,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the mean polynomial from the given set of polynomials.
 	 * 
 	 * @param fvs
-	 * @return
+	 * @return mean
 	 */
 	public float[] computeMean(FeatureVector[] fvs) {
 		float[][] contours = new float[fvs.length][];
@@ -88,7 +88,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the variance of the given set of feature vectors.
 	 * 
 	 * @param fvs
-	 * @return
+	 * @return variance
 	 */
 	public double computeVariance(FeatureVector[] fvs) {
 		float[][] contours = new float[fvs.length][];

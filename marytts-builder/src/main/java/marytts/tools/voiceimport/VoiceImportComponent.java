@@ -71,8 +71,8 @@ public abstract class VoiceImportComponent {
 	/**
 	 * Initialise a voice import component: component specific initialisation; to be overwritten by subclasses
 	 * 
-	 * @param bnl
-	 *            the list of basenames
+	 * 
+	 * 
 	 */
 	protected void initialiseComp() throws Exception {
 	}

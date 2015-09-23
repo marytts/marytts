@@ -350,7 +350,7 @@ public class FeatureMakerMaryServer {
 	 * 
 	 * @param nextSentence
 	 *            the sentence
-	 * @param filename
+	 * @param textId
 	 *            the file containing the sentence
 	 * @param feas
 	 *            target features names separated by space (ex. "phone next_phone selection_prosody")
@@ -439,8 +439,8 @@ public class FeatureMakerMaryServer {
 	/**
 	 * Process the target features and print them to the given file
 	 * 
-	 * @param filename
-	 *            the file to print the features to
+	 * 
+	 * 
 	 * @param d
 	 *            the target features as Mary Data object
 	 * @throws Exception
@@ -524,7 +524,7 @@ public class FeatureMakerMaryServer {
 	/**
 	 * Split the text into separate sentences
 	 * 
-	 * @param file
+	 * @param text
 	 *            the file
 	 * @return true, if successful
 	 * @throws Exception
@@ -679,7 +679,7 @@ public class FeatureMakerMaryServer {
 	 * 
 	 * g2p_method "contains-unknown-words" or "contains-strange-symbols",
 	 * 
-	 * @param d
+	 * @param t
 	 * @return 0 if the sentence is useful 1 if the sentence contains unknownWords 2 if the sentence contains strangeSymbols
 	 */
 	protected static int checkReliability(Element t) {

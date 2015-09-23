@@ -125,7 +125,7 @@ public class F0PolynomialInspector extends VoiceImportComponent {
 	}
 
 	/**
-	 * @param out
+	 * 
 	 * @throws IOException
 	 * @throws UnsupportedEncodingException
 	 * @throws FileNotFoundException

@@ -378,7 +378,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	 * character is not a letter, we prepend a "V" for "voice".
 	 * 
 	 * @param voiceName
-	 * @return
+	 * @return result in string format
 	 */
 	public static String toPackageName(String voiceName) {
 		String regexLCLetter = "[a-z]";

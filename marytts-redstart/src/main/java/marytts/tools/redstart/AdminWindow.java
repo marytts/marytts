@@ -234,7 +234,7 @@ public class AdminWindow extends javax.swing.JFrame {
 	/**
 	 * Determines recording status given how many recordings a prompt has, as well as clipping status
 	 * 
-	 * @param fileCount
+	 * @param rec
 	 *            The number of files a prompt has
 	 * @return The appropriate string, indicating the prompt's recording status
 	 */

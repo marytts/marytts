@@ -770,7 +770,7 @@ public class WikipediaMarkupCleaner {
 	 * @param iniTag
 	 * @param endTag
 	 * @param debug
-	 * @return
+	 * @return line
 	 */
 	private StringBuffer removeSectionImage(Scanner s, StringBuffer lineIn, String iniTag, String endTag) {
 		String next;

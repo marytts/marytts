@@ -107,7 +107,7 @@ public class LTSTrainer extends AlignerTrainer {
 	 * 
 	 * @param minLeafData
 	 *            the minimum number of instances that have to occur in at least two subsets induced by split
-	 * @return
+	 * @return bigTree
 	 * @throws IOException
 	 */
 	public CART trainTree(int minLeafData) throws IOException {
@@ -262,7 +262,7 @@ public class LTSTrainer extends AlignerTrainer {
 	 * Convenience method to save files to graph2phon.wagon and graph2phon.pfeats in a specified directory with UTF-8 encoding.
 	 * 
 	 * @param tree
-	 * @param saveTreePath
+	 * @param saveTreefile
 	 * @throws IOException
 	 */
 	public void save(CART tree, String saveTreefile) throws IOException {
