@@ -150,7 +150,7 @@ public class CopySynthesis {
 	 * durations in the target are adjusted to those in source, and 3. the intonation targets in the target are replaced by those
 	 * in the pitchSource.
 	 * 
-	 * @param durationAndSegment
+	 * @param durationAndSegmentSource
 	 *            a label sequence consisting of valid allophones according to the allophone set given in the constructor.
 	 * @param pitchSource
 	 *            a specification of an intonation contour.
@@ -293,7 +293,7 @@ public class CopySynthesis {
 	 * @param contour
 	 * @param skipSize
 	 * @param t
-	 * @return
+	 * @return Double.NaN
 	 */
 	private static double getF0(double[] contour, double skipSize, double t) {
 		int i = (int) (t / skipSize);

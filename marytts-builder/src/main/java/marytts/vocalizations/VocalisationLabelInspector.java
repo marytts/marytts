@@ -138,7 +138,7 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 * @return 0.0
 	 */
 	private double getStartPauseDuration(UnitLabel[] vocalLabels) {
 
@@ -161,7 +161,7 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 * @return 0.0
 	 */
 	private double getEndPauseDuration(UnitLabel[] vocalLabels) {
 
@@ -185,7 +185,7 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 * @return 0.0
 	 */
 	private double getStartTimeStamp(UnitLabel[] vocalLabels) {
 
@@ -208,7 +208,7 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 * @return vocalLabels[vocalLabels.length -1].endTime
 	 */
 	private double getEndTimeStamp(UnitLabel[] vocalLabels) {
 
