@@ -44,7 +44,7 @@ public class TeluguLTS {
 	/**
 	 * TeluguLTS constructor
 	 * 
-	 * @param utf8toit3map
+	 * @param utf8toit3mapStream
 	 * @throws IOException
 	 */
 	public TeluguLTS(InputStream utf8toit3mapStream) throws IOException {
@@ -55,7 +55,7 @@ public class TeluguLTS {
 	 * Get it3 pronunciation for a word
 	 * 
 	 * @param word
-	 * @return
+	 * @return getStringfromArrayList(listPhoneSym)
 	 * @throws IOException
 	 */
 	public String phonemise(String word) throws IOException {
@@ -89,7 +89,7 @@ public class TeluguLTS {
 	/**
 	 * Add stress mark on first syllable
 	 * 
-	 * @return
+	 * @return listPhoneSym
 	 */
 	private ArrayList<String> putStressMark() {
 		listPhoneSym.add(0, "'");
@@ -122,7 +122,7 @@ public class TeluguLTS {
 	 * Check whether the character is Vowel or not
 	 * 
 	 * @param pos
-	 * @return
+	 * @return true if listPhoneTypes.get(pos).equals("VOW"), false otherwise
 	 */
 	private boolean isVowel(int pos) {
 		if (listPhoneTypes.get(pos).equals("VOW")) {
@@ -135,7 +135,7 @@ public class TeluguLTS {
 	 * Check whether the word has vowels after given position
 	 * 
 	 * @param pos
-	 * @return
+	 * @return true if listPhoneTypes.get(i).equals("VOW"), false otherwise
 	 */
 	private boolean isVowelLater(int pos) {
 		for (int i = (pos + 1); i < listPhoneTypes.size(); i++) {
@@ -150,7 +150,7 @@ public class TeluguLTS {
 	 * check next position is semiconsonant
 	 * 
 	 * @param pos
-	 * @return
+	 * @return true listPhoneSym.get(pos + 1).equals("n:") || listPhoneSym.get(pos + 1).equals("a:"), false otherwise
 	 */
 	private boolean isNextSemiConsonant(int pos) {
 		if ((pos + 1) >= listPhoneSym.size())
@@ -166,7 +166,7 @@ public class TeluguLTS {
 	 * 
 	 * @param lPhoneSym
 	 * @param lPhoneTypes
-	 * @return
+	 * @return result in string format
 	 */
 	private String getStringfromArrayList(ArrayList<String> aList) {
 		Iterator<String> listrun = aList.iterator();
@@ -181,7 +181,7 @@ public class TeluguLTS {
 	 * Hex-decimal representation for a given string
 	 * 
 	 * @param ch
-	 * @return
+	 * @return hex
 	 */
 	private String toHex4(int ch) {
 		String hex = Integer.toHexString(ch).toUpperCase();
@@ -280,7 +280,7 @@ public class TeluguLTS {
 	 * 
 	 * @param lPhoneSym
 	 * @param lPhoneTypes
-	 * @return
+	 * @return lPhoneSym
 	 */
 	private ArrayList<String> removeHal(ArrayList<String> lPhoneSym, ArrayList<String> lPhoneTypes) {
 
@@ -326,7 +326,7 @@ public class TeluguLTS {
 	 * get ascii values for utf8 characters
 	 * 
 	 * @param utf8Char
-	 * @return
+	 * @return Character.toString(dec)
 	 */
 	private String getAsciiChar(String utf8Char) {
 		int intValue = Integer.parseInt(utf8Char, 16);
@@ -339,7 +339,7 @@ public class TeluguLTS {
 	 * 
 	 * @param lPhoneSym
 	 * @param lPhoneTypes
-	 * @return
+	 * @return lPhoneSym
 	 */
 	private ArrayList<String> schwaHandler(ArrayList<String> lPhoneSym, ArrayList<String> lPhoneTypes) {
 

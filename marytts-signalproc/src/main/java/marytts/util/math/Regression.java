@@ -84,7 +84,7 @@ public class Regression {
 	 * @param data
 	 *            dependent and independent variables data={{y1, x11, x12, ... x1k}, {y2, x21, x22, ... x2k}, ... {yn, xn1, xn2,
 	 *            ... xnk}}
-	 * @param dependentVar
+	 * @param interceptTerm
 	 *            number of the column that will be used as dependent variable --> vector y by default the first column is y
 	 * @param rows
 	 *            number of rows
@@ -196,7 +196,7 @@ public class Regression {
 	 * @param rows
 	 * @param cols
 	 * @param interceptTerm
-	 * @return
+	 * @return coeffs
 	 */
 	public double[] multipleLinearRegression(Vector<Double> data, int rows, int cols, boolean interceptTerm) {
 

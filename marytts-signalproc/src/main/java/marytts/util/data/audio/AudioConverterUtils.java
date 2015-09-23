@@ -115,7 +115,7 @@ public class AudioConverterUtils {
 	/**
 	 * 24-Bit Audio to 16-bit Audio converter
 	 * 
-	 * @param AudioInputStream
+	 * @param ais
 	 * @return AudioInputStream
 	 * @throws Exception
 	 */
@@ -220,7 +220,7 @@ public class AudioConverterUtils {
 	/**
 	 * 24-Bit Audio to 16-bit Audio converter
 	 * 
-	 * @param AudioInputStream
+	 * @param ais
 	 * @param shiftBits
 	 * @return AudioInputStream
 	 * @throws Exception
@@ -312,7 +312,7 @@ public class AudioConverterUtils {
 	 * Get samples in Integer Format (un-normalized) from AudioInputStream
 	 * 
 	 * @param ais
-	 * @return
+	 * @return samples
 	 * @throws Exception
 	 */
 	public static int[] getSamples(AudioInputStream ais) throws Exception {
@@ -376,7 +376,7 @@ public class AudioConverterUtils {
 	 * 
 	 * @param ais
 	 * @param targetSamplingRate
-	 * @return
+	 * @return oais
 	 * @throws Exception
 	 */
 	public static AudioInputStream downSampling(AudioInputStream ais, int targetSamplingRate) throws Exception {

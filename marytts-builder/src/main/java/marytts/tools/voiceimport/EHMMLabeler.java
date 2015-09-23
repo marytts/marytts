@@ -611,7 +611,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * This computes a string of phonetic symbols out of an allophones xml: - standard phones are taken from "ph" attribute
 	 * 
 	 * @param tokens
-	 * @return
+	 * @return transcription
 	 */
 	private String collectTranscription(NodeList tokens) {
 

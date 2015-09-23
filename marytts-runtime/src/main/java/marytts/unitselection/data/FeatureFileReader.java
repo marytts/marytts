@@ -146,7 +146,7 @@ public class FeatureFileReader {
 	 * feature definition
 	 * 
 	 * @param newFeatureDefinition
-	 * @return
+	 * @return newFV
 	 */
 	public FeatureVector[] featureVectorMapping(FeatureDefinition newFeatureDefinition) {
 

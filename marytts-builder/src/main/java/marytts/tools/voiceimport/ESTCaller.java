@@ -114,7 +114,7 @@ public class ESTCaller {
 	/**
 	 * An equivalent to the make_pm_wave shell script
 	 * 
-	 * @param db
+	 * @param pitchmarksDirName
 	 *            The layout of the processed database
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process
@@ -160,8 +160,8 @@ public class ESTCaller {
 	/**
 	 * An equivalent to the make_lpc shell script
 	 * 
-	 * @param db
-	 *            The layout of the processed database
+	 * @param correctedPitchmarksDirName
+	 *            corrected pitchmarks with the directory name
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process
 	 * 
@@ -199,7 +199,7 @@ public class ESTCaller {
 	/**
 	 * An equivalent to the make_mcep shell script
 	 * 
-	 * @param db
+	 * @param correctedPitchmarksDirName
 	 *            The layout of the processed database
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process

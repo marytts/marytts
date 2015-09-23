@@ -319,7 +319,7 @@ public abstract class ExpansionPattern {
 	 *            is a list of token Elements to be replaced with their expanded form. The expanded forms are inserted into the
 	 *            DOM tree at the same positions as the tokens in List <code>tokens</code>. If there are more new tokens than old
 	 *            tokens, the rest are inserted as siblings at the position of the last old token.
-	 * @param input
+	 * @param text
 	 *            is the String to be expanded,
 	 * @param typeCode
 	 *            is the index in <code>knownTypes</code> this string has matched with before.
