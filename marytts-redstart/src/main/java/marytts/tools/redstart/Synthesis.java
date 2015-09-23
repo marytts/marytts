@@ -23,7 +23,7 @@ import java.io.File;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Synthesis extends Speech {
 
@@ -61,7 +61,14 @@ public class Synthesis extends Speech {
 	// ______________________________________________________________________
 	// Constructors
 
-	/** Creates a new instance of Synthesis */
+	/**
+	 * Creates a new instance of Synthesis
+	 * 
+	 * @param filePath
+	 *            filePath
+	 * @param basename
+	 *            basename
+	 */
 	public Synthesis(File filePath, String basename) {
 		super(filePath, basename);
 	}

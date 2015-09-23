@@ -37,6 +37,10 @@ public class POSAccentPriorities {
 
 	/**
 	 * Determine whether a part-of-speech always gets an accent.
+	 * 
+	 * @param pos
+	 *            pos
+	 * @return getPriority(pos) equals 1
 	 */
 	public boolean getsUnconditionalAccent(String pos) {
 		return getPriority(pos) == 1;
@@ -44,6 +48,12 @@ public class POSAccentPriorities {
 
 	/**
 	 * Determine whether one part-of-speech is more likely to get an accent than another one.
+	 * 
+	 * @param posA
+	 *            posA
+	 * @param posB
+	 *            posB
+	 * @return getPriority(posA) &lt; getPriority(posB)
 	 */
 	public boolean moreAccentuated(String posA, String posB) {
 		return getPriority(posA) < getPriority(posB);
@@ -51,6 +61,10 @@ public class POSAccentPriorities {
 
 	/**
 	 * Provide the priority of a part-of-speech for getting an accent. Lower values mean higher priority / probability.
+	 * 
+	 * @param pos
+	 *            pos
+	 * @return 100
 	 */
 	public int getPriority(String pos) {
 		String value = priorities.getProperty(pos);

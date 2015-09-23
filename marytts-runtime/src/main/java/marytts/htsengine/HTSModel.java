@@ -243,6 +243,11 @@ public class HTSModel {
 
 	/**
 	 * Print mean and variance vectors
+	 * 
+	 * @param m
+	 *            m
+	 * @param v
+	 *            v
 	 */
 	public void printVectors(double m[][], double v[][]) {
 		for (int i = 0; i < v.length; i++) {
@@ -270,6 +275,13 @@ public class HTSModel {
 	 * return aux;
 	 * 
 	 * }
+	 * 
+	 * @param i
+	 *            i
+	 * @param j
+	 *            j
+	 * @param val
+	 *            val
 	 */
 
 	public void setStrMean(int i, int j, double val) {
@@ -326,7 +338,13 @@ public class HTSModel {
 		voiced[i] = val;
 	}
 
-	/** whether state i is voiced or not */
+	/**
+	 * whether state i is voiced or not
+	 * 
+	 * @param i
+	 *            i
+	 * @return voiced[i]
+	 */
 	public boolean getVoiced(int i) {
 		return voiced[i];
 	}

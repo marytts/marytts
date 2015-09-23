@@ -146,6 +146,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * 
 	 * @return a boolean indicating whether or not the database is fully aligned.
 	 * @throws Exception
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 		int bnlLengthIn = bnl.getLength();
@@ -262,6 +263,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * @param numProblems
 	 *            the number of problems
 	 * @throws IOException
+	 *             IOException
 	 * @return the number of problems remaining
 	 */
 	protected int correctPausesYesNo(int numProblems) throws IOException {
@@ -278,7 +280,11 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * Let the user select if he wants to run the the automatic correction of pauses.
 	 * 
 	 * @param someProblems
+	 *            someProblems
+	 * @param basename
+	 *            basename
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void deleteProblemsYesNo(Map<String, String> someProblems, String basename) throws IOException {
 		int choice = JOptionPane.showOptionDialog(null, "Removed problematic utterance(s) from List. Also delete file(s)?",
@@ -387,9 +393,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * file, it is removed in the label file. If there is a pause in the feature file and not in the label file, a pause of length
 	 * zero is inserted in the label file
 	 * 
-	 * @param basename
+	 * 
 	 * @return the number of problems remaining
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected int correctPauses() throws IOException {
 		correctedPauses = true;
@@ -784,8 +791,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * subsequent alignment tries.
 	 * 
 	 * @param basename
+	 *            basename
 	 * @return null if the alignment was OK, or a String containing an error message.
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected String verifyAlignment(String basename) throws IOException {
 		BufferedReader labels = null;
@@ -959,6 +968,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * @param basename
 	 *            the filename of the label/feature file
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void replaceUnitLabels(String basename) throws IOException {
 		String line;
@@ -1089,12 +1099,15 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 		/**
 		 * Show a frame allowing the user to edit the file.
 		 * 
-		 * @param file
-		 *            the file to edit
+		 * 
+		 * 
 		 * @return a boolean indicating whether the file was saved.
 		 * @throws IOException
+		 *             IOException
 		 * @throws UnsupportedEncodingException
+		 *             UnsupportedEncodingException
 		 * @throws FileNotFoundException
+		 *             FileNotFoundException
 		 */
 		public boolean display() throws IOException, UnsupportedEncodingException, FileNotFoundException {
 			final JFrame frame = new JFrame("Edit " + file.getName());

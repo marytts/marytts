@@ -47,6 +47,9 @@ public class FeatureProcessorManager extends marytts.features.FeatureProcessorMa
 	 * Constructor called from a Voice in Locale DE that has its own acoustic models
 	 * 
 	 * @param voice
+	 *            voice
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public FeatureProcessorManager(Voice voice) throws MaryConfigurationException {
 		super(voice.getLocale());

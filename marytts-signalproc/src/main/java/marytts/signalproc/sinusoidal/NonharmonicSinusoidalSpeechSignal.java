@@ -22,7 +22,7 @@ package marytts.signalproc.sinusoidal;
 /**
  * This is a collection of (NonharmonicSinusoidalSpeechFrame)s
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class NonharmonicSinusoidalSpeechSignal {
 	public NonharmonicSinusoidalSpeechFrame[] framesSins;

@@ -177,8 +177,16 @@ public class HMMParameterExtractor extends VoiceImportComponent {
 	/**
 	 * Stand alone testing using a TARGETFEATURES list of files as input.
 	 * 
-	 * @param args
+	 * @param file
+	 *            file
+	 * @param contextFeaDir
+	 *            contextFeaDir
+	 * @param outputDir
+	 *            outputDir
 	 * @throws IOException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	public void generateParameters(String file, String contextFeaDir, String outputDir) throws IOException, InterruptedException {
 

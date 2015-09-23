@@ -192,10 +192,11 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 
 	/**
 	 * @param baseName
+	 *            baseName
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedAudioFileException
-	 * @throws UnsupportedEncodingException
-	 * @throws FileNotFoundException
+	 *             UnsupportedAudioFileException
 	 */
 	protected void displaySentences(String baseName) throws IOException, UnsupportedAudioFileException {
 		/*
@@ -439,6 +440,9 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		VocalizationF0PolynomialInspector acfeatsWriter = new VocalizationF0PolynomialInspector();

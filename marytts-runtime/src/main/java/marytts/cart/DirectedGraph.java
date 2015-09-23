@@ -116,8 +116,10 @@ public class DirectedGraph {
 	 * itself.
 	 * 
 	 * @param n
+	 *            n
 	 * @param fv
-	 * @return null if n=null, n.getAllData if n.isLeafNode, interpret (next, fv) if next = ((DecisionNode) n).getNextNode(fv), 
+	 *            fv
+	 * @return null if n=null, n.getAllData if n.isLeafNode, interpret (next, fv) if next = ((DecisionNode) n).getNextNode(fv),
 	 *         data if data != null, interpret(g.getLeafNode(), fv) otherwise
 	 */
 	protected Object interpret(Node n, FeatureVector fv) {

@@ -52,7 +52,7 @@ import marytts.util.math.MathUtils;
 /**
  * A unit concatenator for harmonics plus noise based speech synthesis
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  *
  */
 public class HnmUnitConcatenator extends OverlapUnitConcatenator {
@@ -65,6 +65,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
 	 * Get the raw audio material for each unit from the timeline.
 	 * 
 	 * @param units
+	 *            units
 	 */
 	protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException {
 		for (SelectedUnit unit : units) {
@@ -109,6 +110,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
+	 *            units
 	 * @return new DDSAudioInputStream(audioSource, audioformat)
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) {

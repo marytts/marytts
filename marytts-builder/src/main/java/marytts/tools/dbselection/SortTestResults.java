@@ -49,6 +49,7 @@ public class SortTestResults {
 	 * @param args
 	 *            comand line arguments
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		File logFile = new File(args[0]);

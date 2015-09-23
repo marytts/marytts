@@ -133,6 +133,8 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Get the process object representing the external module program.
+	 * 
+	 * @return process
 	 */
 	protected Process getProcess() {
 		return process;
@@ -159,6 +161,8 @@ public class ExternalModule implements MaryModule {
 	 * @see #to()
 	 * @see #from()
 	 * @see marytts.util.io.StreamLogger
+	 * @throws IOException
+	 *             IOException
 	 */
 	protected void open() throws IOException {
 		assert cmd != null;
@@ -198,6 +202,8 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * The stream on which data is written to the external process.
+	 * 
+	 * @return to
 	 */
 	protected OutputStream to() {
 		return to;
@@ -205,17 +211,28 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * The stream on which data is read from the external process.
+	 * 
+	 * @return from
 	 */
 	protected InputStream from() {
 		return from;
 	}
 
-	/** The command line to execute as an external process. */
+	/**
+	 * The command line to execute as an external process.
+	 * 
+	 * @return cmd
+	 */
 	protected String cmd() {
 		return cmd;
 	}
 
-	/** Sets the command line to execute. */
+	/**
+	 * Sets the command line to execute.
+	 * 
+	 * @param cmd
+	 *            cmd
+	 */
 	protected void setCmd(String cmd) {
 		this.cmd = cmd;
 	}
@@ -305,6 +322,24 @@ public class ExternalModule implements MaryModule {
 	/**
 	 * The actual external input and output. Write to the module and read from the module in the appropriate ways as determined by
 	 * input and output data types.
+	 * 
+	 * @param d
+	 *            d
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws TransformerException
+	 *             TransformerException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws IOException
+	 *             IOException
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws Exception
+	 *             Exception
+	 * @return result
 	 */
 	protected MaryData externalIO(MaryData d) throws TransformerConfigurationException, TransformerException,
 			FileNotFoundException, IOException, ParserConfigurationException, SAXException, Exception {
@@ -435,6 +470,9 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Tell all helper threads to exit.
+	 * 
+	 * @param b
+	 *            b
 	 */
 	protected synchronized void setExitRequested(boolean b) {
 		exitRequested = b;

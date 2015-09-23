@@ -35,7 +35,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class FIRBandPassFilterBankSynthesiser {

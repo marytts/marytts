@@ -78,7 +78,7 @@ import marytts.util.signal.SignalProcUtils;
  * Reference: Moulines, E. and W. Verhelst, 1995, “Time-Domain and Frequency-Domain Techniques for Prosodic Modification of
  * Speech” in Kleijn and Paliwal (eds.), Speech Coding And Synthesis, pp. 519-555, Elsevier Science B.V., Netherlands.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class FdpsolaAdapter {

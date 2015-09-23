@@ -28,6 +28,9 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
 
 	/**
 	 * @param inputSource
+	 *            inputSource
+	 * @param blockSize
+	 *            block size
 	 */
 	public BlockwiseDoubleDataSource(DoubleDataSource inputSource, int blockSize) {
 		super(inputSource);
@@ -79,6 +82,7 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
 	 * Provide the size of the next block. This implementation returns the fixed blocksize given in the constructor. Subclasses
 	 * may want to override this method.
 	 *
+	 * @return blocksize
 	 */
 	protected int getBlockSize() {
 		return blockSize;
@@ -97,7 +101,9 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
 	 * data from the inputSource given in the constructor. Subclasses will want to override this method.
 	 * 
 	 * @param target
+	 *            target
 	 * @param pos
+	 *            pos
 	 * @return number of values written into target from position pos
 	 */
 	protected int readBlock(double[] target, int pos) {

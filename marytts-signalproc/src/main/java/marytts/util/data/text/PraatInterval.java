@@ -168,6 +168,7 @@ public class PraatInterval {
 	 * set duration of interval
 	 * 
 	 * @param duration
+	 *            duration
 	 */
 	public void setDuration(double duration) {
 		this.duration = duration;

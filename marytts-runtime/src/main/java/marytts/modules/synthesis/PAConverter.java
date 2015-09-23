@@ -81,6 +81,8 @@ public class PAConverter {
 	/**
 	 * Converts a single phonetic symbol in English sampa representation into its equivalent in German sampa representation.
 	 * 
+	 * @param En
+	 *            En
 	 * @return original English symbol if no known conversion exists.
 	 */
 	public static String sampaEn2sampaDe(String En) {
@@ -93,6 +95,10 @@ public class PAConverter {
 
 	/**
 	 * Converts an english sampa string into a german sampa string, keeping syllable boundaries and stress markers
+	 * 
+	 * @param sEn
+	 *            sEn
+	 * @return result.toString
 	 */
 	public static String sampaEnString2sampaDeString(String sEn) {
 		StringBuilder result = new StringBuilder();

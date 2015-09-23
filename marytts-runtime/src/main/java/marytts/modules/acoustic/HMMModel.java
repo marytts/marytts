@@ -88,6 +88,8 @@ public class HMMModel extends Model {
 	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param voiceName
 	 *            in HMM models this data file corresponds to the configuration file of the HMM voice
+	 * @param dataStream
+	 *            dataStream
 	 * @param targetAttributeName
 	 *            attribute in MARYXML to predict
 	 * @param targetAttributeFormat
@@ -119,6 +121,7 @@ public class HMMModel extends Model {
 	 * durations information to predict F0.
 	 * 
 	 * @param bval
+	 *            bval
 	 */
 	public void setPredictDurAndF0(boolean bval) {
 		predictDurAndF0 = bval;

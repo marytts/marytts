@@ -25,7 +25,7 @@ import javax.swing.ImageIcon;
 
 /**
  * 
- * @author Mat Wilson <mat.wilson@dfki.de>
+ * @author Mat Wilson &lt;mat.wilson@dfki.de&gt;
  */
 public class IconSet {
 

@@ -52,7 +52,16 @@ public class EmoTransformer extends Thread {
 
 	private boolean exitRequested = false;
 
-	/** Creates new EmoTransformer */
+	/**
+	 * Creates new EmoTransformer
+	 * 
+	 * @param emoSpeak
+	 *            emoSpeak
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 */
 	public EmoTransformer(ProsodyXMLDisplayer emoSpeak) throws TransformerConfigurationException, ParserConfigurationException {
 		this.emoSpeak = emoSpeak;
 		// Try to find a suitable XSLT transformer
@@ -78,6 +87,19 @@ public class EmoTransformer extends Thread {
 
 	/**
 	 * Asynchronously set the latest emotion values. Overwrites any previous, unprocessed data.
+	 * 
+	 * @param activation
+	 *            activation
+	 * @param evaluation
+	 *            evaluation
+	 * @param power
+	 *            power
+	 * @param text
+	 *            text
+	 * @param locale
+	 *            locale
+	 * @param r
+	 *            r
 	 */
 	public synchronized void setEmotionValues(int activation, int evaluation, int power, String text, Locale locale, int r) {
 		this.activation = activation;

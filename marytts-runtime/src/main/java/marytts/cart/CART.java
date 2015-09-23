@@ -57,6 +57,7 @@ public class CART extends DirectedGraph {
 	 * Build a new empty cart with the given feature definition.
 	 * 
 	 * @param featDef
+	 *            featDef
 	 */
 	public CART(FeatureDefinition featDef) {
 		super(featDef);

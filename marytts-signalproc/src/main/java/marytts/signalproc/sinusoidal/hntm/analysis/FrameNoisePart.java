@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * Baseline class to represent noise part of a speech frame
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public interface FrameNoisePart {

@@ -72,6 +72,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
 	 * Creates new installer gui and fills it with content from the given URL.
 	 * 
 	 * @param maryComponentURL
+	 *            maryComponentURL
 	 */
 	public InstallerGUI(String maryComponentURL) {
 		this.languages = new TreeMap<String, LanguageComponentDescription>();
@@ -754,6 +755,8 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
 	/**
 	 * @param args
 	 *            the command line arguments
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String args[]) throws Exception {
 		String maryBase = System.getProperty("mary.base");

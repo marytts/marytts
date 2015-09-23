@@ -52,6 +52,7 @@ public class ShortStringTranslator {
 	 * Initialize a short-string two-way translator, setting short values according to the position of strings in the array.
 	 * 
 	 * @param strings
+	 *            strings
 	 */
 	public ShortStringTranslator(String[] strings) {
 		if (strings.length > Short.MAX_VALUE)

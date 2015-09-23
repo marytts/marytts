@@ -218,6 +218,28 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 		/**
 		 * @deprecated Use constructor with path to Maven instead.
+		 * @param compileDir
+		 *            compileDir
+		 * @param voiceName
+		 *            voiceName
+		 * @param voiceVersion
+		 *            voiceVersion
+		 * @param locale
+		 *            locale
+		 * @param gender
+		 *            gender
+		 * @param domain
+		 *            domain
+		 * @param samplingRate
+		 *            samplingRate
+		 * @param isUnitSelectionVoice
+		 *            isUnitSelectionVoice
+		 * @param filesForResources
+		 *            filesForResources
+		 * @param filesForFilesystem
+		 *            filesForFilesystem
+		 * @param extraVariablesToSubstitute
+		 *            extraVariablesToSubstitute
 		 */
 		@Deprecated
 		public MavenVoiceCompiler(File compileDir, String voiceName, String voiceVersion, Locale locale, String gender,
@@ -378,7 +400,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 	 * character is not a letter, we prepend a "V" for "voice".
 	 * 
 	 * @param voiceName
-	 * @return
+	 *            voiceName
+	 * @return result in string format
 	 */
 	public static String toPackageName(String voiceName) {
 		String regexLCLetter = "[a-z]";

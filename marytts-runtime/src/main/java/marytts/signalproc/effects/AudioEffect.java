@@ -23,7 +23,7 @@ import marytts.util.data.DoubleDataSource;
 
 /**
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public interface AudioEffect {
 	public String getName(); // Returns the unique name of the effect

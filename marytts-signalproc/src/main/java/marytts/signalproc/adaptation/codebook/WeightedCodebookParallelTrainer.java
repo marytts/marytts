@@ -41,9 +41,9 @@ import marytts.util.string.StringUtils;
  * Reference for weighted codebook mapping: Arslan, L. M., 1999, “Speaker Transformation Algorithm using Segmental Codebooks”,
  * Speech Communication, 28, pp. 211-226.
  * 
- * Reference for weighted frame mapping: T&uumlrk, O., 2007 “Cross-Lingual Voice Conversion”, PhD Thesis, Bogazici University.
+ * Reference for weighted frame mapping: T&uuml;rk, O., 2007 “Cross-Lingual Voice Conversion”, PhD Thesis, Bogazici University.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
 
@@ -436,7 +436,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
 	 * *.ptc, *.ene Ouput: /Neutral-Spike-Conversion/codebook/neutral2angry/neutralF_X_angryF_99.pmf
 	 * 
 	 * @throws UnsupportedAudioFileException
+	 *             unsupported audio file exception
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void mainQuickTest2() throws UnsupportedAudioFileException, IOException {
 		BaselinePreprocessor pp = new BaselinePreprocessor();

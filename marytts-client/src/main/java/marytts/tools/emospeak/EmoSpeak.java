@@ -27,7 +27,12 @@ import java.net.UnknownHostException;
  * @author Marc Schr&ouml;der
  */
 public class EmoSpeak extends javax.swing.JFrame {
-	/** Creates new form EmoSpeak */
+	/**
+	 * Creates new form EmoSpeak
+	 * 
+	 * @throws Exception
+	 *             Exception
+	 */
 	public EmoSpeak() throws Exception {
 		super("OpenMary EmoSpeak");
 		initComponents();
@@ -36,6 +41,11 @@ public class EmoSpeak extends javax.swing.JFrame {
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
+	 * 
+	 * @throws IOException
+	 *             IOException
+	 * @throws UnknownHostException
+	 *             UnknownHostException
 	 */
 	private void initComponents() throws IOException, UnknownHostException {
 		emoSpeakPanel1 = new EmoSpeakPanel(true, System.getProperty("server.host", "cling.dfki.uni-sb.de"), Integer.getInteger(
@@ -57,7 +67,12 @@ public class EmoSpeak extends javax.swing.JFrame {
 		setLocation((screenSize.width - 550) / 2, (screenSize.height - 630) / 2);
 	}
 
-	/** Exit the Application */
+	/**
+	 * Exit the Application
+	 * 
+	 * @param evt
+	 *            evt
+	 */
 	private void exitForm(java.awt.event.WindowEvent evt) {
 		emoSpeakPanel1.requestExit();
 		System.exit(0);
@@ -66,6 +81,8 @@ public class EmoSpeak extends javax.swing.JFrame {
 	/**
 	 * @param args
 	 *            the command line arguments
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String args[]) throws Exception {
 		new EmoSpeak().setVisible(true);

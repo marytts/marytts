@@ -41,8 +41,7 @@ public class FIRFilter implements InlineDataProcessor {
 	/**
 	 * Create a new, uninitialised FIR filter. Subclasses need to call
 	 * 
-	 * @see #initialise(impulseResponse, sliceLen) separately.
-	 *
+	 * check {@link #initialise(double[] impulseResponse, int sliceLen)} .
 	 */
 	protected FIRFilter() {
 

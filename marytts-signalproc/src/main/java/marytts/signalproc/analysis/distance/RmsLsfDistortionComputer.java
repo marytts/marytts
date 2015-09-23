@@ -39,7 +39,7 @@ import marytts.util.string.StringUtils;
 /**
  * Implements root-mean-square line spectral frequency vector distance given two sets of paired files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	private AllophoneSet allophoneSet;
@@ -124,11 +124,18 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	 * Compute the distances per file
 	 * 
 	 * @param set1
+	 *            set1
 	 * @param set2
+	 *            set2
 	 * @param isBark
+	 *            isBark
 	 * @param upperFreqInHz
+	 *            upperFreqInHz
 	 * @param map
+	 *            map
 	 * @return an array containing, for each file, the array of frame-wise distances.
+	 * @throws IOException
+	 *             IO Exception
 	 */
 	public double[][] getDistancesPerFile(BaselineAdaptationSet set1, BaselineAdaptationSet set2, boolean isBark,
 			double upperFreqInHz, int[] map) throws IOException {
@@ -145,9 +152,12 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	 * Return true if the time given corresponds to an initial or final silence symbol in labels, false otherwise.
 	 * 
 	 * @param time
+	 *            time
 	 * @param labels
+	 *            labels
 	 * @param silenceSymbol
-	 * @return (i == 0 or i == labels.items.length -1) and l.phn.equals(silenceSymbol) 
+	 *            silenceSymbol
+	 * @return (i == 0 or i == labels.items.length -1) and l.phn.equals(silenceSymbol)
 	 */
 	private boolean isInitialOrFinalSilence(double time, Labels labels, String silenceSymbol) {
 		int i = labels.getLabelIndexAtTime(time);
@@ -548,7 +558,9 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	 * lab files.
 	 * 
 	 * @param folder1
+	 *            first folder
 	 * @param folder2
+	 *            second folder
 	 * @throws IOException
 	 *             if any file names don't match.
 	 */

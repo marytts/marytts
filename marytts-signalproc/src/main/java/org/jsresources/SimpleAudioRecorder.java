@@ -50,26 +50,33 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 /**
- * <titleabbrev>SimpleAudioRecorder</titleabbrev> <title>Recording to an audio file (simple version)</title>
+ * <p>
+ * SimpleAudioRecorder: Recording to an audio file (simple version)
+ * </p>
  * 
- * <formalpara><title>Purpose</title> <para>Records audio data and stores it in a file. The data is recorded in CD quality (44.1
- * kHz, 16 bit linear, stereo) and stored in a <filename>.wav</filename> file.</para></formalpara>
+ * <p>
+ * Purpose: Records audio data and stores it in a file. The data is recorded in CD quality (44.1 kHz, 16 bit linear, stereo) and
+ * stored in a .wav file.
+ * </p>
  * 
- * <formalpara><title>Usage</title> <para> <cmdsynopsis> <command>java SimpleAudioRecorder</command> <arg
- * choice="plain"><option>-h</option></arg> </cmdsynopsis> <cmdsynopsis> <command>java SimpleAudioRecorder</command> <arg
- * choice="plain"><replaceable>audiofile</replaceable></arg> </cmdsynopsis> </para></formalpara>
+ * <p>
+ * Usage: java SimpleAudioRecorder choice="plain" -h java SimpleAudioRecorder choice="plain" audiofile
+ * </p>
  * 
- * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-h</option></term> <listitem><para>print
- * usage information, then exit</para></listitem> </varlistentry> <varlistentry>
- * <term><option><replaceable>audiofile</replaceable></option></term> <listitem><para>the file name of the audio file that should
- * be produced from the recorded data</para></listitem> </varlistentry> </variablelist> </formalpara>
+ * <p>
+ * Parameters: -h print usage information, then exit audiofile the file name of the audio file that should be produced from the
+ * recorded data
+ * </p>
  * 
- * <formalpara><title>Bugs, limitations</title> <para> You cannot select audio formats and the audio file type on the command
- * line. See AudioRecorder for a version that has more advanced options. Due to a bug in the Sun jdk1.3/1.4, this program does not
- * work with it. </para></formalpara>
+ * <p>
+ * Bugs, limitations: You cannot select audio formats and the audio file type on the command line. See AudioRecorder for a version
+ * that has more advanced options. Due to a bug in the Sun jdk1.3/1.4, this program does not work with it.
+ * </p>
  * 
- * <formalpara><title>Source code</title> <para> <ulink url="SimpleAudioRecorder.java.html">SimpleAudioRecorder.java</ulink>
- * </para> </formalpara>
+ * <p>
+ * Source code: <a href="SimpleAudioRecorder.java.html">SimpleAudioRecorder.java </a>
+ * </p>
+ * 
  */
 public class SimpleAudioRecorder extends Thread {
 	private TargetDataLine m_line;

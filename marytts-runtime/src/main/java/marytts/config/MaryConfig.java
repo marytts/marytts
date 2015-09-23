@@ -149,7 +149,8 @@ public abstract class MaryConfig {
 	 * Get the voice config for the given voice name, or null if there is no such voice config.
 	 * 
 	 * @param voiceName
-	 * @return
+	 *            voiceName
+	 * @return vc if vc.getName().equals(voiceName), null otherwise
 	 */
 	public static VoiceConfig getVoiceConfig(String voiceName) {
 		for (MaryConfig mc : configLoader) {
@@ -171,6 +172,7 @@ public abstract class MaryConfig {
 	 * Get the allophone set for the given locale, or null if it cannot be retrieved.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @return the allophone set for the given locale, or null of the locale is not supported.
 	 * @throws MaryConfigurationException
 	 *             if the locale is supported in principle but no allophone set can be retrieved.
@@ -223,7 +225,7 @@ public abstract class MaryConfig {
 	 *            whether to use system properties in priority if they exist. If true, any property requested from this properties
 	 *            accessor will first be looked up in the system properties, and only if it is not defined there, it will be
 	 *            looked up in this config's properties.
-	 * @return
+	 * @return PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap)
 	 */
 	public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
 		Map<String, String> maryBaseMap = new HashMap<String, String>();
@@ -238,7 +240,7 @@ public abstract class MaryConfig {
 	 *            name of the property to retrieve
 	 * @param defaultValue
 	 *            value to return if the property is not defined.
-	 * @return
+	 * @return props.getProperty(property, defaultValue)
 	 */
 	public String getProperty(String property, String defaultValue) {
 		return props.getProperty(property, defaultValue);
@@ -249,6 +251,7 @@ public abstract class MaryConfig {
 	 * space-separated list).
 	 * 
 	 * @param propertyName
+	 *            propertyName
 	 * @return the list of items, or an empty list if the property is not defined or contains no items
 	 */
 	public List<String> getList(String propertyName) {

@@ -60,7 +60,7 @@ import marytts.util.string.StringUtils;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class AdminWindow extends javax.swing.JFrame {
 
@@ -115,6 +115,9 @@ public class AdminWindow extends javax.swing.JFrame {
 
 	/**
 	 * Creates new form AdminWindow and starts the recording session
+	 * 
+	 * @param voiceFolderPathString
+	 *            voiceFolderPathString
 	 */
 	public AdminWindow(String voiceFolderPathString) {
 		this.voiceFolderPathString = voiceFolderPathString;
@@ -173,6 +176,7 @@ public class AdminWindow extends javax.swing.JFrame {
 	 * 
 	 * @param newSession
 	 *            The current recording session object
+	 * @return newSession
 	 */
 	private RecSession createRecSession() {
 
@@ -234,7 +238,7 @@ public class AdminWindow extends javax.swing.JFrame {
 	/**
 	 * Determines recording status given how many recordings a prompt has, as well as clipping status
 	 * 
-	 * @param fileCount
+	 * @param rec
 	 *            The number of files a prompt has
 	 * @return The appropriate string, indicating the prompt's recording status
 	 */
@@ -289,7 +293,11 @@ public class AdminWindow extends javax.swing.JFrame {
 		return speakerWin;
 	}
 
-	/** Gets the currently selected row in the prompt set table */
+	/**
+	 * Gets the currently selected row in the prompt set table
+	 * 
+	 * @return jTable_PromptSet.getSelectedRow()
+	 */
 	public int getCurrentRow() {
 		return jTable_PromptSet.getSelectedRow();
 	}
@@ -1437,7 +1445,12 @@ public class AdminWindow extends javax.swing.JFrame {
 	 * 
 	 * @param evt Action event
 	 */
-	/** Plays the latest recorded version of the currently selected prompt */
+	/**
+	 * Plays the latest recorded version of the currently selected prompt
+	 * 
+	 * @param evt
+	 *            evt
+	 */
 	private void jButton_PlayActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton_PlayActionPerformed
 		if (this.playingStatus) {
 			stopPlayback(); // Stop playback if underway

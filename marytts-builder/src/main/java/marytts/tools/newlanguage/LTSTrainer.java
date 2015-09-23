@@ -92,6 +92,8 @@ public class LTSTrainer extends AlignerTrainer {
 	 *            whether to convert all graphemes to lowercase, using the locale of the allophone set.
 	 * @param considerStress
 	 *            indicator if stress is preserved
+	 * @param context
+	 *            context
 	 */
 	public LTSTrainer(AllophoneSet aPhSet, boolean convertToLowercase, boolean considerStress, int context) {
 		super();
@@ -107,8 +109,9 @@ public class LTSTrainer extends AlignerTrainer {
 	 * 
 	 * @param minLeafData
 	 *            the minimum number of instances that have to occur in at least two subsets induced by split
-	 * @return
+	 * @return bigTree
 	 * @throws IOException
+	 *             IOException
 	 */
 	public CART trainTree(int minLeafData) throws IOException {
 
@@ -262,8 +265,11 @@ public class LTSTrainer extends AlignerTrainer {
 	 * Convenience method to save files to graph2phon.wagon and graph2phon.pfeats in a specified directory with UTF-8 encoding.
 	 * 
 	 * @param tree
-	 * @param saveTreePath
+	 *            tree
+	 * @param saveTreefile
+	 *            saveTreefile
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void save(CART tree, String saveTreefile) throws IOException {
 		MaryCARTWriter mcw = new MaryCARTWriter();
@@ -317,6 +323,7 @@ public class LTSTrainer extends AlignerTrainer {
 	 * @param splitPattern
 	 *            a regular expression used for identifying the field separator in each line.
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void readLexicon(BufferedReader lexicon, String splitPattern) throws IOException {
 
@@ -369,7 +376,7 @@ public class LTSTrainer extends AlignerTrainer {
 	 * Stress is optionally preserved, marking the first vowel of a stressed syllable with "1".
 	 * 
 	 * @param lexicon
-	 * @throws IOException
+	 *            lexicon
 	 */
 	public void readLexicon(HashMap<String, String> lexicon) {
 

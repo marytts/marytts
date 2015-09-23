@@ -146,6 +146,9 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * Initialize this component
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	@Override
 	protected void initialiseComp() throws Exception {
@@ -184,7 +187,9 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 	 * Create new directory if the directory doesn't exist
 	 * 
 	 * @param dirName
+	 *            dirName
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createDirectoryifNotExists(String dirName) throws Exception {
 		if (!(new File(dirName)).exists()) {
@@ -200,7 +205,9 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
@@ -208,6 +215,8 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * Return this voice import component name
+	 * 
+	 * @return "HNMfeatureFileWriter"
 	 */
 	@Override
 	public String getName() {
@@ -216,6 +225,8 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * Return the progress of this component
+	 * 
+	 * @return this.progress
 	 */
 	@Override
 	public int getProgress() {
@@ -224,6 +235,7 @@ public class HNMFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

@@ -144,8 +144,9 @@ public class PronunciationModel extends InternalModule {
 	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
 	 * 
 	 * @param token
-	 *            a <t> element with a <syllable> and <ph> substructure.
+	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt; substructure.
 	 * @param allophoneSet
+	 *            allophoneSet
 	 * @return true if something was changed, false otherwise
 	 */
 	protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet) {
@@ -154,6 +155,11 @@ public class PronunciationModel extends InternalModule {
 
 	/**
 	 * This computes a new pronunciation for the elements of some MaryData, that is phonemised.
+	 * 
+	 * @param d
+	 *            d
+	 * @throws Exception
+	 *             Exception
 	 */
 	public MaryData process(MaryData d) throws Exception {
 		// get the xml document

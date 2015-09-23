@@ -69,7 +69,7 @@ import marytts.util.string.StringUtils;
  * higher formants implicitly by adding highpass filtered version to original (Step 4) Finally, the output is gain adjusted to
  * prevent clipping
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class Blizzard09PostProcessor {

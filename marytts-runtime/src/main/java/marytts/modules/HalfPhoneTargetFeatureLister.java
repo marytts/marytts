@@ -42,8 +42,11 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
 	 * method in local code.
 	 * 
-	 * @param segs
-	 * @return
+	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
+	 * @param pauseSymbol
+	 *            pauseSymbol
+	 * @return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol)
 	 */
 	@Override
 	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
@@ -55,6 +58,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 	 * 
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
+	 * @param silenceSymbol
+	 *            silenceSymbol
 	 * @return a list of Target objects
 	 */
 	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {

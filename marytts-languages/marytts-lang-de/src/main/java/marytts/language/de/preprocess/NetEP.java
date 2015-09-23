@@ -45,7 +45,7 @@ public class NetEP extends ExpansionPattern {
 	 * Every subclass has its own list knownTypes, an internal string representation of known types. These are possible values of
 	 * the <code>type</code> attribute to the <code>say-as</code> element, as defined in MaryXML.dtd. If there is more than one
 	 * known type, the first type (<code>knownTypes[0]</code>) is expected to be the most general one, of which the others are
-	 * specialisations.
+	 * specializations.
 	 */
 	private final List<String> knownTypes = Arrays.asList(_knownTypes);
 
@@ -104,6 +104,8 @@ public class NetEP extends ExpansionPattern {
 	/**
 	 * Inform whether this module performs a full expansion of the input, or whether other patterns should be applied after this
 	 * one.
+	 * 
+	 * @return false
 	 */
 	protected boolean doesFullExpansion() {
 		return false;

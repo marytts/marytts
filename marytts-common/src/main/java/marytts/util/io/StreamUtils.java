@@ -67,7 +67,7 @@ public class StreamUtils {
 	 * <code>String</code>. The details of the modified UTF-8 representation are exactly the same as for the <code>readUTF</code>
 	 * method of <code>DataInput</code>.
 	 * 
-	 * @param in
+	 * @param bb
 	 *            a byte buffer.
 	 * @return a Unicode string.
 	 * @exception BufferUnderflowException
@@ -146,12 +146,11 @@ public class StreamUtils {
 	 * <p>
 	 * Bytes for this operation are read from the given byte buffer
 	 * 
+	 * @param bb
+	 *            bb
 	 * @return the next two bytes of this input stream, interpreted as an unsigned 16-bit integer.
-	 * @exception EOFException
+	 * @exception BufferUnderflowException
 	 *                if this input stream reaches the end before reading two bytes.
-	 * @exception IOException
-	 *                the stream has been closed and the contained input stream does not support reading after close, or another
-	 *                I/O error occurs.
 	 * @see java.io.FilterInputStream#in
 	 */
 	public static int readUnsignedShort(ByteBuffer bb) throws BufferUnderflowException {

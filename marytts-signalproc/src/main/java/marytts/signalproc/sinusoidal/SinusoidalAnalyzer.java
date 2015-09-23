@@ -59,7 +59,7 @@ import marytts.util.signal.SignalProcUtils;
  * R.J. McAulay and T.F. Quatieri, "Speech Analysis/Synthesis Based on a Sinusoidal Representation," IEEE Transactions on
  * Acoustics, Speech and Signal Processing, vol. ASSP-34, no. 4, August 1986.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 

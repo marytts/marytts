@@ -55,12 +55,11 @@ public class DirectedGraphReader {
 	 * 
 	 * @param fileName
 	 *            the file to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return load(is)
 	 */
 	public DirectedGraph load(String fileName) throws IOException, MaryConfigurationException {
 		InputStream is = new FileInputStream(fileName);
@@ -76,12 +75,11 @@ public class DirectedGraphReader {
 	 * 
 	 * @param inStream
 	 *            the input stream
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return MaryCARTReader().loadFromStream(buffInStream)
 	 */
 	public DirectedGraph load(InputStream inStream) throws IOException, MaryConfigurationException {
 		BufferedInputStream buffInStream = new BufferedInputStream(inStream);

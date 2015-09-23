@@ -74,12 +74,20 @@ public class Wagon implements Runnable {
 	/**
 	 * Set up a new wagon process. Wagon.setWagonExecutable() must be called beforehand.
 	 * 
+	 * @param id
+	 *            id
 	 * @param featureDefinition
+	 *            featureDefinition
 	 * @param featureVectors
+	 *            featureVectors
 	 * @param aDistanceMeasure
+	 *            aDistanceMeasure
 	 * @param dir
+	 *            dir
 	 * @param balance
+	 *            balance
 	 * @param stop
+	 *            stop
 	 * @throws IOException
 	 *             if there was no call to Wagon.setWagonExecutable() with an executable file before calling this constructor.
 	 */
@@ -105,10 +113,8 @@ public class Wagon implements Runnable {
 	/**
 	 * Export this feature definition in the "all.desc" format which can be read by wagon.
 	 * 
-	 * @param out
-	 *            the destination of the data
-	 * @param featuresToIgnore
-	 *            a set of Strings containing the names of features that wagon should ignore. Can be null.
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void createDescFile() throws IOException {
 		PrintWriter out = new PrintWriter(new FileOutputStream(descFile));

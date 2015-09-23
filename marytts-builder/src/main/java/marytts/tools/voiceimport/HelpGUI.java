@@ -64,8 +64,7 @@ public class HelpGUI {
 	/**
 	 * Show a frame displaying the help file.
 	 * 
-	 * @param file
-	 *            the help file
+	 * 
 	 * @return true, if no error occurred
 	 */
 	public boolean display() {

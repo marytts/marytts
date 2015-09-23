@@ -125,10 +125,9 @@ public class F0PolynomialInspector extends VoiceImportComponent {
 	}
 
 	/**
-	 * @param out
+	 * 
 	 * @throws IOException
-	 * @throws UnsupportedEncodingException
-	 * @throws FileNotFoundException
+	 *             IOException
 	 */
 	protected void displaySentences() throws IOException {
 		int numUnits = units.getNumberOfUnits();
@@ -377,6 +376,9 @@ public class F0PolynomialInspector extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		F0PolynomialInspector acfeatsWriter = new F0PolynomialInspector();

@@ -43,7 +43,6 @@ import java.util.Vector;
  * <li>is not at the end of the format string, and
  * <li>precedes a sequence of characters that parses as a valid control specification.
  * </ol>
- * </p>
  * <p>
  * A control specification usually takes the form:
  *
@@ -53,7 +52,6 @@ import java.util.Vector;
  * </pre>
  * 
  * There are variants of this basic form that are discussed below.
- * </p>
  * <p>
  * The format is composed of zero or more directives defined as follows:
  * <ul>
@@ -61,7 +59,6 @@ import java.util.Vector;
  * <li>escape sequences, which represent non-graphic characters; and
  * <li>conversion specifications, each of which results in the fetching of zero or more arguments.
  * </ul>
- * </p>
  * <p>
  * The results are undefined if there are insufficient arguments for the format. Usually an unchecked exception will be thrown. If
  * the format is exhausted while arguments remain, the excess arguments are evaluated but are otherwise ignored. In format strings
@@ -77,7 +74,7 @@ import java.util.Vector;
  * exactly once.
  * </p>
  *
- * <h4>Escape Sequences</h4>
+ * Escape Sequences
  * <p>
  * The following table lists escape sequences and associated actions on display devices capable of the action.
  * <table>
@@ -126,9 +123,11 @@ import java.util.Vector;
  * <td>vertical-tab</td>
  * <td>Moves the printing position to the start of the next implementation-defined vertical tab position.</td>
  * </tr>
+ * <caption>escape sequences</caption>
  * </table>
+ * <p>
+ * Conversion Specifications
  * </p>
- * <h4>Conversion Specifications</h4>
  * <p>
  * Each conversion specification is introduced by the percent sign character (%). After the character %, the following appear in
  * sequence:
@@ -143,7 +142,7 @@ import java.util.Vector;
  * the minimum number of characters to be printed.
  * </p>
  * <p>
- * An optional precision that gives the minumum number of digits to appear for the d, i, o, x or X conversions (the field is
+ * An optional precision that gives the minimum number of digits to appear for the d, i, o, x or X conversions (the field is
  * padded with leading zeros); the number of digits to appear after the radix character for the e, E, and f conversions, the
  * maximum number of significant digits for the g and G conversions; or the maximum number of characters to be written from a
  * string is s and S conversions. The precision takes the form of an optional decimal digit string, where a null digit string is
@@ -173,8 +172,9 @@ import java.util.Vector;
  * argument specifications (that is % and *), but normally not both. The only exception to this is that %% can be mixed with the %
  * <code>n</code>$ form. The results of mixing numbered and unnumbered argument specifications in a format string are undefined.
  * </p>
- *
- * <h4>Flag Characters</h4>
+ * <p>
+ * Flag Characters
+ * </p>
  * <p>
  * The flags and their meanings are:
  * </p>
@@ -183,8 +183,7 @@ import java.util.Vector;
  * <dd>integer portion of the result of a decimal conversion (%i, %d, %f, %g, or %G) will be formatted with thousands' grouping
  * characters. For other conversions the flag is ignored. The non-monetary grouping character is used.
  * <dt>-
- * <dd>result of the conversion is left-justified within the field. (It will be right-justified if this flag is not
- * specified).</td></tr>
+ * <dd>result of the conversion is left-justified within the field. (It will be right-justified if this flag is not specified).</dd>
  * <dt>+
  * <dd>result of a signed conversion always begins with a sign (+ or -). (It will begin with a sign only when a negative value is
  * converted if this flag is not specified.)
@@ -203,7 +202,9 @@ import java.util.Vector;
  * conversions, if a precision is specified, the 0 flag will be ignored. For c conversions, the flag is ignored.
  * </dl>
  *
- * <h4>Conversion Characters</h4>
+ * <p>
+ * Conversion Characters
+ * </p>
  * <p>
  * Each conversion character results in fetching zero or more arguments. The results are undefined if there are insufficient
  * arguments for the format. Usually, an unchecked exception will be thrown. If the format is exhausted while arguments remain,
@@ -333,6 +334,8 @@ public class PrintfFormat {
 	 * strings begin with unpaired percent signs. A pair of successive percent signs designates a single percent sign in the
 	 * format.
 	 * 
+	 * @param locale
+	 *            locale
 	 * @param fmtArg
 	 *            Control string.
 	 * @exception IllegalArgumentException

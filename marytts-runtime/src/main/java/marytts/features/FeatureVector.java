@@ -58,6 +58,8 @@ public class FeatureVector {
 	/**
 	 * Is this an edge vector?
 	 * 
+	 * @param edgeIndex
+	 *            edge index
 	 * @return isEdge
 	 */
 	public boolean isEdgeVector(int edgeIndex) {
@@ -185,9 +187,8 @@ public class FeatureVector {
 	 *            the index number of the byte-valued feature in this feature vector.
 	 * @return the byte value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index<0 or index >= getNumberOfByteFeatures().
-	 * @see #getNumberOfByteFeatures()
-	 * @see #isByteFeature()
+	 *             if index&lt;0 or index &ge; getNumberOfByteFeatures(). check {@link #getNumberOfByteFeatures()} . check
+	 *             {@link #isByteFeature(int index)} .
 	 */
 	public final byte getByteFeature(int index) {
 		if (index < 0 || index >= byteValuedDiscreteFeatures.length) {
@@ -203,10 +204,10 @@ public class FeatureVector {
 	 *            the index number of the short-valued feature in this feature vector.
 	 * @return the short value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index<getNumberOfByteFeatures() or index >= getNumberOfByteFeatures()+getNumberOfShortFeatures().
+	 *             if index&lt;getNumberOfByteFeatures() or index &ge; getNumberOfByteFeatures()+getNumberOfShortFeatures().
 	 * @see #getNumberOfByteFeatures()
 	 * @see #getNumberOfShortFeatures()
-	 * @see #isShortFeature()
+	 * @see #isShortFeature(int index)
 	 */
 	public final short getShortFeature(int index) {
 		return shortValuedDiscreteFeatures[index - byteValuedDiscreteFeatures.length];
@@ -219,12 +220,12 @@ public class FeatureVector {
 	 *            the index number of the continuous feature in this feature vector.
 	 * @return the float value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index<getNumberOfByteFeatures()+getNumberOfShortFeatures() or index >= getLength().
+	 *             if index&lt;getNumberOfByteFeatures()+getNumberOfShortFeatures() or index &ge; getLength().
 	 * @see #getNumberOfByteFeatures()
 	 * @see #getNumberOfShortFeatures()
 	 * @see #getNumberOfContinuousFeatures()
 	 * @see #getLength()
-	 * @see #isContinuousFeature()
+	 * @see #isContinuousFeature(int index)
 	 */
 	public final float getContinuousFeature(int index) {
 		return continuousFeatures[index - byteValuedDiscreteFeatures.length - shortValuedDiscreteFeatures.length];
@@ -234,8 +235,9 @@ public class FeatureVector {
 	 * Test whether the feature with the given index number is a byte feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return This will return true exactly if getByteFeature(index) would return a value without throwing an exception, i.e. if
-	 *         index>=0 and index < getNumberOfByteFeatures().
+	 *         index&ge;0 and index &lt; getNumberOfByteFeatures().
 	 */
 	public boolean isByteFeature(int index) {
 		return 0 <= index && index < byteValuedDiscreteFeatures.length;
@@ -245,8 +247,9 @@ public class FeatureVector {
 	 * Test whether the feature with the given index number is a short feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return This will return true exactly if getShortFeature(index) would return a value without throwing an exception, i.e. if
-	 *         index>=getNumberOfByteFeatures() and index < getNumberOfByteFeatures()+getNumberOfShortFeatures().
+	 *         index&ge;getNumberOfByteFeatures() and index &lt; getNumberOfByteFeatures()+getNumberOfShortFeatures().
 	 */
 	public boolean isShortFeature(int index) {
 		return byteValuedDiscreteFeatures.length <= index
@@ -257,8 +260,9 @@ public class FeatureVector {
 	 * Test whether the feature with the given index number is a continuous feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return This will return true exactly if getContinuousFeature(index) would return a value without throwing an exception,
-	 *         i.e. if index>=getNumberOfByteFeatures()+getNumberOfShortFeatures() and index < getLength().
+	 *         i.e. if index&ge;getNumberOfByteFeatures()+getNumberOfShortFeatures() and index &lt; getLength().
 	 */
 	public boolean isContinuousFeature(int index) {
 		return byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length <= index
@@ -282,7 +286,8 @@ public class FeatureVector {
 	 * 
 	 * @param out
 	 *            the DataOutputStream or RandomAccessFile in which to write the binary representation of the feature vector.
-	 * @return
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void writeTo(DataOutput out) throws IOException {
 		if (byteValuedDiscreteFeatures != null) {
@@ -302,6 +307,8 @@ public class FeatureVector {
 
 	/**
 	 * Return a string representation of this set of target features; feature values separated by spaces.
+	 * 
+	 * @return out.toString
 	 */
 	public String toString() {
 		StringBuilder out = new StringBuilder();

@@ -61,7 +61,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	/**
 	 * Empty constructor; need to call load() separately.
 	 * 
-	 * @see #load(String)
+	 * @see #load(String fileName, InputStream dummy, String dummy2, float dummy3)
 	 */
 	public PrecompiledJoinCostReader() {
 	}
@@ -73,6 +73,8 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	 *            the file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public PrecompiledJoinCostReader(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName, null, null, 0);
@@ -84,6 +86,8 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	 * 
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException {
 		String precomputedJoinCostFileName = MaryProperties.getFilename(configPrefix + ".precomputedJoinCostFile");
@@ -100,11 +104,15 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	 * @param fileName
 	 *            the file to read
 	 * @param dummy
-	 *            not used, just used to fulfil the join cost function interface
+	 *            not used, just used to fulfill the join cost function interface
 	 * @param dummy2
-	 *            not used, just used to fulfil the join cost function interface
+	 *            not used, just used to fulfill the join cost function interface
+	 * @param dummy3
+	 *            not used, just used to fulfill the join cost function interface
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	@Override
 	public void load(String fileName, InputStream dummy, String dummy2, float dummy3) throws IOException,
@@ -140,6 +148,15 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	/**
 	 * Return the (precomputed) cost of joining the two given units; if there is no precomputed cost, return
 	 * Double.POSITIVE_INFINITY.
+	 * 
+	 * @param t1
+	 *            t1
+	 * @param uleft
+	 *            uleft
+	 * @param t2
+	 *            t2
+	 * @param uright
+	 *            uright
 	 */
 	public double cost(Target t1, Unit uleft, Target t2, Unit uright) {
 		Integer leftIndex = new Integer(uleft.index);

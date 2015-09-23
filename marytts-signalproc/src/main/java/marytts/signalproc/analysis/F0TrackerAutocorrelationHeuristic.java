@@ -42,7 +42,7 @@ import marytts.util.string.StringUtils;
 /**
  * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing and halving/doubling prevention
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class F0TrackerAutocorrelationHeuristic {
 	public double[] f0s;
@@ -196,6 +196,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	 * Analyse the f0 contour of the given audio signal.
 	 * 
 	 * @param signal
+	 *            signal
 	 */
 	public void pitchAnalyze(DoubleDataSource signal) {
 		pitchAnalyze(signal.getAllData());
@@ -374,7 +375,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	/**
 	 * The frame shift time, in seconds.
 	 * 
-	 * @return
+	 * @return params.skipSizeInSeconds
 	 */
 	public double getSkipSizeInSeconds() {
 		return params.skipSizeInSeconds;
@@ -383,7 +384,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	/**
 	 * The size of the analysis window, in seconds.
 	 * 
-	 * @return
+	 * @return params.windowSizeInSeconds
 	 */
 	public double getWindowSizeInSeconds() {
 		return params.windowSizeInSeconds;

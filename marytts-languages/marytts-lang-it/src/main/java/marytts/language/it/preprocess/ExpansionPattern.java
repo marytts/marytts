@@ -64,7 +64,7 @@ public abstract class ExpansionPattern {
 	private static Map patternTable;
 
 	/**
-	 * Initialise the various patterns. Notice that the order in which they are added to List expansionPatterns is most important:
+	 * Initialize the various patterns. Notice that the order in which they are added to List expansionPatterns is most important:
 	 * If several patterns potentially would match a given input, the one first found in the list will be applied. Therefore,
 	 * frequent and well-identifiable cases should come first, while exotic or fall-back cases (like simple integer expansion)
 	 * should come last in the list.
@@ -131,6 +131,7 @@ public abstract class ExpansionPattern {
 	 * A regular expression matching the characters at which a token should be split into parts before any preprocessing patterns
 	 * are applied.
 	 * 
+	 * @return return specialChar.getRESplitAtChars
 	 * @see SpecialCharEP#getRESplitAtChars
 	 */
 	public static Pattern reSplitAtChars() {
@@ -141,6 +142,7 @@ public abstract class ExpansionPattern {
 	 * A string containing the characters at which a token should be split into parts before any preprocessing patterns are
 	 * applied.
 	 * 
+	 * @return specialChar.splitAtChars
 	 * @see SpecialCharEP#splitAtChars
 	 */
 	public static String getSplitAtChars() {
@@ -154,6 +156,8 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Whether patterns of this type can be composed of several tokens.
+	 * 
+	 * @return true
 	 */
 	protected boolean allowMultipleTokens() {
 		return true;
@@ -162,6 +166,8 @@ public abstract class ExpansionPattern {
 	/**
 	 * Inform whether this module performs a full expansion of the input, or whether other patterns should be applied after this
 	 * one.
+	 * 
+	 * @return true
 	 */
 	protected boolean doesFullExpansion() {
 		return true;
@@ -171,12 +177,16 @@ public abstract class ExpansionPattern {
 	 * Returns the types known by this ExpansionPattern. These are possible values of the <code>type</code> attribute to the
 	 * <code>say-as</code> element, as defined in MaryXML.dtd. Each subclass needs to override this to return something
 	 * meaningful.
+	 * 
+	 * @return known types
 	 */
 	public abstract List knownTypes();
 
 	/**
 	 * Returns the regular expression object matching any of the chars occurring in the pattern. Each subclass needs to override
 	 * this to return something meaningful.
+	 * 
+	 * @return reMatchingChars
 	 */
 	public abstract Pattern reMatchingChars();
 
@@ -186,8 +196,8 @@ public abstract class ExpansionPattern {
 	 * 
 	 * @param t
 	 *            the element to expand. After processing, this Element will still exist and be a valid Element, but possibly with
-	 *            a different content, and possibly enclosed by an <mtu> element. In addition, <t> may have new right-hand
-	 *            neighbours.
+	 *            a different content, and possibly enclosed by an &lt;mtu&gt; element. In addition, &lt;t&gt; may have new
+	 *            right-hand neighbors.
 	 * @param expanded
 	 *            an empty list into which the expanded Elements are placed if an expansion occurred. The list will remain empty
 	 *            if no expansion was performed. Elements placed in the list are not guaranteed to be only t elements, but may be
@@ -266,6 +276,13 @@ public abstract class ExpansionPattern {
 	 * Try to match and expand the entirety of tokens enclosed by the say-as tag <code>sayas</code>. The <code>type</code> of data
 	 * to expand is given. If the tokens can be matched according to <code>type</code>, they are expanded. Throws DOMException if
 	 * <code>sayas</code>'s tag name is not "say-as".
+	 * 
+	 * @param sayas
+	 *            sayas
+	 * @param typeString
+	 *            typeString
+	 * @throws DOMException
+	 *             DOMException
 	 */
 	public void match(Element sayas, String typeString) throws DOMException {
 		if (!sayas.getTagName().equals(MaryXML.SAYAS))
@@ -292,8 +309,14 @@ public abstract class ExpansionPattern {
 	/**
 	 * Decide whether we can expand a string according to type <code>typeCode</code>. This is important in cases where a
 	 * particular expansion is requested via a <code>say-as</code> element. As a default, reply that a string can be expanded if
-	 * it would be matched by the pattern recogniser. Subclasses may wish to override this with less strict requirements. Returns
+	 * it would be matched by the pattern recognizer. Subclasses may wish to override this with less strict requirements. Returns
 	 * the type as which it can be expanded, or -1 if expansion is not possible.
+	 * 
+	 * @param input
+	 *            input
+	 * @param typeCode
+	 *            typeCode
+	 * @return true if it can deal with input and typeCode
 	 */
 	protected abstract int canDealWith(String input, int typeCode);
 
@@ -335,6 +358,12 @@ public abstract class ExpansionPattern {
 	 * All expansion patterns that do not require any special attribute settings should create their new tokens using this method.
 	 * <p>
 	 * Returns a list of token elements created from Document <code>doc</code>, but not yet attached in the tree.
+	 * 
+	 * @param doc
+	 *            doc
+	 * @param newText
+	 *            newText
+	 * @return makeNewTokens(doc, newText, false, null)
 	 */
 	protected List makeNewTokens(Document doc, String newText) {
 		return makeNewTokens(doc, newText, false, null);
@@ -436,6 +465,9 @@ public abstract class ExpansionPattern {
 	/**
 	 * Enclose token in a &lt;prosody rate="..."&gt; tag in order to slow the spelling down, and in a &lt;phonology&gt; tag in
 	 * order to enforce precise pronunciation.
+	 * 
+	 * @param e
+	 *            e
 	 */
 	protected void slowDown(Element e) {
 		Document doc = e.getOwnerDocument();
@@ -462,6 +494,11 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Enclose the elements' closest common ancestor.
+	 * 
+	 * @param first
+	 *            first
+	 * @param last
+	 *            last
 	 */
 	protected void slowDown(Element first, Element last) {
 		Element phonol = MaryDomUtils.encloseNodesWithNewElement(first, last, MaryXML.PHONOLOGY);

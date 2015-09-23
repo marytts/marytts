@@ -54,8 +54,11 @@ public class SyllableIterator implements Iterator<Syllable> {
 	 * including) the given toUnitIndex
 	 * 
 	 * @param features
+	 *            features
 	 * @param fromUnitIndex
+	 *            fromUnitIndex
 	 * @param toUnitIndex
+	 *            toUnitIndex
 	 */
 	public SyllableIterator(FeatureFileReader features, int fromUnitIndex, int toUnitIndex) {
 		this.features = features;
