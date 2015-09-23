@@ -326,7 +326,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	/**
 	 * Load transcription from a arrayList
 	 * 
-	 * @param map
+	 * @param arrList
 	 * @throws Exception
 	 */
 	public void loadTranscription(ArrayList<String> arrList) throws Exception {

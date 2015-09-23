@@ -167,8 +167,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * existing data will be added.
 	 * 
 	 * @param fileName
-	 * @param whether
-	 *            to keep any current data and add, or use only the loaded data.
+	 * @param keepCurrentData
+	 *            whether to keep any current data and add, or use only the loaded data.
 	 * @throws Exception
 	 */
 	public void loadTranscription(String fileName, boolean keepCurrentData) throws Exception {
@@ -569,7 +569,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	/**
 	 * Store last saved data
 	 * 
-	 * @return
+	 * @return newData
 	 */
 	private Object[][] storeLastSavedData() {
 		Object[][] newData = new Object[data.length][data[0].length];
