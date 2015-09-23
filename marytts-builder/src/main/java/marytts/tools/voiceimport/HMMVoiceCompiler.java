@@ -337,7 +337,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	 * 
 	 * @param lab
 	 *            replaced label
-	 * @return
+	 * @return s
 	 */
 	public String replaceBack(String lab) {
 

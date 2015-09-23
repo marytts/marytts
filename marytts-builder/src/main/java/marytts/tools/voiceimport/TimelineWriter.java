@@ -304,9 +304,9 @@ public class TimelineWriter {
 	/**
 	 * Write one datagram to the timeline.
 	 * 
-	 * @param newDatagram
+	 * @param d
 	 *            the datagram to write.
-	 * @param reqSampleTime
+	 * @param reqSampleRate
 	 *            the sample rate at which the datagram duration is expressed.
 	 * 
 	 * @throws IOException
@@ -331,7 +331,7 @@ public class TimelineWriter {
 	/**
 	 * Write a series of datagrams to the timeline.
 	 * 
-	 * @param newDatagrams
+	 * @param dArray
 	 *            an array of datagrams.
 	 * @param reqSampleTime
 	 *            the sample rate at which the datagram durations are expressed.

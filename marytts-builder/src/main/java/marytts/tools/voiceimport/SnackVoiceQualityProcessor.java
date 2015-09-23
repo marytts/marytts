@@ -244,7 +244,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	 * 
 	 * @param numFormants
 	 * @param snackFile
-	 * @return
+	 * @return snackData
 	 * @throws IOException
 	 */
 	static double[][] readSnackData(int numFormants, String snackFile) throws IOException {
@@ -579,7 +579,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	/**
 	 * returns the index where the closset harmonic peak to f is found
 	 * 
-	 * @return
+	 * @return index
 	 */
 	public int findClosestHarmonicPeak(double peaks[], double f, int maxFreqIndex) {
 		int index = 0;
@@ -602,7 +602,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	 * @param freq
 	 * @param formant
 	 * @param bandWidth
-	 * @return
+	 * @return 0.0
 	 */
 	public double vocalTractCompensation(double freq, double formant, double bandWidth) {
 		double num, denom, aux, val;

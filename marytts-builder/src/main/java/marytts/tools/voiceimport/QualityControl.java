@@ -310,7 +310,7 @@ public class QualityControl extends VoiceImportComponent {
 	/**
 	 * It helps to calculate Thresholds by storing all Energy values in to hash.
 	 * 
-	 * @return
+	 * @return fricativeHash
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -505,7 +505,7 @@ public class QualityControl extends VoiceImportComponent {
 	 * @param samplingRate
 	 * @param startTimeStamp
 	 * @param endTimeStamp
-	 * @return
+	 * @return SignalProcUtils.getEnergy(phoneSegment)
 	 * @throws IOException
 	 * @throws Exception
 	 */

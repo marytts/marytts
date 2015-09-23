@@ -30,7 +30,7 @@ public interface CoverageFeatureProvider {
 	/**
 	 * Get the total number of sentences provided by this provider.
 	 * 
-	 * @return
+	 * 
 	 */
 	public int getNumSentences();
 
@@ -50,7 +50,7 @@ public interface CoverageFeatureProvider {
 	 * are ordered: if i > j, getID(i) > getID(j).
 	 * 
 	 * @param i
-	 * @return
+	 * 
 	 */
 	public int getID(int i);
 }

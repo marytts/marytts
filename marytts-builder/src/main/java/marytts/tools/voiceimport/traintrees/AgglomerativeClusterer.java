@@ -358,7 +358,7 @@ public class AgglomerativeClusterer {
 	 * 
 	 * @param leaves
 	 * @param cutoff
-	 * @return
+	 * @return gi
 	 */
 	private double computeGlobalImpurity(List<LeafNode> leaves, double cutoff) {
 		cutoff *= trainingFeatures.length;
@@ -399,7 +399,7 @@ public class AgglomerativeClusterer {
 	 * where |l| = the number of instances in the leaf.
 	 * 
 	 * @param leaf
-	 * @return
+	 * @return impurity
 	 */
 	/*
 	 * private double computeMutualDistanceImpurity(LeafNode leaf) { if (!(leaf instanceof FeatureVectorLeafNode)) throw new
@@ -460,7 +460,7 @@ public class AgglomerativeClusterer {
 	 * 
 	 * @param dgn1
 	 * @param dgn2
-	 * @return
+	 * @return deltaGI
 	 */
 	private double computeMutualDistanceDeltaGI(DirectedGraphNode dgn1, DirectedGraphNode dgn2) {
 		FeatureVectorLeafNode l1 = (FeatureVectorLeafNode) dgn1.getLeafNode();

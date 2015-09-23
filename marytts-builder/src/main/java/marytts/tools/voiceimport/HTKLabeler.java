@@ -1508,7 +1508,7 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * attribute
 	 * 
 	 * @param tokens
-	 * @return
+	 * @return orig
 	 */
 	private String collectTranscription(NodeList tokens) {
 
@@ -1715,7 +1715,9 @@ public class HTKLabeler extends VoiceImportComponent {
 	 * Converting text to RAWMARYXML with Locale
 	 * 
 	 * @param locale
-	 * @return
+	 * @return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"
+	 *			+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n"
+	 *			+ "xml:lang=\"" + locale + "\">\n" + "<boundary duration=\"100\"/>\n"
 	 */
 	public static String getMaryXMLHeaderWithInitialBoundary(String locale) {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + "<maryxml version=\"0.4\"\n"

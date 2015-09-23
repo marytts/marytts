@@ -59,7 +59,7 @@ public class CoverageUtils {
 	 * @param featureNames
 	 * @param def
 	 * @param featureVectors
-	 * @return
+	 * @return data
 	 */
 	public static byte[] toCoverageFeatures(String featureNames, FeatureDefinition def, FeatureVector[] featureVectors) {
 		String[] featureNameArray = featureNames.split(" ");

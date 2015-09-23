@@ -94,7 +94,7 @@ public class UnitLabel {
 
 	/**
 	 * @param labFile
-	 * @return
+	 * @return ulab
 	 */
 	public static UnitLabel[] readLabFile(String labFile) throws IOException {
 

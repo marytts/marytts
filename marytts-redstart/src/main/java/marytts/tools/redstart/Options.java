@@ -244,7 +244,7 @@ public class Options extends javax.swing.JFrame {
 	 * From the GUI, get the output mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or
 	 * AudioPlayer.RIGHT_ONLY.
 	 * 
-	 * @return
+	 * @return AudioPlayer.STEREO
 	 */
 	public int getSpeakerOutputMode() {
 		String mode = (String) cbSpeakerMonoStereo.getSelectedItem();
@@ -285,7 +285,7 @@ public class Options extends javax.swing.JFrame {
 	 * From the GUI, get the input mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or
 	 * AudioPlayer.RIGHT_ONLY.
 	 * 
-	 * @return
+	 * @return AudioPlayer.STEREO
 	 */
 	public int getInputMode() {
 		String mode = (String) cbMonoStereo.getSelectedItem();
@@ -303,7 +303,8 @@ public class Options extends javax.swing.JFrame {
 	 * From the GUI, get the output mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or
 	 * AudioPlayer.RIGHT_ONLY.
 	 * 
-	 * @return
+	 * @return AudioPlayer.MONO if mode is "mono", AudioPlayer.LEFT_ONLY if mode is "left only", 
+	 *        AudioPlayer.RIGHT_ONLY if mode is mode is "right only", AudioPlayer.STEREO otherwise  
 	 */
 	public int getExpertOutputMode() {
 		String mode = (String) cbExpertMonoStereo.getSelectedItem();

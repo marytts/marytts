@@ -53,7 +53,7 @@ public class SpeakerWindow extends javax.swing.JFrame {
 	/**
 	 * Updates the prompt display with the current prompt text
 	 * 
-	 * @param promptText
+	 * @param text
 	 *            The current prompt text for the speaker to read
 	 */
 	public void updatePromptDisplay(String text, String nextSentence, boolean redAlertMode) {

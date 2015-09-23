@@ -79,7 +79,7 @@ public class DBHandler {
 	/**
 	 * The constructor loads the database driver.
 	 * 
-	 * @param localVal
+	 * @param localeVal
 	 *            database language.
 	 */
 	public DBHandler(String localeVal) {
@@ -332,7 +332,7 @@ public class DBHandler {
 	/***
 	 * Creates dbselectionTable
 	 * 
-	 * @return true if the table was created succesfully or it exists already, false if the table exist and it can not be deleted.
+	 * 
 	 */
 	public void createDataBaseSelectionTable() {
 		String dbselection = "CREATE TABLE " + dbselectionTableName + " ( id INT NOT NULL AUTO_INCREMENT, "
@@ -717,7 +717,7 @@ public class DBHandler {
 	/***
 	 * check if tables: locale_text, locale_page and locale_revision exist.
 	 * 
-	 * @return
+	 * @return resText && resPage && resRevision
 	 */
 	public boolean checkWikipediaTables() {
 		// wiki must be already created
@@ -824,9 +824,9 @@ public class DBHandler {
 	/***
 	 * Get a list of ids from field in table.
 	 * 
-	 * @param fiel
+	 * @param field
 	 * @param table
-	 * @return
+	 * @return idSet
 	 */
 	public String[] getIds(String field, String table) {
 		int num, i, j;
@@ -857,7 +857,7 @@ public class DBHandler {
 	/***
 	 * This function will select just the unprocessed cleanText records.
 	 * 
-	 * @return
+	 * @return idSet
 	 */
 	public int[] getUnprocessedTextIds() {
 		int num, i, j;
@@ -1161,7 +1161,7 @@ public class DBHandler {
 	 * 
 	 * @param table
 	 * @param condition
-	 * @return
+	 * @return Pair<int[], byte[][]>(idSet, features)
 	 */
 	public Pair<int[], byte[][]> getIdsAndFeatureVectors(String table, String condition) {
 		int num, i, j;
@@ -1227,13 +1227,13 @@ public class DBHandler {
 	 * Get a list of id's from a selected sentences table.<br>
 	 * NOTE: use the actual table name: local + tableName + selectedsentences
 	 * 
-	 * @param lang
-	 *            language locale of the table
+	 * 
+	 * 
 	 * @param actualTableName
 	 *            = locale_tableName_selectedSentences
 	 * @param condition
 	 *            unwanted=true/false
-	 * @return
+	 * @return idSet
 	 */
 	public int[] getIdListOfSelectedSentences(String actualTableName, String condition) {
 		int num, i, j;
@@ -1274,7 +1274,7 @@ public class DBHandler {
 	 * Get number of words in the wordList table.
 	 * 
 	 * @return int number of words.
-	 * @param maxFreq
+	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
 	 *            frequency>=1.
 	 */
@@ -1293,7 +1293,7 @@ public class DBHandler {
 	 * @param numWords
 	 *            max number of words to retrieve, if numWords=0 then it will retrieve all the words in the list in descending
 	 *            order of frequency.
-	 * @param maxFreq
+	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
 	 *            frequency>=1.
 	 */
@@ -1342,7 +1342,7 @@ public class DBHandler {
 	 * @param numWords
 	 *            max number of words to retrieve, if numWords=0 then it will retrieve all the words in the list in descending
 	 *            order of frequency.
-	 * @param maxFreq
+	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
 	 *            frequency>=1.
 	 */
@@ -1391,7 +1391,7 @@ public class DBHandler {
 	 *            word or frequency
 	 * @param numWords
 	 *            max number of words, if numWords=0 then it will retrieve all the words in the list.
-	 * @param maxFreq
+	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
 	 *            frequency>=1.
 	 */
@@ -1443,7 +1443,7 @@ public class DBHandler {
 	/***
 	 * Get a sentence from a locale_dbselection table.
 	 * 
-	 * @param table
+	 * @param id
 	 *            dbselection (no need to add locale)
 	 * @return String sentence
 	 */
@@ -1468,7 +1468,7 @@ public class DBHandler {
 	 * 
 	 * @param tableName
 	 * @param id
-	 * @return
+	 * @return sentence
 	 */
 	public String getSelectedSentence(String tableName, int id) {
 		String sentence = "";
@@ -1557,7 +1557,7 @@ public class DBHandler {
 	 * @param id
 	 * @param field
 	 *            reliable, unknownWords, strangeSymbols, selected or unwanted = true/false
-	 * @param fieldvalue
+	 * @param fieldValue
 	 *            true/false (as string)
 	 */
 	public void setSentenceRecord(int id, String field, boolean fieldValue) {
@@ -1597,7 +1597,7 @@ public class DBHandler {
 	/***
 	 * Set a description for table = name, it checks if the table tablesDescription exist, if not it creates it.
 	 * 
-	 * @param name
+	 * @param tableName
 	 *            the name of the table, it can not be null
 	 * @param description
 	 *            if no description set to null

@@ -334,7 +334,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent {
 	 * Checks if the directory exist and has files
 	 * 
 	 * @param dir
-	 * @return
+	 * @return true if dir exists and dir.list has a greater length than 0, false otherwise
 	 */
 	private boolean existWithFiles(String dirName) {
 		File dir = new File(dirName);

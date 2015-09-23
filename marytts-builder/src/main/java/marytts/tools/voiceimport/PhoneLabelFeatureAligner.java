@@ -387,7 +387,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 	 * file, it is removed in the label file. If there is a pause in the feature file and not in the label file, a pause of length
 	 * zero is inserted in the label file
 	 * 
-	 * @param basename
+	 * 
 	 * @return the number of problems remaining
 	 * @throws IOException
 	 */
@@ -1089,8 +1089,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 		/**
 		 * Show a frame allowing the user to edit the file.
 		 * 
-		 * @param file
-		 *            the file to edit
+		 * 
+		 * 
 		 * @return a boolean indicating whether the file was saved.
 		 * @throws IOException
 		 * @throws UnsupportedEncodingException

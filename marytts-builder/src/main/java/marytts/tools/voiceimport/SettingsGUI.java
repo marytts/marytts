@@ -114,11 +114,10 @@ public class SettingsGUI {
 	/**
 	 * Show a frame displaying the help file.
 	 * 
-	 * @param db
-	 *            the DatbaseLayout
-	 * @param props
-	 *            the properties and values to be displayed
-	 * @return true, if no error occurred
+	 * @param selectedComp
+	 * 
+	 * @param simpleMode
+	 * 
 	 */
 	public void display(String selectedComp, boolean simpleMode) {
 		wasSaved = false;

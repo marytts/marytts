@@ -172,13 +172,13 @@ public class SelectionFunction {
 	 *            the coverage definition for the feature vectors
 	 * @param logFile
 	 *            the logFile to document the progress
-	 * @param basenameList
+	 * @param cfProvider
 	 *            the list of filenames of the sentences
-	 * @param holdVectorsInMemory
+	 * @param verboseSelect
 	 *            if true, get vectors from coverage definition, if false, read vectors from disk
-	 * @param verbose
-	 *            print output also to command line
-	 * @return the list of selected filenames
+	 * @param wikiToDB
+	 *            
+	 * 
 	 * @throws Exception
 	 */
 	public void select(Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents, CoverageDefinition coverageDefinition,

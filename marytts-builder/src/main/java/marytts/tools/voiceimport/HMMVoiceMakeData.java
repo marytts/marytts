@@ -269,7 +269,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	 * to replace back the tricky phones. If a trickyFile is created when training a voice, the tricky file name will be included
 	 * in the configuration file of the voice. CHECK not sure how/where to keep this file for the JoinModeller?
 	 * 
-	 * @param phoneXML
+	 * @param allophoneSet
 	 *            allophonesFile for the voice or language (full path).
 	 * @param trickyFile
 	 *            name of the file where the tricky phone replacements are saved (full path).
