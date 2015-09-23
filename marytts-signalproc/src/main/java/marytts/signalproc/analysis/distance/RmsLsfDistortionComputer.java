@@ -147,7 +147,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	 * @param time
 	 * @param labels
 	 * @param silenceSymbol
-	 * @return
+	 * @return (i == 0 or i == labels.items.length -1) and l.phn.equals(silenceSymbol) 
 	 */
 	private boolean isInitialOrFinalSilence(double time, Labels labels, String silenceSymbol) {
 		int i = labels.getLabelIndexAtTime(time);

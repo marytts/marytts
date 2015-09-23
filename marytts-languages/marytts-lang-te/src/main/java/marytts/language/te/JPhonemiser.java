@@ -71,10 +71,10 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
-	 * @param allophonesFilename
-	 * @param userdictFilename
-	 * @param lexiconFilename
-	 * @param ltsFilename
+	 * @param componentName
+	 * @param inputType
+	 * @param outputType
+	 * @param allophonesProperty
 	 * @throws Exception
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
@@ -195,7 +195,7 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * @param text
 	 * @param pos
-	 * @return
+	 * @return transcr
 	 */
 	public String userdictLookup(String text, String pos) {
 		if (userdict == null || text == null || text.length() == 0)
@@ -242,7 +242,7 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * 
 	 * @param lexiconFilename
-	 * @return
+	 * @return fLexicon
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
 		String line;

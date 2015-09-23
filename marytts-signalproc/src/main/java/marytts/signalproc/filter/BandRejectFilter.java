@@ -44,11 +44,11 @@ public class BandRejectFilter extends FIRFilter {
 	/**
 	 * Create a new band reject filter with the given normalised cutoff frequencies and a default transition band width.
 	 * 
-	 * @param lowerNormalisedCutoffFrequency
+	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 4000 Hz, the lowerNormalisedCutoffFrequency would have to be 0.25.
-	 * @param upperNormalisedCutoffFrequency
+	 * @param upperNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the upper end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 6000 Hz, the upperNormalisedCutoffFrequency would have to be 0.375.
@@ -60,11 +60,11 @@ public class BandRejectFilter extends FIRFilter {
 	/**
 	 * Create a new band reject filter with the given normalised cutoff frequencies and a default transition band width.
 	 * 
-	 * @param lowerNormalisedCutoffFrequency
+	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 4000 Hz, the lowerNormalisedCutoffFrequency would have to be 0.25.
-	 * @param upperNormalisedCutoffFrequency
+	 * @param upperNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the upper end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 6000 Hz, the upperNormalisedCutoffFrequency would have to be 0.375.
@@ -82,11 +82,11 @@ public class BandRejectFilter extends FIRFilter {
 	/**
 	 * Create a new band reject filter with the given normalised cutoff frequencies and a default transition band width.
 	 * 
-	 * @param lowerNormalisedCutoffFrequency
+	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 4000 Hz, the lowerNormalisedCutoffFrequency would have to be 0.25.
-	 * @param upperNormalisedCutoffFrequency
+	 * @param upperNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the upper end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
 	 *            of 6000 Hz, the upperNormalisedCutoffFrequency would have to be 0.375.

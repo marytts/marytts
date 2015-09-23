@@ -739,7 +739,7 @@ public class SignalProcUtils {
 	 *            width of each band in Bark (default 1)
 	 * @param minfreq
 	 * @param maxfreq
-	 * @return
+	 * @return wts
 	 */
 	public static double[][] fft2barkmx(int nfft, int sr, int nfilts, int width, double minfreq, double maxfreq) {
 
@@ -2442,8 +2442,8 @@ public class SignalProcUtils {
 	 * @param samplingRateInHz
 	 * @param amplitudes
 	 *            : if amplitudes true it returns the amplitude values, original function if amplitudes false it returns the
-	 *            amplitud frequencies where the peaks were located
-	 * @return
+	 *            amplitude frequencies where the peaks were located
+	 * @return amps if amplitudes, ampsFreq otherwise
 	 */
 	public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int startHarmonicIndex, int endHarmonicIndex,
 			int fftSize, double samplingRateInHz, boolean amplitudes) {

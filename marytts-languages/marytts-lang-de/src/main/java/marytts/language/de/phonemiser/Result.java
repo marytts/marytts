@@ -33,14 +33,14 @@ public class Result {
 	}
 
 	/**
-	 * @return
+	 * @return transcription
 	 */
 	public String getTranscription() {
 		return transcription;
 	}
 
 	/**
-	 * @return
+	 * @return usedOtherLanguageToPhonemise
 	 */
 	public boolean isUsedOtherLanguageToPhonemise() {
 		return usedOtherLanguageToPhonemise;
