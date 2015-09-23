@@ -49,11 +49,6 @@ public class Speech {
 	/**
 	 * Determines how many recordings a prompt has
 	 * 
-	 * @param wavPath
-	 *            The file path to the wav directory of recordings
-	 * @param basename
-	 *            The basename for the currently selected prompt
-	 * @return The number of files
 	 */
 	public void updateFileCount() {
 		// Note: This method doesn't increment the file count; it only asks the Speech object to initiate
@@ -163,8 +158,11 @@ public class Speech {
 	/**
 	 * Creates a new instance of Speech given a file path
 	 * 
-	 * @param filePath
+	 * @param passedFilePath
 	 *            The file path containing the sound files (i.e., the wav or wav_synth directory path)
+	 * @param passedBasename
+	 *            The base name
+	 * 
 	 */
 	public Speech(File passedFilePath, String passedBasename) {
 
