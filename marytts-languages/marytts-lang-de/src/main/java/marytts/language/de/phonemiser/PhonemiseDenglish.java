@@ -534,7 +534,7 @@ public class PhonemiseDenglish {
 	/**
 	 * 
 	 * @param word
-	 * @return
+	 * @return enBaseForm
 	 */
 	private String transformWordToEnBaseFormGerund(String word) {
 		logger.debug("getBaseFormGerund called with: " + word);

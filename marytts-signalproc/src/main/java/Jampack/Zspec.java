@@ -34,7 +34,7 @@ public class Zspec {
 	 * 
 	 * @param AA
 	 *            A Zmat
-	 * @return The spectral decomposition of A
+	 * 
 	 * @exception JampackException
 	 *                Thown if AA is not Hermitian.<br>
 	 *                Passed from below.

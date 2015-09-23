@@ -112,9 +112,9 @@ public class Polynomial {
 	 * Compute the integrated distance between two polynomials of same order. More precisely, this will return the absolute value
 	 * of the integral from 0 to 1 of the difference between the two functions.
 	 * 
-	 * @param a
+	 * @param other
 	 *            polynomial with the same order as this polynomial.
-	 * @return
+	 * @return polynomialDistance(self.coeffs, other.coeffs)
 	 */
 	public double polynomialDistance(Polynomial other) {
 		return polynomialDistance(this.coeffs, other.coeffs);
@@ -128,9 +128,9 @@ public class Polynomial {
 	 * <code>expand(integrate((sum(a[i]*x**i, i, 0, order))**2, x, 0, 1));</code>, with order varied from 0 to 4. Increasing order
 	 * by 1 adds (order+1) summands.
 	 * 
-	 * @param a
+	 * @param other
 	 *            polynomial with the same order as this polynomial.
-	 * @return
+	 * @return polynomialSquaredDistance(this.coeffs, other.coeffs)
 	 */
 	public double polynomialSquaredDistance(Polynomial other) {
 		return polynomialSquaredDistance(this.coeffs, other.coeffs);

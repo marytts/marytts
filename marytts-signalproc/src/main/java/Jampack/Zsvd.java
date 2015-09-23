@@ -48,7 +48,7 @@ public class Zsvd {
 	 * 
 	 * @param XX
 	 *            A Zmat
-	 * @return The Zsvd of XX
+	 * 
 	 * @exception JampackException
 	 *                Thrown if maximimum number of iterations is exceeded.<br>
 	 *                Passed from below.

@@ -33,7 +33,7 @@ public class Zqrd {
 	 * 
 	 * @param A
 	 *            A Zmat
-	 * @return The Zqrd of A
+	 * 
 	 * @exception JampackException
 	 *                Passed from below.
 	 */

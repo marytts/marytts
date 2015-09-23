@@ -309,7 +309,7 @@ public class CARTBuilder extends VoiceImportComponent {
 	/**
 	 * Read in the CARTs from festival/trees/ directory, and store them in a CARTMap
 	 * 
-	 * @param festvoxDirectory
+	 * @param filename
 	 *            the festvox directory of a voice
 	 */
 	public CART importCART(String filename, FeatureDefinition featDef) throws IOException, MaryConfigurationException {
@@ -332,7 +332,7 @@ public class CARTBuilder extends VoiceImportComponent {
 	/**
 	 * For each leaf in the CART, run Wagon on the feature vectors in this CART, and replace leaf by resulting CART
 	 * 
-	 * @param topLevelCART
+	 * @param cart
 	 *            the CART
 	 * @param featureDefinition
 	 *            the definition of the features

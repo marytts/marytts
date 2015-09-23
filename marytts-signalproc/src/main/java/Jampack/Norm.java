@@ -113,7 +113,7 @@ public class Norm {
 	 * 
 	 * @param D
 	 *            The Zdiagmat
-	 * @regurn The Frobenius norm of D
+	 * @return The Frobenius norm of D
 	 */
 
 	public static double fro(Zdiagmat D) {

@@ -448,7 +448,7 @@ public class Preprocess extends InternalModule {
 	 * expand a URL string partially by splitting by @, / and . symbols (but retaining them)
 	 * 
 	 * @param email
-	 * @return
+	 * @return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "")
 	 */
 	protected String expandURL(String email) {
 		String[] tokens = email.split("((?<=[\\.@\\/])|(?=[\\.@\\/]))");
@@ -473,7 +473,7 @@ public class Preprocess extends InternalModule {
 	 * add a space between each char of a string
 	 * 
 	 * @param consonants
-	 * @return
+	 * @return Joiner.on(" ").join(Lists.charactersOf(consonants))
 	 */
 	protected String expandConsonants(String consonants) {
 		return Joiner.on(" ").join(Lists.charactersOf(consonants));
@@ -527,7 +527,7 @@ public class Preprocess extends InternalModule {
 	/***
 	 * expands a digit followed by an s. e.g. 7s and 8s and the 60s
 	 * @param numberS
-	 * @return
+	 * @return number
 	 */
 	protected String expandNumberS(String numberS) {
 		Matcher numberSMatcher = numberSPattern.matcher(numberS);
@@ -558,7 +558,7 @@ public class Preprocess extends InternalModule {
 	 *            the token to be expanded
 	 * @param isCapital
 	 *            whether the following token begins with a capital letter
-	 * @return
+	 * @return abbrev
 	 */
 	protected String expandAbbreviation(String abbrev, boolean isCapital) {
 		String expAbb = abbrev.replaceAll("\\.", "").toLowerCase();
@@ -593,7 +593,7 @@ public class Preprocess extends InternalModule {
 	 *            the token to be expanded
 	 * @param isNextTokenTime
 	 *            whether the following token contains am or pm
-	 * @return
+	 * @return theTime
 	 */
 	protected String expandTime(String time, boolean isNextTokenTime) {
 		boolean pastNoon = false;

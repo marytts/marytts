@@ -41,7 +41,7 @@ public class HighPassFilter extends FIRFilter {
 	/**
 	 * Create a new highpass filter with the given normalised cutoff frequency and a default transition band width.
 	 * 
-	 * @param normalisedCutoffFrequency
+	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
 	 *            normalisedCutoffFrequency would have to be 0.25.
@@ -53,7 +53,7 @@ public class HighPassFilter extends FIRFilter {
 	/**
 	 * Create a new highpass filter with the given normalised cutoff frequency and the given normalised transition band width.
 	 * 
-	 * @param normalisedCutoffFrequency
+	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
 	 *            normalisedCutoffFrequency would have to be 0.25.
@@ -69,7 +69,7 @@ public class HighPassFilter extends FIRFilter {
 	/**
 	 * Create a new highpass filter with the given normalised cutoff frequency and the given length of the filter kernel.
 	 * 
-	 * @param normalisedCutoffFrequency
+	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
 	 *            normalisedCutoffFrequency would have to be 0.25.

@@ -37,7 +37,7 @@ public class Zludpp {
 	 * 
 	 * @param A
 	 *            A Zmat
-	 * @return The Zludpp of A
+	 * 
 	 * @exception JampackException
 	 *                Passed from below.
 	 */

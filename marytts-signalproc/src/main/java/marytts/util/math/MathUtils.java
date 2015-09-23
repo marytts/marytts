@@ -166,7 +166,7 @@ public class MathUtils {
 	 * Build the sum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 * @return sum
 	 */
 	public static double sum(double[] data) {
 		double sum = 0.0;
@@ -228,7 +228,7 @@ public class MathUtils {
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 * @return max
 	 */
 	public static double max(double[] data) {
 		double max = Double.NaN;
@@ -254,7 +254,7 @@ public class MathUtils {
 	 * Find the maximum of the absolute values of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 * @return absMax of data, 0, data.length
 	 */
 	public static double absMax(double[] data) {
 		return absMax(data, 0, data.length);
@@ -266,7 +266,7 @@ public class MathUtils {
 	 * @param data
 	 * @param off
 	 * @param len
-	 * @return
+	 * @return max
 	 */
 	public static double absMax(double[] data, int off, int len) {
 		double max = Double.NaN;
@@ -284,7 +284,7 @@ public class MathUtils {
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 * @return min
 	 */
 	public static double min(double[] data) {
 		double min = Double.NaN;
@@ -464,7 +464,7 @@ public class MathUtils {
 	 *            <p>
 	 *            1: normalizes with N, this provides the square root of the second moment around the mean
 	 *            <p>
-	 * @return
+	 * @return Math.sqrt(variance(data, opt))
 	 */
 	public static double standardDeviation(double[] data, int opt) {
 		if (opt == 0)
@@ -567,7 +567,7 @@ public class MathUtils {
 	 * 
 	 * @param x
 	 *            the matrix consisting of row vectors
-	 * @param mean
+	 * @param meanVector
 	 *            the vector of mean values -- a column vector if row-wise variances are to be computed, or a row vector if
 	 *            column-wise variances are to be calculated. param isAlongRows if true, compute the variance of x[0][0], x[1][0]
 	 *            etc. given mean[0]; if false, compute the variances for the vectors x[0], x[1] etc. separately, given the
@@ -742,7 +742,7 @@ public class MathUtils {
 	/***
 	 * Sample correlation coefficient Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
 	 * 
-	 * @return
+	 * @return r
 	 */
 	public static double correlation(double[] x, double[] y) {
 
@@ -1686,7 +1686,7 @@ public class MathUtils {
 	/**
 	 * Convert energy from db scale to linear scale.
 	 * 
-	 * @param energy
+	 * @param dbEnergy
 	 *            in time or frequency domain, on a db energy scale
 	 * @return energy on a linear scale.
 	 */
@@ -1757,7 +1757,7 @@ public class MathUtils {
 	 * 
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return sum
 	 */
 	public static double sumSquaredError(double[] a, double[] b) {
 		if (a.length != b.length) {
@@ -1932,7 +1932,7 @@ public class MathUtils {
 	 * For a given angle in radians, return the equivalent angle in the range [-PI, PI].
 	 * 
 	 * @param angle
-	 * @return
+	 * @return (angle + PI) % (-TWOPI) + PI
 	 */
 	public static double angleToDefaultAngle(double angle) {
 		return (angle + Math.PI) % (-TWOPI) + Math.PI;
@@ -1942,7 +1942,7 @@ public class MathUtils {
 	 * For each of an array of angles (in radians), return the equivalent angle in the range [-PI, PI].
 	 * 
 	 * @param angle
-	 * @return
+	 * 
 	 */
 	public static void angleToDefaultAngle(double[] angle) {
 		for (int i = 0; i < angle.length; i++) {
@@ -3517,10 +3517,10 @@ public class MathUtils {
 	}
 
 	/***
-	 * Calcualtes x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
+	 * Calculates x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
 	 * 
 	 * @param x
-	 * @return
+	 * @return x
 	 */
 	public static double[] normalizeZscore(double[] x) {
 		double mn = mean(x, 0);
@@ -4287,7 +4287,7 @@ public class MathUtils {
 	 * 
 	 * @param X
 	 * @param x
-	 * @return
+	 * @return newX
 	 */
 	static public int[] addIndex(int[] X, int x) {
 		int newX[] = new int[X.length + 1];
@@ -4302,7 +4302,7 @@ public class MathUtils {
 	 * 
 	 * @param X
 	 * @param x
-	 * @return
+	 * @return newX
 	 */
 	static public int[] removeIndex(int[] X, int x) {
 		int newX[] = new int[X.length - 1];
@@ -4453,7 +4453,7 @@ public class MathUtils {
 	 * To interpolate Zero values with respect to NonZero values
 	 * 
 	 * @param contour
-	 * @return
+	 * @return contour
 	 */
 	public static double[] interpolateNonZeroValues(double[] contour) {
 
@@ -4488,7 +4488,7 @@ public class MathUtils {
 	 * 
 	 * @param contour
 	 * @param current
-	 * @return
+	 * @return -1
 	 */
 	public static int findNextIndexNonZero(double[] contour, int current) {
 		for (int i = current + 1; i < contour.length; i++) {
@@ -4504,7 +4504,7 @@ public class MathUtils {
 	 * 
 	 * @param data
 	 * @param targetSize
-	 * @return
+	 * @return source if source.length == targetSize, newSignal otherwise
 	 */
 	public static double[] arrayResize(double[] source, int targetSize) {
 
