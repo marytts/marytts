@@ -58,10 +58,8 @@ public abstract class MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
 	 * @throws UnknownHostException
@@ -124,10 +122,8 @@ public abstract class MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
 	 * @throws UnknownHostException
@@ -150,10 +146,8 @@ public abstract class MaryClient {
 	 * given host and port. Note that in applets, the host must be the same as the one from which the applet was loaded;
 	 * otherwise, a security exception is thrown.
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @param profile
 	 *            determines whether profiling (timing) information is calculated
 	 * @param quiet
@@ -176,10 +170,6 @@ public abstract class MaryClient {
 	/**
 	 * Initialise a connection to the MARY server at the specified host and port.
 	 * 
-	 * @param serverHost
-	 *            the host where to contact a MARY server
-	 * @param serverPort
-	 *            the socket port where to contact a MARY server
 	 * @param profile
 	 *            whether to do profiling
 	 * @param quiet
@@ -630,9 +620,12 @@ public abstract class MaryClient {
 	 *            the name of the audio format, e.g. "WAVE" or "MP3".
 	 * @param defaultVoiceName
 	 *            the name of the voice to use, e.g. de7 or us1.
-	 * @param audioEffects
-	 *            the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100),
-	 *            Whisper(amount=50)
+	 * @param locale
+	 * 
+	 * @param defaultStyle
+	 * 
+	 * @param defaultEffects
+	 * 
 	 * @param outputTypeParams
 	 *            any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce.
 	 *            Can be null.
@@ -671,9 +664,12 @@ public abstract class MaryClient {
 	 *            the name of the audio format, e.g. "WAVE" or "MP3".
 	 * @param defaultVoiceName
 	 *            the name of the voice to use, e.g. de7 or us1.
-	 * @param audioEffects
-	 *            the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100),
-	 *            Whisper(amount=50)
+	 * @param locale
+	 * 
+	 * @param defaultStyle
+	 * 
+	 * @param defaultEffects
+	 * 
 	 * @param outputTypeParams
 	 *            any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce.
 	 *            Can be null.
@@ -711,8 +707,6 @@ public abstract class MaryClient {
 	 * by tritonus.
 	 * 
 	 * @return the audio file format type if it is known, or null.
-	 * @see #canCreateMP3()
-	 * @see #canCreateOgg()
 	 */
 	public static AudioFileFormat.Type getAudioFileFormatType(String name) {
 		AudioFileFormat.Type at;
