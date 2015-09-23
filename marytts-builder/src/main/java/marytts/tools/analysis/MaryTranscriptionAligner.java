@@ -106,7 +106,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	 * 
 	 * @param doc
 	 *            the document to analyse
-	 * @return
+	 * @return orig, converted into string
 	 */
 	private String collectTranscription(Document doc) {
 		// String storing the original transcription begins with a pause
