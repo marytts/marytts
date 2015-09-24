@@ -1,7 +1,16 @@
-target/
+# Gradle
+.gradle/
+build/
+
+# Eclipse
 .settings/
 .project
 .classpath
+
+# IDEA
+.idea/
+*.iml
+
 tmp/
 log/
 test-output/
