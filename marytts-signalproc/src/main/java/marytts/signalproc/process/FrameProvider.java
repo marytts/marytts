@@ -158,7 +158,7 @@ public class FrameProvider {
 	/**
 	 * The number of samples in the current frame.
 	 * 
-	 * @return
+	 * @return frameLength
 	 */
 	public int getFrameLengthSamples() {
 		return frameLength;

@@ -84,7 +84,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * 
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 * @see{#getFrameLengthSamples() .
+	 * works like {@link #getFrameLengthSamples()} .
 	 * @return a Double representing the total energy in the frame.
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length

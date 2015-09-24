@@ -467,7 +467,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		/**
 		 * Return a clone of the internal representation of the LPC coefficients.
 		 * 
-		 * @return
+		 * @return clone of oneMinusA
 		 */
 		public double[] getOneMinusA() {
 			return (double[]) oneMinusA.clone();
@@ -580,9 +580,9 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		/**
 		 * Convert some LPC-Cepstrum coefficients into these LPC coefficients.
 		 * 
-		 * @param lpcOrder
-		 *            The LPC order (i.e., the index of the last LPC coefficient).
-		 * @note The gain is set to exp(c[0]) and the LPCs are represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
+		 * @param LPCOrder
+		 *            The LPC order (i.e., the index of the last LPC coefficient). The gain is set to exp(c[0]) and the LPCs are
+		 *            represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
 		 */
 		public void setLPCC(double[] someLpcc, int LPCOrder) {
 			this.lpcc = (double[]) someLpcc.clone();

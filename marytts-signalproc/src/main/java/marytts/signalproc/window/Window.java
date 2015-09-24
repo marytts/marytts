@@ -64,7 +64,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 * @param length
 	 *            the window length, in samples; this should be an odd number, so that the window can be symmetric around the
 	 *            center point.
-	 * @throw IllegalArgumentException if length is an even number.
+	 * @throws IllegalArgumentException if length is an even number.
 	 */
 	public Window(int length) {
 		this(length, 1);
@@ -79,7 +79,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            center point.
 	 * @param prescalingFactor
 	 *            a factor to apply to each window point.
-	 * @throw IllegalArgumentException if length is an even number.
+	 * @throws IllegalArgumentException if length is an even number.
 	 */
 	public Window(int length, double prescalingFactor) {
 		window = new double[length];
@@ -271,7 +271,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	/**
 	 * Return this window's type, as defined by the constants in Window, or -1 if the window is not of a known type.
 	 * 
-	 * @return
+	 * @return -1
 	 */
 	public int type() {
 		if (this instanceof RectWindow)

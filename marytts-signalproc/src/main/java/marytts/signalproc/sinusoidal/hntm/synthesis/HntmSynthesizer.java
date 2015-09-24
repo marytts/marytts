@@ -458,7 +458,7 @@ public class HntmSynthesizer {
 
 	/**
 	 * 
-	 * @param a
+	 * @param args
 	 *            directory containig .wav files or a wav file, in the same directory it should be a .ptc file that can be
 	 *            extracted with
 	 * @throws UnsupportedAudioFileException

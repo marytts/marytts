@@ -34,7 +34,7 @@ public class MixerDoubleDataSource extends BaseDoubleDataSource {
 
 	/**
 	 * 
-	 * @param inputSource
+	 * @param inputSources
 	 */
 	public MixerDoubleDataSource(DoubleDataSource[] inputSources) {
 		super();

@@ -70,7 +70,7 @@ public class Lpcc2Lpc {
 	/**
 	 * A method to convert between two files, from LPCs to LPCCs in EST format.
 	 * 
-	 * @param cepstrumOrder
+	 * @param lpcOrder
 	 *            The requested cepstrum order.
 	 * @param inFileName
 	 *            The name of the input file.

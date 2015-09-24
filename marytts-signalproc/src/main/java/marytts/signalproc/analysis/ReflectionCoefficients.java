@@ -43,7 +43,6 @@ public class ReflectionCoefficients {
 	 * @return The reflection coefficents. If the LPC order is N, there are N reflection coefficients and (N+1) LPC coefficients
 	 *         (if you count a0==1).
 	 * 
-	 * @author sacha
 	 */
 	public static double[] lpc2lprefc(double[] oneMinusA) {
 		/*
@@ -91,7 +90,6 @@ public class ReflectionCoefficients {
 	 * 
 	 * @return The LPC coefficents [1 -a_1 -a_2 ... -a_p].
 	 * 
-	 * @author sacha
 	 */
 	public static double[] lprefc2lpc(double[] k) {
 		/*

@@ -92,7 +92,7 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
 	 * Process the LPC coefficients in place. This implementation converts the LPC coefficients into line spectral frequencies,
 	 * and interpolates between these and the corresponding frame in the "other" signal.
 	 * 
-	 * @param a
+	 * @param coeffs
 	 *            the LPC coefficients
 	 */
 	protected void processLPC(LpCoeffs coeffs, double[] residual) {

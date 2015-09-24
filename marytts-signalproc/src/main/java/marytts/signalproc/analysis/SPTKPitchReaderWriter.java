@@ -91,7 +91,7 @@ public class SPTKPitchReaderWriter {
 	/**
 	 * get f0 values in Hz (0.0 for unvoiced)
 	 * 
-	 * @return
+	 * @return self.contour
 	 */
 	public double[] getF0Contour() {
 		return this.contour;
@@ -100,7 +100,7 @@ public class SPTKPitchReaderWriter {
 	/**
 	 * get pitch file header
 	 * 
-	 * @return
+	 * @return self.header
 	 */
 	public PitchFileHeader getPitchFileHeader() {
 		return this.header;
@@ -109,7 +109,7 @@ public class SPTKPitchReaderWriter {
 	/**
 	 * 
 	 * @param lf0SPTKFile
-	 * @return
+	 * @return totalFrame
 	 * @throws IOException
 	 */
 	private int getNumberOfFrames(String lf0SPTKFile) throws IOException {
@@ -135,7 +135,7 @@ public class SPTKPitchReaderWriter {
 	 * convert a SPTK file into contour[]
 	 * 
 	 * @param lf0SPTKFile
-	 * @return
+	 * @return null if !FileUtils.exists(lf0SPTKFile), f0Data otherwise
 	 * @throws IOException
 	 */
 	private double[] readSPTKF0Data(String lf0SPTKFile) throws IOException {

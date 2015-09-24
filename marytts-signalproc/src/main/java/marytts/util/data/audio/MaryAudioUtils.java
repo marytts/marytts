@@ -73,8 +73,6 @@ public class MaryAudioUtils {
 	 * by tritonus.
 	 * 
 	 * @return the audio file format type if it is known, or null.
-	 * @see MaryServerUtils#canCreateMP3()
-	 * @see MaryServerUtils#canCreateOgg()
 	 */
 	public static AudioFileFormat.Type getAudioFileFormatType(String name) {
 		AudioFileFormat.Type at;
@@ -104,7 +102,6 @@ public class MaryAudioUtils {
 	 *            the given amount of time in milliseconds
 	 * @param audioFormat
 	 *            the audio format for the actual sound file
-	 * @return void
 	 * @throws LineUnavailableException
 	 *             if no recording line can be found
 	 * @throws InterruptedException
@@ -122,7 +119,7 @@ public class MaryAudioUtils {
 	/**
 	 * Record a sound file with the recording being limited to a given amount of time
 	 * 
-	 * @param filename
+	 * @param targetFile
 	 *            name of the sound file
 	 * @param millis
 	 *            the given amount of time in milliseconds

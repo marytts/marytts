@@ -374,7 +374,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	/**
 	 * The frame shift time, in seconds.
 	 * 
-	 * @return
+	 * @return params.skipSizeInSeconds
 	 */
 	public double getSkipSizeInSeconds() {
 		return params.skipSizeInSeconds;
@@ -383,7 +383,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	/**
 	 * The size of the analysis window, in seconds.
 	 * 
-	 * @return
+	 * @return params.windowSizeInSeconds
 	 */
 	public double getWindowSizeInSeconds() {
 		return params.windowSizeInSeconds;

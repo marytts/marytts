@@ -33,7 +33,7 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource {
 
 	/**
 	 * 
-	 * @param inputSource
+	 * @param inputSources
 	 */
 	public SequenceDoubleDataSource(DoubleDataSource[] inputSources) {
 		super();

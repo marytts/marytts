@@ -45,7 +45,6 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 
 	/**
 	 * @param inputSource
-	 * @param frameLength
 	 * @param samplingRate
 	 * @param rateChangeFactor
 	 *            the factor by which to speed up or slow down the source. Values greater than one will speed up, values smaller

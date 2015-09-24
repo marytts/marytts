@@ -308,7 +308,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	 * Get the next frame of input data. This method is called by prepareBlock() when preparing the output data to be read. This
 	 * implementation simply reads the data from the frameProvider.
 	 * 
-	 * @return
+	 * @return the next frame of frameProvider
 	 */
 	protected double[] getNextFrame() {
 		return frameProvider.getNextFrame();
