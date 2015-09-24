@@ -1,4 +1,5 @@
-description = 'voice-cmu-slt-hsmm'
+description 'A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University'
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-runtime')

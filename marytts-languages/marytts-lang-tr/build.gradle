@@ -1,4 +1,5 @@
-description = 'marytts-lang-tr'
+description 'NLP components for Turkish'
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-signalproc')

@@ -1,4 +1,5 @@
-description = 'marytts-lang-te'
+description 'NLP components for Telugu'
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-signalproc')
