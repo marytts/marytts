@@ -1,4 +1,3 @@
-description = 'marytts-signalproc'
 dependencies {
     compile project(':marytts-common')
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'

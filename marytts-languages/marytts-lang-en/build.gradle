@@ -1,4 +1,5 @@
-description = 'marytts-lang-en'
+description 'NLP components for English'
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-signalproc')
@@ -8,4 +9,5 @@ dependencies {
     testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
     testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
 }
+
 test.useTestNG()

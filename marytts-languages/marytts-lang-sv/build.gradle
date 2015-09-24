@@ -1,4 +1,5 @@
-description = 'marytts-lang-sv'
+description 'NLP components for Swedish'
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-signalproc')
