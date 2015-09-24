@@ -92,10 +92,6 @@ public class Polynomial {
 	/**
 	 * For a polynomial with the given coefficients, compute the value at the given position.
 	 * 
-	 * @param coeffs
-	 *            the polynomial coefficients. The code assumes that the polynomial is
-	 *            <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, and will interpret coeffs as
-	 *            <code>a_order, a_(order-1), ..., a_1, a_0</code>, where <code>order</code> is <code>coeffs.length-1</code>.
 	 * @param x
 	 *            the position where to compute the value
 	 * @return the predicted value
@@ -394,7 +390,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return abs(dist)
 	 */
 	public static double polynomialDistance(double[] coeffs1, double[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -417,7 +413,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return abs(dist)
 	 */
 	public static double polynomialDistance(float[] coeffs1, float[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -444,7 +440,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return integrateSquared(order, a)
 	 */
 	public static double polynomialSquaredDistance(double[] coeffs1, double[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -471,7 +467,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return integrateSquared(order, a)
 	 */
 	public static double polynomialSquaredDistance(float[] coeffs1, float[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)

@@ -33,7 +33,7 @@ public class WavWriter {
 	 * Byte swapping for int values.
 	 * 
 	 * @param val
-	 * @return
+	 * @return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24))
 	 */
 	private static int byteswap(int val) {
 		return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24));
@@ -43,7 +43,7 @@ public class WavWriter {
 	 * Byte swapping for short values.
 	 * 
 	 * @param val
-	 * @return
+	 * @return ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8))
 	 */
 	private static short byteswap(short val) {
 		return ((short) ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8)));

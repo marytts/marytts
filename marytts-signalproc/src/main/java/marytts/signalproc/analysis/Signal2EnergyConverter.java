@@ -54,7 +54,7 @@ public class Signal2EnergyConverter extends BufferedDoubleDataSource {
 	/**
 	 * For each signal sample, compute the signal energy as the square of the signal sample.
 	 * 
-	 * @param nNew
+	 * @param off
 	 *            the number of items in buf preceding writePos to process
 	 */
 	public void processNewData(int off, int len) {

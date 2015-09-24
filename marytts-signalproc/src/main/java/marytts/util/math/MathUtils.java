@@ -4502,7 +4502,7 @@ public class MathUtils {
 	/**
 	 * array resize to target size using linear interpolation
 	 * 
-	 * @param data
+	 * @param source
 	 * @param targetSize
 	 * @return source if source.length == targetSize, newSignal otherwise
 	 */

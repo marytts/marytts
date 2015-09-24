@@ -335,7 +335,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 	 * @param rightContexts
 	 *            array of Datagrams, one element per SelectedUnit
 	 * @param audioformat
-	 *            passed in from {@link BaseUnitConcatenator#load}
+	 * 
 	 * @param voicings
 	 *            array of boolean arrays, matching <b>datagrams</b>
 	 * @param pitchScales
@@ -343,7 +343,6 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 	 * @param timeScales
 	 *            array of double arrays, matching <b>datagrams</b>, duration modification factors
 	 * @return modified audio as a DoubleDataSource audio stream
-	 * @author steiner
 	 * @throws IOException
 	 *             if frames cannot be processed
 	 */

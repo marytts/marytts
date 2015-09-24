@@ -62,8 +62,10 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * 
 	 * @param data
 	 *            the (time-domain) data to process
-	 * @pos the position in the data array where the data lies
-	 * @len the length of the to-be-processed data
+	 * @param pos
+	 *            the position in the data array where the data lies
+	 * @param len
+	 *            the length of the to-be-processed data
 	 * @throws IllegalArgumentException
 	 *             if len is greater than the fftSize of this frequency domain processor.
 	 * 

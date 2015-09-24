@@ -104,8 +104,6 @@ public class PitchFrameProvider extends FrameProvider {
 	 * period, will be added to the left; after the end of the signal, (framePeriods-shiftPeriods) empty periods (zero signal),
 	 * equal in length to the last period, will be added to the right.
 	 * 
-	 * @param frame
-	 *            the frame to read into
 	 * @param nPrefilled
 	 *            number of valid values at the beginning of frame. These should not be lost or overwritten.
 	 * @return the number of new values read into frame at position nPrefilled. 0 signals that no further data can be read.
@@ -211,7 +209,7 @@ public class PitchFrameProvider extends FrameProvider {
 	/**
 	 * The number of periods provided in one frame.
 	 * 
-	 * @return
+	 * @return length of periodLengths
 	 */
 	public int getFramePeriods() {
 		return periodLengths.length;
@@ -220,7 +218,7 @@ public class PitchFrameProvider extends FrameProvider {
 	/**
 	 * The number of periods by which the analysis window is shifted.
 	 * 
-	 * @return
+	 * @return shiftPeriods
 	 */
 	public int getShiftPeriods() {
 		return shiftPeriods;

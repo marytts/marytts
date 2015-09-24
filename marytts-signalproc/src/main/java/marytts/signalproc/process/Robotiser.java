@@ -42,9 +42,8 @@ import marytts.util.signal.SignalProcUtils;
 public class Robotiser extends FrameOverlapAddSource {
 	/**
 	 * @param inputSource
-	 * @param frameLength
 	 * @param samplingRate
-	 * @param rateChangeFactor
+	 * @param amount
 	 *            the factor by which to speed up or slow down the source. Values greater than one will speed up, values smaller
 	 *            than one will slow down the original.
 	 */
