@@ -68,7 +68,7 @@ import org.xml.sax.SAXParseException;
 /**
  * A collection of utilities for DOM manipulation or analysis. No object of class DomUtils is created, all methods are static.
  * 
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Sathish and Ingmar
  */
 public class DomUtils {
 	protected static DocumentBuilderFactory factory;
@@ -185,7 +185,7 @@ public class DomUtils {
 
 	/**
 	 * @param validating
-	 * @return
+	 * @return builder
 	 * @throws ParserConfigurationException
 	 */
 	private static DocumentBuilder createDocumentBuilder(boolean validating) throws ParserConfigurationException {
@@ -221,7 +221,7 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 * @return parseDocument(inputData, false)
 	 * @throws SAXException
 	 * @throws IOException
 	 */
@@ -233,7 +233,7 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 * @return parseDocument(inputData, false)
 	 * @throws SAXException
 	 * @throws IOException
 	 */
@@ -245,7 +245,7 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param file
-	 * @return
+	 * @return parseDocument(file, false)
 	 * @throws SAXException
 	 * @throws IOException
 	 */
@@ -257,7 +257,7 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 * @return parseDocument(inputData, false)
 	 * @throws SAXException
 	 * @throws IOException
 	 */
@@ -347,7 +347,7 @@ public class DomUtils {
 	 * @param attributeName
 	 * @return value of attribute from closest ancestor with that attribute, or the empty string if no ancestor has that
 	 *         attribute.
-	 * @author Sathish and Ingmar
+	 * 
 	 */
 	public static String getAttributeFromClosestAncestorOfAnyKind(Node node, String attributeName) {
 		Node parentNode;
@@ -677,7 +677,7 @@ public class DomUtils {
 	 * Go through all text nodes below this node, and replace their text with a trimmed version of their text. This changes the
 	 * DOM document.
 	 * 
-	 * @param subtree
+	 * @param root
 	 */
 	public static void trimAllTextNodes(Node root) {
 		Document doc = root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument();
@@ -731,7 +731,7 @@ public class DomUtils {
 	 * 
 	 * @param document
 	 *            the document to be written
-	 * @param target
+	 * @param file
 	 *            where to write it.
 	 * @throws MaryConfigurationException
 	 *             if the DOM document cannot be serialized

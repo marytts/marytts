@@ -75,7 +75,7 @@ public class Allophone {
 	 * 
 	 * @param e
 	 * @param att
-	 * @return
+	 * @return "0" if val.equals(""), val otherwise
 	 */
 	private String getAttribute(Element e, String att) {
 		String val = e.getAttribute(att);
@@ -148,7 +148,7 @@ public class Allophone {
 	/**
 	 * Whether the Allophone object represents a tone symbol.
 	 * 
-	 * @return
+	 * @return "+".equals(features.get("isTone"))
 	 */
 	public boolean isTone() {
 		return "+".equals(features.get("isTone"));

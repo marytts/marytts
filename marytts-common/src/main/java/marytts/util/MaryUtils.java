@@ -404,7 +404,7 @@ public class MaryUtils {
 	 * 
 	 * @param locale
 	 *            a locale, must not be null
-	 * @return
+	 * @return language of locale
 	 * @throws IllegalArgumentException
 	 *             if locale is null
 	 */
@@ -663,7 +663,7 @@ public class MaryUtils {
 	 * 
 	 * @param t
 	 *            the throwable to print.
-	 * @return
+	 * @return buf converted to string
 	 */
 	public static String getThrowableAndCausesAsString(Throwable t) {
 		StringBuffer buf = new StringBuffer();
@@ -772,7 +772,7 @@ public class MaryUtils {
 	 * 
 	 * @param nameSuffix
 	 *            the suffix to use for the logger name.
-	 * @return
+	 * @return Logger.getLogger(LOGPREFIX + "." + nameSuffix)
 	 */
 	public static Logger getLogger(String nameSuffix) {
 		return Logger.getLogger(LOGPREFIX + "." + nameSuffix);
@@ -781,9 +781,9 @@ public class MaryUtils {
 	/**
 	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
 	 * 
-	 * @param nameSuffix
-	 *            the suffix to use for the logger name.
-	 * @return
+	 * @param clazz
+	 *            the class to use for the logger name.
+	 * @return getLogger(clazz.getSimpleName())
 	 */
 	public static Logger getLogger(Class clazz) {
 		return getLogger(clazz.getSimpleName());

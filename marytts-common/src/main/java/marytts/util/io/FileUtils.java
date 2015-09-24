@@ -117,7 +117,7 @@ public class FileUtils {
 	/**
 	 * Close closeables. Use this in a finally clause.
 	 * 
-	 * @param Closeables
+	 * @param closeables
 	 *            closeables to close.
 	 */
 	public static void close(Closeable... closeables) {
@@ -139,7 +139,7 @@ public class FileUtils {
 	 * 
 	 * @param directory
 	 * @param suffix
-	 * @return
+	 * @return filenames
 	 */
 	public static String[] listBasenames(File directory, String suffix) {
 		final String theSuffix = suffix;
@@ -164,7 +164,7 @@ public class FileUtils {
 	 * 
 	 * @param file
 	 * @param encoding
-	 * @return
+	 * @return stream as string(fis, encoding)
 	 * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
 	 */
 	@Deprecated
@@ -540,7 +540,7 @@ public class FileUtils {
 	 * Given a file name with path it return the file name
 	 * 
 	 * @param fileNameWithPath
-	 * @return
+	 * @return str
 	 */
 	public static String getFileName(String fileNameWithPath) {
 		String str;

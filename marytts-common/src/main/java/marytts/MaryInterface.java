@@ -141,21 +141,19 @@ public interface MaryInterface {
 	/**
 	 * Get the currently set audio effects. For advanced use only.
 	 * 
-	 * @return
 	 */
 	public String getAudioEffects();
 
 	/**
 	 * Set the speaking style. For advanced use only.
 	 * 
-	 * @param params
+	 * @param newStyle
 	 */
 	public void setStyle(String newStyle);
 
 	/**
 	 * Get the currently speaking style. For advanced use only.
 	 * 
-	 * @return
 	 */
 	public String getStyle();
 
@@ -169,21 +167,19 @@ public interface MaryInterface {
 	/**
 	 * Get the currently set output type parameters. For advanced use only.
 	 * 
-	 * @return
 	 */
 	public String getOutputTypeParams();
 
 	/**
 	 * Set whether to stream audio. For advanced use only.
 	 * 
-	 * @param isStreaming
+	 * @param newIsStreaming
 	 */
 	public void setStreamingAudio(boolean newIsStreaming);
 
 	/**
 	 * Whether to stream audio. For advanced use only.
 	 * 
-	 * @return
 	 */
 	public boolean isStreamingAudio();
 
@@ -191,7 +187,6 @@ public interface MaryInterface {
 	 * Partial processing command, converting an input text format such as TEXT into an output text format such as TARGETFEATURES.
 	 * 
 	 * @param text
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public String generateText(String text) throws SynthesisException;
@@ -200,7 +195,6 @@ public interface MaryInterface {
 	 * Partial processing command, converting an input XML format such as SSML into an output text format such as TARGETFEATURES.
 	 * 
 	 * @param doc
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public String generateText(Document doc) throws SynthesisException;
@@ -209,7 +203,6 @@ public interface MaryInterface {
 	 * Partial processing command, converting an input text format such as TEXT into an XML format such as ALLOPHONES.
 	 * 
 	 * @param text
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public Document generateXML(String text) throws SynthesisException;
@@ -218,7 +211,6 @@ public interface MaryInterface {
 	 * Partial processing command, converting one XML format such as RAWMARYXML into another XML format such as TOKENS.
 	 * 
 	 * @param doc
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public Document generateXML(Document doc) throws SynthesisException;
@@ -227,7 +219,6 @@ public interface MaryInterface {
 	 * Synthesis from a text format to audio. This is the method you want to call for text-to-speech conversion.
 	 * 
 	 * @param text
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public AudioInputStream generateAudio(String text) throws SynthesisException;
@@ -236,7 +227,6 @@ public interface MaryInterface {
 	 * Synthesis from an XML format, such as SSML, to audio.
 	 * 
 	 * @param doc
-	 * @return
 	 * @throws SynthesisException
 	 */
 	public AudioInputStream generateAudio(Document doc) throws SynthesisException;
@@ -244,7 +234,6 @@ public interface MaryInterface {
 	/**
 	 * List the names of all the voices that can be used in {@link #setVoice(String)}.
 	 * 
-	 * @return the set of voices, or an empty set if no voices are available.
 	 */
 	public Set<String> getAvailableVoices();
 
@@ -252,28 +241,24 @@ public interface MaryInterface {
 	 * List the names of all the voices for the given locale that can be used in {@link #setVoice(String)}.
 	 * 
 	 * @param locale
-	 * @return the set of voices, or an empty set if no voices are available for the given locale.
 	 */
 	public Set<String> getAvailableVoices(Locale locale);
 
 	/**
 	 * List the locales that can be used in {@link #setLocale(Locale)}.
 	 * 
-	 * @return the set of locales, or the empty set if no locales are available.
 	 */
 	public Set<Locale> getAvailableLocales();
 
 	/**
 	 * List the names of the input types that can be used in {@link #setInputType(String)}.
 	 * 
-	 * @return
 	 */
 	public Set<String> getAvailableInputTypes();
 
 	/**
 	 * List the names of the input types that can be used in {@link #setInputType(String)}.
 	 * 
-	 * @return
 	 */
 	public Set<String> getAvailableOutputTypes();
 
@@ -285,7 +270,6 @@ public interface MaryInterface {
 	 * 
 	 * @param dataType
 	 *            an input or output data type.
-	 * @return
 	 */
 	public boolean isTextType(String dataType);
 
@@ -297,7 +281,6 @@ public interface MaryInterface {
 	 * 
 	 * @param dataType
 	 *            an input or output data type.
-	 * @return
 	 */
 	public boolean isXMLType(String dataType);
 
@@ -307,7 +290,6 @@ public interface MaryInterface {
 	 * 
 	 * @param dataType
 	 *            an input or output data type
-	 * @return
 	 */
 	public boolean isAudioType(String dataType);
 

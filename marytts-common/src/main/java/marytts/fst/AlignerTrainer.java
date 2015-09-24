@@ -141,8 +141,6 @@ public class AlignerTrainer {
 	 *            reader for lexicon
 	 * @param splitSym
 	 *            symbol to split columns of lexicon
-	 * @param hasOptInfo
-	 *            whether the lexicon has optional info in a third column eg. POS
 	 * @throws IOException
 	 */
 	public void readLexicon(BufferedReader lexicon, String splitSym) throws IOException {
@@ -166,8 +164,8 @@ public class AlignerTrainer {
 	 * phonemisation/syllabification or whatsoever is performed. If outStr contains space characters, it is used as a separator
 	 * for splitting.
 	 * 
-	 * @param inString
-	 * @param outString
+	 * @param inStr
+	 * @param outStr
 	 */
 	public void splitAndAdd(String inStr, String outStr) {
 
@@ -455,9 +453,11 @@ public class AlignerTrainer {
 	 * The method returns for each input symbol the indix of the right alignment boundary. eg. for input ['a','b'] and output
 	 * ['a','a','b'] a correct alignment would be: [2,3]
 	 *
-	 * @param in
-	 * @param out
-	 * @return
+	 * @param istr
+	 *            the input string
+	 * @param ostr
+	 *            the output string
+	 * @return length of p_al[ostr]
 	 */
 	public int[] align(String[] istr, String[] ostr) {
 

@@ -42,6 +42,8 @@ import java.io.InputStreamReader;
 
 /**
  * This class is for general purpose functions such as reading and writing from files, or converting formats of numbers.
+ * 
+ * @author Sacha K.
  */
 public class General {
 
@@ -277,7 +279,7 @@ public class General {
 	/**
 	 * Reads the next little-endian short from the given DataInputStream.
 	 * 
-	 * @param dataStream
+	 * @param dis
 	 *            the DataInputStream to read from
 	 * 
 	 * @return a short
@@ -379,7 +381,7 @@ public class General {
 	/**
 	 * Convert an array from ulaw to short.
 	 * 
-	 * @param samples
+	 * @param ulaw
 	 *            an array in ulaw representation
 	 * @return an array in linear representation.
 	 * @see #ulawToShort(byte)
@@ -411,14 +413,14 @@ public class General {
 	 * 
 	 * @param f
 	 *            the float to quantize
-	 * @param min
+	 * @param fMin
 	 *            the minimum possible value for variable f
-	 * @param range
+	 * @param fRange
 	 *            the possible range for variable f
 	 * 
 	 * @return the 16bits signed codeword, returned as a signed short
 	 * 
-	 * @author Sacha K.
+	 * 
 	 */
 	public static short quantize(float f, float fMin, float fRange) {
 		return ((short) (((double) f - (double) fMin) * 65535.0 / ((double) fRange) - 32768.0));
@@ -429,14 +431,14 @@ public class General {
 	 * 
 	 * @param f
 	 *            the array of floats to quantize
-	 * @param min
+	 * @param fMin
 	 *            the minimum possible value for variable f
-	 * @param range
+	 * @param fRange
 	 *            the possible range for variable f
 	 * 
 	 * @return an array of 16bits signed codewords, returned as signed shorts
 	 * 
-	 * @author Sacha K.
+	 * 
 	 */
 	public static short[] quantize(float[] f, float fMin, float fRange) {
 
@@ -454,14 +456,14 @@ public class General {
 	 * 
 	 * @param s
 	 *            the 16bits signed codeword
-	 * @param min
+	 * @param fMin
 	 *            the minimum possible value for variable f
-	 * @param range
+	 * @param fRange
 	 *            the possible range for variable f
 	 * 
 	 * @return the corresponding float value
 	 * 
-	 * @author Sacha K.
+	 * 
 	 */
 	public static float unQuantize(short s, float fMin, float fRange) {
 		return ((float) (((double) (s) + 32768.0) * (double) fRange / 65535.0 - (double) fMin));
@@ -472,14 +474,14 @@ public class General {
 	 * 
 	 * @param s
 	 *            the array of 16bits signed codewords
-	 * @param min
+	 * @param fMin
 	 *            the minimum possible value for variable f
-	 * @param range
+	 * @param fRange
 	 *            the possible range for variable f
 	 * 
 	 * @return the corresponding array of float values
 	 * 
-	 * @author Sacha K.
+	 * 
 	 */
 	public static float[] unQuantize(short[] s, float fMin, float fRange) {
 
@@ -499,7 +501,7 @@ public class General {
 	 *            the command line to be launched.
 	 * @param task
 	 *            a task tag for error messages, such as "Pitchmarks" or "LPC".
-	 * @param the
+	 * @param baseName
 	 *            basename of the file currently processed, for error messages.
 	 */
 	public static void launchProc(String cmdLine, String task, String baseName) {
@@ -558,7 +560,7 @@ public class General {
 	 *            the command line to be launched.
 	 * @param task
 	 *            a task tag for error messages, such as "Pitchmarks" or "LPC".
-	 * @param the
+	 * @param filedir
 	 *            filedir of the file currently processed, for error messages and for creating a temporal batch file.
 	 */
 	public static void launchBatchProc(String cmdLine, String task, String filedir) {
