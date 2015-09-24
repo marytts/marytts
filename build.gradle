@@ -1,15 +1,23 @@
 allprojects {
+    apply plugin: 'java'
     apply plugin: 'maven'
 
-    group = 'de.dfki.mary'
-    version = '5.2-SNAPSHOT'
-}
-
-subprojects {
-    apply plugin: 'java'
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
 
+    group = 'de.dfki.mary'
+    version = '5.2-SNAPSHOT'
+
+    sourceSets {
+        test {
+            java {
+                exclude '**/*IT.java'
+            }
+        }
+    }
+}
+
+subprojects {
     task packageSources(type: Jar) {
         classifier = 'sources'
         from sourceSets.main.allSource
