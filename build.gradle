@@ -2,13 +2,13 @@ description 'An open-source, multilingual Text-to-Speech Synthesis platform writ
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+
+    group 'de.dfki.mary'
+    version '5.2-SNAPSHOT'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
-
-    group = 'de.dfki.mary'
-    version = '5.2-SNAPSHOT'
 
     repositories {
         mavenLocal()
@@ -62,5 +62,15 @@ subprojects {
         from sourceSets.main.allSource
     }
 
-    artifacts.archives packageSources
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact packageSources {
+                    classifier 'sources'
+                }
+            }
+        }
+    }
 }
