@@ -1,51 +1,51 @@
-allprojects  {
-  apply plugin: 'maven'
+allprojects {
+    apply plugin: 'maven'
 
-  group = 'de.dfki.mary'
-version = '5.2-SNAPSHOT'
+    group = 'de.dfki.mary'
+    version = '5.2-SNAPSHOT'
 }
 
 subprojects {
-  apply plugin: 'java'
-  sourceCompatibility = 1.7
-  targetCompatibility = 1.7
+    apply plugin: 'java'
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
-  task packageSources(type: Jar) {
-classifier = 'sources'
-from sourceSets.main.allSource
+    task packageSources(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
 
-}
-artifacts.archives packageSources
-  repositories {
-    mavenLocal()
-    
-    maven { url "file:///Users/ingmar/workspace/marytts/../lib/repo" }
-    maven { url "https://jcenter.bintray.com" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-common/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-de/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-en/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-te/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-tr/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-ru/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-it/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-fr/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-sv/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-lb/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-signalproc/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-runtime/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-client/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-builder/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-redstart/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-transcription/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/voice-cmu-slt-hsmm/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/assembly-builder/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/assembly-runtime/../lib/repo" }
-    maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/../lib/repo" }
-  }
+    }
+    artifacts.archives packageSources
+    repositories {
+        mavenLocal()
 
-  configurations.all {
-}
-  
-  
+        maven { url "file:///Users/ingmar/workspace/marytts/../lib/repo" }
+        maven { url "https://jcenter.bintray.com" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-common/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-de/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-en/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-te/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-tr/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-ru/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-it/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-fr/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-sv/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/marytts-lang-lb/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-languages/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-signalproc/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-runtime/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-client/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-builder/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-redstart/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-transcription/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/voice-cmu-slt-hsmm/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/assembly-builder/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/assembly-runtime/../lib/repo" }
+        maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/../lib/repo" }
+    }
+
+    configurations.all {
+    }
+
+
 }
