@@ -1,0 +1,44 @@
+rootProject.name = 'marytts'
+include ':marytts-common'
+include ':marytts-lang-de'
+include ':marytts-lang-en'
+include ':marytts-lang-te'
+include ':marytts-lang-tr'
+include ':marytts-lang-ru'
+include ':marytts-lang-it'
+include ':marytts-lang-fr'
+include ':marytts-lang-sv'
+include ':marytts-lang-lb'
+include ':marytts-languages'
+include ':marytts-signalproc'
+include ':marytts-runtime'
+include ':marytts-client'
+include ':marytts-builder'
+include ':marytts-redstart'
+include ':marytts-transcription'
+include ':voice-cmu-slt-hsmm'
+include ':marytts-assembly-builder'
+include ':marytts-assembly-runtime'
+include ':marytts-assembly'
+
+project(':marytts-common').projectDir = "$rootDir/marytts-common" as File
+project(':marytts-lang-de').projectDir = "$rootDir/marytts-languages/marytts-lang-de" as File
+project(':marytts-lang-en').projectDir = "$rootDir/marytts-languages/marytts-lang-en" as File
+project(':marytts-lang-te').projectDir = "$rootDir/marytts-languages/marytts-lang-te" as File
+project(':marytts-lang-tr').projectDir = "$rootDir/marytts-languages/marytts-lang-tr" as File
+project(':marytts-lang-ru').projectDir = "$rootDir/marytts-languages/marytts-lang-ru" as File
+project(':marytts-lang-it').projectDir = "$rootDir/marytts-languages/marytts-lang-it" as File
+project(':marytts-lang-fr').projectDir = "$rootDir/marytts-languages/marytts-lang-fr" as File
+project(':marytts-lang-sv').projectDir = "$rootDir/marytts-languages/marytts-lang-sv" as File
+project(':marytts-lang-lb').projectDir = "$rootDir/marytts-languages/marytts-lang-lb" as File
+project(':marytts-languages').projectDir = "$rootDir/marytts-languages" as File
+project(':marytts-signalproc').projectDir = "$rootDir/marytts-signalproc" as File
+project(':marytts-runtime').projectDir = "$rootDir/marytts-runtime" as File
+project(':marytts-client').projectDir = "$rootDir/marytts-client" as File
+project(':marytts-builder').projectDir = "$rootDir/marytts-builder" as File
+project(':marytts-redstart').projectDir = "$rootDir/marytts-redstart" as File
+project(':marytts-transcription').projectDir = "$rootDir/marytts-transcription" as File
+project(':voice-cmu-slt-hsmm').projectDir = "$rootDir/voice-cmu-slt-hsmm" as File
+project(':marytts-assembly-builder').projectDir = "$rootDir/marytts-assembly/assembly-builder" as File
+project(':marytts-assembly-runtime').projectDir = "$rootDir/marytts-assembly/assembly-runtime" as File
+project(':marytts-assembly').projectDir = "$rootDir/marytts-assembly" as File
