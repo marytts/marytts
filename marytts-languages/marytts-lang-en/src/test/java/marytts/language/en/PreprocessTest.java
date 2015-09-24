@@ -121,7 +121,7 @@ public class PreprocessTest {
 		Document doc = mary.generateXML(lemma);
 		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p><s><t>" + lemma + "</t></s></p></maryxml>";
 		Document expectedDoc = DomUtils.parseDocument(words);
-		module.expand(expectedDoc);
+		module.expand(expectedDoc, null);
 		Diff diff = XMLUnit.compareXML(expectedDoc, doc);
 		// issue where LocalMaryInterface#generateXML and DomUtils#parseDocument dont build the document in same order
 		Assert.assertFalse(diff.identical());
