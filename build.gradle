@@ -11,9 +11,37 @@ allprojects {
     sourceSets {
         test {
             java {
-                exclude '**/*IT.java'
+                exclude '**/*IT.*'
             }
         }
+        integrationTest {
+            java {
+                srcDir test.java
+                exclude '**/*Test.*'
+                compileClasspath += main.output
+                runtimeClasspath += main.output
+            }
+            resources {
+                srcDir test.resources
+            }
+        }
+    }
+
+    configurations {
+        integrationTestCompile {
+            extendsFrom testCompile
+        }
+        integrationTestRuntime {
+            extendsFrom testRuntime
+        }
+    }
+
+    task integrationTest(type: Test) {
+        group 'Verification'
+        description 'Runs the integration tests.'
+        check.dependsOn it
+        testClassesDir = project.sourceSets.integrationTest.output.classesDir
+        classpath = project.sourceSets.integrationTest.runtimeClasspath
     }
 }
 
@@ -51,9 +79,4 @@ subprojects {
         maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/assembly-runtime/../lib/repo" }
         maven { url "file:///Users/ingmar/workspace/marytts/marytts-assembly/../lib/repo" }
     }
-
-    configurations.all {
-    }
-
-
 }
