@@ -18,7 +18,6 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.InternalModule;
 import marytts.util.MaryRuntimeUtils;
-import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
