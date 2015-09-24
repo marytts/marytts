@@ -285,8 +285,16 @@ public class Preprocess extends InternalModule {
 			// contractions
 			} else if (MaryDomUtils.tokenText(t).matches(contractPattern.pattern())) {
 				// first check lexicon
+				String localeText;
+				if (locale == null)
+				{
+					localeText = "en_US";
+				}
+				else {
+					localeText = locale.toString();
+				}
 				
-				if (MaryRuntimeUtils.checkLexicon(locale.toString(), MaryDomUtils.tokenText(t)).length == 0) {
+				if (MaryRuntimeUtils.checkLexicon(localeText, MaryDomUtils.tokenText(t)).length == 0) {
 					Matcher contractionMatch = contractPattern.matcher(MaryDomUtils.tokenText(t));
 					contractionMatch.find();
 					// if no contraction we allow g2p rules to handle
