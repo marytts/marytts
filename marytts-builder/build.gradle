@@ -1,0 +1,21 @@
+
+description = 'marytts-builder'
+dependencies {
+  compile project(':marytts-client')
+  compile project(':marytts-common')
+  compile project(':marytts-runtime')
+  compile project(':marytts-signalproc')
+    compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.16'
+    compile group: 'oro', name: 'oro', version:'2.0.8'
+    compile group: 'gov.noaa.pmel.sgt', name: 'sgt', version:'3.0'
+    compile group: 'nz.ac.waikato.cms.weka', name: 'weka-dev', version:'3.7.6'
+    compile group: 'org.swinglabs', name: 'swing-layout', version:'1.0.3'
+    compile group: 'org.wikimedia', name: 'mwdumper', version:'1.16'
+  testCompile project(':marytts-lang-en')
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+    testCompile group: 'com.cloudbees', name: 'diff4j', version:'1.0'
+    testCompile group: 'com.google.guava', name: 'guava', version:'14.0.1'
+    testCompile group: 'org.easytesting', name: 'fest-assert', version:'1.4'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
+}
