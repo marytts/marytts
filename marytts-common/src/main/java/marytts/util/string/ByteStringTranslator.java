@@ -106,7 +106,7 @@ public class ByteStringTranslator {
 	 * Verify if the given string can be translated into a byte by this translator.
 	 * 
 	 * @param s
-	 * @return
+	 * @return map.containsKey(s)
 	 */
 	public boolean contains(String s) {
 		return map.containsKey(s);
@@ -117,7 +117,7 @@ public class ByteStringTranslator {
 	 * to byte: <code>contains((byte)129)</code> will indicate if there is a String for the 129'th byte value.
 	 * 
 	 * @param b
-	 * @return
+	 * @return false if index <0 or index >= size of list, true otherwise
 	 */
 	public boolean contains(byte b) {
 		int index = b & 0xFF;
@@ -147,7 +147,7 @@ public class ByteStringTranslator {
 	 * <code>get((byte)129)</code> will get you the 129'th item in the string list.
 	 * 
 	 * @param b
-	 * @return
+	 * @return list.get(index)
 	 */
 	public String get(byte b) {
 		int index = b & 0xFF;
@@ -163,7 +163,7 @@ public class ByteStringTranslator {
 	/**
 	 * Give the number of different values in this translator.
 	 * 
-	 * @return
+	 * @return size of list
 	 */
 	public int getNumberOfValues() {
 		return list.size();

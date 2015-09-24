@@ -19,6 +19,9 @@
  */
 package marytts.modules.phonemiser;
 
+/**
+ * @author ingmar
+ */
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -230,7 +233,7 @@ public class AllophoneSet {
 	/**
 	 * Obtain the silence allophone in this AllophoneSet
 	 * 
-	 * @return
+	 * @return silence
 	 */
 	public Allophone getSilence() {
 		return silence;
@@ -239,7 +242,7 @@ public class AllophoneSet {
 	/**
 	 * Obtain the ignore chars in this AllophoneSet Default: "',-"
 	 * 
-	 * @return
+	 * @return ignore_chars
 	 */
 	public String getIgnoreChars() {
 		if (ignore_chars == null) {
@@ -268,7 +271,7 @@ public class AllophoneSet {
 	/**
 	 * Get the list of available phone features for this allophone set.
 	 * 
-	 * @return
+	 * @return Collections.unmodifiableSet(featureValueMap.keySet())
 	 */
 	public Set<String> getPhoneFeatures() {
 		return Collections.unmodifiableSet(featureValueMap.keySet());
@@ -350,7 +353,7 @@ public class AllophoneSet {
 	/**
 	 * Split allophone string into a list of allophone symbols, preserving all stress and syllable boundaries that may be present
 	 * 
-	 * @param allophoneString
+	 * @param allophonesString
 	 * @return a List of allophone Strings
 	 * @throws IllegalArgumentException
 	 *             if allophoneString contains a symbol for which no Allophone can be found
@@ -455,11 +458,9 @@ public class AllophoneSet {
 	 * @throws IllegalArgumentException
 	 *             if the <b>phoneString</b> is empty or contains a symbol that satisfies none of the following conditions:
 	 *             <ol>
-	 *             <li>the symbol corresponds to an Allophone, or</li>
-	 *             <li>the symbol is a stress symbol (cf. {@link Stress}), or</li>
-	 *             <li>the symbol is a syllable boundary (<code>-</code>)</li>
+	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
+	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
 	 *             </ol>
-	 * @author ingmar
 	 * 
 	 */
 	public String syllabify(String phoneString) throws IllegalArgumentException {

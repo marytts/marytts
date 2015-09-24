@@ -96,7 +96,7 @@ public class BasenameList {
 	 * This constructor lists the .<extension> files from directory dir, and initializes an an array with their list of
 	 * alphabetically sorted basenames.
 	 * 
-	 * @param dir
+	 * @param dirName
 	 *            The name of the directory to list the files from.
 	 * @param extension
 	 *            The extension of the files to list.

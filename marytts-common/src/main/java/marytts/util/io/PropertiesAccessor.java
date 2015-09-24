@@ -47,8 +47,8 @@ public class PropertiesAccessor {
 	/**
 	 * Get a property from the underlying properties.
 	 * 
-	 * @param property
-	 *            the property requested
+	 * @param key
+	 *            the property key requested
 	 * @return the property value if found, null otherwise.
 	 */
 	public String getProperty(String key) {
@@ -58,8 +58,8 @@ public class PropertiesAccessor {
 	/**
 	 * Get a property from the underlying properties.
 	 * 
-	 * @param property
-	 *            the property requested
+	 * @param key
+	 *            the property key requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
 	 * @return the property value if found, defaultValue otherwise.

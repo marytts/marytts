@@ -67,7 +67,7 @@ public class StreamUtils {
 	 * <code>String</code>. The details of the modified UTF-8 representation are exactly the same as for the <code>readUTF</code>
 	 * method of <code>DataInput</code>.
 	 * 
-	 * @param in
+	 * @param bb
 	 *            a byte buffer.
 	 * @return a Unicode string.
 	 * @exception BufferUnderflowException

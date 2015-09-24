@@ -293,7 +293,7 @@ public class StringUtils {
 	 * 
 	 * @param strFilename
 	 * @param isIncludeDot
-	 * @return
+	 * @return strExtension
 	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getExtension(String)} instead
 	 */
 	@Deprecated
@@ -369,7 +369,7 @@ public class StringUtils {
 	/**
 	 * 
 	 * @param fullpathFilename
-	 * @return
+	 * @return foldername
 	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getFullPath(String)} instead
 	 */
 	@Deprecated
@@ -677,7 +677,7 @@ public class StringUtils {
 	 * Combine the elements of the given string array into a single string, containing one array element per line.
 	 * 
 	 * @param stringArray
-	 * @return
+	 * @return toString(stringArray, 0)
 	 */
 	public static String toString(String[] stringArray) {
 		return toString(stringArray, 0);
@@ -688,7 +688,7 @@ public class StringUtils {
 	 * 
 	 * @param stringArray
 	 * @param startIndex
-	 * @return
+	 * @return toString(stringArray, startIndex, stringArray.length - 1)
 	 */
 	public static String toString(String[] stringArray, int startIndex) {
 		return toString(stringArray, startIndex, stringArray.length - 1);
@@ -700,7 +700,7 @@ public class StringUtils {
 	 * @param stringArray
 	 * @param startIndex
 	 * @param endIndex
-	 * @return
+	 * @return str converted to string
 	 */
 	public static String toString(String[] stringArray, int startIndex, int endIndex) {
 		if (startIndex < 0)

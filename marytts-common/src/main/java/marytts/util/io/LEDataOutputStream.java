@@ -56,7 +56,6 @@ import java.io.OutputStream;
  *       with a DataOutputStream object, and use wrapper methods.
  * </pre>
  * 
- * @noinspection WeakerAccess
  */
 public class LEDataOutputStream implements DataOutput {
 
@@ -72,14 +71,12 @@ public class LEDataOutputStream implements DataOutput {
 	/**
 	 * to get at big-Endian write methods of DataOutPutStream.
 	 * 
-	 * @noinspection WeakerAccess
 	 */
 	protected final DataOutputStream dis;
 
 	/**
 	 * work array for composing output.
 	 * 
-	 * @noinspection WeakerAccess
 	 */
 	protected final byte[] work;
 
