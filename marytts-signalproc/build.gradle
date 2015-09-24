@@ -1,8 +1,7 @@
-
 description = 'marytts-signalproc'
 dependencies {
-  compile project(':marytts-common')
-    compile group: 'gov.nist.math', name: 'jama', version:'1.0.3'
-    compile group: 'org.swinglabs', name: 'swing-layout', version:'1.0.3'
-    testCompile group: 'junit', name: 'junit', version:'4.11'
+    compile project(':marytts-common')
+    compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
+    compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
 }
