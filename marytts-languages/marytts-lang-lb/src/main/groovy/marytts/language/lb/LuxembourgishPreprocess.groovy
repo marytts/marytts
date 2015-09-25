@@ -36,7 +36,7 @@ class LuxembourgishPreprocess extends InternalModule {
 
     public LuxembourgishPreprocess() {
         super("LuxembourgishPreprocess", MaryDataType.TOKENS, MaryDataType.WORDS, LB_LOCALE.toLocale());
-        formatRules = this.getClass().getResource('preprocess/formatRules.txt').text
+        formatRules = this.getClass().getResource('preprocess/formatRules.txt').getText('UTF-8')
         rbnf = new RuleBasedNumberFormat(formatRules, LB_LOCALE)
         cardinalRule = "%spellout-numbering"
         ordinalRule = "%spellout-ordinal"
