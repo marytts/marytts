@@ -31,7 +31,7 @@ public class MAUSLabeller extends VoiceImportComponent {
 		props2Help = new TreeMap();
 		props2Help.put(MAUSDIR,"directory containing the local installation of MAUS");
 		props2Help.put(PARDIR,"directory containing the PAR files"); 		
-		props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
+		props2Help.put(OUTLABDIR, "Directory to store generated labels.");
 		props2Help.put(LANG, "MAUS language to use for labelling.");
 
 	}
