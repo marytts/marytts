@@ -175,7 +175,8 @@ public class Preprocess extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
-		expand(doc);
+		
+		expand(doc, d.getLocale());
 		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
@@ -188,7 +189,7 @@ public class Preprocess extends InternalModule {
 	 * @throws IOException
 	 * @throws MaryConfigurationException
 	 */
-	protected void expand(Document doc) throws ParseException, IOException, MaryConfigurationException {
+	protected void expand(Document doc, Locale locale) throws ParseException, IOException, MaryConfigurationException {
 		String whichCurrency = "";
 		boolean URLFirst = false;
 		boolean isYear;
@@ -284,7 +285,16 @@ public class Preprocess extends InternalModule {
 			// contractions
 			} else if (MaryDomUtils.tokenText(t).matches(contractPattern.pattern())) {
 				// first check lexicon
-				if (MaryRuntimeUtils.checkLexicon("en_US", MaryDomUtils.tokenText(t)).length == 0) {
+				String localeText;
+				if (locale == null)
+				{
+					localeText = "en_US";
+				}
+				else {
+					localeText = locale.toString();
+				}
+				
+				if (MaryRuntimeUtils.checkLexicon(localeText, MaryDomUtils.tokenText(t)).length == 0) {
 					Matcher contractionMatch = contractPattern.matcher(MaryDomUtils.tokenText(t));
 					contractionMatch.find();
 					// if no contraction we allow g2p rules to handle
