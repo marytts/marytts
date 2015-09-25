@@ -131,6 +131,11 @@ public class DatabaseLayout {
 	public static final String TCLPATH = "external.tclPath";
 	public static final String SOXPATH = "external.soxPath";
 	public static final String EHMMPATH = "external.ehmmPath";
+	
+	//Paths used for MAUSLabeller
+    public static final String MAUSDIR  = "/home/xxxx/MAUS/";
+    public static final String PARDIR = "/home/xxxx/project/PAR/";
+    public static final String MAUSLANG = "nze";
 
 	private SortedMap<String, String> props;
 	private BasenameList bnl;
