@@ -127,7 +127,7 @@ public class MAUSLabeller extends VoiceImportComponent {
 		//If the TextGrid file already exists, then don't redo this process
 		if (textgrid.exists())
 		{
-			System.out.println(textgrid.getName() + "exists.");
+			System.out.println(textgrid.getName() + " exists.");
 			return;
 		}
 		
