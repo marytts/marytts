@@ -52,7 +52,7 @@ import marytts.util.io.BasenameList;
  * 
  * @author Anna Hunecke
  *
- */
+ */ 
 public class DatabaseLayout {
 	// marybase
 	public static final String MARYBASE = "db.marybase";

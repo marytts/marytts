@@ -16,7 +16,7 @@ import marytts.util.io.BasenameList;
 
 public class MAUSLabeller extends VoiceImportComponent {
 	private String locale;
-	
+	 
 	
 	public final String MAUSDIR = "MAUSLabeller.mdir";
 	public final String PARDIR = "MAUSLabeller.pdir";
