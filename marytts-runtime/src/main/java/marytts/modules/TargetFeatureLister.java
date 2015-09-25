@@ -112,7 +112,7 @@ public class TargetFeatureLister extends InternalModule {
 	 * 
 	 * @param featureComputer
 	 * @param segmentsAndBoundaries
-	 * @return
+	 * @return targets
 	 */
 	public List<Target> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
 		String pauseSymbol = featureComputer.getPauseSymbol();

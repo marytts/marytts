@@ -60,7 +60,7 @@ public class JoinModelCost implements JoinCostFunction {
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
 	 * 
-	 * @see #load(String)
+	 * @see #load(String a, InputStream b, String c, float d)
 	 */
 	public JoinModelCost() {
 	}
@@ -96,10 +96,11 @@ public class JoinModelCost implements JoinCostFunction {
 	 * 
 	 * @param joinFileName
 	 *            the file from which to read join cost features
-	 * @param joinPdfFileName
+	 * @param joinPdfStream
 	 *            the file from which to read the Gaussian models in the leaves of the tree
-	 * @param joinTreeFileName
+	 * @param joinTreeStream
 	 *            the file from which to read the Tree, in HTS format.
+	 * @param trickyPhonesFile
 	 */
 	public void load(String joinFileName, InputStream joinPdfStream, InputStream joinTreeStream, String trickyPhonesFile)
 			throws IOException, MaryConfigurationException {

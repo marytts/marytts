@@ -61,7 +61,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	/**
 	 * Empty constructor; need to call load() separately.
 	 * 
-	 * @see #load(String)
+	 * @see #load(String fileName, InputStream dummy, String dummy2, float dummy3)
 	 */
 	public PrecompiledJoinCostReader() {
 	}

@@ -36,7 +36,7 @@ public class MCepDatagram extends Datagram {
 	/**
 	 * Construct a MCep datagram from a float vector.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param coeffs
 	 *            the array of Mel-Cepstrum coefficients.
@@ -79,9 +79,9 @@ public class MCepDatagram extends Datagram {
 	/**
 	 * Constructor which pops a datagram from a byte buffer.
 	 * 
-	 * @param raf
+	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param order
 	 * @throws IOException
 	 * @throws EOFException
 	 */

@@ -107,7 +107,7 @@ public class FeatureRegistry {
 	 * Get the fallback feature processor manager which should be used if there is no voice- or locale-specific feature processor
 	 * manager.
 	 * 
-	 * @return
+	 * @return fallbackManager
 	 */
 	public static FeatureProcessorManager getFallbackFeatureProcessorManager() {
 		return fallbackManager;
@@ -227,7 +227,7 @@ public class FeatureRegistry {
 	 * {@link #getFallbackFeatureProcessorManager()}.
 	 * 
 	 * @see #getTargetFeatureComputer(FeatureProcessorManager, String)
-	 * @param locale
+	 * @param voice
 	 * @param features
 	 *            a String containing the names of the feature processors to use, separated by white space, and in the right order
 	 *            (byte-valued discrete feature processors first, then short-valued, then continuous)

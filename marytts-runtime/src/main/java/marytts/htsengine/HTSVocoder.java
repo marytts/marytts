@@ -1141,63 +1141,7 @@ public class HTSVocoder {
 	 * The type of spectrum parameters is set through the parameters gamma and alpha
 	 * <p>
 	 * 
-	 * @param gamma
-	 *            : 0
-	 * @param alpha
-	 *            : 0.45
-	 *            <p>
-	 *            MGC: stage=gamma=0 alpha=0.42 linear gain
-	 *            <p>
-	 *            LSP: gamma>0
-	 *            <p>
-	 *            LSP : gamma=1 alpha=0.0
-	 *            <p>
-	 *            Mel-LSP: gamma=1 alpha=0.42
-	 *            <p>
-	 *            MGC-LSP: gamma=3 alpha=0.42
-	 *            <p>
-	 * @param useLoggain
-	 *            : 0 (1:true 0:false)
-	 * @param beta
-	 *            : 0.0 0.0 --> 1.0 (postfiltering)
-	 * @param rate
-	 *            : 16000
-	 * @param fperiod
-	 *            : 80 (5 milisec)
-	 * @param mcepFile
-	 *            : filename
-	 * @param mcepVsize
-	 *            : vector size (75 if using a file from amain2 hmm voice training data, otherwise specify)
-	 * @param lf0File
-	 *            : filename
-	 * @param lf0Vsize
-	 *            : vector size (3 if using a file from a hmm voice training data, otherwise specify)
-	 * @param outputfile
-	 *            : filename
-	 * 
-	 *            The following are optional:
-	 *            <p>
-	 *            if using mixed excitation:
-	 *            <p>
-	 * @param strFile
-	 *            : filename
-	 * @param strVsize
-	 *            : vector size (15 if using a file from a hmm voice training data, it can be found in
-	 *            data/filters/mix_excitation_filters.txt, otherwise specify)
-	 * @param filtersFile
-	 *            : filename
-	 * @param numFilters
-	 *            : 5 (if using the filters file used in the HTS-MARY demo, otherwise specify)
-	 * @param orderFilters
-	 *            : 48 (if using the filters file used in the HTS-MARY demo, otherwise specify)
-	 * 
-	 *            <p>
-	 *            if using Fourier magnitudes:
-	 *            <p>
-	 * @param magFile
-	 *            : filename
-	 * @param magVsize
-	 *            : vector size (30 if using a file from a hmm voice training data, otherwise specify)
+	 * @param args
 	 * 
 	 *            <p>
 	 *            example iput parameters:

@@ -82,7 +82,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
 	 * 
-	 * @see #load(String)
+	 * @see #load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 	 */
 	public JoinCostFeatures() {
 	}
@@ -323,7 +323,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * Read the join cost weight specifications from the given file. The weights will be normalized such that they sum to one.
 	 * 
-	 * @param fileName
+	 * @param weightStream
 	 *            the text file containing the join weights
 	 * */
 	public static Object[] readJoinCostWeightsStream(InputStream weightStream) throws IOException, FileNotFoundException {

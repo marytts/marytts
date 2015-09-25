@@ -55,10 +55,6 @@ public class DirectedGraphReader {
 	 * 
 	 * @param fileName
 	 *            the file to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
 	 */
@@ -76,10 +72,6 @@ public class DirectedGraphReader {
 	 * 
 	 * @param inStream
 	 *            the input stream
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
 	 */

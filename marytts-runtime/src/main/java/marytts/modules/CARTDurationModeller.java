@@ -102,7 +102,8 @@ public class CARTDurationModeller extends InternalModule {
 	 * @param locale
 	 * @param propertyPrefix
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 * @param featureProcessorManager
+	 *            the manager to use when looking up feature processors.
 	 */
 	protected CARTDurationModeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
 		super("CARTDurationModeller", MaryDataType.ALLOPHONES, MaryDataType.DURATIONS, locale);

@@ -87,7 +87,7 @@ public class ViterbiPoint {
 	/**
 	 * Sets the candidates of this point
 	 * 
-	 * @param cands
+	 * @param candidates
 	 *            the candidates
 	 */
 	public void setCandidates(ArrayList<ViterbiCandidate> candidates) {

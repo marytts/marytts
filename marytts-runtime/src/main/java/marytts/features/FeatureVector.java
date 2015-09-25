@@ -185,9 +185,8 @@ public class FeatureVector {
 	 *            the index number of the byte-valued feature in this feature vector.
 	 * @return the byte value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index<0 or index >= getNumberOfByteFeatures().
-	 * @see #getNumberOfByteFeatures()
-	 * @see #isByteFeature()
+	 *             if index<0 or index >= getNumberOfByteFeatures(). check {@link #getNumberOfByteFeatures()} . check
+	 *             {@link #isByteFeature(int index)} .
 	 */
 	public final byte getByteFeature(int index) {
 		if (index < 0 || index >= byteValuedDiscreteFeatures.length) {
@@ -206,7 +205,7 @@ public class FeatureVector {
 	 *             if index<getNumberOfByteFeatures() or index >= getNumberOfByteFeatures()+getNumberOfShortFeatures().
 	 * @see #getNumberOfByteFeatures()
 	 * @see #getNumberOfShortFeatures()
-	 * @see #isShortFeature()
+	 * @see #isShortFeature(int index)
 	 */
 	public final short getShortFeature(int index) {
 		return shortValuedDiscreteFeatures[index - byteValuedDiscreteFeatures.length];
@@ -224,7 +223,7 @@ public class FeatureVector {
 	 * @see #getNumberOfShortFeatures()
 	 * @see #getNumberOfContinuousFeatures()
 	 * @see #getLength()
-	 * @see #isContinuousFeature()
+	 * @see #isContinuousFeature(int index)
 	 */
 	public final float getContinuousFeature(int index) {
 		return continuousFeatures[index - byteValuedDiscreteFeatures.length - shortValuedDiscreteFeatures.length];
@@ -282,7 +281,6 @@ public class FeatureVector {
 	 * 
 	 * @param out
 	 *            the DataOutputStream or RandomAccessFile in which to write the binary representation of the feature vector.
-	 * @return
 	 */
 	public void writeTo(DataOutput out) throws IOException {
 		if (byteValuedDiscreteFeatures != null) {

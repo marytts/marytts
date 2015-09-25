@@ -187,8 +187,6 @@ public class MaryDataType {
 	/**
 	 * Determine whether or not the registration is complete. When the registration is not (yet) complete, calls to
 	 * 
-	 * @see #registerModule(MaryModule, Locale, Voice) are possible; when the registration is complete, calls to the other methods
-	 *      are possible.
 	 * 
 	 * @return false when the registration is still open, true when it is complete.
 	 */
