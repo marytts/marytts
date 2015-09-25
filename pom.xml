@@ -653,7 +653,6 @@
 				<version>2.10.3</version>
 				<configuration>
 					<destDir>javadoc</destDir>
-					<failOnError>false</failOnError>
 					<skip>false</skip>
 				</configuration>
 				<reportSets>
