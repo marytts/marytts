@@ -41,7 +41,7 @@ public interface JoinCostFunction {
 	 *            the proposed left unit
 	 * @param t2
 	 *            the right target
-	 * @param u3
+	 * @param u2
 	 *            the proposed right unit
 	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
 	 */

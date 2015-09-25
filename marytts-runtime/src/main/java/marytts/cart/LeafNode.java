@@ -41,10 +41,6 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Create a new LeafNode.
 	 * 
-	 * @param tok
-	 *            the String Tokenizer containing the String with the indices
-	 * @param openBrackets
-	 *            the number of opening brackets at the first token
 	 */
 	public LeafNode() {
 		super();

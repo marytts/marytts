@@ -49,10 +49,6 @@ public class MaryCARTReader {
 	 * 
 	 * @param fileName
 	 *            the file to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
 	 */
@@ -70,10 +66,6 @@ public class MaryCARTReader {
 	 * 
 	 * @param inStream
 	 *            the stream to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
 	 */

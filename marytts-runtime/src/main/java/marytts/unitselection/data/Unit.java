@@ -52,8 +52,8 @@ public class Unit {
 	/**
 	 * Determine whether the unit is an "edge" unit, i.e. a unit marking the start or the end of an utterance.
 	 * 
-	 * @param i
-	 *            The index of the considered unit.
+	 * The index of the considered unit.
+	 * 
 	 * @return true if the unit is an edge unit, false otherwise
 	 */
 	public boolean isEdgeUnit() {

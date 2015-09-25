@@ -189,9 +189,10 @@ public class Mary {
 	}
 
 	/**
-	 * Start the MARY system and all modules. This method must be called once before any calls to {@link #process()} are possible.
-	 * The method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar. Use <code>startup(false)</code>
-	 * if you do not want to automatically extend the classpath in this way.
+	 * Start the MARY system and all modules. This method must be called once before any calls to
+	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
+	 * are possible. The method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar. Use
+	 * <code>startup(false)</code> if you do not want to automatically extend the classpath in this way.
 	 * 
 	 * @throws IllegalStateException
 	 *             if the system is not offline.
@@ -202,7 +203,9 @@ public class Mary {
 	}
 
 	/**
-	 * Start the MARY system and all modules. This method must be called once before any calls to {@link #process()} are possible.
+	 * Start the MARY system and all modules. This method must be called once before any calls to
+	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
+	 * are possible.
 	 * 
 	 * @param addJarsToClasspath
 	 *            if true, the method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar; if false,
@@ -477,7 +480,7 @@ public class Mary {
 			System.err.print("command-line application...");
 
 		// first thing we do, let's test if the port is available:
-        int localPort = MaryProperties.needInteger("socket.port");
+		int localPort = MaryProperties.needInteger("socket.port");
 		if (!server.equals("commandline")) {
 			try {
 				ServerSocket serverSocket = new ServerSocket(localPort);

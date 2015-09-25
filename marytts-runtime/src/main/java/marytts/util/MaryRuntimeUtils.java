@@ -256,7 +256,6 @@ public class MaryRuntimeUtils {
 	/**
 	 * Try to determine the Allophone set to use for the given locale.
 	 * 
-	 * @param allophoneSet
 	 * @param locale
 	 * @return the allophone set defined for the given locale, or null if no such allophone set can be determined.
 	 * @throws MaryConfigurationException

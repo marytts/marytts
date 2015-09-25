@@ -31,7 +31,6 @@ public class DiphoneUnitSelector extends UnitSelector {
 	/**
 	 * Initialise the unit selector. Need to call load() separately.
 	 * 
-	 * @see #load(UnitDatabase)
 	 */
 	public DiphoneUnitSelector() throws Exception {
 		super();

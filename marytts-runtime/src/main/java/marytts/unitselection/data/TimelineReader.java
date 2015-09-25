@@ -759,11 +759,8 @@ public class TimelineReader {
 	 * 
 	 * @param targetTimeInSamples
 	 *            the requested position, in samples. Must be non-negative and less than the total duration of the timeline.
-	 * @param number
-	 *            the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
-	 * @param reqSampleRate
-	 *            the sample rate for the requested and returned times. Must be positive.
-	 * 
+	 * @param timeSpanInSamples
+	 *            the span in samples
 	 * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams can be read,
 	 *         the number of datagrams that can be read is returned.
 	 * @throws IllegalArgumentException
@@ -1100,7 +1097,7 @@ public class TimelineReader {
 		/**
 		 * The interval, in samples, between two index entries.
 		 * 
-		 * @return
+		 * @return idxInterval
 		 */
 		public int getIdxInterval() {
 			return idxInterval;

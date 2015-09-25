@@ -115,7 +115,7 @@ public class StatisticalModelCost implements StatisticalCostFunction {
 	 * @param u1
 	 * @param u2
 	 * @param consecutive
-	 * @return
+	 * @return ((sCost1 + sCost2) / 2.0)
 	 */
 	public double cost(Unit u1, Unit u2, boolean consecutive) {
 

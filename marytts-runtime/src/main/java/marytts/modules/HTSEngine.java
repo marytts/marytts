@@ -381,8 +381,6 @@ public class HTSEngine extends InternalModule {
 	 *            : each target must contain the corresponding feature vector
 	 * @param segmentsAndBoundaries
 	 *            : if applying external prosody provide acoust params as a list of elements
-	 * @param um
-	 *            : as a result of this process a utterance model list is created for generation and then realisation
 	 * @param htsData
 	 *            : parameters and configuration of the voice
 	 * @throws Exception
@@ -444,7 +442,7 @@ public class HTSEngine extends InternalModule {
 					// m.getTotalDur() + " frames)" );
 					// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states in
 					// frames
-					//double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+					// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
 					m.setTotalDur(0);
 					for (int k = 0; k < cart.getNumStates(); k++) {
 						// System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));

@@ -140,8 +140,8 @@ import org.apache.log4j.Logger;
  * browser settings).
  * <p>
  * 
- * @see InfoRequestProcessor, FileRequestProcessor, SynthesisRequestProcessor, BaselineRequestProcessor, RequestHttp,
- *      MaryWebHttpClientHandler
+ * check {@link InfoRequestHandler}, {@link FileRequestHandler}, {@link SynthesisRequestHandler} .
+ * 
  * @author Oytun T&uuml;rk, Marc Schr&ouml;der
  */
 

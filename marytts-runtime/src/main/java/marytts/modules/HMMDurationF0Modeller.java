@@ -371,7 +371,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * @param polyValues
 	 * @param contourAttribute
 	 * @param pitchAttribute
-	 * @return
+	 * @return polyValues
 	 */
 	private double[] setBaseContourModifications(double[] polyValues, String contourAttribute, String pitchAttribute) {
 
@@ -391,7 +391,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * 
 	 * @param polyValues
 	 * @param contourAttribute
-	 * @return
+	 * @return modifiedF0Values
 	 */
 	private double[] setContourSpecifications(double[] polyValues, String contourAttribute) {
 
@@ -449,7 +449,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * 
 	 * @param polyValues
 	 * @param pitchAttribute
-	 * @return
+	 * @return polyValues
 	 */
 	private double[] setPitchSpecifications(double[] polyValues, String pitchAttribute) {
 
@@ -486,7 +486,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * to get contour specifications into MAP
 	 * 
 	 * @param attribute
-	 * @return
+	 * @return f0Map
 	 */
 	private Map<String, String> getContourSpecifications(String attribute) {
 
@@ -507,7 +507,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * To interpolate Zero values with respect to NonZero values
 	 * 
 	 * @param contour
-	 * @return
+	 * @return contour
 	 */
 	private double[] interpolateNonZeroValues(double[] contour) {
 
@@ -542,7 +542,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * 
 	 * @param contour
 	 * @param current
-	 * @return
+	 * @return -1
 	 */
 	private int findNextIndexNonZero(double[] contour, int current) {
 		for (int i = current + 1; i < contour.length; i++) {
@@ -557,7 +557,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * get Continuous contour from "ph" nodelist
 	 * 
 	 * @param nl
-	 * @return
+	 * @return contour
 	 */
 	private double[] getContiniousContour(NodeList nl) {
 
@@ -610,7 +610,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Get f0 specifications in HashMap
 	 * 
 	 * @param attribute
-	 * @return
+	 * @return f0Map
 	 */
 	private Map<Integer, Integer> getPhoneF0Data(String attribute) {
 
@@ -733,7 +733,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 *            HTSUttModel, linked list of model objects
 	 * @param htsData
 	 *            HMMData
-	 * @return
+	 * @return f0Values
 	 * @throws Exception
 	 */
 	public String HmmF0Generation(HTSUttModel um, HMMData htsData) throws Exception {

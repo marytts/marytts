@@ -196,7 +196,7 @@ public class FeatureProcessorManager {
 	 * respective locale. This base class returns null to indicate that the feature processor manager can be used as a fallback
 	 * for any locale.
 	 * 
-	 * @return
+	 * @return locale
 	 */
 	public Locale getLocale() {
 		return locale;
@@ -207,7 +207,7 @@ public class FeatureProcessorManager {
 	 * The list is unsorted except that byte-valued feature processors come first, followed by short-valued feature processors,
 	 * followed by continuous feature processors.
 	 * 
-	 * @return
+	 * @return sb to string
 	 */
 	public String listFeatureProcessorNames() {
 		String bytes = listByteValuedFeatureProcessorNames();

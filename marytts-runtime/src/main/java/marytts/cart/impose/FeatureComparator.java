@@ -69,7 +69,7 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	 * @return a negative integer, zero, or a positive integer as the feature at index I for v1 is less than, equal to, or greater
 	 *         than the feature at index I for v2.
 	 * 
-	 * @see FeatureComparator#setFeatureIdx(setI, featureType)
+	 * check {@link #setFeatureIdx(int setI, FeatureVector.FeatureType featureType)} .
 	 */
 	public int compare(FeatureVector a, FeatureVector b) {
 		switch (type) {

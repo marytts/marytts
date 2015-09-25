@@ -87,7 +87,7 @@ public class CARTF0Modeller extends InternalModule {
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-	 * @param featprocClass
+	 * @param featprocClassInfo
 	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
 	 * @throws Exception
 	 */
@@ -102,7 +102,8 @@ public class CARTF0Modeller extends InternalModule {
 	 * @param locale
 	 * @param propertyPrefix
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 * @param featureProcessorManager
+	 *            the manager to use when looking up feature processors.
 	 */
 	protected CARTF0Modeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
 		super("CARTF0Modeller", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, locale);

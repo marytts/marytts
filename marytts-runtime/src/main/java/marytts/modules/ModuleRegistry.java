@@ -245,7 +245,7 @@ public class ModuleRegistry {
 	 * @param locale
 	 * @param voice
 	 * @param seenTypes
-	 * @return
+	 * @return LinkedList<MaryModule>() if sourceType equals targetType, null otherwise
 	 */
 	private static LinkedList<MaryModule> modulesRequiredForProcessing(MaryDataType sourceType, MaryDataType targetType,
 			Locale locale, Voice voice, LinkedList<MaryDataType> seenTypes) {

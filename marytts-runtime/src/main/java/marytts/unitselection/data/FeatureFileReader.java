@@ -59,7 +59,7 @@ public class FeatureFileReader {
 	/**
 	 * Empty constructor; need to call load() separately when using this.
 	 * 
-	 * @see load(String)
+	 * @see #load(String fileName)
 	 */
 	public FeatureFileReader() {
 	}

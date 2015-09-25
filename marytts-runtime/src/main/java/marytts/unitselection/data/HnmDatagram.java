@@ -43,7 +43,7 @@ public class HnmDatagram extends Datagram {
 	/**
 	 * Construct a HNM datagram.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param frame
 	 *            the parameters of HNM for a speech frame.
@@ -59,7 +59,8 @@ public class HnmDatagram extends Datagram {
 	 * 
 	 * @param raf
 	 *            the random access file to pop the datagram from.
-	 * 
+	 * @param noiseModel
+	 *            the noise model
 	 * @throws IOException
 	 * @throws EOFException
 	 */

@@ -37,7 +37,7 @@ public class LPCDatagram extends Datagram {
 	/**
 	 * Construct an LPC datagram from quantized data.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param quantizedCoeffs
 	 *            the quantized LPC coefficients
@@ -53,7 +53,7 @@ public class LPCDatagram extends Datagram {
 	/**
 	 * Construct an LPC datagram from unquantized data.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param coeffs
 	 *            the (unquantized) LPC coefficients
@@ -140,7 +140,7 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @return the lpc order
 	 * @see #getQuantizedCoeffs()
-	 * @see #getCoeffs()
+	 * @see #getCoeffs(float lpcMin, float lpcRange)
 	 */
 	public int lpcOrder() {
 		return quantizedCoeffs.length;
@@ -151,7 +151,7 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @return an array of shorts, length lpcOrder()
 	 * @see #lpcOrder()
-	 * @see #getCoeffs()
+	 * @see #getCoeffs(float lpcMin, float lpcRange)
 	 */
 	public short[] getQuantizedCoeffs() {
 		return quantizedCoeffs;
