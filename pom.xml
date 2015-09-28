@@ -168,6 +168,7 @@
 		<module>marytts-common</module>
 		<module>marytts-languages</module>
 		<module>marytts-signalproc</module>
+		<module>Jampack</module>
 		<module>marytts-runtime</module>
 		<module>marytts-client</module>
 		<module>marytts-builder</module>
