@@ -144,8 +144,10 @@ public class Zhqrd {
 	/**
 	 * Computes the product BQ<sup>H</sup>. Throws JampackException for inconsistent dimenstions.
 	 * 
-	 * @param B
+	 * @param A
 	 *            A Zmat
+	 * @param B
+	 *            Another Zmat
 	 * @return BQ<sup>H</sup>
 	 * @exception JampackException
 	 *                Thrown for inconsistent dimensions.

@@ -25,7 +25,7 @@ import java.util.Arrays;
  * 
  * Implements a cluster center that has a mean vector and a covariance matrix (and its inverse)
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uumlrk;
  */
 public class Cluster {
 	public double[] meanVector;

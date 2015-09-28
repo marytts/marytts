@@ -12,7 +12,7 @@ package Jampack;
  * where S = diag(s1,...,sm) with
  * 
  * <pre>
- *     s1 >= s2 >= ... >= sn >=0.
+ *     s1 => s2 => ... => sn => 0.
  * </pre>
  * 
  * If m&lt;n the decomposition has the form

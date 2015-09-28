@@ -4,7 +4,7 @@ package Jampack;
  * Implements a QR decomposition. Specifically, given a matrix A there are is a unitary matrix Q such that
  * 
  * <pre>
- *    Q<sup>H</sup>A = R
+ *    Q <sup> H </sup> A = R
  * </pre>
  * 
  * where R is zero below its diagonal. In constructing this decomposition, Zqrd represents Q as a Zmat. R is represented by a

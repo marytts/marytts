@@ -165,6 +165,10 @@ public class Z {
 
 	/**
 	 * Computes the 1-norm of a Z
+	 * 
+	 * @param z
+	 *            z
+	 * @return absolute value of z.re + absolute z.im
 	 */
 	public static double abs1(Z z) {
 		return Math.abs(z.re) + Math.abs(z.im);
@@ -175,7 +179,7 @@ public class Z {
 	 * 
 	 * @param z
 	 *            a Z
-	 * @return the absolute vaue of Z
+	 * @return the absolute value of Z
 	 */
 
 	public static double abs(Z z) {
@@ -340,7 +344,7 @@ public class Z {
 	 * 
 	 * @param a
 	 *            a Z
-	 * 
+	 * @return this
 	 */
 
 	public Z Sqrt(Z a) {
