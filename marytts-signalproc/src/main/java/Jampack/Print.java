@@ -14,13 +14,21 @@ public class Print {
 
 	/**
 	 * Prints an int in default format.
+	 * 
+	 * @param k
+	 *            k
 	 */
 	public static void o(int k) {
 		o(k, Parameters.OutputFieldWidth);
 	}
 
 	/**
-	 * Prints and int in a field of width w.
+	 * Prints an int in a field of width w.
+	 * 
+	 * @param k
+	 *            integer k
+	 * @param w
+	 *            field w
 	 */
 	public static void o(int k, int w) {
 		System.out.print("\n");
@@ -33,6 +41,9 @@ public class Print {
 
 	/**
 	 * Prints an integer array in default format.
+	 * 
+	 * @param ia
+	 *            integer array
 	 */
 
 	public static void o(int ia[]) {
@@ -41,6 +52,11 @@ public class Print {
 
 	/**
 	 * Prints an integer array in fields of width w.
+	 * 
+	 * @param ia
+	 *            integer array
+	 * @param w
+	 *            width
 	 */
 
 	public static void o(int ia[], int w) {
@@ -68,6 +84,9 @@ public class Print {
 
 	/**
 	 * Prints a double in default e format.
+	 * 
+	 * @param a
+	 *            a double integer
 	 */
 
 	public static void o(double a) {
@@ -76,6 +95,13 @@ public class Print {
 
 	/**
 	 * Prints a double in w.d e format.
+	 * 
+	 * @param a
+	 *            a double
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 
 	public static void o(double a, int w, int d) {
@@ -86,6 +112,9 @@ public class Print {
 
 	/**
 	 * Prints an array of doubles in default e format.
+	 * 
+	 * @param a
+	 *            an array of doubles
 	 */
 	public static void o(double[] a) {
 		o(a, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
@@ -93,6 +122,13 @@ public class Print {
 
 	/**
 	 * Prints an array of doubles in w.d e format.
+	 * 
+	 * @param a
+	 *            an array of doubles
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 
 	public static void o(double[] a, int w, int d) {
@@ -124,6 +160,9 @@ public class Print {
 
 	/**
 	 * Prints a 2-dimensional array of doubles in default e format.
+	 * 
+	 * @param A
+	 *            a 2-dimensional array of doubles
 	 */
 	public static void o(double[][] A) {
 		o(A, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
@@ -131,6 +170,14 @@ public class Print {
 
 	/**
 	 * Prints a 2-dimensional array of doubles in w.d e format.
+	 * 
+	 * @param A
+	 *            a 2 dimensional array of doubles
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
+	 * 
 	 */
 
 	public static void o(double[][] A, int w, int d) {
@@ -177,6 +224,9 @@ public class Print {
 
 	/**
 	 * Prints a Z in default e format.
+	 * 
+	 * @param a
+	 *            a Z
 	 */
 
 	public static void o(Z a) {
@@ -185,6 +235,13 @@ public class Print {
 
 	/**
 	 * Prints a Z in w.d e format.
+	 * 
+	 * @param a
+	 *            a
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 
 	public static void o(Z a, int w, int d) {
@@ -195,6 +252,9 @@ public class Print {
 
 	/**
 	 * Prints an array of Z's in default e format.
+	 * 
+	 * @param a
+	 *            a
 	 */
 	public static void o(Z[] a) {
 		o(a, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
@@ -202,6 +262,13 @@ public class Print {
 
 	/**
 	 * Prints an array of Z's in w.d e format.
+	 * 
+	 * @param a
+	 *            a
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 	public static void o(Z[] a, int w, int d) {
 
@@ -236,6 +303,9 @@ public class Print {
 
 	/**
 	 * Prints a 2-dimensional array of <tt>Z</tt> in default e format.
+	 * 
+	 * @param A
+	 *            A
 	 */
 
 	public static void o(Z[][] A) {
@@ -244,6 +314,13 @@ public class Print {
 
 	/**
 	 * Prints a 2-dimensional array of <tt>Z</tt> in w.d e format.
+	 * 
+	 * @param A
+	 *            A
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 
 	public static void o(Z[][] A, int w, int d) {
@@ -297,6 +374,9 @@ public class Print {
 
 	/**
 	 * Prints a Z1 in default format.
+	 * 
+	 * @param z
+	 *            z
 	 */
 	public static void o(Z1 z) {
 		o(z, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
@@ -304,6 +384,13 @@ public class Print {
 
 	/**
 	 * Prints a Z1 in w.d e format
+	 * 
+	 * @param z
+	 *            z
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 	public static void o(Z1 z, int w, int d) {
 
@@ -337,7 +424,10 @@ public class Print {
 	}
 
 	/**
-	 * Prints a <tt>Zmat<tt> in default e format.
+	 * Prints a <tt>Zmat</tt> in default e format.
+	 * 
+	 * @param A
+	 *            A
 	 */
 	public static void o(Zmat A) {
 		o(A, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
@@ -345,6 +435,14 @@ public class Print {
 
 	/**
 	 * Prints a Zmat in w.d e format. This method checks to see if the Zmat is real, in which case it prints only the real part.
+	 * 
+	 * @param A
+	 *            A
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
+	 * 
 	 */
 
 	public static void o(Zmat A, int w, int d) {
@@ -453,6 +551,9 @@ public class Print {
 
 	/**
 	 * Prints a Zdiagmat in default format.
+	 * 
+	 * @param D
+	 *            D
 	 */
 
 	public static void o(Zdiagmat D) {
@@ -461,6 +562,13 @@ public class Print {
 
 	/**
 	 * Prints a Zdiagmat in w.d e format.
+	 * 
+	 * @param D
+	 *            D
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
 	 */
 	public static void o(Zdiagmat D, int w, int d) {
 
@@ -495,6 +603,14 @@ public class Print {
 
 	/**
 	 * Converts a double to w.d e format.
+	 * 
+	 * @param num
+	 *            num
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
+	 * @return snum
 	 */
 
 	public static String DoubletoEstring(double num, int w, int d) {
@@ -558,6 +674,14 @@ public class Print {
 
 	/**
 	 * Converts a Z to w.d e format.
+	 * 
+	 * @param num
+	 *            num
+	 * @param w
+	 *            w
+	 * @param d
+	 *            d
+	 * @return snum
 	 */
 
 	public static String ZtoEstring(Z num, int w, int d) {

@@ -211,6 +211,8 @@ public class Zmat {
 
 	/**
 	 * Returns a copy of the real part of a Zmat.
+	 * 
+	 * @return A
 	 */
 
 	public double[][] getRe() {
@@ -224,6 +226,8 @@ public class Zmat {
 
 	/**
 	 * Returns a copy of the imaginary part of a Zmat.
+	 * 
+	 * @return A
 	 */
 
 	public double[][] getIm() {
@@ -237,6 +241,8 @@ public class Zmat {
 
 	/**
 	 * Returns a copy of the real and imaginary parts as a complex array.
+	 * 
+	 * @return A
 	 */
 
 	public Z[][] getZ() {
@@ -255,6 +261,7 @@ public class Zmat {
 	 *            The row index of the element
 	 * @param jj
 	 *            The column index of the element
+	 * @return Z
 	 */
 
 	public Z get(int ii, int jj) {
@@ -269,6 +276,7 @@ public class Zmat {
 	 *            The row index of the element
 	 * @param j
 	 *            The column index of the element
+	 * @return Z
 	 */
 
 	public Z get0(int i, int j) {
@@ -321,6 +329,7 @@ public class Zmat {
 	 *            The lower row index
 	 * @param jj2
 	 *            The upper row index
+	 * @return A
 	 */
 
 	public Zmat get(int ii1, int ii2, int jj1, int jj2) {
@@ -370,6 +379,7 @@ public class Zmat {
 	 *            The lower column index
 	 * @param jj2
 	 *            The upper column index
+	 * @return A
 	 */
 
 	public Zmat get(int ii[], int jj1, int jj2) {
@@ -417,6 +427,7 @@ public class Zmat {
 	 *            The upper row index
 	 * @param jj
 	 *            [] Contains the column indices of the submatrix
+	 * @return A
 	 */
 
 	public Zmat get(int ii1, int ii2, int jj[]) {
@@ -462,6 +473,7 @@ public class Zmat {
 	 *            [] Contains the row indices of the submatrix
 	 * @param jj
 	 *            [] Contains the column indices of the submatrix
+	 * @return A
 	 */
 
 	public Zmat get(int ii[], int jj[]) {
@@ -500,6 +512,8 @@ public class Zmat {
 
 	/**
 	 * Returns an LU decomposition if a valid one exists. Otherwise returns null.
+	 * 
+	 * @return temp
 	 */
 
 	public Zludpp getLU() {
@@ -511,6 +525,8 @@ public class Zmat {
 
 	/**
 	 * Returns a Householder QR decomposition if a valid one exists. Otherwise returns null.
+	 * 
+	 * @return temp
 	 */
 
 	public Zhqrd getHQR() {
@@ -522,6 +538,8 @@ public class Zmat {
 
 	/**
 	 * Returns a Cholesky decomposition if a valid one exists. Otherwise returns null.
+	 * 
+	 * @return temp
 	 */
 
 	public Zchol getCHOL() {

@@ -20,8 +20,8 @@ public class Z1 {
 	 * @param n
 	 *            a positive integer
 	 * 
-	 * @exception JampackException
-	 *                Thrown if n<=0.
+	 * @throws JampackException
+	 *             Thrown if n<=0.
 	 */
 
 	public Z1(int n) throws JampackException {

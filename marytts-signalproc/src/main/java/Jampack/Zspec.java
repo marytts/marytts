@@ -5,7 +5,7 @@ package Jampack;
  * matrix A there is a unitary matrix A and a real diagonal matrix D such that
  * 
  * <pre>
- *      D = U<sup>H</sup>AU.
+ *      D = U <sup> H </sup> AU.
  * </pre>
  * 
  * Zspec implements U as a Zmat and D as a Zdiagmat. It returns a JampackException if A is not Hermitian.

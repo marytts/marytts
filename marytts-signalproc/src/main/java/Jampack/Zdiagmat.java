@@ -97,7 +97,7 @@ public class Zdiagmat {
 	 * @param A
 	 *            The Zmat
 	 * @param k
-	 *            The diagonal. For k=0 gives the princpal diagonal; k>0, the kth superdiagonal; k<0, the kth subdiagonal.
+	 *            The diagonal. For k=0 gives the princpal diagonal; k > 0, the kth superdiagonal; k < 0, the kth subdiagonal.
 	 * 
 	 * @exception JampackException
 	 *                Thrown for k to large or small.
@@ -195,6 +195,9 @@ public class Zdiagmat {
 
 	/**
 	 * Gets the <tt>i</tt>th diagonal of a of a Zdiagmat (0-based).
+	 * 
+	 * @param i
+	 *            i
 	 */
 
 	public Z get0(int i) {
@@ -220,6 +223,11 @@ public class Zdiagmat {
 
 	/**
 	 * Writes the <tt>i</tt>th diagonal element of a Zdiagmat (0-based).
+	 * 
+	 * @param i
+	 *            ith diagonal element to write
+	 * @param val
+	 *            value of zdiagmat
 	 */
 
 	public void put0(int i, Z val) {
