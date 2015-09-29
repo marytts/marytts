@@ -51,7 +51,7 @@ import marytts.util.string.StringUtils;
  * Reference: A. Kain and M. Macon, “Spectral voice conversion for text-to-speech synthesis,” in Proc. of the IEEE ICASSP 1998,
  * vol. 1, pp. 285-288.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class JointGMMParallelTrainer extends JointGMMTrainer {
 	protected WeightedCodebookParallelTrainer wcpTrainer;

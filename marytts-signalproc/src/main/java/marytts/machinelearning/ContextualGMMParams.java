@@ -34,7 +34,7 @@ import marytts.util.string.StringUtils;
  * 
  * Wrapper for contextual parameters for GMM training - includes various phone identity or class based groups
  * 
- * @author Oytun T&uumlrk;
+ * @author Oytun T&uuml;rk
  */
 public class ContextualGMMParams {
 	public static final int FRICATIVE = Integer.parseInt("000000000001", 2);

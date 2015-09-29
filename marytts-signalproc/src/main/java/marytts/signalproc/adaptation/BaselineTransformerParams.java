@@ -30,7 +30,7 @@ import marytts.signalproc.analysis.PitchFileHeader;
  * Baseline class for voice conversion transformation parameters All specific implementations of transformation stage of a given
  * voice conversion algorithm should use a parameter set that is derived from this class
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineTransformerParams extends BaselineParams {
 	public String inputFolder; // Folder of input files to be transformed

@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation;
 /**
  * A class for handling source-target frame indices mapping for a single pair
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FileMap {
 	public int[][] indicesMap;
