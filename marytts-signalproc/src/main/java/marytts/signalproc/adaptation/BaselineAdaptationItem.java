@@ -26,7 +26,7 @@ import marytts.util.string.StringUtils;
  * training database could be a wav file, the corresponding text transcription, label file, pitch contour file, etc. The training
  * set is a collection of BaseTrainingItem objects
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineAdaptationItem {
 	// A decomposition of the file into its sinus+noise+transients+residual components

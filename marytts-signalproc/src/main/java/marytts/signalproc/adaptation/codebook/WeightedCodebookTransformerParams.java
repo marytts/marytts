@@ -24,7 +24,7 @@ import marytts.signalproc.adaptation.BaselineTransformerParams;
 /**
  * Parameters of weighted codebook based transformation
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookTransformerParams extends BaselineTransformerParams {
 

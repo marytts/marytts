@@ -27,7 +27,7 @@ import marytts.util.string.StringUtils;
  * 
  * Wrapper class for weighted codebooks for voice conversion
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebook extends VocalTractTransformationData {
 	// These are for feature requests from the codebook

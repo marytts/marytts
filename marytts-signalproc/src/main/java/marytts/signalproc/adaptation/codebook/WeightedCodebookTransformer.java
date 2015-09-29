@@ -36,7 +36,7 @@ import marytts.util.string.StringUtils;
  * 
  * Weighted codebook transformation class
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookTransformer extends BaselineTransformer {
 

@@ -24,7 +24,7 @@ import marytts.signalproc.adaptation.VocalTractMatch;
 /**
  * GMM output for voice conversion transformation
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class GMMMatch extends VocalTractMatch {
 
