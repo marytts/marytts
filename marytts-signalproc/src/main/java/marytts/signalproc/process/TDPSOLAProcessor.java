@@ -60,7 +60,7 @@ public class TDPSOLAProcessor {
 	// signal,
 	// the vectors are linearly interpolated to match the signal length
 	//
-	// @author Oytun T&uumlrk
+	// @author Oytun T&uuml;rk
 	public static TDPSOLAInstants transformAnalysisInstants(float[] analysisInstants, int samplingRateInHz, boolean[] vuvs,
 			float[] tScales, float[] pScales) {
 		TDPSOLAInstants synthesisInstants = null;

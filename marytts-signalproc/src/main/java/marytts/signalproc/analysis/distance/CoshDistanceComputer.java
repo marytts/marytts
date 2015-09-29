@@ -22,7 +22,7 @@ package marytts.signalproc.analysis.distance;
 /**
  * Implements Cosh based spectral distortion measure
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class CoshDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
 	public CoshDistanceComputer() {

@@ -57,7 +57,7 @@ import marytts.util.string.StringUtils;
  * Speaker Modification", Ph.D. thesis, Ecole Nationale Supérieure des Télécommunications. (Chapter 3, A Harmonic plus Noise
  * Model, HNM)
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HntmSynthesizer {

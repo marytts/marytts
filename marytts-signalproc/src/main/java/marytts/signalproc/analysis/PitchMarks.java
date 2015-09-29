@@ -28,7 +28,7 @@ import marytts.util.signal.SignalProcUtils;
  * 
  * A wrapper class to store pitch marks as integer sample indices
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class PitchMarks {
 

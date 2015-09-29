@@ -31,7 +31,7 @@ import marytts.util.signal.SignalProcUtils;
  * Reference: Paul, D., 1981, "The Spectral Envelope Estimation Vocoder", IEEE Trans. Acoust. Speech Signal Proc., ASSP-29, pp.
  * 786-794.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class SeevocAnalyser {
 	public static SpectrumWithPeakIndices calcSpecEnvelopeDB(double[] absMagSpecIndB, int samplingRate) {

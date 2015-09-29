@@ -32,7 +32,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {

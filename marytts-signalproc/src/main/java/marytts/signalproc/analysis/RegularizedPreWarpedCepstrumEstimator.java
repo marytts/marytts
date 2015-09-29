@@ -50,7 +50,7 @@ import marytts.util.signal.SignalProcUtils;
  * frequencies. Failing to estimate the modified amplitudes successfully will result in changes in overal spectral envelope which
  * may affect voice quality, presence, or even the identity of phones after pitch scaling.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class RegularizedPreWarpedCepstrumEstimator extends RegularizedCepstrumEstimator {
 	public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder,

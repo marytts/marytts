@@ -22,7 +22,7 @@ package marytts.util.math;
 /**
  * A complex number: real+sqrt(-1).imag
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  *
  */
 public class ComplexNumber {

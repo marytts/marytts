@@ -34,7 +34,7 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * A class that extracts frame based root-mean-square (RMS) energy contour
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class EnergyContourRms {
 	public EnergyFileHeader header;

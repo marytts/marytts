@@ -28,7 +28,7 @@ import marytts.util.io.MaryRandomAccessFile;
 /**
  * Implements a structured header with file I/O functionality for binary files that store frame based f0 values
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class PitchFileHeader {
 	public double windowSizeInSeconds; // Window size in seconds

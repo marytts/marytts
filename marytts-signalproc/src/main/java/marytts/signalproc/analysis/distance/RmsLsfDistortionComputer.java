@@ -39,7 +39,7 @@ import marytts.util.string.StringUtils;
 /**
  * Implements root-mean-square line spectral frequency vector distance given two sets of paired files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
 	private AllophoneSet allophoneSet;

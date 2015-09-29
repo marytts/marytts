@@ -28,7 +28,7 @@ import marytts.util.io.FileUtils;
 /**
  * A wrapper class to read fields in Festival UTT files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FestivalUtt extends AlignmentData {
 	public Labels[] labels;

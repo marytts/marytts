@@ -42,7 +42,7 @@ import marytts.util.string.StringUtils;
 /**
  * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing and halving/doubling prevention
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class F0TrackerAutocorrelationHeuristic {
 	public double[] f0s;
