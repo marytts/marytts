@@ -268,6 +268,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>gov.nist.math</groupId>
+				<artifactId>Jampack</artifactId>
+				<version>1.0</version>
+			</dependency>
+
+			<dependency>
 				<groupId>gov.noaa.pmel.sgt</groupId>
 				<artifactId>sgt</artifactId>
 				<version>3.0</version>
