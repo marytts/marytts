@@ -23,7 +23,7 @@ package marytts.util.math;
  * FFT for non-power-of-two sequences Note that, this algorithm is significantly slower than FFT.java. Please re-check if
  * zero-padding works for your application and if so, use FFT.java with zero padding to the closest power of two length
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FFTMixedRadix {
 	// maxf must be >= the maximum prime factor of fftSize.

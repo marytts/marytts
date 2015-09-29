@@ -25,7 +25,7 @@ package marytts.util.math;
  * H[w]=0 for w=N/2+1,...,N-1 - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied) - y[n], the Discrete Hilbert Transform
  * of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Hilbert {
 	public static ComplexArray transform(double[] x) {

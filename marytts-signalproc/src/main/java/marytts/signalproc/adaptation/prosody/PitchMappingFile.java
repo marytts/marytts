@@ -26,7 +26,7 @@ import marytts.util.io.FileUtils;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class PitchMappingFile {

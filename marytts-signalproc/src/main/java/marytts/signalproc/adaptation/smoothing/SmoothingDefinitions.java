@@ -20,7 +20,7 @@
 package marytts.signalproc.adaptation.smoothing;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class SmoothingDefinitions {

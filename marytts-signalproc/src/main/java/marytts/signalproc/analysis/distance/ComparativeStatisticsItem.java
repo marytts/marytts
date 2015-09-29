@@ -22,7 +22,7 @@ package marytts.signalproc.analysis.distance;
 import marytts.util.io.FileUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class ComparativeStatisticsItem {
 	public StatisticsItem referenceVsMethod1;

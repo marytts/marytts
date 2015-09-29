@@ -24,7 +24,7 @@ import marytts.util.math.ComplexArray;
 /**
  * Single speech frame sinusoids with spectrum
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class NonharmonicSinusoidalSpeechFrame extends BaseSinusoidalSpeechFrame {
 	public Sinusoid[] sinusoids;
