@@ -38,6 +38,8 @@ public class ESTTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	 * 
 	 * @param file
 	 *            file
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	public ESTTextfileDoubleDataSource(File file) throws FileNotFoundException {
 		this(new FileReader(file));

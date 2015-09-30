@@ -71,6 +71,7 @@ public class Polynomial {
 	 * b[.
 	 * 
 	 * @param numSamples
+	 *            num samples
 	 * @param a
 	 *            lower bound (inclusive)
 	 * @param b
@@ -195,6 +196,7 @@ public class Polynomial {
 	 *            <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, and will interpret coeffs as
 	 *            <code>a_order, a_(order-1), ..., a_1, a_0</code>, where <code>order</code> is <code>coeffs.length-1</code>.
 	 * @param numSamples
+	 *            num samples
 	 * @param a
 	 *            lower bound (inclusive)
 	 * @param b
@@ -320,7 +322,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(Polynomial[] p, Polynomial mean) {
@@ -344,7 +348,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(double[][] p, double[] mean) {
@@ -368,7 +374,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(float[][] p, float[] mean) {
