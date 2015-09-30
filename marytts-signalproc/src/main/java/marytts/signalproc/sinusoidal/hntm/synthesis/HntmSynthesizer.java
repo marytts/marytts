@@ -141,12 +141,21 @@ public class HntmSynthesizer {
 	/**
 	 * 
 	 * @param wavFile
+	 *            wavefile
+	 * @param synthesisParams
+	 *            synthesisParams
 	 * @param pScalesArray
+	 *            pScalesArray
 	 * @param pScalesTimes
+	 *            pScalesTimes
 	 * @param tScalesArray
+	 *            tScalesArray
 	 * @param tScalesTimes
+	 *            tScalesTimes
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void mainSingleFile(String wavFile, HntmSynthesizerParams synthesisParams, float[][] pScalesArray,
 			float[] pScalesTimes, float[][] tScalesArray, float[] tScalesTimes) throws UnsupportedAudioFileException, IOException {
@@ -462,7 +471,9 @@ public class HntmSynthesizer {
 	 *            directory containig .wav files or a wav file, in the same directory it should be a .ptc file that can be
 	 *            extracted with
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void mainProcessDirOrFile(String[] args) throws UnsupportedAudioFileException, IOException {
 

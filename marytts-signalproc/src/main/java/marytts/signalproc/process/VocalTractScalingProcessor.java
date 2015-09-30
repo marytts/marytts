@@ -42,8 +42,13 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
 
 	/**
 	 * @param p
+	 *            p
 	 * @param fs
+	 *            fs
 	 * @param fftSize
+	 *            fftSize
+	 * @param vscalesIn
+	 *            vscalesIn
 	 */
 	public VocalTractScalingProcessor(int p, int fs, int fftSize, double[] vscalesIn) {
 		super(p, fs, fftSize);

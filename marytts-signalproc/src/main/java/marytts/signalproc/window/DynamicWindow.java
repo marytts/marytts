@@ -31,6 +31,9 @@ public class DynamicWindow implements InlineDataProcessor {
 	/**
 	 * An inline data processor applying a window of the requested type to the data. The window length will always be equal to the
 	 * data length.
+	 * 
+	 * @param windowType
+	 *            window type
 	 */
 	public DynamicWindow(int windowType) {
 		this.windowType = windowType;
@@ -43,6 +46,13 @@ public class DynamicWindow implements InlineDataProcessor {
 
 	/**
 	 * apply a window of the specified type, with length len, to the data.
+	 * 
+	 * @param data
+	 *            data
+	 * @param off
+	 *            off
+	 * @param len
+	 *            len
 	 */
 	public void applyInline(double[] data, int off, int len) {
 		Window w = Window.get(windowType, len);

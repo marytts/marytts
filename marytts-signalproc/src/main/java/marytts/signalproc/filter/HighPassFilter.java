@@ -114,7 +114,7 @@ public class HighPassFilter extends FIRFilter {
 	/**
 	 * Compute the high-pass filter kernel, as a spectrally inverted low-pass filter kernel.
 	 * 
-	 * @param normalizedCutoffFrequencyIn
+	 * @param normalisedCutoffFrequencyIn
 	 *            normalizedCutoffFrequencyIn
 	 * @param kernelLength
 	 *            kernelLength

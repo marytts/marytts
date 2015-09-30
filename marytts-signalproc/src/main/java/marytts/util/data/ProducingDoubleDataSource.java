@@ -69,6 +69,9 @@ public abstract class ProducingDoubleDataSource extends BufferedDoubleDataSource
 	 * The producing thread tries to put ont data item into the queue.
 	 * 
 	 * @param value
+	 *            value
+	 * @throws RuntimeException
+	 *             runtime exception
 	 */
 	public void putOneDataPoint(double value) {
 		try {

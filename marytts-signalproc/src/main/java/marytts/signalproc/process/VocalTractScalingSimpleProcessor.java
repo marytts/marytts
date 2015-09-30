@@ -58,6 +58,9 @@ public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {
 
 	/**
 	 * @param fftSize
+	 *            fftSize
+	 * @param vscalesIn
+	 *            vscalesIn
 	 */
 	public VocalTractScalingSimpleProcessor(int fftSize, double[] vscalesIn) {
 		super(fftSize);

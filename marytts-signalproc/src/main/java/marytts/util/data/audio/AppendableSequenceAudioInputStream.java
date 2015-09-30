@@ -25,6 +25,7 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	 * doneAppending() is called. After doneAppending() is called, read() will return -1 when running out of data.
 	 * 
 	 * @param audioFormat
+	 *            audio format
 	 * @param audioInputStreams
 	 *            the list of initial audio input streams, or null if initially the stream is empty.
 	 */
@@ -36,6 +37,7 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	 * Append the new audio input stream to the end of the list of audio input streams.
 	 * 
 	 * @param ais
+	 *            ais
 	 * @throws IllegalArgumentException
 	 *             if this method is called after doneAppending() was called.
 	 */
@@ -113,6 +115,8 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	 * Return the frame length of this appendable sequence audio input stream. As long as <code>doneAppending()</code> has not
 	 * been called, returns <code>AudioSystem.NOT_SPECIFIED</code>; after that, the frame length is the sum of the frame lengths
 	 * of individual frame lengths.
+	 * 
+	 * @return total
 	 */
 	public long getFrameLength() {
 		if (!doneAppending) {

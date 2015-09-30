@@ -42,7 +42,9 @@ import marytts.util.signal.SignalProcUtils;
 public class Robotiser extends FrameOverlapAddSource {
 	/**
 	 * @param inputSource
+	 *            inputSource
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param amount
 	 *            the factor by which to speed up or slow down the source. Values greater than one will speed up, values smaller
 	 *            than one will slow down the original.
@@ -70,7 +72,9 @@ public class Robotiser extends FrameOverlapAddSource {
 		 * Perform the random manipulation.
 		 * 
 		 * @param r
+		 *            r
 		 * @param phi
+		 *            phi
 		 */
 		protected void processPolar(double[] r, double[] phi) {
 			for (int i = 0; i < phi.length; i++) {

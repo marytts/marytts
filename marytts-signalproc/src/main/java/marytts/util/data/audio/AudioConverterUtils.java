@@ -116,8 +116,10 @@ public class AudioConverterUtils {
 	 * 24-Bit Audio to 16-bit Audio converter
 	 * 
 	 * @param ais
-	 * @return AudioInputStream
+	 *            ais
+	 * @return AudioInputStream audio input stream
 	 * @throws Exception
+	 *             exception
 	 */
 
 	public static AudioInputStream convertBit24ToBit16(AudioInputStream ais) throws Exception {
@@ -221,9 +223,12 @@ public class AudioConverterUtils {
 	 * 24-Bit Audio to 16-bit Audio converter
 	 * 
 	 * @param ais
+	 *            ais
 	 * @param shiftBits
+	 *            shift bits
 	 * @return AudioInputStream
 	 * @throws Exception
+	 *             exception
 	 */
 
 	public static AudioInputStream convertBit24ToBit16(AudioInputStream ais, int shiftBits) throws Exception {
@@ -312,8 +317,10 @@ public class AudioConverterUtils {
 	 * Get samples in Integer Format (un-normalized) from AudioInputStream
 	 * 
 	 * @param ais
+	 *            ais
 	 * @return samples
 	 * @throws Exception
+	 *             exception
 	 */
 	public static int[] getSamples(AudioInputStream ais) throws Exception {
 
@@ -375,9 +382,12 @@ public class AudioConverterUtils {
 	 * DownSampling given Audio Input Stream
 	 * 
 	 * @param ais
+	 *            ais
 	 * @param targetSamplingRate
+	 *            target sampling rate
 	 * @return oais
 	 * @throws Exception
+	 *             exception
 	 */
 	public static AudioInputStream downSampling(AudioInputStream ais, int targetSamplingRate) throws Exception {
 
@@ -427,15 +437,25 @@ public class AudioConverterUtils {
 	 * Removes endpoints from given file.
 	 * 
 	 * @param inputFile
+	 *            input file
 	 * @param outputFile
+	 *            output file
 	 * @param energyBufferLength
+	 *            energyBufferLength
 	 * @param speechStartLikelihood
+	 *            speechStartLikelihood
 	 * @param speechEndLikelihood
+	 *            speechEndLikelihood
 	 * @param shiftFromMinimumEnergyCenter
+	 *            shiftFromMinimumEnergyCenter
 	 * @param numClusters
+	 *            numClusters
 	 * @param minimumStartSilenceInSeconds
+	 *            minimumStartSilenceInSeconds
 	 * @param minimumEndSilenceInSeconds
+	 *            minimumEndSilenceInSeconds
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void removeEndpoints(String inputFile, String outputFile, int energyBufferLength, double speechStartLikelihood,
 			double speechEndLikelihood, double shiftFromMinimumEnergyCenter, int numClusters,

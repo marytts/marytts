@@ -50,7 +50,9 @@ public class Histogram {
 	 * A simple constructor
 	 * 
 	 * @param data
+	 *            data
 	 * @param nbins
+	 *            nbins
 	 */
 	public Histogram(double[] data, int nbins) {
 		double min = MathUtils.min(data);
@@ -79,9 +81,13 @@ public class Histogram {
 	 * Settings to Histogram
 	 * 
 	 * @param data
+	 *            data
 	 * @param nbins
+	 *            nbins
 	 * @param min
+	 *            min
 	 * @param max
+	 *            max
 	 */
 	public void setHistogram(double[] data, int nbins, double min, double max) {
 		m_nbins = nbins;

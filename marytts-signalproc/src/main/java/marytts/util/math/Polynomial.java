@@ -81,7 +81,7 @@ public class Polynomial {
 	 * @throws IllegalArgumentException
 	 *             if coeffs has length 0
 	 * @throws IllegalArgumentException
-	 *             if numSamples is <= 0
+	 *             if numSamples is &le; 0
 	 * @throws IllegalArgumentException
 	 *             if a is not less than b.
 	 */
@@ -144,7 +144,7 @@ public class Polynomial {
 	 * @return the polynomial coefficients, highest power first. In other words, if the polynomial is
 	 *         <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, then the array returned contains
 	 *         <code>a_order, a_(order-1), ..., a_1, a_0</code>. throws NullPointerException if data is null throws
-	 *         IllegalArgumentException if data.length < order or if order < 0.
+	 *         IllegalArgumentException if data.length &lt; order or if order &lt; 0.
 	 */
 	public static double[] fitPolynomial(double[] data, int order) {
 		if (data == null)
@@ -205,7 +205,7 @@ public class Polynomial {
 	 * @throws IllegalArgumentException
 	 *             if coeffs has length 0
 	 * @throws IllegalArgumentException
-	 *             if numSamples is <= 0
+	 *             if numSamples is &le; 0
 	 * @throws IllegalArgumentException
 	 *             if a is not less than b.
 	 */
