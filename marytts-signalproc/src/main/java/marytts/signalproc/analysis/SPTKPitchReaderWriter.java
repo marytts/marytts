@@ -47,6 +47,7 @@ public class SPTKPitchReaderWriter {
 	 * in Hz
 	 * 
 	 * @param lf0SPTKFile
+	 *            lf0SPTKFile
 	 */
 	public SPTKPitchReaderWriter(String lf0SPTKFile) {
 
@@ -58,9 +59,13 @@ public class SPTKPitchReaderWriter {
 	 * read a SPTK lf0 file with external settings
 	 * 
 	 * @param lf0SPTKFile
+	 *            lf0SPTKFile
 	 * @param windowSizeInSeconds
+	 *            windowSizeInSeconds
 	 * @param skipSizeInSeconds
+	 *            skipSizeInSeconds
 	 * @param samplingRate
+	 *            samplingRate
 	 */
 	public SPTKPitchReaderWriter(String lf0SPTKFile, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) {
 		contour = null;
@@ -81,7 +86,9 @@ public class SPTKPitchReaderWriter {
 	 * create a SPTK Pitch reader writer with external contour
 	 * 
 	 * @param contour
+	 *            contour
 	 * @param header
+	 *            header
 	 */
 	public SPTKPitchReaderWriter(double[] contour, PitchFileHeader header) {
 		this.contour = contour;
@@ -109,8 +116,10 @@ public class SPTKPitchReaderWriter {
 	/**
 	 * 
 	 * @param lf0SPTKFile
+	 *            lf0SPTKFile
 	 * @return totalFrame
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	private int getNumberOfFrames(String lf0SPTKFile) throws IOException {
 
@@ -135,8 +144,10 @@ public class SPTKPitchReaderWriter {
 	 * convert a SPTK file into contour[]
 	 * 
 	 * @param lf0SPTKFile
+	 *            lf0SPTKFile
 	 * @return null if !FileUtils.exists(lf0SPTKFile), f0Data otherwise
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	private double[] readSPTKF0Data(String lf0SPTKFile) throws IOException {
 
@@ -164,7 +175,9 @@ public class SPTKPitchReaderWriter {
 	 * write contour into a lf0 file in SPTK format
 	 * 
 	 * @param sptkFileName
+	 *            sptk File Name
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public void writeIntoSPTKLF0File(String sptkFileName) throws IOException {
 		LEDataOutputStream lf0Data = new LEDataOutputStream(new BufferedOutputStream(new FileOutputStream(sptkFileName)));
@@ -184,7 +197,9 @@ public class SPTKPitchReaderWriter {
 	 * write contour into a lf0 file in MARY PTC format
 	 * 
 	 * @param ptcFileName
+	 *            ptc file name
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public void writeIntoMARYPTCfile(String ptcFileName) throws IOException {
 		PitchReaderWriter.write_pitch_file(ptcFileName, this.contour, (float) this.header.windowSizeInSeconds,
@@ -193,7 +208,9 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * @param args
+	 *            args
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void main(String[] args) throws IOException {
 

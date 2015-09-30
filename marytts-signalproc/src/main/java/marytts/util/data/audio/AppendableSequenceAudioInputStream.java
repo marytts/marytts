@@ -111,8 +111,8 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 
 	/**
 	 * Return the frame length of this appendable sequence audio input stream. As long as <code>doneAppending()</code> has not
-	 * been called, returns <code>AudioSystem.NOT_SPECIFIED;
-	 * after that, the frame length is the sum of the frame lengths of individual frame lengths.
+	 * been called, returns <code>AudioSystem.NOT_SPECIFIED</code>; after that, the frame length is the sum of the frame lengths
+	 * of individual frame lengths.
 	 */
 	public long getFrameLength() {
 		if (!doneAppending) {
