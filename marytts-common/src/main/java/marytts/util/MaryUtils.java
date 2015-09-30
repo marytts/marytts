@@ -52,6 +52,10 @@ public class MaryUtils {
 
 	/**
 	 * Create a map from an Object array which contains paired entries (key, value, key, value, ....).
+	 * 
+	 * @param a
+	 *            a
+	 * @return m
 	 */
 	public static Map<String, String> arrayToMap(String[] a) {
 		Map<String, String> m = new HashMap<String, String>();
@@ -92,7 +96,9 @@ public class MaryUtils {
 	 * ^&lt; bytes.length.
 	 * 
 	 * @param bytes
+	 *            bytes
 	 * @param pattern
+	 *            pattern
 	 * @return the index position in bytes where pattern starts, or -1 if bytes does not contain pattern.
 	 */
 	public static int indexOf(byte[] bytes, byte[] pattern) {
@@ -153,6 +159,10 @@ public class MaryUtils {
 
 	/**
 	 * Get the extension of a file.
+	 * 
+	 * @param f
+	 *            f
+	 * @return ext
 	 */
 	public static String getExtension(File f) {
 		String ext = null;
@@ -197,6 +207,10 @@ public class MaryUtils {
 	/**
 	 * Tell whether the string contains a positive or negative percentage delta, i.e., a percentage number with an obligatory + or
 	 * - sign.
+	 * 
+	 * @param string
+	 *            string
+	 * @return s.substring
 	 */
 	public static boolean isPercentageDelta(String string) {
 		String s = string.trim();
@@ -209,6 +223,8 @@ public class MaryUtils {
 	 * For a string containing a percentage delta as judged by <code>isPercentageDelta()</code>, return the numerical value,
 	 * rounded to an integer.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric part of the percentage, rounded to an integer, or 0 if the string is not a valid percentage delta.
 	 */
 	public static int getPercentageDelta(String string) {
@@ -221,6 +237,10 @@ public class MaryUtils {
 	/**
 	 * Tell whether the string contains a positive or negative semitones delta, i.e., a semitones number with an obligatory + or -
 	 * sign, such as "+3.2st" or "-13.2st".
+	 * 
+	 * @param string
+	 *            string
+	 * @return s.substring(s.length() - 2).equals("st") and isNumberDelta(s.substring(0, s.length() - 2))
 	 */
 	public static boolean isSemitonesDelta(String string) {
 		String s = string.trim();
@@ -234,6 +254,8 @@ public class MaryUtils {
 	 * For a string containing a semitones delta as judged by <code>isSemitonesDelta()</code>, return the numerical value, as a
 	 * double.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric part of the semitones delta, or 0 if the string is not a valid semitones delta.
 	 */
 	public static double getSemitonesDelta(String string) {
@@ -252,6 +274,10 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains a positive or negative number delta, i.e., a number with an obligatory + or - sign.
+	 * 
+	 * @param string
+	 *            string
+	 * @return (s.charAt(0) == '+' or s.charAt(0) == '-') and isUnsignedNumber(s.substring(1))
 	 */
 	public static boolean isNumberDelta(String string) {
 		String s = string.trim();
@@ -265,6 +291,8 @@ public class MaryUtils {
 	 * For a string containing a number delta as judged by <code>isNumberDelta()</code>, return the numerical value, rounded to an
 	 * integer.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number delta.
 	 */
 	public static int getNumberDelta(String string) {
@@ -283,6 +311,10 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains an unsigned semitones expression, such as "12st" or "5.4st".
+	 * 
+	 * @param string
+	 *            string
+	 * @return s.substring(s.length() - 2).equals("st") and isUnsignedNumber(s.substring(0, s.length() - 2))
 	 */
 	public static boolean isUnsignedSemitones(String string) {
 		String s = string.trim();
@@ -295,6 +327,8 @@ public class MaryUtils {
 	 * For a string containing an unsigned semitones expression as judged by <code>isUnsignedSemitones()</code>, return the
 	 * numerical value as a double.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric part of the semitones expression, or 0 if the string is not a valid unsigned semitones expression.
 	 */
 	public static double getUnsignedSemitones(String string) {
@@ -313,6 +347,10 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains an unsigned number.
+	 * 
+	 * @param string
+	 *            string
+	 * @return false if s.length &lt;1, true otherwise
 	 */
 	public static boolean isUnsignedNumber(String string) {
 		String s = string.trim();
@@ -334,6 +372,8 @@ public class MaryUtils {
 	 * For a string containing an unsigned number as judged by <code>isUnsignedNumber()</code>, return the numerical value,
 	 * rounded to an integer.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid unsigned number.
 	 */
 	public static int getUnsignedNumber(String string) {
@@ -351,6 +391,10 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains a number.
+	 * 
+	 * @param string
+	 *            string
+	 * @return false if s.length &lt;1, true otherwise
 	 */
 	public static boolean isNumber(String string) {
 		String s = string.trim();
@@ -368,6 +412,8 @@ public class MaryUtils {
 	/**
 	 * For a string containing a number as judged by <code>isNumber()</code>, return the numerical value, rounded to an integer.
 	 * 
+	 * @param string
+	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number.
 	 */
 	public static int getNumber(String string) {
@@ -421,6 +467,12 @@ public class MaryUtils {
 	 * Test for lax Locale equality. More precisely, returns true if (a) both are equal; (b) general only specifies language, and
 	 * specific has the same language; (c) general specifies language and country, and specific has the same language and country.
 	 * Else returns false.
+	 * 
+	 * @param general
+	 *            general
+	 * @param specific
+	 *            specific
+	 * @return false if general is null or specific is null, true otherwise
 	 */
 	public static boolean subsumes(Locale general, Locale specific) {
 		if (general == null || specific == null)
@@ -458,6 +510,7 @@ public class MaryUtils {
 	 *            hour after creation.
 	 * @return the File that was created.
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static File createSelfDeletingTempFile(int lifetimeInSeconds) throws IOException {
 		final File f = File.createTempFile("mary", "temp");
@@ -792,6 +845,8 @@ public class MaryUtils {
 	/**
 	 * Returns true if it appears that log4j have been previously configured. This code checks to see if there are any appenders
 	 * defined for log4j which is the definitive way to tell if log4j is already initialized
+	 * 
+	 * @return true if appenders.hasMoreElements, false otherwise
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean isLog4jConfigured() {
@@ -808,6 +863,7 @@ public class MaryUtils {
 	 * that message.
 	 * 
 	 * @param t
+	 *            t
 	 * @return the first non-empty message string, or null.
 	 */
 	public static String getFirstMeaningfulMessage(Throwable t) {

@@ -73,6 +73,13 @@ public class BasenameList {
 
 	/**
 	 * Default constructor from an existing vector and fields.
+	 * 
+	 * @param setFromDir
+	 *            setFromDir
+	 * @param setFromExt
+	 *            setFromExt
+	 * @param setVec
+	 *            setVec
 	 */
 	public BasenameList(String setFromDir, String setFromExt, Vector setVec) {
 		fromDir = setFromDir;
@@ -83,6 +90,9 @@ public class BasenameList {
 
 	/**
 	 * Constructor from an array of strings.
+	 * 
+	 * @param str
+	 *            str
 	 */
 	public BasenameList(String[] str) {
 		fromDir = null;
@@ -93,7 +103,7 @@ public class BasenameList {
 	}
 
 	/**
-	 * This constructor lists the .<extension> files from directory dir, and initializes an an array with their list of
+	 * This constructor lists the . extension files from directory dir, and initializes an an array with their list of
 	 * alphabetically sorted basenames.
 	 * 
 	 * @param dirName
@@ -140,6 +150,8 @@ public class BasenameList {
 	 * 
 	 * @param fileName
 	 *            The file to read from.
+	 * @throws IOException
+	 *             IOException
 	 */
 	public BasenameList(String fileName) throws IOException {
 		load(fileName);
@@ -152,6 +164,11 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a file, identified by its name.
+	 * 
+	 * @param fileName
+	 *            fileName
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(String fileName) throws IOException {
 		write(new File(fileName));
@@ -159,6 +176,11 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a File.
+	 * 
+	 * @param file
+	 *            file
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(File file) throws IOException {
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"), true);

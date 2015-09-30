@@ -261,6 +261,7 @@ public class Trie<Symbol> {
 	 * This adds an entry to the trie.
 	 * 
 	 * @param entry
+	 *            entry
 	 */
 	public void add(Symbol[] entry) {
 		// add the entry and remember backpointer to final node

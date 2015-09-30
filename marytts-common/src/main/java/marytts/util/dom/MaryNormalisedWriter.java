@@ -63,7 +63,7 @@ public class MaryNormalisedWriter {
 	/**
 	 * Default constructor. Calls <code>startup()</code> if it has not been called before.
 	 * 
-	 * @see #startup().
+	 * @see #startup()
 	 */
 	public MaryNormalisedWriter() throws MaryConfigurationException {
 		try {
@@ -135,6 +135,13 @@ public class MaryNormalisedWriter {
 
 	/**
 	 * Output a DOM node to a specified destination
+	 * 
+	 * @param input
+	 *            input
+	 * @param destination
+	 *            destination
+	 * @throws TransformerException
+	 *             TransformerException
 	 */
 	public void output(Node input, OutputStream destination) throws TransformerException {
 		output(new DOMSource(input), new StreamResult(destination));
@@ -143,6 +150,11 @@ public class MaryNormalisedWriter {
 	/**
 	 * The simplest possible command line interface to the MaryNormalisedWriter. Reads a "real" XML document from stdin, and
 	 * outputs it in the MaryNormalised form to stdout.
+	 * 
+	 * @param args
+	 *            args
+	 * @throws Throwable
+	 *             Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
 		startup();

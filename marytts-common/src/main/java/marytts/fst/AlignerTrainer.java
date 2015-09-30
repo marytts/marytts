@@ -44,7 +44,8 @@ import org.apache.log4j.Logger;
  * The algorithm, in its essence, is implemented after a description of levenshtein distance as it can be found in Wikipedia (see
  * the linked revision):
  * 
- * http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance
+ * <a href=http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance>Computing
+ * Levenshtein distance</a>
  * 
  * consider the costs used in the pseudo-code:
  * 
@@ -103,6 +104,8 @@ public class AlignerTrainer {
 	 * @param inIsOutAlphabet
 	 *            boolean indicating as input and output strings should be considered as belonging to the same symbol sets
 	 *            (alignment between identical symbol is then cost-free)
+	 * @param hasOptInfo
+	 *            has opt info
 	 */
 	public AlignerTrainer(boolean inIsOutAlphabet, boolean hasOptInfo) {
 
@@ -142,6 +145,7 @@ public class AlignerTrainer {
 	 * @param splitSym
 	 *            symbol to split columns of lexicon
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void readLexicon(BufferedReader lexicon, String splitSym) throws IOException {
 
@@ -165,7 +169,9 @@ public class AlignerTrainer {
 	 * for splitting.
 	 * 
 	 * @param inStr
+	 *            inStr
 	 * @param outStr
+	 *            outStr
 	 */
 	public void splitAndAdd(String inStr, String outStr) {
 
@@ -315,6 +321,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getAlignment(int entryNr) {
 
@@ -372,6 +379,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getInfoAlignment(int entryNr) {
 
