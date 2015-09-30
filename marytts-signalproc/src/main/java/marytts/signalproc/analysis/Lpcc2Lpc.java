@@ -78,6 +78,7 @@ public class Lpcc2Lpc {
 	 *            The name of the output file.
 	 * 
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void convert(String inFileName, String outFileName, int lpcOrder) throws IOException {
 		// Load the input file
@@ -91,6 +92,9 @@ public class Lpcc2Lpc {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void main(String[] args) throws IOException {
 		// Usage: ESTlpccToESTlpc lpcOrder inFileName outFileName

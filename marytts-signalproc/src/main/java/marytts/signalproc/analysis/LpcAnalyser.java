@@ -580,6 +580,8 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		/**
 		 * Convert some LPC-Cepstrum coefficients into these LPC coefficients.
 		 * 
+		 * @param someLpcc
+		 *            some Lpcc
 		 * @param LPCOrder
 		 *            The LPC order (i.e., the index of the last LPC coefficient). The gain is set to exp(c[0]) and the LPCs are
 		 *            represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
@@ -606,6 +608,9 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert some reflection coefficients into these LPC coefficients.
+		 * 
+		 * @param someLprefc
+		 *            some Lprefc
 		 */
 		public void setLPRefc(double[] someLprefc) {
 			this.lprefc = (double[]) someLprefc.clone();

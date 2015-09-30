@@ -46,6 +46,8 @@ public class ShortTermCepstrumAnalyser extends FrameBasedAnalyser<double[]> {
 	 *            the signal source to read from
 	 * @param fftSize
 	 *            the size of the FFT to use
+	 * @param invFftSize
+	 *            inverted FftSize
 	 * @param window
 	 *            the window function to apply to each frame
 	 * @param frameShift
@@ -77,8 +79,8 @@ public class ShortTermCepstrumAnalyser extends FrameBasedAnalyser<double[]> {
 	 * Apply this FrameBasedAnalyser to the given data.
 	 * 
 	 * @param aFrame
-	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 * similar to {@link #getFrameLengthSamples()} .
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by similar to
+	 *            {@link #getFrameLengthSamples()} .
 	 * @return a double array of half the frame length
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
@@ -122,6 +124,8 @@ public class ShortTermCepstrumAnalyser extends FrameBasedAnalyser<double[]> {
 
 	/**
 	 * The distance of two adjacent points on the quefrency axis, in ms
+	 * 
+	 * @return quefrencyResolution
 	 */
 	public double getQuefrencyResolution() {
 		return quefrencyResolution;

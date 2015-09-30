@@ -222,12 +222,13 @@ public class Spectrogram extends FunctionGraph {
 	 * @param image_height
 	 *            the height of the drawable region for the y values
 	 * @param data
-	 * 
+	 *            data
 	 * @param currentGraphColor
-	 * 
+	 *            currentGraphColor
 	 * @param currentGraphStyle
-	 * 
+	 *            current graph style
 	 * @param currentDotStyle
+	 *            current dot style
 	 */
 	@Override
 	protected void drawData(Graphics2D g, int image_fromX, int image_toX, int image_refX, int image_refY, int startY,

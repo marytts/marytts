@@ -275,7 +275,7 @@ public class ESTTrackReader {
 	 * 
 	 * @param seconds
 	 *            A time point, in seconds.
-	 * @return (seconds - t1) < (t2 - seconds) ? t1 : t2
+	 * @return (seconds - t1)&lt;(t2 - seconds) ? t1:t2
 	 */
 	public float getClosestTime(double seconds) {
 		/* Obvious conditions */

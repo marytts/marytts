@@ -56,6 +56,8 @@ public class Signal2EnergyConverter extends BufferedDoubleDataSource {
 	 * 
 	 * @param off
 	 *            the number of items in buf preceding writePos to process
+	 * @param len
+	 *            the length
 	 */
 	public void processNewData(int off, int len) {
 		for (int i = off; i < off + len; i++) {
