@@ -196,6 +196,7 @@ public class F0TrackerAutocorrelationHeuristic {
 	 * Analyse the f0 contour of the given audio signal.
 	 * 
 	 * @param signal
+	 *            signal
 	 */
 	public void pitchAnalyze(DoubleDataSource signal) {
 		pitchAnalyze(signal.getAllData());

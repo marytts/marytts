@@ -145,6 +145,7 @@ public class PraatIntervalTier implements PraatTier {
 	 * set name of tier
 	 * 
 	 * @param name
+	 *            name
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -154,6 +155,7 @@ public class PraatIntervalTier implements PraatTier {
 	 * replace Vector of intervals
 	 * 
 	 * @param intervals
+	 *            intervals
 	 */
 	public void setIntervals(Vector<PraatInterval> intervals) {
 		this.intervals = intervals;
@@ -163,6 +165,7 @@ public class PraatIntervalTier implements PraatTier {
 	 * add interval to the end of intervals
 	 * 
 	 * @param interval
+	 *            interval
 	 */
 	public void appendInterval(PraatInterval interval) {
 		this.intervals.add(interval);

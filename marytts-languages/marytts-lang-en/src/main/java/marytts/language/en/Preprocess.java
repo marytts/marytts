@@ -47,27 +47,28 @@ import com.google.common.collect.Lists;
  *         <li>numberandword together
  *         <li>dashes (read each number singly) or (split into two words)
  *         <li>underscores
- *         <li>decimal point, minus symbol (real numbers) also handles %, however Jtokeniser splits % into seperate token
+ *         <li>decimal point, minus symbol (real numbers) also handles &#037;, however Jtokeniser splits &#037; into separate
+ *         tokens
  *         <li>time
  *         <li>dates (in format mm/dd/yyyy)
  *         <li>acronyms (only split into single characters, never expanded)
  *         <li>abbreviations (list of known expansions in resource preprocess/abbrev.dat, a properties file separated by
  *         whitespace. If an abbrev has two different expansions then the capitalized version comes first, followed by a comma)
- *         <li>contractions -> first check lexicon, if not then -> split and check if map contains contraction, if not then just
- *         remove apostrophe else -> split before apostrophe into two tokens, use map to manually add ph -> for 's if word ends in
- *         c,f,k,p,t then add ph = s otherwise ph = z
- *         <li>ampersand &, @ symbol, -> symbols
- *         <li>urls -> note that jtokeniser splits off http[s]?://
+ *         <li>contractions &rarr; first check lexicon, if not then &rarr; split and check if map contains contraction, if not
+ *         then just remove apostrophe else &rarr; split before apostrophe into two tokens, use map to manually add ph &rarr; for
+ *         's if word ends in c,f,k,p,t then add ph &#061; s otherwise ph &#061; z
+ *         <li>ampersand &amp;, "at" &#064; symbol, &rarr; symbols
+ *         <li>urls &rarr; note that jtokeniser splits off http[s]?://
  *         <li>number ranges "18-35"
- *         <li>words without vowels -> first check lexicon, if not then separate into single character tokens
+ *         <li>words without vowels &rarr; first check lexicon, if not then separate into single character tokens
  *         <li>#hashtags
- *         <li>single "A/a" character -> if there is no next token or the next token is punctuation or next token string.length ==
- *         1
+ *         <li>single "A/a" character &rarr; if there is no next token or the next token is punctuation or next token
+ *         string.length &#061;&#061; 1
  *         <li>should also as a last processing attempt, split by punctuation,symbols,etc. and attempt to process these tokens
  *         separately
  *         <li>durations hours:minutes:seconds(:milliseconds)
  *         <li>numbers followed by an s
- *         <li>punctuation -> add ph attribute to tag to prevent phonemisation
+ *         <li>punctuation &rarr; add ph attribute to tag to prevent phonemisation
  *         </ul>
  *         <p>
  *         May include:
@@ -277,10 +278,10 @@ public class Preprocess extends InternalModule {
 				// year with bc or ad
 			} else if (MaryDomUtils.tokenText(t).matches("(?i)" + yearPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandYearBCAD(MaryDomUtils.tokenText(t)));
-				// year as just 4 digits -> this should always be checked BEFORE real number
+				// year as just 4 digits &rarr; this should always be checked BEFORE real number
 			} else if (MaryDomUtils.tokenText(t).matches("\\d{4}") && isYear == true) {
 				MaryDomUtils.setTokenText(t, expandYear(Double.parseDouble(MaryDomUtils.tokenText(t))));
-				// wordAndNumber -> must come AFTER year
+				// wordAndNumber &rarr; must come AFTER year
 			} else if (MaryDomUtils.tokenText(t).matches(numberWordPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandWordNumber(MaryDomUtils.tokenText(t)));
 				// real number & currency
@@ -351,7 +352,7 @@ public class Preprocess extends InternalModule {
 				// symbols
 			} else if (MaryDomUtils.tokenText(t).matches(symbolsPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, symbols.get(MaryDomUtils.tokenText(t)));
-				// number ranges -> before checking for dashes
+				// number ranges &rarr; before checking for dashes
 			} else if (MaryDomUtils.tokenText(t).matches(rangePattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandRange(MaryDomUtils.tokenText(t)));
 				// dashes and underscores

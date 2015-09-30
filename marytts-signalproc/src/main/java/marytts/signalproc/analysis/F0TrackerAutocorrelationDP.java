@@ -88,6 +88,10 @@ public class F0TrackerAutocorrelationDP extends F0Tracker {
 		 *            the number of samples to shift between frames
 		 * @param samplingRate
 		 *            the sampling rate of the signal, in samples per second
+		 * @param minF0
+		 *            minF0
+		 * @param maxF0
+		 *            maxF0
 		 */
 		public CandidateEstimator(DoubleDataSource signal, Window window, int frameShift, int samplingRate, int minF0, int maxF0) {
 			this(signal, window, frameShift, samplingRate);

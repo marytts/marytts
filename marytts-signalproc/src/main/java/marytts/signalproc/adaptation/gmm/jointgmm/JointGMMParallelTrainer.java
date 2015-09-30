@@ -984,14 +984,19 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
 
 	/**
 	 * Depending on the parameters it will train GMMs. For example the ouput in this example will be: sourceF_X_targetF_99_10.jgs
-	 * --> numTrainingFiles = 99, numComponents = 10 (10 mixes) Input: two directories source and target containing:
+	 * &rarr; numTrainingFiles = 99, numComponents = 10 (10 mixes) Input: two directories source and target containing:
 	 * /Neutral-Spike-Conversion/source/train_99/*.wav and *.lab /Neutral-Spike-Conversion/target/train_99/*.wav and *.lab In
 	 * these directories it will calculate *.lsf, *.ptc, *.ene Output:
 	 * /Neutral-Spike-Conversion/ouput/source2target/sourceF_X_targetF_99_10.jgs
 	 * 
 	 * @param args
+	 *            args
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public static void mainQuickTest2(String[] args) throws UnsupportedAudioFileException, IOException,
 			MaryConfigurationException {

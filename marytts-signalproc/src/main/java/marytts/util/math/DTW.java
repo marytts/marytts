@@ -45,7 +45,9 @@ public class DTW {
 	 * Dynamic time warping (DTW) cost signal and reference Default 'Euclidean' distance function
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param reference
+	 *            reference
 	 */
 	public DTW(double[][] signal, double[][] reference) {
 		this.signal = signal;
@@ -58,7 +60,11 @@ public class DTW {
 	 * Dynamic time warping (DTW) cost signal and reference distanceFunction = {"Euclidean" or "Absolute"}
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param reference
+	 *            reference
+	 * @param distanceFunction
+	 *            distance function
 	 */
 	public DTW(double[][] signal, double[][] reference, String distanceFunction) {
 		this.signal = signal;
@@ -71,8 +77,11 @@ public class DTW {
 	 * DTW using Mahalanobis distance (Variance computation from external module)
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param reference
+	 *            reference
 	 * @param sigma2
+	 *            sigma2
 	 */
 	public DTW(double[][] signal, double[][] reference, double[] sigma2) {
 		this.signal = signal;
@@ -258,6 +267,7 @@ public class DTW {
 	 * Set cost of best path
 	 * 
 	 * @param cost
+	 *            cost
 	 */
 	private void setCost(double cost) {
 		this.costValue = cost;
@@ -266,7 +276,8 @@ public class DTW {
 	/**
 	 * Set global variance
 	 * 
-	 * @param cost
+	 * @param sigma2
+	 *            sigma2
 	 */
 	private void setCost(double[] sigma2) {
 		this.sigma2 = sigma2;
@@ -317,6 +328,12 @@ public class DTW {
 
 	/**
 	 * Euclidean distance
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return sum
 	 */
 	public double EuclideanDistance(double[] x, double[] y) {
 
@@ -336,7 +353,9 @@ public class DTW {
 	 * Absolute distance
 	 * 
 	 * @param x
+	 *            x
 	 * @param y
+	 *            y
 	 * @return sum
 	 */
 	public double AbsDistance(double[] x, double[] y) {

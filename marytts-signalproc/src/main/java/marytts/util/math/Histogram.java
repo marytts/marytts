@@ -196,7 +196,7 @@ public class Histogram {
 
 	/**
 	 * Save the histogram data to a file. The file format is very simple, human-readable text so it can be imported into Excel or
-	 * cut & pasted into other applications.
+	 * cut and pasted into other applications.
 	 * 
 	 * @param fileName
 	 *            name of the file to write the histogram to. Note this must be valid for your operating system, e.g. a unix

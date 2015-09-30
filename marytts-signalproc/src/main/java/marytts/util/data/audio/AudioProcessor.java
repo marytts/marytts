@@ -45,6 +45,7 @@ public interface AudioProcessor {
 	 * 
 	 * @param ais
 	 *            ais
+	 * @return ais
 	 */
 	public AudioInputStream apply(AudioInputStream ais);
 

@@ -87,6 +87,7 @@ public class AlignedLabels {
 	 * sequence.
 	 * 
 	 * @param time1
+	 *            time1
 	 * @return the corresponding time, or a negative value if no corresponding time could be determined
 	 */
 	public double mapTimeFromFirstToSecond(double time1) {
@@ -109,6 +110,7 @@ public class AlignedLabels {
 	 * sequence.
 	 * 
 	 * @param time2
+	 *            time2
 	 * @return the corresponding time, or a negative value if no corresponding time could be determined
 	 */
 	public double mapTimeFromSecondToFirst(double time2) {
