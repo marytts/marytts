@@ -44,6 +44,7 @@ public interface AudioProcessor {
 	 * providing audio data before having read all input data.
 	 * 
 	 * @param ais
+	 *            ais
 	 */
 	public AudioInputStream apply(AudioInputStream ais);
 

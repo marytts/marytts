@@ -39,7 +39,7 @@ public class HighPassFilter extends FIRFilter {
 	public double normalisedCutoffFrequency;
 
 	/**
-	 * Create a new highpass filter with the given normalised cutoff frequency and a default transition band width.
+	 * Create a new highpass filter with the given normalized cutoff frequency and a default transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -51,7 +51,7 @@ public class HighPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new highpass filter with the given normalised cutoff frequency and the given normalised transition band width.
+	 * Create a new highpass filter with the given normalized cutoff frequency and the given normalized transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -67,7 +67,7 @@ public class HighPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new highpass filter with the given normalised cutoff frequency and the given length of the filter kernel.
+	 * Create a new highpass filter with the given normalized cutoff frequency and the given length of the filter kernel.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the highpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -105,6 +105,7 @@ public class HighPassFilter extends FIRFilter {
 	 * 
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
+	 * @return sampling rate
 	 */
 	public double getTransitionBandWidth(int samplingRate) {
 		return samplingRate * kernelLength2bandwidth(impulseResponseLength);
@@ -112,6 +113,12 @@ public class HighPassFilter extends FIRFilter {
 
 	/**
 	 * Compute the high-pass filter kernel, as a spectrally inverted low-pass filter kernel.
+	 * 
+	 * @param normalizedCutoffFrequencyIn
+	 *            normalizedCutoffFrequencyIn
+	 * @param kernelLength
+	 *            kernelLength
+	 * @return kernel
 	 */
 	protected static double[] getKernel(double normalisedCutoffFrequencyIn, int kernelLength) {
 		double[] lowPassKernel = LowPassFilter.getKernel(normalisedCutoffFrequencyIn, kernelLength);
@@ -128,6 +135,7 @@ public class HighPassFilter extends FIRFilter {
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
 	 * 
 	 * @param normalisedTransitionBandwidth
+	 *            normalisedTransitionBandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
 	 */
 	protected static int bandwidth2kernelLength(double normalisedTransitionBandwidth) {
@@ -142,6 +150,7 @@ public class HighPassFilter extends FIRFilter {
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
 	 * 
 	 * @param kernelLength
+	 *            kernelLength
 	 * @return the corresponding normalised transition bandwidth.
 	 */
 	protected static double kernelLength2bandwidth(int kernelLength) {

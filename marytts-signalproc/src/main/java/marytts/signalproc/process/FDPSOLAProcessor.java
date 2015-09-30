@@ -335,7 +335,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 	 * @param rightContexts
 	 *            array of Datagrams, one element per SelectedUnit
 	 * @param audioformat
-	 * 
+	 *            audioformat
 	 * @param voicings
 	 *            array of boolean arrays, matching <b>datagrams</b>
 	 * @param pitchScales

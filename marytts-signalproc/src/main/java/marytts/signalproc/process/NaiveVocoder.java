@@ -45,7 +45,9 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 
 	/**
 	 * @param inputSource
+	 *            input source
 	 * @param samplingRate
+	 *            sampling rate
 	 * @param rateChangeFactor
 	 *            the factor by which to speed up or slow down the source. Values greater than one will speed up, values smaller
 	 *            than one will slow down the original.
@@ -76,6 +78,8 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 	 * f is fixed; s is si for input frameshift, so for output frameshift. For a given input length, one can compute n and rest
 	 * and thus compute the output length.
 	 * 
+	 * @param inputLengthInSamples
+	 *            inputLengthInSamples
 	 * @return the output length
 	 */
 	public int computeOutputLength(int inputLengthInSamples) {
