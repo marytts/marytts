@@ -37,22 +37,43 @@ import com.google.common.collect.Lists;
 /**
  * @author Tristan Hamilton
  * 
- *         Can process following formats: - cardinal (handled by real number) - ordinal - year (as a 4 digit number or any number
- *         followed by AD/BC variation) - currency - numberandword together - dashes (read each number singly) or (split into two
- *         words) - underscores - decimal point, minus symbol (real numbers) also handles %, however Jtokeniser splits % into
- *         seperate token - time - dates (in format mm/dd/yyyy) - acronyms (only split into single characters, never expanded) -
- *         abbreviations (list of known expansions in resource preprocess/abbrev.dat, a properties file separated by whitespace.
- *         If an abbrev has two different expansions then the capitalized version comes first, followed by a comma) - contractions
- *         -> first check lexicon, if not then -> split and check if map contains contraction, if not then just remove apostrophe
- *         else -> split before apostrophe into two tokens, use map to manually add ph -> for 's if word ends in c,f,k,p,t then
- *         add ph = s otherwise ph = z - ampersand &, @ symbol, -> symbols - urls -> note that jtokeniser splits off http[s]?:// -
- *         number ranges "18-35" - words without vowels -> first check lexicon, if not then separate into single character tokens
- *         - #hashtags - single "A/a" character -> if there is no next token or the next token is punctuation or next token
- *         string.length == 1 - should also as a last processing attempt, split by punctuation,symbols,etc. and attempt to process
- *         these tokens separately - durations hours:minutes:seconds(:milliseconds) - numbers followed by an s - punctuation ->
- *         add ph attribute to tag to prevent phonemisation
- * 
- *         May include: - roman numerals
+ *         <p>
+ *         Can process following formats:
+ *         <ul>
+ *         <li>cardinal (handled by real number)
+ *         <li>ordinal
+ *         <li>year (as a 4 digit number or any number followed by AD/BC variation)
+ *         <li>currency
+ *         <li>numberandword together
+ *         <li>dashes (read each number singly) or (split into two words)
+ *         <li>underscores
+ *         <li>decimal point, minus symbol (real numbers) also handles %, however Jtokeniser splits % into seperate token
+ *         <li>time
+ *         <li>dates (in format mm/dd/yyyy)
+ *         <li>acronyms (only split into single characters, never expanded)
+ *         <li>abbreviations (list of known expansions in resource preprocess/abbrev.dat, a properties file separated by
+ *         whitespace. If an abbrev has two different expansions then the capitalized version comes first, followed by a comma)
+ *         <li>contractions -> first check lexicon, if not then -> split and check if map contains contraction, if not then just
+ *         remove apostrophe else -> split before apostrophe into two tokens, use map to manually add ph -> for 's if word ends in
+ *         c,f,k,p,t then add ph = s otherwise ph = z
+ *         <li>ampersand &, @ symbol, -> symbols
+ *         <li>urls -> note that jtokeniser splits off http[s]?://
+ *         <li>number ranges "18-35"
+ *         <li>words without vowels -> first check lexicon, if not then separate into single character tokens
+ *         <li>#hashtags
+ *         <li>single "A/a" character -> if there is no next token or the next token is punctuation or next token string.length ==
+ *         1
+ *         <li>should also as a last processing attempt, split by punctuation,symbols,etc. and attempt to process these tokens
+ *         separately
+ *         <li>durations hours:minutes:seconds(:milliseconds)
+ *         <li>numbers followed by an s
+ *         <li>punctuation -> add ph attribute to tag to prevent phonemisation
+ *         </ul>
+ *         <p>
+ *         May include:
+ *         <ul>
+ *         <li>roman numerals
+ *         </ul>
  */
 public class Preprocess extends InternalModule {
 

@@ -83,8 +83,9 @@ import javax.sound.sampled.TargetDataLine;
  * <li>-i &lt;buffersize&gt;: the buffer size to use in Java Sound ("intern")
  * </ul>
  * 
- * <formalpara><title>Bugs, limitations</title> <para> There is no way to stop the program besides brute force (ctrl-C). There is
- * no way to set the audio quality. </para></formalpara>
+ * <p>
+ * Bugs, limitations: There is no way to stop the program besides brute force (ctrl-C). There is no way to set the audio quality.
+ * </p>
  * 
  * <p>
  * Source code <a href="AudioRecorder.java.html">AudioRecorder.java</a>, <a href="AudioCommon.java.html">AudioCommon.java</a>, <a

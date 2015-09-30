@@ -120,6 +120,9 @@ public class AudioRecorder {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		/*
@@ -386,6 +389,9 @@ public class AudioRecorder {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param strMessage
+	 *            strMessage
 	 */
 	private static void out(String strMessage) {
 		System.out.println(strMessage);
@@ -472,6 +478,7 @@ public class AudioRecorder {
 		 * Optionally, set an audio processor to apply to the recording before saving it.
 		 * 
 		 * @param proc
+		 *            proc
 		 */
 		public void setAudioProcessor(AudioProcessor proc);
 
@@ -498,6 +505,7 @@ public class AudioRecorder {
 		 * Optionally, set an audio processor to apply to the recording before saving it.
 		 * 
 		 * @param proc
+		 *            proc
 		 */
 		public void setAudioProcessor(AudioProcessor proc) {
 			this.audioProcessor = proc;

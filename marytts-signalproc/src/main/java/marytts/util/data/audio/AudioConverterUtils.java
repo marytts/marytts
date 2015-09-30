@@ -456,6 +456,8 @@ public class AudioConverterUtils {
 	 *            minimumEndSilenceInSeconds
 	 * @throws IOException
 	 *             IOException
+	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 */
 	public static void removeEndpoints(String inputFile, String outputFile, int energyBufferLength, double speechStartLikelihood,
 			double speechEndLikelihood, double shiftFromMinimumEnergyCenter, int numClusters,
