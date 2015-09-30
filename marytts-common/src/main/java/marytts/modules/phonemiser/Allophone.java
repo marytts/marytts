@@ -189,6 +189,7 @@ public class Allophone {
 	 * exist.
 	 * 
 	 * @param feat
+	 *            feat
 	 * @return the feature value, or null
 	 */
 	public String getFeature(String feat) {

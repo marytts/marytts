@@ -94,7 +94,9 @@ public class ByteStringTranslator {
 	 * a byte: <code>set((byte)129, "mystring")</code>
 	 * 
 	 * @param b
+	 *            b
 	 * @param s
+	 *            s
 	 */
 	public void set(byte b, String s) {
 		int index = b & 0xFF; // make sure we treat the byte as an unsigned byte for position
@@ -106,6 +108,7 @@ public class ByteStringTranslator {
 	 * Verify if the given string can be translated into a byte by this translator.
 	 * 
 	 * @param s
+	 *            s
 	 * @return map.containsKey(s)
 	 */
 	public boolean contains(String s) {
@@ -117,7 +120,8 @@ public class ByteStringTranslator {
 	 * to byte: <code>contains((byte)129)</code> will indicate if there is a String for the 129'th byte value.
 	 * 
 	 * @param b
-	 * @return false if index <0 or index >= size of list, true otherwise
+	 *            b
+	 * @return false if index &lt; 0 or index &ge; size of list, true otherwise
 	 */
 	public boolean contains(byte b) {
 		int index = b & 0xFF;
@@ -131,7 +135,7 @@ public class ByteStringTranslator {
 	 * 
 	 * @param s
 	 * @return the (unsigned) byte value associated to the given string. To cast this into an integer, use
-	 *         <code>value & 0xFF</code>.
+	 *         <code>value &amp; 0xFF</code>.
 	 * @throws IllegalArgumentException
 	 *             if the string is unknown to the translator.
 	 */

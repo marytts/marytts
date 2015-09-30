@@ -43,7 +43,6 @@ import java.util.Vector;
  * <li>is not at the end of the format string, and
  * <li>precedes a sequence of characters that parses as a valid control specification.
  * </ol>
- * </p>
  * <p>
  * A control specification usually takes the form:
  *
@@ -53,7 +52,6 @@ import java.util.Vector;
  * </pre>
  * 
  * There are variants of this basic form that are discussed below.
- * </p>
  * <p>
  * The format is composed of zero or more directives defined as follows:
  * <ul>
@@ -61,7 +59,6 @@ import java.util.Vector;
  * <li>escape sequences, which represent non-graphic characters; and
  * <li>conversion specifications, each of which results in the fetching of zero or more arguments.
  * </ul>
- * </p>
  * <p>
  * The results are undefined if there are insufficient arguments for the format. Usually an unchecked exception will be thrown. If
  * the format is exhausted while arguments remain, the excess arguments are evaluated but are otherwise ignored. In format strings
@@ -77,7 +74,7 @@ import java.util.Vector;
  * exactly once.
  * </p>
  *
- * <h4>Escape Sequences</h4>
+ * Escape Sequences
  * <p>
  * The following table lists escape sequences and associated actions on display devices capable of the action.
  * <table>
@@ -126,8 +123,8 @@ import java.util.Vector;
  * <td>vertical-tab</td>
  * <td>Moves the printing position to the start of the next implementation-defined vertical tab position.</td>
  * </tr>
+ * <caption>escape sequences</caption>
  * </table>
- * </p>
  * <h4>Conversion Specifications</h4>
  * <p>
  * Each conversion specification is introduced by the percent sign character (%). After the character %, the following appear in
@@ -183,8 +180,8 @@ import java.util.Vector;
  * <dd>integer portion of the result of a decimal conversion (%i, %d, %f, %g, or %G) will be formatted with thousands' grouping
  * characters. For other conversions the flag is ignored. The non-monetary grouping character is used.
  * <dt>-
- * <dd>result of the conversion is left-justified within the field. (It will be right-justified if this flag is not
- * specified).</td></tr>
+ * <dd>result of the conversion is left-justified within the field. (It will be right-justified if this flag is not specified).</dd>
+ * </dt>
  * <dt>+
  * <dd>result of a signed conversion always begins with a sign (+ or -). (It will begin with a sign only when a negative value is
  * converted if this flag is not specified.)

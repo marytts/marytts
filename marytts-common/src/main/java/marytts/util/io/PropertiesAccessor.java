@@ -36,7 +36,7 @@ public class PropertiesAccessor {
 	 *            if true, any property will first be looked up in the system properties; only if it is not found there, it will
 	 *            be looked up in p
 	 * @param stringReplacements
-	 *            before->after pairs of string replacements to perform before returning any property values.
+	 *            before &rarr; after pairs of string replacements to perform before returning any property values.
 	 */
 	public PropertiesAccessor(Properties p, boolean letSystemPropertiesOverride, Map<String, String> stringReplacements) {
 		this.p = p;

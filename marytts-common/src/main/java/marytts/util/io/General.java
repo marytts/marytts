@@ -96,8 +96,7 @@ public class General {
 	 *            the stream to read
 	 * @param num
 	 *            the number of chars to read
-	 * @return a character array containing the next <code>num<code>
-	 *          in the stream
+	 * @return a character array containing the next <code>num</code> in the stream
 	 * 
 	 * @throws IOException
 	 *             if an error occurs
