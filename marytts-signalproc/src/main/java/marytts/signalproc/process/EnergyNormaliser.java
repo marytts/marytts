@@ -42,6 +42,9 @@ public class EnergyNormaliser implements AudioProcessor {
 
 	/**
 	 * Adapt the amplitudes of a signal such that the energy changes by the given factor.
+	 * 
+	 * @param energyFactor
+	 *            energy factor
 	 */
 	public EnergyNormaliser(double energyFactor) {
 		this.amplitudeFactor = Math.sqrt(energyFactor);

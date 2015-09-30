@@ -83,7 +83,6 @@ import javax.sound.sampled.TargetDataLine;
  * <li>-e &lt;buffersize&gt; the buffer size to use in the application ("extern")
  * <li>-i &lt;buffersize&gt; the buffer size to use in Java Sound ("intern")
  * </ul>
- * </p>
  * 
  * <p>
  * Bugs, limitations: There is no way to stop the program besides brute force (ctrl-C). There is no way to set the audio quality.

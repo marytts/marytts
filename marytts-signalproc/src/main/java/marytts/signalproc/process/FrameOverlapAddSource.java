@@ -244,11 +244,17 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	 * To be called by constructor in order to set up this frame overlap add source.
 	 * 
 	 * @param inputSource
+	 *            input source
 	 * @param windowType
+	 *            window type
 	 * @param applySynthesisWindow
+	 *            apply synthesis window
 	 * @param frameLength
+	 *            frame length
 	 * @param samplingRate
+	 *            sampling rate
 	 * @param processor
+	 *            processor
 	 */
 	protected void initialise(DoubleDataSource inputSource, int windowType, boolean applySynthesisWindow, int frameLength,
 			int samplingRate, InlineDataProcessor processor) {

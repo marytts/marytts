@@ -42,7 +42,7 @@ public class BandRejectFilter extends FIRFilter {
 	public double upperNormalisedCutoffFrequency;
 
 	/**
-	 * Create a new band reject filter with the given normalised cutoff frequencies and a default transition band width.
+	 * Create a new band reject filter with the given normalized cutoff frequencies and a default transition band width.
 	 * 
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
@@ -58,7 +58,7 @@ public class BandRejectFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new band reject filter with the given normalised cutoff frequencies and a default transition band width.
+	 * Create a new band reject filter with the given normalized cutoff frequencies and a default transition band width.
 	 * 
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
@@ -124,6 +124,7 @@ public class BandRejectFilter extends FIRFilter {
 	 * 
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
+	 * @return samplingRate
 	 */
 	public double getTransitionBandWidth(int samplingRate) {
 		return samplingRate * kernelLength2bandwidth(impulseResponseLength);
@@ -131,6 +132,14 @@ public class BandRejectFilter extends FIRFilter {
 
 	/**
 	 * Compute the band-reject filter kernel, as the sum of a low-pass filter kernel and a high-pass filter kernel.
+	 * 
+	 * @param lowerNormalisedCutoffFrequencyIn
+	 *            lowerNormalisedCutoffFrequencyIn
+	 * @param upperNormalisedCutoffFrequencyIn
+	 *            upperNormalisedCutoffFrequencyIn
+	 * @param kernelLength
+	 *            kernelLength
+	 * @return kernel
 	 */
 	protected static double[] getKernel(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn,
 			int kernelLength) {
@@ -147,6 +156,7 @@ public class BandRejectFilter extends FIRFilter {
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
 	 * 
 	 * @param normalisedTransitionBandwidth
+	 *            normalisedTransitionBandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
 	 */
 	protected static int bandwidth2kernelLength(double normalisedTransitionBandwidth) {
@@ -161,7 +171,8 @@ public class BandRejectFilter extends FIRFilter {
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
 	 * 
 	 * @param kernelLength
-	 * @return the corresponding normalised transition bandwidth.
+	 *            kernelLength
+	 * @return the corresponding normalized transition bandwidth.
 	 */
 	protected static double kernelLength2bandwidth(int kernelLength) {
 		return (double) 4 / kernelLength;

@@ -387,6 +387,7 @@ public class Spectrogram extends FunctionGraph {
 	 * Determine the next free location for a dependent and put the window there.
 	 * 
 	 * @param jf
+	 *            jf
 	 */
 	protected void setDependentWindowLocation(JFrame jf) {
 		if (nextDependentWindowX == 0 && nextDependentWindowY == 0) {

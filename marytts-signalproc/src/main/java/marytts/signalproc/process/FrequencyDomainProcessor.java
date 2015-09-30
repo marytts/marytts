@@ -36,6 +36,8 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * 
 	 * @param fftSize
 	 *            length of the array to be used for the FFT. Must be a power of two.
+	 * @param amount
+	 *            amount
 	 * @throws IllegalArgumentException
 	 *             if fftSize is not a power of two.
 	 */
@@ -111,7 +113,9 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * nothing.
 	 * 
 	 * @param real
+	 *            real
 	 * @param imag
+	 *            imag
 	 */
 	protected void process(double[] real, double[] imag) {
 	}
