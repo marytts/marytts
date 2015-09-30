@@ -85,7 +85,7 @@ public class Regression {
 	 *            dependent and independent variables data={{y1, x11, x12, ... x1k}, {y2, x21, x22, ... x2k}, ... {yn, xn1, xn2,
 	 *            ... xnk}}
 	 * @param interceptTerm
-	 *            number of the column that will be used as dependent variable -> vector y by default the first column is y
+	 *            number of the column that will be used as dependent variable &rarr; vector y by default the first column is y
 	 * @param rows
 	 *            number of rows
 	 * @param cols

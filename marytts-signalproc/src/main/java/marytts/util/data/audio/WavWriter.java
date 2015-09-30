@@ -33,6 +33,7 @@ public class WavWriter {
 	 * Byte swapping for int values.
 	 * 
 	 * @param val
+	 *            val
 	 * @return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24))
 	 */
 	private static int byteswap(int val) {
@@ -43,6 +44,7 @@ public class WavWriter {
 	 * Byte swapping for short values.
 	 * 
 	 * @param val
+	 *            val
 	 * @return ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8))
 	 */
 	private static short byteswap(short val) {
@@ -52,7 +54,12 @@ public class WavWriter {
 	/**
 	 * Outputs the data in wav format.
 	 * 
+	 * @param fileName
+	 *            file name
+	 * @param sampleRate
+	 *            sample rate
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void doWrite(String fileName, int sampleRate) throws IOException {
 
@@ -84,6 +91,7 @@ public class WavWriter {
 	 * @param samples
 	 *            The array of short samples.
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void export(String fileName, int sampleRate, short[] samples) throws IOException {
 		nBytesPerSample = 2;
@@ -107,6 +115,7 @@ public class WavWriter {
 	 * @param samples
 	 *            The array of short samples, given as a byte array (with low and hi bytes separated).
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void export(String fileName, int sampleRate, byte[] samples) throws IOException {
 		nBytesPerSample = 2;

@@ -136,6 +136,8 @@ public class FrameProvider {
 
 	/**
 	 * The amount of time by which one frame is shifted against the next.
+	 * 
+	 * @return frameShift / samplingRate
 	 */
 	public double getFrameShiftTime() {
 		return (double) frameShift / samplingRate;
@@ -143,6 +145,8 @@ public class FrameProvider {
 
 	/**
 	 * The number of samples by which one frame is shifted against the next.
+	 * 
+	 * @return frameShift
 	 */
 	public int getFrameShiftSamples() {
 		return frameShift;
@@ -150,6 +154,8 @@ public class FrameProvider {
 
 	/**
 	 * The time length of a frame.
+	 * 
+	 * @return getFrameLengthSamples / samplingRate
 	 */
 	public double getFrameLengthTime() {
 		return (double) getFrameLengthSamples() / samplingRate;
@@ -168,6 +174,8 @@ public class FrameProvider {
 	 * Whether or not this frame provider stops when the first frame touches the last input sample. When this returns true, the
 	 * last frame will be the first one including the last sample; when this returns false, the last frame will be the last that
 	 * still contains any data. Defaults to true.
+	 * 
+	 * @return stopWhenTouchingEnd
 	 */
 	public boolean stopWhenTouchingEnd() {
 		return stopWhenTouchingEnd;
@@ -175,6 +183,8 @@ public class FrameProvider {
 
 	/**
 	 * Whether or not this frameprovider can provide another frame.
+	 * 
+	 * @return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length
 	 */
 	public boolean hasMoreData() {
 		return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length;
@@ -182,6 +192,8 @@ public class FrameProvider {
 
 	/**
 	 * This tells how many valid samples have been read into the current frame (before applying the optional data processor!).
+	 * 
+	 * @return validSamplesInFrame
 	 */
 	public int validSamplesInFrame() {
 		return validSamplesInFrame;

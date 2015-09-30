@@ -54,7 +54,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	/** array of frame energies, for further analysis */
 	protected double[] frameEnergies = new double[16384];
 	/**
-	 * Beginning of valid data in frameEnergies; will be >0 only after more than maxSize frames have been read.
+	 * Beginning of valid data in frameEnergies; will be &gt;0 only after more than maxSize frames have been read.
 	 */
 	protected int offset = 0;
 	/**
@@ -83,8 +83,8 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * Apply this FrameBasedAnalyser to the given data.
 	 * 
 	 * @param frame
-	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 * works like {@link #getFrameLengthSamples()} .
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by works like
+	 *            {@link #getFrameLengthSamples()} .
 	 * @return a Double representing the total energy in the frame.
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
@@ -355,6 +355,17 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * The latest version uses K-Means clustering to cluster energy values into 3 separate clusters. Then, the energy threshold is
 	 * selected using the lowest and highest energy cluster centers
 	 * 
+	 * @param energyBufferLength
+	 *            energyBufferLength
+	 * @param speechStartLikelihood
+	 *            speechStartLikelihood
+	 * @param speechEndLikelihood
+	 *            speechEndLikelihood
+	 * @param shiftFromMinimumEnergyCenter
+	 *            shiftFromMinimumEnergyCenter
+	 * @param numClusters
+	 *            numClusters
+	 * @return stretches.toArray(new double[0][0])
 	 */
 	public double[][] getSpeechStretchesUsingEnergyHistory(int energyBufferLength, double speechStartLikelihood,
 			double speechEndLikelihood, double shiftFromMinimumEnergyCenter, int numClusters) {
