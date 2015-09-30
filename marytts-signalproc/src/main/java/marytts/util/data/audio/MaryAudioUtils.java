@@ -72,6 +72,8 @@ public class MaryAudioUtils {
 	 * Return an audio file format type for the given string. In addition to the built-in types, this can deal with MP3 supported
 	 * by tritonus.
 	 * 
+	 * @param name
+	 *            name
 	 * @return the audio file format type if it is known, or null.
 	 */
 	public static AudioFileFormat.Type getAudioFileFormatType(String name) {

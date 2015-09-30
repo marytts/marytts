@@ -60,7 +60,6 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource {
 	 * 
 	 * @param inputSources
 	 *            a list of DoubleDataSource objects.
-	 * @return True, false if sources is empty
 	 */
 	public SequenceDoubleDataSource(List inputSources) {
 		this((DoubleDataSource[]) inputSources.toArray(new DoubleDataSource[0]));

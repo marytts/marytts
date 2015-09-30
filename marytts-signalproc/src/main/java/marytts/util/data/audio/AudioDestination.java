@@ -108,9 +108,11 @@ public class AudioDestination {
 	 * Convert the audio data into an AudioInputStream of the proper AudioFormat. This method assumes that the audio data starts
 	 * with a valid audio file header, so the audio format is read from the data.
 	 * 
-	 * @return an AudioInputStream from which the synthesised audio data can be read.
+	 * @return an AudioInputStream from which the synthesized audio data can be read.
 	 * @throws IOException
 	 *             if a problem occurred with the temporary file (only applies when using files as temporary storage).
+	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 */
 	public AudioInputStream convertToAudioInputStream() throws IOException, UnsupportedAudioFileException {
 		if (ram) {
