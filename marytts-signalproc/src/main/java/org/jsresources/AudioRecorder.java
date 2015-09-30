@@ -56,30 +56,40 @@ import javax.sound.sampled.TargetDataLine;
 
 // IDEA: recording format vs. storage format; possible conversion?
 /**
- * <titleabbrev>AudioRecorder</titleabbrev> <title>Recording to an audio file (advanced version)</title>
+ * <p>
+ * AudioRecorder: Recording to an audio file (advanced version)
+ * </p>
  * 
- * <formalpara><title>Purpose</title> <para> This program opens two lines: one for recording and one for playback. In an infinite
- * loop, it reads data from the recording line and writes them to the playback line. You can use this to measure the delays inside
- * Java Sound: Speak into the microphone and wait untill you hear yourself in the speakers. This can be used to experience the
- * effect of changing the buffer sizes: use the '-e' and '-i' options. You will notice that the delays change, too.
- * </para></formalpara>
+ * <p>
+ * Purpose: This program opens two lines: one for recording and one for playback. In an infinite loop, it reads data from the
+ * recording line and writes them to the playback line. You can use this to measure the delays inside Java Sound: Speak into the
+ * microphone and wait untill you hear yourself in the speakers. This can be used to experience the effect of changing the buffer
+ * sizes: use the '-e' and '-i' options. You will notice that the delays change, too.
+ * </p>
  * 
- * <formalpara><title>Usage</title> <para> <synopsis>java AudioRecorder -l</synopsis> <synopsis>java AudioRecorder [-M
- * &lt;mixername&gt;] [-e &lt;buffersize&gt;] [-i &lt;buffersize&gt;] &lt;audiofile&gt;</synopsis> </para></formalpara>
+ * <p>
+ * Usage: java
+ * <ul>
+ * <li>AudioRecorder -l
+ * <li>java AudioRecorder [-M &lt;mixername&gt;] [-e &lt;buffersize&gt;] [-i &lt;buffersize&gt;] &lt;audiofile&gt;
+ * </ul>
  * 
- * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-l</option></term> <listitem><para>lists the
- * available mixers</para></listitem> </varlistentry> <varlistentry> <term><option>-M &lt;mixername&gt;</option></term>
- * <listitem><para>selects a mixer to play on</para></listitem> </varlistentry> <varlistentry> <term><option>-e
- * &lt;buffersize&gt;</option></term> <listitem><para>the buffer size to use in the application ("extern")</para></listitem>
- * </varlistentry> <varlistentry> <term><option>-i &lt;buffersize&gt;</option></term> <listitem><para>the buffer size to use in
- * Java Sound ("intern")</para></listitem> </varlistentry> </variablelist> </formalpara>
+ * <p>
+ * Parameters
+ * <ul>
+ * <li>-l: lists the available mixers
+ * <li>-M &lt;mixername&gt;: selects a mixer to play on
+ * <li>-e &lt;buffersize&gt;: the buffer size to use in the application ("extern")
+ * <li>-i &lt;buffersize&gt;: the buffer size to use in Java Sound ("intern")
+ * </ul>
  * 
  * <formalpara><title>Bugs, limitations</title> <para> There is no way to stop the program besides brute force (ctrl-C). There is
  * no way to set the audio quality. </para></formalpara>
  * 
- * <formalpara><title>Source code</title> <para> <ulink url="AudioRecorder.java.html">AudioRecorder.java</ulink>, <ulink
- * url="AudioCommon.java.html">AudioCommon.java</ulink>, <ulink
- * url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink> </para> </formalpara>
+ * <p>
+ * Source code <a href="AudioRecorder.java.html">AudioRecorder.java</a>, <a href="AudioCommon.java.html">AudioCommon.java</a>, <a
+ * href="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</a>
+ * </p>
  */
 public class AudioRecorder {
 	private static final SupportedFormat[] SUPPORTED_FORMATS = {

@@ -44,7 +44,7 @@ public class LowPassFilter extends FIRFilter {
 	public double normalisedCutoffFrequency;
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and a default transition band width.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and a default transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -56,7 +56,7 @@ public class LowPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and the given normalised transition band width.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and the given normalized transition band width.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -72,7 +72,7 @@ public class LowPassFilter extends FIRFilter {
 	}
 
 	/**
-	 * Create a new lowpass filter with the given normalised cutoff frequency and the given length of the filter kernel.
+	 * Create a new lowpass filter with the given normalized cutoff frequency and the given length of the filter kernel.
 	 * 
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
@@ -121,7 +121,7 @@ public class LowPassFilter extends FIRFilter {
 	/**
 	 * Compute the low-pass filter kernel, using a Blackman window.
 	 * 
-	 * @param normalizedCutoffFrequencyIn
+	 * @param normalisedCutoffFrequencyIn
 	 *            normalizedCutoffFrequencyIn
 	 * @param kernelLength
 	 *            kernel Length

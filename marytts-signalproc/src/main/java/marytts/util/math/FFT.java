@@ -66,10 +66,10 @@ public class FFT {
 	 * From the result of the FFT, compute the log (dB) power for each positive frequency.
 	 * 
 	 * @param fft
-	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2&*i] =
+	 *            real[i], fft[2&*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the log of the square of the absolute value of
-	 *         each complex number, p[i] = real[i]*real[i] + imag[i]*imag[i]
+	 *         each complex number, p[i] = real[i]&*real[i] + imag[i]&*imag[i]
 	 */
 	public static double[] computeLogPowerSpectrum_FD(final double[] fft) {
 		double[] spectrum = computePowerSpectrum_FD(fft);
@@ -106,7 +106,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the square of the absolute value of each complex
 	 *         number, p[i] = real[i]*real[i] + imag[i]*imag[i]
 	 */
@@ -144,7 +144,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the log of the square of the absolute value of
 	 *         each complex number, p[i] = real[i]*real[i] + imag[i]*imag[i]
 	 */
@@ -184,7 +184,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the absolute value of each complex number, r[i] =
 	 *         sqrt(real[i]*real[i] + imag[i]*imag[i])
 	 */
@@ -205,7 +205,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the phases of each complex number, phase[i] =
 	 *         atan(imag[i], real[i])
 	 */
@@ -588,7 +588,7 @@ public class FFT {
 	 *            the first input signal, in the time domain
 	 * @param fft2
 	 *            the complex transform of the second signal, in the frequency domain fft[0] = real[0], fft[1] = real[N/2],
-	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @param deltaT
 	 *            , the time difference between two samples (= 1/samplingrate)
 	 * @return the convolved signal, of the same length as the two input signals
@@ -613,7 +613,7 @@ public class FFT {
 	 *            the first input signal, in the time domain
 	 * @param fft2
 	 *            the complex transform of the second signal, in the frequency domain fft[0] = real[0], fft[1] = real[N/2],
-	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return the convolved signal, of the same length as the two input signals
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
