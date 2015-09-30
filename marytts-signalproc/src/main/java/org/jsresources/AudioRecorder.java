@@ -118,6 +118,9 @@ public class AudioRecorder {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		/*
@@ -384,6 +387,9 @@ public class AudioRecorder {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param strMessage
+	 *            strMessage
 	 */
 	private static void out(String strMessage) {
 		System.out.println(strMessage);
@@ -435,28 +441,28 @@ public class AudioRecorder {
 		}
 
 		/**
-		 * Returns the name of the format.
+		 * @return the name of the format.
 		 */
 		public String getName() {
 			return m_strName;
 		}
 
 		/**
-		 * Returns the encoding of the format.
+		 * @return the encoding of the format.
 		 */
 		public AudioFormat.Encoding getEncoding() {
 			return m_encoding;
 		}
 
 		/**
-		 * Returns the sample size of the format. This value is in bits.
+		 * @return the sample size of the format. This value is in bits.
 		 */
 		public int getSampleSize() {
 			return m_nSampleSize;
 		}
 
 		/**
-		 * Returns the endianess of the format.
+		 * @return the endianess of the format.
 		 */
 		public boolean getBigEndian() {
 			return m_bBigEndian;

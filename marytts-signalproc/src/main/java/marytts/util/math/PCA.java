@@ -172,6 +172,8 @@ public class PCA {
 	 *            Matrix with M rows corresponding to dimensions or factors and N columns corresponding to trials or examples
 	 * @param scale
 	 *            if true : applying zscore normalisation if false: just removing the mean
+	 * @param debug
+	 *            debug
 	 */
 	public void eigenPCA(Matrix data, boolean scale, boolean debug) {
 		// M dimensions
@@ -273,6 +275,10 @@ public class PCA {
 	 * @param data
 	 *            Matrix with M rows corresponding to dimensions or factors and N columns corresponding to trials or examples * @param
 	 *            scale if true : applying zscore normalisation if false: just removing the mean
+	 * @param scale
+	 *            scale
+	 * @param debug
+	 *            debug
 	 */
 	public void svdPCA(Matrix data, boolean scale, boolean debug) {
 		// M dimensions

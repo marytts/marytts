@@ -75,6 +75,10 @@ public class AudioCommon {
 	 * Trying to get an audio file type for the passed extension. This works by examining all available file types. For each type,
 	 * if the extension this type promisses to handle matches the extension we are trying to find a type for, this type is
 	 * returned. If no appropriate type is found, null is returned.
+	 * 
+	 * @param strExtension
+	 *            strExtension
+	 * @return aTypes[i]
 	 */
 	public static AudioFileFormat.Type findTargetType(String strExtension) {
 		AudioFileFormat.Type[] aTypes = AudioSystem.getAudioFileTypes();
@@ -104,6 +108,9 @@ public class AudioCommon {
 	/**
 	 * List Mixers. Only Mixers that support either TargetDataLines or SourceDataLines are listed, depending on the value of
 	 * bPlayback.
+	 * 
+	 * @param bPlayback
+	 *            bPlayback
 	 */
 	public static void listMixersAndExit(boolean bPlayback) {
 		out("Available Mixers:");
@@ -124,6 +131,10 @@ public class AudioCommon {
 	/**
 	 * TODO: This method tries to return a Mixer.Info whose name matches the passed name. If no matching Mixer.Info is found, null
 	 * is returned.
+	 * 
+	 * @param strMixerName
+	 *            str mixer name
+	 * @return aInfos[i]
 	 */
 	public static Mixer.Info getMixerInfo(String strMixerName) {
 		Mixer.Info[] aInfos = AudioSystem.getMixerInfo();
@@ -137,6 +148,14 @@ public class AudioCommon {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param strMixerName
+	 *            strMixerName
+	 * @param audioFormat
+	 *            audioFormat
+	 * @param nBufferSize
+	 *            n buffer size
+	 * @return targetDataLine
 	 */
 	public static TargetDataLine getTargetDataLine(String strMixerName, AudioFormat audioFormat, int nBufferSize) {
 		/*
@@ -193,6 +212,10 @@ public class AudioCommon {
 
 	/**
 	 * Checks if the encoding is PCM.
+	 * 
+	 * @param encoding
+	 *            encoding
+	 * @return encoding equals pcm_signed or pcm_unsigned
 	 */
 	public static boolean isPcm(AudioFormat.Encoding encoding) {
 		return encoding.equals(AudioFormat.Encoding.PCM_SIGNED) || encoding.equals(AudioFormat.Encoding.PCM_UNSIGNED);
@@ -200,6 +223,9 @@ public class AudioCommon {
 
 	/**
 	 * TODO:
+	 * 
+	 * @param strMessage
+	 *            strMessage
 	 */
 	private static void out(String strMessage) {
 		System.out.println(strMessage);

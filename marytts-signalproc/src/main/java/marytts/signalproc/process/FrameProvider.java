@@ -184,7 +184,7 @@ public class FrameProvider {
 	/**
 	 * Whether or not this frameprovider can provide another frame.
 	 * 
-	 * @return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length
+	 * @return signal.hasMoreData() or different from stopWhenTouchingEnd and memoryFilled and posInMemory &lt; memory.length
 	 */
 	public boolean hasMoreData() {
 		return signal.hasMoreData() || !stopWhenTouchingEnd && memoryFilled && posInMemory < memory.length;
