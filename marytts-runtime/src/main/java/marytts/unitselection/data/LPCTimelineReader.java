@@ -73,9 +73,11 @@ public class LPCTimelineReader extends TimelineReader {
 	/**
 	 * Read and return the upcoming datagram.
 	 * 
+	 * @param bb
+	 *            bb
 	 * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	@Override
 	protected Datagram getNextDatagram(ByteBuffer bb) {

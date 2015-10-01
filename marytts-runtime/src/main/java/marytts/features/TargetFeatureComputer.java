@@ -48,6 +48,7 @@ public class TargetFeatureComputer {
 	 * names. These names must be known to the given Feature processor manager.
 	 * 
 	 * @param manager
+	 *            manager
 	 * @param featureProcessorNames
 	 *            a String containing the names of the feature processors to use, separated by white space, and in the right order
 	 *            (byte-valued discrete feature processors first, then short-valued, then continuous)
@@ -128,6 +129,7 @@ public class TargetFeatureComputer {
 	 * target
 	 * 
 	 * @param target
+	 *            target
 	 * @return a feature vector for the target
 	 */
 	public FeatureVector computeFeatureVector(Target target) {

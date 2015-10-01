@@ -87,13 +87,8 @@ public class MaryRuntimeUtils {
 	 *            </ol>
 	 *            where 'my.special.property' is a property in one of the MARY config files.
 	 * @return the newly instantiated object.
-	 * @throws ClassNotFoundException
-	 * @throws IllegalArgumentException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public static Object instantiateObject(String objectInitInfo) throws MaryConfigurationException {
 		Object obj = null;

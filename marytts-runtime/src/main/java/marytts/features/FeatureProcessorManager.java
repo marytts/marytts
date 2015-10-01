@@ -54,6 +54,11 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Constructor called from a Voice that has its own acoustic models
+	 * 
+	 * @param voice
+	 *            voice
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public FeatureProcessorManager(Voice voice) throws MaryConfigurationException {
 		this(voice.getLocale());
@@ -64,6 +69,7 @@ public class FeatureProcessorManager {
 	 * Create any additional feature processors for acoustic models.
 	 * 
 	 * @param voice
+	 *            voice
 	 */
 	protected void registerAcousticModels(Voice voice) {
 		Map<String, Model> acousticModels = voice.getAcousticModels();

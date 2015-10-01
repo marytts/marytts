@@ -82,6 +82,13 @@ public class HMMVoice extends Voice {
 
 	/**
 	 * constructor
+	 * 
+	 * @param voiceName
+	 *            voiceName
+	 * @param synthesizer
+	 *            synthesizer
+	 * @throws Exception
+	 *             Exception
 	 */
 	public HMMVoice(String voiceName, WaveformSynthesizer synthesizer) throws Exception {
 		super(voiceName, synthesizer);

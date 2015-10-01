@@ -242,7 +242,9 @@ public class FeatureDefinition {
 	 * read similarity matrices from feature definition file
 	 * 
 	 * @param input
+	 *            input
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void readFeatureSimilarityMatrices(BufferedReader input) throws IOException {
 
@@ -623,6 +625,7 @@ public class FeatureDefinition {
 	 * For the feature with the given index, return the weight.
 	 * 
 	 * @param featureIndex
+	 *            featureIndex
 	 * @return a non-negative weight.
 	 */
 	public float getWeight(int featureIndex) {
@@ -639,6 +642,7 @@ public class FeatureDefinition {
 	 * null.
 	 * 
 	 * @param featureIndex
+	 *            featureIndex
 	 * @return the name of a weighting function, or null
 	 */
 	public String getWeightFunctionName(int featureIndex) {
@@ -1169,6 +1173,7 @@ public class FeatureDefinition {
 	 * 
 	 * @param other
 	 *            other
+	 * @return number of byte features, or number of short features, or number of continuous features, or feature name
 	 */
 	public String featureEqualsAnalyse(FeatureDefinition other) {
 		if (numByteFeatures != other.numByteFeatures) {
@@ -1402,6 +1407,10 @@ public class FeatureDefinition {
 	 * 
 	 * @param input
 	 *            a DataInputStream or RandomAccessFile to read the feature values from.
+	 * @param currentUnitIndex
+	 *            currentUnitIndex
+	 * @throws IOException
+	 *             IOException
 	 * @return a FeatureVector.
 	 */
 	public FeatureVector readFeatureVector(int currentUnitIndex, DataInput input) throws IOException {
@@ -1421,8 +1430,12 @@ public class FeatureDefinition {
 	/**
 	 * Create a feature vector consistent with this feature definition by reading the data from the byte buffer.
 	 * 
+	 * @param currentUnitIndex
+	 *            currentUnitIndex
 	 * @param bb
 	 *            a byte buffer to read the feature values from.
+	 * @throws IOException
+	 *             IOException
 	 * @return a FeatureVector.
 	 */
 	public FeatureVector readFeatureVector(int currentUnitIndex, ByteBuffer bb) throws IOException {

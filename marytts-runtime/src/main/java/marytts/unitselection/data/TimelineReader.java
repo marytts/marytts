@@ -781,7 +781,7 @@ public class TimelineReader {
 	 * @param targetTimeInSamples
 	 *            the requested position, in samples. Must be non-negative and less than the total duration of the timeline.
 	 * @param number
-	 *            the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
+	 *            the number of datagrams to read. Even if this is &le; 0, at least one datagram is always returned.
 	 * @param reqSampleRate
 	 *            the sample rate for the requested and returned times. Must be positive.
 	 * @param returnOffset
@@ -860,14 +860,14 @@ public class TimelineReader {
 	 * If one would store the location of the datagram which comes just after the index position (the currently tested datagram),
 	 * there would be a possibility that a particular time request falls between the index and the datagram:
 	 * 
-	 * time axis ---------------------------------> INDEX <-- REQUEST | ---------------> DATAGRAM
+	 * time axis &rArr; INDEX &larr; REQUEST | &rArr; DATAGRAM
 	 * 
 	 * This would require a subsequent backwards time hopping, which is impossible because the datagrams are a singly linked list.
 	 * 
 	 * By registering the location of the previous datagram, any time request will find an index which points to a datagram
 	 * falling BEFORE or ON the index location:
 	 * 
-	 * time axis ---------------------------------> INDEX <-- REQUEST | DATAGRAM <---
+	 * time axis &rArr; INDEX &larr; REQUEST | DATAGRAM &larr;
 	 * 
 	 * Thus, forward hopping is always possible and the requested time can always be reached.
 	 * 

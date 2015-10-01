@@ -52,7 +52,9 @@ public class FeatureRegistry {
 	 * Set the given feature processor manager as the one to use for the given locale.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @param mgr
+	 *            mgr
 	 */
 	public static void setFeatureProcessorManager(Locale locale, FeatureProcessorManager mgr) {
 		managersByLocale.put(locale, mgr);
@@ -63,6 +65,7 @@ public class FeatureRegistry {
 	 * be found.
 	 * 
 	 * @param mgr
+	 *            mgr
 	 */
 	public static void setFallbackFeatureProcessorManager(FeatureProcessorManager mgr) {
 		fallbackManager = mgr;
@@ -72,7 +75,9 @@ public class FeatureRegistry {
 	 * Set the given feature processor manager as the one to use for the given voice.
 	 * 
 	 * @param voice
+	 *            voice
 	 * @param mgr
+	 *            mgr
 	 */
 	public static void setFeatureProcessorManager(Voice voice, FeatureProcessorManager mgr) {
 		managersByVoice.put(voice, mgr);
@@ -82,6 +87,7 @@ public class FeatureRegistry {
 	 * Get the feature processor manager associated with the given voice, if any.
 	 * 
 	 * @param voice
+	 *            voice
 	 * @return the feature processor manager, or null if there is no voice-specific feature processor manager.
 	 */
 	public static FeatureProcessorManager getFeatureProcessorManager(Voice voice) {
@@ -92,6 +98,7 @@ public class FeatureRegistry {
 	 * Get the feature processor manager associated with the given locale, if any.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @return the feature processor manager, or null if there is no locale-specific feature processor manager.
 	 */
 	public static FeatureProcessorManager getFeatureProcessorManager(Locale locale) {
@@ -118,6 +125,7 @@ public class FeatureRegistry {
 	 * locale-specific feature manager, if any, or the language-specific feature manager, if any, or the fallback feature manager.
 	 * 
 	 * @param voice
+	 *            voice
 	 * @return a feature processor manager object. If this returns null, something is broken.
 	 */
 	public static FeatureProcessorManager determineBestFeatureProcessorManager(Voice voice) {
@@ -133,6 +141,7 @@ public class FeatureRegistry {
 	 * language-specific feature manager, if any, or the fallback feature manager.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @return a feature processor manager object. If this returns null, something is broken.
 	 */
 	public static FeatureProcessorManager determineBestFeatureProcessorManager(Locale locale) {
@@ -173,6 +182,7 @@ public class FeatureRegistry {
 	 * names. These names must be known to the given Feature processor manager.
 	 * 
 	 * @param mgr
+	 *            mgr
 	 * @param features
 	 *            a String containing the names of the feature processors to use, separated by white space, and in the right order
 	 *            (byte-valued discrete feature processors first, then short-valued, then continuous). If features is null, use
@@ -210,6 +220,7 @@ public class FeatureRegistry {
 	 * 
 	 * @see #getTargetFeatureComputer(FeatureProcessorManager, String)
 	 * @param locale
+	 *            locale
 	 * @param features
 	 *            a String containing the names of the feature processors to use, separated by white space, and in the right order
 	 *            (byte-valued discrete feature processors first, then short-valued, then continuous)
@@ -228,6 +239,7 @@ public class FeatureRegistry {
 	 * 
 	 * @see #getTargetFeatureComputer(FeatureProcessorManager, String)
 	 * @param voice
+	 *            voice
 	 * @param features
 	 *            a String containing the names of the feature processors to use, separated by white space, and in the right order
 	 *            (byte-valued discrete feature processors first, then short-valued, then continuous)

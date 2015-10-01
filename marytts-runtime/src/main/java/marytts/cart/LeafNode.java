@@ -252,7 +252,9 @@ public abstract class LeafNode extends Node {
 		 * feature of the given feature definition.
 		 * 
 		 * @param featureDefinition
+		 *            featureDefinition
 		 * @param featureIndex
+		 *            featureIndex
 		 * @return featureDefinition.getFeatureValueAsString(featureIndex, bestInd)
 		 */
 		public String mostProbableString(FeatureDefinition featureDefinition, int featureIndex) {
@@ -444,6 +446,8 @@ public abstract class LeafNode extends Node {
 		 *            , a unique index number
 		 * @param pdf
 		 *            , pdf[numStreams][2*vectorSize]
+		 * @throws MaryConfigurationException
+		 *             MaryConfigurationException
 		 */
 		public PdfLeafNode(int idx, double pdf[][]) throws MaryConfigurationException {
 			super();
