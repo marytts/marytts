@@ -134,6 +134,7 @@ public class ByteStringTranslator {
 	 * Get the (unsigned) byte value associated to the given string.
 	 * 
 	 * @param s
+	 *            s
 	 * @return the (unsigned) byte value associated to the given string. To cast this into an integer, use
 	 *         <code>value &amp; 0xFF</code>.
 	 * @throws IllegalArgumentException
@@ -151,6 +152,7 @@ public class ByteStringTranslator {
 	 * <code>get((byte)129)</code> will get you the 129'th item in the string list.
 	 * 
 	 * @param b
+	 *            b
 	 * @return list.get(index)
 	 */
 	public String get(byte b) {

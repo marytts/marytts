@@ -292,7 +292,9 @@ public class StringUtils {
 	/**
 	 * 
 	 * @param strFilename
+	 *            strFilename
 	 * @param isIncludeDot
+	 *            isIncludeDot
 	 * @return strExtension
 	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getExtension(String)} instead
 	 */
@@ -369,6 +371,7 @@ public class StringUtils {
 	/**
 	 * 
 	 * @param fullpathFilename
+	 *            fullpathFilename
 	 * @return foldername
 	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getFullPath(String)} instead
 	 */
@@ -628,6 +631,9 @@ public class StringUtils {
 	}
 
 	/**
+	 * @param allInOneLine
+	 *            allInOneLine
+	 * @return result.toArray(new String[0])
 	 * @deprecated Unstable due to platform-specific behavior. Use {@link org.apache.commons.lang.StringUtils#split} or similar
 	 *             instead.
 	 */
@@ -677,6 +683,7 @@ public class StringUtils {
 	 * Combine the elements of the given string array into a single string, containing one array element per line.
 	 * 
 	 * @param stringArray
+	 *            stringArray
 	 * @return toString(stringArray, 0)
 	 */
 	public static String toString(String[] stringArray) {
@@ -687,7 +694,9 @@ public class StringUtils {
 	 * Combine the elements of the given string array into a single string, containing one array element per line.
 	 * 
 	 * @param stringArray
+	 *            stringArray
 	 * @param startIndex
+	 *            startIndex
 	 * @return toString(stringArray, startIndex, stringArray.length - 1)
 	 */
 	public static String toString(String[] stringArray, int startIndex) {
@@ -698,8 +707,11 @@ public class StringUtils {
 	 * Combine the elements of the given string array into a single string, containing one array element per line.
 	 * 
 	 * @param stringArray
+	 *            stringArray
 	 * @param startIndex
+	 *            startIndex
 	 * @param endIndex
+	 *            endIndex
 	 * @return str converted to string
 	 */
 	public static String toString(String[] stringArray, int startIndex, int endIndex) {

@@ -205,8 +205,8 @@ public class LEDataInputStream implements DataInput {
 	 * Read a double. like DataInputStream.readDouble except little endian.
 	 * 
 	 * @return little endian IEEE double from the datastream.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public final double readDouble() throws IOException {
 		return Double.longBitsToDouble(readLong());
@@ -297,9 +297,8 @@ public class LEDataInputStream implements DataInput {
 	 * Read a line.
 	 * 
 	 * @return a rough approximation of the 8-bit stream as a 16-bit unicode string
-	 * 
 	 * @throws IOException
-	 * 
+	 *             IOException
 	 * @deprecated This method does not properly convert bytes to characters. Use a Reader instead with a little-endian encoding.
 	 */
 	public final String readLine() throws IOException {
@@ -310,8 +309,8 @@ public class LEDataInputStream implements DataInput {
 	 * read a long, 64-bits. Like DataInputStream.readLong except little endian.
 	 * 
 	 * @return little-endian binary long from the datastream.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public final long readLong() throws IOException {
 		dis.readFully(work, 0, 8);
