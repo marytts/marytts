@@ -63,6 +63,8 @@ public class MaryNormalisedWriter {
 	/**
 	 * Default constructor. Calls <code>startup()</code> if it has not been called before.
 	 * 
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 * @see #startup()
 	 */
 	public MaryNormalisedWriter() throws MaryConfigurationException {
@@ -107,6 +109,8 @@ public class MaryNormalisedWriter {
 	 * 
 	 * @param input
 	 *            a DOMSource, a SAXSource or a StreamSource.
+	 * @param destination
+	 *            destination
 	 * @see javax.xml.transform.Transformer
 	 * @exception TransformerException
 	 *                if the transformation cannot be performed.
@@ -119,6 +123,12 @@ public class MaryNormalisedWriter {
 
 	/**
 	 * Output any Source to stdout.
+	 * 
+	 * @param input
+	 *            input
+	 * @throws TransformerException
+	 *             TransformerException
+	 * 
 	 */
 	public void output(Source input) throws TransformerException {
 		output(input, new StreamResult(new PrintStream(System.out, true)));
@@ -127,6 +137,10 @@ public class MaryNormalisedWriter {
 	/**
 	 * Output a DOM node to stdout.
 	 * 
+	 * @param input
+	 *            input
+	 * @throws TransformerException
+	 *             TransformerException
 	 * @see #output(Source)
 	 */
 	public void output(Node input) throws TransformerException {

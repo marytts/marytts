@@ -225,6 +225,8 @@ public class DomUtils {
 	 * @param inputData
 	 *            inputData
 	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
 	 *             SAXException
 	 * @throws IOException
@@ -240,6 +242,8 @@ public class DomUtils {
 	 * @param inputData
 	 *            inputData
 	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
 	 *             SAXException
 	 * @throws IOException
@@ -255,6 +259,8 @@ public class DomUtils {
 	 * @param file
 	 *            file
 	 * @return parseDocument(file, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
 	 *             SAXException
 	 * @throws IOException
@@ -270,6 +276,8 @@ public class DomUtils {
 	 * @param inputData
 	 *            inputData
 	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
 	 *             SAXException
 	 * @throws IOException
@@ -279,7 +287,15 @@ public class DomUtils {
 		return parseDocument(inputData, false);
 	}
 
-	/** Verify if <code>ancestor</code> is an ancestor of <code>node</code> */
+	/**
+	 * Verify if <code>ancestor</code> is an ancestor of <code>node</code>
+	 * 
+	 * @param ancestor
+	 *            ancestor
+	 * @param node
+	 *            node
+	 * @return true if ancestor equals to p, false otherwise
+	 */
 	public static boolean isAncestor(Node ancestor, Node node) {
 		Node p = node;
 		while ((p = p.getParentNode()) != null) {
@@ -291,6 +307,12 @@ public class DomUtils {
 
 	/**
 	 * Verify if <code>node</code> has an ancestor with name <code>ancestorName</code>
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return true if p.getNodeName equals ancestorName, false otherwise
 	 */
 	public static boolean hasAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -306,6 +328,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has an ancestor with name <code>ancestorName</code>, return that ancestor. Else return
 	 * <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return p if p.getNodeName equals ancestorName
 	 */
 	public static Node getAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -319,6 +347,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has an ancestor with one of the names in <code>ancestorNames</code>, return the closest of these
 	 * ancestors. Else return <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorNames
+	 *            ancestorNames
+	 * @return closestAncestor
 	 */
 	public static Node getAncestor(Node node, String[] ancestorNames) {
 		if (ancestorNames.length <= 0)
@@ -341,6 +375,14 @@ public class DomUtils {
 	 * Search upwards through the ancestors of <code>node</code> with name <code>ancestorName</code>, and return the first
 	 * ancestor for which an attribute named <code>attributeName</code> is present. Return <code>null</code> if no such ancestor
 	 * exists.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @param attributeName
+	 *            attributeName
+	 * @return (Element) a
 	 */
 	public static Element getClosestAncestorWithAttribute(Node node, String ancestorName, String attributeName) {
 		for (Node a = getAncestor(node, ancestorName); a != null; a = getAncestor(a, ancestorName)) {
@@ -382,6 +424,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has ancestors with name <code>ancestorName</code>, return the one closest to the root. If there is no
 	 * ancestor with that name, return <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return highest
 	 */
 	public static Node getHighestLevelAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -434,6 +482,8 @@ public class DomUtils {
 	 * 
 	 * @param e
 	 *            e
+	 * @param name
+	 *            name
 	 * @return null if n is null, true otherwise
 	 */
 	public static Element getNextSiblingElementByTagName(Element e, String name) {
@@ -642,6 +692,7 @@ public class DomUtils {
 	 * same namespace as the document element.
 	 * <p>
 	 * Algorithm:
+	 * </p>
 	 * <p>
 	 * <ol>
 	 * <li>Find closest common ancestor <code>a</code></li>

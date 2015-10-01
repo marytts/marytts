@@ -125,7 +125,9 @@ import java.util.Vector;
  * </tr>
  * <caption>escape sequences</caption>
  * </table>
- * <h4>Conversion Specifications</h4>
+ * <p>
+ * Conversion Specifications
+ * </p>
  * <p>
  * Each conversion specification is introduced by the percent sign character (%). After the character %, the following appear in
  * sequence:
@@ -140,7 +142,7 @@ import java.util.Vector;
  * the minimum number of characters to be printed.
  * </p>
  * <p>
- * An optional precision that gives the minumum number of digits to appear for the d, i, o, x or X conversions (the field is
+ * An optional precision that gives the minimum number of digits to appear for the d, i, o, x or X conversions (the field is
  * padded with leading zeros); the number of digits to appear after the radix character for the e, E, and f conversions, the
  * maximum number of significant digits for the g and G conversions; or the maximum number of characters to be written from a
  * string is s and S conversions. The precision takes the form of an optional decimal digit string, where a null digit string is
@@ -181,7 +183,6 @@ import java.util.Vector;
  * characters. For other conversions the flag is ignored. The non-monetary grouping character is used.
  * <dt>-
  * <dd>result of the conversion is left-justified within the field. (It will be right-justified if this flag is not specified).</dd>
- * </dt>
  * <dt>+
  * <dd>result of a signed conversion always begins with a sign (+ or -). (It will begin with a sign only when a negative value is
  * converted if this flag is not specified.)
@@ -330,6 +331,8 @@ public class PrintfFormat {
 	 * strings begin with unpaired percent signs. A pair of successive percent signs designates a single percent sign in the
 	 * format.
 	 * 
+	 * @param locale
+	 *            locale
 	 * @param fmtArg
 	 *            Control string.
 	 * @exception IllegalArgumentException

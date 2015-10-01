@@ -29,7 +29,7 @@ import java.io.OutputStream;
 /**
  * <pre>
  *       LEDataOutputStream.java
- * </p>
+ * <p>
  *        copyright (c) 1998-2007 Roedy Green,
  *        Canadian Mind Products
  *       #101 - 2536 Wark Street
@@ -38,14 +38,19 @@ import java.io.OutputStream;
  *       mailto:roedyg@mindprod.com
  *       http://mindprod.com
  * </p>
+ * <p>
  *        Version 1.0 1998 January 6
  * </p>
+ * <p>
  *       1.1 1998 January 7 -officially implements DataInput
  * </p>
+ * <p>
  *       1.2 1998 January 9 - add LERandomAccessFile
  * </p>
+ * <p>
  *       1.3 1998 August 28 1.4 1998 November 10 - add new address and phone.
  * </p>
+ * <p>
  *       1.5 1999 October 8 - use com.mindprod.ledatastream
  *       package name. Very similar to DataOutputStream except it writes
  * little-endian
@@ -54,6 +59,7 @@ import java.io.OutputStream;
  *       since it has only final methods. This forces us implement
  * LEDataOutputStream
  *       with a DataOutputStream object, and use wrapper methods.
+ * </p>
  * </pre>
  * 
  */

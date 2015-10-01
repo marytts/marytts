@@ -52,6 +52,7 @@ public class IntStringTranslator {
 	 * Initialize a int-string two-way translator, setting int values according to the position of strings in the array.
 	 * 
 	 * @param strings
+	 *            strings
 	 */
 	public IntStringTranslator(String[] strings) {
 		list = new ArrayList<String>(Arrays.asList(strings));

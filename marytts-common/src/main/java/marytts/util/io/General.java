@@ -158,7 +158,8 @@ public class General {
 	 * 
 	 * @param dataStream
 	 *            the DataInputStream to read from
-	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @return a float
 	 */
 	public static float readLittleEndianFloat(DataInputStream dataStream) throws IOException {
@@ -172,6 +173,8 @@ public class General {
 	 *            the DataOutputStream to write to.
 	 * @param val
 	 *            The float value to write.
+	 * @throws IOException
+	 *             IOException
 	 */
 	public static void writeLittleEndianFloat(DataOutputStream dataStream, float val) throws IOException {
 		writeLittleEndianInt(dataStream, Float.floatToRawIntBits(val));
@@ -224,7 +227,8 @@ public class General {
 	 * 
 	 * @param dataStream
 	 *            the DataInputStream to read from
-	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @return an integer
 	 */
 	public static int readLittleEndianInt(DataInputStream dataStream) throws IOException {
@@ -280,7 +284,8 @@ public class General {
 	 * 
 	 * @param dis
 	 *            the DataInputStream to read from
-	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @return a short
 	 */
 	public static short readLittleEndianShort(DataInputStream dis) throws IOException {
