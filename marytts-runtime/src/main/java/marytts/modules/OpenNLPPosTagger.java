@@ -60,7 +60,8 @@ public class OpenNLPPosTagger extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * 
+	 * @param propertyPrefix
+	 *            propertyPrefix
 	 * @throws Exception
 	 *             Exception
 	 */

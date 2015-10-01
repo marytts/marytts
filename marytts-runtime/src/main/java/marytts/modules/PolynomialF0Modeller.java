@@ -73,6 +73,7 @@ public class PolynomialF0Modeller extends InternalModule {
 	 * @param featprocClassInfo
 	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
 	 * @throws Exception
+	 *             Exception
 	 */
 	public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
@@ -83,6 +84,7 @@ public class PolynomialF0Modeller extends InternalModule {
 	 * Constructor to be called with instantiated objects.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @param propertyPrefix
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
 	 * @param featureProcessorManager

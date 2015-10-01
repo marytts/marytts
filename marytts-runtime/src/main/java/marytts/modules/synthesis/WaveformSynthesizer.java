@@ -57,7 +57,7 @@ public interface WaveformSynthesizer {
 	 * @param outputParams
 	 *            any specified output parameters; may be null
 	 * @return an AudioInputStream in synthesizer-native audio format.
-	 * @throws IllegalArgumentException
+	 * @throws SynthesisException
 	 *             if the voice requested for this section is incompatible with this WaveformSynthesizer.
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)

@@ -101,6 +101,7 @@ public class Mary {
 	 * Add jars to classpath. Normally this is called from startup().
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static void addJarsToClasspath() throws Exception {
 		if (true)
@@ -197,6 +198,7 @@ public class Mary {
 	 * @throws IllegalStateException
 	 *             if the system is not offline.
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void startup() throws Exception {
 		startup(true);
@@ -213,6 +215,7 @@ public class Mary {
 	 * @throws IllegalStateException
 	 *             if the system is not offline.
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void startup(boolean addJarsToClasspath) throws Exception {
 		if (currentState != STATE_OFF)
@@ -301,7 +304,9 @@ public class Mary {
 	 * Log4j initialisation, called from {@link #startup(boolean)}.
 	 * 
 	 * @throws NoSuchPropertyException
+	 *             NoSuchPropertyException
 	 * @throws IOException
+	 *             IOException
 	 */
 	private static void configureLogging() throws MaryConfigurationException, IOException {
 		if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
@@ -389,19 +394,29 @@ public class Mary {
 	 * conversion; for other settings, intermediate processing results can be generated or provided as input.
 	 * 
 	 * @param input
+	 *            input
 	 * @param inputTypeName
+	 *            inputTypeName
 	 * @param outputTypeName
+	 *            outputTypeName
 	 * @param localeString
+	 *            localeString
 	 * @param audioTypeName
+	 *            audioTypeName
 	 * @param voiceName
+	 *            voiceName
 	 * @param style
+	 *            style
 	 * @param effects
+	 *            effects
 	 * @param outputTypeParams
+	 *            outputTypeParams
 	 * @param output
 	 *            the output stream into which the processing result will be written.
 	 * @throws IllegalStateException
 	 *             if the MARY system is not running.
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void process(String input, String inputTypeName, String outputTypeName, String localeString,
 			String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)
@@ -460,6 +475,10 @@ public class Mary {
 	 * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
 	 * </pre>
 	 * 
+	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 * @see MaryProperties
 	 * @see MaryServer
 	 * @see RequestHandler
