@@ -34,6 +34,8 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	 * 
 	 * @param setI
 	 *            The index of the feature to be compared on the next run of the comparator.
+	 * @param featureType
+	 *            feature Type
 	 */
 	public FeatureComparator(int setI, FeatureVector.FeatureType featureType) {
 		setFeatureIdx(setI, featureType);
@@ -44,6 +46,8 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	 * 
 	 * @param setI
 	 *            The index of the feature to be compared on the next run of the comparator.
+	 * @param featureType
+	 *            feature type
 	 */
 	public void setFeatureIdx(int setI, FeatureVector.FeatureType featureType) {
 		I = setI;
@@ -69,7 +73,7 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	 * @return a negative integer, zero, or a positive integer as the feature at index I for v1 is less than, equal to, or greater
 	 *         than the feature at index I for v2.
 	 * 
-	 * check {@link #setFeatureIdx(int setI, FeatureVector.FeatureType featureType)} .
+	 *         check {@link #setFeatureIdx(int setI, FeatureVector.FeatureType featureType)} .
 	 */
 	public int compare(FeatureVector a, FeatureVector b) {
 		switch (type) {
@@ -95,6 +99,11 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 	/**
 	 * The equals() method asked for by the Comparable interface. Returns true if the compared object is a FeatureComparator with
 	 * the same internal index, false otherwise.
+	 * 
+	 * @param obj
+	 *            obj
+	 * @return false if obj is not instanceof featurecomparator, or if ((featurecomparator) obj).getfeatureIdx() is different from
+	 *         this.I, true otherwise
 	 */
 	public boolean equals(Object obj) {
 		if (!(obj instanceof FeatureComparator))
@@ -108,6 +117,7 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 /**
  * An additional comparator for the unit indexes in the feature vectors.
  * 
+ * @return a.unitIndex - b.unitIndex
  */
 class UnitIndexComparator implements Comparator<FeatureVector> {
 

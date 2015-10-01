@@ -33,7 +33,7 @@ import marytts.util.data.Datagram;
 /**
  * A datagram that encapsulates a harmonics plus noise modelled speech frame
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HnmDatagram extends Datagram {

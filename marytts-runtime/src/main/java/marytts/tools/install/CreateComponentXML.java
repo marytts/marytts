@@ -52,24 +52,25 @@ public class CreateComponentXML {
 
 	/**
 	 * For the list of zip files given on the command line, create component XML descriptor files for the mary component
-	 * installer. <br/>
+	 * installer.
+	 * <p>
 	 * The zip file names are expected to have the following structure: <code>mary-</code>(component name)<code>-</code>(version
-	 * number)<code>.zip</zip>
-	 * <br/>
-	 * If the component name is a locale, a language component xml is created; otherwise, 
-	 * a voice component xml is created.
-	 * <br/>
+	 * number)<code>.zip</code>
+	 * <p>
+	 * If the component name is a locale, a language component xml is created; otherwise, a voice component xml is created.
+	 * <p>
 	 * The program will look in the following folders for existing xml:
 	 * <ul>
-	 * <li>if a folder is passed as the system property <code>mary.componentXML.folder</code>, that folder and no other
-	 * folder;</li> <li>otherwise:</li>
+	 * <li>if a folder is passed as the system property <code>mary.componentXML.folder</code>, that folder and no other folder;</li>
+	 * <li>otherwise:</li>
 	 * <ul>
 	 * <li>the folders in which the zip files are located;</li>
 	 * <li>the current folder;</li>
 	 * <li>the folders <code>download/</code> and <code>installed/</code> below the current folder;</li>
 	 * </ul>
 	 * </ul> If existing xml files contain a component with the same name, any information that can not be automatically computed
-	 * (such as description, voice gender, synthesis technology etc.) will be copied from that component. <br/>
+	 * (such as description, voice gender, synthesis technology etc.) will be copied from that component.
+	 * <p>
 	 * The resulting files will by default be written into individual xml files located in the same folder as the respective zip
 	 * file, and named <code>mary-</code>(component name)<code>-</code>(version number)<code>-component.xml</code>. Alternatively,
 	 * if the system property <code>mary.componentXML.outputfile</code> is set, this is used as the filename of a single XML file
@@ -77,6 +78,8 @@ public class CreateComponentXML {
 	 * 
 	 * @param args
 	 *            zip files for which component xml is to be generated
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		// Write some documentation if appropriate:

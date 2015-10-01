@@ -70,7 +70,7 @@ import org.apache.log4j.Logger;
  * bytes of audio data for synthesis requests) (3) Some piece of text
  * <p>
  * A valid Mary Http request string is a collection of individual key-value pairs combined in Http request style:
- * <code>address?pair1&pair2&pair3...</code> etc.
+ * <code>address?pair1&amp;pair2&amp;pair3...</code> etc.
  * <p>
  * The <code>address</code> identifies the kind of thing that the client is asking for:
  * <ul>
@@ -79,11 +79,11 @@ import org.apache.log4j.Logger;
  * <li><code>locales</code> requests the list of available locales / language components;</li>
  * <li><code>voices</code> requests the list of available voices;</li>
  * <li><code>audioformats</code> requests the list of supported audio file format types;</li>
- * <li><code>exampletext?voice=hmm-slt<code> requests the example text for the given voice;</li>
- * <li><code>exampletext?datatype=RAWMARYXML&locale=de</code> requests an example text for data of the given type and locale;</li>
+ * <li><code>exampletext?voice=hmm-slt</code> requests the example text for the given voice;</li>
+ * <li><code>exampletext?datatype=RAWMARYXML&amp;locale=de</code> requests an example text for data of the given type and locale;</li>
  * <li><code>audioeffects</code> requests the list of default audio effects;</li>
  * <li><code>audioeffect-default-param?effect=Robot</code> requests the default parameters of the given audio effect;</li>
- * <li><code>audioeffect-full?effect=Robot&params=amount:100.0</code> requests a full description of the given audio effect,
+ * <li><code>audioeffect-full?effect=Robot&amp;params=amount:100.0</code> requests a full description of the given audio effect,
  * including effect name, parameters and help text;</li>
  * <li><code>audioeffect-help?effect=Robot</code> requests a help text describing the given audio effect;</li>
  * <li><code>audioeffect-is-hmm-effect?effect=Robot</code> requests a boolean value (plain text "yes" or "no") indicating whether
@@ -117,7 +117,7 @@ import org.apache.log4j.Logger;
  * <p>
  * SYNTHESIS_OUTPUT (A key to ask for synthesis, or to represent synthesis result. Example values: SYNTHESIS_OUTPUT=? instantiates
  * a synthesis request In response, the server can set SYNTHESIS_OUTPUT to DONE, PENDING, or FAILED depending on the validity and
- * type of te request PENDING is a special case used for handling double requests due to <EMBED< or <OBJECT> tags in web browser
+ * type of te request PENDING is a special case used for handling double requests due to EMBED or OBJECT tags in web browser
  * client html pages
  * 
  * <p>
@@ -131,8 +131,9 @@ import org.apache.log4j.Logger;
  * <p>
  * (2) Copy and paste the following to a web browser´s address bar:
  * <p>
- * http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&
- * LOCALE=en_US&VOICE=hsmm-slt
+ * <a href=
+ * "http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU
+ * & LOCALE=en_US&VOICE=hsmm-slt"> </a>
  * <p>
  * Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), the web browser
  * supports AUDIO type (if not try other formats such as WAVE, MP3, OGG or install a plug-in to play the target format), and the

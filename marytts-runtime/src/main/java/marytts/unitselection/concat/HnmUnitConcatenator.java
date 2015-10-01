@@ -52,7 +52,7 @@ import marytts.util.math.MathUtils;
 /**
  * A unit concatenator for harmonics plus noise based speech synthesis
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  *
  */
 public class HnmUnitConcatenator extends OverlapUnitConcatenator {

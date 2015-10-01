@@ -654,7 +654,7 @@ public class FeatureDefinition {
 	 *            a feature index, as could be used to access a feature value in a FeatureVector.
 	 * @return the name of the feature corresponding to the index
 	 * @throws IndexOutOfBoundsException
-	 *             if index<0 or index>getNumberOfFeatures()
+	 *             if index&lt;0 or index&gt;getNumberOfFeatures()
 	 */
 	public String getFeatureName(int index) {
 		return featureNames.get(index);
@@ -667,7 +667,7 @@ public class FeatureDefinition {
 	 *            an array of feature indexes, as could be used to access a feature value in a FeatureVector.
 	 * @return an array with the name of the features corresponding to the index
 	 * @throws IndexOutOfBoundsException
-	 *             if any of the indexes is <0 or >getNumberOfFeatures()
+	 *             if any of the indexes is &lt;0 or &gt;getNumberOfFeatures()
 	 */
 	public String[] getFeatureNameArray(int[] index) {
 		String[] ret = new String[index.length];
@@ -767,7 +767,9 @@ public class FeatureDefinition {
 	 * getFeatureValueAsShort(featureName, featureValue) will not throw an exception.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @param featureValue
+	 *            featureValue
 	 * @return hasFeatureValue(getFeatureIndex(featureName), featureValue)
 	 */
 	public boolean hasFeatureValue(String featureName, String featureValue) {
@@ -781,9 +783,11 @@ public class FeatureDefinition {
 	 * and getFeatureValueAsShort(featureIndex, featureValue) will not throw an exception.
 	 * 
 	 * @param featureIndex
+	 *            featureIndex
 	 * @param featureValue
-	 * @return false if featureIndex < 0, byteFeatureValues[featureIndex].contains(featureValue) if featureIndex <
-	 *         numByteFeatures, shortFeatureValues[featureIndex - numByteFeatures].contains(featureValue) if featureIndex <
+	 *            featureValue
+	 * @return false if featureIndex &lt; 0, byteFeatureValues[featureIndex].contains(featureValue) if featureIndex &lt;
+	 *         numByteFeatures, shortFeatureValues[featureIndex - numByteFeatures].contains(featureValue) if featureIndex &lt;
 	 *         numByteFeatures + numShortFeatures, false otherwise
 	 */
 	public boolean hasFeatureValue(int featureIndex, String featureValue) {
@@ -803,6 +807,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given name is a byte feature.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @return true if the feature is a byte feature, false if the feature is not known or is not a byte feature
 	 */
 	public boolean isByteFeature(String featureName) {
@@ -818,6 +823,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given index number is a byte feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return true if the feature is a byte feature, false if the feature is not a byte feature or is invalid
 	 */
 	public boolean isByteFeature(int index) {
@@ -828,6 +834,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given name is a short feature.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @return true if the feature is a short feature, false if the feature is not known or is not a short feature
 	 */
 	public boolean isShortFeature(String featureName) {
@@ -843,6 +850,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given index number is a short feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return true if the feature is a short feature, false if the feature is not a short feature or is invalid
 	 */
 	public boolean isShortFeature(int index) {
@@ -854,6 +862,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given name is a continuous feature.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @return true if the feature is a continuous feature, false if the feature is not known or is not a continuous feature
 	 */
 	public boolean isContinuousFeature(String featureName) {
@@ -869,6 +878,7 @@ public class FeatureDefinition {
 	 * Determine whether the feature with the given index number is a continuous feature.
 	 * 
 	 * @param index
+	 *            index
 	 * @return true if the feature is a continuous feature, false if the feature is not a continuous feature or is invalid
 	 */
 	public boolean isContinuousFeature(int index) {
@@ -881,7 +891,9 @@ public class FeatureDefinition {
 	 * true, if given feature index contains similarity matrix
 	 * 
 	 * @param featureIndex
-	 * @return true if this.similarityMatrices != null && this.similarityMatrices[featureIndex] != null, false otherwise
+	 *            featureIndex
+	 * @return true if this.similarityMatrices different from null and this.similarityMatrices[featureIndex] different from null,
+	 *         false otherwise
 	 */
 	public boolean hasSimilarityMatrix(int featureIndex) {
 
@@ -898,6 +910,7 @@ public class FeatureDefinition {
 	 * true, if given feature name contains similarity matrix
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @return hasSimilarityMatrix(this.getFeatureIndex(featureName))
 	 */
 	public boolean hasSimilarityMatrix(String featureName) {
@@ -908,8 +921,11 @@ public class FeatureDefinition {
 	 * To get a similarity between two feature values
 	 * 
 	 * @param featureIndex
+	 *            featureIndex
 	 * @param i
+	 *            i
 	 * @param j
+	 *            j
 	 * @return this.similarityMatrices[featureIndex][i][j]
 	 */
 	public float getSimilarity(int featureIndex, byte i, byte j) {
@@ -957,7 +973,7 @@ public class FeatureDefinition {
 	 *            the index number of the feature.
 	 * @return for byte-valued and short-valued features, return the number of values.
 	 * @throws IndexOutOfBoundsException
-	 *             if featureIndex < 0 or featureIndex >= getNumberOfByteFeatures() + getNumberOfShortFeatures().
+	 *             if featureIndex &lt; 0 or featureIndex &ge; getNumberOfByteFeatures() + getNumberOfShortFeatures().
 	 */
 	public int getNumberOfValues(int featureIndex) {
 		if (featureIndex < numByteFeatures)
@@ -977,7 +993,7 @@ public class FeatureDefinition {
 	 *            the index number of the feature.
 	 * @return for byte-valued and short-valued features, return the array of String values.
 	 * @throws IndexOutOfBoundsException
-	 *             if featureIndex < 0 or featureIndex >= getNumberOfByteFeatures() + getNumberOfShortFeatures().
+	 *             if featureIndex &lt; 0 or featureIndex &ge; getNumberOfByteFeatures() + getNumberOfShortFeatures().
 	 */
 	public String[] getPossibleValues(int featureIndex) {
 		if (featureIndex < numByteFeatures)
@@ -998,7 +1014,7 @@ public class FeatureDefinition {
 	 *            the feature value. This must be in the range of acceptable values for the given feature.
 	 * @return for byte-valued and short-valued features, return the String representation of the feature value.
 	 * @throws IndexOutOfBoundsException
-	 *             if featureIndex < 0 or featureIndex >= getNumberOfByteFeatures() + getNumberOfShortFeatures()
+	 *             if featureIndex &lt; 0 or featureIndex &ge; getNumberOfByteFeatures() + getNumberOfShortFeatures()
 	 * @throws IndexOutOfBoundsException
 	 *             if value is not a legal value for this feature
 	 * 
@@ -1017,7 +1033,9 @@ public class FeatureDefinition {
 	 * Simple access to string-based features.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @param fv
+	 *            fv
 	 * @return getFeatureValueAsString(i, fv.getFeatureAsInt(i))F
 	 */
 	public String getFeatureValueAsString(String featureName, FeatureVector fv) {
@@ -1148,6 +1166,9 @@ public class FeatureDefinition {
 
 	/**
 	 * An extension of the previous method.
+	 * 
+	 * @param other
+	 *            other
 	 */
 	public String featureEqualsAnalyse(FeatureDefinition other) {
 		if (numByteFeatures != other.numByteFeatures) {

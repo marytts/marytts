@@ -187,7 +187,6 @@ public class CartTreeSet {
 	 * @param htsData
 	 *            HMMData with configuration settings
 	 * @return duration
-	 * @throws Exception
 	 */
 	public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) {
 		return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
@@ -239,7 +238,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) {
 		for (int s = 0; s < numStates; s++) {
@@ -264,7 +262,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -283,7 +280,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -302,7 +298,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -316,8 +311,14 @@ public class CartTreeSet {
 	 * creates a HTSModel (pre-HMM optimization vector data for all parameter streams of a given phoneme) given a feature vector
 	 * compare with original code in the main loop of marytts.modules.HTSEngine#processTargetList()
 	 * 
+	 * @param htsData
+	 *            htsData
+	 * @param feaDef
+	 *            feaDef
+	 * @param fv
+	 *            fv
 	 * @param oldErr
-	 * @throws Exception
+	 *            oldErr
 	 */
 	public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureVector fv, double oldErr) {
 		HTSModel m = new HTSModel(getNumStates());

@@ -51,7 +51,7 @@ import org.apache.log4j.Logger;
 /**
  * Provides functionality to process synthesis http requests
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  *
  */
 public class SynthesisRequestHandler extends BaseHttpRequestHandler {

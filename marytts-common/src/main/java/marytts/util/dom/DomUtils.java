@@ -692,8 +692,6 @@ public class DomUtils {
 	 * same namespace as the document element.
 	 * <p>
 	 * Algorithm:
-	 * </p>
-	 * <p>
 	 * <ol>
 	 * <li>Find closest common ancestor <code>a</code></li>
 	 * <li>Identify first (<code>childA</code>) and last (<code>childZ</code>) of <code>a</code>'s children that need to be

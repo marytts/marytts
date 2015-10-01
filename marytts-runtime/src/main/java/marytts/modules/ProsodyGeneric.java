@@ -246,7 +246,7 @@ public class ProsodyGeneric extends InternalModule {
 	 * @param resourceName
 	 *            resource file in classpath from which to read the list; suffix identifies list format.
 	 * @return An Object representing the list; checkList() must be able to make sense of this. This base implementation returns a
-	 *         Set<String>.
+	 *         Set string.
 	 * @throws IllegalArgumentException
 	 *             if the fileName suffix cannot be identified as a list file format.
 	 * @throws IOException
@@ -330,7 +330,7 @@ public class ProsodyGeneric extends InternalModule {
 	 * Output: <prosody contour="(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)"> <t accent="H*"> ball
 	 * </t> </prosody>
 	 * 
-	 * @param MARYXML
+	 * @param doc
 	 *            Document
 	 * @throws Exception
 	 *             when XML processing fails

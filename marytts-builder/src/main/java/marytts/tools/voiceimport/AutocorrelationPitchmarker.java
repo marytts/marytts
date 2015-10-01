@@ -33,10 +33,10 @@ import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.data.ESTTrackWriter;
 import marytts.util.signal.SignalProcUtils;
 
-/*
+/**
  * A pitch marker component that uses F0TrackerAutocorrelationHeuristic.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class AutocorrelationPitchmarker extends VoiceImportComponent {

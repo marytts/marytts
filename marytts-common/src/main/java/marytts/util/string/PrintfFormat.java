@@ -172,8 +172,9 @@ import java.util.Vector;
  * argument specifications (that is % and *), but normally not both. The only exception to this is that %% can be mixed with the %
  * <code>n</code>$ form. The results of mixing numbered and unnumbered argument specifications in a format string are undefined.
  * </p>
- *
- * <h4>Flag Characters</h4>
+ * <p>
+ * Flag Characters
+ * </p>
  * <p>
  * The flags and their meanings are:
  * </p>
@@ -201,7 +202,9 @@ import java.util.Vector;
  * conversions, if a precision is specified, the 0 flag will be ignored. For c conversions, the flag is ignored.
  * </dl>
  *
- * <h4>Conversion Characters</h4>
+ * <p>
+ * Conversion Characters
+ * </p>
  * <p>
  * Each conversion character results in fetching zero or more arguments. The results are undefined if there are insufficient
  * arguments for the format. Usually, an unchecked exception will be thrown. If the format is exhausted while arguments remain,

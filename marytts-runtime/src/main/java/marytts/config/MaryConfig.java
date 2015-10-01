@@ -149,6 +149,7 @@ public abstract class MaryConfig {
 	 * Get the voice config for the given voice name, or null if there is no such voice config.
 	 * 
 	 * @param voiceName
+	 *            voiceName
 	 * @return vc if vc.getName().equals(voiceName), null otherwise
 	 */
 	public static VoiceConfig getVoiceConfig(String voiceName) {
@@ -171,6 +172,7 @@ public abstract class MaryConfig {
 	 * Get the allophone set for the given locale, or null if it cannot be retrieved.
 	 * 
 	 * @param locale
+	 *            locale
 	 * @return the allophone set for the given locale, or null of the locale is not supported.
 	 * @throws MaryConfigurationException
 	 *             if the locale is supported in principle but no allophone set can be retrieved.
@@ -249,6 +251,7 @@ public abstract class MaryConfig {
 	 * space-separated list).
 	 * 
 	 * @param propertyName
+	 *            propertyName
 	 * @return the list of items, or an empty list if the property is not defined or contains no items
 	 */
 	public List<String> getList(String propertyName) {
