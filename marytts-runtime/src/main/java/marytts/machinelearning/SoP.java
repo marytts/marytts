@@ -79,6 +79,7 @@ public class SoP {
 	 * Build a new empty sop with the given feature definition.
 	 * 
 	 * @param featDef
+	 *            featDef
 	 */
 	public SoP(FeatureDefinition featDef) {
 		this.featureDefinition = featDef;
@@ -90,9 +91,15 @@ public class SoP {
 	 * according to the featureDefinition.
 	 * 
 	 * @param coeffsVal
+	 *            coeffsVal
 	 * @param selectedFactorsIndex
+	 *            selectedFactorsIndex
 	 * @param allFactorsList
+	 *            allFactorsList
 	 * @param b0
+	 *            b0
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void setCoeffsAndFactors(double coeffsVal[], int selectedFactorsIndex[], String allFactorsList[], boolean b0)
 			throws Exception {
@@ -225,6 +232,14 @@ public class SoP {
 	 * Solve the linear equation given the features (factors) in t and coeffs and factors in the SoP object * if interceptTterm =
 	 * TRUE solution = coeffs[0] + coeffs[1]*factors[0] + coeffs[2]*factors[1] + ... + coeffs[n]*factors[n-1] if interceptterm =
 	 * FALSE solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
+	 * 
+	 * @param t
+	 *            t
+	 * @param feaDef
+	 *            feaDef
+	 * @param log
+	 *            log
+	 * @return solution
 	 */
 	public double solve(Target t, FeatureDefinition feaDef, boolean log) {
 		solution = 0.0f;
@@ -309,6 +324,9 @@ public class SoP {
 
 	/***
 	 * First line vowel coefficients plus factors, second line consonant coefficients plus factors
+	 * 
+	 * @param toSopFile
+	 *            toSopFile
 	 */
 	public void saveSelectedFeatures(PrintWriter toSopFile) {
 		for (int j = 0; j < coeffs.length; j++)

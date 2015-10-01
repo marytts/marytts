@@ -43,7 +43,9 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 	 * method in local code.
 	 * 
 	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
 	 * @param pauseSymbol
+	 *            pauseSymbol
 	 * @return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol)
 	 */
 	@Override
@@ -56,6 +58,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 	 * 
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
+	 * @param silenceSymbol
+	 *            silenceSymbol
 	 * @return a list of Target objects
 	 */
 	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {

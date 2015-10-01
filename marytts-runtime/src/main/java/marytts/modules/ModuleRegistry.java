@@ -81,6 +81,7 @@ public class ModuleRegistry {
 	 *            where 'my.special.property' is a property in the property file.
 	 * @throws MaryConfigurationException
 	 *             if the module cannot be instantiated
+	 * @return m
 	 */
 	public static MaryModule instantiateModule(String moduleInitInfo) throws MaryConfigurationException {
 		logger.info("Now initiating mary module '" + moduleInitInfo + "'");
@@ -166,7 +167,7 @@ public class ModuleRegistry {
 	 * 
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
-	 * 
+	 * @return Collections.unmodifiableList(allModules)
 	 */
 	public static List<MaryModule> getAllModules() {
 		if (!registrationComplete)
