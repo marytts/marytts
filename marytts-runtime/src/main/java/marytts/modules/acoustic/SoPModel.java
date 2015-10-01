@@ -56,6 +56,7 @@ public class SoPModel extends Model {
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param voiceName
+	 *            voiceName
 	 * @param dataStream
 	 *            data file containing the sop data
 	 * @param targetAttributeName

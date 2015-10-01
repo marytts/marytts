@@ -58,9 +58,13 @@ public class TrainedLTS {
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
 	 * @param treeStream
+	 *            treeStream
 	 * @param removeTrailingOneFromPhones
+	 *            removeTrailingOneFromPhones
 	 * @throws IOException
-	 * 
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream, boolean removeTrailingOneFromPhones) throws IOException,
 			MaryConfigurationException {
@@ -76,8 +80,11 @@ public class TrainedLTS {
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
 	 * @param treeStream
+	 *            treeStream
 	 * @throws IOException
-	 * 
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream) throws IOException, MaryConfigurationException {
 		this(aPhonSet, treeStream, true);
@@ -100,7 +107,11 @@ public class TrainedLTS {
 	 * Convenience method to load tree from an inputstream
 	 * 
 	 * @param treeStream
+	 *            treeStream
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void loadTree(InputStream treeStream) throws IOException, MaryConfigurationException {
 		MaryCARTReader cartReader = new MaryCARTReader();

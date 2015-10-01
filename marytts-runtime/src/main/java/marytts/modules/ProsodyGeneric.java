@@ -892,6 +892,7 @@ public class ProsodyGeneric extends InternalModule {
 	 * @param tokens
 	 *            (list of all tokens in sentence)
 	 * @param position
+	 *            position
 	 * @param sentenceType
 	 *            (declarative, exclamative or interrogative)
 	 * @param specialPositionType
@@ -1063,6 +1064,7 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks condition of a rule part, f.e. attributes pos="NN"
 	 * 
 	 * @param currentRulePart
+	 *            currentRulePart
 	 * @param token
 	 *            (current token)
 	 * @param tokens
@@ -1136,6 +1138,12 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * checks rule part with tag "text"; there is only the "word" attribute right now: checks if text of a token is the same as
 	 * the value of the word attribute in the rule
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param tokenText
+	 *            tokenText
+	 * @return checkList(currentVal, tokenText)
 	 */
 	protected boolean checkText(Element currentRulePart, String tokenText) {
 
@@ -1167,6 +1175,16 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * checks rule part with tag "nextText","previousText","nextPlusXText" or "previousMinusXText"; there is only the "word"
 	 * attribute right now: checks if text of a token is the same as the value of the word attribute in the rule
+	 * 
+	 * @param tag
+	 *            tag
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return checkText(currentRulePart, otherTokenText)
 	 */
 	protected boolean checkTextOfOtherToken(String tag, Element currentRulePart, int position, NodeList tokens) {
 
@@ -1210,6 +1228,14 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "folTokens"; there is only the "num" attribute right now; checks if the number of the following
 	 * tokens after the current token is the same as the value of the num attribute; f.e. the value "3+" means: at least 3
 	 * following tokens, "3-": not more than 3, "3": exactly 3
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return true if everything is fine
 	 */
 	protected boolean checkFolTokens(Element currentRulePart, int position, NodeList tokens) {
 
@@ -1243,6 +1269,14 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "prevTokens"; there is only the "num" attribute right now; checks if the number of the tokens
 	 * preceding the current token is the same as the value of the num attribute; f.e. the value "3+" means: at least 3 preceding
 	 * tokens, "3-": not more than 3, "3": exactly 3
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return true if everything passes
 	 */
 	protected boolean checkPrevTokens(Element currentRulePart, int position, NodeList tokens) {
 
@@ -1277,6 +1311,14 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "folWords"; there is only the "num" attribute right now; checks if the number of the following
 	 * words after the current token is the same as the value of the num attribute; f.e. the value "3+" means: at least 3
 	 * following tokens, "3-": not more than 3, "3": exactly 3
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return true if everything passes
 	 */
 	protected boolean checkFolWords(Element currentRulePart, int position, NodeList tokens) {
 
@@ -1313,6 +1355,14 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "prevWords"; there is only the "num" attribute right now; checks if the number of the words
 	 * preceding the current token is the same as the value of the num attribute; f.e. the value "3+" means: at least 3 preceding
 	 * tokens, "3-": not more than 3, "3": exactly 3
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return true if everything passes
 	 */
 	protected boolean checkPrevWords(Element currentRulePart, int position, NodeList tokens) {
 
@@ -1348,6 +1398,12 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * checks rule part with tag "sentence"; there is only the "type" attribute right now: checks if sentence type of a token is
 	 * the same as the value of the type attribute in the rule
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param sentenceType
+	 *            sentenceType
+	 * @return true if everything passes
 	 */
 	protected boolean checkSentence(Element currentRulePart, String sentenceType) {
 		NamedNodeMap attNodes = currentRulePart.getAttributes();
@@ -1374,6 +1430,12 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * checks rule part with tag "specialPosition"; there is only the "type" attribute right now: checks if specialPosition value
 	 * of a token is the same as the value of the type attribute in the rule; values: endofvorfeld, endofpar (end of paragraph)
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param specialPositionType
+	 *            specialPositionType
+	 * @return true if everything passes
 	 */
 	protected boolean checkSpecialPosition(Element currentRulePart, String specialPositionType) {
 		NamedNodeMap attNodes = currentRulePart.getAttributes();
@@ -1401,6 +1463,12 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "prosodicPosition"; there is only the "type" attribute right now: checks if prosodic position of
 	 * a token is the same as the value of the type attribute in the rule; values: prenuclear, nuclearParagraphFinal,
 	 * nuclearParagraphNonFinal, postnuclear
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param prosodicPositionType
+	 *            prosodicPositionType
+	 * @return true if everything passes
 	 */
 	protected boolean checkProsodicPosition(Element currentRulePart, String prosodicPositionType) {
 		NamedNodeMap attNodes = currentRulePart.getAttributes();
@@ -1427,6 +1495,12 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * checks rule part with tag "attributes"; checks if the MaryXML attributes and values of current token are the same as in the
 	 * rule
+	 * 
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param token
+	 *            token
+	 * @return checkList(currentVal, token.getAttribute(currentAtt))
 	 */
 	protected boolean checkAttributes(Element currentRulePart, Element token) {
 
@@ -1480,6 +1554,16 @@ public class ProsodyGeneric extends InternalModule {
 	 * checks rule part with tag "nextAttributes","previousAttributes","nextPlusXAttributes","previousMinusXAttributes"; checks if
 	 * the MaryXML attributes and values of other token than the current one are the same as in rule (f.e. the 3th token after
 	 * current token)
+	 * 
+	 * @param tag
+	 *            tag
+	 * @param currentRulePart
+	 *            currentRulePart
+	 * @param position
+	 *            position
+	 * @param tokens
+	 *            tokens
+	 * @return checkAttributes(currentRulePart, otherToken)
 	 */
 	protected boolean checkAttributesOfOtherToken(String tag, Element currentRulePart, int position, NodeList tokens) {
 
@@ -1555,6 +1639,10 @@ public class ProsodyGeneric extends InternalModule {
 
 	/**
 	 * determination of sentence type values: decl, excl, interrog, interrogYN or interrogW
+	 * 
+	 * @param tokens
+	 *            tokens
+	 * @return sentenceType
 	 */
 	protected String getSentenceType(NodeList tokens) {
 		String sentenceType = "decl";
@@ -1619,6 +1707,12 @@ public class ProsodyGeneric extends InternalModule {
 	 * are taken: Only if bi is higher than an already existing breakindex, the old value is replaced with bi. Only if tone is a
 	 * concrete tone (like "h-") and the previous tone was "unknown" or not specified at all, tone is taken into account.
 	 * 
+	 * @param token
+	 *            token
+	 * @param tone
+	 *            tone
+	 * @param bi
+	 *            bi
 	 * @return the boundary element on success, null on failure.
 	 */
 	protected Element insertBoundary(Element token, String tone, int bi) {
@@ -1706,6 +1800,16 @@ public class ProsodyGeneric extends InternalModule {
 	 * <p>
 	 * Also inserts a phrase tag at the appropriate position.
 	 * 
+	 * @param tokens
+	 *            tokens
+	 * @param i
+	 *            i
+	 * @param firstToken
+	 *            firstToken
+	 * @param tone
+	 *            tone
+	 * @param breakindex
+	 *            breakindex
 	 * @return The boundary element.
 	 */
 	protected Element insertMajorBoundary(NodeList tokens, int i, Element firstToken, String tone, int breakindex) {
@@ -1718,6 +1822,10 @@ public class ProsodyGeneric extends InternalModule {
 	 * Inserte a phrase element, enclosing the first and last element, into the tree. Typically first element would be a token,
 	 * last element a boundary.
 	 * 
+	 * @param first
+	 *            first
+	 * @param last
+	 *            last
 	 * @return true on success, false on failure.
 	 */
 	protected boolean insertPhraseNode(Element first, Element last) {
@@ -1740,6 +1848,8 @@ public class ProsodyGeneric extends InternalModule {
 	/**
 	 * Verify whether this Node has a parent preventing the application of intonation rules.
 	 * 
+	 * @param n
+	 *            n
 	 * @return <code>true</code> if rules are to be applied, <code>false</code> otherwise.
 	 */
 	protected boolean applyRules(Node n) {
@@ -1749,6 +1859,9 @@ public class ProsodyGeneric extends InternalModule {
 
 	/**
 	 * Go through all tokens in a document, and copy any accents to the first accented syllable.
+	 * 
+	 * @param doc
+	 *            doc
 	 */
 	protected void copyAccentsToSyllables(Document doc) {
 		NodeIterator tIt = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
@@ -1784,6 +1897,8 @@ public class ProsodyGeneric extends InternalModule {
 	 * Check whether <code>token</code> is enclosed by a <code>&lt;prosody&gt;</code> element containing an attribute
 	 * <code>force-accent</code>.
 	 * 
+	 * @param token
+	 *            token
 	 * @return the value of the <code>force-accent</code> attribute, if one exists, or the empty string otherwise.
 	 */
 	protected String getForceAccent(Element token) {
