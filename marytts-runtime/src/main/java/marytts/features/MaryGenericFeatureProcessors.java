@@ -66,6 +66,7 @@ public class MaryGenericFeatureProcessors {
 		 * Given the target, retrieve an XML Element.
 		 * 
 		 * @param target
+		 *            target
 		 * @return an item selected according to this navigator, or null if there is no such item.
 		 */
 		public Element getElement(Target target);
@@ -2798,6 +2799,7 @@ public class MaryGenericFeatureProcessors {
 		 * Compute log f0 and log f0 delta for the given target.
 		 * 
 		 * @param target
+		 *            target
 		 * @param delta
 		 *            if true, return the delta, i.e. the logF0 slope; if false, return the log f0 value itself.
 		 * @return 0 if seg is null, or if !seg.getTagName().equals(MaryXML.PHONE), 0 if lastPos == null or nextPos == null,

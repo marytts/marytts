@@ -63,13 +63,14 @@ public class CreateComponentXML {
 	 * <ul>
 	 * <li>if a folder is passed as the system property <code>mary.componentXML.folder</code>, that folder and no other folder;</li>
 	 * <li>otherwise:</li>
+	 * </ul>
 	 * <ul>
 	 * <li>the folders in which the zip files are located;</li>
 	 * <li>the current folder;</li>
 	 * <li>the folders <code>download/</code> and <code>installed/</code> below the current folder;</li>
 	 * </ul>
-	 * </ul> If existing xml files contain a component with the same name, any information that can not be automatically computed
-	 * (such as description, voice gender, synthesis technology etc.) will be copied from that component.
+	 * If existing xml files contain a component with the same name, any information that can not be automatically computed (such
+	 * as description, voice gender, synthesis technology etc.) will be copied from that component.
 	 * <p>
 	 * The resulting files will by default be written into individual xml files located in the same folder as the respective zip
 	 * file, and named <code>mary-</code>(component name)<code>-</code>(version number)<code>-component.xml</code>. Alternatively,

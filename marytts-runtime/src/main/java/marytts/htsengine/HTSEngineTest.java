@@ -629,7 +629,7 @@ public class HTSEngineTest {
 	}
 
 	/***
-	 * Calculate mfcc using SPTK, uses sox to convert wav-->raw
+	 * Calculate mfcc using SPTK, uses sox to convert wav&rarr;raw
 	 * 
 	 * @throws IOException
 	 *             IOException

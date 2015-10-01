@@ -72,6 +72,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the name of the feature
 		 * @param possibleValues
 		 *            the list of possible phone values for the phonetic alphabet used, plus the value "0"=n/a.
+		 * @param pauseSymbol
+		 *            pauseSymbol
 		 * @param segmentNavigator
 		 *            a navigator returning a segment with respect to the target.
 		 */
@@ -397,6 +399,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 * Give back the phone class of the target
 		 * 
 		 * @param target
+		 *            target
 		 * @return the phone class of the target
 		 */
 		public byte process(Target target) {

@@ -144,6 +144,8 @@ public class MaryDataType {
 	/**
 	 * Provide an example text for this data type, for the given locale, if one is available.
 	 * 
+	 * @param locale
+	 *            locale
 	 * @return an example text string, or null if none could be obtained.
 	 */
 	public String exampleText(Locale locale) {
@@ -364,7 +366,9 @@ public class MaryDataType {
 	 * Get an example text for the given type and the given locale.
 	 * 
 	 * @param type
+	 *            type
 	 * @param locale
+	 *            locale
 	 * @return an example text suitable for type and locale, or null if none is available.
 	 */
 	public static String getExampleText(MaryDataType type, Locale locale) {

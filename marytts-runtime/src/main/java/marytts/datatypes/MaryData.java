@@ -211,12 +211,12 @@ public class MaryData {
 	 * @param endMarker
 	 *            a string marking end of file. If this is null, read until end-of-file; if it is non-null, read up to (and
 	 *            including) the first line containing the end marker string.
-	 * @param ParserConfigurationException
-	 *            ParserConfigurationException
-	 * @param SAXException
-	 *            SAXException
-	 * @param IOException
-	 *            IOException
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void readFrom(Reader from, String endMarker) throws ParserConfigurationException, SAXException, IOException {
 		// For the case that the data to be read it is not
@@ -393,6 +393,7 @@ public class MaryData {
 	 * appendAudio().
 	 * 
 	 * @param audio
+	 *            audio
 	 */
 	public void setAudio(AudioInputStream audio) {
 		this.audio = audio;

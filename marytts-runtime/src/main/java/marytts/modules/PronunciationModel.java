@@ -144,7 +144,7 @@ public class PronunciationModel extends InternalModule {
 	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
 	 * 
 	 * @param token
-	 *            a t element with a syllable and ph substructure.
+	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt; substructure.
 	 * @param allophoneSet
 	 *            allophoneSet
 	 * @return true if something was changed, false otherwise
