@@ -99,6 +99,8 @@ public class HTSCARTReader {
 	 *            the HTS tree text file, example tree-mgc.inf.
 	 * @param pdfStream
 	 *            the corresponding HTS pdf binary file, example mgc.pdf.
+	 * @param fileFormat
+	 *            fileFormat
 	 * @param featDefinition
 	 *            the feature definition
 	 * @param phTranslator
@@ -106,6 +108,8 @@ public class HTSCARTReader {
 	 * @return the size of the mean and variance vectors on the leaves.
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public CART[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat,
 			FeatureDefinition featDefinition, PhoneTranslator phTranslator) throws IOException, MaryConfigurationException {

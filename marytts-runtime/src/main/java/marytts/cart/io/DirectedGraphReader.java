@@ -57,6 +57,9 @@ public class DirectedGraphReader {
 	 *            the file to load the cart from
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return load(is)
 	 */
 	public DirectedGraph load(String fileName) throws IOException, MaryConfigurationException {
 		InputStream is = new FileInputStream(fileName);
@@ -74,6 +77,9 @@ public class DirectedGraphReader {
 	 *            the input stream
 	 * @throws IOException
 	 *             , {@link MaryConfigurationException} if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return MaryCARTReader().loadFromStream(buffInStream)
 	 */
 	public DirectedGraph load(InputStream inStream) throws IOException, MaryConfigurationException {
 		BufferedInputStream buffInStream = new BufferedInputStream(inStream);

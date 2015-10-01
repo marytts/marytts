@@ -78,13 +78,23 @@ public class JPhonemiser extends InternalModule {
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
 	 * @param componentName
+	 *            componentName
 	 * @param inputType
+	 *            inputType
 	 * @param outputType
+	 *            outputType
 	 * @param allophonesProperty
+	 *            allophonesProperty
 	 * @param userdictProperty
+	 *            userdictProperty
 	 * @param lexiconProperty
+	 *            lexiconProperty
 	 * @param ltsProperty
-	 * @throws Exception
+	 *            ltsProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty, String lexiconProperty, String ltsProperty) throws IOException, MaryConfigurationException {
@@ -95,14 +105,25 @@ public class JPhonemiser extends InternalModule {
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
 	 * @param componentName
+	 *            componentName
 	 * @param inputType
+	 *            inputType
 	 * @param outputType
+	 *            outputType
 	 * @param allophonesProperty
+	 *            allophonesProperty
 	 * @param userdictProperty
+	 *            userdictProperty
 	 * @param lexiconProperty
+	 *            lexiconProperty
 	 * @param ltsProperty
+	 *            ltsProperty
 	 * @param removetrailingonefromphonesProperty
-	 * @throws Exception
+	 *            removetrailingonefromphonesProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty)
@@ -260,7 +281,9 @@ public class JPhonemiser extends InternalModule {
 	 * Look a given text up in the (standard) lexicon. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            text
 	 * @param pos
+	 *            pos
 	 * @return null if text == null or text.length is 0, null if entries.length is 0, entries[0] otherwise
 	 */
 	public String lexiconLookup(String text, String pos) {
@@ -302,7 +325,9 @@ public class JPhonemiser extends InternalModule {
 	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            text
 	 * @param pos
+	 *            pos
 	 * @return null if userdict is null or text is null or text.length is 0, null if entries is null, transcr otherwise
 	 */
 	public String userdictLookup(String text, String pos) {
@@ -359,6 +384,9 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * 
 	 * @param lexiconFilename
+	 *            lexiconFilename
+	 * @throws IOException
+	 *             IOException
 	 * @return fLexicon
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {

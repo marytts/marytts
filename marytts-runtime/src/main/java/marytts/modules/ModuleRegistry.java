@@ -96,7 +96,7 @@ public class ModuleRegistry {
 	 * Register a MaryModule as an appropriate module to process the given combination of MaryDataType for the input data, locale
 	 * of the input data, and voice requested for processing. Note that it is possible to register more than one module for a
 	 * given combination of input type, locale and voice; in that case, all of them will be remembered, and will be returned as a
-	 * List<MaryModule> by get().
+	 * List by get().
 	 * 
 	 * @param module
 	 *            the module to add to the registry, under its input type and the given locale and voice.
@@ -177,6 +177,8 @@ public class ModuleRegistry {
 	/**
 	 * Find an active module by its class.
 	 * 
+	 * @param moduleClass
+	 *            moduleClass
 	 * @return the module instance if found, or null if not found.
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
@@ -200,6 +202,12 @@ public class ModuleRegistry {
 	 * A method for determining the list of modules required to transform the given source data type into the requested target
 	 * data type.
 	 * 
+	 * @param sourceType
+	 *            sourceType
+	 * @param targetType
+	 *            targetType
+	 * @param locale
+	 *            locale
 	 * @return the (ordered) list of modules required, or null if no such list could be found.
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
@@ -215,6 +223,14 @@ public class ModuleRegistry {
 	 * A method for determining the list of modules required to transform the given source data type into the requested target
 	 * data type. If the voice given is not null, any preferred modules it may have are taken into account.
 	 * 
+	 * @param sourceType
+	 *            sourceType
+	 * @param targetType
+	 *            target type
+	 * @param locale
+	 *            locale
+	 * @param voice
+	 *            voice
 	 * @return the (ordered) list of modules required, or null if no such list could be found.
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
@@ -241,10 +257,15 @@ public class ModuleRegistry {
 	 * list of required modules (upon success).
 	 *
 	 * @param sourceType
+	 *            sourceType
 	 * @param targetType
+	 *            targetType
 	 * @param locale
+	 *            locale
 	 * @param voice
+	 *            voice
 	 * @param seenTypes
+	 *            seenTypes
 	 * @return LinkedList<MaryModule>() if sourceType equals targetType, null otherwise
 	 */
 	private static LinkedList<MaryModule> modulesRequiredForProcessing(MaryDataType sourceType, MaryDataType targetType,

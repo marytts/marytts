@@ -58,8 +58,12 @@ public class MaryCARTWriter {
 	/**
 	 * Dump the CARTs in MaryCART format
 	 * 
+	 * @param cart
+	 *            cart
 	 * @param destFile
 	 *            the destination file
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void dumpMaryCART(CART cart, String destFile) throws IOException {
 		if (cart == null)

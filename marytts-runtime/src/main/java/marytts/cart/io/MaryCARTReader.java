@@ -51,6 +51,9 @@ public class MaryCARTReader {
 	 *            the file to load the cart from
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return loadFromStream(fis)
 	 */
 	public CART load(String fileName) throws IOException, MaryConfigurationException {
 		FileInputStream fis = new FileInputStream(fileName);
@@ -68,6 +71,9 @@ public class MaryCARTReader {
 	 *            the stream to load the cart from
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return CART(rootNode, featureDefinition, props)
 	 */
 	public CART loadFromStream(InputStream inStream) throws IOException, MaryConfigurationException {
 		// open the CART-File and read the header

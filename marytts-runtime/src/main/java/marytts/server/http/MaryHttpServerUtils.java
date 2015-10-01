@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
 /**
  * Utility functions for Mary http server
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class MaryHttpServerUtils {
 	private static Logger logger = MaryUtils.getLogger("http");

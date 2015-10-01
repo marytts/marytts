@@ -47,7 +47,7 @@ import marytts.util.math.MathUtils;
 /**
  * A reader class for the harmonics plus noise timeline file.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HnmTimelineReader extends TimelineReader {

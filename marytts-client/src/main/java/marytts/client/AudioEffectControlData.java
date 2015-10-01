@@ -22,7 +22,7 @@ package marytts.client;
 /**
  * Data for an audio effect control.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class AudioEffectControlData {

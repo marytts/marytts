@@ -23,7 +23,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class HMMF0AddEffect extends BaseAudioEffect {
 	public float f0Add;
