@@ -1193,6 +1193,7 @@ public class HTSVocoder {
 	 *            mag
 	 * @param f0
 	 *            f0
+	 * @return pulse
 	 */
 	public static double[] genPulseFromFourierMag(double[] mag, double f0) {
 
@@ -1419,7 +1420,7 @@ public class HTSVocoder {
 	 * Stand alone vocoder reading parameters from files in SPTK format, parameters in args[] array in the following order:
 	 * <p>
 	 * The type of spectrum parameters is set through the parameters gamma and alpha
-	 * <p>
+	 * </p>
 	 * 
 	 * @param args
 	 * 

@@ -62,6 +62,7 @@ public class OpenNLPPosTagger extends InternalModule {
 	 *            a locale string, e.g. "en"
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	public OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
 		super("OpenNLPPosTagger", MaryDataType.WORDS, MaryDataType.PARTSOFSPEECH, MaryUtils.string2locale(locale));
