@@ -57,8 +57,11 @@ public class VoiceComponentDescription extends ComponentDescription {
 
 	/**
 	 * @param xmlDescription
+	 *            xmlDescription
 	 * @throws NullPointerException
+	 *             NullPointerException
 	 * @throws MalformedURLException
+	 *             MalformedURLException
 	 */
 	public VoiceComponentDescription(Element xmlDescription) throws NullPointerException, MalformedURLException {
 		super(xmlDescription);

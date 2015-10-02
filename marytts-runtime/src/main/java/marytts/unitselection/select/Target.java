@@ -93,6 +93,7 @@ public class Target {
 	 * 
 	 * 
 	 * @param newDuration
+	 *            newDuration
 	 */
 	public void setTargetDurationInSeconds(float newDuration) {
 		if (maryxmlElement != null) {

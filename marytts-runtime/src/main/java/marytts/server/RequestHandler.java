@@ -65,6 +65,15 @@ public class RequestHandler extends Thread {
 	 * Constructor to be used for Socket processing (running as a standalone socket server). <code>inputReader</code> is a Reader
 	 * reading from from <code>dataSocket.inputStream()</code>. Passing this on is necessary because the mary server does a
 	 * buffered read on that input stream, and without passing that buffered reader on, data gets lost.
+	 * 
+	 * @param request
+	 *            request
+	 * @param infoSocket
+	 *            infoSocket
+	 * @param dataSocket
+	 *            dataSocket
+	 * @param inputReader
+	 *            inputReader
 	 */
 	public RequestHandler(Request request, Socket infoSocket, Socket dataSocket, Reader inputReader) {
 		if (request == null)

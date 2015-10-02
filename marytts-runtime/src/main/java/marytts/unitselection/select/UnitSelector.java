@@ -49,6 +49,8 @@ public class UnitSelector {
 	 * Initialise the unit selector. Need to call load() separately.
 	 * 
 	 * @see #load(UnitDatabase unitDatabase, float targetCostWeight, int beamSize)
+	 * @throws Exception
+	 *             Exception
 	 */
 	public UnitSelector() throws Exception {
 		logger = MaryUtils.getLogger(this.getClass());
@@ -75,7 +77,7 @@ public class UnitSelector {
 	 * @param voice
 	 *            the voice with which to synthesize
 	 * @return a list of SelectedUnit objects
-	 * @throws IllegalStateException
+	 * @throws SynthesisException
 	 *             if no path for generating the target utterance could be found
 	 */
 	public List<SelectedUnit> selectUnits(List<Element> tokensAndBoundaries, marytts.modules.synthesis.Voice voice)

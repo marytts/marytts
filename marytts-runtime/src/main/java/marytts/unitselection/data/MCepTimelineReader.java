@@ -59,6 +59,8 @@ public class MCepTimelineReader extends TimelineReader {
 	/**
 	 * Read and return the upcoming datagram.
 	 * 
+	 * @param bb
+	 *            bb
 	 * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
 	 * 
 	 */

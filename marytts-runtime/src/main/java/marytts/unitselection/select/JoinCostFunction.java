@@ -69,6 +69,10 @@ public interface JoinCostFunction {
 	 *            an optional file containing precompiled join costs
 	 * @param wSignal
 	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	@Deprecated
 	public void load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)

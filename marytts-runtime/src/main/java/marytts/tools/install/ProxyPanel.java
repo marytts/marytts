@@ -32,7 +32,14 @@ package marytts.tools.install;
  */
 public class ProxyPanel extends javax.swing.JPanel {
 
-	/** Creates new form ProxyPanel */
+	/**
+	 * Creates new form ProxyPanel
+	 * 
+	 * @param host
+	 *            host
+	 * @param port
+	 *            port
+	 */
 	public ProxyPanel(String host, String port) {
 		initComponents();
 		if (host != null) {

@@ -52,7 +52,9 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction {
 	 * Compute the goodness-of-fit of a given unit for a given target.
 	 * 
 	 * @param target
+	 *            target
 	 * @param unit
+	 *            unit
 	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
 	 */
 	public double cost(Target target, Unit unit) {
@@ -78,6 +80,9 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction {
 	 *            a feature processor manager which can provide feature processors to compute the features for a target at run
 	 *            time
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String featureFileName, String weightsFile, FeatureProcessorManager featProc) throws IOException,
 			MaryConfigurationException {

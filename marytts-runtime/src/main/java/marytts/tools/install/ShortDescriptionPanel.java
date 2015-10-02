@@ -46,7 +46,14 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
 	private Color unselectedColor;
 	private boolean isSelected = false;
 
-	/** Creates new form ShortDescriptionPanel */
+	/**
+	 * Creates new form ShortDescriptionPanel
+	 * 
+	 * @param desc
+	 *            desc
+	 * @param voiceUpdate
+	 *            voiceUpdate
+	 */
 	public ShortDescriptionPanel(ComponentDescription desc, VoiceUpdateListener voiceUpdate) {
 		this.desc = desc;
 		desc.addObserver(this);

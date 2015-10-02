@@ -66,6 +66,9 @@ public class Unit {
 
 	/**
 	 * inspired by http://www.artima.com/lejava/articles/equality.html
+	 * 
+	 * @param other
+	 *            other
 	 */
 	@Override
 	public boolean equals(Object other) {

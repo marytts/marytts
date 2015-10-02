@@ -62,7 +62,9 @@ public class HnmDatagram extends Datagram {
 	 * @param noiseModel
 	 *            the noise model
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public HnmDatagram(RandomAccessFile raf, int noiseModel) throws IOException, EOFException {
 		super(raf.readLong()); // duration
@@ -88,9 +90,12 @@ public class HnmDatagram extends Datagram {
 	 * 
 	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param noiseModel
+	 *            noiseModel
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public HnmDatagram(ByteBuffer bb, int noiseModel) throws IOException, EOFException {
 		super(bb.getLong()); // duration
@@ -124,6 +129,11 @@ public class HnmDatagram extends Datagram {
 
 	/**
 	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @param out
+	 *            out
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(duration);
@@ -134,6 +144,10 @@ public class HnmDatagram extends Datagram {
 
 	/**
 	 * Tests if this datagram is equal to another datagram.
+	 * 
+	 * @param other
+	 *            other
+	 * @return true if pass everything
 	 */
 	public boolean equals(Datagram other) {
 		if (!(other instanceof HnmDatagram))

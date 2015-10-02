@@ -48,6 +48,11 @@ public class WeightingFunction {
 	public static class linear implements WeightFunc {
 		/**
 		 * Cost computation: a simple absolute value of a subtraction.
+		 * 
+		 * @param a
+		 *            a
+		 * @param b
+		 *            b
 		 */
 		public double cost(double a, double b) {
 			return (a > b ? (a - b) : (b - a));
@@ -56,7 +61,12 @@ public class WeightingFunction {
 			 */
 		}
 
-		/** Optional argument setting. */
+		/**
+		 * Optional argument setting.
+		 * 
+		 * @param val
+		 *            val
+		 */
 		public void setParam(String val) {
 			/*
 			 * Does nothing and is never called in the linear case.
@@ -84,6 +94,12 @@ public class WeightingFunction {
 		/**
 		 * Cost computation: the absolute value of a subtraction, with application of a saturation if the difference value reaches
 		 * a certain percentage of the mean value of the arguments.
+		 * 
+		 * @param a
+		 *            a
+		 * @param b
+		 *            b
+		 * @return res if dev &lt; stepVal, 0.0 otherwise
 		 */
 		public double cost(double a, double b) {
 
@@ -105,12 +121,18 @@ public class WeightingFunction {
 		 * Syntax for the step function's parameter: the first number before the % sign is interpreted as a percentage for the
 		 * step value.
 		 * 
+		 * @param val
+		 *            val
 		 * */
 		public void setParam(String val) {
 			stepVal = Double.parseDouble(val.substring(0, val.indexOf("%"))) / 100.0;
 		}
 
-		/** String definition of the function. */
+		/**
+		 * String definition of the function.
+		 * 
+		 * @return ("step " + Double.toString(100.0 * stepVal) + "%")
+		 */
 		public String whoAmI() {
 			return ("step " + Double.toString(100.0 * stepVal) + "%");
 		}
