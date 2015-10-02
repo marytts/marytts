@@ -164,6 +164,9 @@ public class CopySynthesis {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		String wavFilename = null;
@@ -291,8 +294,11 @@ public class CopySynthesis {
 	 * For the given sampled contour and skipSize, provide the f0 value at time t if possible or Double.NaN otherwise.
 	 * 
 	 * @param contour
+	 *            contour
 	 * @param skipSize
+	 *            skipSize
 	 * @param t
+	 *            t
 	 * @return Double.NaN
 	 */
 	private static double getF0(double[] contour, double skipSize, double t) {
