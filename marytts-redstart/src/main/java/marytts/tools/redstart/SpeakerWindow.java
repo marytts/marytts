@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
 
 /**
  * 
- * @author Mat Wilson <matwils@gmail.com>
+ * @author Mat Wilson &lt;matwils@gmail.com&gt;
  */
 public class SpeakerWindow extends javax.swing.JFrame {
 
@@ -55,6 +55,10 @@ public class SpeakerWindow extends javax.swing.JFrame {
 	 * 
 	 * @param text
 	 *            The current prompt text for the speaker to read
+	 * @param nextSentence
+	 *            nextSentence
+	 * @param redAlertMode
+	 *            redAlertMode
 	 */
 	public void updatePromptDisplay(String text, String nextSentence, boolean redAlertMode) {
 		jTextPane_PromptDisplay.setFont(defaultPromptFont);
