@@ -108,6 +108,7 @@ public class DBHandler {
 	 * called before calling createDBConnection() because ther prepared statments for each table are initialised.
 	 * 
 	 * @param name
+	 *            name
 	 */
 	public void setSelectedSentencesTableName(String name) {
 		if (name.contentEquals(""))
@@ -189,10 +190,15 @@ public class DBHandler {
 	 * @param lang
 	 *            locale language
 	 * @param host
+	 *            host
 	 * @param db
+	 *            db
 	 * @param user
+	 *            user
 	 * @param passwd
+	 *            passwd
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void loadPagesWithMWDumper(String xmlFile, String lang, String host, String db, String user, String passwd)
 			throws Exception {
@@ -272,6 +278,8 @@ public class DBHandler {
 	/***
 	 * Ask the user if the table should be deleted
 	 * 
+	 * @param table
+	 *            table
 	 * @return true if user answers false otherwise.
 	 */
 	public boolean askIfDeletingTable(String table) {
@@ -375,6 +383,12 @@ public class DBHandler {
 	/***
 	 * Creates a selectedSentencesTable.
 	 *
+	 * @param stopCriterion
+	 *            stopCriterion
+	 * @param featDefFileName
+	 *            featDefFileName
+	 * @param covDefConfigFileName
+	 *            covDefConfigFileName
 	 */
 	public void createSelectedSentencesTable(String stopCriterion, String featDefFileName, String covDefConfigFileName) {
 		String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, "
@@ -437,8 +451,11 @@ public class DBHandler {
 	 * This function creates text, page and revision tables loading them from text files.
 	 * 
 	 * @param textFile
+	 *            textFile
 	 * @param pageFile
+	 *            pageFile
 	 * @param revisionFile
+	 *            revisionFile
 	 */
 	public void createAndLoadWikipediaTables(String textFile, String pageFile, String revisionFile) {
 
@@ -717,7 +734,7 @@ public class DBHandler {
 	/***
 	 * check if tables: locale_text, locale_page and locale_revision exist.
 	 * 
-	 * @return resText && resPage && resRevision
+	 * @return resText &amp;&amp; resPage &amp;&amp; resRevision
 	 */
 	public boolean checkWikipediaTables() {
 		// wiki must be already created
@@ -800,6 +817,8 @@ public class DBHandler {
 	/***
 	 * 
 	 * @return true if TABLE=tableName exist.
+	 * @param tableName
+	 *            tableName
 	 */
 	public boolean tableExist(String tableName) {
 		// System.out.println("  Checking if the TABLE=" + tableName + " exist.");
@@ -825,7 +844,9 @@ public class DBHandler {
 	 * Get a list of ids from field in table.
 	 * 
 	 * @param field
+	 *            field
 	 * @param table
+	 *            table
 	 * @return idSet
 	 */
 	public String[] getIds(String field, String table) {
@@ -888,7 +909,7 @@ public class DBHandler {
 	/***
 	 * Get the list of tables for this locale
 	 * 
-	 * @return ArrayList<String>
+	 * @return ArrayList&lt;String&gt;
 	 */
 	public ArrayList<String> getListOfTables() {
 		ArrayList<String> tablesList = new ArrayList<String>();
@@ -989,7 +1010,9 @@ public class DBHandler {
 	 * With the dbselection_id get first the sentence and then insert it in the locale_selectedSentences table.
 	 * 
 	 * @param dbselection_id
+	 *            dbselection_id
 	 * @param unwanted
+	 *            unwanted
 	 */
 	public void insertSelectedSentence(int dbselection_id, boolean unwanted) {
 
@@ -1015,6 +1038,8 @@ public class DBHandler {
 	/****
 	 * Creates a wordList table, if already exists deletes it and creates a new to insert current wordList.
 	 * 
+	 * @param wordList
+	 *            wordList
 	 */
 	public void insertWordList(HashMap<String, Integer> wordList) {
 		String word;
@@ -1160,8 +1185,10 @@ public class DBHandler {
 	 * features.
 	 * 
 	 * @param table
+	 *            table
 	 * @param condition
-	 * @return Pair<int[], byte[][]>(idSet, features)
+	 *            condition
+	 * @return Pair&lt;int[], byte[][]&gt;(idSet, features)
 	 */
 	public Pair<int[], byte[][]> getIdsAndFeatureVectors(String table, String condition) {
 		int num, i, j;
@@ -1276,7 +1303,7 @@ public class DBHandler {
 	 * @return int number of words.
 	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
-	 *            frequency>=1.
+	 *            frequency&ge;1.
 	 */
 	public int getNumberOfWords(int maxFrequency) {
 		String where = "";
@@ -1295,7 +1322,8 @@ public class DBHandler {
 	 *            order of frequency.
 	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
-	 *            frequency>=1.
+	 *            frequency&ge;1.
+	 * @return wordList
 	 */
 	public HashMap<String, Integer> getMostFrequentWords(int numWords, int maxFrequency) {
 
@@ -1344,7 +1372,8 @@ public class DBHandler {
 	 *            order of frequency.
 	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
-	 *            frequency>=1.
+	 *            frequency&ge;1.
+	 * @return words
 	 */
 	public ArrayList<String> getMostFrequentWordsArray(int numWords, int maxFrequency) {
 
@@ -1393,7 +1422,7 @@ public class DBHandler {
 	 *            max number of words, if numWords=0 then it will retrieve all the words in the list.
 	 * @param maxFrequency
 	 *            max frequency of a word to be considered in the list, if maxFrequency=0 it will retrieve all the words with
-	 *            frequency>=1.
+	 *            frequency&ge;1.
 	 */
 	public void printWordList(String fileName, String order, int numWords, int maxFrequency) {
 		PrintWriter pw;
@@ -1467,7 +1496,9 @@ public class DBHandler {
 	 * Get a
 	 * 
 	 * @param tableName
+	 *            tableName
 	 * @param id
+	 *            id
 	 * @return sentence
 	 */
 	public String getSelectedSentence(String tableName, int id) {
@@ -1555,6 +1586,7 @@ public class DBHandler {
 	 * Set a sentence record field as true/false in dbselection table.
 	 * 
 	 * @param id
+	 *            id
 	 * @param field
 	 *            reliable, unknownWords, strangeSymbols, selected or unwanted = true/false
 	 * @param fieldValue
@@ -1699,6 +1731,7 @@ public class DBHandler {
 	 * Get the description of the tableName
 	 * 
 	 * @param tableName
+	 *            tableName
 	 * @return and String array where: desc[0] tableName desc[1] description desc[2] stopCriterion desc[3]
 	 *         featuresDefinitionFileName desc[4] featuresDefinitionFile desc[5] covDefConfigFileName desc[6] covDefConfigFile
 	 */
@@ -1879,6 +1912,10 @@ public class DBHandler {
 	/**
 	 * The following characteres should be escaped: \0 An ASCII 0 (NUL) character. \' A single quote (“'”) character.
 	 * \"  A double quote (“"”) character.
+	 * 
+	 * @param str
+	 *            str
+	 * @return str
 	 */
 	public String mysqlEscapeCharacters(String str) {
 

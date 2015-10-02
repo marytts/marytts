@@ -132,6 +132,9 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws IOException
+	 *             IOException
 	 */
 	public boolean compute() throws IOException {
 

@@ -117,6 +117,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	/**
 	 * Get the map of properties2values containing the default values
 	 * 
+	 * @param db
+	 *            db
 	 * @return map of props2values
 	 */
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
@@ -173,6 +175,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -325,7 +329,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	 * Java version of the makeQuestions script (hts/data/scripts/make_questions.pl) uses: questionsFile contextFile
 	 * featureListFile
 	 * 
+	 * @param voiceDir
+	 *            voiceDir
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void makeQuestions(String voiceDir) throws Exception {
 
@@ -676,7 +683,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	/***
 	 * Java version of the make labels script (hts/data/scripts/make_labels.pl) uses:
 	 * 
+	 * @param voiceDir
+	 *            voiceDir
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void makeLabels(String voiceDir) throws Exception {
 
@@ -814,7 +824,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	/***
 	 * Java version of the make labels script (hts/data/scripts/make_labels.pl) uses:
 	 * 
+	 * @param voiceDir
+	 *            voiceDir
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void makeLabelsAdapt(String voiceDir) throws Exception {
 
@@ -1015,6 +1028,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 	 * @param hmmFeatureList
 	 *            extra features to train HMMs (file mary/hmmFeatures.txt)
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void extractMonophoneAndFullContextLabels(String feaFileName, String labFileName, String outFeaFileName,
 			String outLabFileName, FeatureDefinition feaDef, PhoneTranslator phTranslator, Map<String, String> hmmFeatureList)

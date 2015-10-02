@@ -177,9 +177,9 @@ public class SelectionFunction {
 	 * @param verboseSelect
 	 *            if true, get vectors from coverage definition, if false, read vectors from disk
 	 * @param wikiToDB
-	 *            
-	 * 
+	 *            wikiToDB
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void select(Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents, CoverageDefinition coverageDefinition,
 			PrintWriter logFile, CoverageFeatureProvider cfProvider, boolean verboseSelect, DBHandler wikiToDB) // throws
@@ -298,15 +298,14 @@ public class SelectionFunction {
 	 * 
 	 * @param coverageDefinition
 	 *            the coverage definition
-	 * @param logFile
-	 *            the logFile
-	 * @param sentenceIndex
+	 * @param selectedIdSents
 	 *            the index of the next sentence
-	 * @param basenameList
-	 *            the list of filenames
-	 * @param vectorArray
-	 *            the array of vectors or null if the vectors are on disk
+	 * @param unwantedIdSents
+	 *            the list unwanted sentences
+	 * @param cfProvider
+	 *            cf provider
 	 * @throws IOException
+	 *             IOException
 	 * @return true if a sentence was selected, false otherwise
 	 */
 	private boolean selectNext(Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents, CoverageDefinition coverageDefinition,
@@ -337,9 +336,13 @@ public class SelectionFunction {
 
 	/**
 	 * @param selectedIdSents
+	 *            selectedIdSents
 	 * @param unwantedIdSents
+	 *            unwantedIdSents
 	 * @param coverageDefinition
+	 *            coverageDefinition
 	 * @param cfProvider
+	 *            cfProvider
 	 */
 	private void determineMostUsefulSentence(Set<Integer> selectedIdSents, Set<Integer> unwantedIdSents,
 			CoverageDefinition coverageDefinition, CoverageFeatureProvider cfProvider) {
@@ -411,8 +414,8 @@ public class SelectionFunction {
 	 * @param basename
 	 *            the file from which to read from
 	 * @return the feature vectors from the file
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private byte[] getNextFeatureVectors1(String basename) throws IOException {
 		// open the file

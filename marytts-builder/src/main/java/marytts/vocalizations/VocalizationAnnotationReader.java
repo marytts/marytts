@@ -63,7 +63,9 @@ public class VocalizationAnnotationReader {
 	/**
 	 * 
 	 * @param featureFile
+	 *            featureFile
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void formatChecker(String featureFile) throws IOException {
 		BufferedReader bfrMean = new BufferedReader(new FileReader(new File(featureFile)));
@@ -120,6 +122,7 @@ public class VocalizationAnnotationReader {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 

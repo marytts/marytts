@@ -118,6 +118,8 @@ public class ESTCaller {
 	 *            The layout of the processed database
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process
+	 * @param pitchmarksExt
+	 *            pitchmarksExt
 	 * 
 	 */
 	public void make_pm_wave(String[] baseNameArray, String pitchmarksDirName, String pitchmarksExt) {
@@ -164,6 +166,12 @@ public class ESTCaller {
 	 *            corrected pitchmarks with the directory name
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process
+	 * @param correctedPitchmarksExt
+	 *            correctedPitchmarksExt
+	 * @param lpcDirName
+	 *            lpcDirName
+	 * @param lpcExt
+	 *            lpcExt
 	 * 
 	 */
 	public void make_lpc(String[] baseNameArray, String correctedPitchmarksDirName, String correctedPitchmarksExt,
@@ -203,6 +211,12 @@ public class ESTCaller {
 	 *            The layout of the processed database
 	 * @param baseNameArray
 	 *            The array of basenames of the .wav files to process
+	 * @param correctedPitchmarksExt
+	 *            correctedPitchmarksExt
+	 * @param mcepDirName
+	 *            mcepDirName
+	 * @param mcepExt
+	 *            mcepExt
 	 * 
 	 */
 	public void make_mcep(String[] baseNameArray, String correctedPitchmarksDirName, String correctedPitchmarksExt,

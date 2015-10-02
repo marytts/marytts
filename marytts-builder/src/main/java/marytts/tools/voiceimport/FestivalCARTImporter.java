@@ -67,6 +67,10 @@ public class FestivalCARTImporter {
 	 * 
 	 * @param festvoxDirectory
 	 *            the festvox directory of a voice
+	 * @param destDir
+	 *            destDir
+	 * @param featDef
+	 *            featDef
 	 */
 	public void importCARTS(String festvoxDirectory, String destDir, FeatureDefinition featDef) {
 		try {
@@ -111,6 +115,8 @@ public class FestivalCARTImporter {
 	 * 
 	 * @param destDir
 	 *            the destination directory
+	 * @param featDef
+	 *            featDef
 	 */
 	public void dumpCARTS(String destDir, FeatureDefinition featDef) {
 		try {

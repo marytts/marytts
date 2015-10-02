@@ -388,8 +388,10 @@ public class PauseDurationTrainer extends VoiceImportComponent {
 	 * 
 	 * 
 	 * @param basename
+	 *            basename
 	 * @return readFeatureTable(lnr)
 	 * @throws IOException
+	 *             IOException
 	 */
 	private VectorsAndDefinition readFeaturesFor(String basename) throws IOException {
 		FileInputStream fis;

@@ -489,8 +489,11 @@ public class FeatureMaker {
 	 * 
 	 * @param textString
 	 *            the text to process
+	 * @param id
+	 *            id
 	 * @return the resulting XML-Document
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Document phonemiseText(String textString, int id) throws Exception {
 		try {
@@ -528,8 +531,13 @@ public class FeatureMaker {
 	 * 
 	 * @param text
 	 *            the file
+	 * @param id
+	 *            id
+	 * @param test
+	 *            test
 	 * @return true, if successful
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Vector<String> splitIntoSentences(String text, int id, boolean test) throws Exception {
 
@@ -622,6 +630,9 @@ public class FeatureMaker {
 	 *            the Node to start from checkCredibility returns 0 if the sentence is useful 1 if the sentence contains
 	 *            unknownWords (so the sentence is not useful) 2 if the sentence contains strangeSymbols (so the sentence is not
 	 *            useful)
+	 * @param sentence
+	 *            sentence
+	 * @return sentence
 	 */
 	protected static StringBuilder collectTokens(Node nextToken, StringBuilder sentence) {
 		int credibility = 0;
@@ -682,6 +693,7 @@ public class FeatureMaker {
 	 * g2p_method "contains-unknown-words" or "contains-strange-symbols",
 	 * 
 	 * @param t
+	 *            t
 	 * @return 0 if the sentence is useful 1 if the sentence contains unknownWords 2 if the sentence contains strangeSymbols
 	 */
 	protected static int checkReliability(Element t) {

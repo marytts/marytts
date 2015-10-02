@@ -94,6 +94,9 @@ public class UnitLabel {
 
 	/**
 	 * @param labFile
+	 *            labFile
+	 * @throws IOException
+	 *             IOException
 	 * @return ulab
 	 */
 	public static UnitLabel[] readLabFile(String labFile) throws IOException {
@@ -156,8 +159,10 @@ public class UnitLabel {
 	 * To get Label Unit DATA (time stamp, index, phone unit)
 	 * 
 	 * @param line
+	 *            line
 	 * @return ArrayList contains time stamp, index and phone unit
 	 * @throws IOException
+	 *             IOException
 	 */
 	private static ArrayList getLabelUnitData(String line) throws IOException {
 		if (line == null)

@@ -196,6 +196,9 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		F0PolynomialTreeTrainer acfeatsWriter = new F0PolynomialTreeTrainer();

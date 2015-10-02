@@ -766,10 +766,13 @@ public class WikipediaMarkupCleaner {
 	 * [[image: ... ]]
 	 * 
 	 * @param s
+	 *            s
 	 * @param lineIn
+	 *            lineIn
 	 * @param iniTag
+	 *            iniTag
 	 * @param endTag
-	 * @param debug
+	 *            endTag
 	 * @return line
 	 */
 	private StringBuffer removeSectionImage(Scanner s, StringBuffer lineIn, String iniTag, String endTag) {
@@ -846,6 +849,9 @@ public class WikipediaMarkupCleaner {
 	/***
 	 * Internal links: [[Name of page]] [[Name of page|Text to display]] External links: [http://www.example.org Text to display]
 	 * [http://www.example.org] http://www.example.org
+	 * 
+	 * @param line
+	 *            line
 	 */
 	private StringBuffer processInternalAndExternalLinks(StringBuffer line) {
 		int index1, index2, index3;
@@ -1056,6 +1062,7 @@ public class WikipediaMarkupCleaner {
 	 * extract/clean text from the pages and create a cleanText table. It also creates a wordList table including frequencies.
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	void processWikipediaPages() throws Exception {
 		// Load wikipedia pages, extract clean text and create word list.
