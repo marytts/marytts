@@ -165,9 +165,13 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedEncodingException
+	 *             UnsupportedEncodingException
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
 		int numUnits = unitFileReader.getNumberOfUnits();
@@ -285,7 +289,9 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.UNITFEATS).writeTo(out);
@@ -303,6 +309,9 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		AcousticFeatureFileWriter acfeatsWriter = new AcousticFeatureFileWriter();

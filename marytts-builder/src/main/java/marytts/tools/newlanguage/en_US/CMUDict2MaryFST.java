@@ -141,6 +141,8 @@ public class CMUDict2MaryFST extends LexiconCreator {
 	/**
 	 * Converts a single phonetic symbol in MRPA representation representation into its equivalent in MARY sampa representation.
 	 * 
+	 * @param voicePhoneme
+	 *            voicePhoneme
 	 * @return the converted phone, or the input string if no known conversion exists.
 	 */
 	private String mrpa2sampa(String voicePhoneme) {
@@ -222,6 +224,9 @@ public class CMUDict2MaryFST extends LexiconCreator {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		PatternLayout layout = new PatternLayout("%d %m\n");

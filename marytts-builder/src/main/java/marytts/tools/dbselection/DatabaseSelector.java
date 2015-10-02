@@ -109,6 +109,8 @@ public class DatabaseSelector {
 	 * 
 	 * @param args
 	 *            the command line args (see printUsage for details)
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		main2(args);
@@ -120,8 +122,8 @@ public class DatabaseSelector {
 	 * 
 	 * @param args
 	 *            the command line args (see printUsage for details)
-	 * 
-	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main2(String[] args) throws Exception {
 		/* Sort out the filenames and dirs for the logfiles */
@@ -349,6 +351,8 @@ public class DatabaseSelector {
 	 *            the arguments
 	 * @param log
 	 *            a StringBufffer for logging
+	 * @throws Exception
+	 *             Exception
 	 * @return true if args can be parsed and all essential args are there, false otherwise
 	 */
 	private static boolean readArgs(String[] args, StringBuffer log) throws Exception {
@@ -779,9 +783,12 @@ public class DatabaseSelector {
 	 * Add a list of sentences to the cover Here the already selected sentences are added to the cover and the indexes removed (or
 	 * set to -1) in the idSentenceList
 	 * 
+	 * @param tableName
+	 *            tableName
 	 * @param covDef
 	 *            the cover
 	 * @throws Exception
+	 *             Exception
 	 */
 	private static void addSelectedSents(String tableName, CoverageDefinition covDef) throws Exception {
 
@@ -821,7 +828,10 @@ public class DatabaseSelector {
 	/**
 	 * Remove unwanted sentences from the basename list
 	 * 
+	 * @param tableName
+	 *            tableName
 	 * @throws Exception
+	 *             Exception
 	 */
 	private static void removeUnwantedSentences(String tableName) throws Exception {
 		if (verbose)

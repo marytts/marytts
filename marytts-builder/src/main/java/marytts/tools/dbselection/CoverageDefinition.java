@@ -161,14 +161,15 @@ public class CoverageDefinition {
 	 * Build a new coverage definition and read in the config file
 	 * 
 	 * 
-	 *        
+	 * 
 	 * @param featDef
 	 *            the feature definition for the vectors
 	 * @param cfProvider
 	 *            coverage feature provider
 	 * @param configFile
 	 *            optionally, the coverage config file name. if this is null, default settings will be used.
-	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public CoverageDefinition(FeatureDefinition featDef, CoverageFeatureProvider cfProvider, String configFile) throws Exception {
 		this.featDef = featDef;
@@ -181,8 +182,11 @@ public class CoverageDefinition {
 
 	/**
 	 * @param featDef
+	 *            featDef
 	 * @param configFile
+	 *            configFile
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void readConfigFile(FeatureDefinition featDef, String configFile) throws Exception {
 		try {
@@ -335,9 +339,10 @@ public class CoverageDefinition {
 
 	/**
 	 * Compute the coverage of the corpus, build and fill the cover sets. This will iterate once through the entire corpus, to
-	 * compute the maximally achieveable coverage with this corpus.
+	 * compute the maximally achievable coverage with this corpus.
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void initialiseCoverage() throws IOException {
 		// stuff used for counting the phones and diphones
@@ -665,6 +670,8 @@ public class CoverageDefinition {
 	 * 
 	 * @param out
 	 *            the print writer to print to
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void printTextCorpusStatistics(PrintWriter out) throws Exception {
 		DecimalFormat df = new DecimalFormat("0.00000");
@@ -790,6 +797,7 @@ public class CoverageDefinition {
 	 * @param logDevelopment
 	 *            if true, print development file
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void printSelectionDistribution(String distributionFile, String developmentFile, boolean logDevelopment)
 			throws Exception {
@@ -966,9 +974,9 @@ public class CoverageDefinition {
 	/**
 	 * Get the usefulness of the given feature vectors Usefulness of a feature vector is defined as the sum of the score for the
 	 * feature vectors on all levels of the tree. On each level, the score is the product of the two weights of the node. The
-	 * first weight reflects the frequency/ inverted frequency of the value associated with the node in the corpus (=>
+	 * first weight reflects the frequency/ inverted frequency of the value associated with the node in the corpus (&rarr;
 	 * frequencyWeight). The second weight reflects how much an instance of a feature vector containing the associated value is
-	 * wanted in the cover (=> wantedWeight).
+	 * wanted in the cover (&rarr; wantedWeight).
 	 * 
 	 * @param featureVectors
 	 *            the feature vectors
@@ -1042,6 +1050,8 @@ public class CoverageDefinition {
 	 * 
 	 * @param filename
 	 *            the file to print to
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void writeCoverageBin(String filename) throws Exception {
 		DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(filename)));
@@ -1070,6 +1080,8 @@ public class CoverageDefinition {
 	 *            the output stream to write to
 	 * @param cover
 	 *            the tree to print
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void writeTreeBin(DataOutputStream out, CoverNode cover) throws IOException {
 
@@ -1116,9 +1128,8 @@ public class CoverageDefinition {
 	 *            the file containing the cover sets
 	 * @param idSentenceList
 	 *            the id of the sentence list
-	 * 
-	 *            
 	 * @throws Exception
+	 *             Exception
 	 */
 	// public void readCoverageBin(String filename, FeatureDefinition fDef, String[] basenames)throws Exception{
 	public void readCoverageBin(String filename, int[] idSentenceList) throws Exception {
@@ -1150,6 +1161,7 @@ public class CoverageDefinition {
 	 * @param isSimpleCover
 	 *            if true, build the cover tree fro simpleDiphones
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void readTreeBin(DataInputStream in) throws Exception {
 		byte numChildren = in.readByte();

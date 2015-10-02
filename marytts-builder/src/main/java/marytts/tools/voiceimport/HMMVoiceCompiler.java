@@ -25,7 +25,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 
 	/**
 	 * HMM Voice-specific parameters, these are parameters used during models training if using MGC: gamma=0 alpha=0.42 linear
-	 * gain (default) if using LSP: gamma>0 LSP: gamma=1 alpha=0.0 linear gain/log gain Mel-LSP: gamma=1 alpha=0.42 log gain
+	 * gain (default) if using LSP: gamma&gt;0 LSP: gamma=1 alpha=0.0 linear gain/log gain Mel-LSP: gamma=1 alpha=0.42 log gain
 	 * MGC-LSP: gamma=3 alpha=0.42 log gain
 	 */
 	public static final String alpha = "HMMVoiceConfigure.freqWarp";
@@ -84,7 +84,9 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 
 	/**
 	 * @throws IOException
+	 *             IOException
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	@Override
 	protected void mapFeatures() throws IOException, FileNotFoundException {
@@ -243,6 +245,7 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	 * @param treeFileName
 	 *            a HTS tree file
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void replaceBackFeatureNames(String treeFileName) throws IOException {
 
@@ -306,7 +309,9 @@ public class HMMVoiceCompiler extends VoiceCompiler {
 	 * Load mapping of features from file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	private Map<String, String> loadFeaturesMap(String fileName) throws FileNotFoundException {
 

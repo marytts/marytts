@@ -129,9 +129,13 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedEncodingException
+	 *             UnsupportedEncodingException
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
 		int numUnits = unitFileReader.getNumberOfUnits();
@@ -211,6 +215,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
@@ -229,6 +234,9 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		PhoneFeatureFileWriter ffw = new PhoneFeatureFileWriter();

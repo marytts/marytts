@@ -92,6 +92,13 @@ public class PraatPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the closest peak.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private float[] shiftToClosestPeak(float[] pmIn, short[] w, int sampleRate) {
 
@@ -141,6 +148,13 @@ public class PraatPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the previous zero crossing.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private float[] shiftToPreviousZero(float[] pmIn, short[] w, int sampleRate) {
 
@@ -183,6 +197,8 @@ public class PraatPitchmarker extends VoiceImportComponent {
 	 *            basename of the corresponding wav file
 	 * @param pitchmarks
 	 *            the input pitchmarks
+	 * @throws IOException
+	 *             IOException
 	 * @return the adjusted pitchmarks
 	 */
 	private float[] adjustPitchmarks(String basename, float[] pitchmarks) throws IOException {
@@ -227,6 +243,7 @@ public class PraatPitchmarker extends VoiceImportComponent {
 	 * @param basename
 	 *            of files to process
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void estPitchmarks(String basename) throws IOException {
 		String pointprocessFilename = getProp(PRAATPMDIR) + basename + pointpExt;
@@ -240,6 +257,9 @@ public class PraatPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws IOException
+	 *             IOException
 	 */
 	public boolean compute() throws IOException {
 		percent = 0;

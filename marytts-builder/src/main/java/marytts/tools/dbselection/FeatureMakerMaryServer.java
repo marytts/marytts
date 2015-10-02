@@ -413,8 +413,11 @@ public class FeatureMakerMaryServer {
 	 * 
 	 * @param textString
 	 *            the text to process
+	 * @param id
+	 *            id
 	 * @return the resulting XML-Document
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Document phonemiseText(String textString, int id) throws Exception {
 		try {
@@ -444,6 +447,8 @@ public class FeatureMakerMaryServer {
 	 * @param d
 	 *            the target features as Mary Data object
 	 * @throws Exception
+	 *             Exception
+	 * @return feasVector
 	 */
 	protected static byte[] getFeatures(MaryData d) throws Exception {
 
@@ -526,8 +531,13 @@ public class FeatureMakerMaryServer {
 	 * 
 	 * @param text
 	 *            the file
+	 * @param id
+	 *            id
+	 * @param test
+	 *            test
 	 * @return true, if successful
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Vector<String> splitIntoSentences(String text, int id, boolean test) throws Exception {
 
@@ -620,6 +630,9 @@ public class FeatureMakerMaryServer {
 	 *            the Node to start from checkCredibility returns 0 if the sentence is useful 1 if the sentence contains
 	 *            unknownWords (so the sentence is not useful) 2 if the sentence contains strangeSymbols (so the sentence is not
 	 *            useful)
+	 * @param sentence
+	 *            sentence
+	 * @return sentence
 	 */
 	protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence) {
 		int credibility = 0;
@@ -680,6 +693,7 @@ public class FeatureMakerMaryServer {
 	 * g2p_method "contains-unknown-words" or "contains-strange-symbols",
 	 * 
 	 * @param t
+	 *            t
 	 * @return 0 if the sentence is useful 1 if the sentence contains unknownWords 2 if the sentence contains strangeSymbols
 	 */
 	protected static int checkReliability(Element t) {

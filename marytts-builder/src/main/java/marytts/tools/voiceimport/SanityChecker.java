@@ -342,6 +342,9 @@ public class SanityChecker extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 

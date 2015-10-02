@@ -109,7 +109,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
 	 * XML-Version: this changes mary xml-files (PHONEMISED)
 	 * 
 	 * @throws Exception
-	 * @throws XPathExpressionException
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 
@@ -163,6 +163,9 @@ public class TranscriptionAligner extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		VoiceImportComponent vic = new TranscriptionAligner();

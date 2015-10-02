@@ -378,6 +378,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	 * character is not a letter, we prepend a "V" for "voice".
 	 * 
 	 * @param voiceName
+	 *            voiceName
 	 * @return result in string format
 	 */
 	public static String toPackageName(String voiceName) {

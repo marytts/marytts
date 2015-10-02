@@ -115,9 +115,9 @@ public class SettingsGUI {
 	 * Show a frame displaying the help file.
 	 * 
 	 * @param selectedComp
-	 * 
+	 *            selectedComp
 	 * @param simpleMode
-	 * 
+	 *            simpleMode
 	 */
 	public void display(String selectedComp, boolean simpleMode) {
 		wasSaved = false;
