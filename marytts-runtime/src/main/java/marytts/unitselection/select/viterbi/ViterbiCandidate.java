@@ -102,6 +102,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 	 * remember the best path leading to it.
 	 * 
 	 * @param bestPath
+	 *            bestPath
 	 */
 	public void setBestPath(ViterbiPath bestPath) {
 		this.bestPath = bestPath;

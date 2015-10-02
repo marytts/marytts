@@ -455,6 +455,13 @@ public class MaryCache {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws SQLException
+	 *             SQLException
+	 * @throws MalformedURLException
+	 *             MalformedURLException
+	 * @throws ClassNotFoundException
+	 *             ClassNotFoundException
 	 */
 	public static void main(String[] args) throws SQLException, MalformedURLException, ClassNotFoundException {
 		MaryCache c = new MaryCache(new File("/Users/marc/Desktop/testdb/testDB"), false);

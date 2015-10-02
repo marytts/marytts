@@ -1047,6 +1047,12 @@ public class TimelineReader {
 
 		/**
 		 * Method which writes an index to a RandomAccessFile
+		 * 
+		 * @param rafIn
+		 *            rafIn
+		 * @throws IOException
+		 *             IOException
+		 * @return nBytes
 		 * */
 		public long dump(RandomAccessFile rafIn) throws IOException {
 			long nBytes = 0;
@@ -1094,6 +1100,8 @@ public class TimelineReader {
 		/*****************/
 		/**
 		 * The number of index entries.
+		 * 
+		 * @return bytePtrs.length
 		 */
 		public int getNumIdx() {
 			return bytePtrs.length;
@@ -1284,6 +1292,8 @@ public class TimelineReader {
 		 *            byte buffer to read from, must not be null.
 		 * @throws BufferUnderflowException
 		 *             , UTFDataFormatException if no proc header can be read at the current position.
+		 * @throws UTFDataFormatException
+		 *             UTFDataFormatException
 		 */
 		private void loadProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
 			procHeader = StreamUtils.readUTF(bb);
@@ -1293,6 +1303,10 @@ public class TimelineReader {
 		/**
 		 * Method which writes the proc header to a RandomAccessFile.
 		 * 
+		 * @param rafIn
+		 *            rafIn
+		 * @throws IOException
+		 *             IOException
 		 * @return the number of written bytes.
 		 * */
 		public long dump(RandomAccessFile rafIn) throws IOException {

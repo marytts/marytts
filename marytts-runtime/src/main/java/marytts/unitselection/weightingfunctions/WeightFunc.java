@@ -45,6 +45,7 @@ public interface WeightFunc {
 	 *            a
 	 * @param b
 	 *            b
+	 * @return x
 	 */
 	public double cost(double a, double b);
 
@@ -56,6 +57,10 @@ public interface WeightFunc {
 	 */
 	public void setParam(String val);
 
-	/** Return a weighting function definition string. */
+	/**
+	 * Return a weighting function definition string.
+	 * 
+	 * @return whoamI
+	 */
 	public String whoAmI();
 }
