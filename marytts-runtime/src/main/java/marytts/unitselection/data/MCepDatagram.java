@@ -126,6 +126,8 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Get the array of Mel-Cepstrum coefficients.
+	 * 
+	 * @return coeffs
 	 */
 	public float[] getCoeffs() {
 		return coeffs;
@@ -133,6 +135,8 @@ public class MCepDatagram extends Datagram {
 
 	/**
 	 * Get the array of Mel-Cepstrum coefficients.
+	 * 
+	 * @return ret
 	 */
 	public double[] getCoeffsAsDouble() {
 		double[] ret = new double[coeffs.length];

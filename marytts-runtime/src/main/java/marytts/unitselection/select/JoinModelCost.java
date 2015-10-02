@@ -107,6 +107,7 @@ public class JoinModelCost implements JoinCostFunction {
 	 * @throws IOException
 	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String joinFileName, InputStream joinPdfStream, InputStream joinTreeStream, String trickyPhonesFile)
 			throws IOException, MaryConfigurationException {

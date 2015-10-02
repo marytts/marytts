@@ -78,6 +78,8 @@ public class StatisticalModelCost implements StatisticalCostFunction {
 
 	/**
 	 * Get the number of units.
+	 * 
+	 * @return sCostReader.getNumberOfUnits()
 	 */
 	public int getNumberOfUnits() {
 		return (sCostReader.getNumberOfUnits());

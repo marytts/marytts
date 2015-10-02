@@ -71,7 +71,8 @@ public class VoiceDataDumper {
 	 * @see marytts.util.data.audio.WavWriter#byteswap(int)
 	 * @param val
 	 *            val
-	 * @return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24))
+	 * @return (((val &amp; 0xff000000) &gt;&gt;&gt; 24) + ((val &amp; 0x00ff0000) &gt;&gt;&gt; 8) + ((val &amp; 0x0000ff00)
+	 *         &lt;&lt; 8) + ((val &amp; 0x000000ff) &lt;&lt; 24))
 	 */
 	protected int byteswap(int val) {
 		return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24));
@@ -81,7 +82,7 @@ public class VoiceDataDumper {
 	 * @see marytts.util.data.audio.WavWriter#byteswap(short)
 	 * @param val
 	 *            val
-	 * @return ((short) ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8)))
+	 * @return ((short) ((((int) (val) &amp; 0xff00) &gt;&gt;&gt; 8) + (((int) (val) &amp; 0x00ff) &lt;&lt; 8)))
 	 */
 	protected short byteswap(short val) {
 		return ((short) ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8)));
@@ -113,8 +114,8 @@ public class VoiceDataDumper {
 	 *            to load
 	 * @throws IOException
 	 *             IOException
-	 * @param MaryConfigurationException
-	 *            MaryConfigurationException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	protected void loadUnitDatabase(String audioTimelineFileName, String basenameTimelineFileName, String unitFileName)
 			throws IOException, MaryConfigurationException {

@@ -104,7 +104,7 @@ public class VocalizationSynthesizer {
 	 * @param domElement
 	 *            target xml element ('vocalization' element)
 	 * @return AudioInputStream of requested vocalization it returns null if the voice doesn't support synthesis of vocalizations
-	 * @throws IllegalArgumentException
+	 * @throws Exception
 	 *             if domElement contains 'variant' attribute value is greater than available number of vocalizations
 	 */
 	public AudioInputStream synthesize(Voice voice, AudioFileFormat aft, Element domElement) throws Exception {

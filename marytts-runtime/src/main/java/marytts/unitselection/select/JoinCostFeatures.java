@@ -340,6 +340,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *             IOException
 	 * @throws FileNotFoundException
 	 *             FileNotFoundException
+	 * @return readJoinCostWeightsStream(new FileInputStream(fileName))
 	 * */
 	public static Object[] readJoinCostWeightsFile(String fileName) throws IOException, FileNotFoundException {
 		return readJoinCostWeightsStream(new FileInputStream(fileName));
@@ -354,6 +355,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *             IOException
 	 * @throws FileNotFoundException
 	 *             FileNotFoundException
+	 * @return Object[] { fw, wfun }
 	 * */
 	public static Object[] readJoinCostWeightsStream(InputStream weightStream) throws IOException, FileNotFoundException {
 		Vector v = new Vector(16, 16);
@@ -401,6 +403,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of feature weights and weighting functions.
+	 * 
+	 * @return (featureWeight.length)
 	 */
 	public int getNumberOfFeatures() {
 		return (featureWeight.length);
@@ -408,6 +412,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of units.
+	 * 
+	 * @return (leftJCF.length)
 	 */
 	public int getNumberOfUnits() {
 		return (leftJCF.length);

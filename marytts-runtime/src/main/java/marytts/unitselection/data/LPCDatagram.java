@@ -59,6 +59,10 @@ public class LPCDatagram extends Datagram {
 	 *            the (unquantized) LPC coefficients
 	 * @param residual
 	 *            the (unquantized) residual
+	 * @param lpcMin
+	 *            lpcMin
+	 * @param lpcRange
+	 *            lpcRange
 	 */
 	public LPCDatagram(long setDuration, float[] coeffs, short[] residual, float lpcMin, float lpcRange) {
 		super(setDuration);
