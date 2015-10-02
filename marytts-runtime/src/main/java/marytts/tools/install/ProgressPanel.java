@@ -44,7 +44,14 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
 	private boolean install;
 	private boolean exitRequested = false;
 
-	/** Creates new form ProgressPanel */
+	/**
+	 * Creates new form ProgressPanel
+	 * 
+	 * @param componentsToProcess
+	 *            componentsToProcess
+	 * @param install
+	 *            install
+	 */
 	public ProgressPanel(List<ComponentDescription> componentsToProcess, boolean install) {
 		this.allComponents = componentsToProcess;
 		this.install = install;

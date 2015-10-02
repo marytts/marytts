@@ -71,9 +71,12 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @param raf
 	 *            the random access file to pop the datagram from.
-	 * 
+	 * @param lpcOrder
+	 *            lpcOrder
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public LPCDatagram(RandomAccessFile raf, int lpcOrder) throws IOException, EOFException {
 		super(raf.readLong()); // duration
@@ -104,9 +107,12 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param lpcOrder
+	 *            lpcOrder
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public LPCDatagram(ByteBuffer bb, int lpcOrder) throws IOException, EOFException {
 		super(bb.getLong()); // duration
@@ -192,6 +198,11 @@ public class LPCDatagram extends Datagram {
 
 	/**
 	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @param out
+	 *            out
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(duration);
@@ -204,6 +215,10 @@ public class LPCDatagram extends Datagram {
 
 	/**
 	 * Tests if this datagram is equal to another datagram.
+	 * 
+	 * @param other
+	 *            other
+	 * @return true if everything passes
 	 */
 	public boolean equals(Datagram other) {
 		if (!(other instanceof LPCDatagram))

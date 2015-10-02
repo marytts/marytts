@@ -36,6 +36,9 @@ public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource {
 	 * Construct an double data source from the given array of datagram arrays and right contexts.
 	 * 
 	 * @param datagrams
+	 *            datagrams
+	 * @param rightContexts
+	 *            rightContexts
 	 */
 	public DatagramOverlapDoubleDataSource(Datagram[][] datagrams, Datagram[] rightContexts) {
 		super((DoubleDataSource) null);

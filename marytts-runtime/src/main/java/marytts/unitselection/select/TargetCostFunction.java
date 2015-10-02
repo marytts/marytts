@@ -48,6 +48,7 @@ public interface TargetCostFunction {
 	 *            a feature processor manager which can provide feature processors to compute the features for a target at run
 	 *            time
 	 * @throws IOException
+	 *             IOException
 	 * @throws MaryConfigurationException
 	 *             if a configuration problem is detected while loading the data
 	 */
@@ -66,6 +67,7 @@ public interface TargetCostFunction {
 	 *            a feature processor manager which can provide feature processors to compute the features for a target at run
 	 *            time
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void load(FeatureFileReader featureFileReader, InputStream weightsStream, FeatureProcessorManager featProc)
 			throws IOException;
@@ -74,7 +76,9 @@ public interface TargetCostFunction {
 	 * Compute the goodness-of-fit of a given unit for a given target.
 	 * 
 	 * @param target
+	 *            target
 	 * @param unit
+	 *            unit
 	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
 	 */
 	public double cost(Target target, Unit unit);
@@ -112,6 +116,7 @@ public interface TargetCostFunction {
 	 * Get the target cost feature vector for the given unit.
 	 * 
 	 * @param unit
+	 *            unit
 	 * @return the feature vector
 	 */
 	public FeatureVector getFeatureVector(Unit unit);

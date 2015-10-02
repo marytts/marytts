@@ -64,6 +64,9 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 
 	/**
 	 * Start up the waveform synthesizer. This must be called once before calling synthesize().
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void startup() throws Exception {
 		logger = MaryUtils.getLogger("InterpolatingSynthesizer");
@@ -83,6 +86,16 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * @param tokensAndBoundaries
+	 *            tokensAndBoundaries
+	 * @param voice
+	 *            voice
+	 * @param outputParams
+	 *            outputParams
+	 * @throws SynthesisException
+	 *             SynthesisException
+	 * @return outputAudio
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
 			throws SynthesisException {

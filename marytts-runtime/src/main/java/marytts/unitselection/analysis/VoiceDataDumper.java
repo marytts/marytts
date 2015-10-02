@@ -69,6 +69,9 @@ public class VoiceDataDumper {
 
 	/**
 	 * @see marytts.util.data.audio.WavWriter#byteswap(int)
+	 * @param val
+	 *            val
+	 * @return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24))
 	 */
 	protected int byteswap(int val) {
 		return (((val & 0xff000000) >>> 24) + ((val & 0x00ff0000) >>> 8) + ((val & 0x0000ff00) << 8) + ((val & 0x000000ff) << 24));
@@ -76,6 +79,9 @@ public class VoiceDataDumper {
 
 	/**
 	 * @see marytts.util.data.audio.WavWriter#byteswap(short)
+	 * @param val
+	 *            val
+	 * @return ((short) ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8)))
 	 */
 	protected short byteswap(short val) {
 		return ((short) ((((int) (val) & 0xff00) >>> 8) + (((int) (val) & 0x00ff) << 8)));
@@ -88,6 +94,9 @@ public class VoiceDataDumper {
 	 *            to load
 	 * @return TimelineReader
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	protected TimelineReader loadAudioTimeline(String fileName) throws IOException, MaryConfigurationException {
 		return new TimelineReader(fileName);
@@ -103,6 +112,9 @@ public class VoiceDataDumper {
 	 * @param unitFileName
 	 *            to load
 	 * @throws IOException
+	 *             IOException
+	 * @param MaryConfigurationException
+	 *            MaryConfigurationException
 	 */
 	protected void loadUnitDatabase(String audioTimelineFileName, String basenameTimelineFileName, String unitFileName)
 			throws IOException, MaryConfigurationException {
@@ -119,6 +131,9 @@ public class VoiceDataDumper {
 	 * @param fileName
 	 *            to load
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	protected void loadFeatureFile(String fileName) throws IOException, MaryConfigurationException {
 		featureFileReader = new FeatureFileReader(fileName);
@@ -149,6 +164,7 @@ public class VoiceDataDumper {
 	 *            whose samples to get
 	 * @return raw samples as stored in the Datagrams
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected byte[] getSamples(Datagram[] datagrams) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -254,6 +270,11 @@ public class VoiceDataDumper {
 	/**
 	 * Adapted from {@link marytts.util.data.audio.WavWriter#export(String, int, byte[])} and
 	 * {@link marytts.util.data.audio.WavWriter#doWrite(String, int)}
+	 * 
+	 * @param fileName
+	 *            fileName
+	 * @throws IOException
+	 *             IOException
 	 */
 	protected void dumpAudio(String fileName) throws IOException {
 		// refuse to write wav file if we don't know how many samples there are:
@@ -312,6 +333,7 @@ public class VoiceDataDumper {
 	 * @param voiceName
 	 *            for config file to read (e.g. "bits3")
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected void dumpData(String voiceName) throws Exception {
 
@@ -343,6 +365,7 @@ public class VoiceDataDumper {
 	 * @param args
 	 *            voice name (without the Locale) of voice to dump data from
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		new VoiceDataDumper().dumpData(args[0]);

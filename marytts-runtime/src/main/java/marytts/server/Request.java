@@ -203,6 +203,9 @@ public class Request {
 
 	/**
 	 * Set the input data directly, in case it is already in the form of a MaryData object.
+	 * 
+	 * @param inputData
+	 *            inputData
 	 */
 	public void setInputData(MaryData inputData) {
 		if (inputData != null && inputData.getType() != inputType) {
@@ -225,6 +228,11 @@ public class Request {
 
 	/**
 	 * Read the input data from a Reader.
+	 * 
+	 * @param inputReader
+	 *            inputReader
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void readInputData(Reader inputReader) throws Exception {
 		String inputText = FileUtils.getReaderAsString(inputReader);
@@ -255,6 +263,8 @@ public class Request {
 	/**
 	 * Process the input data to produce the output data.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @see #getOutputData for direct access to the resulting output data
 	 * @see #writeOutputData for writing the output data to a stream
 	 */
@@ -357,12 +367,20 @@ public class Request {
 	 * 
 	 * @param oneInputData
 	 *            the input data to convert
-	 * @param oneOuputType
+	 * @param oneOutputType
 	 *            the output type to convert to
-	 * @param usedModules
-	 *            for the record, the modules used (will be added to)
-	 * @param timingInfo
-	 *            for the record, the processing time used for each module (will be added to)
+	 * @param outputParams
+	 *            the output parameters
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws TransformerException
+	 *             TransformerException
+	 * @throws IOException
+	 *             IOException
+	 * @throws Exception
+	 *             Exception
 	 */
 	private MaryData processOrLookupOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams)
 			throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
@@ -686,6 +704,7 @@ public class Request {
 	 * Move all the boundary elements outside of paragraphs into paragraphs.
 	 * 
 	 * @param rawmaryxml
+	 *            rawmaryxml
 	 */
 	private static void moveBoundariesIntoParagraphs(Document rawmaryxml) {
 		if (rawmaryxml == null) {
@@ -728,6 +747,10 @@ public class Request {
 	 * For a given maryxml document, extract one paragraph element as a separate document, including any parent nodes around the
 	 * paragraph element.
 	 * 
+	 * @param maryxml
+	 *            maryxml
+	 * @param paragraph
+	 *            paragraph
 	 */
 	private static MaryData extractParagraphAsMaryData(MaryData maryxml, Element paragraph) {
 		if (!maryxml.getType().isMaryXML()) {
@@ -775,6 +798,8 @@ public class Request {
 	 * For a given instance of MaryData, determine the locale -- either from the data type, or, if it is not specified there, from
 	 * the XML document root element's attribute "xml:lang".
 	 * 
+	 * @param data
+	 *            data
 	 */
 	private Locale determineLocale(MaryData data) {
 		Locale locale = null;
@@ -798,6 +823,8 @@ public class Request {
 
 	/**
 	 * Direct access to the output data.
+	 * 
+	 * @return outputdata
 	 */
 	public MaryData getOutputData() {
 		return outputData;
@@ -805,6 +832,11 @@ public class Request {
 
 	/**
 	 * Write the output data to the specified OutputStream.
+	 * 
+	 * @param outputStream
+	 *            outputStream
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void writeOutputData(OutputStream outputStream) throws Exception {
 		if (outputData == null) {

@@ -36,7 +36,12 @@ public class VoicePanel extends javax.swing.JPanel {
 
 	private VoiceComponentDescription desc;
 
-	/** Creates new form VoicePanel */
+	/**
+	 * Creates new form VoicePanel
+	 * 
+	 * @param desc
+	 *            desc
+	 */
 	public VoicePanel(VoiceComponentDescription desc) {
 		this.desc = desc;
 		initComponents();

@@ -71,6 +71,8 @@ public class JoinModelCost implements JoinCostFunction {
 	 * 
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException {
 		try {
@@ -101,6 +103,10 @@ public class JoinModelCost implements JoinCostFunction {
 	 * @param joinTreeStream
 	 *            the file from which to read the Tree, in HTS format.
 	 * @param trickyPhonesFile
+	 *            trickyPhonesFile
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
 	 */
 	public void load(String joinFileName, InputStream joinPdfStream, InputStream joinTreeStream, String trickyPhonesFile)
 			throws IOException, MaryConfigurationException {

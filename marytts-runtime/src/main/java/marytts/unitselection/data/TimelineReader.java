@@ -155,13 +155,16 @@ public class TimelineReader {
 	 * 
 	 * @param fileName
 	 *            The file to read the timeline from. Must be non-null and point to a valid timeline file.
-	 * 
+	 * @param tryMemoryMapping
+	 *            tryMemoryMapping
 	 * @throws IOException
 	 *             if a problem occurs during reading
 	 * @throws BufferUnderflowException
 	 *             if a problem occurs during reading
 	 * @throws MaryConfigurationException
 	 *             if fileName does not point to a valid timeline file
+	 * @throws NullPointerException
+	 *             NullPointerException
 	 */
 	protected void load(String fileName, boolean tryMemoryMapping) throws IOException, BufferUnderflowException,
 			MaryConfigurationException, NullPointerException {
@@ -342,7 +345,6 @@ public class TimelineReader {
 	 *            the externally given sample rate.
 	 * @param targetTimeInSamples
 	 *            a discrete time, with respect to the externally given sample rate.
-	 * 
 	 * @return a discrete time, in samples with respect to the timeline's sample rate.
 	 */
 	protected long scaleTime(int reqSampleRate, long targetTimeInSamples) {
@@ -358,7 +360,6 @@ public class TimelineReader {
 	 *            the externally given sample rate.
 	 * @param timelineTimeInSamples
 	 *            a discrete time, with respect to the timeline sample rate.
-	 * 
 	 * @return a discrete time, in samples with respect to the externally given sample rate.
 	 */
 	protected long unScaleTime(int reqSampleRate, long timelineTimeInSamples) {
@@ -374,6 +375,8 @@ public class TimelineReader {
 	/**
 	 * Skip the upcoming datagram at the current position of the byte buffer.
 	 * 
+	 * @param bb
+	 *            bb
 	 * @return the duration of the datagram we skipped
 	 * @throws IOException
 	 *             if we cannot skip another datagram because we have reached the end of the byte buffer
@@ -471,6 +474,8 @@ public class TimelineReader {
 	 *         the byte buffer. The position as such is not meaningful; the time is guaranteed to be less than or equal to
 	 *         targetTimeInSamples.
 	 * @throws IOException
+	 *             IOException
+	 * @throws BufferUnderflowException
 	 *             , BufferUnderflowException if no byte buffer can be obtained for the requested time.
 	 */
 	protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
