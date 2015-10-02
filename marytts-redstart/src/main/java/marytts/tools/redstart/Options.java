@@ -51,7 +51,7 @@ import marytts.util.data.audio.MonoAudioInputStream;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 
 public class Options extends javax.swing.JFrame {
@@ -89,7 +89,12 @@ public class Options extends javax.swing.JFrame {
 	// Target data line
 	private TargetDataLine targetDataLine = null;
 
-	/** Creates new form Options */
+	/**
+	 * Creates new form Options
+	 * 
+	 * @param adminWindow
+	 *            adminWindow
+	 */
 	public Options(AdminWindow adminWindow) {
 		this.adminWindow = adminWindow;
 		optionsFolderString = adminWindow.getVoiceFolderPath().getPath() + "/config/";
@@ -164,6 +169,10 @@ public class Options extends javax.swing.JFrame {
 
 	/**
 	 * Get the target data line corresponding to the selected AudioSource, Line and Format.
+	 * 
+	 * @throws LineUnavailableException
+	 *             LineUnavailableException
+	 * @return targetDataLine
 	 */
 	public TargetDataLine getTargetDataLine() throws LineUnavailableException {
 		if (targetDataLine != null) {
@@ -303,8 +312,8 @@ public class Options extends javax.swing.JFrame {
 	 * From the GUI, get the output mode setting: one of AudioPlayer.MONO, AudioPlayer.STEREO, AudioPlayer.LEFT_ONLY or
 	 * AudioPlayer.RIGHT_ONLY.
 	 * 
-	 * @return AudioPlayer.MONO if mode is "mono", AudioPlayer.LEFT_ONLY if mode is "left only", 
-	 *        AudioPlayer.RIGHT_ONLY if mode is mode is "right only", AudioPlayer.STEREO otherwise  
+	 * @return AudioPlayer.MONO if mode is "mono", AudioPlayer.LEFT_ONLY if mode is "left only", AudioPlayer.RIGHT_ONLY if mode is
+	 *         mode is "right only", AudioPlayer.STEREO otherwise
 	 */
 	public int getExpertOutputMode() {
 		String mode = (String) cbExpertMonoStereo.getSelectedItem();

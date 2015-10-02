@@ -27,7 +27,7 @@ import marytts.util.data.audio.AudioPlayer;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Speech {
 
@@ -126,6 +126,13 @@ public class Speech {
 
 	/**
 	 * Plays a sound file once via the indicated sourcedataline. The method blocks until the playing has completed.
+	 * 
+	 * @param soundFilePathString
+	 *            soundFilePathString
+	 * @param line
+	 *            line
+	 * @param outputMode
+	 *            outputMode
 	 */
 	public static void play(String soundFilePathString, SourceDataLine line, int outputMode) {
 		play(new File(soundFilePathString), line, outputMode);
@@ -133,6 +140,13 @@ public class Speech {
 
 	/**
 	 * Plays a sound file once via the indicated sourcedataline. The method blocks until the playing has completed.
+	 * 
+	 * @param soundFile
+	 *            soundFile
+	 * @param line
+	 *            line
+	 * @param outputMode
+	 *            outputMode
 	 */
 	public static void play(File soundFile, SourceDataLine line, int outputMode) {
 		try {

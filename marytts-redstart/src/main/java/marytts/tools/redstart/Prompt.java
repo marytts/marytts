@@ -24,7 +24,7 @@ import java.io.File;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Prompt {
 
@@ -124,6 +124,8 @@ public class Prompt {
 	 *            The basename for the prompt (e.g., spike0003)
 	 * @param recFolderPath
 	 *            The file path for the voice (e.g., path for Spike)
+	 * @param synthFolderPath
+	 *            synthFolderPath
 	 */
 	public Prompt(String passedBasename, File recFolderPath, File synthFolderPath) {
 
