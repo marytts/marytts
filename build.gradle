@@ -49,8 +49,10 @@ allprojects {
     }
 
     tasks.withType(Test) {
-        reports.html.destination = file("${reporting.baseDir}/${name}")
-        reports.junitXml.destination = file(project.testResultsDir.getPath() + "/${name}");
+        reports {
+            html.destination = file("$reporting.baseDir/$name")
+            junitXml.destination = file("$testResultsDir/$name")
+        }
     }
 }
 
