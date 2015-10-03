@@ -334,6 +334,10 @@ public class AgglomerativeClusterer {
 
 	/**
 	 * Estimate the mean of all *distances* in the training set.
+	 * 
+	 * @param leaves
+	 *            leaves
+	 * @return computeglobalimpurity(leaves, double.Positive_infinity)
 	 */
 	/*
 	 * private void estimateGlobalMean(FeatureVector[] data, DistanceMeasure dist) { int sampleSize = 100000;
@@ -357,7 +361,9 @@ public class AgglomerativeClusterer {
 	 * Compute global impurity as the weighted sum of leaf impurities. stop when cutoff value is reached or surpassed.
 	 * 
 	 * @param leaves
+	 *            leaves
 	 * @param cutoff
+	 *            cutoff
 	 * @return gi
 	 */
 	private double computeGlobalImpurity(List<LeafNode> leaves, double cutoff) {
@@ -399,6 +405,7 @@ public class AgglomerativeClusterer {
 	 * where |l| = the number of instances in the leaf.
 	 * 
 	 * @param leaf
+	 *            leaf
 	 * @return impurity
 	 */
 	/*
@@ -459,7 +466,9 @@ public class AgglomerativeClusterer {
 	 * |l| = number of instances in the leaf l
 	 * 
 	 * @param dgn1
+	 *            dgn1
 	 * @param dgn2
+	 *            dgn2
 	 * @return deltaGI
 	 */
 	private double computeMutualDistanceDeltaGI(DirectedGraphNode dgn1, DirectedGraphNode dgn2) {

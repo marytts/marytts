@@ -317,6 +317,7 @@ public class CARTBuilder extends VoiceImportComponent {
 	 *             IOException
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
+	 * @return cart
 	 */
 	public CART importCART(String filename, FeatureDefinition featDef) throws IOException, MaryConfigurationException {
 		// open CART-File
@@ -346,6 +347,7 @@ public class CARTBuilder extends VoiceImportComponent {
 	 *             IOException
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
+	 * @return true when done
 	 */
 	public boolean replaceLeaves(CART cart, FeatureDefinition featureDefinition) throws IOException, MaryConfigurationException {
 		try {

@@ -30,7 +30,7 @@ public interface CoverageFeatureProvider {
 	/**
 	 * Get the total number of sentences provided by this provider.
 	 * 
-	 * @param return number of sentences
+	 * @return number of sentences
 	 */
 	public int getNumSentences();
 

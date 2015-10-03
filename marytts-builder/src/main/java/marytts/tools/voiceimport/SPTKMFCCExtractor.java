@@ -130,6 +130,10 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
 	/***
 	 * Calculate mfcc using SPTK, uses sox to convert wav&rarr;raw
 	 * 
+	 * @param inFile
+	 *            inFile
+	 * @param outFile
+	 *            outFile
 	 * @throws IOException
 	 *             IOException
 	 * @throws InterruptedException

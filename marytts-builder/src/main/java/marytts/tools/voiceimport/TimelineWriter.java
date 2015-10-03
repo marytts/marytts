@@ -166,6 +166,7 @@ public class TimelineWriter {
 	 * 
 	 * @throws IOException
 	 *             IOException
+	 * @return raf.getFilePointer
 	 */
 	public synchronized long getBytePointer() throws IOException {
 		return (raf.getFilePointer());

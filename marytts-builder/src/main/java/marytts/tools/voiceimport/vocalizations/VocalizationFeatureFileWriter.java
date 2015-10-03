@@ -250,7 +250,9 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
@@ -268,6 +270,9 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		VocalizationFeatureFileWriter acfeatsWriter = new VocalizationFeatureFileWriter();
