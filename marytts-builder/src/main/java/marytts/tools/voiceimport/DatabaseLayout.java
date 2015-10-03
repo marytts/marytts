@@ -864,6 +864,8 @@ public class DatabaseLayout {
 	/**
 	 * Get all props of all components as an Array representation for displaying with the SettingsGUI. Does not include uneditable
 	 * props.
+	 * 
+	 * @return result
 	 */
 	public String[][] getAllPropsForDisplay() {
 		List<String> keys = new ArrayList<String>();

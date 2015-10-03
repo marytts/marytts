@@ -111,6 +111,9 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
 	/**
 	 * compute logf0, mgc, strength features
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	@Override
 	public boolean compute() throws Exception {
@@ -248,12 +251,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 	/**
 	 * Compute LF0 features for all RAW files using Snack and SPTK
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 *             if can't run command
-	 * @throws ExecutionException
-	 *             if commandline throws an error
-	 * @throws ExecutionException
-	 *             if there is no output file or output file is empty
 	 */
 	private void computeLF0Features() throws Exception {
 		String bcCommand = "/usr/bin/bc";
@@ -285,12 +284,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 	/**
 	 * Compute MGC features for all RAW files using SPTK
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 *             if can't run command
-	 * @throws ExecutionException
-	 *             if commandline throws an error
-	 * @throws ExecutionException
-	 *             if there is no output file or output file is empty
 	 */
 	private void computeMGCFeatures() throws Exception {
 
@@ -321,12 +316,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 	/**
 	 * Compute STRENGTH features for all RAW files using SPTK
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 *             if can't run command
-	 * @throws ExecutionException
-	 *             if commandline throws an error
-	 * @throws ExecutionException
-	 *             if there is no output file or output file is empty
 	 */
 	private void computeSTRFeatures() throws Exception {
 		String bcCommand = "/usr/bin/bc";
@@ -359,7 +350,9 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 	 * Create new directory if the directory doesn't exist
 	 * 
 	 * @param dirName
+	 *            dirName
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void createDirectoryifNotExists(String dirName) throws Exception {
 		if (!(new File(dirName)).exists()) {
@@ -373,6 +366,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
 	/**
 	 * Return this voice import component name
+	 * 
+	 * @return "MLSAFeatureFileComputer"
 	 */
 	@Override
 	public String getName() {
@@ -381,6 +376,8 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
 	/**
 	 * Return the progress of this component
+	 * 
+	 * @return this.progress
 	 */
 	@Override
 	public int getProgress() {
@@ -389,6 +386,7 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

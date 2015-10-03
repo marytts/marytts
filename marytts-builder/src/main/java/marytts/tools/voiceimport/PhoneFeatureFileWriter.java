@@ -217,6 +217,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent {
 	 * @param out
 	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.UNITFEATS).writeTo(out);

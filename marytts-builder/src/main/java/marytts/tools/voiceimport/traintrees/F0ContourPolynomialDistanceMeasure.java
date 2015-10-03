@@ -44,6 +44,11 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
 	 * their unit index number is used.
 	 * 
+	 * @param fv1
+	 *            fv1
+	 * @param fv2
+	 *            fv2
+	 * @return dist
 	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
 	 *      marytts.features.FeatureVector)
 	 */
@@ -56,6 +61,11 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the distance between the f0 contours corresponding to the given feature vectors. From the feature vectors, only
 	 * their unit index number is used.
 	 * 
+	 * @param fv1
+	 *            fv1
+	 * @param fv2
+	 *            fv2
+	 * @return dist
 	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
 	 *      marytts.features.FeatureVector)
 	 */
@@ -73,6 +83,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the mean polynomial from the given set of polynomials.
 	 * 
 	 * @param fvs
+	 *            fvs
 	 * @return mean
 	 */
 	public float[] computeMean(FeatureVector[] fvs) {
@@ -88,6 +99,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * Compute the variance of the given set of feature vectors.
 	 * 
 	 * @param fvs
+	 *            fvs
 	 * @return variance
 	 */
 	public double computeVariance(FeatureVector[] fvs) {

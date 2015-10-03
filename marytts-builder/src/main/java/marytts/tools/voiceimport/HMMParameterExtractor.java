@@ -185,8 +185,8 @@ public class HMMParameterExtractor extends VoiceImportComponent {
 	 *            outputDir
 	 * @throws IOException
 	 *             IOException
-	 * @param InterruptedException
-	 *            InterruptedException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	public void generateParameters(String file, String contextFeaDir, String outputDir) throws IOException, InterruptedException {
 
