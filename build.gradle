@@ -54,6 +54,11 @@ allprojects {
         testClassesDir = project.sourceSets.integrationTest.output.classesDir
         classpath = project.sourceSets.integrationTest.runtimeClasspath
     }
+
+    tasks.withType(Test) {
+        reports.html.destination = file("${reporting.baseDir}/${name}")
+        reports.junitXml.destination = file(project.testResultsDir.getPath() + "/${name}");
+    }
 }
 
 subprojects {
