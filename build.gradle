@@ -20,15 +20,9 @@ allprojects {
     }
 
     sourceSets {
-        test {
-            java {
-                exclude '**/*IT.*'
-            }
-        }
         integrationTest {
             java {
-                srcDir test.java
-                exclude '**/*Test.*'
+                srcDir "$projectDir/src/integration-test/java"
                 compileClasspath += main.output
                 runtimeClasspath += main.output
             }
