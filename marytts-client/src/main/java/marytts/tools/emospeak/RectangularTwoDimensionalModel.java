@@ -180,7 +180,7 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 	/**
 	 * Get the X value.
 	 * 
-	 * @param return x
+	 * @return x
 	 */
 	public int getX() {
 		return x;
@@ -189,7 +189,7 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 	/**
 	 * Get the Y value.
 	 * 
-	 * @param return y
+	 * @return y
 	 */
 	public int getY() {
 		return y;
