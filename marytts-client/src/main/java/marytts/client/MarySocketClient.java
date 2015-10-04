@@ -51,7 +51,7 @@ import marytts.util.string.StringUtils;
  * 
  * @author Marc Schr&ouml;der
  * @see MaryGUIClient A GUI interface to this client
- * @see marytts.server.MaryServer Description of the MARY protocol
+ * @link {marytts.server.MaryServer} Description of the MARY protocol
  */
 
 public class MarySocketClient extends MaryClient {
@@ -62,8 +62,6 @@ public class MarySocketClient extends MaryClient {
 	 * 
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient() throws IOException {
 		super();
@@ -81,8 +79,6 @@ public class MarySocketClient extends MaryClient {
 	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient(Address serverAddress) throws IOException {
 		super(serverAddress);
@@ -101,8 +97,6 @@ public class MarySocketClient extends MaryClient {
 	 *            tells the client not to print any of the normal information to stderr
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient(Address serverAddress, boolean profile, boolean quiet) throws IOException {
 		super(serverAddress, profile, quiet);
@@ -319,8 +313,6 @@ public class MarySocketClient extends MaryClient {
 	 * From an open server connection, read one chunk of info data. Writes the infoCommand to the server, then reads from the
 	 * server until an empty line or eof is read.
 	 * 
-	 * @param toServer
-	 * @param fromServer
 	 * @param infoCommand
 	 *            the one-line request to send to the server
 	 * @return a string representing the server response, lines being separated by a '\n' character.
@@ -426,7 +418,7 @@ public class MarySocketClient extends MaryClient {
 	 * 
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	@Override
 	protected String getDefaultAudioEffects() throws IOException {

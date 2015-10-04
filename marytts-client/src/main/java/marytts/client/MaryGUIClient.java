@@ -161,8 +161,8 @@ public class MaryGUIClient extends JPanel {
 	 * Create a MaryGUIClient instance that connects to the server host and port as specified in the system properties
 	 * "server.host" and "server.port", which default to "cling.dfki.uni-sb.de" and 59125, respectively.
 	 * 
-	 * @throws IOException
-	 * @throws UnknownHostException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public MaryGUIClient() throws Exception {
 		super();
@@ -184,9 +184,11 @@ public class MaryGUIClient extends JPanel {
 	 * Create a MaryGUIClient instance that connects to the given server host and port. This is meant to be used from Applets.
 	 * 
 	 * @param hostAddress
+	 *            hostAddress
 	 * @param applet
+	 *            applet
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	public MaryGUIClient(Address hostAddress, JApplet applet) throws IOException {
 		super();
@@ -208,9 +210,8 @@ public class MaryGUIClient extends JPanel {
 	/**
 	 * Create an instance of the MaryHttpClient class which does the processing, and initialise the GUI.
 	 * 
-	 * @throws InterruptedException
 	 * @throws IOException
-	 * @throws Exception
+	 *             IOException
 	 */
 	public void init() throws IOException {
 		maryGUITraversal = new MaryGUIFocusTraversalPolicy();
@@ -849,8 +850,8 @@ public class MaryGUIClient extends JPanel {
 	/**
 	 * Verify that the list of voices in cbDefaultVoices matches the language of the input format.
 	 * 
-	 * @throws InterruptedException
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void verifyDefaultVoices() throws IOException {
 		MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
@@ -1010,6 +1011,9 @@ public class MaryGUIClient extends JPanel {
 	/**
 	 * Set everything that is not between < and > to bold. This is "dumb", i.e. it will not try to analyse the contents of tags,
 	 * and fail at situations like <tag attr="3>i<4">, where i would be printed in bold as well.
+	 * 
+	 * @param doc
+	 *            doc
 	 */
 	private void highlightText(StyledDocument doc) {
 		SimpleAttributeSet highlighted = new SimpleAttributeSet();

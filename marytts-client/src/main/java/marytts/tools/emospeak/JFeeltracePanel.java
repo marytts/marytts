@@ -50,7 +50,12 @@ public class JFeeltracePanel extends JPanel {
 		return powerModel;
 	}
 
-	/** Creates new form JFeeltracePanel */
+	/**
+	 * Creates new form JFeeltracePanel
+	 * 
+	 * @param showPower
+	 *            showPower
+	 */
 	public JFeeltracePanel(boolean showPower) {
 		this.showPower = showPower;
 		initComponents();
