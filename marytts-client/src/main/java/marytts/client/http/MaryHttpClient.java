@@ -54,7 +54,7 @@ import marytts.util.string.StringUtils;
  * 
  * @author Marc Schr&ouml;der, oytun.turk
  * @see MaryGUIClient A GUI interface to this client
- * @see marytts.server.MaryServer Description of the MARY protocol
+ * @link {marytts.server.MaryServer} Description of the MARY protocol.
  */
 
 public class MaryHttpClient extends MaryClient {
@@ -65,8 +65,6 @@ public class MaryHttpClient extends MaryClient {
 	 * 
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MaryHttpClient() throws IOException {
 		super();
@@ -88,8 +86,6 @@ public class MaryHttpClient extends MaryClient {
 	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MaryHttpClient(Address serverAddress) throws IOException {
 		super(serverAddress);
@@ -108,8 +104,6 @@ public class MaryHttpClient extends MaryClient {
 	 *            tells the client not to print any of the normal information to stderr
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MaryHttpClient(Address serverAddress, boolean profile, boolean quiet) throws IOException {
 		super(serverAddress, profile, quiet);
@@ -190,7 +184,7 @@ public class MaryHttpClient extends MaryClient {
 	 * 
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	@Override
 	protected String getDefaultAudioEffects() throws IOException {
