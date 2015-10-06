@@ -22,7 +22,6 @@ allprojects {
     sourceSets {
         integrationTest {
             java {
-                srcDir "$projectDir/src/integration-test/java"
                 compileClasspath += main.output
                 runtimeClasspath += main.output
             }
