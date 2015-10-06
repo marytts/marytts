@@ -265,6 +265,8 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 	 * 
 	 * @param text
 	 *            the textual (graphemic) form of a word.
+	 * @param pos
+	 *            pos
 	 * @param g2pMethod
 	 *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
 	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").

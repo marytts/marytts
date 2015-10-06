@@ -46,7 +46,7 @@ public class NumberEP extends ExpansionPattern {
 	 * Every subclass has its own list knownTypes, an internal string representation of known types. These are possible values of
 	 * the <code>type</code> attribute to the <code>say-as</code> element, as defined in MaryXML.dtd. If there is more than one
 	 * known type, the first type (<code>knownTypes[0]</code>) is expected to be the most general one, of which the others are
-	 * specialisations.
+	 * specializations.
 	 */
 	private final List<String> knownTypes = Arrays.asList(_knownTypes);
 
@@ -79,6 +79,8 @@ public class NumberEP extends ExpansionPattern {
 
 	/**
 	 * Simple numbers are expected to be entire tokens. They should not be joined together out of several tokens.
+	 * 
+	 * @return false
 	 */
 	protected boolean allowMultipleTokens() {
 		return false;
@@ -453,6 +455,14 @@ public class NumberEP extends ExpansionPattern {
 	/**
 	 * This will correctly expand integers as well, although matchFloat() does not match them. This seems to be convenient in
 	 * cases where "some number", i.e. integer or float, was matched, and needs to be expanded.
+	 * 
+	 * @param doc
+	 *            doc
+	 * @param s
+	 *            s
+	 * @param createMtu
+	 *            createMtu
+	 * @return makeNewTokens(doc, expString, createMtu, s)
 	 */
 	protected List<Element> expandFloat(Document doc, String s, boolean createMtu) {
 		String expString = expandFloat(s);
@@ -537,6 +547,14 @@ public class NumberEP extends ExpansionPattern {
 	/**
 	 * For ordinals we put the expanded form in the sounds_like attribute and keep the surface form. This is for the POS tagger to
 	 * tell a later module whether the ordinal is adverbial or adjectival.
+	 * 
+	 * @param doc
+	 *            doc
+	 * @param s
+	 *            s
+	 * @param createMtu
+	 *            createMtu
+	 * @return expandOrdinal(doc, value, createMtu, s)
 	 */
 	protected List<Element> expandOrdinal(Document doc, String s, boolean createMtu) {
 		long value;
