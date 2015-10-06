@@ -35,6 +35,7 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
 	/**
 	 * @param needMaryStarted
 	 * @throws Exception
+	 *             Exception
 	 */
 	public OpenNLPPosTaggerIT() throws Exception {
 		super(true); // start MARY

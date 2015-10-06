@@ -100,6 +100,8 @@ public class CurrencyEP extends ExpansionPattern {
 	/**
 	 * Every subclass has its own logger. The important point is that if several threads are accessing the variable at the same
 	 * time, the logger needs to be thread-safe or it will produce rubbish.
+	 * 
+	 * @return _sCurrencySymbol.toString()
 	 */
 	// private Logger logger = MaryUtils.getLogger("CurrencyEP");
 

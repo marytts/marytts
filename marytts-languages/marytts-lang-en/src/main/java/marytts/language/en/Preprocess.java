@@ -743,7 +743,7 @@ public class Preprocess extends InternalModule {
 
 	/**
 	 * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
-	 * <p/>
+	 * <p>
 	 * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
 	 *
 	 * @param rbnf
@@ -769,7 +769,7 @@ public class Preprocess extends InternalModule {
 
 	/**
 	 * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
-	 * <p/>
+	 * <p>
 	 * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
 	 *
 	 * @param rbnf

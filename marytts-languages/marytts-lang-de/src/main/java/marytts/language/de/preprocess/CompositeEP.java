@@ -101,8 +101,8 @@ public class CompositeEP extends ExpansionPattern {
 	 * 
 	 * @param t
 	 *            the element to expand. After processing, this Element will still exist and be a valid Element, but possibly with
-	 *            a different content, and possibly enclosed by an <mtu> element. In addition, <t> may have new right-hand
-	 *            neighbours.
+	 *            a different content, and possibly enclosed by an &lt;mtu&gt; element. In addition, &lt;t&gt; may have new
+	 *            right-hand neighbours.
 	 * @param expanded
 	 *            an empty list into which the expanded Elements are placed if an expansion occurred. The list will remain empty
 	 *            if no expansion was performed.

@@ -75,7 +75,11 @@ public class SpecialCharEP extends ExpansionPattern {
 		}
 	}
 
-	/** Only needed to fill specialCharNames */
+	/**
+	 * Only needed to fill specialCharNames
+	 * 
+	 * @return m
+	 */
 	private Map createSpecialCharNames() {
 		HashMap m = new HashMap();
 
@@ -116,7 +120,11 @@ public class SpecialCharEP extends ExpansionPattern {
 	private final String sSplitAtChars = createSplitAtChars();
 	private final String sSplitAtCharsSimpleString = createSplitAtCharsSimpleString();
 
-	/** Only needed to fill sMatchingChars from specialCharNames */
+	/**
+	 * Only needed to fill sMatchingChars from specialCharNames
+	 * 
+	 * @return sb.toString
+	 */
 	private String createMatchingChars() {
 		StringBuilder sb = new StringBuilder("[");
 		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
@@ -135,7 +143,11 @@ public class SpecialCharEP extends ExpansionPattern {
 		return sb.toString();
 	}
 
-	/** Only needed to fill sSplitAtChars from _specialCharNames[] */
+	/**
+	 * Only needed to fill sSplitAtChars from _specialCharNames[]
+	 * 
+	 * @return sb.toString
+	 */
 	private String createSplitAtChars() {
 		StringBuilder sb = new StringBuilder("[");
 		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
@@ -148,7 +160,11 @@ public class SpecialCharEP extends ExpansionPattern {
 		return sb.toString();
 	}
 
-	/** Only needed to fill sSplitAtCharsSimpleString from _specialCharNames[] */
+	/**
+	 * Only needed to fill sSplitAtCharsSimpleString from _specialCharNames[]
+	 * 
+	 * @return sb.toString
+	 */
 	private String createSplitAtCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
 		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
@@ -171,6 +187,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	/**
 	 * A regular expression matching the characters at which a token should be split into parts before any preprocessing patterns
 	 * are applied.
+	 * 
+	 * @return reSplitAtChars
 	 */
 	protected Pattern getRESplitAtChars() {
 		return reSplitAtChars;
@@ -179,6 +197,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	/**
 	 * A string containing the characters at which a token should be split into parts before any preprocessing patterns are
 	 * applied.
+	 * 
+	 * @return sSplitAtCharsSimpleString
 	 */
 	protected String splitAtChars() {
 		return sSplitAtCharsSimpleString;
@@ -228,6 +248,8 @@ public class SpecialCharEP extends ExpansionPattern {
 
 	/**
 	 * Tell whether String <code>s</code> is a specialChar.
+	 * 
+	 * @return reMatchingChars.matcher(s).matches()
 	 */
 	public boolean matchSpecialChar(String s) {
 		return reMatchingChars.matcher(s).matches();
