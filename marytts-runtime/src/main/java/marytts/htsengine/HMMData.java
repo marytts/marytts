@@ -635,6 +635,15 @@ public class HMMData {
 
 	/**
 	 * Reads from configuration file all the data files in this class this method is used when running HTSengine stand alone.
+	 * 
+	 * @param voiceName
+	 *            voiceName
+	 * @param marybase
+	 *            marybase
+	 * @param configFile
+	 *            configFile
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void initHMMData(String voiceName, String marybase, String configFile) throws Exception {
 
@@ -654,6 +663,13 @@ public class HMMData {
 
 	/**
 	 * Reads from configuration file tree and pdf data for duration and f0 this method is used by HMMModel
+	 * 
+	 * @param voiceName
+	 *            voiceName
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void initHMMDataForHMMModel(String voiceName) throws IOException, MaryConfigurationException {
 		PropertiesAccessor p = MaryConfig.getVoiceConfig(voiceName).getPropertiesAccessor(true);
@@ -702,6 +718,11 @@ public class HMMData {
 	/**
 	 * Initialisation for mixed excitation : it loads the filter taps, they are read from MixFilterFile specified in the
 	 * configuration file.
+	 * 
+	 * @param mixFiltersStream
+	 *            mixFiltersStream
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void readMixedExcitationFilters(InputStream mixFiltersStream) throws IOException {
 		String line;
@@ -741,7 +762,11 @@ public class HMMData {
 
 	} /* method readMixedExcitationFiltersFile() */
 
-	/** return the set of FeatureTypes that are available in this HMMData object */
+	/**
+	 * return the set of FeatureTypes that are available in this HMMData object
+	 * 
+	 * @return featureTypes
+	 */
 	public Set<FeatureType> getFeatureSet() {
 		Set<FeatureType> featureTypes = EnumSet.noneOf(FeatureType.class);
 		if (getPdfDurStream() != null)

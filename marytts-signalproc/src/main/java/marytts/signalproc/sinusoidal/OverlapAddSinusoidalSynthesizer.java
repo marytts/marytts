@@ -23,7 +23,7 @@ package marytts.signalproc.sinusoidal;
  * A basic implementation of overlap-add sinusoidal synthesis. Phase interpolation seems problematic, so we are not yet able to
  * use this class in applications.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class OverlapAddSinusoidalSynthesizer extends BaseSinusoidalSynthesizer {

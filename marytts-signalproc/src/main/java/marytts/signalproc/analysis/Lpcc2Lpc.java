@@ -70,7 +70,7 @@ public class Lpcc2Lpc {
 	/**
 	 * A method to convert between two files, from LPCs to LPCCs in EST format.
 	 * 
-	 * @param cepstrumOrder
+	 * @param lpcOrder
 	 *            The requested cepstrum order.
 	 * @param inFileName
 	 *            The name of the input file.
@@ -78,6 +78,7 @@ public class Lpcc2Lpc {
 	 *            The name of the output file.
 	 * 
 	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void convert(String inFileName, String outFileName, int lpcOrder) throws IOException {
 		// Load the input file
@@ -91,6 +92,9 @@ public class Lpcc2Lpc {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws IOException
+	 *             IO Exception
 	 */
 	public static void main(String[] args) throws IOException {
 		// Usage: ESTlpccToESTlpc lpcOrder inFileName outFileName

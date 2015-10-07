@@ -121,6 +121,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent {
 	/**
 	 * Get the map of properties2values containing the default values
 	 * 
+	 * @param db
+	 *            db
 	 * @return map of props2values
 	 */
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
@@ -270,6 +272,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {

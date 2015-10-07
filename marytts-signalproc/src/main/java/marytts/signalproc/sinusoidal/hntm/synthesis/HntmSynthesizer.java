@@ -57,7 +57,7 @@ import marytts.util.string.StringUtils;
  * Speaker Modification", Ph.D. thesis, Ecole Nationale Supérieure des Télécommunications. (Chapter 3, A Harmonic plus Noise
  * Model, HNM)
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HntmSynthesizer {
@@ -141,12 +141,21 @@ public class HntmSynthesizer {
 	/**
 	 * 
 	 * @param wavFile
+	 *            wavefile
+	 * @param synthesisParams
+	 *            synthesisParams
 	 * @param pScalesArray
+	 *            pScalesArray
 	 * @param pScalesTimes
+	 *            pScalesTimes
 	 * @param tScalesArray
+	 *            tScalesArray
 	 * @param tScalesTimes
+	 *            tScalesTimes
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void mainSingleFile(String wavFile, HntmSynthesizerParams synthesisParams, float[][] pScalesArray,
 			float[] pScalesTimes, float[][] tScalesArray, float[] tScalesTimes) throws UnsupportedAudioFileException, IOException {
@@ -458,11 +467,13 @@ public class HntmSynthesizer {
 
 	/**
 	 * 
-	 * @param a
+	 * @param args
 	 *            directory containig .wav files or a wav file, in the same directory it should be a .ptc file that can be
 	 *            extracted with
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void mainProcessDirOrFile(String[] args) throws UnsupportedAudioFileException, IOException {
 

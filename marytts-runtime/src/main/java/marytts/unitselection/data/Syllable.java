@@ -52,7 +52,7 @@ public class Syllable {
 	 * Seek for the syllable nucleus (with feature "ph_vc" == "+") from first to last unit; if none is found, return the last unit
 	 * in the syllable
 	 * 
-	 * @return
+	 * @return i if fv.getByteFeature(fiVowel) is fvVowel_Plus, lastUnitIndex otherwise
 	 */
 	public int getSyllableNucleusIndex() {
 		int fiVowel = features.getFeatureDefinition().getFeatureIndex("ph_vc");

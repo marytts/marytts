@@ -93,7 +93,9 @@ public abstract class Model {
 	 * 
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
-	 * @param dataFileName
+	 * @param voiceName
+	 *            name of the voice
+	 * @param dataStream
 	 *            data file for this Model
 	 * @param targetAttributeName
 	 *            attribute in MaryXML to predict
@@ -265,6 +267,7 @@ public abstract class Model {
 	 * Evaluate model on a Target to obtain the target value as a float.
 	 * 
 	 * @param target
+	 *            target
 	 * @return target value
 	 * @throws Exception
 	 *             if the target value cannot be predicted

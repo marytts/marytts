@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Implements root-mean-square LP spectral envelope distance between two speech frames
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
 

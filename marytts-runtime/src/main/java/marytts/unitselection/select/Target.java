@@ -90,9 +90,10 @@ public class Target {
 	}
 
 	/**
-	 * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
+	 * 
 	 * 
 	 * @param newDuration
+	 *            newDuration
 	 */
 	public void setTargetDurationInSeconds(float newDuration) {
 		if (maryxmlElement != null) {

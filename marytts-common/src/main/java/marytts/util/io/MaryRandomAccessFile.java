@@ -29,7 +29,7 @@ import java.io.RandomAccessFile;
  * (i.e. the file can be opened in both read/write mode and there is support for moving the file pointer to any location as
  * required
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 
 public final class MaryRandomAccessFile extends RandomAccessFile {

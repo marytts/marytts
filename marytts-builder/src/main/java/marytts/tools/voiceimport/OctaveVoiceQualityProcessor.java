@@ -112,6 +112,9 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 

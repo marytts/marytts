@@ -70,6 +70,8 @@ public class VoiceQualityTimelineMaker extends AbstractTimelineMaker {
 	/**
 	 * {@inheritDoc}
 	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @return header string
 	 */
 	@Override
@@ -117,6 +119,9 @@ public class VoiceQualityTimelineMaker extends AbstractTimelineMaker {
 
 		/**
 		 * load the file
+		 * 
+		 * @param file
+		 *            file
 		 */
 		@Override
 		protected void load(File file) {

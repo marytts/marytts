@@ -58,14 +58,11 @@ public abstract class MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
+	 * @return getMaryClient(serverAddress, profile, quiet)
 	 */
 	public static MaryClient getMaryClient(Address serverAddress) throws IOException {
 		boolean profile = Boolean.getBoolean("mary.client.profile");
@@ -99,8 +96,6 @@ public abstract class MaryClient {
 	 * 
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	protected MaryClient() throws IOException {
 		boolean profile = Boolean.getBoolean("mary.client.profile");
@@ -124,14 +119,10 @@ public abstract class MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	protected MaryClient(Address serverAddress) throws IOException {
 		boolean profile = Boolean.getBoolean("mary.client.profile");
@@ -150,18 +141,14 @@ public abstract class MaryClient {
 	 * given host and port. Note that in applets, the host must be the same as the one from which the applet was loaded;
 	 * otherwise, a security exception is thrown.
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @param profile
 	 *            determines whether profiling (timing) information is calculated
 	 * @param quiet
 	 *            tells the client not to print any of the normal information to stderr
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	protected MaryClient(Address serverAddress, boolean profile, boolean quiet) throws IOException {
 		if (serverAddress != null) {
@@ -176,18 +163,12 @@ public abstract class MaryClient {
 	/**
 	 * Initialise a connection to the MARY server at the specified host and port.
 	 * 
-	 * @param serverHost
-	 *            the host where to contact a MARY server
-	 * @param serverPort
-	 *            the socket port where to contact a MARY server
 	 * @param profile
 	 *            whether to do profiling
 	 * @param quiet
 	 *            whether to refrain from printing information to stderr
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	protected final void initialise(boolean profile, boolean quiet) throws IOException {
 		// This must work for applets too, so no system property queries here:
@@ -266,9 +247,9 @@ public abstract class MaryClient {
 	/**
 	 * Get the audio file format types known by the server, one per line. Each line has the format: <code>extension name</code>
 	 * 
-	 * @return
+	 * @return data.audioFileFormatTypes if data.audioFileFormatTypes == null || data.audioOutTypes == null
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	public Vector<String> getAudioFileFormatTypes() throws IOException {
 		if (data.audioFileFormatTypes == null || data.audioOutTypes == null) {
@@ -299,8 +280,9 @@ public abstract class MaryClient {
 	 * is optional information which is not required for the normal operation of the client, but may help to avoid
 	 * incompatibilities.
 	 * 
-	 * @throws Exception
+	 * @throws IOException
 	 *             if communication with the server fails
+	 * @return data.allDataTypes
 	 */
 	public Vector<MaryClient.DataType> getAllDataTypes() throws IOException {
 		if (data.allDataTypes == null)
@@ -317,7 +299,7 @@ public abstract class MaryClient {
 	 * incompatibilities.
 	 * 
 	 * @return a Vector of MaryHttpClient.DataType objects.
-	 * @throws Exception
+	 * @throws IOException
 	 *             if communication with the server fails
 	 */
 	public Vector<MaryClient.DataType> getInputDataTypes() throws IOException {
@@ -337,8 +319,6 @@ public abstract class MaryClient {
 	 * @return a Vector of MaryHttpClient.DataType objects.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public Vector<MaryClient.DataType> getOutputDataTypes() throws IOException {
 		if (data.outputDataTypes == null)
@@ -358,8 +338,6 @@ public abstract class MaryClient {
 	 * @return a Vector of MaryHttpClient.Voice objects.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public Vector<MaryClient.Voice> getVoices() throws IOException {
 		if (data.allVoices == null)
@@ -380,8 +358,6 @@ public abstract class MaryClient {
 	 * @return a Vector of MaryHttpClient.Voice objects, or null if no voices exist for that locale.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public Vector<MaryClient.Voice> getVoices(Locale locale) throws IOException {
 		if (data.allVoices == null)
@@ -398,8 +374,6 @@ public abstract class MaryClient {
 	 * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public Vector<MaryClient.Voice> getGeneralDomainVoices() throws IOException {
 		Vector<MaryClient.Voice> voices = getVoices();
@@ -422,7 +396,7 @@ public abstract class MaryClient {
 	 * incompatibilities.
 	 * 
 	 * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-	 * @throws Exception
+	 * @throws IOException
 	 *             if communication with the server fails
 	 */
 	public Vector<MaryClient.Voice> getLimitedDomainVoices() throws IOException {
@@ -448,7 +422,7 @@ public abstract class MaryClient {
 	 * @param locale
 	 *            the requested voice locale
 	 * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-	 * @throws Exception
+	 * @throws IOException
 	 *             if communication with the server fails
 	 */
 	public Vector<MaryClient.Voice> getGeneralDomainVoices(Locale locale) throws IOException {
@@ -474,7 +448,7 @@ public abstract class MaryClient {
 	 * @param locale
 	 *            the requested voice locale
 	 * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-	 * @throws Exception
+	 * @throws IOException
 	 *             if communication with the server fails
 	 */
 	public Vector<MaryClient.Voice> getLimitedDomainVoices(Locale locale) throws IOException {
@@ -509,7 +483,7 @@ public abstract class MaryClient {
 	 *            the voice
 	 * @return the example text
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	public Vector<String> getVoiceExampleTextsLimitedDomain(String voicename) throws IOException {
 		if (!data.voiceExampleTextsLimitedDomain.containsKey(voicename)) {
@@ -527,10 +501,10 @@ public abstract class MaryClient {
 	 *            the string representation of the data type, e.g. "RAWMARYXML". This is optional information which is not
 	 *            required for the normal operation of the client, but may help to avoid incompatibilities.
 	 * @return the example text, or null if none could be obtained.
+	 * @param locale
+	 *            locale
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public String getServerExampleText(String dataType, String locale) throws IOException {
 		if (!data.serverExampleTexts.containsKey(dataType + " " + locale)) {
@@ -547,11 +521,10 @@ public abstract class MaryClient {
 	/**
 	 * Request the available audio effects for a voice from the server
 	 * 
-	 * @param voicename
-	 *            the voice
+	 * 
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	protected abstract String getDefaultAudioEffects() throws IOException;
 
@@ -594,20 +567,24 @@ public abstract class MaryClient {
 	 *            a textual representation of the input data
 	 * @param inputType
 	 *            the name of the input data type, e.g. TEXT or RAWMARYXML.
+	 * @param locale
+	 *            locale
 	 * @param audioType
 	 *            the name of the audio format, e.g. "WAVE" or "MP3".
 	 * @param defaultVoiceName
 	 *            the name of the voice to use, e.g. de7 or us1.
+	 * @param defaultStyle
+	 *            defaultStyle
+	 * @param defaultEffects
+	 *            defaultEffects
 	 * @param audioPlayer
-	 *            the FreeTTS audio player with which to play the synthesised audio data. The given audio player must already be
-	 *            instanciated. See the package <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of
+	 *            the FreeTTS audio player with which to play the synthesized audio data. The given audio player must already be
+	 *            instantiated. See the package <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of
 	 *            AudioPlayer.
 	 * @param listener
 	 *            a means for letting calling code know that the AudioPlayer has finished.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 * @see #getInputDataTypes()
 	 * @see #getVoices()
 	 */
@@ -631,9 +608,12 @@ public abstract class MaryClient {
 	 *            the name of the audio format, e.g. "WAVE" or "MP3".
 	 * @param defaultVoiceName
 	 *            the name of the voice to use, e.g. de7 or us1.
-	 * @param audioEffects
-	 *            the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100),
-	 *            Whisper(amount=50)
+	 * @param locale
+	 *            locale
+	 * @param defaultStyle
+	 *            defaultStyle
+	 * @param defaultEffects
+	 *            defaultEffects
 	 * @param outputTypeParams
 	 *            any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce.
 	 *            Can be null.
@@ -641,8 +621,6 @@ public abstract class MaryClient {
 	 *            the output stream into which the data from the server is to be written.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 * @see #getInputDataTypes()
 	 * @see #getOutputDataTypes()
 	 * @see #getVoices()
@@ -672,21 +650,22 @@ public abstract class MaryClient {
 	 *            the name of the audio format, e.g. "WAVE" or "MP3".
 	 * @param defaultVoiceName
 	 *            the name of the voice to use, e.g. de7 or us1.
-	 * @param audioEffects
-	 *            the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100),
-	 *            Whisper(amount=50)
+	 * @param locale
+	 *            locale
+	 * @param defaultStyle
+	 *            defaultStyle
+	 * @param defaultEffects
+	 *            defaultEffects
 	 * @param outputTypeParams
 	 *            any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce.
 	 *            Can be null.
 	 * @param output
 	 *            the output stream into which the data from the server is to be written.
 	 * @param timeout
-	 *            if >0, sets a timer to as many milliseconds; if processing is not finished by then, the connection with the Mary
-	 *            server is forcefully cut, resulting in an IOException.
+	 *            if &gt;0, sets a timer to as many milliseconds; if processing is not finished by then, the connection with the
+	 *            Mary server is forcefully cut, resulting in an IOException.
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 * @see #getInputDataTypes()
 	 * @see #getOutputDataTypes()
 	 * @see #getVoices()
@@ -711,9 +690,9 @@ public abstract class MaryClient {
 	 * Return an audio file format type for the given string. In addition to the built-in types, this can deal with MP3 supported
 	 * by tritonus.
 	 * 
+	 * @param name
+	 *            name
 	 * @return the audio file format type if it is known, or null.
-	 * @see #canCreateMP3()
-	 * @see #canCreateOgg()
 	 */
 	public static AudioFileFormat.Type getAudioFileFormatType(String name) {
 		AudioFileFormat.Type at;

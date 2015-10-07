@@ -50,7 +50,9 @@ public class Whisperiser extends PolarFrequencyProcessor {
 	 * Perform the random phase manipulation.
 	 * 
 	 * @param r
+	 *            r
 	 * @param phi
+	 *            phi
 	 */
 	protected void processPolar(double[] r, double[] phi) {
 		for (int i = 0; i < r.length; i++) {

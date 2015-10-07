@@ -23,7 +23,7 @@ package marytts.signalproc.adaptation.codebook;
  * 
  * Wrapper class for a single weighted codebook entry MFCC match
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookMfccMatch {
 	public WeightedCodebookEntry entry;

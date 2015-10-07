@@ -388,6 +388,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 	 * Main method
 	 * 
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// Test clustering with random polynomials, and visualise result

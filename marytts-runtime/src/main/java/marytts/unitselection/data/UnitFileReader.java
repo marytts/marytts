@@ -72,6 +72,8 @@ public class UnitFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public UnitFileReader(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName);
@@ -84,6 +86,8 @@ public class UnitFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String fileName) throws IOException, MaryConfigurationException {
 		/* Open the file */

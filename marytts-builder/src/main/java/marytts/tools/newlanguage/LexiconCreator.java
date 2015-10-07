@@ -96,7 +96,7 @@ public class LexiconCreator {
 	}
 
 	/**
-	 * Initialise a new lexicon creator.
+	 * Initialize a new lexicon creator.
 	 * 
 	 * @param allophoneSet
 	 *            this specifies the set of phonetic symbols that can be used in the lexicon, and provides the locale of the
@@ -131,6 +131,9 @@ public class LexiconCreator {
 	/**
 	 * This base implementation does nothing. Subclasses can override this method to prepare a lexicon in the expected format,
 	 * which should then be found at lexiconFilename.
+	 * 
+	 * @throws IOException
+	 *             IOException
 	 */
 	protected void prepareLexicon() throws IOException {
 	}
@@ -300,6 +303,9 @@ public class LexiconCreator {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		PatternLayout layout = new PatternLayout("%d %m\n");

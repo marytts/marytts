@@ -40,7 +40,7 @@ import marytts.util.string.StringUtils;
  * 
  * Baseline class for acoustic feature analysis for voice conversion
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineFeatureExtractor {
 	// Add more as necessary & make sure you can discriminate each using AND(&) operator

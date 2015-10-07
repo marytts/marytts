@@ -38,7 +38,7 @@ import marytts.util.signal.SignalProcUtils;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class VocalTractLinearScalerEffect extends BaseAudioEffect {
 

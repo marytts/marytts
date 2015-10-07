@@ -24,7 +24,7 @@ import java.io.File;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Prompt {
 
@@ -72,7 +72,7 @@ public class Prompt {
 	/**
 	 * Sets the prompt text for the prompt
 	 * 
-	 * @param The
+	 * @param text
 	 *            prompt text for the current prompt
 	 */
 	public void setPromptText(String text) {
@@ -82,7 +82,7 @@ public class Prompt {
 	/**
 	 * Sets the prompt transcription text for the prompt
 	 * 
-	 * @param The
+	 * @param text
 	 *            prompt transcription text for the current prompt
 	 */
 	public void setPromptTranscriptionText(String text) {
@@ -92,7 +92,7 @@ public class Prompt {
 	/**
 	 * Get the recording object associated to this prompt.
 	 * 
-	 * @return
+	 * @return recorded
 	 */
 	public Recording getRecording() {
 		return recorded;
@@ -120,10 +120,12 @@ public class Prompt {
 	/**
 	 * Creates a new instance of Prompt
 	 * 
-	 * @param promptBasename
+	 * @param passedBasename
 	 *            The basename for the prompt (e.g., spike0003)
-	 * @param voicePath
+	 * @param recFolderPath
 	 *            The file path for the voice (e.g., path for Spike)
+	 * @param synthFolderPath
+	 *            synthFolderPath
 	 */
 	public Prompt(String passedBasename, File recFolderPath, File synthFolderPath) {
 

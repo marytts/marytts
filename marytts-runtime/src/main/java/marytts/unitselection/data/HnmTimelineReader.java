@@ -47,7 +47,7 @@ import marytts.util.math.MathUtils;
 /**
  * A reader class for the harmonics plus noise timeline file.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HnmTimelineReader extends TimelineReader {
@@ -109,6 +109,10 @@ public class HnmTimelineReader extends TimelineReader {
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * @param bb
+	 *            bb
+	 * @return d
 	 */
 	@Override
 	protected Datagram getNextDatagram(ByteBuffer bb) {
@@ -211,7 +215,12 @@ public class HnmTimelineReader extends TimelineReader {
 	 *            <li>path to <tt>timeline_hnm.mry</tt> file</li>
 	 *            <li>path to dump output files</li>
 	 *            </ol>
+	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException {
 		HnmTimelineReader h = new HnmTimelineReader(args[0]);

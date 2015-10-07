@@ -244,11 +244,17 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	 * To be called by constructor in order to set up this frame overlap add source.
 	 * 
 	 * @param inputSource
+	 *            input source
 	 * @param windowType
+	 *            window type
 	 * @param applySynthesisWindow
+	 *            apply synthesis window
 	 * @param frameLength
+	 *            frame length
 	 * @param samplingRate
+	 *            sampling rate
 	 * @param processor
+	 *            processor
 	 */
 	protected void initialise(DoubleDataSource inputSource, int windowType, boolean applySynthesisWindow, int frameLength,
 			int samplingRate, InlineDataProcessor processor) {
@@ -308,7 +314,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	 * Get the next frame of input data. This method is called by prepareBlock() when preparing the output data to be read. This
 	 * implementation simply reads the data from the frameProvider.
 	 * 
-	 * @return
+	 * @return the next frame of frameProvider
 	 */
 	protected double[] getNextFrame() {
 		return frameProvider.getNextFrame();

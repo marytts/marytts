@@ -304,8 +304,9 @@ public class Mary4To5VoiceConverter {
 	/**
 	 * Returns true for a unit selection voice, false for an HMM-based voice.
 	 * 
-	 * @return
-	 * @throw {@link UnsupportedOperationException} if the voice is neither a unit selection nor an HMM-based voice.
+	 * @return true if config.containsKey("unitselection.voices.list"), false if config.containsKey("hmm.voices.list")
+	 * @throws UnsupportedOperationException
+	 *             if the voice is neither a unit selection nor an HMM-based voice.
 	 */
 	protected boolean isUnitSelectionVoice() throws UnsupportedOperationException {
 		if (config.containsKey("unitselection.voices.list")) {
@@ -391,7 +392,9 @@ public class Mary4To5VoiceConverter {
 	 * Converts format from pdf Mary format 4 to Mary 5, the converted file will have the same input name
 	 * 
 	 * @param pdfInFile
+	 *            pdfInFile
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void convertPdfBinaryFile(File pdfInFile) throws Exception {
 		int i, j, k, l;
@@ -516,7 +519,9 @@ public class Mary4To5VoiceConverter {
 	 * Converts file format from gv Mary format 4 to Mary 5, the converted file will have the same input name
 	 * 
 	 * @param gvInFile
+	 *            gvInFile
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void convertGvBinaryFile(File gvInFile) throws IOException {
 		int i;

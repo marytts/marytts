@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation.prosody;
 /**
  * A class to support pitch transformation in voice conversion.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class PitchMapping extends PitchTransformationData {

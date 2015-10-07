@@ -93,7 +93,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
 	/**
 	 * Synthesize given vocalization using MLSA vocoder
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format
@@ -122,7 +122,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
 	/**
 	 * Re-synthesize given vocalization using MLSA (it is same as synthesize())
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format

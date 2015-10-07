@@ -94,6 +94,11 @@ public class FileUtils {
 	 * Close a PreparedStatement and a series of result sets. Use this in a finally clause. While closing the PreparedStatement
 	 * supposedly closes it's resultsets, i was told that some buggy implementations don't. Exists because PreparedStatement and
 	 * ResultŜet are only closeable on jdk 1.7
+	 * 
+	 * @param ps
+	 *            ps
+	 * @param rs
+	 *            rs
 	 */
 	public static void close(PreparedStatement ps, ResultSet... rs) {
 		for (ResultSet c : rs) {
@@ -117,7 +122,7 @@ public class FileUtils {
 	/**
 	 * Close closeables. Use this in a finally clause.
 	 * 
-	 * @param Closeables
+	 * @param closeables
 	 *            closeables to close.
 	 */
 	public static void close(Closeable... closeables) {
@@ -138,8 +143,10 @@ public class FileUtils {
 	 * alphabetical order, according to java's string search.
 	 * 
 	 * @param directory
+	 *            directory
 	 * @param suffix
-	 * @return
+	 *            suffix
+	 * @return filenames
 	 */
 	public static String[] listBasenames(File directory, String suffix) {
 		final String theSuffix = suffix;
@@ -163,8 +170,12 @@ public class FileUtils {
 	 * Read a file into a string, using the given encoding, and return that string.
 	 * 
 	 * @param file
+	 *            file
 	 * @param encoding
-	 * @return
+	 *            encoding
+	 * @throws IOException
+	 *             IOException
+	 * @return stream as string(fis, encoding)
 	 * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
 	 */
 	@Deprecated
@@ -179,6 +190,13 @@ public class FileUtils {
 
 	/**
 	 * @deprecated use {@link org.apache.commons.io.IOUtils#toString(InputStream, String)} instead
+	 * @param inputStream
+	 *            inputStream
+	 * @param encoding
+	 *            encoding
+	 * @throws IOException
+	 *             IOException
+	 * @return getReaderAsString
 	 */
 	@Deprecated
 	public static String getStreamAsString(InputStream inputStream, String encoding) throws IOException {
@@ -540,7 +558,8 @@ public class FileUtils {
 	 * Given a file name with path it return the file name
 	 * 
 	 * @param fileNameWithPath
-	 * @return
+	 *            fileNameWithPath
+	 * @return str
 	 */
 	public static String getFileName(String fileNameWithPath) {
 		String str;

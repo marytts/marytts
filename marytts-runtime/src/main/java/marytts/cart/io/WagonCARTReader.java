@@ -62,19 +62,19 @@ public class WagonCARTReader {
 	/**
 	 * When creating a WagonCARTReader provide a tree type
 	 * 
-	 * @param treeType
+	 * @param leafType
 	 *            ClasificationTree, ExtendedClassificationTree, RegressionTree, or TopLevelTree.
 	 * 
 	 *            <p>
-	 *            ClasificationTree --> IntArrayLeafNode
+	 *            ClasificationTree &rarr; IntArrayLeafNode
 	 *            <p>
-	 *            ExtendedClassificationTree --> IntAndFloatArrayLeafNode
+	 *            ExtendedClassificationTree &rarr; IntAndFloatArrayLeafNode
 	 *            <p>
-	 *            RegressionTree --> FloatLeafNode
+	 *            RegressionTree &rarr; FloatLeafNode
 	 *            <p>
-	 *            TopLevelTree --> FeatureVectorLeafNode
+	 *            TopLevelTree &rarr; FeatureVectorLeafNode
 	 *            <p>
-	 *            StringCART --> StringAndFloatLeafNode
+	 *            StringCART &rarr; StringAndFloatLeafNode
 	 */
 	public WagonCARTReader(LeafNode.LeafType leafType) {
 		this.leafType = leafType;
@@ -82,7 +82,7 @@ public class WagonCARTReader {
 
 	/**
 	 * For a line representing a leaf in Wagon format, create a leaf. This method decides which implementation of LeafNode is
-	 * used, i.e. which data format is appropriate. Lines are of the form ((<index1> <float1>)...(<indexN> <floatN>)) 0))
+	 * used, i.e. which data format is appropriate. Lines are of the form ((index1 float1)...(indexN floatN)) 0))
 	 * 
 	 * @param line
 	 *            a line from a wagon cart file, representing a leaf
@@ -118,7 +118,10 @@ public class WagonCARTReader {
 	 * @param reader
 	 *            the Reader providing the wagon tree
 	 * @param featDefinition
+	 *            featDefinition
 	 * @throws IOException
+	 *             IOException
+	 * @return rootNode
 	 */
 	public Node load(BufferedReader reader, FeatureDefinition featDefinition) throws IOException {
 		cleadReader();
@@ -161,6 +164,9 @@ public class WagonCARTReader {
 	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return rootNode
 	 */
 	// TODO: CHECK! do we need that String[] dummy???
 	public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy) throws IOException,

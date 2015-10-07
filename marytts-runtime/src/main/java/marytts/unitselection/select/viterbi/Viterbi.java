@@ -104,6 +104,14 @@ public class Viterbi {
 	 * Creates a Viterbi class to process the given utterance. A queue of ViterbiPoints corresponding to the Items in the Relation
 	 * segs is built up.
 	 * 
+	 * @param targets
+	 *            targets
+	 * @param database
+	 *            database
+	 * @param wTargetCosts
+	 *            wTargetCosts
+	 * @param beamSize
+	 *            beamSize
 	 */
 	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, int beamSize) {
 		this.database = database;
@@ -145,6 +153,16 @@ public class Viterbi {
 	 * Creates a Viterbi class to process the given utterance. A queue of ViterbiPoints corresponding to the Items in the Relation
 	 * segs is built up.
 	 * 
+	 * @param targets
+	 *            targets
+	 * @param database
+	 *            database
+	 * @param wTargetCosts
+	 *            wTargetCosts
+	 * @param wSCosts
+	 *            wSCosts
+	 * @param beamSize
+	 *            beamSize
 	 */
 	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, float wSCosts, int beamSize) {
 		this.database = database;

@@ -37,10 +37,10 @@ import marytts.util.math.MathUtils;
  * GaussianOutlierEliminatorParams in the form of total standard deviations for each feature. It is also possible to eliminate too
  * similar feature pairs to enforce a certain amount of dissimilarity in the training data.
  * 
- * Reference: T&uumlrk, O., and Arslan, L. M., 2006, "Robust Processing Techniques for Voice Conversion", Computer Speech and
+ * Reference: T&uuml;rk, O., and Arslan, L. M., 2006, "Robust Processing Techniques for Voice Conversion", Computer Speech and
  * Language 20 (2006), pp. 441-467.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class GaussianOutlierEliminator {

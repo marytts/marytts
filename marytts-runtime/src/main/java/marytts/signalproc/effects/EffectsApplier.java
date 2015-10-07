@@ -39,7 +39,7 @@ import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class EffectsApplier {
 	public BaseAudioEffect[] audioEffects;

@@ -199,6 +199,11 @@ public class FSTLookup {
 
 	/**
 	 * A simple command-line frontend for the FST.
+	 * 
+	 * @param args
+	 *            args
+	 * @throws IOException
+	 *             IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		long iBegin = System.currentTimeMillis();

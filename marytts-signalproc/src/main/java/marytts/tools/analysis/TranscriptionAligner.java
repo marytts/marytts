@@ -108,8 +108,15 @@ public class TranscriptionAligner {
 	 * This reads in a label file and returns a String of the phonetic symbols, separated by the entry separator character
 	 * entrySeparator.
 	 * 
+	 * @param entrySeparator
+	 *            entry separator
+	 * @param ensureInitialBoundary
+	 *            ensure initial boundary
+	 * @param trfname
+	 *            trf name
 	 * @throws IOException
 	 *             if something goes wrong with opening/reading the file
+	 * @return result
 	 * 
 	 */
 	public static String readLabelFile(String entrySeparator, boolean ensureInitialBoundary, String trfname) throws IOException {
@@ -184,8 +191,10 @@ public class TranscriptionAligner {
 	 * The method returns the output string with alignment boundaries ('#') inserted.
 	 * 
 	 * @param in
+	 *            in
 	 * @param out
-	 * @return
+	 *            out
+	 * @return p_al[ostr.length]
 	 */
 	protected String distanceAlign(String in, String out) {
 		String[] istr = in.split(Pattern.quote(entrySeparator));
@@ -290,7 +299,9 @@ public class TranscriptionAligner {
 	 * which index in second.
 	 * 
 	 * @param first
+	 *            first
 	 * @param second
+	 *            second
 	 * @return an array m of integers -- for each index i in first, m[i] gives the (rightmost) corresponding index in second.
 	 */
 	public AlignedLabels alignLabels(Labels first, Labels second) {

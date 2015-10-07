@@ -53,21 +53,21 @@ public class LEDataInputStream implements DataInput {
 	/**
 	 * to get at the big-Endian methods of a basic DataInputStream
 	 * 
-	 * @noinspection WeakerAccess
+	 * 
 	 */
 	protected final DataInputStream dis;
 
 	/**
 	 * to get at the a basic readBytes method.
 	 * 
-	 * @noinspection WeakerAccess
+	 * 
 	 */
 	protected final InputStream is;
 
 	/**
 	 * work array for buffering input.
 	 * 
-	 * @noinspection WeakerAccess
+	 * 
 	 */
 	protected final byte[] work;
 
@@ -205,8 +205,8 @@ public class LEDataInputStream implements DataInput {
 	 * Read a double. like DataInputStream.readDouble except little endian.
 	 * 
 	 * @return little endian IEEE double from the datastream.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public final double readDouble() throws IOException {
 		return Double.longBitsToDouble(readLong());
@@ -297,9 +297,8 @@ public class LEDataInputStream implements DataInput {
 	 * Read a line.
 	 * 
 	 * @return a rough approximation of the 8-bit stream as a 16-bit unicode string
-	 * 
 	 * @throws IOException
-	 * @noinspection deprecation
+	 *             IOException
 	 * @deprecated This method does not properly convert bytes to characters. Use a Reader instead with a little-endian encoding.
 	 */
 	public final String readLine() throws IOException {
@@ -310,8 +309,8 @@ public class LEDataInputStream implements DataInput {
 	 * read a long, 64-bits. Like DataInputStream.readLong except little endian.
 	 * 
 	 * @return little-endian binary long from the datastream.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public final long readLong() throws IOException {
 		dis.readFully(work, 0, 8);
@@ -406,8 +405,9 @@ public class LEDataInputStream implements DataInput {
 	}
 
 	/**
+	 * <p>
 	 * Skip over bytes in the stream. See the general contract of the <code>skipBytes</code> method of <code>DataInput</code>.
-	 * <p/>
+	 * </p>
 	 * Bytes for this operation are read from the contained input stream.
 	 * 
 	 * @param n

@@ -43,7 +43,7 @@ import marytts.util.signal.SignalProcUtils;
  * Y. Stylianou (1996) “A pitch and maximum voiced frequency estimation technique adapted to harmonic models of speech,” IEEE
  * Nordic Signal Processing Symposium, Helsinki, Finland, Sept. 1996.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class HnmPitchVoicingAnalyzer {
 

@@ -103,6 +103,8 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * @param units
 	 *            the units
 	 * @return the resulting audio stream
+	 * @throws IOException
+	 *             IOException
 	 */
 	public AudioInputStream getAudio(List<SelectedUnit> units) throws IOException {
 		logger.debug("Getting audio for " + units.size() + " units");
@@ -128,6 +130,9 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * Get the raw audio material for each unit from the timeline.
 	 * 
 	 * @param units
+	 *            units
+	 * @throws IOException
+	 *             IOException
 	 */
 	protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException {
 		for (SelectedUnit unit : units) {
@@ -146,6 +151,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * Determine target pitchmarks (= duration and f0) for each unit.
 	 * 
 	 * @param units
+	 *            units
 	 */
 	protected void determineTargetPitchmarks(List<SelectedUnit> units) {
 		for (SelectedUnit unit : units) {
@@ -176,8 +182,10 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 *            units
+	 * @return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat)
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {
 		LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
@@ -199,7 +207,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	 * 
 	 * @param length
 	 *            the number of zeros that the datagram should contain
-	 * @return
+	 * @return new Datagram(length, new byte[2 * length])
 	 */
 	protected Datagram createZeroDatagram(int length) {
 		return new Datagram(length, new byte[2 * length]);
@@ -227,6 +235,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		 * Set the array of to-be-realised pitchmarks for the realisation of the selected unit.
 		 * 
 		 * @param pitchmarks
+		 *            pitchmarks
 		 */
 		// TODO why is this never used?
 		public void setPitchmarks(int[] pitchmarks) {
@@ -241,6 +250,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		 * Get the pitchmark marking the end of the period with the index number periodIndex.
 		 * 
 		 * @param periodIndex
+		 *            periodIndex
 		 * @return the pitchmark position, in samples
 		 */
 		public int getPitchmark(int periodIndex) {
@@ -251,6 +261,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		 * Get the length of the pitch period ending with pitchmark with the index number periodIndex.
 		 * 
 		 * @param periodIndex
+		 *            periodIndex
 		 * @return the period length, in samples
 		 */
 		public int getPeriodLength(int periodIndex) {
@@ -297,6 +308,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		 * Set the realised duration of this unit, in samples.
 		 * 
 		 * @param duration
+		 *            duration
 		 */
 		public void setUnitDuration(int duration) {
 			this.unitDuration = duration;
@@ -305,7 +317,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 		/**
 		 * Get the realised duration of this unit, in samples
 		 * 
-		 * @return
+		 * @return unitDuration
 		 */
 		public int getUnitDuration() {
 			return unitDuration;

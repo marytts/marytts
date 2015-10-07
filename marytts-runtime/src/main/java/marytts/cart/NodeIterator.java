@@ -46,9 +46,13 @@ public class NodeIterator<T extends Node> implements Iterator<T> {
 	 * Iterate over all nodes in the graph.
 	 * 
 	 * @param graph
+	 *            graph
 	 * @param showLeafNodes
+	 *            showLeafNodes
 	 * @param showDecisionNodes
+	 *            showDecisionNodes
 	 * @param showDirectedGraphNodes
+	 *            showDirectedGraphNodes
 	 */
 	protected NodeIterator(DirectedGraph graph, boolean showLeafNodes, boolean showDecisionNodes, boolean showDirectedGraphNodes) {
 		this(graph.getRootNode(), showLeafNodes, showDecisionNodes, showDirectedGraphNodes);
@@ -58,9 +62,13 @@ public class NodeIterator<T extends Node> implements Iterator<T> {
 	 * Iterate over the subtree below rootNode.
 	 * 
 	 * @param rootNode
+	 *            rootNode
 	 * @param showLeafNodes
+	 *            showLeafNodes
 	 * @param showDecisionNodes
+	 *            showDecisionNodes
 	 * @param showDirectedGraphNodes
+	 *            showDirectedGraphNodes
 	 */
 	protected NodeIterator(Node rootNode, boolean showLeafNodes, boolean showDecisionNodes, boolean showDirectedGraphNodes) {
 		this.root = rootNode;
@@ -144,7 +152,8 @@ public class NodeIterator<T extends Node> implements Iterator<T> {
 	 * Test whether the given node is unseen. If so, move current to it, and remember it as a seen node.
 	 * 
 	 * @param candidate
-	 * @return
+	 *            candidate
+	 * @return True if candidate != null and !alreadySeen.contains(candidate)
 	 */
 	private boolean unseenNode(Node candidate) {
 		if (candidate != null && !alreadySeen.contains(candidate)) {

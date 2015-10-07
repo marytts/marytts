@@ -41,10 +41,6 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Create a new LeafNode.
 	 * 
-	 * @param tok
-	 *            the String Tokenizer containing the String with the indices
-	 * @param openBrackets
-	 *            the number of opening brackets at the first token
 	 */
 	public LeafNode() {
 		super();
@@ -60,7 +56,7 @@ public abstract class LeafNode extends Node {
 	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
 	 * and leaf nodes in the tree.
 	 * 
-	 * @return
+	 * @return 1
 	 */
 	public int getNumberOfNodes() {
 		return 1;
@@ -82,7 +78,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Indicate whether the leaf node has no meaningful data.
 	 * 
-	 * @return
+	 * @return whether the node is empty or not
 	 */
 	public abstract boolean isEmpty();
 
@@ -106,7 +102,7 @@ public abstract class LeafNode extends Node {
 	 * Write this node's data into the target object at pos, making sure that exactly len data are written. The type of data
 	 * written depends on the type of nodes; for example, when IntArrayLeafNodes are used, target would be an int[].
 	 * 
-	 * @param array
+	 * @param target
 	 *            the object to write to, usually an array.
 	 * @param pos
 	 *            the position in the target at which to start writing
@@ -118,7 +114,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * The type of this leaf node.
 	 * 
-	 * @return
+	 * @return the type of the leaf node
 	 */
 	public abstract LeafType getLeafNodeType();
 
@@ -197,7 +193,7 @@ public abstract class LeafNode extends Node {
 		 * For the int-float pairs in this leaf, return the int value for which the associated float value is the highest one. If
 		 * the float values are probabilities, this method returns the most probable int.
 		 * 
-		 * @return
+		 * @return the most probable index
 		 */
 		public int mostProbableInt() {
 			int bestInd = 0;
@@ -256,8 +252,10 @@ public abstract class LeafNode extends Node {
 		 * feature of the given feature definition.
 		 * 
 		 * @param featureDefinition
+		 *            featureDefinition
 		 * @param featureIndex
-		 * @return
+		 *            featureIndex
+		 * @return featureDefinition.getFeatureValueAsString(featureIndex, bestInd)
 		 */
 		public String mostProbableString(FeatureDefinition featureDefinition, int featureIndex) {
 			int bestInd = mostProbableInt();
@@ -448,6 +446,8 @@ public abstract class LeafNode extends Node {
 		 *            , a unique index number
 		 * @param pdf
 		 *            , pdf[numStreams][2*vectorSize]
+		 * @throws MaryConfigurationException
+		 *             MaryConfigurationException
 		 */
 		public PdfLeafNode(int idx, double pdf[][]) throws MaryConfigurationException {
 			super();

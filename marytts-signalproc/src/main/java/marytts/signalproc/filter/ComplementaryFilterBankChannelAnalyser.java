@@ -40,7 +40,7 @@ import marytts.util.signal.SignalProcUtils;
  * [Levine, et. al., 1999] Levine, S. N., Verma, T. S., and Smith III, J. O., "Multiresolution sinusoidal modeling for wideband
  * audio with modifications", in Proc. of the IEEE ICASSP 1998, Volume 6, Issue , 12-15 May 1998, pp. 3585-3588.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class ComplementaryFilterBankChannelAnalyser {
 	public double[] lpfOut; // Output of lowpass sub-channel

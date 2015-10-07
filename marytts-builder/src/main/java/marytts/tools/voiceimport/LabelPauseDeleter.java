@@ -77,6 +77,8 @@ public class LabelPauseDeleter extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -93,6 +95,7 @@ public class LabelPauseDeleter extends VoiceImportComponent {
 	 * Post processing Step to convert Label files to MARY supportable format
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void getProperLabelFormat() throws Exception {
 
@@ -120,7 +123,9 @@ public class LabelPauseDeleter extends VoiceImportComponent {
 	 * Post Processing single Label file
 	 * 
 	 * @param basename
+	 *            basename
 	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	private boolean convertSingleLabelFile(String basename) throws Exception {
@@ -206,8 +211,10 @@ public class LabelPauseDeleter extends VoiceImportComponent {
 	 * To get Label Unit DATA (time stamp, index, phone unit)
 	 * 
 	 * @param line
+	 *            line
 	 * @return ArrayList contains time stamp, index and phone unit
 	 * @throws IOException
+	 *             IOException
 	 */
 	private ArrayList getLabelUnitData(String line) throws IOException {
 		if (line == null)

@@ -40,7 +40,7 @@ import marytts.util.Pair;
 
 /**
  *
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class LookAndFeel {
 

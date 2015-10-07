@@ -80,6 +80,7 @@ public class BasenameClassificationDefinitionFileReader {
 	 * @param filename
 	 *            as a String
 	 * @throws IOException
+	 *             IOException
 	 */
 	public BasenameClassificationDefinitionFileReader(String filename) throws IOException {
 		this(new FileReader(filename));
@@ -91,6 +92,7 @@ public class BasenameClassificationDefinitionFileReader {
 	 * @param reader
 	 *            as a Reader
 	 * @throws IOException
+	 *             IOException
 	 */
 	public BasenameClassificationDefinitionFileReader(Reader reader) throws IOException {
 		this.reader = new BufferedReader(reader);
@@ -102,6 +104,7 @@ public class BasenameClassificationDefinitionFileReader {
 	 * in styleDefinitions
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void parseDefinitionFile() throws IOException {
 		String line;
@@ -148,6 +151,7 @@ public class BasenameClassificationDefinitionFileReader {
 	 * match basename against the glob expressions in styleDefinitions
 	 * 
 	 * @param basename
+	 *            basename
 	 * @return style String of first matching glob expression, or empty String if no glob matches
 	 */
 	public String getValue(String basename) {
