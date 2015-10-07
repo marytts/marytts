@@ -67,7 +67,11 @@ public class Phonemiser extends marytts.modules.JPhonemiser {
 		// to the normalised form
 
 		String phones = lts.predictPronunciation(text);
-		result = lts.syllabify(phones);
+		try {
+			result = lts.syllabify(phones);
+		} catch (IllegalArgumentException e) {
+			logger.error(String.format("Problem with token <%s> [%s]: %s", text, phones, e.getMessage()));
+		}
 		if (result != null) {
 			g2pMethod.append("rules");
 			return result;

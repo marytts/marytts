@@ -402,8 +402,25 @@ public class AllophoneSet {
 				// have found a valid phone
 				phones.add(ph);
 			} else {
-				throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
-						+ "' in phonetic string `" + allophoneString + "' -- ignoring.");
+				// FIXME: temporarily handle digit suffix stress notation from legacy LTS CARTs until these are rebuilt
+				String stress = null;
+				switch (ph) {
+				case "1":
+					stress = Stress.PRIMARY;
+					break;
+				case "2":
+					stress = Stress.SECONDARY;
+					break;
+				case "0":
+					stress = Stress.NONE;
+					break;
+				}
+				if (stress != null && phones.size() > 0) {
+					phones.add(phones.size() - 1, stress);
+				} else {
+					throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
+							+ "' in phonetic string `" + allophoneString + "' -- ignoring.");
+				}
 			}
 		}
 		return phones;
@@ -438,21 +455,19 @@ public class AllophoneSet {
 	 * @throws IllegalArgumentException
 	 *             if the <b>phoneString</b> is empty or contains a symbol that satisfies none of the following conditions:
 	 *             <ol>
-	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
-	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
+	 *             <li>the symbol corresponds to an Allophone, or</li>
+	 *             <li>the symbol is a stress symbol (cf. {@link Stress}), or</li>
+	 *             <li>the symbol is a syllable boundary (<code>-</code>)</li>
 	 *             </ol>
 	 * @author ingmar
 	 * 
 	 */
-	public String syllabify(String phoneString) {
+	public String syllabify(String phoneString) throws IllegalArgumentException {
 		// Before we process, a sanity check:
 		if (phoneString.trim().isEmpty()) {
 			throw new IllegalArgumentException("Cannot syllabify empty phone string");
 		}
 
-        // FIXME: hack for CMU to work with inner mary phone encoding
-        phoneString = phoneString.replace("0", Stress.NONE).replace("1", Stress.PRIMARY).replace("2", Stress.SECONDARY);
-            
 		// First, split phoneString into a List of allophone Strings...
 		List<String> allophoneStrings = splitIntoAllophoneList(phoneString, true);
 		// ...and create from it a List of generic Objects
@@ -471,8 +486,21 @@ public class AllophoneSet {
 				Allophone allophone = getAllophone(phone);
 				if (allophone.isSyllabic()) {
 					// if /6/ immediately follows a non-diphthong vowel, it should be appended instead of forming its own syllable
-					if (allophone.getFeature("ctype").equals("r") && currentSyllable != null
-							&& !currentSyllable.getLastAllophone().isDiphthong()) {
+					boolean appendR = false;
+					if (allophone.getFeature("ctype").equals("r")) {
+						// it's an /6/
+						if (iterator.previousIndex() > 1) {
+							Object previousPhoneOrSyllable = phonesAndSyllables.get(iterator.previousIndex() - 1);
+							if (previousPhoneOrSyllable == currentSyllable) {
+								// the /6/ immediately follows the current syllable
+								if (!currentSyllable.getLastAllophone().isDiphthong()) {
+									// the vowel immediately preceding the /6/ is not a diphthong
+									appendR = true;
+								}
+							}
+						}
+					}
+					if (appendR) {
 						iterator.remove();
 						currentSyllable.appendAllophone(allophone);
 					} else {
@@ -547,11 +575,28 @@ public class AllophoneSet {
 				String phone = (String) phoneOrSyllable;
 				try {
 					// it's an Allophone -- append to the Syllable
-					Allophone allophone = getAllophone(phone);
+					Allophone allophone;
+					try {
+						allophone = getAllophone(phone);
+					} catch (IllegalArgumentException e) {
+						// or a stress or boundary marker -- remove
+						if (getIgnoreChars().contains(phone)) {
+							iterator.remove();
+							continue;
+						} else {
+							throw e;
+						}
+					}
 					if (currentSyllable == null) {
 						// haven't seen a Syllable yet in this iteration
 						iterator.remove();
-						initialSyllable.prependAllophone(allophone);
+						if (initialSyllable == null) {
+							// haven't seen any syllable at all
+							initialSyllable = new Syllable(allophone);
+							iterator.add(initialSyllable);
+						} else {
+							initialSyllable.prependAllophone(allophone);
+						}
 					} else {
 						// append it to the last seen Syllable
 						iterator.remove();

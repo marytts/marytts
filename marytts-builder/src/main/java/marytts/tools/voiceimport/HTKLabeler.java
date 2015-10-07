@@ -1017,7 +1017,7 @@ public class HTKLabeler extends VoiceImportComponent {
 
 		System.out.println("***********\n");
 		System.out.println("BEST ITERATION: " + BEST_ITERATION);
-		System.out.println("COPYNING BEST ITERATION FILES IN hmm-final directory");
+		System.out.println("COPYING BEST ITERATION FILES IN hmm-final directory");
 		System.out.println("logProbFrame_array:" + logProbFrame_array.toString());
 
 		System.out.println("epsilon_array:" + epsilon_array.toString());

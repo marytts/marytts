@@ -2,8 +2,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>user-examples</artifactId>
-		<groupId>marytts</groupId>
-		<version>5.1-beta2-SNAPSHOT</version>
+		<groupId>de.dfki.mary</groupId>
+		<version>5.2-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>example-remote</artifactId>
@@ -12,7 +12,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>marytts</groupId>
+			<groupId>de.dfki.mary</groupId>
 			<artifactId>marytts-client</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

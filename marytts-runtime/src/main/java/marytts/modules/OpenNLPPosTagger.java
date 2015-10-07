@@ -116,6 +116,9 @@ public class OpenNLPPosTagger extends InternalModule {
 			tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
 			Iterator<String> posIt = partsOfSpeech.iterator();
 			while ((t = (Element) tokenIt.nextNode()) != null) {
+				if (t.hasAttribute("pos")) {
+					continue;
+				}
 				assert posIt.hasNext();
 				String pos = posIt.next();
 				if (posMapper != null) {

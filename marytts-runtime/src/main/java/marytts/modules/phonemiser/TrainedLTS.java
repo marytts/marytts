@@ -158,8 +158,10 @@ public class TrainedLTS {
 	 * @param phones
 	 *            input phone chain, unsyllabified, stress marking attached to vowals
 	 * @return phone chain, with syllable sepeators "-" and stress symbols "'"
+	 * @throws IllegalArgumentException
+	 *             if the input cannot be syllabified
 	 */
-	public String syllabify(String phones) {
+	public String syllabify(String phones) throws IllegalArgumentException {
 		return allophoneSet.syllabify(phones);
 	}
 
