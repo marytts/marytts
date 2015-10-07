@@ -45,7 +45,7 @@ public class MeasureEP extends ExpansionPattern {
 	 * Every subclass has its own list knownTypes, an internal string representation of known types. These are possible values of
 	 * the <code>type</code> attribute to the <code>say-as</code> element, as defined in MaryXML.dtd. If there is more than one
 	 * known type, the first type (<code>knownTypes[0]</code>) is expected to be the most general one, of which the others are
-	 * specialisations.
+	 * specializations.
 	 */
 	private final List<String> knownTypes = Arrays.asList(_knownTypes);
 
@@ -104,10 +104,12 @@ public class MeasureEP extends ExpansionPattern {
 	/**
 	 * Every subclass has its own logger. The important point is that if several threads are accessing the variable at the same
 	 * time, the logger needs to be thread-safe or it will produce rubbish.
+	 * 
+	 * @return _sMeasureSymbol.toString()
 	 */
 	// private Logger logger = MaryUtils.getLogger("MeasureEP");
 
-	// Only used to initialise sMeasureSymbol from _measureSymbolNames[]:
+	// Only used to initialize sMeasureSymbol from _measureSymbolNames[]:
 	private String getMeasureSymbols() {
 		StringBuilder _sMeasureSymbol = new StringBuilder("(?:");
 		if (_nuDeFeMeasureSymbolNames.length > 0)

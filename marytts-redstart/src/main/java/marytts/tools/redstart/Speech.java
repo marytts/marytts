@@ -27,7 +27,7 @@ import marytts.util.data.audio.AudioPlayer;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Speech {
 
@@ -49,11 +49,6 @@ public class Speech {
 	/**
 	 * Determines how many recordings a prompt has
 	 * 
-	 * @param wavPath
-	 *            The file path to the wav directory of recordings
-	 * @param basename
-	 *            The basename for the currently selected prompt
-	 * @return The number of files
 	 */
 	public void updateFileCount() {
 		// Note: This method doesn't increment the file count; it only asks the Speech object to initiate
@@ -123,7 +118,7 @@ public class Speech {
 	/**
 	 * Get the number of files in filePath containing basename in their file name.
 	 * 
-	 * @return
+	 * @return fileCount
 	 */
 	public int getFileCount() {
 		return fileCount;
@@ -131,6 +126,13 @@ public class Speech {
 
 	/**
 	 * Plays a sound file once via the indicated sourcedataline. The method blocks until the playing has completed.
+	 * 
+	 * @param soundFilePathString
+	 *            soundFilePathString
+	 * @param line
+	 *            line
+	 * @param outputMode
+	 *            outputMode
 	 */
 	public static void play(String soundFilePathString, SourceDataLine line, int outputMode) {
 		play(new File(soundFilePathString), line, outputMode);
@@ -138,6 +140,13 @@ public class Speech {
 
 	/**
 	 * Plays a sound file once via the indicated sourcedataline. The method blocks until the playing has completed.
+	 * 
+	 * @param soundFile
+	 *            soundFile
+	 * @param line
+	 *            line
+	 * @param outputMode
+	 *            outputMode
 	 */
 	public static void play(File soundFile, SourceDataLine line, int outputMode) {
 		try {
@@ -163,8 +172,11 @@ public class Speech {
 	/**
 	 * Creates a new instance of Speech given a file path
 	 * 
-	 * @param filePath
+	 * @param passedFilePath
 	 *            The file path containing the sound files (i.e., the wav or wav_synth directory path)
+	 * @param passedBasename
+	 *            The base name
+	 * 
 	 */
 	public Speech(File passedFilePath, String passedBasename) {
 

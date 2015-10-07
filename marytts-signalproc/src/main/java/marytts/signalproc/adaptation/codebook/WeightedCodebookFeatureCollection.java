@@ -26,7 +26,7 @@ import marytts.util.string.StringUtils;
  * 
  * A wrapper class for indexed binary files of acoustic feature sets
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookFeatureCollection extends BaselineFeatureCollection {
 	public String[] indexMapFiles;

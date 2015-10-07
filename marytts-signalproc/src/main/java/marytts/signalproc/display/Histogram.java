@@ -19,6 +19,13 @@ public class Histogram extends FunctionGraph {
 
 	/**
 	 * Display a histogram showing y(x), with labelled scales.
+	 * 
+	 * @param x0
+	 *            x0
+	 * @param xStep
+	 *            xStep
+	 * @param y
+	 *            y
 	 */
 	public Histogram(double x0, double xStep, double[] y) {
 		super(x0, xStep, y);
@@ -26,6 +33,17 @@ public class Histogram extends FunctionGraph {
 
 	/**
 	 * Display a histogram showing y(x), with labelled scales.
+	 * 
+	 * @param width
+	 *            width
+	 * @param height
+	 *            height
+	 * @param x0
+	 *            x0
+	 * @param xStep
+	 *            xStep
+	 * @param y
+	 *            y
 	 */
 	public Histogram(int width, int height, double x0, double xStep, double[] y) {
 		super(width, height, x0, xStep, y);

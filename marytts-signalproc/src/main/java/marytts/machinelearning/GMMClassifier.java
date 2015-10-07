@@ -23,7 +23,7 @@ package marytts.machinelearning;
  * TO DO: Implement a GMM based classifier that takes as input several GMMs and data and outputs the probability of each GMM
  * generating the data, the most likely GMM, etc
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class GMMClassifier {
 

@@ -62,6 +62,8 @@ public class Syllabifier {
 	/**
 	 * Syllabify a LinkedList of phones. This is an implementation of the syllabification rules by J&uuml;rgen Trouvain.
 	 * 
+	 * @param phoneList
+	 *            phoneList
 	 * @return a LinkedList of phone strings with inserted "-" strings at syllable boundaries.
 	 */
 	public LinkedList<String> syllabify(LinkedList<String> phoneList) {
@@ -256,6 +258,9 @@ public class Syllabifier {
 	/**
 	 * For those syllables containing a "1" character, remove that "1" character and add a stress marker ' at the beginning of the
 	 * syllable.
+	 * 
+	 * @param phoneList
+	 *            phoneList
 	 */
 	protected void correctStressSymbol(LinkedList<String> phoneList) {
 		boolean stressFound = false;
@@ -359,7 +364,11 @@ public class Syllabifier {
 	 * Get the Allophone object named phone; if phone ends with "1", discard the "1" and use the rest of the string as the phone
 	 * symbol.
 	 * 
+	 * @param phone
+	 *            phone
 	 * @deprecated Use {@link AllophoneSet#getAllophone(String)} instead
+	 * @return allophoneset.getAllophone(phonesubstring(0, phone.length() - 1)) if this.removeTrailingOneFromPhones and
+	 *         phone.endsWith("1"), allophoneset.getAllophone(phonesubstring(phone) otherwise
 	 */
 	@Deprecated
 	protected Allophone getAllophone(String phone) {

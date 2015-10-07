@@ -47,7 +47,7 @@ import javax.swing.JTextField;
  * The button shows help information about the usage of the effect when clicked.
  * <p>
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class AudioEffectControlGUI {
 

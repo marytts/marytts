@@ -47,6 +47,10 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
 	/**
 	 * Initialise this double data source with the AudioInputStream from which samples can be read.
 	 * 
+	 * @param ais
+	 *            ais
+	 * @param isAutomaticClippingControl
+	 *            isAutomaticClippingControl
 	 * @throws IllegalArgumentException
 	 *             if the audio input stream does not have 8, 16 or 24 bits per sample.
 	 */

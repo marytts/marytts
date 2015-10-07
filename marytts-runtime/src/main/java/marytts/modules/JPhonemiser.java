@@ -54,6 +54,7 @@ import org.w3c.dom.traversal.NodeIterator;
  * The phonemiser module -- java implementation.
  *
  * @author Marc Schr&ouml;der, Sathish
+ * @author ingmar
  */
 
 public class JPhonemiser extends InternalModule {
@@ -76,11 +77,24 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
-	 * @param allophonesFilename
-	 * @param userdictFilename
-	 * @param lexiconFilename
-	 * @param ltsFilename
-	 * @throws Exception
+	 * @param componentName
+	 *            componentName
+	 * @param inputType
+	 *            inputType
+	 * @param outputType
+	 *            outputType
+	 * @param allophonesProperty
+	 *            allophonesProperty
+	 * @param userdictProperty
+	 *            userdictProperty
+	 * @param lexiconProperty
+	 *            lexiconProperty
+	 * @param ltsProperty
+	 *            ltsProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty, String lexiconProperty, String ltsProperty) throws IOException, MaryConfigurationException {
@@ -90,12 +104,26 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
-	 * @param allophonesFilename
-	 * @param userdictFilename
-	 * @param lexiconFilename
-	 * @param ltsFilename
-	 * @param removetrailingonefromphonesBoolean
-	 * @throws Exception
+	 * @param componentName
+	 *            componentName
+	 * @param inputType
+	 *            inputType
+	 * @param outputType
+	 *            outputType
+	 * @param allophonesProperty
+	 *            allophonesProperty
+	 * @param userdictProperty
+	 *            userdictProperty
+	 * @param lexiconProperty
+	 *            lexiconProperty
+	 * @param ltsProperty
+	 *            ltsProperty
+	 * @param removetrailingonefromphonesProperty
+	 *            removetrailingonefromphonesProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty, String lexiconProperty, String ltsProperty, String removetrailingonefromphonesProperty)
@@ -253,8 +281,10 @@ public class JPhonemiser extends InternalModule {
 	 * Look a given text up in the (standard) lexicon. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            text
 	 * @param pos
-	 * @return
+	 *            pos
+	 * @return null if text == null or text.length is 0, null if entries.length is 0, entries[0] otherwise
 	 */
 	public String lexiconLookup(String text, String pos) {
 		if (text == null || text.length() == 0)
@@ -295,8 +325,10 @@ public class JPhonemiser extends InternalModule {
 	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            text
 	 * @param pos
-	 * @return
+	 *            pos
+	 * @return null if userdict is null or text is null or text.length is 0, null if entries is null, transcr otherwise
 	 */
 	public String userdictLookup(String text, String pos) {
 		if (userdict == null || text == null || text.length() == 0)
@@ -337,7 +369,7 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Access the allophone set underlying this phonemiser.
 	 * 
-	 * @return
+	 * @return allophoneSet
 	 */
 	public AllophoneSet getAllophoneSet() {
 		return allophoneSet;
@@ -352,7 +384,10 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * 
 	 * @param lexiconFilename
-	 * @return
+	 *            lexiconFilename
+	 * @throws IOException
+	 *             IOException
+	 * @return fLexicon
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
 		logger.debug(String.format("Reading lexicon from '%s'", lexiconFilename));
@@ -415,7 +450,6 @@ public class JPhonemiser extends InternalModule {
 	 * Compile a regex pattern used to determine whether tokens are processed as punctuation or not, based on whether their
 	 * <code>pos</code> attribute matches the pattern.
 	 * 
-	 * @author ingmar
 	 */
 	protected void setPunctuationPosRegex() {
 		String language = getLocale().getLanguage();
@@ -448,7 +482,6 @@ public class JPhonemiser extends InternalModule {
 	 * @throws NullPointerException
 	 *             if the regex pattern is null (because it hasn't been set during module startup)
 	 * 
-	 * @author ingmar
 	 */
 	public boolean isPosPunctuation(String pos) {
 		if (pos != null && punctuationPosRegex.matcher(pos).matches()) {
@@ -466,7 +499,6 @@ public class JPhonemiser extends InternalModule {
 	 *            the POS tag of the token
 	 * @return <b>false</b> if the text is empty, or if it contains no word characters <em>and</em> the POS tag indicates
 	 *         punctuation; <b>true</b> otherwise
-	 * @author ingmar
 	 */
 	public boolean maybePronounceable(String text, String pos) {
 		// does text contain anything at all?

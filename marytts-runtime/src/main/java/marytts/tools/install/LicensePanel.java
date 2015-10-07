@@ -36,7 +36,14 @@ import java.util.SortedSet;
  */
 public class LicensePanel extends javax.swing.JPanel {
 
-	/** Creates new form LicensePanel */
+	/**
+	 * Creates new form LicensePanel
+	 * 
+	 * @param licenseURL
+	 *            licenseURL
+	 * @param comps
+	 *            comps
+	 */
 	public LicensePanel(URL licenseURL, SortedSet<ComponentDescription> comps) {
 		initComponents();
 		StringBuilder sb = new StringBuilder();

@@ -39,7 +39,7 @@ import marytts.util.string.StringUtils;
  * 
  * Baseline class for weighted codebook training
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookTrainer extends BaselineTrainer {
 

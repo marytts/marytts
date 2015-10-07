@@ -31,7 +31,7 @@ import marytts.util.string.StringUtils;
 /**
  * Converts binary MFCC files in raw SPTK format into Mary MFCC file format with header
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class MfccRaw2MfccConverter {
 	public static void convertFolder(String folder, String rawMfccFileExtension, String outputMfccFileExtension, int dimension,
@@ -107,6 +107,7 @@ public class MfccRaw2MfccConverter {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		String folder;

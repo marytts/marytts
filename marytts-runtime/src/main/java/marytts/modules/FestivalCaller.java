@@ -114,9 +114,10 @@ public class FestivalCaller extends SynthesisCallerBase {
 	 * Process a single utterance in FESTIVAL_UTT text format.
 	 * 
 	 * @param festivalUtt
+	 *            festivalUtt
 	 * @return the synthesized audio data
 	 * @throws IOException
-	 * @throws UnsupportedAudioFileException
+	 *             IOException
 	 */
 	public AudioInputStream synthesiseOneSection(String festivalUtt, Voice voice) throws IOException {
 		writeRelationFiles(festivalUtt);

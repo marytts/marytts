@@ -20,7 +20,7 @@
 package marytts.language.en.prosody;
 
 /**
- * Information on how to recognise and how to realise different sentence types.
+ * Information on how to recognize and how to realize different sentence types.
  */
 public class SentenceType {
 	public static final SentenceType declarative = new SentenceType("declarative", "L-L%", "H-L%", "H-", "!H*", "L+H*");

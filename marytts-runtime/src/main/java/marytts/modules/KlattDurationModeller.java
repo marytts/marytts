@@ -641,7 +641,6 @@ public class KlattDurationModeller extends InternalModule {
 	 * attribute causes a topline/baseline overshoot / undershoot.
 	 * 
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
-	 * @see #calculateTargetFrequency()
 	 */
 	private int accentProminenceRule(Element segment) {
 		// In addition to Klatt rule 8, take into account the

@@ -33,7 +33,7 @@ import marytts.util.io.FileUtils;
 /**
  * This class transforms MFCCs to MFCCs
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class MfccAdapter {
 

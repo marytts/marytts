@@ -86,7 +86,9 @@ public class TargetFeatureLister extends InternalModule {
 	 * For the given elements and using the given feature computer, create a string representation of the target features.
 	 * 
 	 * @param featureComputer
+	 *            featureComputer
 	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
 	 * @return a multi-line string.
 	 */
 	public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
@@ -111,8 +113,10 @@ public class TargetFeatureLister extends InternalModule {
 	 * Return directly the targets, and set in each target its feature vector
 	 * 
 	 * @param featureComputer
+	 *            featureComputer
 	 * @param segmentsAndBoundaries
-	 * @return
+	 *            segmentsAndBoundaries
+	 * @return targets
 	 */
 	public List<Target> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
 		String pauseSymbol = featureComputer.getPauseSymbol();
@@ -130,8 +134,11 @@ public class TargetFeatureLister extends InternalModule {
 	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
 	 * method in local code.
 	 * 
-	 * @param segs
-	 * @return
+	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
+	 * @param pauseSymbol
+	 *            pauseSymbol
+	 * @return TargetFeatureLister
 	 */
 	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
 		return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
@@ -142,6 +149,8 @@ public class TargetFeatureLister extends InternalModule {
 	 * 
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
+	 * @param silenceSymbol
+	 *            silenceSymbol
 	 * @return a list of Target objects
 	 */
 	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {

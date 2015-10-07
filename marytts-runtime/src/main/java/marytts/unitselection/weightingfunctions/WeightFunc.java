@@ -38,12 +38,29 @@ package marytts.unitselection.weightingfunctions;
  * 
  */
 public interface WeightFunc {
-	/** Compute a weighted difference */
+	/**
+	 * Compute a weighted difference
+	 * 
+	 * @param a
+	 *            a
+	 * @param b
+	 *            b
+	 * @return x
+	 */
 	public double cost(double a, double b);
 
-	/** Possibly set optional parameters. */
+	/**
+	 * Possibly set optional parameters.
+	 * 
+	 * @param val
+	 *            val
+	 */
 	public void setParam(String val);
 
-	/** Return a weighting function definition string. */
+	/**
+	 * Return a weighting function definition string.
+	 * 
+	 * @return whoamI
+	 */
 	public String whoAmI();
 }

@@ -38,6 +38,8 @@ public interface StatisticalCostFunction {
 	 * 
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException;
 

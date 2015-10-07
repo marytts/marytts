@@ -44,7 +44,12 @@ public class DrawHistogram extends javax.swing.JFrame {
 	public JPlotLayout layout_;
 	public Histogram histData;
 
-	/** Creates new form DarwHistogram */
+	/**
+	 * Creates new form DarwHistogram
+	 * 
+	 * @param data
+	 *            data
+	 */
 	public DrawHistogram(double[] data) {
 		initComponents();
 		this.setHistogramData(data, 25);

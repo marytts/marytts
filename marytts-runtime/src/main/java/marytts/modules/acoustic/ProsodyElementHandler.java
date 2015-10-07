@@ -183,9 +183,12 @@ public class ProsodyElementHandler {
 	 * apply given pitch specifications to the base contour
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param baseF0Contour
+	 *            baseF0Contour
 	 * @param pitchAttribute
-	 * @return
+	 *            pitchAttribute
+	 * @return baseF0Contour
 	 */
 	private double[] applyPitchSpecifications(NodeList nl, double[] baseF0Contour, String pitchAttribute) {
 
@@ -250,7 +253,11 @@ public class ProsodyElementHandler {
 	 * Apply given contour specifications to base f0 contour
 	 * 
 	 * @param nl
-	 * @param prosodyElement
+	 *            nl
+	 * @param baseF0Contour
+	 *            baseF0Contour
+	 * @param contourAttribute
+	 *            contourAttribute
 	 */
 	private double[] applyContourSpecifications(NodeList nl, double[] baseF0Contour, String contourAttribute) {
 
@@ -404,7 +411,7 @@ public class ProsodyElementHandler {
 	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
 	 *            should contain 'd', 'end' attributes
 	 * @param arraysize
-	 *            the length of the output pitch contour array (arraysize > 0)
+	 *            the length of the output pitch contour array (arraysize &gt; 0)
 	 * @return a double array of pitch contour
 	 * @throws IllegalArgumentException
 	 *             if NodeList is null or it contains elements other than 'ph' elements
@@ -481,7 +488,9 @@ public class ProsodyElementHandler {
 	 * To set new modified contour into XML
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param contour
+	 *            contour
 	 */
 	private void setModifiedContour(NodeList nl, double[] contour) {
 
@@ -564,8 +573,10 @@ public class ProsodyElementHandler {
 	 * mapping a fixed value to a relative value
 	 * 
 	 * @param pitchAttribute
+	 *            pitchAttribute
 	 * @param baseF0Contour
-	 * @return
+	 *            baseF0Contour
+	 * @return "+" + df.format((relative - 100)) + "%" if relative > 100, "-" + df.format((100 - relative)) + "%" otherwise
 	 */
 	private String fixedValue2RelativeValue(String pitchAttribute, double[] baseF0Contour) {
 
@@ -584,7 +595,9 @@ public class ProsodyElementHandler {
 	 * mapping a positive 'rate' integer to a relative value
 	 * 
 	 * @param rateAttribute
-	 * @return
+	 *            rateAttribute
+	 * @return "+" + df.format((relativePercentage - 100)) + "%" if relativePercentage > 100, "-" + df.format((100 -
+	 *         relativePercentage)) + "%" otherwise
 	 */
 	private String positiveInteger2RelativeValues(String rateAttribute) {
 
@@ -602,7 +615,9 @@ public class ProsodyElementHandler {
 	 * a look-up table for mapping rate labels to relative values
 	 * 
 	 * @param rateAttribute
-	 * @return
+	 *            rateAttribute
+	 * @return "-50%" if rateAttribute equals "x-slow", "-33.3%" if rateAttribute equals "slow", "+0%" if rateAttribute equals
+	 *         "medium", "+33%" if rateAttribute equals "fast", "+100%" if rateAttribute equals "x-fast", "+0%" otherwise
 	 */
 	private String rateLabels2RelativeValues(String rateAttribute) {
 
@@ -625,7 +640,9 @@ public class ProsodyElementHandler {
 	 * a look-up for pitch labels to relative changes
 	 * 
 	 * @param pitchAttribute
-	 * @return
+	 *            pitchAttribute
+	 * @return "-50%" if pitchAttribute equals "x-low", "-25%" if pitchAttribute equals "low", "+0%" if pitchAttribute equals
+	 *         "medium", "+100%" if pitchAttribute equals "high", "+200%" if pitchAttribute equals "x-high", "+0%" otherwise
 	 */
 	private String pitchLabels2RelativeValues(String pitchAttribute) {
 

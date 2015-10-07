@@ -24,7 +24,7 @@ import java.io.IOException;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class PitchMappingFileHeader {

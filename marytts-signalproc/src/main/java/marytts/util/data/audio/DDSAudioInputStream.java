@@ -41,7 +41,9 @@ public class DDSAudioInputStream extends AudioInputStream {
 	 * From the given DoubleDataSource, create an AudioInputStream of the given audio format.
 	 * 
 	 * @param source
+	 *            source
 	 * @param format
+	 *            format
 	 * @throws IllegalArgumentException
 	 *             if the format is not mono, not PCM_SIGNED or PCM_UNSIGNED, or has a sample size in bits other than 8 or 16.
 	 */

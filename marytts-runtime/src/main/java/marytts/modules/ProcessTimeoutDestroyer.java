@@ -72,6 +72,8 @@ public class ProcessTimeoutDestroyer extends Thread {
 	 * old one is still running, the old one is silently stopped, and the new one is started as if the old one was not there.
 	 * 
 	 * @see #resetTimeLimit
+	 * @param timeLimit
+	 *            timeLimit
 	 */
 	public synchronized void setTimeLimit(long timeLimit) {
 		if (timeLimit <= 0)

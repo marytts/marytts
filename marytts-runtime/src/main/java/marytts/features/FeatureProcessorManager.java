@@ -54,6 +54,11 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Constructor called from a Voice that has its own acoustic models
+	 * 
+	 * @param voice
+	 *            voice
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public FeatureProcessorManager(Voice voice) throws MaryConfigurationException {
 		this(voice.getLocale());
@@ -64,6 +69,7 @@ public class FeatureProcessorManager {
 	 * Create any additional feature processors for acoustic models.
 	 * 
 	 * @param voice
+	 *            voice
 	 */
 	protected void registerAcousticModels(Voice voice) {
 		Map<String, Model> acousticModels = voice.getAcousticModels();
@@ -196,7 +202,7 @@ public class FeatureProcessorManager {
 	 * respective locale. This base class returns null to indicate that the feature processor manager can be used as a fallback
 	 * for any locale.
 	 * 
-	 * @return
+	 * @return locale
 	 */
 	public Locale getLocale() {
 		return locale;
@@ -207,7 +213,7 @@ public class FeatureProcessorManager {
 	 * The list is unsorted except that byte-valued feature processors come first, followed by short-valued feature processors,
 	 * followed by continuous feature processors.
 	 * 
-	 * @return
+	 * @return sb to string
 	 */
 	public String listFeatureProcessorNames() {
 		String bytes = listByteValuedFeatureProcessorNames();

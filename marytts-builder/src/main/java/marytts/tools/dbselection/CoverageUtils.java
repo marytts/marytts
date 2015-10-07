@@ -57,9 +57,12 @@ public class CoverageUtils {
 	 * Convert the given feature vectors to the coverage features format, containing all byte features in a single byte array.
 	 * 
 	 * @param featureNames
+	 *            featureNames
 	 * @param def
+	 *            def
 	 * @param featureVectors
-	 * @return
+	 *            featureVectors
+	 * @return data
 	 */
 	public static byte[] toCoverageFeatures(String featureNames, FeatureDefinition def, FeatureVector[] featureVectors) {
 		String[] featureNameArray = featureNames.split(" ");

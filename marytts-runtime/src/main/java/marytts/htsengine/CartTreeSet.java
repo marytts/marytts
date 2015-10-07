@@ -130,7 +130,20 @@ public class CartTreeSet {
 		}
 	}
 
-	/** Loads all the CART trees */
+	/**
+	 * Loads all the CART trees
+	 * 
+	 * @param htsData
+	 *            htsData
+	 * @param featureDef
+	 *            featureDef
+	 * @param trickyPhones
+	 *            trickyPhones
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 */
 	public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones) throws IOException,
 			MaryConfigurationException {
 		// Check if there are tricky phones, and create a PhoneTranslator object
@@ -186,8 +199,9 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param htsData
 	 *            HMMData with configuration settings
+	 * @param diffdur
+	 *            diffdur
 	 * @return duration
-	 * @throws Exception
 	 */
 	public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) {
 		return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
@@ -239,7 +253,8 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
+	 * @param uvthresh
+	 *            uvthresh
 	 */
 	public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) {
 		for (int s = 0; s < numStates; s++) {
@@ -264,7 +279,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -283,7 +297,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -302,7 +315,6 @@ public class CartTreeSet {
 	 *            context feature vector
 	 * @param featureDef
 	 *            Feature definition
-	 * @throws Exception
 	 */
 	public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
 		for (int s = 0; s < numStates; s++) {
@@ -316,8 +328,15 @@ public class CartTreeSet {
 	 * creates a HTSModel (pre-HMM optimization vector data for all parameter streams of a given phoneme) given a feature vector
 	 * compare with original code in the main loop of marytts.modules.HTSEngine#processTargetList()
 	 * 
+	 * @param htsData
+	 *            htsData
+	 * @param feaDef
+	 *            feaDef
+	 * @param fv
+	 *            fv
 	 * @param oldErr
-	 * @throws Exception
+	 *            oldErr
+	 * @return m
 	 */
 	public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureVector fv, double oldErr) {
 		HTSModel m = new HTSModel(getNumStates());

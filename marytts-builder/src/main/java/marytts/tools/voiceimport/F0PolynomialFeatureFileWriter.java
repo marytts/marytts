@@ -216,8 +216,6 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	/**
 	 * From the given feature definition, set up a battery of instance variables intended to speed up the analysis of the feature
 	 * vectors.
-	 * 
-	 * @param featureDefinition
 	 */
 	private void initialiseFeatureConstants() {
 		assert features != null : "This shouldn't be called without features";
@@ -251,6 +249,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * Get the audio data for the given sentence
 	 * 
 	 * @param s
+	 *            s
 	 * @return the audio data for the sentence, in double representation
 	 * @throws IOException
 	 *             if there is a problem reading the audio data
@@ -269,6 +268,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * Play the audio for the given sentence in blocking mode (returns when finished playing)
 	 * 
 	 * @param s
+	 *            s
 	 * @throws IOException
 	 *             if there is a problem reading the audio data
 	 */
@@ -334,6 +334,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * For the given log f0 contour, compute an interpolation across NaN sections
 	 * 
 	 * @param rawLogF0Contour
+	 *            rawLogF0Contour
 	 * @return a version of the LogF0 contour for which values are interpolated across NaN regions
 	 */
 	private double[] getInterpolatedLogF0Contour(double[] rawLogF0Contour) {
@@ -366,9 +367,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * For a syllable that is part of a sentence, determine the position of the syllable in an array representing the full
 	 * sentence.
 	 * 
-	 * @param sentence
+	 * @param s
 	 *            the sentence
-	 * @param syllable
+	 * @param syl
 	 *            the syllable which must be inside the sentence
 	 * @param arrayLength
 	 *            the length of an array representing the temporal extent of the sentence
@@ -439,6 +440,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * @param approximatedLogF0
 	 *            the approximated log F0 curve (ignored if null)
 	 * @param f0FrameSkip
+	 *            f0FrameSkip
 	 */
 	private void drawGraph(double[] logF0, double[] interpolatedLogF0, double[] approximatedLogF0, double f0FrameSkip) {
 		if (f0Graph == null) {
@@ -480,9 +482,13 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * Compute the polynomial unit features and write them to the given data output.
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedEncodingException
+	 *             UnsupportedEncodingException
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
 		int numUnits = units.getNumberOfUnits();
@@ -576,7 +582,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.UNITFEATS).writeTo(out);
@@ -594,6 +602,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		F0PolynomialFeatureFileWriter acfeatsWriter = new F0PolynomialFeatureFileWriter();

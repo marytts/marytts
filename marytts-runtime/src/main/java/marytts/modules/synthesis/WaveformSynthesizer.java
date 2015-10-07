@@ -33,6 +33,9 @@ import org.w3c.dom.Element;
 public interface WaveformSynthesizer {
 	/**
 	 * Start up the waveform synthesizer. This must be called once before calling synthesize().
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void startup() throws Exception;
 
@@ -48,14 +51,13 @@ public interface WaveformSynthesizer {
 	 * Synthesize a given part of a MaryXML document. This method is expected to be thread-safe.
 	 * 
 	 * @param tokensAndBoundaries
-	 *            the part of the MaryXML document to synthesize; a list containing a number of adjacent <t> and <boundary>
-	 *            elements.
+	 *            the part of the MaryXML document to synthesize; a list containing a number of adjacent t and boundary elements.
 	 * @param voice
 	 *            the Voice to use for synthesis
 	 * @param outputParams
 	 *            any specified output parameters; may be null
 	 * @return an AudioInputStream in synthesizer-native audio format.
-	 * @throws IllegalArgumentException
+	 * @throws SynthesisException
 	 *             if the voice requested for this section is incompatible with this WaveformSynthesizer.
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)

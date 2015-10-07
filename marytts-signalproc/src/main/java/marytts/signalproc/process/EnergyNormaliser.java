@@ -42,6 +42,9 @@ public class EnergyNormaliser implements AudioProcessor {
 
 	/**
 	 * Adapt the amplitudes of a signal such that the energy changes by the given factor.
+	 * 
+	 * @param energyFactor
+	 *            energy factor
 	 */
 	public EnergyNormaliser(double energyFactor) {
 		this.amplitudeFactor = Math.sqrt(energyFactor);
@@ -113,8 +116,6 @@ public class EnergyNormaliser implements AudioProcessor {
 	 * 
 	 * @param signal
 	 *            audio signal for which to determine the average power
-	 * @param samplingRate
-	 *            the sampling rate of the signal, as samples per second
 	 * @return a non-negative double representing the average power as energy per sample, i.e. the total energy divided by the
 	 *         total duration.
 	 */

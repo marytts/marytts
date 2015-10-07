@@ -28,7 +28,7 @@ import marytts.util.io.LEDataOutputStream;
 /**
  * A class for handling source-target frame indices mapping It can be used in various ways:
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class IndexMap {
 	public FileMap[] files; // A frame map for individual file pairs

@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation;
 /**
  * Flags for outliers in source and target training data
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class OutlierStatus {
 	public static final int NON_OUTLIER = Integer.parseInt("0000000000", 2);

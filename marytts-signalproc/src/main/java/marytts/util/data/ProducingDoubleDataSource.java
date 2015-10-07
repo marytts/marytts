@@ -69,6 +69,9 @@ public abstract class ProducingDoubleDataSource extends BufferedDoubleDataSource
 	 * The producing thread tries to put ont data item into the queue.
 	 * 
 	 * @param value
+	 *            value
+	 * @throws RuntimeException
+	 *             runtime exception
 	 */
 	public void putOneDataPoint(double value) {
 		try {
@@ -140,7 +143,7 @@ public abstract class ProducingDoubleDataSource extends BufferedDoubleDataSource
 	/**
 	 * The reading thread tries to get one data item from the queue.
 	 * 
-	 * @return
+	 * @return queue.take
 	 */
 	private double getOneDataPoint() {
 		try {

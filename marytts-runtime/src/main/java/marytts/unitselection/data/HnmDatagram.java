@@ -33,7 +33,7 @@ import marytts.util.data.Datagram;
 /**
  * A datagram that encapsulates a harmonics plus noise modelled speech frame
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class HnmDatagram extends Datagram {
@@ -43,7 +43,7 @@ public class HnmDatagram extends Datagram {
 	/**
 	 * Construct a HNM datagram.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param frame
 	 *            the parameters of HNM for a speech frame.
@@ -59,9 +59,12 @@ public class HnmDatagram extends Datagram {
 	 * 
 	 * @param raf
 	 *            the random access file to pop the datagram from.
-	 * 
+	 * @param noiseModel
+	 *            the noise model
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public HnmDatagram(RandomAccessFile raf, int noiseModel) throws IOException, EOFException {
 		super(raf.readLong()); // duration
@@ -87,9 +90,12 @@ public class HnmDatagram extends Datagram {
 	 * 
 	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param noiseModel
+	 *            noiseModel
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public HnmDatagram(ByteBuffer bb, int noiseModel) throws IOException, EOFException {
 		super(bb.getLong()); // duration
@@ -123,6 +129,11 @@ public class HnmDatagram extends Datagram {
 
 	/**
 	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @param out
+	 *            out
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(duration);
@@ -133,6 +144,10 @@ public class HnmDatagram extends Datagram {
 
 	/**
 	 * Tests if this datagram is equal to another datagram.
+	 * 
+	 * @param other
+	 *            other
+	 * @return true if pass everything
 	 */
 	public boolean equals(Datagram other) {
 		if (!(other instanceof HnmDatagram))

@@ -78,6 +78,7 @@ public class Lpc2Lprefc {
 	 *            The name of the output file.
 	 * 
 	 * @throws IOException
+	 *             IOEXception
 	 */
 	public static void convert(String inFileName, String outFileName) throws IOException {
 		// Load the input file
@@ -92,6 +93,9 @@ public class Lpc2Lprefc {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws IOException
+	 *             IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		// Usage: ESTlpcToESTlprefc inFileName outFileName

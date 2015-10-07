@@ -55,6 +55,8 @@ public class BatchSynth {
 	 * @param args
 	 *            first argument, the output directory; the rest, file names containing text files. Each text file contains, in
 	 *            each line, a file name followed by the sentence to generate as a .wav file.
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		File globalOutputDir = new File(args[0]);

@@ -184,9 +184,13 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedEncodingException
+	 *             UnsupportedEncodingException
 	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
 		int numUnits = listenerUnits.getNumberOfUnits();
@@ -456,7 +460,9 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent {
 	 * Write the header of this feature file to the given DataOutput
 	 * 
 	 * @param out
+	 *            out
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void writeHeaderTo(DataOutput out) throws IOException {
 		new MaryHeader(MaryHeader.LISTENERFEATS).writeTo(out);
@@ -474,6 +480,9 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		VocalizationF0PolyFeatureFileWriter acfeatsWriter = new VocalizationF0PolyFeatureFileWriter();

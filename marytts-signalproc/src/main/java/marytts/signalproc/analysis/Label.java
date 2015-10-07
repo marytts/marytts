@@ -25,7 +25,7 @@ import java.util.Locale;
 /**
  * A class to keep all information on a single EST format label
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Label {
 	public double time; // Ending time of phonetic label

@@ -311,7 +311,7 @@ public class SFFS {
 	 *            set of current feature indexes
 	 * @param x
 	 *            one feature index in X
-	 * @return
+	 * @return corXminusx
 	 */
 	private double correlationOfFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int x, int rowIni,
 			int rowEnd) {
@@ -349,7 +349,7 @@ public class SFFS {
 	 *            set of current feature indexes
 	 * @param y
 	 *            a feature index that is not in X, new feature
-	 * @return
+	 * @return corXplusy
 	 */
 	private double correlationOfNewFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int y, int rowIni,
 			int rowEnd) {

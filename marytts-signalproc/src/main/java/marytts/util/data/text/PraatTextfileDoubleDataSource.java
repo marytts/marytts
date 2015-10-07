@@ -34,7 +34,10 @@ public class PraatTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	/**
 	 * Read Double data from a Text file in Praat short text file format. Skip the header, then read one double per line.
 	 * 
-	 * @param reader
+	 * @param file
+	 *            file
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	public PraatTextfileDoubleDataSource(File file) throws FileNotFoundException {
 		this(new FileReader(file));
@@ -44,6 +47,7 @@ public class PraatTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	 * Read Double data from a Text file in Praat short text file format. Skip the header, then read one double per line.
 	 * 
 	 * @param reader
+	 *            reader
 	 */
 	public PraatTextfileDoubleDataSource(Reader reader) {
 		super(reader);

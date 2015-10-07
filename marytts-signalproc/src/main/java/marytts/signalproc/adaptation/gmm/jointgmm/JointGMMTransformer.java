@@ -53,7 +53,7 @@ import marytts.util.string.StringUtils;
  * Reference: A. Kain and M. Macon, “Spectral voice conversion for text-to-speech synthesis,” in Proc. of the IEEE ICASSP 1998,
  * vol. 1, pp. 285-288.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class JointGMMTransformer extends BaselineTransformer {
 
@@ -693,8 +693,11 @@ public class JointGMMTransformer extends BaselineTransformer {
 	 * /Neutral-Spike-Conversion/output/source2target/gmmF_99/isSrc0_smooth1_10_mixes10_prosody1x0x0/*.wav transformed files
 	 * 
 	 * @param args
+	 *            args
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void mainQuickTest2(String[] args) throws UnsupportedAudioFileException, IOException {
 		String wavBaseFolder = "/project/mary/marcela/VoiceConversion/Neutral-Spike-Conversion/";

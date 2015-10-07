@@ -35,7 +35,7 @@ import marytts.util.string.StringUtils;
  * Reference: A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from in- complete data via the em algorithm.
  * Journal of the Royal Statistical Society: Series B, 39(1):1–38, November 1977.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class GMMTrainer {
 

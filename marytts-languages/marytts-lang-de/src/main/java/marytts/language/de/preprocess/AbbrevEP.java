@@ -109,6 +109,14 @@ public class AbbrevEP extends ExpansionPattern {
 
 	/**
 	 * Expand abbreviations and eventually replace them by <code>mtu</code> structures (for multi-token abbreviations).
+	 * 
+	 * @param tokens
+	 *            tokens
+	 * @param s
+	 *            s
+	 * @param type
+	 *            type
+	 * @return expanded
 	 */
 	protected List<Element> expand(List<Element> tokens, String s, int type) {
 		if (tokens == null)
@@ -125,6 +133,10 @@ public class AbbrevEP extends ExpansionPattern {
 	/**
 	 * Expand the abbreviation list <code>abbr</code>. First, try to find longest entries in database, then shorter. If no entry
 	 * was found, expand by rule. Return the list of newly created, but not yet attached tokens.
+	 * 
+	 * @param abbrTokens
+	 *            abbrTokens
+	 * @return exp
 	 */
 	private List<Element> expandAbbrev(List<Element> abbrTokens) {
 		ArrayList<Element> exp = new ArrayList<Element>();
@@ -210,6 +222,12 @@ public class AbbrevEP extends ExpansionPattern {
 	 * Expand a recognised abbreviation from the dictionary. <code>match</code> is the list of token elements forming the
 	 * abbreviation; <code>abbrev</code> is a string representation of that abbreviation. Tokens for the expanded form are
 	 * created, but not yet attached to the dom tree.
+	 * 
+	 * @param match
+	 *            match
+	 * @param abbrev
+	 *            abbrev
+	 * @return exp
 	 */
 	private List<Element> dictionaryExpandAbbrev(List<Element> match, String abbrev) {
 		Document doc = ((Element) match.get(0)).getOwnerDocument();
@@ -293,6 +311,12 @@ public class AbbrevEP extends ExpansionPattern {
 	/**
 	 * Spell out a token. If saySpecialChar is true, specialChar is pronounced as well; otherwise, it is silently ignored. The
 	 * spelled out version is returned as a String in which individual tokens are separated by a space character.
+	 * 
+	 * @param s
+	 *            s
+	 * @param saySpecialChar
+	 *            saySpecialChar
+	 * @return sb.toString().trim()
 	 */
 	private String spellOutAbbrev(String s, boolean saySpecialChar) {
 		if (s == null || s.length() == 0) // nothing to do

@@ -69,7 +69,20 @@ public class EmoSpeakPanel extends javax.swing.JPanel implements AudioFileReceiv
 	private Map sampleTextsByLocale; // map locale to Vectors of Strings
 	private Map localeByDisplayLanguage; // map display language to locale
 
-	/** Creates new form EmoSpeakPanel */
+	/**
+	 * Creates new form EmoSpeakPanel
+	 * 
+	 * @param synthesiseAsynchronously
+	 *            synthesiseAsynchronously
+	 * @param maryServerHost
+	 *            maryServerHost
+	 * @param maryServerPort
+	 *            maryServerPort
+	 * @throws IOException
+	 *             IOException
+	 * @throws UnknownHostException
+	 *             UnknownHostException
+	 */
 	public EmoSpeakPanel(boolean synthesiseAsynchronously, String maryServerHost, int maryServerPort) throws IOException,
 			UnknownHostException {
 		this.synthesiseAsynchronously = synthesiseAsynchronously;

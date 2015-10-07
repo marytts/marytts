@@ -5,3 +5,4 @@
  * The synthesis stage performs appropriate interpolations among successive frames to ensure continuity.
  */
 package marytts.signalproc.sinusoidal.hntm.modification;
+

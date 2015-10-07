@@ -32,7 +32,7 @@ import marytts.util.io.MaryRandomAccessFile;
  * 
  * A class for handling file I/O of weighted codebook file headers
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookFileHeader {
 	public int totalEntries;
