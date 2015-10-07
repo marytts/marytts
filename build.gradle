@@ -1,8 +1,10 @@
+
 description 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
 
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'maven'
 
     group 'de.dfki.mary'
     version '6.0-SNAPSHOT'
