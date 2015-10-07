@@ -444,11 +444,11 @@ public class HTSEngine extends InternalModule {
 					// m.getTotalDur() + " frames)" );
 					// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states in
 					// frames
-					double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+					//double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
 					m.setTotalDur(0);
 					for (int k = 0; k < cart.getNumStates(); k++) {
 						// System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));
-						int newStateDuration = (int) (durationsFraction * m.getDur(k) + newStateDurationFactor);
+						int newStateDuration = (int) (m.getDur(k) + newStateDurationFactor);
 						newStateDuration = Math.max(1, newStateDuration);
 						m.setDur(k, newStateDuration);
 						m.incrTotalDur(newStateDuration);
