@@ -42,7 +42,7 @@ import marytts.util.http.Address;
  * 
  * @author Marc Schr&ouml;der, oytun.turk
  * @see MaryGUIClient A GUI interface to this client
- * @link {marytts.server#MaryServer} Description of the MARY protocol
+ * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
 public abstract class MaryClient {
