@@ -249,6 +249,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	/**
 	 * Tell whether String <code>s</code> is a specialChar.
 	 * 
+	 * @param s
+	 *            the string
 	 * @return reMatchingChars.matcher(s).matches()
 	 */
 	public boolean matchSpecialChar(String s) {
