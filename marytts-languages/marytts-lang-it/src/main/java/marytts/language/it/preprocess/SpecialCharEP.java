@@ -134,11 +134,7 @@ public class SpecialCharEP extends ExpansionPattern {
 		return sb.toString();
 	}
 
-	/**
-	 * Only needed to fill sMatchingCharsSimpleString from _specialCharNames[]
-	 * 
-	 * @return sb.toString
-	 */
+	/** Only needed to fill sMatchingCharsSimpleString from _specialCharNames[] */
 	private String createMatchingCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
 		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
