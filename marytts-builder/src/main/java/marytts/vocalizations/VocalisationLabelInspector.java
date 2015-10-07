@@ -40,7 +40,9 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param inLocation
+	 *            inLocation
 	 * @param outLocation
+	 *            outLocation
 	 */
 	public VocalisationLabelInspector(String inLocation, String outLocation) {
 		this.inLocation = inLocation;
@@ -138,7 +140,8 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 *            vocalLabels
+	 * @return 0.0
 	 */
 	private double getStartPauseDuration(UnitLabel[] vocalLabels) {
 
@@ -161,7 +164,8 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 *            vocalLabels
+	 * @return 0.0
 	 */
 	private double getEndPauseDuration(UnitLabel[] vocalLabels) {
 
@@ -185,7 +189,8 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 *            vocalLabels
+	 * @return 0.0
 	 */
 	private double getStartTimeStamp(UnitLabel[] vocalLabels) {
 
@@ -208,7 +213,8 @@ public class VocalisationLabelInspector {
 	/**
 	 * 
 	 * @param vocalLabels
-	 * @return
+	 *            vocalLabels
+	 * @return vocalLabels[vocalLabels.length -1].endTime
 	 */
 	private double getEndTimeStamp(UnitLabel[] vocalLabels) {
 
@@ -231,7 +237,9 @@ public class VocalisationLabelInspector {
 
 	/**
 	 * @param args
+	 *            args
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static void main(String[] args) throws IOException {
 

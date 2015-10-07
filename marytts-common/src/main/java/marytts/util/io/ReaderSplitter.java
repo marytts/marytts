@@ -47,6 +47,10 @@ public class ReaderSplitter {
 	/**
 	 * Return a reader from which one chunk can be read, followed by EOF. Chunks are delimited by start of file, lines containing
 	 * the end marker string (line is last line in chunk), and end of file. Returns null if nothing more can be read.
+	 * 
+	 * @throws IOException
+	 *             IOException
+	 * @return stringReader(buf.toString())
 	 */
 	public Reader nextReader() throws IOException {
 		String line = null;

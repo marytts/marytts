@@ -36,6 +36,7 @@ public class MonoAudioInputStream extends AudioInputStream {
 	/**
 	 * 
 	 * @param input
+	 *            input
 	 * @param inputMode
 	 *            if AudioPlayer.STEREO, average both input streams; if AudioPlayer.LEFT_ONLY, use only the left channel; if
 	 *            AudioPlayer.RIGHT_ONLY, use only the right channel.

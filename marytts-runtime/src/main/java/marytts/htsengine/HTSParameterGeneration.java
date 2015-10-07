@@ -175,8 +175,10 @@ public class HTSParameterGeneration {
 	 * 
 	 * @param um
 	 *            : utterance model sequence after processing Mary context features
-	 * @param ms
+	 * @param htsData
 	 *            : HMM pdfs model set.
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, final HMMData htsData) throws Exception {
 		CartTreeSet ms = htsData.getCartTreeSet();

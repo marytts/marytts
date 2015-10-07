@@ -32,7 +32,7 @@ import marytts.util.math.MathUtils;
 /**
  * Wrapper class for speaker specific GMMs for voice conversion This is the dual of WeightedCodebook class in codebook mapping
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class JointGMM {
 	public GMM source; // Full GMM for source

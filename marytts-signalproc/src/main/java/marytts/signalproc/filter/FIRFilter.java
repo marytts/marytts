@@ -41,8 +41,7 @@ public class FIRFilter implements InlineDataProcessor {
 	/**
 	 * Create a new, uninitialised FIR filter. Subclasses need to call
 	 * 
-	 * @see #initialise() separately.
-	 *
+	 * check {@link #initialise(double[] impulseResponse, int sliceLen)} .
 	 */
 	protected FIRFilter() {
 
@@ -68,7 +67,7 @@ public class FIRFilter implements InlineDataProcessor {
 	 * 
 	 * @param impulseResponse
 	 *            the impulse response signal
-	 * @param sliceLength
+	 * @param sliceLen
 	 *            the length of the slices in which to process the input data. IMPORTANT: impulseResponse.length+sliceLength must
 	 *            be a power of two (256, 512, etc.)
 	 * @throws IllegalArgumentException

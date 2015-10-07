@@ -36,8 +36,11 @@ public class LanguageComponentDescription extends ComponentDescription {
 
 	/**
 	 * @param xmlDescription
+	 *            xmlDescription
 	 * @throws NullPointerException
+	 *             NullPointerException
 	 * @throws MalformedURLException
+	 *             MalformedURLException
 	 */
 	public LanguageComponentDescription(Element xmlDescription) throws NullPointerException, MalformedURLException {
 		super(xmlDescription);

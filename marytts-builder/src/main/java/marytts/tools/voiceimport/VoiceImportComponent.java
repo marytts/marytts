@@ -59,6 +59,8 @@ public abstract class VoiceImportComponent {
 	 *            the list of basenames
 	 * @param props
 	 *            the map from properties to values
+	 * @throws Exception
+	 *             Exception
 	 */
 	public final void initialise(DatabaseLayout db, BasenameList bnl, SortedMap<String, String> props) throws Exception {
 		// setupHelp(); this is now done by DatabaseLayout
@@ -71,8 +73,8 @@ public abstract class VoiceImportComponent {
 	/**
 	 * Initialise a voice import component: component specific initialisation; to be overwritten by subclasses
 	 * 
-	 * @param bnl
-	 *            the list of basenames
+	 * @throws Exception
+	 *             Exception
 	 */
 	protected void initialiseComp() throws Exception {
 	}
@@ -80,6 +82,8 @@ public abstract class VoiceImportComponent {
 	/**
 	 * Get the map of properties2values containing the default values
 	 * 
+	 * @param db
+	 *            db
 	 * @return map of props2values
 	 */
 	public abstract SortedMap<String, String> getDefaultProps(DatabaseLayout db);
@@ -117,6 +121,8 @@ public abstract class VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public abstract boolean compute() throws Exception;

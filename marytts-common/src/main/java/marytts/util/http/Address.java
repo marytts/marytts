@@ -23,7 +23,7 @@ package marytts.util.http;
  * 
  * A class to keep host and port information in a structure
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Address {
 	private String host;

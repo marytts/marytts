@@ -36,7 +36,7 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * A class for general purpose distance metrics to compare speech/audio signals objectively
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class SpectralDistanceMeasures {
 	public static double MAX_SPECTRAL_DISTANCE = 1e+10;

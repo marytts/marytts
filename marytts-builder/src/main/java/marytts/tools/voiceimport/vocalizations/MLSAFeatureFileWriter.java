@@ -181,7 +181,7 @@ public class MLSAFeatureFileWriter extends VoiceImportComponent {
 	/**
 	 * Initialize this component
 	 * 
-	 * @throws MaryConfigurationException
+	 * @throws Exception
 	 *             if there is problem with basename list
 	 */
 	@Override
@@ -249,6 +249,7 @@ public class MLSAFeatureFileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

@@ -27,7 +27,7 @@ import marytts.util.signal.SignalProcUtils;
  * Reference: R.J. McAulay and T.F. Quatieri, "Speech Analysis/Synthesis Based on a Sinusoidal Representation," IEEE Transactions
  * on Acoustics, Speech and Signal Processing, vol. ASSP-34, no. 4, August 1986.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class TrackGenerator {
 	public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.001f; // Time instant before/after current time to insert a turning-on/off

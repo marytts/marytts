@@ -25,7 +25,7 @@ import marytts.util.io.MaryRandomAccessFile;
  * 
  * Wrapper class for a single weighted codebook entry
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookEntry {
 	public WeightedCodebookSpeakerItem sourceItem;

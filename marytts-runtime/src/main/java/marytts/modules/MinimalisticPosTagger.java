@@ -52,8 +52,10 @@ public class MinimalisticPosTagger extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * 
+	 * @param propertyPrefix
+	 *            propertyPrefix
 	 * @throws Exception
+	 *             Exception
 	 */
 	public MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
 		super("OpenNLPPosTagger", MaryDataType.WORDS, MaryDataType.PARTSOFSPEECH, MaryUtils.string2locale(locale));

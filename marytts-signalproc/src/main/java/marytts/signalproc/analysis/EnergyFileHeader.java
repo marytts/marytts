@@ -26,7 +26,7 @@ import marytts.util.io.MaryRandomAccessFile;
 /**
  * Implements a structured header with file I/O functionality for binary energy contour files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class EnergyFileHeader {
 	public int samplingRate;

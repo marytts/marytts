@@ -85,6 +85,8 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param toBePhonemised
 	 *            The input word
+	 * @param allowOtherLanguage
+	 *            allowOtherLanguage
 	 * @return Transcription of input word if one can be built - null otherwise
 	 */
 	public Result processWord(String toBePhonemised, boolean allowOtherLanguage) {
@@ -147,6 +149,8 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param toBePhonemised
 	 *            the input word
+	 * @param allowOtherLanguage
+	 *            allowOtherLanguage
 	 * @return the transcription of the word, or null if the word could not be transcribed
 	 */
 	private String processFlection(Word word, Result currentResult, boolean allowOtherLanguage) {
@@ -194,8 +198,10 @@ public class PhonemiseDenglish {
 	/**
 	 * Try to process the input word as a verbal or adjective flection.
 	 * 
-	 * @param toBePhonemised
+	 * @param word
 	 *            the input word
+	 * @param currentResult
+	 *            currentResult
 	 * @return the transcription of the word
 	 */
 	private String processFlectionEnding(Word word, Result currentResult) {
@@ -260,6 +266,7 @@ public class PhonemiseDenglish {
 	 * @param word
 	 *            the input word
 	 * @param currentResult
+	 *            currentResult
 	 * @param allowOtherLanguage
 	 *            whether to allow component words from other language in compound analysis
 	 * @return If a transcription for the input can be found, then it is returned. Otherwise returns null.
@@ -413,7 +420,7 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param toBePhonemised
 	 *            the input word
-	 * @param endings
+	 * @param endingLength
 	 *            endings from language specific ending list
 	 * @return when valid flection ending is found, returns a string array of two elements (first is stem, second is ending);
 	 *         else, returns null.
@@ -434,6 +441,14 @@ public class PhonemiseDenglish {
 
 	/**
 	 * Try to find baseform of otherLanguageWord (i.e. english infinitive in denglish word)
+	 * 
+	 * @param wordMinusFlectionEnding
+	 *            wordMinusFlectionEnding
+	 * @param flectionEnding
+	 *            flectionEnding
+	 * @param word
+	 *            word
+	 * @return word
 	 */
 	private Word transformWordToEnBaseForm(String wordMinusFlectionEnding, String flectionEnding, Word word) {
 		logger.debug("getEnBaseForm is starting with...: " + wordMinusFlectionEnding);
@@ -534,7 +549,8 @@ public class PhonemiseDenglish {
 	/**
 	 * 
 	 * @param word
-	 * @return
+	 *            word
+	 * @return enBaseForm
 	 */
 	private String transformWordToEnBaseFormGerund(String word) {
 		logger.debug("getBaseFormGerund called with: " + word);
@@ -565,8 +581,10 @@ public class PhonemiseDenglish {
 	/**
 	 * Building the transcription and syllabification of a flection
 	 * 
-	 * @param enBaseForm
-	 *            : the english infinitive as found in english lexicon
+	 * @param currentResult
+	 *            currentResult
+	 * @param word
+	 *            : the English infinitive as found in English lexicon
 	 * @return transcription of complete input word
 	 */
 	private String transcribeFlection(Word word, Result currentResult) {
@@ -714,6 +732,8 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param toBePhonemised
 	 *            The input word
+	 * @param endingLength
+	 *            endingLength
 	 * @return Flection ending if one can be found, null otherwise
 	 */
 	private String knowEnding(String toBePhonemised, int endingLength) {
@@ -794,6 +814,7 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param s
 	 *            input string
+	 * @return true if s.substring(s.length -3, s.length).equals(gerundEndings[j]), false otherwise
 	 */
 	private boolean checkIfGerund(String s) {
 		String[] gerundEndings = getEndingsAndAffixes("gerund_ending");// should be 'end' for german
@@ -810,7 +831,7 @@ public class PhonemiseDenglish {
 	/**
 	 * Checks if flection ending is a short superlative ending
 	 * 
-	 * @param ending
+	 * @param flectionEnding
 	 *            flection ending
 	 * @return true if ending is short superlative false otherwise
 	 */
@@ -957,7 +978,7 @@ public class PhonemiseDenglish {
 	/**
 	 * Looks up list of all endings and affixes for specific language
 	 * 
-	 * @param Description
+	 * @param key
 	 *            key of the affixes/endings you want to get, i.e. superlative_short
 	 * @return list of endings or affixes if key is valid, null otherwise
 	 */

@@ -34,7 +34,12 @@ public class MaryNode {
 	protected int to = 0;
 	private MaryNode[] kids = null;
 
-	/***************************/
+	/**
+	 * @param setFrom
+	 *            setFrom
+	 * @param setTo
+	 *            setTo
+	 */
 	/* Constructor */
 	public MaryNode(int setFrom, int setTo) {
 		from = setFrom;
@@ -42,7 +47,10 @@ public class MaryNode {
 		kids = null;
 	}
 
-	/******************************/
+	/**
+	 * @return from
+	 */
+
 	/* Getters for various fields */
 	public int getFrom() {
 		return (from);
@@ -60,7 +68,10 @@ public class MaryNode {
 		return (kids);
 	}
 
-	/******************************/
+	/**
+	 * @param i
+	 *            i
+	 */
 	/* Feature index management */
 	public void setFeatureIndex(int i) {
 		featureIndex = i;
@@ -70,7 +81,10 @@ public class MaryNode {
 		return (featureIndex);
 	}
 
-	/***************************/
+	/**
+	 * @param numKids
+	 *            numKids
+	 */
 	/* Node splitting */
 	public void split(int numKids) {
 		kids = new MaryNode[numKids];
@@ -84,7 +98,9 @@ public class MaryNode {
 		return (kids[i]);
 	}
 
-	/*************************************/
+	/**
+	 * @return kids different from null
+	 */
 	/* Check if this is a node or a leaf */
 	public boolean isNode() {
 		return (kids != null);

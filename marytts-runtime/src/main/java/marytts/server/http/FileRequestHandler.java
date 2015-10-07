@@ -35,7 +35,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * Processor class for file http requests to Mary server
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FileRequestHandler extends BaseHttpRequestHandler {
 

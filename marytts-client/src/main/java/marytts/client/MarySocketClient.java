@@ -48,10 +48,10 @@ import marytts.util.string.StringUtils;
 
 /**
  * A socket client implementing the MARY protocol. It can be used as a command line client or from within java code.
+ * {@link marytts.server#MaryServer} Description of the MARY protocol
  * 
  * @author Marc Schr&ouml;der
  * @see MaryGUIClient A GUI interface to this client
- * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
 public class MarySocketClient extends MaryClient {
@@ -62,8 +62,6 @@ public class MarySocketClient extends MaryClient {
 	 * 
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient() throws IOException {
 		super();
@@ -77,14 +75,10 @@ public class MarySocketClient extends MaryClient {
 	 * <li><code>mary.client.quiet</code> (=true/false) - tells the client not to print any of the normal information to stderr.</li>
 	 * </ul>
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient(Address serverAddress) throws IOException {
 		super(serverAddress);
@@ -95,18 +89,14 @@ public class MarySocketClient extends MaryClient {
 	 * given host and port. Note that in applets, the host must be the same as the one from which the applet was loaded;
 	 * otherwise, a security exception is thrown.
 	 * 
-	 * @param host
-	 *            the host where to contact a MARY server
-	 * @param port
-	 *            the socket port where to contact a MARY server
+	 * @param serverAddress
+	 *            the address of the server
 	 * @param profile
 	 *            determines whether profiling (timing) information is calculated
 	 * @param quiet
 	 *            tells the client not to print any of the normal information to stderr
 	 * @throws IOException
 	 *             if communication with the server fails
-	 * @throws UnknownHostException
-	 *             if the host could not be found
 	 */
 	public MarySocketClient(Address serverAddress, boolean profile, boolean quiet) throws IOException {
 		super(serverAddress, profile, quiet);
@@ -323,8 +313,6 @@ public class MarySocketClient extends MaryClient {
 	 * From an open server connection, read one chunk of info data. Writes the infoCommand to the server, then reads from the
 	 * server until an empty line or eof is read.
 	 * 
-	 * @param toServer
-	 * @param fromServer
 	 * @param infoCommand
 	 *            the one-line request to send to the server
 	 * @return a string representing the server response, lines being separated by a '\n' character.
@@ -352,7 +340,6 @@ public class MarySocketClient extends MaryClient {
 	 * Get the version info from the server. This is optional information which is not required for the normal operation of the
 	 * client, but may help to avoid incompatibilities.
 	 * 
-	 * @return a string array, each String representing one line of info without the trailing newline character.
 	 * @throws IOException
 	 *             if communication with the server fails
 	 * @throws UnknownHostException
@@ -429,11 +416,9 @@ public class MarySocketClient extends MaryClient {
 	/**
 	 * Request the available audio effects for a voice from the server
 	 * 
-	 * @param voicename
-	 *            the voice
 	 * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
 	 * @throws IOException
-	 * @throws UnknownHostException
+	 *             IOException
 	 */
 	@Override
 	protected String getDefaultAudioEffects() throws IOException {

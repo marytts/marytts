@@ -71,11 +71,22 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
-	 * @param allophonesFilename
-	 * @param userdictFilename
-	 * @param lexiconFilename
-	 * @param ltsFilename
-	 * @throws Exception
+	 * @param componentName
+	 *            componentName
+	 * @param inputType
+	 *            inputType
+	 * @param outputType
+	 *            outputType
+	 * @param allophonesProperty
+	 *            allophonesProperty
+	 * @param userdictProperty
+	 *            userdictProperty
+	 * @param utf8toit3mapProperty
+	 *            utf8toit3mapProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty, String utf8toit3mapProperty) throws IOException, MaryConfigurationException {
@@ -168,6 +179,7 @@ public class JPhonemiser extends InternalModule {
 	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
 	 * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
 	 * @throws IOException
+	 *             IOException
 	 */
 	public String phonemise(String text, String pos, StringBuilder g2pMethod) throws IOException {
 		// First, try a simple userdict lookup:
@@ -194,8 +206,10 @@ public class JPhonemiser extends InternalModule {
 	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            IOException
 	 * @param pos
-	 * @return
+	 *            pos
+	 * @return transcr
 	 */
 	public String userdictLookup(String text, String pos) {
 		if (userdict == null || text == null || text.length() == 0)
@@ -242,7 +256,10 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * 
 	 * @param lexiconFilename
-	 * @return
+	 *            lexiconFilename
+	 * @throws IOException
+	 *             IOException
+	 * @return fLexicon
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
 		String line;

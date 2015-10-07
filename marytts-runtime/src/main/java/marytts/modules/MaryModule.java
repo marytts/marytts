@@ -42,16 +42,28 @@ public interface MaryModule {
 	public final int MODULE_OFFLINE = 0;
 	public final int MODULE_RUNNING = 1;
 
-	/** This module's name, as free text, for example "Tokeniser" */
+	/**
+	 * This module's name, as free text, for example "Tokeniser"
+	 * 
+	 * @return name
+	 */
 	public String name();
 
-	/** The type of input data needed by this module. */
+	/**
+	 * The type of input data needed by this module.
+	 * 
+	 * @return input type
+	 */
 	@Deprecated
 	public MaryDataType inputType();
 
 	public MaryDataType getInputType();
 
-	/** The type of output data produced by this module. */
+	/**
+	 * The type of output data produced by this module.
+	 * 
+	 * @return outputType
+	 */
 	@Deprecated
 	public MaryDataType outputType();
 
@@ -68,6 +80,9 @@ public interface MaryModule {
 	/**
 	 * Allow the module to start up, performing whatever is necessary to become operational. After successful completion,
 	 * getState() should return MODULE_RUNNING.
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void startup() throws Exception;
 
@@ -99,6 +114,12 @@ public interface MaryModule {
 	 * The result is returned encapsulated in a MaryData object of type <code>outputType()</code>.
 	 * <p>
 	 * This method should never return <code> null </code>; in case of a failure, an exception should be thrown.
+	 * 
+	 * @param d
+	 *            d
+	 * @throws Exception
+	 *             Exception
+	 * @return result
 	 */
 	public MaryData process(MaryData d) throws Exception;
 }

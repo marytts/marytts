@@ -42,13 +42,14 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction {
 	 * 
 	 * @param featureFileName
 	 *            name of a file containing the unit features
-	 * @param weightsFile
+	 * @param weightsStream
 	 *            an optional weights file -- if non-null, contains feature weights that override the ones present in the feature
 	 *            file.
 	 * @param featProc
 	 *            a feature processor manager which can provide feature processors to compute the features for a target at run
 	 *            time
 	 * @throws IOException
+	 *             IOException
 	 */
 	@Override
 	public void load(String featureFileName, InputStream weightsStream, FeatureProcessorManager featProc) throws IOException,
@@ -99,7 +100,9 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction {
 	 * Compute the goodness-of-fit of a given unit for a given target.
 	 * 
 	 * @param target
+	 *            target
 	 * @param unit
+	 *            unit
 	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
 	 */
 	public double cost(Target target, Unit unit) {

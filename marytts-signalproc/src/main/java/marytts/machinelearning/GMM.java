@@ -28,7 +28,7 @@ import marytts.util.math.MathUtils;
  * 
  * Wrapper for a Gaussian Mixture Model
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class GMM {
 	public double[] weights;

@@ -58,12 +58,20 @@ public class Version {
 		}
 	}
 
-	/** Specification version */
+	/**
+	 * Specification version
+	 *
+	 * @return specification version
+	 */
 	public static String specificationVersion() {
 		return specificationVersion;
 	}
 
-	/** Implementation version */
+	/**
+	 * Implementation version
+	 * 
+	 * @return implementation version
+	 */
 	public static String implementationVersion() {
 		return implementationVersion;
 	}

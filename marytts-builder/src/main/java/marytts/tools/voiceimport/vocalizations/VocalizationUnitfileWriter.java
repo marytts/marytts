@@ -230,7 +230,10 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent {
 
 	/**
 	 * @param labFile
-	 * @return
+	 *            labFile
+	 * @throws IOException
+	 *             IOException
+	 * @return ulab
 	 */
 	private UnitLabel[] readLabFile(String labFile) throws IOException {
 
@@ -282,8 +285,10 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent {
 	 * To get Label Unit DATA (time stamp, index, phone unit)
 	 * 
 	 * @param line
+	 *            line
 	 * @return ArrayList contains time stamp, index and phone unit
 	 * @throws IOException
+	 *             IOException
 	 */
 	private ArrayList getLabelUnitData(String line) throws IOException {
 		if (line == null)

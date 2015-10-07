@@ -53,6 +53,7 @@ public class XwavesLabelfileReader {
 	 * @param filename
 	 *            Label filename as a String
 	 * @throws IOException
+	 *             IOException
 	 */
 	public XwavesLabelfileReader(String filename) throws IOException {
 		this(new FileReader(filename));
@@ -64,6 +65,7 @@ public class XwavesLabelfileReader {
 	 * @param reader
 	 *            Label file as a Reader
 	 * @throws IOException
+	 *             IOException
 	 */
 	public XwavesLabelfileReader(Reader reader) throws IOException {
 		this.reader = new BufferedReader(reader);
@@ -76,6 +78,7 @@ public class XwavesLabelfileReader {
 	 * to the appropriate arrays, and the initial header lines are stored in a third vector.
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void parseLabels() throws IOException {
 		// initialize some variables

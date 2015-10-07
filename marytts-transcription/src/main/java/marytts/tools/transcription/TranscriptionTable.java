@@ -126,6 +126,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * verify transcription syntax
 	 * 
 	 * @param row
+	 *            row
 	 */
 	private void checkTranscriptionSyntax(int row) {
 
@@ -184,6 +185,11 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * train and predict module
 	 * 
 	 * @param treeAbsolutePath
+	 *            treeAbsolutePath
+	 * @param myRemoveTrailingOneFromPhones
+	 *            myRemoveTrailingOneFromPhones
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void trainPredict(String treeAbsolutePath, boolean myRemoveTrailingOneFromPhones) throws MaryConfigurationException {
 		Object[][] tableData = transcriptionModel.getData();
@@ -232,9 +238,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	}
 
 	/**
-	 * save transcrption into file
+	 * save transcription into file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 */
 	public void saveTranscription(String fileName) {
 		try {
@@ -272,6 +279,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * Load transcription from file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 */
 	public void loadTranscription(String fileName) {
 		try {
@@ -291,6 +299,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * Add words from file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 */
 	public void addWordsToTranscription(String fileName) {
 		try {
@@ -310,7 +319,9 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * Load transcription from a hashmap
 	 * 
 	 * @param map
+	 *            map
 	 * @throws Exception
+	 *             Exception
 	 */
 	@Deprecated
 	// doesn't seem to get used -- remove?
@@ -326,8 +337,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	/**
 	 * Load transcription from a arrayList
 	 * 
-	 * @param map
+	 * @param arrList
+	 *            arrList
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void loadTranscription(ArrayList<String> arrList) throws Exception {
 		this.transcriptionModel.loadTranscription(arrList);
@@ -342,6 +355,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 	 * load phoneset
 	 * 
 	 * @param filePath
+	 *            filePath
 	 */
 	public void loadPhoneSet(String filePath) {
 		try {

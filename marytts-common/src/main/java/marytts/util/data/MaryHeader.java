@@ -78,6 +78,7 @@ public class MaryHeader {
 	 * For the given file, look inside and determine the file type.
 	 * 
 	 * @param fileName
+	 *            file name
 	 * @return the file type, or -1 if the file does not have a valid MARY header.
 	 * @throws IOException
 	 *             if the file cannot be read

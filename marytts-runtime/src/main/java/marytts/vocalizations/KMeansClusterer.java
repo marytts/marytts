@@ -172,8 +172,11 @@ public class KMeansClusterer {
 
 	/**
 	 * @param args
+	 *            args
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedAudioFileException
+	 *             UnsupportedAudioFileException
 	 */
 	public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
 		KMeansClusterer kmc = new KMeansClusterer();

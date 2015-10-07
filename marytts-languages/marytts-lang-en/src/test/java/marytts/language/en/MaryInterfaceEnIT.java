@@ -61,7 +61,7 @@ public class MaryInterfaceEnIT {
 		String tf = mary.generateText("Hello world");
 		assertNotNull(tf);
 	}
-    
+
 	@Test
 	public void convertTextToPhonemes() throws Exception {
 		mary.setOutputType(MaryDataType.PHONEMES.name());

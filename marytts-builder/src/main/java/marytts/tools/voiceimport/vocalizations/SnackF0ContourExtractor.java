@@ -122,7 +122,10 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
 	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	public boolean compute() throws IOException, InterruptedException {
 
@@ -195,6 +198,7 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

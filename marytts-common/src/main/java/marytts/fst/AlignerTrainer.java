@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
  * The algorithm, in its essence, is implemented after a description of levenshtein distance as it can be found in Wikipedia (see
  * the linked revision):
  * 
- * http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance
+ * Computing Levenshtein distance (see below).
  * 
  * consider the costs used in the pseudo-code:
  * 
@@ -71,6 +71,7 @@ import org.apache.log4j.Logger;
  * therefore the three arrays for all information and the swapping statements in the align method. (note that what are rows in
  * Wikipedia are columns here)
  * 
+ * @see http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance
  * @author benjaminroth
  *
  */
@@ -103,6 +104,8 @@ public class AlignerTrainer {
 	 * @param inIsOutAlphabet
 	 *            boolean indicating as input and output strings should be considered as belonging to the same symbol sets
 	 *            (alignment between identical symbol is then cost-free)
+	 * @param hasOptInfo
+	 *            has opt info
 	 */
 	public AlignerTrainer(boolean inIsOutAlphabet, boolean hasOptInfo) {
 
@@ -141,9 +144,8 @@ public class AlignerTrainer {
 	 *            reader for lexicon
 	 * @param splitSym
 	 *            symbol to split columns of lexicon
-	 * @param hasOptInfo
-	 *            whether the lexicon has optional info in a third column eg. POS
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void readLexicon(BufferedReader lexicon, String splitSym) throws IOException {
 
@@ -166,8 +168,10 @@ public class AlignerTrainer {
 	 * phonemisation/syllabification or whatsoever is performed. If outStr contains space characters, it is used as a separator
 	 * for splitting.
 	 * 
-	 * @param inString
-	 * @param outString
+	 * @param inStr
+	 *            inStr
+	 * @param outStr
+	 *            outStr
 	 */
 	public void splitAndAdd(String inStr, String outStr) {
 
@@ -317,6 +321,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getAlignment(int entryNr) {
 
@@ -374,6 +379,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getInfoAlignment(int entryNr) {
 
@@ -455,9 +461,11 @@ public class AlignerTrainer {
 	 * The method returns for each input symbol the indix of the right alignment boundary. eg. for input ['a','b'] and output
 	 * ['a','a','b'] a correct alignment would be: [2,3]
 	 *
-	 * @param in
-	 * @param out
-	 * @return
+	 * @param istr
+	 *            the input string
+	 * @param ostr
+	 *            the output string
+	 * @return length of p_al[ostr]
 	 */
 	public int[] align(String[] istr, String[] ostr) {
 

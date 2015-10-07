@@ -31,7 +31,7 @@ import marytts.util.signal.SignalProcUtils;
  * f0s - Standard deviation of (voiced) f0s - Global minimum of f0s - Global maximum of f0s - Average tilt of f0 contours, or tilt
  * of single contour
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class PitchStatistics {
 	public static int STATISTICS_IN_HERTZ = 1;

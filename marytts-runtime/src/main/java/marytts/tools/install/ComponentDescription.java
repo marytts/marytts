@@ -372,6 +372,11 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 
 	/**
 	 * Install this component, if the user accepts the license.
+	 * 
+	 * @param synchronous
+	 *            synchronous
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void install(boolean synchronous) throws Exception {
 		status = Status.INSTALLING;
@@ -459,7 +464,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	 * Write a component xml file to the installed/ folder, containing the given list of installed files.
 	 * 
 	 * @param installedFilesList
+	 *            installedFilesList
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void writeInstalledComponentXML() throws Exception {
 		assert installedFilesNames != null;
@@ -512,7 +519,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	/**
 	 * Inform whether an update is available for this component.
 	 * 
-	 * @return
+	 * @return availableUpdate != null
 	 */
 	public boolean isUpdateAvailable() {
 		return availableUpdate != null;
@@ -577,7 +584,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	 * </ol>
 	 * 
 	 * @param other
-	 * @return
+	 *            other
+	 * @return false if other == null or !this.getClass.equals(other.getClass) or !name.equals(other.getName) or other.getStatus
+	 *         or != Status.INSTALLED or !(isVersionNewerThan(version, other.getVersion), otherwise true
 	 */
 	public boolean isUpdateOf(ComponentDescription other) {
 		if (other == null || !this.getClass().equals(other.getClass()) || !name.equals(other.getName())
@@ -593,7 +602,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	 * itself.
 	 * 
 	 * @param oneVersion
+	 *            oneVersion
 	 * @param otherVersion
+	 *            otherVersion
 	 * @return true if oneVersion is newer than otherVersion, false if they are equal or otherVersion is newer.
 	 */
 	public static boolean isVersionNewerThan(String oneVersion, String otherVersion) {
@@ -615,6 +626,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 	/**
 	 * Define a natural ordering for component descriptions. Languages first, in alphabetic order, then voices, in alphabetic
 	 * order.
+	 * 
+	 * @param o
+	 *            o
 	 */
 	public int compareTo(ComponentDescription o) {
 		int myPos = 0;

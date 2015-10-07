@@ -67,8 +67,8 @@ public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser<double[]> {
 	 * Apply this FrameBasedAnalyser to the given data.
 	 * 
 	 * @param frame
-	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
-	 * @see{#getFrameLengthSamples() .
+	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by works like
+	 *            {@link #getFrameLengthSamples()} .
 	 * @return a double array of half the frame length
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
@@ -85,6 +85,8 @@ public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser<double[]> {
 
 	/**
 	 * The distance of two adjacent points on the frequency axis, in Hertz.
+	 * 
+	 * @return samplingRate / real.length
 	 */
 	public double getFrequencyResolution() {
 		return (double) samplingRate / real.length;

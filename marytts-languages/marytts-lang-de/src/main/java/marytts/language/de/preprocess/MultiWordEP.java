@@ -103,6 +103,14 @@ public class MultiWordEP extends ExpansionPattern {
 
 	/**
 	 * Expand multiwords and eventually replace them with <code>mtu</code> structures.
+	 * 
+	 * @param tokens
+	 *            tokens
+	 * @param s
+	 *            s
+	 * @param type
+	 *            type
+	 * @return expanded
 	 */
 	protected List<Element> expand(List<Element> tokens, String s, int type) {
 		if (tokens == null)
@@ -156,6 +164,12 @@ public class MultiWordEP extends ExpansionPattern {
 	 * Expand a recognised multiword from the dictionary. <code>match</code> is the list of token elements forming the multiword;
 	 * <code>abbrev</code> is a string representation of that multiword. Tokens for the expanded form are created, but not yet
 	 * attached to the dom tree.
+	 * 
+	 * @param match
+	 *            match
+	 * @param multiword
+	 *            multiword
+	 * @return exp
 	 */
 	private List<Element> dictionaryExpandMultiWord(List<Element> match, String multiword) {
 		Document doc = ((Element) match.get(0)).getOwnerDocument();

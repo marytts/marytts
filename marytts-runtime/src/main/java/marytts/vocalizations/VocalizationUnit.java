@@ -39,7 +39,9 @@ public class VocalizationUnit extends marytts.unitselection.data.Unit {
 	/**
 	 * Set units
 	 * 
-	 * @return
+	 * @param units
+	 *            units
+	 * 
 	 */
 	public void setUnits(Unit[] units) {
 		this.units = units;

@@ -56,8 +56,8 @@ public class LsfAnalyser {
 	 * 
 	 * @param oneMinusA
 	 *            A(z) = a0 - sum { ai * z^-i } . a0 = 1.
-	 * @param type
-	 *            which of the four methods for a2lsf conversion to perform
+	 * @param samplingRate
+	 *            the sampling rate
 	 * @return the lsf coefficients in the range 0 to 0.5*samplingRate, as an array of doubles of length oneMinusA.length-1.
 	 */
 	public static double[] lpc2lsfInHz(double[] oneMinusA, int samplingRate) {

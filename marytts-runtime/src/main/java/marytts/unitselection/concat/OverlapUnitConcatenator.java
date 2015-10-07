@@ -41,6 +41,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
 	 * Get the raw audio material for each unit from the timeline.
 	 * 
 	 * @param units
+	 *            units
 	 */
 	protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException {
 		for (SelectedUnit unit : units) {
@@ -70,6 +71,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
 	 * Determine target pitchmarks (= duration and f0) for each unit.
 	 * 
 	 * @param units
+	 *            units
 	 */
 	protected void determineTargetPitchmarks(List<SelectedUnit> units) {
 		for (SelectedUnit unit : units) {
@@ -160,8 +162,10 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
 	 * Generate audio to match the target pitchmarks as closely as possible.
 	 * 
 	 * @param units
-	 * @return
+	 *            units
+	 * @return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat)
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException {
 		int len = units.size();

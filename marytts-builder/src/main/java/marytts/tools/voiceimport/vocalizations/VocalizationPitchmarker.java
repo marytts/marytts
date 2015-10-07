@@ -92,6 +92,9 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws IOException
+	 *             IOException
 	 */
 	public boolean compute() throws IOException {
 
@@ -151,6 +154,7 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

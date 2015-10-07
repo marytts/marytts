@@ -44,7 +44,11 @@ import marytts.exceptions.NoSuchPropertyException;
  */
 
 public class MaryProperties {
-	/** The mary base directory, e.g. /usr/local/mary */
+	/**
+	 * The mary base directory, e.g. /usr/local/mary
+	 * 
+	 * @return getFilename("mary.base", ".")
+	 */
 	public static String maryBase() {
 		return getFilename("mary.base", ".");
 	}
@@ -93,17 +97,26 @@ public class MaryProperties {
 	 * Names of the classes to use as modules, plus optional parameter info.
 	 * 
 	 * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details on expected format.
+	 * @return getList("modules.classes.list")
 	 */
 	public static List<String> moduleInitInfo() {
 		return getList("modules.classes.list");
 	}
 
-	/** Names of the classes to use as waveform synthesizers. */
+	/**
+	 * Names of the classes to use as waveform synthesizers.
+	 * 
+	 * @return getList("synthesizers.classes.list")
+	 */
 	public static List<String> synthesizerClasses() {
 		return getList("synthesizers.classes.list");
 	}
 
-	/** Names of the classes to use as audio effects. */
+	/**
+	 * Names of the classes to use as audio effects.
+	 * 
+	 * @return Vector&lt;String&gt;(getList("audioeffects.classes.list"))
+	 */
 	public static Vector<String> effectClasses() {
 		return new Vector<String>(getList("audioeffects.classes.list"));
 	}
@@ -111,6 +124,10 @@ public class MaryProperties {
 	/**
 	 * From a path entry in the properties, create an expanded form. Replace the string MARY_BASE with the value of property
 	 * "mary.base"; replace all "/" and "\\" with the platform-specific file separator.
+	 * 
+	 * @param path
+	 *            path
+	 * @return buf.toString
 	 */
 	private static String expandPath(String path) {
 		final String MARY_BASE = "MARY_BASE";
@@ -453,7 +470,8 @@ public class MaryProperties {
 	 * locale as produced by locale.toString(), e.g. "en_GB"; if locale is null, return null.
 	 * 
 	 * @param locale
-	 * @return
+	 *            locale
+	 * @return locale converted to string
 	 */
 	public static String localePrefix(Locale locale) {
 		if (locale == null)
