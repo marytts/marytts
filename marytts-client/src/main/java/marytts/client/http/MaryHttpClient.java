@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +53,7 @@ import marytts.util.string.StringUtils;
  * 
  * @author Marc Schr&ouml;der, oytun.turk
  * @see MaryGUIClient A GUI interface to this client
- * @link {marytts.server#MaryServer} Description of the MARY protocol.
+ * @see marytts.server.MaryServer Description of the MARY protocol.
  */
 
 public class MaryHttpClient extends MaryClient {
