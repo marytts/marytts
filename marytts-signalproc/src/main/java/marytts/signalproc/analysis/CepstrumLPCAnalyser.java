@@ -88,7 +88,7 @@ public class CepstrumLPCAnalyser {
 	 * 
 	 * @return The LPC coefficents [1 -a_1 -a_2 ... -a_p].
 	 * 
-	 * The gain is not returned, but it can be recovered as exp(c[0]).
+	 *         The gain is not returned, but it can be recovered as exp(c[0]).
 	 * 
 	 */
 	public static double[] lpcc2lpc(double[] c, int lpcOrder) {

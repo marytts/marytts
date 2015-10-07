@@ -132,7 +132,8 @@ import org.apache.log4j.Logger;
  * (2) Copy and paste the following to a web browser´s address bar:
  * <p>
  * <a href=
- * "http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&LOCALE=en_US&VOICE=hsmm-slt">marytts server intro </a>
+ * "http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&LOCALE=en_US&VOICE=hsmm-slt"
+ * >marytts server intro </a>
  * <p>
  * Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), the web browser
  * supports AUDIO type (if not try other formats such as WAVE, MP3, OGG or install a plug-in to play the target format), and the
