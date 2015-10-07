@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 apply plugin: 'java'
 
 version = "6.0-SNAPSHOT"
@@ -21,3 +22,22 @@ dependencies {
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.4'
 }
 
+=======
+dependencies {
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
+    compile group: 'log4j', name: 'log4j', version: '1.2.16'
+    compile group: 'com.twmacinta', name: 'fast-md5', version: '2.7.1'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
+}
+
+processResources {
+    filesMatching '**/specification-version.txt', {
+        expand project.properties
+    }
+}
+
+test.useTestNG()
+>>>>>>> def92c01eafe2356bfcd08b32042315c7c0952e7

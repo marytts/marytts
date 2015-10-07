@@ -1,11 +1,18 @@
-.gradle
+=======
+# Gradle
+.gradle/
 .gradletasknamecache
 build/
 
-target/
+# Eclipse
 .settings/
 .project
 .classpath
+
+# IDEA
+.idea/
+*.iml
+
 tmp/
 log/
 test-output/

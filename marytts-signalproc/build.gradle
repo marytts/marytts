@@ -1,23 +1,6 @@
-apply plugin: 'java'
-
-version = "6.0-SNAPSHOT"
-
-task wrapper(type: Wrapper) {
-    gradleVersion '2.4'
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
-
 dependencies {
+    compile project(':marytts-common')
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
     compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'de.dfki.mary', name: 'marytts-common', version: '6.0-SNAPSHOT'
-    // compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    // compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.4'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
 }
-

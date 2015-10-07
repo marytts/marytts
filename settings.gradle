@@ -1,22 +1,23 @@
-// Main parts
-include 'marytts-common'
-include 'marytts-runtime'
-include 'marytts-signalproc'
+rootProject.name = 'marytts'
 
-// Acoustic modelling part
-include 'marytts-hsmm'
-include 'marytts-unitselection'
+// Main part
+include ':marytts-builder'
+include ':marytts-common'
+include ':marytts-client'
+include ':marytts-runtime'
+include ':marytts-signalproc'
 
 // Languages
-include 'marytts-languages/marytts-lang-de'
-include 'marytts-languages/marytts-lang-en'
-include 'marytts-languages/marytts-lang-fr'
-include 'marytts-languages/marytts-lang-it'
-include 'marytts-languages/marytts-lang-lb'
-include 'marytts-languages/marytts-lang-ru'
-include 'marytts-languages/marytts-lang-sv'
-include 'marytts-languages/marytts-lang-te'
-include 'marytts-languages/marytts-lang-tr'
+include ':marytts-languages:marytts-lang-de'
+include ':marytts-languages:marytts-lang-en'
+include ':marytts-languages:marytts-lang-te'
+include ':marytts-languages:marytts-lang-tr'
+include ':marytts-languages:marytts-lang-ru'
+include ':marytts-languages:marytts-lang-it'
+include ':marytts-languages:marytts-lang-fr'
+include ':marytts-languages:marytts-lang-sv'
+include ':marytts-languages:marytts-lang-lb'
 
-// Voices
-include 'voice-cmu-slt-hsmm'
+include ':marytts-redstart'
+include ':marytts-transcription'
+include ':voice-cmu-slt-hsmm'

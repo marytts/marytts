@@ -1,13 +1,76 @@
-apply plugin: 'java'
+description 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
 
-version = "6.0-SNAPSHOT"
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
-task wrapper(type: Wrapper) {
-    gradleVersion '2.4'
+    group 'de.dfki.mary'
+    version '6.0-SNAPSHOT'
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        ivy {
+            url rootDir.path + '/lib/repo'
+            layout 'maven'
+        }
+    }
+
+    sourceSets {
+        integrationTest {
+            java {
+                compileClasspath += main.output
+                runtimeClasspath += main.output
+            }
+            resources {
+                srcDir test.resources
+            }
+        }
+    }
+
+    configurations {
+        integrationTestCompile {
+            extendsFrom testCompile
+        }
+        integrationTestRuntime {
+            extendsFrom testRuntime
+        }
+    }
+
+    task integrationTest(type: Test) {
+        group 'Verification'
+        description 'Runs the integration tests.'
+        check.dependsOn it
+        testClassesDir = project.sourceSets.integrationTest.output.classesDir
+        classpath = project.sourceSets.integrationTest.runtimeClasspath
+    }
+
+    tasks.withType(Test) {
+        reports {
+            html.destination = file("$reporting.baseDir/$name")
+            junitXml.destination = file("$testResultsDir/$name")
+        }
+    }
 }
 
-repositories {
-    maven { url "http://jcenter.bintray.com" }
-    mavenLocal()
-    mavenCentral()
+subprojects {
+    task packageSources(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact packageSources {
+                    classifier 'sources'
+                }
+            }
+        }
+    }
 }
