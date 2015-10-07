@@ -44,35 +44,34 @@ import org.apache.log4j.Logger;
  * The algorithm, in its essence, is implemented after a description of levenshtein distance as it can be found in Wikipedia (see
  * the linked revision):
  * 
- * @see <a
- *      href="http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance">Computing
- *      Levenshtein distance</a>
+ * Computing Levenshtein distance (see below).
  * 
- *      consider the costs used in the pseudo-code:
+ * consider the costs used in the pseudo-code:
  * 
- *      d[i, j] := minimum ( d[i-1, j] + 1, // deletion d[i, j-1] + 1, // insertion d[i-1, j-1] + 1 // substitution )
+ * d[i, j] := minimum ( d[i-1, j] + 1, // deletion d[i, j-1] + 1, // insertion d[i-1, j-1] + 1 // substitution )
  *
- *      In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the
- *      matrices in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set
- *      as explained in the following (note that this is a heuristic that seems to work fine but _not_ a derived EM-algorithm).
+ * In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the matrices
+ * in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set as explained
+ * in the following (note that this is a heuristic that seems to work fine but _not_ a derived EM-algorithm).
  * 
- *      "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this
- *      operation is lower if the two symbols were already aligned in the preceding iteration, they are set to -log
- *      P(output-symbol|"insertion",input-symbol)
+ * "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this operation is
+ * lower if the two symbols were already aligned in the preceding iteration, they are set to -log
+ * P(output-symbol|"insertion",input-symbol)
  * 
- *      "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
- *      insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the
- *      next symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the
- *      preceding iteration and set to -log P(skip|"deletion").
+ * "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
+ * insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the next
+ * symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the preceding
+ * iteration and set to -log P(skip|"deletion").
  * 
- *      In addition, I made the following optimization, described in Wikipedia:
+ * In addition, I made the following optimization, described in Wikipedia:
  * 
- *      We can adapt the algorithm to use less space, O(m) instead of O(mn), since it only requires that the previous row and
- *      current row be stored at any one time.
+ * We can adapt the algorithm to use less space, O(m) instead of O(mn), since it only requires that the previous row and current
+ * row be stored at any one time.
  * 
- *      therefore the three arrays for all information and the swapping statements in the align method. (note that what are rows
- *      in Wikipedia are columns here)
+ * therefore the three arrays for all information and the swapping statements in the align method. (note that what are rows in
+ * Wikipedia are columns here)
  * 
+ * @see http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance
  * @author benjaminroth
  *
  */

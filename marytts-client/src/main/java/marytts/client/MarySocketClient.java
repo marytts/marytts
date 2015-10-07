@@ -48,10 +48,10 @@ import marytts.util.string.StringUtils;
 
 /**
  * A socket client implementing the MARY protocol. It can be used as a command line client or from within java code.
+ * {@link marytts.server#MaryServer} Description of the MARY protocol
  * 
  * @author Marc Schr&ouml;der
  * @see MaryGUIClient A GUI interface to this client
- * @link {marytts.server#MaryServer} Description of the MARY protocol
  */
 
 public class MarySocketClient extends MaryClient {
