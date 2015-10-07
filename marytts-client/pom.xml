@@ -66,4 +66,21 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<additionalDependencies>
+						<additionalDependency>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>marytts-runtime</artifactId>
+							<version>${project.version}</version>
+						</additionalDependency>
+					</additionalDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
