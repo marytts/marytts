@@ -35,44 +35,45 @@ import org.apache.log4j.Logger;
 /**
  * This trains an alignment model between Strings. Applications are for example letter-to-sound rule training (see LTSTrainer) or
  * transducer construction/minimization.
- * 
- * The basic idea is to perform a levenshtein search for the cheapest path and read off an alignment from that. The costs used in
+ * <p>
+ * The basic idea is to perform a Levenshtein search for the cheapest path and read off an alignment from that. The costs used in
  * the distance computation are not uniform but estimated in an iterative process, according to -log of the relative frequencies
  * of the respective operations in the previous iteration. Perform several iterations (e.g. 4) of aligning in order to get stable
  * estimates of the costs (and a good alignment in turn).
+ * <p>
+ * The algorithm, in its essence, is implemented after a description of Levenshtein distance as it can be found in Wikipedia (see
+ * below); consider the costs used in the pseudo-code:
  * 
- * The algorithm, in its essence, is implemented after a description of levenshtein distance as it can be found in Wikipedia (see
- * the linked revision):
+ * <pre>
+ * d[i, j] := minimum
+ * (
+ *     d[i-1, j] + 1,  // deletion
+ *     d[i, j-1] + 1,  // insertion
+ *     d[i-1, j-1] + 1 // substitution
+ * )
+ * </pre>
+ *
+ * In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the matrices
+ * in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set as explained
+ * in the following (note that this is a heuristic that seems to work fine but <em>not</em> a derived EM-algorithm).
+ * <p>
+ * "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this operation is
+ * lower if the two symbols were already aligned in the preceding iteration, they are set to -log
+ * P(output-symbol|"insertion",input-symbol).
+ * <p>
+ * "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
+ * insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the next
+ * symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the preceding
+ * iteration and set to -log P(skip|"deletion").
+ * <p>
+ * In addition, I made the following optimization, described in Wikipedia: <blockquote>We can adapt the algorithm to use less
+ * space, O(m) instead of O(mn), since it only requires that the previous row and current row be stored at any one time.
+ * </blockquote> therefore the three arrays for all information and the swapping statements in the align method. (note that what
+ * are rows in Wikipedia are columns here)
  * 
  * @see <a
  *      href="http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance">Computing
  *      Levenshtein distance</a>
- * 
- *      consider the costs used in the pseudo-code:
- * 
- *      d[i, j] := minimum ( d[i-1, j] + 1, // deletion d[i, j-1] + 1, // insertion d[i-1, j-1] + 1 // substitution )
- *
- *      In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the
- *      matrices in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set
- *      as explained in the following (note that this is a heuristic that seems to work fine but _not_ a derived EM-algorithm).
- * 
- *      "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this
- *      operation is lower if the two symbols were already aligned in the preceding iteration, they are set to -log
- *      P(output-symbol|"insertion",input-symbol)
- * 
- *      "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
- *      insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the
- *      next symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the
- *      preceding iteration and set to -log P(skip|"deletion").
- * 
- *      In addition, I made the following optimization, described in Wikipedia:
- * 
- *      We can adapt the algorithm to use less space, O(m) instead of O(mn), since it only requires that the previous row and
- *      current row be stored at any one time.
- * 
- *      therefore the three arrays for all information and the swapping statements in the align method. (note that what are rows
- *      in Wikipedia are columns here)
- * 
  * @author benjaminroth
  *
  */
