@@ -1,11 +1,14 @@
 rootProject.name = 'marytts'
 
 // Main part
-include ':marytts-builder'
 include ':marytts-common'
 include ':marytts-client'
 include ':marytts-runtime'
 include ':marytts-signalproc'
+
+// Acoustic methodologies
+include ':marytts-hsmm'
+include ':marytts-unitselection'
 
 // Languages
 include ':marytts-languages:marytts-lang-de'
