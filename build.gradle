@@ -7,8 +7,8 @@ allprojects {
     group 'de.dfki.mary'
     version '5.2-SNAPSHOT'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         mavenLocal()
