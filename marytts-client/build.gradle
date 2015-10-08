@@ -1,5 +1,6 @@
 dependencies {
     compile project(':marytts-common')
+    compile project(':marytts-runtime')
     compile project(':marytts-signalproc')
     compile group: 'org.incava', name: 'java-diff', version: '1.1'
     testCompile project(':voice-cmu-slt-hsmm')
