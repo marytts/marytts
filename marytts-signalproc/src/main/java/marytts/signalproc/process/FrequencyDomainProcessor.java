@@ -36,6 +36,8 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * 
 	 * @param fftSize
 	 *            length of the array to be used for the FFT. Must be a power of two.
+	 * @param amount
+	 *            amount
 	 * @throws IllegalArgumentException
 	 *             if fftSize is not a power of two.
 	 */
@@ -62,8 +64,10 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * 
 	 * @param data
 	 *            the (time-domain) data to process
-	 * @pos the position in the data array where the data lies
-	 * @len the length of the to-be-processed data
+	 * @param pos
+	 *            the position in the data array where the data lies
+	 * @param len
+	 *            the length of the to-be-processed data
 	 * @throws IllegalArgumentException
 	 *             if len is greater than the fftSize of this frequency domain processor.
 	 * 
@@ -109,7 +113,9 @@ public class FrequencyDomainProcessor implements InlineDataProcessor {
 	 * nothing.
 	 * 
 	 * @param real
+	 *            real
 	 * @param imag
+	 *            imag
 	 */
 	protected void process(double[] real, double[] imag) {
 	}

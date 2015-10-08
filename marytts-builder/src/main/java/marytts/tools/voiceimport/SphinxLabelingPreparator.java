@@ -130,6 +130,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -207,7 +209,9 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * Setup the sphinx directory
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void setup() throws IOException, InterruptedException {
 
@@ -233,6 +237,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * Dump the filenames
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void dumpFilenames() throws IOException {
 		// for training: open filename file
@@ -262,6 +267,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * @param phones
 	 *            the phone set to be filled
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void buildDictAndDumpTrans(Map dictionary, Set phones) throws Exception {
 		// build a new MaryClient
@@ -494,6 +500,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	/**
 	 * Get a new MARY client
 	 * 
+	 * @throws IOException
+	 *             IOException
 	 * @return the MARY client
 	 */
 	private MaryClient getMaryClient() throws IOException {
@@ -514,6 +522,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * @param phones
 	 *            the phone set
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void dumpPhoneFile(Set phones) throws IOException {
 		PrintWriter phoneOut = new PrintWriter(new FileOutputStream(new File(outputDir + "/" + voicename + ".phone")));
@@ -564,6 +573,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * @param dictionary
 	 *            the dictionary
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void dumpDictFile(Map dictionary) throws IOException {
 		PrintWriter dictOut = new PrintWriter(new FileOutputStream(new File(outputDir + "/" + voicename + ".dic")));
@@ -588,6 +598,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * Dump the filler dictionary
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void dumpFillerDictFile() throws IOException {
 		PrintWriter fillerDictOut = new PrintWriter(new FileOutputStream(new File(outputDir + "/" + voicename + ".filler")));
@@ -601,6 +612,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * Convert the MFCCs to Sphinx format
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void convertMFCCs() throws Exception {
 		String wavDir = db.getProp(db.WAVDIR);
@@ -693,6 +705,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
 	 * Rewrite the config file so that it matches the voice database
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void rewriteConfigFile() throws Exception {
 		// open the config file

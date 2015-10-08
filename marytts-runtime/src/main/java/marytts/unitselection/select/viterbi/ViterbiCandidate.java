@@ -54,8 +54,6 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 	/**
 	 * Calculates and returns the target cost for this candidate
 	 * 
-	 * @param tcf
-	 *            the target cost function
 	 * @return the target cost
 	 */
 	public double getTargetCost() {
@@ -104,6 +102,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 	 * remember the best path leading to it.
 	 * 
 	 * @param bestPath
+	 *            bestPath
 	 */
 	public void setBestPath(ViterbiPath bestPath) {
 		this.bestPath = bestPath;

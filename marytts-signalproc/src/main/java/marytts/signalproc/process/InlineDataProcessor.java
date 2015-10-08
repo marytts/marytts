@@ -28,8 +28,11 @@ public interface InlineDataProcessor {
 	 * Perform some in-place processing on the given data.
 	 * 
 	 * @param data
+	 *            data
 	 * @param off
+	 *            off
 	 * @param len
+	 *            len
 	 */
 	public void applyInline(double[] data, int off, int len);
 }

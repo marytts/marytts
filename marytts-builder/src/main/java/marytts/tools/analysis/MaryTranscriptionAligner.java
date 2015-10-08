@@ -34,6 +34,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * @param allophoneSet
+	 *            allophoneSet
 	 */
 	public MaryTranscriptionAligner(AllophoneSet allophoneSet) {
 		super(allophoneSet);
@@ -41,6 +42,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 
 	/**
 	 * @param allophoneSet
+	 *            allophoneSet
 	 * @param insertDummyDurations
 	 *            if true, in any inserted items, a duration of 1 millisecond will be set.
 	 */
@@ -106,7 +108,7 @@ public class MaryTranscriptionAligner extends TranscriptionAligner {
 	 * 
 	 * @param doc
 	 *            the document to analyse
-	 * @return
+	 * @return orig, converted into string
 	 */
 	private String collectTranscription(Document doc) {
 		// String storing the original transcription begins with a pause

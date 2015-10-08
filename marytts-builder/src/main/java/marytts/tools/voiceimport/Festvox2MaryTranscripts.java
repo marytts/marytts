@@ -118,6 +118,9 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		Festvox2MaryTranscripts f2mt = new Festvox2MaryTranscripts();

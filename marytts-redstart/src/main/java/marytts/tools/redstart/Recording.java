@@ -39,7 +39,7 @@ import marytts.util.math.MathUtils;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class Recording extends Speech {
 
@@ -62,7 +62,16 @@ public class Recording extends Speech {
 	// ______________________________________________________________________
 	// Class methods
 
-	/** Record for a given number of milliseconds and save as a wav file */
+	/**
+	 * Record for a given number of milliseconds and save as a wav file
+	 * 
+	 * @param line
+	 *            line
+	 * @param inlineFilter
+	 *            inlineFilter
+	 * @param millis
+	 *            millis
+	 */
 	public void timedRecord(TargetDataLine line, AudioProcessor inlineFilter, int millis) {
 		AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
 		recorder = new AudioRecorder.BufferingRecorder(line, targetType, getFile(), millis);

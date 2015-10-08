@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * Generic file header for binary acoustic feature files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FeatureFileHeader {
 	public int numfrm; // Total number of frames

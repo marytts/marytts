@@ -45,12 +45,12 @@ public class StringPredictionTree extends CART {
 
 	/**
 	 * 
-	 * @param rootNode
+	 * @param aRootNode
 	 *            the root node of this tree. This node has to be set to be a root node beforehand.
-	 * @param featDef
+	 * @param aFeatDef
 	 *            the featureDefinition used in this tree
-	 * 
-	 * @author ben
+	 * @param aTargetDecoding
+	 *            aTargetDecoding
 	 */
 	public StringPredictionTree(Node aRootNode, FeatureDefinition aFeatDef, String[] aTargetDecoding) {
 		if (!aRootNode.isRoot())
@@ -63,13 +63,20 @@ public class StringPredictionTree extends CART {
 
 	/**
 	 * 
-	 * This constructs a new string prediciton tree from a stream containing a tree in wagon format. In addition to the
+	 * This constructs a new string prediction tree from a stream containing a tree in wagon format. In addition to the
 	 * constructor of ExtendedClassificationTree it reads in the mapping from numbers to the Strings from a stream. The encoding
 	 * has to be the first line in the file (a empty line is allowed).
 	 * 
 	 * It has the form:
 	 * 
 	 * ;;target={1:'string_a',2:'string_b,'...',26:'string_z'}
+	 *
+	 * @param reader
+	 *            reader
+	 * @param featDefinition
+	 *            featDefinition
+	 * @throws IOException
+	 *             IOException
 	 * 
 	 */
 
@@ -150,8 +157,8 @@ public class StringPredictionTree extends CART {
 	 * 
 	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
 	 * 
-	 * @param target
-	 *            the target to analyze
+	 * @param featureVector
+	 *            the feature vector to analyze
 	 * @param minNumberOfData
 	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
 	 * 

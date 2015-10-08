@@ -22,7 +22,7 @@ package marytts.signalproc.sinusoidal;
 /**
  * A single sinusoid
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class Sinusoid {
 	public float amp; // Amplitude (Total amplitude, i.e. excitation x system)

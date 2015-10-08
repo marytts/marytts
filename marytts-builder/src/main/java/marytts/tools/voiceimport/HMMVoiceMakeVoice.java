@@ -86,6 +86,8 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent {
 	/**
 	 * Get the map of properties2values containing the default values
 	 * 
+	 * @param db
+	 *            db
 	 * @return map of props2values
 	 */
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
@@ -110,6 +112,8 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -132,8 +136,8 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent {
 	 *            the command line to be launched.
 	 * @param task
 	 *            a task tag for error messages, such as "Pitchmarks" or "LPC".
-	 * @param the
-	 *            basename of the file currently processed, for error messages.
+	 * @param voicedir
+	 *            voicedir
 	 */
 	private void launchProcWithLogFile(String cmdLine, String task, String voicedir) {
 

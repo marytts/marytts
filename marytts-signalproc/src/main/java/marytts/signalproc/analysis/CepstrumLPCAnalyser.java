@@ -41,7 +41,6 @@ public class CepstrumLPCAnalyser {
 	 * 
 	 * @return The LPCC coefficents. c[0] is set to log(gain).
 	 * 
-	 * @author sacha
 	 */
 	public static double[] lpc2lpcc(double[] oneMinusA, double gain, int cepstrumOrder) {
 
@@ -89,9 +88,8 @@ public class CepstrumLPCAnalyser {
 	 * 
 	 * @return The LPC coefficents [1 -a_1 -a_2 ... -a_p].
 	 * 
-	 * @note The gain is not returned, but it can be recovered as exp(c[0]).
+	 *         The gain is not returned, but it can be recovered as exp(c[0]).
 	 * 
-	 * @author sacha
 	 */
 	public static double[] lpcc2lpc(double[] c, int lpcOrder) {
 

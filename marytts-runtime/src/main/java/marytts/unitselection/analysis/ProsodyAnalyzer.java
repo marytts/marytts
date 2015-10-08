@@ -323,6 +323,7 @@ public class ProsodyAnalyzer {
 	 * @param fileName
 	 *            of the DurationTier to be generated
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void writePraatDurationTier(String fileName) throws IOException {
 
@@ -394,6 +395,7 @@ public class ProsodyAnalyzer {
 	 * @param fileName
 	 *            of the PitchTier to be generated
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void writePraatPitchTier(String fileName) throws IOException {
 

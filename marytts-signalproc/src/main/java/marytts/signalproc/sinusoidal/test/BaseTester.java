@@ -35,7 +35,7 @@ import marytts.util.string.StringUtils;
 /**
  * All tester classes should be derived from this baseline class
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaseTester {
 	public static double DEFAULT_ABS_MAX_VAL = 26000.0;

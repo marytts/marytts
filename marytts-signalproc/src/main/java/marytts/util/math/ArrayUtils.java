@@ -20,12 +20,17 @@
 package marytts.util.math;
 
 /**
- * A collection of static helper functions for dealing with arrays. * @author Marc Schr&ouml;der
+ * A collection of static helper functions for dealing with arrays.
+ * 
+ * @author Marc Schr&ouml;der
  * 
  */
 public class ArrayUtils {
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static double[] copy(double[] orig) {
 		if (orig != null)
@@ -35,7 +40,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static byte[] copy(byte[] orig) {
 		if (orig != null)
@@ -45,7 +53,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static short[] copy(short[] orig) {
 		if (orig != null)
@@ -55,7 +66,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static float[] copy(float[] orig) {
 		if (orig != null)
@@ -65,7 +79,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static char[] copy(char[] orig) {
 		if (orig != null)
@@ -75,7 +92,10 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @param orig
+	 *            orig
+	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
 	 */
 	public static int[] copy(int[] orig) {
 		if (orig != null)
@@ -431,7 +451,12 @@ public class ArrayUtils {
 	/**
 	 * Returns the vector [x y]
 	 * 
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.addAll} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return z
 	 */
 	public static float[] combine(float[] x, float[] y) {
 		int len = 0;
@@ -461,7 +486,12 @@ public class ArrayUtils {
 	/**
 	 * Returns the vector [x y]
 	 * 
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils.addAll} instead
+	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return z
 	 */
 	public static double[] combine(double[] x, double[] y) {
 		int len = 0;

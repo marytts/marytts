@@ -224,6 +224,7 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

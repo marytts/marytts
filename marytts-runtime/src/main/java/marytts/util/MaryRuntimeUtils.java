@@ -87,13 +87,8 @@ public class MaryRuntimeUtils {
 	 *            </ol>
 	 *            where 'my.special.property' is a property in one of the MARY config files.
 	 * @return the newly instantiated object.
-	 * @throws ClassNotFoundException
-	 * @throws IllegalArgumentException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public static Object instantiateObject(String objectInitInfo) throws MaryConfigurationException {
 		Object obj = null;
@@ -202,7 +197,8 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Determine whether conversion to mp3 is possible.
-	 *
+	 * 
+	 * @return AudioSystem.isConversionSupported(getMP3AudioFormat(), Voice.AF22050)
 	 */
 	public static boolean canCreateMP3() {
 		return AudioSystem.isConversionSupported(getMP3AudioFormat(), Voice.AF22050);
@@ -216,6 +212,8 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Determine whether conversion to ogg vorbis format is possible.
+	 * 
+	 * @return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050)
 	 */
 	public static boolean canCreateOgg() {
 		return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050);
@@ -231,6 +229,7 @@ public class MaryRuntimeUtils {
 	 * suitable voice, then if that fails, go by locale.
 	 * 
 	 * @param e
+	 *            e
 	 * @return an allophone set if there is any way of determining it, or null.
 	 * @throws MaryConfigurationException
 	 *             if a suitable allophone set exists in principle, but there were problems loading it.
@@ -256,8 +255,8 @@ public class MaryRuntimeUtils {
 	/**
 	 * Try to determine the Allophone set to use for the given locale.
 	 * 
-	 * @param allophoneSet
 	 * @param locale
+	 *            locale
 	 * @return the allophone set defined for the given locale, or null if no such allophone set can be determined.
 	 * @throws MaryConfigurationException
 	 *             if an allophone set exists for the given locale in principle, but there were problems loading it.
@@ -284,6 +283,7 @@ public class MaryRuntimeUtils {
 	 * 
 	 * @throws IOException
 	 *             if the underlying OutputStream could not be created.
+	 * @return AudioDestination(ram)
 	 */
 	public static AudioDestination createAudioDestination() throws IOException {
 		boolean ram = false;
@@ -442,6 +442,7 @@ public class MaryRuntimeUtils {
 	 * These values can be used in the "name" attribute of the vocalization tag.
 	 * 
 	 * @param voiceName
+	 *            voiceName
 	 * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
 	 */
 	public static String getVocalizations(String voiceName) {
@@ -462,6 +463,7 @@ public class MaryRuntimeUtils {
 	 * element.
 	 * 
 	 * @param voiceName
+	 *            voiceName
 	 * @return the list of styles, or the empty string if the voice does not support styles.
 	 */
 	public static String getStyles(String voiceName) {

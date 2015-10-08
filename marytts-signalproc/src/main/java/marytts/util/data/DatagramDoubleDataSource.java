@@ -28,6 +28,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource {
 	 * Construct an double data source from the given array of datagrams.
 	 * 
 	 * @param datagrams
+	 *            datagrams
 	 */
 	public DatagramDoubleDataSource(Datagram[] datagrams) {
 		super((DoubleDataSource) null);
@@ -43,6 +44,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource {
 	 * Construct an double data source from the given array of datagrams.
 	 * 
 	 * @param datagrams
+	 *            datagrams
 	 */
 	public DatagramDoubleDataSource(LinkedList<Datagram> datagrams) {
 		super((DoubleDataSource) null);

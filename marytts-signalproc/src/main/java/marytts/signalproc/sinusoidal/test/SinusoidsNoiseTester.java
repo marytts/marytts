@@ -34,7 +34,7 @@ import marytts.util.signal.SignalProcUtils;
  * plus white or pink noise with desired bandwidth at desired time instants Using this class one can generate fairly complicated
  * yet parametric test signals
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  **/
 public class SinusoidsNoiseTester extends BaseTester {
 	public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n) {

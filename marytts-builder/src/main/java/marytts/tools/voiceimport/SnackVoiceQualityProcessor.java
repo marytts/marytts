@@ -123,6 +123,9 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 
@@ -243,9 +246,12 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	 * Loads in snackData the f0 + formants[numFormants] + band widths[numFormants] from the snackFile
 	 * 
 	 * @param numFormants
+	 *            numFormants
 	 * @param snackFile
-	 * @return
+	 *            snackFile
+	 * @return snackData
 	 * @throws IOException
+	 *             IOException
 	 */
 	static double[][] readSnackData(int numFormants, String snackFile) throws IOException {
 		double[][] snackData = null;
@@ -288,11 +294,26 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	 * 
 	 * @param snack
 	 *            : array containing f0+formants+band widths
+	 * @param samplingRate
+	 *            samplingRate
 	 * @param frameLength
 	 *            : in samples
 	 * @param windowLength
 	 *            : in samples
 	 * @param sound
+	 *            sound
+	 * @param hammWin
+	 *            hammWin
+	 * @param barkMatrix
+	 *            barkMatrix
+	 * @param fftSize
+	 *            fftSize
+	 * @param vq
+	 *            vq
+	 * @param debug
+	 *            debug
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void calculateVoiceQuality(double snack[][], int samplingRate, int frameLength, int windowLength, WavReader sound,
 			Window hammWin, double[][] barkMatrix, int fftSize, VoiceQuality vq, boolean debug) throws Exception {
@@ -579,7 +600,13 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	/**
 	 * returns the index where the closset harmonic peak to f is found
 	 * 
-	 * @return
+	 * @param peaks
+	 *            peaks
+	 * @param f
+	 *            f
+	 * @param maxFreqIndex
+	 *            maxFreqIndex
+	 * @return index
 	 */
 	public int findClosestHarmonicPeak(double peaks[], double f, int maxFreqIndex) {
 		int index = 0;
@@ -600,9 +627,12 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
 	 * Compensation of the vocal tract influence
 	 * 
 	 * @param freq
+	 *            freq
 	 * @param formant
+	 *            formant
 	 * @param bandWidth
-	 * @return
+	 *            bandWidth
+	 * @return 0.0
 	 */
 	public double vocalTractCompensation(double freq, double formant, double bandWidth) {
 		double num, denom, aux, val;

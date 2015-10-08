@@ -71,6 +71,7 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	 * In current FreeTTS code, prosody elements get lost. So remember at least the force-accent element on individual tokens:
 	 * 
 	 * @param d
+	 *            d
 	 * @deprecated FreeTTS is no longer used, so this method no longer serves a purpose.
 	 */
 	@Deprecated

@@ -27,7 +27,7 @@ import marytts.util.signal.SignalProcUtils;
  * The most common is the mean and standard deviation transformation in which
  * a given f0 contour is modified to match target mean and standard deviation values.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class PitchTransformer {
 	public PitchTransformer() {

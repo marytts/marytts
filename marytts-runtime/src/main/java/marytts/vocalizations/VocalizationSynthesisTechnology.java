@@ -48,8 +48,8 @@ public abstract class VocalizationSynthesisTechnology {
 	/**
 	 * Re-synthesize given vocalization
 	 * 
-	 * @param unitIndex
-	 *            unit index
+	 * @param sourceIndex
+	 *            source index
 	 * @param aft
 	 *            audio file format
 	 * @return AudioInputStream of synthesized vocalization

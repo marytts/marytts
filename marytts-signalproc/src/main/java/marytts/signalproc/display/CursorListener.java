@@ -26,6 +26,9 @@ package marytts.signalproc.display;
 public interface CursorListener {
 	/**
 	 * Called when this listener is to be alerted of a change in cursor position.
+	 * 
+	 * @param e
+	 *            e
 	 */
 	public void updateCursorPosition(CursorEvent e);
 }

@@ -23,7 +23,7 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * 
- * @author Mat Wilson <mat.wilson@dfki.de>
+ * @author Mat Wilson &lt;mat.wilson@dfki.de&gt;
  */
 public class PromptTableModel extends AbstractTableModel {
 

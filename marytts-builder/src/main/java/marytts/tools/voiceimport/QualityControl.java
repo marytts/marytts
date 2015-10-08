@@ -130,6 +130,8 @@ public class QualityControl extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 
@@ -169,8 +171,11 @@ public class QualityControl extends VoiceImportComponent {
 	 * Take Each Base File and identifies any suspicious-alignments
 	 * 
 	 * @param basename
+	 *            basename
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 
 	private void findSuspiciousAlignments(String basename) throws IOException, Exception {
@@ -310,9 +315,11 @@ public class QualityControl extends VoiceImportComponent {
 	/**
 	 * It helps to calculate Thresholds by storing all Energy values in to hash.
 	 * 
-	 * @return
+	 * @return fricativeHash
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 	private Map createHashMaps() throws IOException, Exception {
 
@@ -427,6 +434,7 @@ public class QualityControl extends VoiceImportComponent {
 	 * Create a HashMap which contains indivisual fricative Thresholds
 	 * 
 	 * @param fricativeHash
+	 *            fricativeHash
 	 * @return HashMap which contains indivisual fricative Thresholds
 	 */
 	private Map getFricativeThresholds(Map fricativeHash) {
@@ -469,12 +477,18 @@ public class QualityControl extends VoiceImportComponent {
 	 * Identifies If Silence has more Energy
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param startTimeStamp
+	 *            startTimeStamp
 	 * @param endTimeStamp
+	 *            endTimeStamp
 	 * @return true if silence segment more energy, else false
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 
 	private boolean isSilenceHighEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp)
@@ -502,12 +516,18 @@ public class QualityControl extends VoiceImportComponent {
 	 * Calculate Silence Energy
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param startTimeStamp
+	 *            startTimeStamp
 	 * @param endTimeStamp
-	 * @return
+	 *            endTimeStamp
+	 * @return SignalProcUtils.getEnergy(phoneSegment)
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 	private double getSilenceEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp)
 			throws IOException, Exception {
@@ -529,6 +549,7 @@ public class QualityControl extends VoiceImportComponent {
 	 * Writing all suspicious labels to a File
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void writeProblemstoFile() throws IOException {
 
@@ -555,6 +576,7 @@ public class QualityControl extends VoiceImportComponent {
 	 * Writing all priority problems to a file
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	private void writePrioritytoFile() throws IOException {
 
@@ -584,12 +606,20 @@ public class QualityControl extends VoiceImportComponent {
 	 * Identifies if Fricative has more higher frequency Energy
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param startTimeStamp
+	 *            startTimeStamp
 	 * @param endTimeStamp
+	 *            endTimeStamp
+	 * @param unitName
+	 *            unitName
 	 * @return true if the segment more energy in higher freq. region, else false
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 	private boolean isFricativeHighEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp,
 			String unitName) throws IOException, Exception {
@@ -628,13 +658,20 @@ public class QualityControl extends VoiceImportComponent {
 	 * To get Fricative High-Freq Energy
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param startTimeStamp
+	 *            startTimeStamp
 	 * @param endTimeStamp
+	 *            endTimeStamp
 	 * @param unitName
+	 *            unitName
 	 * @return Fricative High-Freq Energy
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 	private double getFricativeEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp,
 			String unitName) throws IOException, Exception {
@@ -666,12 +703,18 @@ public class QualityControl extends VoiceImportComponent {
 	 * Identifies The Given Segment is Voiced or Non-Voiced
 	 * 
 	 * @param signal
+	 *            signal
 	 * @param samplingRate
+	 *            samplingRate
 	 * @param startTimeStamp
+	 *            startTimeStamp
 	 * @param endTimeStamp
+	 *            endTimeStamp
 	 * @return true if the segment is Voiced, else false
 	 * @throws IOException
+	 *             IOException
 	 * @throws Exception
+	 *             Exception
 	 */
 
 	private boolean isVowelVoiced(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp)
@@ -718,8 +761,10 @@ public class QualityControl extends VoiceImportComponent {
 	 * To get Label Unit DATA (time stamp, index, phone unit)
 	 * 
 	 * @param line
+	 *            line
 	 * @return ArrayList contains time stamp, index and phone unit
 	 * @throws IOException
+	 *             IOException
 	 */
 	private ArrayList getLabelUnitData(String line) throws IOException {
 		if (line == null)
@@ -738,7 +783,7 @@ public class QualityControl extends VoiceImportComponent {
 	/**
 	 * Double ArrayList to double array conversion
 	 * 
-	 * @param Double
+	 * @param array
 	 *            ArrayList
 	 * @return double array
 	 */
@@ -757,8 +802,10 @@ public class QualityControl extends VoiceImportComponent {
 	 * To get Phone Unit from Feature Vector
 	 * 
 	 * @param line
+	 *            line
 	 * @return String phone unit
 	 * @throws IOException
+	 *             IOException
 	 */
 
 	private String getFeatureUnit(String line) throws IOException {
@@ -775,7 +822,9 @@ public class QualityControl extends VoiceImportComponent {
 	 * To know phone unit in Feature Vector is Vowel or not
 	 * 
 	 * @param line
+	 *            line
 	 * @param ph_VC_idx
+	 *            ph_VC_idx
 	 * @return true if phone unit in Feature Vector is Vowel, else false
 	 */
 	private boolean isVowel(String line, int ph_VC_idx) {
@@ -794,7 +843,9 @@ public class QualityControl extends VoiceImportComponent {
 	 * To know phone unit in Feature Vector is Fricative or not
 	 * 
 	 * @param line
+	 *            line
 	 * @param ph_Ctype_idx
+	 *            ph_Ctype_idx
 	 * @return true if phone unit in Feature Vector is Fricative, else false
 	 */
 	private boolean isFricative(String line, int ph_Ctype_idx) {

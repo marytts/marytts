@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
 /**
  * Utility functions for Mary http server
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class MaryHttpServerUtils {
 	private static Logger logger = MaryUtils.getLogger("http");
@@ -106,7 +106,7 @@ public class MaryHttpServerUtils {
 	 *            the query part of the http request url
 	 * @param performUrlDecode
 	 *            whether to URL-decode the keys and values
-	 * @return
+	 * @return null if httpString == null or httpString.length == 0
 	 */
 	public static Map<String, String> toKeyValuePairs(String httpString, boolean performUrlDecode) {
 		if (httpString == null || httpString.length() == 0) {

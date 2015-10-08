@@ -29,7 +29,7 @@ import marytts.signalproc.analysis.distance.DistanceComputer;
  * by checking the total number of source-target pairs assigned to clusters other than the most likely cluster which are
  * sufficiently "distant" from the most likely cluster
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorParams {
 	public int eliminationAlgorithm; // EliminationAlgorithm to use

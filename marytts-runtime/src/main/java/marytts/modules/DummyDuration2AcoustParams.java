@@ -33,6 +33,7 @@ public class DummyDuration2AcoustParams extends InternalModule {
 	 * Constructor to be called with instantiated objects.
 	 * 
 	 * @param locale
+	 *            locale
 	 */
 	public DummyDuration2AcoustParams(String locale) {
 		super("DummyAllophones2AcoustParams", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, MaryUtils.string2locale(locale));
@@ -42,6 +43,7 @@ public class DummyDuration2AcoustParams extends InternalModule {
 	 * Constructor to be called with instantiated objects.
 	 * 
 	 * @param locale
+	 *            locale
 	 */
 	public DummyDuration2AcoustParams(Locale locale) {
 		super("DummyAllophones2AcoustParams", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, locale);

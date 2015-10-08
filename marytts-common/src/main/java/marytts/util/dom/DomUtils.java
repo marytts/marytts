@@ -68,7 +68,7 @@ import org.xml.sax.SAXParseException;
 /**
  * A collection of utilities for DOM manipulation or analysis. No object of class DomUtils is created, all methods are static.
  * 
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Sathish and Ingmar
  */
 public class DomUtils {
 	protected static DocumentBuilderFactory factory;
@@ -185,8 +185,10 @@ public class DomUtils {
 
 	/**
 	 * @param validating
-	 * @return
+	 *            validating
+	 * @return builder
 	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 */
 	private static DocumentBuilder createDocumentBuilder(boolean validating) throws ParserConfigurationException {
 		DocumentBuilder builder;
@@ -221,9 +223,14 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 *            inputData
+	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
+	 *             SAXException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static Document parseDocument(String inputData) throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
@@ -233,9 +240,14 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 *            inputData
+	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
+	 *             SAXException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static Document parseDocument(Reader inputData) throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
@@ -245,9 +257,14 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param file
-	 * @return
+	 *            file
+	 * @return parseDocument(file, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
+	 *             SAXException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static Document parseDocument(File file) throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(file, false);
@@ -257,15 +274,28 @@ public class DomUtils {
 	 * DOM-parse the given input data. Namespace-aware but non-validating.
 	 * 
 	 * @param inputData
-	 * @return
+	 *            inputData
+	 * @return parseDocument(inputData, false)
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws SAXException
+	 *             SAXException
 	 * @throws IOException
+	 *             IOException
 	 */
 	public static Document parseDocument(InputStream inputData) throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
 	}
 
-	/** Verify if <code>ancestor</code> is an ancestor of <code>node</code> */
+	/**
+	 * Verify if <code>ancestor</code> is an ancestor of <code>node</code>
+	 * 
+	 * @param ancestor
+	 *            ancestor
+	 * @param node
+	 *            node
+	 * @return true if ancestor equals to p, false otherwise
+	 */
 	public static boolean isAncestor(Node ancestor, Node node) {
 		Node p = node;
 		while ((p = p.getParentNode()) != null) {
@@ -277,6 +307,12 @@ public class DomUtils {
 
 	/**
 	 * Verify if <code>node</code> has an ancestor with name <code>ancestorName</code>
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return true if p.getNodeName equals ancestorName, false otherwise
 	 */
 	public static boolean hasAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -292,6 +328,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has an ancestor with name <code>ancestorName</code>, return that ancestor. Else return
 	 * <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return p if p.getNodeName equals ancestorName
 	 */
 	public static Node getAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -305,6 +347,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has an ancestor with one of the names in <code>ancestorNames</code>, return the closest of these
 	 * ancestors. Else return <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorNames
+	 *            ancestorNames
+	 * @return closestAncestor
 	 */
 	public static Node getAncestor(Node node, String[] ancestorNames) {
 		if (ancestorNames.length <= 0)
@@ -327,6 +375,14 @@ public class DomUtils {
 	 * Search upwards through the ancestors of <code>node</code> with name <code>ancestorName</code>, and return the first
 	 * ancestor for which an attribute named <code>attributeName</code> is present. Return <code>null</code> if no such ancestor
 	 * exists.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @param attributeName
+	 *            attributeName
+	 * @return (Element) a
 	 */
 	public static Element getClosestAncestorWithAttribute(Node node, String ancestorName, String attributeName) {
 		for (Node a = getAncestor(node, ancestorName); a != null; a = getAncestor(a, ancestorName)) {
@@ -344,10 +400,12 @@ public class DomUtils {
 	 * irrespective of the respective <code>ancestorName</code>, and return the attribute's value
 	 * 
 	 * @param node
+	 *            node
 	 * @param attributeName
+	 *            attributeName
 	 * @return value of attribute from closest ancestor with that attribute, or the empty string if no ancestor has that
 	 *         attribute.
-	 * @author Sathish and Ingmar
+	 * 
 	 */
 	public static String getAttributeFromClosestAncestorOfAnyKind(Node node, String attributeName) {
 		Node parentNode;
@@ -366,6 +424,12 @@ public class DomUtils {
 	/**
 	 * If <code>node</code> has ancestors with name <code>ancestorName</code>, return the one closest to the root. If there is no
 	 * ancestor with that name, return <code>null</code>.
+	 * 
+	 * @param node
+	 *            node
+	 * @param ancestorName
+	 *            ancestorName
+	 * @return highest
 	 */
 	public static Node getHighestLevelAncestor(Node node, String ancestorName) {
 		Node p = node;
@@ -378,6 +442,10 @@ public class DomUtils {
 
 	/**
 	 * Get the next sibling of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @return null if n is e, true otherwise
 	 */
 	public static Element getNextSiblingElement(Element e) {
 		Node n = e;
@@ -392,6 +460,10 @@ public class DomUtils {
 
 	/**
 	 * Get the previous sibling of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @return null if n is null, true otherwise
 	 */
 	public static Element getPreviousSiblingElement(Element e) {
 		Node n = e;
@@ -407,6 +479,12 @@ public class DomUtils {
 	/**
 	 * Get the next sibling of <code>e</code> which is an element and has tag name <code>name</code>, or <code>null</code> if
 	 * there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @param name
+	 *            name
+	 * @return null if n is null, true otherwise
 	 */
 	public static Element getNextSiblingElementByTagName(Element e, String name) {
 		Node n = e;
@@ -422,6 +500,12 @@ public class DomUtils {
 	/**
 	 * Get the previous sibling of <code>e</code> which is an element and has tag name <code>name</code>, or <code>null</code> if
 	 * there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @param name
+	 *            name
+	 * @return null if n is null
 	 */
 	public static Element getPreviousSiblingElementByTagName(Element e, String name) {
 		Node n = e;
@@ -436,6 +520,10 @@ public class DomUtils {
 
 	/**
 	 * Get the first child of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @return n
 	 */
 	public static Element getFirstChildElement(Element e) {
 		Node n = e.getFirstChild();
@@ -448,6 +536,10 @@ public class DomUtils {
 
 	/**
 	 * Get the last child of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @return n
 	 */
 	public static Element getLastChildElement(Element e) {
 		Node n = e.getLastChild();
@@ -460,6 +552,12 @@ public class DomUtils {
 
 	/**
 	 * Get the first child element with the given tag name, or <code>null</code> if there is no such element.
+	 * 
+	 * @param n
+	 *            n
+	 * @param name
+	 *            name
+	 * @return tx.nextNode
 	 */
 	public static Element getFirstElementByTagName(Node n, String name) {
 		Document doc = (n instanceof Document) ? (Document) n : n.getOwnerDocument();
@@ -469,6 +567,12 @@ public class DomUtils {
 
 	/**
 	 * Get the last descendant element with the given tag name, or <code>null</code> if there is no such element.
+	 * 
+	 * @param e
+	 *            e
+	 * @param name
+	 *            name
+	 * @return previous
 	 */
 	public static Element getLastElementByTagName(Element e, String name) {
 		// This implementation is certainly inefficient, but I have
@@ -524,6 +628,10 @@ public class DomUtils {
 	 * Find the Element with the same tag name as <code>element</code> preceding <code>element</code> within the same subtree
 	 * under <code>root</code>. Precondition: <code>root</code> must be an ancestor of <code>element</code>.
 	 * 
+	 * @param element
+	 *            element
+	 * @param root
+	 *            root
 	 * @return that Element, or <code>null</code> if there is no such Element.
 	 */
 	public static Element getPreviousOfItsKindIn(Element element, Element root) {
@@ -545,6 +653,10 @@ public class DomUtils {
 	 * Find the Element with the same tag name as <code>element</code> following <code>element</code> within the same subtree
 	 * under <code>root</code>. Precondition: <code>root</code> must be an ancestor of <code>element</code>.
 	 * 
+	 * @param element
+	 *            element
+	 * @param root
+	 *            root
 	 * @return that Element, or <code>null</code> if there is no such Element.
 	 */
 	public static Element getNextOfItsKindIn(Element element, Element root) {
@@ -580,7 +692,6 @@ public class DomUtils {
 	 * same namespace as the document element.
 	 * <p>
 	 * Algorithm:
-	 * <p>
 	 * <ol>
 	 * <li>Find closest common ancestor <code>a</code></li>
 	 * <li>Identify first (<code>childA</code>) and last (<code>childZ</code>) of <code>a</code>'s children that need to be
@@ -589,6 +700,12 @@ public class DomUtils {
 	 * <li>Move all children between <code>childA</code> and <code>childZ</code> into the new Element.</li>
 	 * </ol>
 	 * 
+	 * @param first
+	 *            first
+	 * @param last
+	 *            last
+	 * @param newElementName
+	 *            new element name
 	 * @return The new element, or null if it could not be created.
 	 */
 	public static Element encloseNodesWithNewElement(Node first, Node last, String newElementName) {
@@ -640,6 +757,10 @@ public class DomUtils {
 	/**
 	 * Return the concatenation of the values of all text nodes below the given node. One space character is inserted between
 	 * adjacent text nodes.
+	 * 
+	 * @param n
+	 *            n
+	 * @return null if n is null
 	 */
 	public static String getPlainTextBelow(Node n) {
 		if (n == null)
@@ -662,6 +783,13 @@ public class DomUtils {
 
 	/**
 	 * Analogous to the Node.insertBefore() method, insert a newNode after a refNode.
+	 * 
+	 * @param newNode
+	 *            new node
+	 * @param refNode
+	 *            ref node
+	 * @throws DOMException
+	 *             DOMException
 	 */
 	public static void insertAfter(Node newNode, Node refNode) throws DOMException {
 		Node parent = refNode.getParentNode();
@@ -677,7 +805,8 @@ public class DomUtils {
 	 * Go through all text nodes below this node, and replace their text with a trimmed version of their text. This changes the
 	 * DOM document.
 	 * 
-	 * @param subtree
+	 * @param root
+	 *            root
 	 */
 	public static void trimAllTextNodes(Node root) {
 		Document doc = root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument();
@@ -691,7 +820,10 @@ public class DomUtils {
 
 	/**
 	 * Serialize a Document to a String.
-	 *
+	 * 
+	 * @param doc
+	 *            doc
+	 * @return string
 	 */
 	public static String serializeToString(Document doc) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -731,7 +863,7 @@ public class DomUtils {
 	 * 
 	 * @param document
 	 *            the document to be written
-	 * @param target
+	 * @param file
 	 *            where to write it.
 	 * @throws MaryConfigurationException
 	 *             if the DOM document cannot be serialized
@@ -891,10 +1023,13 @@ public class DomUtils {
 	 * language governing permissions and limitations under the License.
 	 * 
 	 * @param expected
+	 *            expected
 	 * @param actual
+	 *            actual
 	 * @param trimEmptyTextNodes
 	 *            whether or not to remove any empty text nodes
 	 * @throws Exception
+	 *             Exception
 	 */
 	public static void compareNodes(Node expected, Node actual, boolean trimEmptyTextNodes) throws Exception {
 		if (trimEmptyTextNodes) {

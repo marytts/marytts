@@ -25,7 +25,7 @@ import marytts.signalproc.adaptation.BaselineParams;
  * 
  * Baseline class for outlier elimination parameters
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineOutlierEliminatorParams extends BaselineParams {
 	public boolean isActive; // Is outlier elimination process being used? If false, the below parameters have no effect.

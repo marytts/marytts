@@ -66,8 +66,10 @@ public class SoPDurationModeller extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * @param sopFileName
+	 * @param sopFile
+	 *            sopFile
 	 * @throws Exception
+	 *             Exception
 	 */
 	public SoPDurationModeller(String locale, String sopFile) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, FeatureRegistry
@@ -80,11 +82,12 @@ public class SoPDurationModeller extends InternalModule {
 	 * 
 	 * @param locale
 	 *            a locale string, e.g. "en"
-	 * @param propertyPrefix
+	 * @param sopFile
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
 	 * @param featprocClassInfo
 	 *            a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
 	 * @throws Exception
+	 *             Exception
 	 */
 	public SoPDurationModeller(String locale, String sopFile, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, (FeatureProcessorManager) MaryRuntimeUtils
@@ -95,9 +98,11 @@ public class SoPDurationModeller extends InternalModule {
 	 * Constructor to be called with instantiated objects.
 	 * 
 	 * @param locale
-	 * @param propertyPrefix
+	 *            locale
+	 * @param sopFile
 	 *            the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-	 * @praam featureProcessorManager the manager to use when looking up feature processors.
+	 * @param featureProcessorManager
+	 *            the manager to use when looking up feature processors.
 	 */
 	protected SoPDurationModeller(Locale locale, String sopFile, FeatureProcessorManager featureProcessorManager) {
 		super("SoPDurationModeller", MaryDataType.ALLOPHONES, MaryDataType.DURATIONS, locale);

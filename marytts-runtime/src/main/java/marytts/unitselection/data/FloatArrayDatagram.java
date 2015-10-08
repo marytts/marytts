@@ -46,7 +46,10 @@ public class FloatArrayDatagram extends Datagram {
 	/**
 	 * Write this datagram to a random access file or data output stream.
 	 * 
+	 * @param raf
+	 *            raf
 	 * @throws IOException
+	 *             IOException
 	 */
 	@Override
 	public void write(DataOutput raf) throws IOException {

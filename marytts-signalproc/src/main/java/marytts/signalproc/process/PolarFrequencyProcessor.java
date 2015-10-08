@@ -29,6 +29,9 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor {
 
 	/**
 	 * @param fftSize
+	 *            fftsize
+	 * @param amount
+	 *            amount
 	 */
 	public PolarFrequencyProcessor(int fftSize, double amount) {
 		super(fftSize, amount);
@@ -44,7 +47,9 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor {
 	 * to polar coordinates calls processPolar(), and converts the result back to cartesian coordinates.
 	 * 
 	 * @param real
+	 *            real
 	 * @param imag
+	 *            imag
 	 */
 	protected final void process(double[] real, double[] imag) {
 		MathUtils.toPolarCoordinates(real, imag);
@@ -62,7 +67,9 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor {
 	 * nothing.
 	 * 
 	 * @param r
+	 *            r
 	 * @param phi
+	 *            phi
 	 */
 	protected void processPolar(double[] r, double[] phi) {
 	}

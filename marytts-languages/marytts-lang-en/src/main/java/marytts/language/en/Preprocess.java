@@ -37,37 +37,44 @@ import com.google.common.collect.Lists;
 /**
  * @author Tristan Hamilton
  * 
- *         Can process following formats: 
- *         - cardinal (handled by real number)
- *         - ordinal 
- *         - year (as a 4 digit number or any number followed by AD/BC variation)
- *         - currency 
- *         - numberandword together
- *         - dashes (read each number singly) or (split into two words)
- *         - underscores
- *         - decimal point, minus symbol (real numbers) also handles %, however Jtokeniser splits % into seperate token
- *         - time
- *         - dates (in format mm/dd/yyyy)
- *         - acronyms (only split into single characters, never expanded)
- *         - abbreviations (list of known expansions in resource preprocess/abbrev.dat, a properties file separated by whitespace. 
- *         	 If an abbrev has two different expansions then the capitalized version comes first, followed by a comma)
- *         - contractions -> first check lexicon, if not then
- *         				  -> split and check if map contains contraction, if not then just remove apostrophe else
- *         				  -> split before apostrophe into two tokens, use map to manually add ph
- *         				  -> for 's if word ends in c,f,k,p,t then add ph = s otherwise ph = z
- *         - ampersand &, @ symbol, -> symbols
- *         - urls -> note that jtokeniser splits off http[s]?://
- *         - number ranges "18-35"
- *         - words without vowels -> first check lexicon, if not then separate into single character tokens
- *         - #hashtags
- *         - single "A/a" character -> if there is no next token or the next token is punctuation or next token string.length == 1
- *         - should also as a last processing attempt, split by punctuation,symbols,etc. and attempt to process these tokens separately
- *         - durations hours:minutes:seconds(:milliseconds)
- *         - numbers followed by an s
- *         - punctuation -> add ph attribute to tag to prevent phonemisation
- *         
+ *         <p>
+ *         Can process following formats:
+ *         <ul>
+ *         <li>cardinal (handled by real number)
+ *         <li>ordinal
+ *         <li>year (as a 4 digit number or any number followed by AD/BC variation)
+ *         <li>currency
+ *         <li>numberandword together
+ *         <li>dashes (read each number singly) or (split into two words)
+ *         <li>underscores
+ *         <li>decimal point, minus symbol (real numbers) also handles &#037;, however Jtokeniser splits &#037; into separate
+ *         tokens
+ *         <li>time
+ *         <li>dates (in format mm/dd/yyyy)
+ *         <li>acronyms (only split into single characters, never expanded)
+ *         <li>abbreviations (list of known expansions in resource preprocess/abbrev.dat, a properties file separated by
+ *         whitespace. If an abbrev has two different expansions then the capitalized version comes first, followed by a comma)
+ *         <li>contractions &rarr; first check lexicon, if not then &rarr; split and check if map contains contraction, if not
+ *         then just remove apostrophe else &rarr; split before apostrophe into two tokens, use map to manually add ph &rarr; for
+ *         's if word ends in c,f,k,p,t then add ph &#061; s otherwise ph &#061; z
+ *         <li>ampersand &amp;, "at" &#064; symbol, &rarr; symbols
+ *         <li>urls &rarr; note that jtokeniser splits off http[s]?://
+ *         <li>number ranges "18-35"
+ *         <li>words without vowels &rarr; first check lexicon, if not then separate into single character tokens
+ *         <li>#hashtags
+ *         <li>single "A/a" character &rarr; if there is no next token or the next token is punctuation or next token
+ *         string.length &#061;&#061; 1
+ *         <li>should also as a last processing attempt, split by punctuation,symbols,etc. and attempt to process these tokens
+ *         separately
+ *         <li>durations hours:minutes:seconds(:milliseconds)
+ *         <li>numbers followed by an s
+ *         <li>punctuation &rarr; add ph attribute to tag to prevent phonemisation
+ *         </ul>
+ *         <p>
  *         May include:
- *         - roman numerals
+ *         <ul>
+ *         <li>roman numerals
+ *         </ul>
  */
 public class Preprocess extends InternalModule {
 
@@ -183,10 +190,15 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * processes a document in mary xml format, from Tokens to Words which can be phonemised.
+	 * 
 	 * @param doc
+	 *            doc
 	 * @throws ParseException
+	 *             parse exception
 	 * @throws IOException
+	 *             IO Exception
 	 * @throws MaryConfigurationException
+	 *             mary configuration exception
 	 */
 	protected void expand(Document doc) throws ParseException, IOException, MaryConfigurationException {
 		String whichCurrency = "";
@@ -200,14 +212,14 @@ public class Preprocess extends InternalModule {
 		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
 				new NameNodeFilter(MaryXML.TOKEN), false);
 		Element t = null;
-		
+
 		// loop through each node in dom tree
 		while ((t = (Element) tw.nextNode()) != null) {
-			
+
 			/*
 			 * PRELIM FOR EACH NODE
 			 */
-			
+
 			// to accommodate the first token being a url
 			if (URLFirst) {
 				t = (Element) tw.previousNode();
@@ -215,15 +227,15 @@ public class Preprocess extends InternalModule {
 			}
 			isYear = true;
 			splitContraction = false;
-			
+
 			if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) || t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
 				// if token already has any of these attributes then ignore
 				continue;
 			}
-			
+
 			// save the original token text
 			String origText = MaryDomUtils.tokenText(t);
-			
+
 			// remove commas
 			if (MaryDomUtils.tokenText(t).matches("[\\$|£|€]?\\d+,[\\d,]+")) {
 				MaryDomUtils.setTokenText(t, MaryDomUtils.tokenText(t).replaceAll(",", ""));
@@ -236,52 +248,51 @@ public class Preprocess extends InternalModule {
 			if (MaryDomUtils.tokenText(t).matches("\\d{4}") && !whichCurrency.equals("")) {
 				isYear = false;
 			}
-				
+
 			// check if currency
 			if (MaryDomUtils.tokenText(t).matches(currencySymbPattern.pattern())) {
 				whichCurrency = MaryDomUtils.tokenText(t);
 			}
-			
+
 			/*
 			 * ACTUAL PROCESSING
 			 */
-			
+
 			// ordinal
 			if (MaryDomUtils.tokenText(t).matches("(?i)" + ordinalPattern.pattern())) {
 				String matched = MaryDomUtils.tokenText(t).split("(?i)st|nd|rd|th")[0];
 				MaryDomUtils.setTokenText(t, expandOrdinal(Double.parseDouble(matched)));
-			// single a or A character
+				// single a or A character
 			} else if (MaryDomUtils.tokenText(t).matches("[aA]")) {
 				Element checkNextNode = MaryDomUtils.getNextSiblingElement((Element) t);
 				if (checkNextNode == null || MaryDomUtils.tokenText(checkNextNode).matches(myPunctPattern.pattern())
 						|| MaryDomUtils.tokenText(checkNextNode).length() == 1) {
 					MaryDomUtils.setTokenText(t, "_a");
 				}
-			// date
+				// date
 			} else if (MaryDomUtils.tokenText(t).matches(datePattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandDate(MaryDomUtils.tokenText(t)));
-			// number followed by s
+				// number followed by s
 			} else if (MaryDomUtils.tokenText(t).matches(numberSPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandNumberS(MaryDomUtils.tokenText(t)));
-			// year with bc or ad
+				// year with bc or ad
 			} else if (MaryDomUtils.tokenText(t).matches("(?i)" + yearPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandYearBCAD(MaryDomUtils.tokenText(t)));
-			// year as just 4 digits -> this should always be checked BEFORE real number
+				// year as just 4 digits &rarr; this should always be checked BEFORE real number
 			} else if (MaryDomUtils.tokenText(t).matches("\\d{4}") && isYear == true) {
 				MaryDomUtils.setTokenText(t, expandYear(Double.parseDouble(MaryDomUtils.tokenText(t))));
-			// wordAndNumber -> must come AFTER year
+				// wordAndNumber &rarr; must come AFTER year
 			} else if (MaryDomUtils.tokenText(t).matches(numberWordPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandWordNumber(MaryDomUtils.tokenText(t)));
-			// real number & currency
+				// real number & currency
 			} else if (MaryDomUtils.tokenText(t).matches(realNumPattern.pattern())) {
 				if (!whichCurrency.equals("")) {
 					MaryDomUtils.setTokenText(t, expandMoney(MaryDomUtils.tokenText(t), whichCurrency));
 					whichCurrency = "";
-				}
-				else {
+				} else {
 					MaryDomUtils.setTokenText(t, expandRealNumber(MaryDomUtils.tokenText(t)));
 				}
-			// contractions
+				// contractions
 			} else if (MaryDomUtils.tokenText(t).matches(contractPattern.pattern())) {
 				// first check lexicon
 				if (MaryRuntimeUtils.checkLexicon("en_US", MaryDomUtils.tokenText(t)).length == 0) {
@@ -297,10 +308,10 @@ public class Preprocess extends InternalModule {
 						MaryDomUtils.setTokenText(t, splitContraction(MaryDomUtils.tokenText(t)));
 					}
 				}
-			// acronym
+				// acronym
 			} else if (MaryDomUtils.tokenText(t).matches(acronymPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandAcronym(MaryDomUtils.tokenText(t)));
-			// abbreviation
+				// abbreviation
 			} else if ((MaryDomUtils.tokenText(t).matches(abbrevPattern.pattern()) || this.abbrevMap.containsKey(MaryDomUtils
 					.tokenText(t).toLowerCase())) && !isURL) {
 				Element testAbbNode = MaryDomUtils.getNextSiblingElement((Element) t);
@@ -309,7 +320,7 @@ public class Preprocess extends InternalModule {
 					nextTokenIsCapital = true;
 				}
 				MaryDomUtils.setTokenText(t, expandAbbreviation(MaryDomUtils.tokenText(t), nextTokenIsCapital));
-			// time
+				// time
 			} else if (MaryDomUtils.tokenText(t).matches("(?i)" + timePattern.pattern())) {
 				Element testTimeNode = MaryDomUtils.getNextSiblingElement((Element) t);
 				boolean nextTokenIsTime = false;
@@ -317,13 +328,13 @@ public class Preprocess extends InternalModule {
 					nextTokenIsTime = true;
 				}
 				MaryDomUtils.setTokenText(t, expandTime(MaryDomUtils.tokenText(t), nextTokenIsTime));
-			// duration
+				// duration
 			} else if (MaryDomUtils.tokenText(t).matches(durationPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandDuration(MaryDomUtils.tokenText(t)));
-			// hashtags
+				// hashtags
 			} else if (MaryDomUtils.tokenText(t).matches(hashtagPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandHashtag(MaryDomUtils.tokenText(t)));
-			// URLs
+				// URLs
 			} else if (MaryDomUtils.tokenText(t).matches(URLPattern.pattern())) {
 				// matching group 2 contains the chunk we want
 				Matcher urlMatcher = URLPattern.matcher(MaryDomUtils.tokenText(t));
@@ -331,20 +342,20 @@ public class Preprocess extends InternalModule {
 				webEmailTemp = MaryDomUtils.tokenText(t);
 				isURL = true;
 				MaryDomUtils.setTokenText(t, expandURL(urlMatcher.group(2)));
-			// dot . for web and email addresses
+				// dot . for web and email addresses
 			} else if (MaryDomUtils.tokenText(t).equals(".") && isURL) {
 				MaryDomUtils.setTokenText(t, "dot");
 				webEmailTemp = webEmailTemp.replaceFirst("\\.", "dot");
 				if (!webEmailTemp.contains(".")) {
 					isURL = false;
 				}
-			// symbols
+				// symbols
 			} else if (MaryDomUtils.tokenText(t).matches(symbolsPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, symbols.get(MaryDomUtils.tokenText(t)));
-			// number ranges -> before checking for dashes
+				// number ranges &rarr; before checking for dashes
 			} else if (MaryDomUtils.tokenText(t).matches(rangePattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandRange(MaryDomUtils.tokenText(t)));
-			// dashes and underscores
+				// dashes and underscores
 			} else if (MaryDomUtils.tokenText(t).contains("-") || MaryDomUtils.tokenText(t).contains("_")) {
 				dashSplit = true;
 				String[] tokens = MaryDomUtils.tokenText(t).split("[-_]");
@@ -360,18 +371,19 @@ public class Preprocess extends InternalModule {
 					i++;
 				}
 				MaryDomUtils.setTokenText(t, Arrays.toString(tokens).replaceAll("[,\\]\\[]", ""));
-			// words containing only consonants
+				// words containing only consonants
 			} else if (MaryDomUtils.tokenText(t).matches("(?i)" + consonantPattern.pattern())) {
 				// first check lexicon
 				if (MaryRuntimeUtils.checkLexicon("en_US", MaryDomUtils.tokenText(t)).length == 0) {
 					MaryDomUtils.setTokenText(t, expandConsonants(MaryDomUtils.tokenText(t)));
 				}
-			// a final attempt to split by punctuation
+				// a final attempt to split by punctuation
 			} else if (punctuationPattern.matcher(MaryDomUtils.tokenText(t)).find() && MaryDomUtils.tokenText(t).length() > 1) {
 				puncSplit = true;
 				String[] puncTokens = MaryDomUtils.tokenText(t).split("((?<=\\p{Punct})|(?=\\p{Punct}))");
 				MaryDomUtils.setTokenText(t, Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", ""));
-			// set all punctuation tokens' (and symbols not wordified) pos attribute to anything non-alphabetic in order to stop phonemisation
+				// set all punctuation tokens' (and symbols not wordified) pos attribute to anything non-alphabetic in order to
+				// stop phonemisation
 			} else if (MaryDomUtils.tokenText(t).matches(punctuationPattern.pattern())) {
 				t.setAttribute("pos", ".");
 			}
@@ -386,7 +398,8 @@ public class Preprocess extends InternalModule {
 					t = MaryDomUtils.getNextSiblingElement((Element) t);
 					// if tokens are an expanded contraction
 					if (splitContraction && newTokens.length == 2) {
-						if (newTokens[0].substring(newTokens[0].length() - 1).matches("[cfkpt]") && contractions.get(newTokens[i]).length > 1) {
+						if (newTokens[0].substring(newTokens[0].length() - 1).matches("[cfkpt]")
+								&& contractions.get(newTokens[i]).length > 1) {
 							t.setAttribute("ph", contractions.get(newTokens[i])[1]);
 						} else {
 							t.setAttribute("ph", contractions.get(newTokens[i])[0]);
@@ -433,8 +446,7 @@ public class Preprocess extends InternalModule {
 		String ms = "";
 		if (durMatcher.group(4) != null) {
 			ms = "and " + expandNumber(Double.parseDouble(durMatcher.group(5))) + " milliseconds ";
-		}
-		else {
+		} else {
 			secs = "and " + secs;
 		}
 		return hrs + mins + secs + ms;
@@ -448,7 +460,8 @@ public class Preprocess extends InternalModule {
 	 * expand a URL string partially by splitting by @, / and . symbols (but retaining them)
 	 * 
 	 * @param email
-	 * @return
+	 *            email
+	 * @return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "")
 	 */
 	protected String expandURL(String email) {
 		String[] tokens = email.split("((?<=[\\.@\\/])|(?=[\\.@\\/]))");
@@ -473,7 +486,8 @@ public class Preprocess extends InternalModule {
 	 * add a space between each char of a string
 	 * 
 	 * @param consonants
-	 * @return
+	 *            consonants
+	 * @return Joiner.on(" ").join(Lists.charactersOf(consonants))
 	 */
 	protected String expandConsonants(String consonants) {
 		return Joiner.on(" ").join(Lists.charactersOf(consonants));
@@ -523,11 +537,13 @@ public class Preprocess extends InternalModule {
 		return expandNumber(Double.parseDouble(rangeMatcher.group(1))) + " to "
 				+ expandNumber(Double.parseDouble(rangeMatcher.group(2)));
 	}
-	
+
 	/***
 	 * expands a digit followed by an s. e.g. 7s and 8s and the 60s
+	 * 
 	 * @param numberS
-	 * @return
+	 *            numberS
+	 * @return number
 	 */
 	protected String expandNumberS(String numberS) {
 		Matcher numberSMatcher = numberSPattern.matcher(numberS);
@@ -535,11 +551,9 @@ public class Preprocess extends InternalModule {
 		String number = expandNumber(Double.parseDouble(numberSMatcher.group(1)));
 		if (number.endsWith("x")) {
 			number += "es";
-		}
-		else if (number.endsWith("y")) {
+		} else if (number.endsWith("y")) {
 			number = number.replace("y", "ies");
-		}
-		else {
+		} else {
 			number += "s";
 		}
 		return number;
@@ -558,7 +572,7 @@ public class Preprocess extends InternalModule {
 	 *            the token to be expanded
 	 * @param isCapital
 	 *            whether the following token begins with a capital letter
-	 * @return
+	 * @return abbrev
 	 */
 	protected String expandAbbreviation(String abbrev, boolean isCapital) {
 		String expAbb = abbrev.replaceAll("\\.", "").toLowerCase();
@@ -593,7 +607,7 @@ public class Preprocess extends InternalModule {
 	 *            the token to be expanded
 	 * @param isNextTokenTime
 	 *            whether the following token contains am or pm
-	 * @return
+	 * @return theTime
 	 */
 	protected String expandTime(String time, boolean isNextTokenTime) {
 		boolean pastNoon = false;
@@ -729,7 +743,7 @@ public class Preprocess extends InternalModule {
 
 	/**
 	 * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
-	 * <p/>
+	 * <p>
 	 * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
 	 *
 	 * @param rbnf
@@ -755,7 +769,7 @@ public class Preprocess extends InternalModule {
 
 	/**
 	 * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
-	 * <p/>
+	 * <p>
 	 * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
 	 *
 	 * @param rbnf

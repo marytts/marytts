@@ -26,7 +26,7 @@ import marytts.util.math.MathUtils;
 /**
  * Sinusoidal model based pitch tracker
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class BaseSinusoidalPitchTracker {

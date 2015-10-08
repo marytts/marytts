@@ -35,7 +35,12 @@ import java.util.Locale;
 public class LanguagePanel extends javax.swing.JPanel {
 	private LanguageComponentDescription desc;
 
-	/** Creates new form LanguagePanel */
+	/**
+	 * Creates new form LanguagePanel
+	 * 
+	 * @param desc
+	 *            desc
+	 */
 	public LanguagePanel(LanguageComponentDescription desc) {
 		this.desc = desc;
 		initComponents();

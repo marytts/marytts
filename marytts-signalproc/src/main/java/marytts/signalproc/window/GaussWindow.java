@@ -46,6 +46,8 @@ public class GaussWindow extends Window {
 	 * 
 	 * @param length
 	 *            the length of the window, in samples (must be an odd number)
+	 * @param prescalingFactor
+	 *            prescaling factor
 	 */
 	public GaussWindow(int length, double prescalingFactor) {
 		this(length, DEFAULT_SIGMA, prescalingFactor);
@@ -58,6 +60,8 @@ public class GaussWindow extends Window {
 	 *            the length of the window, in samples (should be an odd number)
 	 * @param sigma
 	 *            the sigma coefficient in the Gauss curve. A good starting point is 100.
+	 * @param prescalingFactor
+	 *            prescaling factor
 	 */
 	public GaussWindow(int length, double sigma, double prescalingFactor) {
 		window = new double[length];

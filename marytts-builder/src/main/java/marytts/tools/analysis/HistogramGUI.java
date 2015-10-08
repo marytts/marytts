@@ -99,6 +99,8 @@ public class HistogramGUI extends Thread {
 	/**
 	 * @param args
 	 *            the command line arguments
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String args[]) throws Exception {
 

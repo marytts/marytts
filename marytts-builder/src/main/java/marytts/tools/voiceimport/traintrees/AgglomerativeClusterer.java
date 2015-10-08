@@ -334,6 +334,10 @@ public class AgglomerativeClusterer {
 
 	/**
 	 * Estimate the mean of all *distances* in the training set.
+	 * 
+	 * @param leaves
+	 *            leaves
+	 * @return computeglobalimpurity(leaves, double.Positive_infinity)
 	 */
 	/*
 	 * private void estimateGlobalMean(FeatureVector[] data, DistanceMeasure dist) { int sampleSize = 100000;
@@ -357,8 +361,10 @@ public class AgglomerativeClusterer {
 	 * Compute global impurity as the weighted sum of leaf impurities. stop when cutoff value is reached or surpassed.
 	 * 
 	 * @param leaves
+	 *            leaves
 	 * @param cutoff
-	 * @return
+	 *            cutoff
+	 * @return gi
 	 */
 	private double computeGlobalImpurity(List<LeafNode> leaves, double cutoff) {
 		cutoff *= trainingFeatures.length;
@@ -399,7 +405,8 @@ public class AgglomerativeClusterer {
 	 * where |l| = the number of instances in the leaf.
 	 * 
 	 * @param leaf
-	 * @return
+	 *            leaf
+	 * @return impurity
 	 */
 	/*
 	 * private double computeMutualDistanceImpurity(LeafNode leaf) { if (!(leaf instanceof FeatureVectorLeafNode)) throw new
@@ -459,8 +466,10 @@ public class AgglomerativeClusterer {
 	 * |l| = number of instances in the leaf l
 	 * 
 	 * @param dgn1
+	 *            dgn1
 	 * @param dgn2
-	 * @return
+	 *            dgn2
+	 * @return deltaGI
 	 */
 	private double computeMutualDistanceDeltaGI(DirectedGraphNode dgn1, DirectedGraphNode dgn2) {
 		FeatureVectorLeafNode l1 = (FeatureVectorLeafNode) dgn1.getLeafNode();

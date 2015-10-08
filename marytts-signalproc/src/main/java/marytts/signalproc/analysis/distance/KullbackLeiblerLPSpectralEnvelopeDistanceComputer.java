@@ -22,7 +22,7 @@ package marytts.signalproc.analysis.distance;
 /**
  * Implements Kullback-Leibler LP spectral envelope distance between two speech frames
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
 	public KullbackLeiblerLPSpectralEnvelopeDistanceComputer() {

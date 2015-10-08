@@ -24,7 +24,7 @@ import marytts.util.math.ComplexArray;
 /**
  * A class for nesting results of complex valued linear prediction
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class ComplexLinearPredictor {

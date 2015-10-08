@@ -28,7 +28,7 @@ import marytts.util.io.MaryRandomAccessFile;
  * 
  * A collection of speaker specific acoustic features for a voice conversion unit, i.e. a speech frame or a phone, etc.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class WeightedCodebookSpeakerItem {

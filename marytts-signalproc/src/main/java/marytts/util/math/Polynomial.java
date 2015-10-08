@@ -71,6 +71,7 @@ public class Polynomial {
 	 * b[.
 	 * 
 	 * @param numSamples
+	 *            num samples
 	 * @param a
 	 *            lower bound (inclusive)
 	 * @param b
@@ -81,7 +82,7 @@ public class Polynomial {
 	 * @throws IllegalArgumentException
 	 *             if coeffs has length 0
 	 * @throws IllegalArgumentException
-	 *             if numSamples is <= 0
+	 *             if numSamples is &le; 0
 	 * @throws IllegalArgumentException
 	 *             if a is not less than b.
 	 */
@@ -92,10 +93,6 @@ public class Polynomial {
 	/**
 	 * For a polynomial with the given coefficients, compute the value at the given position.
 	 * 
-	 * @param coeffs
-	 *            the polynomial coefficients. The code assumes that the polynomial is
-	 *            <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, and will interpret coeffs as
-	 *            <code>a_order, a_(order-1), ..., a_1, a_0</code>, where <code>order</code> is <code>coeffs.length-1</code>.
 	 * @param x
 	 *            the position where to compute the value
 	 * @return the predicted value
@@ -112,9 +109,9 @@ public class Polynomial {
 	 * Compute the integrated distance between two polynomials of same order. More precisely, this will return the absolute value
 	 * of the integral from 0 to 1 of the difference between the two functions.
 	 * 
-	 * @param a
+	 * @param other
 	 *            polynomial with the same order as this polynomial.
-	 * @return
+	 * @return polynomialDistance(self.coeffs, other.coeffs)
 	 */
 	public double polynomialDistance(Polynomial other) {
 		return polynomialDistance(this.coeffs, other.coeffs);
@@ -128,9 +125,9 @@ public class Polynomial {
 	 * <code>expand(integrate((sum(a[i]*x**i, i, 0, order))**2, x, 0, 1));</code>, with order varied from 0 to 4. Increasing order
 	 * by 1 adds (order+1) summands.
 	 * 
-	 * @param a
+	 * @param other
 	 *            polynomial with the same order as this polynomial.
-	 * @return
+	 * @return polynomialSquaredDistance(this.coeffs, other.coeffs)
 	 */
 	public double polynomialSquaredDistance(Polynomial other) {
 		return polynomialSquaredDistance(this.coeffs, other.coeffs);
@@ -148,7 +145,7 @@ public class Polynomial {
 	 * @return the polynomial coefficients, highest power first. In other words, if the polynomial is
 	 *         <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, then the array returned contains
 	 *         <code>a_order, a_(order-1), ..., a_1, a_0</code>. throws NullPointerException if data is null throws
-	 *         IllegalArgumentException if data.length < order or if order < 0.
+	 *         IllegalArgumentException if data.length &lt; order or if order &lt; 0.
 	 */
 	public static double[] fitPolynomial(double[] data, int order) {
 		if (data == null)
@@ -199,6 +196,7 @@ public class Polynomial {
 	 *            <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>, and will interpret coeffs as
 	 *            <code>a_order, a_(order-1), ..., a_1, a_0</code>, where <code>order</code> is <code>coeffs.length-1</code>.
 	 * @param numSamples
+	 *            num samples
 	 * @param a
 	 *            lower bound (inclusive)
 	 * @param b
@@ -209,7 +207,7 @@ public class Polynomial {
 	 * @throws IllegalArgumentException
 	 *             if coeffs has length 0
 	 * @throws IllegalArgumentException
-	 *             if numSamples is <= 0
+	 *             if numSamples is &le; 0
 	 * @throws IllegalArgumentException
 	 *             if a is not less than b.
 	 */
@@ -324,7 +322,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(Polynomial[] p, Polynomial mean) {
@@ -348,7 +348,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(double[][] p, double[] mean) {
@@ -372,7 +374,9 @@ public class Polynomial {
 	 * </p>
 	 * 
 	 * @param p
+	 *            p
 	 * @param mean
+	 *            mean
 	 * @return the variance, a single non-negative double value.
 	 */
 	public static double variance(float[][] p, float[] mean) {
@@ -394,7 +398,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return abs(dist)
 	 */
 	public static double polynomialDistance(double[] coeffs1, double[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -417,7 +421,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return abs(dist)
 	 */
 	public static double polynomialDistance(float[] coeffs1, float[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -444,7 +448,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return integrateSquared(order, a)
 	 */
 	public static double polynomialSquaredDistance(double[] coeffs1, double[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
@@ -471,7 +475,7 @@ public class Polynomial {
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
 	 * @param coeffs2
 	 *            polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
-	 * @return
+	 * @return integrateSquared(order, a)
 	 */
 	public static double polynomialSquaredDistance(float[] coeffs1, float[] coeffs2) {
 		if (coeffs1 == null || coeffs2 == null)
