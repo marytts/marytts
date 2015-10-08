@@ -51,10 +51,10 @@ import org.xml.sax.SAXException;
 public class MaryDomUtils extends DomUtils {
 
 	/**
-	 * Create a new <mtu> element, inserted in the tree at the position of t and enclosing t.
+	 * Create a new &lt;mtu&gt; element, inserted in the tree at the position of t and enclosing t.
 	 * 
 	 * @param t
-	 *            the <t> element to enclose
+	 *            the &lt;t&gt; element to enclose
 	 * @param orig
 	 *            the original text for the MTU, saved in the orig attribute
 	 * @param accentPosition
@@ -79,9 +79,13 @@ public class MaryDomUtils extends DomUtils {
 	}
 
 	/**
-	 * Create a new <t> element and insert it after t.
+	 * Create a new &lt;t&gt; element and insert it after t.
 	 * 
-	 * @return the new <t> element.
+	 * @param t
+	 *            t
+	 * @param newTokenText
+	 *            newTokenText
+	 * @return the new &lt;t&gt; element.
 	 */
 	public static Element appendToken(Element t, String newTokenText) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
@@ -97,6 +101,10 @@ public class MaryDomUtils extends DomUtils {
 
 	/**
 	 * Convenience method returning the text string of a token element.
+	 * 
+	 * @param t
+	 *            t
+	 * @return getPlainTextBelow(t).trim()
 	 */
 	public static String tokenText(Element t) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
@@ -107,6 +115,11 @@ public class MaryDomUtils extends DomUtils {
 
 	/**
 	 * Convenience method for setting the text string of a token element.
+	 * 
+	 * @param t
+	 *            t
+	 * @param s
+	 *            s
 	 */
 	public static void setTokenText(Element t, String s) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
@@ -138,6 +151,7 @@ public class MaryDomUtils extends DomUtils {
 	 * 
 	 * @param doc
 	 *            the maryxml document in which to create the boundary.
+	 * @return boundary
 	 */
 	public static Element createBoundary(Document doc) {
 		if (!doc.getDocumentElement().getTagName().equals(MaryXML.MARYXML))

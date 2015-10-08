@@ -43,7 +43,7 @@ import marytts.util.signal.SignalProcUtils;
  * Quatieri, T. F. Discrete-Time Speech Signal Processing: Principles and Practice. Prentice-Hall Inc. 2001. (Chapter 9 –
  * Sinusoidal Analysis/Synthesis)
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
 

@@ -98,14 +98,12 @@ public class PitchFrameProvider extends FrameProvider {
 
 	/**
 	 * Read data from input signal into current frame. This implementation will attempt to read up to the next pitch mark, filling
-	 * the frame from the position given in nPrefilled onwards and extending the size of frame if necessary. <br />
-	 * Note that this implementation will perform zero-padding of periods at the beginning and end of the signal: when the first
-	 * shiftPeriods periods are read, (framePeriods-shiftPeriods) empty periods (zero signal), equal in length to the first
-	 * period, will be added to the left; after the end of the signal, (framePeriods-shiftPeriods) empty periods (zero signal),
-	 * equal in length to the last period, will be added to the right.
+	 * the frame from the position given in nPrefilled onwards and extending the size of frame if necessary. Note that this
+	 * implementation will perform zero-padding of periods at the beginning and end of the signal: when the first shiftPeriods
+	 * periods are read, (framePeriods-shiftPeriods) empty periods (zero signal), equal in length to the first period, will be
+	 * added to the left; after the end of the signal, (framePeriods-shiftPeriods) empty periods (zero signal), equal in length to
+	 * the last period, will be added to the right.
 	 * 
-	 * @param frame
-	 *            the frame to read into
 	 * @param nPrefilled
 	 *            number of valid values at the beginning of frame. These should not be lost or overwritten.
 	 * @return the number of new values read into frame at position nPrefilled. 0 signals that no further data can be read.
@@ -211,7 +209,7 @@ public class PitchFrameProvider extends FrameProvider {
 	/**
 	 * The number of periods provided in one frame.
 	 * 
-	 * @return
+	 * @return length of periodLengths
 	 */
 	public int getFramePeriods() {
 		return periodLengths.length;
@@ -220,7 +218,7 @@ public class PitchFrameProvider extends FrameProvider {
 	/**
 	 * The number of periods by which the analysis window is shifted.
 	 * 
-	 * @return
+	 * @return shiftPeriods
 	 */
 	public int getShiftPeriods() {
 		return shiftPeriods;
@@ -238,6 +236,8 @@ public class PitchFrameProvider extends FrameProvider {
 	 * 
 	 * @param args
 	 *            two args are expected: the name of an audio file, and the name of the corresponding pitch mark file.
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		File audioFile = new File(args[0]);

@@ -40,7 +40,22 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 		this(0, 0, 0, 0, 0, 0);
 	}
 
-	/** Creates new RectangularTwoDimensionalModel */
+	/**
+	 * Creates new RectangularTwoDimensionalModel
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @param minX
+	 *            minX
+	 * @param maxX
+	 *            maxX
+	 * @param minY
+	 *            minY
+	 * @param maxY
+	 *            maxY
+	 */
 	public RectangularTwoDimensionalModel(int x, int y, int minX, int maxX, int minY, int maxY) {
 		this.x = x;
 		this.y = y;
@@ -50,13 +65,23 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 		this.maxY = maxY;
 	}
 
-	/** Adds a ChangeListener to the model's listener list. */
+	/**
+	 * Adds a ChangeListener to the model's listener list.
+	 * 
+	 * @param l
+	 *            l
+	 */
 	public void addChangeListener(javax.swing.event.ChangeListener l) {
 		if (!changeListeners.contains(l))
 			changeListeners.add(l);
 	}
 
-	/** Removes a ChangeListener from the model's listener list. */
+	/**
+	 * Removes a ChangeListener from the model's listener list.
+	 * 
+	 * @param l
+	 *            l
+	 */
 	public void removeChangeListener(javax.swing.event.ChangeListener l) {
 		changeListeners.remove(l);
 	}
@@ -70,28 +95,51 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 		}
 	}
 
-	/** Set the Maximum X value. */
+	/**
+	 * Set the Maximum X value.
+	 * 
+	 * @param maxX
+	 *            maxX
+	 */
 	public void setMaxX(int maxX) {
 		this.maxX = maxX;
 	}
 
-	/** Set the Maximum Y value. */
+	/**
+	 * Set the Maximum Y value.
+	 * 
+	 * @param maxY
+	 *            maxY
+	 */
 	public void setMaxY(int maxY) {
 		this.maxY = maxY;
 	}
 
-	/** Set the Minimum X value. */
+	/**
+	 * Set the Minimum X value.
+	 * 
+	 * @param minX
+	 *            minX
+	 */
 	public void setMinX(int minX) {
 		this.minX = minX;
 	}
 
-	/** Set the Minimum Y value. */
+	/**
+	 * Set the Minimum Y value.
+	 * 
+	 * @param minY
+	 *            minY
+	 */
 	public void setMinY(int minY) {
 		this.minY = minY;
 	}
 
 	/**
 	 * Set X value. If beyond the Max and Min range, value is ignored.
+	 * 
+	 * @param x
+	 *            x
 	 */
 	public void setX(int x) {
 		if (minX <= x && x <= maxX) {
@@ -102,6 +150,11 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 
 	/**
 	 * Jointly set x and y values. If one of the values is beyond the respective Max and Min range, both values are ignored.
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
 	 */
 	public void setXY(int x, int y) {
 		if (minX <= x && x <= maxX && minY <= y && y <= maxY) {
@@ -113,6 +166,9 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 
 	/**
 	 * Set Y value. If beyond the Max and Min range, value is ignored.
+	 * 
+	 * @param y
+	 *            y
 	 */
 	public void setY(int y) {
 		if (minY <= y && y <= maxY) {
@@ -121,12 +177,20 @@ public class RectangularTwoDimensionalModel implements TwoDimensionalModel {
 		}
 	}
 
-	/** Get the X value. */
+	/**
+	 * Get the X value.
+	 * 
+	 * @return x
+	 */
 	public int getX() {
 		return x;
 	}
 
-	/** Get the Y value. */
+	/**
+	 * Get the Y value.
+	 * 
+	 * @return y
+	 */
 	public int getY() {
 		return y;
 	}

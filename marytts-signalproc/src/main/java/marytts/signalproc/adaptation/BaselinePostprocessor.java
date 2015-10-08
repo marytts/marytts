@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation;
 /**
  * Baseline class for post-processing operations after voice conversion
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselinePostprocessor {
 	public BaselinePostprocessor() {

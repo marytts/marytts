@@ -116,8 +116,11 @@ public class DirectedGraph {
 	 * itself.
 	 * 
 	 * @param n
+	 *            n
 	 * @param fv
-	 * @return
+	 *            fv
+	 * @return null if n=null, n.getAllData if n.isLeafNode, interpret (next, fv) if next = ((DecisionNode) n).getNextNode(fv),
+	 *         data if data != null, interpret(g.getLeafNode(), fv) otherwise
 	 */
 	protected Object interpret(Node n, FeatureVector fv) {
 		if (n == null)
@@ -141,7 +144,7 @@ public class DirectedGraph {
 	/**
 	 * Return an iterator which returns all nodes in the tree exactly once. Search is done in a depth-first way.
 	 * 
-	 * @return
+	 * @return a new NodeIterator(Node)
 	 */
 	public Iterator<Node> getNodeIterator() {
 		return new NodeIterator<Node>(this, true, true, true);
@@ -150,7 +153,7 @@ public class DirectedGraph {
 	/**
 	 * Return an iterator which returns all leaf nodes in the tree exactly once. Search is done in a depth-first way.
 	 * 
-	 * @return
+	 * @return a new NodeIterator(LeafNode)
 	 */
 	public Iterator<LeafNode> getLeafNodeIterator() {
 		return new NodeIterator<LeafNode>(this, true, false, false);
@@ -159,7 +162,7 @@ public class DirectedGraph {
 	/**
 	 * Return an iterator which returns all decision nodes in the tree exactly once. Search is done in a depth-first way.
 	 * 
-	 * @return
+	 * @return a new NodeIterator(DecisionNode)
 	 */
 	public Iterator<DecisionNode> getDecisionNodeIterator() {
 		return new NodeIterator<DecisionNode>(this, false, true, false);
@@ -168,7 +171,7 @@ public class DirectedGraph {
 	/**
 	 * Return an iterator which returns all directed graph nodes in the tree exactly once. Search is done in a depth-first way.
 	 * 
-	 * @return
+	 * @return a new NodeIterator(DirectedGraphNode)
 	 */
 	public Iterator<DirectedGraphNode> getDirectedGraphNodeIterator() {
 		return new NodeIterator<DirectedGraphNode>(this, false, false, true);
@@ -177,7 +180,7 @@ public class DirectedGraph {
 	/**
 	 * A representation of the corresponding node iterator that can be used in extended for() statements.
 	 * 
-	 * @return
+	 * @return a new Iterable(Node)
 	 */
 	public Iterable<Node> getNodes() {
 		return new Iterable<Node>() {
@@ -190,7 +193,7 @@ public class DirectedGraph {
 	/**
 	 * A representation of the corresponding node iterator that can be used in extended for() statements.
 	 * 
-	 * @return
+	 * @return a new Iterable(LeafNode)
 	 */
 	public Iterable<LeafNode> getLeafNodes() {
 		return new Iterable<LeafNode>() {
@@ -203,7 +206,7 @@ public class DirectedGraph {
 	/**
 	 * A representation of the corresponding node iterator that can be used in extended for() statements.
 	 * 
-	 * @return
+	 * @return a new Iterable(DecisionNode)
 	 */
 	public Iterable<DecisionNode> getDecisionNodes() {
 		return new Iterable<DecisionNode>() {
@@ -216,7 +219,7 @@ public class DirectedGraph {
 	/**
 	 * A representation of the corresponding node iterator that can be used in extended for() statements.
 	 * 
-	 * @return
+	 * @return a new Iterable(DirectedGraphNode)
 	 */
 	public Iterable<DirectedGraphNode> getDirectedGraphNodes() {
 		return new Iterable<DirectedGraphNode>() {
@@ -229,7 +232,7 @@ public class DirectedGraph {
 	/**
 	 * Get the properties object associated with this tree, or null if there is no such object.
 	 * 
-	 * @return
+	 * @return the properties
 	 */
 	public Properties getProperties() {
 		return properties;
@@ -247,7 +250,7 @@ public class DirectedGraph {
 	/**
 	 * Set the root node of this CART
 	 * 
-	 * @param the
+	 * @param rNode
 	 *            root node
 	 */
 	public void setRootNode(Node rNode) {

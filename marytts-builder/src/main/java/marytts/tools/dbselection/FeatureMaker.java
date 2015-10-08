@@ -366,8 +366,8 @@ public class FeatureMaker {
 	 * 
 	 * @param nextSentence
 	 *            the sentence
-	 * @param filename
-	 *            the file containing the sentence
+	 * @param textId
+	 *            the text id
 	 * @param feas
 	 *            target features names separated by space (ex. "phone next_phone selection_prosody")
 	 * @return the result of the processing as MaryData object
@@ -429,9 +429,9 @@ public class FeatureMaker {
 	 * 
 	 * @param nextSentence
 	 *            the sentence
-	 * @param filename
-	 *            the file containing the sentence
-	 * @param feas
+	 * @param textId
+	 *            the text id
+	 * @param featureComputer
 	 *            target features names separated by space (ex. "phone next_phone selection_prosody")
 	 * @return a byte array representing the feature vectors for the entire sentence
 	 */
@@ -489,8 +489,11 @@ public class FeatureMaker {
 	 * 
 	 * @param textString
 	 *            the text to process
+	 * @param id
+	 *            id
 	 * @return the resulting XML-Document
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Document phonemiseText(String textString, int id) throws Exception {
 		try {
@@ -526,10 +529,15 @@ public class FeatureMaker {
 	/**
 	 * Split the text into separate sentences
 	 * 
-	 * @param file
+	 * @param text
 	 *            the file
+	 * @param id
+	 *            id
+	 * @param test
+	 *            test
 	 * @return true, if successful
 	 * @throws Exception
+	 *             Exception
 	 */
 	protected static Vector<String> splitIntoSentences(String text, int id, boolean test) throws Exception {
 
@@ -622,6 +630,9 @@ public class FeatureMaker {
 	 *            the Node to start from checkCredibility returns 0 if the sentence is useful 1 if the sentence contains
 	 *            unknownWords (so the sentence is not useful) 2 if the sentence contains strangeSymbols (so the sentence is not
 	 *            useful)
+	 * @param sentence
+	 *            sentence
+	 * @return sentence
 	 */
 	protected static StringBuilder collectTokens(Node nextToken, StringBuilder sentence) {
 		int credibility = 0;
@@ -681,7 +692,8 @@ public class FeatureMaker {
 	 * 
 	 * g2p_method "contains-unknown-words" or "contains-strange-symbols",
 	 * 
-	 * @param d
+	 * @param t
+	 *            t
 	 * @return 0 if the sentence is useful 1 if the sentence contains unknownWords 2 if the sentence contains strangeSymbols
 	 */
 	protected static int checkReliability(Element t) {

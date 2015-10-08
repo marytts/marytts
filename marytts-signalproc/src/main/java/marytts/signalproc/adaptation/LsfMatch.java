@@ -32,7 +32,7 @@ package marytts.signalproc.adaptation;
 import marytts.util.math.ArrayUtils;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class LsfMatch extends VocalTractMatch {

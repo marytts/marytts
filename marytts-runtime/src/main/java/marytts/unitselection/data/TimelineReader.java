@@ -155,13 +155,16 @@ public class TimelineReader {
 	 * 
 	 * @param fileName
 	 *            The file to read the timeline from. Must be non-null and point to a valid timeline file.
-	 * 
+	 * @param tryMemoryMapping
+	 *            tryMemoryMapping
 	 * @throws IOException
 	 *             if a problem occurs during reading
 	 * @throws BufferUnderflowException
 	 *             if a problem occurs during reading
 	 * @throws MaryConfigurationException
 	 *             if fileName does not point to a valid timeline file
+	 * @throws NullPointerException
+	 *             NullPointerException
 	 */
 	protected void load(String fileName, boolean tryMemoryMapping) throws IOException, BufferUnderflowException,
 			MaryConfigurationException, NullPointerException {
@@ -342,7 +345,6 @@ public class TimelineReader {
 	 *            the externally given sample rate.
 	 * @param targetTimeInSamples
 	 *            a discrete time, with respect to the externally given sample rate.
-	 * 
 	 * @return a discrete time, in samples with respect to the timeline's sample rate.
 	 */
 	protected long scaleTime(int reqSampleRate, long targetTimeInSamples) {
@@ -358,7 +360,6 @@ public class TimelineReader {
 	 *            the externally given sample rate.
 	 * @param timelineTimeInSamples
 	 *            a discrete time, with respect to the timeline sample rate.
-	 * 
 	 * @return a discrete time, in samples with respect to the externally given sample rate.
 	 */
 	protected long unScaleTime(int reqSampleRate, long timelineTimeInSamples) {
@@ -374,6 +375,8 @@ public class TimelineReader {
 	/**
 	 * Skip the upcoming datagram at the current position of the byte buffer.
 	 * 
+	 * @param bb
+	 *            bb
 	 * @return the duration of the datagram we skipped
 	 * @throws IOException
 	 *             if we cannot skip another datagram because we have reached the end of the byte buffer
@@ -471,6 +474,8 @@ public class TimelineReader {
 	 *         the byte buffer. The position as such is not meaningful; the time is guaranteed to be less than or equal to
 	 *         targetTimeInSamples.
 	 * @throws IOException
+	 *             IOException
+	 * @throws BufferUnderflowException
 	 *             , BufferUnderflowException if no byte buffer can be obtained for the requested time.
 	 */
 	protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
@@ -759,11 +764,8 @@ public class TimelineReader {
 	 * 
 	 * @param targetTimeInSamples
 	 *            the requested position, in samples. Must be non-negative and less than the total duration of the timeline.
-	 * @param number
-	 *            the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
-	 * @param reqSampleRate
-	 *            the sample rate for the requested and returned times. Must be positive.
-	 * 
+	 * @param timeSpanInSamples
+	 *            the span in samples
 	 * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams can be read,
 	 *         the number of datagrams that can be read is returned.
 	 * @throws IllegalArgumentException
@@ -784,7 +786,7 @@ public class TimelineReader {
 	 * @param targetTimeInSamples
 	 *            the requested position, in samples. Must be non-negative and less than the total duration of the timeline.
 	 * @param number
-	 *            the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
+	 *            the number of datagrams to read. Even if this is &le; 0, at least one datagram is always returned.
 	 * @param reqSampleRate
 	 *            the sample rate for the requested and returned times. Must be positive.
 	 * @param returnOffset
@@ -863,14 +865,14 @@ public class TimelineReader {
 	 * If one would store the location of the datagram which comes just after the index position (the currently tested datagram),
 	 * there would be a possibility that a particular time request falls between the index and the datagram:
 	 * 
-	 * time axis ---------------------------------> INDEX <-- REQUEST | ---------------> DATAGRAM
+	 * time axis &rArr; INDEX &larr; REQUEST | &rArr; DATAGRAM
 	 * 
 	 * This would require a subsequent backwards time hopping, which is impossible because the datagrams are a singly linked list.
 	 * 
 	 * By registering the location of the previous datagram, any time request will find an index which points to a datagram
 	 * falling BEFORE or ON the index location:
 	 * 
-	 * time axis ---------------------------------> INDEX <-- REQUEST | DATAGRAM <---
+	 * time axis &rArr; INDEX &larr; REQUEST | DATAGRAM &larr;
 	 * 
 	 * Thus, forward hopping is always possible and the requested time can always be reached.
 	 * 
@@ -1045,6 +1047,12 @@ public class TimelineReader {
 
 		/**
 		 * Method which writes an index to a RandomAccessFile
+		 * 
+		 * @param rafIn
+		 *            rafIn
+		 * @throws IOException
+		 *             IOException
+		 * @return nBytes
 		 * */
 		public long dump(RandomAccessFile rafIn) throws IOException {
 			long nBytes = 0;
@@ -1092,6 +1100,8 @@ public class TimelineReader {
 		/*****************/
 		/**
 		 * The number of index entries.
+		 * 
+		 * @return bytePtrs.length
 		 */
 		public int getNumIdx() {
 			return bytePtrs.length;
@@ -1100,7 +1110,7 @@ public class TimelineReader {
 		/**
 		 * The interval, in samples, between two index entries.
 		 * 
-		 * @return
+		 * @return idxInterval
 		 */
 		public int getIdxInterval() {
 			return idxInterval;
@@ -1282,6 +1292,8 @@ public class TimelineReader {
 		 *            byte buffer to read from, must not be null.
 		 * @throws BufferUnderflowException
 		 *             , UTFDataFormatException if no proc header can be read at the current position.
+		 * @throws UTFDataFormatException
+		 *             UTFDataFormatException
 		 */
 		private void loadProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
 			procHeader = StreamUtils.readUTF(bb);
@@ -1291,6 +1303,10 @@ public class TimelineReader {
 		/**
 		 * Method which writes the proc header to a RandomAccessFile.
 		 * 
+		 * @param rafIn
+		 *            rafIn
+		 * @throws IOException
+		 *             IOException
 		 * @return the number of written bytes.
 		 * */
 		public long dump(RandomAccessFile rafIn) throws IOException {

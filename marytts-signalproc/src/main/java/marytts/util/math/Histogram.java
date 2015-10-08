@@ -50,7 +50,9 @@ public class Histogram {
 	 * A simple constructor
 	 * 
 	 * @param data
+	 *            data
 	 * @param nbins
+	 *            nbins
 	 */
 	public Histogram(double[] data, int nbins) {
 		double min = MathUtils.min(data);
@@ -79,9 +81,13 @@ public class Histogram {
 	 * Settings to Histogram
 	 * 
 	 * @param data
+	 *            data
 	 * @param nbins
+	 *            nbins
 	 * @param min
+	 *            min
 	 * @param max
+	 *            max
 	 */
 	public void setHistogram(double[] data, int nbins, double min, double max) {
 		m_nbins = nbins;
@@ -190,7 +196,7 @@ public class Histogram {
 
 	/**
 	 * Save the histogram data to a file. The file format is very simple, human-readable text so it can be imported into Excel or
-	 * cut & pasted into other applications.
+	 * cut and pasted into other applications.
 	 * 
 	 * @param fileName
 	 *            name of the file to write the histogram to. Note this must be valid for your operating system, e.g. a unix

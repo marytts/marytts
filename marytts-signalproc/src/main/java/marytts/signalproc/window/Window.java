@@ -64,7 +64,8 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 * @param length
 	 *            the window length, in samples; this should be an odd number, so that the window can be symmetric around the
 	 *            center point.
-	 * @throw IllegalArgumentException if length is an even number.
+	 * @throws IllegalArgumentException
+	 *             if length is an even number.
 	 */
 	public Window(int length) {
 		this(length, 1);
@@ -79,7 +80,8 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            center point.
 	 * @param prescalingFactor
 	 *            a factor to apply to each window point.
-	 * @throw IllegalArgumentException if length is an even number.
+	 * @throws IllegalArgumentException
+	 *             if length is an even number.
 	 */
 	public Window(int length, double prescalingFactor) {
 		window = new double[length];
@@ -115,6 +117,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 * Apply the window function in-line, i.e. by modifying the original data.
 	 * 
 	 * @param data
+	 *            data
 	 * @param pos
 	 *            the position in the data array where to start applying the window function.
 	 * @param len
@@ -148,6 +151,8 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            an array to receive the target data, computed by applying this window to the source data. The target array must
 	 *            be long enough to receive getLength() bytes after targetPos. if target == source and targetPos == srcPos, then
 	 *            the window function is applied in-place.
+	 * @param targetPos
+	 *            targetPos
 	 * @throws IllegalArgumentException
 	 *             if target.length-targetPos is smaller than this window's length as returned by #getLength().
 	 */
@@ -170,12 +175,14 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            an array to receive the target data, computed by applying this window to the source data. The target array must
 	 *            be long enough to receive getLength() bytes after targetPos. if target == source and targetPos == srcPos, then
 	 *            the window function is applied in-place.
+	 * @param targetPos
+	 *            target Pos
 	 * @param len
 	 *            the number of samples of the window to apply; this must be less than or equal getLength(). If it is less than
 	 *            getLength(), a truncated window will be applied.
 	 * @throws IllegalArgumentException
-	 *             if target.length-targetPos is smaller than this window's length as returned by #getLength(), or if len >=
-	 *             getLength.
+	 *             if target.length-targetPos is smaller than this window's length as returned by #getLength(), or if len is
+	 *             greater or equals to getLength.
 	 */
 	public void apply(final double[] src, int srcPos, double[] target, int targetPos, int len) {
 		apply(src, srcPos, target, targetPos, 0, len);
@@ -197,13 +204,15 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            an array to receive the target data, computed by applying this window to the source data. The target array must
 	 *            be long enough to receive getLength() bytes after targetPos. if target == source and targetPos == srcPos, then
 	 *            the window function is applied in-place.
+	 * @param targetPos
+	 *            targetPos
 	 * @param off
 	 *            the offset from the start of the window from where on the window is to be applied.
 	 * @param len
 	 *            the number of samples of the window to apply; off+len must be less than or equal getLength().
 	 * @throws IllegalArgumentException
-	 *             if target.length-targetPos is smaller than this window's length as returned by #getLength(), or if len >=
-	 *             getLength.
+	 *             if target.length-targetPos is smaller than this window's length as returned by #getLength(), or if len is
+	 *             greater or equals to getLength.
 	 */
 	public void apply(final double[] src, int srcPos, double[] target, int targetPos, int off, int len) {
 		if (len < 0 || off < 0 || off + len > window.length)
@@ -239,6 +248,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 * 
 	 * @throws NullPointerException
 	 *             if the window has not yet been initialised.
+	 * @return window length
 	 */
 	public int getLength() {
 		if (window == null) {
@@ -254,7 +264,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	 *            the index position in the window for which to return the value
 	 * @return the value of the window function, between 0 and 1.
 	 * @throws IllegalArgumentException
-	 *             if i<0 or i>getLength().
+	 *             if i&lt;0 or i&gt;getLength().
 	 * @throws NullPointerException
 	 *             if the window has not yet been initialised.
 	 */
@@ -271,7 +281,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 	/**
 	 * Return this window's type, as defined by the constants in Window, or -1 if the window is not of a known type.
 	 * 
-	 * @return
+	 * @return -1
 	 */
 	public int type() {
 		if (this instanceof RectWindow)

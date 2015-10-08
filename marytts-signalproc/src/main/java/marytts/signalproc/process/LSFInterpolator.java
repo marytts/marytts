@@ -65,6 +65,7 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
 	 * will be done.
 	 * 
 	 * @param frameToMerge
+	 *            frame to merge
 	 */
 	public void setFrameToMerge(double[] frameToMerge) {
 		this.otherFrame1 = frameToMerge;
@@ -77,7 +78,9 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
 	 * to be merged into the data set; for example, in order to correct for time misalignment between signal and other frames.
 	 * 
 	 * @param frame1
+	 *            frame 1
 	 * @param frame2
+	 *            frame 2
 	 * @param relativeWeightFrame1
 	 *            , a number between 0 and 1 indicating the relative weight of frame1^ with respect to frame2. Consequently, the
 	 *            relative weight of frame 2 will be (1 - relativeWeightFrame1).
@@ -92,7 +95,7 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
 	 * Process the LPC coefficients in place. This implementation converts the LPC coefficients into line spectral frequencies,
 	 * and interpolates between these and the corresponding frame in the "other" signal.
 	 * 
-	 * @param a
+	 * @param coeffs
 	 *            the LPC coefficients
 	 */
 	protected void processLPC(LpCoeffs coeffs, double[] residual) {

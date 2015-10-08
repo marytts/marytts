@@ -275,7 +275,7 @@ public class ESTTrackReader {
 	 * 
 	 * @param seconds
 	 *            A time point, in seconds.
-	 * @return
+	 * @return (seconds - t1)&lt;(t2 - seconds) ? t1:t2
 	 */
 	public float getClosestTime(double seconds) {
 		/* Obvious conditions */
@@ -338,7 +338,6 @@ public class ESTTrackReader {
 	 * 
 	 * @return a vector of 2 float values in the order [min,max].
 	 * 
-	 * @author Sacha K.
 	 */
 	public float[] getMinMax() {
 		/* Initialize */
@@ -371,7 +370,6 @@ public class ESTTrackReader {
 	 * 
 	 * @return a vector of 2 float values in the order [min,max].
 	 * 
-	 * @author Sacha K.
 	 */
 	public float[] getMinMaxNo1st() {
 		/* Initialize */

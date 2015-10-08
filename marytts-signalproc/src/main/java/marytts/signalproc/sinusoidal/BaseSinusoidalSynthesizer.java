@@ -22,7 +22,7 @@ package marytts.signalproc.sinusoidal;
 /**
  * A baseline class for all sinusoidal synthesizers
  * 
- * @author Oytun Tu&umlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class BaseSinusoidalSynthesizer {

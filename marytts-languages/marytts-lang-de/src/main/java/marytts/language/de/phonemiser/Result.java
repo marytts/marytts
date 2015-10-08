@@ -33,14 +33,14 @@ public class Result {
 	}
 
 	/**
-	 * @return
+	 * @return transcription
 	 */
 	public String getTranscription() {
 		return transcription;
 	}
 
 	/**
-	 * @return
+	 * @return usedOtherLanguageToPhonemise
 	 */
 	public boolean isUsedOtherLanguageToPhonemise() {
 		return usedOtherLanguageToPhonemise;
@@ -48,6 +48,7 @@ public class Result {
 
 	/**
 	 * @param string
+	 *            string
 	 */
 	public void setTranscription(String string) {
 		transcription = string;
@@ -55,6 +56,7 @@ public class Result {
 
 	/**
 	 * @param b
+	 *            b
 	 */
 	public void setUsedOtherLanguageToPhonemise(boolean b) {
 		usedOtherLanguageToPhonemise = b;

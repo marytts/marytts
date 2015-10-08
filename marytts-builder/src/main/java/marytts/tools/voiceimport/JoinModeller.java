@@ -377,6 +377,13 @@ public class JoinModeller extends VoiceImportComponent {
 	 * This function reads a feature list file originally used to train the HMMs, in HMM voices. The file format is simple, one
 	 * feature after another like in the ../mary/features.txt An example of feature list is in ../mary/featuresHmmVoice.txt Since
 	 * the features are provided by the user, it should be checked that the features exist
+	 * 
+	 * @param featureListFile
+	 *            featureListFile
+	 * @param feaDef
+	 *            feaDef
+	 * @throws Exception
+	 *             Exception
 	 */
 	private void readFeatureList(String featureListFile, FeatureDefinition feaDef) throws Exception {
 		String line;

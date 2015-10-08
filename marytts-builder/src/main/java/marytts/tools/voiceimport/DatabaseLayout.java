@@ -329,6 +329,7 @@ public class DatabaseLayout {
 	 * from another component. Handle with care -- only use this if you know what you are doing!
 	 * 
 	 * @param componentName
+	 *            componentName
 	 * @return the named voice import component, or null if there is no such component.
 	 */
 	public VoiceImportComponent getComponent(String componentName) {
@@ -340,6 +341,8 @@ public class DatabaseLayout {
 	 * 
 	 * @param configFile
 	 *            the config file
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void readConfigFile(File configFile) throws IOException {
 		props = new TreeMap<String, String>();
@@ -401,6 +404,8 @@ public class DatabaseLayout {
 	 * 
 	 * @param configFile
 	 *            the config file
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void readExternalBinariesConfigFile(File configFile) throws IOException {
 		external = new TreeMap<String, String>();
@@ -590,7 +595,7 @@ public class DatabaseLayout {
 	/**
 	 * Prompt the user for the basic props (This is called if we don't have any props)
 	 * 
-	 * @param props
+	 * @param basicprops
 	 *            the map of props to be filled
 	 */
 	private boolean promptUserForBasicProps(SortedMap<String, String> basicprops) {
@@ -611,6 +616,7 @@ public class DatabaseLayout {
 
 	/**
 	 * @param basicprops
+	 *            basicprops
 	 */
 	private void initDefaultBasicProps(SortedMap<String, String> basicprops) {
 		basicprops.put(MARYBASE, System.getProperty("MARYBASE", "/path/to/marybase/"));
@@ -642,6 +648,8 @@ public class DatabaseLayout {
 	 * 
 	 * @param someProps
 	 *            the map of props to be filled
+	 * @param withBasicProps
+	 *            withBasicProps
 	 * @return the map of default props
 	 */
 	private SortedMap<String, String> initDefaultProps(SortedMap<String, String> someProps, boolean withBasicProps) {
@@ -792,6 +800,9 @@ public class DatabaseLayout {
 
 	/**
 	 * Initialize the components
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	private void initializeComps() throws Exception {
 		for (int i = 0; i < components.length; i++) {
@@ -853,6 +864,8 @@ public class DatabaseLayout {
 	/**
 	 * Get all props of all components as an Array representation for displaying with the SettingsGUI. Does not include uneditable
 	 * props.
+	 * 
+	 * @return result
 	 */
 	public String[][] getAllPropsForDisplay() {
 		List<String> keys = new ArrayList<String>();

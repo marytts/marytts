@@ -72,11 +72,24 @@ public class Phonemiser extends InternalModule {
 	/**
 	 * Constructor providing the individual filenames of files that are required.
 	 * 
-	 * @param allophonesFilename
-	 * @param userdictFilename
-	 * @param lexiconFilename
-	 * @param ltsFilename
-	 * @throws Exception
+	 * @param componentName
+	 *            componentName
+	 * @param inputType
+	 *            inputType
+	 * @param outputType
+	 *            outputType
+	 * @param allophonesProperty
+	 *            allophonesProperty
+	 * @param userdictProperty
+	 *            userdictProperty
+	 * @throws IOException
+	 *             IOException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public Phonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
 			String userdictProperty) throws IOException, SAXException, ParserConfigurationException, MaryConfigurationException {
@@ -162,6 +175,7 @@ public class Phonemiser extends InternalModule {
 	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
 	 * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
 	 * @throws IOException
+	 *             IOException
 	 */
 	public String phonemise(String text, String pos, StringBuilder g2pMethod) throws IOException {
 		// First, try a simple userdict lookup:
@@ -178,8 +192,10 @@ public class Phonemiser extends InternalModule {
 	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
 	 * 
 	 * @param text
+	 *            text
 	 * @param pos
-	 * @return
+	 *            pos
+	 * @return null if userdict == null || text == null || text.length() == 0, null if entries == null, transcr otherwise
 	 */
 	public String userdictLookup(String text, String pos) {
 		if (userdict == null || text == null || text.length() == 0)
@@ -226,7 +242,10 @@ public class Phonemiser extends InternalModule {
 	 * 
 	 * 
 	 * @param lexiconFilename
-	 * @return
+	 *            lexiconFilename
+	 * @throws IOException
+	 *             IOException
+	 * @return fLexicon
 	 */
 	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
 		String line;

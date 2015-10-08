@@ -24,7 +24,7 @@ import marytts.util.io.BasenameList;
 /**
  * Baseline class for speaker specific voice conversion training set
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class BaselineAdaptationSet {
 	public BaselineAdaptationItem[] items;

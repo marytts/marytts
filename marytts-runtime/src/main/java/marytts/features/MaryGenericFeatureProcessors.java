@@ -66,6 +66,7 @@ public class MaryGenericFeatureProcessors {
 		 * Given the target, retrieve an XML Element.
 		 * 
 		 * @param target
+		 *            target
 		 * @return an item selected according to this navigator, or null if there is no such item.
 		 */
 		public Element getElement(Target target);
@@ -966,7 +967,7 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * Performs some processing on the given item.
 		 * 
-		 * @param item
+		 * @param target
 		 *            the item to process
 		 * 
 		 * @return the number of words in the phrase
@@ -1078,7 +1079,7 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * Performs some processing on the given item.
 		 * 
-		 * @param item
+		 * @param target
 		 *            the item to process
 		 * 
 		 * @return the number of segments in the given word
@@ -1103,7 +1104,7 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * @deprecated, use SegsFromSylStart instead
+	 * @deprecated use SegsFromSylStart instead
 	 */
 	public static class PosInSyl extends SegsFromSylStart {
 		public PosInSyl() {
@@ -2798,9 +2799,11 @@ public class MaryGenericFeatureProcessors {
 		 * Compute log f0 and log f0 delta for the given target.
 		 * 
 		 * @param target
+		 *            target
 		 * @param delta
 		 *            if true, return the delta, i.e. the logF0 slope; if false, return the log f0 value itself.
-		 * @return
+		 * @return 0 if seg is null, or if !seg.getTagName().equals(MaryXML.PHONE), 0 if lastPos == null or nextPos == null,
+		 *         return lastF0 otherwise; if delta return slope, return f0 otherwise
 		 */
 		protected float process(Target target, boolean delta) {
 			// Note: all variables in this method with "f0" in their name

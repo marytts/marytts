@@ -25,7 +25,7 @@ import marytts.signalproc.adaptation.gmm.GMMMatch;
  * 
  * Joint-GMM output for voice conversion
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class JointGMMMatch extends GMMMatch {
 	public double[] mappedSourceFeatures; // Source LSFs mapped onto source acoustic space

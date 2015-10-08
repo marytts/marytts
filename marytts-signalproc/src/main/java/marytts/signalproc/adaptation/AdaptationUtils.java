@@ -33,7 +33,7 @@ import marytts.util.string.StringUtils;
 /**
  * Generic utilities for voice conversion
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class AdaptationUtils {
 

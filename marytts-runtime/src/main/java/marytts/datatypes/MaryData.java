@@ -134,6 +134,19 @@ public class MaryData {
 
 	/**
 	 * Read data from input stream <code>is</code>, in the appropriate way as determined by our <code>type</code>.
+	 * 
+	 * @param is
+	 *            is
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws IOException
+	 *             IOException
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws TransformerException
+	 *             TransformerException
 	 */
 	public void readFrom(InputStream is) throws ParserConfigurationException, SAXException, IOException,
 			TransformerConfigurationException, TransformerException {
@@ -148,6 +161,16 @@ public class MaryData {
 	 * @param endMarker
 	 *            a string marking end of file. If this is null, read until end-of-file; if it is non-null, read up to (and
 	 *            including) the first line containing the end marker string. This will be ignored for audio data.
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws IOException
+	 *             IOException
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws TransformerException
+	 *             TransformerException
 	 */
 	public void readFrom(InputStream is, String endMarker) throws ParserConfigurationException, SAXException, IOException,
 			TransformerConfigurationException, TransformerException {
@@ -162,6 +185,15 @@ public class MaryData {
 	/**
 	 * Read data from reader <code>r</code> in the appropriate way as determined by our <code>type</code>. Only XML and Text data
 	 * can be read from a reader, audio data cannot.
+	 * 
+	 * @param from
+	 *            from
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void readFrom(Reader from) throws ParserConfigurationException, SAXException, IOException {
 		String inputData = FileUtils.getReaderAsString(from);
@@ -179,6 +211,12 @@ public class MaryData {
 	 * @param endMarker
 	 *            a string marking end of file. If this is null, read until end-of-file; if it is non-null, read up to (and
 	 *            including) the first line containing the end marker string.
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
+	 * @throws SAXException
+	 *             SAXException
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void readFrom(Reader from, String endMarker) throws ParserConfigurationException, SAXException, IOException {
 		// For the case that the data to be read it is not
@@ -200,8 +238,12 @@ public class MaryData {
 	 * 
 	 * @param dataString
 	 *            string representation of the input data.
+	 * @throws ParserConfigurationException
+	 *             ParserConfigurationException
 	 * @throws IOException
+	 *             IOException
 	 * @throws SAXException
+	 *             SAXException
 	 * @throws IllegalArgumentException
 	 *             if this method is called for MaryDataTypes that are neither text nor XML.
 	 */
@@ -223,6 +265,19 @@ public class MaryData {
 	/**
 	 * Write our internal representation to output stream <code>os</code>, in the appropriate way as determined by our
 	 * <code>type</code>.
+	 * 
+	 * @param os
+	 *            os
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws TransformerException
+	 *             TransformerException
+	 * @throws IOException
+	 *             IOException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void writeTo(OutputStream os) throws TransformerConfigurationException, FileNotFoundException, TransformerException,
 			IOException, Exception {
@@ -276,6 +331,19 @@ public class MaryData {
 	 * Write our internal representation to writer <code>w</code>, in the appropriate way as determined by our <code>type</code>.
 	 * Only XML and Text data can be written to a writer, audio data cannot. "Helpers" needed to read the data, such as XML parser
 	 * objects, are created when they are needed.
+	 * 
+	 * @param w
+	 *            w
+	 * @throws TransformerConfigurationException
+	 *             TransformerConfigurationException
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws TransformerException
+	 *             TransformerException
+	 * @throws IOException
+	 *             IOException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public void writeTo(Writer w) throws TransformerConfigurationException, FileNotFoundException, TransformerException,
 			IOException, Exception {
@@ -325,6 +393,7 @@ public class MaryData {
 	 * appendAudio().
 	 * 
 	 * @param audio
+	 *            audio
 	 */
 	public void setAudio(AudioInputStream audio) {
 		this.audio = audio;
@@ -373,6 +442,9 @@ public class MaryData {
 	 * The audio file format is required only for data types serving as input to modules producing AUDIO data (e.g., MBROLA data),
 	 * as well as for the AUDIO data itself. It should be set by the calling code before passing the data to the module producing
 	 * AUDIO data.
+	 * 
+	 * @param audioFileFormat
+	 *            audioFileFormat
 	 */
 
 	public void setAudioFileFormat(AudioFileFormat audioFileFormat) {

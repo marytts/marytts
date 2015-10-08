@@ -58,6 +58,9 @@ public abstract class AbstractTimelineMaker extends VoiceImportComponent {
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * @param theDB
+	 *            theDB
 	 */
 	@Override
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout theDB) {
@@ -88,6 +91,7 @@ public abstract class AbstractTimelineMaker extends VoiceImportComponent {
 	 * Read and concatenate a list of data files into a single timeline file.
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	@Override
 	public boolean compute() throws IOException, MaryConfigurationException {
@@ -176,6 +180,7 @@ public abstract class AbstractTimelineMaker extends VoiceImportComponent {
 	 * @param dataFile
 	 *            to provide parameters
 	 * @throws IOException
+	 *             IOException
 	 */
 	protected void initializeDataTimeline(AbstractDataFile dataFile) throws IOException {
 		String processingHeader = getProcessingHeader();
@@ -188,6 +193,8 @@ public abstract class AbstractTimelineMaker extends VoiceImportComponent {
 	 * generate a processing header for the {@link TimelineWriter}
 	 * 
 	 * @throws IOException
+	 *             IOException
+	 * @return processing header
 	 */
 	protected abstract String getProcessingHeader() throws IOException;
 

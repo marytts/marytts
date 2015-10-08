@@ -40,7 +40,7 @@ import marytts.util.signal.SignalProcUtils;
  * overlap among filters Given a sampling rate and a set of lower and upper cutoff frequency values in Hz, a set of bandpass
  * filters that overlap by some amount in frequency
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
 	public static final double OVERLAP_AROUND_1000HZ_DEFAULT = 100.0;

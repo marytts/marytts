@@ -188,7 +188,7 @@ public class WavReader {
 	 *            a String containing the ascii characters you want the <code>dis</code> to contain.
 	 * 
 	 * @return <code>true</code> if <code>chars</code> appears next in <code>dis</code>, else <code>false</code>
-	 * @throws on
+	 * @throws IOException
 	 *             ill-formatted input (end of file, for example)
 	 */
 	private boolean checkChars(DataInputStream dis, String chars) throws IOException {
@@ -219,7 +219,7 @@ public class WavReader {
 		return numSamples;
 	}
 
-	/*
+	/**
 	 * Get the sample data of this wave
 	 * 
 	 * @return samples

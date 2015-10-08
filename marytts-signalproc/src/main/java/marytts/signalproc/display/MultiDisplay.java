@@ -42,7 +42,8 @@ import marytts.util.data.audio.MaryAudioUtils;
 /**
  * @author marc
  * 
- *         To change the template for this generated type comment go to Window>Preferences>Java>Code Generation>Code and Comments
+ *         To change the template for this generated type comment go to Code and Comments under Window, Preferences, Java, Code
+ *         Generation
  * 
  */
 public class MultiDisplay extends JFrame {

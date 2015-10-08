@@ -37,7 +37,7 @@ import marytts.util.math.MathUtils;
  * either jointly or separately. Uses cluster assignments of matched source-target pairs to detect and eliminate pairs which
  * reside in outlier clusters.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class KMeansMappingEliminator {
 	// Separate clusterers

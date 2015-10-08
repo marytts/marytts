@@ -19,6 +19,9 @@
  */
 package marytts.modules.phonemiser;
 
+/**
+ * @author ingmar
+ */
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +53,7 @@ public class AllophoneSet {
 	 * Return the allophone set specified by the given filename. It will only be loaded if it was not loaded before.
 	 * 
 	 * @param filename
+	 *            filename
 	 * @return the allophone set, if one can be created. This method will never return null.
 	 * @throws MaryConfigurationException
 	 *             if no allophone set can be loaded from the given file.
@@ -230,7 +234,7 @@ public class AllophoneSet {
 	/**
 	 * Obtain the silence allophone in this AllophoneSet
 	 * 
-	 * @return
+	 * @return silence
 	 */
 	public Allophone getSilence() {
 		return silence;
@@ -239,7 +243,7 @@ public class AllophoneSet {
 	/**
 	 * Obtain the ignore chars in this AllophoneSet Default: "',-"
 	 * 
-	 * @return
+	 * @return ignore_chars
 	 */
 	public String getIgnoreChars() {
 		if (ignore_chars == null) {
@@ -253,7 +257,9 @@ public class AllophoneSet {
 	 * For the Allophone with name ph, return the value of the named feature.
 	 * 
 	 * @param ph
+	 *            ph
 	 * @param featureName
+	 *            feature name
 	 * @return the allophone feature, or null if either the allophone or the feature does not exist.
 	 */
 	public String getPhoneFeature(String ph, String featureName) {
@@ -268,7 +274,7 @@ public class AllophoneSet {
 	/**
 	 * Get the list of available phone features for this allophone set.
 	 * 
-	 * @return
+	 * @return Collections.unmodifiableSet(featureValueMap.keySet())
 	 */
 	public Set<String> getPhoneFeatures() {
 		return Collections.unmodifiableSet(featureValueMap.keySet());
@@ -278,6 +284,7 @@ public class AllophoneSet {
 	 * For the given feature name, get the list of all possible values that the feature can take in this allophone set.
 	 * 
 	 * @param featureName
+	 *            featureName
 	 * @throws IllegalArgumentException
 	 *             if featureName is not a known feature name.
 	 * @return the list of values, "0" first.
@@ -291,6 +298,8 @@ public class AllophoneSet {
 
 	/**
 	 * This returns the names of all allophones contained in this AllophoneSet, as a Set of Strings
+	 * 
+	 * @return allophoneKeySet
 	 */
 	public Set<String> getAllophoneNames() {
 		Iterator<String> it = allophones.keySet().iterator();
@@ -332,6 +341,7 @@ public class AllophoneSet {
 	 * space characters.
 	 * 
 	 * @param allophoneString
+	 *            allophoneString
 	 * @throws IllegalArgumentException
 	 *             if the string contains illegal symbols.
 	 * @return a String containing allophones and stress markers / syllable boundaries, separated with spaces
@@ -350,7 +360,8 @@ public class AllophoneSet {
 	/**
 	 * Split allophone string into a list of allophone symbols, preserving all stress and syllable boundaries that may be present
 	 * 
-	 * @param allophoneString
+	 * @param allophonesString
+	 *            allophonesString
 	 * @return a List of allophone Strings
 	 * @throws IllegalArgumentException
 	 *             if allophoneString contains a symbol for which no Allophone can be found
@@ -430,6 +441,7 @@ public class AllophoneSet {
 	 * Check whether the given allophone string has a correct syntax according to this allophone set.
 	 * 
 	 * @param allophoneString
+	 *            allophoneString
 	 * @return true if the syntax is correct, false otherwise.
 	 */
 	public boolean checkAllophoneSyntax(String allophoneString) {
@@ -446,20 +458,19 @@ public class AllophoneSet {
 	 * assigned to the initial syllable.
 	 * <p>
 	 * The syllabification algorithm itself follows the <i>Core Syllabification Principle (CSP)</i> from <blockquote>G.N. Clements
-	 * (1990) "The role of the sonority cycle in core syllabification." In: J. Kingston & M.E. Beckman (Eds.),
+	 * (1990) "The role of the sonority cycle in core syllabification." In: J. Kingston &amp; M.E. Beckman (Eds.),
 	 * <em>Papers in Laboratory Phonology I: Between the Grammar and Physics of Speech</em>, Ch. 17, pp. 283-333, Cambridge
 	 * University Press.</blockquote>
 	 *
 	 * @param phoneString
+	 *            phoneString
 	 * @return a syllabified string; individual allophones are separated by spaces, and syllables, by dashes.
 	 * @throws IllegalArgumentException
 	 *             if the <b>phoneString</b> is empty or contains a symbol that satisfies none of the following conditions:
 	 *             <ol>
-	 *             <li>the symbol corresponds to an Allophone, or</li>
-	 *             <li>the symbol is a stress symbol (cf. {@link Stress}), or</li>
-	 *             <li>the symbol is a syllable boundary (<code>-</code>)</li>
+	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
+	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
 	 *             </ol>
-	 * @author ingmar
 	 * 
 	 */
 	public String syllabify(String phoneString) throws IllegalArgumentException {

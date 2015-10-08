@@ -27,7 +27,7 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
  * 
  * Baseline class for mapping different acoustic features
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public abstract class WeightedCodebookFeatureMapper {
 	// Implement functionality in derived classes!

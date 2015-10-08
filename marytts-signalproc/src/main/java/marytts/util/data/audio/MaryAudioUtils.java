@@ -72,9 +72,9 @@ public class MaryAudioUtils {
 	 * Return an audio file format type for the given string. In addition to the built-in types, this can deal with MP3 supported
 	 * by tritonus.
 	 * 
+	 * @param name
+	 *            name
 	 * @return the audio file format type if it is known, or null.
-	 * @see MaryServerUtils#canCreateMP3()
-	 * @see MaryServerUtils#canCreateOgg()
 	 */
 	public static AudioFileFormat.Type getAudioFileFormatType(String name) {
 		AudioFileFormat.Type at;
@@ -104,12 +104,6 @@ public class MaryAudioUtils {
 	 *            the given amount of time in milliseconds
 	 * @param audioFormat
 	 *            the audio format for the actual sound file
-	 * @return void
-	 * @throws LineUnavailableException
-	 *             if no recording line can be found
-	 * @throws InterruptedException
-	 *             if the recording is stopped
-	 *
 	 */
 	public static void timedRecord(String filename, long millis, AudioFormat audioFormat) {
 		/*
@@ -122,17 +116,12 @@ public class MaryAudioUtils {
 	/**
 	 * Record a sound file with the recording being limited to a given amount of time
 	 * 
-	 * @param filename
+	 * @param targetFile
 	 *            name of the sound file
 	 * @param millis
 	 *            the given amount of time in milliseconds
 	 * @param audioFormat
 	 *            the audio format for the actual sound file
-	 * @throws LineUnavailableException
-	 *             if no recording line can be found
-	 * @throws InterruptedException
-	 *             if the recording is stopped
-	 *
 	 */
 	public static void timedRecord(File targetFile, long millis, AudioFormat audioFormat) {
 		/*
@@ -189,9 +178,6 @@ public class MaryAudioUtils {
 	 *            name of the wav file
 	 * @param loop
 	 *            number of times the file should be repeated (0 = play only once).
-	 * @throws IOException
-	 *             ,LineUnavailableException
-	 * 
 	 */
 	public static void playWavFile(String filename, int loop) {
 		playWavFile(filename, loop, false);
@@ -206,9 +192,6 @@ public class MaryAudioUtils {
 	 *            number of times the file should be repeated (0 = play only once).
 	 * @param waitUntilCompleted
 	 *            whether or not to wait until the file has finished playing before returning.
-	 * @throws IOException
-	 *             ,LineUnavailableException
-	 * 
 	 */
 	public static void playWavFile(String filename, int loop, boolean waitUntilCompleted) {
 		AudioInputStream audioInputStream = null;

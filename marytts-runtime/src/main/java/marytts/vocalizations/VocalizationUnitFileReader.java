@@ -73,6 +73,8 @@ public class VocalizationUnitFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public VocalizationUnitFileReader(String fileName) throws IOException, MaryConfigurationException {
 		load(fileName);
@@ -85,6 +87,8 @@ public class VocalizationUnitFileReader {
 	 *            the unit file to read
 	 * @throws IOException
 	 *             if a problem occurs while reading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void load(String fileName) throws IOException, MaryConfigurationException {
 		/* Open the file */

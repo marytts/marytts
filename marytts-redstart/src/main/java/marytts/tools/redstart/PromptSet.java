@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class PromptSet {
 
@@ -87,6 +87,10 @@ public class PromptSet {
 	 *            The file path to the folder of prompt text files
 	 * @param promptCount
 	 *            The number of prompts in the folder
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws IOException
+	 *             IOException
 	 * @return An array of Prompt objects
 	 */
 	private Prompt[] getPromptData() throws FileNotFoundException, IOException {
@@ -225,6 +229,8 @@ public class PromptSet {
 	 * 
 	 * @param promptFolderPath
 	 *            The file path for the prompt file
+	 * @throws IOException
+	 *             IOException
 	 * @return The number of prompts in the prompt file
 	 */
 	private int countPrompts() throws IOException {

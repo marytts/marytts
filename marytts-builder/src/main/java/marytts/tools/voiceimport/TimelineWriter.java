@@ -163,6 +163,10 @@ public class TimelineWriter {
 
 	/**
 	 * Get the current byte position in the file
+	 * 
+	 * @throws IOException
+	 *             IOException
+	 * @return raf.getFilePointer
 	 */
 	public synchronized long getBytePointer() throws IOException {
 		return (raf.getFilePointer());
@@ -170,6 +174,8 @@ public class TimelineWriter {
 
 	/**
 	 * Get the current time position in the file
+	 * 
+	 * @return timePtr
 	 */
 	public synchronized long getTimePointer() {
 		return (timePtr);
@@ -177,6 +183,11 @@ public class TimelineWriter {
 
 	/**
 	 * Set the current byte position in the file
+	 * 
+	 * @param bytePos
+	 *            bytePos
+	 * @throws IOException
+	 *             IOException
 	 */
 	protected void setBytePointer(long bytePos) throws IOException {
 		raf.seek(bytePos);
@@ -184,6 +195,9 @@ public class TimelineWriter {
 
 	/**
 	 * Set the current time position in the file
+	 * 
+	 * @param timePosition
+	 *            timePosition
 	 */
 	protected void setTimePointer(long timePosition) {
 		timePtr = timePosition;
@@ -227,6 +241,8 @@ public class TimelineWriter {
 
 	/**
 	 * Returns the position of the datagram zone
+	 * 
+	 * @return datagramsBytePos
 	 */
 	public long getDatagramsBytePos() {
 		return datagramsBytePos;
@@ -234,6 +250,8 @@ public class TimelineWriter {
 
 	/**
 	 * Returns the current number of datagrams in the timeline.
+	 * 
+	 * @return numDatagrams
 	 */
 	public long getNumDatagrams() {
 		return numDatagrams;
@@ -241,6 +259,8 @@ public class TimelineWriter {
 
 	/**
 	 * Returns the sample rate of the timeline.
+	 * 
+	 * @return sampleRate
 	 */
 	public int getSampleRate() {
 		return sampleRate;
@@ -250,6 +270,7 @@ public class TimelineWriter {
 	 * Output the internally maintained indexes and close the file.
 	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void close() throws IOException {
 
@@ -275,6 +296,10 @@ public class TimelineWriter {
 	 * Feeds a file position (in bytes) and a time position (in samples) from a timeline, and determines if a new index field is
 	 * to be added.
 	 * 
+	 * @param bytePosition
+	 *            bytePosition
+	 * @param timePosition
+	 *            timePosition
 	 * @return the number of index fields after the feed.
 	 */
 	private void feedIndex(long bytePosition, long timePosition) {
@@ -304,12 +329,12 @@ public class TimelineWriter {
 	/**
 	 * Write one datagram to the timeline.
 	 * 
-	 * @param newDatagram
+	 * @param d
 	 *            the datagram to write.
-	 * @param reqSampleTime
+	 * @param reqSampleRate
 	 *            the sample rate at which the datagram duration is expressed.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void feed(Datagram d, int reqSampleRate) throws IOException {
 		// System.out.println( "Feeding datagram [ " + d.data.length + " , " + d.duration + " ] at pos ( "
@@ -331,12 +356,12 @@ public class TimelineWriter {
 	/**
 	 * Write a series of datagrams to the timeline.
 	 * 
-	 * @param newDatagrams
+	 * @param dArray
 	 *            an array of datagrams.
 	 * @param reqSampleTime
 	 *            the sample rate at which the datagram durations are expressed.
-	 * 
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void feed(Datagram[] dArray, int reqSampleTime) throws IOException {
 		for (int i = 0; i < dArray.length; i++) {

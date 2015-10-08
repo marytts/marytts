@@ -38,10 +38,13 @@ import marytts.util.data.audio.SilenceAudioInputStream;
 public class AudioFileJoiner {
 
 	/**
-	 * Join a prefix and a suffix to each of a set of audio files, normalising these audio files to the power of the prefix and
+	 * Join a prefix and a suffix to each of a set of audio files, normalizing these audio files to the power of the prefix and
 	 * suffix.
 	 * 
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		List startAudio = new ArrayList(); // to prepend to each argument

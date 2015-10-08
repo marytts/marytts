@@ -49,12 +49,11 @@ public class MaryCARTReader {
 	 * 
 	 * @param fileName
 	 *            the file to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return loadFromStream(fis)
 	 */
 	public CART load(String fileName) throws IOException, MaryConfigurationException {
 		FileInputStream fis = new FileInputStream(fileName);
@@ -70,12 +69,11 @@ public class MaryCARTReader {
 	 * 
 	 * @param inStream
 	 *            the stream to load the cart from
-	 * @param featDefinition
-	 *            the feature definition
-	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @return CART(rootNode, featureDefinition, props)
 	 */
 	public CART loadFromStream(InputStream inStream) throws IOException, MaryConfigurationException {
 		// open the CART-File and read the header

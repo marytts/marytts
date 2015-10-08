@@ -30,7 +30,7 @@ public interface CoverageFeatureProvider {
 	/**
 	 * Get the total number of sentences provided by this provider.
 	 * 
-	 * @return
+	 * @return number of sentences
 	 */
 	public int getNumSentences();
 
@@ -47,10 +47,11 @@ public interface CoverageFeatureProvider {
 
 	/**
 	 * Get the unique ID number of the i-th sentence. This may or may not be the same as i. However, it can be assumed that IDs
-	 * are ordered: if i > j, getID(i) > getID(j).
+	 * are ordered: if i &gt; j, getID(i) &gt; getID(j).
 	 * 
 	 * @param i
-	 * @return
+	 *            i
+	 * @return ID
 	 */
 	public int getID(int i);
 }

@@ -79,7 +79,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 	public final String TRAININGFLAG = "EHMMLabeler.doTraining";
 	public final String ALIGNMENTFLAG = "EHMMLabeler.doAlignment";
 
-	private final int EHMM_TRAIN_NUM_THREADS = Math.min(4, Runtime.getRuntime().availableProcessors()); // more than 4 threads don't help for ehmm training
+	private final int EHMM_TRAIN_NUM_THREADS = Math.min(4, Runtime.getRuntime().availableProcessors()); // more than 4 threads
+																										// don't help for ehmm
+																										// training
 	private final int EHMM_ALIGN_NUM_THREADS = Runtime.getRuntime().availableProcessors();
 
 	public final String getName() {
@@ -120,8 +122,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 				"directory containing all files used for training and labeling. Will be created if it does not exist.");
 		props2Help.put(ALLOPHONESDIR, "directory containing the IntonisedXML files.");
 		props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
-		props2Help.put(INITEHMMDIR,
-					"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
+		props2Help
+				.put(INITEHMMDIR,
+						"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
 		props2Help.put(RETRAIN, "true - Do re-training by initializing with given models. false - Do just Decoding");
 		props2Help.put(NONDETENDFLAG, "(0,1) - Viterbi decoding with non deterministic ending (festvox 2.4)");
 
@@ -140,6 +143,8 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Do the computations required by this component.
 	 * 
 	 * @return true on success, false on failure
+	 * @throws Exception
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 
@@ -195,7 +200,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 		} else {
 			System.out.println("Skipping preparatory steps.");
 		}
-		
+
 		if ("true".equals(getProp(TRAININGFLAG))) {
 			baumWelchEHMM();
 		} else {
@@ -224,6 +229,10 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * 
 	 * @throws IOException
 	 *             , InterruptedException, MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void setup() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "setup";
@@ -268,6 +277,10 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * 
 	 * @throws IOException
 	 *             , InterruptedException, MaryConfigurationException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void dumpRequiredFiles() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "dumpRequiredFiles";
@@ -307,7 +320,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Computing Features Required files for EHMM Training
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException, MaryConfigurationException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void computeFeatures() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "computeFeatures";
@@ -344,8 +361,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Scaling Features for EHMM Training
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void scaleFeatures() throws IOException, InterruptedException, MaryConfigurationException {
 
@@ -383,8 +403,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Convert Features to Binary Format (EHMM2.7 instead of EHMM2.1) for EHMM Training
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void convertToBinaryFeatures() throws IOException, InterruptedException, MaryConfigurationException {
 
@@ -396,7 +419,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 		Process process = rtime.exec("/bin/bash");
 		// get an output stream to write to the shell
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
-		String cmd = "( cd " + ehmm.getAbsolutePath() + "/feat; for file in *.ft; do " + getProp(EHMMDIR) 
+		String cmd = "( cd " + ehmm.getAbsolutePath() + "/feat; for file in *.ft; do " + getProp(EHMMDIR)
 				+ "/bin/ConvertFeatsFileToBinaryFormat $file ${file%%.ft}.bft >> ../log.txt; done; exit )\n";
 		System.out.println(cmd);
 		pw.print(cmd);
@@ -420,8 +443,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Initializing EHMM Models
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void intializeEHMMModels() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "intializeEHMMModels";
@@ -466,8 +492,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Training EHMM Models
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException
+	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws InterruptedException
+	 *             InterruptedException
 	 */
 	private void baumWelchEHMM() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "baumWelchEHMM";
@@ -479,9 +508,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 		// get an output stream to write to the shell
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
 
-		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/"
-				+ "ehmm" + ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath()
-				+ "/feat bft " + ehmm.getAbsolutePath() + "/mod 0 0 0 48 " + EHMM_TRAIN_NUM_THREADS + " >> log.txt" + "; exit )\n";
+		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/ehmm " + outputDir + "/" + "ehmm"
+				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 0 " + ehmm.getAbsolutePath() + "/feat bft "
+				+ ehmm.getAbsolutePath() + "/mod 0 0 0 48 " + EHMM_TRAIN_NUM_THREADS + " >> log.txt" + "; exit )\n";
 		System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
 		if (getProp(INITEHMMDIR).equals("/")) {
 			System.out.println("EHMM baum-welch re-estimation ...");
@@ -511,7 +540,11 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Aligning EHMM and Label file generation
 	 * 
 	 * @throws IOException
-	 *             , InterruptedException, MaryConfigurationException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void alignEHMM() throws IOException, InterruptedException, MaryConfigurationException {
 		String task = "alignEHMM";
@@ -524,8 +557,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 		String cmd = "( cd " + ehmm.getAbsolutePath() + "; " + getProp(EHMMDIR) + "/bin/edec " + outputDir + "/" + "ehmm"
 				+ ".phoneList.int " + outputDir + "/" + "ehmm" + ".align.int 1 " + ehmm.getAbsolutePath() + "/feat bft "
 				+ outputDir + "/" + "ehmm" + ".featSettings " + ehmm.getAbsolutePath() + "/mod " + getProp(NONDETENDFLAG) + " "
-				+ ehmm.getAbsolutePath() + "/lab " + EHMM_ALIGN_NUM_THREADS + " >> log.txt" + "; perl " + getProp(EHMMDIR) + "/bin/sym2nm.pl "
-				+ ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int >> log.txt" + "; exit )\n";
+				+ ehmm.getAbsolutePath() + "/lab " + EHMM_ALIGN_NUM_THREADS + " >> log.txt" + "; perl " + getProp(EHMMDIR)
+				+ "/bin/sym2nm.pl " + ehmm.getAbsolutePath() + "/lab " + outputDir + "/" + "ehmm" + ".phoneList.int >> log.txt"
+				+ "; exit )\n";
 
 		System.out.println(cmd);
 		pw.print(cmd);
@@ -550,6 +584,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Create phone sequence file, which is used for Alignment
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 
 	private void getPhoneSequence() throws Exception {
@@ -582,8 +617,10 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Get phone sequence from a single feature file
 	 * 
 	 * @param basename
+	 *            basename
 	 * @return String
 	 * @throws Exception
+	 *             Exception
 	 */
 	private String getLineFromXML(String basename) throws Exception {
 
@@ -611,7 +648,8 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * This computes a string of phonetic symbols out of an allophones xml: - standard phones are taken from "ph" attribute
 	 * 
 	 * @param tokens
-	 * @return
+	 *            tokens
+	 * @return transcription
 	 */
 	private String collectTranscription(NodeList tokens) {
 
@@ -644,6 +682,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Post processing Step to convert Label files to MARY supportable format
 	 * 
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void getProperLabelFormat() throws Exception {
 		for (int i = 0; i < bnl.getLength(); i++) {
@@ -657,7 +696,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 	 * Post Processing single Label file
 	 * 
 	 * @param basename
+	 *            basename
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void convertSingleLabelFile(String basename) throws Exception {
 
@@ -710,6 +751,9 @@ public class EHMMLabeler extends VoiceImportComponent {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		VoiceImportComponent vic = new EHMMLabeler();

@@ -54,6 +54,7 @@ public class PraatTextGrid {
 	 * constructor accepting a Vector of PraatTiers
 	 * 
 	 * @param tiers
+	 *            tiers
 	 */
 	public PraatTextGrid(Vector<PraatTier> tiers) {
 		setTiers(tiers);
@@ -115,6 +116,7 @@ public class PraatTextGrid {
 	 * replace tiers by specified Vector of tiers
 	 * 
 	 * @param tiers
+	 *            tiers
 	 */
 	public void setTiers(Vector<PraatTier> tiers) {
 		this.tiers = tiers;
@@ -136,6 +138,7 @@ public class PraatTextGrid {
 	 * @param fileName
 	 *            of TextGrid file
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void writeToFile(String fileName) throws IOException {
 		FileWriter fw = new FileWriter(fileName);

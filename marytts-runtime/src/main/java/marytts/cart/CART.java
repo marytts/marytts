@@ -57,6 +57,7 @@ public class CART extends DirectedGraph {
 	 * Build a new empty cart with the given feature definition.
 	 * 
 	 * @param featDef
+	 *            featDef
 	 */
 	public CART(FeatureDefinition featDef) {
 		super(featDef);
@@ -106,7 +107,7 @@ public class CART extends DirectedGraph {
 	/**
 	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
 	 * 
-	 * @param target
+	 * @param featureVector
 	 *            the target to analyze
 	 * @param minNumberOfData
 	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.

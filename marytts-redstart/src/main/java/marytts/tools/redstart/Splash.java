@@ -37,7 +37,7 @@ import javax.swing.JWindow;
 /**
  * Code for shadowed window taken from http://www.javalobby.org/java/forums/t17720
  * 
- * @author (taken by) Mat Wilson <mat.wilson@dfki.de>
+ * @author (taken by) Mat Wilson &lt;mat.wilson@dfki.de&gt;
  */
 
 public class Splash extends JWindow {
