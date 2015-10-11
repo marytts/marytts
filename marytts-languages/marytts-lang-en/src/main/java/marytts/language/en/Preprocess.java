@@ -29,6 +29,7 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
 import com.ibm.icu.util.ULocale;
+import com.ibm.icu.util.ULocale.Category;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import com.google.common.base.Joiner;
@@ -36,7 +37,7 @@ import com.google.common.collect.Lists;
 
 /**
  * @author Tristan Hamilton
- * 
+ *
  *         <p>
  *         Can process following formats:
  *         <ul>
@@ -190,7 +191,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * processes a document in mary xml format, from Tokens to Words which can be phonemised.
-	 * 
+	 *
 	 * @param doc
 	 *            doc
 	 * @throws ParseException
@@ -458,7 +459,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * expand a URL string partially by splitting by @, / and . symbols (but retaining them)
-	 * 
+	 *
 	 * @param email
 	 *            email
 	 * @return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "")
@@ -484,7 +485,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * add a space between each char of a string
-	 * 
+	 *
 	 * @param consonants
 	 *            consonants
 	 * @return Joiner.on(" ").join(Lists.charactersOf(consonants))
@@ -567,7 +568,7 @@ public class Preprocess extends InternalModule {
 	}
 
 	/***
-	 * 
+	 *
 	 * @param abbrev
 	 *            the token to be expanded
 	 * @param isCapital
@@ -594,7 +595,7 @@ public class Preprocess extends InternalModule {
 
 	protected String expandDate(String date) throws ParseException {
 		// date format is "month/day/year"
-		Date humanDate = df.getPatternInstance("MM.dd.yyyy").parse(date);
+		Date humanDate = df.getPatternInstance("MM.dd.yyyy", ULocale.ENGLISH).parse(date);
 		String[] dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
 		dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
 		dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
@@ -602,7 +603,7 @@ public class Preprocess extends InternalModule {
 	}
 
 	/***
-	 * 
+	 *
 	 * @param time
 	 *            the token to be expanded
 	 * @param isNextTokenTime
