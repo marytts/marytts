@@ -35,42 +35,45 @@ import org.apache.log4j.Logger;
 /**
  * This trains an alignment model between Strings. Applications are for example letter-to-sound rule training (see LTSTrainer) or
  * transducer construction/minimization.
- * 
- * The basic idea is to perform a levenshtein search for the cheapest path and read off an alignment from that. The costs used in
+ * <p>
+ * The basic idea is to perform a Levenshtein search for the cheapest path and read off an alignment from that. The costs used in
  * the distance computation are not uniform but estimated in an iterative process, according to -log of the relative frequencies
  * of the respective operations in the previous iteration. Perform several iterations (e.g. 4) of aligning in order to get stable
  * estimates of the costs (and a good alignment in turn).
+ * <p>
+ * The algorithm, in its essence, is implemented after a description of Levenshtein distance as it can be found in Wikipedia (see
+ * below); consider the costs used in the pseudo-code:
  * 
- * The algorithm, in its essence, is implemented after a description of levenshtein distance as it can be found in Wikipedia (see
- * the linked revision):
- * 
- * http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance
- * 
- * consider the costs used in the pseudo-code:
- * 
- * d[i, j] := minimum ( d[i-1, j] + 1, // deletion d[i, j-1] + 1, // insertion d[i-1, j-1] + 1 // substitution )
+ * <pre>
+ * d[i, j] := minimum
+ * (
+ *     d[i-1, j] + 1,  // deletion
+ *     d[i, j-1] + 1,  // insertion
+ *     d[i-1, j-1] + 1 // substitution
+ * )
+ * </pre>
  *
  * In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the matrices
  * in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set as explained
- * in the following (note that this is a heuristic that seems to work fine but _not_ a derived EM-algorithm).
- * 
+ * in the following (note that this is a heuristic that seems to work fine but <em>not</em> a derived EM-algorithm).
+ * <p>
  * "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this operation is
  * lower if the two symbols were already aligned in the preceding iteration, they are set to -log
- * P(output-symbol|"insertion",input-symbol)
- * 
+ * P(output-symbol|"insertion",input-symbol).
+ * <p>
  * "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
  * insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the next
  * symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the preceding
  * iteration and set to -log P(skip|"deletion").
+ * <p>
+ * In addition, I made the following optimization, described in Wikipedia: <blockquote>We can adapt the algorithm to use less
+ * space, O(m) instead of O(mn), since it only requires that the previous row and current row be stored at any one time.
+ * </blockquote> therefore the three arrays for all information and the swapping statements in the align method. (note that what
+ * are rows in Wikipedia are columns here)
  * 
- * In addition, I made the following optimization, described in Wikipedia:
- * 
- * We can adapt the algorithm to use less space, O(m) instead of O(mn), since it only requires that the previous row and current
- * row be stored at any one time.
- * 
- * therefore the three arrays for all information and the swapping statements in the align method. (note that what are rows in
- * Wikipedia are columns here)
- * 
+ * @see <a
+ *      href="http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance">Computing
+ *      Levenshtein distance</a>
  * @author benjaminroth
  *
  */
@@ -103,6 +106,8 @@ public class AlignerTrainer {
 	 * @param inIsOutAlphabet
 	 *            boolean indicating as input and output strings should be considered as belonging to the same symbol sets
 	 *            (alignment between identical symbol is then cost-free)
+	 * @param hasOptInfo
+	 *            has opt info
 	 */
 	public AlignerTrainer(boolean inIsOutAlphabet, boolean hasOptInfo) {
 
@@ -141,9 +146,8 @@ public class AlignerTrainer {
 	 *            reader for lexicon
 	 * @param splitSym
 	 *            symbol to split columns of lexicon
-	 * @param hasOptInfo
-	 *            whether the lexicon has optional info in a third column eg. POS
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void readLexicon(BufferedReader lexicon, String splitSym) throws IOException {
 
@@ -166,8 +170,10 @@ public class AlignerTrainer {
 	 * phonemisation/syllabification or whatsoever is performed. If outStr contains space characters, it is used as a separator
 	 * for splitting.
 	 * 
-	 * @param inString
-	 * @param outString
+	 * @param inStr
+	 *            inStr
+	 * @param outStr
+	 *            outStr
 	 */
 	public void splitAndAdd(String inStr, String outStr) {
 
@@ -317,6 +323,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getAlignment(int entryNr) {
 
@@ -374,6 +381,7 @@ public class AlignerTrainer {
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
+	 * @return listArray
 	 */
 	public StringPair[] getInfoAlignment(int entryNr) {
 
@@ -455,9 +463,11 @@ public class AlignerTrainer {
 	 * The method returns for each input symbol the indix of the right alignment boundary. eg. for input ['a','b'] and output
 	 * ['a','a','b'] a correct alignment would be: [2,3]
 	 *
-	 * @param in
-	 * @param out
-	 * @return
+	 * @param istr
+	 *            the input string
+	 * @param ostr
+	 *            the output string
+	 * @return length of p_al[ostr]
 	 */
 	public int[] align(String[] istr, String[] ostr) {
 

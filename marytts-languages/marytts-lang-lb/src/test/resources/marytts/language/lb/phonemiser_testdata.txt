@@ -1,0 +1,5 @@
+aacht	a: X t	content	lexicon
+den	d @ n	content	lexicon
+packen	p A k @ n	content	lexicon
+glace	' g l a s	content	lexicon_fr
+MaryTTS	m E - R i - t e: - t e: - ' E s	content	userdict

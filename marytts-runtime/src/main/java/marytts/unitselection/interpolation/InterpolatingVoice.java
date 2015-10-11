@@ -69,10 +69,9 @@ public class InterpolatingVoice extends Voice {
 
 	/**
 	 * Determine whether this voice has the given name. For the InterpolatingVoice, the meaning of the name is different from a
-	 * "normal" voice. It is a specification of how to interpolate two voices. The syntax is: <br/>
-	 * <code>voice1 with XY% voice2</code><br/>
-	 * <br/>
-	 * where voice1 and voice2 must be existing voices, and XY is an integer between 0 and 100.
+	 * "normal" voice. It is a specification of how to interpolate two voices. The syntax is: &lt;br&frasl;&gt;
+	 * <code>voice1 with XY% voice2</code>&lt;br&frasl;&gt; &lt;br&frasl;&gt; where voice1 and voice2 must be existing voices, and
+	 * XY is an integer between 0 and 100.
 	 * 
 	 * @return true if name matches the specification, false otherwise
 	 */

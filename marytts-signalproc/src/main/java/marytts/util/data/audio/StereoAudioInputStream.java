@@ -37,6 +37,7 @@ public class StereoAudioInputStream extends AudioInputStream {
 	/**
 	 * 
 	 * @param input
+	 *            input
 	 * @param outputMode
 	 *            as defined in AudioPlayer: STEREO, LEFT_ONLY or RIGHT_ONLY.
 	 */

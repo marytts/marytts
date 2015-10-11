@@ -48,8 +48,10 @@ public class WagonCARTWriter {
 	 * 
 	 * @param cart
 	 *            tree
-	 * @param destDir
-	 *            the destination directory
+	 * @param destFile
+	 *            the destination file
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void dumpWagonCART(CART cart, String destFile) throws IOException {
 		System.out.println("Dumping CART to " + destFile + " ...");
@@ -81,6 +83,7 @@ public class WagonCARTWriter {
 	 * @param pw
 	 *            the print writer of the text file
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void toTextOut(CART cart, PrintWriter pw) throws IOException {
 		try {

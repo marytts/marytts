@@ -24,7 +24,7 @@ import marytts.signalproc.adaptation.BaselineParams;
 /**
  * Parameters for prosody transformation.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class ProsodyTransformerParams extends BaselineParams {

@@ -122,7 +122,7 @@ public class HNMSynthesisTechnology extends VocalizationSynthesisTechnology {
 	/**
 	 * Synthesize given vocalization (i.e. unit-selection)
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format
@@ -159,7 +159,7 @@ public class HNMSynthesisTechnology extends VocalizationSynthesisTechnology {
 	/**
 	 * Re-synthesize given vocalization using HNM technology
 	 * 
-	 * @param unitIndex
+	 * @param backchannelNumber
 	 *            unit index
 	 * @param aft
 	 *            audio file format

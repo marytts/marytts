@@ -38,14 +38,20 @@ public class TextReaderDoubleDataSource extends BaseDoubleDataSource {
 	/**
 	 * Read Double data from a Text file. Read one double per line.
 	 * 
-	 * @param reader
+	 * @param file
+	 *            file
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	public TextReaderDoubleDataSource(File file) throws FileNotFoundException {
 		this(new FileReader(file));
 	}
 
 	/**
-	 * Initialise this double data source with the reader from which a text representation of doubles (one per line) can be read.
+	 * Initialize this double data source with the reader from which a text representation of doubles (one per line) can be read.
+	 * 
+	 * @param reader
+	 *            reader
 	 */
 	public TextReaderDoubleDataSource(Reader reader) {
 		this.reader = new BufferedReader(reader);

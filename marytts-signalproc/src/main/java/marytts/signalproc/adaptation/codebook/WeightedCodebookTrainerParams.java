@@ -26,7 +26,7 @@ import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 /**
  * Parameters of weighted codebook training
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
 	public static final int MAXIMUM_CONTEXT = 10;

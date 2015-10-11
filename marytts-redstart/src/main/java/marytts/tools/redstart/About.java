@@ -31,7 +31,12 @@ import javax.swing.JFrame;
  */
 public class About extends JDialog {
 
-	/** Creates new form About */
+	/**
+	 * Creates new form About
+	 * 
+	 * @param parent
+	 *            parent
+	 */
 	public About(JFrame parent) {
 		super(parent, true);
 		initComponents();

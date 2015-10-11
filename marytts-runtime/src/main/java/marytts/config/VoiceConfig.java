@@ -49,7 +49,7 @@ public class VoiceConfig extends MaryConfig {
 	/**
 	 * The voice's name. Guaranteed not to be null.
 	 * 
-	 * @return
+	 * @return getProperties().getProperty("name")
 	 */
 	public String getName() {
 		return getProperties().getProperty("name");
@@ -58,7 +58,7 @@ public class VoiceConfig extends MaryConfig {
 	/**
 	 * The voice's locale. Guaranteed not to be null.
 	 * 
-	 * @return
+	 * @return null if localeString is null, return MaryUtils.string2locale(localeString) otherwise
 	 */
 	public Locale getLocale() {
 		String localeString = getProperties().getProperty("locale");

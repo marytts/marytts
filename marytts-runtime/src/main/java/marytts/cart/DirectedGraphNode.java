@@ -45,8 +45,11 @@ public class DirectedGraphNode extends Node {
 	private int uniqueID;
 
 	/**
-     * 
-     */
+	 * @param decisionNode
+	 *            decisionNode
+	 * @param leafNode
+	 *            leafNode
+	 */
 	public DirectedGraphNode(DecisionNode decisionNode, Node leafNode) {
 		setDecisionNode(decisionNode);
 		setLeafNode(leafNode);
@@ -117,7 +120,8 @@ public class DirectedGraphNode extends Node {
 	 * Return this node's index in the given mother's array of daughters.
 	 * 
 	 * @param aMother
-	 * @return
+	 *            aMother
+	 * @return motherToIndex.get(aMother)
 	 * @throws IllegalArgumentException
 	 *             if mother is not a mother of this node.
 	 */
@@ -131,6 +135,7 @@ public class DirectedGraphNode extends Node {
 	 * Remove the given node from the list of mothers.
 	 * 
 	 * @param aMother
+	 *            aMother
 	 * @throws IllegalArgumentException
 	 *             if mother is not a mother of this node.
 	 */

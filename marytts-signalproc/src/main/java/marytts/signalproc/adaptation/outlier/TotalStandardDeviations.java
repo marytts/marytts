@@ -23,7 +23,7 @@ package marytts.signalproc.adaptation.outlier;
  * 
  * Class for keeping total standard deviations to be used in automatic thresholding in outlier elimation
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class TotalStandardDeviations {
 	public double general; // Common total standard deviations to use unless the user does not want to specify the below

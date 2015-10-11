@@ -24,7 +24,7 @@ import java.io.IOException;
 
 /**
  * 
- * @author Mat Wilson <mwilson@dfki.de>
+ * @author Mat Wilson &lt;mwilson@dfki.de&gt;
  */
 public class RecSession {
 
@@ -54,7 +54,16 @@ public class RecSession {
 	// ______________________________________________________________________
 	// Constructors
 
-	/** Creates a new instance of RecSession */
+	/**
+	 * Creates a new instance of RecSession
+	 * 
+	 * @param adminWindow
+	 *            adminWindow
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
+	 * @throws IOException
+	 *             IOException
+	 */
 	public RecSession(AdminWindow adminWindow) throws FileNotFoundException, IOException {
 
 		// Create a new prompt set object

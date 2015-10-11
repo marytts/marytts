@@ -26,7 +26,7 @@ import java.io.IOException;
  * Implements a structured header with file I/O functionality for binary files that store frame based mel frequency cepstral
  * coefficient vectors
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class MfccFileHeader extends FeatureFileHeader {
 

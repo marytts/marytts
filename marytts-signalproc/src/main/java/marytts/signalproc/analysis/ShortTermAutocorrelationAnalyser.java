@@ -37,9 +37,13 @@ public class ShortTermAutocorrelationAnalyser extends FrameBasedAnalyser {
 
 	/**
 	 * @param signal
+	 *            signal
 	 * @param window
+	 *            window
 	 * @param frameShift
+	 *            frameShift
 	 * @param samplingRate
+	 *            samplingRate
 	 */
 	public ShortTermAutocorrelationAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate) {
 		super(signal, window, frameShift, samplingRate);

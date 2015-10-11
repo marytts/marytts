@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Implements Itakura-Saito distance measure between two speech frames
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
 	public ItakuraSaitoDistanceComputer() {

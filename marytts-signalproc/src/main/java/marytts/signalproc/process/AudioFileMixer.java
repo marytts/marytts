@@ -77,10 +77,13 @@ public class AudioFileMixer {
 	}
 
 	/**
-	 * Mix a number of audio files to each of a set of audio files, normalising these audio files to the average power of the
+	 * Mix a number of audio files to each of a set of audio files, normalizing these audio files to the average power of the
 	 * reference audio files.
 	 * 
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		if (true) {

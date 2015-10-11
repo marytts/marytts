@@ -37,7 +37,7 @@ public class LPCDatagram extends Datagram {
 	/**
 	 * Construct an LPC datagram from quantized data.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param quantizedCoeffs
 	 *            the quantized LPC coefficients
@@ -53,12 +53,16 @@ public class LPCDatagram extends Datagram {
 	/**
 	 * Construct an LPC datagram from unquantized data.
 	 * 
-	 * @param duration
+	 * @param setDuration
 	 *            the duration, in samples, of the data represented by this datagram
 	 * @param coeffs
 	 *            the (unquantized) LPC coefficients
 	 * @param residual
 	 *            the (unquantized) residual
+	 * @param lpcMin
+	 *            lpcMin
+	 * @param lpcRange
+	 *            lpcRange
 	 */
 	public LPCDatagram(long setDuration, float[] coeffs, short[] residual, float lpcMin, float lpcRange) {
 		super(setDuration);
@@ -71,9 +75,12 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @param raf
 	 *            the random access file to pop the datagram from.
-	 * 
+	 * @param lpcOrder
+	 *            lpcOrder
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public LPCDatagram(RandomAccessFile raf, int lpcOrder) throws IOException, EOFException {
 		super(raf.readLong()); // duration
@@ -104,9 +111,12 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @param bb
 	 *            the byte buffer to pop the datagram from.
-	 * 
+	 * @param lpcOrder
+	 *            lpcOrder
 	 * @throws IOException
+	 *             IOException
 	 * @throws EOFException
+	 *             EOFException
 	 */
 	public LPCDatagram(ByteBuffer bb, int lpcOrder) throws IOException, EOFException {
 		super(bb.getLong()); // duration
@@ -140,7 +150,7 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @return the lpc order
 	 * @see #getQuantizedCoeffs()
-	 * @see #getCoeffs()
+	 * @see #getCoeffs(float lpcMin, float lpcRange)
 	 */
 	public int lpcOrder() {
 		return quantizedCoeffs.length;
@@ -151,7 +161,7 @@ public class LPCDatagram extends Datagram {
 	 * 
 	 * @return an array of shorts, length lpcOrder()
 	 * @see #lpcOrder()
-	 * @see #getCoeffs()
+	 * @see #getCoeffs(float lpcMin, float lpcRange)
 	 */
 	public short[] getQuantizedCoeffs() {
 		return quantizedCoeffs;
@@ -192,6 +202,11 @@ public class LPCDatagram extends Datagram {
 
 	/**
 	 * Write this datagram to a random access file or data output stream.
+	 * 
+	 * @param out
+	 *            out
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(duration);
@@ -204,6 +219,10 @@ public class LPCDatagram extends Datagram {
 
 	/**
 	 * Tests if this datagram is equal to another datagram.
+	 * 
+	 * @param other
+	 *            other
+	 * @return true if everything passes
 	 */
 	public boolean equals(Datagram other) {
 		if (!(other instanceof LPCDatagram))

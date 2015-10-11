@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
 /**
  * For the given texts, compute allophones, especially boundary tags.
  * 
- * @author Benjamin Roth, adapted from Sathish Chandra Pammi
+ * @author Benjamin Roth, adapted from Sathish Chandra Pammi, Steiner
  * 
  */
 public class AllophonesExtractor extends VoiceImportComponent {
@@ -157,7 +157,11 @@ public class AllophonesExtractor extends VoiceImportComponent {
 	/**
 	 * 
 	 * @param basename
+	 *            basename
 	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void generateAllophonesFile(String basename) throws IOException, MaryConfigurationException {
 		Locale localVoice = MaryUtils.string2locale(locale);
@@ -231,8 +235,8 @@ public class AllophonesExtractor extends VoiceImportComponent {
 	/**
 	 * Get style for basename from style definition file. Do this by matching basename against a glob pattern.
 	 * 
-	 * @author steiner
 	 * @param basename
+	 *            basename
 	 * @return style as String
 	 */
 	private String getStyleFromStyleDefinition(String basename) {

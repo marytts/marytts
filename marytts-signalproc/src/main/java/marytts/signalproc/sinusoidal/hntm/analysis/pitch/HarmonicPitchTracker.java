@@ -41,7 +41,7 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * This pitch tracker is based on Quatieri´s book
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
 

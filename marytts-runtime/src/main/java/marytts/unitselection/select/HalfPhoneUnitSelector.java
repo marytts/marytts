@@ -31,7 +31,8 @@ public class HalfPhoneUnitSelector extends UnitSelector {
 	/**
 	 * Initialise the unit selector. Need to call load() separately.
 	 * 
-	 * @see #load(UnitDatabase)
+	 * @throws Exception
+	 *             Exception
 	 */
 	public HalfPhoneUnitSelector() throws Exception {
 		super();

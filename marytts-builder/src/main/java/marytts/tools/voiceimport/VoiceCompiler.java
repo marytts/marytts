@@ -55,6 +55,10 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 	public static final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
+	public final String COMPILEDIR = getName() + ".compileDir";
+
+	public final String MVN = getName() + ".mavenBin";
+
 	protected MavenVoiceCompiler compiler;
 
 	/**
@@ -71,7 +75,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	public boolean compute() throws Exception {
 
-		File compileDir = new File(getProp(getCompileDirProp()));
+		File compileDir = new File(getProp(COMPILEDIR));
 		compiler = createCompiler(compileDir);
 
 		if (!isUnitSelectionVoice()) {
@@ -115,17 +119,14 @@ public class VoiceCompiler extends VoiceImportComponent {
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
 		if (props == null) {
 			props = new TreeMap<String, String>();
-			props.put(getCompileDirProp(), new File(db.getVoiceFileDir(), "voice-" + getVoiceName(db)).getAbsolutePath());
+			props.put(COMPILEDIR, new File(db.getVoiceFileDir(), "voice-" + getVoiceName(db)).getAbsolutePath());
+			props.put(MVN, "/usr/bin/mvn");
 		}
 		return props;
 	}
 
 	protected String getVoiceName(DatabaseLayout db) {
 		return db.getVoiceName();
-	}
-
-	protected String getCompileDirProp() {
-		return "VoiceCompiler.compileDir";
 	}
 
 	/*
@@ -156,7 +157,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 	@Override
 	protected void setupHelp() {
 		props2Help = new TreeMap<String, String>();
-		props2Help.put(getCompileDirProp(), "The directory in which the files for compiling the voice will be copied.");
+		props2Help.put(COMPILEDIR, "The directory in which the files for compiling the voice will be copied.");
+		props2Help.put(MVN, "The path to the Maven binary (i.e., mvn).");
 	}
 
 	protected Map<String, String> getExtraVariableSubstitutionMap() {
@@ -186,9 +188,9 @@ public class VoiceCompiler extends VoiceImportComponent {
 		File[] filesForResources = getFilesForResources();
 		File[] filesForFilesystem = getFilesForFilesystem();
 		Map<String, String> extraVariablesToSubstitute = getExtraVariableSubstitutionMap();
-		return new MavenVoiceCompiler(compileDir, getVoiceName(db), db.getMaryVersion(), db.getLocale(), db.getGender(),
-				db.getDomain(), db.getSamplingRate(), isUnitSelectionVoice(), filesForResources, filesForFilesystem,
-				extraVariablesToSubstitute);
+		return new MavenVoiceCompiler(getProp(MVN), compileDir, getVoiceName(db), db.getMaryVersion(), db.getLocale(),
+				db.getGender(), db.getDomain(), db.getSamplingRate(), isUnitSelectionVoice(), filesForResources,
+				filesForFilesystem, extraVariablesToSubstitute);
 	}
 
 	public static class MavenVoiceCompiler {
@@ -212,10 +214,45 @@ public class VoiceCompiler extends VoiceImportComponent {
 		protected File metaInfDir;
 		protected File testJavaDir;
 		protected File libVoiceDir;
+		protected String mvn;
 
+		/**
+		 * @deprecated Use constructor with path to Maven instead.
+		 * @param compileDir
+		 *            compileDir
+		 * @param voiceName
+		 *            voiceName
+		 * @param voiceVersion
+		 *            voiceVersion
+		 * @param locale
+		 *            locale
+		 * @param gender
+		 *            gender
+		 * @param domain
+		 *            domain
+		 * @param samplingRate
+		 *            samplingRate
+		 * @param isUnitSelectionVoice
+		 *            isUnitSelectionVoice
+		 * @param filesForResources
+		 *            filesForResources
+		 * @param filesForFilesystem
+		 *            filesForFilesystem
+		 * @param extraVariablesToSubstitute
+		 *            extraVariablesToSubstitute
+		 */
+		@Deprecated
 		public MavenVoiceCompiler(File compileDir, String voiceName, String voiceVersion, Locale locale, String gender,
 				String domain, int samplingRate, boolean isUnitSelectionVoice, File[] filesForResources,
 				File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
+			this("mvn", compileDir, voiceName, voiceVersion, locale, gender, domain, samplingRate, isUnitSelectionVoice,
+					filesForResources, filesForFilesystem, extraVariablesToSubstitute);
+		}
+
+		public MavenVoiceCompiler(String mvn, File compileDir, String voiceName, String voiceVersion, Locale locale,
+				String gender, String domain, int samplingRate, boolean isUnitSelectionVoice, File[] filesForResources,
+				File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
+			this.mvn = mvn;
 			this.compileDir = compileDir;
 			this.voiceName = voiceName;
 			this.voiceVersion = voiceVersion;
@@ -236,6 +273,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 			m.put("VOICENAME", voiceName);
 			m.put("LOCALE", MaryUtils.locale2xmllang(locale));
 			m.put("LANG", locale.getLanguage());
+			m.put("DISPLAYLANG", locale.getDisplayLanguage());
 			m.put("GENDER", gender);
 			m.put("DOMAIN", domain);
 			m.put("SAMPLINGRATE", String.valueOf(samplingRate));
@@ -273,7 +311,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 
 		public void copyTemplateFiles() throws IOException {
 			copyWithVarSubstitution("pom.xml", new File(compileDir, "pom.xml"));
-			copyWithVarSubstitution("component.xml", new File(nonPackagedResourcesDir, "voice-component.xml"));
+			copyWithVarSubstitution("generateComponentFile.groovy", new File(nonPackagedResourcesDir,
+					"generateComponentFile.groovy"));
 			copyWithVarSubstitution("installable.xml", new File(mainDescriptionsDir, "installable.xml"));
 			copyWithVarSubstitution("Config.java", new File(mainJavaDir, "Config.java"));
 			copyWithVarSubstitution("LoadVoiceIT.java", new File(testJavaDir, "LoadVoiceIT.java"));
@@ -326,7 +365,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 		}
 
 		public void compileWithMaven() throws IOException, InterruptedException {
-			Process maven = Runtime.getRuntime().exec("mvn verify", null, compileDir);
+			Process maven = Runtime.getRuntime().exec(this.mvn + " verify", null, compileDir);
 			StreamGobbler merr = new StreamGobbler(maven.getErrorStream(), "maven err");
 			StreamGobbler mout = new StreamGobbler(maven.getInputStream(), "maven out");
 			merr.start();
@@ -361,7 +400,8 @@ public class VoiceCompiler extends VoiceImportComponent {
 	 * character is not a letter, we prepend a "V" for "voice".
 	 * 
 	 * @param voiceName
-	 * @return
+	 *            voiceName
+	 * @return result in string format
 	 */
 	public static String toPackageName(String voiceName) {
 		String regexLCLetter = "[a-z]";

@@ -63,7 +63,9 @@ public class MaryNormalisedWriter {
 	/**
 	 * Default constructor. Calls <code>startup()</code> if it has not been called before.
 	 * 
-	 * @see #startup().
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @see #startup()
 	 */
 	public MaryNormalisedWriter() throws MaryConfigurationException {
 		try {
@@ -107,6 +109,8 @@ public class MaryNormalisedWriter {
 	 * 
 	 * @param input
 	 *            a DOMSource, a SAXSource or a StreamSource.
+	 * @param destination
+	 *            destination
 	 * @see javax.xml.transform.Transformer
 	 * @exception TransformerException
 	 *                if the transformation cannot be performed.
@@ -119,6 +123,12 @@ public class MaryNormalisedWriter {
 
 	/**
 	 * Output any Source to stdout.
+	 * 
+	 * @param input
+	 *            input
+	 * @throws TransformerException
+	 *             TransformerException
+	 * 
 	 */
 	public void output(Source input) throws TransformerException {
 		output(input, new StreamResult(new PrintStream(System.out, true)));
@@ -127,6 +137,10 @@ public class MaryNormalisedWriter {
 	/**
 	 * Output a DOM node to stdout.
 	 * 
+	 * @param input
+	 *            input
+	 * @throws TransformerException
+	 *             TransformerException
 	 * @see #output(Source)
 	 */
 	public void output(Node input) throws TransformerException {
@@ -135,6 +149,13 @@ public class MaryNormalisedWriter {
 
 	/**
 	 * Output a DOM node to a specified destination
+	 * 
+	 * @param input
+	 *            input
+	 * @param destination
+	 *            destination
+	 * @throws TransformerException
+	 *             TransformerException
 	 */
 	public void output(Node input, OutputStream destination) throws TransformerException {
 		output(new DOMSource(input), new StreamResult(destination));
@@ -143,6 +164,11 @@ public class MaryNormalisedWriter {
 	/**
 	 * The simplest possible command line interface to the MaryNormalisedWriter. Reads a "real" XML document from stdin, and
 	 * outputs it in the MaryNormalised form to stdout.
+	 * 
+	 * @param args
+	 *            args
+	 * @throws Throwable
+	 *             Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
 		startup();

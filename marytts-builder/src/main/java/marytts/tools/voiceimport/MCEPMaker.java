@@ -80,6 +80,13 @@ public class MCEPMaker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the closest peak.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private Float[] shiftToClosestPeak(Float[] pmIn, short[] w, int sampleRate) {
 
@@ -129,6 +136,13 @@ public class MCEPMaker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the previous zero crossing.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private Float[] shiftToPreviousZero(Float[] pmIn, short[] w, int sampleRate) {
 
@@ -166,6 +180,11 @@ public class MCEPMaker extends VoiceImportComponent {
 
 	/**
 	 * Rectification of the pitchmarks.
+	 * 
+	 * @param baseNameArray
+	 *            baseNameArray
+	 * @throws IOException
+	 *             IOException
 	 */
 	private void tweakThePitchmarks(String[] baseNameArray) throws IOException {
 
@@ -226,6 +245,9 @@ public class MCEPMaker extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws IOException
+	 *             IOException
 	 */
 	public boolean compute() throws IOException {
 

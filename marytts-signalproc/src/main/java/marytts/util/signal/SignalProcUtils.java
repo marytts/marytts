@@ -672,6 +672,10 @@ public class SignalProcUtils {
 	/**
 	 * Since there is no asinh in Math, here it is used its definition: asinh(x) = ln( x + sqrt(x^2+1) ) This function is used in
 	 * fft2barkmx()
+	 * 
+	 * @param freqInHz
+	 *            frequency In Hz
+	 * @return 6 times log of f + square root of f times t + 1
 	 */
 	public static double hz2bark(double freqInHz) {
 		// if should be: return 6 * asinh(f/600);
@@ -738,8 +742,10 @@ public class SignalProcUtils {
 	 * @param width
 	 *            width of each band in Bark (default 1)
 	 * @param minfreq
+	 *            min frequency
 	 * @param maxfreq
-	 * @return
+	 *            max frequency
+	 * @return wts
 	 */
 	public static double[][] fft2barkmx(int nfft, int sr, int nfilts, int width, double minfreq, double maxfreq) {
 
@@ -2435,15 +2441,21 @@ public class SignalProcUtils {
 	/**
 	 * 
 	 * @param sDft
+	 *            sDtf
 	 * @param f0InHz
+	 *            f0InHz
 	 * @param startHarmonicIndex
+	 *            startHarmonicIndex
 	 * @param endHarmonicIndex
+	 *            endHarmonicIndex
 	 * @param fftSize
+	 *            fftSize
 	 * @param samplingRateInHz
+	 *            samplingRateInHz
 	 * @param amplitudes
 	 *            : if amplitudes true it returns the amplitude values, original function if amplitudes false it returns the
-	 *            amplitud frequencies where the peaks were located
-	 * @return
+	 *            amplitude frequencies where the peaks were located
+	 * @return amps if amplitudes, ampsFreq otherwise
 	 */
 	public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int startHarmonicIndex, int endHarmonicIndex,
 			int fftSize, double samplingRateInHz, boolean amplitudes) {

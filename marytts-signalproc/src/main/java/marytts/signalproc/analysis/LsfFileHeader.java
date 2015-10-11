@@ -29,7 +29,7 @@ import marytts.signalproc.window.Window;
  * Implements a structured header with file I/O functionality for binary files that store frame based line spectral frequency
  * vectors
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class LsfFileHeader extends FeatureFileHeader {
 	public float preCoef; // Preemphasis coefficient

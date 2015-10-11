@@ -123,7 +123,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Save transcription to a file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void saveTranscription(String fileName) throws Exception {
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
@@ -167,9 +169,11 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * existing data will be added.
 	 * 
 	 * @param fileName
-	 * @param whether
-	 *            to keep any current data and add, or use only the loaded data.
+	 *            fileName
+	 * @param keepCurrentData
+	 *            whether to keep any current data and add, or use only the loaded data.
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void loadTranscription(String fileName, boolean keepCurrentData) throws Exception {
 		List<String> lines = new ArrayList<String>();
@@ -255,7 +259,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Load transcription from HashMap
 	 * 
 	 * @param wordList
+	 *            wordList
 	 * @throws Exception
+	 *             Exception
 	 */
 	@Deprecated
 	// doesn't seem to get used -- remove?
@@ -300,7 +306,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Save user entered and verified transcription in to lexicon format
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void saveSampaLexiconFormat(String fileName) throws IOException {
 		if (!hasLexiconData())
@@ -328,7 +336,11 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Save user entered and verified transcription in to lexicon format
 	 * 
 	 * @param fileName
+	 *            fileName
+	 * @param phoneSet
+	 *            phoneSet
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void saveSampaLexiconFormat(String fileName, AllophoneSet phoneSet) throws IOException {
 		if (!hasLexiconData())
@@ -355,7 +367,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Save all functional words into text file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void saveFunctionalWords(String fileName) throws IOException {
 		if (!hasFunctionalData())
@@ -398,8 +412,11 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * For all words in lexicon, verify if they can be looked up in fst file.
 	 * 
 	 * @param lexiconFilename
+	 *            lexiconFilename
 	 * @param fstFilename
+	 *            fstFilename
 	 * @throws IOException
+	 *             IOException
 	 */
 	public void testFST(String lexiconFilename, String fstFilename) throws IOException {
 		System.err.println("Testing FST...");
@@ -469,8 +486,11 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	 * Creates lexicon in FST format and letter-to-sound models
 	 * 
 	 * @param lexiconFilename
+	 *            lexiconFilename
 	 * @param fstFilename
+	 *            fstFilename
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void createLexicon(String lexiconFilename, String fstFilename) throws Exception {
 
@@ -502,6 +522,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
 
 	/**
 	 * get column count
+	 * 
+	 * @return columnNames.length
 	 */
 	public int getColumnCount() {
 		return columnNames.length;
@@ -509,6 +531,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
 
 	/**
 	 * get row count
+	 * 
+	 * @return data.length
 	 */
 	public int getRowCount() {
 		return data.length;
@@ -516,6 +540,10 @@ public class TranscriptionTableModel extends AbstractTableModel {
 
 	/**
 	 * get column name
+	 * 
+	 * @param col
+	 *            col
+	 * @return columnNames[col]
 	 */
 	public String getColumnName(int col) {
 		return columnNames[col];
@@ -523,6 +551,12 @@ public class TranscriptionTableModel extends AbstractTableModel {
 
 	/**
 	 * get value at given location
+	 * 
+	 * @param row
+	 *            row
+	 * @param col
+	 *            col
+	 * @return data[row][col]
 	 */
 	public Object getValueAt(int row, int col) {
 		return data[row][col];
@@ -569,7 +603,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
 	/**
 	 * Store last saved data
 	 * 
-	 * @return
+	 * @return newData
 	 */
 	private Object[][] storeLastSavedData() {
 		Object[][] newData = new Object[data.length][data[0].length];

@@ -39,6 +39,7 @@ public interface UnitConcatenator {
 	 * Initialise the unit concatenator from the database.
 	 * 
 	 * @param database
+	 *            database
 	 */
 	public void load(UnitDatabase database);
 
@@ -47,6 +48,8 @@ public interface UnitConcatenator {
 	 * 
 	 * @param units
 	 *            the units
+	 * @throws IOException
+	 *             IOException
 	 * @return the resulting audio stream
 	 */
 	public AudioInputStream getAudio(List<SelectedUnit> units) throws IOException;

@@ -86,6 +86,7 @@ public class MathUtils {
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
+	 *            data
 	 * @return the index number of the maximum element
 	 */
 	public static int findGlobalPeakLocation(double[] data) {
@@ -106,6 +107,7 @@ public class MathUtils {
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
+	 *            data
 	 * @return the index number of the maximum element
 	 */
 	public static int findGlobalPeakLocation(float[] data) {
@@ -126,6 +128,7 @@ public class MathUtils {
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
+	 *            data
 	 * @return the index number of the minimum element
 	 */
 	public static int findGlobalValleyLocation(double[] data) {
@@ -146,6 +149,7 @@ public class MathUtils {
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
+	 *            data
 	 * @return the index number of the minimum element
 	 */
 	public static int findGlobalValleyLocation(float[] data) {
@@ -166,7 +170,8 @@ public class MathUtils {
 	 * Build the sum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 *            data
+	 * @return sum
 	 */
 	public static double sum(double[] data) {
 		double sum = 0.0;
@@ -228,7 +233,8 @@ public class MathUtils {
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 *            data
+	 * @return max
 	 */
 	public static double max(double[] data) {
 		double max = Double.NaN;
@@ -254,7 +260,8 @@ public class MathUtils {
 	 * Find the maximum of the absolute values of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 *            data
+	 * @return absMax of data, 0, data.length
 	 */
 	public static double absMax(double[] data) {
 		return absMax(data, 0, data.length);
@@ -264,9 +271,12 @@ public class MathUtils {
 	 * Find the maximum of the absolute values of all elements in the given subarray, ignoring elements that are NaN.
 	 * 
 	 * @param data
+	 *            data
 	 * @param off
+	 *            off
 	 * @param len
-	 * @return
+	 *            len
+	 * @return max
 	 */
 	public static double absMax(double[] data, int off, int len) {
 		double max = Double.NaN;
@@ -284,7 +294,8 @@ public class MathUtils {
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
 	 * 
 	 * @param data
-	 * @return
+	 *            data
+	 * @return min
 	 */
 	public static double min(double[] data) {
 		double min = Double.NaN;
@@ -313,8 +324,15 @@ public class MathUtils {
 	/**
 	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
 	 * 
+	 * @param data
+	 *            data
+	 * @param startIndex
+	 *            start index
+	 * @param endIndex
+	 *            end index
 	 * @throws IllegalArgumentException
 	 *             if the array contains NaN values.
+	 * @return mean
 	 */
 	public static double mean(double[] data, int startIndex, int endIndex) {
 		double mean = 0;
@@ -340,8 +358,13 @@ public class MathUtils {
 	/**
 	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
 	 * 
+	 * @param data
+	 *            data
+	 * @param inds
+	 *            inds
 	 * @throws IllegalArgumentException
 	 *             if the array contains NaN values.
+	 * @return mean
 	 */
 	public static double mean(double[] data, int[] inds) {
 		double mean = 0;
@@ -358,8 +381,15 @@ public class MathUtils {
 	/**
 	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
 	 * 
+	 * @param data
+	 *            data
+	 * @param startIndex
+	 *            start index
+	 * @param endIndex
+	 *            end index
 	 * @throws IllegalArgumentException
 	 *             if the array contains NaN values.
+	 * @return mean
 	 */
 	public static float mean(float[] data, int startIndex, int endIndex) {
 		float mean = 0;
@@ -389,8 +419,13 @@ public class MathUtils {
 	/**
 	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
 	 * 
+	 * @param data
+	 *            data
+	 * @param inds
+	 *            inds
 	 * @throws IllegalArgumentException
 	 *             if the array contains NaN values.
+	 * @return mean
 	 */
 	public static float mean(float[] data, int[] inds) {
 		float mean = 0;
@@ -410,10 +445,8 @@ public class MathUtils {
 	 * @param data
 	 *            double[]
 	 * @param opt
-	 *            0: arithmetic mean
-	 *            <p>
-	 *            1: geometric mean
-	 *            <p>
+	 *            0: arithmetic mean, 1: geometric mean
+	 * @return math.exp(mean)
 	 */
 	public static double mean(double[] data, int opt) {
 		if (opt == 0) {
@@ -460,11 +493,9 @@ public class MathUtils {
 	 * @param data
 	 *            double[]
 	 * @param opt
-	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance
-	 *            <p>
-	 *            1: normalizes with N, this provides the square root of the second moment around the mean
-	 *            <p>
-	 * @return
+	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance, 1: normalizes
+	 *            with N, this provides the square root of the second moment around the mean
+	 * @return Math.sqrt(variance(data, opt))
 	 */
 	public static double standardDeviation(double[] data, int opt) {
 		if (opt == 0)
@@ -479,10 +510,9 @@ public class MathUtils {
 	 * @param data
 	 *            double[]
 	 * @param opt
-	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance
-	 *            <p>
-	 *            1: normalizes with N, this provides the square root of the second moment around the mean
-	 *            <p>
+	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance, 1: normalizes
+	 *            with N, this provides the square root of the second moment around the mean
+	 * @return S / numData -1 if opt is 0, S / numData otherwise
 	 */
 	public static double variance(double[] data, int opt) {
 		// Pseudocode from wikipedia, which cites Knuth:
@@ -567,11 +597,14 @@ public class MathUtils {
 	 * 
 	 * @param x
 	 *            the matrix consisting of row vectors
-	 * @param mean
+	 * @param meanVector
 	 *            the vector of mean values -- a column vector if row-wise variances are to be computed, or a row vector if
 	 *            column-wise variances are to be calculated. param isAlongRows if true, compute the variance of x[0][0], x[1][0]
 	 *            etc. given mean[0]; if false, compute the variances for the vectors x[0], x[1] etc. separately, given the
 	 *            respective mean[0], mean[1] etc.
+	 * @param isAlongRows
+	 *            isAlongRows
+	 * @return var
 	 */
 	public static double[] variance(double[][] x, double[] meanVector, boolean isAlongRows) {
 		double[] var = null;
@@ -742,7 +775,11 @@ public class MathUtils {
 	/***
 	 * Sample correlation coefficient Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
 	 * 
-	 * @return
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return r
 	 */
 	public static double correlation(double[] x, double[] y) {
 
@@ -1029,6 +1066,9 @@ public class MathUtils {
 	}
 
 	/**
+	 * @param a
+	 *            a
+	 * @return c
 	 * @see #invert(double[])
 	 */
 	public static float[] invert(float[] a) {
@@ -1686,7 +1726,7 @@ public class MathUtils {
 	/**
 	 * Convert energy from db scale to linear scale.
 	 * 
-	 * @param energy
+	 * @param dbEnergy
 	 *            in time or frequency domain, on a db energy scale
 	 * @return energy on a linear scale.
 	 */
@@ -1756,8 +1796,10 @@ public class MathUtils {
 	 * a or b are ignored in computing the error.
 	 * 
 	 * @param a
+	 *            a
 	 * @param b
-	 * @return
+	 *            a
+	 * @return sum
 	 */
 	public static double sumSquaredError(double[] a, double[] b) {
 		if (a.length != b.length) {
@@ -1932,7 +1974,8 @@ public class MathUtils {
 	 * For a given angle in radians, return the equivalent angle in the range [-PI, PI].
 	 * 
 	 * @param angle
-	 * @return
+	 *            angle
+	 * @return (angle + PI) % (-TWOPI) + PI
 	 */
 	public static double angleToDefaultAngle(double angle) {
 		return (angle + Math.PI) % (-TWOPI) + Math.PI;
@@ -1942,7 +1985,8 @@ public class MathUtils {
 	 * For each of an array of angles (in radians), return the equivalent angle in the range [-PI, PI].
 	 * 
 	 * @param angle
-	 * @return
+	 *            angle
+	 * 
 	 */
 	public static void angleToDefaultAngle(double[] angle) {
 		for (int i = 0; i < angle.length; i++) {
@@ -1956,6 +2000,7 @@ public class MathUtils {
 	 * @param r
 	 *            contains the autocorrelation lags as input [r(0)...r(m)].
 	 * @param m
+	 *            m
 	 * @return the array of whitening coefficients
 	 */
 	public static double[] levinson(double[] r, int m) {
@@ -3517,10 +3562,11 @@ public class MathUtils {
 	}
 
 	/***
-	 * Calcualtes x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
+	 * Calculates x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
 	 * 
 	 * @param x
-	 * @return
+	 *            x
+	 * @return x
 	 */
 	public static double[] normalizeZscore(double[] x) {
 		double mn = mean(x, 0);
@@ -4286,8 +4332,10 @@ public class MathUtils {
 	 * Add val x to list of int X
 	 * 
 	 * @param X
+	 *            X
 	 * @param x
-	 * @return
+	 *            x
+	 * @return newX
 	 */
 	static public int[] addIndex(int[] X, int x) {
 		int newX[] = new int[X.length + 1];
@@ -4301,8 +4349,10 @@ public class MathUtils {
 	 * Remove val x from list of int X
 	 * 
 	 * @param X
+	 *            X
 	 * @param x
-	 * @return
+	 *            x
+	 * @return newX
 	 */
 	static public int[] removeIndex(int[] X, int x) {
 		int newX[] = new int[X.length - 1];
@@ -4441,8 +4491,11 @@ public class MathUtils {
 	 * Trim the given value so that it is in the closed interval [min, max].
 	 * 
 	 * @param untrimmedValue
+	 *            untrimmedValue
 	 * @param min
+	 *            min
 	 * @param max
+	 *            max
 	 * @return min if untrimmedValue is less than min; max if untrimmedValue is more than max; untrimmedValue otherwise.
 	 */
 	public static double trimToRange(double untrimmedValue, double min, double max) {
@@ -4453,7 +4506,8 @@ public class MathUtils {
 	 * To interpolate Zero values with respect to NonZero values
 	 * 
 	 * @param contour
-	 * @return
+	 *            contour
+	 * @return contour
 	 */
 	public static double[] interpolateNonZeroValues(double[] contour) {
 
@@ -4472,7 +4526,7 @@ public class MathUtils {
 						if (i == 0) {
 							contour[j] = contour[index];
 						} else {
-							contour[j] = contour[j - 1] + ((contour[index] - contour[i - 1]) / (index - i));
+							contour[j] = contour[j - 1] + ((contour[index] - contour[i - 1]) / (index - i + 1));
 						}
 					}
 					i = index - 1;
@@ -4487,8 +4541,10 @@ public class MathUtils {
 	 * To find next NonZero index in a given array
 	 * 
 	 * @param contour
+	 *            contour
 	 * @param current
-	 * @return
+	 *            current
+	 * @return -1
 	 */
 	public static int findNextIndexNonZero(double[] contour, int current) {
 		for (int i = current + 1; i < contour.length; i++) {
@@ -4502,9 +4558,11 @@ public class MathUtils {
 	/**
 	 * array resize to target size using linear interpolation
 	 * 
-	 * @param data
+	 * @param source
+	 *            source
 	 * @param targetSize
-	 * @return
+	 *            targetSize
+	 * @return source if source.length == targetSize, newSignal otherwise
 	 */
 	public static double[] arrayResize(double[] source, int targetSize) {
 
@@ -4538,6 +4596,7 @@ public class MathUtils {
 	 * Get first-order discrete difference along adjacent values in an array
 	 * 
 	 * @param a
+	 *            a
 	 * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null
 	 *         if <b>a</b> is null, or [] if the length of <b>a</b> is less than 2.
 	 */

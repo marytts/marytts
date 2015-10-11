@@ -145,6 +145,13 @@ public class HTSVocoder {
 	/**
 	 * The initialisation of VocoderSetup should be done when there is already information about the number of feature vectors to
 	 * be processed, size of the mcep vector file, etc.
+	 * 
+	 * @param mcep_order
+	 *            mcep_order
+	 * @param mcep_vsize
+	 *            mcep_vsize
+	 * @param htsData
+	 *            htsData
 	 */
 	private void initVocoder(int mcep_order, int mcep_vsize, HMMData htsData) {
 
@@ -187,6 +194,14 @@ public class HTSVocoder {
 	 * HTS_MLSA_Vocoder: Synthesis of speech out of mel-cepstral coefficients. This procedure uses the parameters generated in
 	 * pdf2par stored in: PStream mceppst: Mel-cepstral coefficients PStream strpst : Filter bank stregths for mixed excitation
 	 * PStream magpst : Fourier magnitudes PStream lf0pst : Log F0
+	 * 
+	 * @param pdf2par
+	 *            pdf2par
+	 * @param htsData
+	 *            htsData
+	 * @throws Exception
+	 *             Exception
+	 * @return DDSAudioInputStream
 	 */
 	public AudioInputStream htsMLSAVocoder(HTSParameterGeneration pdf2par, HMMData htsData) throws Exception {
 
@@ -215,7 +230,9 @@ public class HTSVocoder {
 	/**
 	 * get the audio format produced by the hts vocoder
 	 * 
-	 * @return
+	 * @param htsData
+	 *            htsData
+	 * @return audioformat
 	 */
 	public static AudioFormat getHTSAudioFormat(HMMData htsData) {
 		float sampleRate = htsData.getRate(); // 8000,11025,16000,22050,44100,48000
@@ -529,8 +546,10 @@ public class HTSVocoder {
 	 * Compute the audio size, in samples, that this vocoder is going to produce for the given data.
 	 * 
 	 * @param mcepPst
+	 *            mcepPst
 	 * @param htsData
-	 * @return
+	 *            htsData
+	 * @return mcepPst.getT * htsData.getFperiod
 	 */
 	private int computeAudioSize(HTSPStream mcepPst, HMMData htsData) {
 		return mcepPst.getT() * htsData.getFperiod();
@@ -543,7 +562,23 @@ public class HTSVocoder {
 			System.out.println("v[" + i + "]=" + vec[i]);
 	}
 
-	/** mlsafir: sub functions for MLSA filter */
+	/**
+	 * mlsafir: sub functions for MLSA filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param d
+	 *            d
+	 * @param _pt3
+	 *            _pt3
+	 * @return y
+	 */
 	private static double mlsafir(double x, double b[], int m, double a, double d[], int _pt3) {
 		d[_pt3 + 0] = x;
 		d[_pt3 + 1] = (1 - a * a) * d[_pt3 + 0] + (a * d[_pt3 + 1]);
@@ -564,7 +599,21 @@ public class HTSVocoder {
 		return y;
 	}
 
-	/** mlsdaf1: sub functions for MLSA filter */
+	/**
+	 * mlsdaf1: sub functions for MLSA filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param d
+	 *            d
+	 * @return out
+	 */
 	private static double mlsadf1(double x, double b[], int m, double a, double d[]) {
 		// pt1 --> pt = &d1[pd+1]
 
@@ -587,7 +636,25 @@ public class HTSVocoder {
 
 	}
 
-	/** mlsdaf2: sub functions for MLSA filter */
+	/**
+	 * mlsdaf2: sub functions for MLSA filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param d
+	 *            d
+	 * @param pt2
+	 *            pt2
+	 * @param pt3
+	 *            pt3
+	 * @return out
+	 */
 	private static double mlsadf2(double x, double b[], int m, double a, double d[], int pt2, int pt3[]) {
 		double out = 0.0;
 		// pt2 --> pt = &d1[pd * (m+2)]
@@ -611,7 +678,25 @@ public class HTSVocoder {
 		return out;
 	}
 
-	/** mlsadf: HTS Mel Log Spectrum Approximation filter */
+	/**
+	 * mlsadf: HTS Mel Log Spectrum Approximation filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param d
+	 *            d
+	 * @param pt2
+	 *            pt2
+	 * @param pt3
+	 *            pt3
+	 * @return x
+	 */
 	public static double mlsadf(double x, double b[], int m, double a, double d[], int pt2, int pt3[]) {
 		x = mlsadf1(x, b, m, a, d);
 		x = mlsadf2(x, b, m - 1, a, d, pt2, pt3);
@@ -619,12 +704,27 @@ public class HTSVocoder {
 		return x;
 	}
 
-	/** uniform_rand: generate uniformly distributed random numbers 1 or -1 */
+	/**
+	 * uniform_rand: generate uniformly distributed random numbers 1 or -1
+	 * 
+	 * @return rand.nextboolean
+	 */
 	public double uniformRand() {
 		return (rand.nextBoolean()) ? 1.0 : -1.0;
 	}
 
-	/** mc2b: transform mel-cepstrum to MLSA digital filter coefficients */
+	/**
+	 * mc2b: transform mel-cepstrum to MLSA digital filter coefficients
+	 * 
+	 * @param mc
+	 *            mc
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 */
 	public static void mc2b(double mc[], double b[], int m, double a) {
 		b[m] = mc[m];
 		for (m--; m >= 0; m--) {
@@ -632,7 +732,18 @@ public class HTSVocoder {
 		}
 	}
 
-	/** b2mc: transform MLSA digital filter coefficients to mel-cepstrum */
+	/**
+	 * b2mc: transform MLSA digital filter coefficients to mel-cepstrum
+	 * 
+	 * @param b
+	 *            b
+	 * @param mc
+	 *            mc
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 */
 	public static void b2mc(double b[], double mc[], int m, double a) {
 		double d = mc[m] = b[m];
 		for (int i = m--; i >= 0; i--) {
@@ -642,7 +753,20 @@ public class HTSVocoder {
 		}
 	}
 
-	/** freqt: frequency transformation */
+	/**
+	 * freqt: frequency transformation
+	 * 
+	 * @param c1
+	 *            c1
+	 * @param m1
+	 *            m1
+	 * @param c2
+	 *            c2
+	 * @param m2
+	 *            m2
+	 * @param a
+	 *            a
+	 */
 	public static void freqt(double c1[], int m1, double c2[], int m2, double a) {
 		double b = 1 - a * a;
 
@@ -665,7 +789,18 @@ public class HTSVocoder {
 
 	}
 
-	/** c2ir: The minimum phase impulse response is evaluated from the minimum phase cepstrum */
+	/**
+	 * c2ir: The minimum phase impulse response is evaluated from the minimum phase cepstrum
+	 * 
+	 * @param c
+	 *            c
+	 * @param nc
+	 *            nc
+	 * @param hh
+	 *            hh
+	 * @param leng
+	 *            leng
+	 */
 	public static void c2ir(double c[], int nc, double hh[], int leng) {
 		hh[0] = Math.exp(c[0]);
 		for (int n = 1; n < leng; n++) {
@@ -677,7 +812,17 @@ public class HTSVocoder {
 		}
 	}
 
-	/** b2en: functions for postfiltering */
+	/**
+	 * b2en: functions for postfiltering
+	 * 
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @return en
+	 */
 	public static double b2en(double b[], int m, double a) {
 		double cep[], ir[];
 		int arrayLength = (m + 1) + 2 * IRLENG;
@@ -698,7 +843,18 @@ public class HTSVocoder {
 		return en;
 	}
 
-	/** ignorm: inverse gain normalization */
+	/**
+	 * ignorm: inverse gain normalization
+	 * 
+	 * @param c1
+	 *            c1
+	 * @param c2
+	 *            c2
+	 * @param m
+	 *            m
+	 * @param ng
+	 *            ng
+	 */
 	public static void ignorm(double c1[], double c2[], int m, double ng) {
 		if (ng != 0.0) {
 			double k = Math.pow(c1[0], ng);
@@ -712,7 +868,18 @@ public class HTSVocoder {
 		}
 	}
 
-	/** ignorm: gain normalization */
+	/**
+	 * ignorm: gain normalization
+	 * 
+	 * @param c1
+	 *            c1
+	 * @param c2
+	 *            c2
+	 * @param m
+	 *            m
+	 * @param g
+	 *            g
+	 */
 	public static void gnorm(double c1[], double c2[], int m, double g) {
 		if (g != 0.0) {
 			double k = 1.0 + g * c1[0];
@@ -727,7 +894,16 @@ public class HTSVocoder {
 
 	}
 
-	/** lsp2lpc: transform LSP to LPC. lsp[1..m] --> a=lpc[0..m] a[0]=1.0 */
+	/**
+	 * lsp2lpc: transform LSP to LPC. lsp[1..m] &rarr; a=lpc[0..m] a[0]=1.0
+	 * 
+	 * @param lsp
+	 *            lsp
+	 * @param a
+	 *            a
+	 * @param m
+	 *            m
+	 */
 	public static void lsp2lpc(double lsp[], double a[], int m) {
 		int i, k, mh1, mh2, flag_odd;
 		double xx, xf, xff;
@@ -819,7 +995,22 @@ public class HTSVocoder {
 
 	}
 
-	/** gc2gc: generalized cepstral transformation */
+	/**
+	 * gc2gc: generalized cepstral transformation
+	 * 
+	 * @param c1
+	 *            c1
+	 * @param m1
+	 *            m1
+	 * @param g1
+	 *            g1
+	 * @param c2
+	 *            c2
+	 * @param m2
+	 *            m2
+	 * @param g2
+	 *            g2
+	 */
 	public static void gc2gc(double c1[], int m1, double g1, double c2[], int m2, double g2) {
 		double[] gc2gc_buff = Arrays.copyOf(c1, m1 + 1);
 		c2[0] = gc2gc_buff[0];
@@ -842,7 +1033,26 @@ public class HTSVocoder {
 		}
 	}
 
-	/** mgc2mgc: frequency and generalized cepstral transformation */
+	/**
+	 * mgc2mgc: frequency and generalized cepstral transformation
+	 * 
+	 * @param c1
+	 *            c1
+	 * @param m1
+	 *            m1
+	 * @param a1
+	 *            a1
+	 * @param g1
+	 *            g1
+	 * @param c2
+	 *            c2
+	 * @param m2
+	 *            m2
+	 * @param a2
+	 *            a2
+	 * @param g2
+	 *            g2
+	 */
 	public static void mgc2mgc(double c1[], int m1, double a1, double g1, double c2[], int m2, double a2, double g2) {
 
 		if (a1 == a2) {
@@ -860,7 +1070,18 @@ public class HTSVocoder {
 
 	}
 
-	/** lsp2mgc: transform LSP to MGC. lsp=C[0..m] mgc=C[0..m] */
+	/**
+	 * lsp2mgc: transform LSP to MGC. lsp=C[0..m] mgc=C[0..m]
+	 * 
+	 * @param lsp
+	 *            lsp
+	 * @param mgc
+	 *            mgc
+	 * @param m
+	 *            m
+	 * @param alpha
+	 *            alpha
+	 */
 	public void lsp2mgc(double lsp[], double mgc[], int m, double alpha) {
 		/* lsp2lpc */
 		lsp2lpc(lsp, mgc, m); /* lsp starts in 1! lsp[1..m] --> mgc[0..m] */
@@ -876,7 +1097,23 @@ public class HTSVocoder {
 		mgc2mgc(mgc, m, alpha, gamma, mgc, m, alpha, gamma); /* input and output is in mgc=C */
 	}
 
-	/** mglsadff: sub functions for MGLSA filter */
+	/**
+	 * mglsadff: sub functions for MGLSA filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param n
+	 *            n
+	 * @param d
+	 *            d
+	 * @return x
+	 */
 	public static double mglsadf(double x, double b[], int m, double a, int n, double d[]) {
 		for (int i = 0; i < n; i++)
 			x = mglsadff(x, b, m, a, d, (i * (m + 1)));
@@ -884,7 +1121,23 @@ public class HTSVocoder {
 		return x;
 	}
 
-	/** mglsadf: sub functions for MGLSA filter */
+	/**
+	 * mglsadf: sub functions for MGLSA filter
+	 * 
+	 * @param x
+	 *            x
+	 * @param b
+	 *            b
+	 * @param m
+	 *            m
+	 * @param a
+	 *            a
+	 * @param d
+	 *            d
+	 * @param d_offset
+	 *            d_offset
+	 * @return x
+	 */
 	private static double mglsadff(double x, double b[], int m, double a, double d[], int d_offset) {
 		double y = d[d_offset + 0] * b[1];
 
@@ -901,7 +1154,18 @@ public class HTSVocoder {
 		return x;
 	}
 
-	/** posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData */
+	/**
+	 * posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData
+	 * 
+	 * @param mgc
+	 *            mgc
+	 * @param m
+	 *            m
+	 * @param alpha
+	 *            alpha
+	 * @param beta
+	 *            beta
+	 */
 	public static void postfilter_mgc(double mgc[], int m, double alpha, double beta) {
 		if (beta > 0.0 && m > 1) {
 			double[] postfilter_buff = new double[m + 1];
@@ -922,7 +1186,15 @@ public class HTSVocoder {
 		return genPulseFromFourierMag(mag.getParVec(n), f0);
 	}
 
-	/** Generate one pitch period from Fourier magnitudes */
+	/**
+	 * Generate one pitch period from Fourier magnitudes
+	 * 
+	 * @param mag
+	 *            mag
+	 * @param f0
+	 *            f0
+	 * @return pulse
+	 */
 	public static double[] genPulseFromFourierMag(double[] mag, double f0) {
 
 		int numHarm = mag.length;
@@ -985,6 +1257,15 @@ public class HTSVocoder {
 
 	/**
 	 * Stand alone testing reading parameters from files in SPTK format
+	 * 
+	 * @param args
+	 *            args
+	 * @throws IOException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main1(String[] args) throws IOException, InterruptedException, Exception {
 		/* configure log info */
@@ -1139,65 +1420,9 @@ public class HTSVocoder {
 	 * Stand alone vocoder reading parameters from files in SPTK format, parameters in args[] array in the following order:
 	 * <p>
 	 * The type of spectrum parameters is set through the parameters gamma and alpha
-	 * <p>
+	 * </p>
 	 * 
-	 * @param gamma
-	 *            : 0
-	 * @param alpha
-	 *            : 0.45
-	 *            <p>
-	 *            MGC: stage=gamma=0 alpha=0.42 linear gain
-	 *            <p>
-	 *            LSP: gamma>0
-	 *            <p>
-	 *            LSP : gamma=1 alpha=0.0
-	 *            <p>
-	 *            Mel-LSP: gamma=1 alpha=0.42
-	 *            <p>
-	 *            MGC-LSP: gamma=3 alpha=0.42
-	 *            <p>
-	 * @param useLoggain
-	 *            : 0 (1:true 0:false)
-	 * @param beta
-	 *            : 0.0 0.0 --> 1.0 (postfiltering)
-	 * @param rate
-	 *            : 16000
-	 * @param fperiod
-	 *            : 80 (5 milisec)
-	 * @param mcepFile
-	 *            : filename
-	 * @param mcepVsize
-	 *            : vector size (75 if using a file from amain2 hmm voice training data, otherwise specify)
-	 * @param lf0File
-	 *            : filename
-	 * @param lf0Vsize
-	 *            : vector size (3 if using a file from a hmm voice training data, otherwise specify)
-	 * @param outputfile
-	 *            : filename
-	 * 
-	 *            The following are optional:
-	 *            <p>
-	 *            if using mixed excitation:
-	 *            <p>
-	 * @param strFile
-	 *            : filename
-	 * @param strVsize
-	 *            : vector size (15 if using a file from a hmm voice training data, it can be found in
-	 *            data/filters/mix_excitation_filters.txt, otherwise specify)
-	 * @param filtersFile
-	 *            : filename
-	 * @param numFilters
-	 *            : 5 (if using the filters file used in the HTS-MARY demo, otherwise specify)
-	 * @param orderFilters
-	 *            : 48 (if using the filters file used in the HTS-MARY demo, otherwise specify)
-	 * 
-	 *            <p>
-	 *            if using Fourier magnitudes:
-	 *            <p>
-	 * @param magFile
-	 *            : filename
-	 * @param magVsize
-	 *            : vector size (30 if using a file from a hmm voice training data, otherwise specify)
+	 * @param args
 	 * 
 	 *            <p>
 	 *            example iput parameters:
@@ -1208,6 +1433,12 @@ public class HTSVocoder {
 	 *            example input parameters without mixed excitation:
 	 *            <p>
 	 *            0 0.45 0 0.0 16000 80 cmu_us_arctic_slt_a0001.mgc 75 cmu_us_arctic_slt_a0001.lf0 3 vocoder_out.wav
+	 * @throws IOException
+	 *             IOException
+	 * @throws InterruptedException
+	 *             InterruptedException
+	 * @throws Exception
+	 *             Exception
 	 * */
 	public static void htsMLSAVocoderCommand(String[] args) throws IOException, InterruptedException, Exception {
 

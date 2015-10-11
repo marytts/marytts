@@ -67,7 +67,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the log of the square of the absolute value of
 	 *         each complex number, p[i] = real[i]*real[i] + imag[i]*imag[i]
 	 */
@@ -106,7 +106,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the square of the absolute value of each complex
 	 *         number, p[i] = real[i]*real[i] + imag[i]*imag[i]
 	 */
@@ -144,7 +144,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the log of the square of the absolute value of
 	 *         each complex number, p[i] = real[i]*real[i] + imag[i]*imag[i]
 	 */
@@ -184,7 +184,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the absolute value of each complex number, r[i] =
 	 *         sqrt(real[i]*real[i] + imag[i]*imag[i])
 	 */
@@ -205,7 +205,7 @@ public class FFT {
 	 * 
 	 * @param fft
 	 *            the array of real and imag parts of the complex number array, fft[0] = real[0], fft[1] = real[N/2], fft[2*i] =
-	 *            real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return an array of length real.length/2 containing numbers representing the phases of each complex number, phase[i] =
 	 *         atan(imag[i], real[i])
 	 */
@@ -416,6 +416,9 @@ public class FFT {
 	 * multiplied by 2/n.)
 	 * 
 	 * @param data
+	 *            data
+	 * @param inverse
+	 *            inverse
 	 */
 	public static void realTransform(double data[], boolean inverse) {
 		double c1 = 0.5;
@@ -479,7 +482,9 @@ public class FFT {
 	 * not polluted because of assumed periodicity. The two signals need not be of equal length.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @param deltaT
 	 *            , the time difference between two samples (= 1/samplingrate)
 	 * @return the convolved signal, with length signal1.length+signal2.length
@@ -498,7 +503,9 @@ public class FFT {
 	 * length.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @return the convolved signal, with length signal1.length+signal2.length
 	 */
 	public static double[] convolveWithZeroPadding(final double[] signal1, final double[] signal2) {
@@ -524,7 +531,9 @@ public class FFT {
 	 * power of two, and not checking for pollution arising from the assumed periodicity of both signals.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @param deltaT
 	 *            , the time difference between two samples (= 1/samplingrate)
 	 * @return the convolved signal, of the same length as the two input signals
@@ -545,7 +554,9 @@ public class FFT {
 	 * of both signals.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @return the convolved signal, of the same length as the two input signals
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
@@ -588,7 +599,7 @@ public class FFT {
 	 *            the first input signal, in the time domain
 	 * @param fft2
 	 *            the complex transform of the second signal, in the frequency domain fft[0] = real[0], fft[1] = real[N/2],
-	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @param deltaT
 	 *            , the time difference between two samples (= 1/samplingrate)
 	 * @return the convolved signal, of the same length as the two input signals
@@ -613,7 +624,7 @@ public class FFT {
 	 *            the first input signal, in the time domain
 	 * @param fft2
 	 *            the complex transform of the second signal, in the frequency domain fft[0] = real[0], fft[1] = real[N/2],
-	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1<=i<N/2
+	 *            fft[2*i] = real[i], fft[2*i+1] = imag[i] for 1&le;i&lt;N/2
 	 * @return the convolved signal, of the same length as the two input signals
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
@@ -648,7 +659,9 @@ public class FFT {
 	 * length.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @return the correlation function, with length signal1.length+signal2.length
 	 */
 	public static double[] correlateWithZeroPadding(final double[] signal1, final double[] signal2) {
@@ -675,7 +688,9 @@ public class FFT {
 	 * must be a power of two, and not checking for pollution arising from the assumed periodicity of both signals.
 	 * 
 	 * @param signal1
+	 *            signal 1
 	 * @param signal2
+	 *            signal 2
 	 * @return the correlated signal, of the same length as the two input signals
 	 * @throws IllegalArgumentException
 	 *             if the two input signals do not have the same length.
@@ -713,6 +728,7 @@ public class FFT {
 	 * of the signal.
 	 * 
 	 * @param signal
+	 *            signal
 	 * @return the correlated signal, of the same length as the input signal
 	 */
 	public static double[] autoCorrelate(final double[] signal) {
@@ -742,6 +758,7 @@ public class FFT {
 	 * where necessary to ensure that the result is not polluted because of assumed periodicity.
 	 * 
 	 * @param signal
+	 *            signal
 	 * @return the correlated signal, of the same length as the input signal
 	 */
 	public static double[] autoCorrelateWithZeroPadding(final double[] signal) {

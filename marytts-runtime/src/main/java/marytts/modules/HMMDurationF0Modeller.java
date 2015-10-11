@@ -178,6 +178,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * A method to modify prosody modifications
 	 * 
 	 * @param doc
+	 *            doc
 	 */
 	private void applyProsodySpecifications(Document doc) {
 
@@ -199,7 +200,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Apply 'rate' requirements to ACOUSTPARAMS
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param prosodyElement
+	 *            prosodyElement
 	 */
 	private void applySpeechRateSpecifications(NodeList nl, Element prosodyElement) {
 
@@ -227,8 +230,11 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * set duration specifications according to 'rate' requirements
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param percentage
+	 *            percentage
 	 * @param incriment
+	 *            incriment
 	 */
 	private void setSpeechRateSpecifications(NodeList nl, double percentage, double incriment) {
 
@@ -269,7 +275,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 	/**
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param prosodyElement
+	 *            prosodyElement
 	 */
 	private void applyNewContourSpecifications(NodeList nl, Element prosodyElement) {
 
@@ -314,7 +322,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * To set new modified contour into XML
 	 * 
 	 * @param nl
+	 *            nl
 	 * @param contour
+	 *            contour
 	 */
 	private void setModifiedContour(NodeList nl, double[] contour) {
 
@@ -369,9 +379,12 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Set modifications to base contour (first order polynomial fit contour)
 	 * 
 	 * @param polyValues
+	 *            polyValues
 	 * @param contourAttribute
+	 *            contourAttribute
 	 * @param pitchAttribute
-	 * @return
+	 *            pitchAttribute
+	 * @return polyValues
 	 */
 	private double[] setBaseContourModifications(double[] polyValues, String contourAttribute, String pitchAttribute) {
 
@@ -390,8 +403,10 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Set all specifications to original contour
 	 * 
 	 * @param polyValues
+	 *            polyValues
 	 * @param contourAttribute
-	 * @return
+	 *            contourAttribute
+	 * @return modifiedF0Values
 	 */
 	private double[] setContourSpecifications(double[] polyValues, String contourAttribute) {
 
@@ -448,8 +463,10 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * set pitch specifications: Ex: pitch="+20%" or pitch="+50Hz"
 	 * 
 	 * @param polyValues
+	 *            polyValues
 	 * @param pitchAttribute
-	 * @return
+	 *            pitchAttribute
+	 * @return polyValues
 	 */
 	private double[] setPitchSpecifications(double[] polyValues, String pitchAttribute) {
 
@@ -486,7 +503,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * to get contour specifications into MAP
 	 * 
 	 * @param attribute
-	 * @return
+	 *            attribute
+	 * @return f0Map
 	 */
 	private Map<String, String> getContourSpecifications(String attribute) {
 
@@ -507,7 +525,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * To interpolate Zero values with respect to NonZero values
 	 * 
 	 * @param contour
-	 * @return
+	 *            contour
+	 * @return contour
 	 */
 	private double[] interpolateNonZeroValues(double[] contour) {
 
@@ -541,8 +560,10 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * To find next NonZero index
 	 * 
 	 * @param contour
+	 *            contour
 	 * @param current
-	 * @return
+	 *            current
+	 * @return -1
 	 */
 	private int findNextIndexNonZero(double[] contour, int current) {
 		for (int i = current + 1; i < contour.length; i++) {
@@ -557,7 +578,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * get Continuous contour from "ph" nodelist
 	 * 
 	 * @param nl
-	 * @return
+	 *            nl
+	 * @return contour
 	 */
 	private double[] getContiniousContour(NodeList nl) {
 
@@ -610,7 +632,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Get f0 specifications in HashMap
 	 * 
 	 * @param attribute
-	 * @return
+	 *            attribute
+	 * @return f0Map
 	 */
 	private Map<Integer, Integer> getPhoneF0Data(String attribute) {
 
@@ -633,6 +656,17 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Parse Mary context features. For each triphone model in the file, it creates a Model object in a linked list of Model
 	 * objects -> UttModel um It also estimates state duration from state duration model (Gaussian). For each model in the vector,
 	 * the mean and variance of the DUR and LF0 are searched in the ModelSet and copied in each triphone model.
+	 * 
+	 * @param s
+	 *            s
+	 * @param um
+	 *            um
+	 * @param htsData
+	 *            htsData
+	 * @param cart
+	 *            cart
+	 * @throws Exception
+	 *             Exception
 	 */
 	private String processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart) throws Exception {
 		int i, mstate, frame, k, statesDuration, newStateDuration;
@@ -733,8 +767,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 *            HTSUttModel, linked list of model objects
 	 * @param htsData
 	 *            HMMData
-	 * @return
+	 * @return f0Values
 	 * @throws Exception
+	 *             Exception
 	 */
 	public String HmmF0Generation(HTSUttModel um, HMMData htsData) throws Exception {
 
@@ -869,8 +904,11 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Set durations
 	 * 
 	 * @param tw
+	 *            tw
 	 * @param durations
+	 *            durations
 	 * @throws SynthesisException
+	 *             SynthesisException
 	 */
 	public void setActualDurations(TreeWalker tw, String durations) throws SynthesisException {
 		int i, j, index;
@@ -939,6 +977,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * @param durF0s
 	 *            String containing in each line one phoneme its duration and its F0 values if it is voiced or 0 if it is unvoiced
 	 * @throws SynthesisException
+	 *             SynthesisException
 	 */
 	public void setActualDurationsAndF0s(TreeWalker tw, String durF0s) throws SynthesisException {
 		int i, j, index;

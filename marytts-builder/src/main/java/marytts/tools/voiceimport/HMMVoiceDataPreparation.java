@@ -73,7 +73,7 @@ import marytts.util.io.General;
 /**
  * This program was modified from previous version to: 1. copy $MARY_BASE/lib/external/hts directory to the voice building
  * directory 2. check again that all the external necessary programs are installed. 3. check as before that wav and text
- * directories exist and make conversions: voiceDir/wav -> voiceDir/hts/data/raw userProvidedDir/utts (festival format) ->
+ * directories exist and make conversions: voiceDir/wav &rarr; voiceDir/hts/data/raw userProvidedDir/utts (festival format) &rarr;
  * voiceDir/text (one file per transcription) userProvidedDir/raw move to voiceDir/hts/data/raw
  *
  * @author marcela
@@ -99,6 +99,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent {
 	/**
 	 * Get the map of properties2values containing the default values
 	 * 
+	 * @param db
+	 *            db
 	 * @return map of props2values
 	 */
 	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
@@ -124,6 +126,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent {
 	/**
 	 * Do the computations required by this component.
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true on success, false on failure
 	 */
 	public boolean compute() throws Exception {
@@ -278,6 +282,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent {
 	/**
 	 * Check the paths of all the necessary external programs
 	 * 
+	 * @throws Exception
+	 *             Exception
 	 * @return true if all the paths are defined
 	 */
 	private boolean checkExternalPaths() throws Exception {
@@ -333,8 +339,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent {
 	/**
 	 * Checks if the directory exist and has files
 	 * 
-	 * @param dir
-	 * @return
+	 * @param dirName
+	 *            dirName
+	 * @return true if dir exists and dir.list has a greater length than 0, false otherwise
 	 */
 	private boolean existWithFiles(String dirName) {
 		File dir = new File(dirName);

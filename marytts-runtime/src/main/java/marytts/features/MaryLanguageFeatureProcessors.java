@@ -72,6 +72,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the name of the feature
 		 * @param possibleValues
 		 *            the list of possible phone values for the phonetic alphabet used, plus the value "0"=n/a.
+		 * @param pauseSymbol
+		 *            pauseSymbol
 		 * @param segmentNavigator
 		 *            a navigator returning a segment with respect to the target.
 		 */
@@ -121,12 +123,10 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		/**
 		 * Initialise a UnitName feature processor.
 		 * 
-		 * @param name
-		 *            the name of the feature
-		 * @param phoneset
-		 *            the phonetic alphabet used
-		 * @param segmentNavigator
-		 *            a navigator returning a segment with respect to the target.
+		 * @param possiblePhonemes
+		 *            the possible phonemes
+		 * @param pauseSymbol
+		 *            the pause symbol
 		 */
 		public HalfPhoneUnitName(String[] possiblePhonemes, String pauseSymbol) {
 			this.name = "halfphone_unitname";
@@ -245,7 +245,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		}
 
 		/**
-		 * @param item
+		 * @param target
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
@@ -298,7 +298,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		/**
 		 * Performs some processing on the given item.
 		 * 
-		 * @param item
+		 * @param target
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
@@ -399,6 +399,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 * Give back the phone class of the target
 		 * 
 		 * @param target
+		 *            target
 		 * @return the phone class of the target
 		 */
 		public byte process(Target target) {

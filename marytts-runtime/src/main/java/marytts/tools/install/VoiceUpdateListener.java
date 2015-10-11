@@ -36,6 +36,11 @@ package marytts.tools.install;
 public interface VoiceUpdateListener {
 	/**
 	 * Take note of the fact that the current language has changed and the list of voices needs updating.
+	 * 
+	 * @param currentLanguage
+	 *            currentLanguage
+	 * @param forceUpdate
+	 *            forceUpdate
 	 */
 	public void updateVoices(LanguageComponentDescription currentLanguage, boolean forceUpdate);
 

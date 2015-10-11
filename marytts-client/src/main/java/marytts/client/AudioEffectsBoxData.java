@@ -24,7 +24,7 @@ import marytts.util.string.StringUtils;
 /**
  * Data for a set of audio effects, i.e. "an audio effects box".
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class AudioEffectsBoxData {

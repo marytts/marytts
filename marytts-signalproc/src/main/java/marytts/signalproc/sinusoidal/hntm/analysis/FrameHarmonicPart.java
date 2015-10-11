@@ -33,7 +33,7 @@ import marytts.util.math.ComplexNumber;
 import marytts.util.math.MathUtils;
 
 /**
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class FrameHarmonicPart {

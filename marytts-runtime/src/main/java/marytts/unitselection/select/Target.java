@@ -90,9 +90,10 @@ public class Target {
 	}
 
 	/**
-	 * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
+	 * 
 	 * 
 	 * @param newDuration
+	 *            newDuration
 	 */
 	public void setTargetDurationInSeconds(float newDuration) {
 		if (maryxmlElement != null) {
@@ -129,9 +130,6 @@ public class Target {
 		public void handle(short operation, String key, Object data, Node src, Node dest) {
 			if (operation == UserDataHandler.NODE_CLONED && key == "target") {
 				dest.setUserData(key, data, this);
-				System.err.println("yay");
-			} else {
-				System.err.println("nay");
 			}
 		}
 	};

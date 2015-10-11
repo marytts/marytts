@@ -36,7 +36,10 @@ public class LabelfileDoubleDataSource extends TextReaderDoubleDataSource {
 	 * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first
 	 * token in that line.
 	 * 
-	 * @param reader
+	 * @param file
+	 *            file
+	 * @throws FileNotFoundException
+	 *             FileNotFoundException
 	 */
 	public LabelfileDoubleDataSource(File file) throws FileNotFoundException {
 		this(new FileReader(file));
@@ -47,6 +50,7 @@ public class LabelfileDoubleDataSource extends TextReaderDoubleDataSource {
 	 * token in that line.
 	 * 
 	 * @param reader
+	 *            reader
 	 */
 	public LabelfileDoubleDataSource(Reader reader) {
 		super(reader);

@@ -38,6 +38,9 @@ public class ContourTreeInspector {
 
 	/**
 	 * @param args
+	 *            args
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		boolean showIndividualLeaves = true;

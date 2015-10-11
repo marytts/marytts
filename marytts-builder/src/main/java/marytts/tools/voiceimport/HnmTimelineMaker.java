@@ -56,7 +56,7 @@ import marytts.util.signal.SignalProcUtils;
  * HnmTimelineMaker class takes a database root directory and a list of basenames, and converts the related wav files into a hnm
  * timeline in Mary format.
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class HnmTimelineMaker extends VoiceImportComponent {
 	protected DatabaseLayout db = null;

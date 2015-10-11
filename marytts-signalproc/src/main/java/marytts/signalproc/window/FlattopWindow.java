@@ -31,7 +31,7 @@ package marytts.signalproc.window;
 
 /**
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  * 
  */
 public class FlattopWindow extends Window {

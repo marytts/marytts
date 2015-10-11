@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':marytts-common')
+    compile project(':marytts-signalproc')
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}

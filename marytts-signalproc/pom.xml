@@ -18,9 +18,19 @@
 		</dependency>
 
 		<dependency>
+			<groupId>gov.nist.math</groupId>
+			<artifactId>Jampack</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>gov.nist.math</groupId>
+			<artifactId>jama</artifactId>
 		</dependency>
 
 		<dependency>

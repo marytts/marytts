@@ -41,7 +41,7 @@ public interface JoinCostFunction {
 	 *            the proposed left unit
 	 * @param t2
 	 *            the right target
-	 * @param u3
+	 * @param u2
 	 *            the proposed right unit
 	 * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
 	 */
@@ -69,6 +69,10 @@ public interface JoinCostFunction {
 	 *            an optional file containing precompiled join costs
 	 * @param wSignal
 	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
+	 * @throws IOException
+	 *             IOException
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	@Deprecated
 	public void load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)

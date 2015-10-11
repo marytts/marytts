@@ -26,7 +26,7 @@ import marytts.util.string.StringUtils;
 /**
  * File I/O for binary pitch contour files
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk
  */
 public class F0ReaderWriter extends PitchReaderWriter {
 

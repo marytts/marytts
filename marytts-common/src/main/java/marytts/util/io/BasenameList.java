@@ -73,6 +73,13 @@ public class BasenameList {
 
 	/**
 	 * Default constructor from an existing vector and fields.
+	 * 
+	 * @param setFromDir
+	 *            setFromDir
+	 * @param setFromExt
+	 *            setFromExt
+	 * @param setVec
+	 *            setVec
 	 */
 	public BasenameList(String setFromDir, String setFromExt, Vector setVec) {
 		fromDir = setFromDir;
@@ -83,6 +90,9 @@ public class BasenameList {
 
 	/**
 	 * Constructor from an array of strings.
+	 * 
+	 * @param str
+	 *            str
 	 */
 	public BasenameList(String[] str) {
 		fromDir = null;
@@ -93,10 +103,10 @@ public class BasenameList {
 	}
 
 	/**
-	 * This constructor lists the .<extension> files from directory dir, and initializes an an array with their list of
+	 * This constructor lists the . extension files from directory dir, and initializes an an array with their list of
 	 * alphabetically sorted basenames.
 	 * 
-	 * @param dir
+	 * @param dirName
 	 *            The name of the directory to list the files from.
 	 * @param extension
 	 *            The extension of the files to list.
@@ -140,6 +150,8 @@ public class BasenameList {
 	 * 
 	 * @param fileName
 	 *            The file to read from.
+	 * @throws IOException
+	 *             IOException
 	 */
 	public BasenameList(String fileName) throws IOException {
 		load(fileName);
@@ -152,6 +164,11 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a file, identified by its name.
+	 * 
+	 * @param fileName
+	 *            fileName
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(String fileName) throws IOException {
 		write(new File(fileName));
@@ -159,6 +176,11 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a File.
+	 * 
+	 * @param file
+	 *            file
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void write(File file) throws IOException {
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"), true);
@@ -174,6 +196,11 @@ public class BasenameList {
 
 	/**
 	 * Read the basenameList from a file
+	 * 
+	 * @param fileName
+	 *            fileName
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void load(String fileName) throws IOException {
 		/* Open the file */
@@ -204,6 +231,9 @@ public class BasenameList {
 
 	/**
 	 * Adds a basename to the list.
+	 * 
+	 * @param str
+	 *            str
 	 */
 	public void add(String str) {
 		if (!bList.contains(str))
@@ -213,6 +243,9 @@ public class BasenameList {
 
 	/**
 	 * Adds an array of basenames to the list.
+	 * 
+	 * @param str
+	 *            str
 	 */
 	public void add(String[] str) {
 		for (int i = 0; i < str.length; i++)
@@ -250,6 +283,8 @@ public class BasenameList {
 
 	/**
 	 * Duplicates the list (i.e., emits an autonomous copy of it).
+	 * 
+	 * @return BasenameList (fromdir, fromext, (vector) (bList.clone)
 	 */
 	public BasenameList duplicate() {
 		return (new BasenameList(this.fromDir, this.fromExt, (Vector) (this.bList.clone())));
@@ -257,6 +292,12 @@ public class BasenameList {
 
 	/**
 	 * Returns an autonomous sublist between fromIndex, inclusive, and toIndex, exclusive.
+	 * 
+	 * @param fromIndex
+	 *            fromIndex
+	 * @param toIndex
+	 *            toIndex
+	 * @return basenameList(this.fromDir, this.fromExt, subVec)
 	 */
 	public BasenameList subList(int fromIndex, int toIndex) {
 		Vector subVec = new Vector(toIndex - fromIndex, DEFAULT_INCREMENT);
@@ -267,6 +308,8 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the list of basenames, returned as an array of strings
+	 * 
+	 * @return string ret
 	 */
 	public String[] getListAsArray() {
 		String[] ret = new String[this.getLength()];
@@ -276,6 +319,8 @@ public class BasenameList {
 
 	/**
 	 * Another accessor for the list of basenames, returned as a vector of strings
+	 * 
+	 * @return bList
 	 */
 	public Vector getListAsVector() {
 		return (bList);
@@ -283,6 +328,8 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the list's length
+	 * 
+	 * @return bList.size
 	 */
 	public int getLength() {
 		return (bList.size());
@@ -290,6 +337,8 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the original directory. Returns null if the original directory is undefined.
+	 * 
+	 * @return fromDir
 	 */
 	public String getDir() {
 		return (fromDir);
@@ -297,6 +346,8 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the original extension. Returns null if the original extension is undefined.
+	 * 
+	 * @return fromExt
 	 */
 	public String getExt() {
 		return (fromExt);

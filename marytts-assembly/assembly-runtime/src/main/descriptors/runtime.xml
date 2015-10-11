@@ -21,7 +21,6 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>README*</include>
-        <include>doc/examples/**/*</include>
       </includes>
     </fileSet>
         
@@ -61,6 +60,12 @@
         <source>src/runtime/installed/marytts-lang-fr-component.xml</source>
 		<outputDirectory>/</outputDirectory>
 		<destName>installed/marytts-lang-fr-${project.version}-component.xml</destName>
+		<filtered>true</filtered>
+      </file>
+      <file>
+        <source>src/runtime/installed/marytts-lang-lb-component.xml</source>
+		<outputDirectory>/</outputDirectory>
+		<destName>installed/marytts-lang-lb-${project.version}-component.xml</destName>
 		<filtered>true</filtered>
       </file>
       <file>

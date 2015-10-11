@@ -257,6 +257,9 @@ public class PraatPitchTier implements PraatTier {
 	 * For every frame that is not NaN, create a pitch-time target.
 	 * 
 	 * @param frames
+	 *            frames
+	 * @param step
+	 *            step
 	 */
 	protected void importFrames(double[] frames, double step) {
 		ArrayList<PitchTarget> newTargets = new ArrayList<PitchTarget>();

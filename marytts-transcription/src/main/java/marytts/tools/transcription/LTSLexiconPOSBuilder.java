@@ -45,7 +45,7 @@ import marytts.util.io.FileUtils;
  * 
  * Train Letter-to-sound(LTS) rules, create FST dictionary and POS tagger
  * 
- * @author Fabio Tesser <fabio.tesser@gmail.com>
+ * @author Fabio Tesser &lt;fabio.tesser@gmail.com&gt;
  * 
  *         Example use:
  *         <code>java -showversion -ea -Xmx4096m  -cp "$MARY_BASE/lib/*" marytts.tools.transcription.LTSLexiconPOSBuilder ./marytts-lang-it/src/main/resources/marytts/language/it/lexicon/allophones.it.xml ./marytts-lang-it/lib/modules/it/lexicon/it.txt </code>
@@ -77,7 +77,9 @@ public class LTSLexiconPOSBuilder {
 	 * load phoneset
 	 * 
 	 * @param filePath
+	 *            filePath
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	private void loadPhoneSet(String filePath) throws MaryConfigurationException {
 		phoneSet = AllophoneSet.getAllophoneSet(filePath);
@@ -88,7 +90,9 @@ public class LTSLexiconPOSBuilder {
 	 * Load transcription from file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws Exception
+	 *             Exception
 	 */
 	private void loadTranscription(String fileName) throws Exception {
 		transcriptionModel.loadTranscription(fileName, false);
@@ -118,8 +122,11 @@ public class LTSLexiconPOSBuilder {
 	 * train and predict module
 	 * 
 	 * @param treeAbsolutePath
+	 *            treeAbsolutePath
 	 * @throws IOException
+	 *             IOException
 	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
 	 */
 	public void trainPredict(String treeAbsolutePath) throws IOException, MaryConfigurationException {
 		Object[][] tableData = transcriptionModel.getData();
@@ -194,7 +201,9 @@ public class LTSLexiconPOSBuilder {
 	 * save transcription into file
 	 * 
 	 * @param fileName
+	 *            fileName
 	 * @throws Exception
+	 *             Exception
 	 */
 	public void saveTranscription(String fileName) throws Exception {
 
@@ -226,6 +235,8 @@ public class LTSLexiconPOSBuilder {
 	/**
 	 * @param args
 	 *            first argument, PhoneSet file name; second argument, Transcriptions file name
+	 * @throws Exception
+	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		try {

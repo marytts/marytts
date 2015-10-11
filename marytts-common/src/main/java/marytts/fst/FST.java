@@ -59,7 +59,9 @@ public class FST {
 	 * Load the fst from the given input stream. Assumes header.
 	 * 
 	 * @param inStream
+	 *            in stream
 	 * @throws IOException
+	 *             IOException
 	 */
 	public FST(InputStream inStream) throws IOException {
 		load(inStream);
@@ -125,9 +127,13 @@ public class FST {
 	 * Load the fst from the given input stream. Assumes headerless legacy file format.
 	 * 
 	 * @param inStream
+	 *            inStream
 	 * @param encoding
+	 *            encoding
 	 * @throws IOException
+	 *             IOException
 	 * @throws UnsupportedEncodingException
+	 *             UnsupportedEncodingException
 	 */
 	public FST(InputStream inStream, String encoding) throws IOException, UnsupportedEncodingException {
 		loadHeaderless(inStream, encoding, false);

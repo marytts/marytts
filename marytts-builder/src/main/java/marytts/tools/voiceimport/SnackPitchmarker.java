@@ -90,6 +90,9 @@ public class SnackPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * The standard compute() method of the VoiceImportComponent interface.
+	 * 
+	 * @throws Exception
+	 *             Exception
 	 */
 	public boolean compute() throws Exception {
 
@@ -184,6 +187,13 @@ public class SnackPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the closest peak.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private float[] shiftToClosestPeak(float[] pmIn, short[] w, int sampleRate) {
 
@@ -233,6 +243,13 @@ public class SnackPitchmarker extends VoiceImportComponent {
 
 	/**
 	 * Shift the pitchmarks to the previous zero crossing.
+	 * 
+	 * @param pmIn
+	 *            pmIn
+	 * @param w
+	 *            w
+	 * @param sampleRate
+	 *            sampleRate
 	 */
 	private float[] shiftToPreviousZero(float[] pmIn, short[] w, int sampleRate) {
 
@@ -271,10 +288,12 @@ public class SnackPitchmarker extends VoiceImportComponent {
 	/**
 	 * Adjust pitchmark position to the zero crossing preceding the closest peak.
 	 * 
-	 * @param basename
+	 * @param wf
 	 *            basename of the corresponding wav file
 	 * @param pitchmarks
 	 *            the input pitchmarks
+	 * @throws IOException
+	 *             IOException
 	 * @return the adjusted pitchmarks
 	 */
 	private float[] adjustPitchmarks(WavReader wf, float[] pitchmarks) throws IOException {

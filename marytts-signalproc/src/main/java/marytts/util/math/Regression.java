@@ -84,8 +84,8 @@ public class Regression {
 	 * @param data
 	 *            dependent and independent variables data={{y1, x11, x12, ... x1k}, {y2, x21, x22, ... x2k}, ... {yn, xn1, xn2,
 	 *            ... xnk}}
-	 * @param dependentVar
-	 *            number of the column that will be used as dependent variable --> vector y by default the first column is y
+	 * @param interceptTerm
+	 *            number of the column that will be used as dependent variable &rarr; vector y by default the first column is y
 	 * @param rows
 	 *            number of rows
 	 * @param cols
@@ -194,9 +194,12 @@ public class Regression {
 	 * @param data
 	 *            Vector contains dependent variable first and then independent variables
 	 * @param rows
+	 *            rows
 	 * @param cols
+	 *            cols
 	 * @param interceptTerm
-	 * @return
+	 *            intercept term
+	 * @return coeffs
 	 */
 	public double[] multipleLinearRegression(Vector<Double> data, int rows, int cols, boolean interceptTerm) {
 
@@ -262,7 +265,9 @@ public class Regression {
 	 * b_1*x_1i + b_2*x_2i + ... + b_k*x_ki without intercep term
 	 * 
 	 * @param datay
+	 *            datay
 	 * @param dataX
+	 *            dataX
 	 */
 	private void multipleLinearRegression(Matrix datay, Matrix dataX) {
 		Matrix X, y;
@@ -340,13 +345,19 @@ public class Regression {
 	 * multipleLinearRegression providing index numbers for the columns in fileName, index 0 correspond to column 1
 	 * 
 	 * @param fileName
+	 *            file name
 	 * @param indVariable
 	 *            column number (index) of the independent variable
 	 * @param c
 	 *            int[] column numbers array (indices) of dependent variables
+	 * @param factors
+	 *            factors
 	 * @param rowIni
 	 *            and rowEnd should be given from 0 - maxData-1
+	 * @param rowEnd
+	 *            row end
 	 * @param interceptTerm
+	 *            intercept term
 	 */
 	public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean interceptTerm,
 			int rowIni, int rowEnd) {

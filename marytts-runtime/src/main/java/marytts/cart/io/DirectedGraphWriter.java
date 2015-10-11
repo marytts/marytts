@@ -59,8 +59,12 @@ public class DirectedGraphWriter {
 	/**
 	 * Dump the graph in Mary format
 	 * 
-	 * @param destDir
-	 *            the destination directory
+	 * @param graph
+	 *            graph
+	 * @param destFile
+	 *            the destination file
+	 * @throws IOException
+	 *             IOException
 	 */
 	public void saveGraph(DirectedGraph graph, String destFile) throws IOException {
 		if (graph == null)
