@@ -541,7 +541,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * expands a digit followed by an s. e.g. 7s and 8s and the 60s
-	 *
+	 * 
 	 * @param numberS
 	 *            numberS
 	 * @return number
