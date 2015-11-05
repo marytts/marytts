@@ -133,10 +133,7 @@ public class CART extends DirectedGraph {
 		}
 
 		assert currentNode.getNumberOfData() >= minNumberOfData || currentNode == rootNode;
-
-		assert minNumberOfData > 0 || (currentNode instanceof LeafNode);
 		return currentNode;
-
 	}
 
 	/**
