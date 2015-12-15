@@ -57,7 +57,7 @@ public class NumberEP extends ExpansionPattern {
 
 	// Domain-specific primitives:
 	protected static final String sFloat = "(?:-?(?:[1-9][0-9]*|0)?(?:\\.|,)[0-9]+)";
-	protected static final String sInteger = "(?:-?[1-9][0-9]*|0)";
+	protected static final String sInteger = "(?:-?[1-9][0-9]{0,11}|0)";//"(?:-?[1-9][0-9]*|0)";
 	protected static final String sOrdinal = "(?:" + sInteger + "[°.])";
 	protected static final String sRoman = "(?:[MDCLXVI]+\\.?)";
 	protected static final String sDigits = "(?:[0-9.,]*[0-9][.,]?)";
