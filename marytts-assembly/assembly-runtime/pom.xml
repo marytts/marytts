@@ -74,6 +74,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-ar</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>voice-cmu-slt-hsmm</artifactId>
 			<version>${project.version}</version>
 		</dependency>

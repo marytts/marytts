@@ -20,5 +20,6 @@
 		<module>marytts-lang-fr</module>
 		<module>marytts-lang-sv</module>
 		<module>marytts-lang-lb</module>
+		<module>marytts-lang-ar</module>
 	</modules>
 </project>
