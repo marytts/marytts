@@ -1,0 +1,515 @@
+ #########################################################################
+# Copyright 2009 DFKI GmbH.
+# All Rights Reserved.  Use is subject to license terms.
+#
+# This file is part of MARY TTS.
+#
+# MARY TTS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# #########################################################################
+﻿مَنْ man- functional
+عَلَى ʕa-laa:- functional
+فِي fii: functional
+الَّتِي ʔal-la-tii: functional
+أَنَّ ʔan-na functional
+إِلَى ʔi-laa:- functional
+عَنْ ʕan- functional
+عَامٌ ʕaa:-mun-
+أَوْ ʔaw- functional
+كَانَ kaa:-na
+مَعَ ma-ʕa functional
+الَّذِي ʔal-la-ðii: functional
+هَذِهِ ha-ði-hi functional
+مَا maa:- functional
+بَعْدَ baʕ-da functional
+بَيْنَ baj-na
+بْنِ b-ni
+ذَلِكَ ða-li-ka functional
+حَيْثُ ħaj-θu functional
+كَمَا ka-maa:- functional
+لَا laa:- functional
+هُوَ huwa functional
+كَانَتْ kaa:-nat-
+وَقَدْ wa-qad-
+اللهُ ʔallhu
+هِي hii: functional
+وَفِي wa-fii: functional
+كُلُّ kul-lu
+سَنَةُ sa-na-tu
+ثَمَّ θam-ma functional
+وَهُوَ wa-huwa functional
+لَمْ lam- functional
+قَدْ qad- functional
+بَعْضُ baʕ-dˤu
+وَهِي wa-hii: functional
+الْمَدِينَةُ ʔal-ma-di-i:-na-tu
+مِثْلُ miθ-lu
+وَكَانَ wa-kaa:-na
+مَدِينَةُ ma-di-i:-na-tu
+أَيُّ ʔaj-ju functional
+لَهُ la-hu functional
+خِلَالَ xi-laa:-la
+وَمَنْ wa-man-
+فِيهَا fi-i:-haa:- functional
+تَمَّ tam-ma functional
+عَدَّدَ ʕad-da-da
+غَيْرَ ɣaj-ra
+عَبِدَ ʕa-bi-da
+أَنَّه ʔan-nah
+أَكْثَرُ ʔak-θa-ru
+إلا ʔla:- functional
+بِهَا bi-haa:- functional
+الْقُرَنُ ʔal-qu-ra-nu
+الْعَالِمُ ʔal-ʕaa:-li-mu
+مُحَمَّدُ mu-ħam-ma-du
+وَالَّتِي waa:-l-la-tii: functional
+عَلَيه ʕa-la-jh functional
+مِنْهَا min-haa:- functional
+أُخْرَى ʔux-raa:-
+أيضا ʔjdˤa:- functional
+الْعَرَبِيَّةُ ʔal-ʕa-ra-bij-ja-tu
+يَمُكُّنَّ ja-muk-kun-na
+عَلِيَ ʕa-li-ja
+عِنْدَ ʕin-da functional
+وَلَكِنَّ wa-la-kin-na functional
+أَوَّلَ ʔaw-wa-la
+عَشَرَ ʕa-ʃa-ra
+هُنَاكَ hu-naa:-ka
+الْمُتَّحِدَةُ ʔal-mut-ta-ħi-da-tu
+تِلْكَ til-ka
+الْأَوْلُ ʔal-ʔaw-lu
+لَهَا la-haa:- functional
+أَحُدُّ ʔa-ħud-du
+فَقَدْ fa-qad-
+بِهِ bi-hi functional
+وَلَا wa-laa:- functional
+مُنْذُ mun-ðu
+أَمَّا ʔam-maa:- functional
+مُصِرُّ mu-sˤir-ru functional
+الْحَرْبُ ʔal-ħar-bu
+الَّذِينَ ʔal-la-ði-i:-na
+فِيه fi-i:h functional
+الْعَدِيدُ ʔal-ʕa-di-i:-du
+بِشَكْلِ bi-ʃak-li
+يَكْوُنَّ jak-wun-na
+الدَّوْلَةُ ʔald-daw-la-tu
+ان ʔan functional
+فَإِنَّ fa-ʔin-na functional
+عَنْدَمَا ʕan-da-maa:- functional
+مِمَّا mim-maa:- functional
+قَالَ qaa:-la
+الْأوْلَى ʔal-ʔw-laa:-
+مِنْطَقَةُ min-tˤa-qa-tu
+تَحْتَ taħ-ta functional
+عَلَيهَا ʕa-la-jhaa:-
+الثَّانِي ʔalθ-θaa:-nii:
+الْعَامُّ ʔal-ʕaa:-m-mu
+تُكَوِّنَّ tu-kaw-win-na
+إِنَّ ʔin-na functional
+الْبِلادُ ʔal-bi-la:-du
+اِبْنُ ʔaib-nu
+وَذَلِكَ wa-ða-li-ka functional
+وَكَانَتْ wa-kaa:-nat- functional
+الْمِنْطَقَةُ ʔal-min-tˤa-qa-tu
+يَتِمُّ ja-tim-mu
+قَامَ qaa:-ma
+ه h
+لَكِنَّ la-kin-na functional
+حَوالِيُّ ħa-wa:-lij-ju
+الْأُخْرَى ʔal-ʔux-raa:-
+طَرِيقُ tˤa-ri-i:-qu
+حَوْلَ ħaw-la
+الْمُلَّكُ ʔal-mul-la-ku
+جَمِيعَ ʒa-mi-i:-ʕa
+الْحُكُومَةُ ʔal-ħu-ku-u:-ma-tu
+الدِّينُ ʔald-di-i:-nu functional
+إِذَا ʔi-ðaa:- functional
+وَالَّذِي waa:-l-la-ðii: functional
+أَنَّهَا ʔan-na-haa:- functional
+عُدَّةُ ʕud-da-tu
+بِسَبَبِ bi-sa-ba-bi
+الْأرْضُ ʔal-ʔr-dˤu
+ذَاتُ ðaa:-tu functional
+اللُّغَةُ ʔall-lu-ɣa-tu
+فَقَطُّ fa-qatˤ-tˤu
+الْوَقْتُ ʔal-waq-tu
+كَبِيرُ ka-bi-i:-ru
+الْيَوْمُ ʔal-jaw-mu
+الْبَحْرُ ʔal-baħ-ru
+بَاسِمُ baa:-si-mu
+الثَّانِيَةُ ʔalθ-θaa:-ni-ja-tu
+يَوْمُ jaw-mu
+أَبُو ʔa-buu:
+اِسْمُ ʔais-mu
+كَبِيرَةُ ka-bi-i:-ra-tu
+وَلَمْ wa-lam- functional
+بِأَنِّ bi-ʔan-ni functional
+مَجْمُوعَةُ maʒ-mu-u:-ʕa-tu
+الْوَلاَيََاتُ ʔal-wa-la:-a-ja-aa:-tu
+نَحْوَ naħ-wa functional
+آخِرُ xi-ru
+السُّكَّانُ ʔals-suk-kaa:-nu
+الْجَيْشُ ʔal-ʒaj-ʃu
+الْعِرَاقُ ʔal-ʕi-raa:-qu
+رَئِيسُ ra-ʔi-i:-su
+أَهُمْ ʔa-hum-
+تَارِيخُ taa:-ri-i:-xu
+وَبَعْدَ wa-baʕ-da
+ضَدَّ dˤad-da
+الْقَدِيمَةُ ʔal-qa-di-i:-ma-tu
+يُوجِدُ ju-u:-ʒi-du
+فترةُ ftrtu
+مُعَظَّمُ mu-ʕazˤ-zˤa-mu
+تَقَعُ ta-qa-ʕu
+الْفترةُ ʔal-ftrtu
+الْحُكْمُ ʔal-ħuk-mu
+الدُّوَلُ ʔald-duwa-lu
+النَّاسُ ʔaln-naa:-su
+بَيْنَما baj-na-ma:-
+الْمَنَاطِقُ ʔal-ma-naa:-tˤi-qu
+مِنْه min-h functional
+بِمَا bi-maa:- functional
+فِيمَا fi-i:-maa:- functional
+أيضاً ʔjdˤa:-an-
+وَجَوَّدَ wa-ʒaw-wa-da
+أَوََرَوَّبَا ʔa-wa-a-raw-wa-baa:-
+وَعَلَى wa-ʕa-laa:- functional
+نظامُ nzˤa:-mu
+بِالْإضافَةِ bi-a:-l-ʔdˤa:-fa-ti
+الْعَرَبِيُّ ʔal-ʕa-ra-bij-ju
+التَّارِيخُ ʔalt-taa:-ri-i:-xu
+الْعُرْبُ ʔal-ʕur-bu
+مَجْلِسُ maʒ-li-su
+الْعَالَمِيَّةُ ʔal-ʕaa:-la-mij-ja-tu
+وَاحِدُ waa:-ħi-du
+دُونَ du-u:-na
+الشَّيْخُ ʔalʃ-ʃaj-xu
+الْمُسْلِمِينَ ʔal-mus-li-mi-i:-na
+مَرَّةً mar-ra-tan-
+وَاحِدَةُ waa:-ħi-da-tu
+نَفْسُ naf-su
+جَنُوبُ ʒa-nu-u:-bu
+الْعَمَلُ ʔal-ʕa-ma-lu
+عَبِرَ ʕa-bi-ra
+خَاصَّةُ xaa:-sˤ-sˤa-tu
+شَمَالَ ʃa-maa:-la
+عَلِمَ ʕa-li-ma
+وَهَذَا wa-ha-ðaa:-
+سُكَّانُ suk-kaa:-nu
+مِلْيُونُ mil-ju-u:-nu
+حِينَ ħi-i:-na functional
+الْآنَ ʔal-na
+الْإِسْلامِيَّةُ ʔal-ʔis-la:-mij-ja-tu
+الْكَثِيرُ ʔal-ka-θi-i:-ru
+أَثَناءُ ʔa-θa-na:-ʔu
+الْإِنْسانُ ʔal-ʔin-sa:-nu
+بَلْ bal- functional
+الْأَمَرُّ ʔal-ʔa-mar-ru
+كَمْ kam-
+وَكَذَلِكَ wa-ka-ða-li-ka
+دَوْلَةُ daw-la-tu
+تَعْتَبِرُ taʕ-ta-bi-ru
+أَحْمَدُ ʔaħ-ma-du
+النّظامُ ʔaln-nzˤa:-mu
+الْإِسْلامُ ʔal-ʔis-la:-mu
+الْأَمْرِيكِيَّةُ ʔal-ʔam-ri-i:-kij-ja-tu
+أَبِي ʔa-bii:
+نَفْسُه naf-suh
+الرَّئِيسُ ʔalr-ra-ʔi-i:-su
+حَسْبَ ħas-ba
+الْغُرَبِيَّةُ ʔal-ɣu-ra-bij-ja-tu
+سنواتُ snwa:-tu
+دَاخَلَ daa:-xa-la
+عَمَلِيَّةُ ʕa-ma-lij-ja-tu
+عَهِدَ ʕa-hi-da
+نِسْبَةُ nis-ba-tu
+الْقُوََّاتُ ʔal-quw-wa-aa:-tu
+خَارِجِيَّةُ xaa:-ri-ʒij-ja-tu
+مِنْهُمْ min-hum-
+جَامِعَةُ ʒaa:-mi-ʕa-tu
+أَصْبَحَ ʔasˤ-ba-ħa
+الْمُدُنُ ʔal-mu-du-nu
+وَمَا wa-maa:- functional
+ضِمْنَ dˤim-na
+إِلَيه ʔi-la-jh functional
+الْجَزِيرَةُ ʔal-ʒa-zi-i:-ra-tu
+الْحَيَاةُ ʔal-ħa-jaa:-tu
+بِدَايَةُ bi-daa:-ja-tu
+أَنْوَاعُ ʔan-waa:-ʕu
+الشّمالُ ʔalʃ-ʃma:-lu
+الْعَامَّةُ ʔal-ʕaa:-m-ma-tu
+ثَلاثَةُ θa-la:-θa-tu
+لِهُمْ li-hum- functional
+كُتَّابُ kut-taa:-bu
+بِنَاءُ bi-naa:-ʔu
+الثَّالِثُ ʔalθ-θaa:-li-θu
+الْاِتِّحَادُ ʔal-a:-it-ti-ħaa:-du
+لِأَنِّ li-ʔan-ni functional
+أَصْبَحَتْ ʔasˤ-ba-ħat-
+فَرَنْسا fa-ran-sa:-
+كَذَلِكَ ka-ða-li-ka
+لَيْسَ laj-sa
+بَدَأَ ba-da-ʔa
+نِهَايَةُ ni-haa:-ja-tu
+نسمةُ nsmtu
+مُرَكَّزُ mu-rak-ka-zu
+وَصِلََاتُ wa-sˤi-la-aa:-tu
+إحْدَى ʔħ-daa:-
+عَمَرَ ʕa-ma-ra
+حالَةُ ħa:-la-tu
+الشُّرْقُ ʔalʃ-ʃur-qu
+الْخَاصَّةُ ʔal-xaa:-sˤ-sˤa-tu
+إسرائيل ʔsra:-ʔjl
+يَعْتَبِرُ jaʕ-ta-bi-ru
+أَشْهَرُ ʔaʃ-ha-ru
+مُحَافَظَةُ mu-ħaa:-fa-zˤa-tu
+حُكْمُ ħuk-mu
+شَكْلُ ʃak-lu
+حَرَكَةُ ħa-ra-ka-tu
+الشَّمالِيَّةُ ʔalʃ-ʃa-ma:-lij-ja-tu
+عَمِلَ ʕa-mi-la
+الْعَصْرُ ʔal-ʕasˤ-ru
+مَنَاطِقُ ma-naa:-tˤi-qu
+نَهُرُّ na-hur-ru
+اِسْتِخْدامُ ʔais-tix-da:-mu
+يَكُنُّ ja-kun-nu
+الْوَطَنِيُّ ʔal-wa-tˤa-nij-ju
+الْجَنُوبُ ʔal-ʒa-nu-u:-bu
+جَدِيدَةُ ʒa-di-i:-da-tu
+عَنْه ʕan-h
+تُوجِدُ tu-u:-ʒi-du
+قَامَتْ qaa:-mat-
+بَدَأْتِ ba-daʔ-ti
+حَرِبَ ħa-ri-ba
+وَلاَيَةُ wa-la:-a-ja-tu
+السَّنَةُ ʔals-sa-na-tu
+ألمانيا ʔlma:-nja:-
+وَقَالَ wa-qaa:-la
+مُخْتَلِفَةُ mux-ta-li-fa-tu
+الشَّرْقِيَّةُ ʔalʃ-ʃar-qij-ja-tu
+الْمَمْلَكَةُ ʔal-mam-la-ka-tu
+شركةُ ʃrktu
+السِّياسِيَّةُ ʔals-si-i:-a:-sij-ja-tu
+الْقَدَمُ ʔal-qa-da-mu
+أَلُفُّ ʔa-luf-fu
+الْحَديثُ ʔal-ħa-djθu
+إِلَيهَا ʔi-la-jhaa:- functional
+الْمَاءُ ʔal-maa:-ʔu
+أُهِلُّ ʔu-hil-lu
+كَانُوا kaa:-nuu:a:-
+يَجُبُّ ja-ʒub-bu
+فَقَالَ fa-qaa:-la
+يقوم jqwm
+ينايرُ jna:-jru
+عَدِمَ ʕa-di-ma
+جَانِبُ ʒaa:-ni-bu
+الْإِسْلامِيُّ ʔal-ʔis-la:-mij-ju
+وَضُعَ wa-dˤu-ʕa
+مَارَسَ maa:-ra-sa
+وَقَّتَ waq-qa-ta
+ديسمبرُ djsmbru
+بِالنِّسْبَةِ bi-a:-ln-nis-ba-ti
+لِكُلُّ li-kul-lu
+أُكْتُوبرُ ʔuk-tu-u:-bru
+وَهُنَاكَ wa-hu-naa:-ka functional
+لِذَلِكَ li-ða-li-ka functional
+السُّلْطَانُ ʔals-sul-tˤaa:-nu
+الشَّمْسُ ʔalʃ-ʃam-su
+بُنِيَ bu-ni-ja
+عَاصِمَةُ ʕaa:-sˤi-ma-tu
+الْوَطَنِيَّةُ ʔal-wa-tˤa-nij-ja-tu
+التَّعْلِيمُ ʔalt-taʕ-li-i:-mu
+السُّلْطَةُ ʔals-sul-tˤa-tu
+الْعُلَمَاءُ ʔal-ʕu-la-maa:-ʔu
+وَمَعَ wa-ma-ʕa
+بِلادُ bi-la:-du
+فِلَسْطِينُ fi-las-tˤi-i:-nu
+الطَّاقَةُ ʔaltˤ-tˤaa:-qa-tu
+نَتِيجَةُ na-ti-i:-ʒa-tu
+وَلَّدَ wal-la-da
+يُقَوِّلُ ju-qaw-wi-lu
+وَغَيْرَهَا wa-ɣaj-ra-haa:-
+الشُّعَبُ ʔalʃ-ʃu-ʕa-bu
+الْحَرارَةُ ʔal-ħa-ra:-ra-tu
+الْاِسْمُ ʔal-a:-is-mu
+جَزِيرَةُ ʒa-zi-i:-ra-tu
+الْجَدِيدَةُ ʔal-ʒa-di-i:-da-tu
+الْكَبِيرُ ʔal-ka-bi-i:-ru
+الْحِزْبُ ʔal-ħiz-bu
+وَتَمَّ wa-tam-ma functional
+فَهِي fa-hii: functional
+وَأَنَّ wa-ʔan-na
+ثَلاثُ θa-la:-θu
+الْعَاصِمَةُ ʔal-ʕaa:-sˤi-ma-tu
+الْمِصْرِيَّةُ ʔal-misˤ-rij-ja-tu
+فَوْقَ faw-qa
+الْجَنُوبِيَّةُ ʔal-ʒa-nu-u:-bij-ja-tu
+إضافَةُ ʔdˤa:-fa-tu functional
+الثَّوَرَةُ ʔalθ-θa-wa-ra-tu
+الْفَرَنْسِيَّةُ ʔal-fa-ran-sij-ja-tu
+سِبْتمبَرُ sib-tmba-ru
+الْعَسْكَرِيَّةُ ʔal-ʕas-ka-rij-ja-tu
+دُوَلُ duwa-lu
+الْمِيلاَدُ ʔal-mi-i:-la:-a-du
+الْقُرْآنُ ʔal-qur-nu
+كَتَبَ ka-ta-ba
+شَخَصَ ʃa-xa-sˤa
+فَهُوَ fa-huwa functional
+الْبَعْضُ ʔal-baʕ-dˤu
+رَسُولُ ra-su-u:-lu
+أَدَّى ʔad-daa:-
+نُوفَمبرُ nu-u:-fa-mbru
+أَعَلَى ʔa-ʕa-laa:-
+الْحَرَكَةُ ʔal-ħa-ra-ka-tu
+بِذَلِكَ bi-ða-li-ka
+شَرِقَ ʃa-ri-qa
+كَثِيرُ ka-θi-i:-ru
+الْأَرَاضِي ʔal-ʔa-raa:-dˤii:
+شَهْرُ ʃah-ru
+أيضًا ʔjdˤan-a:-
+مَعْرَكَةُ maʕ-ra-ka-tu
+كَلِمَةُ ka-li-ma-tu
+النَّبِيُّ ʔaln-na-bij-ju
+يَدُ ja-du
+لَدَى la-daa:-
+مَتَرَ ma-ta-ra
+أَجَلْ ʔa-ʒal-
+عِبَارَةُ ʕi-baa:-ra-tu
+وَسُطَ wa-su-tˤa
+عَادَةُ ʕaa:-da-tu
+جَديدُ ʒa-djdu
+مِسَاحَةُ mi-saa:-ħa-tu
+مُسْتَوى mus-ta-wa:-
+الْأَميرُ ʔal-ʔa-mjru
+الْجَديدُ ʔal-ʒa-djdu
+يَبْلُغُ jab-lu-ɣu
+تُقَوِّمُ tu-qaw-wi-mu
+هُمْ hum- functional
+يُونِيُوُ ju-u:-ni-juwu
+الْعُثْمانِيَّةُ ʔal-ʕuθ-ma:-nij-ja-tu
+الرَّئِيِسيَّةُ ʔalr-ra-ʔi-ji-sj-ja-tu
+يَعْرُفُ jaʕ-ru-fu
+الْحَديثَةُ ʔal-ħa-djθa-tu
+الْعِشْرِينُ ʔal-ʕiʃ-ri-i:-nu
+نَادِي naa:-dii:
+الْعَلْمُ ʔal-ʕal-mu
+شِبْهُ ʃib-hu
+لِهَذَا li-ha-ðaa:- functional
+الْجُزْءُ ʔal-ʒuz-ʔu
+الْأَخِيرَةُ ʔal-ʔa-xi-i:-ra-tu
+الْغَرْبِيُّ ʔal-ɣar-bij-ju
+اُنْظُرْ ʔaun-zˤur-
+يُولِيُوُ ju-u:-li-juwu
+إبراهيم ʔbra:-hjm
+حَزَبَ ħa-za-ba
+مَايُوُ maa:-juwu
+الْإمَامُ ʔal-ʔmaa:-mu
+نَوَّعَ naw-wa-ʕa
+سَبِيلُ sa-bi-i:-lu
+أَمَامَ ʔa-maa:-ma
+بِوَاسِطَةٍ bi-waa:-si-tˤa-tin-
+حَيَّاتُهُ ħaj-jaa:-tu-hu
+الْكُبْرَى ʔal-kub-raa:-
+سَطَحَ sa-tˤa-ħa
+الْغَرْبُ ʔal-ɣar-bu
+التَّاسِعُ ʔalt-taa:-si-ʕu
+طَوَّلَ tˤaw-wa-la
+أفريقيا ʔfrjqja:-
+الْمِيَاهُ ʔal-mi-jaa:-hu
+أَقَلُّ ʔa-qal-lu
+الْمُخْتَلِفَةُ ʔal-mux-ta-li-fa-tu
+الدَّوْلِيُّ ʔald-daw-lij-ju
+لَمَّا lam-maa:- functional
+الْكُتَّابُ ʔal-kut-taa:-bu
+قَرِيَّةُ qa-rij-ja-tu
+السَّابِقُ ʔals-saa:-bi-qu
+بَغْدادُ baɣ-da:-du
+الْإمْبِرَاطُورِيَّةُ ʔal-ʔm-bi-raa:-tˤu-u:-rij-ja-tu
+عَنْهَا ʕan-haa:-
+ذَكَرَ ða-ka-ra
+تَسْتَخْدِمُ tas-tax-di-mu
+الدَّوْلِيَّةُ ʔald-daw-lij-ja-tu
+صَغِيرَةُ sˤa-ɣi-i:-ra-tu
+أيَّامُ ʔj-jaa:-mu
+هُنَا hu-naa:- functional
+دِمَشْقُ di-maʃ-qu
+الرّابعُ ʔalr-ra:-bʕu
+الْمَوَادُّ ʔal-ma-waa:-d-du
+تُسْمَى tus-maa:-
+الْهِنْدُ ʔal-hin-du
+الْمُتَوَسِّطُ ʔal-mu-ta-was-si-tˤu
+الْقَدِيمُ ʔal-qa-di-i:-mu
+باشَّا ba:-ʃ-ʃaa:-
+فِبْرَايرُ fib-raa:-jru
+أَمْ ʔam- functional
+الْمَجْلِسُ ʔal-maʒ-li-su
+الْمِصْرِيُّ ʔal-misˤ-rij-ju
+مَكَانُ ma-kaa:-nu
+مُوَقِّعُ muwaq-qi-ʕu
+مَجَالُ ma-ʒaa:-lu
+قُوَّةُ quw-wa-tu
+آلَ la
+جِدَا ʒi-daa:-
+الْكَنِيسَةُ ʔal-ka-ni-i:-sa-tu
+وَهَذِهِ wa-ha-ði-hi
+لُغَةُ lu-ɣa-tu
+الْيَهُودُ ʔal-ja-hu-u:-du
+جُزْءُ ʒuz-ʔu
+مَلَكَ ma-la-ka
+أَفْضُلُ ʔaf-dˤu-lu
+الْمُجْتَمَعُ ʔal-muʒ-ta-ma-ʕu
+جَاءَ ʒaa:-ʔa
+الْفَرَنْسِيُّ ʔal-fa-ran-sij-ju
+الْوسطى ʔal-wstˤa:-
+لِمُدَّةِ li-mud-da-ti
+الْمَعْلُومَاتُ ʔal-maʕ-lu-u:-maa:-tu
+الْقَاهِرَةُ ʔal-qaa:-hi-ra-tu
+خَارِجُ xaa:-ri-ʒu
+الْأُمَمُ ʔal-ʔu-ma-mu
+حُكُومَةُ ħu-ku-u:-ma-tu
+أَصُلُّ ʔa-sˤul-lu
+إلْي ʔl-j functional
+رَغَمَ ra-ɣa-ma
+شَيْءُ ʃaj-ʔu
+مُصَادِرُ mu-sˤaa:-di-ru
+بِأَنِّه bi-ʔan-nih functional
+يَقَعُ ja-qa-ʕu
+الْقَانُونُ ʔal-qaa:-nu-u:-nu
+قَدَمُ qa-da-mu
+أُغُسْطُسُ ʔu-ɣus-tˤu-su
+يُسْمَى jus-maa:-
+مَدَّنَ mad-da-na
+الْمَادَّةُ ʔal-maa:-d-da-tu
+غَرِبَ ɣa-ri-ba
+برِيطانِيَّا bri-i:-tˤa:-nij-jaa:-
+الْعُلُومُ ʔal-ʕu-lu-u:-mu
+وَحَتَّى wa-ħat-taa:- functional
+وَيَمُكُّنَّ wa-ja-muk-kun-na
+خَطُّ xatˤ-tˤu
+سُورِيَّا su-u:-rij-jaa:-
+دِي dii:
+الْوُزَرَاءُ ʔal-wu-za-raa:-ʔu
+بِقِيَادَةِ bi-qi-jaa:-da-ti
+أَنْحَاءُ ʔan-ħaa:-ʔu
+يا ja:- functional
+الشَّرْقِيُّ ʔalʃ-ʃar-qij-ju
+السّلامُ ʔals-sla:-mu
+أَمْرِيكا ʔam-ri-i:-ka:-
+جَبَلَ ʒa-ba-la
+الْمُرَكَّزُ ʔal-mu-rak-ka-zu
+الْجُمْهُورِيَّةُ ʔal-ʒum-hu-u:-rij-ja-tu
+الْخَارِجِيَّةُ ʔal-xaa:-ri-ʒij-ja-tu
+تَعُدُّ ta-ʕud-du
+مُخْتَلِفُ mux-ta-li-fu
+الْعَهْدُ ʔal-ʕah-du
+الْحُدودُ ʔal-ħu-dwdu
