@@ -7,6 +7,8 @@ Improvements
 ------------
 
 * Support for Luxembourgish
+* Completely rewritten text preprocessing module for English (removing reliance on FreeTTS)
+* Better support for Java 8
 
 Development news
 ----------------
