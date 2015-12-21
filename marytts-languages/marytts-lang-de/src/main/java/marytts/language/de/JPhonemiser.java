@@ -353,11 +353,15 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		// to the normalised form
 
 		String phones = lts.predictPronunciation(normalised);
+		String phones = ""; //added
 		try {
+			phones = lts.predictPronounciation(normalised); //added
 			result = lts.syllabify(phones);
 		} catch (IllegalArgumentException e) {
 			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
-		} 
+		} catch (ClassCastException e){
+			logger.error(String.format("Problem with token <%s> : %s", normalised, e.getMessage())); //added
+		}
 		if (result != null) {
 			if (logUnknownFileName != null) {
 				String unknownText = text.trim();
