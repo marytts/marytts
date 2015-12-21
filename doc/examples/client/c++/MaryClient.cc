@@ -1,14 +1,14 @@
 /**
  * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
+#include <unistd.h>
 
 #include "MaryClient.h"
 
@@ -52,7 +53,7 @@ using namespace std;
 int
 MaryClient::maryQuery( int server_port,
                        string server_host,
-                       string& result, 
+                       string& result,
                        string inputText,
                        string maryInFormat,
                        string maryOutFormat,
@@ -138,7 +139,6 @@ MaryClient::maryQuery( int server_port,
 
   // receive the request id
   char id [32] = "";
-
   if (recv (maryInfoSocket, id, 32, 0) == -1)
   {
     return -2;
@@ -207,18 +207,15 @@ MaryClient::maryQuery( int server_port,
 
   //cout << "Reading result" << endl;
 
-  unsigned int total_bytes = 0;
   int recv_bytes = 0;
-  char data [1024] = "";
+  char data [1024];
 
-  result [0] = '\0';
+  result.clear();
 
   // receive the request result
   do
   {
-    data [0] = '\0';
-
-    recv_bytes = recv (maryDataSocket, data, 1024, 0);
+    recv_bytes = recv (maryDataSocket, data, sizeof(data), 0);
 
     if (recv_bytes == -1)
     {
@@ -226,30 +223,9 @@ MaryClient::maryQuery( int server_port,
     }
     else if (recv_bytes > 0)
     {
-      //cout << "("<<recv_bytes<<")" << endl;
-      total_bytes += recv_bytes;
-      data [recv_bytes] = '\0';
-
-      if (maryOutFormat == "AUDIO")
-      {
-        for (unsigned int i=0; i<recv_bytes; i++)
-        {
-          result += data [i];
-        }
-      }
-      else
-      {
-        result += data;
-      }
+      result.append(data, recv_bytes);
     }
   } while (recv_bytes != 0);
-
-  if (result.size () != total_bytes)
-  {
-    cerr << "error: total bytes received != result bytes!" << endl;
-    cerr << "       total bytes received = " << total_bytes << endl;
-    cerr << "       result bytes = " << result.size () << endl;
-  }
 
   // receive the request error
   do
