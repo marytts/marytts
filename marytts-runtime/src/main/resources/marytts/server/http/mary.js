@@ -385,6 +385,13 @@ function updateInputText(replaceInput)
 	    xmlHttp2.send(null);
     	
     } else { // input type not text, hide examples, don't send request
+    	alert(inputType);
+//    	if(inputType == "WORDS"){
+//    		var opts = document.getElementById("OUTPUT_TYPE");
+//    		for(var i =0; opts.options.length; i++){
+//    			opts.remove(i);
+//    		}
+//    	}
     	document.getElementById("exampleTexts").style.display = 'none';
     }
 }
