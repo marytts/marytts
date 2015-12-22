@@ -52,7 +52,7 @@ public class ArabicConfigTest {
 	}
 
 	@Test
-	public void hasRussianLocale() throws MaryConfigurationException {
+	public void hasArabicLocale() throws MaryConfigurationException {
 		LanguageConfig e = new ArabicConfig();
 		assertTrue(e.getLocales().contains(ARABIC));
 	}
