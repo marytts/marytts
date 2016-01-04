@@ -67,7 +67,7 @@ public class DiphoneUnitSelector extends UnitSelector {
 		}
 		// Make sure final silence has a right half
 		if (prev.isSilence()) {
-			HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol + "_R", null, false);
+			HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol + "_R", null, true);
 			targets.add(new DiphoneTarget(prev, silence));
 		}
 		return targets;
