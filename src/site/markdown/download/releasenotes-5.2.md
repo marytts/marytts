@@ -27,7 +27,8 @@ Development news
 * [#217](https://github.com/marytts/marytts/pull/217): incrementality changes
 
 Fixed Issues/Bugs
-------------------
+-----------------
+* [#452](https://github.com/marytts/marytts/issues/452): Disable assertions in user startup scripts
 * [#421](https://github.com/marytts/marytts/pull/421): Force English locale for parsing date when English language is used
 * [#409](https://github.com/marytts/marytts/pull/409): ensure that ICU4J's resource is read with the correct encoding, regardless of environment
 * [#398](https://github.com/marytts/marytts/pull/398): Use https URLs whenever possible

@@ -7,4 +7,4 @@
 BINDIR="`dirname "$0"`"
 export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
-java -showversion -ea -Dserver.host=localhost -Dserver.port=59125 -jar "$MARY_BASE/lib/marytts-client-${project.version}-jar-with-dependencies.jar"
+java -showversion -Dserver.host=localhost -Dserver.port=59125 -jar "$MARY_BASE/lib/marytts-client-${project.version}-jar-with-dependencies.jar"
