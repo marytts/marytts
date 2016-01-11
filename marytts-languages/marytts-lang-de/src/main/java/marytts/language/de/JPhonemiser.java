@@ -352,10 +352,9 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		// Cannot find it in the lexicon -- apply letter-to-sound rules
 		// to the normalised form
 
-		String phones = lts.predictPronunciation(normalised);
 		String phones = ""; //added
 		try {
-			phones = lts.predictPronounciation(normalised); //added
+			phones = lts.predictPronunciation(normalised); //added
 			result = lts.syllabify(phones);
 		} catch (IllegalArgumentException e) {
 			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
