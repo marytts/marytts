@@ -64,7 +64,7 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
 cd $WIKIDATAPATH
 
-java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.WikipediaProcessor \
+java -showversion -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.WikipediaProcessor \
 -locale "$LOCALE" \
 -mysqlHost "$MYSQLHOST" \
 -mysqlUser "$MYSQLUSER" \
