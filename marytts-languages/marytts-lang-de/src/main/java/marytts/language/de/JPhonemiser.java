@@ -373,7 +373,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				}
 			}
 			g2pMethod.append("rules");
-			System.out.println(result);
 			return result;
 			
 		}
