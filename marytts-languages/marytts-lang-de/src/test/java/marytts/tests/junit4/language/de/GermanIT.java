@@ -41,10 +41,11 @@ public class GermanIT {
 	}
 	
 	@Test 
-	public void jPhenemiserT() throws Exception{
+	public void PhenemiserT() throws Exception{
 		JPhonemiser module = new JPhonemiser();
 		MaryDataType pos = new MaryDataType(null, false, false, null);
-		
+		String result = module.phonemise("αββ", pos.name(), new StringBuilder());
+		assertEquals(result, null);
 		
 		//module.phonemise(text, pos.PARTSOFSPEECH.name(), new StringBuilder);
 	}
