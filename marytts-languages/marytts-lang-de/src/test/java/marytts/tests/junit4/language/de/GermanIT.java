@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 import marytts.datatypes.MaryDataType;
 import marytts.fst.FSTLookup;
@@ -44,12 +45,13 @@ public class GermanIT {
 	@Test 
 	public void PhenemiserT() throws Exception{
 		JPhonemiser module = new JPhonemiser();
-		MaryDataType pos = new MaryDataType(null, false, false, null);
-		String result = ""; 
-		result = module.phonemise("αββ", pos.name(), new StringBuilder());
+		String result = "";
+		
+		result = module.phonemise("αββ", "XY", new StringBuilder());
 		assertEquals(result, null);
-		result = module.phonemise("λόγος", pos.name(), new StringBuilder());
+		result = module.phonemise("λόγος", "XY", new StringBuilder());
 		assertEquals(result, null);
+		
 		
 	}
 
