@@ -331,11 +331,16 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				return englishTranscription;
 			}
 		}
-
-		Result resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
+		Result resultingWord = null;
+		boolean usedOtherLanguageToPhonemise = false;
+		try{
+		resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
+		
 		result = resultingWord.getTranscription();
-		boolean usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
-
+		usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
+		}catch(NullPointerException e){
+			logger.debug(String.format("Word is Null: ", e.getMessage()));
+		}
 		// logger.debug("input for PD: "+text);
 		if (result != null) {
 			result = allophoneSet.splitAllophoneString(result);
@@ -346,6 +351,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				g2pMethod.append("compound");
 				return result;
 			}
+		
 
 		}
 
