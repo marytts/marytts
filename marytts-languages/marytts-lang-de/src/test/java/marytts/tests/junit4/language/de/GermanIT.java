@@ -40,14 +40,17 @@ public class GermanIT {
 		assertEquals("wrong transcription for '" + word2 + "':", "' S 2: n", phone2[0]);
 	}
 	
+	//Testing for the output when a greek work if phonemised
 	@Test 
 	public void PhenemiserT() throws Exception{
 		JPhonemiser module = new JPhonemiser();
 		MaryDataType pos = new MaryDataType(null, false, false, null);
-		String result = module.phonemise("αββ", pos.name(), new StringBuilder());
+		String result = ""; 
+		result = module.phonemise("αββ", pos.name(), new StringBuilder());
+		assertEquals(result, null);
+		result = module.phonemise("λόγος", pos.name(), new StringBuilder());
 		assertEquals(result, null);
 		
-		//module.phonemise(text, pos.PARTSOFSPEECH.name(), new StringBuilder);
 	}
 
 }
