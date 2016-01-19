@@ -254,7 +254,7 @@ public class VoiceCompiler extends VoiceImportComponent {
 				File[] filesForFilesystem, Map<String, String> extraVariablesToSubstitute) {
 			this.mvn = mvn;
 			this.compileDir = compileDir;
-			this.voiceName = voiceName;
+			this.voiceName = voiceName.replaceAll("[^\\w\\-]", "");
 			this.voiceVersion = voiceVersion;
 			this.locale = locale;
 			this.gender = gender;
