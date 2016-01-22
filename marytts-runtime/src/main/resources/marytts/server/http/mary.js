@@ -1,3 +1,7 @@
+/*
+ * Store all output types in array
+ */
+var OUTPUT_TYPES = new Array();
 
 function GetXmlHttpObject() {
 	var xmlHttp = null;
@@ -67,10 +71,10 @@ function fillVoices() {
 							localeElt.value = items[1];
 							updateInputText(true);
 							setModificationVisibility(null, "AUDIO"); // AUDIO
-																		// is
-																		// default
-																		// on
-																		// load
+							// is
+							// default
+							// on
+							// load
 						}
 					}
 				}
@@ -95,20 +99,34 @@ function fillTypes() {
 			if (xmlHttp.status == 200) {
 				var response = xmlHttp.responseText;
 				var lines = response.split('\n');
+				var count = 0;
 				for (l in lines) {
 					var line = lines[l];
 					if (line.length > 0) {
 						var fields = line.split(' ', 1);
 						if (line.indexOf('INPUT') != -1) {
-							addOption("INPUT_TYPE", fields[0]);
-							if (fields[0] == "TEXT") {
-								var sel = document.getElementById("INPUT_TYPE");
-								sel.selectedIndex = sel.length - 1;
-								updateInputText(true);
+							/*
+							 * Check added by Atta to avoid input type
+							 * exceptions
+							 */
+							if (fields[0] != "SIMPLEPHONEMES"
+									&& fields[0] != "SABLE"
+									&& fields[0] != "APML") {
+								addOption("INPUT_TYPE", fields[0]);
+								if (fields[0] == "TEXT") {
+									var sel = document
+											.getElementById("INPUT_TYPE");
+									sel.selectedIndex = sel.length - 1;
+									updateInputText(true);
+								}
 							}
 						}
 						if (line.indexOf('OUTPUT') != -1) {
 							addOption("OUTPUT_TYPE", fields[0]);
+							/*
+							 * Save output type for later use
+							 */
+							OUTPUT_TYPES[count++] = fields[0];
 							if (fields[0] == "AUDIO") {
 								var sel = document
 										.getElementById("OUTPUT_TYPE");
@@ -285,8 +303,8 @@ function updateInputText(replaceInput) {
 	var inputTypeSelect = document.getElementById('INPUT_TYPE');
 	var locale = document.getElementById('LOCALE').value;
 	if (inputTypeSelect.options.length == 0 || locale == 'fill-me') { // nothing
-																		// to do
-																		// yet
+		// to do
+		// yet
 		return;
 	}
 	var inputType = inputTypeSelect.options[inputTypeSelect.selectedIndex].text;
@@ -327,6 +345,11 @@ function updateInputText(replaceInput) {
 		xmlHttp.open("GET", url, true);
 		xmlHttp.send(null);
 	}
+	/*
+	 * Remove all output types
+	 */
+	var opts = document.getElementById("OUTPUT_TYPE");
+	opts.options.length = 0;
 
 	// Only worth requesting voice example if input type is TEXT:
 	if (inputType == "TEXT") {
@@ -369,11 +392,86 @@ function updateInputText(replaceInput) {
 		retrievingVoiceExample = true;
 		xmlHttp2.open("GET", url2, true);
 		xmlHttp2.send(null);
-
+		/*
+		 * Reset output types
+		 */
+		for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+			addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+		}
+		opts.value = "AUDIO";
 	} else { // input type not text, hide examples, don't send request
+		// Here we remove all outputype that gives error for a given inputtype
+		if (inputType == "SSML" || inputType == "EMOTIONML"
+				|| inputType == "RAWMARYXML") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+			}
+		} else if (inputType == "WORDS") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML"
+						&& OUTPUT_TYPES[i] != "TOKENS") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		} else if (inputType == "TOKENS") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		} else if (inputType == "PARTSOFSPEECH") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML"
+						&& OUTPUT_TYPES[i] != "TOKENS"
+						&& OUTPUT_TYPES[i] != "WORDS") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		} else if (inputType == "PHONEMES") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML"
+						&& OUTPUT_TYPES[i] != "TOKENS"
+						&& OUTPUT_TYPES[i] != "PARTSOFSPEECH"
+						&& OUTPUT_TYPES[i] != "WORDS") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		} else if (inputType == "INTONATION") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML"
+						&& OUTPUT_TYPES[i] != "TOKENS"
+						&& OUTPUT_TYPES[i] != "PARTSOFSPEECH"
+						&& OUTPUT_TYPES[i] != "PHONEMES"
+						&& OUTPUT_TYPES[i] != "WORDS") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		} else if (inputType == "ALLOPHONES" || inputType == "ACOUSTPARAMS") {
+			for (var i = 0; i < OUTPUT_TYPES.length; i++) {
+				if (OUTPUT_TYPES[i] != "RAWMARYXML"
+						&& OUTPUT_TYPES[i] != "TOKENS"
+						&& OUTPUT_TYPES[i] != "PARTSOFSPEECH"
+						&& OUTPUT_TYPES[i] != "PHONEMES"
+						&& OUTPUT_TYPES[i] != "INTONATION"
+						&& OUTPUT_TYPES[i] != "ALLOPHONES"
+						&& OUTPUT_TYPES[i] != "WORDS") {
+					addOption("OUTPUT_TYPE", OUTPUT_TYPES[i]);
+				}
+			}
+		}
+		opts.value = "AUDIO";
 		document.getElementById("exampleTexts").style.display = 'none';
 	}
 }
+
+// function checkOuputTypes(){
+// //check the missing output types and add them back
+// }
+
+// function setOutputTypes(var inputType){
+// //for each input type disable some output types that cause error
+//	
+// }
 
 function getOutputType() {
 	var select = document.getElementById("OUTPUT_TYPE");
