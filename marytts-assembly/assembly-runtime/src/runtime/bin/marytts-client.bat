@@ -2,7 +2,7 @@
 set BINDIR=%~dp0
 call :RESOLVE "%BINDIR%\.." MARY_BASE
 
-java -showversion -ea -Dserver.host=localhost -Dserver.port=59125 -jar "%MARY_BASE%\lib\marytts-client-${project.version}-jar-with-dependencies.jar"
+java -showversion -Dserver.host=localhost -Dserver.port=59125 -jar "%MARY_BASE%\lib\marytts-client-${project.version}-jar-with-dependencies.jar"
 goto :EOF
 
 :RESOLVE
