@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
+
 import marytts.util.io.StreamUtils;
 import marytts.util.string.ByteStringTranslator;
 import marytts.util.string.IntStringTranslator;
@@ -1705,9 +1707,11 @@ public class FeatureDefinition {
 			out.print("\n");
 		}
 		out.println("ContinuousFeatureProcessors");
+		ImmutableMap<String, Integer> map = ImmutableMap.of("unit_duration", 1000, "unit_logf0", 100);
 		for (int i = numByteFeatures; i < numByteFeatures + numContinuousFeatures; i++) {
 			String featureName = getFeatureName(i);
-			out.println("0 linear | " + featureName);
+			int featureValue = map.getOrDefault(featureName, 0);
+			out.printf("%d linear | %s\n", featureValue, featureName);
 		}
 		out.flush();
 		out.close();
