@@ -1710,7 +1710,7 @@ public class FeatureDefinition {
 		ImmutableMap<String, Integer> map = ImmutableMap.of("unit_duration", 1000, "unit_logf0", 100);
 		for (int i = numByteFeatures; i < numByteFeatures + numContinuousFeatures; i++) {
 			String featureName = getFeatureName(i);
-			int featureValue = map.getOrDefault(featureName, 0);
+			int featureValue = map.containsKey(featureName) ? map.get(featureName) : 0;
 			out.printf("%d linear | %s\n", featureValue, featureName);
 		}
 		out.flush();
