@@ -28,6 +28,7 @@ Development news
 
 Fixed Issues/Bugs
 -----------------
+* [#465](https://github.com/marytts/marytts/issues/465): enable acoustic features by default
 * [#458](https://github.com/marytts/marytts/issues/458): VoiceCompiler generates invalid package name from db.voicename property
 * [#452](https://github.com/marytts/marytts/issues/452): Disable assertions in user startup scripts
 * [#421](https://github.com/marytts/marytts/pull/421): Force English locale for parsing date when English language is used
