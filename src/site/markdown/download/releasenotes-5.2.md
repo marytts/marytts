@@ -28,6 +28,7 @@ Development news
 
 Fixed Issues/Bugs
 -----------------
+* [#467](https://github.com/marytts/marytts/issues/467): SIMPLEPHONEMES is broken
 * [#465](https://github.com/marytts/marytts/issues/465): enable acoustic features by default
 * [#458](https://github.com/marytts/marytts/issues/458): VoiceCompiler generates invalid package name from db.voicename property
 * [#452](https://github.com/marytts/marytts/issues/452): Disable assertions in user startup scripts
