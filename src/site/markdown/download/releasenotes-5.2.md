@@ -24,6 +24,7 @@ Development news
 * [#320](https://github.com/marytts/marytts/issues/320): move outdated example code from runtime assembly into doc directory
 * [#309](https://github.com/marytts/marytts/issues/309): try to process tokens if they contain word characters, even when they are tagged as punctuation
 * [#228](https://github.com/marytts/marytts/issues/228): fix on drop FreeTTS dependencies
+* [#227](https://github.com/marytts/marytts/pull/227): Enhanced OutputStreams for Mary Client
 * [#217](https://github.com/marytts/marytts/pull/217): incrementality changes
 
 Fixed Issues/Bugs

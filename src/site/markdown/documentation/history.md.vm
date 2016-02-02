@@ -26,7 +26,7 @@ MARY 3 (2006-2008)
 When MARY development moved the source code from [CVS](http://www.nongnu.org/cvs/) to [Subversion](http://subversion.apache.org/), the project was already using [Apache Ant](http://ant.apache.org/) to manage its build.
 Around the same time, the DFKI-internal MARY code was forked into an open-source project, *OpenMARY*, and managed using a [Trac](http://trac.edgewall.org/) instance at http://mary.opendfki.de/.
 
-Development on MARY was boosted by funding from the DFG for a three-year project, "PAVOQUE".
+Development on MARY was boosted by funding from the [German Research Council (DFG)](http://dfg.de/) for a three-year project, "PAVOQUE".
 This provided the resources needed to implement an open-source unit-selection engine, which offers much higher naturalness in the synthesis output, as well as tools to create new TTS voices and even support for new languages.
 
 OpenMARY (2009-2011)
@@ -35,5 +35,10 @@ OpenMARY (2009-2011)
 The internal DFKI MARY was effectively discontinued as development efforts focused on OpenMARY.
 Additional funding was granted by the EU project [SEMAINE](http://www.semaine-project.eu/), which integrated MARY into a multimodal, spoken dialog system with expressive virtual characters.
 Along with the final year of the PAVOQUE project and collaboration in another EU project ([SSPNET](http://sspnet.eu/)), this phase marked extensive development on ${project.name}.
+In 2011, the development was migrated to GitHub, and [Apache Maven](http://maven.apache.org/) replaced Ant as the build management tool.
 
-(TBC)
+MaryTTS (2012-present)
+----------------------
+
+A number of departures resulted in the DFKI Speech Group led by Marc Schröder closing down, with the new Multimodal Speech Processing group led by Ingmar Steiner taking over the ${project.name} project.
+Development on ${project.name} is currently primarily funded through research grants from the DFG, in particular the [Cluster of Excellence *Multimodal Computing and Interaction* (MMCI)](http://m2ci.org/) and the [Collaborative Research Center SFB-1102](http://www.sfb1102.uni-saarland.de/).
