@@ -13,11 +13,9 @@ import javax.sound.sampled.AudioFormat;
  * <p>
  * This class encapsulates an {@link OutputStream} that would be used to carry the audio data as well as the {@link AudioFormat}of
  * that data.
- * </p>
  * <p>
  * It is also possible to extend this class and create a new internally used {@link OutputStream} once
  * {@link #setFormat(AudioFormat)} has been called.
- * </p>
  * <p>
  * An example usage might be
  * 
@@ -29,8 +27,6 @@ import javax.sound.sampled.AudioFormat;
  *     "WAVE", "cmu-slt-hsmm", afos, 5000);
  * AudioFormat format = afos.getFormat());
  * </pre>
- * 
- * </p>
  * 
  * @author Dirk Schnelle-Walka
  *
