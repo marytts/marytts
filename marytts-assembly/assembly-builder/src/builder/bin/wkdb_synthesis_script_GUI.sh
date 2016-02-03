@@ -41,6 +41,6 @@ export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
 cd $WIKIDATAPATH
 
-java -showversion -ea -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.SynthesisScriptGUI
+java -showversion -cp "$MARY_BASE/lib/*" marytts.tools.dbselection.SynthesisScriptGUI
 
 
