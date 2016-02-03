@@ -24,10 +24,12 @@ Development news
 * [#320](https://github.com/marytts/marytts/issues/320): move outdated example code from runtime assembly into doc directory
 * [#309](https://github.com/marytts/marytts/issues/309): try to process tokens if they contain word characters, even when they are tagged as punctuation
 * [#228](https://github.com/marytts/marytts/issues/228): fix on drop FreeTTS dependencies
+* [#227](https://github.com/marytts/marytts/pull/227): Enhanced OutputStreams for Mary Client
 * [#217](https://github.com/marytts/marytts/pull/217): incrementality changes
 
 Fixed Issues/Bugs
 -----------------
+* [#467](https://github.com/marytts/marytts/issues/467): SIMPLEPHONEMES is broken
 * [#465](https://github.com/marytts/marytts/issues/465): enable acoustic features by default
 * [#458](https://github.com/marytts/marytts/issues/458): VoiceCompiler generates invalid package name from db.voicename property
 * [#452](https://github.com/marytts/marytts/issues/452): Disable assertions in user startup scripts

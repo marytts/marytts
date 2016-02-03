@@ -123,7 +123,7 @@ public class SimplePhoneme2AP extends InternalModule {
 					cumulDur += dur;
 					ph.setAttribute("end", String.valueOf(cumulDur));
 
-					token.appendChild(ph);
+					syllable.appendChild(ph);
 				}
 			}
 		}
