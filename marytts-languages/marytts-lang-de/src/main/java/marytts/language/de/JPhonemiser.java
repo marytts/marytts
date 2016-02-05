@@ -351,12 +351,14 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 		// Cannot find it in the lexicon -- apply letter-to-sound rules
 		// to the normalised form
-
-		String phones = lts.predictPronunciation(normalised);
+		String phones = "";
 		try {
+			phones = lts.predictPronunciation(normalised);
 			result = lts.syllabify(phones);
 		} catch (IllegalArgumentException e) {
 			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
+		} catch (ClassCastException e) {
+			logger.error(String.format("Problem with token <%s> : %s", normalised, e.getMessage()));
 		}
 		if (result != null) {
 			if (logUnknownFileName != null) {

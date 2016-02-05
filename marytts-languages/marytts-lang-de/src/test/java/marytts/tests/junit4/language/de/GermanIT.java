@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 
+import marytts.datatypes.MaryDataType;
 import marytts.fst.FSTLookup;
+import marytts.language.de.JPhonemiser;
 import marytts.server.MaryProperties;
 
 import org.junit.BeforeClass;
@@ -38,4 +40,28 @@ public class GermanIT {
 		assertEquals("wrong transcription for '" + word2 + "':", "' S 2: n", phone2[0]);
 	}
 
+	@Test
+	public void Phonemise() throws Exception {
+		String text = "Haus";
+		String text2 = "πρεσβύτερος";
+		String pos = "NN";
+		String pos2 = "XY";
+		String result;
+		JPhonemiser JP = new JPhonemiser();
+		assertEquals(JP.phonemise(text, pos, new StringBuilder()), "' h aU s");
+		boolean thrown = false;
+		try{
+			JP.phonemise(text2, pos2, new StringBuilder());
+		}catch (IllegalArgumentException e){
+			thrown = true;
+		}
+		catch (ClassCastException e){
+			thrown = true;
+		}
+		catch (NullPointerException e){
+			thrown = true;
+		}
+		assertTrue(thrown);
+		
+	}
 }
