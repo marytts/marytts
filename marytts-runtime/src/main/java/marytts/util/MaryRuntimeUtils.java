@@ -43,7 +43,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
@@ -117,7 +116,7 @@ public class MaryRuntimeUtils {
 					constructorArgs[i] = args[i];
 				}
 				Constructor<? extends Object> constructor = (Constructor<? extends Object>) theClass
-						.getConstructor(constructorArgTypes);
+                    .getConstructor(constructorArgTypes);
 				obj = constructor.newInstance(constructorArgs);
 			} else {
 				obj = theClass.newInstance();
@@ -125,7 +124,7 @@ public class MaryRuntimeUtils {
 		} catch (Exception e) {
 			// try to make e's message more informative if possible
 			throw new MaryConfigurationException("Cannot instantiate object from '" + objectInitInfo + "': "
-					+ MaryUtils.getFirstMeaningfulMessage(e), e);
+                                                 + MaryUtils.getFirstMeaningfulMessage(e), e);
 		}
 		return obj;
 	}
@@ -203,7 +202,7 @@ public class MaryRuntimeUtils {
 
 	public static AudioFormat getMP3AudioFormat() {
 		return new AudioFormat(new AudioFormat.Encoding("MPEG1L3"), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, 1,
-				AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
+                               AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
 		// endianness doesn't matter
 	}
 
@@ -218,7 +217,7 @@ public class MaryRuntimeUtils {
 
 	public static AudioFormat getOggAudioFormat() {
 		return new AudioFormat(new AudioFormat.Encoding("VORBIS"), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, 1,
-				AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
+                               AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
 	}
 
 	/**
@@ -289,10 +288,10 @@ public class MaryRuntimeUtils {
 		else if (audiostoreProperty.equals("file"))
 			ram = false;
 		else // auto
-		if (lowMemoryCondition())
-			ram = false;
-		else
-			ram = true;
+            if (lowMemoryCondition())
+                ram = false;
+            else
+                ram = true;
 		return new AudioDestination(ram);
 	}
 
@@ -370,23 +369,14 @@ public class MaryRuntimeUtils {
 		Collection<Voice> voices = Voice.getAvailableVoices();
 		for (Iterator<Voice> it = voices.iterator(); it.hasNext();) {
 			Voice v = (Voice) it.next();
-		        if (v.isUnitSelection()) {
-				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " "
-						+ (v.getDomain() + System.getProperty("line.separator"));
-			} else if (v instanceof HMMVoice) {
-				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm"
-						+ System.getProperty("line.separator");
-			} else {
-				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "other"
-						+ System.getProperty("line.separator");
-			}
-		}
+            output += v.toString() + System.getProperty("line.separator");
+        }
 
-		return output;
-	}
+        return output;
+    }
 
-	public static String getDefaultVoiceName() {
-		String defaultVoiceName = "";
+    public static String getDefaultVoiceName() {
+        String defaultVoiceName = "";
 		String allVoices = getVoices();
 		if (allVoices != null && allVoices.length() > 0) {
 			StringTokenizer tt = new StringTokenizer(allVoices, System.getProperty("line.separator"));

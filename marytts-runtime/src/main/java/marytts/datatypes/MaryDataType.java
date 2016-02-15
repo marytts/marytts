@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 /**
  * A representation of the data types available as input/output of (partial) processing. List the data types available as
  * input/output of (partial) processing. Provide static interfaces for obtaining a given data type.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -66,14 +66,13 @@ public class MaryDataType {
 	public static final MaryDataType FESTIVAL_UTT = new MaryDataType("FESTIVAL_UTT", true, true, PLAIN_TEXT);
 	public static final MaryDataType HALFPHONE_TARGETFEATURES = new MaryDataType("HALFPHONE_TARGETFEATURES", false, true,
 			PLAIN_TEXT);
-	public static final MaryDataType HTSCONTEXT = new MaryDataType("HTSCONTEXT", true, true, PLAIN_TEXT);
 	public static final MaryDataType INTONATION = new MaryDataType("INTONATION", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PARTSOFSPEECH = new MaryDataType("PARTSOFSPEECH", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PHONEMES = new MaryDataType("PHONEMES", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType PRAAT_TEXTGRID = new MaryDataType("PRAAT_TEXTGRID", false, true, PLAIN_TEXT);
 	public static final MaryDataType RAWMARYXML = new MaryDataType("RAWMARYXML", true, true, MARYXML, MaryXML.MARYXML);
 	public static final MaryDataType REALISED_ACOUSTPARAMS = new MaryDataType("REALISED_ACOUSTPARAMS", false, true, MARYXML,
-			MaryXML.MARYXML);
+                                                                              MaryXML.MARYXML);
 	public static final MaryDataType REALISED_DURATIONS = new MaryDataType("REALISED_DURATIONS", false, true, PLAIN_TEXT);
 	public static final MaryDataType SABLE = new MaryDataType("SABLE", true, false, EXTERNAL_MARKUP, "SABLE");
 	public static final MaryDataType SIMPLEPHONEMES = new MaryDataType("SIMPLEPHONEMES", true, false, PLAIN_TEXT);
@@ -143,7 +142,7 @@ public class MaryDataType {
 
 	/**
 	 * Provide an example text for this data type, for the given locale, if one is available.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @return an example text string, or null if none could be obtained.
@@ -188,8 +187,8 @@ public class MaryDataType {
 
 	/**
 	 * Determine whether or not the registration is complete. When the registration is not (yet) complete, calls to
-	 * 
-	 * 
+	 *
+	 *
 	 * @return false when the registration is still open, true when it is complete.
 	 */
 	public static boolean getRegistrationComplete() {
@@ -198,7 +197,7 @@ public class MaryDataType {
 
 	/**
 	 * Indicate that the registration is now complete. No further calls to registerModules() will be possible.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if called when registration was already completed before.
 	 */
@@ -263,7 +262,7 @@ public class MaryDataType {
 
 	/**
 	 * Provide the names of all registered data types that can be used as input.
-	 * 
+	 *
 	 * @return a vector containing the string names of data types.
 	 * @throws IllegalStateException
 	 *             if this method is called while registration is ongoing.
@@ -281,7 +280,7 @@ public class MaryDataType {
 
 	/**
 	 * Provide the names of all registered data types that can be used as output.
-	 * 
+	 *
 	 * @return a vector containing the string names of data types.
 	 * @throws IllegalStateException
 	 *             if this method is called while registration is ongoing.
@@ -299,7 +298,7 @@ public class MaryDataType {
 
 	/**
 	 * Provide the list of all registered data types that can be used as input.
-	 * 
+	 *
 	 * @return a list containing data types.
 	 * @throws IllegalStateException
 	 *             if this method is called while registration is ongoing.
@@ -317,7 +316,7 @@ public class MaryDataType {
 
 	/**
 	 * Provide the list of all registered data types that can be used as output.
-	 * 
+	 *
 	 * @return a list containing data types.
 	 * @throws IllegalStateException
 	 *             if this method is called while registration is ongoing.
@@ -335,21 +334,22 @@ public class MaryDataType {
 
 	/**
 	 * Look up a data type by name.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the data type
 	 * @return the requested data type, or null if there is no known data type with the given name
 	 */
 	public static MaryDataType get(String name) {
+
 		if (!registrationComplete)
-			throw new IllegalStateException("Cannot inquire about data types while registration is ongoing");
+			throw new IllegalStateException("Cannot inquire about data types (" + name + ") while registration is ongoing");
 		return dataTypesByName.get(name);
 	}
 
 	/**
 	 * Provide a list of known data types, i.e. of data types used by any of the known modules, partially sorted in the order of
 	 * processing.
-	 * 
+	 *
 	 * @return a list of all known data types
 	 */
 	public static List<MaryDataType> getDataTypes() {
@@ -364,7 +364,7 @@ public class MaryDataType {
 
 	/**
 	 * Get an example text for the given type and the given locale.
-	 * 
+	 *
 	 * @param type
 	 *            type
 	 * @param locale
@@ -381,7 +381,7 @@ public class MaryDataType {
 			exampleStream = type.getClass().getResourceAsStream(type.name() + ".example");
 		} else {
 			exampleStream = type.getClass()
-					.getResourceAsStream(
+                .getResourceAsStream(
 							"/marytts/language/" + locale.toString() + "/datatypes/" + type.name() + "." + locale.toString()
 									+ ".example");
 		}

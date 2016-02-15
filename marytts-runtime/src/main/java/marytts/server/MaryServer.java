@@ -47,7 +47,6 @@ import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.datatypes.MaryDataType;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
@@ -115,11 +114,11 @@ import org.apache.log4j.Logger;
  * amounts.
  * <p>
  * Example: The line
- * 
+ *
  * <pre>
  *   MARY IN=TEXT OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
  * </pre>
- * 
+ *
  * will process normal ASCII text, and send back a WAV audio file synthesised with the voice "kevin16".</li>
  *
  * <li>The server reads and parses this input line. If its format is correct, a line containing a single integer is sent back to
@@ -161,7 +160,7 @@ public class MaryServer implements Runnable {
 				logger.info("Waiting for client to connect on port " + server.getLocalPort());
 				Socket client = server.accept();
 				logger.info("Connection from " + client.getInetAddress().getHostName() + " ("
-						+ client.getInetAddress().getHostAddress() + ").");
+                            + client.getInetAddress().getHostAddress() + ").");
 				clients.execute(new ClientHandler(client));
 			}
 		} catch (Exception e) {
@@ -239,7 +238,7 @@ public class MaryServer implements Runnable {
 				// complain
 				String nl = System.getProperty("line.separator");
 				throw new Exception("Expected either a line" + nl + "MARY IN=<INPUTTYPE> OUT=<OUTPUTTYPE> [AUDIO=<AUDIOTYPE>]"
-						+ nl + "or a line containing only a number identifying a request.");
+                                    + nl + "or a line containing only a number identifying a request.");
 			}
 
 		}
@@ -379,7 +378,7 @@ public class MaryServer implements Runnable {
 
 			AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 			Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat,
-					streamingAudio, null);
+                                          streamingAudio, null);
 			clientOut.println(id);
 			// -- create new clientMap entry
 			Object[] value = new Object[2];
@@ -391,7 +390,7 @@ public class MaryServer implements Runnable {
 
 		/**
 		 * Verifies and parses the protocol parameter
-		 * 
+		 *
 		 * @param token
 		 *            the string to read the parameter from
 		 * @param expectedParameterName
@@ -405,7 +404,7 @@ public class MaryServer implements Runnable {
 		 *             - if token is null
 		 */
 		private String parseProtocolParameter(String token, String expectedParameterType, String parameterDescription)
-				throws Exception {
+            throws Exception {
 			StringTokenizer tt = new StringTokenizer(token, "=");
 			if (tt.countTokens() != 2 || !tt.nextToken().equals(expectedParameterType)) {
 				throw new Exception("Expected " + expectedParameterType + "=<" + parameterDescription + ">");
@@ -513,7 +512,7 @@ public class MaryServer implements Runnable {
 		private boolean handleVersion() {
 			// Write version information to client.
 			clientOut.println("Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion()
-					+ ")");
+                              + ")");
 			// Empty line marks end of info:
 			clientOut.println();
 			return true;
@@ -574,51 +573,44 @@ public class MaryServer implements Runnable {
 		private boolean listVoices() {
 			// list all known voices
 			for (Voice v : Voice.getAvailableVoices()) {
-				if (v.isUnitSelection()) {
-					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection"
-							+ " " + v.getDomain());
-				} else if (v instanceof HMMVoice) {
-					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm");
-				} else {
-					clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "other");
-				}
-			}
-			// Empty line marks end of info:
-			clientOut.println();
-			return true;
-		}
+                clientOut.println(v.toString());
+            }
+            // Empty line marks end of info:
+            clientOut.println();
+            return true;
+        }
 
-		private boolean exampleText(String inputLine) {
-			// send an example text for a given data type
-			StringTokenizer st = new StringTokenizer(inputLine);
-			st.nextToken();
-			st.nextToken();
-			try {
-				String typeName = st.nextToken();
-				// next should be locale:
-				Locale locale = MaryUtils.string2locale(st.nextToken());
-				MaryDataType type = MaryDataType.get(typeName);
-				String exampleText = type.exampleText(locale);
-				if (exampleText != null) {
-					clientOut.println(exampleText.trim());
-				}
-			} catch (NullPointerException err) {/* type doesn't exist */
+        private boolean exampleText(String inputLine) {
+        // send an example text for a given data type
+        StringTokenizer st = new StringTokenizer(inputLine);
+        st.nextToken();
+        st.nextToken();
+        try {
+            String typeName = st.nextToken();
+            // next should be locale:
+            Locale locale = MaryUtils.string2locale(st.nextToken());
+            MaryDataType type = MaryDataType.get(typeName);
+            String exampleText = type.exampleText(locale);
+            if (exampleText != null) {
+                clientOut.println(exampleText.trim());
+            }
+        } catch (NullPointerException err) {/* type doesn't exist */
 
-			} catch (NoSuchElementException nse) {/* type doesn't exist */
+        } catch (NoSuchElementException nse) {/* type doesn't exist */
 
-			}
-			// upon failure, simply return nothing
-			clientOut.println();
-			return true;
-		}
+        }
+        // upon failure, simply return nothing
+        clientOut.println();
+        return true;
+    }
 
-		private boolean voiceExampleText(String inputLine) {
-			// the request is about the example text of
-			// a limited domain unit selection voice
-			// send an example text for a given data type
-			StringTokenizer st = new StringTokenizer(inputLine);
-			st.nextToken();
-			st.nextToken();
+    private boolean voiceExampleText(String inputLine) {
+        // the request is about the example text of
+        // a limited domain unit selection voice
+        // send an example text for a given data type
+        StringTokenizer st = new StringTokenizer(inputLine);
+        st.nextToken();
+        st.nextToken();
 			st.nextToken();
 			try {
 				String voiceName = st.nextToken();
