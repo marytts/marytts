@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# Maven
+target
+
 # Eclipse
 .settings/
 .project
