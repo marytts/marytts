@@ -61,7 +61,7 @@ public class SoPF0Modeller extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
 	 * feature processor manager for the given locale.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param sopFile
@@ -71,13 +71,13 @@ public class SoPF0Modeller extends InternalModule {
 	 */
 	public SoPF0Modeller(String locale, String sopFile) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, FeatureRegistry
-				.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
+             .getFeatureProcessorManager(MaryUtils.string2locale(locale)));
 	}
 
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param sopFile
@@ -89,12 +89,12 @@ public class SoPF0Modeller extends InternalModule {
 	 */
 	public SoPF0Modeller(String locale, String sopFile, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, (FeatureProcessorManager) MaryRuntimeUtils
-				.instantiateObject(featprocClassInfo));
+             .instantiateObject(featprocClassInfo));
 	}
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param sopFile
@@ -186,8 +186,7 @@ public class SoPF0Modeller extends InternalModule {
 			SoP currentMidSop = midSop;
 			SoP currentRightSop = rightSop;
 			TargetFeatureComputer currentFeatureComputer = featureComputer;
-			//if (maryVoice instanceof UnitSelectionVoice) {
-			if (maryVoice.isUnitSelection()) {
+			if (maryVoice.getType().equals("unitselection")) {
 				if (voiceFeatDef != null) {
 					currentFeatureComputer = new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
 					logger.debug("Using voice feature definition");
@@ -206,7 +205,7 @@ public class SoPF0Modeller extends InternalModule {
 				Element vowel = null;
 				Element lastVoiced = null;
 				for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils
-						.getNextSiblingElement(s)) {
+                         .getNextSiblingElement(s)) {
 					assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found " + s.getTagName();
 					String phone = s.getAttribute("p");
 					if (allophoneSet == null) {
