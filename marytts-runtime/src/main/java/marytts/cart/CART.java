@@ -35,7 +35,7 @@ import java.util.Properties;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 
 /**
  * A tree is a specific kind of directed graph in which each node can have only a single parent node. It consists exclusively of

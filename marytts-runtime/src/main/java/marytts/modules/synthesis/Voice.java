@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
@@ -19,8 +20,10 @@
  */
 package marytts.modules.synthesis;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +54,8 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
+import marytts.features.FeatureFileReader;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -62,12 +67,8 @@ import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
-import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.interpolation.InterpolatingSynthesizer;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -133,12 +134,13 @@ public class Voice {
 	private AudioFormat dbAudioFormat = null;
 	private WaveformSynthesizer synthesizer;
 	private Gender gender;
+	protected String domain;
+	protected String exampleText;
 	private int wantToBeDefault;
 	private AllophoneSet allophoneSet;
 	String preferredModulesClasses;
 	private Vector<MaryModule> preferredModules;
 	private boolean vocalizationSupport;
-	private VocalizationSynthesizer vocalizationSynthesizer;
 	protected DirectedGraph durationGraph;
 	protected DirectedGraph f0Graph;
 	protected FeatureFileReader f0ContourFeatures;
@@ -177,7 +179,20 @@ public class Voice {
 				false);
 
 		this.gender = new Gender(MaryProperties.needProperty("voice." + voiceName + ".gender"));
-
+		
+		//taken from UnitSeletionVoice
+		String header = "voice." + name;
+		this.domain = MaryProperties.getProperty(header + ".domain");
+		InputStream exampleTextStream = null;
+		try {
+			exampleTextStream = MaryProperties.getStream(header + ".exampleTextFile");
+			if (exampleTextStream != null) {
+				readExampleText(exampleTextStream);
+			}
+		} catch (Exception ex) {
+			throw new MaryConfigurationException("No .exampleTextFile found", ex);
+		}
+		
 		try {
 			init();
 		} catch (Exception n) {
@@ -209,13 +224,6 @@ public class Voice {
 			}
 		}
 		preferredModulesClasses = MaryProperties.getProperty(header + ".preferredModules");
-
-		String lexiconClass = MaryProperties.getProperty(header + ".lexiconClass");
-		String lexiconName = MaryProperties.getProperty(header + ".lexicon");
-		vocalizationSupport = MaryProperties.getBoolean(header + ".vocalizationSupport", false);
-		if (vocalizationSupport) {
-			vocalizationSynthesizer = new VocalizationSynthesizer(this);
-		}
 
 		loadOldStyleProsodyModels(header);
 		loadAcousticModels(header);
@@ -495,10 +503,6 @@ public class Voice {
 		return vocalizationSupport;
 	}
 
-	public VocalizationSynthesizer getVocalizationSynthesizer() {
-		return vocalizationSynthesizer;
-	}
-
 	/**
 	 * Get any styles supported by this voice.
 	 * 
@@ -525,6 +529,15 @@ public class Voice {
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams) throws SynthesisException {
 		return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
+	}
+	
+	/**
+	 * Gets the domain of this voice
+	 * 
+	 * @return the domain
+	 */
+	public String getDomain() {
+		return domain;
 	}
 
 	public DirectedGraph getDurationGraph() {
@@ -658,27 +671,6 @@ public class Voice {
 			Voice v = it.next();
 			if (v.hasName(name))
 				return v;
-		}
-		// Interpolating voices are created as needed:
-		if (InterpolatingVoice.isInterpolatingVoiceName(name)) {
-			InterpolatingSynthesizer interpolatingSynthesizer = null;
-			for (Iterator<Voice> it = allVoices.iterator(); it.hasNext();) {
-				Voice v = it.next();
-				if (v instanceof InterpolatingVoice) {
-					interpolatingSynthesizer = (InterpolatingSynthesizer) v.synthesizer();
-					break;
-				}
-			}
-			if (interpolatingSynthesizer == null)
-				return null;
-			try {
-				Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
-				registerVoice(v);
-				return v;
-			} catch (Exception e) {
-				logger.warn("Could not create Interpolating voice:", e);
-				return null;
-			}
 		}
 		return null; // no such voice found
 	}
@@ -817,6 +809,31 @@ public class Voice {
 			logger.debug("Couldn't find any voice at all");
 
 		return guessedVoice;
+	}
+	
+	public void readExampleText(InputStream in) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		StringBuilder sb = new StringBuilder();
+		String line = reader.readLine();
+		while (line != null) {
+			if (!line.startsWith("***")) {
+				sb.append(line + "\n");
+			}
+			line = reader.readLine();
+		}
+		this.exampleText = sb.toString();
+	}
+	
+	public String getExampleText() {
+		if (exampleText == null) {
+			return "";
+		} else {
+			return exampleText;
+		}
+	}
+	
+	public boolean isUnitSelection() {
+		return MaryRuntimeUtils.getVoicesList("unitselection").contains(this.getName());
 	}
 
 	public static class Gender {

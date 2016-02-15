@@ -27,7 +27,7 @@ import java.io.StringReader;
 import java.util.Scanner;
 
 import marytts.features.FeatureDefinition;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 
 /**
  * Contains the coefficients and factors of an equation of the form: if interceptTterm = TRUE solution = coeffs[0] +

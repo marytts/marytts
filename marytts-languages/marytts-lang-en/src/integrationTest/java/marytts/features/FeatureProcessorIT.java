@@ -34,9 +34,8 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
-import marytts.server.MaryProperties;
-import marytts.unitselection.select.HalfPhoneTarget;
-import marytts.unitselection.select.Target;
+import marytts.features.HalfPhoneTarget;
+import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.BasicConfigurator;

@@ -30,8 +30,7 @@ import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.UnitSelector;
+import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -166,7 +165,7 @@ public class TargetFeatureLister extends InternalModule {
 			segmentsAndBoundaries.add(finalPause);
 		}
 		for (Element sOrB : segmentsAndBoundaries) {
-			String phone = UnitSelector.getPhoneSymbol(sOrB);
+			String phone = MaryDomUtils.getPhoneSymbol(sOrB);
 			Target t = (Target) sOrB.getUserData("target");
 			if (t == null) {
 				t = new Target(phone, sOrB);

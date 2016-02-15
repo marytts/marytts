@@ -37,8 +37,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -187,7 +186,8 @@ public class SoPF0Modeller extends InternalModule {
 			SoP currentMidSop = midSop;
 			SoP currentRightSop = rightSop;
 			TargetFeatureComputer currentFeatureComputer = featureComputer;
-			if (maryVoice instanceof UnitSelectionVoice) {
+			//if (maryVoice instanceof UnitSelectionVoice) {
+			if (maryVoice.isUnitSelection()) {
 				if (voiceFeatDef != null) {
 					currentFeatureComputer = new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
 					logger.debug("Using voice feature definition");

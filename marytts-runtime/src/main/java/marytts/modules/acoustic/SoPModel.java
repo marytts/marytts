@@ -34,7 +34,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.machinelearning.SoP;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 
 /**

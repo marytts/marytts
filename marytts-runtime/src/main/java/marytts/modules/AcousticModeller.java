@@ -38,7 +38,6 @@ import marytts.modules.acoustic.ProsodyElementHandler;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
-import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -352,7 +351,7 @@ public class AcousticModeller extends InternalModule {
 				segments.add(segment);
 
 				// get "p" attribute...
-				String phone = UnitSelector.getPhoneSymbol(segment);
+				String phone = MaryDomUtils.getPhoneSymbol(segment);
 				if (phone.length() == 0) {
 					throw new SynthesisException("No phone found for segment " + segment);
 				}

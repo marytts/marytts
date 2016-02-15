@@ -44,7 +44,7 @@ import marytts.features.TargetFeatureComputer;
 import marytts.modules.TargetFeatureLister;
 import marytts.server.Mary;
 import marytts.server.Request;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 

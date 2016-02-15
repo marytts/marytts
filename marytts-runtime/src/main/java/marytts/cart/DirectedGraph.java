@@ -25,7 +25,7 @@ import java.util.Properties;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.select.Target;
+import marytts.features.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

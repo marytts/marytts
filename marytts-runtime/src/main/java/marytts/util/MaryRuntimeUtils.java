@@ -50,13 +50,10 @@ import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.StringUtils;
-import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.w3c.dom.Element;
 
@@ -76,7 +73,7 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Instantiate an object by calling one of its constructors.
-	 * 
+	 *
 	 * @param objectInitInfo
 	 *            a string description of the object to instantiate. The objectInitInfo is expected to have one of the following
 	 *            forms:
@@ -137,7 +134,7 @@ public class MaryRuntimeUtils {
 	 * Verify if the java virtual machine is in a low memory condition. The memory is considered low if less than a specified
 	 * value is still available for processing. "Available" memory is calculated using <code>availableMemory()</code>.The
 	 * threshold value can be specified as the Mary property mary.lowmemory (in bytes). It defaults to 20000000 bytes.
-	 * 
+	 *
 	 * @return a boolean indicating whether or not the system is in low memory condition.
 	 */
 	public static boolean lowMemoryCondition() {
@@ -148,7 +145,7 @@ public class MaryRuntimeUtils {
 	 * Verify if the java virtual machine is in a very low memory condition. The memory is considered very low if less than half a
 	 * specified value is still available for processing. "Available" memory is calculated using <code>availableMemory()</code>
 	 * .The threshold value can be specified as the Mary property mary.lowmemory (in bytes). It defaults to 20000000 bytes.
-	 * 
+	 *
 	 * @return a boolean indicating whether or not the system is in very low memory condition.
 	 */
 	public static boolean veryLowMemoryCondition() {
@@ -166,7 +163,7 @@ public class MaryRuntimeUtils {
 	/**
 	 * List the available audio file format types, as a multi-line string. Each line consists of the name of an Audio file format
 	 * type, followed by a suffix "_FILE" if the format can be produced as a file, and "_STREAM" if the format can be streamed.
-	 * 
+	 *
 	 * @return a multi-line string, or an empty string if no audio file types are available.
 	 */
 	public static String getAudioFileFormatTypes() {
@@ -197,7 +194,7 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Determine whether conversion to mp3 is possible.
-	 * 
+	 *
 	 * @return AudioSystem.isConversionSupported(getMP3AudioFormat(), Voice.AF22050)
 	 */
 	public static boolean canCreateMP3() {
@@ -212,7 +209,7 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Determine whether conversion to ogg vorbis format is possible.
-	 * 
+	 *
 	 * @return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050)
 	 */
 	public static boolean canCreateOgg() {
@@ -227,7 +224,7 @@ public class MaryRuntimeUtils {
 	/**
 	 * For an element in a MaryXML document, do what you can to determine the appropriate AllophoneSet. First search for the
 	 * suitable voice, then if that fails, go by locale.
-	 * 
+	 *
 	 * @param e
 	 *            e
 	 * @return an allophone set if there is any way of determining it, or null.
@@ -254,7 +251,7 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Try to determine the Allophone set to use for the given locale.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @return the allophone set defined for the given locale, or null if no such allophone set can be determined.
@@ -280,7 +277,7 @@ public class MaryRuntimeUtils {
 	 * Create an AudioDestination to which the audio data can be written. Depending on the mary property "synthesis.audiostore",
 	 * this will use either a ByteArrayOutputStream or a FileOutputStream. The calling code is responsible for administering this
 	 * AudioDestination.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if the underlying OutputStream could not be created.
 	 * @return AudioDestination(ram)
@@ -301,7 +298,7 @@ public class MaryRuntimeUtils {
 
 	/**
 	 * Convenience method to access the allophone set referenced in the MARY property with the given name.
-	 * 
+	 *
 	 * @param propertyName
 	 *            name of the property referring to the allophone set
 	 * @throws MaryConfigurationException
@@ -373,11 +370,9 @@ public class MaryRuntimeUtils {
 		Collection<Voice> voices = Voice.getAvailableVoices();
 		for (Iterator<Voice> it = voices.iterator(); it.hasNext();) {
 			Voice v = (Voice) it.next();
-			if (v instanceof InterpolatingVoice) {
-				// do not list interpolating voice
-			} else if (v instanceof UnitSelectionVoice) {
+		        if (v.isUnitSelection()) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " "
-						+ ((UnitSelectionVoice) v).getDomain() + System.getProperty("line.separator");
+						+ (v.getDomain() + System.getProperty("line.separator"));
 			} else if (v instanceof HMMVoice) {
 				output += v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm"
 						+ System.getProperty("line.separator");
@@ -440,7 +435,7 @@ public class MaryRuntimeUtils {
 	/**
 	 * For the voice with the given name, return the list of vocalizations supported by this voice, one vocalization per line.
 	 * These values can be used in the "name" attribute of the vocalization tag.
-	 * 
+	 *
 	 * @param voiceName
 	 *            voiceName
 	 * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
@@ -461,7 +456,7 @@ public class MaryRuntimeUtils {
 	 * For the voice with the given name, return the list of styles supported by this voice, if any, one style per line. These
 	 * values can be used as the global "style" value in a synthesis request, or in the "style" attribute of the MaryXML prosody
 	 * element.
-	 * 
+	 *
 	 * @param voiceName
 	 *            voiceName
 	 * @return the list of styles, or the empty string if the voice does not support styles.
@@ -521,4 +516,14 @@ public class MaryRuntimeUtils {
 		return effect.isHMMEffect() ? "yes" : "no";
 	}
 
+	/**
+	 * returns a list of strings of voice names, depending on voice type wanted
+	 * parameter passed-> a string such as "unitselection" or "hmm"
+	 * @param voicetype
+	 * @return VoiceNames
+	 */
+	public static List<String> getVoicesList(String voicetype) {
+		List<String> VoiceNames = MaryProperties.getList(voicetype + ".voices.list");
+		return VoiceNames;
+	}
 }
