@@ -6,5 +6,6 @@ dependencies {
     compile project(':marytts-runtime')
     testCompile project(':marytts-runtime')
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
     integrationTestCompile project(':marytts-runtime').sourceSets.integrationTest.output
 }
