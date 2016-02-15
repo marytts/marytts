@@ -3,6 +3,7 @@ dependencies {
     compile project(':marytts-common')
     compile project(':marytts-runtime')
     compile project(':marytts-signalproc')
+    compile project(':marytts-unitselection')
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.16'
     compile group: 'oro', name: 'oro', version: '2.0.8'
