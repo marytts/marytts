@@ -427,30 +427,9 @@ public class MaryRuntimeUtils {
 
 	public static String getVoiceExampleText(String voiceName) {
 		Voice v = Voice.getVoice(voiceName);
-		if (v instanceof marytts.unitselection.UnitSelectionVoice)
-			return ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
-		return "";
+        return v.getExampleText();
 	}
 
-	/**
-	 * For the voice with the given name, return the list of vocalizations supported by this voice, one vocalization per line.
-	 * These values can be used in the "name" attribute of the vocalization tag.
-	 *
-	 * @param voiceName
-	 *            voiceName
-	 * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
-	 */
-	public static String getVocalizations(String voiceName) {
-		Voice v = Voice.getVoice(voiceName);
-		if (v == null || !v.hasVocalizationSupport()) {
-			return "";
-		}
-		VocalizationSynthesizer vs = v.getVocalizationSynthesizer();
-		assert vs != null;
-		String[] vocalizations = vs.listAvailableVocalizations();
-		assert vocalizations != null;
-		return StringUtils.toString(vocalizations);
-	}
 
 	/**
 	 * For the voice with the given name, return the list of styles supported by this voice, if any, one style per line. These
