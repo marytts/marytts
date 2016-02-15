@@ -364,4 +364,9 @@ public class UnitSelectionVoice extends Voice {
         return getName() + " " + getLocale() + " " + gender().toString() + " " + "unitselection" + " "
             + getDomain();
     }
+
+    public String getType()
+    {
+        return "unitselection";
+    }
 }

@@ -399,6 +399,8 @@ public abstract class Voice {
 		return getName() + " " + getLocale() + " " + gender().toString() + " " + "other";
     }
 
+    public abstract String getType();
+
     public Locale getLocale() {
         return locale;
     }
@@ -746,10 +748,6 @@ public abstract class Voice {
         } else {
             return exampleText;
         }
-    }
-
-    public boolean isUnitSelection() {
-        return MaryRuntimeUtils.getVoicesList("unitselection").contains(this.getName());
     }
 
     public static class Gender {

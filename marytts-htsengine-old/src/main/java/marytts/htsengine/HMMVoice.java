@@ -226,4 +226,10 @@ public class HMMVoice extends Voice {
         return getName() + " " + getLocale() + " " + gender().toString() + " " + "hmm";
     }
 
+
+    public String getType()
+    {
+        return "hmm";
+    }
+
 } /* class HMMVoice */
