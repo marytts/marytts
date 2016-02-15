@@ -3,6 +3,7 @@ dependencies {
     compile project(':marytts-runtime')
     compile project(':marytts-signalproc')
     compile group: 'org.incava', name: 'java-diff', version: '1.1'
+    testCompile project(':marytts-htsengine-old')
     testCompile project(':voice-cmu-slt-hsmm')
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }

@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -40,11 +40,16 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.Locale;
 
+import java.util.HashMap;
+import java.util.StringTokenizer;
+
+
 import javax.sound.sampled.AudioFormat;
 
 import marytts.cart.CART;
 import marytts.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.exceptions.NoSuchPropertyException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -62,9 +67,14 @@ import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.UnitSelector;
 
+import marytts.modules.acoustic.Model;
+import marytts.modules.acoustic.BoundaryModel;
+import marytts.modules.acoustic.ModelType;
+import marytts.modules.acoustic.CARTModel;
+
 /**
  * A Unit Selection Voice
- * 
+ *
  */
 public class UnitSelectionVoice extends Voice {
 
@@ -87,7 +97,7 @@ public class UnitSelectionVoice extends Voice {
 				featProcManager = FeatureRegistry.getFeatureProcessorManager(getLocale());
 			if (featProcManager == null)
 				throw new MaryConfigurationException("No feature processor manager for voice '" + name + "' (locale "
-						+ getLocale() + ")");
+                                                     + getLocale() + ")");
 
 			// build and load targetCostFunction
 			logger.debug("...loading target cost function...");
@@ -139,7 +149,7 @@ public class UnitSelectionVoice extends Voice {
 			Class<String>[] constructorArgTypes = new Class[] { String.class };
 			Object[] args = new Object[] { timelineFile };
 			Constructor<? extends TimelineReader> constructor = (Constructor<? extends TimelineReader>) theClass
-					.getConstructor(constructorArgTypes);
+                .getConstructor(constructorArgTypes);
 			TimelineReader timelineReader = constructor.newInstance(args);
 
 			// optionally, get basename timeline
@@ -156,7 +166,7 @@ public class UnitSelectionVoice extends Voice {
 			database = (UnitDatabase) Class.forName(databaseClass).newInstance();
 			if (useSCost) {
 				database.load(targetFunction, joinFunction, sCostFunction, unitReader, cart, timelineReader,
-						basenameTimelineReader, backtrace);
+                              basenameTimelineReader, backtrace);
 			} else {
 				database.load(targetFunction, joinFunction, unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
 			}
@@ -209,7 +219,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the database of this voice
-	 * 
+	 *
 	 * @return the database
 	 */
 	public UnitDatabase getDatabase() {
@@ -218,7 +228,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the unit selector of this voice
-	 * 
+	 *
 	 * @return the unit selector
 	 */
 	public UnitSelector getUnitSelector() {
@@ -227,7 +237,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the unit concatenator of this voice
-	 * 
+	 *
 	 * @return the unit selector
 	 */
 	public UnitConcatenator getConcatenator() {
@@ -236,7 +246,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Get the modification UnitConcatenator of this voice
-	 * 
+	 *
 	 * @return the modifying UnitConcatenator
 	 */
 	public UnitConcatenator getModificationConcatenator() {
@@ -245,20 +255,20 @@ public class UnitSelectionVoice extends Voice {
 			try {
 				// initialize with values from properties:
 				double minTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
-						+ ".prosody.modification.duration.factor.minimum"));
+                                                                                          + ".prosody.modification.duration.factor.minimum"));
 				double maxTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
-						+ ".prosody.modification.duration.factor.maximum"));
+                                                                                          + ".prosody.modification.duration.factor.maximum"));
 				double minPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
-						+ ".prosody.modification.f0.factor.minimum"));
+                                                                                           + ".prosody.modification.f0.factor.minimum"));
 				double maxPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name
-						+ ".prosody.modification.f0.factor.maximum"));
+                                                                                           + ".prosody.modification.f0.factor.maximum"));
 				logger.debug("Initializing FD-PSOLA unit concatenator with the following parameter thresholds:");
 				logger.debug("minimum duration modification factor: " + minTimeScaleFactor);
 				logger.debug("maximum duration modification factor: " + maxTimeScaleFactor);
 				logger.debug("minimum F0 modification factor: " + minPitchScaleFactor);
 				logger.debug("maximum F0 modification factor: " + maxPitchScaleFactor);
 				modificationConcatenator = new FdpsolaUnitConcatenator(minTimeScaleFactor, maxTimeScaleFactor,
-						minPitchScaleFactor, maxPitchScaleFactor);
+                                                                       minPitchScaleFactor, maxPitchScaleFactor);
 			} catch (Exception e) {
 				// ignore -- defaults will be used
 				logger.debug("Initializing FD-PSOLA unit concatenator with default parameter thresholds.");
@@ -279,4 +289,79 @@ public class UnitSelectionVoice extends Voice {
 		return f0Carts[0].getFeatureDefinition();
 	}
 
+	/**
+	 * Load a flexibly configurable list of acoustic models as specified in the config file.
+	 *
+	 * @param header
+	 *            header
+	 * @throws MaryConfigurationException
+	 *             MaryConfigurationException
+	 * @throws NoSuchPropertyException
+	 *             NoSuchPropertyException
+	 * @throws IOException
+	 *             IOException
+	 */
+	protected void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException, IOException {
+		// The feature processor manager that all acoustic models will use to predict their acoustics:
+		FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
+
+		// Acoustic models:
+		String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
+		if (acousticModelsString != null) {
+			acousticModels = new HashMap<String, Model>();
+
+			// add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
+			acousticModels.put("boundary", new BoundaryModel(symbolicFPM, getName(), null, "duration", null, null, null,
+                                                             "boundaries"));
+
+			StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
+			do {
+				String modelName = acousticModelStrings.nextToken();
+
+				// get more properties from voice config, depending on the model name:
+				String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
+
+				InputStream modelDataStream = MaryProperties.getStream(header + "." + modelName + ".data"); // not used for hmm
+																											// models
+				String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
+
+				// the following are null if not defined; this is handled in the Model constructor:
+				String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
+				String modelFeatureName = MaryProperties.getProperty(header + "." + modelName + ".feature");
+				String modelPredictFrom = MaryProperties.getProperty(header + "." + modelName + ".predictFrom");
+				String modelApplyTo = MaryProperties.getProperty(header + "." + modelName + ".applyTo");
+
+				// consult the ModelType enum to find appropriate Model subclass...
+				ModelType possibleModelTypes = ModelType.fromString(modelType);
+				// if modelType is not in ModelType.values(), we don't know how to handle it:
+				if (possibleModelTypes == null) {
+					throw new MaryConfigurationException("Cannot handle unknown model type: " + modelType);
+				}
+
+				// ...and instantiate it in a switch statement:
+				Model model = null;
+				try {
+                    model = new CARTModel(symbolicFPM, getName(), modelDataStream, modelAttributeName, modelAttributeFormat,
+                                          modelFeatureName, modelPredictFrom, modelApplyTo);
+
+                } catch (Throwable t) {
+                    throw new MaryConfigurationException("Cannot instantiate model '" + modelName + "' of type '" + modelType
+                                                         + "' from '" + MaryProperties.getProperty(header + "." + modelName + ".data") + "'", t);
+                }
+
+                // if we got this far, model should not be null:
+                assert model != null;
+
+                // put the model in the Model Map:
+                acousticModels.put(modelName, model);
+            } while (acousticModelStrings.hasMoreTokens());
+        }
+    }
+
+
+    public String toString()
+    {
+        return getName() + " " + getLocale() + " " + gender().toString() + " " + "unitselection" + " "
+            + getDomain();
+    }
 }

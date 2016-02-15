@@ -100,10 +100,11 @@ import org.w3c.dom.traversal.TreeWalker;
  * HTS-HMM synthesiser.
  *
  * Java port and extension of HTS engine version 2.0 Extension: mixed excitation
- * 
+ *
  * @author Marc Schr&ouml;der, Marcela Charfuelan
  */
 public class HMMSynthesizer implements WaveformSynthesizer {
+    public static final MaryDataType HTSCONTEXT = new MaryDataType("HTSCONTEXT", true, true, MaryDataType.PLAIN_TEXT);
 	private TargetFeatureLister targetFeatureLister;
 	private HTSEngine htsEngine;
 	private Logger logger;
@@ -163,7 +164,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
 	/**
 	 * Perform a power-on self test by processing some example input data.
-	 * 
+	 *
 	 * @throws Error
 	 *             if the module does not work properly.
 	 */
@@ -225,7 +226,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 	 * {@inheritDoc}
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
-			throws SynthesisException {
+        throws SynthesisException {
 
 		if (!voice.synthesizer().equals(this)) {
 			throw new IllegalArgumentException("Voice " + voice.getName() + " is not an HMM voice.");

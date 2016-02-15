@@ -1,6 +1,5 @@
 dependencies {
-    compile project(':marytts-common')
-    compile project(':marytts-signalproc')
+    compile project(':marytts-runtime')
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
@@ -15,7 +14,8 @@ dependencies {
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.0.0'
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
-    testCompile project(':marytts-htsengine-old')
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-integration', version: '1.3'
 }
 
 task packageTests(type: Jar) {
