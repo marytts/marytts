@@ -8,7 +8,8 @@ language: java
 install: ./gradlew b
 script: ./gradlew integrationTest
 jdk:
-  - openjdk8
+  - openjdk7
+  - oraclejdk7
   - oraclejdk8
 
 cache:
