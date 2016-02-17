@@ -70,5 +70,4 @@ public class PreprocessorIT extends MaryModuleTestCase {
 	public void testUnicode1() throws Exception {
 		processAndCompare("unicode1", Locale.GERMAN);
 	}
-
 }
