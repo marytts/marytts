@@ -43,16 +43,16 @@ public class GermanIT {
 	
 	//Testing for the output when a greek work if phonemised
 	@Test 
-	public void PhenemiserT() throws Exception{
+	public void PhonemiserT() throws Exception{
 		JPhonemiser module = new JPhonemiser();
 		String result = "";
-		
+		String result2 = "";
+		//phonemise
 		result = module.phonemise("αββ", "XY", new StringBuilder());
+		result2 = module.phonemise("λόγος", "XY", new StringBuilder());
+		//verify
 		assertEquals(result, null);
-		result = module.phonemise("λόγος", "XY", new StringBuilder());
-		assertEquals(result, null);
-		
-		
+		assertEquals(result2, null);
 	}
 
 }

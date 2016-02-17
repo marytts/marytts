@@ -287,16 +287,6 @@ function helpEffect(button)
 
 function inputTypeChanged()
 {
-//	var select = document.getElementById("INPUT_TYPE");
-//	var inputType2 = select.options[select.selectedIndex].text;
-//	if( "WORDS" == "WORDS") {     
-//    	var opts = document.getElementById("OUTPUT_TYPE");	
-//    	for(var i=0; i < opts.options.length; i++){
-//    		if("RAWMARYXML" == opts.options[i].text)){
-//    			opts.remove(i);
-//    		}
-//    	}
-//	}	
 	updateInputText(true); // replace input
 }
 
