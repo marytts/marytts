@@ -335,7 +335,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		boolean usedOtherLanguageToPhonemise = false;
 		try{
 		resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
-		
 		result = resultingWord.getTranscription();
 		usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
 		}catch(NullPointerException e){
