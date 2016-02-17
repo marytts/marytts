@@ -351,8 +351,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				g2pMethod.append("compound");
 				return result;
 			}
-		
-
 		}
 
 		// Cannot find it in the lexicon -- apply letter-to-sound rules
@@ -380,7 +378,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 			}
 			g2pMethod.append("rules");
 			return result;
-			
 		}
 		return null;
 	}
