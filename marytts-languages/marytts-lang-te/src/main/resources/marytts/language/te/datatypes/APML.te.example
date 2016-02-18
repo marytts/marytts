@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!DOCTYPE apml SYSTEM "src/main/resources/marytts/dtd/apml.dtd" []>
+<!DOCTYPE apml SYSTEM "apml.dtd" []>
 <apml xml:lang="te">
 <performative  type="announce">
 <theme affect="joy">
