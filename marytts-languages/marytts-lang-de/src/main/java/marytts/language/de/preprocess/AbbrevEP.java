@@ -184,7 +184,7 @@ public class AbbrevEP extends ExpansionPattern {
 			String text = MaryDomUtils.tokenText(token);
 			// Only digits? Pronounce as an integer.
 			if (REPattern.onlyDigits.matcher(text).find()) {
-				if(text.length() <= 9){
+				if(Pattern.matches(NumberEP.sInteger, text)){
 					logger.debug("Expanding as integer: `" + text + "'");
 					exp.addAll(makeNewTokens(token.getOwnerDocument(), number.expandInteger(text)));
 				}else{
