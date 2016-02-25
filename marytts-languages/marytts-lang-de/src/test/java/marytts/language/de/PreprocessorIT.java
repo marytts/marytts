@@ -71,4 +71,19 @@ public class PreprocessorIT extends MaryModuleTestCase {
 		processAndCompare("unicode1", Locale.GERMAN);
 	}
 
+	@Test
+	public void testIBAN1() throws Exception {
+		processAndCompare("iban1", Locale.GERMAN);
+	}
+
+	@Test
+	public void testIBAN2() throws Exception {
+		processAndCompare("iban2", Locale.GERMAN);
+	}
+
+	@Test(expected=NumberFormatException.class)
+	public void testIBAN3() throws Exception {
+		processAndCompare("iban3", Locale.GERMAN);
+	}
+
 }
