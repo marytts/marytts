@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu orig="GB29 NWBK 6016 1331 9268 19">
+<t>
+GB29
+</t>
+<t>
+NWBK
+</t>
+<t>
+6016
+</t>
+<t>
+1331
+</t>
+<t>
+9268
+</t>
+<t>
+19
+</t>
+</mtu>
+</s>
+</p>
+</maryxml>
