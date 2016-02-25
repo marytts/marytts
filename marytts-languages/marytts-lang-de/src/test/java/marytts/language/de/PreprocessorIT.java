@@ -81,7 +81,7 @@ public class PreprocessorIT extends MaryModuleTestCase {
 		processAndCompare("iban2", Locale.GERMAN);
 	}
 
-	@Test(expected=NumberFormatException.class)
+	@Test(expected=Exception.class)
 	public void testIBAN3() throws Exception {
 		processAndCompare("iban3", Locale.GERMAN);
 	}
