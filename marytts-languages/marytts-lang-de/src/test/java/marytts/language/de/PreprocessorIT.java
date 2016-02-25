@@ -70,6 +70,7 @@ public class PreprocessorIT extends MaryModuleTestCase {
 	public void testUnicode1() throws Exception {
 		processAndCompare("unicode1", Locale.GERMAN);
 	}
+
 	@Test
 	public void testIBAN1() throws Exception {
 		processAndCompare("iban1", Locale.GERMAN);
@@ -80,7 +81,7 @@ public class PreprocessorIT extends MaryModuleTestCase {
 		processAndCompare("iban2", Locale.GERMAN);
 	}
 
-	@Test(expected=NumberFormatException.class)
+	@Test(expected = NumberFormatException.class)
 	public void testIBAN3() throws Exception {
 		processAndCompare("iban3", Locale.GERMAN);
 	}
