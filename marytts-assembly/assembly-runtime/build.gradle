@@ -1,0 +1,20 @@
+task assemble(type: Copy) {
+    group 'Build'
+    description 'Assembles the outputs of this project.'
+
+    into "$rootProject.buildDir/marytts-$project.version"
+    [project(':marytts-runtime'), project(':marytts-client')].each { proj ->
+        from proj.buildDir, {
+            include "$proj.name-$version-jar-with-dependencies.jar"
+        }
+    }
+    (project(':marytts-languages').subprojects + project(':voice-cmu-slt-hsmm')).each { proj ->
+        from proj.buildDir, {
+            include "$proj.name-${version}.jar"
+        }
+    }
+
+    filesMatching '*.jar', {
+        path = "lib/$it.path"
+    }
+}
