@@ -18,6 +18,10 @@ task assemble(type: Copy) {
             it.replaceAll ~/\$\{project.version\}/, version
         }
     }
+    from project(':voice-cmu-slt-hsmm').buildDir, {
+        include '*-component.xml'
+        rename { "installed/$it" }
+    }
     from rootDir, {
         include 'LICENSE.md', '*gpl*.txt', 'download/**', 'user-dictionaries/**'
     }
