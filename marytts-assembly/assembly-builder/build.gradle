@@ -13,6 +13,10 @@ task assemble(type: Copy) {
             include "$proj.name-${version}.jar"
         }
     }
+    from 'src/builder'
+    from rootDir, {
+        include 'LICENSE.md', '*gpl*.txt'
+    }
 
     filesMatching '*.jar', {
         path = "lib/$it.path"
