@@ -13,7 +13,11 @@ task assemble(type: Copy) {
             include "$proj.name-${version}.jar"
         }
     }
-    from 'src/runtime'
+    from 'src/runtime', {
+        filter {
+            it.replaceAll ~/\$\{project.version\}/, version
+        }
+    }
     from rootDir, {
         include 'LICENSE.md', '*gpl*.txt', 'download/**', 'user-dictionaries/**'
     }
