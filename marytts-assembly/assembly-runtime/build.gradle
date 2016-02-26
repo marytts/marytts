@@ -25,4 +25,7 @@ task assemble(type: Copy) {
     filesMatching '*.jar', {
         path = "lib/$it.path"
     }
+    filesMatching 'installed/*.xml', {
+        name = it.name.replace('component', "$version-component")
+    }
 }
