@@ -1,7 +1,7 @@
 description 'NLP components for Luxembourgish'
 
 dependencies {
-    compile project(':marytts-runtime')
+    compile project(':marytts-common')
     compile project(':marytts-languages:marytts-lang-fr')
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
     testCompile group: 'org.testng', name: 'testng', version: '6.8.13'

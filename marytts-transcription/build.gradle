@@ -1,7 +1,5 @@
 dependencies {
     compile project(':marytts-common')
-    compile project(':marytts-signalproc')
-    compile project(':marytts-runtime')
     compile project(':marytts-builder')
     compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
     testCompile group: 'junit', name: 'junit', version: '4.11'

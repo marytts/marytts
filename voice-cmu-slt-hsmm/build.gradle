@@ -2,7 +2,6 @@ description 'A female US English Hidden semi-Markov model voice, built from voic
 
 dependencies {
     compile project(':marytts-common')
-    compile project(':marytts-runtime')
     compile project(':marytts-languages:marytts-lang-en')
     testCompile project(':marytts-htsengine-old')
     testCompile group: 'junit', name: 'junit', version: '4.11'
