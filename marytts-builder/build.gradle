@@ -1,8 +1,6 @@
 dependencies {
     compile project(':marytts-client')
     compile project(':marytts-common')
-    compile project(':marytts-runtime')
-    compile project(':marytts-signalproc')
     compile project(':marytts-unitselection')
     compile project(':marytts-htsengine-old')
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'

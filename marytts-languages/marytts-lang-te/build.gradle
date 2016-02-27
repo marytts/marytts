@@ -2,7 +2,5 @@ description 'NLP components for Telugu'
 
 dependencies {
     compile project(':marytts-common')
-    compile project(':marytts-signalproc')
-    compile project(':marytts-runtime')
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
