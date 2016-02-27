@@ -306,7 +306,7 @@ function updateInputText(replaceInput)
 	    return;
     }
    	var inputType = inputTypeSelect.options[inputTypeSelect.selectedIndex].text;
-
+   	
 	// Keep track of AJAX concurrency across the two requests:
 	var retrievingVoiceExample = false;
 	var haveVoiceExample = false;
@@ -343,6 +343,8 @@ function updateInputText(replaceInput)
 	    xmlHttp.send(null);
 	}
     
+	
+	
     // Only worth requesting voice example if input type is TEXT:
     if (inputType == "TEXT") {
 	    var xmlHttp2 = GetXmlHttpObject();
@@ -352,6 +354,9 @@ function updateInputText(replaceInput)
 	        if (xmlHttp2.readyState==4) {
 	        	if (xmlHttp2.status == 200) {
 	        		var examples = xmlHttp2.responseText;
+	        		
+	        		
+	        		
 	        		if (examples != "") {
 		            	haveVoiceExample = true;
 	   					document.getElementById("exampleTexts").style.display = 'inline';
@@ -384,9 +389,11 @@ function updateInputText(replaceInput)
 	    xmlHttp2.open("GET", url2, true);
 	    xmlHttp2.send(null);
     	
-    } else { // input type not text, hide examples, don't send request
+    } else{ // input type not text, hide examples, don't send request
     	document.getElementById("exampleTexts").style.display = 'none';
     }
+    
+    
 }
 
 function getOutputType() {
@@ -401,6 +408,8 @@ function outputTypeChanged()
 	setVisibilities(outputType);
     setModificationVisibility(null, outputType);
 }
+
+
 
 function setVisibilities(outputType)
 {
@@ -425,6 +434,9 @@ function setVisibilities(outputType)
     		document.getElementById("showHideTargetFeatures").style.display = 'inline';
     	} else {
     		document.getElementById("showHideTargetFeatures").style.display = 'none';
+    	}
+    	if(inputType == "PHONEMES"){
+    		
     	}
     }
 };
