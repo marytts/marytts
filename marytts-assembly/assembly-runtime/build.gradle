@@ -32,4 +32,10 @@ task assemble(type: Copy) {
     filesMatching 'installed/*.xml', {
         name = it.name.replace('component', "$version-component")
     }
+
+    doLast {
+        ant {
+            fixcrlf srcdir: "$destinationDir/bin", includes: '*.bat', eol: 'crlf'
+        }
+    }
 }
