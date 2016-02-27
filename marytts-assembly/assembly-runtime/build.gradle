@@ -39,3 +39,14 @@ task assemble(type: Copy) {
         }
     }
 }
+
+task distZip(type: Zip) {
+    from assemble
+    baseName 'marytts'
+    version project.version
+    eachFile {
+        path = "$baseName-$version/$it.path"
+    }
+    destinationDir rootProject.buildDir
+    includeEmptyDirs false
+}
