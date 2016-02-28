@@ -1,0 +1,4 @@
+allprojects {
+    version '5.2-SNAPSHOT'
+    buildDir 'target'
+}
