@@ -1,0 +1,45 @@
+task assemble(type: Copy) {
+    group 'Build'
+    description 'Assembles the outputs of this project.'
+
+    into "$rootProject.buildDir/marytts-builder-$project.version"
+    project(':marytts-builder') { proj ->
+        from proj.buildDir, {
+            include "$proj.name-$version-jar-with-dependencies.jar"
+        }
+    }
+    (project(':marytts-languages').subprojects + project(':marytts-redstart') + project(':marytts-transcription')).each { proj ->
+        from proj.buildDir, {
+            include "$proj.name-${version}.jar"
+        }
+    }
+    from 'src/builder', {
+        filter {
+            it.replaceAll ~/\$\{project.version\}/, version
+        }
+    }
+    from rootDir, {
+        include 'LICENSE.md', '*gpl*.txt'
+    }
+
+    filesMatching '*.jar', {
+        path = "lib/$it.path"
+    }
+
+    doLast {
+        ant {
+            fixcrlf srcdir: "$destinationDir/bin", includes: '*.bat', eol: 'crlf'
+        }
+    }
+}
+
+task distZip(type: Zip) {
+    from assemble
+    baseName 'marytts-builder'
+    version project.version
+    eachFile {
+        path = "$baseName-$version/$it.path"
+    }
+    destinationDir rootProject.buildDir
+    includeEmptyDirs false
+}

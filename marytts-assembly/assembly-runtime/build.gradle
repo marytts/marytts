@@ -1,0 +1,52 @@
+task assemble(type: Copy) {
+    group 'Build'
+    description 'Assembles the outputs of this project.'
+
+    into "$rootProject.buildDir/marytts-$project.version"
+    [project(':marytts-runtime'), project(':marytts-client')].each { proj ->
+        from proj.buildDir, {
+            include "$proj.name-$version-jar-with-dependencies.jar"
+        }
+    }
+    (project(':marytts-languages').subprojects + project(':voice-cmu-slt-hsmm')).each { proj ->
+        from proj.buildDir, {
+            include "$proj.name-${version}.jar"
+        }
+    }
+    from 'src/runtime', {
+        filter {
+            it.replaceAll ~/\$\{project.version\}/, version
+        }
+    }
+    from project(':voice-cmu-slt-hsmm').buildDir, {
+        include '*-component.xml'
+        rename { "installed/$it" }
+    }
+    from rootDir, {
+        include 'LICENSE.md', '*gpl*.txt', 'download/**', 'user-dictionaries/**'
+    }
+
+    filesMatching '*.jar', {
+        path = "lib/$it.path"
+    }
+    filesMatching 'installed/*.xml', {
+        name = it.name.replace('component', "$version-component")
+    }
+
+    doLast {
+        ant {
+            fixcrlf srcdir: "$destinationDir/bin", includes: '*.bat', eol: 'crlf'
+        }
+    }
+}
+
+task distZip(type: Zip) {
+    from assemble
+    baseName 'marytts'
+    version project.version
+    eachFile {
+        path = "$baseName-$version/$it.path"
+    }
+    destinationDir rootProject.buildDir
+    includeEmptyDirs false
+}
