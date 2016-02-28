@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu accent="first" orig="DE12345678901234567890">
+<prosody rate="-20%">
+<phonology precision="precise">
+<mtu accent="last" orig="DE">
+<t accent="unknown">
+D
+</t>
+<t accent="unknown">
+E
+</t>
+</mtu>
+</phonology>
+</prosody>
+<t>
+eins
+</t>
+<t>
+zwei
+</t>
+<t>
+drei
+</t>
+<t>
+vier
+</t>
+<t>
+fünf
+</t>
+<t>
+sechs
+</t>
+<t>
+sieben
+</t>
+<t>
+acht
+</t>
+<t>
+neun
+</t>
+<t>
+null
+</t>
+<t>
+eins
+</t>
+<t>
+zwei
+</t>
+<t>
+drei
+</t>
+<t>
+vier
+</t>
+<t>
+fünf
+</t>
+<t>
+sechs
+</t>
+<t>
+sieben
+</t>
+<t>
+acht
+</t>
+<t>
+neun
+</t>
+<t>
+null
+</t>
+</mtu>
+</s>
+</p>
+</maryxml>
