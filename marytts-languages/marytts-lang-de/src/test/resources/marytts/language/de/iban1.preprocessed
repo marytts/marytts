@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu orig="GR16 0110 1250 0000 0001 2300 695">
+<mtu accent="first" orig="GR16">
+<prosody rate="-20%">
+<phonology precision="precise">
+<mtu accent="last" orig="GR">
+<t accent="unknown">
+G
+</t>
+<t accent="unknown">
+R
+</t>
+</mtu>
+</phonology>
+</prosody>
+<t>
+sechzehn
+</t>
+</mtu>
+<mtu accent="last" orig="01">
+<t>
+null
+</t>
+<t accent="unknown">
+eins
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="10">
+<t>
+eins
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="12">
+<t>
+eins
+</t>
+<t accent="unknown">
+zwei
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="50">
+<t>
+fünf
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="00">
+<t>
+null
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="00">
+<t>
+null
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="00">
+<t>
+null
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="01">
+<t>
+null
+</t>
+<t accent="unknown">
+eins
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="23">
+<t>
+zwei
+</t>
+<t accent="unknown">
+drei
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="00">
+<t>
+null
+</t>
+<t accent="unknown">
+null
+</t>
+</mtu>
+<boundary breakindex="3" tone="unknown"/>
+<mtu accent="last" orig="695">
+<t>
+sechs
+</t>
+<t>
+neun
+</t>
+<t accent="unknown">
+fünf
+</t>
+</mtu>
+</mtu>
+</s>
+</p>
+</maryxml>
