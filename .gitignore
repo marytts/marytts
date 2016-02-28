@@ -9,11 +9,11 @@ target
 .settings/
 .project
 .classpath
-
 # IDEA
 .idea/
 *.iml
 
+# misc. testing
 tmp/
 log/
 test-output/
