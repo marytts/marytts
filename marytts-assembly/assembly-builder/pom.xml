@@ -79,6 +79,7 @@
 				<artifactId>gradle-maven-plugin</artifactId>
 				<configuration>
 					<gradleVersion>2.11</gradleVersion>
+					<args>--quiet</args>
 					<tasks>
 						<task>distZip</task>
 					</tasks>
