@@ -1,6 +1,4 @@
 rootProject.name = 'marytts'
-include 'marytts-assembly:assembly-builder'
-include 'marytts-assembly:assembly-runtime'
 include ':marytts-builder'
 include ':marytts-common'
 include ':marytts-client'
