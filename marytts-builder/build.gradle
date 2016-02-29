@@ -1,4 +1,5 @@
 dependencies {
+    compile project(':marytts-utils')
     compile project(':marytts-client')
     compile project(':marytts-common')
     compile project(':marytts-unitselection')

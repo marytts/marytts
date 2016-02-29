@@ -1,4 +1,5 @@
 dependencies {
+    compile project(':marytts-utils')
     compile project(':marytts-common')
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
