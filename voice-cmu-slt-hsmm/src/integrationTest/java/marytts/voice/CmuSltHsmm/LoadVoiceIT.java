@@ -67,7 +67,8 @@ public class LoadVoiceIT {
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		Document doc = getExampleTokens(mary.getLocale());
 		String out = mary.generateText(doc);
-		assertNotNull(out);
+        System.out.println(out);
+        assertNotNull(out);
 	}
 
 	@Test
@@ -83,7 +84,7 @@ public class LoadVoiceIT {
 		String example = MaryDataType.getExampleText(MaryDataType.TOKENS, locale);
 		assertNotNull(example);
 		Document doc = DomUtils.parseDocument(example);
-		return doc;
+        return doc;
 	}
 
 }
