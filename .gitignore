@@ -1,7 +1,15 @@
+# Maven
 target/
+
+# Gradle
+.gradle/
+
+# Eclipse
 .settings/
 .project
 .classpath
+
+# misc. testing
 tmp/
 log/
 test-output/
