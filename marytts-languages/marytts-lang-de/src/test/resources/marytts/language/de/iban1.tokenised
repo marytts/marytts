@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu orig="GR16 0110 1250 0000 0001 2300 695">
+<t>
+GR16
+</t>
+<t>
+0110
+</t>
+<t>
+1250
+</t>
+<t>
+0000
+</t>
+<t>
+0001
+</t>
+<t>
+2300
+</t>
+<t>
+695
+</t>
+</mtu>
+</s>
+</p>
+</maryxml>
