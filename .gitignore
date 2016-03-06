@@ -4,11 +4,13 @@ build/
 
 # Maven
 target
+bin
 
 # Eclipse
 .settings/
 .project
 .classpath
+
 # IDEA
 .idea/
 *.iml
