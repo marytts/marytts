@@ -58,6 +58,10 @@ allprojects {
             junitXml.destination = file("$testResultsDir/$name")
         }
     }
+
+    test {
+        systemProperty "mary.base", "$rootProject.projectDir/resources"
+    }
 }
 
 subprojects {
@@ -78,3 +82,22 @@ subprojects {
         }
     }
 }
+
+task copyJars(type: Copy, dependsOn: subprojects.jar) {
+    from(subprojects.jar)
+    into project.file("$buildDir/libs")
+}
+
+task copyDeps(type: Copy) {
+    from(subprojects.configurations.runtime)
+    into project.file("$buildDir/libs")
+}
+
+task copyResources(type: Copy) {
+    from "$projectDir/resources"
+    into project.file("$buildDir/")
+}
+
+task copyFiles(dependsOn: [copyJars, copyDeps, copyResources])
+
+tasks.build.dependsOn(copyFiles)
