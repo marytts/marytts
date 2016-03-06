@@ -26,4 +26,14 @@ public class Utterance
     {
     	return m_text;
     }
+
+	public ArrayList<Phrase> getPhrases() 
+	{
+		return m_list_phrases;
+	}
+
+	public void setPhrases(ArrayList<Phrase> list_phrases) 
+	{
+		m_list_phrases = list_phrases;
+	}
 }
