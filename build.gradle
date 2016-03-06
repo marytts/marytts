@@ -1,5 +1,9 @@
 description 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
 
+task wrapper(type: Wrapper) {
+       gradleVersion = '2.11' //version required
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
