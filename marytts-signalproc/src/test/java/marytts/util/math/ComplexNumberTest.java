@@ -1,11 +1,10 @@
 /**
- * 
+ *
  */
 package marytts.util.math;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -17,6 +16,6 @@ public class ComplexNumberTest {
 	public void isEqual() {
 		ComplexNumber n1 = new ComplexNumber(1, 2);
 		ComplexNumber n2 = new ComplexNumber(1, 2);
-		assertEquals(n1, n2);
+		Assert.assertEquals(n1, n2);
 	}
 }

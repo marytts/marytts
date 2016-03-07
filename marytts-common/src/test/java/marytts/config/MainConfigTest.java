@@ -1,15 +1,10 @@
-/**
- * 
- */
 package marytts.config;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.server.MaryProperties;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -19,33 +14,33 @@ public class MainConfigTest {
 
 	private MaryConfig mc;
 
-	@Before
+	@BeforeTest
 	public void setUp() throws MaryConfigurationException {
 		mc = new MainConfig();
 	}
 
 	@Test
 	public void isMainConfig() {
-		assertTrue(mc.isMainConfig());
+		Assert.assertTrue(mc.isMainConfig());
 	}
 
 	@Test
 	public void hasProperties() {
-		assertNotNull(mc.getProperties());
+		Assert.assertNotNull(mc.getProperties());
 	}
 
 	@Test
 	public void hasModules() {
-		assertNotNull(MaryProperties.moduleInitInfo());
+		Assert.assertNotNull(MaryProperties.moduleInitInfo());
 	}
 
 	@Test
 	public void hasSynthesizers() {
-		assertNotNull(MaryProperties.synthesizerClasses());
+		Assert.assertNotNull(MaryProperties.synthesizerClasses());
 	}
 
 	@Test
 	public void hasEffects() {
-		assertNotNull(MaryProperties.effectClasses());
+		Assert.assertNotNull(MaryProperties.effectClasses());
 	}
 }

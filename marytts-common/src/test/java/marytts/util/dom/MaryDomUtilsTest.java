@@ -1,16 +1,18 @@
 /**
- * 
+ *
  */
 package marytts.util.dom;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 /**
  * @author marc
@@ -42,7 +44,7 @@ public class MaryDomUtilsTest {
 		// setup SUT
 		Document doc = createValidMaryXML();
 		// exercise / verify
-		assertTrue(MaryDomUtils.isSchemaValid(doc));
+		Assert.assertTrue(MaryDomUtils.isSchemaValid(doc));
 	}
 
 	@Test
@@ -50,7 +52,7 @@ public class MaryDomUtilsTest {
 		// setup SUT
 		Document doc = createInvalidMaryXML();
 		// exercise / verify
-		assertFalse(MaryDomUtils.isSchemaValid(doc));
+		Assert.assertFalse(MaryDomUtils.isSchemaValid(doc));
 	}
 
 }

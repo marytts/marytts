@@ -19,8 +19,6 @@
  */
 package marytts.unitselection.data;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
@@ -32,10 +30,8 @@ import marytts.tools.voiceimport.TimelineWriter;
 import marytts.util.Pair;
 import marytts.util.data.Datagram;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
@@ -113,13 +109,15 @@ public class TimelineTest {
 	@Test
 	public void procHeader() throws IOException {
 		/* Check the procHeader */
-		Assert.assertEquals("The procHeader is out of sync.", tlr.getProcHeaderContents(), hdrContents);
+		Assert.assertEquals(tlr.getProcHeaderContents(), hdrContents,
+                            "The procHeader is out of sync.");
 	}
 
 	@Test
 	public void numDatagrams() throws IOException {
 		/* Check the number of datagrams */
-		Assert.assertEquals("numDatagrams is out of sync.", tlr.getNumDatagrams(), NUMDATAGRAMS);
+		Assert.assertEquals(tlr.getNumDatagrams(), NUMDATAGRAMS,
+                            "numDatagrams is out of sync.");
 	}
 
 	@Test
@@ -145,10 +143,12 @@ public class TimelineTest {
 				break;
 			}
 			byteNow = bb.position();
-			Assert.assertEquals("Skipping fails on datagram [" + i + "].", (long) (origDatagrams[i].getLength()) + 12l,
-					(byteNow - byteBefore));
-			Assert.assertEquals("Time is out of sync after skipping datagram [" + i + "].", origDatagrams[i].getDuration(),
-					(timeNow - timeBefore));
+			Assert.assertEquals((long) (origDatagrams[i].getLength()) + 12l,
+                                (byteNow - byteBefore),
+                                "Skipping fails on datagram [" + i + "].");
+			Assert.assertEquals(origDatagrams[i].getDuration(),
+                                (timeNow - timeBefore),
+                                "Time is out of sync after skipping datagram [" + i + "].");
 		}
 
 		/* Testing the EOF trap for skip */
@@ -175,10 +175,11 @@ public class TimelineTest {
 				System.err.println("Could read " + i + " datagrams");
 				break;
 			}
-			Assert.assertTrue("Datagram [" + i + "] is out of sync.",
-					areEqual(origDatagrams[i].getData(), readDatagrams[i].getData()));
-			Assert.assertEquals("Time for datagram [" + i + "] is out of sync.", origDatagrams[i].getDuration(),
-					readDatagrams[i].getDuration());
+			Assert.assertTrue(areEqual(origDatagrams[i].getData(), readDatagrams[i].getData()),
+                              "Datagram [" + i + "] is out of sync.");
+			Assert.assertEquals(origDatagrams[i].getDuration(),
+                                readDatagrams[i].getDuration(),
+                                "Time for datagram [" + i + "] is out of sync.");
 		}
 		/* Testing the EOF trap for get */
 		Assert.assertEquals(null, tlr.getNextDatagram(bb));
@@ -193,7 +194,7 @@ public class TimelineTest {
 		ByteBuffer bb = tlr.getByteBufferAtTime(onTime).getFirst();
 		Datagram d = tlr.getNextDatagram(bb);
 		// verify
-		assertEquals(origDatagrams[testIdx], d);
+		Assert.assertEquals(origDatagrams[testIdx], d);
 	}
 
 	@Test
@@ -207,7 +208,7 @@ public class TimelineTest {
 		ByteBuffer bb = tlr.getByteBufferAtTime(midTime).getFirst();
 		Datagram d = tlr.getNextDatagram(bb);
 		// verify
-		assertEquals(origDatagrams[testIdx], d);
+		Assert.assertEquals(origDatagrams[testIdx], d);
 	}
 
 	@Test
@@ -220,7 +221,7 @@ public class TimelineTest {
 		ByteBuffer bb = tlr.getByteBufferAtTime(afterTime).getFirst();
 		Datagram d = tlr.getNextDatagram(bb);
 		// verify
-		assertEquals(origDatagrams[testIdx + 1], d);
+		Assert.assertEquals(origDatagrams[testIdx + 1], d);
 	}
 
 	@Test
@@ -234,9 +235,9 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime, span, sampleRate, offset);
 		// verify
-		assertEquals(1, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(0l, offset[0]);
+		Assert.assertEquals(1, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(0l, offset[0]);
 	}
 
 	@Test
@@ -250,9 +251,9 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime, span, sampleRate, offset);
 		// verify
-		assertEquals(1, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(0l, offset[0]);
+		Assert.assertEquals(1, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(0l, offset[0]);
 	}
 
 	@Test
@@ -267,8 +268,8 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(midTime, span, sampleRate);
 		// verify
-		assertEquals(1, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(1, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
 	}
 
 	@Test
@@ -282,10 +283,10 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime, span, sampleRate, offset);
 		// verify
-		assertEquals(2, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(origDatagrams[testIdx + 1], D[1]);
-		assertEquals(0l, offset[0]);
+		Assert.assertEquals(2, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(origDatagrams[testIdx + 1], D[1]);
+		Assert.assertEquals(0l, offset[0]);
 	}
 
 	@Test
@@ -299,10 +300,10 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime, span, sampleRate, offset);
 		// verify
-		assertEquals(2, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(origDatagrams[testIdx + 1], D[1]);
-		assertEquals(0l, offset[0]);
+		Assert.assertEquals(2, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(origDatagrams[testIdx + 1], D[1]);
+		Assert.assertEquals(0l, offset[0]);
 	}
 
 	@Test
@@ -316,13 +317,13 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime + 1, span, sampleRate, offset);
 		// verify
-		assertEquals("textIdx=" + testIdx + ", span=" + span + ", dur[" + testIdx + "]=" + origDatagrams[testIdx].getDuration()
-				+ ", dur[" + (testIdx + 1) + "]=" + origDatagrams[testIdx + 1].getDuration() + ", offset=" + offset[0], 3,
-				D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(origDatagrams[testIdx + 1], D[1]);
-		assertEquals(origDatagrams[testIdx + 2], D[2]);
-		assertEquals(1l, offset[0]);
+		Assert.assertEquals(3, D.length,
+                            "textIdx=" + testIdx + ", span=" + span + ", dur[" + testIdx + "]=" + origDatagrams[testIdx].getDuration()
+                            + ", dur[" + (testIdx + 1) + "]=" + origDatagrams[testIdx + 1].getDuration() + ", offset=" + offset[0]);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(origDatagrams[testIdx + 1], D[1]);
+		Assert.assertEquals(origDatagrams[testIdx + 2], D[2]);
+		Assert.assertEquals(1l, offset[0]);
 	}
 
 	@Test
@@ -339,10 +340,10 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(midTime, span, sampleRate, offset);
 		// verify
-		assertEquals(2, D.length);
-		assertEquals(origDatagrams[testIdx], D[0]);
-		assertEquals(origDatagrams[testIdx + 1], D[1]);
-		assertEquals(dur / 2, offset[0]);
+		Assert.assertEquals(2, D.length);
+		Assert.assertEquals(origDatagrams[testIdx], D[0]);
+		Assert.assertEquals(origDatagrams[testIdx + 1], D[1]);
+		Assert.assertEquals(dur / 2, offset[0]);
 	}
 
 	@Test
@@ -356,7 +357,7 @@ public class TimelineTest {
 		// exercise
 		D = tlr.getDatagrams(onTime * 2, span * 2, sampleRate / 2);
 		// verify
-		assertEquals(1, D.length);
+		Assert.assertEquals(1, D.length);
 		Assert.assertTrue(areEqual(D[0].getData(), origDatagrams[testIdx].getData()));
 		Assert.assertTrue(D[0].getDuration() != origDatagrams[testIdx].getDuration());
 
@@ -472,7 +473,7 @@ public class TimelineTest {
 
 	/**
 	 * Compare two arrays of long.
-	 * 
+	 *
 	 * @param a1
 	 *            an array of longs
 	 * @param a2
@@ -494,7 +495,7 @@ public class TimelineTest {
 
 	/**
 	 * Compare two arrays of bytes.
-	 * 
+	 *
 	 * @param a1
 	 *            an array of bytes
 	 * @param a2

@@ -1,9 +1,7 @@
 /**
- * 
+ *
  */
 package marytts.tools.newlanguage;
-
-import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,20 +14,17 @@ import marytts.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * Test case for LTSTrainer
- * 
+ *
  * @author fabio
- * 
+ *
  */
 public class LTSTrainerTest {
-
-	@Rule
-	public TemporaryFolder testFolder = new TemporaryFolder();
 
 	@Test
 	public void test() {
@@ -57,21 +52,21 @@ public class LTSTrainerTest {
 
 			// Temp file for test
 			String OutputFilename = "LTS_test.tree";
-			File tempFile = testFolder.newFile(OutputFilename);
+			File tempFile = File.createTempFile(OutputFilename, ".tmp");
 			System.out.println("Writing tree in tempFile: " + tempFile.getAbsolutePath() + tempFile.getName());
 
 			tp.save(st, tempFile.getAbsolutePath() + tempFile.getName());
 
-			assertTrue(tempFile.exists());
+			Assert.assertTrue(tempFile.exists());
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			fail(e.toString());
+			Assert.fail(e.toString());
 		} catch (MaryConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			fail(e.toString());
+			Assert.fail(e.toString());
 		}
 	}
 }

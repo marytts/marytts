@@ -25,8 +25,9 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der
@@ -51,7 +52,7 @@ public class AudioDoubleDataSourceTest {
 		DDSAudioInputStream ais = new DDSAudioInputStream(new BufferedDoubleDataSource(signal), af);
 		double[] result = new AudioDoubleDataSource(ais).getAllData();
 		double err = MathUtils.sumSquaredError(signal, result);
-		Assert.assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 }

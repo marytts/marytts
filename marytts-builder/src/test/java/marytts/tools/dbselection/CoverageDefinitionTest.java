@@ -26,9 +26,8 @@ import marytts.features.FeatureVector;
 import marytts.util.FeatureUtils;
 import marytts.util.io.FileUtils;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -38,10 +37,10 @@ public class CoverageDefinitionTest {
 	private FeatureDefinition featDef;
 	private CoverageFeatureProvider cfProvider;
 
-	@Before
+	@BeforeMethod
 	public void setup() throws Exception {
 		String targetFeaturesData = FileUtils.getStreamAsString(getClass().getResourceAsStream("helloworld.targetfeatures"),
-				"UTF-8");
+                                                                "UTF-8");
 		featDef = FeatureUtils.readFeatureDefinition(targetFeaturesData);
 		FeatureVector[] features = FeatureUtils.readFeatureVectors(targetFeaturesData);
 		byte[][] data = new byte[1][];
@@ -57,12 +56,12 @@ public class CoverageDefinitionTest {
 		// verify
 		CoverageDefinition.CoverageStatistics corpusStats = def.getCorpusStatistics();
 		Set<String> phones = corpusStats.coveredPhones;
-		assertTrue(phones.contains("h"));
-		assertFalse(phones.contains("EI"));
-		assertEquals(8, phones.size());
+		Assert.assertTrue(phones.contains("h"));
+		Assert.assertFalse(phones.contains("EI"));
+		Assert.assertEquals(8, phones.size());
 		Set<String> diphones = corpusStats.coveredDiphones;
-		assertTrue(diphones.contains("h_@"));
-		assertFalse(diphones.contains("@_h"));
-		assertEquals(9, diphones.size());
+		Assert.assertTrue(diphones.contains("h_@"));
+		Assert.assertFalse(diphones.contains("@_h"));
+		Assert.assertEquals(9, diphones.size());
 	}
 }

@@ -19,64 +19,48 @@
  */
 package marytts.signalproc.process;
 
-import static org.junit.Assert.assertTrue;
-
-import java.awt.Color;
-
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der
  *
  */
-public class PhaseVocoderTest {
+public class FrameOverlapAddTest {
 	@Test
 	public void testIdentity() {
 		double[] signal = FFTTest.getSampleSignal(16000);
 		int samplingRate = 8000;
-		PhaseVocoder pv = new PhaseVocoder(new BufferedDoubleDataSource(signal), samplingRate, 1);
-		double[] result = pv.getAllData();
+		FrameOverlapAddSource ola = new FrameOverlapAddSource(new BufferedDoubleDataSource(signal), 2048, samplingRate, null);
+		double[] result = ola.getAllData();
 		double err = MathUtils.sumSquaredError(signal, result);
-		if (err > 1.E-20) {
-			SignalGraph graph = new SignalGraph(signal, 16000);
-			graph.addDataSeries(result, Color.RED, FunctionGraph.DRAW_LINE, -1);
-			graph.showInJFrame("Test signal", true, true);
-			try {
-				Thread.sleep(100000);
-			} catch (Exception e) {
-			}
-		}
-		assertTrue("Error: " + err, err < 1.E-15);
+		Assert.assertTrue(err < 1.E-19, "Error: " + err);
 	}
 
-	@Test
 	public void testStretch1() {
-		double[] signal = FFTTest.getSampleSignal(16000);
+		double[] signal = FFTTest.getSampleSignal(2048 + 128);
 		int samplingRate = 8000;
 		double rateFactor = 0.5;
-		PhaseVocoder pv = new PhaseVocoder(new BufferedDoubleDataSource(signal), samplingRate, rateFactor);
-		double[] result = pv.getAllData();
-		int expectedLength = pv.computeOutputLength(signal.length);
-		assertTrue("Expected result length: " + expectedLength + ", found: " + result.length, result.length == expectedLength);
+		NaiveVocoder nv = new NaiveVocoder(new BufferedDoubleDataSource(signal), samplingRate, rateFactor);
+		double[] result = nv.getAllData();
+		int expectedLength = nv.computeOutputLength(signal.length);
+		Assert.assertTrue(result.length == expectedLength, "Expected result length: " + expectedLength + ", found: " + result.length);
 	}
 
-	@Test
 	public void testStretch2() {
 		double[] signal = FFTTest.getSampleSignal(16000);
 		int samplingRate = 8000;
 		double rateFactor = 0.5;
-		PhaseVocoder pv = new PhaseVocoder(new BufferedDoubleDataSource(signal), samplingRate, rateFactor);
-		double[] result = pv.getAllData();
+		NaiveVocoder nv = new NaiveVocoder(new BufferedDoubleDataSource(signal), samplingRate, rateFactor);
+		double[] result = nv.getAllData();
 		double meanSignalEnergy = MathUtils.mean(MathUtils.multiply(signal, signal));
 		double meanResultEnergy = MathUtils.mean(MathUtils.multiply(result, result));
 		double percentDifference = Math.abs(meanSignalEnergy - meanResultEnergy) / meanSignalEnergy * 100;
-		assertTrue("Stretching changed signal energy by  " + percentDifference + "%", percentDifference < 2);
+		Assert.assertTrue(percentDifference < 6, "Stretching changed signal energy by  " + percentDifference + "%");
 	}
 
 }

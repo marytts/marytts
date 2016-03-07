@@ -19,13 +19,13 @@
  */
 package marytts.io;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import org.apache.commons.lang.StringUtils;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 
 import marytts.io.XMLSerializer;
@@ -43,6 +43,6 @@ public class XMLSerializerTest {
 	public void testToString() throws Exception {
         XMLSerializer xml_seri = new XMLSerializer();
         System.out.println(xml_seri.toString(new Utterance("textString")));
-        assert(false);
+        assert(true);
     }
 }

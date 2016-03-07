@@ -1,10 +1,7 @@
 /**
- * 
+ *
  */
-package marytts.tests.junit4.language.de;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+package marytts.language.de;
 
 import java.io.InputStream;
 import java.util.logging.Logger;
@@ -14,8 +11,8 @@ import marytts.fst.FSTLookup;
 import marytts.language.de.JPhonemiser;
 import marytts.server.MaryProperties;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -35,14 +32,14 @@ public class GermanIT {
 		String[] phone = lexicon.lookup(word);
 		String[] phone2 = lexicon.lookup(word2);
 		// verify
-		assertTrue("no transcription for " + word, phone.length > 0);
-		assertTrue("no transcription for " + word2, phone2.length > 0);
-		assertEquals("wrong transcription for '" + word + "':", "' m E n S", phone[0]);
-		assertEquals("wrong transcription for '" + word2 + "':", "' S 2: n", phone2[0]);
+		Assert.assertTrue(phone.length > 0, "no transcription for " + word);
+		Assert.assertTrue(phone2.length > 0, "no transcription for " + word2);
+		Assert.assertEquals("' m E n S", phone[0], "wrong transcription for '" + word + "':");
+		Assert.assertEquals("' S 2: n", phone2[0], "wrong transcription for '" + word2 + "':");
 	}
-	
+
 	//Testing for the output when a greek work if phonemised
-	@Test 
+	@Test
 	public void PhonemiserT() throws Exception{
 		JPhonemiser module = new JPhonemiser();
 		String result = "";
@@ -51,8 +48,8 @@ public class GermanIT {
 		result = module.phonemise("αββ", "XY", new StringBuilder());
 		result2 = module.phonemise("λόγος", "XY", new StringBuilder());
 		//verify
-		assertEquals(result, null);
-		assertEquals(result2, null);
+		Assert.assertEquals(result, null);
+		Assert.assertEquals(result2, null);
 	}
 
 }

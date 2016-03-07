@@ -19,17 +19,14 @@
  */
 package marytts.language.sv;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Locale;
 
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -41,19 +38,19 @@ public class SwedishConfigTest {
 	@Test
 	public void isNotMainConfig() throws MaryConfigurationException {
 		MaryConfig m = new SwedishConfig();
-		assertFalse(m.isMainConfig());
+		Assert.assertFalse(m.isMainConfig());
 	}
 
 	@Test
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(SWEDISH);
-		assertNotNull(m);
-		assertTrue(((LanguageConfig) m).getLocales().contains(SWEDISH));
+		Assert.assertNotNull(m);
+		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(SWEDISH));
 	}
 
 	@Test
 	public void hasSwedishLocale() throws MaryConfigurationException {
 		LanguageConfig e = new SwedishConfig();
-		assertTrue(e.getLocales().contains(SWEDISH));
+		Assert.assertTrue(e.getLocales().contains(SWEDISH));
 	}
 }

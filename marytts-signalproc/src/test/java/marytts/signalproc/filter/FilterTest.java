@@ -19,8 +19,6 @@
  */
 package marytts.signalproc.filter;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
@@ -28,7 +26,9 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der
@@ -51,8 +51,8 @@ public class FilterTest {
 		 * SignalGraph graph2 = new SignalGraph(result, samplingFrequency); graph2.showInJFrame("Test result", true, true); try
 		 * {Thread.sleep(100000);} catch(Exception e) {}
 		 */
-		assertTrue("Result has length " + result.length + " instead of expected " + signal.length
-				+ " (impulse response length is " + filter.getImpulseResponseLength() + ")", result.length == signal.length);
+		Assert.assertTrue(result.length == signal.length, "Result has length " + result.length + " instead of expected " + signal.length
+                          + " (impulse response length is " + filter.getImpulseResponseLength() + ")");
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class FilterTest {
 		 * Color.RED, FunctionGraph.DRAW_LINE, -1); graph.showInJFrame("Test signal", true, true); try {Thread.sleep(100000);}
 		 * catch(Exception e) {} }
 		 */
-		assertTrue("Error: " + err, err < criterion);
+		Assert.assertTrue(err < criterion, "Error: " + err);
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class FilterTest {
 		double[] result = new LowPassFilter(normalisedCutoff, 0.002).apply(signal);
 		double err = MathUtils.sumSquaredError(signal, result);
 		double criterion = 1.e-20;
-		assertTrue("Error: " + err, err < criterion);
+		Assert.assertTrue(err < criterion, "Error: " + err);
 	}
 
 }

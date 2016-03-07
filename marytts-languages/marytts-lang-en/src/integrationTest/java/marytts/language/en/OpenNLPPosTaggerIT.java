@@ -24,7 +24,8 @@ import java.util.Locale;
 import marytts.modules.OpenNLPPosTagger;
 import marytts.tests.modules.MaryModuleTestCase;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc

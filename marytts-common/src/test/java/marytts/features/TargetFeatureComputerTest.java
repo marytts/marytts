@@ -1,14 +1,13 @@
 package marytts.features;
 
-import static org.junit.Assert.*;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 import java.util.Locale;
 
 import marytts.features.Target;
 import marytts.util.string.ByteStringTranslator;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class TargetFeatureComputerTest {
 
@@ -23,7 +22,7 @@ public class TargetFeatureComputerTest {
 		return values;
 	}
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		System.setProperty(".allophoneset", "jar:/marytts/features/allophones.ROOT.xml");
 		FeatureProcessorManager manager = new FeatureProcessorManager(Locale.ROOT);
@@ -40,7 +39,7 @@ public class TargetFeatureComputerTest {
 			byte feature = translator.get(expected);
 			FeatureVector vector = new FeatureVector(new byte[] { feature }, new short[] {}, new float[] {}, 0);
 			String actual = computer.toStringValues(vector);
-			assertEquals(expected, actual);
+			Assert.assertEquals(expected, actual);
 		}
 	}
 
