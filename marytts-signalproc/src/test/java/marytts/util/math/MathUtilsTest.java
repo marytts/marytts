@@ -1,7 +1,8 @@
 package marytts.util.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 public class MathUtilsTest {
 
@@ -10,6 +11,6 @@ public class MathUtilsTest {
 		double[] contour = new double[] { 1, 0, 3 };
 		double[] expected = new double[] { 1, 2, 3 };
 		double[] actual = MathUtils.interpolateNonZeroValues(contour);
-		Assert.assertArrayEquals(expected, actual, 0d);
+		Assert.assertEquals(expected, actual);
 	}
 }

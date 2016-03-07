@@ -24,8 +24,8 @@ import java.util.Locale;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -34,12 +34,12 @@ import org.junit.Test;
 public class CoverageDefinitionIT {
 
 	private static String[] testSentences = new String[] { "Author of the danger trail, Philip Steels, etc.",
-			"Not at this particular case, Tom, apologized Whittemore.",
-			"For the twentieth time that evening the two men shook hands.", "Lord, but I'm glad to see you again, Phil.",
-			"Will we ever forget it.", "God bless 'em, I hope I'll go on seeing them forever.",
-			"And you always want to see it in the superlative degree.", "Gad, your letter came just in time.",
-			"He turned sharply, and faced Gregson across the table.",
-			"I'm playing a single hand in what looks like a losing game." };
+                                                           "Not at this particular case, Tom, apologized Whittemore.",
+                                                           "For the twentieth time that evening the two men shook hands.", "Lord, but I'm glad to see you again, Phil.",
+                                                           "Will we ever forget it.", "God bless 'em, I hope I'll go on seeing them forever.",
+                                                           "And you always want to see it in the superlative degree.", "Gad, your letter came just in time.",
+                                                           "He turned sharply, and faced Gregson across the table.",
+                                                           "I'm playing a single hand in what looks like a losing game." };
 
 	private static byte[][] coverageFeatures = new byte[testSentences.length][];
 	private static Locale locale = Locale.US;

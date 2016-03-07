@@ -17,12 +17,9 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.DomUtils;
 import marytts.config.MaryConfig;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import org.mockito.Mockito;
 
@@ -30,47 +27,57 @@ public class UnitSelectionIT {
 
 	MaryInterface mary;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		mary = new LocalMaryInterface();
 	}
 
 	@Test
 	public void canReadUnitSelectionConfig() throws Exception {
-		assertThat(marytts.config.MaryConfig.getConfigs(), hasItem(isA(UnitSelectionConfig.class)));
+        boolean us_config_found = false;
+        for (Object o:marytts.config.MaryConfig.getConfigs())
+        {
+            if (o instanceof UnitSelectionConfig)
+            {
+                us_config_found = true;
+                break;
+            }
+        }
+
+        Assert.assertTrue(us_config_found);
+    }
+
+    @Test
+public void canReadUnitSelectionConfig2() throws Exception {
+    Assert.assertNotNull(MaryConfig.getSynthesisConfig("unitselection"));
 	}
-	
-	@Test
-	public void canReadUnitSelectionConfig2() throws Exception {	
-		assertNotNull(MaryConfig.getSynthesisConfig("unitselection"));
-	}
-	
+
 	/**
-	@Test
-	public void canLoadVoice() throws Exception {
-		Voice voice = new UnitSelectionVoice(mockedVoiceConfig.getName(), null);
-		assertNotNull(voice);
-	}
+       @Test
+       public void canLoadVoice() throws Exception {
+       Voice voice = new UnitSelectionVoice(mockedVoiceConfig.getName(), null);
+       Assert.assertNotNull(voice);
+       }
 	**/
-	
+
 	/**
-	@Test
-	public void canSetVoice() throws Exception {
-		UnitSelectionVoice mockedVoice = Mockito.mock(UnitSelectionVoice.class);
-		when(mockedVoice.getName()).thenReturn("fnord");
-		
-		mary.setVoice(mockedVoice.getName());
-		assertEquals("fnord", mary.getVoice());
-		
-	}
+       @Test
+       public void canSetVoice() throws Exception {
+       UnitSelectionVoice mockedVoice = Mockito.mock(UnitSelectionVoice.class);
+       when(mockedVoice.getName()).thenReturn("fnord");
+
+       mary.setVoice(mockedVoice.getName());
+       Assert.assertEquals("fnord", mary.getVoice());
+
+       }
 	**/
-	
+
 	/**
-	@Test
-	public void canProcessTextToSpeech() throws Exception {
-		mary.setVoice(mockedVoiceConfig.getName());
-		AudioInputStream audio = mary.generateAudio("Hello world");
-		assertNotNull(audio);
-	}
+       @Test
+       public void canProcessTextToSpeech() throws Exception {
+       mary.setVoice(mockedVoiceConfig.getName());
+       AudioInputStream audio = mary.generateAudio("Hello world");
+       Assert.assertNotNull(audio);
+       }
 	**/
 }

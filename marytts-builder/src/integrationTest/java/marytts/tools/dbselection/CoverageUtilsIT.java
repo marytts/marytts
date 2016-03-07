@@ -27,9 +27,9 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.server.Mary;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -44,11 +44,11 @@ public class CoverageUtilsIT {
 	String[] selection_prosodies = { "0", "0", "pre-nuclear", "pre-nuclear", "nuclear", "nuclear", "nuclear", "nuclear", "0" };
 
 	private void assertFeaturesMatchTarget(byte[] data, String featureNames) {
-		assertNotNull(data);
+		Assert.assertNotNull(data);
 		String[] featureNameArray = featureNames.split(" ");
 		int numFeatures = featureNameArray.length;
-		assertEquals(phones.length, data.length / numFeatures);
-		assertEquals(0, data.length % numFeatures);
+		Assert.assertEquals(phones.length, data.length / numFeatures);
+		Assert.assertEquals(0, data.length % numFeatures);
 		TargetFeatureComputer tfc = FeatureRegistry.getTargetFeatureComputer(locale, featureNames);
 		FeatureDefinition def = tfc.getFeatureDefinition();
 		for (int k = 0; k < numFeatures; k++) {
@@ -68,7 +68,7 @@ public class CoverageUtilsIT {
 				int pos = i * numFeatures + k;
 				String actual = possibleValues[data[pos]];
 				String expected = values[i];
-				assertEquals(expected, actual);
+				Assert.assertEquals(expected, actual);
 			}
 		}
 	}
@@ -90,7 +90,7 @@ public class CoverageUtilsIT {
 		assertFeaturesMatchTarget(data, featureNames);
 	}
 
-	@Test(expected = SynthesisException.class)
+	@Test(expectedExceptions = SynthesisException.class)
 	public void willRejectUnknownFeature() throws Exception {
 		// setup
 		String featureNames = "unknown";

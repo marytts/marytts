@@ -21,14 +21,12 @@ package marytts.util;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.io.FileUtils;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -38,25 +36,25 @@ public class FeatureUtilsTest {
 
 	String targetfeatures;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws IOException {
 		targetfeatures = FileUtils.getStreamAsString(FeatureUtilsTest.class.getResourceAsStream("helloworld.targetfeatures"),
-				"UTF-8");
+                                                     "UTF-8");
 	}
 
 	@Test
 	public void testReadFeatureDefinition() throws IOException {
 		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetfeatures);
-		assertNotNull(def);
+		Assert.assertNotNull(def);
 	}
 
 	@Test
 	public void testReadFeatureVectors() throws IOException {
 		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetfeatures);
 		FeatureVector[] featureVectors = FeatureUtils.readFeatureVectors(targetfeatures);
-		assertNotNull(featureVectors);
-		assertEquals(9, featureVectors.length);
-		assertEquals("h", def.getFeatureValueAsString("phone", featureVectors[0]));
+		Assert.assertNotNull(featureVectors);
+		Assert.assertEquals(9, featureVectors.length);
+		Assert.assertEquals("h", def.getFeatureValueAsString("phone", featureVectors[0]));
 
 	}
 }

@@ -20,30 +20,17 @@
 
 package marytts.util;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import java.io.File;
 import java.sql.SQLException;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runners.MethodSorters;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
- * 
+ *
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MaryCacheTest {
-	@ClassRule
-	public static TemporaryFolder tmp = new TemporaryFolder();
 
 	private static MaryCache c;
 	private static File maryCacheFile;
@@ -62,38 +49,38 @@ public class MaryCacheTest {
 	 */
 	@BeforeClass
 	public static void setUp() throws Exception {
-		maryCacheFile = tmp.newFile();
-		c = new MaryCache(maryCacheFile, true);
-		c.insertText(inputtype, outputtype, locale, voice, inputtext, targetValue);
-		c.insertAudio(inputtype, locale, voice, inputtext, targetAudio);
-		c.insertText(inputtype, outputtype, locale, voice, inputtext2, targetValue2);
-	}
+		maryCacheFile = File.createTempFile("temp-file-name", ".tmp");
+        c = new MaryCache(maryCacheFile, true);
+        c.insertText(inputtype, outputtype, locale, voice, inputtext, targetValue);
+        c.insertAudio(inputtype, locale, voice, inputtext, targetAudio);
+        c.insertText(inputtype, outputtype, locale, voice, inputtext2, targetValue2);
+    }
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDown() throws Exception {
-		c.shutdown();
-	}
+    /**
+     * @throws java.lang.Exception
+     */
+    @AfterClass
+    public static void tearDown() throws Exception {
+        c.shutdown();
+    }
 
-	@Test
-	public void lookupText() throws Exception {
-		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
-		assertEquals(targetValue, lookupValue);
-	}
+    @Test
+    public void lookupText() throws Exception {
+        String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
+        Assert.assertEquals(targetValue, lookupValue);
+    }
 
-	@Test
-	public void lookupText2() throws Exception {
+    @Test
+    public void lookupText2() throws Exception {
 		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext2);
-		assertEquals(targetValue2, lookupValue);
+		Assert.assertEquals(targetValue2, lookupValue);
 	}
 
 	@Test
 	public void lookupAudio() throws Exception {
 		byte[] lookupAudio = c.lookupAudio(inputtype, locale, voice, inputtext);
-		assertNotNull(lookupAudio);
-		assertArrayEquals(targetAudio, lookupAudio);
+		Assert.assertNotNull(lookupAudio);
+		Assert.assertEquals(targetAudio, lookupAudio);
 	}
 
 	@Test
@@ -109,7 +96,7 @@ public class MaryCacheTest {
 		} catch (SQLException e) {
 			numExceptions++;
 		}
-		assertEquals(0, numExceptions);
+		Assert.assertEquals(0, numExceptions);
 	}
 
 	@Test
@@ -125,9 +112,9 @@ public class MaryCacheTest {
 		c.shutdown();
 		c = new MaryCache(maryCacheFile, true);
 		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
-		assertNull(lookupValue);
+		Assert.assertNull(lookupValue);
 		byte[] lookupAudio = c.lookupAudio(inputtype, locale, voice, inputtext);
-		assertNull(lookupAudio);
+		Assert.assertNull(lookupAudio);
 	}
 
 }

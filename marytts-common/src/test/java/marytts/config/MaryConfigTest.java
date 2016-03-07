@@ -19,8 +19,6 @@
  */
 package marytts.config;
 
-import static org.junit.Assert.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,8 +29,8 @@ import java.util.Properties;
 
 import marytts.exceptions.MaryConfigurationException;
 
-import org.junit.Test;
-
+import org.testng.Assert;
+import org.testng.annotations.*;
 /**
  * @author marc
  *
@@ -44,24 +42,24 @@ public class MaryConfigTest {
 		// exercise
 		int num = MaryConfig.countConfigs();
 		// verify
-		assertTrue(num >= 0);
+		Assert.assertTrue(num >= 0);
 	}
 
 	@Test
 	public void haveMainConfig() {
 		MaryConfig m = MaryConfig.getMainConfig();
-		assertNotNull(m);
+		Assert.assertNotNull(m);
 	}
 
 	/**
 	 * @author Tristan
 	 * @author ingmar
-	 * 
+	 *
 	 *         Test to check properties file for trailing whitespace [SOLVED] -> created PropertiesTrimTrailingWhitespace class to
 	 *         trim trailing whitespace
 	 * @throws MaryConfigurationException
 	 * @throws IOException
-	 * 
+	 *
 	 */
 	@Test
 	public void ensureTrailingWhitespaceIsTrimmed() throws MaryConfigurationException, IOException {
@@ -74,16 +72,16 @@ public class MaryConfigTest {
 		for (String key : testProps.stringPropertyNames()) {
 			String expected = testProps.getProperty(key).trim();
 			String actual = testConfig.getProperties().getProperty(key);
-			assertEquals(expected, actual);
+			Assert.assertEquals(expected, actual);
 		}
 	}
 
-	@Test(expected = MaryConfigurationException.class)
+	@Test(expectedExceptions = MaryConfigurationException.class)
 	public void requireLocale1() throws MaryConfigurationException {
 		new LanguageConfig(new ByteArrayInputStream(new byte[0]));
 	}
 
-	@Test(expected = MaryConfigurationException.class)
+	@Test(expectedExceptions = MaryConfigurationException.class)
 	public void requireLocale2() throws MaryConfigurationException, IOException {
 		Properties p = new Properties();
 		p.setProperty("a", "b");
@@ -104,12 +102,12 @@ public class MaryConfigTest {
 		// exercise:
 		List<String> theList = lc.getList("testlist");
 		// verify
-		assertNotNull(theList);
-		assertEquals(3, theList.size());
+		Assert.assertNotNull(theList);
+		Assert.assertEquals(3, theList.size());
 		Iterator<String> it = theList.iterator();
-		assertEquals("a", it.next());
-		assertEquals("b", it.next());
-		assertEquals("c", it.next());
+		Assert.assertEquals("a", it.next());
+		Assert.assertEquals("b", it.next());
+		Assert.assertEquals("c", it.next());
 	}
 
 	class TestConfig extends MaryConfig {

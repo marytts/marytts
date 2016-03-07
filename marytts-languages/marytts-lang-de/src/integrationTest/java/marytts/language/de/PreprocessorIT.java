@@ -9,7 +9,8 @@ import marytts.language.de.Preprocess;
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der

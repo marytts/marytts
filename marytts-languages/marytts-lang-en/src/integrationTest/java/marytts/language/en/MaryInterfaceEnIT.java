@@ -27,15 +27,14 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
 import marytts.util.FeatureUtils;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.*;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * Some more coverage tests with actual language modules
- * 
+ *
  * @author marc
  *
  */
@@ -43,7 +42,7 @@ public class MaryInterfaceEnIT {
 
 	private MaryInterface mary;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		mary = new LocalMaryInterface();
 	}
@@ -52,21 +51,21 @@ public class MaryInterfaceEnIT {
 	public void convertTextToAcoustparams() throws Exception {
 		mary.setOutputType(MaryDataType.ACOUSTPARAMS.name());
 		Document doc = mary.generateXML("Hello world");
-		assertNotNull(doc);
+		Assert.assertNotNull(doc);
 	}
 
 	@Test
 	public void convertTextToTargetfeatures() throws Exception {
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String tf = mary.generateText("Hello world");
-		assertNotNull(tf);
+		Assert.assertNotNull(tf);
 	}
 
 	@Test
 	public void convertTextToPhonemes() throws Exception {
 		mary.setOutputType(MaryDataType.PHONEMES.name());
 		Document doc = mary.generateXML("Applejuice");
-		assertNotNull(doc);
+		Assert.assertNotNull(doc);
 	}
 
 	@Test
@@ -76,9 +75,9 @@ public class MaryInterfaceEnIT {
 		mary.setOutputTypeParams(featureNames);
 		String tf = mary.generateText("Hello world");
 		FeatureDefinition expected = FeatureRegistry.getTargetFeatureComputer(mary.getLocale(), featureNames)
-				.getFeatureDefinition();
+            .getFeatureDefinition();
 		FeatureDefinition actual = FeatureUtils.readFeatureDefinition(tf);
-		assertEquals(expected.featureEqualsAnalyse(actual), expected, actual);
+		Assert.assertEquals(expected, actual, expected.featureEqualsAnalyse(actual));
 	}
 
 }

@@ -1,7 +1,5 @@
 package marytts.util.data;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -10,7 +8,10 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.util.data.audio.DDSAudioInputStream;
 
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 public class ProducingDoubleDataSourceTest {
 
@@ -28,10 +29,10 @@ public class ProducingDoubleDataSourceTest {
 	public void canReadZeroDoubles() {
 		TestProducer producer = new TestProducer(0);
 		producer.start();
-		assertEquals(0, producer.available());
-		assertEquals(0, producer.getDataLength());
+		Assert.assertEquals(0, producer.available());
+		Assert.assertEquals(0, producer.getDataLength());
 		double[] data = producer.getAllData();
-		assertEquals(0, data.length);
+		Assert.assertEquals(0, data.length);
 	}
 
 	@Test
@@ -39,7 +40,7 @@ public class ProducingDoubleDataSourceTest {
 		TestProducer producer = new TestProducer(0);
 		producer.start();
 		AudioInputStream ais = new DDSAudioInputStream(producer, getTestAudioFormat());
-		assertEquals(0, ais.getFrameLength());
+		Assert.assertEquals(0, ais.getFrameLength());
 	}
 
 	@Test
@@ -47,9 +48,9 @@ public class ProducingDoubleDataSourceTest {
 		int numDoubles = 10;
 		TestProducer producer = new TestProducer(numDoubles);
 		producer.start();
-		assertEquals(numDoubles, producer.getDataLength());
+		Assert.assertEquals(numDoubles, producer.getDataLength());
 		double[] data = producer.getAllData();
-		assertEquals(numDoubles, data.length);
+		Assert.assertEquals(numDoubles, data.length);
 	}
 
 	@Test
@@ -57,9 +58,9 @@ public class ProducingDoubleDataSourceTest {
 		int numDoubles = 4000;
 		TestProducer producer = new TestProducer(numDoubles);
 		producer.start();
-		assertEquals(numDoubles, producer.getDataLength());
+		Assert.assertEquals(numDoubles, producer.getDataLength());
 		double[] data = producer.getAllData();
-		assertEquals(numDoubles, data.length);
+		Assert.assertEquals(numDoubles, data.length);
 	}
 
 	@Test
@@ -68,9 +69,9 @@ public class ProducingDoubleDataSourceTest {
 		TestProducer producer = new TestProducer(numDoubles);
 		producer.start();
 		AudioInputStream ais = new DDSAudioInputStream(producer, getTestAudioFormat());
-		assertEquals(numDoubles, ais.getFrameLength());
+		Assert.assertEquals(numDoubles, ais.getFrameLength());
 		int bytesRead = ais.read(new byte[16000]);
-		assertEquals(2 * numDoubles, bytesRead);
+		Assert.assertEquals(2 * numDoubles, bytesRead);
 
 	}
 
@@ -80,9 +81,9 @@ public class ProducingDoubleDataSourceTest {
 		TestProducer producer = new TestProducer(numDoubles);
 		producer.start();
 		AudioInputStream ais = new DDSAudioInputStream(producer, getTestAudioFormat());
-		assertEquals(numDoubles, ais.getFrameLength());
+		Assert.assertEquals(numDoubles, ais.getFrameLength());
 		int bytesRead = ais.read(new byte[16000]);
-		assertEquals(2 * numDoubles, bytesRead);
+		Assert.assertEquals(2 * numDoubles, bytesRead);
 	}
 
 	@Test
@@ -99,7 +100,7 @@ public class ProducingDoubleDataSourceTest {
 		producer.start();
 		double[] result = producer.getAllData();
 		for (int i = 0; i < numDoubles; i++) {
-			assertEquals(producer.DUMMY * .5, result[i], 1.e-10);
+			Assert.assertEquals(producer.DUMMY * .5, result[i], 1.e-10);
 		}
 	}
 

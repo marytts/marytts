@@ -22,8 +22,10 @@ package marytts.util.data;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 /**
  * @author Marc Schr&ouml;der

@@ -1,9 +1,5 @@
 package marytts.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -22,9 +18,9 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.DomUtils;
 import marytts.voice.CmuSltHsmm.Config;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -57,38 +53,38 @@ public class RemoteMaryInterfaceIT {
 
 	MaryInterface mary;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		mary = new RemoteMaryInterface("localhost", testPort);
 	}
 
 	@Test
 	public void canGetMaryInterface() throws Exception {
-		assertNotNull(mary);
-		assertEquals("TEXT", mary.getInputType());
-		assertEquals("AUDIO", mary.getOutputType());
-		assertEquals(Locale.US, mary.getLocale());
+		Assert.assertNotNull(mary);
+		Assert.assertEquals("TEXT", mary.getInputType());
+		Assert.assertEquals("AUDIO", mary.getOutputType());
+		Assert.assertEquals(Locale.US, mary.getLocale());
 	}
 
 	@Test
 	public void canSetInputType() throws Exception {
 		String in = "RAWMARYXML";
-		assertTrue(!in.equals(mary.getInputType()));
+		Assert.assertTrue(!in.equals(mary.getInputType()));
 		mary.setInputType(in);
-		assertEquals(in, mary.getInputType());
+		Assert.assertEquals(in, mary.getInputType());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void unknownInputType() throws Exception {
 		mary.setInputType("something strange");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void nullInputType() throws Exception {
 		mary.setInputType(null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void notAnInputType() throws Exception {
 		mary.setInputType("AUDIO");
 	}
@@ -96,33 +92,33 @@ public class RemoteMaryInterfaceIT {
 	@Test
 	public void canSetOutputType() throws Exception {
 		String out = "TOKENS";
-		assertTrue(!out.equals(mary.getOutputType()));
+		Assert.assertTrue(!out.equals(mary.getOutputType()));
 		mary.setOutputType(out);
-		assertEquals(out, mary.getOutputType());
+		Assert.assertEquals(out, mary.getOutputType());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void unknownOutputType() throws Exception {
 		mary.setOutputType("something strange");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void nullOutputType() throws Exception {
 		mary.setOutputType(null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void notAnOutputType() throws Exception {
 		mary.setOutputType("TEXT");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void cannotSetUnsupportedLocale() throws Exception {
 		Locale loc = new Locale("abcde");
 		mary.setLocale(loc);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void cannotSetNullLocale() throws Exception {
 		mary.setLocale(null);
 	}
@@ -134,10 +130,10 @@ public class RemoteMaryInterfaceIT {
 		// exercise
 		Document tokens = mary.generateXML("Hello world");
 		// verify
-		assertNotNull(tokens);
+		Assert.assertNotNull(tokens);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void refuseWrongInput1() throws Exception {
 		// setup
 		mary.setInputType(MaryDataType.RAWMARYXML.name());
@@ -145,13 +141,13 @@ public class RemoteMaryInterfaceIT {
 		mary.generateXML("some text");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void refuseWrongOutput1() throws Exception {
 		// requesting xml output but set to default output type AUDIO:
 		mary.generateXML("some text");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void refuseWrongOutput2() throws Exception {
 		// setup
 		mary.setOutputType("TOKENS");
@@ -159,7 +155,7 @@ public class RemoteMaryInterfaceIT {
 		mary.generateAudio("some text");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void refuseWrongOutput3() throws Exception {
 		// setup
 		mary.setOutputType("TOKENS");
@@ -171,13 +167,13 @@ public class RemoteMaryInterfaceIT {
 	public void canProcessTokensToAllophones() throws Exception {
 		// setup
 		Document tokens = getExampleTokens();
-		assertNotNull(tokens);
+		Assert.assertNotNull(tokens);
 		mary.setInputType("TOKENS");
 		mary.setOutputType("ALLOPHONES");
 		// exercise
 		Document allos = mary.generateXML(tokens);
 		// verify
-		assertNotNull(allos);
+		Assert.assertNotNull(allos);
 	}
 
 	private Document getExampleTokens() throws SynthesisException {
@@ -197,14 +193,14 @@ public class RemoteMaryInterfaceIT {
 	public void convertTextToAcoustparams() throws Exception {
 		mary.setOutputType("ACOUSTPARAMS");
 		Document doc = mary.generateXML("Hello world");
-		assertNotNull(doc);
+		Assert.assertNotNull(doc);
 	}
 
 	@Test
 	public void convertTextToTargetfeatures() throws Exception {
 		mary.setOutputType("TARGETFEATURES");
 		String tf = mary.generateText("Hello world");
-		assertNotNull(tf);
+		Assert.assertNotNull(tf);
 	}
 
 	@Test
@@ -213,7 +209,7 @@ public class RemoteMaryInterfaceIT {
 		mary.setInputType("TOKENS");
 		mary.setOutputType("TARGETFEATURES");
 		String tf = mary.generateText(tokens);
-		assertNotNull(tf);
+		Assert.assertNotNull(tf);
 	}
 
 	@Test
@@ -224,15 +220,15 @@ public class RemoteMaryInterfaceIT {
 		String featureNames = "phone stressed";
 		mary.setOutputTypeParams(featureNames);
 		String selectedFeatures = mary.generateText(input);
-		assertTrue(!allFeatures.equals(selectedFeatures));
-		assertTrue(allFeatures.length() > selectedFeatures.length());
+		Assert.assertTrue(!allFeatures.equals(selectedFeatures));
+		Assert.assertTrue(allFeatures.length() > selectedFeatures.length());
 	}
 
 	@Test
 	public void canProcessTextToSpeech() throws Exception {
 		mary.setVoice("cmu-slt-hsmm");
 		AudioInputStream audio = mary.generateAudio("Hello world");
-		assertNotNull(audio);
+		Assert.assertNotNull(audio);
 	}
 
 	@Test
@@ -240,15 +236,15 @@ public class RemoteMaryInterfaceIT {
 		mary.setInputType("TOKENS");
 		Document doc = getExampleTokens();
 		AudioInputStream audio = mary.generateAudio(doc);
-		assertNotNull(audio);
+		Assert.assertNotNull(audio);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void cannotSetInvalidVoiceName() throws Exception {
 		mary.setVoice("abcde");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void cannotSetNullVoiceName() throws Exception {
 		mary.setVoice(null);
 	}

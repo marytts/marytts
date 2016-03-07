@@ -19,12 +19,12 @@
  */
 package marytts.signalproc.process;
 
-import static org.junit.Assert.assertTrue;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der
@@ -43,13 +43,13 @@ public class FrameProviderTest {
 		while (fp.hasMoreData()) {
 			double[] frame = fp.getNextFrame();
 			int toCopy = fp.validSamplesInFrame() >= fp.getFrameShiftSamples() ? fp.getFrameShiftSamples() : fp
-					.validSamplesInFrame();
+                .validSamplesInFrame();
 			System.arraycopy(frame, 0, result, resultPos, toCopy);
 			resultPos += toCopy;
 		}
-		assertTrue("Got back " + resultPos + ", expected " + signal.length, resultPos == signal.length);
+		Assert.assertTrue(resultPos == signal.length, "Got back " + resultPos + ", expected " + signal.length);
 		double err = MathUtils.sumSquaredError(signal, result);
-		assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 	@Test
@@ -65,13 +65,13 @@ public class FrameProviderTest {
 		while (fp.hasMoreData()) {
 			double[] frame = fp.getNextFrame();
 			int toCopy = fp.validSamplesInFrame() == fp.getFrameLengthSamples() ? fp.getFrameShiftSamples() : fp
-					.validSamplesInFrame();
+                .validSamplesInFrame();
 			System.arraycopy(frame, 0, result, resultPos, toCopy);
 			resultPos += toCopy;
 		}
-		assertTrue("Got back " + resultPos + ", expected " + signal.length, resultPos == signal.length);
+		Assert.assertTrue(resultPos == signal.length, "Got back " + resultPos + ", expected " + signal.length);
 		double err = MathUtils.sumSquaredError(signal, result);
-		assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 	@Test
@@ -86,13 +86,13 @@ public class FrameProviderTest {
 		while (fp.hasMoreData()) {
 			double[] frame = fp.getNextFrame();
 			int toCopy = fp.validSamplesInFrame() >= fp.getFrameShiftSamples() ? fp.getFrameShiftSamples() : fp
-					.validSamplesInFrame();
+                .validSamplesInFrame();
 			System.arraycopy(frame, 0, result, resultPos, toCopy);
 			resultPos += toCopy;
 		}
-		assertTrue("Got back " + resultPos + ", expected " + signal.length, resultPos == signal.length);
+		Assert.assertTrue(resultPos == signal.length, "Got back " + resultPos + ", expected " + signal.length);
 		double err = MathUtils.sumSquaredError(signal, result);
-		assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 	@Test
@@ -111,9 +111,9 @@ public class FrameProviderTest {
 			System.arraycopy(frame, 0, result, resultPos, toCopy);
 			resultPos += toCopy;
 		}
-		assertTrue("Got back " + resultPos + ", expected " + signal.length, resultPos == signal.length);
+		Assert.assertTrue(resultPos == signal.length, "Got back " + resultPos + ", expected " + signal.length);
 		double err = MathUtils.sumSquaredError(signal, result);
-		assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 }

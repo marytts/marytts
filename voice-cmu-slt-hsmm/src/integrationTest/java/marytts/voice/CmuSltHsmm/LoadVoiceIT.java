@@ -1,8 +1,5 @@
 package marytts.voice.CmuSltHsmm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -17,10 +14,13 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.DomUtils;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 public class LoadVoiceIT {
 
@@ -33,7 +33,7 @@ public class LoadVoiceIT {
 	public void canLoadVoice() throws Exception {
 		Config config = new Config();
 		Voice voice = new HMMVoice(config.getName(), null);
-		assertNotNull(voice);
+		Assert.assertNotNull(voice);
 	}
 
 	@Test
@@ -41,7 +41,7 @@ public class LoadVoiceIT {
 		MaryInterface mary = new LocalMaryInterface();
 		String voiceName = new Config().getName();
 		mary.setVoice(voiceName);
-		assertEquals(voiceName, mary.getVoice());
+		Assert.assertEquals(voiceName, mary.getVoice());
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class LoadVoiceIT {
 		MaryInterface mary = new LocalMaryInterface();
 		mary.setVoice(new Config().getName());
 		AudioInputStream audio = mary.generateAudio("Hello world");
-		assertNotNull(audio);
+		Assert.assertNotNull(audio);
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class LoadVoiceIT {
 		MaryInterface mary = new LocalMaryInterface();
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String out = mary.generateText("Hello world");
-		assertNotNull(out);
+		Assert.assertNotNull(out);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class LoadVoiceIT {
 		Document doc = getExampleTokens(mary.getLocale());
 		String out = mary.generateText(doc);
         System.out.println(out);
-        assertNotNull(out);
+        Assert.assertNotNull(out);
 	}
 
 	@Test
@@ -77,12 +77,12 @@ public class LoadVoiceIT {
 		mary.setInputType(MaryDataType.TOKENS.name());
 		Document doc = getExampleTokens(mary.getLocale());
 		AudioInputStream audio = mary.generateAudio(doc);
-		assertNotNull(audio);
+		Assert.assertNotNull(audio);
 	}
 
 	private Document getExampleTokens(Locale locale) throws ParserConfigurationException, SAXException, IOException {
 		String example = MaryDataType.getExampleText(MaryDataType.TOKENS, locale);
-		assertNotNull(example);
+		Assert.assertNotNull(example);
 		Document doc = DomUtils.parseDocument(example);
         return doc;
 	}

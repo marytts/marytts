@@ -20,8 +20,6 @@
 
 package marytts.language.de;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Locale;
 
 import marytts.datatypes.MaryXML;
@@ -32,10 +30,11 @@ import marytts.server.Mary;
 import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -85,8 +84,8 @@ public class FeatureProcessorIT {
 		byte f1 = wf.process(t1);
 		byte f2 = wf.process(t2);
 		// verify
-		assertEquals(0, f1);
-		assertEquals(9, f2);
+		Assert.assertEquals(0, f1);
+		Assert.assertEquals(9, f2);
 	}
 
 }

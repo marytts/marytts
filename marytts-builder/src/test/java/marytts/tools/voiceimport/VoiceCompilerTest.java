@@ -1,8 +1,7 @@
 package marytts.tools.voiceimport;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 public class VoiceCompilerTest {
 
@@ -11,7 +10,7 @@ public class VoiceCompilerTest {
 		String voice = "cmu-slt-hsmm";
 		String expected = "CmuSltHsmm";
 		String actual = VoiceCompiler.toPackageName(voice);
-		assertEquals(expected, actual);
+		Assert.assertEquals(expected, actual);
 	}
 
 	@Test
@@ -19,7 +18,7 @@ public class VoiceCompilerTest {
 		String voice = "Peter Müller";
 		String expected = "PeterMLler";
 		String actual = VoiceCompiler.toPackageName(voice);
-		assertEquals(expected, actual);
+		Assert.assertEquals(expected, actual);
 	}
 
 	@Test
@@ -27,6 +26,6 @@ public class VoiceCompilerTest {
 		String voice = "  %123 bla_bla";
 		String expected = "V123Bla_bla";
 		String actual = VoiceCompiler.toPackageName(voice);
-		assertEquals(expected, actual);
+		Assert.assertEquals(expected, actual);
 	}
 }

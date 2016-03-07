@@ -25,8 +25,11 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 
-import org.junit.Test;
 import org.w3c.dom.Document;
+
+import org.testng.Assert;
+import org.testng.annotations.*;
+
 
 /**
  * @author Marc Schr&ouml;der
@@ -40,7 +43,7 @@ public class EmospeakTest {
 		TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
 		System.err.println("Using XSL processor " + tFactory.getClass().getName());
 		javax.xml.transform.stream.StreamSource stylesheetStream = new javax.xml.transform.stream.StreamSource(
-				EmoTransformer.class.getResourceAsStream("emotion-to-mary.xsl"));
+            EmoTransformer.class.getResourceAsStream("emotion-to-mary.xsl"));
 		Templates stylesheet = tFactory.newTemplates(stylesheetStream);
 		DocumentBuilderFactory dbFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
 		dbFactory.setNamespaceAware(true);

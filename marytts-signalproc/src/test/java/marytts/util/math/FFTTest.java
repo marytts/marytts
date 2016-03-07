@@ -24,9 +24,8 @@ import marytts.signalproc.filter.FIRFilter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author Marc Schr&ouml;der
@@ -49,7 +48,7 @@ public class FFTTest {
 		return graph;
 	}
 
-	@Before
+	@BeforeMethod
 	public void setUp() {
 		x1 = new double[ONE];
 		for (int i = 0; i < ONE; i++)
@@ -70,7 +69,7 @@ public class FFTTest {
 		FFT.transform(real, imag, false);
 		FFT.transform(real, imag, true);
 		double err = MathUtils.sumSquaredError(signal, real);
-		Assert.assertTrue("Error: " + err, err < 1.E-16);
+		Assert.assertTrue(err < 1.E-16, "Error: " + err);
 	}
 
 	@Test
@@ -105,12 +104,12 @@ public class FFTTest {
 		/*
 		 * showGraph(resultingSignal, "resultingSignal"); showGraph(y, "y"); showGraph(ir, "impulse response"); showGraph(signal,
 		 * "signal");
-		 * 
+		 *
 		 * try {Thread.sleep(100000);}catch(Exception e) {}
 		 */
 
 		double err = MathUtils.sumSquaredError(reference, resultingSignal);
-		Assert.assertTrue("Error: " + err, err < 1.E-20);
+		Assert.assertTrue(err < 1.E-20, "Error: " + err);
 	}
 
 	public static double[] getSampleSignal(int length) {

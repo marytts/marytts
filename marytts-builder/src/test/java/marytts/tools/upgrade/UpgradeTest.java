@@ -1,10 +1,7 @@
 package marytts.tools.upgrade;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,9 +19,6 @@ import marytts.tools.install.VoiceComponentDescription;
 
 public class UpgradeTest {
 
-	@Rule
-	public TemporaryFolder tempDir = new TemporaryFolder();
-
 	@Test
 	public void convertHmmConfig() throws Exception {
 		// setup SUT
@@ -37,19 +31,19 @@ public class UpgradeTest {
 		// exercise
 		converter.loadConfigFromStream(UpgradeTest.class.getResourceAsStream("en_US-cmu-slt-hsmm-4.x.config"));
 		converter.updateConfig("CmuSltHsmm");
-		File convertedConfigFile = tempDir.newFile("converted.config");
+		File convertedConfigFile = File.createTempFile("converted", ".config");
 		converter.saveConfig(convertedConfigFile);
 
 		// verify
 		InputStream expectedConfigStream = UpgradeTest.class.getResourceAsStream("en_US-cmu-slt-hsmm-5.config");
-		File expectedConfigFile = tempDir.newFile("expected.config");
+		File expectedConfigFile = File.createTempFile("expected", ".config");
 		FileUtils.copyInputStreamToFile(expectedConfigStream, expectedConfigFile);
 		boolean ignoreWhiteSpace = false;
 		Diff diff = Diff.diff(convertedConfigFile, expectedConfigFile, ignoreWhiteSpace);
 		String uniDiff = diff.toUnifiedDiff(expectedConfigFile.getPath(), convertedConfigFile.getPath(), new FileReader(
-				expectedConfigFile), new FileReader(convertedConfigFile), 2);
+                                                expectedConfigFile), new FileReader(convertedConfigFile), 2);
 
-		assertThat("Config differs from expectation as follows:" + IOUtils.LINE_SEPARATOR + uniDiff, diff, is(empty()));
+		Assert.assertTrue(diff.isEmpty(), "Config differs from expectation as follows:" + IOUtils.LINE_SEPARATOR + uniDiff);
 	}
 
 }

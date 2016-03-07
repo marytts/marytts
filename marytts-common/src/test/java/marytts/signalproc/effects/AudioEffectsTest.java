@@ -1,26 +1,26 @@
 package marytts.signalproc.effects;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 public class AudioEffectsTest {
 	@Test
 	public void canGetEffects() {
-		assertNotNull(AudioEffects.getEffects());
-		assertTrue(AudioEffects.getEffects().iterator().hasNext());
+		Assert.assertNotNull(AudioEffects.getEffects());
+		Assert.assertTrue(AudioEffects.getEffects().iterator().hasNext());
 	}
 
 	@Test
 	public void haveEffects() {
-		assertTrue(AudioEffects.countEffects() > 0);
+		Assert.assertTrue(AudioEffects.countEffects() > 0);
 	}
 
 	@Test
 	public void canGetByName() {
 		String name = "Robot";
 		AudioEffect ae = AudioEffects.getEffect(name);
-		assertNotNull(ae);
-		assertEquals(name, ae.getName());
+		Assert.assertNotNull(ae);
+		Assert.assertEquals(name, ae.getName());
 	}
 
 	@Test
@@ -30,7 +30,7 @@ public class AudioEffectsTest {
 		// exercise
 		String params = AudioEffects.getEffect(name).getExampleParameters();
 		// verify
-		assertEquals(expected, params);
+		Assert.assertEquals(expected, params);
 	}
 
 }

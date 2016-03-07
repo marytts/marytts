@@ -20,13 +20,9 @@
 
 package marytts.util.string;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 /**
  * @author marc
@@ -56,62 +52,62 @@ public class ByteStringTranslatorTest {
 
 	@Test
 	public void smallListLength() {
-		assertEquals(t10.getNumberOfValues(), list10.length);
+		Assert.assertEquals(t10.getNumberOfValues(), list10.length);
 	}
 
 	@Test
 	public void smallListContainsByte() {
-		assertTrue(t10.contains((byte) 5));
+		Assert.assertTrue(t10.contains((byte) 5));
 	}
 
 	@Test
 	public void smallListDoesntContainByte() {
-		assertFalse(t10.contains((byte) 20));
+		Assert.assertFalse(t10.contains((byte) 20));
 	}
 
 	@Test
 	public void smallListContainsString() {
-		assertTrue(t10.contains("a5"));
+		Assert.assertTrue(t10.contains("a5"));
 	}
 
 	@Test
 	public void smallListDoesntContainString() {
-		assertFalse(t10.contains("abc"));
+		Assert.assertFalse(t10.contains("abc"));
 	}
 
 	@Test
 	public void smallListCompareString() {
-		assertEquals(t10.get((byte) 5), "a" + 5);
+		Assert.assertEquals(t10.get((byte) 5), "a" + 5);
 	}
 
 	@Test
 	public void maxListLength() {
-		assertEquals(tMax.getNumberOfValues(), listMax.length);
+		Assert.assertEquals(tMax.getNumberOfValues(), listMax.length);
 	}
 
 	@Test
 	public void maxListContainsByte() {
-		assertTrue(tMax.contains((byte) (ByteStringTranslator.MAXNUM - 1)));
+		Assert.assertTrue(tMax.contains((byte) (ByteStringTranslator.MAXNUM - 1)));
 	}
 
 	@Test
 	public void maxListContainsString() {
-		assertTrue(tMax.contains("b" + (ByteStringTranslator.MAXNUM - 1)));
+		Assert.assertTrue(tMax.contains("b" + (ByteStringTranslator.MAXNUM - 1)));
 	}
 
 	@Test
 	public void maxListDoesntContainString() {
-		assertFalse(tMax.contains("abc"));
+		Assert.assertFalse(tMax.contains("abc"));
 	}
 
 	@Test
 	public void maxListCompareString() {
-		assertEquals(tMax.get((byte) (ByteStringTranslator.MAXNUM - 1)), "b" + (ByteStringTranslator.MAXNUM - 1));
+		Assert.assertEquals(tMax.get((byte) (ByteStringTranslator.MAXNUM - 1)), "b" + (ByteStringTranslator.MAXNUM - 1));
 	}
 
 	@Test
 	public void maxListCompareString2() {
-		assertEquals(tMax.get("b" + (ByteStringTranslator.MAXNUM - 1)), (byte) (ByteStringTranslator.MAXNUM - 1));
+		Assert.assertEquals(tMax.get("b" + (ByteStringTranslator.MAXNUM - 1)), (byte) (ByteStringTranslator.MAXNUM - 1));
 	}
 
 	@Test
@@ -128,7 +124,7 @@ public class ByteStringTranslatorTest {
 		}
 		try {
 			ByteStringTranslator t = new ByteStringTranslator(list300);
-			fail("Should have thrown an IllegalArgumentException");
+			Assert.fail("Should have thrown an IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 		}
 	}
