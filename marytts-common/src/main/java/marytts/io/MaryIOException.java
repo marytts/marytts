@@ -1,5 +1,6 @@
 package marytts.io;
 
+import marytts.MaryException;
 /**
  *
  *
