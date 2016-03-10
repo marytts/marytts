@@ -139,6 +139,11 @@ public class DomUtils {
 	public static Document parseDocument(Reader inputData, boolean validating) throws ParserConfigurationException, SAXException,
 			IOException {
 		DocumentBuilder builder = createDocumentBuilder(validating);
+		/*
+		 * Set Entity resolver for APML and SABLE
+		 */
+		builder.setEntityResolver(new MaryEntityResolver());
+		
 		return builder.parse(new InputSource(inputData));
 	}
 
