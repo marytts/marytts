@@ -41,6 +41,7 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
+import marytts.modules.acoustic.TargetFeatureLister;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
@@ -63,7 +64,7 @@ import org.w3c.dom.traversal.TreeWalker;
 /***
  * This modeller uses the HMMs of the provided hmmVoice. This modeller can be set as preferred module in the configuration file,
  * for example:
- * 
+ *
  * voice.unitSelection.preferredModules = \ marytts.modules.HMMDurationF0Modeller(local,hmmVoice)
  *
  * @author marcela
@@ -79,7 +80,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	public HMMDurationF0Modeller(String locale, String hmmVoiceName) throws Exception {
 		this(MaryUtils.string2locale(locale), hmmVoiceName, FeatureRegistry.getFeatureProcessorManager(MaryUtils
-				.string2locale(locale)));
+                                                                                                       .string2locale(locale)));
 	}
 
 	public HMMDurationF0Modeller(Locale locale, String hmmVoiceName, FeatureProcessorManager featureProcessorManager) {
@@ -176,7 +177,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * A method to modify prosody modifications
-	 * 
+	 *
 	 * @param doc
 	 *            doc
 	 */
@@ -198,7 +199,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * Apply 'rate' requirements to ACOUSTPARAMS
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param prosodyElement
@@ -228,7 +229,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * set duration specifications according to 'rate' requirements
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param percentage
@@ -273,7 +274,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param prosodyElement
@@ -320,7 +321,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * To set new modified contour into XML
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param contour
@@ -363,7 +364,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 				double partPhone = phoneDuration * (percent.doubleValue() / 100.0);
 
 				int placeIndex = (int) Math.floor(((((phoneEndTime - phoneDuration) - fStart) + partPhone) * 100)
-						/ (double) duration);
+                                                  / (double) duration);
 				if (placeIndex >= 100) {
 					placeIndex = 99;
 				}
@@ -377,7 +378,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * Set modifications to base contour (first order polynomial fit contour)
-	 * 
+	 *
 	 * @param polyValues
 	 *            polyValues
 	 * @param contourAttribute
@@ -401,7 +402,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * Set all specifications to original contour
-	 * 
+	 *
 	 * @param polyValues
 	 *            polyValues
 	 * @param contourAttribute
@@ -435,7 +436,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 				if (f0Value.endsWith("%")) {
 					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
 					modifiedF0Values[percentDuration] = polyValues[percentDuration]
-							+ (polyValues[percentDuration] * (f0Mod / 100.0));
+                        + (polyValues[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
 					int f0Mod = (new Integer(f0Value.substring(1, f0Value.length() - 2))).intValue();
 					modifiedF0Values[percentDuration] = polyValues[percentDuration] + f0Mod;
@@ -444,7 +445,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 				if (f0Value.endsWith("%")) {
 					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
 					modifiedF0Values[percentDuration] = polyValues[percentDuration]
-							- (polyValues[percentDuration] * (f0Mod / 100.0));
+                        - (polyValues[percentDuration] * (f0Mod / 100.0));
 
 				} else if (f0Value.endsWith("Hz")) {
 					int f0Mod = (new Integer(f0Value.substring(1, f0Value.length() - 2))).intValue();
@@ -461,7 +462,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * set pitch specifications: Ex: pitch="+20%" or pitch="+50Hz"
-	 * 
+	 *
 	 * @param polyValues
 	 *            polyValues
 	 * @param pitchAttribute
@@ -501,7 +502,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * to get contour specifications into MAP
-	 * 
+	 *
 	 * @param attribute
 	 *            attribute
 	 * @return f0Map
@@ -523,7 +524,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * To interpolate Zero values with respect to NonZero values
-	 * 
+	 *
 	 * @param contour
 	 *            contour
 	 * @return contour
@@ -558,7 +559,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * To find next NonZero index
-	 * 
+	 *
 	 * @param contour
 	 *            contour
 	 * @param current
@@ -576,7 +577,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * get Continuous contour from "ph" nodelist
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @return contour
@@ -617,7 +618,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 				Integer f0Value = f0Map.get(percent);
 				double partPhone = phoneDuration * (percent.doubleValue() / 100.0);
 				int placeIndex = (int) Math.floor(((((phoneEndTime - phoneDuration) - fStart) + partPhone) * 100)
-						/ (double) duration);
+                                                  / (double) duration);
 				if (placeIndex >= 100) {
 					placeIndex = 99;
 				}
@@ -630,7 +631,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/**
 	 * Get f0 specifications in HashMap
-	 * 
+	 *
 	 * @param attribute
 	 *            attribute
 	 * @return f0Map
@@ -656,7 +657,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * Parse Mary context features. For each triphone model in the file, it creates a Model object in a linked list of Model
 	 * objects -> UttModel um It also estimates state duration from state duration model (Gaussian). For each model in the vector,
 	 * the mean and variance of the DUR and LF0 are searched in the ModelSet and copied in each triphone model.
-	 * 
+	 *
 	 * @param s
 	 *            s
 	 * @param um
@@ -762,7 +763,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/***
 	 * Generate F0 values for voiced frames out of HMMs
-	 * 
+	 *
 	 * @param um
 	 *            HTSUttModel, linked list of model objects
 	 * @param htsData
@@ -878,12 +879,12 @@ public class HMMDurationF0Modeller extends InternalModule {
 						totalFrames++;
 						// System.out.format("(%d frame=%d=%.2f ) %.2f ", t, totalFrames, (totalFrames/totalDur)*100, f0s[t]);
 						if (f0s[t] > 0.0) // there are some phoneme states that might contain voiced and unvoiced frames, the
-											// unvoiced frames have f0=0.0
+                            // unvoiced frames have f0=0.0
 							f0Values += "(" + Integer.toString((int) ((totalFrames / totalDur) * 100)) + ","
-									+ Integer.toString((int) f0s[t]) + ")";
+                                + Integer.toString((int) f0s[t]) + ")";
 						t++;
 					} // for each frame in this hmmState
-						// System.out.println();
+                    // System.out.println();
 				} // for each hmmState in this model
 
 			} else { // if the majority of the model states are unvoiced
@@ -902,7 +903,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/***
 	 * Set durations
-	 * 
+	 *
 	 * @param tw
 	 *            tw
 	 * @param durations
@@ -971,7 +972,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 	/***
 	 * Set durations and f0 values The meaning of f0="(X,Y)" is: at X% of the phone duration, the F0 value is Y Hz.
-	 * 
+	 *
 	 * @param tw
 	 *            treewalker
 	 * @param durF0s

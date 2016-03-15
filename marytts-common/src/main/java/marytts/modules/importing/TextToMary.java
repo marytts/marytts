@@ -17,12 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.importing;
 
 import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import marytts.data.Utterance;
+import marytts.data.item.Paragraph;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -30,23 +33,26 @@ import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
  * Embed plain text input into a raw (untokenised) MaryXML document.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
-public class TextToMaryXML extends InternalModule {
-	private DocumentBuilderFactory factory = null;
+public class TextToMary extends InternalModule {
+    private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
+    private DocumentBuilderFactory factory = null;
 	private DocumentBuilder docBuilder = null;
 	private boolean splitIntoParagraphs;
 
-	public TextToMaryXML() {
-		super("TextToMaryXML", MaryDataType.TEXT, MaryDataType.RAWMARYXML, null);
+	public TextToMary() {
+		super("TextToMary", MaryDataType.TEXT, MaryDataType.RAWMARYXML, null);
 		splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
 	}
 
@@ -62,14 +68,16 @@ public class TextToMaryXML extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		String plainText = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
-		MaryData result = new MaryData(outputType(), d.getLocale(), true);
+		String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
+		Locale l = determineLocale(plain_text, d.getLocale());
+
+        // FIXME: old xml part still here, remove that
+        MaryData result = new MaryData(outputType(), d.getLocale(), true);
 		Document doc = result.getDocument();
 		Element root = doc.getDocumentElement();
-		Locale l = determineLocale(plainText, d.getLocale());
 		root.setAttribute("xml:lang", MaryUtils.locale2xmllang(l));
 		if (splitIntoParagraphs) { // Empty lines separate paragraphs
-			String[] inputTexts = plainText.split("\\n(\\s*\\n)+");
+			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
 			for (int i = 0; i < inputTexts.length; i++) {
 				String paragraph = inputTexts[i].trim();
 				if (paragraph.length() == 0)
@@ -77,9 +85,26 @@ public class TextToMaryXML extends InternalModule {
 				appendParagraph(paragraph, root, d.getLocale());
 			}
 		} else { // The whole text as one single paragraph
-			appendParagraph(plainText, root, d.getLocale());
+			appendParagraph(plain_text, root, d.getLocale());
 		}
 		result.setDocument(doc);
+
+        // New utterance part
+        Utterance utt = new Utterance(plain_text, l);
+		if (splitIntoParagraphs) { // Empty lines separate paragraphs
+			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
+			for (int i = 0; i < inputTexts.length; i++) {
+				String paragraph_text = inputTexts[i].trim();
+				if (paragraph_text.length() == 0)
+					continue;
+                Paragraph p = new Paragraph(paragraph_text);
+                utt.addParagraph(p);
+            }
+		} else { // The whole text as one single paragraph
+            Paragraph p = new Paragraph(plain_text);
+            utt.addParagraph(p);
+		}
+
 		return result;
 	}
 
@@ -87,7 +112,7 @@ public class TextToMaryXML extends InternalModule {
 	 * Append one paragraph of text to the rawmaryxml document. If the text language (as determined by #getLanguage(text)) differs
 	 * from the enclosing document's language, the paragraph element is enclosed with a <code>&lt;voice xml:lang="..."&gt;</code>
 	 * element.
-	 * 
+	 *
 	 * @param text
 	 *            the paragraph text.
 	 * @param root
@@ -116,7 +141,7 @@ public class TextToMaryXML extends InternalModule {
 	/**
 	 * Try to determine the locale of the given text. This implementation simply returns the default locale; subclasses can try to
 	 * do something fancy here.
-	 * 
+	 *
 	 * @param text
 	 *            the text whose locale to determine
 	 * @param defaultLocale

@@ -40,22 +40,22 @@ import org.w3c.dom.traversal.NodeIterator;
  *
  * @author Marc Schr&ouml;der
  */
-public class JTokeniser extends marytts.modules.JTokeniser {
+public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 
 	protected static final Set<String> nonAbbrevs = new HashSet<String>(Arrays.asList(new String[] {
-			// Measure symbols
-			"m", "km", "dm", "cm", "mm", "g", "kg", "mg", "s", "sec", "ms", "min",
-			// "A",
-			// "V",
-			// "K",
-			"°C", "°F", "Hz", "kHz", "MHz", "GHz",
-			// "N",
-			"Pa", "J", "kJ",
-			// "W",
-			"kW", "MW", "GW", "mW", "l", "dl", "cl", "ml", "Bq", "EL", "TL", "kcal", "oz", "qm", "m²", "m³", "ccm", "%" }));
+                // Measure symbols
+                "m", "km", "dm", "cm", "mm", "g", "kg", "mg", "s", "sec", "ms", "min",
+                // "A",
+                // "V",
+                // "K",
+                "°C", "°F", "Hz", "kHz", "MHz", "GHz",
+                // "N",
+                "Pa", "J", "kJ",
+                // "W",
+                "kW", "MW", "GW", "mW", "l", "dl", "cl", "ml", "Bq", "EL", "TL", "kcal", "oz", "qm", "m²", "m³", "ccm", "%" }));
 
 	/**
-     * 
+     *
      */
 	public JTokeniser() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.GERMAN);

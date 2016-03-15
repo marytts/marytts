@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic.f0;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,6 +41,8 @@ import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

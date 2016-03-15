@@ -27,7 +27,7 @@ import java.util.Locale;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
 import marytts.language.de.postlex.PhonologicalRules;
-import marytts.modules.PronunciationModel;
+import marytts.modules.nlp.PronunciationModel;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -41,7 +41,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * The postlexical phonological processes module.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -60,7 +60,7 @@ public class Postlex extends PronunciationModel {
 
 	private void mtuPostlex(Document doc) throws DOMException {
 		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.MTU),
-				false);
+                                                                   false);
 		Element m = null;
 		while ((m = (Element) tw.nextNode()) != null) {
 			if (MaryDomUtils.hasAncestor(m, MaryXML.MTU)) // not highest-level

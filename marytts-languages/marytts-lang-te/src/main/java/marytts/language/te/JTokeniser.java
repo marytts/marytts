@@ -34,13 +34,13 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
  */
-public class JTokeniser extends marytts.modules.JTokeniser {
+public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 
 	/**
-     * 
+     *
      */
 	public JTokeniser() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("te"));
@@ -55,14 +55,14 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 
 	/**
 	 * For Telugu, treat all dots as standalone tokens that trigger end of sentence.
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 */
 	protected void splitOffDots(MaryData d) {
 		Document doc = d.getDocument();
 		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.TOKEN), false);
+                                                                           MaryXML.TOKEN), false);
 		Element t = null;
 		while ((t = (Element) ni.nextNode()) != null) {
 			String s = MaryDomUtils.tokenText(t);

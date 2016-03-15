@@ -17,8 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-package marytts.modules;
+package marytts.modules.acoustic.duration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,6 +45,11 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
+
+import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
+import marytts.modules.synthesis.Synthesis;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -88,7 +92,7 @@ public class KlattDurationModeller extends InternalModule {
 		// We depend on the Synthesis module:
 		MaryModule synthesis;
 		try {
-			synthesis = ModuleRegistry.getModule(marytts.modules.Synthesis.class);
+			synthesis = ModuleRegistry.getModule(marytts.modules.synthesis.Synthesis.class);
 		} catch (NullPointerException npe) {
 			synthesis = new Synthesis();
 		}
@@ -102,7 +106,7 @@ public class KlattDurationModeller extends InternalModule {
 		// load phone list
 		allophoneSet = MaryRuntimeUtils.needAllophoneSet(localePrefix + ".allophoneset");
 		klattDurationParams = new KlattDurationModeller.KlattDurationParams(MaryProperties.needFilename(localePrefix
-				+ ".cap.klattdurfile"));
+                                                                                                        + ".cap.klattdurfile"));
 		// instantiate the Map in which settings are associated with elements:
 		// (when the objects serving as keys are not in ordinary use any more,
 		// the key-value pairs are deleted from the WeakHashMap earlier or
@@ -149,19 +153,19 @@ public class KlattDurationModeller extends InternalModule {
 			// Only accept relative changes, i.e. percentage delta:
 			settings.setRate(parentSettings.rate() + getPercentageDelta(prosody.getAttribute("rate")));
 			settings.setAccentProminence(parentSettings.accentProminence()
-					+ getPercentageDelta(prosody.getAttribute("accent-prominence")));
+                                         + getPercentageDelta(prosody.getAttribute("accent-prominence")));
 			settings.setAccentSlope(parentSettings.accentSlope() + getPercentageDelta(prosody.getAttribute("accent-slope")));
 			settings.setNumberOfPauses(parentSettings.numberOfPauses()
-					+ getPercentageDelta(prosody.getAttribute("number-of-pauses")));
+                                       + getPercentageDelta(prosody.getAttribute("number-of-pauses")));
 			settings.setPauseDuration(parentSettings.pauseDuration() + getPercentageDelta(prosody.getAttribute("pause-duration")));
 			settings.setVowelDuration(parentSettings.vowelDuration() + getPercentageDelta(prosody.getAttribute("vowel-duration")));
 			settings.setPlosiveDuration(parentSettings.plosiveDuration()
-					+ getPercentageDelta(prosody.getAttribute("plosive-duration")));
+                                        + getPercentageDelta(prosody.getAttribute("plosive-duration")));
 			settings.setFricativeDuration(parentSettings.fricativeDuration()
-					+ getPercentageDelta(prosody.getAttribute("fricative-duration")));
+                                          + getPercentageDelta(prosody.getAttribute("fricative-duration")));
 			settings.setNasalDuration(parentSettings.nasalDuration() + getPercentageDelta(prosody.getAttribute("nasal-duration")));
 			settings.setLiquidDuration(parentSettings.liquidDuration()
-					+ getPercentageDelta(prosody.getAttribute("liquid-duration")));
+                                       + getPercentageDelta(prosody.getAttribute("liquid-duration")));
 			settings.setGlideDuration(parentSettings.glideDuration() + getPercentageDelta(prosody.getAttribute("glide-duration")));
 
 			String sVolume = prosody.getAttribute("volume");
@@ -196,7 +200,7 @@ public class KlattDurationModeller extends InternalModule {
 		// Go through boundaries. A boundary is deleted if the determined
 		// minimum breakindex size is larger than this boundary's breakindex.
 		NodeIterator it = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.BOUNDARY), false);
+                                                                           MaryXML.BOUNDARY), false);
 		Element boundary = null;
 		List bi1prosodyElements = null;
 		while ((boundary = (Element) it.nextNode()) != null) {
@@ -249,7 +253,7 @@ public class KlattDurationModeller extends InternalModule {
 			while (elIt.hasNext()) {
 				Element prosody = (Element) elIt.next();
 				NodeIterator nodeIt = ((DocumentTraversal) doc).createNodeIterator(prosody, NodeFilter.SHOW_ELEMENT,
-						new NameNodeFilter(new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY }), false);
+                                                                                   new NameNodeFilter(new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY }), false);
 				Element el = null;
 				Element prevEl = null;
 				while ((el = (Element) nodeIt.nextNode()) != null) {
@@ -311,9 +315,9 @@ public class KlattDurationModeller extends InternalModule {
 
 			segment.setAttribute("d", String.valueOf(duration));
 			logger.debug(segment.getAttribute("p") + " " + duration + "ms (tempoFactor " + tempo + "%, normal " + normalDuration
-					+ ", min " + minDuration + ", inh " + inhDuration + ") " + factor + "% (" + klatt0 + "*" + klatt2 + "*"
-					+ klatt2a + "*" + klatt3 + "*" + klatt4 + "*" + klatt5 + "*" + klatt6 + "*" + klatt7 + "*" + klatt8 + "*"
-					+ klatt10 + ")");
+                         + ", min " + minDuration + ", inh " + inhDuration + ") " + factor + "% (" + klatt0 + "*" + klatt2 + "*"
+                         + klatt2a + "*" + klatt3 + "*" + klatt4 + "*" + klatt5 + "*" + klatt6 + "*" + klatt7 + "*" + klatt8 + "*"
+                         + klatt10 + ")");
 		}
 
 		// apply Klatt rule 1 to boundaries:
@@ -337,7 +341,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 0: Overall default speed.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule0(Element segment) {
@@ -346,7 +350,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 2: Clause-final lengthening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule2(Element segment) {
@@ -365,7 +369,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * Rule 2a: Additional final lengthening (J�rgen Trouvain). The final syllable before a boundary with breakindex >= 2, if it
 	 * is part of an accented word, gets additional lengthening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule2a(Element segment) {
@@ -384,7 +388,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 3: Non-phrase-final shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule3(Element segment) {
@@ -402,7 +406,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 4: Non-word-final shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule4(Element segment) {
@@ -418,7 +422,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 5: Polysyllabic shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule5(Element segment) {
@@ -434,7 +438,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 6: Non-initial consonant shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule6(Element segment) {
@@ -450,7 +454,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 7: Unstressed shortening
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule7(Element segment) {
@@ -485,7 +489,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 8: Lengthening for emphasis
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule8(Element segment) {
@@ -504,7 +508,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 10: Shortening in consonant clusters
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule10(Element segment) {
@@ -538,7 +542,7 @@ public class KlattDurationModeller extends InternalModule {
 	 * Klatt Rule 1: Pause duration. The pause duration depends on the break index, on the speech rate, and on the
 	 * "pause-duration" attribute. This rule assumes that every boundary it gets as input is to be realised, i.e.
 	 * not-to-be-realised boundaries are already deleted at this stage.
-	 * 
+	 *
 	 * @return A pause duration, in milliseconds.
 	 */
 	private int klattRule1(Element boundary) {
@@ -639,7 +643,7 @@ public class KlattDurationModeller extends InternalModule {
 	 * Accent prominence rule: The "accent-prominence" attribute influences nucleus duration for accented syllables (in addition
 	 * to Klatt rule 8), and affects voice quality for accented syllables. In addition, but not here, the "accent-prominence"
 	 * attribute causes a topline/baseline overshoot / undershoot.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int accentProminenceRule(Element segment) {
@@ -687,7 +691,7 @@ public class KlattDurationModeller extends InternalModule {
 	 */
 	private void calculateAccumulatedDurations(Element sentence) {
 		TreeWalker tw = ((DocumentTraversal) sentence.getOwnerDocument()).createTreeWalker(sentence, NodeFilter.SHOW_ELEMENT,
-				new NameNodeFilter(new String[] { MaryXML.PHONE, MaryXML.BOUNDARY }), false);
+                                                                                           new NameNodeFilter(new String[] { MaryXML.PHONE, MaryXML.BOUNDARY }), false);
 		float totalDurationInSeconds = 0f;
 		Element element;
 		while ((element = (Element) tw.nextNode()) != null) {
@@ -794,7 +798,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the segment preceding this segment within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that segment, or <code>null</code> if there is no such segment.
 	 */
 	private static Element getPreviousSegment(Element segment) {
@@ -804,7 +808,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the segment following this segment within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that segment, or <code>null</code> if there is no such segment.
 	 */
 	private static Element getNextSegment(Element segment) {
@@ -814,7 +818,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the syllable preceding this syllable within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that syllable, or <code>null</code> if there is no such syllable.
 	 */
 	private static Element getPreviousSyllable(Element syllable) {
@@ -824,7 +828,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the syllable following this syllable within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that syllable, or <code>null</code> if there is no such syllable.
 	 */
 	private static Element getNextSyllable(Element syllable) {
@@ -855,8 +859,8 @@ public class KlattDurationModeller extends InternalModule {
 	private boolean isPronoun(Element token) {
 		String pos = token.getAttribute("pos");
 		return pos.equals("PDS") || pos.equals("PDAT") || pos.equals("PIS") || pos.equals("PIAT") || pos.equals("PIDAT")
-				|| pos.equals("PPER") || pos.equals("PPOSS") || pos.equals("PPOSAT") || pos.equals("PRELS")
-				|| pos.equals("PRELAT") || pos.equals("PRF") || pos.equals("PWS") || pos.equals("PWAT") || pos.equals("PWAV");
+            || pos.equals("PPER") || pos.equals("PPOSS") || pos.equals("PPOSAT") || pos.equals("PRELS")
+            || pos.equals("PRELAT") || pos.equals("PRF") || pos.equals("PWS") || pos.equals("PWAT") || pos.equals("PWAV");
 	}
 
 	private boolean isPolysyllabic(Element token) {
@@ -877,7 +881,7 @@ public class KlattDurationModeller extends InternalModule {
 		Document doc = syllable.getOwnerDocument();
 		Element sentence = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.SENTENCE);
 		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(sentence, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				new String[] { MaryXML.SYLLABLE, MaryXML.BOUNDARY }), false);
+                                                                       new String[] { MaryXML.SYLLABLE, MaryXML.BOUNDARY }), false);
 		tw.setCurrentNode(syllable);
 		Element next = (Element) tw.nextNode();
 		if (next == null) {
@@ -962,7 +966,7 @@ public class KlattDurationModeller extends InternalModule {
 		// OK, segment is not syllabic. See if it is preceded by a syllabic
 		// segment:
 		for (Element e = MaryDomUtils.getPreviousSiblingElement(segment); e != null; e = MaryDomUtils
-				.getPreviousSiblingElement(e)) {
+                 .getPreviousSiblingElement(e)) {
 			ph = allophoneSet.getAllophone(e.getAttribute("p"));
 			if (ph.isSyllabic()) {
 				return true;
@@ -1025,7 +1029,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a percentage delta as judged by <code>isPercentageDelta()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric part of the percentage, rounded to an integer, or 0 if the string is not a valid percentage delta.
 	 */
 	private int getPercentageDelta(String string) {
@@ -1049,7 +1053,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a semitones delta as judged by <code>isSemitonesDelta()</code>, return the numerical value, as a
 	 * double.
-	 * 
+	 *
 	 * @return the numeric part of the semitones delta, or 0 if the string is not a valid semitones delta.
 	 */
 	private double getSemitonesDelta(String string) {
@@ -1079,7 +1083,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a number delta as judged by <code>isNumberDelta()</code>, return the numerical value, rounded to an
 	 * integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number delta.
 	 */
 	private int getNumberDelta(String string) {
@@ -1109,7 +1113,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing an unsigned semitones expression as judged by <code>isUnsignedSemitones()</code>, return the
 	 * numerical value as a double.
-	 * 
+	 *
 	 * @return the numeric part of the semitones expression, or 0 if the string is not a valid unsigned semitones expression.
 	 */
 	private double getUnsignedSemitones(String string) {
@@ -1148,7 +1152,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing an unsigned number as judged by <code>isUnsignedNumber()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid unsigned number.
 	 */
 	private int getUnsignedNumber(String string) {
@@ -1182,7 +1186,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * For a string containing a number as judged by <code>isNumber()</code>, return the numerical value, rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number.
 	 */
 	private int getNumber(String string) {
@@ -1278,8 +1282,8 @@ public class KlattDurationModeller extends InternalModule {
 		}
 
 		ProsodicSettings(int rate, int accentProminence, int accentSlope, int numberOfPauses, int pauseDuration,
-				int vowelDuration, int plosiveDuration, int fricativeDuration, int nasalDuration, int liquidDuration,
-				int glideDuration, int volume) {
+                         int vowelDuration, int plosiveDuration, int fricativeDuration, int nasalDuration, int liquidDuration,
+                         int glideDuration, int volume) {
 			this.rate = rate;
 			this.accentProminence = accentProminence;
 			this.accentSlope = accentSlope;

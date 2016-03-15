@@ -55,7 +55,7 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.Synthesis;
+import marytts.modules.synthesis.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
@@ -69,7 +69,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 /**
  * The main program for the mary TtS system. It can run as a socket server or as a stand-alone program.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -86,7 +86,7 @@ public class Mary {
 
 	/**
 	 * Inform about system state.
-	 * 
+	 *
 	 * @return an integer representing the current system state.
 	 * @see #STATE_OFF
 	 * @see #STATE_STARTING
@@ -99,7 +99,7 @@ public class Mary {
 
 	/**
 	 * Add jars to classpath. Normally this is called from startup().
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -143,7 +143,7 @@ public class Mary {
 		for (MaryModule m : ModuleRegistry.getAllModules()) {
 			// Only start the modules here if in server mode:
 			if (((!MaryProperties.getProperty("server").equals("commandline")) || m instanceof Synthesis)
-					&& m.getState() == MaryModule.MODULE_OFFLINE) {
+                && m.getState() == MaryModule.MODULE_OFFLINE) {
 				long before = System.currentTimeMillis();
 				try {
 					m.startup();
@@ -194,7 +194,7 @@ public class Mary {
 	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
 	 * are possible. The method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar. Use
 	 * <code>startup(false)</code> if you do not want to automatically extend the classpath in this way.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the system is not offline.
 	 * @throws Exception
@@ -208,7 +208,7 @@ public class Mary {
 	 * Start the MARY system and all modules. This method must be called once before any calls to
 	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
 	 * are possible.
-	 * 
+	 *
 	 * @param addJarsToClasspath
 	 *            if true, the method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar; if false,
 	 *            the classpath will remain unchanged.
@@ -232,8 +232,8 @@ public class Mary {
 		logger.info("Specification version " + Version.specificationVersion());
 		logger.info("Implementation version " + Version.implementationVersion());
 		logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "
-				+ System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
-				+ System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
+                    + System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
+                    + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
 		logger.debug("MARY_BASE: " + MaryProperties.maryBase());
 		String[] installedFilenames = new File(MaryProperties.maryBase() + "/installed").list();
 		if (installedFilenames == null) {
@@ -302,7 +302,7 @@ public class Mary {
 
 	/**
 	 * Log4j initialisation, called from {@link #startup(boolean)}.
-	 * 
+	 *
 	 * @throws NoSuchPropertyException
 	 *             NoSuchPropertyException
 	 * @throws IOException
@@ -362,7 +362,7 @@ public class Mary {
 
 	/**
 	 * Orderly shut down the MARY system.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the MARY system is not running.
 	 */
@@ -392,7 +392,7 @@ public class Mary {
 	/**
 	 * Process input into output using the MARY system. For inputType TEXT and output type AUDIO, this does text-to-speech
 	 * conversion; for other settings, intermediate processing results can be generated or provided as input.
-	 * 
+	 *
 	 * @param input
 	 *            input
 	 * @param inputTypeName
@@ -419,8 +419,8 @@ public class Mary {
 	 *             Exception
 	 */
 	public static void process(String input, String inputTypeName, String outputTypeName, String localeString,
-			String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)
-			throws Exception {
+                               String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)
+        throws Exception {
 		if (currentState != STATE_RUNNING)
 			throw new IllegalStateException("MARY system is not running");
 
@@ -448,7 +448,7 @@ public class Mary {
 		}
 
 		Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false,
-				outputTypeParams);
+                                      outputTypeParams);
 		request.setInputData(input);
 		request.process();
 		request.writeOutputData(output);
@@ -459,22 +459,22 @@ public class Mary {
 	 * The starting point of the standalone Mary program. If server mode is requested by property settings, starts the
 	 * <code>MaryServer</code>; otherwise, a <code>Request</code> is created reading from the file given as first argument and
 	 * writing to System.out.
-	 * 
+	 *
 	 * <p>
 	 * Usage:
 	 * <p>
 	 * As a socket server:
-	 * 
+	 *
 	 * <pre>
 	 * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
 	 * </pre>
 	 * <p>
 	 * As a stand-alone program:
-	 * 
+	 *
 	 * <pre>
 	 * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
 	 * </pre>
-	 * 
+	 *
 	 * @param args
 	 *            args
 	 * @throws Exception

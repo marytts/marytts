@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import marytts.modules.InternalModule;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -57,7 +59,7 @@ public class OpenNLPPosTagger extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix

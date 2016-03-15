@@ -5,7 +5,7 @@ import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
 import marytts.datatypes.MaryDataType
-import marytts.modules.MinimalisticPosTagger
+import marytts.modules.nlp.MinimalisticPosTagger
 import marytts.util.dom.DomUtils
 
 @Log4j
@@ -32,18 +32,18 @@ class EvenMoreMinimalisticPosTagger extends MinimalisticPosTagger {
         xml.depthFirst().findAll { it.name() == 't' }.each { token ->
             def text = token.text().trim()
             switch (text) {
-                case { it =~ /,/}:
-                    token.@pos = '$,'
-                    break
-                case { it =~ /[.?!;:]/ }:
-                    token.@pos = '$.'
-                    break
-                case { it =~ /^[A-Z]/ }:
-                    token.@pos = 'NN'
-                    break
-                default:
-                    token.@pos = 'UNKN'
-                    break
+            case { it =~ /,/}:
+            token.@pos = '$,'
+            break
+            case { it =~ /[.?!;:]/ }:
+            token.@pos = '$.'
+            break
+            case { it =~ /^[A-Z]/ }:
+            token.@pos = 'NN'
+            break
+            default:
+            token.@pos = 'UNKN'
+            break
             }
         }
 

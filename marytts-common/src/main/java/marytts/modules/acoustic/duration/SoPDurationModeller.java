@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic.duration;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,6 +41,8 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -62,7 +64,7 @@ public class SoPDurationModeller extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
 	 * feature processor manager for the given locale.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param sopFile
@@ -72,13 +74,13 @@ public class SoPDurationModeller extends InternalModule {
 	 */
 	public SoPDurationModeller(String locale, String sopFile) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, FeatureRegistry
-				.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
+             .getFeatureProcessorManager(MaryUtils.string2locale(locale)));
 	}
 
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param sopFile
@@ -90,12 +92,12 @@ public class SoPDurationModeller extends InternalModule {
 	 */
 	public SoPDurationModeller(String locale, String sopFile, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), sopFile, (FeatureProcessorManager) MaryRuntimeUtils
-				.instantiateObject(featprocClassInfo));
+             .instantiateObject(featprocClassInfo));
 	}
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param sopFile

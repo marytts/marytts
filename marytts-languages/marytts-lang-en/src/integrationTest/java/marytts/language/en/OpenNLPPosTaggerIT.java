@@ -21,7 +21,7 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.modules.OpenNLPPosTagger;
+import marytts.modules.nlp.OpenNLPPosTagger;
 import marytts.tests.modules.MaryModuleTestCase;
 
 import org.testng.Assert;

@@ -60,7 +60,7 @@ import org.w3c.dom.traversal.NodeIterator;
  * @author Marc Schr&ouml;der
  */
 
-public class JPhonemiser extends marytts.modules.JPhonemiser {
+public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	private Inflection inflection;
 	private FSTLookup usEnglishLexicon = null;
 	private String logUnknownFileName = null;
@@ -71,7 +71,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 	public JPhonemiser() throws IOException, MaryConfigurationException {
 		super("JPhonemiser_de", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, "de.allophoneset", "de.userdict",
-				"de.lexicon", "de.lettertosound");
+              "de.lexicon", "de.lettertosound");
 	}
 
 	public void startup() throws Exception {
@@ -88,10 +88,10 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 					FileUtils.forceMkdir(logDir);
 				}
 				logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename", logBasepath
-						+ "de_unknown.txt");
+                                                                + "de_unknown.txt");
 				unknown2Frequency = new HashMap<String, Integer>();
 				logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename", logBasepath
-						+ "de_english-words.txt");
+                                                                + "de_english-words.txt");
 				english2Frequency = new HashMap<String, Integer>();
 			} catch (IOException e) {
 				logger.info("Could not create log directory " + logDir.getCanonicalPath() + " Logging disabled!", e);
@@ -116,7 +116,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 				// open file
 				PrintWriter logUnknown = new PrintWriter(
-						new OutputStreamWriter(new FileOutputStream(logUnknownFileName), "UTF-8"));
+                    new OutputStreamWriter(new FileOutputStream(logUnknownFileName), "UTF-8"));
 				// sort the words
 				Set<String> unknownWords = unknown2Frequency.keySet();
 				SortedMap<Integer, List<String>> freq2Unknown = new TreeMap<Integer, List<String>>();
@@ -149,7 +149,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				/* print english words */
 				// open the file
 				PrintWriter logEnglish = new PrintWriter(
-						new OutputStreamWriter(new FileOutputStream(logEnglishFileName), "UTF-8"));
+                    new OutputStreamWriter(new FileOutputStream(logEnglishFileName), "UTF-8"));
 				// sort the words
 				SortedMap<Integer, List<String>> freq2English = new TreeMap<Integer, List<String>>();
 				for (String nextEnglish : english2Frequency.keySet()) {
@@ -209,7 +209,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 			boolean isEnglish = false;
 			if (t.hasAttribute("xml:lang")
-					&& MaryUtils.subsumes(Locale.ENGLISH, MaryUtils.string2locale(t.getAttribute("xml:lang")))) {
+                && MaryUtils.subsumes(Locale.ENGLISH, MaryUtils.string2locale(t.getAttribute("xml:lang")))) {
 				isEnglish = true;
 			}
 
@@ -262,7 +262,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 	/**
 	 * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
 	 * letter-to-sound rules if nothing else was successful.
-	 * 
+	 *
 	 * @param text
 	 *            the textual (graphemic) form of a word.
 	 * @param pos
@@ -334,9 +334,9 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 		Result resultingWord = null;
 		boolean usedOtherLanguageToPhonemise = false;
 		try{
-		resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
-		result = resultingWord.getTranscription();
-		usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
+            resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
+            result = resultingWord.getTranscription();
+            usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
 		}catch(NullPointerException e){
 			logger.debug(String.format("Word is Null: ", e.getMessage()));
 		}
@@ -383,7 +383,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 	/**
 	 * Try to determine an English transcription of the text according to English rules, but using German Sampa.
-	 * 
+	 *
 	 * @param text
 	 *            Word to transcribe
 	 * @return the transcription, or null if none could be determined.
@@ -407,7 +407,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 	/**
 	 * This method tries to decompose a compound. It calls itself recursively.
-	 * 
+	 *
 	 * @param text
 	 *            the word to be transcribed.
 	 * @return the SAMPA transcription of text, or null if none was found.
@@ -416,24 +416,24 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 	 * private String compoundSearch(String text) { // Chop off longest possible prefixes and try to look them up // in the
 	 * lexicon. Any part must have a minimum length of 3 characters.
 	 * //System.out.println("Compound Search is starting with: "+text);
-	 * 
+	 *
 	 * for (int i=text.length() - 3; i >= 3; i--) { //-3!!! >= 3!!!
-	 * 
+	 *
 	 * String firstPhon = null; String fugePhon = null; String restPhon = null; String prefix = text.substring(0, i);
-	 * 
-	 * 
+	 *
+	 *
 	 * firstPhon = userdictLookup(prefix);
-	 * 
+	 *
 	 * if (firstPhon == null) firstPhon = lexiconLookup(prefix);
-	 * 
+	 *
 	 * if (firstPhon != null) { // found a valid prefix String rest = text.substring(i); logger.debug("Rest is: "+rest);
-	 * 
+	 *
 	 * // Is the rest a simple lexical entry? restPhon = userdictLookup(rest);
-	 * 
+	 *
 	 * if (restPhon == null) restPhon = lexiconLookup(rest);
-	 * 
+	 *
 	 * // Or can the rest be analysed as a compound? if (restPhon == null) restPhon = compoundSearch(rest);
-	 * 
+	 *
 	 * // Or does it help if we cut off a Fuge? if (restPhon == null) { String [] helper = fugeSearch(rest); //hier scheint er
 	 * nicht mehr reinzugehen //logger.debug("fugeSearch(rest) is: " + fugeSearch(rest)); if (helper != null && helper.length ==
 	 * 2) { fugePhon = helper[0]; String rest2 = helper[1]; assert fugePhon != null; assert rest2 != null; restPhon =
@@ -444,7 +444,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 
 	/**
 	 * Try to cut off a Fuge morpheme at the beginning of suffix.
-	 * 
+	 *
 	 * @param suffix
 	 *            a part of a word with a prefix already removed.
 	 * @return a two-item String array. First string is the transcription of the Fuge found, second is the suffix after the Fuge

@@ -19,8 +19,10 @@
  */
 package marytts.io;
 
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -42,7 +44,7 @@ public class XMLSerializerTest {
 	@Test
 	public void testToString() throws Exception {
         XMLSerializer xml_seri = new XMLSerializer();
-        System.out.println(xml_seri.toString(new Utterance("textString")));
+        System.out.println(xml_seri.toString(new Utterance("textString", Locale.ENGLISH)));
         assert(true);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2005 DFKI GmbH. All rights reserved.
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,17 +11,19 @@ import java.util.Set;
 import marytts.datatypes.MaryDataType;
 import marytts.fst.FSTLookup;
 
+import marytts.modules.InternalModule;
+
 public class ProsodyGenericFST extends ProsodyGeneric {
 
 	public ProsodyGenericFST(MaryDataType inputType, MaryDataType outputType, Locale locale, String tobipredFileName,
-			String accentPriorities, String syllableAccents, String paragraphDeclination) throws IOException {
+                             String accentPriorities, String syllableAccents, String paragraphDeclination) throws IOException {
 		super(inputType, outputType, locale, tobipredFileName, accentPriorities, syllableAccents, paragraphDeclination);
 	}
 
 	/**
 	 * Read a list from an external file. This implementation can read from finite state transducer files (filenames ending in
 	 * <code>.fst</code>).
-	 * 
+	 *
 	 * @param resourceName
 	 *            resource file in classpath from which to read the list; suffix identifies list format.
 	 * @return An Object representing the list; checkList() must be able to make sense of this. This implementation returns an
@@ -44,7 +46,7 @@ public class ProsodyGenericFST extends ProsodyGeneric {
 	/**
 	 * Checks if tokenValue is contained in list. This implementation is able to deal with list types represented as FSTLookups or
 	 * as Sets.
-	 * 
+	 *
 	 * @param currentVal
 	 *            the condition to check; can be either <code>INLIST:</code> or <code>!INLIST:</code> followed by the list name to
 	 *            check.

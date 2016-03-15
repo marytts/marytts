@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,8 @@ import marytts.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
 import marytts.features.Target;
 import marytts.util.dom.MaryDomUtils;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,7 +85,7 @@ public class TargetFeatureLister extends InternalModule {
 
 	/**
 	 * For the given elements and using the given feature computer, create a string representation of the target features.
-	 * 
+	 *
 	 * @param featureComputer
 	 *            featureComputer
 	 * @param segmentsAndBoundaries
@@ -110,7 +112,7 @@ public class TargetFeatureLister extends InternalModule {
 
 	/**
 	 * Return directly the targets, and set in each target its feature vector
-	 * 
+	 *
 	 * @param featureComputer
 	 *            featureComputer
 	 * @param segmentsAndBoundaries
@@ -132,7 +134,7 @@ public class TargetFeatureLister extends InternalModule {
 	/**
 	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
 	 * method in local code.
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            segmentsAndBoundaries
 	 * @param pauseSymbol
@@ -145,7 +147,7 @@ public class TargetFeatureLister extends InternalModule {
 
 	/**
 	 * Create the list of targets from the segments to be synthesized Prepend and append pauses if necessary
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
 	 * @param silenceSymbol

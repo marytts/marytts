@@ -4,7 +4,7 @@ import groovy.util.logging.Log4j;
 import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
-import marytts.modules.JPhonemiser
+import marytts.modules.nlp.JPhonemiser
 import marytts.util.dom.DomUtils
 
 /**

@@ -1,6 +1,6 @@
 package marytts.language.en;
 
-import marytts.modules.JPhonemiser;
+import marytts.modules.nlp.JPhonemiser;
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
 

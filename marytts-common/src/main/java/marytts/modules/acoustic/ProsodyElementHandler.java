@@ -37,6 +37,8 @@ import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.string.StringUtils;
 
+import marytts.modules.InternalModule;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,9 +49,9 @@ import org.w3c.dom.traversal.TreeWalker;
 /**
  * This module will apply prosody modifications to the already predicted values (dur and f0) in the acoustparams This class also
  * support SSML recommendations of 'prosody' element
- * 
+ *
  * @author Sathish Pammi
- * 
+ *
  */
 public class ProsodyElementHandler {
 
@@ -65,10 +67,10 @@ public class ProsodyElementHandler {
 
 	/**
 	 * A method to modify prosody modifications
-	 * 
+	 *
 	 * @param doc
 	 *            - MARY XML Document
-	 * 
+	 *
 	 */
 	public void process(Document doc) {
 
@@ -129,7 +131,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To apply 'rate' specifications to NodeList (with only 'ph' elements)
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements
 	 * @param rateAttribute
@@ -143,7 +145,7 @@ public class ProsodyElementHandler {
 
 		// if the format contains a fixed label
 		boolean hasLabel = rateAttribute.equals("x-slow") || rateAttribute.equals("slow") || rateAttribute.equals("medium")
-				|| rateAttribute.equals("fast") || rateAttribute.equals("x-fast") || rateAttribute.equals("default");
+            || rateAttribute.equals("fast") || rateAttribute.equals("x-fast") || rateAttribute.equals("default");
 		if (hasLabel) {
 			rateAttribute = rateLabels2RelativeValues(rateAttribute);
 		}
@@ -160,7 +162,7 @@ public class ProsodyElementHandler {
 
 		// if the format contains a positive decimal number
 		boolean hasPositiveInteger = !rateAttribute.endsWith("%")
-				&& (!rateAttribute.startsWith("+") || !rateAttribute.startsWith("-"));
+            && (!rateAttribute.startsWith("+") || !rateAttribute.startsWith("-"));
 		if (hasPositiveInteger) {
 			rateAttribute = positiveInteger2RelativeValues(rateAttribute);
 		}
@@ -181,7 +183,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * apply given pitch specifications to the base contour
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param baseF0Contour
@@ -197,14 +199,14 @@ public class ProsodyElementHandler {
 		}
 
 		boolean hasLabel = pitchAttribute.equals("x-low") || pitchAttribute.equals("low") || pitchAttribute.equals("medium")
-				|| pitchAttribute.equals("high") || pitchAttribute.equals("x-high") || pitchAttribute.equals("default");
+            || pitchAttribute.equals("high") || pitchAttribute.equals("x-high") || pitchAttribute.equals("default");
 
 		if (hasLabel) {
 			pitchAttribute = pitchLabels2RelativeValues(pitchAttribute);
 		}
 
 		boolean hasFixedValue = pitchAttribute.endsWith("Hz")
-				&& !(pitchAttribute.startsWith("+") || pitchAttribute.startsWith("-"));
+            && !(pitchAttribute.startsWith("+") || pitchAttribute.startsWith("-"));
 
 		if (hasFixedValue) {
 			pitchAttribute = fixedValue2RelativeValue(pitchAttribute, baseF0Contour);
@@ -251,7 +253,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * Apply given contour specifications to base f0 contour
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param baseF0Contour
@@ -283,7 +285,7 @@ public class ProsodyElementHandler {
 			String f0Value = f0Specifications.get(percent);
 
 			boolean hasLabel = f0Value.equals("x-low") || f0Value.equals("low") || f0Value.equals("medium")
-					|| f0Value.equals("high") || f0Value.equals("x-high") || f0Value.equals("default");
+                || f0Value.equals("high") || f0Value.equals("x-high") || f0Value.equals("default");
 
 			if (hasLabel) {
 				f0Value = pitchLabels2RelativeValues(f0Value);
@@ -305,7 +307,7 @@ public class ProsodyElementHandler {
 				if (f0Value.endsWith("%")) {
 					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration]
-							+ (baseF0Contour[percentDuration] * (f0Mod / 100.0));
+                        + (baseF0Contour[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
 					float f0Mod = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] + f0Mod;
@@ -317,14 +319,14 @@ public class ProsodyElementHandler {
 				if (f0Value.endsWith("%")) {
 					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration]
-							- (baseF0Contour[percentDuration] * (f0Mod / 100.0));
+                        - (baseF0Contour[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
 					float f0Mod = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] - f0Mod;
 				} else if (f0Value.endsWith("st")) {
 					float semiTone = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
 					modifiedF0Values[percentDuration] = Math.exp(-1 * semiTone * Math.log(2) / 12)
-							* baseF0Contour[percentDuration];
+                        * baseF0Contour[percentDuration];
 				}
 			} else {
 				if (f0Value.endsWith("Hz")) {
@@ -339,7 +341,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To set duration specifications according to 'rate' requirements
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
 	 *            should contain 'd', 'end' attributes
@@ -406,7 +408,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To get a continuous pitch contour from nodelist of "ph" elements
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
 	 *            should contain 'd', 'end' attributes
@@ -486,7 +488,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To set new modified contour into XML
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param contour
@@ -543,7 +545,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To get prosody contour specifications by parsing 'contour' attribute values
-	 * 
+	 *
 	 * @param attribute
 	 *            - 'contour' attribute, it should not be null Expected format: '(0%, +10%)(50%,+30%)(95%,-10%)'
 	 * @return HashMap that contains prosody contour specifications it returns empty map if given attribute is not in expected
@@ -571,7 +573,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * mapping a fixed value to a relative value
-	 * 
+	 *
 	 * @param pitchAttribute
 	 *            pitchAttribute
 	 * @param baseF0Contour
@@ -593,7 +595,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * mapping a positive 'rate' integer to a relative value
-	 * 
+	 *
 	 * @param rateAttribute
 	 *            rateAttribute
 	 * @return "+" + df.format((relativePercentage - 100)) + "%" if relativePercentage > 100, "-" + df.format((100 -
@@ -613,7 +615,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * a look-up table for mapping rate labels to relative values
-	 * 
+	 *
 	 * @param rateAttribute
 	 *            rateAttribute
 	 * @return "-50%" if rateAttribute equals "x-slow", "-33.3%" if rateAttribute equals "slow", "+0%" if rateAttribute equals
@@ -638,7 +640,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * a look-up for pitch labels to relative changes
-	 * 
+	 *
 	 * @param pitchAttribute
 	 *            pitchAttribute
 	 * @return "-50%" if pitchAttribute equals "x-low", "-25%" if pitchAttribute equals "low", "+0%" if pitchAttribute equals
