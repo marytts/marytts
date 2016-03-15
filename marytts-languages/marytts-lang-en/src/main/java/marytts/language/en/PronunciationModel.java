@@ -31,13 +31,13 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * A pronunciation model that takes into account some English postlexical rules.
- * 
+ *
  * @author marc
  *
  */
-public class PronunciationModel extends marytts.modules.PronunciationModel {
+public class PronunciationModel extends marytts.modules.nlp.PronunciationModel {
 	/**
-     * 
+     *
      */
 	public PronunciationModel() {
 		super(Locale.ENGLISH);
@@ -45,7 +45,7 @@ public class PronunciationModel extends marytts.modules.PronunciationModel {
 
 	/**
 	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
-	 * 
+	 *
 	 * @param token
 	 *            a &lt;t&gt; element with a &lt;syllable&gt; and &lt;ph&gt; substructure.
 	 * @param allophoneSet

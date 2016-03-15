@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.synthesis;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,12 +35,14 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 
+import marytts.modules.InternalModule;
+
 import org.xml.sax.SAXException;
 
 /**
  * A base class for a synthesis caller. This can work as a normal MARY module, converting synthesis markup data into audio, or it
  * can be indirectly called from the corresponding Synthesizer.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -64,7 +66,7 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 * From synthesis markup input <code>d</code>, create audio output of the type specified by a preceding call to
 	 * <code>setAudioType()</code>. Returns a MaryData structure whose data is an input stream from which audio data of the
 	 * specified type can be read.
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 * @throws TransformerConfigurationException
@@ -83,7 +85,7 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 *             Exception
 	 */
 	public MaryData process(MaryData d) throws TransformerConfigurationException, TransformerException, FileNotFoundException,
-			IOException, ParserConfigurationException, SAXException, Exception {
+        IOException, ParserConfigurationException, SAXException, Exception {
 		assert d.getAudioFileFormat() != null;
 		assert getState() == MODULE_RUNNING;
 
@@ -133,13 +135,13 @@ public abstract class SynthesisCallerBase extends InternalModule {
 		}
 		// conversion not supported
 		logger.warn("Conversion to audio format " + format + " not supported. Providing voice default instead: "
-				+ input.getFormat());
+                    + input.getFormat());
 		return input;
 	}
 
 	/**
 	 * Synthesise one chunk of synthesis markup with a given voice.
-	 * 
+	 *
 	 * @param synthesisMarkup
 	 *            the input data in the native format expected by the synthesis engine
 	 * @param voice

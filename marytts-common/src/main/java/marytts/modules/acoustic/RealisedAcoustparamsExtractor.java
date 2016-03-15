@@ -17,17 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic;
 
 // DOM classes
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 
 /**
  * Transforms a full MaryXML document into an MBROLA format string
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 

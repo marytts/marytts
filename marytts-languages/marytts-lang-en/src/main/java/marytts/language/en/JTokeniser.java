@@ -35,13 +35,13 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
  */
-public class JTokeniser extends marytts.modules.JTokeniser {
+public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 
 	/**
-     * 
+     *
      */
 	public JTokeniser() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
@@ -56,7 +56,7 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	protected void normaliseToAscii(MaryData d) {
 		Document doc = d.getDocument();
 		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.TOKEN), false);
+                                                                           MaryXML.TOKEN), false);
 		Element t = null;
 		while ((t = (Element) ni.nextNode()) != null) {
 			String s = MaryDomUtils.tokenText(t);
@@ -69,7 +69,7 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 
 	/**
 	 * In current FreeTTS code, prosody elements get lost. So remember at least the force-accent element on individual tokens:
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 * @deprecated FreeTTS is no longer used, so this method no longer serves a purpose.
@@ -78,7 +78,7 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 	protected void propagateForceAccent(MaryData d) {
 		Document doc = d.getDocument();
 		NodeIterator prosodyNI = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.PROSODY), false);
+                                                                                  MaryXML.PROSODY), false);
 		Element prosody = null;
 		while ((prosody = (Element) prosodyNI.nextNode()) != null) {
 			if (prosody.hasAttribute("force-accent")) {
@@ -90,7 +90,7 @@ public class JTokeniser extends marytts.modules.JTokeniser {
 					accent = "unknown";
 				}
 				NodeIterator tNI = ((DocumentTraversal) doc).createNodeIterator(prosody, NodeFilter.SHOW_ELEMENT,
-						new NameNodeFilter(MaryXML.TOKEN), false);
+                                                                                new NameNodeFilter(MaryXML.TOKEN), false);
 				Element t = null;
 				while ((t = (Element) tNI.nextNode()) != null) {
 					if (!t.hasAttribute("accent")) {

@@ -24,16 +24,16 @@ import java.io.IOException;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
-import marytts.modules.ProsodyGenericFST;
+import marytts.modules.nlp.ProsodyGenericFST;
 
 /**
  * @author Fabio Tesser
- * 
+ *
  */
 public class Prosody extends ProsodyGenericFST {
 
 	public Prosody() throws IOException {
 		super(MaryDataType.PHONEMES, MaryDataType.INTONATION, Locale.ITALIAN, "it.prosody.tobipredparams",
-				"it.prosody.accentPriorities", "it.prosody.syllableaccents", "it.prosody.paragraphdeclination");
+              "it.prosody.accentPriorities", "it.prosody.syllableaccents", "it.prosody.paragraphdeclination");
 	}
 }

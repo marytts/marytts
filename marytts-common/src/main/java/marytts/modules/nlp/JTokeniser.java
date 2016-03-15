@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.util.Locale;
 import java.util.Properties;
@@ -27,6 +27,8 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,8 +43,8 @@ import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
 
 /**
  * @author Marc Schr&ouml;der
- * 
- * 
+ *
+ *
  */
 public class JTokeniser extends InternalModule {
 	public static final int TOKEN_MAXLENGTH = 100;
@@ -76,7 +78,7 @@ public class JTokeniser extends InternalModule {
 	/**
 	 * Set the tokenizer language to be different from the Locale of the module. This can be useful when reusing another
 	 * language's tokenizer data.
-	 * 
+	 *
 	 * @param languageCode
 	 *            the language-code to use, as a two-character string such as "de" or "en".
 	 */
@@ -112,7 +114,7 @@ public class JTokeniser extends InternalModule {
 				continue;
 			// Insert a space character between non-punctuation characters:
 			if (inputText.length() > 0 && !Character.isWhitespace(inputText.charAt(inputText.length() - 1))
-					&& Character.isLetterOrDigit(text.charAt(0))) {
+                && Character.isLetterOrDigit(text.charAt(0))) {
 				inputText.append(" ");
 			}
 			inputText.append(text);
@@ -186,7 +188,7 @@ public class JTokeniser extends InternalModule {
 					if (firstTokenInSentence != null) {
 						assert previousToken != null;
 						if (!MaryDomUtils.hasAncestor(firstTokenInSentence, MaryXML.SENTENCE)
-								&& !MaryDomUtils.hasAncestor(previousToken, MaryXML.SENTENCE)) {
+                            && !MaryDomUtils.hasAncestor(previousToken, MaryXML.SENTENCE)) {
 							Element firstPara = (Element) MaryDomUtils.getAncestor(firstTokenInSentence, MaryXML.PARAGRAPH);
 							Element lastPara = (Element) MaryDomUtils.getAncestor(previousToken, MaryXML.PARAGRAPH);
 							if (firstPara == null && lastPara == null || firstPara.equals(lastPara)) {
@@ -203,10 +205,10 @@ public class JTokeniser extends InternalModule {
 						if (firstTokenInParagraph != null) {
 							assert previousToken != null;
 							if (!MaryDomUtils.hasAncestor(firstTokenInParagraph, MaryXML.PARAGRAPH)
-									&& !MaryDomUtils.hasAncestor(previousToken, MaryXML.PARAGRAPH)) {
+                                && !MaryDomUtils.hasAncestor(previousToken, MaryXML.PARAGRAPH)) {
 								DomUtils.encloseNodesWithNewElement(
-										DomUtils.getAncestor(firstTokenInParagraph, MaryXML.SENTENCE),
-										DomUtils.getAncestor(previousToken, MaryXML.SENTENCE), MaryXML.PARAGRAPH);
+                                    DomUtils.getAncestor(firstTokenInParagraph, MaryXML.SENTENCE),
+                                    DomUtils.getAncestor(previousToken, MaryXML.SENTENCE), MaryXML.PARAGRAPH);
 							}
 						}
 						firstTokenInParagraph = null;
@@ -223,13 +225,13 @@ public class JTokeniser extends InternalModule {
 		}
 		// Remove the last old text node
 		if (currentTextNode != null // should be
-				&& !MaryDomUtils.hasAncestor(currentTextNode, MaryXML.TOKEN))
+            && !MaryDomUtils.hasAncestor(currentTextNode, MaryXML.TOKEN))
 			currentTextNode.getParentNode().removeChild(currentTextNode);
 		// Insert the last <s> element
 		if (firstTokenInSentence != null) {
 			assert previousToken != null;
 			if (!MaryDomUtils.hasAncestor(firstTokenInSentence, MaryXML.SENTENCE)
-					&& !MaryDomUtils.hasAncestor(previousToken, MaryXML.SENTENCE)) {
+                && !MaryDomUtils.hasAncestor(previousToken, MaryXML.SENTENCE)) {
 				Element firstPara = (Element) MaryDomUtils.getAncestor(firstTokenInSentence, MaryXML.PARAGRAPH);
 				Element lastPara = (Element) MaryDomUtils.getAncestor(previousToken, MaryXML.PARAGRAPH);
 				if (firstPara == null && lastPara == null || firstPara.equals(lastPara)) {
@@ -243,9 +245,9 @@ public class JTokeniser extends InternalModule {
 		if (firstTokenInParagraph != null) {
 			assert previousToken != null;
 			if (!MaryDomUtils.hasAncestor(firstTokenInParagraph, MaryXML.PARAGRAPH)
-					&& !MaryDomUtils.hasAncestor(previousToken, MaryXML.PARAGRAPH)) {
+                && !MaryDomUtils.hasAncestor(previousToken, MaryXML.PARAGRAPH)) {
 				DomUtils.encloseNodesWithNewElement(DomUtils.getAncestor(firstTokenInParagraph, MaryXML.SENTENCE),
-						DomUtils.getAncestor(previousToken, MaryXML.SENTENCE), MaryXML.PARAGRAPH);
+                                                    DomUtils.getAncestor(previousToken, MaryXML.SENTENCE), MaryXML.PARAGRAPH);
 			}
 		}
 
@@ -257,7 +259,7 @@ public class JTokeniser extends InternalModule {
 			if (tokenText.length() > TOKEN_MAXLENGTH) {
 				String cutTT = tokenText.substring(0, TOKEN_MAXLENGTH);
 				logger.info("Cutting exceedingly long input token (length " + tokenText.length() + " ) to length "
-						+ TOKEN_MAXLENGTH + ":\n" + "before: " + tokenText + "\nafter: " + cutTT);
+                            + TOKEN_MAXLENGTH + ":\n" + "before: " + tokenText + "\nafter: " + cutTT);
 				MaryDomUtils.setTokenText(t, cutTT);
 			}
 		}

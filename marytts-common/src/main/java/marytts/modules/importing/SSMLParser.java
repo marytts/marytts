@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.importing;
 
 // TraX classes
 import javax.xml.parsers.DocumentBuilder;
@@ -29,6 +29,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
+import marytts.modules.InternalModule;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.util.dom.LoggingErrorHandler;
@@ -37,11 +38,11 @@ import org.w3c.dom.Document;
 
 /**
  * Transforms a SABLE document into a raw (untokenised) MaryXML document
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
-public class SableParser extends InternalModule {
+public class SSMLParser extends InternalModule {
 	// One stylesheet can be used (read) by multiple threads:
 	private static Templates stylesheet = null;
 
@@ -49,8 +50,8 @@ public class SableParser extends InternalModule {
 	private DocumentBuilder docBuilder = null;
 	private boolean doWarnClient = false;
 
-	public SableParser() {
-		super("SableParser", MaryDataType.SABLE, MaryDataType.RAWMARYXML, null);
+	public SSMLParser() {
+		super("SSMLParser", MaryDataType.SSML, MaryDataType.RAWMARYXML, null);
 	}
 
 	public boolean getWarnClient() {
@@ -65,7 +66,7 @@ public class SableParser extends InternalModule {
 		setWarnClient(true); // !! where should that be decided?
 		if (stylesheet == null) {
 			TransformerFactory tFactory = TransformerFactory.newInstance();
-			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("sable-to-mary.xsl"));
+			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("ssml-to-mary.xsl"));
 			stylesheet = tFactory.newTemplates(stylesheetStream);
 		}
 		if (dbFactory == null) {
@@ -79,12 +80,12 @@ public class SableParser extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		DOMSource domSource = new DOMSource(d.getDocument());
-		Transformer transformer = stylesheet.newTransformer();
 
+		Transformer transformer = stylesheet.newTransformer();
 		// Log transformation errors to client:
 		if (doWarnClient) {
 			// Use custom error handler:
-			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.Sable transformer"));
+			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.SSML transformer"));
 		}
 
 		// Transform DOMSource into a DOMResult

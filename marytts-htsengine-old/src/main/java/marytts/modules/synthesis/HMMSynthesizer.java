@@ -83,7 +83,7 @@ import marytts.htsengine.HMMVoice;
 import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.TargetFeatureLister;
+import marytts.modules.acoustic.TargetFeatureLister;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
 import marytts.features.Target;

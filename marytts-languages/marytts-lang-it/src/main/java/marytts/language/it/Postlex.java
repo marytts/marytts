@@ -28,7 +28,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.InternalModule;
-import marytts.modules.PronunciationModel;
+import marytts.modules.nlp.PronunciationModel;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -43,7 +43,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * The postlexical phonological processes module. Used as first option to solve proclitics tokens and sillabification merging
- * 
+ *
  * @author Fabio Tesser
  */
 
@@ -78,7 +78,7 @@ public class Postlex extends PronunciationModel {
 	 */
 	private void mtuMergeTokenPostlex(Document doc) throws DOMException {
 		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.MTU),
-				false);
+                                                                   false);
 		Element m = null;
 		while ((m = (Element) tw.nextNode()) != null) {
 			if (MaryDomUtils.hasAncestor(m, MaryXML.MTU)) // not highest-level
@@ -107,7 +107,7 @@ public class Postlex extends PronunciationModel {
 					c.setTextContent(c1.getTextContent() + "+" + c.getTextContent());
 					// Merge the ph and write the quote if necessary
 					c.setAttribute("ph",
-							returnQuoteIfStress(c.getAttribute("ph")) + c1.getAttribute("ph") + " " + c.getAttribute("ph"));
+                                   returnQuoteIfStress(c.getAttribute("ph")) + c1.getAttribute("ph") + " " + c.getAttribute("ph"));
 					// TODO: POS are not merged if you want to merge the POS:
 					// c.setAttribute("pos", c1.getAttribute("pos") + "+" +c.getAttribute("pos"));
 
@@ -121,12 +121,12 @@ public class Postlex extends PronunciationModel {
 
 			/*
 			 * Element retainAccentToken = c;
-			 * 
+			 *
 			 * // Now all token below m except retainAccentToken get // their accent deleted. System.err.println("the olio" +
 			 * m.getNodeName()); NodeList tokens = m.getElementsByTagName(MaryXML.TOKEN); System.err.println("OK number" +
 			 * tokens.getLength()); for (int i=0; i<tokens.getLength(); i++) { Element t = (Element) tokens.item(i);
 			 * System.err.println("OK" ); if (t == retainAccentToken) // not the same *Object*! {
-			 * 
+			 *
 			 * System.err.println("VAI!!!!:" + t.getNodeName()); t.setNodeValue("aaaa"); //System.err.println("VAI!!!!:" + t.get);
 			 * //Element syl = MaryDomUtils.getFirstChildElement(t); // System.err.println("VAI!!!!: " + syl.getLocalName()); } }
 			 */

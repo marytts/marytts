@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.io.InputStream;
 
@@ -29,6 +29,8 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -36,7 +38,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Minimalistic part-of-speech tagger, using only function word tags as marked in the Transcription GUI.
- * 
+ *
  * @author Sathish Pammi
  * @author Marc Schr&ouml;der
  */
@@ -49,7 +51,7 @@ public class MinimalisticPosTagger extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix

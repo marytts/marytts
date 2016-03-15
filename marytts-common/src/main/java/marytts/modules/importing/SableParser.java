@@ -17,16 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.importing;
 
 // TraX classes
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
@@ -35,15 +33,16 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.util.dom.LoggingErrorHandler;
 
+import marytts.modules.InternalModule;
 import org.w3c.dom.Document;
 
 /**
- * Transforms a APML document into a raw (untokenised) MaryXML document
- * 
- * @author Marc Schr&ouml;der, Hannes Pirker
+ * Transforms a SABLE document into a raw (untokenised) MaryXML document
+ *
+ * @author Marc Schr&ouml;der
  */
 
-public class APMLParser extends InternalModule {
+public class SableParser extends InternalModule {
 	// One stylesheet can be used (read) by multiple threads:
 	private static Templates stylesheet = null;
 
@@ -51,8 +50,8 @@ public class APMLParser extends InternalModule {
 	private DocumentBuilder docBuilder = null;
 	private boolean doWarnClient = false;
 
-	public APMLParser() {
-		super("APMLParser", MaryDataType.APML, MaryDataType.RAWMARYXML, null);
+	public SableParser() {
+		super("SableParser", MaryDataType.SABLE, MaryDataType.RAWMARYXML, null);
 	}
 
 	public boolean getWarnClient() {
@@ -67,16 +66,7 @@ public class APMLParser extends InternalModule {
 		setWarnClient(true); // !! where should that be decided?
 		if (stylesheet == null) {
 			TransformerFactory tFactory = TransformerFactory.newInstance();
-			tFactory.setURIResolver(new URIResolver() {
-				public Source resolve(String href, String base) {
-					if (href.endsWith("emotion-to-mary.xsl")) {
-						return new StreamSource(this.getClass().getResourceAsStream("emotion-to-mary.xsl"));
-					} else {
-						return null;
-					}
-				}
-			});
-			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("apml-to-mary.xsl"));
+			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("sable-to-mary.xsl"));
 			stylesheet = tFactory.newTemplates(stylesheetStream);
 		}
 		if (dbFactory == null) {
@@ -95,7 +85,7 @@ public class APMLParser extends InternalModule {
 		// Log transformation errors to client:
 		if (doWarnClient) {
 			// Use custom error handler:
-			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.APML transformer"));
+			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.Sable transformer"));
 		}
 
 		// Transform DOMSource into a DOMResult

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic.f0;
 
 import java.util.Locale;
 
@@ -42,6 +42,8 @@ import marytts.util.dom.NameNodeFilter;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.Polynomial;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -51,7 +53,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Predict f0 contours using polynomial curves predicted from a directed graph per syllable.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -65,7 +67,7 @@ public class PolynomialF0Modeller extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
@@ -77,12 +79,12 @@ public class PolynomialF0Modeller extends InternalModule {
 	 */
 	public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
-				.instantiateObject(featprocClassInfo));
+             .instantiateObject(featprocClassInfo));
 	}
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param propertyPrefix
@@ -105,13 +107,13 @@ public class PolynomialF0Modeller extends InternalModule {
 		contourFeatures = new FeatureFileReader(MaryProperties.needFilename(propertyPrefix + "contours"));
 		contourGraph = new DirectedGraphReader().load(MaryProperties.needFilename(propertyPrefix + "graph"));
 		featureComputer = new TargetFeatureComputer(featureProcessorManager, contourGraph.getFeatureDefinition()
-				.getFeatureNames());
+                                                    .getFeatureNames());
 	}
 
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
 		NodeIterator sentenceIt = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.SENTENCE), false);
+                                                                                   MaryXML.SENTENCE), false);
 		Element sentence = null;
 		AllophoneSet allophoneSet = null;
 		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
@@ -142,14 +144,14 @@ public class PolynomialF0Modeller extends InternalModule {
 			}
 
 			TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(sentence, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-					MaryXML.SYLLABLE), false);
+                                                                           MaryXML.SYLLABLE), false);
 			Element syllable;
 			Element previous = null;
 			while ((syllable = (Element) tw.nextNode()) != null) {
 				Element vowel = null;
 				float sylDur = 0;
 				for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils
-						.getNextSiblingElement(s)) {
+                         .getNextSiblingElement(s)) {
 					assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found " + s.getTagName();
 					if (s.hasAttribute("d")) {
 						sylDur += Float.parseFloat(s.getAttribute("d"));
@@ -182,7 +184,7 @@ public class PolynomialF0Modeller extends InternalModule {
 					float relStart = 0;
 					float relEnd = 0;
 					for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils
-							.getNextSiblingElement(s)) {
+                             .getNextSiblingElement(s)) {
 						if (s.hasAttribute("d")) {
 							float dur = Float.parseFloat(s.getAttribute("d"));
 							relStart = posInSyl / sylDur;

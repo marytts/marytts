@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,12 +41,13 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.AudioReader;
+import marytts.modules.synthesis.SynthesisCallerBase;
 
 import org.apache.log4j.Logger;
 
 /**
  * A link to the synthesis part of festival.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -72,7 +73,7 @@ public class FestivalCaller extends SynthesisCallerBase {
 		// Make sure the festival directory structure exists under
 		// mary.base/tmp:
 		festivalDir = new File(MaryProperties.getFilename("festival.tmp.dir", System.getProperty("mary.base") + File.separator
-				+ "tmp" + File.separator + "festival"));
+                                                          + "tmp" + File.separator + "festival"));
 		relationsDir = new File(festivalDir.getPath() + File.separator + "relations");
 		segmentDir = new File(relationsDir.getPath() + File.separator + "Segment");
 		syllableDir = new File(relationsDir.getPath() + File.separator + "Syllable");
@@ -100,7 +101,7 @@ public class FestivalCaller extends SynthesisCallerBase {
 				success = dir.delete();
 				if (!success) {
 					throw new IOException("Need to create directory " + dir.getPath()
-							+ ", but file exists that cannot be deleted.");
+                                          + ", but file exists that cannot be deleted.");
 				}
 			}
 			success = dir.mkdir();
@@ -112,7 +113,7 @@ public class FestivalCaller extends SynthesisCallerBase {
 
 	/**
 	 * Process a single utterance in FESTIVAL_UTT text format.
-	 * 
+	 *
 	 * @param festivalUtt
 	 *            festivalUtt
 	 * @return the synthesized audio data
@@ -140,7 +141,7 @@ public class FestivalCaller extends SynthesisCallerBase {
 					pw.close();
 				}
 				pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(relationsDir.getPath() + File.separator
-						+ relation + File.separator + "mary." + relation), "ISO-8859-15"));
+                                                                                 + relation + File.separator + "mary." + relation), "ISO-8859-15"));
 			} else if (pw != null) {
 				pw.println(line);
 				logger.debug(line);
@@ -153,13 +154,13 @@ public class FestivalCaller extends SynthesisCallerBase {
 	private AudioInputStream festivalSynthesise(File audioFile, String festVoiceCmd) throws IOException {
 		String festvoxDirPath = MaryProperties.maryBase() + File.separator + "lib" + File.separator + "festvox" + File.separator;
 		String festCmd = "(begin (set! argv nil) " + "(load \"" + festvoxDirPath.replaceAll("\\\\", "/") + "make_utts\") "
-				+ festVoiceCmd + " " + "(set! label_dir \"" + festivalDir.getAbsolutePath().replaceAll("\\\\", "/")
-				+ "/relations\")" + "(set! utt_dir \"" + uttsDir.getAbsolutePath().replaceAll("\\\\", "/") + "\") "
-				+ "(set! utt1 (make_utt \"mary\" basic_relations)) " + "(utt.save utt1 \""
-				+ uttsDir.getAbsolutePath().replaceAll("\\\\", "/") + "/mary.utt\") " + "(Wave_Synth utt1) "
-				+ "(utt.send.wave.client utt1) "
-				// + "(utt.save.wave utt1 \"" + festivalDir.getAbsolutePath().replaceAll("\\\\", "/") + "/mary.wav\" 'riff) "
-				+ ")";
+            + festVoiceCmd + " " + "(set! label_dir \"" + festivalDir.getAbsolutePath().replaceAll("\\\\", "/")
+            + "/relations\")" + "(set! utt_dir \"" + uttsDir.getAbsolutePath().replaceAll("\\\\", "/") + "\") "
+            + "(set! utt1 (make_utt \"mary\" basic_relations)) " + "(utt.save utt1 \""
+            + uttsDir.getAbsolutePath().replaceAll("\\\\", "/") + "/mary.utt\") " + "(Wave_Synth utt1) "
+            + "(utt.send.wave.client utt1) "
+            // + "(utt.save.wave utt1 \"" + festivalDir.getAbsolutePath().replaceAll("\\\\", "/") + "/mary.wav\" 'riff) "
+            + ")";
 
 		/*
 		 * String[] cmdArray = new String[3]; cmdArray[0] = MaryProperties.getFilename("festival.bin"); cmdArray[1] = "--pipe";

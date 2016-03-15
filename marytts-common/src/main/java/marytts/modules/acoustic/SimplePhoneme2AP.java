@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic;
 
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -35,12 +35,14 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * Read a simple phone string and generate default acoustic parameters.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 

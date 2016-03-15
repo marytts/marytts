@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.Syllabifier;
 import marytts.tools.newlanguage.LexiconCreator;
 
 import org.apache.log4j.BasicConfigurator;
@@ -48,7 +47,7 @@ import org.apache.log4j.PatternLayout;
  * <li>creation of a compact FST representing the lexicon</li>
  * <li>training of Letter-to-sound rules from the data</li>
  * </ol>
- * 
+ *
  * @author marc
  *
  */
@@ -57,10 +56,10 @@ public class CMUDict2MaryFST extends LexiconCreator {
 
 	public CMUDict2MaryFST() throws Exception {
 		super(AllophoneSet.getAllophoneSet(LEXPATH + "allophones.en_US.xml"), LEXPATH + "cmudictSampa.txt", LEXPATH
-				+ "cmudict.fst", LEXPATH + "cmudict.lts", true, // convert to lowercase
-				true, // predict stress
-				3 // number of characters to the left and to the right to use for prediction
-		);
+              + "cmudict.fst", LEXPATH + "cmudict.lts", true, // convert to lowercase
+              true, // predict stress
+              3 // number of characters to the left and to the right to use for prediction
+            );
 	}
 
 	@Override
@@ -140,7 +139,7 @@ public class CMUDict2MaryFST extends LexiconCreator {
 
 	/**
 	 * Converts a single phonetic symbol in MRPA representation representation into its equivalent in MARY sampa representation.
-	 * 
+	 *
 	 * @param voicePhoneme
 	 *            voicePhoneme
 	 * @return the converted phone, or the input string if no known conversion exists.
@@ -167,14 +166,14 @@ public class CMUDict2MaryFST extends LexiconCreator {
 			}
 			sampaList.add(sampa);
 		}
-		new Syllabifier(allophoneSet).syllabify(sampaList);
-		StringBuilder sb = new StringBuilder();
-		for (String s : sampaList) {
-			if (sb.length() > 0)
-				sb.append(" ");
-			sb.append(s);
-		}
-		return sb.toString();
+
+        StringBuilder sb = new StringBuilder();
+        for (String s : sampaList) {
+            if (sb.length() > 0)
+                sb.append(" ");
+            sb.append(allophoneSet.syllabify(s));
+        }
+        return sb.toString();
 	}
 
 	private void convertToSampa(BufferedReader br, PrintWriter toSampa) throws IOException {

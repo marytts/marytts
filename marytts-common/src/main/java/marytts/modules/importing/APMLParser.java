@@ -17,34 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.importing;
 
 // TraX classes
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import emotionml.Checker;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.util.MaryUtils;
 import marytts.util.dom.LoggingErrorHandler;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 
 /**
- * Transforms a SABLE document into a raw (untokenised) MaryXML document
- * 
- * @author Marc Schr&ouml;der
+ * Transforms a APML document into a raw (untokenised) MaryXML document
+ *
+ * @author Marc Schr&ouml;der, Hannes Pirker
  */
 
-public class EmotionmlParser extends InternalModule {
+public class APMLParser extends InternalModule {
 	// One stylesheet can be used (read) by multiple threads:
 	private static Templates stylesheet = null;
 
@@ -52,8 +53,8 @@ public class EmotionmlParser extends InternalModule {
 	private DocumentBuilder docBuilder = null;
 	private boolean doWarnClient = false;
 
-	public EmotionmlParser() {
-		super("EmotionmlParser", MaryDataType.EMOTIONML, MaryDataType.RAWMARYXML, null);
+	public APMLParser() {
+		super("APMLParser", MaryDataType.APML, MaryDataType.RAWMARYXML, null);
 	}
 
 	public boolean getWarnClient() {
@@ -68,7 +69,16 @@ public class EmotionmlParser extends InternalModule {
 		setWarnClient(true); // !! where should that be decided?
 		if (stylesheet == null) {
 			TransformerFactory tFactory = TransformerFactory.newInstance();
-			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("emotionml-to-maryxml.xsl"));
+			tFactory.setURIResolver(new URIResolver() {
+				public Source resolve(String href, String base) {
+					if (href.endsWith("emotion-to-mary.xsl")) {
+						return new StreamSource(this.getClass().getResourceAsStream("emotion-to-mary.xsl"));
+					} else {
+						return null;
+					}
+				}
+			});
+			StreamSource stylesheetStream = new StreamSource(this.getClass().getResourceAsStream("apml-to-mary.xsl"));
 			stylesheet = tFactory.newTemplates(stylesheetStream);
 		}
 		if (dbFactory == null) {
@@ -81,31 +91,19 @@ public class EmotionmlParser extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Document emotionml = d.getDocument();
-
-		// Let's be strict about what we accept as EmotionML:
-		Checker emotionmlChecker = new Checker();
-		emotionmlChecker.validate(emotionml);
-
-		DOMSource domSource = new DOMSource(emotionml);
-
+		DOMSource domSource = new DOMSource(d.getDocument());
 		Transformer transformer = stylesheet.newTransformer();
+
 		// Log transformation errors to client:
 		if (doWarnClient) {
 			// Use custom error handler:
-			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName()
-					+ " client.EmotionML transformer"));
+			transformer.setErrorListener(new LoggingErrorHandler(Thread.currentThread().getName() + " client.APML transformer"));
 		}
-
-		transformer.setParameter("voice", d.getDefaultVoice().getName());
 
 		// Transform DOMSource into a DOMResult
 		Document maryxmlDocument = docBuilder.newDocument();
 		DOMResult domResult = new DOMResult(maryxmlDocument);
 		transformer.transform(domSource, domResult);
-		// We add the 'xml:lang' attribute manually:
-		maryxmlDocument.getDocumentElement().setAttribute("xml:lang", MaryUtils.locale2xmllang(d.getLocale()));
-
 		MaryData result = new MaryData(outputType(), d.getLocale());
 		result.setDocument(maryxmlDocument);
 		return result;

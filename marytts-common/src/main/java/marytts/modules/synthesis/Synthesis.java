@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.synthesis;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +40,8 @@ import marytts.signalproc.effects.EffectsApplier;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -77,7 +79,7 @@ public class Synthesis extends InternalModule {
 
 	/**
 	 * Perform a power-on self test by processing some example input data.
-	 * 
+	 *
 	 * @throws Error
 	 *             if the module does not work properly.
 	 */
@@ -132,7 +134,7 @@ public class Synthesis extends InternalModule {
 		}
 
 		NodeIterator it = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY, MaryXML.NONVERBAL }), false);
+                                                                           new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY, MaryXML.NONVERBAL }), false);
 		List<Element> elements = new ArrayList<Element>();
 		Element element = null;
 		Voice currentVoice = defaultVoice;
@@ -150,7 +152,7 @@ public class Synthesis extends InternalModule {
 					// We have just left a voice section
 					if (!elements.isEmpty()) {
 						AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect,
-								targetFormat, outputParams);
+                                                                    targetFormat, outputParams);
 						if (ais != null) {
 							result.appendAudio(ais);
 						}
@@ -162,14 +164,14 @@ public class Synthesis extends InternalModule {
 					currentVoiceElement = null;
 				}
 			} else if (v != currentVoiceElement
-					|| (v.getAttribute("style") != null && v.getAttribute("style") != "" && !v.getAttribute("style").equals(
-							currentStyle))
-					|| (v.getAttribute("effect") != null && v.getAttribute("effect") != "" && !v.getAttribute("effect").equals(
-							currentEffect))) {
+                       || (v.getAttribute("style") != null && v.getAttribute("style") != "" && !v.getAttribute("style").equals(
+                               currentStyle))
+                       || (v.getAttribute("effect") != null && v.getAttribute("effect") != "" && !v.getAttribute("effect").equals(
+                               currentEffect))) {
 				// We have just entered a new voice section
 				if (!elements.isEmpty()) {
 					AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect,
-							targetFormat, outputParams);
+                                                                targetFormat, outputParams);
 					if (ais != null) {
 						result.appendAudio(ais);
 					}
@@ -194,7 +196,7 @@ public class Synthesis extends InternalModule {
 			if (s != currentSentence) {
 				if (!elements.isEmpty()) {
 					AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect,
-							targetFormat, outputParams);
+                                                                targetFormat, outputParams);
 					if (ais != null) {
 						result.appendAudio(ais);
 					}
@@ -207,7 +209,7 @@ public class Synthesis extends InternalModule {
 
 		if (!elements.isEmpty()) {
 			AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat,
-					outputParams);
+                                                        outputParams);
 
 			if (ais != null) {
 				result.appendAudio(ais);
@@ -221,8 +223,8 @@ public class Synthesis extends InternalModule {
 	 * Synthesize one section, consisting of tokens and boundaries, with a given voice, to the given target audio format.
 	 */
 	private AudioInputStream synthesizeOneSection(List<Element> tokensAndBoundaries, Voice voice, String currentStyle,
-			String currentEffect, AudioFormat targetFormat, String outputParams) throws SynthesisException,
-			UnsupportedAudioFileException {
+                                                  String currentEffect, AudioFormat targetFormat, String outputParams) throws SynthesisException,
+        UnsupportedAudioFileException {
 		// sanity check: are there any tokens containing phone descendants?
 		if (!containsPhoneDescendants(tokensAndBoundaries)) {
 			logger.warn("No PHONE segments found in this section; will not attempt to synthesize it!");
@@ -251,10 +253,10 @@ public class Synthesis extends InternalModule {
 				boolean solved = false;
 				// try again with intermediate sample rate conversion
 				if (!targetFormat.getEncoding().equals(ais.getFormat())
-						&& targetFormat.getSampleRate() != ais.getFormat().getSampleRate()) {
+                    && targetFormat.getSampleRate() != ais.getFormat().getSampleRate()) {
 					AudioFormat sampleRateConvFormat = new AudioFormat(ais.getFormat().getEncoding(),
-							targetFormat.getSampleRate(), ais.getFormat().getSampleSizeInBits(), ais.getFormat().getChannels(),
-							ais.getFormat().getFrameSize(), ais.getFormat().getFrameRate(), ais.getFormat().isBigEndian());
+                                                                       targetFormat.getSampleRate(), ais.getFormat().getSampleSizeInBits(), ais.getFormat().getChannels(),
+                                                                       ais.getFormat().getFrameSize(), ais.getFormat().getFrameRate(), ais.getFormat().isBigEndian());
 					try {
 						AudioInputStream intermedStream = AudioSystem.getAudioInputStream(sampleRateConvFormat, ais);
 						ais = AudioSystem.getAudioInputStream(targetFormat, intermedStream);
@@ -265,7 +267,7 @@ public class Synthesis extends InternalModule {
 				}
 				if (!solved)
 					throw new UnsupportedAudioFileException("Conversion from audio format " + ais.getFormat()
-							+ " to requested audio format " + targetFormat + " not supported.\n" + iae.getMessage());
+                                                            + " to requested audio format " + targetFormat + " not supported.\n" + iae.getMessage());
 			}
 		}
 		// Apply effect if present
@@ -277,7 +279,7 @@ public class Synthesis extends InternalModule {
 
 	/**
 	 * Check if the List of Elements contains any TOKENS that have PHONE descendants
-	 * 
+	 *
 	 * @param tokensAndBoundaries
 	 *            the List of Elements to check for PHONE elements
 	 * @return true once a PHONE has been found within a TOKEN, false if this never happens

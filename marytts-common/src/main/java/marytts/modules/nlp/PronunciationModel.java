@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import marytts.modules.InternalModule;
 
 import marytts.cart.StringPredictionTree;
 import marytts.datatypes.MaryData;
@@ -50,11 +52,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.TreeWalker;
 
 /**
- * 
+ *
  * This module serves as a post-lexical pronunciation model. Its appropriate place in the module chain is after intonisation. The
  * target features are taken and fed into decision trees that predict the new pronunciation. A new mary xml is output, with the
  * difference being that the old pronunciation is replaced by the newly predicted one, and a finer grained xml structure.
- * 
+ *
  * @author ben
  *
  */
@@ -70,7 +72,7 @@ public class PronunciationModel extends InternalModule {
 
 	/**
 	 * Constructor, stating that the input is of type INTONATION, the output of type ALLOPHONES.
-	 * 
+	 *
 	 */
 	public PronunciationModel() {
 		this(null);
@@ -89,7 +91,7 @@ public class PronunciationModel extends InternalModule {
 		String fdFilename = null;
 		if (getLocale() != null) {
 			fdFilename = MaryProperties
-					.getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
+                .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
 		}
 		if (fdFilename != null) {
 			File fdFile = new File(fdFilename);
@@ -98,7 +100,7 @@ public class PronunciationModel extends InternalModule {
 
 			// get path where the prediction trees lie
 			File treePath = new File(MaryProperties.needFilename(MaryProperties.localePrefix(getLocale())
-					+ ".pronunciation.treepath"));
+                                                                 + ".pronunciation.treepath"));
 
 			// valid predicion tree files are named prediction_<phone_symbol>.tree
 			Pattern treeFilePattern = Pattern.compile("^prediction_(.*)\\.tree$");
@@ -131,10 +133,10 @@ public class PronunciationModel extends InternalModule {
 
 			// TODO: change property name to german.pronunciation.featuremanager/features
 			String managerClass = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
-					+ ".pronunciation.targetfeaturelister.featuremanager");
+                                                              + ".pronunciation.targetfeaturelister.featuremanager");
 			FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
 			String features = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
-					+ ".pronunciation.targetfeaturelister.features");
+                                                          + ".pronunciation.targetfeaturelister.features");
 			this.featureComputer = new TargetFeatureComputer(manager, features);
 		}
 		logger.debug("Building feature computer finished.");
@@ -142,7 +144,7 @@ public class PronunciationModel extends InternalModule {
 
 	/**
 	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
-	 * 
+	 *
 	 * @param token
 	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt; substructure.
 	 * @param allophoneSet
@@ -155,7 +157,7 @@ public class PronunciationModel extends InternalModule {
 
 	/**
 	 * This computes a new pronunciation for the elements of some MaryData, that is phonemised.
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 * @throws Exception

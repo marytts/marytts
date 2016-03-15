@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic.duration;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +42,8 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -49,7 +51,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Predict phone durations using a CART.
- * 
+ *
  * @author Marc Schr&ouml;der
  * @deprecated
  */
@@ -66,7 +68,7 @@ public class CARTDurationModeller extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
 	 * feature processor manager for the given locale.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
@@ -76,13 +78,13 @@ public class CARTDurationModeller extends InternalModule {
 	 */
 	public CARTDurationModeller(String locale, String propertyPrefix) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
-				.string2locale(locale)));
+                                                                                                         .string2locale(locale)));
 	}
 
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
@@ -94,12 +96,12 @@ public class CARTDurationModeller extends InternalModule {
 	 */
 	public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
-				.instantiateObject(featprocClassInfo));
+             .instantiateObject(featprocClassInfo));
 	}
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param propertyPrefix
@@ -123,7 +125,7 @@ public class CARTDurationModeller extends InternalModule {
 			File cartFile = new File(cartFilename);
 			cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
 			featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
-					.getFeatureNames());
+                                                                       .getFeatureNames());
 		} else {
 			cart = null;
 		}
@@ -134,9 +136,9 @@ public class CARTDurationModeller extends InternalModule {
 
 			File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix + "pausefeatures"));
 			FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)),
-					false);
+                                                                             false);
 			pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager,
-					pauseFeatureDefinition.getFeatureNames());
+                                                                            pauseFeatureDefinition.getFeatureNames());
 			pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
 		} else {
 			this.pausetree = null;
@@ -169,7 +171,7 @@ public class CARTDurationModeller extends InternalModule {
 					logger.debug("Using voice duration graph");
 					FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
 					currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager,
-							voiceFeatDef.getFeatureNames());
+                                                                                      voiceFeatDef.getFeatureNames());
 				}
 			}
 
@@ -214,15 +216,15 @@ public class CARTDurationModeller extends InternalModule {
 	}
 
 	/**
-	 * 
+	 *
 	 * This predicts and enters the pause duration for a pause segment.
-	 * 
+	 *
 	 * @param s
 	 * @param maryVoice
 	 * @return pause duration, in seconds
 	 */
 	private float enterPauseDuration(Element boundary, Element previous, StringPredictionTree currentPauseTree,
-			TargetFeatureComputer currentPauseFeatureComputer) {
+                                     TargetFeatureComputer currentPauseFeatureComputer) {
 		if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
 			throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
 

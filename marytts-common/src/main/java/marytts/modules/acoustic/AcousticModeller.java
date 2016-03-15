@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.modules;
+package marytts.modules.acoustic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +42,8 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
+import marytts.modules.InternalModule;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,9 +52,9 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Predict duration and F0 using CARTs or other models
- * 
+ *
  * @author steiner
- * 
+ *
  */
 public class AcousticModeller extends InternalModule {
 
@@ -64,7 +66,7 @@ public class AcousticModeller extends InternalModule {
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 */
@@ -74,7 +76,7 @@ public class AcousticModeller extends InternalModule {
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 */
@@ -87,7 +89,7 @@ public class AcousticModeller extends InternalModule {
 	/**
 	 * Constructor which can be directly called from init info in the config file. This constructor will use the registered
 	 * feature processor manager for the given locale.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
@@ -97,13 +99,13 @@ public class AcousticModeller extends InternalModule {
 	 */
 	public AcousticModeller(String locale, String propertyPrefix) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
-				.string2locale(locale)));
+                                                                                                         .string2locale(locale)));
 	}
 
 	/**
 	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
 	 * different settings.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
 	 * @param propertyPrefix
@@ -115,12 +117,12 @@ public class AcousticModeller extends InternalModule {
 	 */
 	public AcousticModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
 		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
-				.instantiateObject(featprocClassInfo));
+             .instantiateObject(featprocClassInfo));
 	}
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param propertyPrefix
@@ -265,7 +267,7 @@ public class AcousticModeller extends InternalModule {
 	/**
 	 * Hack duration attributes so that <code>d</code> attribute values are in milliseconds, and add <code>end</code> attributes
 	 * containing the cumulative end time.
-	 * 
+	 *
 	 * @param elements
 	 *            a List of segment Elements
 	 */
@@ -288,7 +290,7 @@ public class AcousticModeller extends InternalModule {
 
 	/**
 	 * Parse the Document to populate the Lists of Elements
-	 * 
+	 *
 	 * @param doc
 	 *            the Document to parse
 	 * @return A Map of Lists of Elements, accessible by keys such as "segments", etc.

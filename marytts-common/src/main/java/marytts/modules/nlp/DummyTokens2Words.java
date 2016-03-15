@@ -17,15 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.nlp;
 
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 
+import marytts.modules.InternalModule;
+
 /**
  * Dummy modules to support new language (for phone durations and phone f0)
- * 
+ *
  * @author Sathish Pammi
  */
 
@@ -36,7 +38,7 @@ public class DummyTokens2Words extends InternalModule {
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 */
@@ -46,7 +48,7 @@ public class DummyTokens2Words extends InternalModule {
 
 	/**
 	 * Constructor to be called with instantiated objects.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 */

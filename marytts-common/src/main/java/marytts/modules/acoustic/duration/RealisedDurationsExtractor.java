@@ -17,13 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules;
+package marytts.modules.acoustic.duration;
 
 // DOM classes
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.NameNodeFilter;
+
+import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,7 +35,7 @@ import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * Transforms a full MaryXML document into an MBROLA format string
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -48,7 +50,7 @@ public class RealisedDurationsExtractor extends InternalModule {
 		StringBuilder buf = new StringBuilder();
 		buf.append("#\n");
 		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				new String[] { MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY }), false);
+                                                                           new String[] { MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY }), false);
 		Element element = null;
 		float end = 0.f;
 		float sentenceEnd = 0;

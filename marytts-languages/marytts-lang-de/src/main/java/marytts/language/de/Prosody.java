@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
-import marytts.modules.ProsodyGenericFST;
+import marytts.modules.nlp.ProsodyGenericFST;
 
 public class Prosody extends ProsodyGenericFST {
 
 	public Prosody() throws IOException {
 		super(MaryDataType.PHONEMES, MaryDataType.INTONATION, Locale.GERMAN, "de.prosody.tobipredparams",
-				"de.prosody.accentPriorities", "de.prosody.syllableaccents", "de.prosody.paragraphdeclination");
+              "de.prosody.accentPriorities", "de.prosody.syllableaccents", "de.prosody.paragraphdeclination");
 	}
 }

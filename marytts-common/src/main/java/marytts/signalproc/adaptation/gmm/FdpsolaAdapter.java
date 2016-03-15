@@ -30,6 +30,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.adaptation.BaselineAdaptationItem;
+import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;

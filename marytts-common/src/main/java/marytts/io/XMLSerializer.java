@@ -1,5 +1,6 @@
 package marytts.io;
 
+import java.util.Locale;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,7 +24,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import marytts.data.Utterance;
-
+import marytts.data.item.*;
+import marytts.util.MaryUtils;
 
 /**
  *
@@ -35,9 +37,8 @@ public class XMLSerializer
     public Utterance load(File file)
         throws MaryIOException
     {
-        return new Utterance("");
+        return new Utterance("", Locale.ENGLISH); // TODO: makes compiler happy for now
     }
-
 
     public void save(File file, Utterance utt)
         throws MaryIOException
@@ -84,7 +85,7 @@ public class XMLSerializer
             rootElement.setAttribute("xmlns", "http://mary.dfki.de/2002/MaryXML");
             rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
             rootElement.setAttribute("version", "0.5");
-            rootElement.setAttribute("xml:lang", "0.5");
+            rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
             doc.appendChild(rootElement);
 
             return doc;
@@ -94,4 +95,34 @@ public class XMLSerializer
             throw new MaryIOException("Parsing exception", ex);
         }
     }
+
+
+    /************************************************************************************************
+     * Element part
+     ************************************************************************************************/
+    public Element generateParagraph(Paragraph paragraph)
+    {
+        return null;
+    }
+
+    public Element generatePhrase(Phrase phrase)
+    {
+        return null;
+    }
+
+    public Element generateWord(Word word)
+    {
+        return null;
+    }
+
+    public Element generateSyllable(Syllable syl)
+    {
+        return null;
+    }
+
+    public Element generatePhone(Phone ph)
+    {
+        return null;
+    }
+
 }

@@ -41,7 +41,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.modules.TargetFeatureLister;
+import marytts.modules.acoustic.TargetFeatureLister;
 import marytts.server.Mary;
 import marytts.server.Request;
 import marytts.features.Target;
@@ -57,7 +57,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Takes text and converts to features Needs a running Mary server
- * 
+ *
  * @author Anna Hunecke
  *
  */
@@ -129,7 +129,7 @@ public class FeatureMaker {
 					else {
 						processCleanTextRecords = false;
 						System.out
-								.print("    please check the \"locale\" prefix of the dbselection TABLE you want to create or add to.");
+                            .print("    please check the \"locale\" prefix of the dbselection TABLE you want to create or add to.");
 					}
 				}
 			} catch (Exception e) {
@@ -168,7 +168,7 @@ public class FeatureMaker {
 			System.out.println("Starting time:" + dateStringIni + "\n");
 
 			TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale),
-					targetFeatures);
+                                                                                             targetFeatures);
 			FeatureDefinition fdef = featureComputer.getFeatureDefinition();
 			PrintWriter pw = new PrintWriter(new FileWriter(new File(locale + "_featureDefinition.txt")));
 			fdef.writeTo(pw, false);
@@ -221,7 +221,7 @@ public class FeatureMaker {
 
 					numSentences += numSentencesInText;
 					System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i]
-							+ " (Total reliable = " + numSentences + ") \n");
+                                       + " (Total reliable = " + numSentences + ") \n");
 				} // if sentenceList is not null
 			} // end of loop over articles
 			wikiToDB.closeDBConnection();
@@ -245,27 +245,27 @@ public class FeatureMaker {
 	 */
 	protected static void printUsage() {
 		System.out.println("\nUsage: " + "java FeatureMaker -locale language -mysqlHost host -mysqlUser user\n"
-				+ "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" + "                 [-reliability strict]\n"
-				+ "                 [-featuresForSelection phone,next_phone,selection_prosody]\n\n"
-				+ "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n"
-				+ "            The cleanText table can be created with the WikipediaProcess program. \n"
-				+ "  default/optional: [-maryHost localhost -maryPort 59125]\n"
-				+ "  default/optional: [-featuresForSelection phone,next_phone,selection_prosody] (features separated by ,) \n"
-				+ "  optional: [-reliability [strict|lax]]\n\n"
-				+ "  -reliability: setting that determines what kind of sentences \n"
-				+ "  are regarded as credible. There are two settings: strict and lax. With \n"
-				+ "  setting strict, only those sentences that contain words in the lexicon \n"
-				+ "  or words that were transcribed by the preprocessor can be selected for the synthesis script; \n"
-				+ "  the other sentences as unreliable. With setting lax (default), also those words that \n"
-				+ "  are transcribed with the letter to sound component can be selected. \n\n");
+                           + "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" + "                 [-reliability strict]\n"
+                           + "                 [-featuresForSelection phone,next_phone,selection_prosody]\n\n"
+                           + "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n"
+                           + "            The cleanText table can be created with the WikipediaProcess program. \n"
+                           + "  default/optional: [-maryHost localhost -maryPort 59125]\n"
+                           + "  default/optional: [-featuresForSelection phone,next_phone,selection_prosody] (features separated by ,) \n"
+                           + "  optional: [-reliability [strict|lax]]\n\n"
+                           + "  -reliability: setting that determines what kind of sentences \n"
+                           + "  are regarded as credible. There are two settings: strict and lax. With \n"
+                           + "  setting strict, only those sentences that contain words in the lexicon \n"
+                           + "  or words that were transcribed by the preprocessor can be selected for the synthesis script; \n"
+                           + "  the other sentences as unreliable. With setting lax (default), also those words that \n"
+                           + "  are transcribed with the letter to sound component can be selected. \n\n");
 
 	}
 
 	private static void printParameters() {
 		System.out.println("FeatureMaker parameters:" +
 
-		"\n  -locale " + locale + "\n  -mysqlHost " + mysqlHost + "\n  -mysqlUser " + mysqlUser + "\n  -mysqlPasswd "
-				+ mysqlPasswd + "\n  -mysqlDB " + mysqlDB);
+                           "\n  -locale " + locale + "\n  -mysqlHost " + mysqlHost + "\n  -mysqlUser " + mysqlUser + "\n  -mysqlPasswd "
+                           + mysqlPasswd + "\n  -mysqlDB " + mysqlDB);
 
 		if (strictReliability)
 			System.out.println("  -reliability strict");
@@ -281,7 +281,7 @@ public class FeatureMaker {
 
 	/**
 	 * Read and parse the command line args
-	 * 
+	 *
 	 * @param args
 	 *            the args
 	 * @return true, if successful, false otherwise
@@ -363,7 +363,7 @@ public class FeatureMaker {
 
 	/**
 	 * Process one sentences from text to target features
-	 * 
+	 *
 	 * @param nextSentence
 	 *            the sentence
 	 * @param textId
@@ -395,27 +395,27 @@ public class FeatureMaker {
 			if (d != null) {
 				if (d.getPlainText() != null) {
 					System.out.println("Error processing sentence " + textId + ": \"" + nextSentence + "\":\n" + d.getPlainText()
-							+ "; skipping sentence");
+                                       + "; skipping sentence");
 				} else {
 					if (d.getDocument() != null) {
 						docBuf = new StringBuilder();
 						getXMLAsString(d.getDocument(), docBuf);
 						System.out.println("Error processing sentence " + ": \"" + nextSentence + "\":\n" + docBuf.toString()
-								+ "; skipping sentence");
+                                           + "; skipping sentence");
 					} else {
 						System.out.println("Error processing sentence " + textId + ": \"" + nextSentence
-								+ "\"; skipping sentence");
+                                           + "\"; skipping sentence");
 					}
 				}
 			} else {
 				System.out.println("Error processing sentence from textId=" + textId + ": \"" + nextSentence
-						+ "\"; skipping sentence");
+                                   + "\"; skipping sentence");
 			}
 			return null;
 		} catch (AssertionError ae) {
 			ae.printStackTrace();
 			System.out.println("Error processing sentence from textId=" + textId + ": \"" + nextSentence
-					+ "\"; skipping sentence");
+                               + "\"; skipping sentence");
 			return null;
 		}
 
@@ -426,7 +426,7 @@ public class FeatureMaker {
 
 	/**
 	 * Process one sentences from text to target features
-	 * 
+	 *
 	 * @param nextSentence
 	 *            the sentence
 	 * @param textId
@@ -486,7 +486,7 @@ public class FeatureMaker {
 
 	/**
 	 * Process the given text with the MaryClient from Text to Chunked
-	 * 
+	 *
 	 * @param textString
 	 *            the text to process
 	 * @param id
@@ -500,11 +500,11 @@ public class FeatureMaker {
 			/*
 			 * ByteArrayOutputStream os = new ByteArrayOutputStream(); //process and dump Mary.process(textString,
 			 * "TEXT","PHONEMES", locale, null, null, null, null, null, os);
-			 * 
+			 *
 			 * //read into mary data object MaryData maryData = new MaryData(MaryDataType.PHONEMES, null);
-			 * 
+			 *
 			 * maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
-			 * 
+			 *
 			 * return maryData.getDocument();
 			 */
 			if (Mary.currentState() != Mary.STATE_RUNNING)
@@ -528,7 +528,7 @@ public class FeatureMaker {
 
 	/**
 	 * Split the text into separate sentences
-	 * 
+	 *
 	 * @param text
 	 *            the file
 	 * @param id
@@ -625,7 +625,7 @@ public class FeatureMaker {
 
 	/**
 	 * Collect the tokens of a sentence
-	 * 
+	 *
 	 * @param nextToken
 	 *            the Node to start from checkCredibility returns 0 if the sentence is useful 1 if the sentence contains
 	 *            unknownWords (so the sentence is not useful) 2 if the sentence contains strangeSymbols (so the sentence is not
@@ -689,9 +689,9 @@ public class FeatureMaker {
 
 	/**
 	 * Phonemise the given document with the help of JPhonemiser
-	 * 
+	 *
 	 * g2p_method "contains-unknown-words" or "contains-strange-symbols",
-	 * 
+	 *
 	 * @param t
 	 *            t
 	 * @return 0 if the sentence is useful 1 if the sentence contains unknownWords 2 if the sentence contains strangeSymbols
@@ -740,7 +740,7 @@ public class FeatureMaker {
 
 	/**
 	 * Convert the given xml-node and its subnodes to Strings and collect them in the given StringBuilder
-	 * 
+	 *
 	 * @param motherNode
 	 *            the xml-node
 	 * @param ppText

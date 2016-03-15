@@ -37,9 +37,11 @@ import marytts.machinelearning.SoP;
 import marytts.features.Target;
 import marytts.util.MaryUtils;
 
+import marytts.modules.InternalModule;
+
 /**
  * Model for predicting duration and F0 from SoP models
- * 
+ *
  * @author marcela
  *
  */
@@ -52,7 +54,7 @@ public class SoPModel extends Model {
 
 	/**
 	 * Model constructor
-	 * 
+	 *
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param voiceName
@@ -69,21 +71,21 @@ public class SoPModel extends Model {
 	 *            not used in SoP model
 	 * @param applyTo
 	 *            not used in SoP model
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if there are missing files.
 	 */
 	public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
-			String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
-			throws MaryConfigurationException {
+                    String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
+        throws MaryConfigurationException {
 		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
-				applyTo);
+              applyTo);
 		load();
 	}
 
 	/**
 	 * Load SoP data.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if data can not be read.
 	 */
@@ -106,7 +108,7 @@ public class SoPModel extends Model {
 			}
 			// the featureDefinition is the same for vowel, consonant and Pause
 			FeatureDefinition sopFeatureDefinition = new FeatureDefinition(new BufferedReader(new StringReader(strContext)),
-					false);
+                                                                           false);
 			predictionFeatureNames = sopFeatureDefinition.getFeatureNames();
 
 			while (s.hasNext()) {
@@ -128,7 +130,7 @@ public class SoPModel extends Model {
 
 	/**
 	 * Apply the SoP to a Target to get its predicted value
-	 * 
+	 *
 	 * @param target
 	 *            target from where to predict
 	 * @return result predicted value
