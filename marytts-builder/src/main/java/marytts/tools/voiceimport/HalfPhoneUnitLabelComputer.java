@@ -27,7 +27,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.modules.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;

@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 

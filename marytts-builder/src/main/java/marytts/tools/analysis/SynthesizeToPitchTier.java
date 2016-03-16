@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 import marytts.client.MaryClient;
 import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.PraatPitchTier;

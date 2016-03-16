@@ -42,7 +42,7 @@ import java.util.TreeMap;
 import marytts.Version;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 import marytts.util.io.BasenameList;
 

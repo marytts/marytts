@@ -22,7 +22,7 @@ package marytts.unitselection.analysis;
 
 import java.util.Arrays;
 
-import marytts.modules.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.features.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;

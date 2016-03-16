@@ -83,7 +83,7 @@ import java.util.TreeMap;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.PhoneTranslator;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
 import marytts.util.io.General;
 import marytts.util.string.StringUtils;

@@ -40,13 +40,13 @@ import org.apache.log4j.Logger;
  * <code>process()</code> in a meaningful way. Care must be taken to make sure the <code>process()</code> method is thread-seafe.
  * <p>
  * Example for a subclass:
- * 
+ *
  * <pre>
  * public class Postlex extends InternalModule {
  * 	public Postlex() {
  * 		super(&quot;Postlex&quot;, MaryDataType.PHONEMISED, MaryDataType.POSTPROCESSED);
  * 	}
- * 
+ *
  * 	public MaryData process(MaryData d) throws Exception {
  * 		Document doc = d.getDocument();
  * 		mtuPostlex(doc);
@@ -55,9 +55,9 @@ import org.apache.log4j.Logger;
  * 		result.setDocument(doc);
  * 		return result;
  * 	}
- * 
+ *
  * 	private void mtuPostlex(Document doc) {...}
- * 
+ *
  * 	private void phonologicalRules(Document doc) {...}
  * }
  * </pre>
@@ -125,7 +125,7 @@ public class InternalModule implements MaryModule {
 
 	/**
 	 * Perform a power-on self test by processing some example input data.
-	 * 
+	 *
 	 * @throws Error
 	 *             if the module does not work properly.
 	 */
@@ -160,7 +160,7 @@ public class InternalModule implements MaryModule {
 	 * <code>process()</code> method is thread-safe, because in server-mode, it will be called from different threads at the same
 	 * time. A sensible way to do this seems to be not to use any global or static variables, or to use them read-only.
 	 * <p>
-	 * 
+	 *
 	 * @return A MaryData object of type <code>outputType()</code> encapsulating the processing result.
 	 *         <p>
 	 *         This method just returns its input. Subclasses should override this.

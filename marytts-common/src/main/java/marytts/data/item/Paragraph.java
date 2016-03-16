@@ -16,7 +16,7 @@ public class Paragraph extends Item
 	public Paragraph(String text)
 	{
 		setText(text);
-	}
+    }
 
 	public ArrayList<Word> getPhrases()
 	{

@@ -12,7 +12,7 @@ import java.io.InputStream;
 
 import marytts.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 
 
 import org.testng.Assert;

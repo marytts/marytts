@@ -23,17 +23,17 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * 
+ *
  * Wrapper for contextual parameters for GMM training - includes various phone identity or class based groups
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class ContextualGMMParams {
@@ -139,7 +139,7 @@ public class ContextualGMMParams {
 	public ContextualGMMParams(ContextualGMMParams existing) {
 		if (existing != null) {
 			if (existing.phoneClasses != null && existing.classTrainerParams != null
-					&& existing.phoneClasses.length == existing.classTrainerParams.length) {
+                && existing.phoneClasses.length == existing.classTrainerParams.length) {
 				allocate(existing.phoneClasses.length);
 				setClasses(existing.phoneClasses, existing.classTrainerParams);
 			} else
@@ -202,7 +202,7 @@ public class ContextualGMMParams {
 			//
 
 			if (contextClassificationType == NO_PHONEME_CLASS) // All phones go to the same class, this is identical to
-																// non-contextual GMM training
+                // non-contextual GMM training
 			{
 				phoneClasses = new String[1][phns.length];
 				classTrainerParams = new GMMTrainerParams[1];
@@ -372,9 +372,9 @@ public class ContextualGMMParams {
 					}
 				}
 			} else if (contextClassificationType == PHONOLOGY_CLASS) // Each phonology class goes into a separate class, however
-																		// this cannot handle phone replications since labels do
-																		// not have phonology information that could be used in
-																		// transformation phase
+                // this cannot handle phone replications since labels do
+                // not have phonology information that could be used in
+                // transformation phase
 			{
 				int[] phonologyClasses = getPhonologyClasses(phns);
 				int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
@@ -492,7 +492,7 @@ public class ContextualGMMParams {
 					}
 				}
 			} else if (contextClassificationType == PHONEME_IDENTITY) // Each phone goes into a separate class, phone replications
-																		// are taken care of
+                // are taken care of
 			{
 				String[] allPhonemes = new String[phns.length];
 				for (i = 0; i < phns.length; i++)
@@ -595,7 +595,7 @@ public class ContextualGMMParams {
 
 	public void setClass(int classIndex, String[] phones, GMMTrainerParams currentClassTrainerParams) {
 		if (phoneClasses != null && classTrainerParams != null && classIndex >= 0 && classIndex < phoneClasses.length
-				&& phoneClasses.length == classTrainerParams.length) {
+            && phoneClasses.length == classTrainerParams.length) {
 			phoneClasses[classIndex] = null;
 
 			if (phones != null) {

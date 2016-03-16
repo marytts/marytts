@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules.phonemiser;
+package marytts.modules.nlp.phonemiser;
 
 /**
  * @author ingmar
@@ -51,7 +51,7 @@ public class AllophoneSet {
 
 	/**
 	 * Return the allophone set specified by the given filename. It will only be loaded if it was not loaded before.
-	 * 
+	 *
 	 * @param filename
 	 *            filename
 	 * @return the allophone set, if one can be created. This method will never return null.
@@ -73,7 +73,7 @@ public class AllophoneSet {
 	 * Determine whether the registry of previously loaded allophone sets already contains an allophone set with the given
 	 * identifier. If this returns true, then a call to {@link #getAllophoneSetById(String)} with the same identifier will return
 	 * a non-null Allophone set.
-	 * 
+	 *
 	 * @param identifier
 	 *            the identifier of the allophone set to test.
 	 * @return true if the registry already contains the given allophone set, false otherwise.
@@ -85,7 +85,7 @@ public class AllophoneSet {
 	/**
 	 * Get a previously loaded allophone set by its identifier. The method will make no attempt to load the allophone set if it is
 	 * not yet available.
-	 * 
+	 *
 	 * @param identifier
 	 *            the identifier of the allophone set
 	 * @return the allophone set if available, null otherwise.
@@ -97,7 +97,7 @@ public class AllophoneSet {
 	/**
 	 * Return the allophone set that can be read from the given input stream, identified by the given identifier. It will only be
 	 * loaded if it was not loaded before.
-	 * 
+	 *
 	 * @param inStream
 	 *            an open stream from which the allophone set can be loaded. it will be closed when this method returns.
 	 * @param identifier
@@ -177,7 +177,7 @@ public class AllophoneSet {
 			if (ap.isPause()) {
 				if (silence != null)
 					throw new MaryConfigurationException("File contains more than one silence symbol: '" + silence.name()
-							+ "' and '" + ap.name() + "'!");
+                                                         + "' and '" + ap.name() + "'!");
 				silence = ap;
 			}
 			int len = ap.name().length();
@@ -215,7 +215,7 @@ public class AllophoneSet {
 
 	/**
 	 * Get the Allophone with the given name
-	 * 
+	 *
 	 * @param ph
 	 *            name of Allophone to get
 	 * @return the Allophone
@@ -226,14 +226,14 @@ public class AllophoneSet {
 		Allophone allophone = allophones.get(ph);
 		if (allophone == null) {
 			throw new IllegalArgumentException(String.format(
-					"Allophone `%s' could not be found in AllophoneSet `%s' (Locale: %s)", ph, name, locale));
+                                                   "Allophone `%s' could not be found in AllophoneSet `%s' (Locale: %s)", ph, name, locale));
 		}
 		return allophone;
 	}
 
 	/**
 	 * Obtain the silence allophone in this AllophoneSet
-	 * 
+	 *
 	 * @return silence
 	 */
 	public Allophone getSilence() {
@@ -242,7 +242,7 @@ public class AllophoneSet {
 
 	/**
 	 * Obtain the ignore chars in this AllophoneSet Default: "',-"
-	 * 
+	 *
 	 * @return ignore_chars
 	 */
 	public String getIgnoreChars() {
@@ -255,7 +255,7 @@ public class AllophoneSet {
 
 	/**
 	 * For the Allophone with name ph, return the value of the named feature.
-	 * 
+	 *
 	 * @param ph
 	 *            ph
 	 * @param featureName
@@ -273,7 +273,7 @@ public class AllophoneSet {
 
 	/**
 	 * Get the list of available phone features for this allophone set.
-	 * 
+	 *
 	 * @return Collections.unmodifiableSet(featureValueMap.keySet())
 	 */
 	public Set<String> getPhoneFeatures() {
@@ -282,7 +282,7 @@ public class AllophoneSet {
 
 	/**
 	 * For the given feature name, get the list of all possible values that the feature can take in this allophone set.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @throws IllegalArgumentException
@@ -298,7 +298,7 @@ public class AllophoneSet {
 
 	/**
 	 * This returns the names of all allophones contained in this AllophoneSet, as a Set of Strings
-	 * 
+	 *
 	 * @return allophoneKeySet
 	 */
 	public Set<String> getAllophoneNames() {
@@ -316,7 +316,7 @@ public class AllophoneSet {
 	/**
 	 * Split a phonetic string into allophone symbols. Symbols representing primary and secondary stress, syllable boundaries, and
 	 * spaces, will be silently skipped.
-	 * 
+	 *
 	 * @param allophoneString
 	 *            the phonetic string to split
 	 * @return an array of Allophone objects corresponding to the string given as input
@@ -339,7 +339,7 @@ public class AllophoneSet {
 	/**
 	 * Split allophone string into a list of allophone symbols. Include stress markers (',) and syllable boundaries (-), skip
 	 * space characters.
-	 * 
+	 *
 	 * @param allophoneString
 	 *            allophoneString
 	 * @throws IllegalArgumentException
@@ -359,7 +359,7 @@ public class AllophoneSet {
 
 	/**
 	 * Split allophone string into a list of allophone symbols, preserving all stress and syllable boundaries that may be present
-	 * 
+	 *
 	 * @param allophonesString
 	 *            allophonesString
 	 * @return a List of allophone Strings
@@ -373,7 +373,7 @@ public class AllophoneSet {
 	/**
 	 * Split allophone string into a list of allophone symbols. Include (or ignore, depending on parameter
 	 * 'includeStressAndSyllableMarkers') stress markers (',), syllable boundaries (-). Ignores space characters.
-	 * 
+	 *
 	 * @param allophoneString
 	 * @param includeStressAndSyllableMarkers
 	 *            whether to skip stress markers and syllable boundaries. If true, will return each such marker as a separate
@@ -430,7 +430,7 @@ public class AllophoneSet {
 					phones.add(phones.size() - 1, stress);
 				} else {
 					throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
-							+ "' in phonetic string `" + allophoneString + "' -- ignoring.");
+                                                       + "' in phonetic string `" + allophoneString + "' -- ignoring.");
 				}
 			}
 		}
@@ -439,7 +439,7 @@ public class AllophoneSet {
 
 	/**
 	 * Check whether the given allophone string has a correct syntax according to this allophone set.
-	 * 
+	 *
 	 * @param allophoneString
 	 *            allophoneString
 	 * @return true if the syntax is correct, false otherwise.
@@ -471,7 +471,7 @@ public class AllophoneSet {
 	 *             <li>the symbol corresponds to an Allophone, or</li> <li>the symbol is a stress symbol (cf. {@link Stress}), or
 	 *             </li> <li>the symbol is a syllable boundary (<code>-</code>)</li>
 	 *             </ol>
-	 * 
+	 *
 	 */
 	public String syllabify(String phoneString) throws IllegalArgumentException {
 		// Before we process, a sanity check:
@@ -630,7 +630,7 @@ public class AllophoneSet {
 
 	/**
 	 * Helper class for OO syllabification. Wraps an ArrayList of Allophones and has a Stress property.
-	 * 
+	 *
 	 * @author ingmar
 	 *
 	 */
@@ -672,7 +672,7 @@ public class AllophoneSet {
 
 	/**
 	 * Constants for Stress markers
-	 * 
+	 *
 	 * @author ingmar
 	 *
 	 */

@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.tools.newlanguage.LexiconCreator;
 
 import org.apache.log4j.BasicConfigurator;

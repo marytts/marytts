@@ -10,7 +10,7 @@ import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.InvalidDataException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;

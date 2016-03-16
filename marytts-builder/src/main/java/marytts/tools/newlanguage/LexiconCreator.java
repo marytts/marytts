@@ -40,8 +40,8 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;
 import marytts.fst.TransducerTrie;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.TrainedLTS;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.TrainedLTS;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.BasicConfigurator;
@@ -56,12 +56,12 @@ import org.apache.log4j.PatternLayout;
  * <li>a lexicon file, efficiently stored as a Finite State Transducer;</li>
  * <li>a letter-to-sound prediction file, as a decision tree in MARY format.</li>
  * </ul>
- * 
+ *
  * The input file is expected to contain data in the following format:
  * <code>grapheme | ' a l - l o - p h o n e s | (optional-part-of-speech)</code> Hereby, the allophones must correspond to a
  * defined allophone set, given in the constructor. The file's encoding is expected to be UTF-8. Subclasses of LexiconCreator can
  * override prepareLexicon() to provide data in this format.
- * 
+ *
  * @see AllophoneSet
  * @author marc
  *
@@ -80,7 +80,7 @@ public class LexiconCreator {
 	 * Initialise a new lexicon creator. Letter to sound rules built with this lexicon creator will convert graphemes to lowercase
 	 * before prediction, using the locale given in the allophone set; letter-to-sound rules will also predict stress; a context
 	 * of 2 characters to the left and to the right of the current character will be used as predictive features.
-	 * 
+	 *
 	 * @param allophoneSet
 	 *            this specifies the set of phonetic symbols that can be used in the lexicon, and provides the locale of the
 	 *            lexicon
@@ -97,7 +97,7 @@ public class LexiconCreator {
 
 	/**
 	 * Initialize a new lexicon creator.
-	 * 
+	 *
 	 * @param allophoneSet
 	 *            this specifies the set of phonetic symbols that can be used in the lexicon, and provides the locale of the
 	 *            lexicon
@@ -117,7 +117,7 @@ public class LexiconCreator {
 	 *            features.
 	 */
 	public LexiconCreator(AllophoneSet allophoneSet, String lexiconFilename, String fstFilename, String ltsFilename,
-			boolean convertToLowercase, boolean predictStress, int context) {
+                          boolean convertToLowercase, boolean predictStress, int context) {
 		this.allophoneSet = allophoneSet;
 		this.lexiconFilename = lexiconFilename;
 		this.fstFilename = fstFilename;
@@ -131,7 +131,7 @@ public class LexiconCreator {
 	/**
 	 * This base implementation does nothing. Subclasses can override this method to prepare a lexicon in the expected format,
 	 * which should then be found at lexiconFilename.
-	 * 
+	 *
 	 * @throws IOException
 	 *             IOException
 	 */
@@ -203,7 +203,7 @@ public class LexiconCreator {
 	}
 
 	private void loadTestWords(List<String> testGraphemes, List<String> testAllophones, List<String> testPos, int N)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		int n = 0;
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
 		String line;

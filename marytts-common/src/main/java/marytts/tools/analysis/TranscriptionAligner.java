@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.AlignedLabels;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.data.text.XwavesLabelfileReader;

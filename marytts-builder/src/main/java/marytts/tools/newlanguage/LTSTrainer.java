@@ -40,9 +40,9 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.TrainedLTS;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.TrainedLTS;
 
 import org.apache.log4j.BasicConfigurator;
 
@@ -56,21 +56,21 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 /**
- * 
+ *
  * This class is a generic approach to predict a phone sequence from a grapheme sequence.
- * 
+ *
  * the normal sequence of steps is: 1) initialize the trainer with a phone set and a locale
- * 
+ *
  * 2) read in the lexicon, preserve stress if you like
- * 
+ *
  * 3) make some alignment iterations (usually 5-10)
- * 
+ *
  * 4) train the trees and save them in wagon format in a specified directory
- * 
+ *
  * see main method for an example.
- * 
+ *
  * Apply the model using TrainedLTS
- * 
+ *
  * @author benjaminroth
  *
  */
@@ -85,7 +85,7 @@ public class LTSTrainer extends AlignerTrainer {
 
 	/**
 	 * Create a new LTSTrainer.
-	 * 
+	 *
 	 * @param aPhSet
 	 *            the allophone set to use.
 	 * @param convertToLowercase
@@ -106,7 +106,7 @@ public class LTSTrainer extends AlignerTrainer {
 
 	/**
 	 * Train the tree, using binary decision nodes.
-	 * 
+	 *
 	 * @param minLeafData
 	 *            the minimum number of instances that have to occur in at least two subsets induced by split
 	 * @return bigTree
@@ -234,7 +234,7 @@ public class LTSTrainer extends AlignerTrainer {
 			C45PruneableClassifierTree decisionTree;
 			try {
 				decisionTree = new C45PruneableClassifierTreeWithUnary(new BinC45ModelSelection(minLeafData, data, true), true,
-						0.25f, true, true, false);
+                                                                       0.25f, true, true, false);
 				decisionTree.buildClassifier(data);
 			} catch (Exception e) {
 				throw new RuntimeException("couldn't train decisiontree using weka: ", e);
@@ -261,9 +261,9 @@ public class LTSTrainer extends AlignerTrainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * Convenience method to save files to graph2phon.wagon and graph2phon.pfeats in a specified directory with UTF-8 encoding.
-	 * 
+	 *
 	 * @param tree
 	 *            tree
 	 * @param saveTreefile
@@ -311,13 +311,13 @@ public class LTSTrainer extends AlignerTrainer {
 	}
 
 	/**
-	 * 
+	 *
 	 * reads in a lexicon in text format, lines are of the kind:
-	 * 
+	 *
 	 * graphemechain | phonechain | otherinformation
-	 * 
+	 *
 	 * Stress is optionally preserved, marking the first vowel of a stressed syllable with "1".
-	 * 
+	 *
 	 * @param lexicon
 	 *            reader with lines of lexicon
 	 * @param splitPattern
@@ -370,11 +370,11 @@ public class LTSTrainer extends AlignerTrainer {
 
 	/**
 	 * reads in a lexicon in text format, lines are of the kind:
-	 * 
+	 *
 	 * graphemechain | phonechain | otherinformation
-	 * 
+	 *
 	 * Stress is optionally preserved, marking the first vowel of a stressed syllable with "1".
-	 * 
+	 *
 	 * @param lexicon
 	 *            lexicon
 	 */
@@ -428,7 +428,7 @@ public class LTSTrainer extends AlignerTrainer {
 		LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), true, true, 2);
 
 		BufferedReader lexReader = new BufferedReader(new InputStreamReader(new FileInputStream(
-				"/Users/benjaminroth/Desktop/mary/english/sampa-lexicon.txt"), "ISO-8859-1"));
+                                                                                "/Users/benjaminroth/Desktop/mary/english/sampa-lexicon.txt"), "ISO-8859-1"));
 
 		// read lexicon for training
 		tp.readLexicon(lexReader, "\\\\");

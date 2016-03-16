@@ -20,7 +20,7 @@
 package marytts.features;
 
 import marytts.features.FeatureVector;
-import marytts.modules.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.Allophone;
 
 import org.w3c.dom.Element;
 

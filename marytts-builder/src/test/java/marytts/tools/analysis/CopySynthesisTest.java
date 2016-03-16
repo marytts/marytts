@@ -6,7 +6,7 @@ package marytts.tools.analysis;
 import java.io.IOException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.dom.DomUtils;
 import org.w3c.dom.Document;
