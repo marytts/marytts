@@ -38,7 +38,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.InternalModule;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;

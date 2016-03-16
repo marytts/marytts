@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.Label;
 import marytts.signalproc.analysis.Labels;

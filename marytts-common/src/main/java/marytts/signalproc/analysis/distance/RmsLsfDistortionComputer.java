@@ -21,7 +21,7 @@ package marytts.signalproc.analysis.distance;
 
 import java.io.IOException;
 
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;

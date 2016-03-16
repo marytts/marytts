@@ -41,8 +41,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LsfAnalyser;

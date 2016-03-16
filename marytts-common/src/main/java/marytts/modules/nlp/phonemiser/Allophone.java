@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules.phonemiser;
+package marytts.modules.nlp.phonemiser;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class Allophone {
 
 	/**
 	 * Create a new Allophone object from the given XML Element
-	 * 
+	 *
 	 * @param a
 	 *            the allophone definition element
 	 * @param featureNames
@@ -59,7 +59,7 @@ public class Allophone {
 			isTone = "+";
 		} else {
 			throw new IllegalArgumentException("Element must be one of <vowel>, <consonant> and <silence>, but is <"
-					+ a.getTagName() + ">");
+                                               + a.getTagName() + ">");
 		}
 		Map<String, String> feats = new HashMap<String, String>();
 		feats.put("vc", vc);
@@ -72,7 +72,7 @@ public class Allophone {
 
 	/**
 	 * Return the requested attribute of e, or "0" if there is no such attribute.
-	 * 
+	 *
 	 * @param e
 	 * @param att
 	 * @return "0" if val.equals(""), val otherwise
@@ -147,7 +147,7 @@ public class Allophone {
 
 	/**
 	 * Whether the Allophone object represents a tone symbol.
-	 * 
+	 *
 	 * @return "+".equals(features.get("isTone"))
 	 */
 	public boolean isTone() {
@@ -176,7 +176,7 @@ public class Allophone {
 
 	/**
 	 * Get the key-value map of features and feature values for this allophone.
-	 * 
+	 *
 	 * @return an unmodifiable map.
 	 */
 	public Map<String, String> getFeatures() {
@@ -187,7 +187,7 @@ public class Allophone {
 	 * Return the feature with name feat. Three types of values are possible: 1. an informative feature; 2. the value "0" to
 	 * indicate that the feature exists but is not meaningful for this allophone; 3. null to indicate that the feature does not
 	 * exist.
-	 * 
+	 *
 	 * @param feat
 	 *            feat
 	 * @return the feature value, or null

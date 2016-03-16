@@ -27,7 +27,7 @@ import java.util.Map;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryLanguageFeatureProcessors;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;

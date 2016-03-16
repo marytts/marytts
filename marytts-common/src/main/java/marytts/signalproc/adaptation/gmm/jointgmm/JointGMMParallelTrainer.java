@@ -29,7 +29,7 @@ import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMM;
 import marytts.machinelearning.GMMTrainer;
 import marytts.machinelearning.GMMTrainerParams;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;

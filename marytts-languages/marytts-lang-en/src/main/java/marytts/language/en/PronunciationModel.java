@@ -22,8 +22,8 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.datatypes.MaryXML;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;

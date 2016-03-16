@@ -48,14 +48,14 @@ import javax.swing.table.TableColumn;
 
 import marytts.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.TrainedLTS;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.TrainedLTS;
 import marytts.tools.newlanguage.LTSTrainer;
 
 /**
- * 
+ *
  * TranscriptionTable, A Table panel, tracs events in user transcription entries
- * 
+ *
  * @author sathish pammi
  *
  */
@@ -124,7 +124,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * verify transcription syntax
-	 * 
+	 *
 	 * @param row
 	 *            row
 	 */
@@ -183,7 +183,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * train and predict module
-	 * 
+	 *
 	 * @param treeAbsolutePath
 	 *            treeAbsolutePath
 	 * @param myRemoveTrailingOneFromPhones
@@ -239,7 +239,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * save transcription into file
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 */
@@ -277,7 +277,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Load transcription from file
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 */
@@ -297,7 +297,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Add words from file
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 */
@@ -317,7 +317,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Load transcription from a hashmap
-	 * 
+	 *
 	 * @param map
 	 *            map
 	 * @throws Exception
@@ -336,7 +336,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Load transcription from a arrayList
-	 * 
+	 *
 	 * @param arrList
 	 *            arrList
 	 * @throws Exception
@@ -353,7 +353,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * load phoneset
-	 * 
+	 *
 	 * @param filePath
 	 *            filePath
 	 */
@@ -372,7 +372,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Row event listener
-	 * 
+	 *
 	 * @author sathish
 	 *
 	 */
@@ -389,7 +389,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Column event listener
-	 * 
+	 *
 	 * @author sathish
 	 *
 	 */
@@ -405,7 +405,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Key event listener
-	 * 
+	 *
 	 * @author sathish
 	 *
 	 */
@@ -472,13 +472,13 @@ public class TranscriptionTable extends JPanel implements ActionListener {
 
 	/**
 	 * Color rendering class
-	 * 
+	 *
 	 * @author sathish
 	 *
 	 */
 	public class CustomTableCellRenderer extends DefaultTableCellRenderer {
 		public Component getTableCellRendererComponent(JTable ttable, Object obj, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+                                                       int column) {
 			Component cell = super.getTableCellRendererComponent(ttable, obj, isSelected, hasFocus, row, column);
 
 			boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();

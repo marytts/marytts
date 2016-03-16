@@ -58,7 +58,7 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HMMData.PdfFileFormat;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;

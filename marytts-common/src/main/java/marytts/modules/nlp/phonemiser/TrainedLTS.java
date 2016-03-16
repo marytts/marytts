@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules.phonemiser;
+package marytts.modules.nlp.phonemiser;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -36,11 +36,11 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 
 /**
- * 
+ *
  * This predicts pronunciation from a model trained with LTSTrainer.
- * 
+ *
  * @author benjaminroth
- * 
+ *
  */
 public class TrainedLTS {
 	public static final String PREDICTED_STRING_FEATURENAME = "predicted-string";
@@ -54,9 +54,9 @@ public class TrainedLTS {
 	protected boolean removeTrailingOneFromPhones = true;
 
 	/**
-	 * 
+	 *
 	 * Initializes letter to sound system with a phoneSet, and load the decision tree from the given file.
-	 * 
+	 *
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
 	 * @param treeStream
@@ -69,16 +69,16 @@ public class TrainedLTS {
 	 *             MaryConfigurationException
 	 */
 	public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream, boolean removeTrailingOneFromPhones) throws IOException,
-			MaryConfigurationException {
+        MaryConfigurationException {
 		this.allophoneSet = aPhonSet;
 		this.loadTree(treeStream);
 		this.removeTrailingOneFromPhones = removeTrailingOneFromPhones;
 	}
 
 	/**
-	 * 
+	 *
 	 * Initializes letter to sound system with a phoneSet, and load the decision tree from the given file.
-	 * 
+	 *
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
 	 * @param treeStream
@@ -105,9 +105,9 @@ public class TrainedLTS {
 	}
 
 	/**
-	 * 
+	 *
 	 * Convenience method to load tree from an inputstream
-	 * 
+	 *
 	 * @param treeStream
 	 *            treeStream
 	 * @throws IOException
@@ -154,13 +154,13 @@ public class TrainedLTS {
 			}
 
 			FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
-			
+
 			StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
 			String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
 			returnStr += prediction.substring(1, prediction.length() - 1);
-			
-			
-			
+
+
+
 		}
 
 		return returnStr;
@@ -170,7 +170,7 @@ public class TrainedLTS {
 	/**
 	 * Phone chain is syllabified. After that, no white spaces are included, stress is on syllable of first stress bearing vowal,
 	 * or assigned rule-based if there is no stress predicted by the tree.
-	 * 
+	 *
 	 * @param phones
 	 *            input phone chain, unsyllabified, stress marking attached to vowals
 	 * @return phone chain, with syllable sepeators "-" and stress symbols "'"
@@ -186,7 +186,7 @@ public class TrainedLTS {
 		if (args.length < 2) {
 			System.out.println("Usage:");
 			System.out
-					.println("java marytts.modules.phonemiser.TrainedLTS allophones.xml lts-model.lts [removeTrailingOneFromPhones]");
+                .println("java marytts.modules.nlp.phonemiser.TrainedLTS allophones.xml lts-model.lts [removeTrailingOneFromPhones]");
 			System.exit(0);
 		}
 		String allophoneFile = args[0];
@@ -197,7 +197,7 @@ public class TrainedLTS {
 		}
 
 		TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile),
-				myRemoveTrailingOneFromPhones);
+                                        myRemoveTrailingOneFromPhones);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String line;

@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import marytts.language.de.JPhonemiser;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

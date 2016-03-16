@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.modules.phonemiser;
+package marytts.modules.nlp.phonemiser;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -42,7 +42,7 @@ public class Syllabifier {
 	 * Syllabify a phonetic string, marking syllable boundaries with dash characters in the output. If the input marks stressed
 	 * vowels with a suffix "1", these marks are removed, and single quotes (') are inserted at the beginning of the corresponding
 	 * syllable.
-	 * 
+	 *
 	 * @param phoneString
 	 *            the phone string to syllabify.
 	 * @return a syllabified phone string, with space characters inserted between individual phone symbols
@@ -61,7 +61,7 @@ public class Syllabifier {
 
 	/**
 	 * Syllabify a LinkedList of phones. This is an implementation of the syllabification rules by J&uuml;rgen Trouvain.
-	 * 
+	 *
 	 * @param phoneList
 	 *            phoneList
 	 * @return a LinkedList of phone strings with inserted "-" strings at syllable boundaries.
@@ -258,7 +258,7 @@ public class Syllabifier {
 	/**
 	 * For those syllables containing a "1" character, remove that "1" character and add a stress marker ' at the beginning of the
 	 * syllable.
-	 * 
+	 *
 	 * @param phoneList
 	 *            phoneList
 	 */
@@ -326,7 +326,7 @@ public class Syllabifier {
 	/**
 	 * Convert a phone string into a list of string representations of individual phones. The input can use the suffix "1" to
 	 * indicate stressed vowels.
-	 * 
+	 *
 	 * @param phoneString
 	 *            the phone string to split
 	 * @return a linked list of strings, each string representing an individual phone
@@ -363,7 +363,7 @@ public class Syllabifier {
 	/**
 	 * Get the Allophone object named phone; if phone ends with "1", discard the "1" and use the rest of the string as the phone
 	 * symbol.
-	 * 
+	 *
 	 * @param phone
 	 *            phone
 	 * @deprecated Use {@link AllophoneSet#getAllophone(String)} instead

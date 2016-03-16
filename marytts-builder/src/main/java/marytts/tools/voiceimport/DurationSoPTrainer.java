@@ -46,7 +46,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.SFFS;
 import marytts.machinelearning.SoP;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;

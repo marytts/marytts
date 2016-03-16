@@ -49,8 +49,8 @@ import javax.xml.xpath.XPathFactory;
 
 import marytts.client.MaryClient;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.Allophone;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
 
 import org.w3c.dom.Document;

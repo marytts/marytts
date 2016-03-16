@@ -42,7 +42,7 @@ import javax.swing.table.AbstractTableModel;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;
 import marytts.fst.TransducerTrie;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 

@@ -36,7 +36,7 @@ import java.util.Map;
 
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
-import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.ByteStringTranslator;
 
