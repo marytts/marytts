@@ -287,7 +287,7 @@ public class NumberEP extends ExpansionPattern {
 
 	protected String expandInteger(long value) {
 		long milliards;
-		long millions;
+		long milliona;
 		long thousands;
 		int hundreds;
 		int tens;
@@ -299,196 +299,162 @@ public class NumberEP extends ExpansionPattern {
 			return (new String("null"));
 		}
 		if (value < 0) {
-			buf.append("meno ");
+			buf.append("минус ");
 		}
 		milliards = value / 1000000000;
 		rest = value % 1000000000; // the part of value below 1 000 000 000
 		if (milliards > 1) {
 			buf.append(expandInteger(milliards)); // recursive call
 			buf.append(" ");
-			if ((milliards % 1000000) == 0) {
-				buf.append("di ");
-			}
-			buf.append("miliardi ");
+			buf.append("миллиарды ");
 		} else if (milliards == 1) {
-			buf.append("un miliardo ");
+			buf.append("один миллиард ");
 		}
-		millions = rest / 1000000;
+		milliona = rest / 1000000;
 		rest = value % 1000000; // the part of value below 1 000 000
-		if (millions > 1) {
-			buf.append(expandInteger(millions)); // recursive call
+		if (milliona > 1) {
+			buf.append(expandInteger(milliona)); // recursive call
 			buf.append(" ");
-			buf.append("milioni ");
-		} else if (millions == 1) {
-			buf.append("un milione ");
+			buf.append("миллионы ");
+		} else if (milliona == 1) {
+			buf.append("один миллион ");
 		}
 		thousands = rest / 1000;
 		rest = rest % 1000;
 		if (thousands > 1) {
 			buf.append(expandInteger(thousands));
 			buf.append(" ");
-			buf.append("mila ");
+			buf.append("тысяча ");
 		} else if (thousands == 1) {
-			buf.append("mille ");
+			buf.append("тысячи ");
 		}
 		hundreds = (int) rest / 100;
 		rest = rest % 100;
 		if (hundreds > 1) {
 			buf.append(expandInteger(hundreds));
 			buf.append(" ");
-			buf.append("cento ");
+			buf.append("сто");
 		} else if (hundreds == 1) {
-			buf.append("cento ");
+			buf.append("Сто");
 		}
 		if (rest >= 20) {
 			tens = (int) rest / 10;
 			rest = rest % 10;
-			if ((rest == 1) || (rest == 8)) {
 				switch (tens) {
 				case 2:
-					buf.append("vent");
+					buf.append("двадцать ");
 					break;
 				case 3:
-					buf.append("trent");
+					buf.append("тридцать ");
 					break;
 				case 4:
-					buf.append("quarant");
+					buf.append("сорок ");
 					break;
 				case 5:
-					buf.append("cinquant");
+					buf.append("пятьдесят ");
 					break;
 				case 6:
-					buf.append("sessant");
+					buf.append("шестьдесят ");
 					break;
 				case 7:
-					buf.append("settant");
+					buf.append("семьдесят ");
 					break;
 				case 8:
-					buf.append("ottant");
+					buf.append("восемьдесят ");
 					break;
 				case 9:
-					buf.append("novant");
+					buf.append("девяносто ");
 					break;
 				default: // shouldn't happen
 				}
-			} else {
-				switch (tens) {
-				case 2:
-					buf.append("venti ");
-					break;
-				case 3:
-					buf.append("trenta ");
-					break;
-				case 4:
-					buf.append("quaranta ");
-					break;
-				case 5:
-					buf.append("cinquanta ");
-					break;
-				case 6:
-					buf.append("sessanta ");
-					break;
-				case 7:
-					buf.append("settanta ");
-					break;
-				case 8:
-					buf.append("ottanta ");
-					break;
-				case 9:
-					buf.append("novanta ");
-					break;
-				default: // shouldn't happen
-				}
-
-			}
 			switch ((int) rest) {
 			case 1:
-				buf.append("uno ");
+				buf.append("один");
 				break;
 			case 2:
-				buf.append("due ");
+				buf.append("два");
 				break;
 			case 3:
-				buf.append("tre ");
+				buf.append("три");
 				break;
 			case 4:
-				buf.append("quattro ");
+				buf.append("четыре");
 				break;
 			case 5:
-				buf.append("cinque ");
+				buf.append("пять");
 				break;
 			case 6:
-				buf.append("sei ");
+				buf.append("шесть");
 				break;
 			case 7:
-				buf.append("sette ");
+				buf.append("семь");
 				break;
 			case 8:
-				buf.append("otto ");
+				buf.append("восемь");
 				break;
 			case 9:
-				buf.append("nove ");
+				buf.append("девять");
 				break;
 			default: // 0: do nothing
 			}
 		} else { // rest < 20
 			switch ((int) rest) {
 			case 1:
-				buf.append("uno ");
+				buf.append("один");
 				break;
 			case 2:
-				buf.append("due ");
+				buf.append("два");
 				break;
 			case 3:
-				buf.append("tre ");
+				buf.append("три");
 				break;
 			case 4:
-				buf.append("quattro ");
+				buf.append("четыре");
 				break;
 			case 5:
-				buf.append("cinque ");
+				buf.append("пять");
 				break;
 			case 6:
-				buf.append("sei ");
+				buf.append("шесть");
 				break;
 			case 7:
-				buf.append("sette ");
+				buf.append("семь");
 				break;
 			case 8:
-				buf.append("otto ");
+				buf.append("восемь");
 				break;
 			case 9:
-				buf.append("nove ");
+				buf.append("девять");
 				break;
 			case 10:
-				buf.append("dieci ");
+				buf.append("й");
 				break;
 			case 11:
-				buf.append("undici ");
+				buf.append("одиннадцать ");
 				break;
 			case 12:
-				buf.append("dodici ");
+				buf.append("двенадцать ");
 				break;
 			case 13:
-				buf.append("tredici ");
+				buf.append("тринадцать ");
 				break;
 			case 14:
-				buf.append("quattordici ");
+				buf.append("четырнадцать ");
 				break;
 			case 15:
-				buf.append("quindici ");
+				buf.append("пятнадцать ");
 				break;
 			case 16:
-				buf.append("sedici ");
+				buf.append("шестнадцать ");
 				break;
 			case 17:
-				buf.append("diciassette ");
+				buf.append("семнадцать ");
 				break;
 			case 18:
-				buf.append("diciotto ");
+				buf.append("восемнадцать ");
 				break;
 			case 19:
-				buf.append("diciannove ");
+				buf.append("девятнадцать ");
 				break;
 			default: // shouldn't happen
 			}
@@ -545,40 +511,40 @@ public class NumberEP extends ExpansionPattern {
 		for (int i = 0; i < digits.length(); i++) {
 			switch (digits.charAt(i)) {
 			case ',':
-				buf.append("virgola ");
+				buf.append("запятая ");
 				break;
 			case '.':
-				buf.append("punto ");
+				buf.append("точка ");
 				break;
 			case '0':
-				buf.append("zero ");
+				buf.append("ноль ");
 				break;
-			case '1':
-				buf.append("uno ");
+			case 1:
+				buf.append("один");
 				break;
-			case '2':
-				buf.append("due ");
+			case 2:
+				buf.append("два");
 				break;
-			case '3':
-				buf.append("tre ");
+			case 3:
+				buf.append("три");
 				break;
-			case '4':
-				buf.append("quattro ");
+			case 4:
+				buf.append("четыре");
 				break;
-			case '5':
-				buf.append("cinque ");
+			case 5:
+				buf.append("пять");
 				break;
-			case '6':
-				buf.append("sei ");
+			case 6:
+				buf.append("шесть");
 				break;
-			case '7':
-				buf.append("sette ");
+			case 7:
+				buf.append("семь");
 				break;
-			case '8':
-				buf.append("otto ");
+			case 8:
+				buf.append("восемь");
 				break;
-			case '9':
-				buf.append("nove ");
+			case 9:
+				buf.append("девять");
 				break;
 			default: // other characters (e.g., letters): output individually
 				buf.append(digits.charAt(i));
@@ -628,52 +594,36 @@ public class NumberEP extends ExpansionPattern {
 		StringBuilder exp = new StringBuilder();
 		switch ((int) Math.abs(value)) {
 		case 1:
-			exp.append("primo");
+			exp.append("первый");
 			break;
 		case 2:
-			exp.append("secondo");
+			exp.append("второй");
 			break;
 		case 3:
-			exp.append("terzo");
+			exp.append("третий");
 			break;
 		case 4:
-			exp.append("quarto");
+			exp.append("четвёртый");
 			break;
 		case 5:
-			exp.append("quinto");
+			exp.append("пятый");
 			break;
 		case 6:
-			exp.append("sesto");
+			exp.append("шестой");
 			break;
 		case 7:
-			exp.append("settimo");
+			exp.append("седьмой");
 			break;
 		case 8:
-			exp.append("ottavo");
+			exp.append("восьмой");
 			break;
 		case 9:
-			exp.append("nono");
+			exp.append("девятый");
 			break;
 		case 10:
-			exp.append("decimo");
+			exp.append("десятый");
 			break;
 		default:
-			exp.append(expandInteger(Math.abs(value)));
-			switch (exp.charAt(exp.length() - 1)) {
-			case 'e':
-				if (exp.charAt(exp.length() - 2) == 'r') {
-					exp.append("esimo");
-				} else {
-					exp.append("simo");
-				}
-				break;
-			case 'o':
-				exp.replace(exp.length() - 1, exp.length(), "esimo");
-				break;
-			case 'i':
-				exp.replace(exp.length() - 1, exp.length(), "esimo");
-				break;
-			}
 			break;
 		}
 		// OK, exp construction complete.
