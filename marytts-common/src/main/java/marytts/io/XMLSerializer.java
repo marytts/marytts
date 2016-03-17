@@ -70,7 +70,7 @@ public class XMLSerializer
         }
     }
 
-    private Document generateDocument(Utterance utt)
+    public Document generateDocument(Utterance utt)
         throws MaryIOException
     {
         try {
@@ -82,12 +82,19 @@ public class XMLSerializer
             Element rootElement = doc.createElement("maryxml");
 
             // FIXME: hardcoded part
-            rootElement.setAttribute("xmlns", "http://mary.dfki.de/2002/MaryXML");
-            rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-            rootElement.setAttribute("version", "0.5");
+            // rootElement.setAttribute("xmlns", "http://mary.dfki.de/2002/MaryXML");
+            // rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            // rootElement.setAttribute("version", "0.5");
             rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
-            doc.appendChild(rootElement);
 
+            // Adding paragraphs
+            for (Paragraph p: utt.getParagraphs())
+            {
+                rootElement.appendChild(generateParagraph(p, doc));
+            }
+
+            // Finalise and returns the doc
+            doc.appendChild(rootElement);
             return doc;
         }
         catch (ParserConfigurationException ex)
@@ -100,9 +107,13 @@ public class XMLSerializer
     /************************************************************************************************
      * Element part
      ************************************************************************************************/
-    public Element generateParagraph(Paragraph paragraph)
+    public Element generateParagraph(Paragraph paragraph, Document doc)
     {
-        return null;
+
+        Element par_element = doc.createElement("p");
+        Node text = doc.createTextNode(paragraph.getText());
+        par_element.appendChild(text);
+        return par_element;
     }
 
     public Element generatePhrase(Phrase phrase)
