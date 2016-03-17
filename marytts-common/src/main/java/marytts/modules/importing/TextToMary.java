@@ -26,7 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.data.Utterance;
 import marytts.data.item.Paragraph;
-
+import marytts.io.XMLSerializer;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -73,21 +73,6 @@ public class TextToMary extends InternalModule {
 
         // FIXME: old xml part still here, remove that
         MaryData result = new MaryData(outputType(), d.getLocale(), true);
-		Document doc = result.getDocument();
-		Element root = doc.getDocumentElement();
-		root.setAttribute("xml:lang", MaryUtils.locale2xmllang(l));
-		if (splitIntoParagraphs) { // Empty lines separate paragraphs
-			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
-			for (int i = 0; i < inputTexts.length; i++) {
-				String paragraph = inputTexts[i].trim();
-				if (paragraph.length() == 0)
-					continue;
-				appendParagraph(paragraph, root, d.getLocale());
-			}
-		} else { // The whole text as one single paragraph
-			appendParagraph(plain_text, root, d.getLocale());
-		}
-		result.setDocument(doc);
 
         // New utterance part
         Utterance utt = new Utterance(plain_text, l);
@@ -105,37 +90,10 @@ public class TextToMary extends InternalModule {
             utt.addParagraph(p);
 		}
 
-		return result;
-	}
+        XMLSerializer xml_serializer = new XMLSerializer();
+        result.setDocument(xml_serializer.generateDocument(utt));
 
-	/**
-	 * Append one paragraph of text to the rawmaryxml document. If the text language (as determined by #getLanguage(text)) differs
-	 * from the enclosing document's language, the paragraph element is enclosed with a <code>&lt;voice xml:lang="..."&gt;</code>
-	 * element.
-	 *
-	 * @param text
-	 *            the paragraph text.
-	 * @param root
-	 *            the root node of the rawmaryxml document, where to insert the paragraph.
-	 * @param defaultLocale
-	 *            the default locale, in case the language of the text cannot be determined.
-	 */
-	private void appendParagraph(String text, Element root, Locale defaultLocale) {
-		Element insertHere = root;
-		String rootLanguage = root.getAttribute("xml:lang");
-		String textLanguage = MaryUtils.locale2xmllang(determineLocale(text, defaultLocale));
-		if (!textLanguage.equals(rootLanguage)) {
-			Element voiceElement = MaryXML.appendChildElement(root, MaryXML.VOICE);
-			voiceElement.setAttribute("xml:lang", textLanguage);
-			insertHere = voiceElement;
-		}
-		insertHere = MaryXML.appendChildElement(insertHere, MaryXML.PARAGRAPH);
-		// Now insert the entire plain text as a single text node
-		insertHere.appendChild(root.getOwnerDocument().createTextNode(text));
-		// And, for debugging, read it:
-		Text textNode = (Text) insertHere.getFirstChild();
-		String textNodeString = textNode.getData();
-		logger.debug("textNodeString=`" + textNodeString + "'");
+        return result;
 	}
 
 	/**
