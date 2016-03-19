@@ -34,8 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
-
 import marytts.util.io.StreamUtils;
 import marytts.util.string.ByteStringTranslator;
 import marytts.util.string.IntStringTranslator;
@@ -1697,20 +1695,31 @@ public class FeatureDefinition {
 			out.print("\n");
 		}
 		out.println("ShortValuedFeatureProcessors");
-		for (int i = numByteFeatures; i < numShortFeatures; i++) {
-			String featureName = getFeatureName(i);
+		for (int i = 0; i < numShortFeatures; i++) {
+			int n = i + numByteFeatures;
+			String featureName = getFeatureName(n);
 			out.print("0 | " + featureName);
-			for (int v = 0, vmax = getNumberOfValues(i); v < vmax; v++) {
-				String val = getFeatureValueAsString(i, v);
+			for (int v = 0, vmax = getNumberOfValues(n); v < vmax; v++) {
+				String val = getFeatureValueAsString(n, v);
 				out.print(" " + val);
 			}
 			out.print("\n");
 		}
 		out.println("ContinuousFeatureProcessors");
-		ImmutableMap<String, Integer> map = ImmutableMap.of("unit_duration", 1000, "unit_logf0", 100);
-		for (int i = numByteFeatures; i < numByteFeatures + numContinuousFeatures; i++) {
-			String featureName = getFeatureName(i);
-			int featureValue = map.containsKey(featureName) ? map.get(featureName) : 0;
+		for (int i = 0; i < numContinuousFeatures; i++) {
+			String featureName = getFeatureName(i + numByteFeatures + numShortFeatures);
+			int featureValue;
+			switch(featureName) {
+			case "unit_duration":
+				featureValue = 1000;
+				break;
+			case "unit_logf0":
+				featureValue = 100;
+				break;
+			default:
+				featureValue = 0;
+				break;
+			}
 			out.printf("%d linear | %s\n", featureValue, featureName);
 		}
 		out.flush();
