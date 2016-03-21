@@ -10,22 +10,29 @@ import java.util.ArrayList;
 public class Paragraph extends Item
 {
 
-	private ArrayList<Word> m_phrases;
+	private ArrayList<Sentence> m_sentences;
 	private String m_text;
 
 	public Paragraph(String text)
 	{
 		setText(text);
+        setSentences(new ArrayList<Sentence>());
     }
 
-	public ArrayList<Word> getPhrases()
+	public Paragraph(String text, ArrayList<Sentence> sentences)
 	{
-		return m_phrases;
+		setText(text);
+		setSentences(sentences);
 	}
 
-	public void setPhrases(ArrayList<Word> phrases)
+	public ArrayList<Sentence> getSentences()
 	{
-		m_phrases = phrases;
+		return m_sentences;
+	}
+
+	public void setSentences(ArrayList<Sentence> sentences)
+	{
+		m_sentences = sentences;
 	}
 
 	public String getText()

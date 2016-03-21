@@ -29,7 +29,6 @@ import org.testng.annotations.*;
 
 import org.apache.log4j.BasicConfigurator;
 
-
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 
