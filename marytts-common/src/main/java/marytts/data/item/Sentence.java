@@ -7,17 +7,23 @@ import java.util.ArrayList;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class Phrase extends Item
+public class Sentence extends Item
 {
 
 	private ArrayList<Word> m_words;
 	private String m_text;
 	
-	public Phrase(String text)
+	public Sentence(String text)
 	{
 		setText(text);
+		setWords(new ArrayList<Word>());
 	}
 	
+	public Sentence(String text, ArrayList<Word> words) {
+		setText(text);
+		setWords(words);
+	}
+
 	public ArrayList<Word> getWords() 
 	{
 		return m_words;

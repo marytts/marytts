@@ -25,6 +25,12 @@ public class Utterance
         setLocale(locale);
         setParagraphs(new ArrayList<Paragraph>());
     }
+    public Utterance(String text, Locale locale, ArrayList<Paragraph> list_paragraphs)
+    {
+        setText(text);
+        setLocale(locale);
+        setParagraphs(list_paragraphs);
+    }
 
     public String getText()
     {

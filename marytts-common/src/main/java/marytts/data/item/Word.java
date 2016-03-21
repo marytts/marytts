@@ -19,12 +19,21 @@ public class Word extends Item
 	{
 		setText(text);
         setSoundsLike(null);
+        setSyllables(new ArrayList<Syllable>());
     }
 
 	public Word(String text, String sounds_like)
 	{
 		setText(text);
         setSoundsLike(sounds_like);
+        setSyllables(new ArrayList<Syllable>());
+    }
+
+	public Word(String text, String sounds_like, ArrayList<Syllable> syllables)
+	{
+		setText(text);
+        setSoundsLike(sounds_like);
+        setSyllables(syllables);
     }
 
     /***************************************************************************************
