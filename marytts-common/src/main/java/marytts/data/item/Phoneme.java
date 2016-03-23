@@ -7,21 +7,38 @@ package marytts.data.item;
  */
 public class Phoneme extends Item
 {
-
+    private String m_stress;
 	private String m_label;
 
 	public Phoneme(String label)
 	{
 		setLabel(label);
-	}
+        setStress(null);
+    }
 
-	public String getLabel() 
+	public Phoneme(String label, String stress)
+	{
+		setLabel(label);
+        setStress(stress);
+    }
+
+	public String getLabel()
 	{
 		return m_label;
 	}
 
-	protected void setLabel(String label) 
+	protected void setLabel(String label)
 	{
 		m_label = label;
+	}
+
+	public String getStress()
+	{
+		return m_stress;
+	}
+
+	protected void setStress(String stress)
+	{
+		m_stress = stress;
 	}
 }

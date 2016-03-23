@@ -47,10 +47,12 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
 
-import org.w3c.dom.DOMException;
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.item.Word;
+import marytts.data.item.Phoneme;
+
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * The phonemiser module -- java implementation.
@@ -156,369 +158,375 @@ public class JPhonemiser extends InternalModule {
 		setPunctuationPosRegex();
 	}
 
+    /**
+     * FIXME: see what is the "*" symbol if it is already present
+     *
+     */
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
 
-		NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
-		Element t = null;
-		while ((t = (Element) it.nextNode()) != null) {
-			String text;
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
+        ArrayList<Word> words = utt.getAllWords();
 
-			// Do not touch tokens for which a transcription is already
-			// given (exception: transcription contains a '*' character:
-			if (t.hasAttribute("ph") && !t.getAttribute("ph").contains("*")) {
-				continue;
-			}
-			if (t.hasAttribute("sounds_like"))
-				text = t.getAttribute("sounds_like");
-			else
-				text = MaryDomUtils.tokenText(t);
+        logger.info("" + words.size() + " words are analyzed");
+        for (Word w: words)
+        {
+            // Do not touch tokens for which a transcription is already
+            // given (exception: transcription contains a '*' character:
+            ArrayList<Phoneme> phonemes = w.getPhonemes();
+            if ((phonemes.size() > 0) &&
+                (!phonemes.get(0).getLabel().contains("*")))
+            {
+                logger.info("phoneme " + phonemes.get(0).getLabel() + "is ignored");
+                continue;
+            }
 
-			// use part-of-speech if available
-			String pos = null;
-			if (t.hasAttribute("pos")) {
-				pos = t.getAttribute("pos");
-			}
+            // Get text
+            String text = w.soundsLike();
+            if ((text == null) || (text.isEmpty()))
+                text = w.getText();
 
-			if (maybePronounceable(text, pos)) {
-				// If text consists of several parts (e.g., because that was
-				// inserted into the sounds_like attribute), each part
-				// is transcribed separately.
-				StringBuilder ph = new StringBuilder();
-				String g2pMethod = null;
-				StringTokenizer st = new StringTokenizer(text, " -");
-				while (st.hasMoreTokens()) {
-					String graph = st.nextToken();
-					StringBuilder helper = new StringBuilder();
-					String phon = phonemise(graph, pos, helper);
-					// null result should not be processed
-					if (phon == null) {
-						continue;
-					}
-					if (ph.length() == 0) { // first part
-						// The g2pMethod of the combined beast is
-						// the g2pMethod of the first constituant.
-						g2pMethod = helper.toString();
-						ph.append(phon);
-					} else { // following parts
-						ph.append(" - ");
-						// Reduce primary to secondary stress:
-						ph.append(phon.replace('\'', ','));
-					}
-				}
+            // Get POS
+            String pos = w.getPOS();
 
-				if (ph != null && ph.length() > 0) {
-					setPh(t, ph.toString());
-					t.setAttribute("g2p_method", g2pMethod);
-				}
-			}
-		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setDocument(doc);
-		return result;
-	}
+            // Ok adapt phonemes now
+            ArrayList<Phoneme> new_phonemes = new ArrayList<Phoneme>();
+            if (maybePronounceable(text, pos))
+            {
+                // If text consists of several parts (e.g., because that was
+                // inserted into the sounds_like attribute), each part
+                // is transcribed separately.
+                StringBuilder ph = new StringBuilder();
+                String g2p_method = null;
+                StringTokenizer st = new StringTokenizer(text, " -");
+                while (st.hasMoreTokens())
+                {
+                    String graph = st.nextToken();
+                    StringBuilder helper = new StringBuilder();
+                    String phon = phonemise(graph, pos, helper);
 
-	/**
-	 * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
-	 * letter-to-sound rules if nothing else was successful.
-	 *
-	 * @param text
-	 *            the textual (graphemic) form of a word.
-	 * @param pos
-	 *            the part-of-speech of the word
-	 * @param g2pMethod
-	 *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
-	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
-	 * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
-	 */
-	public String phonemise(String text, String pos, StringBuilder g2pMethod) {
-		// First, try a simple userdict and lexicon lookup:
+                    // FIXME what does it mean : null result should not be processed
+                    if (phon == null)
+                        continue;
 
-		String result = userdictLookup(text, pos);
-		if (result != null) {
-			g2pMethod.append("userdict");
-			return result;
-		}
+                    if (ph.length() == 0)
+                        g2p_method = helper.toString();
 
-		result = lexiconLookup(text, pos);
-		if (result != null) {
-			g2pMethod.append("lexicon");
-			return result;
-		}
+                    // FIXME: hardcoded here, not really good
+                    String stress = null;
+                    if (phon.contains("'"))
+                    {
+                        stress = ",";
+                        phon.replaceAll("'", "");
+                    }
+                    new_phonemes.add(new Phoneme(phon, stress));
+                }
 
-		// Lookup attempts failed. Try normalising exotic letters
-		// (diacritics on vowels, etc.), look up again:
-		String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
-		if (!normalised.equals(text)) {
-			result = userdictLookup(normalised, pos);
-			if (result != null) {
-				g2pMethod.append("userdict");
-				return result;
-			}
-			result = lexiconLookup(normalised, pos);
-			if (result != null) {
-				g2pMethod.append("lexicon");
-				return result;
-			}
-		}
+                if (new_phonemes.size() > 0)
+                {
+                    // Adapt phoneme
+                    w.setPhonemes(new_phonemes);
 
-		// Cannot find it in the lexicon -- apply letter-to-sound rules
-		// to the normalised form
+                    // Adapt G2P method
+                    w.setG2PMethod(g2p_method);
+                }
+            }
+        }
 
-		String phones = lts.predictPronunciation(text);
-		try {
-			result = lts.syllabify(phones);
-		} catch (IllegalArgumentException e) {
-			logger.error(String.format("Problem with token <%s> [%s]: %s", text, phones, e.getMessage()));
-		}
-		if (result != null) {
-			g2pMethod.append("rules");
-			return result;
-		}
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        return result;
+    }
 
-		return null;
-	}
+    /**
+     * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
+     * letter-to-sound rules if nothing else was successful.
+     *
+     * @param text
+     *            the textual (graphemic) form of a word.
+     * @param pos
+     *            the part-of-speech of the word
+     * @param g2pMethod
+     *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
+     *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
+     * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
+     */
+    public String phonemise(String text, String pos, StringBuilder g2pMethod) {
+        // First, try a simple userdict and lexicon lookup:
 
-	/**
-	 * Look a given text up in the (standard) lexicon. part-of-speech is used in case of ambiguity.
-	 *
-	 * @param text
-	 *            text
-	 * @param pos
-	 *            pos
-	 * @return null if text == null or text.length is 0, null if entries.length is 0, entries[0] otherwise
-	 */
-	public String lexiconLookup(String text, String pos) {
-		if (text == null || text.length() == 0)
-			return null;
-		String[] entries;
-		entries = lexiconLookupPrimitive(text, pos);
-		// If entry is not found directly, try the following changes:
-		// - lowercase the word
-		// - all lowercase but first uppercase
-		if (entries.length == 0) {
-			text = text.toLowerCase(getLocale());
-			entries = lexiconLookupPrimitive(text, pos);
-		}
-		if (entries.length == 0) {
-			text = text.substring(0, 1).toUpperCase(getLocale()) + text.substring(1);
-			entries = lexiconLookupPrimitive(text, pos);
-		}
+        String result = userdictLookup(text, pos);
+        if (result != null) {
+            g2pMethod.append("userdict");
+            return result;
+        }
 
-		if (entries.length == 0)
-			return null;
-		return entries[0];
-	}
+        result = lexiconLookup(text, pos);
+        if (result != null) {
+            g2pMethod.append("lexicon");
+            return result;
+        }
 
-	private String[] lexiconLookupPrimitive(String text, String pos) {
-		String[] entries;
-		if (pos != null) { // look for pos-specific version first
-			entries = lexicon.lookup(text + pos);
-			if (entries.length == 0) { // not found -- lookup without pos
-				entries = lexicon.lookup(text);
-			}
-		} else {
-			entries = lexicon.lookup(text);
-		}
-		return entries;
-	}
+        // Lookup attempts failed. Try normalising exotic letters
+        // (diacritics on vowels, etc.), look up again:
+        String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
+        if (!normalised.equals(text)) {
+            result = userdictLookup(normalised, pos);
+            if (result != null) {
+                g2pMethod.append("userdict");
+                return result;
+            }
+            result = lexiconLookup(normalised, pos);
+            if (result != null) {
+                g2pMethod.append("lexicon");
+                return result;
+            }
+        }
 
-	/**
-	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
-	 *
-	 * @param text
-	 *            text
-	 * @param pos
-	 *            pos
-	 * @return null if userdict is null or text is null or text.length is 0, null if entries is null, transcr otherwise
-	 */
-	public String userdictLookup(String text, String pos) {
-		if (userdict == null || text == null || text.length() == 0)
-			return null;
-		List<String> entries = userdict.get(text);
-		// If entry is not found directly, try the following changes:
-		// - lowercase the word
-		// - all lowercase but first uppercase
-		if (entries == null) {
-			text = text.toLowerCase(getLocale());
-			entries = userdict.get(text);
-		}
-		if (entries == null) {
-			text = text.substring(0, 1).toUpperCase(getLocale()) + text.substring(1);
-			entries = userdict.get(text);
-		}
+        // Cannot find it in the lexicon -- apply letter-to-sound rules
+        // to the normalised form
 
-		if (entries == null)
-			return null;
+        String phones = lts.predictPronunciation(text);
+        try {
+            result = lts.syllabify(phones);
+        } catch (IllegalArgumentException e) {
+            logger.error(String.format("Problem with token <%s> [%s]: %s", text, phones, e.getMessage()));
+        }
+        if (result != null) {
+            g2pMethod.append("rules");
+            return result;
+        }
 
-		String transcr = null;
-		for (String entry : entries) {
-			String[] parts = entry.split("\\|");
-			transcr = parts[0];
-			if (parts.length > 1 && pos != null) {
-				StringTokenizer tokenizer = new StringTokenizer(entry);
-				while (tokenizer.hasMoreTokens()) {
-					String onePos = tokenizer.nextToken();
-					if (pos.equals(onePos))
-						return transcr; // found
-				}
-			}
-		}
-		// no match of POS: return last entry
-		return transcr;
-	}
+        return null;
+    }
 
-	/**
-	 * Access the allophone set underlying this phonemiser.
-	 *
-	 * @return allophoneSet
-	 */
-	public AllophoneSet getAllophoneSet() {
-		return allophoneSet;
-	}
+/**
+ * Look a given text up in the (standard) lexicon. part-of-speech is used in case of ambiguity.
+ *
+ * @param text
+ *            text
+ * @param pos
+ *            pos
+ * @return null if text == null or text.length is 0, null if entries.length is 0, entries[0] otherwise
+ */
+    public String lexiconLookup(String text, String pos) {
+        if (text == null || text.length() == 0)
+            return null;
+        String[] entries;
+        entries = lexiconLookupPrimitive(text, pos);
+        // If entry is not found directly, try the following changes:
+        // - lowercase the word
+        // - all lowercase but first uppercase
+        if (entries.length == 0) {
+            text = text.toLowerCase(getLocale());
+            entries = lexiconLookupPrimitive(text, pos);
+        }
+        if (entries.length == 0) {
+            text = text.substring(0, 1).toUpperCase(getLocale()) + text.substring(1);
+            entries = lexiconLookupPrimitive(text, pos);
+        }
 
-	/**
-	 * Read a lexicon. Lines must have the format
-	 *
-	 * graphemestring | phonestring | optional-parts-of-speech
-	 *
-	 * The pos-item is optional. Different pos's belonging to one grapheme chain may be separated by whitespace
-	 *
-	 *
-	 * @param lexiconFilename
-	 *            lexiconFilename
-	 * @throws IOException
-	 *             IOException
-	 * @return fLexicon
-	 */
-	protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
-		logger.debug(String.format("Reading lexicon from '%s'", lexiconFilename));
-		String line;
-		Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
+        if (entries.length == 0)
+            return null;
+        return entries[0];
+    }
 
-		BufferedReader lexiconFile = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
-		while ((line = lexiconFile.readLine()) != null) {
-			// Ignore empty lines and comments:
-			if (line.trim().equals("") || line.startsWith("#"))
-				continue;
+    private String[] lexiconLookupPrimitive(String text, String pos) {
+        String[] entries;
+        if (pos != null) { // look for pos-specific version first
+            entries = lexicon.lookup(text + pos);
+            if (entries.length == 0) { // not found -- lookup without pos
+                entries = lexicon.lookup(text);
+            }
+        } else {
+            entries = lexicon.lookup(text);
+        }
+        return entries;
+    }
 
-			String[] lineParts = line.split("\\s*\\|\\s*");
-			String graphStr = lineParts[0];
-			String phonStr = null;
-			try {
-				phonStr = lineParts[1];
-			} catch (ArrayIndexOutOfBoundsException e) {
-				logger.warn(String.format("Lexicon '%s': missing transcription for '%s'", lexiconFilename, graphStr));
-				continue;
-			}
-			try {
-				allophoneSet.splitIntoAllophones(phonStr);
-			} catch (IllegalArgumentException e) {
-				logger.warn(String.format("Lexicon '%s': invalid entry for '%s': %s", lexiconFilename, graphStr, e.getMessage()));
-				continue;
-			}
-			String phonPosStr = phonStr;
-			if (lineParts.length > 2) {
-				String pos = lineParts[2];
-				if (!pos.trim().equals(""))
-					phonPosStr += "|" + pos;
-			}
+    /**
+     * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
+     *
+     * @param text
+     *            text
+     * @param pos
+     *            pos
+     * @return null if userdict is null or text is null or text.length is 0, null if entries is null, transcr otherwise
+     */
+    public String userdictLookup(String text, String pos) {
+        if (userdict == null || text == null || text.length() == 0)
+            return null;
+        List<String> entries = userdict.get(text);
+        // If entry is not found directly, try the following changes:
+        // - lowercase the word
+        // - all lowercase but first uppercase
+        if (entries == null) {
+            text = text.toLowerCase(getLocale());
+            entries = userdict.get(text);
+        }
+        if (entries == null) {
+            text = text.substring(0, 1).toUpperCase(getLocale()) + text.substring(1);
+            entries = userdict.get(text);
+        }
 
-			List<String> transcriptions = fLexicon.get(graphStr);
-			if (null == transcriptions) {
-				transcriptions = new ArrayList<String>();
-				fLexicon.put(graphStr, transcriptions);
-			}
-			transcriptions.add(phonPosStr);
-		}
-		lexiconFile.close();
-		return fLexicon;
-	}
+        if (entries == null)
+            return null;
 
-	protected void setPh(Element t, String ph) {
-		if (!t.getTagName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getTagName() + ".");
-		if (t.hasAttribute("ph")) {
-			String prevPh = t.getAttribute("ph");
-			// In previous sampa, replace star with sampa:
-			String newPh = prevPh.replaceFirst("\\*", ph);
-			t.setAttribute("ph", newPh);
-		} else {
-			t.setAttribute("ph", ph);
-		}
-	}
+        String transcr = null;
+        for (String entry : entries) {
+            String[] parts = entry.split("\\|");
+            transcr = parts[0];
+            if (parts.length > 1 && pos != null) {
+                StringTokenizer tokenizer = new StringTokenizer(entry);
+                while (tokenizer.hasMoreTokens()) {
+                    String onePos = tokenizer.nextToken();
+                    if (pos.equals(onePos))
+                        return transcr; // found
+                }
+            }
+        }
+        // no match of POS: return last entry
+        return transcr;
+    }
 
-	/**
-	 * Compile a regex pattern used to determine whether tokens are processed as punctuation or not, based on whether their
-	 * <code>pos</code> attribute matches the pattern.
-	 *
-	 */
-	protected void setPunctuationPosRegex() {
-		String language = getLocale().getLanguage();
-		String propertyName = language + ".pos.punct.regex";
-		String defaultRegex = "\\$PUNCT";
-		String regex = MaryProperties.getProperty(propertyName);
-		if (regex == null) {
-			logger.debug(String.format("Property %s not set, using default", propertyName));
-			regex = defaultRegex;
-		} else {
-			logger.debug(String.format("Using property %s", propertyName));
-		}
-		try {
-			punctuationPosRegex = Pattern.compile(regex);
-		} catch (PatternSyntaxException e) {
-			logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
-			punctuationPosRegex = Pattern.compile(defaultRegex);
-		}
-		logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
-		return;
-	}
+    /**
+     * Access the allophone set underlying this phonemiser.
+     *
+     * @return allophoneSet
+     */
+    public AllophoneSet getAllophoneSet() {
+        return allophoneSet;
+    }
 
-	/**
-	 * Based on the regex compiled in {@link #setPunctuationPosRegex()}, determine whether a given POS string is classified as
-	 * punctuation
-	 *
-	 * @param pos
-	 *            the POS tag
-	 * @return <b>true</b> if the POS tag matches the regex pattern; <b>false</b> otherwise
-	 * @throws NullPointerException
-	 *             if the regex pattern is null (because it hasn't been set during module startup)
-	 *
-	 */
-	public boolean isPosPunctuation(String pos) {
-		if (pos != null && punctuationPosRegex.matcher(pos).matches()) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Read a lexicon. Lines must have the format
+     *
+     * graphemestring | phonestring | optional-parts-of-speech
+     *
+     * The pos-item is optional. Different pos's belonging to one grapheme chain may be separated by whitespace
+     *
+     *
+     * @param lexiconFilename
+     *            lexiconFilename
+     * @throws IOException
+     *             IOException
+     * @return fLexicon
+     */
+    protected Map<String, List<String>> readLexicon(String lexiconFilename) throws IOException {
+        logger.debug(String.format("Reading lexicon from '%s'", lexiconFilename));
+        String line;
+        Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
 
-	/**
-	 * Determine whether token should be pronounceable, based on text and POS tag.
-	 *
-	 * @param text
-	 *            the text of the token
-	 * @param pos
-	 *            the POS tag of the token
-	 * @return <b>false</b> if the text is empty, or if it contains no word characters <em>and</em> the POS tag indicates
-	 *         punctuation; <b>true</b> otherwise
-	 */
-	public boolean maybePronounceable(String text, String pos) {
-		// does text contain anything at all?
-		if (text == null || text.isEmpty()) {
-			return false;
-		}
+        BufferedReader lexiconFile = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
+        while ((line = lexiconFile.readLine()) != null) {
+            // Ignore empty lines and comments:
+            if (line.trim().equals("") || line.startsWith("#"))
+                continue;
 
-		// does text contain at least one word character?
-		if (text.matches(".*\\w.*")) {
-			return true;
-		}
+            String[] lineParts = line.split("\\s*\\|\\s*");
+            String graphStr = lineParts[0];
+            String phonStr = null;
+            try {
+                phonStr = lineParts[1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                logger.warn(String.format("Lexicon '%s': missing transcription for '%s'", lexiconFilename, graphStr));
+                continue;
+            }
+            try {
+                allophoneSet.splitIntoAllophones(phonStr);
+            } catch (IllegalArgumentException e) {
+                logger.warn(String.format("Lexicon '%s': invalid entry for '%s': %s", lexiconFilename, graphStr, e.getMessage()));
+                continue;
+            }
+            String phonPosStr = phonStr;
+            if (lineParts.length > 2) {
+                String pos = lineParts[2];
+                if (!pos.trim().equals(""))
+                    phonPosStr += "|" + pos;
+            }
 
-		// does POS tag indicate punctuation?
-		if (isPosPunctuation(pos)) {
-			return false;
-		}
+            List<String> transcriptions = fLexicon.get(graphStr);
+            if (null == transcriptions) {
+                transcriptions = new ArrayList<String>();
+                fLexicon.put(graphStr, transcriptions);
+            }
+            transcriptions.add(phonPosStr);
+        }
+        lexiconFile.close();
+        return fLexicon;
+    }
 
-		// by default, just try to pronounce anyway
-		return true;
-	}
+    /**
+     * Compile a regex pattern used to determine whether tokens are processed as punctuation or not, based on whether their
+     * <code>pos</code> attribute matches the pattern.
+     *
+     */
+    protected void setPunctuationPosRegex() {
+        String language = getLocale().getLanguage();
+        String propertyName = language + ".pos.punct.regex";
+        String defaultRegex = "\\$PUNCT";
+        String regex = MaryProperties.getProperty(propertyName);
+        if (regex == null) {
+            logger.debug(String.format("Property %s not set, using default", propertyName));
+            regex = defaultRegex;
+        } else {
+            logger.debug(String.format("Using property %s", propertyName));
+        }
+        try {
+            punctuationPosRegex = Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+            punctuationPosRegex = Pattern.compile(defaultRegex);
+        }
+        logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
+        return;
+    }
+
+    /**
+     * Based on the regex compiled in {@link #setPunctuationPosRegex()}, determine whether a given POS string is classified as
+     * punctuation
+     *
+     * @param pos
+     *            the POS tag
+     * @return <b>true</b> if the POS tag matches the regex pattern; <b>false</b> otherwise
+     * @throws NullPointerException
+     *             if the regex pattern is null (because it hasn't been set during module startup)
+     *
+     */
+    public boolean isPosPunctuation(String pos) {
+        if (pos != null && punctuationPosRegex.matcher(pos).matches()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether token should be pronounceable, based on text and POS tag.
+     *
+     * @param text
+     *            the text of the token
+     * @param pos
+     *            the POS tag of the token
+     * @return <b>false</b> if the text is empty, or if it contains no word characters <em>and</em> the POS tag indicates
+     *         punctuation; <b>true</b> otherwise
+     */
+    public boolean maybePronounceable(String text, String pos) {
+        // does text contain anything at all?
+        if (text == null || text.isEmpty()) {
+            return false;
+        }
+
+        // does text contain at least one word character?
+        if (text.matches(".*\\w.*")) {
+            return true;
+        }
+
+        // does POS tag indicate punctuation?
+        if (isPosPunctuation(pos)) {
+            return false;
+        }
+
+        // by default, just try to pronounce anyway
+        return true;
+    }
 }
