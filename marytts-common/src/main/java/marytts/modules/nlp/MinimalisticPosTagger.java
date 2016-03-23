@@ -31,10 +31,12 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
 
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.item.Sentence;
+import marytts.data.item.Word;
+
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Minimalistic part-of-speech tagger, using only function word tags as marked in the Transcription GUI.
@@ -77,27 +79,27 @@ public class MinimalisticPosTagger extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
-		NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.SENTENCE);
-		Element sentence;
-		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
-			TreeWalker tokenIt = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
-			Element t;
-			while ((t = (Element) tokenIt.nextNode()) != null) {
-				String pos = "content";
-				String tokenText = MaryDomUtils.tokenText(t);
-				if (punctuationList.contains(tokenText)) {
-					pos = "$PUNCT";
-				} else if (posFST != null) {
-					String[] result = posFST.lookup(tokenText);
-					if (result.length != 0)
-						pos = "function";
-				}
-				t.setAttribute("pos", pos);
-			}
-		}
-		MaryData output = new MaryData(outputType(), d.getLocale());
-		output.setDocument(doc);
-		return output;
+
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
+
+        for (Word w: utt.getAllWords())
+        {
+            String pos = "content";
+            String tokenText = w.getText();
+            if (punctuationList.contains(tokenText)) {
+                pos = "$PUNCT";
+            } else if (posFST != null) {
+                String[] result = posFST.lookup(tokenText);
+                if (result.length != 0)
+                    pos = "function";
+            }
+            w.setPOS(pos);
+        }
+
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        return result;
 	}
 
 }
