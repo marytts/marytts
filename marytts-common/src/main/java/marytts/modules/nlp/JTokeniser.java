@@ -188,7 +188,11 @@ public class JTokeniser extends InternalModule {
                     // Flush the saved token to a sentence
                     if (words.size() > 0)
                     {
-                    	Sentence s = new Sentence("", words);
+                        String sent_text = "";
+                        for (Word cur_word: words)
+                            sent_text += cur_word.getText() + " ";
+
+                        Sentence s = new Sentence(sent_text, words);
                         sentences.add(s);
                         words = new ArrayList<Word>();
 
@@ -213,7 +217,10 @@ public class JTokeniser extends InternalModule {
         // Flush the saved token to a sentence
         if (words.size() > 0)
         {
-            Sentence s = new Sentence("", words);
+            String sent_text = "";
+            for (Word cur_word: words)
+                sent_text += cur_word.getText() + " ";
+            Sentence s = new Sentence(sent_text, words);
             sentences.add(s);
             p.setSentences(sentences);
         }

@@ -49,10 +49,13 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.item.Word;
+import marytts.data.item.Phoneme;
+
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * The phonemiser module -- java implementation.
@@ -184,97 +187,113 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	@Override
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
-		inflection.determineEndings(doc);
+		inflection.determineEndings(doc); // FIXME: what is that ?
 
-		NodeIterator it = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.TOKEN);
-		Element t = null;
-		while ((t = (Element) it.nextNode()) != null) {
-			String text;
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
+        ArrayList<Word> words = utt.getAllWords();
+        for (Word w: words)
+        {
+            // Do not touch tokens for which a transcription is already
+            // given (exception: transcription contains a '*' character:
+            ArrayList<Phoneme> phonemes = w.getPhonemes();
+            if ((phonemes.size() > 0) &&
+                (!phonemes.get(0).getLabel().contains("*")))
+            {
+                continue;
+            }
 
-			// Do not touch tokens for which a transcription is already
-			// given (exception: transcription contains a '*' character:
-			if (t.hasAttribute("ph") && t.getAttribute("ph").indexOf('*') == -1) {
-				continue;
-			}
-			if (t.hasAttribute("sounds_like"))
-				text = t.getAttribute("sounds_like");
-			else
-				text = MaryDomUtils.tokenText(t);
+            // Get text
+            String text = w.soundsLike();
+            if ((text == null) || (text.isEmpty()))
+                text = w.getText();
 
-			// use part-of-speech if available
-			String pos = null;
-			if (t.hasAttribute("pos")) {
-				pos = t.getAttribute("pos");
-			}
+            // Get POS
+            String pos = w.getPOS();
 
-			boolean isEnglish = false;
-			if (t.hasAttribute("xml:lang")
-                && MaryUtils.subsumes(Locale.ENGLISH, MaryUtils.string2locale(t.getAttribute("xml:lang")))) {
-				isEnglish = true;
-			}
+            boolean isEnglish = false;
+            if ((w.getAlternativeLocale() != null) &&
+                (w.getAlternativeLocale().equals(Locale.ENGLISH)))
+            {
+                isEnglish = true;
+            }
 
-			if (maybePronounceable(text, pos)) {
-				// If text consists of several parts (e.g., because that was
-				// inserted into the sounds_like attribute), each part
-				// is transcribed separately.
-				StringBuilder ph = new StringBuilder();
-				String g2pMethod = null;
-				StringTokenizer st = new StringTokenizer(text, " -");
-				while (st.hasMoreTokens()) {
-					String graph = st.nextToken();
-					StringBuilder helper = new StringBuilder();
-					String phon = null;
-					if (isEnglish && usEnglishLexicon != null) {
-						phon = phonemiseEn(graph);
-						if (phon != null)
-							helper.append("foreign:en");
-					}
-					if (phon == null) {
-						phon = phonemise(graph, pos, helper);
-					}
-					// null result should not be processed
-					if (phon == null) {
-						continue;
-					}
-					if (ph.length() == 0) { // first part
-						// The g2pMethod of the combined beast is
-						// the g2pMethod of the first constituant.
-						g2pMethod = helper.toString();
-						ph.append(phon);
-					} else { // following parts
-						ph.append(" - ");
-						// Reduce primary to secondary stress:
-						ph.append(phon.replace('\'', ','));
-					}
-				}
+            // Ok adapt phonemes now
+            ArrayList<Phoneme> new_phonemes = new ArrayList<Phoneme>();
+            if (maybePronounceable(text, pos))
+            {
+                // If text consists of several parts (e.g., because that was
+                // inserted into the sounds_like attribute), each part
+                // is transcribed separately.
+                StringBuilder ph = new StringBuilder();
+                String g2p_method = null;
+                StringTokenizer st = new StringTokenizer(text, " -");
+                while (st.hasMoreTokens())
+                {
+                    String graph = st.nextToken();
+                    StringBuilder helper = new StringBuilder();
+                    String phon = null;
 
-				if (ph != null && ph.length() > 0) {
-					setPh(t, ph.toString());
-					t.setAttribute("g2p_method", g2pMethod);
-				}
-			}
-		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setDocument(doc);
-		return result;
-	}
+                    if (isEnglish && usEnglishLexicon != null)
+                    {
+                        phon = phonemiseEn(graph);
+                        if (phon != null)
+                            helper.append("foreign:en");
+                    }
+                    if (phon == null) {
+                        phon = phonemise(graph, pos, helper);
+                    }
 
-	/**
-	 * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
-	 * letter-to-sound rules if nothing else was successful.
-	 *
-	 * @param text
-	 *            the textual (graphemic) form of a word.
-	 * @param pos
-	 *            pos
-	 * @param g2pMethod
-	 *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
-	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
-	 * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
-	 */
-	@Override
-	public String phonemise(String text, String pos, StringBuilder g2pMethod) {
-		// First, try a simple userdict and lexicon lookup:
+
+                    // FIXME what does it mean : null result should not be processed
+                    if (phon == null)
+                        continue;
+
+                    if (ph.length() == 0)
+                        g2p_method = helper.toString();
+
+                    // FIXME: hardcoded here, not really good
+                    String stress = null;
+                    if (phon.contains("'"))
+                    {
+                        stress = ",";
+                        phon.replaceAll("'", "");
+                    }
+                    new_phonemes.add(new Phoneme(phon, stress));
+                }
+
+                if (new_phonemes.size() > 0)
+                {
+                    // Adapt phoneme
+                    w.setPhonemes(new_phonemes);
+
+                    // Adapt G2P method
+                    w.setG2PMethod(g2p_method);
+                }
+            }
+        }
+
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        return result;
+    }
+
+/**
+ * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
+ * letter-to-sound rules if nothing else was successful.
+ *
+ * @param text
+ *            the textual (graphemic) form of a word.
+ * @param pos
+ *            pos
+ * @param g2pMethod
+ *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
+ *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
+ * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
+ */
+    @Override
+    public String phonemise(String text, String pos, StringBuilder g2pMethod) {
+        // First, try a simple userdict and lexicon lookup:
 		String result = userdictLookup(text, pos);
 		if (result != null) {
 			g2pMethod.append("userdict");

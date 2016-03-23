@@ -6,6 +6,8 @@ import java.util.Locale;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.data.item.Paragraph;
+import marytts.data.item.Word;
+import marytts.data.item.Sentence;
 
 /**
  *
@@ -65,5 +67,25 @@ public class Utterance
     public void addParagraph(Paragraph p)
     {
         m_list_paragraphs.add(p);
+    }
+
+    public ArrayList<Sentence> getAllSentences()
+    {
+        ArrayList<Sentence> sentences = new ArrayList<Sentence>();
+        for (Paragraph p: getParagraphs())
+        {
+            sentences.addAll(p.getSentences());
+        }
+        return sentences;
+    }
+
+    public ArrayList<Word> getAllWords()
+    {
+        ArrayList<Word> words = new ArrayList<Word>();
+        for (Sentence s: getAllSentences())
+        {
+            words.addAll(s.getWords());
+        }
+        return words;
     }
 }

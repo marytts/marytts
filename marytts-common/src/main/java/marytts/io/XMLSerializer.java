@@ -27,6 +27,8 @@ import marytts.data.Utterance;
 import marytts.data.item.*;
 import marytts.util.MaryUtils;
 
+
+import org.apache.log4j.Logger;
 /**
  *
  *
@@ -35,6 +37,14 @@ import marytts.util.MaryUtils;
 public class XMLSerializer implements Serializer
 {
 	private static final String NAMESPACE = "http://mary.dfki.de/2002/MaryXML";
+
+    protected Logger logger;
+
+    public XMLSerializer()
+    {
+		logger = MaryUtils.getLogger("XMLSerializer");
+    }
+
     public Utterance load(File file)
         throws MaryIOException
     {
@@ -184,6 +194,8 @@ public class XMLSerializer implements Serializer
     {
         Element word_element = doc.createElement("t");
 
+        logger.info("Serializing word \"" + word.getText() + "\"");
+
         // Export node value
         Node text = doc.createTextNode(word.getText());
         word_element.appendChild(text);
@@ -191,6 +203,19 @@ public class XMLSerializer implements Serializer
         // Export subelements
         for (Syllable s: word.getSyllables())
             word_element.appendChild(exportSyllable(s, doc));
+
+        if (word.getPOS() != null)
+            word_element.setAttribute("pos", word.getPOS());
+
+        ArrayList<Phoneme> phonemes = word.getPhonemes();
+        if (phonemes.size() > 0)
+        {
+            String phonemes_str = "";
+            for (int i=0; i<phonemes.size()-1; i++)
+                phonemes_str += phonemes.get(i).getLabel() + " - ";
+            phonemes_str += phonemes.get(phonemes.size() - 1).getLabel();
+            word_element.setAttribute("ph", phonemes_str);
+        }
 
         return word_element;
     }
@@ -208,13 +233,48 @@ public class XMLSerializer implements Serializer
 
     /************************************************************************************************
      * Element generation part
-     * @throws MaryIOException
      ***********************************************************************************************/
     public Paragraph generateParagraph(Element elt)
         throws MaryIOException
     {
         assert elt.getTagName() == "p";
         ArrayList<Sentence> sentence_list = new ArrayList<Sentence>();
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        logger.info("Current paragraph contains " + nl.getLength() + " childs");
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                logger.info("Unpack the text");
+                text = node.getNodeValue();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                logger.info("Unpack the sentence");
+                Element sentence_elt = (Element) node;
+                sentence_list.add(generateSentence(sentence_elt));
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(), null);
+            }
+        }
+
+        if (text == null)
+            throw new MaryIOException("Cannot find the text of the paragraph", null);
+
+        return new Paragraph(text, sentence_list);
+    }
+
+    public Sentence generateSentence(Element elt)
+        throws MaryIOException
+    {
+        assert elt.getTagName() == "s";
+        ArrayList<Word> word_list = new ArrayList<Word>();
 
         NodeList nl = elt.getChildNodes();
         String text = null;
@@ -228,35 +288,73 @@ public class XMLSerializer implements Serializer
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
-                Element sentence_elt = (Element) node;
-                sentence_list.add(generateSentence(sentence_elt));
+                Element word_elt = (Element) node;
+                word_list.add(generateWord(word_elt));
             }
-
-            j++;
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(), null);
+            }
         }
 
-        if (text == null)
-            throw new MaryIOException("Cannot find the text of the paragraph", null);
+        // FIXME: for now we assume there is no text
+        // if (text == null)
+        //     throw new MaryIOException("Cannot find the text of the sentence", null);
 
-        return new Paragraph(text, sentence_list);
-    }
-
-    public Sentence generateSentence(Element elt)
-    {
-        return null;
+        return new Sentence(text, word_list);
     }
 
     public Word generateWord(Element elt)
+        throws MaryIOException
     {
-        return null;
+        assert elt.getTagName() == "t";
+        ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                text = node.getNodeValue();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element syllable_elt = (Element) node;
+                syllable_list.add(generateSyllable(syllable_elt));
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(), null);
+            }
+        }
+
+        if (text == null)
+            throw new MaryIOException("Cannot find the text of the word", null);
+
+        logger.info("Unpacking word \"" + text + "\"");
+        Word w = new Word(text, syllable_list);
+
+        if (elt.hasAttribute("pos"))
+        {
+            String pos = elt.getAttribute("pos");
+            w.setPOS(pos);
+        }
+
+        return w;
+
     }
 
     public Syllable generateSyllable(Element elt)
+        throws MaryIOException
     {
         return null;
     }
 
     public Phone generatePhone(Element elt)
+        throws MaryIOException
     {
         return null;
     }
