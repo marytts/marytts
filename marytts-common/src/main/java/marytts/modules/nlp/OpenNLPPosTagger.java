@@ -40,10 +40,12 @@ import marytts.util.dom.MaryDomUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.item.Sentence;
+import marytts.data.item.Word;
+
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Part-of-speech tagger using OpenNLP.
@@ -102,43 +104,49 @@ public class OpenNLPPosTagger extends InternalModule {
 
 	@SuppressWarnings("unchecked")
 	public MaryData process(MaryData d) throws Exception {
-
 		Document doc = d.getDocument();
-		NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.SENTENCE);
-		Element sentence;
-		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
-			TreeWalker tokenIt = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
-			List<String> tokens = new ArrayList<String>();
-			Element t;
-			while ((t = (Element) tokenIt.nextNode()) != null) {
-				tokens.add(MaryDomUtils.tokenText(t));
-			}
-			List<String> partsOfSpeech = null;
-			synchronized (this) {
-				partsOfSpeech = tagger.tag(tokens);
-			}
-			tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
-			Iterator<String> posIt = partsOfSpeech.iterator();
-			while ((t = (Element) tokenIt.nextNode()) != null) {
-				if (t.hasAttribute("pos")) {
-					continue;
-				}
-				assert posIt.hasNext();
-				String pos = posIt.next();
-				if (posMapper != null) {
-					String gpos = posMapper.get(pos);
-					if (gpos == null)
-						logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
-					else
-						pos = gpos;
-				}
-				t.setAttribute("pos", pos);
-			}
-		}
 
-		MaryData output = new MaryData(outputType(), d.getLocale());
-		output.setDocument(doc);
-		return output;
-	}
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
+
+        for (Sentence s: utt.getAllSentences())
+        {
+            // Generate the list of word in the sentence
+            List<String> tokens = new ArrayList<String>();
+            for (Word w: s.getWords())
+            {
+                tokens.add(w.getText());
+            }
+
+            // POS Tagging
+            List<String> partsOfSpeech = null;
+            synchronized (this) {
+                partsOfSpeech = tagger.tag(tokens);
+            }
+
+            // Associate POS to words
+            Iterator<String> posIt = partsOfSpeech.iterator();
+            for (Word w: s.getWords())
+            {
+                if (w.getPOS() != null)
+                    continue;
+
+                assert posIt.hasNext();
+                String pos = posIt.next();
+                if (posMapper != null) {
+                    String gpos = posMapper.get(pos);
+                    if (gpos == null)
+                        logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
+                    else
+                        pos = gpos;
+                }
+                w.setPOS(pos);
+            }
+        }
+
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        return result;
+    }
 
 }
