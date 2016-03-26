@@ -25,7 +25,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.data.Utterance;
-import marytts.data.item.Paragraph;
+import marytts.data.item.linguistic.Paragraph;
 import marytts.io.XMLSerializer;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;

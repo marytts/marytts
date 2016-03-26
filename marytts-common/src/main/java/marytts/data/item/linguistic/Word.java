@@ -1,4 +1,10 @@
-package marytts.data.item;
+package marytts.data.item.linguistic;
+
+import marytts.data.item.phonology.Syllable;
+import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Accent;
+
+import marytts.data.item.Item;
 
 import java.util.ArrayList;
 import java.util.Locale;

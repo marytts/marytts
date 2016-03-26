@@ -24,6 +24,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import marytts.data.Utterance;
+import marytts.data.item.linguistic.*;
+import marytts.data.item.phonology.*;
 import marytts.data.item.*;
 import marytts.util.MaryUtils;
 
