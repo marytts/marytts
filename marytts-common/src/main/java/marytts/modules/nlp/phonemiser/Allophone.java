@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Element;
+import marytts.data.item.phonology.Phoneme;
 
-public class Allophone {
-	private String name;
+public class Allophone extends Phoneme {
 	private final Map<String, String> features;
 
 	/**
@@ -40,10 +40,10 @@ public class Allophone {
 	 *             if a is not as expected
 	 */
 	public Allophone(Element a, String[] featureNames) {
-		name = a.getAttribute("ph");
-		String vc;
+        super(a.getAttribute("ph"));
+        String vc;
 		String isTone;
-		if (name.equals(""))
+		if (getLabel().equals(""))
 			throw new IllegalArgumentException("Element must have a 'ph' attribute");
 		if (a.getTagName().equals("consonant")) {
 			vc = "-";
@@ -84,12 +84,14 @@ public class Allophone {
 		return val;
 	}
 
+    @Deprecated
 	public String name() {
-		return name;
-	}
+		return getLabel();
+    }
 
+    @Deprecated
 	public String toString() {
-		return name;
+		return getLabel();
 	}
 
 	public boolean isVowel() {
