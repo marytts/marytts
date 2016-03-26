@@ -1,6 +1,8 @@
-package marytts.data.item;
+package marytts.data.item.linguistic;
 
 import java.util.ArrayList;
+
+import marytts.data.item.Item;
 
 /**
  *

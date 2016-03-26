@@ -1,5 +1,6 @@
-package marytts.data.item;
+package marytts.data.item.phonology;
 
+import marytts.data.item.Item;
 /**
  *
  *

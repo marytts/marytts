@@ -5,9 +5,9 @@ import java.util.Locale;
 
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.data.item.Paragraph;
-import marytts.data.item.Word;
-import marytts.data.item.Sentence;
+import marytts.data.item.linguistic.Paragraph;
+import marytts.data.item.linguistic.Word;
+import marytts.data.item.linguistic.Sentence;
 
 /**
  *

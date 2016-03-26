@@ -42,8 +42,8 @@ import opennlp.tools.postag.POSTaggerME;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
-import marytts.data.item.Sentence;
-import marytts.data.item.Word;
+import marytts.data.item.linguistic.Sentence;
+import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
 

@@ -49,8 +49,8 @@ import marytts.modules.InternalModule;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
-import marytts.data.item.Word;
-import marytts.data.item.Phoneme;
+import marytts.data.item.linguistic.Word;
+import marytts.data.item.phonology.Phoneme;
 
 import org.w3c.dom.Document;
 
