@@ -119,47 +119,6 @@ public class XMLSerializer implements Serializer
         }
     }
 
-    public Utterance unpackDocument(Document doc)
-        throws MaryIOException
-    {
-        Locale l;
-        Element root = doc.getDocumentElement();
-        String[] loc = root.getAttribute("xml:lang").split("-");
-        if (loc.length > 1)
-            l = new Locale.Builder().setLanguage(loc[0]).setRegion(loc[1]).build();
-        else
-            l = new Locale.Builder().setLanguage(loc[0]).build();
-
-        ArrayList<Paragraph> par = new ArrayList<Paragraph>();
-        NodeList elts = root.getElementsByTagName("p");
-        String text = "";
-        for (int i=0; i<elts.getLength(); i++)
-        {
-            Element p = (Element) elts.item(i);
-            NodeList nl = p.getChildNodes();
-            boolean found_text = false;
-            int j=0;
-            while ((!found_text) && (j < nl.getLength()))
-            {
-                Node node = nl.item(j);
-
-                if (node.getNodeType() == Node.TEXT_NODE) {
-                    text += node.getNodeValue() + "\n"; // FIXME: new line directly encoded :
-                    found_text = true;
-                }
-                j++;
-            }
-
-            if (!found_text)
-                throw new MaryIOException("Cannot find the text of the paragraph", null);
-
-            par.add(generateParagraph(p));
-        }
-        // Build the text
-        Utterance utt = new Utterance(text, l, par);
-        return utt;
-    }
-
     /************************************************************************************************
      * Element generation part
      ***********************************************************************************************/
@@ -233,6 +192,9 @@ public class XMLSerializer implements Serializer
         if (word.getPOS() != null)
             word_element.setAttribute("pos", word.getPOS());
 
+        if (word.getAccent() != null)
+            word_element.setAttribute("accent", word.getAccent().getLabel());
+
         ArrayList<Phoneme> phonemes = word.getPhonemes();
         if (phonemes.size() > 0)
         {
@@ -247,292 +209,410 @@ public class XMLSerializer implements Serializer
     }
 
     public Element exportSyllable(Syllable syl, Document doc)
-{
-    return null;
-}
-
-public Element exportPhone(Phone ph, Document doc)
-{
-    return null;
-}
-
-
-/************************************************************************************************
- * Element generation part
- ***********************************************************************************************/
-public Paragraph generateParagraph(Element elt)
-    throws MaryIOException
-{
-    assert elt.getTagName() == "p";
-    ArrayList<Sentence> sentence_list = new ArrayList<Sentence>();
-
-    NodeList nl = elt.getChildNodes();
-    String text = null;
-    logger.info("Current paragraph contains " + nl.getLength() + " childs");
-    for (int j=0; j<nl.getLength(); j++)
     {
-        Node node = nl.item(j);
+        Element syllable_element = doc.createElement("syl");
 
-        if (node.getNodeType() == Node.TEXT_NODE)
-        {
-            logger.info("Unpack the text");
-            text = node.getNodeValue();
-        }
-        else if (node.getNodeType() == Node.ELEMENT_NODE)
-        {
-            logger.info("Unpack the sentence");
-            Element sentence_elt = (Element) node;
-            sentence_list.add(generateSentence(sentence_elt));
-        }
-        else
-        {
-            throw new MaryIOException("Unknown node element type during unpacking: " +
-                                      node.getNodeType(), null);
-        }
+        logger.info("Serializing syllable");
+
+        // Export subelements
+        for (Phoneme p: syl.getPhonemes())
+            syllable_element.appendChild(exportPhone(p, doc));
+
+        if (syl.getTone() != null)
+            syllable_element.setAttribute("tone", syl.getTone().getLabel());
+
+        if (syl.getAccent() != null)
+            syllable_element.setAttribute("accent", syl.getAccent().getLabel());
+
+        syllable_element.setAttribute("stress", Integer.toString(syl.getStressLevel()));
+
+        // ArrayList<Phoneme> phonemes = syllable.getPhonemes();
+        // if (phonemes.size() > 0)
+        // {
+        //     String phonemes_str = "";
+        //     for (int i=0; i<phonemes.size()-1; i++)
+        //         phonemes_str += phonemes.get(i).getLabel() + " - ";
+        //     phonemes_str += phonemes.get(phonemes.size() - 1).getLabel();
+        //     syllable_element.setAttribute("ph", phonemes_str);
+        // }
+
+        return syllable_element;
     }
 
-    if (text == null)
-        throw new MaryIOException("Cannot find the text of the paragraph", null);
-
-    return new Paragraph(text, sentence_list);
-}
-
-public Sentence generateSentence(Element elt)
-    throws MaryIOException
-{
-    assert elt.getTagName() == "s";
-    ArrayList<Word> word_list = new ArrayList<Word>();
-    ArrayList<Phrase> phrase_list = new ArrayList<Phrase>();
-
-    NodeList nl = elt.getChildNodes();
-    String text = null;
-    int status_loading = 0; // 0 = none yet, 1 = word found, 2 = phrase found
-    for (int j=0; j<nl.getLength(); j++)
+    public Element exportPhone(Phoneme ph, Document doc)
     {
-        Node node = nl.item(j);
+        Element phone_element = doc.createElement("ph");
 
-        if (node.getNodeType() == Node.TEXT_NODE)
+        phone_element.setAttribute("p", ph.getLabel());
+
+        return phone_element;
+    }
+
+
+    /************************************************************************************************
+     * Element generation part
+     ***********************************************************************************************/
+    public Utterance unpackDocument(Document doc)
+        throws MaryIOException
+    {
+        Locale l;
+        Element root = doc.getDocumentElement();
+        String[] loc = root.getAttribute("xml:lang").split("-");
+        if (loc.length > 1)
+            l = new Locale.Builder().setLanguage(loc[0]).setRegion(loc[1]).build();
+        else
+            l = new Locale.Builder().setLanguage(loc[0]).build();
+
+        ArrayList<Paragraph> par = new ArrayList<Paragraph>();
+        NodeList elts = root.getElementsByTagName("p");
+        String text = "";
+        for (int i=0; i<elts.getLength(); i++)
         {
-            text = node.getNodeValue();
-        }
-        else if (node.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element cur_elt = (Element) node;
-            if (cur_elt.getTagName() == "t")
+            Element p = (Element) elts.item(i);
+            NodeList nl = p.getChildNodes();
+            boolean found_text = false;
+            int j=0;
+            while ((!found_text) && (j < nl.getLength()))
             {
-                if (status_loading == 2)
-                    throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
-                word_list.add(generateWord(cur_elt));
-                status_loading = 1;
-            }
-            else if (cur_elt.getTagName() == "mtu")
-            {
-                if (status_loading == 2)
-                    throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                Node node = nl.item(j);
 
-                NodeList mtu_nl = cur_elt.getChildNodes();
-
-                for (int k=0; k<mtu_nl.getLength(); k++)
-                {
-                    Node word_node = mtu_nl.item(k);
-                    if (word_node.getNodeType() == Node.ELEMENT_NODE)
-                    {
-                        word_list.add(generateWord((Element) word_node));
-                    }
-
-                    else
-                    {
-                        throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
-                                                  node.getNodeType(), null);
-                    }
+                if (node.getNodeType() == Node.TEXT_NODE) {
+                    text += node.getNodeValue() + "\n"; // FIXME: new line directly encoded :
+                    found_text = true;
                 }
+                j++;
+            }
 
-                status_loading = 1;
-            }
-            else if (cur_elt.getTagName() == "prosody")
+            if (!found_text)
+                throw new MaryIOException("Cannot find the text of the paragraph", null);
+
+            par.add(generateParagraph(p));
+        }
+
+        // Build the text
+        Utterance utt = new Utterance(text, l, par);
+
+        return utt;
+    }
+
+    public Paragraph generateParagraph(Element elt)
+    throws MaryIOException
+    {
+        assert elt.getTagName() == "p";
+        ArrayList<Sentence> sentence_list = new ArrayList<Sentence>();
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        logger.info("Current paragraph contains " + nl.getLength() + " childs");
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
             {
-                if (status_loading == 1)
-                    throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
-                phrase_list.add(generatePhrase((Element) cur_elt.getFirstChild()));
-                status_loading = 2;
+                logger.info("Unpack the text");
+                text = node.getNodeValue();
             }
-            else if (cur_elt.getTagName() == "phrase")
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
-                if (status_loading == 1)
-                    throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
-                phrase_list.add(generatePhrase(cur_elt));
-                status_loading = 2;
+                logger.info("Unpack the sentence");
+                Element cur_elt = (Element) node;
+                if (cur_elt.getTagName() == "s")
+                {
+                    sentence_list.add(generateSentence(cur_elt));
+                }
+                else if (cur_elt.getTagName() == "voice")
+                {
+                    throw new MaryIOException("Fuck off !", null);
+                }
             }
             else
             {
-                throw new MaryIOException("Unknown node element during unpacking: " +
-                                          cur_elt.getTagName(), null);
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
             }
         }
-        else
-        {
-            throw new MaryIOException("Unknown node element type during unpacking: " +
-                                      node.getNodeType(), null);
-        }
+
+        if (text == null)
+            throw new MaryIOException("Cannot find the text of the paragraph", null);
+
+        return new Paragraph(text, sentence_list);
     }
 
-// FIXME: for now we assume there is no text
-// if (text == null)
-//     throw new MaryIOException("Cannot find the text of the sentence", null);
-
-    Sentence s = new Sentence(text, word_list);
-    s.setPhrases(phrase_list);
-    return s;
-}
-
-public Phrase generatePhrase(Element elt)
-    throws MaryIOException
-{
-    assert elt.getTagName().equals("phrase");
-    ArrayList<Word> word_list = new ArrayList<Word>();
-    Boundary boundary = null;
-
-    NodeList nl = elt.getChildNodes();
-    String text = null;
-    for (int j=0; j<nl.getLength(); j++)
+    public Sentence generateSentence(Element elt)
+        throws MaryIOException
     {
-        Node node = nl.item(j);
+        assert elt.getTagName() == "s";
+        ArrayList<Word> word_list = new ArrayList<Word>();
+        ArrayList<Phrase> phrase_list = new ArrayList<Phrase>();
 
-        if (node.getNodeType() == Node.TEXT_NODE)
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        int status_loading = 0; // 0 = none yet, 1 = word found, 2 = phrase found
+        for (int j=0; j<nl.getLength(); j++)
         {
-            text = node.getNodeValue();
-        }
-        else if (node.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element cur_elt = (Element) node;
-            if (cur_elt.getTagName() == "t")
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
             {
-                word_list.add(generateWord(cur_elt));
+                text = node.getNodeValue();
             }
-            else if (cur_elt.getTagName() == "mtu")
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
-                NodeList mtu_nl = cur_elt.getChildNodes();
-
-                for (int k=0; k<mtu_nl.getLength(); k++)
+                Element cur_elt = (Element) node;
+                if (cur_elt.getTagName() == "t")
                 {
-                    Node word_node = mtu_nl.item(k);
-                    if (word_node.getNodeType() == Node.ELEMENT_NODE)
-                    {
-                        word_list.add(generateWord((Element) word_node));
-                    }
-                    else
-                    {
-                        throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
-                                                  node.getNodeType(), null);
-                    }
+                    if (status_loading == 2)
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                    word_list.add(generateWord(cur_elt));
+                    status_loading = 1;
                 }
+                else if (cur_elt.getTagName() == "mtu")
+                {
+                    if (status_loading == 2)
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
 
-            }
-            else if (cur_elt.getTagName() == "boundary")
-            {
-                int breakindex = Integer.parseInt(cur_elt.getAttribute("breakindex"));
-                String tone = cur_elt.getAttribute("tone");
-                boundary = new Boundary(breakindex, tone);
+                    NodeList mtu_nl = cur_elt.getChildNodes();
+
+                    for (int k=0; k<mtu_nl.getLength(); k++)
+                    {
+                        Node word_node = mtu_nl.item(k);
+                        if (word_node.getNodeType() == Node.ELEMENT_NODE)
+                        {
+                            word_list.add(generateWord((Element) word_node));
+                        }
+
+                        else
+                        {
+                            throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
+                                                      node.getNodeType(), null);
+                        }
+                    }
+
+                    status_loading = 1;
+                }
+                else if (cur_elt.getTagName() == "prosody")
+                {
+                    if (status_loading == 1)
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                    phrase_list.add(generatePhrase((Element) cur_elt.getFirstChild()));
+                    status_loading = 2;
+                }
+                else if (cur_elt.getTagName() == "phrase")
+                {
+                    if (status_loading == 1)
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                    phrase_list.add(generatePhrase(cur_elt));
+                    status_loading = 2;
+                }
+                else
+                {
+                    throw new MaryIOException("Unknown node element during unpacking: " +
+                                              cur_elt.getTagName(), null);
+                }
             }
             else
             {
-                throw new MaryIOException("Unknown node element during unpacking: " +
-                                          cur_elt.getTagName(), null);
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
             }
         }
-        else
-        {
-            throw new MaryIOException("Unknown node element type during unpacking: " +
-                                      node.getNodeType(), null);
-        }
+
+        // FIXME: for now we assume there is no text
+        // if (text == null)
+        //     throw new MaryIOException("Cannot find the text of the sentence", null);
+
+        Sentence s = new Sentence(text, word_list);
+        s.setPhrases(phrase_list);
+        return s;
     }
 
-    Phrase p = new Phrase(boundary, word_list);
-
-    return p;
-}
-
-public Word generateWord(Element elt)
-    throws MaryIOException
-{
-    assert elt.getTagName().equals("t");
-    ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
-
-    NodeList nl = elt.getChildNodes();
-    String text = null;
-    for (int j=0; j<nl.getLength(); j++)
+    public Phrase generatePhrase(Element elt)
+        throws MaryIOException
     {
-        Node node = nl.item(j);
+        assert elt.getTagName().equals("phrase");
+        ArrayList<Word> word_list = new ArrayList<Word>();
+        Boundary boundary = null;
 
-        if (node.getNodeType() == Node.TEXT_NODE)
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
         {
-            text = node.getNodeValue();
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                text = node.getNodeValue();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element cur_elt = (Element) node;
+                if (cur_elt.getTagName() == "t")
+                {
+                    word_list.add(generateWord(cur_elt));
+                }
+                else if (cur_elt.getTagName() == "mtu")
+                {
+                    NodeList mtu_nl = cur_elt.getChildNodes();
+
+                    for (int k=0; k<mtu_nl.getLength(); k++)
+                    {
+                        Node word_node = mtu_nl.item(k);
+                        if (word_node.getNodeType() == Node.ELEMENT_NODE)
+                        {
+                            word_list.add(generateWord((Element) word_node));
+                        }
+                        else
+                        {
+                            throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
+                                                      node.getNodeType(), null);
+                        }
+                    }
+
+                }
+                else if (cur_elt.getTagName() == "boundary")
+                {
+                    int breakindex = Integer.parseInt(cur_elt.getAttribute("breakindex"));
+                    String tone = cur_elt.getAttribute("tone");
+                    boundary = new Boundary(breakindex, tone);
+                }
+                else
+                {
+                    throw new MaryIOException("Unknown node element during unpacking: " +
+                                              cur_elt.getTagName(), null);
+                }
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
+            }
         }
-        else if (node.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element syllable_elt = (Element) node;
-            syllable_list.add(generateSyllable(syllable_elt));
-        }
-        else
-        {
-            throw new MaryIOException("Unknown node element type during unpacking: " +
-                                      node.getNodeType(), null);
-        }
+
+        Phrase p = new Phrase(boundary, word_list);
+
+        return p;
     }
 
-    if (text == null)
-        throw new MaryIOException("Cannot find the text of the word", null);
-
-    logger.info("Unpacking word \"" + text + "\"");
-    Word w = new Word(text, syllable_list);
-
-    if (elt.hasAttribute("pos"))
+    public Word generateWord(Element elt)
+        throws MaryIOException
     {
-        String pos = elt.getAttribute("pos");
-        w.setPOS(pos);
+        assert elt.getTagName().equals("t");
+        ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
+
+            NodeList nl = elt.getChildNodes();
+            String text = null;
+            for (int j=0; j<nl.getLength(); j++)
+            {
+                Node node = nl.item(j);
+
+                if (node.getNodeType() == Node.TEXT_NODE)
+                {
+                    text = node.getNodeValue();
+                }
+                else if (node.getNodeType() == Node.ELEMENT_NODE)
+                {
+                    Element syllable_elt = (Element) node;
+                    syllable_list.add(generateSyllable(syllable_elt));
+                }
+                else
+                {
+                    throw new MaryIOException("Unknown node element type during unpacking: " +
+                                              node.getNodeType(), null);
+                }
+            }
+
+            if (text == null)
+                throw new MaryIOException("Cannot find the text of the word", null);
+
+            logger.info("Unpacking word \"" + text + "\"");
+            Word w = new Word(text, syllable_list);
+
+            if (elt.hasAttribute("pos"))
+            {
+                String pos = elt.getAttribute("pos");
+                w.setPOS(pos);
+            }
+
+            if (elt.hasAttribute("accent"))
+            {
+                String accent = elt.getAttribute("accent");
+                w.setAccent(new Accent(accent));
+            }
+
+            // FIXME: this should be a temp hack !
+            if (elt.hasAttribute("ph"))
+            {
+                String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
+                ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
+                for (int i=0; i<phoneme_labels.length; i++)
+                {
+                    phonemes.add(new Phoneme(phoneme_labels[i]));
+                }
+                w.setPhonemes(phonemes);
+            }
+
+            return w;
     }
 
-    return w;
-}
-
-public Syllable generateSyllable(Element elt)
-    throws MaryIOException
-{
-    assert elt.getTagName() == "syl";
-    ArrayList<Phoneme> phoneme_list = new ArrayList<Phoneme>();
-
-    NodeList nl = elt.getChildNodes();
-    String text = null;
-    for (int j=0; j<nl.getLength(); j++)
+    public Syllable generateSyllable(Element elt)
+        throws MaryIOException
     {
-        Node node = nl.item(j);
+        assert elt.getTagName() == "syl";
+        ArrayList<Phoneme> phoneme_list = new ArrayList<Phoneme>();
 
-        if (node.getNodeType() == Node.TEXT_NODE)
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
         {
-            text = node.getNodeValue();
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                text = node.getNodeValue();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element phoneme_elt = (Element) node;
+                phoneme_list.add(generatePhoneme(phoneme_elt));
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
+            }
         }
-        else if (node.getNodeType() == Node.ELEMENT_NODE)
+
+        logger.info("Unpacking word \"" + text + "\"");
+        // FIXME: for now the tone phoneme is just based on the label...
+        Phoneme tone = null;
+        if (elt.hasAttribute("tone"))
         {
-            Element phoneme_elt = (Element) node;
-            phoneme_list.add(generatePhoneme(phoneme_elt));
+            tone = new Phoneme(elt.getAttribute("tone"));
         }
-        else
+
+        Accent accent = null;
+        if (elt.hasAttribute("accent"))
         {
-            throw new MaryIOException("Unknown node element type during unpacking: " +
-                                      node.getNodeType(), null);
+            accent = new Accent(elt.getAttribute("accent"));
         }
+
+        int stress_level = 0;
+        if (elt.hasAttribute("stress"))
+        {
+            stress_level = Integer.parseInt(elt.getAttribute("stress"));
+        }
+        Syllable syl = new Syllable(phoneme_list, tone, stress_level, accent);
+
+        return syl;
     }
 
-    logger.info("Unpacking word \"" + text + "\"");
-    Syllable syl = new Syllable(phoneme_list);
-
-    return syl;
-}
-
-public Phone generatePhoneme(Element elt)
-    throws MaryIOException
-{
-    return null;
-}
+    public Phoneme generatePhoneme(Element elt)
+        throws MaryIOException
+    {
+        assert elt.getTagName() == "ph";
+        Phoneme ph = new Phoneme(elt.getAttribute("p"));
+        return ph;
+    }
 
 }
