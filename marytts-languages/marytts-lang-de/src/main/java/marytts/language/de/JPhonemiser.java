@@ -51,8 +51,8 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
-import marytts.data.item.Word;
-import marytts.data.item.Phoneme;
+import marytts.data.item.linguistic.Word;
+import marytts.data.item.phonology.Phoneme;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
