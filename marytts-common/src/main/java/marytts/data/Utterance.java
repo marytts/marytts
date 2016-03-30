@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.linguistic.Sentence;
+import marytts.data.item.prosody.Phrase;
 
 /**
  *
@@ -93,12 +94,30 @@ public class Utterance
         return sentences;
     }
 
+    public ArrayList<Phrase> getAllPhrases()
+    {
+        ArrayList<Sentence> sentences = getAllSentences();
+        ArrayList<Phrase> phrases = new ArrayList<Phrase>();
+
+        for (Sentence s: sentences)
+        {
+            phrases.addAll(s.getPhrases());
+        }
+
+        return phrases;
+    }
+
     public ArrayList<Word> getAllWords()
     {
         ArrayList<Word> words = new ArrayList<Word>();
         for (Sentence s: getAllSentences())
         {
             words.addAll(s.getWords());
+        }
+
+        for (Phrase p: getAllPhrases())
+        {
+            words.addAll(p.getWords());
         }
         return words;
     }
