@@ -3,6 +3,7 @@ package marytts.data.item.linguistic;
 import java.util.ArrayList;
 
 import marytts.data.item.Item;
+import marytts.data.item.prosody.Phrase;
 
 /**
  *
@@ -12,6 +13,7 @@ import marytts.data.item.Item;
 public class Sentence extends Item
 {
 
+	private ArrayList<Phrase> m_phrases;
 	private ArrayList<Word> m_words;
 	private String m_text;
 
@@ -19,21 +21,13 @@ public class Sentence extends Item
 	{
 		setText(text);
 		setWords(new ArrayList<Word>());
+		setPhrases(new ArrayList<Phrase>());
 	}
 
 	public Sentence(String text, ArrayList<Word> words) {
 		setText(text);
 		setWords(words);
-	}
-
-	public ArrayList<Word> getWords()
-	{
-		return m_words;
-	}
-
-	public void setWords(ArrayList<Word> words)
-	{
-		m_words = words;
+		setPhrases(new ArrayList<Phrase>());
 	}
 
 	public String getText()
@@ -45,4 +39,25 @@ public class Sentence extends Item
 	{
 		m_text = text;
 	}
+
+    public ArrayList<Word> getWords()
+	{
+		return m_words;
+	}
+
+	public void setWords(ArrayList<Word> words)
+	{
+		m_words = words;
+	}
+
+    public ArrayList<Phrase> getPhrases()
+	{
+		return m_phrases;
+	}
+
+	public void setPhrases(ArrayList<Phrase> phrases)
+	{
+		m_phrases = phrases;
+	}
+
 }

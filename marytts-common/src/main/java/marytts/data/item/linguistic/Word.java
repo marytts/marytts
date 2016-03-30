@@ -23,6 +23,7 @@ public class Word extends Item
 	private ArrayList<Phoneme> m_phonemes;
 	private String m_g2p_method;
     private Locale m_alternative_locale;
+    private Accent m_accent;
 
 	public Word(String text)
 	{
@@ -30,6 +31,7 @@ public class Word extends Item
         setAlternativeLocale(null);
         soundsLike(null);
         setG2PMethod(null);
+        setAccent(null);
         setSyllables(new ArrayList<Syllable>());
         setPhonemes(new ArrayList<Phoneme>());
     }
@@ -40,6 +42,7 @@ public class Word extends Item
         setAlternativeLocale(null);
         soundsLike(null);
         setG2PMethod(null);
+        setAccent(null);
         setSyllables(syllables);
         setPhonemes(new ArrayList<Phoneme>());
     }
@@ -50,6 +53,7 @@ public class Word extends Item
         setAlternativeLocale(alternative_locale);
         soundsLike(null);
         setG2PMethod(null);
+        setAccent(null);
         setSyllables(new ArrayList<Syllable>());
         setPhonemes(new ArrayList<Phoneme>());
     }
@@ -60,6 +64,7 @@ public class Word extends Item
         setAlternativeLocale(null);
         setG2PMethod(null);
         soundsLike(sounds_like);
+        setAccent(null);
         setSyllables(new ArrayList<Syllable>());
         setPhonemes(new ArrayList<Phoneme>());
     }
@@ -70,6 +75,7 @@ public class Word extends Item
         setAlternativeLocale(null);
         setG2PMethod(null);
         soundsLike(sounds_like);
+        setAccent(null);
         setSyllables(syllables);
         setPhonemes(new ArrayList<Phoneme>());
     }
@@ -117,6 +123,11 @@ public class Word extends Item
         m_syllables = syllables;
     }
 
+    public void addSyllable(Syllable syl)
+    {
+        m_syllables.add(syl);
+    }
+
     public ArrayList<Phoneme> getPhonemes()
     {
         return m_phonemes;
@@ -146,5 +157,15 @@ public class Word extends Item
     protected void soundsLike(String sounds_like)
     {
         m_sounds_like = sounds_like;
+    }
+
+    public Accent getAccent()
+    {
+        return m_accent;
+    }
+
+    public void setAccent(Accent accent)
+    {
+        m_accent = accent;
     }
 }
