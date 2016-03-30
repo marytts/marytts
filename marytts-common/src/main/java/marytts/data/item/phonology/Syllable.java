@@ -14,6 +14,7 @@ public class Syllable extends Item
 {
 	private ArrayList<Phoneme> m_phonemes;
 	private int m_stress_level;
+    private Accent m_accent;
     private Phoneme m_tone;
 
 	public Syllable()
@@ -21,6 +22,7 @@ public class Syllable extends Item
 		setPhonemes(new ArrayList<Phoneme>());
         setStressLevel(0);
         setTone(null);
+        setAccent(null);
     }
 
 	public Syllable(ArrayList<Phoneme> phonemes)
@@ -28,6 +30,7 @@ public class Syllable extends Item
 		setPhonemes(phonemes);
         setStressLevel(0);
         setTone(null);
+        setAccent(null);
     }
 
 	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone)
@@ -42,6 +45,7 @@ public class Syllable extends Item
         setPhonemes(phonemes);
         setStressLevel(stress_level);
         setTone(null);
+        setAccent(null);
     }
 
 	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone, int stress_level)
@@ -49,6 +53,15 @@ public class Syllable extends Item
         setPhonemes(phonemes);
         setStressLevel(stress_level);
         setTone(tone);
+        setAccent(null);
+    }
+
+	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone, int stress_level, Accent accent)
+    {
+        setPhonemes(phonemes);
+        setStressLevel(stress_level);
+        setTone(tone);
+        setAccent(accent);
     }
 
     public ArrayList<Phoneme> getPhonemes()
@@ -79,5 +92,15 @@ public class Syllable extends Item
     public void setTone(Phoneme tone)
     {
         m_tone = tone;
+    }
+
+    public Accent getAccent()
+    {
+        return m_accent;
+    }
+
+    public void setAccent(Accent accent)
+    {
+        m_accent = accent;
     }
 }

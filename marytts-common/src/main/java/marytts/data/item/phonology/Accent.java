@@ -7,4 +7,20 @@ package marytts.data.item.phonology;
  */
 public class Accent
 {
+    private String m_label;
+
+    public Accent(String label)
+    {
+        setLabel(label);
+    }
+
+    public String getLabel()
+    {
+        return m_label;
+    }
+
+    protected void setLabel(String label)
+    {
+        m_label = label;
+    }
 }
