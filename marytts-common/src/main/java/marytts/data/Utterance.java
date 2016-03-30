@@ -16,6 +16,7 @@ import marytts.data.item.linguistic.Sentence;
  */
 public class Utterance
 {
+    private String m_voice_name;
 	private String m_text;
     private Locale m_locale;
     private ArrayList<Paragraph> m_list_paragraphs;
@@ -23,12 +24,15 @@ public class Utterance
 
     public Utterance(String text, Locale locale)
     {
+        setVoice(null);
         setText(text);
         setLocale(locale);
         setParagraphs(new ArrayList<Paragraph>());
     }
+
     public Utterance(String text, Locale locale, ArrayList<Paragraph> list_paragraphs)
     {
+        setVoice(null);
         setText(text);
         setLocale(locale);
         setParagraphs(list_paragraphs);
@@ -54,9 +58,19 @@ public class Utterance
         m_locale = locale;
     }
 
+    public String getVoiceName()
+    {
+        return m_voice_name;
+    }
+
+    public void setVoice(String voice_name)
+    {
+        m_voice_name = voice_name;
+    }
+
     public ArrayList<Paragraph> getParagraphs()
-	{
-		return m_list_paragraphs;
+    {
+        return m_list_paragraphs;
 	}
 
 	public void setParagraphs(ArrayList<Paragraph> list_paragraphs)
