@@ -46,6 +46,16 @@ import marytts.server.MaryProperties;
 import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
+import marytts.modules.synthesis.Voice;
+import marytts.data.item.phonology.Syllable;
+import marytts.data.item.phonology.Accent;
+import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.linguistic.Paragraph;
+import marytts.data.item.linguistic.Sentence;
+import marytts.data.item.linguistic.Word;
+import marytts.data.item.prosody.Phrase;
+import marytts.data.Utterance;
+import marytts.io.XMLSerializer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -151,7 +161,7 @@ public class PronunciationModel extends InternalModule {
 	 *            allophoneSet
 	 * @return true if something was changed, false otherwise
 	 */
-	protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet) {
+	protected boolean postlexicalRules(Word token, AllophoneSet allophoneSet) {
 		return false;
 	}
 
@@ -165,222 +175,263 @@ public class PronunciationModel extends InternalModule {
 	 */
 	public MaryData process(MaryData d) throws Exception {
 		// get the xml document
-		Document doc = d.getDocument();
-		logger.debug("Getting xml-data from document finished.");
+        Document doc = d.getDocument();
 
-		TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.TOKEN);
-		Element t;
-		AllophoneSet allophoneSet = null;
-		while ((t = (Element) tw.nextNode()) != null) {
-			// First, create the substructure of <t> elements: <syllable> and <ph>.
-			if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
-				allophoneSet = MaryRuntimeUtils.determineAllophoneSet(t);
-			}
-			createSubStructure(t, allophoneSet);
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
+        ArrayList<Paragraph> paragraphs = utt.getParagraphs();
+        utt.setParagraphs(new ArrayList<Paragraph>());
 
-			// Modify by rule:
-			boolean changedSomething = postlexicalRules(t, allophoneSet);
-			if (changedSomething) {
-				updatePhAttributesFromPhElements(t);
-			}
+        AllophoneSet allophoneSet = null;
+        for (Paragraph par: paragraphs)
+        {
+            ArrayList<Sentence> adapted_sentences = new ArrayList<Sentence>();
+            for (Sentence sent: par.getSentences())
+            {
+                ArrayList<Phrase> adapted_phrases = new ArrayList<Phrase>();
+                for (Phrase phr: sent.getPhrases())
+                {
+                    ArrayList<Word> adapted_words = new ArrayList<Word>();
 
-			if (treeMap == null)
-				continue;
+                    for (Word w: phr.getWords())
+                    {
+                        // First, create the substructure of <t> elements: <syllable> and <ph>.
+                        if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
 
-			// Modify by trained model:
-			assert featureComputer != null;
+                            Voice maryVoice = Voice.getVoice(utt.getVoiceName());
+                            if (maryVoice == null) {
+                                // Determine Locale in order to use default voice
+                                Locale locale = utt.getLocale();
+                                maryVoice = Voice.getDefaultVoice(locale);
+                            }
+                            if (maryVoice != null) {
+                                allophoneSet = maryVoice.getAllophoneSet();
+                            } else {
+                                allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
+                            }
+                        }
 
-			// Now, predict modified pronunciations, adapt <ph> elements accordingly,
-			// and update ph for syllable and t elements where necessary
-			StringBuilder tPh = new StringBuilder();
-			TreeWalker sylWalker = MaryDomUtils.createTreeWalker(doc, t, MaryXML.SYLLABLE);
-			Element syllable;
-			while ((syllable = (Element) sylWalker.nextNode()) != null) {
-				StringBuilder sylPh = new StringBuilder();
-				String stressed = syllable.getAttribute("stress");
-				if (stressed.equals("1")) {
-					sylPh.append("'");
-				} else if (stressed.equals("2")) {
-					sylPh.append(",");
-				}
-				TreeWalker segWalker = MaryDomUtils.createTreeWalker(doc, syllable, MaryXML.PHONE);
-				Element seg;
-				// Cannot use tree walker directly, because we concurrently modify the tree:
-				List<Element> originalSegments = new ArrayList<Element>();
-				while ((seg = (Element) segWalker.nextNode()) != null) {
-					originalSegments.add(seg);
-				}
-				for (Element s : originalSegments) {
-					String phoneString = s.getAttribute("p");
-					String[] predicted;
-					// in case we have a decision tree for phone, predict - otherwise leave unchanged
-					if (treeMap.containsKey(phoneString)) {
-						Target tgt = new Target(phoneString, s);
-						tgt.setFeatureVector(featureComputer.computeFeatureVector(tgt));
-						StringPredictionTree tree = (StringPredictionTree) treeMap.get(phoneString);
-						String predictStr = tree.getMostProbableString(tgt);
-						if (sylPh.length() > 0)
-							sylPh.append(" ");
-						sylPh.append(predictStr);
-						// if phone is deleted:
-						if (predictStr.equals("")) {
-							predicted = null;
-						} else {
-							// predictStr contains whitespace between phones
-							predicted = predictStr.split(" ");
-						}
-					} else {
-						logger.debug("didn't find decision tree for phone (" + phoneString + "). Just keeping it.");
-						predicted = new String[] { phoneString };
-					}
-					logger.debug("  Predicted phone in sequence of " + predicted.length + " phones.");
-					// deletions:
-					if (predicted == null || predicted.length == 0) {
-						syllable.removeChild(s);
-						continue; // skip what follows
-					}
-					assert predicted != null && predicted.length > 0;
-					// insertions: for each but the last predicted phone, make a new element
-					for (int lc = 0; lc < predicted.length - 1; lc++) {
-						Element newPh = MaryXML.createElement(doc, MaryXML.PHONE);
-						newPh.setAttribute("p", predicted[lc]);
-						syllable.insertBefore(newPh, s);
-					}
-					// for the last (or only) predicted segment, just update the phone label
-					if (!phoneString.equals(predicted[predicted.length - 1])) {
-						s.setAttribute("p", predicted[predicted.length - 1]);
-					}
-				} // for each segment in syllable
-				String newSylPh = sylPh.toString();
-				syllable.setAttribute("ph", newSylPh);
-				if (tPh.length() > 0)
-					tPh.append(" -"); // syllable boundary
-				tPh.append(newSylPh);
-			} // for each syllable in token
-			t.setAttribute("ph", tPh.toString());
+                        logger.info(allophoneSet);
+                        w = createSubStructure(w, allophoneSet);
+                        adapted_words.add(w);
+                    }
 
-		} // for each token in document
+                    phr.setWords(adapted_words);
+                    adapted_phrases.add(phr);
+                }
 
-		// return new MaryData with changed phonology
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setDocument(doc);
+                sent.setPhrases(adapted_phrases);
+                adapted_sentences.add(sent);
 
-		logger.debug("Setting the changed xml document finished.");
-		return result;
-	}
+            }
 
-	private void createSubStructure(Element token, AllophoneSet allophoneSet) {
-		String phone = token.getAttribute("ph");
-		if (phone.equals(""))
-			return; // nothing to do
+            par.setSentences(adapted_sentences);
+            utt.addParagraph(par);
+            //     // Modify by rule:
+            //     boolean changedSomething = postlexicalRules(w, allophoneSet);
+            //     if (changedSomething) {
+            //         updatePhAttributesFromPhElements(w);
+            //     }
 
-		if (token.getElementsByTagName(MaryXML.SYLLABLE).getLength() > 0) {
-			return; // there is already a substructure under this token; nothing to do
-		}
+            //     if (treeMap == null)
+            //         continue;
 
-		StringTokenizer tok = new StringTokenizer(phone, "-");
-		Document document = token.getOwnerDocument();
-		Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
-		String vq = null; // voice quality
-		if (prosody != null) {
-			// Ignore any effects of ancestor prosody tags for now:
-			String volumeString = prosody.getAttribute("volume");
-			int volume = -1;
-			try {
-				volume = Integer.parseInt(volumeString);
-			} catch (NumberFormatException e) {
-			}
-			if (volume >= 0) {
-				if (volume >= 60) {
-					vq = "loud";
-				} else if (volume <= 40) {
-					vq = "soft";
-				} else {
-					vq = null;
-				}
-			}
-		}
-		while (tok.hasMoreTokens()) {
-			String sylString = tok.nextToken();
-			if (sylString.trim().isEmpty()) {
-				continue;
-			}
-			Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
-			Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
-			token.appendChild(syllable);
-			String syllableText = "";
-			for (int i = 0; i < allophones.length; i++) {
-				if (allophones[i].isTone()) {
-					syllable.setAttribute("tone", allophones[i].name());
-					continue;
-				}
-				if (i == 0) {
-					syllableText = allophones[i].name();
-				} else {
-					syllableText = syllableText + " " + allophones[i].name();
-				}
-			}
-			// Check for stress signs:
-			String first = sylString.trim().substring(0, 1);
-			if (first.equals("'")) {
-				syllable.setAttribute("stress", "1");
-				// The primary stressed syllable of a word
-				// inherits the accent:
-				if (token.hasAttribute("accent")) {
-					syllable.setAttribute("accent", token.getAttribute("accent"));
-				}
-			} else if (first.equals(",")) {
-				syllable.setAttribute("stress", "2");
-			}
-			// Remember transcription in ph attribute:
-			syllable.setAttribute("ph", syllableText);
-			// Now identify the composing segments:
-			for (int i = 0; i < allophones.length; i++) {
-				if (allophones[i].isTone()) {
-					continue;
-				}
-				Element segment = MaryXML.createElement(document, MaryXML.PHONE);
-				syllable.appendChild(segment);
-				segment.setAttribute("p", allophones[i].name());
-				if (vq != null && !(allophones[i].name().equals("_") || allophones[i].name().equals("?"))) {
-					segment.setAttribute("vq", vq);
-				}
-			}
-		}
-	}
+            //     // Modify by trained model:
+            //     assert featureComputer != null;
 
-	protected void updatePhAttributesFromPhElements(Element token) {
-		if (token == null)
-			throw new NullPointerException("Got null token");
-		if (!token.getTagName().equals(MaryXML.TOKEN)) {
-			throw new IllegalArgumentException("Argument should be a <" + MaryXML.TOKEN + ">, not a <" + token.getTagName() + ">");
-		}
-		StringBuilder tPh = new StringBuilder();
-		TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
-		Element syl;
-		while ((syl = (Element) sylWalker.nextNode()) != null) {
-			StringBuilder sylPh = new StringBuilder();
-			String stress = syl.getAttribute("stress");
-			if (stress.equals("1"))
-				sylPh.append("'");
-			else if (stress.equals("2"))
-				sylPh.append(",");
-			TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
-			Element ph;
-			while ((ph = (Element) phWalker.nextNode()) != null) {
-				if (sylPh.length() > 0)
-					sylPh.append(" ");
-				sylPh.append(ph.getAttribute("p"));
-			}
-			String sylPhString = sylPh.toString();
-			syl.setAttribute("ph", sylPhString);
-			if (tPh.length() > 0)
-				tPh.append(" - ");
-			tPh.append(sylPhString);
-			if (syl.hasAttribute("tone")) {
-				tPh.append(" " + syl.getAttribute("tone"));
-			}
-		}
-		token.setAttribute("ph", tPh.toString());
-	}
+            //     // Now, predict modified pronunciations, adapt <ph> elements accordingly,
+            //     // and update ph for syllable and t elements where necessary
+            //     StringBuilder tPh = new StringBuilder();
+            //     TreeWalker sylWalker = MaryDomUtils.createTreeWalker(doc, t, MaryXML.SYLLABLE);
+            //     Element syllable;
+            //     while ((syllable = (Element) sylWalker.nextNode()) != null) {
+            //         StringBuilder sylPh = new StringBuilder();
+            //         String stressed = syllable.getAttribute("stress");
+            //         if (stressed.equals("1")) {
+            //             sylPh.append("'");
+            //         } else if (stressed.equals("2")) {
+            //             sylPh.append(",");
+            //         }
+            //         TreeWalker segWalker = MaryDomUtils.createTreeWalker(doc, syllable, MaryXML.PHONE);
+            //         Element seg;
+            //         // Cannot use tree walker directly, because we concurrently modify the tree:
+            //         List<Element> originalSegments = new ArrayList<Element>();
+            //         while ((seg = (Element) segWalker.nextNode()) != null) {
+            //             originalSegments.add(seg);
+            //         }
+            //         for (Element s : originalSegments) {
+            //             String phoneString = s.getAttribute("p");
+            //             String[] predicted;
+            //             // in case we have a decision tree for phone, predict - otherwise leave unchanged
+            //             if (treeMap.containsKey(phoneString)) {
+            //                 Target tgt = new Target(phoneString, s);
+            //                 tgt.setFeatureVector(featureComputer.computeFeatureVector(tgt));
+            //                 StringPredictionTree tree = (StringPredictionTree) treeMap.get(phoneString);
+            //                 String predictStr = tree.getMostProbableString(tgt);
+            //                 if (sylPh.length() > 0)
+            //                     sylPh.append(" ");
+            //                 sylPh.append(predictStr);
+            //                 // if phone is deleted:
+            //                 if (predictStr.equals("")) {
+            //                     predicted = null;
+            //                 } else {
+            //                     // predictStr contains whitespace between phones
+            //                     predicted = predictStr.split(" ");
+            //                 }
+            //             } else {
+            //                 logger.debug("didn't find decision tree for phone (" + phoneString + "). Just keeping it.");
+            //                 predicted = new String[] { phoneString };
+            //             }
+            //             logger.debug("  Predicted phone in sequence of " + predicted.length + " phones.");
+            //             // deletions:
+            //             if (predicted == null || predicted.length == 0) {
+            //                 syllable.removeChild(s);
+            //                 continue; // skip what follows
+            //             }
+            //             assert predicted != null && predicted.length > 0;
+            //             // insertions: for each but the last predicted phone, make a new element
+            //             for (int lc = 0; lc < predicted.length - 1; lc++) {
+            //                 Element newPh = MaryXML.createElement(doc, MaryXML.PHONE);
+            //                 newPh.setAttribute("p", predicted[lc]);
+            //                 syllable.insertBefore(newPh, s);
+            //             }
+            //             // for the last (or only) predicted segment, just update the phone label
+            //             if (!phoneString.equals(predicted[predicted.length - 1])) {
+            //                 s.setAttribute("p", predicted[predicted.length - 1]);
+            //             }
+            //         } // for each segment in syllable
+            //         String newSylPh = sylPh.toString();
+            //         syllable.setAttribute("ph", newSylPh);
+            //         if (tPh.length() > 0)
+            //             tPh.append(" -"); // syllable boundary
+            //         tPh.append(newSylPh);
+            //     } // for each syllable in token
+            //     // FIXME : keep consistency between the word phoneeme labels and the adapted phonemes
+            //     t.setAttribute("ph", tPh.toString());
+        }
+
+
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        logger.info("serialization done !");
+        return result;
+    }
+
+    private Word createSubStructure(Word w, AllophoneSet allophoneSet)
+        throws Exception
+    {
+        ArrayList<Phoneme> phonemes = w.getPhonemes();
+        if (phonemes.size() == 0)
+            return w;
+
+        if (w.getSyllables().size() > 0)
+            return w; // FIXME: maybe throw an exception to indicate that technically we should not arrive in a syllabification stage a second time
+
+        /**********************************************************************
+         *** FIXME: why that ?!
+        StringTokenizer tok = new StringTokenizer(phone, "-");
+        Document document = token.getOwnerDocument();
+        Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
+        String vq = null; // voice quality
+        if (prosody != null) {
+        // Ignore any effects of ancestor prosody tags for now:
+            String volumeString = prosody.getAttribute("volume");
+            int volume = -1;
+            try {
+                volume = Integer.parseInt(volumeString);
+            } catch (NumberFormatException e) {
+            }
+            if (volume >= 0) {
+                if (volume >= 60) {
+                    vq = "loud";
+                } else if (volume <= 40) {
+                    vq = "soft";
+                } else {
+                    vq = null;
+                }
+            }
+        }
+        */
+
+        for (Phoneme p:phonemes)
+        {
+            String sylString = p.getLabel();
+            if (sylString.trim().isEmpty()) {
+                continue;
+            }
+            logger.info("Dealing with \"" + sylString + "\"");
+            Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
+            Phoneme tone = null;
+            ArrayList<Phoneme> syl_phonemes = new ArrayList<Phoneme>();
+            for (int i = 0; i < allophones.length; i++) {
+                if (allophones[i].isTone()) {
+                    tone = allophones[i];
+                    continue;
+                }
+
+                Phoneme cur_ph = new Phoneme(allophones[i].name());
+                syl_phonemes.add(cur_ph);
+                /*
+                  if (vq != null && !(allophones[i].name().equals("_") || allophones[i].name().equals("?"))) {
+                  segment.setAttribute("vq", vq);
+                  }
+                */
+            }
+
+            // Check for stress signs:
+            String first = sylString.trim().substring(0, 1);
+            int stress = 0;
+            Accent accent = null;
+            if (first.equals("'")) {
+                stress = 1;
+                // The primary stressed syllable of a word
+                // inherits the accent:
+                accent =  w.getAccent();
+                logger.info("set syllable accent to \"" + accent + "\"");
+            } else if (first.equals(",")) {
+                stress = 2;
+            }
+
+            // Finally create the syllable and add it to the word
+            w.addSyllable(new Syllable(syl_phonemes, tone, stress, accent));
+        }
+
+        return w;
+    }
+
+// protected void updatePhAttributesFromPhElements(Word w)
+// {
+//     if (token == null)
+//         throw new NullPointerException("Got null token");
+//     if (!token.getTagName().equals(MaryXML.TOKEN)) {
+//         throw new IllegalArgumentException("Argument should be a <" + MaryXML.TOKEN + ">, not a <" + token.getTagName() + ">");
+//     }
+//     StringBuilder tPh = new StringBuilder();
+//     TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
+//     Element syl;
+//     while ((syl = (Element) sylWalker.nextNode()) != null) {
+//         StringBuilder sylPh = new StringBuilder();
+//         String stress = syl.getAttribute("stress");
+//         if (stress.equals("1"))
+//             sylPh.append("'");
+//         else if (stress.equals("2"))
+//             sylPh.append(",");
+//         TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
+//         Element ph;
+//         while ((ph = (Element) phWalker.nextNode()) != null) {
+//             if (sylPh.length() > 0)
+//                 sylPh.append(" ");
+//             sylPh.append(ph.getAttribute("p"));
+//         }
+//         String sylPhString = sylPh.toString();
+//         syl.setAttribute("ph", sylPhString);
+//         if (tPh.length() > 0)
+//             tPh.append(" - ");
+//         tPh.append(sylPhString);
+//         if (syl.hasAttribute("tone")) {
+//             tPh.append(" " + syl.getAttribute("tone"));
+//         }
+//     }
+//     token.setAttribute("ph", tPh.toString());
+// }
 }
