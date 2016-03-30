@@ -6,5 +6,4 @@ dependencies {
     compile project(':marytts-common')
     compile project(':marytts-languages:marytts-lang-en')
     testCompile project(':marytts-htsengine-old')
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
 }

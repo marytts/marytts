@@ -23,14 +23,19 @@ allprojects {
         }
     }
 
+    dependencies {
+        testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
+    }
+
     sourceSets {
         integrationTest {
             java {
-                compileClasspath += main.output
-                runtimeClasspath += main.output
+                compileClasspath += main.output + test.output
+                runtimeClasspath += main.output + test.output
+                srcDirs = ["src/integrationTest/java"]
             }
             resources {
-                srcDir test.resources
+                srcDir "src/integrationTest/resources"
             }
         }
     }
@@ -48,6 +53,11 @@ allprojects {
         group 'Verification'
         description 'Runs the integration tests.'
         check.dependsOn it
+
+        useTestNG()//  {
+        //     includeGroups 'integration'
+        // }
+        outputs.upToDateWhen { false }
         testClassesDir = project.sourceSets.integrationTest.output.classesDir
         classpath = project.sourceSets.integrationTest.runtimeClasspath
     }
@@ -60,6 +70,7 @@ allprojects {
     }
 
     test {
+        useTestNG()
         systemProperty "mary.base", "$rootProject.projectDir/resources"
     }
 }

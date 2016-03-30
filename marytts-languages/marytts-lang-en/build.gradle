@@ -9,4 +9,3 @@ dependencies {
     integrationTestCompile project(':marytts-common').sourceSets.integrationTest.output
 }
 
-test.useTestNG()

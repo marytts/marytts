@@ -10,8 +10,3 @@ dependencies {
     testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
     testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
 }
-
-
-test {
-    useTestNG()
-}

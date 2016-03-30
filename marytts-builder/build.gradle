@@ -14,7 +14,6 @@ dependencies {
     testCompile project(':marytts-languages:marytts-lang-en')
     testCompile group: 'com.cloudbees', name: 'diff4j', version: '1.0'
     testCompile group: 'com.google.guava', name: 'guava', version: '14.0.1'
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
     testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
 }
