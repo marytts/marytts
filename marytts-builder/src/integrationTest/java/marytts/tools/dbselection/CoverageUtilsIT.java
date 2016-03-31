@@ -47,8 +47,8 @@ public class CoverageUtilsIT {
 		Assert.assertNotNull(data);
 		String[] featureNameArray = featureNames.split(" ");
 		int numFeatures = featureNameArray.length;
-		Assert.assertEquals(phones.length, data.length / numFeatures);
-		Assert.assertEquals(0, data.length % numFeatures);
+        Assert.assertEquals(data.length / numFeatures, phones.length);
+		Assert.assertEquals(data.length % numFeatures, 0);
 		TargetFeatureComputer tfc = FeatureRegistry.getTargetFeatureComputer(locale, featureNames);
 		FeatureDefinition def = tfc.getFeatureDefinition();
 		for (int k = 0; k < numFeatures; k++) {
