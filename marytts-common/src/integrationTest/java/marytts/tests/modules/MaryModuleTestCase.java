@@ -37,11 +37,12 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Marc Schr&ouml;der
- * 
- * 
+ *
+ *
  */
 public class MaryModuleTestCase {
 
@@ -55,8 +56,8 @@ public class MaryModuleTestCase {
 		if (System.getProperty("mary.base") == null) {
 			System.setProperty("mary.base", ".");
 			Logger.getRootLogger().warn(
-					"System property 'mary.base' is not defined -- trying " + new File(".").getAbsolutePath()
-							+ " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+                "System property 'mary.base' is not defined -- trying " + new File(".").getAbsolutePath()
+                + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
 		}
 
 		if (needMaryStarted) {
@@ -68,8 +69,10 @@ public class MaryModuleTestCase {
 	protected MaryData createMaryDataFromText(String text, Locale locale) {
 		Document doc = MaryXML.newDocument();
 		doc.getDocumentElement().setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
-		doc.getDocumentElement().appendChild(doc.createTextNode(text));
-		MaryData md = new MaryData(MaryDataType.RAWMARYXML, locale);
+        Element par = doc.createElement("p");
+        par.appendChild(doc.createTextNode(text));
+        doc.getDocumentElement().appendChild(par);
+        MaryData md = new MaryData(MaryDataType.RAWMARYXML, locale);
 		md.setDocument(doc);
 		return md;
 	}

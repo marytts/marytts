@@ -124,7 +124,7 @@ public class XMLSerializer implements Serializer
      ***********************************************************************************************/
     public Element exportParagraph(Paragraph paragraph, Document doc)
     {
-        Element par_element = doc.createElement("p");
+        Element par_element = doc.createElementNS(NAMESPACE, "p");
 
         // Export node value
         Node text = doc.createTextNode(paragraph.getText());
@@ -143,7 +143,7 @@ public class XMLSerializer implements Serializer
         // FIXME: temp checking as normally we should have directly insider the code this managed
         assert !((sentence.getWords().size() > 0) && (sentence.getPhrases().size() > 0));
 
-        Element sent_element = doc.createElement("s");
+        Element sent_element = doc.createElementNS(NAMESPACE, "s");
 
         // Export node value
         Node text = doc.createTextNode(sentence.getText());
@@ -162,7 +162,7 @@ public class XMLSerializer implements Serializer
     public Element exportPhrase(Phrase phrase, Document doc)
     {
 
-        Element phrase_element = doc.createElement("phrase");
+        Element phrase_element = doc.createElementNS(NAMESPACE, "phrase");
 
         logger.info("Serializing phrase");
 
@@ -170,14 +170,14 @@ public class XMLSerializer implements Serializer
         for (Word w: phrase.getWords())
             phrase_element.appendChild(exportWord(w, doc));
 
-        Element prosody_element = doc.createElement("prosody");
+        Element prosody_element = doc.createElementNS(NAMESPACE, "prosody");
         prosody_element.appendChild(phrase_element);
         return prosody_element;
     }
 
     public Element exportWord(Word word, Document doc)
     {
-        Element word_element = doc.createElement("t");
+        Element word_element = doc.createElementNS(NAMESPACE, "t");
 
         logger.info("Serializing word \"" + word.getText() + "\"");
 
@@ -210,7 +210,7 @@ public class XMLSerializer implements Serializer
 
     public Element exportSyllable(Syllable syl, Document doc)
     {
-        Element syllable_element = doc.createElement("syllable");
+        Element syllable_element = doc.createElementNS(NAMESPACE, "syllable");
 
         logger.info("Serializing syllable");
 
@@ -241,7 +241,7 @@ public class XMLSerializer implements Serializer
 
     public Element exportPhone(Phoneme ph, Document doc)
     {
-        Element phone_element = doc.createElement("ph");
+        Element phone_element = doc.createElementNS(NAMESPACE, "ph");
 
         phone_element.setAttribute("p", ph.getLabel());
 
@@ -277,7 +277,7 @@ public class XMLSerializer implements Serializer
                 Node node = nl.item(j);
 
                 if (node.getNodeType() == Node.TEXT_NODE) {
-                    text += node.getNodeValue() + "\n"; // FIXME: new line directly encoded :
+                    text += node.getNodeValue().trim() + "\n"; // FIXME: new line directly encoded :
                     found_text = true;
                 }
                 j++;
@@ -311,7 +311,7 @@ public class XMLSerializer implements Serializer
             if (node.getNodeType() == Node.TEXT_NODE)
             {
                 logger.info("Unpack the text");
-                text = node.getNodeValue();
+                text = node.getNodeValue().trim();
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
@@ -355,7 +355,7 @@ public class XMLSerializer implements Serializer
 
             if (node.getNodeType() == Node.TEXT_NODE)
             {
-                text = node.getNodeValue();
+                text = node.getNodeValue().trim();
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
@@ -442,7 +442,7 @@ public class XMLSerializer implements Serializer
 
             if (node.getNodeType() == Node.TEXT_NODE)
             {
-                text = node.getNodeValue();
+                text = node.getNodeValue().trim();
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
@@ -508,7 +508,7 @@ public class XMLSerializer implements Serializer
 
                 if (node.getNodeType() == Node.TEXT_NODE)
                 {
-                    text = node.getNodeValue();
+                    text = node.getNodeValue().trim();
                 }
                 else if (node.getNodeType() == Node.ELEMENT_NODE)
                 {
@@ -569,7 +569,7 @@ public class XMLSerializer implements Serializer
 
             if (node.getNodeType() == Node.TEXT_NODE)
             {
-                text = node.getNodeValue();
+                text = node.getNodeValue().trim();
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {

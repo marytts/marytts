@@ -24,7 +24,7 @@ public class MaryDomUtilsTest {
 		Document doc = MaryXML.newDocument();
 		Element para = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.PARAGRAPH);
 		Element sent = MaryXML.appendChildElement(para, MaryXML.SENTENCE);
-		sent.setTextContent("Hello world"); // but text content not allowed in sentences, so invalid
+		sent.setAttribute("invalid_attribute", "ok"); // but text content not allowed in sentences, so invalid
 		return doc;
 	}
 

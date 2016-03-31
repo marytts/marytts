@@ -43,7 +43,7 @@ THIS SOFTWARE.
         fee is hereby granted in perpetuity, provided that the
         above copyright notice and this paragraph appear in all
         copies.  The copyright holders make no representation
-        about the suitability of the schema for any purpose. 
+        about the suitability of the schema for any purpose.
         It is provided "as is" without expressed or implied
         warranty.</xsd:documentation>
     </xsd:annotation>
@@ -83,7 +83,7 @@ THIS SOFTWARE.
     </xsd:simpleType>
     <xsd:simpleType name="relative.change.percentage">
         <xsd:annotation>
-            <xsd:documentation>Relative change only in percentages: e.g. 
+            <xsd:documentation>Relative change only in percentages: e.g.
             +15%, -9.0%</xsd:documentation>
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
@@ -423,7 +423,7 @@ THIS SOFTWARE.
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
     <xsd:element name="p" substitutionGroup="struct" type="paragraph"/>
-    <xsd:complexType name="paragraph">
+    <xsd:complexType mixed="true" name="paragraph">
         <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:element ref="s"/>
@@ -431,7 +431,7 @@ THIS SOFTWARE.
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
     <xsd:element name="s" substitutionGroup="struct" type="sentence"/>
-    <xsd:complexType name="sentence">
+    <xsd:complexType mixed="true" name="sentence">
         <xsd:sequence maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
         </xsd:sequence>
@@ -656,9 +656,9 @@ THIS SOFTWARE.
         <xsd:attribute name="voicequality" type="xsd:string"/>
         <xsd:attribute name="intonation" type="xsd:string"/>
         <xsd:attribute name="meaning" type="xsd:string"/>
-        <xsd:attribute name="variant" type="xsd:string"/> 
+        <xsd:attribute name="variant" type="xsd:string"/>
     </xsd:complexType>
-	
+
     <xsd:element name="t" substitutionGroup="awp" type="token"/>
     <xsd:complexType mixed="true" name="token">
         <xsd:sequence>
