@@ -210,7 +210,7 @@ public class XMLSerializer implements Serializer
 
     public Element exportSyllable(Syllable syl, Document doc)
     {
-        Element syllable_element = doc.createElement("syl");
+        Element syllable_element = doc.createElement("syllable");
 
         logger.info("Serializing syllable");
 
@@ -558,7 +558,7 @@ public class XMLSerializer implements Serializer
     public Syllable generateSyllable(Element elt)
         throws MaryIOException
     {
-        assert elt.getTagName() == "syl";
+        assert elt.getTagName() == "syllable";
         ArrayList<Phoneme> phoneme_list = new ArrayList<Phoneme>();
 
         NodeList nl = elt.getChildNodes();
