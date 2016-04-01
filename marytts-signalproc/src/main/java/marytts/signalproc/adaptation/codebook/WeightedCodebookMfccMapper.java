@@ -98,7 +98,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
 					bHeaderWritten = true;
 				}
 
-				if (srcFeatures.mfccs != null && srcFeatures.mfccs != null) {
+				if (srcFeatures.mfccs != null) {
 					for (j = 0; j < imap.files[0].indicesMap.length; j++) // j is the index for labels
 					{
 						if (srcFeatures.mfccs.length > imap.files[0].indicesMap[j][0]
