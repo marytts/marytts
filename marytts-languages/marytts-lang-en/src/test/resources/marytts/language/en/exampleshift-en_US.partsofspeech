@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<s>
+<t pos="PRP$">
+Her
+</t>
+<t pos="NN">
+name
+</t>
+<t pos="VBD">
+was
+</t>
+<t pos="NNP">
+Duchess
+</t>
+<t pos=".">
+,
+</t>
+<t pos="CC">
+but
+</t>
+<t pos="PRP">
+he
+</t>
+<t pos="RB">
+often
+</t>
+<t pos="VBD">
+called
+</t>
+<t pos="PRP">
+her
+</t>
+<t pos="NNP">
+Pet
+</t>
+<t pos=".">
+.
+</t>
+</s>
+</p>
+</maryxml>
