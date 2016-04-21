@@ -263,11 +263,11 @@ public class Preprocess extends InternalModule {
 			if (MaryDomUtils.tokenText(t).matches("(?i)" + ordinalPattern.pattern())) {
 				String matched = MaryDomUtils.tokenText(t).split("(?i)st|nd|rd|th")[0];
 				MaryDomUtils.setTokenText(t, expandOrdinal(Double.parseDouble(matched)));
-				// single a or A character
+                // single a or A character
 			} else if (MaryDomUtils.tokenText(t).matches("[aA]")) {
 				Element checkNextNode = MaryDomUtils.getNextSiblingElement((Element) t);
 				if (checkNextNode == null || MaryDomUtils.tokenText(checkNextNode).matches(myPunctPattern.pattern())
-						|| MaryDomUtils.tokenText(checkNextNode).length() == 1) {
+                    || MaryDomUtils.tokenText(checkNextNode).length() == 1) {
 					MaryDomUtils.setTokenText(t, "_a");
 				}
 				// date
@@ -300,21 +300,25 @@ public class Preprocess extends InternalModule {
 					Matcher contractionMatch = contractPattern.matcher(MaryDomUtils.tokenText(t));
 					contractionMatch.find();
 					// if no contraction we allow g2p rules to handle
-					if (!contractions.containsKey(contractionMatch.group(1))) {
+					if (!contractions.containsKey(contractionMatch.group(1)))
+                    {
 						MaryDomUtils.setTokenText(t, MaryDomUtils.tokenText(t).replaceAll("'", ""));
 					}
-					// if not in lexicon and we have a contraction expansion then split into two tokens
-					else {
-						splitContraction = true;
-						MaryDomUtils.setTokenText(t, splitContraction(MaryDomUtils.tokenText(t)));
-					}
+
+                    // FIXME: we do not want to have to phonological word => for now we do not split !
+					// // if not in lexicon and we have a contraction expansion then split into two tokens
+					// else
+                    // {
+					// 	splitContraction = true;
+					// 	MaryDomUtils.setTokenText(t, splitContraction(MaryDomUtils.tokenText(t)));
+					// }
 				}
 				// acronym
 			} else if (MaryDomUtils.tokenText(t).matches(acronymPattern.pattern())) {
 				MaryDomUtils.setTokenText(t, expandAcronym(MaryDomUtils.tokenText(t)));
 				// abbreviation
 			} else if ((MaryDomUtils.tokenText(t).matches(abbrevPattern.pattern()) || this.abbrevMap.containsKey(MaryDomUtils
-					.tokenText(t).toLowerCase())) && !isURL) {
+                                                                                                                 .tokenText(t).toLowerCase())) && !isURL) {
 				Element testAbbNode = MaryDomUtils.getNextSiblingElement((Element) t);
 				boolean nextTokenIsCapital = false;
 				if (testAbbNode != null && Character.isUpperCase(MaryDomUtils.tokenText(testAbbNode).charAt(0))) {
@@ -381,7 +385,7 @@ public class Preprocess extends InternalModule {
 				// a final attempt to split by punctuation
 			} else if (punctuationPattern.matcher(MaryDomUtils.tokenText(t)).find() && MaryDomUtils.tokenText(t).length() > 1) {
 				puncSplit = true;
-				String[] puncTokens = MaryDomUtils.tokenText(t).split("((?<=\\p{Punct})|(?=\\p{Punct}))");
+                String[] puncTokens = MaryDomUtils.tokenText(t).split("((?<=\\p{Punct})|(?=\\p{Punct}))");
 				MaryDomUtils.setTokenText(t, Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", ""));
 				// set all punctuation tokens' (and symbols not wordified) pos attribute to anything non-alphabetic in order to
 				// stop phonemisation
@@ -400,7 +404,7 @@ public class Preprocess extends InternalModule {
 					// if tokens are an expanded contraction
 					if (splitContraction && newTokens.length == 2) {
 						if (newTokens[0].substring(newTokens[0].length() - 1).matches("[cfkpt]")
-								&& contractions.get(newTokens[i]).length > 1) {
+                            && contractions.get(newTokens[i]).length > 1) {
 							t.setAttribute("ph", contractions.get(newTokens[i])[1]);
 						} else {
 							t.setAttribute("ph", contractions.get(newTokens[i])[0]);
@@ -541,7 +545,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * expands a digit followed by an s. e.g. 7s and 8s and the 60s
-	 * 
+	 *
 	 * @param numberS
 	 *            numberS
 	 * @return number
