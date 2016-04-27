@@ -187,13 +187,13 @@ public class PreprocessTest {
 		Assert.assertEquals(actual, word);
 	}
 
-    // FIXME: As long as we can't separate phonological words and syntax words => disable this test
+	// FIXME: As long as we can't separate phonological words and syntax words => disable this test
 	// @Test
 	// public void testSplitContraction() {
-	// 	String test = "cat's";
-	// 	String expected = "cat's";
-	// 	test = module.splitContraction(test);
-	// 	Assert.assertEquals(test, expected);
+	// String test = "cat's";
+	// String expected = "cat's";
+	// test = module.splitContraction(test);
+	// Assert.assertEquals(test, expected);
 	// }
 
 	@Test

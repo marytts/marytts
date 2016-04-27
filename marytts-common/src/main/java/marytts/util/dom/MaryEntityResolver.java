@@ -31,22 +31,21 @@ import org.xml.sax.SAXException;
  */
 
 public class MaryEntityResolver implements EntityResolver {
-	
+
 	@Override
-    public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
+	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
 		if (systemId.contains("apml.dtd")) {
-			//APML DTD - apml.dtd
-            return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/apml.dtd"));
-        } else if (systemId.contains("Sable.v0_2.dtd")) {
-			//SABLE DTD Sable.v0_2.dtd
-            return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/Sable.v0_2.dtd"));
-        } else if (systemId.contains("sable-latin.ent")) {
-			//SABLE ENT sable-latin.ent
-            return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/sable-latin.ent"));
-        } else {
-            return null;
-        }
-    }
-	
+			// APML DTD - apml.dtd
+			return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/apml.dtd"));
+		} else if (systemId.contains("Sable.v0_2.dtd")) {
+			// SABLE DTD Sable.v0_2.dtd
+			return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/Sable.v0_2.dtd"));
+		} else if (systemId.contains("sable-latin.ent")) {
+			// SABLE ENT sable-latin.ent
+			return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/sable-latin.ent"));
+		} else {
+			return null;
+		}
+	}
+
 }

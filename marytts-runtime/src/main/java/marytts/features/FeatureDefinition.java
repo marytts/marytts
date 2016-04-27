@@ -1709,7 +1709,7 @@ public class FeatureDefinition {
 		for (int i = 0; i < numContinuousFeatures; i++) {
 			String featureName = getFeatureName(i + numByteFeatures + numShortFeatures);
 			int featureValue;
-			switch(featureName) {
+			switch (featureName) {
 			case "unit_duration":
 				featureValue = 1000;
 				break;
