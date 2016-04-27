@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>de.dfki.mary</groupId>
 		<artifactId>marytts</artifactId>
-		<version>5.2-SNAPSHOT</version>
+		<version>5.2-beta3</version>
 	</parent>
 
 	<artifactId>marytts-assembly</artifactId>
