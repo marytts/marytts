@@ -111,11 +111,10 @@ public class OpenNLPPosTagger extends InternalModule {
 			while ((t = (Element) tokenIt.nextNode()) != null) {
 				tokens.add(MaryDomUtils.tokenText(t));
 			}
-            if (tokens.size() == 1)
-            {
-                tokens.add(".");
-            }
-            List<String> partsOfSpeech = null;
+			if (tokens.size() == 1) {
+				tokens.add(".");
+			}
+			List<String> partsOfSpeech = null;
 			synchronized (this) {
 				partsOfSpeech = tagger.tag(tokens);
 			}

@@ -154,13 +154,11 @@ public class TrainedLTS {
 			}
 
 			FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
-			
+
 			StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
 			String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
 			returnStr += prediction.substring(1, prediction.length() - 1);
-			
-			
-			
+
 		}
 
 		return returnStr;

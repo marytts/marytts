@@ -133,9 +133,9 @@ public class CART extends DirectedGraph {
 		}
 
 		assert currentNode.getNumberOfData() >= minNumberOfData || currentNode == rootNode;
-		try{
-		assert minNumberOfData > 0 || (currentNode instanceof LeafNode);
-		}catch(AssertionError e){
+		try {
+			assert minNumberOfData > 0 || (currentNode instanceof LeafNode);
+		} catch (AssertionError e) {
 			logger.debug(e.getMessage());
 		}
 		return currentNode;
