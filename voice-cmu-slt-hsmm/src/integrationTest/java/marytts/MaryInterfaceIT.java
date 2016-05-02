@@ -122,11 +122,6 @@ public class MaryInterfaceIT {
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
-	public void nullAudioFileFormat() throws Exception {
-		mary.generateAudio("some text");
-	}
-
-	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void refuseWrongInput1() throws Exception {
 		// setup
 		mary.setInputType(MaryDataType.RAWMARYXML.name());
