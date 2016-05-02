@@ -1,18 +1,16 @@
 description 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
 
-task wrapper(type: Wrapper) {
-       gradleVersion = '2.11' //version required
-}
 
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'eclipse-wtp'
 
     group 'de.dfki.mary'
     version '5.2-SNAPSHOT'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         mavenLocal()
@@ -22,6 +20,9 @@ allprojects {
             layout 'maven'
         }
     }
+}
+
+subprojects {
 
     dependencies {
         testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
@@ -40,6 +41,7 @@ allprojects {
         }
     }
 
+
     configurations {
         integrationTestCompile {
             extendsFrom testCompile
@@ -57,7 +59,6 @@ allprojects {
         useTestNG()//  {
         //     includeGroups 'integration'
         // }
-        outputs.upToDateWhen { false }
         testClassesDir = project.sourceSets.integrationTest.output.classesDir
         classpath = project.sourceSets.integrationTest.runtimeClasspath
     }
@@ -73,9 +74,7 @@ allprojects {
         useTestNG()
         systemProperty "mary.base", "$rootProject.projectDir/resources"
     }
-}
 
-subprojects {
     task packageSources(type: Jar) {
         classifier = 'sources'
         from sourceSets.main.allSource

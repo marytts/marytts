@@ -16,13 +16,13 @@ dependencies {
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
     compile group: 'gov.nist.math', name: 'Jampack', version: '1.0'
     compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
+    compile group: 'com.googlecode.json-simple', name:'json-simple', version:'1.1.1'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
     compile group: 'log4j', name: 'log4j', version: '1.2.16'
     compile group: 'com.twmacinta', name: 'fast-md5', version: '2.7.1'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
-    testCompile project(':marytts-htsengine-old')
 }
 
 processResources {
@@ -30,4 +30,3 @@ processResources {
         expand project.properties
     }
 }
-
