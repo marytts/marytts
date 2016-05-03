@@ -11,7 +11,6 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.io.StringWriter;
 
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,8 +29,8 @@ import marytts.data.item.prosody.*;
 import marytts.data.item.*;
 import marytts.util.MaryUtils;
 
-
 import org.apache.log4j.Logger;
+
 /**
  *
  *
@@ -296,7 +295,7 @@ public class XMLSerializer implements Serializer
     }
 
     public Paragraph generateParagraph(Element elt)
-    throws MaryIOException
+        throws MaryIOException
     {
         assert elt.getTagName() == "p";
         ArrayList<Sentence> sentence_list = new ArrayList<Sentence>();
@@ -500,59 +499,59 @@ public class XMLSerializer implements Serializer
         assert elt.getTagName().equals("t");
         ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
 
-            NodeList nl = elt.getChildNodes();
-            String text = null;
-            for (int j=0; j<nl.getLength(); j++)
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
             {
-                Node node = nl.item(j);
-
-                if (node.getNodeType() == Node.TEXT_NODE)
-                {
-                    text = node.getNodeValue().trim();
-                }
-                else if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    Element syllable_elt = (Element) node;
-                    syllable_list.add(generateSyllable(syllable_elt));
-                }
-                else
-                {
-                    throw new MaryIOException("Unknown node element type during unpacking: " +
-                                              node.getNodeType(), null);
-                }
+                text = node.getNodeValue().trim();
             }
-
-            if (text == null)
-                throw new MaryIOException("Cannot find the text of the word", null);
-
-            logger.info("Unpacking word \"" + text + "\"");
-            Word w = new Word(text, syllable_list);
-
-            if (elt.hasAttribute("pos"))
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
-                String pos = elt.getAttribute("pos");
-                w.setPOS(pos);
+                Element syllable_elt = (Element) node;
+                syllable_list.add(generateSyllable(syllable_elt));
             }
-
-            if (elt.hasAttribute("accent"))
+            else
             {
-                String accent = elt.getAttribute("accent");
-                w.setAccent(new Accent(accent));
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
             }
+        }
 
-            // FIXME: this should be a temp hack !
-            if (elt.hasAttribute("ph"))
+        if (text == null)
+            throw new MaryIOException("Cannot find the text of the word", null);
+
+        logger.info("Unpacking word \"" + text + "\"");
+        Word w = new Word(text, syllable_list);
+
+        if (elt.hasAttribute("pos"))
+        {
+            String pos = elt.getAttribute("pos");
+            w.setPOS(pos);
+        }
+
+        if (elt.hasAttribute("accent"))
+        {
+            String accent = elt.getAttribute("accent");
+            w.setAccent(new Accent(accent));
+        }
+
+        // FIXME: this should be a temp hack !
+        if (elt.hasAttribute("ph"))
+        {
+            String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
+            ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
+            for (int i=0; i<phoneme_labels.length; i++)
             {
-                String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
-                ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
-                for (int i=0; i<phoneme_labels.length; i++)
-                {
-                    phonemes.add(new Phoneme(phoneme_labels[i]));
-                }
-                w.setPhonemes(phonemes);
+                phonemes.add(new Phoneme(phoneme_labels[i]));
             }
+            w.setPhonemes(phonemes);
+        }
 
-            return w;
+        return w;
     }
 
     public Syllable generateSyllable(Element elt)
@@ -614,5 +613,4 @@ public class XMLSerializer implements Serializer
         Phoneme ph = new Phoneme(elt.getAttribute("p"));
         return ph;
     }
-
 }
