@@ -111,3 +111,12 @@ task copyResources(type: Copy) {
 task copyFiles(dependsOn: [copyJars, copyDeps, copyResources])
 
 tasks.build.dependsOn(copyFiles)
+
+
+task server (type:JavaExec, group: 'Runtime', description: 'Start the MaryTTS server') {
+    dependsOn "build"
+    jvmArgs "-showversion", "-Xms40m", "-Xmx1g"
+    classpath = project.fileTree("$buildDir/libs")
+    systemProperty "mary.base", "$buildDir"
+    main "marytts.server.Mary"
+}
