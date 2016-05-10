@@ -34,10 +34,41 @@ The recommended workflow for making contributions to the MARY TTS source code is
 Have a good look at the [github documentation](http://help.github.com/) if any of the words here seem unfamiliar.
 
 
-Compiling MARY TTS on the command line
---------------------------------------
+# Using MaryTTS in your own Java projects
 
-MARY TTS builds with Maven 3.0.x. If it is not installed on your system, you can get it from here: http://maven.apache.org/download.html
+The easiest way to use MaryTTS in your own java projects is to define a dependency to MaryTTS:
+
+- in the pom.xml for maven:
+```xml
+<dependency>
+  <groupId>de.dfki.mary</groupId>
+  <artifactId>marytts</artifactId>
+  <version>5.2</version>
+  <type>pom</type>
+</dependency>
+```
+- in gradle
+```groovy
+compile 'de.dfki.mary:marytts:5.2'
+```
+
+Text to wav basic examples are proposed in this repository
+- maven: https://github.com/marytts/marytts-txt2wav/tree/maven
+- gradle: https://github.com/marytts/marytts-txt2wav/tree/gradle
+
+# Using MaryTTS for other languages
+
+If you want to use MaryTTS for other languages (like python for example), you need to achieve 3 steps
+1. compiling marytts
+2. starting the server
+3. query synthesis on the server
+
+
+## Compiling MARY TTS on the command line
+
+MARY TTS builds with Maven 3.0.x.
+If it is not installed on your system, you can get it from here:
+http://maven.apache.org/download.html or install it using your favorite package manager.
 
 Compiling the MARY system itself can be done using
 
@@ -48,8 +79,8 @@ in the top-level folder.
 This will compile the system, run all unit and integration tests, package the system to the extent possible, and install it in your local maven repository.
 
 
-Running the freshly built MARY TTS server
------------------------------------------
+## Running the freshly built MARY TTS server
+
 
 After a successful compile, you should find a ready-to-run unpacked install of the MARY TTS server system in `target/marytts-<VERSION>`.
 Run the server as
@@ -65,50 +96,16 @@ The runtime system is also available as deployable packages:
 Installation is easy:
 unpack anywhere, and run the scripts in the `bin/` folder.
 
+## Synthesize speech using the server
 
-Using the new languages support and voice building tools
---------------------------------------------------------
+Synthesizing speech, using the server, is pretty easy.
+You need to generate proper HTTP queries and deal with the associated HTTP responses.
+Examples are proposed :
+- python 3: https://github.com/marytts/marytts-txt2wav/tree/python
+- shell: https://github.com/marytts/marytts-txt2wav/tree/sh
 
-Compiling the MARY TTS system creates a folder containing the MARY TTS build tools, in
+# Developing MaryTTS
 
-    target/marytts-builder-<VERSION>/
-
-Shell scripts for the available tools are provided in the `bin/` subfolder.
-
-
-Using MARY TTS in your own Java projects
-----------------------------------------
-
-The easiest way to get all dependencies right is to use Maven.
-The example projects below `user-examples` should be sufficient to get you started.
-
-The `pom.xml` file in each example project copies the required jar files and sets the classpath of the project jar file such that it can be simply started as follows:
-
-    java -jar user-examples/example-embedded/target/example-embedded-<VERSION>.jar
-
-
-Developing MARY TTS in Eclipse
-------------------------------
-
-The easiest and therefore recommended way to edit MARY TTS source files is using [Eclipse IDE for Java developers](http://eclipse.org).
-We have tested with Eclipse Indigo, feel free to experiment with other versions.
-
-Two relevant Eclipse plugins which come pre-bundled with Eclipse Indigo for Java developers are [M2E Maven Eclipse Integration](http://eclipse.org/m2e/) and [Egit Eclipse Git Source code management](http://eclipse.org/egit/).
-
-M2E can be used to import the Maven projects into an Eclipse workspace as follows.
-
-1. Start with an empty workspace, from the "File" menu select "Import..." and open the "Maven" menu item.
-
-2. Import the maven projects as eclipse projects:
-
-    a. If you have previously cloned the git repo, select "Existing Maven Projects", choose the root `marytts` directory as root, and select the subprojects you want to import.
-
-    b. If you have not yet cloned the git repo, select "Checkout Maven projects from SCM", choose SCM method `git` (you may have to follow the link "install SCM connectors from the m2e marketplace" and install `m2e-egit`), and enter the git repository location as download link (e.g., `git@github.com:marytts/marytts.git` to directly clone the master repo, but see "Working on MARY TTS code" above for good practice).
-
-3. To make the Eclipse projects aware of the version control system, select all of them, right-click and select "Team"->"Share projects".
-   In the popup window, select "Git", click Next, then check the checkbox "Use or create repository in parent folder of project", and click "Finish".
-
-This should get you up and running.
-
-You are of course free to edit the source code using other tools.
-Just be aware that MARY TTS requires Java 7, and source file encoding must be set to UTF-8.
+Wiki pages are available to help you to configure your IDE to develop MaryTTS.
+The following IDE have been tested and documented:
+- Eclipse : https://github.com/marytts/marytts/wiki/Eclipse
