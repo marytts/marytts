@@ -14,6 +14,8 @@ Improvements
 Development news
 ----------------
 
+* [#525](https://github.com/marytts/marytts/pull/525): Update dependencies and maven plugins
+* [#523](https://github.com/marytts/marytts/pull/523): solving quotes phonetisation problem
 * [#506](https://github.com/marytts/marytts/pull/506): Duplicate subexpressions in `WeightedCodebookMfccMapper.java`
 * [#499](https://github.com/marytts/marytts/pull/499): Upgrade Apache Commons Collections to v3.2.2
 * [#493](https://github.com/marytts/marytts/pull/493): Drop assembly plugin
@@ -34,6 +36,7 @@ Development news
 Fixed Issues/Bugs
 -----------------
 
+* [#531](https://github.com/marytts/marytts/issues/531): java.awt.HeadlessException in (Half)PhoneLabelFeatureAligner
 * [#516](https://github.com/marytts/marytts/issues/516): Single words conduct to have a wrong POS which leads to a crash of the target feature module
 * [#515](https://github.com/marytts/marytts/pull/515): preprocessing contraction and double quotes correction
 * [#503](https://github.com/marytts/marytts/issues/503): `halfphoneUnitFeatureDefinition_ac.txt` does not have any continuous features even though `halfphoneFeatures_ac.mry` does
