@@ -15,7 +15,7 @@ Older documentation can also be found at http://mary.dfki.de and http://mary.ope
 This README is part of the the MaryTTS source code repository.
 It contains information about compiling and developing the MaryTTS sources.
 
-The code comes under the Lesser General Public License LGPL version 3 -- see LICENSE.md for details.
+The code comes under the Lesser General Public License LGPL version 3 -- see [LICENSE.md](LICENSE.md) for details.
 
 
 ##  Using MaryTTS in your own Java projects
