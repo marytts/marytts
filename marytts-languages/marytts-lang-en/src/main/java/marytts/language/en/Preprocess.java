@@ -386,10 +386,8 @@ public class Preprocess extends InternalModule {
 				puncSplit = true;
 				String[] puncTokens = MaryDomUtils.tokenText(t).split("((?<=\\p{Punct})|(?=\\p{Punct}))");
 				MaryDomUtils.setTokenText(t, Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", ""));
-				// FIXME: skip for now as we don't have any clever management of the POS for the prosodic feature
+				// FIXME: skip quotes for now as we don't have any clever management of the POS for the prosodic feature
 			} else if (MaryDomUtils.tokenText(t).equals("\"")) {
-				// set all punctuation tokens' (and symbols not wordified) pos attribute to anything non-alphabetic in order to
-				// stop phonemisation
 			} else if (MaryDomUtils.tokenText(t).matches(punctuationPattern.pattern())) {
 				t.setAttribute("pos", ".");
 			}

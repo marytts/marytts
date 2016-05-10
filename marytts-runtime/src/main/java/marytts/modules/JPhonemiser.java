@@ -67,6 +67,7 @@ public class JPhonemiser extends InternalModule {
 	protected AllophoneSet allophoneSet;
 
 	protected Pattern punctuationPosRegex;
+	protected Pattern unpronounceablePosRegex;
 
 	public JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
 		this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, propertyPrefix + "allophoneset", propertyPrefix
@@ -76,7 +77,7 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * Constructor providing the individual filenames of files that are required.
-	 * 
+	 *
 	 * @param componentName
 	 *            componentName
 	 * @param inputType
@@ -103,7 +104,7 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * Constructor providing the individual filenames of files that are required.
-	 * 
+	 *
 	 * @param componentName
 	 *            componentName
 	 * @param inputType
@@ -152,6 +153,7 @@ public class JPhonemiser extends InternalModule {
 	public void startup() throws Exception {
 		super.startup();
 		setPunctuationPosRegex();
+		setUnpronounceablePosRegex();
 	}
 
 	public MaryData process(MaryData d) throws Exception {
@@ -219,7 +221,7 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
 	 * letter-to-sound rules if nothing else was successful.
-	 * 
+	 *
 	 * @param text
 	 *            the textual (graphemic) form of a word.
 	 * @param pos
@@ -279,7 +281,7 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * Look a given text up in the (standard) lexicon. part-of-speech is used in case of ambiguity.
-	 * 
+	 *
 	 * @param text
 	 *            text
 	 * @param pos
@@ -323,7 +325,7 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
-	 * 
+	 *
 	 * @param text
 	 *            text
 	 * @param pos
@@ -368,7 +370,7 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * Access the allophone set underlying this phonemiser.
-	 * 
+	 *
 	 * @return allophoneSet
 	 */
 	public AllophoneSet getAllophoneSet() {
@@ -377,12 +379,12 @@ public class JPhonemiser extends InternalModule {
 
 	/**
 	 * Read a lexicon. Lines must have the format
-	 * 
+	 *
 	 * graphemestring | phonestring | optional-parts-of-speech
-	 * 
+	 *
 	 * The pos-item is optional. Different pos's belonging to one grapheme chain may be separated by whitespace
-	 * 
-	 * 
+	 *
+	 *
 	 * @param lexiconFilename
 	 *            lexiconFilename
 	 * @throws IOException
@@ -449,7 +451,7 @@ public class JPhonemiser extends InternalModule {
 	/**
 	 * Compile a regex pattern used to determine whether tokens are processed as punctuation or not, based on whether their
 	 * <code>pos</code> attribute matches the pattern.
-	 * 
+	 *
 	 */
 	protected void setPunctuationPosRegex() {
 		String language = getLocale().getLanguage();
@@ -469,19 +471,43 @@ public class JPhonemiser extends InternalModule {
 			punctuationPosRegex = Pattern.compile(defaultRegex);
 		}
 		logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
-		return;
+	}
+
+	/**
+	 * Compile a regex pattern used to determine whether tokens are processed as unprounounceable or not, based on whether their
+	 * <code>pos</code> attribute matches the pattern.
+	 *
+	 */
+	protected void setUnpronounceablePosRegex() {
+		String language = getLocale().getLanguage();
+		String propertyName = language + ".pos.unprounounceable.regex";
+		String defaultRegex = "^[^a-zA-Z]+$";
+		String regex = MaryProperties.getProperty(propertyName);
+		if (regex == null) {
+			logger.debug(String.format("Property %s not set, using default", propertyName));
+			regex = defaultRegex;
+		} else {
+			logger.debug(String.format("Using property %s", propertyName));
+		}
+		try {
+			unpronounceablePosRegex = Pattern.compile(regex);
+		} catch (PatternSyntaxException e) {
+			logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+			unpronounceablePosRegex = Pattern.compile(defaultRegex);
+		}
+		logger.debug(String.format("Punctuation regex pattern set to /%s/", unpronounceablePosRegex));
 	}
 
 	/**
 	 * Based on the regex compiled in {@link #setPunctuationPosRegex()}, determine whether a given POS string is classified as
 	 * punctuation
-	 * 
+	 *
 	 * @param pos
 	 *            the POS tag
 	 * @return <b>true</b> if the POS tag matches the regex pattern; <b>false</b> otherwise
 	 * @throws NullPointerException
 	 *             if the regex pattern is null (because it hasn't been set during module startup)
-	 * 
+	 *
 	 */
 	public boolean isPosPunctuation(String pos) {
 		if (pos != null && punctuationPosRegex.matcher(pos).matches()) {
@@ -490,9 +516,16 @@ public class JPhonemiser extends InternalModule {
 		return false;
 	}
 
+	public boolean isUnpronounceable(String pos) {
+		if (pos != null && unpronounceablePosRegex.matcher(pos).matches()) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Determine whether token should be pronounceable, based on text and POS tag.
-	 * 
+	 *
 	 * @param text
 	 *            the text of the token
 	 * @param pos
@@ -513,6 +546,11 @@ public class JPhonemiser extends InternalModule {
 
 		// does POS tag indicate punctuation?
 		if (isPosPunctuation(pos)) {
+			return false;
+		}
+
+		// does POS tag indicate punctuation?
+		if (isUnpronounceable(pos)) {
 			return false;
 		}
 
