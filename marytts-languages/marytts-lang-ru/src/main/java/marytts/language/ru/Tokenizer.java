@@ -27,6 +27,7 @@ import marytts.datatypes.MaryXML;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
+import org.codehaus.groovy.ast.stmt.ThrowStatement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -42,15 +43,21 @@ public class Tokenizer extends marytts.modules.JTokeniser {
 	/**
      * 
      */
+	Preprocess module = new Preprocess("Preprocess", MaryDataType.TEXT, MaryDataType.WORDS, new Locale("ru"));
+	
 	public Tokenizer() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("ru"));
 		setTokenizerLanguage("en");
+		
 	}
 
 	public MaryData process(MaryData d) throws Exception {
 		MaryData result = super.process(d);
-		splitOffDots(result);
-		return result;
+		MaryData result2 = module.process(result);
+		splitOffDots(result2);
+		
+		System.out.println(result2);
+		return result2;
 	}
 
 	/**
