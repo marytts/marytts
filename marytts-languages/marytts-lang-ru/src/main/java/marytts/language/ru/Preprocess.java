@@ -29,7 +29,7 @@ public class Preprocess extends InternalModule {
 	String formatRules;
 	RuleBasedNumberFormat format;
 	String cardinal;
-
+	
 	public Preprocess(String name, MaryDataType inputType, MaryDataType outputType, Locale locale) {
 		super("Preprocess", MaryDataType.TEXT, MaryDataType.WORDS, RU_LOCALE.toLocale());
 		// TODO Auto-generated constructor stub
@@ -40,27 +40,24 @@ public class Preprocess extends InternalModule {
 		}catch(IOException io){
 			logger.error(io);
 		}
-		System.out.println(formatRules.toString());
 		format = new RuleBasedNumberFormat(formatRules, RU_LOCALE.toLocale());
 		cardinal = "%spellout-numbering";
-		
+	}
+	
+	public Preprocess(){
+		super("Preprocess", MaryDataType.TEXT, MaryDataType.WORDS, RU_LOCALE.toLocale());
 	}
 	
 	public MaryData process(MaryData input) throws Exception{
 		Document doc = input.getDocument();
-		System.out.println("------------Doc before Expand ----------- \n"+doc);
 		expand(doc);
-		System.out.println("------------Doc After Expand ----------- \n"+doc);
 		
 		MaryData rlt = new MaryData(getOutputType(), input.getLocale());
 		rlt.setDocument(doc);
-		System.out.println("++++++++++++ Result +++++++++++ \n"+rlt);
 		return rlt;
-		
 	}
 	
 	protected void expand(Document doc) throws ParseException, IOException, MaryConfigurationException {
-		
 		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
 				new NameNodeFilter(MaryXML.TOKEN), false);
 		Element t = null;
@@ -74,19 +71,17 @@ public class Preprocess extends InternalModule {
 
 			// save the original token text
 			String origText = MaryDomUtils.tokenText(t);
-			System.out.println(origText);
 			/*
 			 * ACTUAL PROCESSING
 			 */
 			if(NumberUtils.isNumber(MaryDomUtils.tokenText(t))){
 				MaryDomUtils.setTokenText(t, expandCardinal(Double.parseDouble(MaryDomUtils.tokenText(t))));
 			}
-			System.out.println("++++++++Token During Expansion+++++++++\n"+t);	
-
+		
 		}
 	}
 	
-	private String expandCardinal(double number) {
+	protected String expandCardinal(double number) {
         format.setDefaultRuleSet(cardinal);
         return format.format(number);
     }

@@ -52,12 +52,10 @@ public class Tokenizer extends marytts.modules.JTokeniser {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		MaryData result = super.process(d);
-		MaryData result2 = module.process(result);
-		splitOffDots(result2);
-		
-		System.out.println(result2);
-		return result2;
+		MaryData superResult = super.process(d); //process normally with JTokenizer
+		MaryData localResult = module.process(superResult); //Expand with russian preprocess
+		splitOffDots(localResult);
+		return localResult;
 	}
 
 	/**
