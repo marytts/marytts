@@ -21,13 +21,16 @@ package marytts.modules.acoustic;
 
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.item.linguistic.*;
+import marytts.data.item.prosody.*;
+import marytts.data.item.phonology.*;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -37,8 +40,6 @@ import marytts.util.MaryUtils;
 
 import marytts.modules.InternalModule;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Read a simple phone string and generate default acoustic parameters.
@@ -47,8 +48,6 @@ import org.w3c.dom.Element;
  */
 
 public class SimplePhoneme2AP extends InternalModule {
-	private DocumentBuilderFactory factory = null;
-	private DocumentBuilder docBuilder = null;
 	protected AllophoneSet allophoneSet;
 
 	public SimplePhoneme2AP(String localeString) {
@@ -61,78 +60,97 @@ public class SimplePhoneme2AP extends InternalModule {
 
 	public void startup() throws Exception {
 		allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(getLocale()) + ".allophoneset");
-		if (factory == null) {
-			factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-		}
-		if (docBuilder == null) {
-			docBuilder = factory.newDocumentBuilder();
-		}
 		super.startup();
 	}
 
 	public MaryData process(MaryData d) throws Exception {
 		String phoneString = d.getPlainText();
-		MaryData result = new MaryData(outputType(), d.getLocale(), true);
-		Document doc = result.getDocument();
-		Element root = doc.getDocumentElement();
-		root.setAttribute("xml:lang", MaryUtils.locale2xmllang(d.getLocale()));
-		Element insertHere = root;
-		Voice defaultVoice = d.getDefaultVoice();
-		if (defaultVoice != null) {
-			Element voiceElement = MaryXML.createElement(doc, MaryXML.VOICE);
-			voiceElement.setAttribute("name", defaultVoice.getName());
-			root.appendChild(voiceElement);
-			insertHere = voiceElement;
-		}
-		int cumulDur = 0;
+
+        Accent word_accent = null;
+        int cumulDur = 0;
 		boolean isFirst = true;
-		StringTokenizer stTokens = new StringTokenizer(phoneString);
-		while (stTokens.hasMoreTokens()) {
-			Element token = MaryXML.createElement(doc, MaryXML.TOKEN);
-			insertHere.appendChild(token);
+        ArrayList<Word> words = new ArrayList<Word>();
+        StringTokenizer stTokens = new StringTokenizer(phoneString);
+		while (stTokens.hasMoreTokens())
+        {
 			String tokenPhonemes = stTokens.nextToken();
-			token.setAttribute("ph", tokenPhonemes);
 			StringTokenizer stSyllables = new StringTokenizer(tokenPhonemes, "-_");
-			while (stSyllables.hasMoreTokens()) {
-				Element syllable = MaryXML.createElement(doc, MaryXML.SYLLABLE);
-				token.appendChild(syllable);
+
+            ArrayList<Syllable> syllables = new ArrayList<Syllable>();
+			while (stSyllables.hasMoreTokens())
+            {
+                // Get syllable string
 				String syllablePhonemes = stSyllables.nextToken();
-				syllable.setAttribute("ph", syllablePhonemes);
+
+                // Setting stress
 				int stress = 0;
 				if (syllablePhonemes.startsWith("'"))
 					stress = 1;
 				else if (syllablePhonemes.startsWith(","))
 					stress = 2;
-				if (stress != 0) {
-					// Simplified: Give a "pressure accent" do stressed syllables
-					syllable.setAttribute("accent", "*");
-					token.setAttribute("accent", "*");
-				}
-				Allophone[] phones = allophoneSet.splitIntoAllophones(syllablePhonemes);
-				for (int i = 0; i < phones.length; i++) {
-					Element ph = MaryXML.createElement(doc, MaryXML.PHONE);
-					ph.setAttribute("p", phones[i].name());
+
+
+                // Simplified: Give a "pressure accent" do stressed syllables
+                Accent syllable_accent = null;
+                if (stress != 0) {
+                    word_accent = new Accent("*");
+                    syllable_accent = new Accent("*");
+                }
+
+                // Generate phone
+                ArrayList<Phoneme> phones = new ArrayList<Phoneme>();
+                Allophone[] allophones = allophoneSet.splitIntoAllophones(syllablePhonemes);
+				for (int i = 0; i < allophones.length; i++) {
+                    // Dealing with duration of the phone
 					int dur = 70;
-					if (phones[i].isVowel()) {
+					if (allophones[i].isVowel()) {
 						dur = 100;
 						if (stress == 1)
 							dur *= 1.5;
 						else if (stress == 2)
 							dur *= 1.2;
 					}
-					ph.setAttribute("d", String.valueOf(dur));
-					cumulDur += dur;
-					ph.setAttribute("end", String.valueOf(cumulDur));
 
-					syllable.appendChild(ph);
-				}
-			}
-		}
-		Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
-		boundary.setAttribute("bi", "4");
-		boundary.setAttribute("duration", "400");
-		insertHere.appendChild(boundary);
-		return result;
+                    // Creating the phone
+                    Phone ph = new Phone(allophones[i].name(), cumulDur, dur);
+                    phones.add(ph);
+
+                    // We save the cumulative duration to know when the next phone is starting
+                    cumulDur += dur;
+                }
+
+                Syllable syl = new Syllable(phones, stress);
+                syl.setAccent(syllable_accent);
+                syllables.add(syl);
+            }
+
+            // Wrapping into a word
+            Word w = new Word("", syllables);
+            w.setAccent(word_accent);
+            words.add(w);
+        }
+
+        // Wrapping into a phrase
+        Boundary boundary = new Boundary(4, 400);
+        Phrase phrase = new Phrase(boundary, words);
+
+        // Wrapping into a sentence
+        Sentence sentence = new Sentence("");
+        sentence.addPhrase(phrase);
+
+        // Wrapping into a paragraph
+        Paragraph paragraph = new Paragraph("");
+        paragraph.addSentence(sentence);
+
+        // Add to an utterance
+        Utterance utt = new Utterance("", d.getLocale());
+        utt.addParagraph(paragraph);
+
+        // Finally serialize and return
+        XMLSerializer xml_ser = new XMLSerializer();
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+
+        return result;
 	}
 }

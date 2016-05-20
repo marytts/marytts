@@ -50,6 +50,11 @@ public class Sentence extends Item
 		m_words = words;
 	}
 
+    public void addWord(Word word)
+    {
+        m_words.add(word);
+    }
+
     public ArrayList<Phrase> getPhrases()
 	{
 		return m_phrases;
@@ -59,5 +64,10 @@ public class Sentence extends Item
 	{
 		m_phrases = phrases;
 	}
+
+    public void addPhrase(Phrase phrase)
+    {
+        m_phrases.add(phrase);
+    }
 
 }

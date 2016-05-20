@@ -32,8 +32,10 @@ import org.apache.log4j.BasicConfigurator;
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 
+/**
+ *  TODO: think about a real test....
+ */
 public class XMLSerializerTest {
-	String textString = "Hallöchen Welt!";
 
 	@BeforeClass
 	public static void setUp() throws Exception {

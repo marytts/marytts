@@ -29,9 +29,11 @@ import marytts.util.dom.MaryDomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import marytts.data.Utterance;
+import marytts.io.XMLSerializer;
 /**
  * Create simple text from a rawmaryxml document.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -47,6 +49,9 @@ public class MaryXMLToText extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
+
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(doc);
 
 		MaryData result = new MaryData(outputType(), d.getLocale());
 		result.setPlainText(MaryDomUtils.getPlainTextBelow(doc));
