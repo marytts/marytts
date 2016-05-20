@@ -9,11 +9,20 @@ public class Boundary
 {
     private int m_breakindex;
     private String m_tone;
+    private int m_duration;
 
     public Boundary(int breakindex, String tone)
     {
         setBreakindex(breakindex);
         setTone(tone);
+        setDuration(-1);
+    }
+
+    public Boundary(int breakindex, int duration)
+    {
+        setBreakindex(breakindex);
+        setTone(null);
+        setDuration(duration);
     }
 
     public int getBreakindex()
@@ -34,5 +43,15 @@ public class Boundary
     public void setTone(String tone)
     {
         m_tone = tone;
+    }
+
+    public int getDuration()
+    {
+        return m_duration;
+    }
+
+    public void setDuration(int duration)
+    {
+        m_duration = duration;
     }
 }

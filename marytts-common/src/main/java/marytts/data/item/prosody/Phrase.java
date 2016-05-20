@@ -58,4 +58,9 @@ public class Phrase extends Item
     {
         m_words = words;
     }
+
+    public void addWord(Word word)
+    {
+        m_words.add(word);
+    }
 }

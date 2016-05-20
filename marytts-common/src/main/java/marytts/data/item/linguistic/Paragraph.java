@@ -37,7 +37,12 @@ public class Paragraph extends Item
 		m_sentences = sentences;
 	}
 
-	public String getText()
+    public void addSentence(Sentence sentence)
+    {
+        m_sentences.add(sentence);
+    }
+
+    public String getText()
 	{
 		return m_text;
 	}

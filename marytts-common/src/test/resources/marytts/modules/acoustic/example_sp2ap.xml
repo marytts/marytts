@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<s>
+<prosody>
+<phrase>
+<t accent="*">
+<syllable accent="*" stress="1">
+<ph d="70.0" p="w" start="0.0"/>
+<ph d="150.0" p="E" start="70.0"/>
+<ph d="70.0" p="l" start="220.0"/>
+</syllable>
+<syllable stress="0">
+<ph d="70.0" p="k" start="290.0"/>
+<ph d="100.0" p="@" start="360.0"/>
+<ph d="70.0" p="m" start="460.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable stress="0">
+<ph d="70.0" p="t" start="530.0"/>
+<ph d="100.0" p="@" start="600.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable stress="0">
+<ph d="70.0" p="D" start="700.0"/>
+<ph d="100.0" p="@" start="770.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable accent="*" stress="1">
+<ph d="70.0" p="w" start="870.0"/>
+<ph d="150.0" p="r=" start="940.0"/>
+<ph d="70.0" p="l" start="1090.0"/>
+<ph d="70.0" p="d" start="1160.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable stress="0">
+<ph d="100.0" p="@" start="1230.0"/>
+<ph d="70.0" p="v" start="1330.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable accent="*" stress="1">
+<ph d="70.0" p="s" start="1400.0"/>
+<ph d="70.0" p="p" start="1470.0"/>
+<ph d="150.0" p="i" start="1540.0"/>
+<ph d="70.0" p="tS" start="1690.0"/>
+</syllable>
+</t>
+<t accent="*">
+<syllable accent="*" stress="1">
+<ph d="70.0" p="s" start="1760.0"/>
+<ph d="150.0" p="I" start="1830.0"/>
+<ph d="70.0" p="n" start="1980.0"/>
+</syllable>
+<syllable stress="0">
+<ph d="70.0" p="T" start="2050.0"/>
+<ph d="100.0" p="@" start="2120.0"/>
+</syllable>
+<syllable stress="0">
+<ph d="70.0" p="s" start="2220.0"/>
+<ph d="100.0" p="I" start="2290.0"/>
+<ph d="70.0" p="s" start="2390.0"/>
+</syllable>
+</t>
+</phrase>
+</prosody>
+</s>
+</p>
+</maryxml>

@@ -244,6 +244,11 @@ public class XMLSerializer implements Serializer
 
         phone_element.setAttribute("p", ph.getLabel());
 
+        if (ph instanceof Phone)
+        {
+            phone_element.setAttribute("start", String.valueOf(((Phone) ph).getStart()));
+            phone_element.setAttribute("d", String.valueOf(((Phone) ph).getDuration()));
+        }
         return phone_element;
     }
 
