@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -934,9 +935,14 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 			options = new String[] { "Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip",
 					"Skip all" };
 		}
-		int choice = JOptionPane.showOptionDialog(null, "Misalignment problem for " + basename + ":\n" + errorMessage,
-				"Correct alignment for " + basename, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-				options, null);
+		int choice;
+		try {
+			choice = JOptionPane.showOptionDialog(null, "Misalignment problem for " + basename + ":\n" + errorMessage,
+					"Correct alignment for " + basename, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					options, null);
+		} catch (HeadlessException e) {
+			return SKIP;
+		}
 		switch (choice) {
 		case 0:
 			editMaryXML(basename);

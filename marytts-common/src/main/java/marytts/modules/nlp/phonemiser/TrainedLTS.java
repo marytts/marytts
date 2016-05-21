@@ -158,9 +158,6 @@ public class TrainedLTS {
 			StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
 			String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
 			returnStr += prediction.substring(1, prediction.length() - 1);
-
-
-
 		}
 
 		return returnStr;

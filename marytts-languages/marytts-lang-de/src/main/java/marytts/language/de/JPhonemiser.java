@@ -352,11 +352,11 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 		}
 		Result resultingWord = null;
 		boolean usedOtherLanguageToPhonemise = false;
-		try{
-            resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
-            result = resultingWord.getTranscription();
-            usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
-		}catch(NullPointerException e){
+		try {
+			resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
+			result = resultingWord.getTranscription();
+			usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
+		} catch (NullPointerException e) {
 			logger.debug(String.format("Word is Null: ", e.getMessage()));
 		}
 		// logger.debug("input for PD: "+text);
@@ -374,14 +374,14 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 		// Cannot find it in the lexicon -- apply letter-to-sound rules
 		// to the normalised form
 
-		String phones = ""; //added
+		String phones = ""; // added
 		try {
-			phones = lts.predictPronunciation(normalised); //added
+			phones = lts.predictPronunciation(normalised); // added
 			result = lts.syllabify(phones);
 		} catch (IllegalArgumentException e) {
 			logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
-		} catch (ClassCastException e){
-			logger.error(String.format("Problem with token <%s> : %s", normalised, e.getMessage())); //added
+		} catch (ClassCastException e) {
+			logger.error(String.format("Problem with token <%s> : %s", normalised, e.getMessage())); // added
 		}
 		if (result != null) {
 			if (logUnknownFileName != null) {

@@ -73,7 +73,7 @@ Klicken Sie den <t xml:lang="en">Button</t>, um die <t xml:lang="en">Beatles</t>
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns="${project.url}/2002/MaryXML"
 xml:lang="de">
-Klicken Sie den <t ph="'ba-t@n">Button</t>, um die <t sampa="'bi:-t@ls">Beatles</t> zu spielen.
+Klicken Sie den <t ph="'ba-t@n">Button</t>, um die <t ph="'bi:-t@ls">Beatles</t> zu spielen.
 </maryxml>
 +------------------------------------------+
 
