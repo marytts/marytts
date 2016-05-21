@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.dfki.mary</groupId>
+	<artifactId>marytts</artifactId>
+	<version>5.2-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>MaryTTS</name>
+	<url>http://mary.dfki.de</url>
+	<description>An open-source, multilingual Text-to-Speech Synthesis platform written in Java</description>
+	<inceptionYear>2000</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License v3.0</name>
+			<url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>DFKI GmbH</name>
+		<url>http://www.dfki.de/</url>
+	</organization>
+
+	<developers>
+		<!-- in alphabetical order -->
+		<developer>
+			<name>Aitor Martínez Egurcegui</name>
+			<url>https://github.com/aitorme</url>
+		</developer>
+		<developer>
+			<name>Tristan Hamilton</name>
+			<url>https://github.com/munzey</url>
+		</developer>
+		<developer>
+			<name>Sébastien Le Maguer</name>
+			<url>https://github.com/seblemaguer</url>
+		</developer>
+		<developer>
+			<name>Jonathan Poitz</name>
+			<url>https://github.com/jonathanPoitz</url>
+		</developer>
+		<developer>
+			<name>Marc Schröder</name>
+			<url>https://github.com/marc1s</url>
+		</developer>
+		<developer>
+			<name>Ali Shah</name>
+			<url>https://github.com/alishah-ahmed</url>
+		</developer>
+		<developer>
+			<name>Atta Ur Rehman Shah</name>
+			<url>https://github.com/attacomsian</url>
+		</developer>
+		<developer>
+			<name>Ingmar Steiner</name>
+			<url>https://github.com/psibre</url>
+		</developer>
+		<developer>
+			<name>Sotaya Yakubu</name>
+			<url>https://github.com/Rootex</url>
+		</developer>
+	</developers>
+
+	<contributors>
+		<!-- in alphabetical order -->
+		<contributor>
+			<name>Stefanie Becker</name>
+		</contributor>
+		<contributor>
+			<name>Harald Berthelsen</name>
+			<url>https://github.com/HaraldBerthelsen</url>
+		</contributor>
+		<contributor>
+			<name>Marcela Charfuelan</name>
+			<url>https://github.com/marcelach1</url>
+		</contributor>
+		<contributor>
+			<name>Paulo Faria</name>
+		</contributor>
+		<contributor>
+			<name>Anna Hunecke</name>
+		</contributor>
+		<contributor>
+			<name>Sacha Krstulović</name>
+		</contributor>
+		<contributor>
+			<name>Giulio Paci</name>
+			<url>https://github.com/giuliopaci</url>
+		</contributor>
+		<contributor>
+			<name>Sathish Chandra Pammi</name>
+			<url>https://github.com/sathishpc</url>
+		</contributor>
+		<contributor>
+			<name>Benjamin Roth</name>
+		</contributor>
+		<contributor>
+			<name>Nickolay Shmyrev</name>
+			<url>https://github.com/nshmyrev</url>
+		</contributor>
+		<contributor>
+			<name>Jochen Steigner</name>
+		</contributor>
+		<contributor>
+			<name>Maureen Tanuadji</name>
+			<url>https://github.com/mochanz</url>
+		</contributor>
+		<contributor>
+			<name>Fabio Tesser</name>
+			<url>https://github.com/ftesser</url>
+		</contributor>
+		<contributor>
+			<name>Oytun Türk</name>
+		</contributor>
+		<contributor>
+			<name>Mat Wilson</name>
+		</contributor>
+	</contributors>
+
+	<distributionManagement>
+		<site>
+			<id>DFKI</id>
+			<url>rsync:mary:/local/mary/www</url>
+		</site>
+		<downloadUrl>https://github.com/marytts/marytts/releases</downloadUrl>
+		<repository>
+			<id>bintray</id>
+			<url>https://api.bintray.com/maven/marytts/marytts/marytts</url>
+		</repository>
+		<snapshotRepository>
+			<id>bintray</id>
+			<url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<mailingLists>
+		<mailingList>
+			<name>mary-users</name>
+			<archive>http://www.dfki.de/pipermail/mary-users/</archive>
+			<post>mary-users@dfki.de</post>
+			<subscribe>mary-users-request@dfki.de?subject=subscribe</subscribe>
+			<unsubscribe>mary-users-request@dfki.de?subject=unsubscribe</unsubscribe>
+		</mailingList>
+		<mailingList>
+			<name>mary-dev (archived)</name>
+			<archive>http://www.dfki.de/pipermail/mary-dev/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/marytts/marytts/issues/</url>
+	</issueManagement>
+
+	<scm>
+		<url>https://github.com/marytts/marytts</url>
+		<connection>scm:git:https://github.com/marytts/marytts.git</connection>
+		<developerConnection>scm:git:git@github.com/marytts/marytts.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<ciManagement>
+		<system>Travis</system>
+		<url>https://travis-ci.org/marytts/marytts</url>
+	</ciManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- this path is defined in the parent POM, but only accessed in the children POMs -->
+		<project.local.repository.path>${project.basedir}/../lib/repo</project.local.repository.path>
+		<github.global.server>github</github.global.server>
+	</properties>
+
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
+
+	<modules>
+		<module>marytts-common</module>
+		<module>marytts-languages</module>
+		<module>marytts-signalproc</module>
+		<module>marytts-runtime</module>
+		<module>marytts-client</module>
+		<module>marytts-builder</module>
+		<module>marytts-redstart</module>
+		<module>marytts-transcription</module>
+		<module>voice-cmu-slt-hsmm</module>
+		<module>marytts-assembly</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.6</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.5</version>
+			</dependency>
+
+			<dependency>
+				<groupId>de.dfki.mary</groupId>
+				<artifactId>emotionml-checker-java</artifactId>
+				<version>1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+			</dependency>
+
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.16</version>
+			</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.16</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy-all</artifactId>
+				<version>2.4.6</version>
+			</dependency>
+
+			<dependency>
+				<groupId>oro</groupId>
+				<artifactId>oro</artifactId>
+				<version>2.0.8</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.cloudbees</groupId>
+				<artifactId>diff4j</artifactId>
+				<version>1.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>14.0.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.ibm.icu</groupId>
+				<artifactId>icu4j</artifactId>
+				<version>54.1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.twmacinta</groupId>
+				<artifactId>fast-md5</artifactId>
+				<version>2.7.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>de.dfki.lt.jtok</groupId>
+				<artifactId>jtok-core</artifactId>
+				<version>1.9.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>gov.nist.math</groupId>
+				<artifactId>jama</artifactId>
+				<version>1.0.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>gov.nist.math</groupId>
+				<artifactId>Jampack</artifactId>
+				<version>1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>gov.noaa.pmel.sgt</groupId>
+				<artifactId>sgt</artifactId>
+				<version>3.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.sf.trove4j</groupId>
+				<artifactId>trove4j</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>nz.ac.waikato.cms.weka</groupId>
+				<artifactId>weka-dev</artifactId>
+				<version>3.7.6</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore</artifactId>
+				<version>4.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore-nio</artifactId>
+				<version>4.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.opennlp</groupId>
+				<artifactId>opennlp-maxent</artifactId>
+				<version>3.0.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.opennlp</groupId>
+				<artifactId>opennlp-tools</artifactId>
+				<version>1.5.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.easytesting</groupId>
+				<artifactId>fest-assert</artifactId>
+				<version>1.4</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-all</artifactId>
+				<version>1.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.incava</groupId>
+				<artifactId>java-diff</artifactId>
+				<version>1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.swinglabs</groupId>
+				<artifactId>swing-layout</artifactId>
+				<version>1.0.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>6.9.11</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.wikimedia</groupId>
+				<artifactId>mwdumper</artifactId>
+				<version>1.16</version>
+			</dependency>
+
+			<dependency>
+				<groupId>xmlunit</groupId>
+				<artifactId>xmlunit</artifactId>
+				<version>1.6</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>marytts-dependencies</id>
+			<name>marytts-dependencies</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>file://${project.local.repository.path}</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<name>jcenter</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>https://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<name>jcenter</name>
+			<url>https://jcenter.bintray.com</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.6</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.5.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>1.4.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.19.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.6</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.3</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.5.1</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.pcl-solutions.maven.wagons</groupId>
+							<artifactId>rsync-maven-wagon</artifactId>
+							<version>1.0</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.maven.doxia</groupId>
+							<artifactId>doxia-module-markdown</artifactId>
+							<version>1.7</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<stagingSiteURL>${project.distributionManagement.site.url}</stagingSiteURL>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.19.1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+					<artifactId>maven-java-formatter-plugin</artifactId>
+					<version>0.4</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.10</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>buildnumber-maven-plugin</artifactId>
+					<version>1.4</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.gmaven</groupId>
+					<artifactId>groovy-maven-plugin</artifactId>
+					<version>2.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.2</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.fortasoft</groupId>
+					<artifactId>gradle-maven-plugin</artifactId>
+					<version>1.0.7</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<compilerId>groovy-eclipse-compiler</compilerId>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.groovy</groupId>
+						<artifactId>groovy-eclipse-compiler</artifactId>
+						<version>2.9.1-01</version>
+					</dependency>
+					<dependency>
+						<groupId>org.codehaus.groovy</groupId>
+						<artifactId>groovy-eclipse-batch</artifactId>
+						<version>2.3.7-01</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-java-7-or-higher</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>1.7</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Integration tests -->
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<argLine>-Xms256m -Xmx512m</argLine>
+					<systemPropertyVariables>
+						<!-- The MARY installation directory, as seen from our subproject's perspective: -->
+						<mary.base>${basedir}/..</mary.base>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Unit tests -->
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!--forkMode>pertest</forkMode -->
+					<argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m</argLine>
+					<excludes>
+						<!--exclude>**/util/**/*.java</exclude -->
+						<exclude>**/modules/MaryModuleTestCase.java</exclude>
+					</excludes>
+					<systemPropertyVariables>
+						<mary.base>${project.parent.basedir.path}</mary.base>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+				<artifactId>maven-java-formatter-plugin</artifactId>
+				<configuration>
+					<configFile>${user.dir}/eclipse-code-style.xml</configFile>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.text</groupId>
+						<artifactId>org.eclipse.text</artifactId>
+						<version>3.5.101</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>org.eclipse.jdt.core</artifactId>
+						<version>3.10.0.v20140604-1726</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+	<!-- Reports generated when executing 'mvn site' -->
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.9</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>index</report>
+							<report>summary</report>
+							<report>project-team</report>
+							<report>license</report>
+							<report>mailing-list</report>
+							<report>issue-tracking</report>
+							<report>scm</report>
+							<report>cim</report>
+							<report>modules</report>
+							<report>dependency-management</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<!-- Generate javadoc -->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<destDir>javadoc</destDir>
+					<skip>false</skip>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>default</id>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<!-- Look for duplicate code (CPD): -->
+			<!-- <plugin>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<linkXref>true</linkXref>
+					<sourceEncoding>UTF-8</sourceEncoding>
+					<minimumTokens>30</minimumTokens>
+					<targetJdk>1.6</targetJdk>
+					<reportSets>
+						<reportSet>
+							<reports>
+								<report>pmd</report>
+								<report>cpd</report>
+							</reports>
+						</reportSet>
+					</reportSets>
+				</configuration>
+			</plugin> -->
+			
+			<!-- Check style guidelines -->
+			<!-- <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.6</version>
+			</plugin> -->
+
+			<!-- Look for typical programming mistakes: -->
+			<!-- <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<findbugsXmlOutput>true</findbugsXmlOutput>
+					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+					<xmlOutput>true</xmlOutput>
+					<excludeFilterFile>findbugs-excludes.xml</excludeFilterFile>
+				</configuration>
+			</plugin> -->
+			
+ 			<!-- Measure the test code coverage: -->
+			<!-- <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>emma-maven-plugin</artifactId>
+				<version>1.0-alpha-3</version>
+			</plugin> -->
+			
+			<!-- Web page presenting unit test results: -->
+			<!-- <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.7.1</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>report-only</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin> -->
+			
+			<!-- Number of lines of code: -->
+			<!-- <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javancss-maven-plugin</artifactId>
+				<version>2.0</version>
+			</plugin> -->
+
+		</plugins>
+	</reporting>
+</project>

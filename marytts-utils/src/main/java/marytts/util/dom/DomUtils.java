@@ -143,7 +143,7 @@ public class DomUtils {
 		 * Set Entity resolver for APML and SABLE
 		 */
 		builder.setEntityResolver(new MaryEntityResolver());
-		
+
 		return builder.parse(new InputSource(inputData));
 	}
 

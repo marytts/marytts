@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<s>
+<t>
+Her
+</t>
+<t>
+name
+</t>
+<t>
+was
+</t>
+<t>
+Duchess
+</t>
+<t pos=".">
+,
+</t>
+<t>
+but
+</t>
+<t>
+he
+</t>
+<t>
+often
+</t>
+<t>
+called
+</t>
+<t>
+her
+</t>
+<t>
+Pet
+</t>
+<t pos=".">
+.
+</t>
+</s>
+</p>
+</maryxml>

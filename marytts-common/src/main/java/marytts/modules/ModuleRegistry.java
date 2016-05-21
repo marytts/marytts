@@ -26,12 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
+import marytts.server.MaryProperties;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.log4j.Logger;
@@ -40,7 +42,7 @@ import org.apache.log4j.Logger;
  * A hierarchical repository for Mary modules, allowing the flexible indexing by an ordered hierarchy of datatype, locale and
  * voice. A given lookup will search for a combination of datatype, locale and voice first; if it does not find a value, it will
  * look for datatype, locale, and null; if it does notfind that, it will look for datatype, null, and null.
- * 
+ *
  * @author marc
  *
  */
@@ -49,6 +51,8 @@ public class ModuleRegistry {
 	private static List<MaryModule> allModules;
 	private static boolean registrationComplete;
 	private static Logger logger;
+
+	private static List<MaryModule> preferredModules;
 
 	private ModuleRegistry() {
 	}
@@ -69,7 +73,7 @@ public class ModuleRegistry {
 
 	/**
 	 * From the given module init info, instantiate a new mary module.
-	 * 
+	 *
 	 * @param moduleInitInfo
 	 *            a string description of the module to instantiate. The moduleInitInfo is expected to have one of the following
 	 *            forms:
@@ -98,7 +102,7 @@ public class ModuleRegistry {
 	 * of the input data, and voice requested for processing. Note that it is possible to register more than one module for a
 	 * given combination of input type, locale and voice; in that case, all of them will be remembered, and will be returned as a
 	 * List by get().
-	 * 
+	 *
 	 * @param module
 	 *            the module to add to the registry, under its input type and the given locale and voice.
 	 * @param locale
@@ -134,10 +138,10 @@ public class ModuleRegistry {
 
 	/**
 	 * Determine whether or not the registration is complete. When the registration is not (yet) complete, calls to
-	 * 
+	 *
 	 * @see #registerModule(MaryModule, Locale, Voice) are possible; when the registration is complete, calls to the other methods
 	 *      are possible.
-	 * 
+	 *
 	 * @return false when the registration is still open, true when it is complete.
 	 */
 	public static boolean getRegistrationComplete() {
@@ -146,7 +150,7 @@ public class ModuleRegistry {
 
 	/**
 	 * Indicate that the registration is now complete. No further calls to registerModules() will be possible.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if called when registration was already completed before.
 	 */
@@ -154,8 +158,27 @@ public class ModuleRegistry {
 		if (registrationComplete)
 			throw new IllegalStateException("Registration has already completed, cannot do that a second time");
 
+		// Set registration complete lockup
 		registrationComplete = true;
 		MaryDataType.setRegistrationComplete();
+
+		// Define system preferred modules
+		List<String> preferredModulesClasses = MaryProperties.getList("modules.preferred.classes.list");
+		if ((preferredModulesClasses == null) || (preferredModulesClasses.isEmpty()))
+			return;
+
+		preferredModules = new ArrayList<MaryModule>();
+		for (String moduleInfo : preferredModulesClasses) {
+			try {
+				MaryModule mm = null;
+				if (!moduleInfo.contains("(")) { // no constructor info
+					mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
+				}
+				preferredModules.add(mm);
+			} catch (ClassNotFoundException e) {
+				logger.warn("Cannot initialise preferred module " + moduleInfo + " -- skipping.", e);
+			}
+		}
 	}
 
 	// ////////////////////////////////////////////////////////////////
@@ -163,8 +186,32 @@ public class ModuleRegistry {
 	// ////////////////////////////////////////////////////////////////
 
 	/**
+	 * Provide a list containing preferred modules for the specified input type
+	 *
+	 * @param wanted_input_type
+	 *            the specified input type
+	 * @return the list of system wide preferred modules, null if none
+	 */
+	public static synchronized List<MaryModule> getPreferredModulesForInputType(MaryDataType wanted_input_type) {
+		if (preferredModules != null) {
+			List<MaryModule> v = new ArrayList<MaryModule>();
+			for (Iterator<MaryModule> it = preferredModules.iterator(); it.hasNext();) {
+				MaryModule m = (MaryModule) it.next();
+				if (m.inputType().equals(wanted_input_type)) {
+					v.add(m);
+				}
+			}
+			if (v.size() > 0)
+				return v;
+			else
+				return null;
+		}
+		return null;
+	}
+
+	/**
 	 * Provide a list containing all MaryModules instances. The order is not important.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
 	 * @return Collections.unmodifiableList(allModules)
@@ -177,7 +224,7 @@ public class ModuleRegistry {
 
 	/**
 	 * Find an active module by its class.
-	 * 
+	 *
 	 * @param moduleClass
 	 *            moduleClass
 	 * @return the module instance if found, or null if not found.
@@ -202,7 +249,7 @@ public class ModuleRegistry {
 	/**
 	 * A method for determining the list of modules required to transform the given source data type into the requested target
 	 * data type.
-	 * 
+	 *
 	 * @param sourceType
 	 *            sourceType
 	 * @param targetType
@@ -223,7 +270,7 @@ public class ModuleRegistry {
 	/**
 	 * A method for determining the list of modules required to transform the given source data type into the requested target
 	 * data type. If the voice given is not null, any preferred modules it may have are taken into account.
-	 * 
+	 *
 	 * @param sourceType
 	 *            sourceType
 	 * @param targetType
@@ -278,9 +325,10 @@ public class ModuleRegistry {
 		}
 		// Recursion step:
 		// Any voice-specific modules?
-		List<MaryModule> candidates = null;
+		List<MaryModule> candidates = getPreferredModulesForInputType(sourceType);
+
 		// TODO: the following should be obsolete as soon as we are properly using the voice index in ModuleRegistry
-		if (voice != null)
+		if ((candidates == null || candidates.isEmpty()) && voice != null)
 			candidates = voice.getPreferredModulesAcceptingType(sourceType);
 		if (candidates == null || candidates.isEmpty()) { // default: use all available modules
 			candidates = get(sourceType, locale, voice);
@@ -321,7 +369,7 @@ public class ModuleRegistry {
 	 * language-only locale and voice (i.e., for requested locale "en-US" will find modules with locale "en"); 3. the combination
 	 * of datatype and locale, ignoring voice; 4. the combination of datatype and language-only locale, ignoring voice; 5. least
 	 * specific is the datatype, ignoring locale and voice.
-	 * 
+	 *
 	 * @param type
 	 *            the type of input data
 	 * @param locale

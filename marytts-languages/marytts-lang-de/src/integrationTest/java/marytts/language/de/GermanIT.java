@@ -38,18 +38,20 @@ public class GermanIT {
 		Assert.assertEquals("' S 2: n", phone2[0], "wrong transcription for '" + word2 + "':");
 	}
 
-	//Testing for the output when a greek work if phonemised
+	// Testing for the output when a greek work if phonemised
 	@Test
-	public void PhonemiserT() throws Exception{
+	public void PhonemiserT() throws Exception {
+
 		JPhonemiser module = new JPhonemiser();
 		String result = "";
 		String result2 = "";
-		//phonemise
+		// phonemise
 		result = module.phonemise("αββ", "XY", new StringBuilder());
 		result2 = module.phonemise("λόγος", "XY", new StringBuilder());
-		//verify
-		Assert.assertEquals(result, null);
-		Assert.assertEquals(result2, null);
+
+//verify
+        Assert.assertEquals(result, null);
+        Assert.assertEquals(result2, null);
 	}
 
 }

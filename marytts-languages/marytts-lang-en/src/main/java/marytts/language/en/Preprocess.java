@@ -303,11 +303,14 @@ public class Preprocess extends InternalModule {
 					if (!contractions.containsKey(contractionMatch.group(1))) {
 						MaryDomUtils.setTokenText(t, MaryDomUtils.tokenText(t).replaceAll("'", ""));
 					}
-					// if not in lexicon and we have a contraction expansion then split into two tokens
-					else {
-						splitContraction = true;
-						MaryDomUtils.setTokenText(t, splitContraction(MaryDomUtils.tokenText(t)));
-					}
+
+					// FIXME: we do not want to have to phonological word => for now we do not split !
+					// // if not in lexicon and we have a contraction expansion then split into two tokens
+					// else
+					// {
+					// splitContraction = true;
+					// MaryDomUtils.setTokenText(t, splitContraction(MaryDomUtils.tokenText(t)));
+					// }
 				}
 				// acronym
 			} else if (MaryDomUtils.tokenText(t).matches(acronymPattern.pattern())) {
@@ -383,8 +386,8 @@ public class Preprocess extends InternalModule {
 				puncSplit = true;
 				String[] puncTokens = MaryDomUtils.tokenText(t).split("((?<=\\p{Punct})|(?=\\p{Punct}))");
 				MaryDomUtils.setTokenText(t, Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", ""));
-				// set all punctuation tokens' (and symbols not wordified) pos attribute to anything non-alphabetic in order to
-				// stop phonemisation
+				// FIXME: skip quotes for now as we don't have any clever management of the POS for the prosodic feature
+			} else if (MaryDomUtils.tokenText(t).equals("\"")) {
 			} else if (MaryDomUtils.tokenText(t).matches(punctuationPattern.pattern())) {
 				t.setAttribute("pos", ".");
 			}
@@ -541,7 +544,7 @@ public class Preprocess extends InternalModule {
 
 	/***
 	 * expands a digit followed by an s. e.g. 7s and 8s and the 60s
-	 * 
+	 *
 	 * @param numberS
 	 *            numberS
 	 * @return number
