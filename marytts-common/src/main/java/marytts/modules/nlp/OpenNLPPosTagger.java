@@ -118,6 +118,10 @@ public class OpenNLPPosTagger extends InternalModule {
                 tokens.add(w.getText());
             }
 
+            // Trick the system in case of one ==> add a punctuation
+            if (tokens.size() == 1)
+                tokens.add(".");
+
             // POS Tagging
             List<String> partsOfSpeech = null;
             synchronized (this) {
@@ -128,11 +132,12 @@ public class OpenNLPPosTagger extends InternalModule {
             Iterator<String> posIt = partsOfSpeech.iterator();
             for (Word w: s.getWords())
             {
+                assert posIt.hasNext();
+                String pos = posIt.next();
+
                 if (w.getPOS() != null)
                     continue;
 
-                assert posIt.hasNext();
-                String pos = posIt.next();
                 if (posMapper != null) {
                     String gpos = posMapper.get(pos);
                     if (gpos == null)
