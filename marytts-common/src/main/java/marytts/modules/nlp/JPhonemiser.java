@@ -173,11 +173,9 @@ public class JPhonemiser extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception
     {
-
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(d.getDocument());
 
-        ArrayList<Word> words = utt.getAllWords();
         for (Word w: utt.getAllWords())
         {
             String text;
