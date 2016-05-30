@@ -28,11 +28,9 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
+import marytts.data.Utterance;
+import marytts.data.item.linguistic.Word;
+import marytts.io.XMLSerializer;
 
 /**
  *
@@ -43,61 +41,34 @@ public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 	/**
      *
      */
-	public JTokeniser() {
+	public JTokeniser()
+    {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
 	}
 
-	public MaryData process(MaryData d) throws Exception {
-		MaryData result = super.process(d);
-		normaliseToAscii(result);
-		return result;
+	public MaryData process(MaryData d) throws Exception
+    {
+		MaryData super_result = super.process(d);
+
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(super_result.getDocument());
+
+		normaliseToAscii(utt);
+
+        MaryData result = new MaryData(outputType(), d.getLocale());
+        result.setDocument(xml_ser.generateDocument(utt));
+        return result;
 	}
 
-	protected void normaliseToAscii(MaryData d) {
-		Document doc = d.getDocument();
-		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-                                                                           MaryXML.TOKEN), false);
-		Element t = null;
-		while ((t = (Element) ni.nextNode()) != null) {
-			String s = MaryDomUtils.tokenText(t);
-			String normalised = MaryUtils.normaliseUnicodeLetters(s, Locale.ENGLISH);
-			if (!s.equals(normalised)) {
-				MaryDomUtils.setTokenText(t, normalised);
-			}
-		}
-	}
-
-	/**
-	 * In current FreeTTS code, prosody elements get lost. So remember at least the force-accent element on individual tokens:
-	 *
-	 * @param d
-	 *            d
-	 * @deprecated FreeTTS is no longer used, so this method no longer serves a purpose.
-	 */
-	@Deprecated
-	protected void propagateForceAccent(MaryData d) {
-		Document doc = d.getDocument();
-		NodeIterator prosodyNI = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-                                                                                  MaryXML.PROSODY), false);
-		Element prosody = null;
-		while ((prosody = (Element) prosodyNI.nextNode()) != null) {
-			if (prosody.hasAttribute("force-accent")) {
-				String forceAccent = prosody.getAttribute("force-accent");
-				String accent = null;
-				if (forceAccent.equals("none")) {
-					accent = "none";
-				} else {
-					accent = "unknown";
-				}
-				NodeIterator tNI = ((DocumentTraversal) doc).createNodeIterator(prosody, NodeFilter.SHOW_ELEMENT,
-                                                                                new NameNodeFilter(MaryXML.TOKEN), false);
-				Element t = null;
-				while ((t = (Element) tNI.nextNode()) != null) {
-					if (!t.hasAttribute("accent")) {
-						t.setAttribute("accent", accent);
-					}
-				} // while t
-			}
-		} // while prosody
-	}
+	protected void normaliseToAscii(Utterance utt)
+    {
+        for (Word w: utt.getAllWords())
+        {
+            String s = w.getText();
+            String normalised = MaryUtils.normaliseUnicodeLetters(s, Locale.ENGLISH);
+            if (!s.equals(normalised)) {
+                w.setText(normalised);
+            }
+        }
+    }
 }

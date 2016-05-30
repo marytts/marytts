@@ -98,7 +98,7 @@ public class Word extends Item
         return m_text;
     }
 
-    protected void setText(String text)
+    public void setText(String text)
     {
         m_text = text;
     }
