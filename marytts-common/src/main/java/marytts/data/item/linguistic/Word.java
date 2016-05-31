@@ -154,7 +154,7 @@ public class Word extends Item
         return m_sounds_like;
     }
 
-    protected void soundsLike(String sounds_like)
+    public void soundsLike(String sounds_like)
     {
         m_sounds_like = sounds_like;
     }
