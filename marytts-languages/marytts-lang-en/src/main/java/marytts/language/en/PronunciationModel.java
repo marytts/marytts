@@ -28,9 +28,6 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.item.linguistic.Word;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.TreeWalker;
-
 /**
  * A pronunciation model that takes into account some English postlexical rules.
  *

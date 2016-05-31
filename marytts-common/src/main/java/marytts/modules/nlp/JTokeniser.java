@@ -199,8 +199,6 @@ public class JTokeniser extends InternalModule {
                         if (tokenisedText.getAnnotation(JTok.BORDER_ANNO) == JTok.P_BORDER)
                         {
                             p.setSentences(sentences);
-
-                            System.out.println((new XMLSerializer()).toString(utt));
                             sentences = new ArrayList<Sentence>();
                         }
                     }
