@@ -194,6 +194,9 @@ public class XMLSerializer implements Serializer
         if (word.getAccent() != null)
             word_element.setAttribute("accent", word.getAccent().getLabel());
 
+        if (word.soundsLike() != null)
+            word_element.setAttribute("sounds_like", word.soundsLike());
+
         ArrayList<Phoneme> phonemes = word.getPhonemes();
         if (phonemes.size() > 0)
         {
