@@ -22,6 +22,7 @@ dependencies {
     compile group: 'log4j', name: 'log4j', version: '1.2.16'
     compile group: 'com.twmacinta', name: 'fast-md5', version: '2.7.1'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
+    compile group: 'colt', name: 'colt', version: '1.2.0'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
 }
 
