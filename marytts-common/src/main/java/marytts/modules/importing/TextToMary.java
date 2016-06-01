@@ -25,8 +25,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.data.Utterance;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.io.XMLSerializer;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -35,9 +37,6 @@ import marytts.util.MaryUtils;
 
 import marytts.modules.InternalModule;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
 
 /**
  * Embed plain text input into a raw (untokenised) MaryXML document.
@@ -68,7 +67,8 @@ public class TextToMary extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
+
+        String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
 		Locale l = determineLocale(plain_text, d.getLocale());
 
         // FIXME: old xml part still here, remove that
@@ -76,23 +76,30 @@ public class TextToMary extends InternalModule {
 
         // New utterance part
         Utterance utt = new Utterance(plain_text, l);
-		if (splitIntoParagraphs) { // Empty lines separate paragraphs
+        Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
+		if (splitIntoParagraphs)
+        {
+            // Empty lines separate paragraphs
 			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
-			for (int i = 0; i < inputTexts.length; i++) {
+			for (int i = 0; i < inputTexts.length; i++)
+            {
 				String paragraph_text = inputTexts[i].trim();
 				if (paragraph_text.length() == 0)
 					continue;
                 Paragraph p = new Paragraph(paragraph_text);
-                utt.addParagraph(p);
+                paragraphs.add(p);
             }
-		} else { // The whole text as one single paragraph
-            Paragraph p = new Paragraph(plain_text);
-            utt.addParagraph(p);
 		}
+        // The whole text as one single paragraph
+        else
+        {
+            Paragraph p = new Paragraph(plain_text);
+            paragraphs.add(p);
+		}
+        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, paragraphs);
 
         XMLSerializer xml_serializer = new XMLSerializer();
         result.setDocument(xml_serializer.generateDocument(utt));
-
         return result;
 	}
 

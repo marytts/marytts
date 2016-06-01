@@ -30,6 +30,7 @@ import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
@@ -113,10 +114,10 @@ public class JTokeniser extends InternalModule {
         // annotated string. Each stretch of characters is annotated with the
         // DOM Text object to which it belonged.
         StringBuilder inputText = new StringBuilder();
-        for (Paragraph p : utt.getParagraphs())
+        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
         {
-            String text = p.getText().trim();
 
+            String text = ((Paragraph) p).getText().trim();
 
             // Insert a space character between non-punctuation characters:
             if ((inputText.length() > 0) &&
@@ -132,9 +133,9 @@ public class JTokeniser extends InternalModule {
         // And now go through the TEXT nodes a second time and annotate
         // the string.
         int pos = 0;
-        for (Paragraph p : utt.getParagraphs())
+        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
         {
-            String text = p.getText().trim();
+            String text = ((Paragraph) p).getText().trim();
             int len = text.length();
             if (len == 0)
                 continue;
@@ -198,7 +199,7 @@ public class JTokeniser extends InternalModule {
 
                         if (tokenisedText.getAnnotation(JTok.BORDER_ANNO) == JTok.P_BORDER)
                         {
-                            p.setSentences(sentences);
+                            ((Paragraph) p).setSentences(sentences);
                             sentences = new ArrayList<Sentence>();
                         }
                     }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class Sequence<E> extends ArrayList<E>
+public class Sequence<Item> extends ArrayList<Item>
 {
     /* Define what is really specific, item type controls ? */
 }

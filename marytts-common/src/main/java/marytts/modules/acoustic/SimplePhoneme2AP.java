@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.prosody.*;
 import marytts.data.item.phonology.*;
@@ -142,9 +143,12 @@ public class SimplePhoneme2AP extends InternalModule {
         Paragraph paragraph = new Paragraph("");
         paragraph.addSentence(sentence);
 
+        Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
+        paragraphs.add(paragraph);
+
         // Add to an utterance
         Utterance utt = new Utterance("", d.getLocale());
-        utt.addParagraph(paragraph);
+        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, paragraphs);
 
         // Finally serialize and return
         XMLSerializer xml_ser = new XMLSerializer();
