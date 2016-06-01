@@ -17,11 +17,12 @@ import marytts.data.item.Item;
  */
 public class Relation
 {
-    private Sequence<Item> source_sequence;
-    private Sequence<Item> target_sequence;
-    private SparseDoubleMatrix2D relation_matrix;
+    private Sequence<? extends Item> m_source_sequence;
+    private Sequence<? extends Item> m_target_sequence;
+    private SparseDoubleMatrix2D m_relation_matrix;
 
-    public Relation(Sequence<Item> source_sequence, Sequence<Item> target_sequence,
+    public Relation(Sequence<? extends Item> source_sequence,
+                    Sequence<? extends Item> target_sequence,
                     SparseDoubleMatrix2D relation_matrix)
     {
         setSource(source_sequence);
@@ -29,7 +30,8 @@ public class Relation
         setRelations(relation_matrix);
     }
 
-    public Relation(Sequence<Item> source_sequence, Sequence<Item> target_sequence,
+    public Relation(Sequence<? extends Item> source_sequence,
+                    Sequence<? extends Item> target_sequence,
                     int[][] relation_matrix)
     {
         setSource(source_sequence);
@@ -38,7 +40,8 @@ public class Relation
     }
 
 
-    public Relation(Sequence<Item> source_sequence, Sequence<Item> target_sequence)
+    public Relation(Sequence<? extends Item> source_sequence,
+                    Sequence<? extends Item> target_sequence)
     {
         setSource(source_sequence);
         setTarget(target_sequence);
@@ -47,40 +50,40 @@ public class Relation
     /********************************************************************************************
      ** Getters/setters
      ********************************************************************************************/
-    protected void setSource(Sequence<Item> source_sequence)
+    protected void setSource(Sequence<? extends Item> source_sequence)
     {
-        this.source_sequence = source_sequence;
+        m_source_sequence = source_sequence;
     }
 
-    public Sequence<Item> getSource()
+    public Sequence<? extends Item> getSource()
     {
-        return source_sequence;
+        return m_source_sequence;
     }
 
-    protected void setTarget(Sequence<Item> target_sequence)
+    protected void setTarget(Sequence<? extends Item> target_sequence)
     {
-        this.target_sequence = target_sequence;
+        m_target_sequence = target_sequence;
     }
 
-    public Sequence<Item> getTarget()
+    public Sequence<? extends Item> getTarget()
     {
-        return target_sequence;
+        return m_target_sequence;
     }
 
     public void setRelations(SparseDoubleMatrix2D relation_matrix)
     {
-        this.relation_matrix = relation_matrix;
+        m_relation_matrix = relation_matrix;
     }
 
     public void setRelations(int[][] relation_matrix)
     {
 
-        assert relation_matrix.length == source_sequence.size();
+        assert relation_matrix.length == getSource().size();
         assert relation_matrix.length > 0;
-        assert relation_matrix[0].length == target_sequence.size();
+        assert relation_matrix[0].length == getTarget().size();
 
-        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(source_sequence.size(),
-                                                                   target_sequence.size());
+        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size(),
+                                                                   getTarget().size());
 
         for (int i=0; i<relation_matrix.length; i++)
             for (int j=0;j<relation_matrix[i].length; j++)
@@ -92,7 +95,7 @@ public class Relation
 
     private SparseDoubleMatrix2D getRelations()
     {
-        return relation_matrix;
+        return m_relation_matrix;
     }
 
     /********************************************************************************************
@@ -100,7 +103,7 @@ public class Relation
      ********************************************************************************************/
     public int[] getRelatedIndexes(int source_index)
     {
-        assert (source_index >= 0) && (source_index < relation_matrix.rows());
+        assert (source_index >= 0) && (source_index < getRelations().rows());
 
         IntArrayList row = new IntArrayList();
         getRelations().viewRow(source_index).getNonZeros(row, null);
@@ -133,5 +136,22 @@ public class Relation
         return new Relation(rel1.getSource(), rel2.getTarget(),
                             (SparseDoubleMatrix2D) (new Algebra()).mult(rel1.getRelations(),
                                                                         rel2.getRelations()));
+    }
+
+
+	@Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+
+        if (obj == null)
+            return false;
+
+        if (getClass() != obj.getClass())
+            return false;
+
+        return (getSource().equals(((Relation) obj).getSource()) &&
+                getTarget().equals(((Relation) obj).getTarget()));
     }
 }

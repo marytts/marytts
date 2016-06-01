@@ -23,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import marytts.data.Utterance;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.phonology.*;
 import marytts.data.item.prosody.*;
@@ -103,7 +104,7 @@ public class XMLSerializer implements Serializer
             rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
 
             // Adding paragraphs
-            for (Paragraph p: utt.getParagraphs())
+            for (Paragraph p: (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
             {
                 rootElement.appendChild(exportParagraph(p, doc));
             }
@@ -270,7 +271,7 @@ public class XMLSerializer implements Serializer
         else
             l = new Locale.Builder().setLanguage(loc[0]).build();
 
-        ArrayList<Paragraph> par = new ArrayList<Paragraph>();
+        Sequence<Paragraph> par = new Sequence<Paragraph>();
         NodeList elts = root.getElementsByTagName("p");
         String text = "";
         for (int i=0; i<elts.getLength(); i++)
@@ -297,7 +298,8 @@ public class XMLSerializer implements Serializer
         }
 
         // Build the text
-        Utterance utt = new Utterance(text, l, par);
+        Utterance utt = new Utterance(text, l);
+        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, par);
 
         return utt;
     }

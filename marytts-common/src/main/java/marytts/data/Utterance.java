@@ -1,5 +1,6 @@
 package marytts.data;
 
+import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -10,6 +11,8 @@ import marytts.data.item.linguistic.Word;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.prosody.Phrase;
 
+import marytts.data.item.Item;
+
 /**
  *
  *
@@ -17,31 +20,29 @@ import marytts.data.item.prosody.Phrase;
  */
 public class Utterance
 {
+    public enum SupportedSequenceType {
+        PARAGRAPH
+    };
     private String m_voice_name;
 	private String m_text;
     private Locale m_locale;
-    private ArrayList<Paragraph> m_list_paragraphs;
     private ArrayList<AudioInputStream> m_list_streams;
+    private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
+    private ArrayList<Relation> m_relations;
 
     public Utterance(String text, Locale locale)
     {
         setVoice(null);
         setText(text);
         setLocale(locale);
-        setParagraphs(new ArrayList<Paragraph>());
-    }
 
-    public Utterance(String text, Locale locale, ArrayList<Paragraph> list_paragraphs)
-    {
-        setVoice(null);
-        setText(text);
-        setLocale(locale);
-        setParagraphs(list_paragraphs);
+        m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
+        m_relations = new ArrayList<Relation>();
     }
 
     public String getText()
     {
-    	return m_text;
+        return m_text;
     }
 
     protected void setText(String text)
@@ -51,7 +52,7 @@ public class Utterance
 
     public Locale getLocale()
     {
-    	return m_locale;
+        return m_locale;
     }
 
     protected void setLocale(Locale locale)
@@ -69,35 +70,20 @@ public class Utterance
         m_voice_name = voice_name;
     }
 
-    public ArrayList<Paragraph> getParagraphs()
+    public Sequence<Sentence> getAllSentences()
     {
-        return m_list_paragraphs;
-	}
-
-	public void setParagraphs(ArrayList<Paragraph> list_paragraphs)
-	{
-		m_list_paragraphs = list_paragraphs;
-	}
-
-    public void addParagraph(Paragraph p)
-    {
-        m_list_paragraphs.add(p);
-    }
-
-    public ArrayList<Sentence> getAllSentences()
-    {
-        ArrayList<Sentence> sentences = new ArrayList<Sentence>();
-        for (Paragraph p: getParagraphs())
+        Sequence<Sentence> sentences = new Sequence<Sentence>();
+        for (Paragraph p:  (Sequence<Paragraph>) getSequence(SupportedSequenceType.PARAGRAPH))
         {
             sentences.addAll(p.getSentences());
         }
         return sentences;
     }
 
-    public ArrayList<Phrase> getAllPhrases()
+    public Sequence<Phrase> getAllPhrases()
     {
-        ArrayList<Sentence> sentences = getAllSentences();
-        ArrayList<Phrase> phrases = new ArrayList<Phrase>();
+        Sequence<Sentence> sentences = getAllSentences();
+        Sequence<Phrase> phrases = new Sequence<Phrase>();
 
         for (Sentence s: sentences)
         {
@@ -107,9 +93,9 @@ public class Utterance
         return phrases;
     }
 
-    public ArrayList<Word> getAllWords()
+    public Sequence<Word> getAllWords()
     {
-        ArrayList<Word> words = new ArrayList<Word>();
+        Sequence<Word> words = new Sequence<Word>();
         for (Sentence s: getAllSentences())
         {
             words.addAll(s.getWords());
@@ -120,5 +106,24 @@ public class Utterance
             words.addAll(p.getWords());
         }
         return words;
+    }
+
+    /**
+     * Adding a sequence. If the label is already existing, the corresponding sequence is replaced
+     *
+     *  @param type the type of the sequence
+     *  @param sequence the sequence
+     */
+    public void addSequence(SupportedSequenceType type, Sequence<? extends Item> sequence)
+    {
+        m_sequences.put(type, sequence);
+    }
+
+    public Sequence<? extends Item> getSequence(SupportedSequenceType type)
+    {
+        if (m_sequences.containsKey(type))
+            return m_sequences.get(type);
+
+        return new Sequence<Item>();
     }
 }
