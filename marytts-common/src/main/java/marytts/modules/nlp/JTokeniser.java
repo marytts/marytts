@@ -29,8 +29,11 @@ import marytts.datatypes.MaryXML;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
+import marytts.data.Relation;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
@@ -158,15 +161,22 @@ public class JTokeniser extends InternalModule {
         AnnotatedString tokenisedText;
         tokenisedText = jtok.tokenize(inputText.toString(), jtokLocale);
 
+        Sequence<Sentence> sentences = new Sequence<Sentence>();
+        ArrayList<ImmutablePair<Integer, Integer>> alignment_paragraph_sentence = new ArrayList<ImmutablePair<Integer, Integer>>();
+
         // And now merge the output back into the MaryXML document.
         Word previousToken = null;
-        ArrayList<Sentence> sentences = new ArrayList<Sentence>();
+        int sentence_offset = 0;
+        int sentence_index = 0;
+        int paragraph_index = 0;
+
         ArrayList<Word> words = new ArrayList<Word>();
         Text currentTextNode = null;
         char c = tokenisedText.setIndex(0);
         Word w = null;
         Paragraph p = null;
         maryText.setIndex(0);
+
         while (c != AnnotatedString.DONE)
         {
             int tokenStart = tokenisedText.getRunStart(JTok.CLASS_ANNO);
@@ -178,8 +188,10 @@ public class JTokeniser extends InternalModule {
                 // We don't care about the actual annotation, only that there is one.
                 // Where to insert the token:
                 maryText.setIndex(tokenStart);
-                p = (Paragraph) maryText.getAnnotation("MARYXML");
-                assert p != null;
+
+                // FIXME: should we keep that ?
+                // p = (Paragraph) maryText.getAnnotation("MARYXML");
+                // assert p != null;
 
                 w = new Word(tokenisedText.substring(tokenStart, tokenEnd));
 
@@ -195,13 +207,22 @@ public class JTokeniser extends InternalModule {
 
                         Sentence s = new Sentence(sent_text, words);
                         sentences.add(s);
+                        sentence_index++;
                         words = new ArrayList<Word>();
 
                         if (tokenisedText.getAnnotation(JTok.BORDER_ANNO) == JTok.P_BORDER)
                         {
-                            ((Paragraph) p).setSentences(sentences);
-                            sentences = new ArrayList<Sentence>();
+                            for (int i=0; i<sentence_index; i++)
+                            {
+                                alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(paragraph_index, sentence_offset+i));
+                            }
+
+                            // Move to the next paragraph
+                            sentence_offset += sentence_index;
+                            sentence_index = 0;
+                            paragraph_index++;
                         }
+
                     }
                 }
 
@@ -221,9 +242,24 @@ public class JTokeniser extends InternalModule {
                 sent_text += cur_word.getText() + " ";
             Sentence s = new Sentence(sent_text, words);
             sentences.add(s);
-            p.setSentences(sentences);
+            sentence_index++;
+
+            for (int i=0; i<sentence_index; i++)
+            {
+                alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(paragraph_index, sentence_offset+i));
+            }
         }
 
+        // Add the sequences to the utterance
+        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, sentences);
+
+        // Create the relations and add them to the utterance
+        Relation rel_par_sent = new Relation(utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH),
+                                             utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
+                                             alignment_paragraph_sentence);
+        utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE, rel_par_sent);
+
+        // Generate the result
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(xml_ser.generateDocument(utt));
         return result;

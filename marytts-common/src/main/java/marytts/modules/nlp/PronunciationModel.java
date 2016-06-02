@@ -50,12 +50,12 @@ import marytts.modules.synthesis.Voice;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.prosody.Phrase;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
+import marytts.data.Relation;
 import marytts.io.XMLSerializer;
 
 import org.w3c.dom.Document;
@@ -180,57 +180,51 @@ public class PronunciationModel extends InternalModule {
 
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
-        Sequence<Paragraph> paragraphs = (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH);
-        Sequence<Paragraph> adapted_paragraphs = new Sequence<Paragraph>();
+        Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE);
+
+        // Create the adapted sequences
+        Sequence<Sentence> adapted_sentences = new Sequence<Sentence>();
 
         AllophoneSet allophoneSet = null;
-        for (Paragraph par: paragraphs)
+        for (Sentence sent: sentences)
         {
-            ArrayList<Sentence> adapted_sentences = new ArrayList<Sentence>();
-            for (Sentence sent: par.getSentences())
+            ArrayList<Phrase> adapted_phrases = new ArrayList<Phrase>();
+            for (Phrase phr: sent.getPhrases())
             {
-                ArrayList<Phrase> adapted_phrases = new ArrayList<Phrase>();
-                for (Phrase phr: sent.getPhrases())
+                ArrayList<Word> adapted_words = new ArrayList<Word>();
+
+                for (Word w: phr.getWords())
                 {
-                    ArrayList<Word> adapted_words = new ArrayList<Word>();
+                    // First, create the substructure of <t> elements: <syllable> and <ph>.
+                    if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
 
-                    for (Word w: phr.getWords())
-                    {
-                        // First, create the substructure of <t> elements: <syllable> and <ph>.
-                        if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
-
-                            Voice maryVoice = Voice.getVoice(utt.getVoiceName());
-                            if (maryVoice == null) {
-                                // Determine Locale in order to use default voice
-                                Locale locale = utt.getLocale();
-                                maryVoice = Voice.getDefaultVoice(locale);
-                            }
-                            if (maryVoice != null) {
-                                allophoneSet = maryVoice.getAllophoneSet();
-                            } else {
-                                allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
-                            }
+                        Voice maryVoice = Voice.getVoice(utt.getVoiceName());
+                        if (maryVoice == null) {
+                            // Determine Locale in order to use default voice
+                            Locale locale = utt.getLocale();
+                            maryVoice = Voice.getDefaultVoice(locale);
                         }
-
-                        logger.info(allophoneSet);
-                        w = createSubStructure(w, allophoneSet);
-                        adapted_words.add(w);
+                        if (maryVoice != null) {
+                            allophoneSet = maryVoice.getAllophoneSet();
+                        } else {
+                            allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
+                        }
                     }
 
-                    phr.setWords(adapted_words);
-                    adapted_phrases.add(phr);
+                    logger.info(allophoneSet);
+                    w = createSubStructure(w, allophoneSet);
+                    adapted_words.add(w);
                 }
 
-                sent.setPhrases(adapted_phrases);
-                adapted_sentences.add(sent);
-
+                phr.setWords(adapted_words);
+                adapted_phrases.add(phr);
             }
 
-            par.setSentences(adapted_sentences);
-            adapted_paragraphs.add(par);
+            sent.setPhrases(adapted_phrases);
+            adapted_sentences.add(sent);
         }
 
-        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, adapted_paragraphs);
+        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, adapted_sentences);
 
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(xml_ser.generateDocument(utt));

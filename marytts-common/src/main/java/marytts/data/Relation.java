@@ -1,7 +1,9 @@
 package marytts.data;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.list.IntArrayList;
 import cern.colt.matrix.linalg.Algebra;
@@ -41,6 +43,16 @@ public class Relation
 
 
     public Relation(Sequence<? extends Item> source_sequence,
+                    Sequence<? extends Item> target_sequence,
+                    List<ImmutablePair<Integer, Integer>> relation_matrix)
+    {
+        setSource(source_sequence);
+        setTarget(target_sequence);
+        setRelations(relation_matrix);
+    }
+
+
+    public Relation(Sequence<? extends Item> source_sequence,
                     Sequence<? extends Item> target_sequence)
     {
         setSource(source_sequence);
@@ -52,6 +64,7 @@ public class Relation
      ********************************************************************************************/
     protected void setSource(Sequence<? extends Item> source_sequence)
     {
+        assert source_sequence.size() > 0;
         m_source_sequence = source_sequence;
     }
 
@@ -62,6 +75,7 @@ public class Relation
 
     protected void setTarget(Sequence<? extends Item> target_sequence)
     {
+        assert target_sequence.size() > 0;
         m_target_sequence = target_sequence;
     }
 
@@ -93,6 +107,23 @@ public class Relation
         setRelations(gen_matrix);
     }
 
+    /**
+     * FIXME: sizes not checked !
+     *
+     */
+    public void setRelations(List<ImmutablePair<Integer, Integer>> relation_pairs)
+    {
+
+        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size(),
+                                                                   getTarget().size());
+
+        for (ImmutablePair<Integer, Integer> indexes:relation_pairs)
+        {
+            gen_matrix.setQuick(indexes.getLeft(), indexes.getRight(), 1.0);
+        }
+        setRelations(gen_matrix);
+    }
+
     private SparseDoubleMatrix2D getRelations()
     {
         return m_relation_matrix;
@@ -101,6 +132,10 @@ public class Relation
     /********************************************************************************************
      ** Getters/setters
      ********************************************************************************************/
+    /**
+     * FIXME: not really happy with the int[]
+     *
+     */
     public int[] getRelatedIndexes(int source_index)
     {
         assert (source_index >= 0) && (source_index < getRelations().rows());
@@ -108,17 +143,20 @@ public class Relation
         IntArrayList row = new IntArrayList();
         getRelations().viewRow(source_index).getNonZeros(row, null);
 
-        return row.elements();
+        int[] indexes = new int[row.size()];
+        for (int i=0; i<row.size(); i++)
+            indexes[i] = row.get(i);
 
+        return indexes;
     }
 
-    public ArrayList<Item> getRelatedItems(int source_index)
+    public ArrayList<? extends Item> getRelatedItems(int source_index)
     {
         int[] indexes = getRelatedIndexes(source_index);
         ArrayList<Item> target_items = new ArrayList<Item>();
         for (int i=0; i<indexes.length; i++)
         {
-            target_items.add(getTarget().get(i));
+            target_items.add(getTarget().get(indexes[i]));
         }
 
         return target_items;
@@ -153,5 +191,14 @@ public class Relation
 
         return (getSource().equals(((Relation) obj).getSource()) &&
                 getTarget().equals(((Relation) obj).getTarget()));
+    }
+
+    @Override
+    public String toString()
+    {
+        String message = "source = " + getSource().toString() + "\n";
+        message += "target = " + getTarget().toString() + "\n";
+
+        return message;
     }
 }

@@ -33,7 +33,6 @@ import marytts.modules.InternalModule;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
-import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;

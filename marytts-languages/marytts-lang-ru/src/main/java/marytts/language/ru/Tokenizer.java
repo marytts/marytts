@@ -29,7 +29,7 @@ import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
 import marytts.data.Utterance;
-import marytts.data.item.linguistic.Paragraph;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 import marytts.io.XMLSerializer;
@@ -43,7 +43,8 @@ public class Tokenizer extends marytts.modules.nlp.JTokeniser {
 	/**
      *
      */
-	public Tokenizer() {
+	public Tokenizer()
+    {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("ru"));
 		setTokenizerLanguage("en");
 	}
@@ -69,7 +70,7 @@ public class Tokenizer extends marytts.modules.nlp.JTokeniser {
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(d.getDocument());
 
-        for (Sentence sent: utt.getAllSentences())
+        for (Sentence sent: (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE))
         {
             // Create a complete new list of word
             ArrayList<Word> words = new ArrayList<Word>();

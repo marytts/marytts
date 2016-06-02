@@ -2,7 +2,7 @@ dependencies {
     compile project(':marytts-utils')
     compile project(':marytts-signalproc')
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
-    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
     compile group: 'de.dfki.mary', name: 'emotionml-checker-java', version: '1.1'
     compile group: 'de.dfki.lt.jtok', name: 'jtok-core', version: '1.9.3'
@@ -24,6 +24,7 @@ dependencies {
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
     compile group: 'colt', name: 'colt', version: '1.2.0'
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
 }
 
 processResources {

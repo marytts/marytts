@@ -3,5 +3,5 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns="http://mary.dfki.de/2002/MaryXML"
 xml:lang="de">
-Willkommen<boundary breakindex="4"/>in der Welt der Sprachsynthese!
+<p>Willkommen<boundary breakindex="4"/>in der Welt der Sprachsynthese!</p>
 </maryxml>

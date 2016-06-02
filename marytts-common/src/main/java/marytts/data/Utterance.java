@@ -4,6 +4,8 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.data.item.linguistic.Paragraph;
@@ -21,14 +23,15 @@ import marytts.data.item.Item;
 public class Utterance
 {
     public enum SupportedSequenceType {
-        PARAGRAPH
+        PARAGRAPH,
+        SENTENCE
     };
     private String m_voice_name;
 	private String m_text;
     private Locale m_locale;
     private ArrayList<AudioInputStream> m_list_streams;
     private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
-    private ArrayList<Relation> m_relations;
+    private Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation> m_relations;
 
     public Utterance(String text, Locale locale)
     {
@@ -37,7 +40,7 @@ public class Utterance
         setLocale(locale);
 
         m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
-        m_relations = new ArrayList<Relation>();
+        m_relations = new Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation>();
     }
 
     public String getText()
@@ -45,7 +48,12 @@ public class Utterance
         return m_text;
     }
 
-    protected void setText(String text)
+
+    /**
+     *  FIXME: authorized just for the serializer for now... however needs to be more robust
+     *
+     */
+    public void setText(String text)
     {
         m_text = text;
     }
@@ -70,19 +78,9 @@ public class Utterance
         m_voice_name = voice_name;
     }
 
-    public Sequence<Sentence> getAllSentences()
-    {
-        Sequence<Sentence> sentences = new Sequence<Sentence>();
-        for (Paragraph p:  (Sequence<Paragraph>) getSequence(SupportedSequenceType.PARAGRAPH))
-        {
-            sentences.addAll(p.getSentences());
-        }
-        return sentences;
-    }
-
     public Sequence<Phrase> getAllPhrases()
     {
-        Sequence<Sentence> sentences = getAllSentences();
+        Sequence<Sentence> sentences = (Sequence<Sentence>) getSequence(SupportedSequenceType.SENTENCE);
         Sequence<Phrase> phrases = new Sequence<Phrase>();
 
         for (Sentence s: sentences)
@@ -96,7 +94,7 @@ public class Utterance
     public Sequence<Word> getAllWords()
     {
         Sequence<Word> words = new Sequence<Word>();
-        for (Sentence s: getAllSentences())
+        for (Sentence s: (Sequence<Sentence>) getSequence(SupportedSequenceType.SENTENCE))
         {
             words.addAll(s.getWords());
         }
@@ -125,5 +123,27 @@ public class Utterance
             return m_sequences.get(type);
 
         return new Sequence<Item>();
+    }
+
+    protected Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation> getRelations()
+    {
+        return m_relations;
+    }
+
+    /**
+     * FIXME: not really efficient right now
+     *
+     */
+    public Relation getRelation(SupportedSequenceType source, SupportedSequenceType target)
+    {
+        return getRelations().get(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source, target));
+    }
+
+    /**
+     * FIXME: have to check !
+     */
+    public void setRelation(SupportedSequenceType source, SupportedSequenceType target, Relation rel)
+    {
+        getRelations().put(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source, target), rel);
     }
 }
