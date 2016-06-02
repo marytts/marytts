@@ -42,6 +42,7 @@ import opennlp.tools.postag.POSTaggerME;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 
@@ -109,7 +110,7 @@ public class OpenNLPPosTagger extends InternalModule {
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
 
-        for (Sentence s: utt.getAllSentences())
+        for (Sentence s: (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE))
         {
             // Generate the list of word in the sentence
             List<String> tokens = new ArrayList<String>();

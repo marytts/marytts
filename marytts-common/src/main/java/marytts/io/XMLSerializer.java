@@ -2,6 +2,9 @@ package marytts.io;
 
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.Hashtable;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,6 +27,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
+import marytts.data.Relation;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.phonology.*;
 import marytts.data.item.prosody.*;
@@ -104,9 +108,9 @@ public class XMLSerializer implements Serializer
             rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
 
             // Adding paragraphs
-            for (Paragraph p: (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
+            for (int i=0; i<utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH).size(); i++)
             {
-                rootElement.appendChild(exportParagraph(p, doc));
+                rootElement.appendChild(exportParagraph(utt, i, doc));
             }
 
             // Finalise and returns the doc
@@ -122,17 +126,26 @@ public class XMLSerializer implements Serializer
     /************************************************************************************************
      * Element generation part
      ***********************************************************************************************/
-    public Element exportParagraph(Paragraph paragraph, Document doc)
+    public Element exportParagraph(Utterance utt, int par_index, Document doc)
     {
+        // FIXME: to remove
         Element par_element = doc.createElementNS(NAMESPACE, "p");
 
         // Export node value
+        Paragraph paragraph = ((Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH)).get(par_index);
         Node text = doc.createTextNode(paragraph.getText());
         par_element.appendChild(text);
 
         // Export subelements
-        for (Sentence s: paragraph.getSentences())
-            par_element.appendChild(exportSentence(s, doc));
+        Relation rel_par_sent = utt.getRelation(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE);
+
+        // FIXME: needs to have a "containsRelation" method
+        if (rel_par_sent != null)
+        {
+            ArrayList<Sentence> sentences = (ArrayList<Sentence>) rel_par_sent.getRelatedItems(par_index);
+            for (Sentence s: sentences)
+                par_element.appendChild(exportSentence(s, doc));
+        }
 
         return par_element;
     }
@@ -161,7 +174,6 @@ public class XMLSerializer implements Serializer
 
     public Element exportPhrase(Phrase phrase, Document doc)
     {
-
         Element phrase_element = doc.createElementNS(NAMESPACE, "phrase");
 
         logger.info("Serializing phrase");
@@ -263,7 +275,10 @@ public class XMLSerializer implements Serializer
     public Utterance unpackDocument(Document doc)
         throws MaryIOException
     {
+        Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments;
         Locale l;
+        alignments = new Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>>();
+
         Element root = doc.getDocumentElement();
         String[] loc = root.getAttribute("xml:lang").split("-");
         if (loc.length > 1)
@@ -271,7 +286,10 @@ public class XMLSerializer implements Serializer
         else
             l = new Locale.Builder().setLanguage(loc[0]).build();
 
-        Sequence<Paragraph> par = new Sequence<Paragraph>();
+
+        Utterance utt = new Utterance("", l); // FIXME: see "Utterance.setText"
+
+        // 1. going through everything and save the alignments
         NodeList elts = root.getElementsByTagName("p");
         String text = "";
         for (int i=0; i<elts.getLength(); i++)
@@ -294,24 +312,37 @@ public class XMLSerializer implements Serializer
             if (!found_text)
                 throw new MaryIOException("Cannot find the text of the paragraph", null);
 
-            par.add(generateParagraph(p));
+            generateParagraph(p, utt, alignments);
         }
 
-        // Build the text
-        Utterance utt = new Utterance(text, l);
-        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, par);
+        utt.setText(text); // FIXME: see "Utterance.setText"
+
+        // 2. Dealing relations
+        for (ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType> k: alignments.keySet())
+        {
+            Relation rel = new Relation(utt.getSequence(k.getLeft()), utt.getSequence(k.getRight()), alignments.get(k));
+
+            utt.setRelation(k.getLeft(), k.getRight(), rel);
+        }
 
         return utt;
     }
 
-    public Paragraph generateParagraph(Element elt)
+    public void generateParagraph(Element elt,
+                                  Utterance utt,
+                                  Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments)
         throws MaryIOException
     {
         assert elt.getTagName() == "p";
-        ArrayList<Sentence> sentence_list = new ArrayList<Sentence>();
+
+        // Retrieve the sentence offset
+        int sentence_offset = 0;
+        if (utt.getSequence(Utterance.SupportedSequenceType.SENTENCE) != null)
+            sentence_offset = utt.getSequence(Utterance.SupportedSequenceType.SENTENCE).size();
 
         NodeList nl = elt.getChildNodes();
         String text = null;
+        int sentence_index=0;
         logger.info("Current paragraph contains " + nl.getLength() + " childs");
         for (int j=0; j<nl.getLength(); j++)
         {
@@ -328,11 +359,12 @@ public class XMLSerializer implements Serializer
                 Element cur_elt = (Element) node;
                 if (cur_elt.getTagName() == "s")
                 {
-                    sentence_list.add(generateSentence(cur_elt));
+                    generateSentence(cur_elt, utt, alignments);
+                    sentence_index++;
                 }
                 else if (cur_elt.getTagName() == "voice")
                 {
-                    throw new MaryIOException("Fuck off !", null);
+                    throw new MaryIOException("I do not now what to do with voice tag !", null);
                 }
             }
             else
@@ -345,10 +377,39 @@ public class XMLSerializer implements Serializer
         if (text == null)
             throw new MaryIOException("Cannot find the text of the paragraph", null);
 
-        return new Paragraph(text, sentence_list);
+        // Create/modify the sequence by adding the paragraph
+        Paragraph par = new Paragraph(text);
+        Sequence<Paragraph> seq_par = (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH);
+        if (seq_par == null)
+        {
+            seq_par = new Sequence<Paragraph>();
+        }
+        seq_par.add(par);
+        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, seq_par);
+
+        // No sentence => no alignments !
+        if (sentence_index == 0)
+            return;
+
+        if (!alignments.containsKey(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE)))
+        {
+            alignments.put(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE),
+                           new ArrayList<ImmutablePair<Integer, Integer>>());
+        }
+
+        ArrayList<ImmutablePair<Integer, Integer>> alignment_paragraph_sentence = alignments.get(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE));
+        int id_par = seq_par.size() - 1;
+
+        // Deal with Relation sentences part
+        for (int i=0; i < sentence_index; i++)
+        {
+            alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(id_par, sentence_offset + i));
+        }
     }
 
-    public Sentence generateSentence(Element elt)
+    public void generateSentence(Element elt,
+                                 Utterance utt,
+                                 Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments)
         throws MaryIOException
     {
         assert elt.getTagName() == "s";
@@ -431,9 +492,18 @@ public class XMLSerializer implements Serializer
         // if (text == null)
         //     throw new MaryIOException("Cannot find the text of the sentence", null);
 
+
+
+        // Create/modify the sequence by adding the sentence
         Sentence s = new Sentence(text, word_list);
         s.setPhrases(phrase_list);
-        return s;
+        Sequence<Sentence> seq_sent = (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE);
+        if (seq_sent == null)
+        {
+            seq_sent = new Sequence<Sentence>();
+        }
+        seq_sent.add(s);
+        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, seq_sent);
     }
 
     public Phrase generatePhrase(Element elt)
