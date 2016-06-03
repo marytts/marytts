@@ -63,7 +63,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Builds and synthesizes unit selection voices
- * 
+ *
  * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
@@ -80,7 +80,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 
 	/**
 	 * Start up the waveform synthesizer. This must be called once before calling synthesize().
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -101,53 +101,8 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 	}
 
 	/**
-	 * Perform a power-on self test by processing some example input data.
-	 * 
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public void powerOnSelfTest() throws Error {
-		try {
-			Collection myVoices = Voice.getAvailableVoices(this);
-			if (myVoices.size() == 0) {
-				return;
-			}
-			UnitSelectionVoice unitSelVoice = (UnitSelectionVoice) myVoices.iterator().next();
-			assert unitSelVoice != null;
-			MaryData in = new MaryData(MaryDataType.get("ACOUSTPARAMS"), unitSelVoice.getLocale());
-			if (!unitSelVoice.getDomain().equals("general")) {
-				logger.info("Cannot perform power-on self test using limited-domain voice '" + unitSelVoice.getName()
-						+ "' - skipping.");
-				return;
-			}
-			String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(unitSelVoice.getLocale());
-			if (exampleText != null) {
-				in.readFrom(new StringReader(exampleText));
-				in.setDefaultVoice(unitSelVoice);
-				if (in == null) {
-					System.out.println(exampleText + " is null");
-				}
-				List<Element> tokensAndBoundaries = new ArrayList<Element>();
-				TreeWalker tw = ((DocumentTraversal) in.getDocument()).createTreeWalker(in.getDocument(),
-						NodeFilter.SHOW_ELEMENT, new NameNodeFilter(new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY }), false);
-				Element el = null;
-				while ((el = (Element) tw.nextNode()) != null)
-					tokensAndBoundaries.add(el);
-				AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice, null);
-				assert ais != null;
-			} else {
-				logger.debug("No example text -- no power-on self test!");
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw new Error("Module " + toString() + ": Power-on self test failed.", t);
-		}
-		logger.info("Power-on self test complete.");
-	}
-
-	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param tokensAndBoundaries
 	 *            tokensAndBoundaries
 	 * @param voice
@@ -159,7 +114,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 	 * @return audio
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
-			throws SynthesisException {
+        throws SynthesisException {
 		assert voice instanceof UnitSelectionVoice;
 		UnitSelectionVoice v = (UnitSelectionVoice) voice;
 		UnitDatabase udb = v.getDatabase();
@@ -237,8 +192,8 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 				if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
 					if (!maryxmlElement.hasAttribute("d") || !maryxmlElement.hasAttribute("end")) {
 						throw new IllegalStateException("No duration information in MaryXML -- check log file"
-								+ " for messages warning about unloadable acoustic models"
-								+ " instead of voice-specific acoustic feature predictors");
+                                                        + " for messages warning about unloadable acoustic models"
+                                                        + " instead of voice-specific acoustic feature predictors");
 					}
 					// int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
 					// int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
@@ -263,7 +218,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 				}
 			} else {
 				logger.debug("Unit " + su.getTarget().getName() + " of length " + unitDurationInMillis
-						+ " ms has no maryxml element.");
+                             + " ms has no maryxml element.");
 			}
 		}
 		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {

@@ -77,19 +77,6 @@ public class Synthesis extends InternalModule {
 		}
 	}
 
-	/**
-	 * Perform a power-on self test by processing some example input data.
-	 *
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public synchronized void powerOnSelfTest() throws Error {
-		for (Iterator<WaveformSynthesizer> it = waveformSynthesizers.iterator(); it.hasNext();) {
-			WaveformSynthesizer ws = it.next();
-			ws.powerOnSelfTest();
-		}
-	}
-
 	public MaryData process(MaryData d) throws Exception {
 		// We produce audio data, so we expect some helpers in our input:
 		assert d.getAudioFileFormat() != null : "Audio file format is not set!";

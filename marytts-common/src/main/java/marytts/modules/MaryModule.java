@@ -35,7 +35,7 @@ import marytts.datatypes.MaryDataType;
  * <li> <code>process()</code> many times, from different threads, possibly at the same time, during the lifetime of the server</li>
  * <li> <code>shutdown()</code> once, at the end of the program.</li>
  * </ul>
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 public interface MaryModule {
@@ -44,14 +44,14 @@ public interface MaryModule {
 
 	/**
 	 * This module's name, as free text, for example "Tokeniser"
-	 * 
+	 *
 	 * @return name
 	 */
 	public String name();
 
 	/**
 	 * The type of input data needed by this module.
-	 * 
+	 *
 	 * @return input type
 	 */
 	@Deprecated
@@ -61,7 +61,7 @@ public interface MaryModule {
 
 	/**
 	 * The type of output data produced by this module.
-	 * 
+	 *
 	 * @return outputType
 	 */
 	@Deprecated
@@ -72,7 +72,7 @@ public interface MaryModule {
 	/**
 	 * The locale of this module, i.e. the locale of data that this module can process. If null, indicates that the module can use
 	 * data of any locale (i.e., the module is language-independent.)
-	 * 
+	 *
 	 * @return the locale of this module, if any, or null
 	 */
 	public Locale getLocale();
@@ -80,7 +80,7 @@ public interface MaryModule {
 	/**
 	 * Allow the module to start up, performing whatever is necessary to become operational. After successful completion,
 	 * getState() should return MODULE_RUNNING.
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -88,18 +88,10 @@ public interface MaryModule {
 
 	/**
 	 * Inform about the state of this module.
-	 * 
+	 *
 	 * @return an int identifying the state of this module, either MODULE_OFFLINE or MODULE_RUNNING.
 	 */
 	public int getState();
-
-	/**
-	 * Perform a power-on self test by processing some example input data.
-	 * 
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public void powerOnSelfTest() throws Error;
 
 	/**
 	 * Allow the module to shut down cleanly. After this has successfully completed, getState() should return MODULE_OFFLINE.
@@ -114,7 +106,7 @@ public interface MaryModule {
 	 * The result is returned encapsulated in a MaryData object of type <code>outputType()</code>.
 	 * <p>
 	 * This method should never return <code> null </code>; in case of a failure, an exception should be thrown.
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 * @throws Exception

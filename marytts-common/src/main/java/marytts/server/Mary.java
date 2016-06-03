@@ -153,9 +153,6 @@ public class Mary {
 				long after = System.currentTimeMillis();
 				startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
 			}
-			if (MaryProperties.getAutoBoolean("modules.poweronselftest", false)) {
-				m.powerOnSelfTest();
-			}
 		}
 
 		if (startupTimes.size() > 0) {

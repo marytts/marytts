@@ -57,14 +57,14 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 	protected Logger logger;
 
 	/**
-     * 
+     *
      */
 	public InterpolatingSynthesizer() {
 	}
 
 	/**
 	 * Start up the waveform synthesizer. This must be called once before calling synthesize().
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -76,17 +76,8 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 	}
 
 	/**
-	 * Perform a power-on self test by processing some example input data.
-	 * 
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public void powerOnSelfTest() throws Error {
-	}
-
-	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param tokensAndBoundaries
 	 *            tokensAndBoundaries
 	 * @param voice
@@ -98,7 +89,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 	 * @return outputAudio
 	 */
 	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
-			throws SynthesisException {
+        throws SynthesisException {
 		if (tokensAndBoundaries.size() == 0)
 			return null;
 
@@ -134,7 +125,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 		UnitSelector unitSel2 = usv2.getUnitSelector();
 		List<SelectedUnit> selectedUnits2 = unitSel2.selectUnits(tokensAndBoundaries, voice);
 		assert selectedUnits1.size() == selectedUnits2.size() : "Unexpected difference in number of units: "
-				+ selectedUnits1.size() + " vs. " + selectedUnits2.size();
+            + selectedUnits1.size() + " vs. " + selectedUnits2.size();
 		int numUnits = selectedUnits1.size();
 
 		// 3. do unit concatenation with each, retrieve actual unit durations from list of units;
@@ -148,7 +139,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 			for (Iterator selIt = selectedUnits1.iterator(); selIt.hasNext();)
 				pw.println(selIt.next());
 			throw new SynthesisException("For voice " + voice1.getName() + ", problems generating audio for unit chain: "
-					+ sw.toString(), ioe);
+                                         + sw.toString(), ioe);
 		}
 		DoubleDataSource audioSource1 = new AudioDoubleDataSource(audio1);
 		UnitConcatenator unitConcatenator2 = usv2.getConcatenator();
@@ -161,7 +152,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 			for (Iterator selIt = selectedUnits2.iterator(); selIt.hasNext();)
 				pw.println(selIt.next());
 			throw new SynthesisException("For voice " + voice2.getName() + ", problems generating audio for unit chain: "
-					+ sw.toString(), ioe);
+                                         + sw.toString(), ioe);
 		}
 		DoubleDataSource audioSource2 = new AudioDoubleDataSource(audio2);
 		// Retrieve actual durations from list of units:
@@ -197,7 +188,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 			t2 += unitDuration2 / (float) sampleRate2;
 			label2[i] = t2;
 			logger.debug(usv1.getName() + " [" + u1.getTarget() + "] " + label1[i] + " -- " + usv2.getName() + " ["
-					+ u2.getTarget() + "] " + label2[i]);
+                         + u2.getTarget() + "] " + label2[i]);
 		}
 
 		// 4. with these unit durations, run the LSFInterpolator on the two audio streams.
@@ -207,7 +198,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer {
 		assert r >= 0;
 		assert r <= 1;
 		FramewiseMerger foas = new FramewiseMerger(audioSource1, frameLength, sampleRate1, new BufferedDoubleDataSource(label1),
-				audioSource2, sampleRate2, new BufferedDoubleDataSource(label2), new LSFInterpolator(predictionOrder, r));
+                                                   audioSource2, sampleRate2, new BufferedDoubleDataSource(label2), new LSFInterpolator(predictionOrder, r));
 		DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), audio1.getFormat());
 
 		return outputAudio;
