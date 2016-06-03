@@ -199,8 +199,6 @@ public class JTokeniser extends InternalModule {
 
                 w = new Word(tokenisedText.substring(tokenStart, tokenEnd));
                 words.add(w);
-                sent_text += w.getText() + " ";
-                word_index++;
 
                 // Is this token the first in a new sentence or paragraph?
                 if (null != tokenisedText.getAnnotation(JTok.BORDER_ANNO))
@@ -214,6 +212,8 @@ public class JTokeniser extends InternalModule {
                         for(int i=word_offset; i<word_index; i++)
                             alignment_sentence_word.add(new IntegerPair(sentence_index, i));
                         word_offset = word_index;
+
+
                         sentence_index++;
                         sent_text = "";
 
@@ -232,6 +232,9 @@ public class JTokeniser extends InternalModule {
 
                     }
                 }
+
+                sent_text += w.getText() + " ";
+                word_index++;
             }
 
             c = tokenisedText.setIndex(tokenEnd);
