@@ -56,13 +56,6 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	}
 
 	/**
-	 * Perform a power-on self test by processing some example input data. This implementation does nothing; instead, the module
-	 * test is carried out via Synthesis in the WaveformSynthesizer associated with this Caller.
-	 */
-	public synchronized void powerOnSelfTest() {
-	}
-
-	/**
 	 * From synthesis markup input <code>d</code>, create audio output of the type specified by a preceding call to
 	 * <code>setAudioType()</code>. Returns a MaryData structure whose data is an input stream from which audio data of the
 	 * specified type can be read.

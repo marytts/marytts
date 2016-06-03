@@ -162,62 +162,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
 	}
 
-	/**
-	 * Perform a power-on self test by processing some example input data.
-	 *
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public synchronized void powerOnSelfTest() throws Error {
-
-		logger.info("Starting power-on self test.");
-		try {
-			Collection<Voice> myVoices = Voice.getAvailableVoices(this);
-			if (myVoices.size() == 0) {
-				return;
-			}
-
-			Voice v = (Voice) myVoices.iterator().next();
-			MaryData in = new MaryData(MaryDataType.ACOUSTPARAMS, v.getLocale());
-
-			String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(v.getLocale());
-			if (exampleText != null) {
-				in.readFrom(new StringReader(exampleText));
-				in.setDefaultVoice(v);
-				assert v instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + v.getClass().toString();
-
-				// -- Here it is set the targetFeatureComputer for this voice
-				String features = ((HMMVoice) v).getHMMData().getFeatureDefinition().getFeatureNames();
-				TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(v, features);
-
-				in.setOutputParams(features);
-				Document doc = in.getDocument();
-				// First, get the list of segments and boundaries in the current document
-				TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
-				List<Element> segmentsAndBoundaries = new ArrayList<Element>();
-				Element e;
-				while ((e = (Element) tw.nextNode()) != null) {
-					segmentsAndBoundaries.add(e);
-				}
-
-				List<Target> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
-
-				// The actual durations are already fixed in the htsEngine.process()
-				// here i pass segements and boundaries to update the realised acoustparams, dur and f0
-				MaryData audio = htsEngine.process(in, targetFeaturesList, segmentsAndBoundaries, null);
-
-				assert audio.getAudio() != null;
-
-			} else {
-				logger.debug("No example text -- no power-on self test!");
-			}
-		} catch (Throwable t) {
-			throw new Error("Module " + toString() + ": Power-on self test failed.", t);
-		}
-		logger.info("Power-on self test complete.");
-
-	}
-
 	public String toString() {
 		return "HMMSynthesizer";
 	}

@@ -60,9 +60,6 @@ public class DummyModule implements MaryModule {
 	public void startup() throws Exception {
 	}
 
-	public void powerOnSelfTest() throws Error {
-	}
-
 	public void shutdown() {
 	}
 

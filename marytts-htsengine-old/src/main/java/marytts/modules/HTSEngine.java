@@ -107,9 +107,9 @@ import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * HTSEngine: a compact HMM-based speech synthesis engine.
- * 
+ *
  * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
- * 
+ *
  * @author Marc Schr&ouml;der, Marcela Charfuelan
  */
 public class HTSEngine extends InternalModule {
@@ -172,19 +172,10 @@ public class HTSEngine extends InternalModule {
 	}
 
 	/**
-	 * This module is actually tested as part of the HMMSynthesizer test, for which reason this method does nothing.
-	 * 
-	 * @throws Error
-	 *             Error
-	 */
-	public synchronized void powerOnSelfTest() throws Error {
-	}
-
-	/**
 	 * This functions process directly the target features list: targetFeaturesList when using external prosody, duration and f0
 	 * are read from acoustparams: segmentsAndBoundaries realised durations and f0 are set in: tokensAndBoundaries when calling
 	 * this function HMMVoice must be initialised already, that is TreeSet and ModelSet must be loaded already.
-	 * 
+	 *
 	 * @param d
 	 *            : to get the default voice and locale
 	 * @param targetFeaturesList
@@ -198,7 +189,7 @@ public class HTSEngine extends InternalModule {
 	 * @return output
 	 */
 	public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries,
-			List<Element> tokensAndBoundaries) throws Exception {
+                            List<Element> tokensAndBoundaries) throws Exception {
 
 		Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
 		assert v instanceof HMMVoice;
@@ -306,7 +297,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Reads the Label file, the file which contains the Mary context features, creates an scanner object and calls getTargets
-	 * 
+	 *
 	 * @param LabFile
 	 *            LabFile
 	 * @param htsData
@@ -334,7 +325,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Creates a scanner object with the Mary context features contained in Labtext and calls getTargets
-	 * 
+	 *
 	 * @param LabText
 	 *            LabText
 	 * @param htsData
@@ -393,7 +384,7 @@ public class HTSEngine extends InternalModule {
 
 	/***
 	 * Process feature vectors in target list to generate a list of models for generation and realisation
-	 * 
+	 *
 	 * @param targetFeaturesList
 	 *            : each target must contain the corresponding feature vector
 	 * @param segmentsAndBoundaries
@@ -588,7 +579,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Stand alone testing using a TARGETFEATURES file as input.
-	 * 
+	 *
 	 * @param args
 	 *            args
 	 * @throws IOException

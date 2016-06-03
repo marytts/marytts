@@ -123,32 +123,6 @@ public class InternalModule implements MaryModule {
 		state = MODULE_RUNNING;
 	}
 
-	/**
-	 * Perform a power-on self test by processing some example input data.
-	 *
-	 * @throws Error
-	 *             if the module does not work properly.
-	 */
-	public void powerOnSelfTest() throws Error {
-		assert state == MODULE_RUNNING;
-		logger.info("Starting power-on self test.");
-		try {
-			MaryData in = new MaryData(inputType, getLocale());
-			String example = inputType.exampleText(getLocale());
-			if (example != null) {
-				in.readFrom(new StringReader(example));
-				if (outputType.equals(MaryDataType.get("AUDIO")))
-					in.setAudioFileFormat(new AudioFileFormat(AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED));
-				process(in);
-			} else {
-				logger.debug("No example text -- no power-on self test!");
-			}
-		} catch (Throwable t) {
-			throw new Error("Module " + name + ": Power-on self test failed.", t);
-		}
-		logger.info("Power-on self test complete.");
-	}
-
 	public void shutdown() {
 		logger = MaryUtils.getLogger(name());
 		logger.info("Module shut down.");
