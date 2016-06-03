@@ -3,7 +3,9 @@ package marytts.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import marytts.data.utils.IntegerPair;
+import marytts.data.utils.SequenceTypePair;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.list.IntArrayList;
 import cern.colt.matrix.linalg.Algebra;
@@ -44,7 +46,7 @@ public class Relation
 
     public Relation(Sequence<? extends Item> source_sequence,
                     Sequence<? extends Item> target_sequence,
-                    List<ImmutablePair<Integer, Integer>> relation_matrix)
+                    List<IntegerPair> relation_matrix)
     {
         setSource(source_sequence);
         setTarget(target_sequence);
@@ -111,13 +113,13 @@ public class Relation
      * FIXME: sizes not checked !
      *
      */
-    public void setRelations(List<ImmutablePair<Integer, Integer>> relation_pairs)
+    public void setRelations(List<IntegerPair> relation_pairs)
     {
 
         SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size(),
                                                                    getTarget().size());
 
-        for (ImmutablePair<Integer, Integer> indexes:relation_pairs)
+        for (IntegerPair indexes:relation_pairs)
         {
             gen_matrix.setQuick(indexes.getLeft(), indexes.getRight(), 1.0);
         }
@@ -175,7 +177,6 @@ public class Relation
                             (SparseDoubleMatrix2D) (new Algebra()).mult(rel1.getRelations(),
                                                                         rel2.getRelations()));
     }
-
 
 	@Override
     public boolean equals(Object obj)
