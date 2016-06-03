@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +48,7 @@ import marytts.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.modules.synthesis.Voice;
+
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 import marytts.data.item.phonology.Phoneme;
@@ -56,6 +58,7 @@ import marytts.data.item.prosody.Phrase;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
+import marytts.data.utils.IntegerPair;
 import marytts.io.XMLSerializer;
 
 import org.w3c.dom.Document;
@@ -177,95 +180,80 @@ public class PronunciationModel extends InternalModule {
 	public MaryData process(MaryData d) throws Exception {
 		// get the xml document
         Document doc = d.getDocument();
-
+        AllophoneSet allophoneSet = null;
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
-        Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE);
+        Sequence<Word> words = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
+        Relation rel_words_sent = utt.getRelation(Utterance.SupportedSequenceType.SENTENCE, Utterance.SupportedSequenceType.WORD).getReverse();
+        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
-        // Create the adapted sequences
-        Sequence<Sentence> adapted_sentences = new Sequence<Sentence>();
-
-        AllophoneSet allophoneSet = null;
-        for (Sentence sent: sentences)
+        for (int i_word=0; i_word<words.size(); i_word++)
         {
-            ArrayList<Phrase> adapted_phrases = new ArrayList<Phrase>();
-            for (Phrase phr: sent.getPhrases())
-            {
-                ArrayList<Word> adapted_words = new ArrayList<Word>();
+            Word w = words.get(i_word);
+            alignment_word_phrase.add(new IntegerPair(rel_words_sent.getRelatedIndexes(i_word)[0], i_word));
 
-                for (Word w: phr.getWords())
-                {
-                    // First, create the substructure of <t> elements: <syllable> and <ph>.
-                    if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
-
-                        Voice maryVoice = Voice.getVoice(utt.getVoiceName());
-                        if (maryVoice == null) {
-                            // Determine Locale in order to use default voice
-                            Locale locale = utt.getLocale();
-                            maryVoice = Voice.getDefaultVoice(locale);
-                        }
-                        if (maryVoice != null) {
-                            allophoneSet = maryVoice.getAllophoneSet();
-                        } else {
-                            allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
-                        }
-                    }
-
-                    logger.info(allophoneSet);
-                    w = createSubStructure(w, allophoneSet);
-                    adapted_words.add(w);
+            // First, create the substructure of <t> elements: <syllable> and <ph>.
+            if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
+                Voice maryVoice = Voice.getVoice(utt.getVoiceName());
+                if (maryVoice == null) {
+                    // Determine Locale in order to use default voice
+                    Locale locale = utt.getLocale();
+                    maryVoice = Voice.getDefaultVoice(locale);
                 }
-
-                phr.setWords(adapted_words);
-                adapted_phrases.add(phr);
+                if (maryVoice != null) {
+                    allophoneSet = maryVoice.getAllophoneSet();
+                } else {
+                    allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
+                }
             }
 
-            sent.setPhrases(adapted_phrases);
-            adapted_sentences.add(sent);
+            logger.info(allophoneSet);
+            createSubStructure(w, allophoneSet);
         }
 
-        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, adapted_sentences);
+        // Create the phrase sequence (FIXME: let's be naive for now, 1 sentence = 1 phrase)
+        // Create the sentence/phrase relation
 
+        // Create the phrase/word relation
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(xml_ser.generateDocument(utt));
-        logger.info("serialization done !");
         return result;
     }
 
-    private Word createSubStructure(Word w, AllophoneSet allophoneSet)
+    private void createSubStructure(Word w, AllophoneSet allophoneSet)
         throws Exception
     {
         ArrayList<Phoneme> phonemes = w.getPhonemes();
         if (phonemes.size() == 0)
-            return w;
+            return;
 
         if (w.getSyllables().size() > 0)
-            return w; // FIXME: maybe throw an exception to indicate that technically we should not arrive in a syllabification stage a second time
+            return; // FIXME: maybe throw an exception to indicate that technically we should not arrive in a syllabification stage a second time
 
         /**********************************************************************
          *** FIXME: why that ?!
-        StringTokenizer tok = new StringTokenizer(phone, "-");
-        Document document = token.getOwnerDocument();
-        Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
-        String vq = null; // voice quality
-        if (prosody != null) {
-        // Ignore any effects of ancestor prosody tags for now:
+            StringTokenizer tok = new StringTokenizer(phone, "-");
+            Document document = token.getOwnerDocument();
+            Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
+            String vq = null; // voice quality
+            if (prosody != null) {
+            // Ignore any effects of ancestor prosody tags for now:
             String volumeString = prosody.getAttribute("volume");
             int volume = -1;
             try {
-                volume = Integer.parseInt(volumeString);
+            volume = Integer.parseInt(volumeString);
             } catch (NumberFormatException e) {
             }
             if (volume >= 0) {
-                if (volume >= 60) {
-                    vq = "loud";
-                } else if (volume <= 40) {
-                    vq = "soft";
-                } else {
-                    vq = null;
-                }
+            if (volume >= 60) {
+            vq = "loud";
+            } else if (volume <= 40) {
+            vq = "soft";
+            } else {
+            vq = null;
             }
-        }
+            }
+            }
         */
 
         for (Phoneme p:phonemes)
@@ -310,8 +298,6 @@ public class PronunciationModel extends InternalModule {
             // Finally create the syllable and add it to the word
             w.addSyllable(new Syllable(syl_phonemes, tone, stress, accent));
         }
-
-        return w;
     }
 
 // protected void updatePhAttributesFromPhElements(Word w)

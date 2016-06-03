@@ -120,7 +120,6 @@ public class JTokeniser extends InternalModule {
         StringBuilder inputText = new StringBuilder();
         for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
         {
-
             String text = ((Paragraph) p).getText().trim();
 
             // Insert a space character between non-punctuation characters:
@@ -163,15 +162,19 @@ public class JTokeniser extends InternalModule {
         tokenisedText = jtok.tokenize(inputText.toString(), jtokLocale);
 
         Sequence<Sentence> sentences = new Sequence<Sentence>();
+        Sequence<Word> words = new Sequence<Word>();
         ArrayList<IntegerPair> alignment_paragraph_sentence = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_sentence_word = new ArrayList<IntegerPair>();
 
-        // And now merge the output back into the MaryXML document.
+        // And now merge the output back into the utterance
+        String sent_text = "";
         Word previousToken = null;
         int sentence_offset = 0;
         int sentence_index = 0;
+        int word_offset = 0;
+        int word_index = 0;
         int paragraph_index = 0;
 
-        ArrayList<Word> words = new ArrayList<Word>();
         Text currentTextNode = null;
         char c = tokenisedText.setIndex(0);
         Word w = null;
@@ -195,40 +198,40 @@ public class JTokeniser extends InternalModule {
                 // assert p != null;
 
                 w = new Word(tokenisedText.substring(tokenStart, tokenEnd));
+                words.add(w);
+                sent_text += w.getText() + " ";
+                word_index++;
 
                 // Is this token the first in a new sentence or paragraph?
                 if (null != tokenisedText.getAnnotation(JTok.BORDER_ANNO))
                 {
                     // Flush the saved token to a sentence
-                    if (words.size() > 0)
+                    if (word_offset < word_index)
                     {
-                        String sent_text = "";
-                        for (Word cur_word: words)
-                            sent_text += cur_word.getText() + " ";
-
-                        Sentence s = new Sentence(sent_text, words);
+                        Sentence s = new Sentence(sent_text, null);
                         sentences.add(s);
+
+                        for(int i=word_offset; i<word_index; i++)
+                            alignment_sentence_word.add(new IntegerPair(sentence_index, i));
+                        word_offset = word_index;
                         sentence_index++;
-                        words = new ArrayList<Word>();
+                        sent_text = "";
 
                         if (tokenisedText.getAnnotation(JTok.BORDER_ANNO) == JTok.P_BORDER)
                         {
-                            for (int i=0; i<sentence_index; i++)
+                            for (int i=sentence_offset; i<sentence_index; i++)
                             {
-                                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, sentence_offset+i));
+                                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, i));
                             }
 
                             // Move to the next paragraph
-                            sentence_offset += sentence_index;
+                            sentence_offset = sentence_index;
                             sentence_index = 0;
                             paragraph_index++;
                         }
 
                     }
                 }
-
-
-                words.add(w);
             }
 
             c = tokenisedText.setIndex(tokenEnd);
@@ -236,29 +239,39 @@ public class JTokeniser extends InternalModule {
         }
 
         // Flush the saved token to a sentence
-        if (words.size() > 0)
+        if (word_offset < word_index)
         {
-            String sent_text = "";
-            for (Word cur_word: words)
-                sent_text += cur_word.getText() + " ";
-            Sentence s = new Sentence(sent_text, words);
+            Sentence s = new Sentence(sent_text, null);
             sentences.add(s);
+
+            for(int i=word_offset; i<word_index; i++)
+            {
+                alignment_sentence_word.add(new IntegerPair(sentence_index, i));
+            }
+
             sentence_index++;
 
-            for (int i=0; i<sentence_index; i++)
+            for (int i=sentence_offset; i<sentence_index; i++)
             {
-                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, sentence_offset+i));
+                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, i));
             }
         }
 
         // Add the sequences to the utterance
         utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, sentences);
+        utt.addSequence(Utterance.SupportedSequenceType.WORD, words);
+
 
         // Create the relations and add them to the utterance
         Relation rel_par_sent = new Relation(utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH),
                                              utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
                                              alignment_paragraph_sentence);
         utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE, rel_par_sent);
+
+        Relation rel_sent_wrd = new Relation(utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
+                                             utt.getSequence(Utterance.SupportedSequenceType.WORD),
+                                             alignment_sentence_word);
+        utt.setRelation(Utterance.SupportedSequenceType.SENTENCE, Utterance.SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
         MaryData result = new MaryData(outputType(), d.getLocale());

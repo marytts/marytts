@@ -71,7 +71,7 @@ public class XMLSerializerTest {
         // Assert.assertEquals(DomUtils.serializeToString(expectedDoc), DomUtils.serializeToString(output_data.getDocument()));
 
         // Initialize the reference
-        String str_original_document = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\" xml:lang=\"en-US\"><p>Welcome to the world of speech synthesis!<s>Welcome to the world of speech synthesis!</s></p></maryxml>";
+        String str_original_document = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\" xml:lang=\"en-US\"><p>Welcome to the world of speech synthesis!<s>Welcome to the world of speech synthesis!<t>Welcome</t><t>to</t></s></p></maryxml>";
         Document original_document = DomUtils.parseDocument(str_original_document);
         XMLSerializer xml_seri = new XMLSerializer();
         Utterance utt = xml_seri.unpackDocument(original_document);
