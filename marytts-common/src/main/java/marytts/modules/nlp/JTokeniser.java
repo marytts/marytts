@@ -30,7 +30,8 @@ import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import marytts.data.utils.IntegerPair;
+import marytts.data.utils.SequenceTypePair;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -162,7 +163,7 @@ public class JTokeniser extends InternalModule {
         tokenisedText = jtok.tokenize(inputText.toString(), jtokLocale);
 
         Sequence<Sentence> sentences = new Sequence<Sentence>();
-        ArrayList<ImmutablePair<Integer, Integer>> alignment_paragraph_sentence = new ArrayList<ImmutablePair<Integer, Integer>>();
+        ArrayList<IntegerPair> alignment_paragraph_sentence = new ArrayList<IntegerPair>();
 
         // And now merge the output back into the MaryXML document.
         Word previousToken = null;
@@ -214,7 +215,7 @@ public class JTokeniser extends InternalModule {
                         {
                             for (int i=0; i<sentence_index; i++)
                             {
-                                alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(paragraph_index, sentence_offset+i));
+                                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, sentence_offset+i));
                             }
 
                             // Move to the next paragraph
@@ -246,7 +247,7 @@ public class JTokeniser extends InternalModule {
 
             for (int i=0; i<sentence_index; i++)
             {
-                alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(paragraph_index, sentence_offset+i));
+                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, sentence_offset+i));
             }
         }
 

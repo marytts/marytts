@@ -4,12 +4,11 @@ import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+
 
 import java.io.File;
 import java.io.StringWriter;
@@ -24,6 +23,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
+
+import marytts.data.utils.IntegerPair;
+import marytts.data.utils.SequenceTypePair;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -275,9 +277,9 @@ public class XMLSerializer implements Serializer
     public Utterance unpackDocument(Document doc)
         throws MaryIOException
     {
-        Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments;
+        Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments;
         Locale l;
-        alignments = new Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>>();
+        alignments = new Hashtable<SequenceTypePair, ArrayList<IntegerPair>>();
 
         Element root = doc.getDocumentElement();
         String[] loc = root.getAttribute("xml:lang").split("-");
@@ -318,7 +320,7 @@ public class XMLSerializer implements Serializer
         utt.setText(text); // FIXME: see "Utterance.setText"
 
         // 2. Dealing relations
-        for (ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType> k: alignments.keySet())
+        for (SequenceTypePair k: alignments.keySet())
         {
             Relation rel = new Relation(utt.getSequence(k.getLeft()), utt.getSequence(k.getRight()), alignments.get(k));
 
@@ -330,7 +332,7 @@ public class XMLSerializer implements Serializer
 
     public void generateParagraph(Element elt,
                                   Utterance utt,
-                                  Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments)
+                                  Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
         throws MaryIOException
     {
         assert elt.getTagName() == "p";
@@ -391,25 +393,25 @@ public class XMLSerializer implements Serializer
         if (sentence_index == 0)
             return;
 
-        if (!alignments.containsKey(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE)))
+        if (!alignments.containsKey(new SequenceTypePair(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE)))
         {
-            alignments.put(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE),
-                           new ArrayList<ImmutablePair<Integer, Integer>>());
+            alignments.put(new SequenceTypePair(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE),
+                           new ArrayList<IntegerPair>());
         }
 
-        ArrayList<ImmutablePair<Integer, Integer>> alignment_paragraph_sentence = alignments.get(new ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE));
+        ArrayList<IntegerPair> alignment_paragraph_sentence = alignments.get(new SequenceTypePair(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE));
         int id_par = seq_par.size() - 1;
 
         // Deal with Relation sentences part
         for (int i=0; i < sentence_index; i++)
         {
-            alignment_paragraph_sentence.add(new ImmutablePair<Integer, Integer>(id_par, sentence_offset + i));
+            alignment_paragraph_sentence.add(new IntegerPair(id_par, sentence_offset + i));
         }
     }
 
     public void generateSentence(Element elt,
                                  Utterance utt,
-                                 Hashtable<ImmutablePair<Utterance.SupportedSequenceType, Utterance.SupportedSequenceType>, ArrayList<ImmutablePair<Integer, Integer>>> alignments)
+                                 Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
         throws MaryIOException
     {
         assert elt.getTagName() == "s";
