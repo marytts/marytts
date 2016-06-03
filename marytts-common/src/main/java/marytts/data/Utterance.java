@@ -24,7 +24,9 @@ public class Utterance
 {
     public enum SupportedSequenceType {
         PARAGRAPH,
-        SENTENCE
+        SENTENCE,
+        PHRASE,
+        WORD
     };
     private String m_voice_name;
 	private String m_text;
@@ -80,30 +82,12 @@ public class Utterance
 
     public Sequence<Phrase> getAllPhrases()
     {
-        Sequence<Sentence> sentences = (Sequence<Sentence>) getSequence(SupportedSequenceType.SENTENCE);
-        Sequence<Phrase> phrases = new Sequence<Phrase>();
-
-        for (Sentence s: sentences)
-        {
-            phrases.addAll(s.getPhrases());
-        }
-
-        return phrases;
+        return (Sequence<Phrase>) getSequence(SupportedSequenceType.PHRASE);
     }
 
     public Sequence<Word> getAllWords()
     {
-        Sequence<Word> words = new Sequence<Word>();
-        for (Sentence s: (Sequence<Sentence>) getSequence(SupportedSequenceType.SENTENCE))
-        {
-            words.addAll(s.getWords());
-        }
-
-        for (Phrase p: getAllPhrases())
-        {
-            words.addAll(p.getWords());
-        }
-        return words;
+        return (Sequence<Word>) getSequence(SupportedSequenceType.WORD);
     }
 
     /**
