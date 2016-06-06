@@ -70,7 +70,7 @@ public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 	protected void tokenizerFixes(MaryData d) {
 		Document doc = d.getDocument();
 		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				MaryXML.TOKEN), false);
+                                                                           MaryXML.TOKEN), false);
 		Element t = null;
 		while ((t = (Element) ni.nextNode()) != null) {
 			String s = MaryDomUtils.tokenText(t);

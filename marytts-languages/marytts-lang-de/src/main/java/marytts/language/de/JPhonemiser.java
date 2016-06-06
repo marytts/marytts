@@ -185,15 +185,21 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	}
 
 	@Override
-	public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d)
+        throws Exception
+    {
+
 		Document doc = d.getDocument();
 		inflection.determineEndings(doc); // FIXME: what is that ?
 
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
         ArrayList<Word> words = utt.getAllWords();
+
         for (Word w: words)
         {
+            String text;
+
             // Do not touch tokens for which a transcription is already
             // given (exception: transcription contains a '*' character:
             ArrayList<Phoneme> phonemes = w.getPhonemes();
@@ -203,9 +209,9 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                 continue;
             }
 
-            // Get text
-            String text = w.soundsLike();
-            if ((text == null) || (text.isEmpty()))
+            if (w.soundsLike() != null)
+                text = w.soundsLike();
+            else
                 text = w.getText();
 
             // Get POS
