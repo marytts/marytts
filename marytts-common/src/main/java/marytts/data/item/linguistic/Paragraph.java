@@ -11,7 +11,6 @@ import marytts.data.item.Item;
  */
 public class Paragraph extends Item
 {
-
 	private ArrayList<Sentence> m_sentences;
 	private String m_text;
 

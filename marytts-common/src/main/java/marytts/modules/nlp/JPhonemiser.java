@@ -175,8 +175,9 @@ public class JPhonemiser extends InternalModule {
     {
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        ArrayList<Word> words = utt.getAllWords();
 
-        for (Word w: utt.getAllWords())
+        for (Word w: words)
         {
             String text;
 
@@ -190,7 +191,7 @@ public class JPhonemiser extends InternalModule {
             else
                 text = w.getText();
 
-            // use part-of-speech if available
+            // Get POS
             String pos = w.getPOS();
 
             // Ok adapt phonemes now
@@ -204,7 +205,8 @@ public class JPhonemiser extends InternalModule {
                 StringBuilder ph = new StringBuilder();
                 String g2p_method = null;
                 StringTokenizer st = new StringTokenizer(text, " -");
-                while (st.hasMoreTokens()) {
+                while (st.hasMoreTokens())
+                {
                     String graph = st.nextToken();
                     StringBuilder helper = new StringBuilder();
                     String phon = phonemise(graph, pos, helper);
@@ -246,19 +248,19 @@ public class JPhonemiser extends InternalModule {
         return result;
     }
 
-/**
- * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
- * letter-to-sound rules if nothing else was successful.
- *
- * @param text
- *            the textual (graphemic) form of a word.
- * @param pos
- *            the part-of-speech of the word
- * @param g2pMethod
- *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
- *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
- * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
- */
+    /**
+     * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
+     * letter-to-sound rules if nothing else was successful.
+     *
+     * @param text
+     *            the textual (graphemic) form of a word.
+     * @param pos
+     *            the part-of-speech of the word
+     * @param g2pMethod
+     *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
+     *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
+     * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
+     */
     public String phonemise(String text, String pos, StringBuilder g2pMethod)
     {
         // First, try a simple userdict and lexicon lookup:
