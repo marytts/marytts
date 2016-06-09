@@ -13,12 +13,14 @@ public class Phoneme extends Item
 
 	public Phoneme(String label)
 	{
+        super();
 		setLabel(label);
         setStress(null);
     }
 
 	public Phoneme(String label, String stress)
 	{
+        super();
 		setLabel(label);
         setStress(stress);
     }

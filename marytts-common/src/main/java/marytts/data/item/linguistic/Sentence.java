@@ -19,12 +19,15 @@ public class Sentence extends Item
 
 	public Sentence(String text)
 	{
+        super();
 		setText(text);
 		setWords(new ArrayList<Word>());
 		setPhrases(new ArrayList<Phrase>());
 	}
 
-	public Sentence(String text, ArrayList<Word> words) {
+	public Sentence(String text, ArrayList<Word> words)
+    {
+        super();
 		setText(text);
 		setWords(words);
 		setPhrases(new ArrayList<Phrase>());

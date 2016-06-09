@@ -16,12 +16,14 @@ public class Paragraph extends Item
 
 	public Paragraph(String text)
 	{
-		setText(text);
+        super();
+        setText(text);
         setSentences(new ArrayList<Sentence>());
     }
 
 	public Paragraph(String text, ArrayList<Sentence> sentences)
 	{
+        super();
 		setText(text);
 		setSentences(sentences);
 	}
