@@ -8,6 +8,7 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.list.IntArrayList;
+import cern.colt.list.DoubleArrayList;
 import cern.colt.matrix.linalg.Algebra;
 
 import marytts.data.item.Item;
@@ -65,6 +66,7 @@ public class Relation
         id = id_cpt++;
         setSource(source_sequence);
         setTarget(target_sequence);
+        setRelations(new SparseDoubleMatrix2D(source_sequence.size(), target_sequence.size()));
     }
 
     /********************************************************************************************
@@ -195,6 +197,80 @@ public class Relation
     }
 
     /********************************************************************************************
+     ** Update operations
+     ********************************************************************************************/
+    public void removeRelation(int source_idx, int target_idx)
+    {
+        getRelations().set(source_idx, target_idx, 0);
+    }
+
+
+    public void addRelation(int source_idx, int target_idx)
+    {
+        getRelations().set(source_idx, target_idx, 1);
+    }
+
+    /**
+     * /!\ Only to meant to be called by the sequence class /!\
+     */
+    public void removeSourceItem(int source_idx)
+    {
+        double[][] val = getRelations().toArray();
+        assert (getSource().size() > source_idx);
+        assert (val.length > source_idx);
+
+        // Reset the current column just to be sure
+        for (int j=0; j<val[source_idx].length; j++)
+            getRelations().setQuick(source_idx, j, 0);
+
+        // Translate the impacted part of the matrix
+        for (int i=(source_idx+1); i<val.length; i++)
+        {
+            for (int j=0; j<val[i].length; j++)
+            {
+                if (val[i][j] > 0)
+                {
+                    // Reset current cell value
+                    getRelations().setQuick(i, j, 0);
+
+                    // Update the previous "source" index relation
+                    getRelations().setQuick(i-1, j, 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * /!\ Only to meant to be called by the sequence class /!\
+     */
+    public void removeTargetItem(int target_idx)
+    {
+        double[][] val = getRelations().toArray();
+        assert (val.length > 0) && (val[0].length > target_idx) && (getTarget().size() > target_idx);
+
+        // Reset the current row just to be sure
+        for (int i=0; i<val.length; i++)
+            getRelations().setQuick(i, target_idx, 0);
+
+        // Translate the impacted part of the matrix
+        for (int i=0; i<val.length; i++)
+        {
+            for (int j=target_idx+1; j<val[i].length; j++)
+            {
+                if (val[i][j] > 0)
+                {
+                    // Reset current cell value
+                    getRelations().setQuick(i, j, 0);
+
+                    // Update the previous "source" index relation
+                    getRelations().setQuick(i-1, j, 1);
+                }
+            }
+        }
+
+    }
+
+    /********************************************************************************************
      ** Object method overriding
      ********************************************************************************************/
     @Override
@@ -209,8 +285,8 @@ public class Relation
         if (getClass() != obj.getClass())
             return false;
 
-        return (getSource().equals(((Relation) obj).getSource()) &&
-                getTarget().equals(((Relation) obj).getTarget()));
+        return (getSource().hashCode() == (((Relation) obj).getSource().hashCode()) &&
+                getTarget().hashCode() == (((Relation) obj).getTarget().hashCode()));
     }
 
     @Override
@@ -219,6 +295,8 @@ public class Relation
         String message = "source = " + getSource().toString() + "\n";
         message += "target = " + getTarget().toString() + "\n";
 
+        message += "Relation now = " + "\n";
+        message += getRelations().toString();
         return message;
     }
 
