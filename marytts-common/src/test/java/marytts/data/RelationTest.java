@@ -49,4 +49,31 @@ public class RelationTest
         Relation rel = new Relation(seq1, seq2);
     }
 
+    @Test
+    public void testBackwardReferences()
+    {
+        Sequence<Word> seq1 = new Sequence<Word>();
+
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
+
+        seq1.add(w1);
+        seq1.add(w2);
+
+
+        Sequence<Word> seq2 = new Sequence<Word>();
+
+
+        seq2.add(w1);
+        seq2.add(w2);
+
+        Sequence<Word> seq3 = new Sequence<Word>();
+
+
+        seq3.add(w1);
+        seq3.add(w2);
+
+        Relation rel = new Relation(seq1, seq2);
+        Assert.assertTrue(seq1.isRelatedWith(seq2));
+    }
 }

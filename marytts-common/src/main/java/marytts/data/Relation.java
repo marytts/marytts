@@ -21,6 +21,8 @@ import marytts.data.item.Item;
  */
 public class Relation
 {
+    private static int id_cpt = 0;
+    private int id;
     private Sequence<? extends Item> m_source_sequence;
     private Sequence<? extends Item> m_target_sequence;
     private SparseDoubleMatrix2D m_relation_matrix;
@@ -29,6 +31,7 @@ public class Relation
                     Sequence<? extends Item> target_sequence,
                     SparseDoubleMatrix2D relation_matrix)
     {
+        id = id_cpt++;
         setSource(source_sequence);
         setTarget(target_sequence);
         setRelations(relation_matrix);
@@ -38,6 +41,7 @@ public class Relation
                     Sequence<? extends Item> target_sequence,
                     int[][] relation_matrix)
     {
+        id = id_cpt++;
         setSource(source_sequence);
         setTarget(target_sequence);
         setRelations(relation_matrix);
@@ -48,6 +52,7 @@ public class Relation
                     Sequence<? extends Item> target_sequence,
                     List<IntegerPair> relation_matrix)
     {
+        id = id_cpt++;
         setSource(source_sequence);
         setTarget(target_sequence);
         setRelations(relation_matrix);
@@ -57,6 +62,7 @@ public class Relation
     public Relation(Sequence<? extends Item> source_sequence,
                     Sequence<? extends Item> target_sequence)
     {
+        id = id_cpt++;
         setSource(source_sequence);
         setTarget(target_sequence);
     }
@@ -68,6 +74,7 @@ public class Relation
     {
         assert source_sequence.size() > 0;
         m_source_sequence = source_sequence;
+        m_source_sequence.addSourceRelationReference(this);
     }
 
     public Sequence<? extends Item> getSource()
@@ -79,6 +86,7 @@ public class Relation
     {
         assert target_sequence.size() > 0;
         m_target_sequence = target_sequence;
+        m_target_sequence.addTargetRelationReference(this);
     }
 
     public Sequence<? extends Item> getTarget()
@@ -201,5 +209,11 @@ public class Relation
         message += "target = " + getTarget().toString() + "\n";
 
         return message;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id;
     }
 }

@@ -27,6 +27,7 @@ public class Word extends Item
 
 	public Word(String text)
 	{
+        super();
 		setText(text);
         setAlternativeLocale(null);
         soundsLike(null);
@@ -38,6 +39,7 @@ public class Word extends Item
 
 	public Word(String text, ArrayList<Syllable> syllables)
     {
+        super();
         setText(text);
         setAlternativeLocale(null);
         soundsLike(null);
@@ -49,6 +51,7 @@ public class Word extends Item
 
     public Word(String text, Locale alternative_locale)
 	{
+        super();
 		setText(text);
         setAlternativeLocale(alternative_locale);
         soundsLike(null);
@@ -60,6 +63,7 @@ public class Word extends Item
 
 	public Word(String text, String sounds_like)
 	{
+        super();
 		setText(text);
         setAlternativeLocale(null);
         setG2PMethod(null);
@@ -71,6 +75,7 @@ public class Word extends Item
 
     public Word(String text, String sounds_like, ArrayList<Syllable> syllables)
     {
+        super();
         setText(text);
         setAlternativeLocale(null);
         setG2PMethod(null);
