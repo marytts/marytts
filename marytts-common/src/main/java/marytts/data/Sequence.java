@@ -65,6 +65,7 @@ public class Sequence<E extends Item> extends ArrayList<E>
     public Relation getRelationAsTarget(Sequence<E> other)
     {
         Relation found_relation = null;
+
         // Relations when the current sequence is the target
         for (Relation rel: m_target_relation_references)
         {
@@ -80,8 +81,10 @@ public class Sequence<E extends Item> extends ArrayList<E>
 
     public boolean isRelatedWith(Sequence<E> other)
     {
-        return (getRelationAsSource(other) != null) || (getRelationAsTarget(other) != null);
+        return (getRelationAsSource(other) != null) ||
+            (getRelationAsTarget(other) != null);
     }
+
     /**********************************************************************
      ** Override standard methodologies to support back-references
      **********************************************************************/
@@ -93,23 +96,65 @@ public class Sequence<E extends Item> extends ArrayList<E>
     }
 
     @Override
+    public void
+    add(int index, E it)
+    {
+        throw new java.lang.UnsupportedOperationException("adding an item to a specific index on a sequence is not supported yet");
+    }
+
+    @Override
     public E remove(int index)
     {
+        // Remove the items from the target relations
+        for (Relation rel: m_target_relation_references)
+        {
+            rel.removeTargetItem(index);
+        }
+
+        // Remove the items from the source relations
+        for (Relation rel: m_source_relation_references)
+        {
+            rel.removeSourceItem(index);
+        }
+
+        // Finally remove the item from the sequence
         E it = super.remove(index);
+
+        // Update the reference of the item to indicate that it is not a member of the sequence
         it.removeSequenceReference(this);
+
         return it;
     }
 
     @Override
     public boolean remove(Object it)
     {
+        int idx = this.indexOf(it);
+        if (idx < 0)
+            return false;
+
         ((Item) it).removeSequenceReference(this);
-        return super.remove(it);
+        remove(idx);
+        return true;
     }
 
     @Override
     public int hashCode()
     {
         return id;
+    }
+
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+
+        if (obj == null)
+            return false;
+
+        if (getClass() != obj.getClass())
+            return false;
+
+        return (hashCode() == obj.hashCode());
     }
 }
