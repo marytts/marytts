@@ -174,19 +174,30 @@ public class Relation
 
     public Relation getReverse()
     {
-        return new Relation(getTarget(), getSource(),
-                            (SparseDoubleMatrix2D) (new Algebra()).transpose(getRelations()));
+
+        Relation reverse = new Relation(getTarget(), getSource(),
+                                        (SparseDoubleMatrix2D) (new Algebra()).transpose(getRelations()));
+        this.getTarget().addSourceRelationReference(reverse);
+        this.getSource().addTargetRelationReference(reverse);
+        return reverse;
+
     }
 
 
     public static Relation compose(Relation rel1, Relation rel2)
     {
-        return new Relation(rel1.getSource(), rel2.getTarget(),
-                            (SparseDoubleMatrix2D) (new Algebra()).mult(rel1.getRelations(),
-                                                                        rel2.getRelations()));
+        Relation composed = new Relation(rel1.getSource(), rel2.getTarget(),
+                                         (SparseDoubleMatrix2D) (new Algebra()).mult(rel1.getRelations(),
+                                                                                     rel2.getRelations()));
+        rel1.getSource().addSourceRelationReference(composed);
+        rel2.getTarget().addTargetRelationReference(composed);
+        return composed;
     }
 
-	@Override
+    /********************************************************************************************
+     ** Object method overriding
+     ********************************************************************************************/
+    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
