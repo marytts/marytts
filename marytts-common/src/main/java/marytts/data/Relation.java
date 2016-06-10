@@ -96,7 +96,7 @@ public class Relation
         return m_target_sequence;
     }
 
-    public void setRelations(SparseDoubleMatrix2D relation_matrix)
+    private void setRelations(SparseDoubleMatrix2D relation_matrix)
     {
         m_relation_matrix = relation_matrix;
     }
@@ -240,6 +240,39 @@ public class Relation
         }
     }
 
+
+    /**
+     * Adapt the matrix to take into account a new item on the source sequence at the specified
+     * index
+     *
+     * /!\ Only to meant to be called by the sequence class /!\
+     */
+    public void addSourceItem(int new_item_idx)
+    {
+        double[][] val = getRelations().toArray();
+        SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
+
+        // Copy the unmodified part
+        for (int i=0; i<new_item_idx; i++)
+            for (int j=0; j<val[i].length; j++)
+                if (val[i][j] > 0)
+                    new_matrix.setQuick(i, j, 1);
+
+        // Translate the impacted part of the matrix
+        for (int i=new_item_idx; i<val.length; i++)
+        {
+            for (int j=0; j<val[i].length; j++)
+            {
+                if (val[i][j] > 0)
+                {
+                    new_matrix.setQuick(i+1, j, 1);
+                }
+            }
+        }
+
+        setRelations(new_matrix);
+    }
+
     /**
      * /!\ Only to meant to be called by the sequence class /!\
      */
@@ -267,7 +300,35 @@ public class Relation
                 }
             }
         }
+    }
 
+    /**
+     * Adapt the matrix to take into account a new item on the target sequence at the specified
+     * index
+     *
+     */
+    public void addTargetItem(int new_item_idx)
+    {
+        double[][] val = getRelations().toArray();
+        SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
+
+        // Copy the unmodified part
+        for (int i=0; i<val.length; i++)
+            for (int j=0; j<new_item_idx; j++)
+                if (val[i][j] > 0)
+                    new_matrix.setQuick(i, j, 1);
+
+        // Translate the impacted part of the matrix
+        for (int i=0; i<val.length; i++)
+        {
+            for (int j=new_item_idx; j<val[i].length; j++)
+            {
+                if (val[i][j] > 0)
+                {
+                    new_matrix.setQuick(i, j+1, 1);
+                }
+            }
+        }
     }
 
     /********************************************************************************************
