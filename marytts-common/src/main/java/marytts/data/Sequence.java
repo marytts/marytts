@@ -92,14 +92,41 @@ public class Sequence<E extends Item> extends ArrayList<E>
     public boolean add(E it)
     {
         it.addSequenceReference(this);
-        return super.add(it);
+        boolean result = super.add(it);
+
+        // Remove the items from the target relations
+        for (Relation rel: m_target_relation_references)
+        {
+            rel.addTargetItem(this.size()-1);
+        }
+
+        // Remove the items from the source relations
+        for (Relation rel: m_source_relation_references)
+        {
+            rel.addSourceItem(this.size()-1);
+        }
+
+        return result;
     }
 
     @Override
-    public void
-    add(int index, E it)
+    public void add(int index, E it)
     {
-        throw new java.lang.UnsupportedOperationException("adding an item to a specific index on a sequence is not supported yet");
+        super.add(it);
+        it.addSequenceReference(this);
+
+        // Remove the items from the target relations
+        for (Relation rel: m_target_relation_references)
+        {
+            rel.addTargetItem(index);
+        }
+
+        // Remove the items from the source relations
+        for (Relation rel: m_source_relation_references)
+        {
+            rel.addSourceItem(index);
+        }
+
     }
 
     @Override

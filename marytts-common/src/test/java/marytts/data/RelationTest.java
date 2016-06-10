@@ -28,7 +28,6 @@ import marytts.data.item.linguistic.Word;
 
 public class RelationTest
 {
-
 	@Test
 	public void testBaselineRelation()
     {
@@ -85,6 +84,10 @@ public class RelationTest
         seq1.remove(1);
         System.out.println(rel);
         seq1.remove(0);
+        System.out.println(rel);
+
+        seq1.add(w2);
+        rel.addRelation(0, 1);
         System.out.println(rel);
     }
 
