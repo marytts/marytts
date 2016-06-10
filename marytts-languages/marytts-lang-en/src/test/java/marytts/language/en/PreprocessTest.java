@@ -20,6 +20,9 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.ParseException;
 
+import marytts.data.Utterance;
+import marytts.io.XMLSerializer;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
@@ -31,12 +34,14 @@ public class PreprocessTest {
 
 	private static Preprocess module;
 	private static MaryInterface mary;
+    private static XMLSerializer xml_ser;
 
 	@BeforeSuite
 	public static void setUpBeforeClass() throws MaryConfigurationException {
 		module = new Preprocess();
 		mary = new LocalMaryInterface();
-	}
+        xml_ser = new XMLSerializer();
+    }
 
 	@DataProvider(name = "NumExpandData")
 	private Object[][] numberExpansionDocDataCardinal() {
@@ -115,30 +120,33 @@ public class PreprocessTest {
 	}
 
 	@Test
-	public void testOneWord() throws SynthesisException, ParserConfigurationException, SAXException, IOException, ParseException,
-			MaryConfigurationException {
+	public void testOneWord()
+        throws Exception
+    {
 		String lemma = "7";
 		mary.setOutputType(MaryDataType.WORDS.name());
 		Document doc = mary.generateXML(lemma);
-		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p><s><t>"
-				+ lemma + "</t></s></p></maryxml>";
+		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p>" + lemma + "<s>" + lemma + "<t>" + lemma + "</t></s></p></maryxml>";
 		Document expectedDoc = DomUtils.parseDocument(words);
-		module.expand(expectedDoc);
-		Diff diff = XMLUnit.compareXML(expectedDoc, doc);
-		// issue where LocalMaryInterface#generateXML and DomUtils#parseDocument dont build the document in same order
-		Assert.assertFalse(diff.identical());
-	}
+        Utterance utt = xml_ser.unpackDocument(expectedDoc);
+        module.expand(utt);
 
-	@Test(dataProvider = "NumExpandData")
-	public void testExpandNum(String token, String word) {
-		double x = Double.parseDouble(token);
-		String actual = module.expandNumber(x);
-		Assert.assertEquals(actual, word);
-	}
+        // issue where LocalMaryInterface#generateXML and DomUtils#parseDocument dont build the document in same order
+        expectedDoc = xml_ser.generateDocument(utt);
+        Diff diff = XMLUnit.compareXML(expectedDoc, doc);
+        Assert.assertFalse(diff.identical());
+    }
 
-	@Test(dataProvider = "RealNumExpandData")
-	public void testExpandRealNum(String token, String word) {
-		String actual = module.expandRealNumber(token);
+    @Test(dataProvider = "NumExpandData")
+    public void testExpandNum(String token, String word) {
+        double x = Double.parseDouble(token);
+        String actual = module.expandNumber(x);
+        Assert.assertEquals(actual, word);
+    }
+
+    @Test(dataProvider = "RealNumExpandData")
+    public void testExpandRealNum(String token, String word) {
+        String actual = module.expandRealNumber(token);
 		Assert.assertEquals(actual, word);
 	}
 
