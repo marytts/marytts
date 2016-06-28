@@ -33,7 +33,7 @@ import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * Transforms a full MaryXML document into an MBROLA format string
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -58,8 +58,8 @@ public class RealisedDurationsExtractor extends InternalModule {
 			String endString = null;
 			if (element.getTagName().equals(MaryXML.PHONE)) {
 				sampa = element.getAttribute("p");
-				// durString = element.getAttribute("d"); // less accurate than end
-				endString = element.getAttribute("end");
+				durString = element.getAttribute("d"); // less accurate than end
+				// endString = element.getAttribute("end");
 			} else if (element.getTagName().equals(MaryXML.SENTENCE)) {
 				sentenceEnd += end;
 			} else {

@@ -107,9 +107,9 @@ import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * HTSEngine: a compact HMM-based speech synthesis engine.
- * 
+ *
  * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
- * 
+ *
  * @author Marc Schr&ouml;der, Marcela Charfuelan
  */
 public class HTSEngine extends InternalModule {
@@ -118,11 +118,11 @@ public class HTSEngine extends InternalModule {
 	private boolean phoneAlignmentForDurations;
 	private boolean stateAlignmentForDurations = false;
 	private Vector<PhonemeDuration> alignDur = null; // list of external duration per phone for alignment
-														// this are durations loaded from a external file
+	// this are durations loaded from a external file
 	private double newStateDurationFactor = 0.5; // this is a factor that extends or shrinks the duration of a state
-													// it can be used to try to syncronise the duration specified in a external
-													// file
-													// and the number of frames in a external lf0 file
+	// it can be used to try to syncronise the duration specified in a external
+	// file
+	// and the number of frames in a external lf0 file
 
 	public String getRealisedDurations() {
 		return realisedDurations;
@@ -173,7 +173,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * This module is actually tested as part of the HMMSynthesizer test, for which reason this method does nothing.
-	 * 
+	 *
 	 * @throws Error
 	 *             Error
 	 */
@@ -184,7 +184,7 @@ public class HTSEngine extends InternalModule {
 	 * This functions process directly the target features list: targetFeaturesList when using external prosody, duration and f0
 	 * are read from acoustparams: segmentsAndBoundaries realised durations and f0 are set in: tokensAndBoundaries when calling
 	 * this function HMMVoice must be initialised already, that is TreeSet and ModelSet must be loaded already.
-	 * 
+	 *
 	 * @param d
 	 *            : to get the default voice and locale
 	 * @param targetFeaturesList
@@ -213,6 +213,7 @@ public class HTSEngine extends InternalModule {
 
 		/* Process UttModel */
 		HTSParameterGeneration pdf2par = new HTSParameterGeneration();
+
 		/* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
 		pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData());
 
@@ -221,6 +222,7 @@ public class HTSEngine extends InternalModule {
 
 		/* Process generated parameters */
 		HTSVocoder par2speech = new HTSVocoder();
+
 		/* Synthesize speech waveform, generate speech out of sequence of parameters */
 		AudioInputStream ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
 
@@ -261,6 +263,7 @@ public class HTSEngine extends InternalModule {
 			if (e.getTagName().equals(MaryXML.TOKEN)) {
 				NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
 				Element phone;
+
 				while ((phone = (Element) nIt.nextNode()) != null) {
 					String p = phone.getAttribute("p");
 					m = um.getUttModel(numModel++);
@@ -272,7 +275,7 @@ public class HTSEngine extends InternalModule {
 					totalDur += m.getTotalDurMillisec() * 0.001f;
 					// phone.setAttribute("d", String.valueOf(currentDur));
 					phone.setAttribute("d", m.getMaryXmlDur());
-					phone.setAttribute("end", String.valueOf(totalDur));
+					// phone.setAttribute("end", String.valueOf(totalDur));
 
 					// phone.setAttribute("f0", m.getUnit_f0ArrayStr());
 					phone.setAttribute("f0", m.getMaryXmlF0());
@@ -306,7 +309,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Reads the Label file, the file which contains the Mary context features, creates an scanner object and calls getTargets
-	 * 
+	 *
 	 * @param LabFile
 	 *            LabFile
 	 * @param htsData
@@ -334,7 +337,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Creates a scanner object with the Mary context features contained in Labtext and calls getTargets
-	 * 
+	 *
 	 * @param LabText
 	 *            LabText
 	 * @param htsData
@@ -393,7 +396,7 @@ public class HTSEngine extends InternalModule {
 
 	/***
 	 * Process feature vectors in target list to generate a list of models for generation and realisation
-	 * 
+	 *
 	 * @param targetFeaturesList
 	 *            : each target must contain the corresponding feature vector
 	 * @param segmentsAndBoundaries
@@ -446,34 +449,45 @@ public class HTSEngine extends InternalModule {
 			double diffdurNew;
 
 			// get the duration and f0 values from the acoustparams = segmentsAndBoundaries
-			if (phoneAlignmentForDurations && segmentsAndBoundaries != null) {
+			if (segmentsAndBoundaries != null) {
 				Element e = segmentsAndBoundaries.get(i);
-				// System.out.print("HTSEngine: phone=" + m.getPhoneName() + " TagName=" + e.getTagName());
+
 				// get the durations of the Gaussians, because we need to know how long each estate should be
 				// knowing the duration of each state we can modified it so the 5 states reflect the external duration
 				// Here the duration for phones and sil (_) are calcualted
 				diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
 
 				if (e.getTagName().contentEquals("ph")) {
-					m.setMaryXmlDur(e.getAttribute("d"));
-					durVal = Float.parseFloat(m.getMaryXmlDur());
-					// System.out.println(" durVal=" + durVal + " totalDurGauss=" + (fperiodmillisec * m.getTotalDur()) + "(" +
-					// m.getTotalDur() + " frames)" );
-					// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states in
-					// frames
-					// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
-					m.setTotalDur(0);
-					for (int k = 0; k < cart.getNumStates(); k++) {
-						// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
-						int newStateDuration = (int) (m.getDur(k) + newStateDurationFactor);
-						newStateDuration = Math.max(1, newStateDuration);
-						m.setDur(k, newStateDuration);
-						m.incrTotalDur(newStateDuration);
-						// System.out.println(" durNew=" + m.getDur(k));
+					// No duration => predict one !
+					if ((e.getAttribute("d") == null) || (e.getAttribute("d").equals(""))) {
+						diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
+					}
+					// Use phone duration
+					else {
+						m.setMaryXmlDur(e.getAttribute("d"));
+						durVal = Float.parseFloat(m.getMaryXmlDur());
+						// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states
+						// in
+						// frames
+						// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+						m.setTotalDur(0);
+						int total = 0;
+						for (int k = 0; k < cart.getNumStates(); k++)
+							total += m.getDur(k);
+						// System.out.println("durval = " + durVal);
+						for (int k = 0; k < cart.getNumStates(); k++) {
+							// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
+							int newStateDuration = Math.round((durVal * m.getDur(k)) / (total * fperiodmillisec));
+							newStateDuration = Math.max(1, newStateDuration);
+							m.setDur(k, newStateDuration);
+							m.incrTotalDur(newStateDuration);
+							// System.out.println(" durNew=" + m.getDur(k));
+						}
 					}
 
-				} else if (e.getTagName().contentEquals("boundary")) { // the duration for boundaries predicted in the
-																		// AcousticModeller is not calculated with HMMs
+				}
+				// the duration for boundaries predicted in the AcousticModeller is not calculated with HMMs
+				else if (e.getTagName().contentEquals("boundary")) {
 					durVal = 0;
 					if (!e.getAttribute("duration").isEmpty())
 						durVal = Float.parseFloat(e.getAttribute("duration"));
@@ -518,7 +532,9 @@ public class HTSEngine extends InternalModule {
 					// System.out.println(" f0=" + e.getAttribute("f0"));
 				}
 
-			} else { // Estimate state duration from state duration model (Gaussian)
+			}
+			// Estimate state duration from state duration model (Gaussian)
+			else {
 				diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
 			}
 
@@ -563,7 +579,7 @@ public class HTSEngine extends InternalModule {
 			firstPh = false;
 		}
 
-		if (phoneAlignmentForDurations && alignDur != null)
+		if (alignDur != null)
 			if (um.getNumUttModel() != alignDurSize)
 				throw new Exception("The number of durations provided for phone alignment (" + alignDurSize
 						+ ") is greater than the number of feature vectors (" + um.getNumUttModel() + ").");
@@ -588,7 +604,7 @@ public class HTSEngine extends InternalModule {
 
 	/**
 	 * Stand alone testing using a TARGETFEATURES file as input.
-	 * 
+	 *
 	 * @param args
 	 *            args
 	 * @throws IOException

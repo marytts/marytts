@@ -89,9 +89,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Parameter generation out of trained HMMs.
- * 
+ *
  * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
- * 
+ *
  * @author Marcela Charfuelan
  */
 public class HTSParameterGeneration {
@@ -172,7 +172,7 @@ public class HTSParameterGeneration {
 
 	/**
 	 * HTS maximum likelihood parameter generation
-	 * 
+	 *
 	 * @param um
 	 *            : utterance model sequence after processing Mary context features
 	 * @param htsData
@@ -212,15 +212,18 @@ public class HTSParameterGeneration {
 			HTSModel m = um.getUttModel(i);
 			int numVoicedInModel = 0;
 			for (int state = 0; state < msNumStates; state++) {
-				Arrays.fill(voiced, uttFrame, uttFrame += m.getDur(state), m.getVoiced(state));
+				int dur = m.getDur(state);
+				Arrays.fill(voiced, uttFrame, uttFrame += dur, m.getVoiced(state));
 				if (m.getVoiced(state))
-					lf0Frame += m.getDur(state);
+					lf0Frame += dur;
 
 			}
 		}
+
 		/* mcepframe and lf0frame are used in the original code to initialise the T field */
 		/* in each pst, but here the pst are already initialised .... */
 		logger.debug("utteranceFrame=" + uttFrame + " lf0frame=" + lf0Frame);
+
 		// Step 1: initialize fields in the parameter streams
 		uttFrame = 0;
 		lf0Frame = 0;
@@ -360,7 +363,7 @@ public class HTSParameterGeneration {
 				 * DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
 				 * data_out.writeFloat((float)(ws*fs)); data_out.writeFloat((float)(ss*fs)); data_out.writeFloat((float)fs);
 				 * data_out.writeFloat(voiced.length);
-				 * 
+				 *
 				 * i=0; for(t=0; t<voiced.length; t++){ // here par.getT are just the voiced!!! so the actual length of frames can
 				 * be taken from the voiced array if( voiced[t] ){ data_out.writeFloat((float)Math.exp(par.getPar(i,0))); i++;
 				 * }System.out.println("GEN f0s[" + t + "]=" + Math.exp(lf0Pst.getPar(i,0))); else
@@ -371,7 +374,7 @@ public class HTSParameterGeneration {
 				double f0s[] = new double[voiced.length];
 				// System.out.println("voiced.length=" + voiced.length);
 				for (t = 0; t < voiced.length; t++) { // here par.getT are just the voiced!!! so the actual length of frames can
-														// be taken from the voiced array
+					// be taken from the voiced array
 					if (voiced[t]) {
 						f0s[t] = Math.exp(par.getPar(i, 0));
 						i++;
