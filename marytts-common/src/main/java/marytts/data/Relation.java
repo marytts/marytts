@@ -249,8 +249,22 @@ public class Relation
      */
     public void addSourceItem(int new_item_idx)
     {
+        addSourceItem(new_item_idx, false);
+    }
+
+
+    /**
+     * Adapt the matrix to take into account a new item on the source sequence at the specified
+     * index
+     *
+     * /!\ Only to meant to be called by the sequence class /!\
+     *
+     */
+    public void addSourceItem(int new_item_idx, boolean expand_relation)
+    {
         double[][] val = getRelations().toArray();
-        SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
+        SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(),
+                                                                   getTarget().size());
 
         // Copy the unmodified part
         for (int i=0; i<new_item_idx; i++)
@@ -258,14 +272,29 @@ public class Relation
                 if (val[i][j] > 0)
                     new_matrix.setQuick(i, j, 1);
 
-        // Translate the impacted part of the matrix
-        for (int i=new_item_idx; i<val.length; i++)
+        // If the user wants to insert an item and duplicate relation
+        if (expand_relation)
         {
-            for (int j=0; j<val[i].length; j++)
+            for (int j=0; j<val[new_item_idx].length; j++)
             {
-                if (val[i][j] > 0)
+                if (val[new_item_idx][j] > 0)
                 {
-                    new_matrix.setQuick(i+1, j, 1);
+                    new_matrix.setQuick(new_item_idx, j, 1);
+                }
+            }
+        }
+
+        if (new_item_idx >= 0)
+        {
+            // Translate the impacted part of the matrix
+            for (int i=new_item_idx; i<val.length; i++)
+            {
+                for (int j=0; j<val[i].length; j++)
+                {
+                    if (val[new_item_idx][j] > 0)
+                    {
+                        new_matrix.setQuick(i+1, j, 1);
+                    }
                 }
             }
         }
@@ -274,7 +303,8 @@ public class Relation
     }
 
     /**
-     * /!\ Only to meant to be called by the sequence class /!\
+     * /!\ Only to meant to be called by the sequence class /!  \
+     *
      */
     public void removeTargetItem(int target_idx)
     {
@@ -306,8 +336,21 @@ public class Relation
      * Adapt the matrix to take into account a new item on the target sequence at the specified
      * index
      *
+     * /!\ Only to meant to be called by the sequence class /!  \
      */
     public void addTargetItem(int new_item_idx)
+    {
+        addTargetItem(new_item_idx, false);
+    }
+
+
+    /**
+     * Adapt the matrix to take into account a new item on the target sequence at the specified
+     * index
+     *
+     * /!\ Only to meant to be called by the sequence class /!  \
+     */
+    public void addTargetItem(int new_item_idx, boolean expand_relation)
     {
         double[][] val = getRelations().toArray();
         SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
@@ -318,17 +361,33 @@ public class Relation
                 if (val[i][j] > 0)
                     new_matrix.setQuick(i, j, 1);
 
-        // Translate the impacted part of the matrix
-        for (int i=0; i<val.length; i++)
+        // If the user wants to insert an item and duplicate relation
+        if (expand_relation)
         {
-            for (int j=new_item_idx; j<val[i].length; j++)
+            for (int i=0; i<val.length; i++)
             {
-                if (val[i][j] > 0)
+                if (val[i][new_item_idx] > 0)
                 {
-                    new_matrix.setQuick(i, j+1, 1);
+                    new_matrix.setQuick(i, new_item_idx, 1);
                 }
             }
         }
+
+        // Translate the impacted part of the matrix
+        if (new_item_idx >= 0)
+        {
+            for (int i=0; i<val.length; i++)
+            {
+                for (int j=new_item_idx; j<val[i].length; j++)
+                {
+                    if (val[i][j] > 0)
+                    {
+                        new_matrix.setQuick(i, j+1, 1);
+                    }
+                }
+            }
+        }
+        setRelations(new_matrix);
     }
 
     /********************************************************************************************
