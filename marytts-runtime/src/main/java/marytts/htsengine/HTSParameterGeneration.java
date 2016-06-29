@@ -463,7 +463,7 @@ public class HTSParameterGeneration {
 
 		for (i = 0; i < um.getNumUttModel(); i++) {
 			m = um.getUttModel(i);
-			// System.out.format("\nmodel=%s  totalDur=%d numVoicedFrames=%d F0=%s\n", m.getPhoneName(), m.getTotalDur(),
+			// System.out.format("\nmodel=%s totalDur=%d numVoicedFrames=%d F0=%s\n", m.getPhoneName(), m.getTotalDur(),
 			// m.getNumVoiced(), m.getMaryXmlF0());
 			// get contour for this model if voiced frames and maryXml has f0 values
 			dval = getContourSegment(m.getMaryXmlF0(), m.getNumVoiced());
@@ -560,12 +560,12 @@ public class HTSParameterGeneration {
 
 				interval = index[1] - index[0];
 				if (interval > 1) {
-					// System.out.format("Interval to interpolate index[0]=%d  index[1]=%d\n",index[0],index[1]);
+					// System.out.format("Interval to interpolate index[0]=%d index[1]=%d\n",index[0],index[1]);
 					slope = ((value[1] - value[0]) / interval);
 					for (n = index[0]; n < index[1]; n++) {
 						double newVal = (slope * (n - index[0])) + value[0];
 						f0.set(n, newVal);
-						// System.out.format("    n=%d  value:%.1f\n",n,newVal);
+						// System.out.format(" n=%d value:%.1f\n",n,newVal);
 					}
 				}
 				index[0] = index[1];
@@ -595,7 +595,7 @@ public class HTSParameterGeneration {
 			if (!formattedF0.contentEquals("")) {
 				m.setMaryXmlF0(formattedF0);
 				// m.setUnit_f0ArrayStr(formattedF0);
-				// System.out.println("ph=" + m.getPhoneName() + "  " + formattedF0);
+				// System.out.println("ph=" + m.getPhoneName() + " " + formattedF0);
 			}
 		} // for model in utterance model list
 	}

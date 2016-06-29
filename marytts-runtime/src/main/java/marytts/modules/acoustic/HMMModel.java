@@ -106,7 +106,7 @@ public class HMMModel extends Model {
 	 */
 	public HMMModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
 			String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
-			throws MaryConfigurationException {
+					throws MaryConfigurationException {
 		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
 				applyTo);
 		if (!(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0"))) {
@@ -243,7 +243,7 @@ public class HMMModel extends Model {
 				double duration = m.getTotalDur() * fperiodsec; // in seconds
 
 				um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-				// System.out.format("HMMModel: phone=%s  duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration,
+				// System.out.format("HMMModel: phone=%s duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration,
 				// m.getTotalDur());
 
 				/*
@@ -319,7 +319,7 @@ public class HMMModel extends Model {
 				int k = 1;
 				int numVoicedInModel = m.getNumVoiced();
 				formattedTargetValue = "";
-				// System.out.format("phone = %s dur_in_frames=%d  num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(),
+				// System.out.format("phone = %s dur_in_frames=%d num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(),
 				// numVoicedInModel);
 				for (int mstate = 0; mstate < cart.getNumStates(); mstate++) {
 					for (int frame = 0; frame < m.getDur(mstate); frame++) {

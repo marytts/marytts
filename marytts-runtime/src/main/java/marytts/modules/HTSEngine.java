@@ -267,7 +267,7 @@ public class HTSEngine extends InternalModule {
 
 					// CHECK THIS!!!!!!!
 
-					// System.out.println("realised p=" + p + "  phoneName=" + m.getPhoneName());
+					// System.out.println("realised p=" + p + " phoneName=" + m.getPhoneName());
 					// int currentDur = m.getTotalDurMillisec();
 					totalDur += m.getTotalDurMillisec() * 0.001f;
 					// phone.setAttribute("d", String.valueOf(currentDur));
@@ -448,7 +448,7 @@ public class HTSEngine extends InternalModule {
 			// get the duration and f0 values from the acoustparams = segmentsAndBoundaries
 			if (phoneAlignmentForDurations && segmentsAndBoundaries != null) {
 				Element e = segmentsAndBoundaries.get(i);
-				// System.out.print("HTSEngine: phone=" + m.getPhoneName() + "  TagName=" + e.getTagName());
+				// System.out.print("HTSEngine: phone=" + m.getPhoneName() + " TagName=" + e.getTagName());
 				// get the durations of the Gaussians, because we need to know how long each estate should be
 				// knowing the duration of each state we can modified it so the 5 states reflect the external duration
 				// Here the duration for phones and sil (_) are calcualted
@@ -457,19 +457,19 @@ public class HTSEngine extends InternalModule {
 				if (e.getTagName().contentEquals("ph")) {
 					m.setMaryXmlDur(e.getAttribute("d"));
 					durVal = Float.parseFloat(m.getMaryXmlDur());
-					// System.out.println("  durVal=" + durVal + " totalDurGauss=" + (fperiodmillisec * m.getTotalDur()) + "(" +
+					// System.out.println(" durVal=" + durVal + " totalDurGauss=" + (fperiodmillisec * m.getTotalDur()) + "(" +
 					// m.getTotalDur() + " frames)" );
 					// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states in
 					// frames
 					// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
 					m.setTotalDur(0);
 					for (int k = 0; k < cart.getNumStates(); k++) {
-						// System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));
+						// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
 						int newStateDuration = (int) (m.getDur(k) + newStateDurationFactor);
 						newStateDuration = Math.max(1, newStateDuration);
 						m.setDur(k, newStateDuration);
 						m.incrTotalDur(newStateDuration);
-						// System.out.println("   durNew=" + m.getDur(k));
+						// System.out.println(" durNew=" + m.getDur(k));
 					}
 
 				} else if (e.getTagName().contentEquals("boundary")) { // the duration for boundaries predicted in the
@@ -487,35 +487,35 @@ public class HTSEngine extends InternalModule {
 						int durValFrames = Math.round(durVal / fperiodmillisec);
 						int totalDurGaussians = m.getTotalDur();
 						m.setTotalDur(durValFrames);
-						// System.out.println("  boundary attribute:duration=" + durVal + "  in frames=" + durValFrames);
+						// System.out.println(" boundary attribute:duration=" + durVal + " in frames=" + durValFrames);
 
 						// the specified duration has to be split among the five states
 						float durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
 						m.setTotalDur(0);
 						for (int k = 0; k < cart.getNumStates(); k++) {
-							// System.out.print("   state: " + k + " durFromGaussians=" + m.getDur(k));
+							// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
 							int newStateDuration = Math.round(((float) m.getDur(k) / (float) totalDurGaussians) * durValFrames);
 							newStateDuration = Math.max(newStateDuration, 1);
 							m.setDur(k, newStateDuration);
 							m.setTotalDur(m.getTotalDur() + m.getDur(k));
-							// System.out.println("   durNew=" + m.getDur(k));
+							// System.out.println(" durNew=" + m.getDur(k));
 						}
 
 					} else {
 						if (!e.getAttribute("breakindex").isEmpty()) {
 							durVal = Float.parseFloat(e.getAttribute("breakindex"));
-							// System.out.print("   boundary attribute:breakindex=" + durVal);
+							// System.out.print(" boundary attribute:breakindex=" + durVal);
 						}
 						durVal = (m.getTotalDur() * fperiodmillisec);
 					}
-					// System.out.println("  setMaryXml(durVal)=" + durVal);
+					// System.out.println(" setMaryXml(durVal)=" + durVal);
 					m.setMaryXmlDur(Float.toString(durVal));
 				}
 
 				// set F0 values
 				if (e.hasAttribute("f0")) {
 					m.setMaryXmlF0(e.getAttribute("f0"));
-					// System.out.println("   f0=" + e.getAttribute("f0"));
+					// System.out.println(" f0=" + e.getAttribute("f0"));
 				}
 
 			} else { // Estimate state duration from state duration model (Gaussian)
@@ -523,7 +523,7 @@ public class HTSEngine extends InternalModule {
 			}
 
 			um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-			// System.out.println("   model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" +
+			// System.out.println(" model=" + m.getPhoneName() + " TotalDurFrames=" + m.getTotalDur() + " TotalDurMilisec=" +
 			// (fperiodmillisec * m.getTotalDur()) + "\n");
 
 			// Set realised durations
