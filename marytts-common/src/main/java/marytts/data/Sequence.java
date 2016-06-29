@@ -91,26 +91,26 @@ public class Sequence<E extends Item> extends ArrayList<E>
     @Override
     public boolean add(E it)
     {
-        it.addSequenceReference(this);
-        boolean result = super.add(it);
+        add(size()-1, it);
 
-        // Remove the items from the target relations
-        for (Relation rel: m_target_relation_references)
-        {
-            rel.addTargetItem(this.size()-1);
-        }
-
-        // Remove the items from the source relations
-        for (Relation rel: m_source_relation_references)
-        {
-            rel.addSourceItem(this.size()-1);
-        }
-
-        return result;
+        return true;
     }
 
     @Override
     public void add(int index, E it)
+    {
+        add(index, it, false);
+    }
+
+
+    public boolean add(E it, boolean expand_relation)
+    {
+        add(size()-1, it, expand_relation);
+
+        return true;
+    }
+
+    public void add(int index, E it, boolean expand_relation)
     {
         super.add(it);
         it.addSequenceReference(this);
@@ -118,13 +118,13 @@ public class Sequence<E extends Item> extends ArrayList<E>
         // Remove the items from the target relations
         for (Relation rel: m_target_relation_references)
         {
-            rel.addTargetItem(index);
+            rel.addTargetItem(index, expand_relation);
         }
 
         // Remove the items from the source relations
         for (Relation rel: m_source_relation_references)
         {
-            rel.addSourceItem(index);
+            rel.addSourceItem(index, expand_relation);
         }
 
     }
@@ -160,8 +160,12 @@ public class Sequence<E extends Item> extends ArrayList<E>
         if (idx < 0)
             return false;
 
+        // Clean references
         ((Item) it).removeSequenceReference(this);
+
+        // And remove properly the item now
         remove(idx);
+
         return true;
     }
 

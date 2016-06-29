@@ -26,6 +26,10 @@ import org.testng.annotations.*;
 import marytts.data.item.Item;
 import marytts.data.item.linguistic.Word;
 
+/**
+ * TODO: compare relations & sequences
+ *
+ */
 public class RelationTest
 {
 	@Test
@@ -89,6 +93,14 @@ public class RelationTest
         seq1.add(w2);
         rel.addRelation(0, 1);
         System.out.println(rel);
+
+        seq1.add(w2, true);
+        System.out.println(rel);
+
+        seq2.add(w2, true);
+        System.out.println(rel);
+
+        // Assert.assertFalse(true);
     }
 
     @Test(expectedExceptions = AssertionError.class)
