@@ -496,7 +496,7 @@ public class HTSEngine extends InternalModule {
 					// the marytts.modules.acoustic.BoundaryModel fix always duration="400" for breakindex
 					// durations different from 400 milisec. are used here otherwise it is ignored and use the
 					// the duration calculated from the gaussians instead.
-					if (durVal != 400) {
+					if (durVal != 0) {
 						// if duration comes from a specified duration in miliseconds, i use that
 						int durValFrames = Math.round(durVal / fperiodmillisec);
 						int totalDurGaussians = m.getTotalDur();
@@ -582,7 +582,7 @@ public class HTSEngine extends InternalModule {
 		if (alignDur != null)
 			if (um.getNumUttModel() != alignDurSize)
 				throw new Exception("The number of durations provided for phone alignment (" + alignDurSize
-						+ ") is greater than the number of feature vectors (" + um.getNumUttModel() + ").");
+                                    + ") is greater than the number of feature vectors (" + um.getNumUttModel() + ").");
 
 		for (i = 0; i < um.getNumUttModel(); i++) {
 			HTSModel m = um.getUttModel(i);
@@ -594,7 +594,7 @@ public class HTSEngine extends InternalModule {
 		}
 
 		loggerHts.info("Number of models in sentence numModel=" + um.getNumModel() + "  Total number of states numState="
-				+ um.getNumState());
+                       + um.getNumState());
 		loggerHts.info("Total number of frames=" + um.getTotalFrame() + "  Number of voiced frames=" + um.getLf0Frame());
 
 		// System.out.println("REALISED DURATIONS:" + realisedDurations);

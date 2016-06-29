@@ -278,7 +278,7 @@ public class AcousticModeller extends InternalModule {
 			cumulEndInSeconds += durationInSeconds;
 
 			// cumulative end time in seconds:
-			String endStr = Float.toString(cumulEndInSeconds * 10000);
+			String endStr = Float.toString(cumulEndInSeconds);
 			segment.setAttribute("end", endStr);
 
 			// duration rounded to milliseconds:
