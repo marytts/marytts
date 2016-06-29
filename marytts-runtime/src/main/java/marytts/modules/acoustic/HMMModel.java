@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
 
 /**
  * Model for predicting duration and F0 from HMMs
- * 
+ *
  * @author marcela
  *
  */
@@ -83,7 +83,7 @@ public class HMMModel extends Model {
 
 	/**
 	 * Model constructor
-	 * 
+	 *
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param voiceName
@@ -100,13 +100,13 @@ public class HMMModel extends Model {
 	 *            not used in HMMModel
 	 * @param applyTo
 	 *            not used in HMMModel
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if there are missing files or problems loading trees and pdf files.
 	 */
 	public HMMModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
 			String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
-			throws MaryConfigurationException {
+					throws MaryConfigurationException {
 		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
 				applyTo);
 		if (!(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0"))) {
@@ -119,7 +119,7 @@ public class HMMModel extends Model {
 	 * This variable is set to true whenever the same HMMModel is used to predict both duration and F0. by default the variable is
 	 * false, so that means that two different HMMModels are used for predicting duration and F0, in this case there is no state
 	 * durations information to predict F0.
-	 * 
+	 *
 	 * @param bval
 	 *            bval
 	 */
@@ -129,7 +129,7 @@ public class HMMModel extends Model {
 
 	/**
 	 * Load trees and pdfs, from HMM configuration file.
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if there are missing files or problems loading trees and pdf files.
 	 */
@@ -147,10 +147,10 @@ public class HMMModel extends Model {
 	/**
 	 * Predict duration for the list of elements. If the same HMMModel is used to predict duration and F0 then a utterance model
 	 * is created and kept in a WeakHashMap, so the next call to this module, for predicting F0, can use that utterance model.
-	 * 
+	 *
 	 * @param elements
 	 *            elements from MaryXML for which to predict the values
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if error searching in HMM trees.
 	 */
@@ -167,12 +167,12 @@ public class HMMModel extends Model {
 	 * Predict F0 for the list of elements and apply to another list of elements. If the same HMMModel is used to predict duration
 	 * and F0 then there must be a utterance model created in a previous call to this module, that will be used to predict F0. If
 	 * there is no previously created utterance model then one is created.
-	 * 
+	 *
 	 * @param predictFromElements
 	 *            elements from MaryXML for which to predict the values
 	 * @param applyToElements
 	 *            elements from MaryXML for which to apply the predicted values
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if error searching in HMM trees.
 	 */
@@ -197,14 +197,14 @@ public class HMMModel extends Model {
 	/**
 	 * Predict durations and state durations from predictFromElements and apply durations to applyToElements. A utterance model is
 	 * created that contains the predicted state durations.
-	 * 
+	 *
 	 * @param predictFromElements
 	 *            elements to predict from
 	 * @param applyToElements
 	 *            elements to apply predicted durations
-	 * 
+	 *
 	 * @return HTSUttModel a utterance model
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if error searching in HMM trees.
 	 */
@@ -218,12 +218,17 @@ public class HMMModel extends Model {
 		double diffdurOld = 0.0;
 		double diffdurNew = 0.0;
 		String durAttributeName = "d";
+
 		try {
 			// (1) Predict the values
 			for (int i = 0; i < predictorTargets.size(); i++) {
+
+				// Retrieve values
 				fv = predictorTargets.get(i).getFeatureVector();
 				um.addUttModel(new HTSModel(cart.getNumStates()));
 				HTSModel m = um.getUttModel(i);
+				Element element = applyToElements.get(i);
+
 				/* this function also sets the phone name, the phone between - and + */
 				m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
 
@@ -232,19 +237,31 @@ public class HMMModel extends Model {
 					if (m.getPhoneName().contentEquals("_"))
 						m.setGvSwitch(false);
 				}
+
 				/* increment number of models in utterance model */
 				um.setNumModel(um.getNumModel() + 1);
+
 				/* update number of states */
 				um.setNumState(um.getNumState() + cart.getNumStates());
 
-				// Estimate state duration from state duration model (Gaussian)
-				diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffdurOld);
-				diffdurOld = diffdurNew;
-				double duration = m.getTotalDur() * fperiodsec; // in seconds
+				String formattedTargetValue;
+				double duration;
 
-				um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-				// System.out.format("HMMModel: phone=%s  duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration,
-				// m.getTotalDur());
+				// if the attribute already exists for this element keep it
+				if (element.hasAttribute(durAttributeName)) {
+					// Element is in milliseconds already, so convert to second in order to get reformatted in ms après
+					formattedTargetValue = element.getAttribute(durAttributeName);
+					duration = Float.parseFloat(formattedTargetValue) / 1000;
+					formattedTargetValue = String.format(targetAttributeFormat, duration);
+					um.setTotalFrame(um.getTotalFrame() + (int) Math.round(duration / fperiodsec));
+				} else {
+
+					// Estimate state duration from state duration model (Gaussian)
+					diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffdurOld);
+					diffdurOld = diffdurNew;
+					duration = m.getTotalDur() * fperiodsec; // in seconds
+					um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
+				}
 
 				/*
 				 * Find pdf for LF0, this function sets the pdf for each state. and determines, according to the HMM models,
@@ -252,31 +269,24 @@ public class HMMModel extends Model {
 				 */
 				cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
 				for (int mstate = 0; mstate < cart.getNumStates(); mstate++) {
-					for (int frame = 0; frame < m.getDur(mstate); frame++)
+					for (int frame = 0; frame < m.getDur(mstate); frame++) {
 						if (m.getVoiced(mstate))
 							um.setLf0Frame(um.getLf0Frame() + 1);
+					}
 				}
 
-				// set the value in elements
-				Element element = applyToElements.get(i);
 				// "evaluate" pseudo XPath syntax:
 				// TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
 				// bar attribute to the foo child of this element, creating the child if not already present...
 				if (durAttributeName.startsWith("@")) {
 					durAttributeName = durAttributeName.replaceFirst("@", "");
 				}
-				String formattedTargetValue = String.format(targetAttributeFormat, duration);
-
-				// System.out.println("HMMModel: formattedTargetValue = " + formattedTargetValue);
-
-				// if the attribute already exists for this element, append targetValue:
-				if (element.hasAttribute(durAttributeName)) {
-					formattedTargetValue = element.getAttribute(durAttributeName) + " " + formattedTargetValue;
-				}
+				formattedTargetValue = String.format(targetAttributeFormat, duration);
 
 				// set the new attribute value:
 				element.setAttribute(durAttributeName, formattedTargetValue);
 			}
+
 			return um;
 		} catch (Exception e) {
 			throw new MaryConfigurationException("Error searching in tree when predicting duration. ", e);
@@ -285,12 +295,12 @@ public class HMMModel extends Model {
 
 	/**
 	 * Predict F0 from the utterance model and apply to elements
-	 * 
+	 *
 	 * @param applyToElements
 	 *            elements to apply predicted F0s
 	 * @param um
 	 *            utterance model that contains the set of elements (phonemes) and state durations for generating F0.
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if error generating F0 out of HMMs trees and pdfs.
 	 */
@@ -319,12 +329,12 @@ public class HMMModel extends Model {
 				int k = 1;
 				int numVoicedInModel = m.getNumVoiced();
 				formattedTargetValue = "";
-				// System.out.format("phone = %s dur_in_frames=%d  num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(),
+				// System.out.format("phone = %s dur_in_frames=%d num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(),
 				// numVoicedInModel);
 				for (int mstate = 0; mstate < cart.getNumStates(); mstate++) {
 					for (int frame = 0; frame < m.getDur(mstate); frame++) {
 						if (voiced[t++]) { // numVoiced and t are not the same because voiced values can be true or false,
-											// numVoiced count just the voiced
+							// numVoiced count just the voiced
 							f0 = (float) Math.exp(pdf2par.getlf0Pst().getPar(numVoiced++, 0));
 							formattedTargetValue += "(" + Integer.toString((int) ((k * 100.0) / numVoicedInModel)) + ","
 									+ Integer.toString((int) f0) + ")";
@@ -358,12 +368,12 @@ public class HMMModel extends Model {
 
 	/**
 	 * Create a utterance model list from feature vectors predicted from elements.
-	 * 
+	 *
 	 * @param predictFromElements
 	 *            elements from MaryXML from where to get feature vectors.
-	 * 
+	 *
 	 * @return Utterance model um containing state durations and pdfs already searched on the trees to generate F0.
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if error searching in HMM trees.
 	 */
@@ -430,7 +440,7 @@ public class HMMModel extends Model {
 
 	/**
 	 * Apply the HMM to a Target to get its predicted value, this method is not used in HMMModel.
-	 * 
+	 *
 	 * @throws RuntimeException
 	 *             if this method is called.
 	 */
