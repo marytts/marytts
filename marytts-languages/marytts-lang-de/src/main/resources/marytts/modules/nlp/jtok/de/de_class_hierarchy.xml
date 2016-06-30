@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This defines the class hierarchy for German. -->
+<!-- Token classes not listed here are assumed to be -->
+<!-- direct children of the root token class. -->
+
+<!-- hierarchy root token -->
+<TOKEN>
+
+  <!-- clitics -->
+  <SPLIT>
+    <!-- proclitics, items appearing at the beginning of the string -->
+    <LEFTSPLIT/>
+    <!-- enclitics, items appearing at the end of the string -->
+    <RIGHTSPLIT/>
+  </SPLIT>  
+
+  <!-- numbers -->
+  <NUMBER>
+    <!-- roman numbers -->
+    <ROMAN/>
+    <!-- literal numbers -->
+    <LITERAL/>
+    <!-- digital numbers -->
+    <DIGITAL>
+      <!-- fraction numbers -->
+      <FRACTION/>
+      <!-- ordinal numbers -->
+      <ORDINAL/>
+    </DIGITAL>  
+  </NUMBER>
+
+  <!-- punctuation -->
+  <PUNCTUATION>
+
+    <!-- terminal punctuation -->
+    <TERM_PUNCT>
+      <EXCLAM/>
+      <QUEST/>
+    </TERM_PUNCT>
+    
+    <!-- possible terminal punctuation -->
+    <TERM_PUNCT_P>
+      <PERIOD/>
+    </TERM_PUNCT_P>
+    
+    <!-- opening punctuation -->
+    <OPEN_PUNCT>
+      <OINF/>
+      <RSQUOTE_L/>
+      <OGUILLEMET/>
+      <ODQUO1/>
+      <ODQUO2/>
+      <ODQUO3/>
+      <OSQUO1/>
+      <OSQUO2/>
+      <OSQUO3/>
+      <OSAQUO/>
+    </OPEN_PUNCT>
+    
+    <!-- closing punctuation -->
+    <CLOSE_PUNCT>
+      <CSUP/>
+      <CGUILLEMET/>
+      <CDQUO/>
+      <CSQUO/>
+      <CSAQUO/>
+    </CLOSE_PUNCT>
+    
+    <!-- ambigue opening and closing punctuation -->
+    <OPENCLOSE_PUNCT>
+      <OCQUOTE/>
+      <RSQUOTE_R/>
+    </OPENCLOSE_PUNCT>
+    
+    <!-- opening bracket -->
+    <OPEN_BRACKET>
+      <OPAR/>
+      <OPAR2/>
+      <OCROCHE/>
+    </OPEN_BRACKET>
+    
+    <!-- closing bracket -->
+    <CLOSE_BRACKET>
+      <CPAR/>
+      <CPAR2/>
+      <CCROCHE/>
+    </CLOSE_BRACKET>
+    
+    <!-- other punctuation -->
+    <SPECIAL_INT/>
+    <LT/>
+    <GT/>
+    <EQ/>
+    <OCHYPHEN/>
+    <FIGDASH/>
+    <ENDASH/>
+    <EMDASH/>
+    <HBAR/>
+    <BULLET/>
+    <PERCENT/>
+    <TM/>
+    <SECTION/>
+    <HYPHEN/>
+    <SCOLON/>
+    <COLON/>
+    <COMMA/>
+    <SLASH/>
+    <BSLASH/>
+    <PIPE/>
+    <STAR/>
+    <TILDE/>
+    <AMP/>
+    <AT/>
+  </PUNCTUATION>
+
+  <!-- abbreviations in which the final period could also -->
+  <!-- function as end-of-sentence -->
+  <ABBREVIATION>
+    <!-- breaking abbreviation, words which are -->
+    <!-- abbreviated when they appear at the end of a sentence, --> 
+    <!-- thus the period is ambiguous -->
+    <B_ABBREVIATION/>
+    <!-- non-breaking abbreviation, words which are never -->
+    <!-- abbreviated when they appear at the end of a sentence, --> 
+    <!-- thus the period is unambiguous -->
+    <NB_ABBREVIATION>
+      <!-- an abbreviation which is a title, thus followed by -->
+      <!-- a proper name -->
+      <TITLE/>
+    </NB_ABBREVIATION>
+  </ABBREVIATION>
+
+</TOKEN>
+  
+    

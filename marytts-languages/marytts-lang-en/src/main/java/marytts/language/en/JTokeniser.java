@@ -21,16 +21,7 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
-import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
-
-import marytts.data.Utterance;
-import marytts.data.item.linguistic.Word;
-import marytts.io.XMLSerializer;
 
 /**
  *
@@ -46,29 +37,4 @@ public class JTokeniser extends marytts.modules.nlp.JTokeniser {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
 	}
 
-	public MaryData process(MaryData d) throws Exception
-    {
-		MaryData super_result = super.process(d);
-
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(super_result.getDocument());
-
-		normaliseToAscii(utt);
-
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
-        return result;
-	}
-
-	protected void normaliseToAscii(Utterance utt)
-    {
-        for (Word w: utt.getAllWords())
-        {
-            String s = w.getText();
-            String normalised = MaryUtils.normaliseUnicodeLetters(s, Locale.ENGLISH);
-            if (!s.equals(normalised)) {
-                w.setText(normalised);
-            }
-        }
-    }
 }

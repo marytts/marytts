@@ -1,0 +1,20 @@
+# This contains a list a English titles that are
+# usually followed by a name and therefore don't
+# appear at the end of a sentence.
+
+Capt.   #Captain	
+Col.    #Colonel	
+Dr.     #Doctor	
+Gen.    #General	
+Gov.    #Governor	
+Hon.    #Honorable	
+Maj.    #Major	
+Mr.     #Mister
+Mrs.    #Misses	
+Ms.     #Miss	
+Prof.   #Professor	
+Rev.    #Reverand	
+Sen.    #Senator
+Sgt.    #Sergeant	
+Rep.    #Representative
+Adm.    #Admiral
