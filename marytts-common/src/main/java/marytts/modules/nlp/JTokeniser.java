@@ -78,10 +78,10 @@ public class JTokeniser extends InternalModule {
 
 	public JTokeniser(MaryDataType inputType, MaryDataType outputType, Locale locale) {
 		super("JTokeniser", inputType, outputType, locale);
-		// Which language to use in the Tokenizer?
+
+        // if locale == null, use default tokeniser
 		if (locale == null) {
-			// if locale == null, use English tokeniser as default/fallback tokeniser
-			jtokLocale = "en";
+			jtokLocale = "default";
 		} else {
 			jtokLocale = locale.getLanguage();
 		}
@@ -100,7 +100,7 @@ public class JTokeniser extends InternalModule {
 	public void startup() throws Exception {
 		super.startup();
 		Properties jtokProperties = new Properties();
-		jtokProperties.setProperty("languages", jtokLocale);
+		//jtokProperties.setProperty("default", "jtok/" + jtokLocale);
 		jtokProperties.setProperty(jtokLocale, "jtok/" + jtokLocale);
 		jtok = new JTok(jtokProperties);
 	}

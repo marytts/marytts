@@ -1,0 +1,89 @@
+# This contains a list of English breaking abbreviations, 
+# words which are always abbreviated, even when they appear at the 
+# end of a sentence. Thus the period is ambiguous.
+# The list only contains abbreviations that are not matched 
+# by the rules defined in en_abbrev.xml
+
+adm.    #administration
+al.     #et al.
+Ave.    #avenue	
+Cal.    #California	
+Cie.    #company	
+Co.     #company	
+Corp.   #corporation	
+ESq.    #esquire	
+etc.    #etc	
+Inc.    #incorporated	
+inst.   #this month	
+Lat.    #latitude	
+Long.   #longitude	
+No.     #number	
+Nos.    #numbers	
+Ph.d.   #phd	
+Ph.D.   #phd
+rep.    #rep	
+seq.    #seq	
+SFr.    #swiss francs	
+sovs.   #sovereigns	
+
+# months
+Jan.	#January
+Feb.	#February
+Mar.	#March
+Apr.	#April
+Jun.	#June
+Jul.	#July
+Aug.	#August
+Sep.	#September
+Sept.	#September
+Oct.	#October
+Nov.	#November
+Dec.	#December
+
+# U.S. states
+Ala.	#Alabama
+Ark.	#Arkansas
+Ariz.	#Arizona
+Calif.	#California
+Colo.	#Colorado
+Conn.	#Connecticut
+Del.	#Delaware
+Fla.	#Florida
+Ga.		#Georgia
+Ill.	#Illinois
+Ind.	#Indiana
+Kan.	#Kansas
+Ky.		#Kentucky
+La.		#Louisiana
+Mass.	#Massachusetts
+Mich.	#Michigan
+Minn.	#Minnesota
+Mo.		#Missouri
+Miss.	#Mississippi
+Mont.	#Montana
+Neb.	#Nebraska
+Nev.	#Nevada
+Okla.	#Oklahoma
+Ore.	#Oregon
+Pa.		#Pennsylvania
+Tenn.	#Tennessee
+Va.		#Virginia
+Wash.	#Washington
+Wis.	#Wisconsin
+W.Va.	#West Virginia
+Wyo.	#Wyoming
+
+# collected abbreviations
+Alex.
+Benj.
+Bros.
+Cos.
+Dept.
+Ing.
+Jansz.
+Jos.
+Messrs.
+Prop.
+Pty.
+Reps.
+Sens.
