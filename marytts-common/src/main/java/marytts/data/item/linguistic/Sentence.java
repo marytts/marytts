@@ -12,7 +12,6 @@ import marytts.data.item.prosody.Phrase;
  */
 public class Sentence extends Item
 {
-
 	private ArrayList<Phrase> m_phrases;
 	private ArrayList<Word> m_words;
 	private String m_text;
