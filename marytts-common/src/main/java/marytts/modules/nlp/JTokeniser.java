@@ -49,9 +49,11 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+
 import de.dfki.lt.tools.tokenizer.JTok;
 import de.dfki.lt.tools.tokenizer.annotate.AnnotatedString;
-import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
+import de.dfki.lt.tools.tokenizer.output.Outputter;
+import de.dfki.lt.tools.tokenizer.output.Token;
 
 /**
  * @author Marc Schr&ouml;der
@@ -61,7 +63,7 @@ import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
 public class JTokeniser extends InternalModule {
 	public static final int TOKEN_MAXLENGTH = 100;
 
-	private JTok jtok;
+	private JTok tokenizer;
 	private String jtokLocale;
 
 	public JTokeniser() {
@@ -102,162 +104,91 @@ public class JTokeniser extends InternalModule {
 		Properties jtokProperties = new Properties();
 		//jtokProperties.setProperty("default", "jtok/" + jtokLocale);
 		jtokProperties.setProperty(jtokLocale, "jtok/" + jtokLocale);
-		jtok = new JTok(jtokProperties);
+		tokenizer = new JTok(jtokProperties);
 	}
 
-	public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d)
+        throws Exception
+    {
+        // Initialisation
 		Document doc = d.getDocument();
-
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
 
-        // The challenge in this module is that the tokeniser needs a plain text
-        // version of this XML document, but we need to feed its output
-        // back into the XML document.
-        // Solution strategy: Remember the alignment of text with XML as an
-        // annotated string. Each stretch of characters is annotated with the
-        // DOM Text object to which it belonged.
-        StringBuilder inputText = new StringBuilder();
-        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
-        {
-            String text = ((Paragraph) p).getText().trim();
-
-            // Insert a space character between non-punctuation characters:
-            if ((inputText.length() > 0) &&
-                (!Character.isWhitespace(inputText.charAt(inputText.length() - 1))) &&
-                (Character.isLetterOrDigit(text.charAt(0))))
-            {
-                inputText.append(" ");
-            }
-            inputText.append(text);
-        }
-        FastAnnotatedString maryText = new FastAnnotatedString(inputText.toString());
-
-        // And now go through the TEXT nodes a second time and annotate
-        // the string.
-        int pos = 0;
-        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
-        {
-            String text = ((Paragraph) p).getText().trim();
-            int len = text.length();
-            if (len == 0)
-                continue;
-
-            // Skip the space character between non-punctuation characters:
-            if ((pos > 0) &&
-                (!Character.isWhitespace(inputText.charAt(pos - 1))) &&
-                (Character.isLetterOrDigit(text.charAt(0))))
-            {
-                pos++;
-            }
-
-            maryText.annotate("MARYXML", p, pos, pos + len);
-            pos += len;
-        }
-
-        // Now maryText is the input text annotated with the Text nodes in the
-        // MaryXML document.
-        // Tokenise:
-        AnnotatedString tokenisedText;
-        tokenisedText = jtok.tokenize(inputText.toString(), jtokLocale);
-
+        // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();
         Sequence<Word> words = new Sequence<Word>();
+
+        // Alignment initialisation
         ArrayList<IntegerPair> alignment_paragraph_sentence = new ArrayList<IntegerPair>();
         ArrayList<IntegerPair> alignment_sentence_word = new ArrayList<IntegerPair>();
 
-        // And now merge the output back into the utterance
+        // Indexes and temp variables
+        int p_idx = 0, sent_idx=0, tok_idx=0;
+        int sent_offset=0, tok_offset=0;
         String sent_text = "";
-        Word previousToken = null;
-        int sentence_offset = 0;
-        int sentence_index = 0;
-        int word_offset = 0;
-        int word_index = 0;
-        int paragraph_index = 0;
 
-        Text currentTextNode = null;
-        char c = tokenisedText.setIndex(0);
-        Word w = null;
-        Paragraph p = null;
-        maryText.setIndex(0);
-
-        while (c != AnnotatedString.DONE)
+        // Tokenize everything
+        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
         {
-            int tokenStart = tokenisedText.getRunStart(JTok.CLASS_ANNO);
-            int tokenEnd = tokenisedText.getRunLimit(JTok.CLASS_ANNO);
+            // Tokenize current paragraph
+            AnnotatedString res = tokenizer.tokenize(p.getText(), jtokLocale);
 
-            // check if c belongs to a token
-            if (null != tokenisedText.getAnnotation(JTok.CLASS_ANNO))
+            // Going through the tokens and create the proper MaryTTS representation
+            for (Token tok : Outputter.createTokens(res))
             {
-                // We don't care about the actual annotation, only that there is one.
-                // Where to insert the token:
-                maryText.setIndex(tokenStart);
-
-                // FIXME: should we keep that ?
-                // p = (Paragraph) maryText.getAnnotation("MARYXML");
-                // assert p != null;
-
-                w = new Word(tokenisedText.substring(tokenStart, tokenEnd));
+                // Create the new token
+                sent_text += tok.getImage() + " ";
+                Word w = new Word(tok.getImage());
                 words.add(w);
+                tok_idx++;
 
-                // Is this token the first in a new sentence or paragraph?
-                if (null != tokenisedText.getAnnotation(JTok.BORDER_ANNO))
+                // Check if the token is ending the current sentence or not
+                if (tok.getType().equals("PERIOD") ||
+                    tok.getType().equals("QUEST") ||
+                    tok.getType().equals("EXCLAM"))
                 {
-                    // Flush the saved token to a sentence
-                    if (word_offset < word_index)
-                    {
-                        Sentence s = new Sentence(sent_text, null);
-                        sentences.add(s);
+                    // Create and add the new sentence
+                    Sentence s = new Sentence(sent_text, null);
+                    sentences.add(s);
 
-                        for(int i=word_offset; i<word_index; i++)
-                            alignment_sentence_word.add(new IntegerPair(sentence_index, i));
-                        word_offset = word_index;
+                    // Sent <=> Word relation
+                    for(int i=tok_offset; i<tok_idx; i++)
+                        alignment_sentence_word.add(new IntegerPair(sent_idx, i));
+                    tok_offset = tok_idx;
 
+                    // Paragraph <=> relation
+                    alignment_paragraph_sentence.add(new IntegerPair(p_idx, sent_idx));
 
-                        sentence_index++;
-                        sent_text = "";
-
-                        if (tokenisedText.getAnnotation(JTok.BORDER_ANNO) == JTok.P_BORDER)
-                        {
-                            for (int i=sentence_offset; i<sentence_index; i++)
-                            {
-                                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, i));
-                            }
-
-                            // Move to the next paragraph
-                            sentence_offset = sentence_index;
-                            sentence_index = 0;
-                            paragraph_index++;
-                        }
-
-                    }
+                    // Prepare the next sentence
+                    sent_idx++;
+                    sent_text = "";
                 }
-
-                sent_text += w.getText() + " ";
-                word_index++;
             }
 
-            c = tokenisedText.setIndex(tokenEnd);
-            maryText.setIndex(tokenEnd);
+            p_idx++;
         }
 
-        // Flush the saved token to a sentence
-        if (word_offset < word_index)
+
+        // Maybe something remains after there is no punctuation
+        if (tok_offset < tok_idx)
         {
+            // Create and add the new sentence
             Sentence s = new Sentence(sent_text, null);
             sentences.add(s);
 
-            for(int i=word_offset; i<word_index; i++)
-            {
-                alignment_sentence_word.add(new IntegerPair(sentence_index, i));
-            }
+            // Add a punctuation token(FIXME: somehow kind of patchy!)
+            Word w = new Word(".");
+            words.add(w);
+            tok_idx++;
 
-            sentence_index++;
+            // Sent <=> Word relation
+            for(int i=tok_offset; i<tok_idx; i++)
+                alignment_sentence_word.add(new IntegerPair(sent_idx, i));
+            tok_offset = tok_idx;
 
-            for (int i=sentence_offset; i<sentence_index; i++)
-            {
-                alignment_paragraph_sentence.add(new IntegerPair(paragraph_index, i));
-            }
+            // Paragraph <=> relation
+            alignment_paragraph_sentence.add(new IntegerPair(p_idx-1, sent_idx));
         }
 
         // Add the sequences to the utterance
@@ -270,7 +201,6 @@ public class JTokeniser extends InternalModule {
                                              utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
                                              alignment_paragraph_sentence);
         utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE, rel_par_sent);
-
         Relation rel_sent_wrd = new Relation(utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
                                              utt.getSequence(Utterance.SupportedSequenceType.WORD),
                                              alignment_sentence_word);
