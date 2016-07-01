@@ -108,14 +108,14 @@ public class CoverageUtilsIT {
 		assertFeaturesMatchTarget(data, featureNames);
 	}
 
-	@Test
-	public void canComputeDiphoneProsodyFeatures() throws Exception {
-		// setup
-		String featureNames = "phone next_phone selection_prosody";
-		// exercise
-		byte[] data = CoverageUtils.sentenceToFeatures(text, locale, featureNames, false);
-		// verify
-		assertFeaturesMatchTarget(data, featureNames);
-	}
+	// @Test
+	// public void canComputeDiphoneProsodyFeatures() throws Exception {
+	// 	// setup
+	// 	String featureNames = "phone next_phone selection_prosody";
+	// 	// exercise
+	// 	byte[] data = CoverageUtils.sentenceToFeatures(text, locale, featureNames, false);
+	// 	// verify
+	// 	assertFeaturesMatchTarget(data, featureNames);
+	// }
 
 }
