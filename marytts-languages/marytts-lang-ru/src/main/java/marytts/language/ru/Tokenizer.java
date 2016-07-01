@@ -38,7 +38,7 @@ import marytts.io.XMLSerializer;
  *
  * @author Marc Schr&ouml;der
  */
-public class Tokenizer extends marytts.modules.nlp.JTokeniser {
+public class Tokenizer extends marytts.modules.nlp.JTokenizer {
 
 	/**
      *

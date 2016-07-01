@@ -5,7 +5,7 @@ package marytts.language.de;
 
 import java.util.Locale;
 
-import marytts.language.de.JTokeniser;
+import marytts.language.de.JTokenizer;
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
 
@@ -17,11 +17,11 @@ import org.testng.annotations.*;
  *
  *
  */
-public class JTokeniserIT extends MaryModuleTestCase {
+public class JTokenizerIT extends MaryModuleTestCase {
 
-	public JTokeniserIT() throws Exception {
+	public JTokenizerIT() throws Exception {
 		super(true); // need mary startup
-		module = ModuleRegistry.getModule(JTokeniser.class);
+		module = ModuleRegistry.getModule(JTokenizer.class);
 	}
 
 	protected String inputEnding() {

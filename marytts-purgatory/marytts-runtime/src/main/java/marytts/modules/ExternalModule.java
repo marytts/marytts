@@ -68,8 +68,8 @@ import org.xml.sax.SAXException;
  * Non-standard case (external module needs special trigger, data needs to be post-processed):
  *
  * <pre>
- * public class Tokeniser extends ExternalModule {
- * 	public Tokeniser()
+ * public class Tokenizer extends ExternalModule {
+ * 	public Tokenizer()
  *     {
  *         super(...);
  *     }

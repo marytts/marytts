@@ -46,7 +46,7 @@ import com.google.common.collect.Lists;
  *         <li>numberandword together
  *         <li>dashes (read each number singly) or (split into two words)
  *         <li>underscores
- *         <li>decimal point, minus symbol (real numbers) also handles &#037;, however Jtokeniser splits &#037; into separate
+ *         <li>decimal point, minus symbol (real numbers) also handles &#037;, however Jtokenizer splits &#037; into separate
  *         tokens
  *         <li>time
  *         <li>dates (in format mm/dd/yyyy)
@@ -57,7 +57,7 @@ import com.google.common.collect.Lists;
  *         then just remove apostrophe else &rarr; split before apostrophe into two tokens, use map to manually add ph &rarr; for
  *         's if word ends in c,f,k,p,t then add ph &#061; s otherwise ph &#061; z
  *         <li>ampersand &amp;, "at" &#064; symbol, &rarr; symbols
- *         <li>urls &rarr; note that jtokeniser splits off http[s]?://
+ *         <li>urls &rarr; note that jtokenizer splits off http[s]?://
  *         <li>number ranges "18-35"
  *         <li>words without vowels &rarr; first check lexicon, if not then separate into single character tokens
  *         <li>#hashtags
