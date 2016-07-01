@@ -43,7 +43,7 @@ public interface MaryModule {
 	public final int MODULE_RUNNING = 1;
 
 	/**
-	 * This module's name, as free text, for example "Tokeniser"
+	 * This module's name, as free text, for example "Tokenizer"
 	 *
 	 * @return name
 	 */

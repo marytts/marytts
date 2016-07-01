@@ -1,5 +1,5 @@
 /**
- * Copyright 2003 DFKI GmbH.
+ * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -17,22 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.language.de;
+package marytts.language.en;
 
 import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 
 /**
  *
  * @author Marc Schr&ouml;der
  */
-public class JTokeniser extends marytts.modules.nlp.JTokeniser
-{
+public class JTokenizer extends marytts.modules.nlp.JTokenizer {
+
 	/**
      *
      */
-	public JTokeniser()
+	public JTokenizer()
     {
-		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.GERMAN);
+		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
 	}
+
 }

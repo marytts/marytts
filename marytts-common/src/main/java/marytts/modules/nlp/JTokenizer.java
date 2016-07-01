@@ -60,28 +60,28 @@ import de.dfki.lt.tools.tokenizer.output.Token;
  *
  *
  */
-public class JTokeniser extends InternalModule {
+public class JTokenizer extends InternalModule {
 	public static final int TOKEN_MAXLENGTH = 100;
 
 	private JTok tokenizer;
 	private String jtokLocale;
 
-	public JTokeniser() {
+	public JTokenizer() {
 		this((Locale) null);
 	}
 
-	public JTokeniser(String locale) {
-		super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
+	public JTokenizer(String locale) {
+		super("JTokenizer", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
 	}
 
-	public JTokeniser(Locale locale) {
+	public JTokenizer(Locale locale) {
 		this(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
 	}
 
-	public JTokeniser(MaryDataType inputType, MaryDataType outputType, Locale locale) {
-		super("JTokeniser", inputType, outputType, locale);
+	public JTokenizer(MaryDataType inputType, MaryDataType outputType, Locale locale) {
+		super("JTokenizer", inputType, outputType, locale);
 
-        // if locale == null, use default tokeniser
+        // if locale == null, use default tokenizer
 		if (locale == null) {
 			jtokLocale = "default";
 		} else {

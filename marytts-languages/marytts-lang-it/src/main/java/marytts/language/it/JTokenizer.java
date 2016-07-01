@@ -41,9 +41,9 @@ import org.w3c.dom.traversal.NodeIterator;
  *
  * @author Fabio Tesser
  */
-public class JTokeniser extends marytts.modules.nlp.JTokeniser {
+public class JTokenizer extends marytts.modules.nlp.JTokenizer {
 
-	public JTokeniser() {
+	public JTokenizer() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ITALIAN);
 	}
 
