@@ -37,6 +37,7 @@ Development news
 Fixed Issues/Bugs
 -----------------
 
+* [#564](https://github.com/marytts/marytts/pull/564): add missing TOKENS examples
 * [#555](https://github.com/marytts/marytts/issues/555): HMMModel generates malformed XML duration attributes
 * [#531](https://github.com/marytts/marytts/issues/531): java.awt.HeadlessException in (Half)PhoneLabelFeatureAligner
 * [#516](https://github.com/marytts/marytts/issues/516): Single words conduct to have a wrong POS which leads to a crash of the target feature module
