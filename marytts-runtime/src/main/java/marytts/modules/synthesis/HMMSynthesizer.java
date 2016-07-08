@@ -67,10 +67,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.datatypes.MaryData;
@@ -84,7 +80,6 @@ import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.TargetFeatureLister;
-import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
@@ -203,7 +198,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
 				// The actual durations are already fixed in the htsEngine.process()
 				// here i pass segements and boundaries to update the realised acoustparams, dur and f0
-				MaryData audio = htsEngine.process(in, targetFeaturesList, segmentsAndBoundaries, null);
+				MaryData audio = htsEngine.process(in, targetFeaturesList, segmentsAndBoundaries, null, null);
 
 				assert audio.getAudio() != null;
 
@@ -261,7 +256,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 			// it is not faster to pass directly a list of targets?
 			// --String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
 
-			MaryData d = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
+			MaryData d = new MaryData(targetFeatureLister.getOutputType(), voice.getLocale());
 			// --d.setPlainText(targetFeatureString);
 			d.setDefaultVoice(voice);
 
@@ -269,7 +264,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
 			// the actual durations are already fixed in the htsEngine.process()
 			// here i pass segements and boundaries to update the realised acoustparams, dur and f0
-			MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries, tokensAndBoundaries);
+			MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries, tokensAndBoundaries, outputParams);
 
 			return audio.getAudio();
 

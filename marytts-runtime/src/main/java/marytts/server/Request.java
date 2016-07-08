@@ -92,7 +92,7 @@ public class Request {
 	protected Logger logger;
 	protected MaryData inputData;
 	protected MaryData outputData;
-	protected boolean streamAudio = false;;
+	protected boolean streamAudio = false;
 	protected boolean abortRequested = false;
 
 	// Keep track of timing info for each module
@@ -545,14 +545,16 @@ public class Request {
 			// to the Request to each MaryData, and look up request-specific
 			// settings such as default voice and audio file format type
 			// from where it is required.)
-			if (m.outputType() == MaryDataType.get("AUDIO")) {
+			if (m.getOutputType() == MaryDataType.get("AUDIO")) {
 				currentData.setAudioFileFormat(audioFileFormat);
 				currentData.setAudio(new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null));
 			}
 			// TODO: The following hack makes sure that the Synthesis module gets outputParams. Make this more general and robust.
-			if (m.outputType() == oneOutputType || m.outputType() == MaryDataType.AUDIO) {
+			if (m.getOutputType() == oneOutputType || m.getOutputType() == MaryDataType.AUDIO) {
 				currentData.setOutputParams(outputParams);
-			}
+				if (m.getOutputType() == MaryDataType.AUDIO && oneOutputType == MaryDataType.REALISED_ACOUSTPARAMS)
+					currentData.setOutputParams("noAudio");
+			} 
 			if (logger.getEffectiveLevel().equals(Level.DEBUG)
 					&& (currentData.getType().isTextType() || currentData.getType().isXMLType())) {
 				logger.debug("Handing the following data to the next module:");
