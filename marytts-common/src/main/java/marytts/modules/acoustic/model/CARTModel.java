@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.modules.acoustic;
+package marytts.modules.acoustic.model;
 
 import java.io.File;
 import java.io.IOException;

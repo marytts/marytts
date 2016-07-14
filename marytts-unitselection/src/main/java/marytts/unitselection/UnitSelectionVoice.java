@@ -66,11 +66,10 @@ import marytts.unitselection.select.JoinModelCost;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.UnitSelector;
-
-import marytts.modules.acoustic.Model;
-import marytts.modules.acoustic.BoundaryModel;
-import marytts.modules.acoustic.ModelType;
-import marytts.modules.acoustic.CARTModel;
+import marytts.modules.acoustic.model.BoundaryModel;
+import marytts.modules.acoustic.model.CARTModel;
+import marytts.modules.acoustic.model.Model;
+import marytts.modules.acoustic.model.ModelType;
 
 /**
  * A Unit Selection Voice

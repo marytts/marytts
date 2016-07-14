@@ -36,6 +36,7 @@ import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
+import marytts.modules.acoustic.model.Model;
 import marytts.features.Target;
 import marytts.util.MaryUtils;
 
