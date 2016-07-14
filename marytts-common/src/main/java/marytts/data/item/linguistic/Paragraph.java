@@ -11,36 +11,12 @@ import marytts.data.item.Item;
  */
 public class Paragraph extends Item
 {
-	private ArrayList<Sentence> m_sentences;
 	private String m_text;
 
 	public Paragraph(String text)
 	{
         super();
         setText(text);
-        setSentences(new ArrayList<Sentence>());
-    }
-
-	public Paragraph(String text, ArrayList<Sentence> sentences)
-	{
-        super();
-		setText(text);
-		setSentences(sentences);
-	}
-
-	public ArrayList<Sentence> getSentences()
-	{
-		return m_sentences;
-	}
-
-	public void setSentences(ArrayList<Sentence> sentences)
-	{
-		m_sentences = sentences;
-	}
-
-    public void addSentence(Sentence sentence)
-    {
-        m_sentences.add(sentence);
     }
 
     public String getText()

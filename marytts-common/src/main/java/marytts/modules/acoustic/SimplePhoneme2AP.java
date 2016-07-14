@@ -26,9 +26,12 @@ import java.util.ArrayList;
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
+import marytts.data.Relation;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.prosody.*;
 import marytts.data.item.phonology.*;
+import marytts.data.utils.IntegerPair;
+import marytts.data.utils.SequenceTypePair;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -51,26 +54,29 @@ import marytts.modules.InternalModule;
 public class SimplePhoneme2AP extends InternalModule {
 	protected AllophoneSet allophoneSet;
 
-	public SimplePhoneme2AP(String localeString) {
+    public SimplePhoneme2AP(String localeString) {
 		this(MaryDataType.SIMPLEPHONEMES, MaryDataType.ACOUSTPARAMS, MaryUtils.string2locale(localeString));
 	}
 
-	public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale) {
+    public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale) {
 		super("SimplePhoneme2AP", inputType, outputType, locale);
-	}
+    }
 
 	public void startup() throws Exception {
 		allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(getLocale()) + ".allophoneset");
 		super.startup();
 	}
 
-	public MaryData process(MaryData d) throws Exception {
-		String phoneString = d.getPlainText();
+	public MaryData process(MaryData d)
+        throws Exception
+    {
+        String phoneString = d.getPlainText();
+        Utterance utt = new Utterance(phoneString, d.getLocale());
 
         Accent word_accent = null;
         int cumulDur = 0;
 		boolean isFirst = true;
-        ArrayList<Word> words = new ArrayList<Word>();
+        Sequence<Word> words = new Sequence<Word>();
         StringTokenizer stTokens = new StringTokenizer(phoneString);
 		while (stTokens.hasMoreTokens())
         {
@@ -131,30 +137,48 @@ public class SimplePhoneme2AP extends InternalModule {
             words.add(w);
         }
 
+        utt.addSequence(Utterance.SupportedSequenceType.WORD, words);
+
         // Wrapping into a phrase
         Boundary boundary = new Boundary(4, 400);
-        Phrase phrase = new Phrase(boundary, words);
+        Phrase phrase = new Phrase(boundary);
+        Sequence<Phrase> phrases = new Sequence<Phrase>();
+        phrases.add(phrase);
+        utt.addSequence(Utterance.SupportedSequenceType.PHRASE, phrases);
+        ArrayList<IntegerPair> alignment_phrase_word = new ArrayList<IntegerPair>();
+        for (int i=0; i<words.size(); i++)
+            alignment_phrase_word.add(new IntegerPair(0, i));
+        utt.setRelation(Utterance.SupportedSequenceType.PHRASE,
+                        Utterance.SupportedSequenceType.WORD,
+                        new Relation(phrases, words, alignment_phrase_word));
 
         // Wrapping into a sentence
         Sentence sentence = new Sentence("");
-        sentence.addPhrase(phrase);
+        Sequence<Sentence> sentences = new Sequence<Sentence>();
+        sentences.add(sentence);
+        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, sentences);
+        ArrayList<IntegerPair> alignment_sentence_phrase = new ArrayList<IntegerPair>();
+        alignment_sentence_phrase.add(new IntegerPair(0, 0));
+        utt.setRelation(Utterance.SupportedSequenceType.SENTENCE,
+                        Utterance.SupportedSequenceType.PHRASE,
+                        new Relation(sentences, phrases, alignment_sentence_phrase));
 
         // Wrapping into a paragraph
         Paragraph paragraph = new Paragraph("");
-        paragraph.addSentence(sentence);
-
         Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
         paragraphs.add(paragraph);
-
-        // Add to an utterance
-        Utterance utt = new Utterance("", d.getLocale());
         utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, paragraphs);
+        ArrayList<IntegerPair> alignment_paragraph_sentence = new ArrayList<IntegerPair>();
+        alignment_paragraph_sentence.add(new IntegerPair(0, 0));
+        utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH,
+                        Utterance.SupportedSequenceType.SENTENCE,
+                        new Relation(paragraphs, sentences, alignment_paragraph_sentence));
+
 
         // Finally serialize and return
         XMLSerializer xml_ser = new XMLSerializer();
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(xml_ser.generateDocument(utt));
-
         return result;
-	}
+    }
 }

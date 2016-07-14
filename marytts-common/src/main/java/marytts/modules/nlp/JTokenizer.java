@@ -149,7 +149,7 @@ public class JTokenizer extends InternalModule {
                     tok.getType().equals("EXCLAM"))
                 {
                     // Create and add the new sentence
-                    Sentence s = new Sentence(sent_text, null);
+                    Sentence s = new Sentence(sent_text);
                     sentences.add(s);
 
                     // Sent <=> Word relation
@@ -174,7 +174,7 @@ public class JTokenizer extends InternalModule {
         if (tok_offset < tok_idx)
         {
             // Create and add the new sentence
-            Sentence s = new Sentence(sent_text, null);
+            Sentence s = new Sentence(sent_text);
             sentences.add(s);
 
             // Add a punctuation token(FIXME: somehow kind of patchy!)
