@@ -512,7 +512,7 @@ public class XMLSerializer implements Serializer
             }
 
             // Create/modify the sequence by adding the sentence
-            Sentence s = new Sentence(text, null);
+            Sentence s = new Sentence(text);
             Sequence<Sentence> seq_sent = (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE);
             if (seq_sent == null)
             {
@@ -565,237 +565,237 @@ public class XMLSerializer implements Serializer
                     alignment_sentence_word.add(new IntegerPair(id_sent, i));
                 }
             }
-        }
+    }
 
-        public void generatePhrase(Element elt,
-                                   Utterance utt,
-                                   Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
-            throws MaryIOException
+    public void generatePhrase(Element elt,
+                               Utterance utt,
+                               Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
+        throws MaryIOException
+    {
+        assert elt.getTagName().equals("phrase");
+
+        int word_offset = 0;
+        if (utt.getSequence(Utterance.SupportedSequenceType.WORD) != null)
+            word_offset = utt.getSequence(Utterance.SupportedSequenceType.WORD).size();
+        Boundary boundary = null;
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
         {
-            assert elt.getTagName().equals("phrase");
+            Node node = nl.item(j);
 
-            int word_offset = 0;
-            if (utt.getSequence(Utterance.SupportedSequenceType.WORD) != null)
-                word_offset = utt.getSequence(Utterance.SupportedSequenceType.WORD).size();
-            Boundary boundary = null;
-
-            NodeList nl = elt.getChildNodes();
-            String text = null;
-            for (int j=0; j<nl.getLength(); j++)
+            if (node.getNodeType() == Node.TEXT_NODE)
             {
-                Node node = nl.item(j);
-
-                if (node.getNodeType() == Node.TEXT_NODE)
+                text = node.getNodeValue().trim();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element cur_elt = (Element) node;
+                if (cur_elt.getTagName() == "t")
                 {
-                    text = node.getNodeValue().trim();
+                    generateWord(cur_elt, utt, alignments);
                 }
-                else if (node.getNodeType() == Node.ELEMENT_NODE)
+                else if (cur_elt.getTagName() == "mtu")
                 {
-                    Element cur_elt = (Element) node;
-                    if (cur_elt.getTagName() == "t")
-                    {
-                        generateWord(cur_elt, utt, alignments);
-                    }
-                    else if (cur_elt.getTagName() == "mtu")
-                    {
-                        NodeList mtu_nl = cur_elt.getChildNodes();
+                    NodeList mtu_nl = cur_elt.getChildNodes();
 
-                        for (int k=0; k<mtu_nl.getLength(); k++)
+                    for (int k=0; k<mtu_nl.getLength(); k++)
+                    {
+                        Node word_node = mtu_nl.item(k);
+                        if (word_node.getNodeType() == Node.ELEMENT_NODE)
                         {
-                            Node word_node = mtu_nl.item(k);
-                            if (word_node.getNodeType() == Node.ELEMENT_NODE)
-                            {
 
-                                generateWord((Element) word_node, utt, alignments);
-                            }
-                            else
-                            {
-                                throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
-                                                          node.getNodeType(), null);
-                            }
+                            generateWord((Element) word_node, utt, alignments);
                         }
+                        else
+                        {
+                            throw new MaryIOException("Unknown node element type during unpacking the mtu: " +
+                                                      node.getNodeType(), null);
+                        }
+                    }
 
-                    }
-                    else if (cur_elt.getTagName() == "boundary")
-                    {
-                        int breakindex = Integer.parseInt(cur_elt.getAttribute("breakindex"));
-                        String tone = cur_elt.getAttribute("tone");
-                        boundary = new Boundary(breakindex, tone);
-                    }
-                    else
-                    {
-                        throw new MaryIOException("Unknown node element during unpacking: " +
-                                                  cur_elt.getTagName(), null);
-                    }
+                }
+                else if (cur_elt.getTagName() == "boundary")
+                {
+                    int breakindex = Integer.parseInt(cur_elt.getAttribute("breakindex"));
+                    String tone = cur_elt.getAttribute("tone");
+                    boundary = new Boundary(breakindex, tone);
                 }
                 else
                 {
-                    throw new MaryIOException("Unknown node element type during unpacking: " +
-                                              node.getNodeType(), null);
+                    throw new MaryIOException("Unknown node element during unpacking: " +
+                                              cur_elt.getTagName(), null);
                 }
             }
-
-            // Create the phrase and add the phrase to the utterance
-            Phrase p = new Phrase(boundary, null);
-            Sequence<Phrase> seq_phrase = (Sequence<Phrase>) utt.getSequence(Utterance.SupportedSequenceType.PHRASE);
-            if (seq_phrase == null)
+            else
             {
-                seq_phrase = new Sequence<Phrase>();
-            }
-            utt.addSequence(Utterance.SupportedSequenceType.PHRASE, seq_phrase);
-            seq_phrase.add(p);
-
-
-            // Phrase/Word alignment
-            if (!alignments.containsKey(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
-                                                             Utterance.SupportedSequenceType.WORD)))
-            {
-                alignments.put(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
-                                                    Utterance.SupportedSequenceType.WORD),
-                               new ArrayList<IntegerPair>());
-            }
-
-            ArrayList<IntegerPair> alignment_phrase_word =
-                alignments.get(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
-                                                    Utterance.SupportedSequenceType.WORD));
-
-            int size_word = utt.getSequence(Utterance.SupportedSequenceType.WORD).size();
-            int id_phrase = seq_phrase.size() - 1;
-            for (int i=word_offset; i < size_word; i++)
-            {
-                alignment_phrase_word.add(new IntegerPair(id_phrase, i));
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
             }
         }
 
-
-        public void generateWord(Element elt,
-                                 Utterance utt,
-                                 Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
-            throws MaryIOException
+        // Create the phrase and add the phrase to the utterance
+        Phrase p = new Phrase(boundary);
+        Sequence<Phrase> seq_phrase = (Sequence<Phrase>) utt.getSequence(Utterance.SupportedSequenceType.PHRASE);
+        if (seq_phrase == null)
         {
-            assert elt.getTagName().equals("t");
-            ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
-
-            NodeList nl = elt.getChildNodes();
-            String text = null;
-            for (int j=0; j<nl.getLength(); j++)
-            {
-                Node node = nl.item(j);
-
-                if (node.getNodeType() == Node.TEXT_NODE)
-                {
-                    text = node.getNodeValue().trim();
-                }
-                else if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    Element syllable_elt = (Element) node;
-                    syllable_list.add(generateSyllable(syllable_elt));
-                }
-                else
-                {
-                    throw new MaryIOException("Unknown node element type during unpacking: " +
-                                              node.getNodeType(), null);
-                }
-            }
-
-            if (text == null)
-                throw new MaryIOException("Cannot find the text of the word", null);
-
-            logger.info("Unpacking word \"" + text + "\"");
-            Word w = new Word(text, syllable_list);
-
-            if (elt.hasAttribute("pos"))
-            {
-                String pos = elt.getAttribute("pos");
-                w.setPOS(pos);
-            }
-
-            if (elt.hasAttribute("accent"))
-            {
-                String accent = elt.getAttribute("accent");
-                w.setAccent(new Accent(accent));
-            }
-
-            // FIXME: this should be a temp hack !
-            if (elt.hasAttribute("ph"))
-            {
-                String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
-                ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
-                for (int i=0; i<phoneme_labels.length; i++)
-                {
-                    phonemes.add(new Phoneme(phoneme_labels[i]));
-                }
-                w.setPhonemes(phonemes);
-            }
+            seq_phrase = new Sequence<Phrase>();
+        }
+        utt.addSequence(Utterance.SupportedSequenceType.PHRASE, seq_phrase);
+        seq_phrase.add(p);
 
 
-            // Create the phrase and add the phrase to the
-            Sequence<Word> seq_word = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
-            if (seq_word == null)
-            {
-                seq_word = new Sequence<Word>();
-            }
-            utt.addSequence(Utterance.SupportedSequenceType.WORD, seq_word);
-            seq_word.add(w);
+        // Phrase/Word alignment
+        if (!alignments.containsKey(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
+                                                         Utterance.SupportedSequenceType.WORD)))
+        {
+            alignments.put(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
+                                                Utterance.SupportedSequenceType.WORD),
+                           new ArrayList<IntegerPair>());
         }
 
-        public Syllable generateSyllable(Element elt)
-            throws MaryIOException
+        ArrayList<IntegerPair> alignment_phrase_word =
+            alignments.get(new SequenceTypePair(Utterance.SupportedSequenceType.PHRASE,
+                                                Utterance.SupportedSequenceType.WORD));
+
+        int size_word = utt.getSequence(Utterance.SupportedSequenceType.WORD).size();
+        int id_phrase = seq_phrase.size() - 1;
+        for (int i=word_offset; i < size_word; i++)
         {
-            assert elt.getTagName() == "syllable";
-            ArrayList<Phoneme> phoneme_list = new ArrayList<Phoneme>();
-
-            NodeList nl = elt.getChildNodes();
-            String text = null;
-            for (int j=0; j<nl.getLength(); j++)
-            {
-                Node node = nl.item(j);
-
-                if (node.getNodeType() == Node.TEXT_NODE)
-                {
-                    text = node.getNodeValue().trim();
-                }
-                else if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    Element phoneme_elt = (Element) node;
-                    phoneme_list.add(generatePhoneme(phoneme_elt));
-                }
-                else
-                {
-                    throw new MaryIOException("Unknown node element type during unpacking: " +
-                                              node.getNodeType(), null);
-                }
-            }
-
-            logger.info("Unpacking word \"" + text + "\"");
-            // FIXME: for now the tone phoneme is just based on the label...
-            Phoneme tone = null;
-            if (elt.hasAttribute("tone"))
-            {
-                tone = new Phoneme(elt.getAttribute("tone"));
-            }
-
-            Accent accent = null;
-            if (elt.hasAttribute("accent"))
-            {
-                accent = new Accent(elt.getAttribute("accent"));
-            }
-
-            int stress_level = 0;
-            if (elt.hasAttribute("stress"))
-            {
-                stress_level = Integer.parseInt(elt.getAttribute("stress"));
-            }
-            Syllable syl = new Syllable(phoneme_list, tone, stress_level, accent);
-
-            return syl;
-        }
-
-        public Phoneme generatePhoneme(Element elt)
-            throws MaryIOException
-        {
-            assert elt.getTagName() == "ph";
-            Phoneme ph = new Phoneme(elt.getAttribute("p"));
-            return ph;
+            alignment_phrase_word.add(new IntegerPair(id_phrase, i));
         }
     }
+
+
+    public void generateWord(Element elt,
+                             Utterance utt,
+                             Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
+        throws MaryIOException
+    {
+        assert elt.getTagName().equals("t");
+        ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                text = node.getNodeValue().trim();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element syllable_elt = (Element) node;
+                syllable_list.add(generateSyllable(syllable_elt));
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
+            }
+        }
+
+        if (text == null)
+            throw new MaryIOException("Cannot find the text of the word", null);
+
+        logger.info("Unpacking word \"" + text + "\"");
+        Word w = new Word(text, syllable_list);
+
+        if (elt.hasAttribute("pos"))
+        {
+            String pos = elt.getAttribute("pos");
+            w.setPOS(pos);
+        }
+
+        if (elt.hasAttribute("accent"))
+        {
+            String accent = elt.getAttribute("accent");
+            w.setAccent(new Accent(accent));
+        }
+
+        // FIXME: this should be a temp hack !
+        if (elt.hasAttribute("ph"))
+        {
+            String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
+            ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
+            for (int i=0; i<phoneme_labels.length; i++)
+            {
+                phonemes.add(new Phoneme(phoneme_labels[i]));
+            }
+            w.setPhonemes(phonemes);
+        }
+
+
+        // Create the phrase and add the phrase to the
+        Sequence<Word> seq_word = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
+        if (seq_word == null)
+        {
+            seq_word = new Sequence<Word>();
+        }
+        utt.addSequence(Utterance.SupportedSequenceType.WORD, seq_word);
+        seq_word.add(w);
+    }
+
+    public Syllable generateSyllable(Element elt)
+        throws MaryIOException
+    {
+        assert elt.getTagName() == "syllable";
+        ArrayList<Phoneme> phoneme_list = new ArrayList<Phoneme>();
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j=0; j<nl.getLength(); j++)
+        {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE)
+            {
+                text = node.getNodeValue().trim();
+            }
+            else if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element phoneme_elt = (Element) node;
+                phoneme_list.add(generatePhoneme(phoneme_elt));
+            }
+            else
+            {
+                throw new MaryIOException("Unknown node element type during unpacking: " +
+                                          node.getNodeType(), null);
+            }
+        }
+
+        logger.info("Unpacking word \"" + text + "\"");
+        // FIXME: for now the tone phoneme is just based on the label...
+        Phoneme tone = null;
+        if (elt.hasAttribute("tone"))
+        {
+            tone = new Phoneme(elt.getAttribute("tone"));
+        }
+
+        Accent accent = null;
+        if (elt.hasAttribute("accent"))
+        {
+            accent = new Accent(elt.getAttribute("accent"));
+        }
+
+        int stress_level = 0;
+        if (elt.hasAttribute("stress"))
+        {
+            stress_level = Integer.parseInt(elt.getAttribute("stress"));
+        }
+        Syllable syl = new Syllable(phoneme_list, tone, stress_level, accent);
+
+        return syl;
+    }
+
+    public Phoneme generatePhoneme(Element elt)
+        throws MaryIOException
+    {
+        assert elt.getTagName() == "ph";
+        Phoneme ph = new Phoneme(elt.getAttribute("p"));
+        return ph;
+    }
+}
