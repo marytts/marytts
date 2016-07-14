@@ -98,8 +98,8 @@ public class AcousticModeller extends InternalModule {
 	 *             Exception
 	 */
 	public AcousticModeller(String locale, String propertyPrefix) throws Exception {
-		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
-                                                                                                         .string2locale(locale)));
+		this(MaryUtils.string2locale(locale), propertyPrefix,
+             FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
 	}
 
 	/**
@@ -116,8 +116,8 @@ public class AcousticModeller extends InternalModule {
 	 *             Exception
 	 */
 	public AcousticModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
-		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
-             .instantiateObject(featprocClassInfo));
+		this(MaryUtils.string2locale(locale), propertyPrefix,
+             (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(featprocClassInfo));
 	}
 
 	/**
@@ -380,7 +380,8 @@ public class AcousticModeller extends InternalModule {
 
 			// at this point, no TBU should be null:
 			if (firstVoicedSegment == null || firstVowel == null || lastVoicedSegment == null) {
-				logger.debug("WARNING: could not identify F0 anchors in malformed syllable: '" + element.getAttribute("ph") + "'");
+				logger.debug(
+						"WARNING: could not identify F0 anchors in malformed syllable: '" + element.getAttribute("ph") + "'");
 			} else {
 				// we have what we need, append to Lists:
 				firstVoicedSegments.add(firstVoicedSegment);
