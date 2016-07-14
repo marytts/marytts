@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.modules.acoustic;
+package marytts.modules.acoustic.model;
 
 /**
  * List of known model types as constants; can be extended but needs to mesh with Classes extending {@link Model} and switch

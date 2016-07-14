@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.modules.acoustic;
+package marytts.modules.acoustic.model;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.modules.acoustic;
+package marytts.modules.acoustic.model;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +39,9 @@ import org.w3c.dom.Node;
 
 /**
  * Base class for acoustic modeling; specific Models should extend this and override methods as needed.
- * 
+ *
  * @author steiner
- * 
+ *
  */
 public abstract class Model {
 
@@ -90,7 +90,7 @@ public abstract class Model {
 
 	/**
 	 * Model constructor
-	 * 
+	 *
 	 * @param featureManager
 	 *            the feature processor manager used to compute the symbolic features used for prediction
 	 * @param voiceName
@@ -133,7 +133,7 @@ public abstract class Model {
 	/**
 	 * Try to load this model and set the target feature computer appropriately. This must be called from the constructor of
 	 * subclasses, so that the subclass implementation of loadDataFile() is visible.
-	 * 
+	 *
 	 * @throws MaryConfigurationException
 	 *             if the model cannot be set up properly.
 	 */
@@ -148,7 +148,7 @@ public abstract class Model {
 
 	/**
 	 * Load dataFile for this model; only extension classes know how to do this
-	 * 
+	 *
 	 * @throws IOException
 	 *             if any files cannot be properly read
 	 * @throws MaryConfigurationException
@@ -170,7 +170,7 @@ public abstract class Model {
 
 	/**
 	 * Apply this Model to a List of Elements, predicting from those same Elements
-	 * 
+	 *
 	 * @param elements
 	 *            Elements for which to predict the values
 	 * @throws MaryConfigurationException
@@ -182,7 +182,7 @@ public abstract class Model {
 
 	/**
 	 * Apply this Model to a List of Elements, predicting from a different List of Elements
-	 * 
+	 *
 	 * @param predictFromElements
 	 *            Elements from which to predict the values
 	 * @param applyToElements
@@ -226,8 +226,7 @@ public abstract class Model {
 						+ targetAttributeFormat + "'", e);
 			}
 
-			// System.out.println("formattedTargetValue = " +
-			// formattedTargetValue);
+			// System.out.println("formattedTargetValue = " + formattedTargetValue);
 
 			// if the attribute already exists for this element, append
 			// targetValue:
@@ -243,7 +242,7 @@ public abstract class Model {
 	/**
 	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
 	 * corresponding Element.
-	 * 
+	 *
 	 * @param elements
 	 *            List of Elements
 	 * @return List of Targets
@@ -265,7 +264,7 @@ public abstract class Model {
 
 	/**
 	 * Evaluate model on a Target to obtain the target value as a float.
-	 * 
+	 *
 	 * @param target
 	 *            target
 	 * @return target value
@@ -277,7 +276,7 @@ public abstract class Model {
 	// several getters:
 
 	/**
-	 * 
+	 *
 	 * @return the name of the voice that this model is associated with
 	 */
 	public String getVoiceName() {
