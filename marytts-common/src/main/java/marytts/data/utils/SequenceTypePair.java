@@ -1,6 +1,7 @@
 package marytts.data.utils;
 
 import marytts.data.Utterance;
+import marytts.data.SupportedSequenceType;
 
 /**
  *
@@ -9,21 +10,21 @@ import marytts.data.Utterance;
  */
 public class SequenceTypePair
 {
-    private Utterance.SupportedSequenceType left; //left member of pair
-    private Utterance.SupportedSequenceType right; //right member of pair
+    private SupportedSequenceType left; //left member of pair
+    private SupportedSequenceType right; //right member of pair
 
-    public SequenceTypePair(Utterance.SupportedSequenceType left,
-                            Utterance.SupportedSequenceType right)
+    public SequenceTypePair(SupportedSequenceType left,
+                            SupportedSequenceType right)
     {
         this.left = left;
         this.right = right;
     }
 
-    public Utterance.SupportedSequenceType getLeft() {
+    public SupportedSequenceType getLeft() {
         return left;
     }
 
-    public Utterance.SupportedSequenceType getRight() {
+    public SupportedSequenceType getRight() {
         return right;
     }
 

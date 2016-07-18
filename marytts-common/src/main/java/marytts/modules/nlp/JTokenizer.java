@@ -35,6 +35,7 @@ import marytts.data.utils.SequenceTypePair;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
@@ -102,7 +103,6 @@ public class JTokenizer extends InternalModule {
 	public void startup() throws Exception {
 		super.startup();
 		Properties jtokProperties = new Properties();
-		//jtokProperties.setProperty("default", "jtok/" + jtokLocale);
 		jtokProperties.setProperty(jtokLocale, "jtok/" + jtokLocale);
 		tokenizer = new JTok(jtokProperties);
 	}
@@ -129,7 +129,7 @@ public class JTokenizer extends InternalModule {
         String sent_text = "";
 
         // Tokenize everything
-        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH))
+        for (Paragraph p : (Sequence<Paragraph>) utt.getSequence(SupportedSequenceType.PARAGRAPH))
         {
             // Tokenize current paragraph
             AnnotatedString res = tokenizer.tokenize(p.getText(), jtokLocale);
@@ -192,19 +192,19 @@ public class JTokenizer extends InternalModule {
         }
 
         // Add the sequences to the utterance
-        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, sentences);
-        utt.addSequence(Utterance.SupportedSequenceType.WORD, words);
+        utt.addSequence(SupportedSequenceType.SENTENCE, sentences);
+        utt.addSequence(SupportedSequenceType.WORD, words);
 
 
         // Create the relations and add them to the utterance
-        Relation rel_par_sent = new Relation(utt.getSequence(Utterance.SupportedSequenceType.PARAGRAPH),
-                                             utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
+        Relation rel_par_sent = new Relation(utt.getSequence(SupportedSequenceType.PARAGRAPH),
+                                             utt.getSequence(SupportedSequenceType.SENTENCE),
                                              alignment_paragraph_sentence);
-        utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH, Utterance.SupportedSequenceType.SENTENCE, rel_par_sent);
-        Relation rel_sent_wrd = new Relation(utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
-                                             utt.getSequence(Utterance.SupportedSequenceType.WORD),
+        utt.setRelation(SupportedSequenceType.PARAGRAPH, SupportedSequenceType.SENTENCE, rel_par_sent);
+        Relation rel_sent_wrd = new Relation(utt.getSequence(SupportedSequenceType.SENTENCE),
+                                             utt.getSequence(SupportedSequenceType.WORD),
                                              alignment_sentence_word);
-        utt.setRelation(Utterance.SupportedSequenceType.SENTENCE, Utterance.SupportedSequenceType.WORD, rel_sent_wrd);
+        utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
         MaryData result = new MaryData(outputType(), d.getLocale());

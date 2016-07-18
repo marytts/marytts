@@ -22,18 +22,12 @@ import marytts.data.item.Item;
  */
 public class Utterance
 {
-    public enum SupportedSequenceType {
-        PARAGRAPH,
-        SENTENCE,
-        PHRASE,
-        WORD
-    };
     private String m_voice_name;
 	private String m_text;
     private Locale m_locale;
     private ArrayList<AudioInputStream> m_list_streams;
     private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
-    private Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation> m_relations;
+    private RelationGraph m_relation_graph;
 
     public Utterance(String text, Locale locale)
     {
@@ -42,7 +36,7 @@ public class Utterance
         setLocale(locale);
 
         m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
-        m_relations = new Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation>();
+        m_relation_graph = new RelationGraph();
     }
 
     public String getText()
@@ -111,7 +105,7 @@ public class Utterance
 
     protected Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation> getRelations()
     {
-        return m_relations;
+        return m_relation_graph.getRelations();
     }
 
     /**
@@ -120,7 +114,7 @@ public class Utterance
      */
     public Relation getRelation(SupportedSequenceType source, SupportedSequenceType target)
     {
-        return getRelations().get(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source, target));
+        return m_relation_graph.getRelation(source, target);
     }
 
     /**
@@ -128,6 +122,6 @@ public class Utterance
      */
     public void setRelation(SupportedSequenceType source, SupportedSequenceType target, Relation rel)
     {
-        getRelations().put(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source, target), rel);
+        m_relation_graph.addRelation(source, target, rel);
     }
 }

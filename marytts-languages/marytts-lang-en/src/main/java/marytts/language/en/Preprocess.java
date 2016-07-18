@@ -24,6 +24,7 @@ import marytts.util.dom.NameNodeFilter;
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
+import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Word;
 
 import com.ibm.icu.util.ULocale;
@@ -216,7 +217,7 @@ public class Preprocess extends InternalModule {
 		String webEmailTemp = "";
 		boolean splitContraction;
 
-        Sequence<Word> tokens = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
+        Sequence<Word> tokens = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         for (int idx_token=0; idx_token<tokens.size(); idx_token++)
         {
             Word t = tokens.get(idx_token);
@@ -545,44 +546,44 @@ public class Preprocess extends InternalModule {
 /**************************************************************************************************************************************************************
  ** Expansion rules
  **************************************************************************************************************************************************************/
-        protected String expandNumber(double number)
-        {
-            this.rbnf.setDefaultRuleSet(cardinalRule);
-            return this.rbnf.format(number);
-        }
+    protected String expandNumber(double number)
+    {
+        this.rbnf.setDefaultRuleSet(cardinalRule);
+        return this.rbnf.format(number);
+    }
 
-        protected String expandOrdinal(double number)
-        {
-            this.rbnf.setDefaultRuleSet(ordinalRule);
-            return this.rbnf.format(number);
-        }
+    protected String expandOrdinal(double number)
+    {
+        this.rbnf.setDefaultRuleSet(ordinalRule);
+        return this.rbnf.format(number);
+    }
 
-        protected String expandYear(double number)
-        {
-            this.rbnf.setDefaultRuleSet(yearRule);
-            return this.rbnf.format(number);
-        }
+    protected String expandYear(double number)
+    {
+        this.rbnf.setDefaultRuleSet(yearRule);
+        return this.rbnf.format(number);
+    }
 
-        protected String expandDuration(String duration)
-        {
-            Matcher durMatcher = durationPattern.matcher(duration);
-            durMatcher.find();
-            String hrs = expandNumber(Double.parseDouble(durMatcher.group(1))) + " hours ";
-            String mins = expandNumber(Double.parseDouble(durMatcher.group(2))) + " minutes ";
-            String secs = expandNumber(Double.parseDouble(durMatcher.group(3))) + " seconds ";
-            String ms = "";
-            if (durMatcher.group(4) != null) {
-                ms = "and " + expandNumber(Double.parseDouble(durMatcher.group(5))) + " milliseconds ";
-            } else {
-                secs = "and " + secs;
-            }
-            return hrs + mins + secs + ms;
+    protected String expandDuration(String duration)
+    {
+        Matcher durMatcher = durationPattern.matcher(duration);
+        durMatcher.find();
+        String hrs = expandNumber(Double.parseDouble(durMatcher.group(1))) + " hours ";
+        String mins = expandNumber(Double.parseDouble(durMatcher.group(2))) + " minutes ";
+        String secs = expandNumber(Double.parseDouble(durMatcher.group(3))) + " seconds ";
+        String ms = "";
+        if (durMatcher.group(4) != null) {
+            ms = "and " + expandNumber(Double.parseDouble(durMatcher.group(5))) + " milliseconds ";
+        } else {
+            secs = "and " + secs;
         }
+        return hrs + mins + secs + ms;
+    }
 
-        protected String expandAcronym(String acronym)
-        {
-            return acronym.replaceAll("\\.", " ");
-        }
+    protected String expandAcronym(String acronym)
+    {
+        return acronym.replaceAll("\\.", " ");
+    }
 
 /***
  * expand a URL string partially by splitting by @, / and . symbols (but retaining them)
@@ -591,26 +592,26 @@ public class Preprocess extends InternalModule {
  *            email
  * @return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "")
  */
-        protected String expandURL(String email)
-        {
-            String[] tokens = email.split("((?<=[\\.@\\/])|(?=[\\.@\\/]))");
-            return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "");
-        }
+    protected String expandURL(String email)
+    {
+        String[] tokens = email.split("((?<=[\\.@\\/])|(?=[\\.@\\/]))");
+        return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "");
+    }
 
-        protected String expandYearBCAD(String year)
-        {
-            String abbrev = "";
-            Matcher yearMatcher = yearPattern.matcher(year);
-            yearMatcher.find();
-            if (yearMatcher.group(2).contains(".")) {
-                String[] abbrevAr = yearMatcher.group(2).split("\\.");
-                abbrev = Arrays.toString(abbrevAr).replaceAll("[,\\]\\[]", "");
-            } else {
-                abbrev = expandConsonants(yearMatcher.group(2));
+    protected String expandYearBCAD(String year)
+    {
+        String abbrev = "";
+        Matcher yearMatcher = yearPattern.matcher(year);
+        yearMatcher.find();
+        if (yearMatcher.group(2).contains(".")) {
+            String[] abbrevAr = yearMatcher.group(2).split("\\.");
+            abbrev = Arrays.toString(abbrevAr).replaceAll("[,\\]\\[]", "");
+        } else {
+            abbrev = expandConsonants(yearMatcher.group(2));
 
-            }
-            return expandYear(Double.parseDouble(yearMatcher.group(1))) + " " + abbrev;
         }
+        return expandYear(Double.parseDouble(yearMatcher.group(1))) + " " + abbrev;
+    }
 
 /***
  * add a space between each char of a string
@@ -619,56 +620,56 @@ public class Preprocess extends InternalModule {
  *            consonants
  * @return Joiner.on(" ").join(Lists.charactersOf(consonants))
  */
-        protected String expandConsonants(String consonants)
-        {
-            return Joiner.on(" ").join(Lists.charactersOf(consonants));
-        }
+    protected String expandConsonants(String consonants)
+    {
+        return Joiner.on(" ").join(Lists.charactersOf(consonants));
+    }
 
-        protected String expandHashtag(String hashtag)
-        {
-            String tag = "";
-            String expandedTag = "";
-            Matcher hashTagMatcher = hashtagPattern.matcher(hashtag);
-            hashTagMatcher.find();
-            tag = hashTagMatcher.group(2);
-            if (!tag.matches("[a-z]+") || !tag.matches("[A-Z]+")) {
-                String temp = "";
-                for (char c : tag.toCharArray()) {
-                    if (Character.isDigit(c) && temp.matches("^$|[0-9]+")) {
+    protected String expandHashtag(String hashtag)
+    {
+        String tag = "";
+        String expandedTag = "";
+        Matcher hashTagMatcher = hashtagPattern.matcher(hashtag);
+        hashTagMatcher.find();
+        tag = hashTagMatcher.group(2);
+        if (!tag.matches("[a-z]+") || !tag.matches("[A-Z]+")) {
+            String temp = "";
+            for (char c : tag.toCharArray()) {
+                if (Character.isDigit(c) && temp.matches("^$|[0-9]+")) {
+                    temp += c;
+                } else if (Character.isDigit(c) && temp.matches(".+[0-9]")) {
+                    temp += c;
+                } else if (Character.isDigit(c)) {
+                    temp += " " + c;
+                } else if (!temp.equals("") && Character.isUpperCase(c)) {
+                    if (Character.isUpperCase(temp.charAt(temp.length() - 1))) {
                         temp += c;
-                    } else if (Character.isDigit(c) && temp.matches(".+[0-9]")) {
-                        temp += c;
-                    } else if (Character.isDigit(c)) {
+                    } else {
                         temp += " " + c;
-                    } else if (!temp.equals("") && Character.isUpperCase(c)) {
-                        if (Character.isUpperCase(temp.charAt(temp.length() - 1))) {
-                            temp += c;
-                        } else {
-                            temp += " " + c;
-                        }
-                    } else if (Character.isAlphabetic(c) && temp.length() > 0) {
-                        if (Character.isDigit(temp.charAt(temp.length() - 1))) {
-                            temp += " " + c;
-                        } else {
-                            temp += c;
-                        }
+                    }
+                } else if (Character.isAlphabetic(c) && temp.length() > 0) {
+                    if (Character.isDigit(temp.charAt(temp.length() - 1))) {
+                        temp += " " + c;
                     } else {
                         temp += c;
                     }
+                } else {
+                    temp += c;
                 }
-                expandedTag = temp;
-            } else {
-                expandedTag = tag;
             }
-            return symbols.get(hashTagMatcher.group(1)) + " " + expandedTag;
+            expandedTag = temp;
+        } else {
+            expandedTag = tag;
         }
+        return symbols.get(hashTagMatcher.group(1)) + " " + expandedTag;
+    }
 
-        protected String expandRange(String range) {
-            Matcher rangeMatcher = rangePattern.matcher(range);
-            rangeMatcher.find();
-            return expandNumber(Double.parseDouble(rangeMatcher.group(1))) + " to "
-                + expandNumber(Double.parseDouble(rangeMatcher.group(2)));
-        }
+    protected String expandRange(String range) {
+        Matcher rangeMatcher = rangePattern.matcher(range);
+        rangeMatcher.find();
+        return expandNumber(Double.parseDouble(rangeMatcher.group(1))) + " to "
+            + expandNumber(Double.parseDouble(rangeMatcher.group(2)));
+    }
 
 /***
  * expands a digit followed by an s. e.g. 7s and 8s and the 60s
@@ -677,28 +678,28 @@ public class Preprocess extends InternalModule {
  *            numberS
  * @return number
  */
-        protected String expandNumberS(String numberS)
-        {
-            Matcher numberSMatcher = numberSPattern.matcher(numberS);
-            numberSMatcher.find();
-            String number = expandNumber(Double.parseDouble(numberSMatcher.group(1)));
-            if (number.endsWith("x")) {
-                number += "es";
-            } else if (number.endsWith("y")) {
-                number = number.replace("y", "ies");
-            } else {
-                number += "s";
-            }
-            return number;
+    protected String expandNumberS(String numberS)
+    {
+        Matcher numberSMatcher = numberSPattern.matcher(numberS);
+        numberSMatcher.find();
+        String number = expandNumber(Double.parseDouble(numberSMatcher.group(1)));
+        if (number.endsWith("x")) {
+            number += "es";
+        } else if (number.endsWith("y")) {
+            number = number.replace("y", "ies");
+        } else {
+            number += "s";
         }
+        return number;
+    }
 
-        protected String splitContraction(String contraction)
-        {
-            int aposIndex = contraction.indexOf("'");
-            String lemma = contraction.substring(0, aposIndex);
-            String end = contraction.substring(aposIndex);
-            return lemma + " " + end;
-        }
+    protected String splitContraction(String contraction)
+    {
+        int aposIndex = contraction.indexOf("'");
+        String lemma = contraction.substring(0, aposIndex);
+        String end = contraction.substring(aposIndex);
+        return lemma + " " + end;
+    }
 
 /***
  *
@@ -708,34 +709,34 @@ public class Preprocess extends InternalModule {
  *            whether the following token begins with a capital letter
  * @return abbrev
  */
-        protected String expandAbbreviation(String abbrev, boolean isCapital)
-        {
-            String expAbb = abbrev.replaceAll("\\.", "").toLowerCase();
-            if (!abbrevMap.containsKey(expAbb)) {
-                logger.warn(String.format("Could not expand unknown abbreviation \"%s\", ignoring", abbrev));
-                return abbrev;
-            }
-            expAbb = (String) this.abbrevMap.get(expAbb);
-            String[] multiExp = expAbb.split(",");
-            if (multiExp.length > 1) {
-                if (isCapital) {
-                    expAbb = multiExp[0];
-                } else {
-                    expAbb = multiExp[1];
-                }
-            }
-            return expAbb;
+    protected String expandAbbreviation(String abbrev, boolean isCapital)
+    {
+        String expAbb = abbrev.replaceAll("\\.", "").toLowerCase();
+        if (!abbrevMap.containsKey(expAbb)) {
+            logger.warn(String.format("Could not expand unknown abbreviation \"%s\", ignoring", abbrev));
+            return abbrev;
         }
+        expAbb = (String) this.abbrevMap.get(expAbb);
+        String[] multiExp = expAbb.split(",");
+        if (multiExp.length > 1) {
+            if (isCapital) {
+                expAbb = multiExp[0];
+            } else {
+                expAbb = multiExp[1];
+            }
+        }
+        return expAbb;
+    }
 
-        protected String expandDate(String date) throws ParseException
-        {
-            // date format is "month/day/year"
-            Date humanDate = df.getPatternInstance("MM.dd.yyyy", ULocale.ENGLISH).parse(date);
-            String[] dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
-            dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
-            dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
-            return Arrays.toString(dateParts).replaceAll("[,\\]\\[]", "");
-        }
+    protected String expandDate(String date) throws ParseException
+    {
+        // date format is "month/day/year"
+        Date humanDate = df.getPatternInstance("MM.dd.yyyy", ULocale.ENGLISH).parse(date);
+        String[] dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
+        dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
+        dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
+        return Arrays.toString(dateParts).replaceAll("[,\\]\\[]", "");
+    }
 
 /***
  *
@@ -745,199 +746,199 @@ public class Preprocess extends InternalModule {
  *            whether the following token contains am or pm
  * @return theTime
  */
-        protected String expandTime(String time, boolean isNextTokenTime)
-        {
-            boolean pastNoon = false;
-            String theTime = "";
-            String hour = "";
-            Double pmHour;
-            Matcher timeMatch = timePattern.matcher(time);
-            timeMatch.find();
-            // hour
-            if (timeMatch.group(2) != null || timeMatch.group(3) != null) {
-                hour = (timeMatch.group(2) != null) ? timeMatch.group(2) : timeMatch.group(3);
-                if (hour.equals("00")) {
-                    hour = "12";
-                }
+    protected String expandTime(String time, boolean isNextTokenTime)
+    {
+        boolean pastNoon = false;
+        String theTime = "";
+        String hour = "";
+        Double pmHour;
+        Matcher timeMatch = timePattern.matcher(time);
+        timeMatch.find();
+        // hour
+        if (timeMatch.group(2) != null || timeMatch.group(3) != null) {
+            hour = (timeMatch.group(2) != null) ? timeMatch.group(2) : timeMatch.group(3);
+            if (hour.equals("00")) {
+                hour = "12";
+            }
+            theTime += expandNumber(Double.parseDouble(hour));
+        } else {
+            pastNoon = true;
+            hour = (timeMatch.group(4) != null) ? timeMatch.group(4) : timeMatch.group(5);
+            pmHour = Double.parseDouble(hour) - 12;
+            if (pmHour == 0) {
+                hour = "12";
                 theTime += expandNumber(Double.parseDouble(hour));
             } else {
-                pastNoon = true;
-                hour = (timeMatch.group(4) != null) ? timeMatch.group(4) : timeMatch.group(5);
-                pmHour = Double.parseDouble(hour) - 12;
-                if (pmHour == 0) {
-                    hour = "12";
-                    theTime += expandNumber(Double.parseDouble(hour));
-                } else {
-                    theTime += expandNumber(pmHour);
-                }
+                theTime += expandNumber(pmHour);
             }
-            // minutes
-            if (timeMatch.group(7) != null && !isNextTokenTime) {
-                if (!timeMatch.group(6).equals("00")) {
-                    if (timeMatch.group(6).matches("0\\d")) {
-                        theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    } else {
-                        theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    }
-                }
-                for (char c : timeMatch.group(7).replaceAll("\\.", "").toCharArray()) {
-                    theTime += " " + c;
-                }
-            } else if (!isNextTokenTime) {
-                if (!timeMatch.group(6).equals("00")) {
-                    if (timeMatch.group(6).matches("0\\d")) {
-                        theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    } else {
-                        theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    }
-                }
-                theTime += !pastNoon ? " a m" : " p m";
-            } else {
-                if (!timeMatch.group(6).equals("00")) {
-                    if (timeMatch.group(6).matches("0\\d")) {
-                        theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    } else {
-                        theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
-                    }
-                }
-            }
-            return theTime;
         }
+        // minutes
+        if (timeMatch.group(7) != null && !isNextTokenTime) {
+            if (!timeMatch.group(6).equals("00")) {
+                if (timeMatch.group(6).matches("0\\d")) {
+                    theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                } else {
+                    theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                }
+            }
+            for (char c : timeMatch.group(7).replaceAll("\\.", "").toCharArray()) {
+                theTime += " " + c;
+            }
+        } else if (!isNextTokenTime) {
+            if (!timeMatch.group(6).equals("00")) {
+                if (timeMatch.group(6).matches("0\\d")) {
+                    theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                } else {
+                    theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                }
+            }
+            theTime += !pastNoon ? " a m" : " p m";
+        } else {
+            if (!timeMatch.group(6).equals("00")) {
+                if (timeMatch.group(6).matches("0\\d")) {
+                    theTime += " oh " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                } else {
+                    theTime += " " + expandNumber(Double.parseDouble(timeMatch.group(6)));
+                }
+            }
+        }
+        return theTime;
+    }
 
-        protected String expandRealNumber(String number)
-        {
-            Matcher realNumMatch = realNumPattern.matcher(number);
-            realNumMatch.find();
-            String newTok = "";
-            if (realNumMatch.group(1) != null) {
-                newTok += "minus ";
+    protected String expandRealNumber(String number)
+    {
+        Matcher realNumMatch = realNumPattern.matcher(number);
+        realNumMatch.find();
+        String newTok = "";
+        if (realNumMatch.group(1) != null) {
+            newTok += "minus ";
+        }
+        if (realNumMatch.group(2) != null) {
+            newTok += expandNumber(Double.parseDouble(realNumMatch.group(2))) + " ";
+        }
+        if (realNumMatch.group(3) != null) {
+            newTok += "point ";
+            for (char c : realNumMatch.group(4).toCharArray()) {
+                newTok += expandNumber(Double.parseDouble(String.valueOf(c))) + " ";
             }
-            if (realNumMatch.group(2) != null) {
-                newTok += expandNumber(Double.parseDouble(realNumMatch.group(2))) + " ";
+            if (realNumMatch.group(5) != null) {
+                newTok += "per cent";
             }
-            if (realNumMatch.group(3) != null) {
-                newTok += "point ";
-                for (char c : realNumMatch.group(4).toCharArray()) {
+        }
+        return newTok.trim();
+    }
+
+    protected String expandWordNumber(String wordnumseq)
+    {
+        String[] groups = wordnumseq.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+        int i = 0;
+        for (String g : groups) {
+            if (g.matches("\\d+")) {
+                String newTok = "";
+                for (char c : g.toCharArray()) {
                     newTok += expandNumber(Double.parseDouble(String.valueOf(c))) + " ";
                 }
-                if (realNumMatch.group(5) != null) {
-                    newTok += "per cent";
-                }
+                groups[i] = newTok;
             }
-            return newTok.trim();
+            i++;
         }
-
-        protected String expandWordNumber(String wordnumseq)
-        {
-            String[] groups = wordnumseq.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-            int i = 0;
-            for (String g : groups) {
-                if (g.matches("\\d+")) {
-                    String newTok = "";
-                    for (char c : g.toCharArray()) {
-                        newTok += expandNumber(Double.parseDouble(String.valueOf(c))) + " ";
-                    }
-                    groups[i] = newTok;
-                }
-                i++;
-            }
-            return Arrays.toString(groups).replaceAll("[,\\]\\[]", "");
-        }
-
-        protected String expandMoney(String money, String currency)
-        {
-            String origText = money;
-            Matcher currencyMatch = moneyPattern.matcher(money);
-            currencyMatch.find();
-            switch (currency) {
-            case "$":
-                if (Double.parseDouble(currencyMatch.group(1)) > 1) {
-                    money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " dollars";
-                } else {
-                    money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " dollar";
-                }
-                if (currencyMatch.group(2) != null) {
-                    int dotIndex = origText.indexOf('.');
-                    money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
-                }
-                break;
-            case "£":
-                money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " pound sterling";
-                if (currencyMatch.group(2) != null) {
-                    int dotIndex = origText.indexOf('.');
-                    money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " pence";
-                }
-                break;
-            case "€":
-                money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " euro";
-                if (currencyMatch.group(2) != null) {
-                    int dotIndex = origText.indexOf('.');
-                    money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
-                }
-                break;
-            default:
-                break;
-            }
-            return money;
-        }
-
-        /**
-         * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
-         * <p>
-         * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
-         *
-         * @param rbnf
-         *            The RuleBasedNumberFormat from where we will try to extract the rule name.
-         * @return The rule name for "ordinal spell out".
-         */
-        protected static String getOrdinalRuleName(final RuleBasedNumberFormat rbnf)
-        {
-            List<String> l = Arrays.asList(rbnf.getRuleSetNames());
-            if (l.contains("%spellout-ordinal")) {
-                return "%spellout-ordinal";
-            } else if (l.contains("%spellout-ordinal-masculine")) {
-                return "%spellout-ordinal-masculine";
-            } else {
-                for (String string : l) {
-                    if (string.startsWith("%spellout-ordinal")) {
-                        return string;
-                    }
-                }
-            }
-            throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
-                                                    + " doesn't support ordinal spelling.");
-        }
-
-        /**
-         * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
-         * <p>
-         * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
-         *
-         * @param rbnf
-         *            The RuleBasedNumberFormat from where we will try to extract the rule name.
-         * @return The rule name for "year spell out".
-         */
-        protected static String getYearRuleName(final RuleBasedNumberFormat rbnf)
-        {
-            List<String> l = Arrays.asList(rbnf.getRuleSetNames());
-            if (l.contains("%spellout-numbering-year")) {
-                return "%spellout-numbering-year";
-            } else {
-                for (String string : l) {
-                    if (string.startsWith("%spellout-numbering-year")) {
-                        return string;
-                    }
-                }
-            }
-            throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
-                                                    + " doesn't support year spelling.");
-        }
-
-        public static Map<Object, Object> loadAbbrevMap()
-            throws IOException
-        {
-            Map<Object, Object> abbMap = new Properties();
-            ((Properties) abbMap).load(Preprocess.class.getResourceAsStream("preprocess/abbrev.dat"));
-            return abbMap;
-        }
+        return Arrays.toString(groups).replaceAll("[,\\]\\[]", "");
     }
+
+    protected String expandMoney(String money, String currency)
+    {
+        String origText = money;
+        Matcher currencyMatch = moneyPattern.matcher(money);
+        currencyMatch.find();
+        switch (currency) {
+        case "$":
+            if (Double.parseDouble(currencyMatch.group(1)) > 1) {
+                money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " dollars";
+            } else {
+                money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " dollar";
+            }
+            if (currencyMatch.group(2) != null) {
+                int dotIndex = origText.indexOf('.');
+                money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
+            }
+            break;
+        case "£":
+            money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " pound sterling";
+            if (currencyMatch.group(2) != null) {
+                int dotIndex = origText.indexOf('.');
+                money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " pence";
+            }
+            break;
+        case "€":
+            money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " euro";
+            if (currencyMatch.group(2) != null) {
+                int dotIndex = origText.indexOf('.');
+                money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
+            }
+            break;
+        default:
+            break;
+        }
+        return money;
+    }
+
+    /**
+     * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
+     * <p>
+     * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
+     *
+     * @param rbnf
+     *            The RuleBasedNumberFormat from where we will try to extract the rule name.
+     * @return The rule name for "ordinal spell out".
+     */
+    protected static String getOrdinalRuleName(final RuleBasedNumberFormat rbnf)
+    {
+        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
+        if (l.contains("%spellout-ordinal")) {
+            return "%spellout-ordinal";
+        } else if (l.contains("%spellout-ordinal-masculine")) {
+            return "%spellout-ordinal-masculine";
+        } else {
+            for (String string : l) {
+                if (string.startsWith("%spellout-ordinal")) {
+                    return string;
+                }
+            }
+        }
+        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
+                                                + " doesn't support ordinal spelling.");
+    }
+
+    /**
+     * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
+     * <p>
+     * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
+     *
+     * @param rbnf
+     *            The RuleBasedNumberFormat from where we will try to extract the rule name.
+     * @return The rule name for "year spell out".
+     */
+    protected static String getYearRuleName(final RuleBasedNumberFormat rbnf)
+    {
+        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
+        if (l.contains("%spellout-numbering-year")) {
+            return "%spellout-numbering-year";
+        } else {
+            for (String string : l) {
+                if (string.startsWith("%spellout-numbering-year")) {
+                    return string;
+                }
+            }
+        }
+        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
+                                                + " doesn't support year spelling.");
+    }
+
+    public static Map<Object, Object> loadAbbrevMap()
+        throws IOException
+    {
+        Map<Object, Object> abbMap = new Properties();
+        ((Properties) abbMap).load(Preprocess.class.getResourceAsStream("preprocess/abbrev.dat"));
+        return abbMap;
+    }
+}
