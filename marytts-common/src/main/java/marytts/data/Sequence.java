@@ -130,6 +130,18 @@ public class Sequence<E extends Item> extends ArrayList<E>
     }
 
     @Override
+    public E set(int index, E new_elt)
+    {
+        E previous = super.set(index, new_elt);
+
+        new_elt.addSequenceReference(this);
+
+        previous.removeSequenceReference(this);
+
+        return previous;
+    }
+
+    @Override
     public E remove(int index)
     {
         // Remove the items from the target relations

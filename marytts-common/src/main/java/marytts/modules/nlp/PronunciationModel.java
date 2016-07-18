@@ -58,6 +58,7 @@ import marytts.data.item.prosody.Phrase;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 import marytts.io.XMLSerializer;
 
@@ -181,8 +182,8 @@ public class PronunciationModel extends InternalModule {
         AllophoneSet allophoneSet = null;
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
-        Relation rel_words_sent = utt.getRelation(Utterance.SupportedSequenceType.SENTENCE, Utterance.SupportedSequenceType.WORD).getReverse();
+        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD).getReverse();
         HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
         for (int i_word=0; i_word<words.size(); i_word++)

@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.data.Utterance;
+import marytts.data.SupportedSequenceType;
 import marytts.data.Sequence;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.io.XMLSerializer;
@@ -96,7 +97,7 @@ public class TextToMary extends InternalModule {
             Paragraph p = new Paragraph(plain_text);
             paragraphs.add(p);
 		}
-        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, paragraphs);
+        utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
 
         XMLSerializer xml_serializer = new XMLSerializer();
         result.setDocument(xml_serializer.generateDocument(utt));

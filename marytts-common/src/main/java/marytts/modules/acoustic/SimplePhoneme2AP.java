@@ -27,6 +27,7 @@ import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.prosody.*;
 import marytts.data.item.phonology.*;
@@ -137,41 +138,41 @@ public class SimplePhoneme2AP extends InternalModule {
             words.add(w);
         }
 
-        utt.addSequence(Utterance.SupportedSequenceType.WORD, words);
+        utt.addSequence(SupportedSequenceType.WORD, words);
 
         // Wrapping into a phrase
         Boundary boundary = new Boundary(4, 400);
         Phrase phrase = new Phrase(boundary);
         Sequence<Phrase> phrases = new Sequence<Phrase>();
         phrases.add(phrase);
-        utt.addSequence(Utterance.SupportedSequenceType.PHRASE, phrases);
+        utt.addSequence(SupportedSequenceType.PHRASE, phrases);
         ArrayList<IntegerPair> alignment_phrase_word = new ArrayList<IntegerPair>();
         for (int i=0; i<words.size(); i++)
             alignment_phrase_word.add(new IntegerPair(0, i));
-        utt.setRelation(Utterance.SupportedSequenceType.PHRASE,
-                        Utterance.SupportedSequenceType.WORD,
+        utt.setRelation(SupportedSequenceType.PHRASE,
+                        SupportedSequenceType.WORD,
                         new Relation(phrases, words, alignment_phrase_word));
 
         // Wrapping into a sentence
         Sentence sentence = new Sentence("");
         Sequence<Sentence> sentences = new Sequence<Sentence>();
         sentences.add(sentence);
-        utt.addSequence(Utterance.SupportedSequenceType.SENTENCE, sentences);
+        utt.addSequence(SupportedSequenceType.SENTENCE, sentences);
         ArrayList<IntegerPair> alignment_sentence_phrase = new ArrayList<IntegerPair>();
         alignment_sentence_phrase.add(new IntegerPair(0, 0));
-        utt.setRelation(Utterance.SupportedSequenceType.SENTENCE,
-                        Utterance.SupportedSequenceType.PHRASE,
+        utt.setRelation(SupportedSequenceType.SENTENCE,
+                        SupportedSequenceType.PHRASE,
                         new Relation(sentences, phrases, alignment_sentence_phrase));
 
         // Wrapping into a paragraph
         Paragraph paragraph = new Paragraph("");
         Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
         paragraphs.add(paragraph);
-        utt.addSequence(Utterance.SupportedSequenceType.PARAGRAPH, paragraphs);
+        utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
         ArrayList<IntegerPair> alignment_paragraph_sentence = new ArrayList<IntegerPair>();
         alignment_paragraph_sentence.add(new IntegerPair(0, 0));
-        utt.setRelation(Utterance.SupportedSequenceType.PARAGRAPH,
-                        Utterance.SupportedSequenceType.SENTENCE,
+        utt.setRelation(SupportedSequenceType.PARAGRAPH,
+                        SupportedSequenceType.SENTENCE,
                         new Relation(paragraphs, sentences, alignment_paragraph_sentence));
 
 

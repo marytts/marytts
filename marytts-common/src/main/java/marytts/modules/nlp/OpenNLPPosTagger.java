@@ -44,6 +44,7 @@ import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 
@@ -109,11 +110,11 @@ public class OpenNLPPosTagger extends InternalModule {
 		Document doc = d.getDocument();
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
-        Relation rel_sent_word = utt.getRelation(Utterance.SupportedSequenceType.SENTENCE,
-                                                 Utterance.SupportedSequenceType.WORD);
+        Relation rel_sent_word = utt.getRelation(SupportedSequenceType.SENTENCE,
+                                                 SupportedSequenceType.WORD);
 
         int idx_sequence = 0;
-        for (Sentence s: (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE))
+        for (Sentence s: (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE))
         {
             ArrayList<Word> words = (ArrayList<Word>) rel_sent_word.getRelatedItems(idx_sequence);
 

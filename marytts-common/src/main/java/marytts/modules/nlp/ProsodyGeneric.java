@@ -36,6 +36,7 @@ import marytts.data.item.prosody.Phrase;
 import marytts.data.item.prosody.Boundary;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
+import marytts.data.SupportedSequenceType;
 import marytts.io.XMLSerializer;
 
 import marytts.data.utils.IntegerPair;
@@ -94,13 +95,13 @@ public class ProsodyGeneric extends InternalModule
         Utterance utt = xml_ser.unpackDocument(doc);
 
         // Initialise sequences
-        Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(Utterance.SupportedSequenceType.SENTENCE);
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(Utterance.SupportedSequenceType.WORD);
+        Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);
+        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Phrase> phrases = new Sequence<Phrase>();
 
         // Initialise relations
-        Relation rel_sent_wrd = utt.getRelation(Utterance.SupportedSequenceType.SENTENCE,
-                                                Utterance.SupportedSequenceType.WORD);
+        Relation rel_sent_wrd = utt.getRelation(SupportedSequenceType.SENTENCE,
+                                                SupportedSequenceType.WORD);
 
         // Alignment initialisation
         ArrayList<IntegerPair> alignment_sentence_phrase = new ArrayList<IntegerPair>();
@@ -119,17 +120,17 @@ public class ProsodyGeneric extends InternalModule
             alignment_sentence_phrase.add(new IntegerPair(sent_idx, sent_idx));
         }
 
-        utt.addSequence(Utterance.SupportedSequenceType.PHRASE, phrases);
+        utt.addSequence(SupportedSequenceType.PHRASE, phrases);
 
         // Create the relations and add them to the utterance
-        Relation rel_sent_phrase = new Relation(utt.getSequence(Utterance.SupportedSequenceType.SENTENCE),
-                                                utt.getSequence(Utterance.SupportedSequenceType.PHRASE),
+        Relation rel_sent_phrase = new Relation(utt.getSequence(SupportedSequenceType.SENTENCE),
+                                                utt.getSequence(SupportedSequenceType.PHRASE),
                                                 alignment_sentence_phrase);
-        utt.setRelation(Utterance.SupportedSequenceType.SENTENCE, Utterance.SupportedSequenceType.PHRASE, rel_sent_phrase);
-        Relation rel_phrase_wrd = new Relation(utt.getSequence(Utterance.SupportedSequenceType.PHRASE),
-                                               utt.getSequence(Utterance.SupportedSequenceType.WORD),
+        utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE, rel_sent_phrase);
+        Relation rel_phrase_wrd = new Relation(utt.getSequence(SupportedSequenceType.PHRASE),
+                                               utt.getSequence(SupportedSequenceType.WORD),
                                                alignment_phrase_word);
-        utt.setRelation(Utterance.SupportedSequenceType.PHRASE, Utterance.SupportedSequenceType.WORD, rel_phrase_wrd);
+        utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
         // Generate the result
         MaryData result = new MaryData(outputType(), d.getLocale());
