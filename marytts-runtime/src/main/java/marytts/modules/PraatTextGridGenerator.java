@@ -44,7 +44,7 @@ import static marytts.datatypes.MaryXML.*;
 public class PraatTextGridGenerator extends InternalModule {
 
 	public PraatTextGridGenerator() {
-		super("Praat TextGrid generator", MaryDataType.AUDIO, MaryDataType.PRAAT_TEXTGRID, null);
+		super("Praat TextGrid generator", MaryDataType.REALISED_ACOUSTPARAMS, MaryDataType.PRAAT_TEXTGRID, null);
 	}
 
 	public MaryData process(MaryData d) throws Exception {
