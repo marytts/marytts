@@ -103,18 +103,13 @@ public class Utterance
         return new Sequence<Item>();
     }
 
-    protected Hashtable<ImmutablePair<SupportedSequenceType, SupportedSequenceType>, Relation> getRelations()
-    {
-        return m_relation_graph.getRelations();
-    }
-
     /**
      * FIXME: not really efficient right now
      *
      */
     public Relation getRelation(SupportedSequenceType source, SupportedSequenceType target)
     {
-        return m_relation_graph.getRelation(source, target);
+        return m_relation_graph.getRelation(getSequence(source), getSequence(target));
     }
 
     /**
@@ -122,6 +117,6 @@ public class Utterance
      */
     public void setRelation(SupportedSequenceType source, SupportedSequenceType target, Relation rel)
     {
-        m_relation_graph.addRelation(source, target, rel);
+        m_relation_graph.addRelation(rel);
     }
 }
