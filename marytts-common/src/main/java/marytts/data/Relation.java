@@ -48,6 +48,16 @@ public class Relation
         setRelations(relation_matrix);
     }
 
+    public Relation(Sequence<? extends Item> source_sequence,
+                    Sequence<? extends Item> target_sequence,
+                    double[][] relation_matrix)
+    {
+        id = id_cpt++;
+        setSource(source_sequence);
+        setTarget(target_sequence);
+        setRelations(relation_matrix);
+    }
+
 
     public Relation(Sequence<? extends Item> source_sequence,
                     Sequence<? extends Item> target_sequence,
@@ -102,6 +112,25 @@ public class Relation
     }
 
     public void setRelations(int[][] relation_matrix)
+    {
+
+        assert relation_matrix.length == getSource().size();
+        assert relation_matrix.length > 0;
+        assert relation_matrix[0].length == getTarget().size();
+
+        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size(),
+                                                                   getTarget().size());
+
+        for (int i=0; i<relation_matrix.length; i++)
+            for (int j=0;j<relation_matrix[i].length; j++)
+                if (relation_matrix[i][j] > 0)
+                    gen_matrix.setQuick(i, j, 1.0);
+
+        setRelations(gen_matrix);
+    }
+
+
+    public void setRelations(double[][] relation_matrix)
     {
 
         assert relation_matrix.length == getSource().size();
@@ -178,7 +207,7 @@ public class Relation
     {
 
         Relation reverse = new Relation(getTarget(), getSource(),
-                                        (SparseDoubleMatrix2D) (new Algebra()).transpose(getRelations()));
+                                        (new Algebra()).transpose(getRelations()).toArray());
         this.getTarget().addSourceRelationReference(reverse);
         this.getSource().addTargetRelationReference(reverse);
         return reverse;
@@ -189,11 +218,16 @@ public class Relation
     public static Relation compose(Relation rel1, Relation rel2)
     {
         Relation composed = new Relation(rel1.getSource(), rel2.getTarget(),
-                                         (SparseDoubleMatrix2D) (new Algebra()).mult(rel1.getRelations(),
-                                                                                     rel2.getRelations()));
+                                         (new Algebra()).mult(rel1.getRelations(),
+                                                              rel2.getRelations()).toArray());
         rel1.getSource().addSourceRelationReference(composed);
         rel2.getTarget().addTargetRelationReference(composed);
         return composed;
+    }
+
+    public Relation compose(Relation rel2)
+    {
+        return Relation.compose(this, rel2);
     }
 
     /********************************************************************************************

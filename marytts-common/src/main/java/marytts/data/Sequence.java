@@ -187,6 +187,7 @@ public class Sequence<E extends Item> extends ArrayList<E>
         return id;
     }
 
+    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -199,5 +200,11 @@ public class Sequence<E extends Item> extends ArrayList<E>
             return false;
 
         return (hashCode() == obj.hashCode());
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Seq(" + hashCode() + ")";
     }
 }
