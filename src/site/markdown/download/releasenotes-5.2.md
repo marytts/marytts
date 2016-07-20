@@ -36,6 +36,7 @@ Development news
 Fixed Issues/Bugs
 -----------------
 
+* [#570](https://github.com/marytts/marytts/issues/570): Praat TextGrid output is invalid with boundaries (times are not monotonic)
 * [#531](https://github.com/marytts/marytts/issues/531): java.awt.HeadlessException in (Half)PhoneLabelFeatureAligner
 * [#516](https://github.com/marytts/marytts/issues/516): Single words conduct to have a wrong POS which leads to a crash of the target feature module
 * [#515](https://github.com/marytts/marytts/pull/515): preprocessing contraction and double quotes correction
