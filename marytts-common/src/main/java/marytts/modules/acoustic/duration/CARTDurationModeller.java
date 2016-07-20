@@ -76,9 +76,12 @@ public class CARTDurationModeller extends InternalModule {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public CARTDurationModeller(String locale, String propertyPrefix) throws Exception {
-		this(MaryUtils.string2locale(locale), propertyPrefix, FeatureRegistry.getFeatureProcessorManager(MaryUtils
-                                                                                                         .string2locale(locale)));
+	public CARTDurationModeller(String locale, String propertyPrefix)
+        throws Exception
+    {
+		this(MaryUtils.string2locale(locale),
+             propertyPrefix,
+             FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
 	}
 
 	/**
@@ -94,9 +97,12 @@ public class CARTDurationModeller extends InternalModule {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
-		this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryRuntimeUtils
-             .instantiateObject(featprocClassInfo));
+	public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo)
+        throws Exception
+    {
+		this(MaryUtils.string2locale(locale),
+             propertyPrefix,
+             (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(featprocClassInfo));
 	}
 
 	/**
@@ -109,7 +115,9 @@ public class CARTDurationModeller extends InternalModule {
 	 * @param featureProcessorManager
 	 *            the manager to use when looking up feature processors.
 	 */
-	protected CARTDurationModeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
+	protected CARTDurationModeller(Locale locale, String propertyPrefix,
+                                   FeatureProcessorManager featureProcessorManager)
+    {
 		super("CARTDurationModeller", MaryDataType.ALLOPHONES, MaryDataType.DURATIONS, locale);
 		if (propertyPrefix.endsWith("."))
 			this.propertyPrefix = propertyPrefix;
@@ -118,20 +126,28 @@ public class CARTDurationModeller extends InternalModule {
 		this.featureProcessorManager = featureProcessorManager;
 	}
 
-	public void startup() throws Exception {
+	public void startup()
+        throws Exception
+    {
 		super.startup();
 		String cartFilename = MaryProperties.getFilename(propertyPrefix + "cart");
-		if (cartFilename != null) { // there is a default model for the language
+
+        // there is a default model for the language
+		if (cartFilename != null)
+        {
 			File cartFile = new File(cartFilename);
 			cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
 			featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
                                                                        .getFeatureNames());
-		} else {
+		}
+        else
+        {
 			cart = null;
 		}
 
 		String pauseFilename = MaryProperties.getFilename(propertyPrefix + "pausetree");
-		if (pauseFilename != null) {
+		if (pauseFilename != null)
+        {
 			File pauseFile = new File(pauseFilename);
 
 			File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix + "pausefeatures"));
@@ -140,23 +156,30 @@ public class CARTDurationModeller extends InternalModule {
 			pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager,
                                                                             pauseFeatureDefinition.getFeatureNames());
 			pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
-		} else {
+		}
+        else
+        {
 			this.pausetree = null;
 		}
 	}
 
-	public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d)
+        throws Exception
+    {
 		Document doc = d.getDocument();
 		NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
 		Element sentence = null;
-		while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+		while ((sentence = (Element) sentenceIt.nextNode()) != null)
+        {
 			// Make sure we have the correct voice:
 			Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
 			Voice maryVoice = Voice.getVoice(voice);
-			if (maryVoice == null) {
+			if (maryVoice == null)
+            {
 				maryVoice = d.getDefaultVoice();
 			}
-			if (maryVoice == null) {
+			if (maryVoice == null)
+            {
 				// Determine Locale in order to use default voice
 				Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
 				maryVoice = Voice.getDefaultVoice(locale);
@@ -164,9 +187,11 @@ public class CARTDurationModeller extends InternalModule {
 
 			DirectedGraph currentCart = cart;
 			TargetFeatureComputer currentFeatureComputer = featureComputer;
-			if (maryVoice != null) {
+			if (maryVoice != null)
+            {
 				DirectedGraph voiceCart = maryVoice.getDurationGraph();
-				if (voiceCart != null) {
+				if (voiceCart != null)
+                {
 					currentCart = voiceCart;
 					logger.debug("Using voice duration graph");
 					FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
@@ -175,7 +200,8 @@ public class CARTDurationModeller extends InternalModule {
 				}
 			}
 
-			if (currentCart == null) {
+			if (currentCart == null)
+            {
 				throw new NullPointerException("No cart for predicting duration");
 			}
 
@@ -185,14 +211,20 @@ public class CARTDurationModeller extends InternalModule {
 			TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
 			Element segmentOrBoundary;
 			Element previous = null;
-			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
+			while ((segmentOrBoundary = (Element) tw.nextNode()) != null)
+            {
 				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
 				Target t = new Target(phone, segmentOrBoundary);
 				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
 				float durInSeconds;
-				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
+
+                // a pause
+				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY))
+                {
 					durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
-				} else {
+				}
+                else
+                {
 					float[] dur = (float[]) currentCart.interpret(t);
 					assert dur != null : "Null duration";
 					assert dur.length == 2 : "Unexpected duration length: " + dur.length;
@@ -200,16 +232,21 @@ public class CARTDurationModeller extends InternalModule {
 					float stddevInSeconds = dur[0];
 				}
 				end += durInSeconds;
+
 				int durInMillis = (int) (1000 * durInSeconds);
-				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY))
+                {
 					segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
-				} else { // phone
+				}
+                else
+                {
 					segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
 					segmentOrBoundary.setAttribute("end", String.valueOf(end));
 				}
 				previous = segmentOrBoundary;
 			}
 		}
+
 		MaryData output = new MaryData(outputType(), d.getLocale());
 		output.setDocument(doc);
 		return output;
@@ -223,16 +260,22 @@ public class CARTDurationModeller extends InternalModule {
 	 * @param maryVoice
 	 * @return pause duration, in seconds
 	 */
-	private float enterPauseDuration(Element boundary, Element previous, StringPredictionTree currentPauseTree,
-                                     TargetFeatureComputer currentPauseFeatureComputer) {
+	private float enterPauseDuration(Element boundary, Element previous,
+                                     StringPredictionTree currentPauseTree,
+                                     TargetFeatureComputer currentPauseFeatureComputer)
+    {
 		if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
 			throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
 
 		// If there is already a duration, keep it:
-		if (boundary.hasAttribute("duration")) {
-			try {
+		if (boundary.hasAttribute("duration"))
+        {
+			try
+            {
 				return Float.parseFloat(boundary.getAttribute("duration")) * 0.001f;
-			} catch (NumberFormatException nfe) {
+			}
+            catch (NumberFormatException nfe)
+            {
 			}
 		}
 
@@ -252,15 +295,20 @@ public class CARTDurationModeller extends InternalModule {
 		String durationString = currentPauseTree.getMostProbableString(t);
 		// strip off "ms"
 		durationString = durationString.substring(0, durationString.length() - 2);
-		try {
+		try
+        {
 			duration = Float.parseFloat(durationString);
-		} catch (NumberFormatException nfe) {
+		}
+        catch (NumberFormatException nfe)
+        {
 		}
 
-		if (duration > 2) {
+		if (duration > 2)
+        {
 			logger.debug("Cutting long duration to 2 s -- was " + duration);
 			duration = 2;
 		}
+
 		return duration;
 	}
 }
