@@ -23,17 +23,16 @@ package marytts.modules;
 // DOM classes
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.util.data.text.PraatInterval;
 import marytts.util.data.text.PraatIntervalTier;
 import marytts.util.data.text.PraatTextGrid;
-import marytts.util.dom.NameNodeFilter;
+import marytts.util.dom.DomUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
+
+import static marytts.datatypes.MaryXML.*;
 
 /**
  * Transforms a full MaryXML document into a Praat TextGrid containing various interesting information; in particular, the source
@@ -45,7 +44,7 @@ import org.w3c.dom.traversal.NodeIterator;
 public class PraatTextGridGenerator extends InternalModule {
 
 	public PraatTextGridGenerator() {
-		super("Praat TextGrid generator", MaryDataType.AUDIO, MaryDataType.PRAAT_TEXTGRID, null);
+		super("Praat TextGrid generator", MaryDataType.REALISED_ACOUSTPARAMS, MaryDataType.PRAAT_TEXTGRID, null);
 	}
 
 	public MaryData process(MaryData d) throws Exception {
@@ -60,12 +59,8 @@ public class PraatTextGridGenerator extends InternalModule {
 		Document doc = d.getDocument();
 
 		// initialize various variables:
-		Double xmin = 0.0;
-		Double xmax = 0.0;
-		Double duration;
+		Double duration = 0.0;
 		String phone = null;
-
-		Double sentenceStart = 0.0; // this is cumulatively added to counter sentence-initial timing resets
 
 		// initialize some class variables:
 		PraatIntervalTier phoneTier = new PraatIntervalTier("phones");
@@ -79,30 +74,27 @@ public class PraatTextGridGenerator extends InternalModule {
 		PraatIntervalTier sourceTier = new PraatIntervalTier("sources");
 
 		// prepare to iterate only over the PHONE, SENTENCE, and BOUNDARY nodes in the MaryXML:
-		NodeIterator ni = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-				new String[] { MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY }), false);
+		NodeIterator ni = DomUtils.createNodeIterator(doc, PHONE, BOUNDARY);
 		Element element;
 
 		// now iterate over these nodes:
 		while ((element = (Element) ni.nextNode()) != null) {
-			String tagName = element.getTagName(); // <s>, <ph>, or <boundary> as specified above
-			if (tagName.equals(MaryXML.SENTENCE)) {
-				sentenceStart = xmax;
-				continue; // goto next node, do not collect $200
-			} else if (tagName.equals(MaryXML.PHONE)) {
+			switch (element.getTagName()) { // <s>, <ph>, or <boundary> as specified above
+			case PHONE:
 				phone = element.getAttribute("p");
-				xmin = xmax;
-				xmax = Double.parseDouble(element.getAttribute("end")) + sentenceStart; // TODO: diphone voices have end in ms!
-				duration = xmax - xmin;
-				xmin = xmax;
-			} else { // boundary
+				duration = Integer.parseInt(element.getAttribute("d")) / 1000.0; // duration is always in ms
+				break;
+			case BOUNDARY:
 				phone = "_"; // TODO: perhaps we should access TargetFeatureComputer.getPauseSymbol() instead
-				try {
+				if (element.hasAttribute("duration")) {
 					duration = Double.parseDouble(element.getAttribute("duration")) / 1000.0; // duration is always in ms
-					xmax += duration;
-				} catch (NumberFormatException nfe) {
-					continue; // HMM voices can have duration-less <boundary/> tags, which can't be processed here
+				} else {
+					duration = 0.0; // HMM voices can have duration-less <boundary/> tags
 				}
+				break;
+			default:
+				logger.error("NodeIterator should not find an element of type " + element.getTagName() + " here!");
+				break;
 			}
 
 			PraatInterval phoneInterval = new PraatInterval(duration, phone);
@@ -182,7 +174,7 @@ public class PraatTextGridGenerator extends InternalModule {
 		}
 
 		// return raw TextGrid as result:
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setPlainText(textGrid.toString());
 		return result;
 	}
