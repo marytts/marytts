@@ -37,6 +37,7 @@ Development news
 Fixed Issues/Bugs
 -----------------
 
+* [#570](https://github.com/marytts/marytts/issues/570): Praat TextGrid output is invalid with boundaries (times are not monotonic)
 * [#564](https://github.com/marytts/marytts/pull/564): add missing TOKENS examples
 * [#555](https://github.com/marytts/marytts/issues/555): HMMModel generates malformed XML duration attributes
 * [#531](https://github.com/marytts/marytts/issues/531): java.awt.HeadlessException in (Half)PhoneLabelFeatureAligner

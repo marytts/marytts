@@ -169,8 +169,13 @@ public class PraatInterval {
 	 * 
 	 * @param duration
 	 *            duration
+	 * @throws IllegalArgumentException
+	 *             if duration is negative
 	 */
-	public void setDuration(double duration) {
+	public void setDuration(double duration) throws IllegalArgumentException {
+		if (Double.isNaN(duration) || duration < 0.0) {
+			throw new IllegalArgumentException("duration must be a non-negative value, but was " + duration);
+		}
 		this.duration = duration;
 	}
 
