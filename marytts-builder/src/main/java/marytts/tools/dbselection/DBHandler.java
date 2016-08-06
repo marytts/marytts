@@ -474,7 +474,7 @@ public class DBHandler {
 
 		String createRevisionTable = "CREATE TABLE " + locale + "_revision (" + "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT,"
 				+ "rev_page int(10) unsigned NOT NULL," + "rev_text_id int(10) unsigned NOT NULL,"
-				+ "rev_comment tinyblob NOT NULL," + "rev_user int(10) unsigned NOT NULL,"
+				+ "rev_comment blob NOT NULL," + "rev_user int(10) unsigned NOT NULL,"
 				+ "rev_user_text varchar(255) NOT NULL, " + "rev_timestamp binary(14) NOT NULL, "
 				+ "rev_minor_edit tinyint(3) unsigned NOT NULL," + " rev_deleted tinyint(3) unsigned NOT NULL,"
 				+ "rev_len int(10) unsigned NULL," + "rev_parent_id int(10) unsigned NULL,"
