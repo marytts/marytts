@@ -127,4 +127,9 @@ public class JTokeniserIT extends MaryModuleTestCase {
 		processAndCompare("digit3", Locale.GERMAN);
 	}
 
+	@Test
+	public void testDots() throws Exception {
+		processAndCompare("dots1", Locale.GERMAN);
+	}
+
 }
