@@ -14,7 +14,7 @@
   <DEFINITIONS>  
     
     <!-- possible terminal punctuation -->
-    <PERIOD regexp="\." class="TERM_PUNCT_P"/>
+    <PERIOD regexp="\.+" class="TERM_PUNCT_P"/>
 
     <!-- terminal punctuation -->
     <EXCLAM regexp="!" class="TERM_PUNCT"/>
