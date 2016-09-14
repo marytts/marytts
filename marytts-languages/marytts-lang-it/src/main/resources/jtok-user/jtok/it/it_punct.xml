@@ -14,11 +14,12 @@
   <DEFINITIONS>  
     
     <!-- possible terminal punctuation -->
-    <PERIOD regexp="\.+" class="TERM_PUNCT_P"/>
+    <PERIOD regexp="\." class="TERM_PUNCT_P"/>
 
     <!-- terminal punctuation -->
-    <EXCLAM regexp="!" class="TERM_PUNCT"/>
-    <QUEST regexp="\?" class="TERM_PUNCT"/>
+    <MULTI_PERIOD regexp="\.{2,}" class="TERM_PUNCT"/>
+    <EXCLAM regexp="!+" class="TERM_PUNCT"/>
+    <QUEST regexp="\?+" class="TERM_PUNCT"/>
 
     <!-- opening punctuation -->
     <OINF regexp="&lt;&lt;+" class="OPEN_PUNCT"/>    
@@ -111,7 +112,7 @@
     <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
     <!-- instead of `a|ab|abc' -->
     <ALL_PUNCT_RULE>
-      (<SPECIAL_INT/>)(?=\w)|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
+      (<SPECIAL_INT/>)(?=\w)|<MULTI_PERIOD/>|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
     </ALL_PUNCT_RULE>
 
     <!-- punctuation which can mark clitics; this rule is used -->
