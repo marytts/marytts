@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This contains the punctuation description for Italian. -->
+<!-- This contains the punctuation description for German. -->
 <PUNCTUATION_DESCRIPTION>
 
   <!-- This defines the specific punctuation elements. The regexp -->
@@ -80,7 +80,6 @@
     <!-- only match a comma when it's not followed by a digit -->
     <!-- because it's then digit internal, like in 3,5 -->
     <COMMA regexp=",(?!\d)" class="PUNCTUATION"/>
-    <URI_TOKEN regexp=":\/\/" class="PUNCTUATION"/>
     <SLASH regexp="\/" class="PUNCTUATION"/>
     <BSLASH regexp="\\" class="PUNCTUATION"/>
     <PIPE regexp="\|" class="PUNCTUATION"/>
@@ -112,7 +111,7 @@
     <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
     <!-- instead of `a|ab|abc' -->
     <ALL_PUNCT_RULE>
-      (<SPECIAL_INT/>)(?=\w)|<MULTI_PERIOD/>|<PERIOD/>|<URI_TOKEN/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
+      (<SPECIAL_INT/>)(?=\w)|<MULTI_PERIOD/>|<PERIOD/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OGUILLEMET/>|<CGUILLEMET/>|<CDQUO/>|<CSAQUO/>|<CSQUO/>|<ODQUO1/>|<ODQUO2/>|<ODQUO3/>|<OSAQUO/>|<OSQUO1/>|<OSQUO2/>|<OSQUO3/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>|<FIGDASH/>|<ENDASH/>|<EMDASH/>|<HBAR/>|<BULLET/>|<PERCENT/>|<TM/>|<SECTION/>
     </ALL_PUNCT_RULE>
 
     <!-- punctuation which can mark clitics; this rule is used -->
@@ -125,7 +124,7 @@
 
     <!-- punctuation which can be found in compounds -->
     <INTERNAL_PUNCT_RULE>
-      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<PERIOD/>|<AMP/>|<URI_TOKEN/>|<SLASH/>|<COLON/>|<NBL/>
+      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<PERIOD/>|<AMP/>|<SLASH/>|<COLON/>|<NBL/>
     </INTERNAL_PUNCT_RULE>
 
     <!-- non-breaking punctuation on the left side of a token; -->
@@ -139,7 +138,7 @@
     <!-- use the end-of-input matcher \Z to easily -->
     <!-- identify this punctuation -->
     <NON_BREAKING_RIGHT_PUNCT_RULE class="TERM_PUNCT_P">
-      (<PERIOD/>|<SLASH/>)\Z
+      <PERIOD/>\Z
     </NON_BREAKING_RIGHT_PUNCT_RULE>
 
     <!-- punctuation which can be found only within sentences -->

@@ -37,6 +37,7 @@ Development news
 Fixed Issues/Bugs
 -----------------
 
+* [#593](https://github.com/marytts/marytts/pull/593): Don't split up multiple punctuation marks in tokenization
 * [#570](https://github.com/marytts/marytts/issues/570): Praat TextGrid output is invalid with boundaries (times are not monotonic)
 * [#564](https://github.com/marytts/marytts/pull/564): add missing TOKENS examples
 * [#555](https://github.com/marytts/marytts/issues/555): HMMModel generates malformed XML duration attributes
