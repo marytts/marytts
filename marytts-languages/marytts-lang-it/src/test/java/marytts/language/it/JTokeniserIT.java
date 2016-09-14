@@ -24,11 +24,27 @@ public class JTokeniserIT extends MaryModuleTestCase {
 	}
 
 	@Test
-	public void testMultiPunct() throws Exception {
+	public void testDots1() throws Exception {
 		processAndCompare("dots1", Locale.ITALIAN);
+	}
+
+	@Test
+	public void testDots2() throws Exception {
 		processAndCompare("dots2", Locale.ITALIAN);
+	}
+
+	@Test
+	public void testDots3() throws Exception {
 		processAndCompare("dots3", Locale.ITALIAN);
+	}
+
+	@Test
+	public void testExclam() throws Exception {
 		processAndCompare("exclam", Locale.ITALIAN);
+	}
+
+	@Test
+	public void testQuest() throws Exception {
 		processAndCompare("quest", Locale.ITALIAN);
 	}
 }

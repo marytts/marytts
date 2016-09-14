@@ -9,7 +9,7 @@ import marytts.modules.ModuleRegistry
 import marytts.tests.modules.MaryModuleTestCase
 
 class JTokeniserIT extends MaryModuleTestCase {
-	
+
 	def locale
 
 	JTokeniserIT() throws Exception {
@@ -27,11 +27,27 @@ class JTokeniserIT extends MaryModuleTestCase {
 	}
 
 	@Test
-	void testMultiPunct() {
+	void testDots1() {
 		processAndCompare 'dots1', locale
+	}
+
+	@Test
+	void testDots2() {
 		processAndCompare 'dots2', locale
+	}
+
+	@Test
+	void testDots3() {
 		processAndCompare 'dots3', locale
+	}
+
+	@Test
+	void testExclam() {
 		processAndCompare 'exclam', locale
+	}
+
+	@Test
+	void testQuest() {
 		processAndCompare 'quest', locale
 	}
 }
