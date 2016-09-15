@@ -54,6 +54,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="ff6b83b48da90b74c110e768a2de1921" filename="voice-dfki-pavoque-neutral-5.2.zip" size="448866455">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-pavoque-neutral/releases/tag/v5.2/voice-dfki-pavoque-neutral-5.2.zip"/>
     </package>
     <depends language="de" version="5.2"/>
   </voice>
@@ -71,6 +72,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="8db026183fec8f3ceaf1167a6e192aee" filename="voice-dfki-pavoque-styles-5.2.zip" size="700875468">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-pavoque-styles/releases/tag/v5.2/voice-dfki-pavoque-styles-5.2.zip"/>
     </package>
     <depends language="de" version="5.2"/>
   </voice>
@@ -79,6 +81,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="6a5dbf22432b89a971b0b97c8eec1c7f" filename="voice-dfki-poppy-5.2.zip" size="111958955">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-poppy/releases/tag/v5.2/voice-dfki-poppy-5.2.zip"/>
     </package>
     <depends language="en-GB" version="5.2"/>
   </voice>
@@ -96,6 +99,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="a9ec411b9aa51d4ee0cec1aae5369e52" filename="voice-dfki-prudence-5.2.zip" size="293735841">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-prudence/releases/tag/v5.2/voice-dfki-prudence-5.2.zip"/>
     </package>
     <depends language="en-GB" version="5.2"/>
   </voice>
@@ -113,6 +117,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="243eb1d6c42ebcaec28dfdc78ed1c1b0" filename="voice-dfki-obadiah-5.2.zip" size="165140911">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-obadiah/releases/tag/v5.2/voice-dfki-obadiah-5.2.zip"/>
     </package>
     <depends language="en-GB" version="5.2"/>
   </voice>
@@ -130,6 +135,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="644753b9d633cbcb215491cecf8c4be2" filename="voice-dfki-spike-5.2.zip" size="163980552">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-spike/releases/tag/v5.2/voice-dfki-spike-5.2.zip"/>
     </package>
     <depends language="en-GB" version="5.2"/>
   </voice>
@@ -147,6 +153,7 @@
     <license href="http://festvox.org/cmu_arctic/cmu_arctic/cmu_us_slt_arctic/COPYING"/>
     <package md5sum="ed5a4a08a2275f3ab4e1d1edaf4957a8" filename="voice-cmu-slt-5.2.zip" size="104627156">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-cmu-slt/releases/tag/v5.2/voice-cmu-slt-5.2.zip"/>
     </package>
     <depends language="en-US" version="5.2"/>
   </voice>
@@ -155,6 +162,7 @@
     <license href="http://mary.dfki.de/download/arctic-license.html"/>
     <package md5sum="3fe39d331a5e32749e840bb464d99210" filename="voice-cmu-bdl-5.2.zip" size="95244351">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-cmu-bdl/releases/tag/v5.2/voice-cmu-bdl-5.2.zip"/>
     </package>
     <depends language="en-US" version="5.2"/>
   </voice>
@@ -172,6 +180,7 @@
     <license href="http://mary.dfki.de/download/arctic-license.html"/>
     <package md5sum="dc42028b3ddf756969d8cc7404e3956e" filename="voice-cmu-rms-5.2.zip" size="121504555">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-cmu-rms/releases/tag/v5.2/voice-cmu-rms-5.2.zip"/>
     </package>
     <depends language="en-US" version="5.2"/>
   </voice>
@@ -189,6 +198,7 @@
     <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
     <package md5sum="bcee28d85a3bf3404061795012f880ba" filename="voice-enst-camille-5.2.zip" size="214247758">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-enst-camille/releases/tag/v5.2/voice-enst-camille-5.2.zip"/>
     </package>
     <depends language="fr" version="5.2"/>
   </voice>
@@ -206,6 +216,7 @@
     <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
     <package md5sum="25098c94cee2bf5523e19f045717ccaa" filename="voice-upmc-jessica-5.2.zip" size="151407773">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-upmc-jessica/releases/tag/v5.2/voice-upmc-jessica-5.2.zip"/>
     </package>
     <depends language="fr" version="5.2"/>
   </voice>
@@ -232,6 +243,7 @@
     <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
     <package md5sum="0d0751d70498f6ff39431aa485abb913" filename="voice-upmc-pierre-5.2.zip" size="206409457">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-upmc-pierre/releases/tag/v5.2/voice-upmc-pierre-5.2.zip"/>
     </package>
     <depends language="fr" version="5.2"/>
   </voice>
@@ -258,6 +270,7 @@
     <license href="https://creativecommons.org/licenses/by-nc-sa/4.0/"/>
     <package md5sum="cbf2d7438d88aff508237444de21c62f" filename="voice-marylux-lb-5.2.zip" size="118421559">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-marylux-lb/releases/tag/v5.2/voice-marylux-lb-5.2.zip"/>
     </package>
     <depends language="lb" version="5.2"/>
   </voice>
@@ -275,6 +288,7 @@
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
     <package md5sum="8c222bdd09b0bce198ccf6143e3cebd9" filename="voice-dfki-ot-5.2.zip" size="161098455">
       <location folder="true" href="http://mary.dfki.de/download/5.2/"/>
+      <location folder="false" href="https://github.com/marytts/voice-dfki-ot/releases/tag/v5.2/voice-dfki-ot-5.2.zip"/>
     </package>
     <depends language="tr" version="5.2"/>
   </voice>
