@@ -11,6 +11,13 @@ Improvements
 * Better support for Java 8
 * Some migration towards building with Gradle
 
+Voicebuilding
+-------------
+
+* All unit-selection voices have been rebuilt using the new [Gradle plugin](https://github.com/marytts/gradle-marytts-voicebuilding-plugin)
+* All HSMM voices are now hosted on Bintray and can be resolved as dependencies
+* Voices with open data now have open-source voicebuilding repositories hosted on GitHub, which include downloadable distribution packages
+
 Development news
 ----------------
 
