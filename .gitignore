@@ -7,6 +7,10 @@ build/
 .project
 .classpath
 
+# IDEA
+*.iml
+.idea/
+
 # misc. testing
 tmp/
 log/
