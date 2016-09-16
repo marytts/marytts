@@ -1,3 +1,7 @@
 allprojects {
     version '6.0-SNAPSHOT'
 }
+
+task check {
+    dependsOn subprojects.findAll { it.tasks.findByName('check') }
+}
