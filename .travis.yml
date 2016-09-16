@@ -3,16 +3,17 @@ sudo: false
 branches:
   only:
     - master
-    - 6.x
 
 language: java
-install: mvn install -DskipTests=true -P!standard-with-extra-repos
-script: mvn verify
 jdk:
   - openjdk7
   - oraclejdk7
   - oraclejdk8
 
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - $HOME/.m2
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
