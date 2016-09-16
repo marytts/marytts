@@ -2,10 +2,6 @@ plugins {
     id 'java'
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
