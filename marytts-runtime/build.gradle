@@ -2,6 +2,14 @@ plugins {
     id 'java'
 }
 
+sourceSets {
+    test {
+        java {
+            exclude '**/*IT.java'
+        }
+    }
+}
+
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-signalproc')
