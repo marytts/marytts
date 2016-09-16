@@ -1,0 +1,11 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    compile project(':marytts-common')
+    compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
+    compile group: 'gov.nist.math', name: 'Jampack', version: '1.0'
+    compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
+    testCompile project(path: ':marytts-common', configuration: 'testCompile')
+}
