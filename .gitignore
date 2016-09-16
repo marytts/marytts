@@ -1,8 +1,6 @@
-# Maven
-target/
-
 # Gradle
 .gradle/
+build/
 
 # Eclipse
 .settings/
