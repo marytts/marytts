@@ -37,3 +37,11 @@ dependencies {
     testCompile project(path: ':marytts-common', configuration: 'testCompile')
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
 }
+
+task integrationTest(type: Test) {
+    group 'Verification'
+    description 'Runs the integration tests.'
+    check.dependsOn it
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
