@@ -3,10 +3,20 @@ plugins {
 }
 
 sourceSets {
-    test {
+    integrationTest {
         java {
-            exclude '**/*IT.java'
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
         }
+    }
+}
+
+configurations {
+    integrationTestCompile {
+        extendsFrom testCompile
+    }
+    integrationTestRuntime {
+        extendsFrom testRuntime
     }
 }
 
