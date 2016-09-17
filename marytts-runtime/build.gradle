@@ -3,10 +3,20 @@ plugins {
 }
 
 sourceSets {
-    test {
+    integrationTest {
         java {
-            exclude '**/*IT.java'
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
         }
+    }
+}
+
+configurations {
+    integrationTestCompile {
+        extendsFrom testCompile
+    }
+    integrationTestRuntime {
+        extendsFrom testRuntime
     }
 }
 
@@ -26,4 +36,12 @@ dependencies {
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.0.0'
     testCompile project(path: ':marytts-common', configuration: 'testCompile')
     testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+}
+
+task integrationTest(type: Test) {
+    group 'Verification'
+    description 'Runs the integration tests.'
+    check.dependsOn it
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
 }
