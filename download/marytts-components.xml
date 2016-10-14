@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><marytts-install xmlns="http://mary.dfki.de/installer">
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
   <voice locale="de" name="bits1" gender="female" type="unit selection" version="5.2">
     <description>A female German unit selection voice, built from voice recordings provided by the BITS project at the Bavarian Archive of Speech Signals</description>
     <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
@@ -273,6 +274,33 @@
       <location folder="false" href="https://github.com/marytts/voice-marylux-lb/releases/download/v5.2/voice-marylux-lb-5.2.zip"/>
     </package>
     <depends language="lb" version="5.2"/>
+  </voice>
+  <voice gender="female" locale="ru" name="ac-elena" type="unit selection" version="5.2.1">
+    <description>A female Russian unit selection voice</description>
+    <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+    <package filename="voice-ac-elena-5.2.1.zip" md5sum="8579223d7cd05f6029f5642e05f8b4bd" size="136791543">
+      <location folder="true" href="http://mary.dfki.de/download/5.2.1/"/>
+      <location folder="false" href="https://github.com/marytts/voice-ac-elena/releases/download/v5.2.1/voice-ac-elena-5.2.1.zip"/>
+    </package>
+    <depends language="ru" version="5.2"/>
+  </voice>
+  <voice gender="female" locale="ru" name="ac-irina" type="unit selection" version="5.2.1">
+    <description>A female Russian unit selection voice</description>
+    <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+    <package filename="voice-ac-irina-5.2.1.zip" md5sum="f15d9d9b8fee17ec1e5cb20ab693837d" size="340029536">
+      <location folder="true" href="http://mary.dfki.de/download/5.2.1/"/>
+      <location folder="false" href="https://github.com/marytts/voice-ac-irina/releases/download/v5.2.1/voice-ac-irina-5.2.1.zip"/>
+    </package>
+    <depends language="ru" version="5.2"/>
+  </voice>
+  <voice gender="male" locale="ru" name="ac-nsh" type="unit selection" version="5.2.1">
+    <description>A male Russian unit selection voice</description>
+    <license href="http://mary.dfki.de/download/by-sa-3.0.html"/>
+    <package filename="voice-ac-nsh-5.2.1.zip" md5sum="81b7c202d934735f99f99ded2e3f4d85" size="175217903">
+      <location folder="true" href="http://mary.dfki.de/download/5.2.1/"/>
+      <location folder="false" href="https://github.com/marytts/voice-ac-nsh/releases/download/v5.2.1/voice-ac-nsh-5.2.1.zip"/>
+    </package>
+    <depends language="ru" version="5.2"/>
   </voice>
   <voice locale="te" name="cmu-nk-hsmm" gender="female" type="hsmm" version="5.2">
     <description>A female Telugu hidden semi-Markov model voice built from voice recordings provided by IIIT Hyderabad and Carnegie Mellon University</description>
