@@ -3,6 +3,7 @@ sudo: false
 branches:
   only:
     - master
+    - 5.x
     - 6.x
 
 language: java
