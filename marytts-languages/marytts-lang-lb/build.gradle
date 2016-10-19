@@ -1,0 +1,15 @@
+plugins {
+    id 'groovy'
+}
+
+dependencies {
+    compile project(':marytts-languages:marytts-lang-fr')
+    compile libs.groovy
+    testCompile libs.testng
+    testCompile libs.xmlunit
+}
+
+test {
+    useTestNG()
+    systemProperty 'mary.base', rootDir
+}

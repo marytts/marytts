@@ -1,0 +1,8 @@
+dependencies {
+    testCompile libs.testng
+    testCompile libs.xmlunit
+}
+
+test {
+    useTestNG()
+}
