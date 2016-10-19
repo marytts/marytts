@@ -12,4 +12,5 @@ dependencies {
 
 test {
     useTestNG()
+    systemProperty 'version', version
 }
