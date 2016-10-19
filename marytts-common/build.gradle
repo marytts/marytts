@@ -10,6 +10,12 @@ dependencies {
     testCompile group: 'org.testng', name: 'testng', version: '6.9.11'
 }
 
+processResources {
+    filesMatching '**/specification-version.txt', {
+        expand project.properties
+    }
+}
+
 test {
     useTestNG()
     systemProperty 'version', version
