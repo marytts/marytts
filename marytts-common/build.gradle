@@ -15,5 +15,6 @@ processResources {
 }
 
 test {
+    useTestNG()
     systemProperty 'version', version
 }

@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 
 import marytts.util.io.FileUtils;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class DomUtilsTest {
 
