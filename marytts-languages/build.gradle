@@ -1,0 +1,11 @@
+evaluationDependsOn(':marytts-runtime')
+
+subprojects {
+    apply from: "$rootDir/buildLogic.gradle"
+
+    dependencies {
+        compile project(':marytts-runtime')
+        testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
+        integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    }
+}
