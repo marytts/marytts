@@ -20,14 +20,14 @@ configurations {
     }
 }
 
-test {
-    useTestNG()
-}
-
 task integrationTest(type: Test) {
     group 'Verification'
     description 'Runs the integration tests.'
     check.dependsOn it
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+tasks.withType(Test) {
+    useJUnit()
 }
