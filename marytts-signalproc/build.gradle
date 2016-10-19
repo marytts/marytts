@@ -5,5 +5,5 @@ dependencies {
     compile libs.jama
     compile libs.jampack
     compile libs.swingLayout
-    testCompile project(path: ':marytts-common', configuration: 'testCompile')
+    testCompile libs.junit
 }

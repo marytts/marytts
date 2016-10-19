@@ -14,6 +14,6 @@ dependencies {
     compile libs.jtokCore
     compile libs.opennlpTools
     compile libs.trove4j
-    testCompile project(path: ':marytts-common', configuration: 'testCompile')
+    testCompile project(path: ':marytts-signalproc', configuration: 'testCompile')
     testCompile libs.festAssert
 }

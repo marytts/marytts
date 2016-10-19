@@ -4,7 +4,6 @@ dependencies {
     compile libs.commonsIo
     compile libs.commonsLang
     compile libs.log4j
-    testCompile libs.junit
     testCompile libs.testng
 }
 
