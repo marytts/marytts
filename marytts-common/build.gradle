@@ -1,8 +1,4 @@
-plugins {
-    id 'java'
-}
-
-apply from: "$rootDir/dependencies.gradle"
+apply from: "$rootDir/buildLogic.gradle"
 
 dependencies {
     compile libs.commonsIo
@@ -19,6 +15,5 @@ processResources {
 }
 
 test {
-    useTestNG()
     systemProperty 'version', version
 }

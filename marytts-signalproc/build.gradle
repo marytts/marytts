@@ -1,8 +1,4 @@
-plugins {
-    id 'java'
-}
-
-apply from: "$rootDir/dependencies.gradle"
+apply from: "$rootDir/buildLogic.gradle"
 
 dependencies {
     compile project(':marytts-common')
