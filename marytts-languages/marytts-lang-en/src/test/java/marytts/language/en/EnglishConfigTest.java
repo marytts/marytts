@@ -19,10 +19,6 @@
  */
 package marytts.language.en;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,7 +30,8 @@ import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author marc
@@ -45,39 +42,39 @@ public class EnglishConfigTest {
 	@Test
 	public void isNotMainConfig() throws MaryConfigurationException {
 		MaryConfig m = new EnglishConfig();
-		assertFalse(m.isMainConfig());
+		Assert.assertFalse(m.isMainConfig());
 	}
 
 	@Test
 	public void haveLanguageConfig() {
-		assertTrue(MaryConfig.countLanguageConfigs() > 0);
+		Assert.assertTrue(MaryConfig.countLanguageConfigs() > 0);
 	}
 
 	@Test
 	public void haveLanguageConfig2() {
 		Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
-		assertNotNull(lcs);
-		assertTrue(lcs.iterator().hasNext());
+		Assert.assertNotNull(lcs);
+		Assert.assertTrue(lcs.iterator().hasNext());
 	}
 
 	@Test
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
-		assertNotNull(m);
-		assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
+		Assert.assertNotNull(m);
+		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
 	}
 
 	@Test
 	public void hasEnglishLocale() throws MaryConfigurationException {
 		LanguageConfig e = new EnglishConfig();
-		assertTrue(e.getLocales().contains(Locale.US));
+		Assert.assertTrue(e.getLocales().contains(Locale.US));
 	}
 
 	@Test
 	public void hasAllophoneSet() throws MaryConfigurationException {
 		LanguageConfig e = new EnglishConfig();
-		assertNotNull(e.getAllophoneSet(Locale.US));
-		assertNotNull(e.getAllophoneSet(Locale.UK));
+		Assert.assertNotNull(e.getAllophoneSet(Locale.US));
+		Assert.assertNotNull(e.getAllophoneSet(Locale.UK));
 	}
 
 }
