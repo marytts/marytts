@@ -1,3 +1,7 @@
+plugins {
+    id 'base'
+}
+
 allprojects {
     group 'de.dfki.mary'
     version '6.0-SNAPSHOT'
@@ -5,8 +9,4 @@ allprojects {
     repositories {
         jcenter()
     }
-}
-
-task check {
-    dependsOn subprojects.findAll { it.tasks.findByName('check') }
 }
