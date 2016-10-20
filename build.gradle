@@ -6,7 +6,3 @@ allprojects {
         jcenter()
     }
 }
-
-task check {
-    dependsOn subprojects.findAll { it.tasks.findByName('check') }
-}
