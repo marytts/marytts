@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 apply from: "$rootDir/dependencies.gradle"
 
@@ -30,4 +31,12 @@ task integrationTest(type: Test) {
 
 tasks.withType(Test) {
     useJUnit()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
