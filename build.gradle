@@ -13,6 +13,8 @@ allprojects {
 
 dependencies {
     runtime project(':marytts-runtime')
+    runtime project(':marytts-languages').subprojects
+    runtime project(':voice-cmu-slt-hsmm')
 }
 
 mainClassName = 'marytts.server.Mary'
