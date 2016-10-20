@@ -122,9 +122,10 @@ public class MaryInterfaceIT {
 		assertNotNull(tokens);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void nullAudioFileFormat() throws Exception {
-		mary.generateAudio("some text");
+	@Test
+	public void canProcessTextToSpeech() throws Exception {
+		AudioInputStream audio = mary.generateAudio("some text");
+		assertNotNull(audio);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
