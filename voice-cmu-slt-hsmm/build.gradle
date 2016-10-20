@@ -1,0 +1,6 @@
+apply from: "$rootDir/buildLogic.gradle"
+
+dependencies {
+    compile project(':marytts-languages:marytts-lang-en')
+    testCompile libs.junit
+}
