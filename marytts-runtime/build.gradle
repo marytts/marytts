@@ -1,3 +1,7 @@
+plugins {
+    id 'groovy'
+}
+
 apply from: "$rootDir/buildLogic.gradle"
 
 dependencies {
@@ -16,4 +20,6 @@ dependencies {
     compile libs.trove4j
     testCompile project(path: ':marytts-signalproc', configuration: 'testCompile')
     testCompile libs.festAssert
+    integrationTestCompile libs.groovy
+    integrationTestRuntime project(':voice-cmu-slt-hsmm')
 }
