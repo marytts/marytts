@@ -1,3 +1,7 @@
+plugins {
+    id 'base'
+}
+
 allprojects {
     group 'de.dfki.mary'
     version '6.0-SNAPSHOT'
