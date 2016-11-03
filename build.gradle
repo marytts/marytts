@@ -18,3 +18,7 @@ dependencies {
 }
 
 mainClassName = 'marytts.server.Mary'
+
+startScripts {
+    applicationName = 'marytts-server'
+}
