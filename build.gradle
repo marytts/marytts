@@ -23,6 +23,12 @@ run {
     systemProperties << ['mary.base': buildDir]
 }
 
+task runInstallerGui(type: JavaExec) {
+    classpath run.classpath
+    main 'marytts.tools.install.InstallerGUI'
+    systemProperties << ['mary.base': buildDir]
+}
+
 startScripts {
     applicationName = 'marytts-server'
     doLast {
