@@ -31,6 +31,17 @@ task runInstallerGui(type: JavaExec) {
 
 startScripts {
     applicationName = 'marytts-server'
+}
+
+task installerGuiStartScripts(type: CreateStartScripts) {
+    applicationName = 'marytts-component-installer'
+    outputDir = startScripts.outputDir
+    classpath = startScripts.classpath
+    mainClassName = 'marytts.tools.install.InstallerGUI'
+    startScripts.finalizedBy it
+}
+
+tasks.withType(CreateStartScripts) {
     doLast {
         unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')
         windowsScript.text = windowsScript.text.replaceAll('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS="-Dmary.base=%APP_HOME%"')
