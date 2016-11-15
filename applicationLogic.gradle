@@ -79,3 +79,9 @@ tasks.withType(CreateStartScripts) {
         windowsScript.text = windowsScript.text.replaceAll('-classpath "%CLASSPATH%"', '-classpath "%APP_HOME%\\\\lib\\\\*"')
     }
 }
+
+installDist {
+    preserve {
+        include 'download/*', 'installed/*', 'lib/**'
+    }
+}
