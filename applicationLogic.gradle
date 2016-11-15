@@ -32,6 +32,16 @@ task runInstallerGui(type: JavaExec) {
     systemProperties << ['mary.base': buildDir]
 }
 
+distributions {
+    main {
+        contents {
+            from copyComponentXmlDescriptors, {
+                into 'installed'
+            }
+        }
+    }
+}
+
 startScripts {
     applicationName = 'marytts-server'
 }
