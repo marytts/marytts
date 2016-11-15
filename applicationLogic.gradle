@@ -13,6 +13,8 @@ run {
 }
 
 task runInstallerGui(type: JavaExec) {
+    group 'Application'
+    description 'Runs the MaryTTS Installer GUI as a JVM application'
     classpath run.classpath
     main 'marytts.tools.install.InstallerGUI'
     systemProperties << ['mary.base': buildDir]
@@ -31,6 +33,8 @@ task installerGuiStartScripts(type: CreateStartScripts) {
 }
 
 tasks.withType(CreateStartScripts) {
+    group 'Distribution'
+    description startScripts.description
     doLast {
         unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')
         windowsScript.text = windowsScript.text.replaceAll('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS="-Dmary.base=%APP_HOME%"')
