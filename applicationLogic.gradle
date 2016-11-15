@@ -43,6 +43,9 @@ distributions {
             from copyComponentXmlDescriptors, {
                 into 'installed'
             }
+            from 'download', {
+                into 'download'
+            }
         }
     }
 }
