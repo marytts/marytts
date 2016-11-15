@@ -15,21 +15,13 @@ run {
     }
 }
 
-task copyComponentXmlDescriptors(type: Copy) {
-    from "${project(':marytts-assembly:assembly-runtime').projectDir}/src/runtime/installed"
-    into "$buildDir/installed"
-    include '*.xml'
-    rename 'component', "$version-component"
-    expand properties
-}
-
 task copyComponentXml(type: Copy) {
     from 'download'
     into "$buildDir/download"
 }
 
 task runInstallerGui(type: JavaExec) {
-    dependsOn copyComponentXmlDescriptors, copyComponentXml
+    dependsOn copyComponentXml
     group 'Application'
     description 'Runs the MaryTTS Installer GUI as a JVM application'
     classpath run.classpath
@@ -40,9 +32,6 @@ task runInstallerGui(type: JavaExec) {
 distributions {
     main {
         contents {
-            from copyComponentXmlDescriptors, {
-                into 'installed'
-            }
             from 'download', {
                 into 'download'
             }

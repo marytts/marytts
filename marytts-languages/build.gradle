@@ -10,6 +10,12 @@ subprojects {
     }
 
     task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
+
+    rootProject.distributions.main.contents {
+        from generateComponentXmlDescriptor, {
+            into 'installed'
+        }
+    }
 }
 
 import groovy.xml.*
