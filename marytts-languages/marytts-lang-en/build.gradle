@@ -6,3 +6,7 @@ dependencies {
 test {
     useTestNG()
 }
+
+generateComponentXmlDescriptor {
+    locales = ['en-US', 'en-GB']
+}
