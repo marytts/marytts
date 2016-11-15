@@ -56,5 +56,16 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemPropertyVariables>
+						<version>${project.version}</version>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>
