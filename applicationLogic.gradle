@@ -23,8 +23,13 @@ task copyComponentXmlDescriptors(type: Copy) {
     expand properties
 }
 
+task copyComponentXml(type: Copy) {
+    from 'download'
+    into "$buildDir/download"
+}
+
 task runInstallerGui(type: JavaExec) {
-    dependsOn copyComponentXmlDescriptors
+    dependsOn copyComponentXmlDescriptors, copyComponentXml
     group 'Application'
     description 'Runs the MaryTTS Installer GUI as a JVM application'
     classpath run.classpath
