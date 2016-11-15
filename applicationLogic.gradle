@@ -16,13 +16,7 @@ run {
     }
 }
 
-task copyComponentXml(type: Copy) {
-    from 'download'
-    into "$buildDir/download"
-}
-
 task runInstallerGui(type: JavaExec) {
-    dependsOn copyComponentXml
     group 'Application'
     description 'Runs the MaryTTS Installer GUI as a JVM application'
     dependsOn installDist
