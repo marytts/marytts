@@ -42,6 +42,11 @@ distributions {
     }
 }
 
+distTar {
+    compression Compression.BZIP2
+    extension 'tar.bz2'
+}
+
 startScripts {
     applicationName = 'marytts-server'
 }
