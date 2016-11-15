@@ -55,7 +55,7 @@ class GenerateComponentXmlDescriptor extends DefaultTask {
                     language(locale: "$locale", name: locale.getDisplayName(Locale.US), version: project.version) {
                         delegate.description("${locale.getDisplayName(Locale.US)} language component")
                         license(href: 'http://www.gnu.org/licenses/lgpl-3.0-standalone.html')
-                        'package'(filename: "${project.name}-${project.version}.zip", md5sum: 'dummy', size: 0)
+                        'package'(filename: "marytts-lang-$locale-${project.version}.zip", md5sum: 'dummy', size: 0)
                     }
                 }
             }
