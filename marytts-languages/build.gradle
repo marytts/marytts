@@ -8,4 +8,38 @@ subprojects {
         testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
         integrationTestCompile project(':marytts-runtime').sourceSets.test.output
     }
+
+    task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
+}
+
+import groovy.xml.*
+
+class GenerateComponentXmlDescriptor extends DefaultTask {
+
+    @OutputFile
+    File xmlFile
+
+    GenerateComponentXmlDescriptor() {
+        xmlFile = project.file("$project.buildDir/" +
+                project.jar.archiveName.replaceAll(~/\.$project.jar.extension$/, '-component.xml')
+        )
+    }
+
+    @TaskAction
+    void generate() {
+        def localeStr = project.name.replaceAll(~/marytts-lang-(.+).*/) { all, localeStr ->
+            localeStr
+        }
+        def locale = Locale.forLanguageTag(localeStr)
+        def xmlStr = new StreamingMarkupBuilder().bind {
+            'marytts-install'(xmlns: 'http://mary.dfki.de/installer') {
+                language(locale: "$locale", name: "$locale", version: project.version) {
+                    delegate.description("${locale.getDisplayName(Locale.US)} language component")
+                    license(href: 'http://www.gnu.org/licenses/lgpl-3.0-standalone.html')
+                    'package'(filename: "${project.name}-${project.version}.zip", md5sum: 'dummy', size: 0)
+                }
+            }
+        }
+        xmlFile.text = XmlUtil.serialize(xmlStr)
+    }
 }
