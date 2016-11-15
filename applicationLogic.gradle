@@ -9,9 +9,10 @@ dependencies {
 mainClassName = 'marytts.server.Mary'
 
 run {
-    systemProperties << ['mary.base': buildDir]
+    dependsOn installDist
+    systemProperties << ['mary.base': installDist.destinationDir]
     doFirst {
-        classpath += fileTree(buildDir).include('lib/*.jar')
+        classpath += fileTree(installDist.destinationDir).include('lib/*.jar')
     }
 }
 
@@ -24,9 +25,10 @@ task runInstallerGui(type: JavaExec) {
     dependsOn copyComponentXml
     group 'Application'
     description 'Runs the MaryTTS Installer GUI as a JVM application'
+    dependsOn installDist
     classpath run.classpath
     main 'marytts.tools.install.InstallerGUI'
-    systemProperties << ['mary.base': buildDir]
+    systemProperties << ['mary.base': installDist.destinationDir]
 }
 
 distributions {
