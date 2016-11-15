@@ -48,7 +48,11 @@ tasks.withType(CreateStartScripts) {
     group 'Distribution'
     description startScripts.description
     doLast {
+        // hack mary.base property into DEFAULT_JVM_OPTS
         unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')
         windowsScript.text = windowsScript.text.replaceAll('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS="-Dmary.base=%APP_HOME%"')
+        // hack classpath
+        unixScript.text = unixScript.text.replaceAll('-classpath "\\$CLASSPATH"', '-classpath "\\$APP_HOME/lib/*"')
+        windowsScript.text = windowsScript.text.replaceAll('-classpath "%CLASSPATH%"', '-classpath "%APP_HOME%\\\\lib\\\\*"')
     }
 }
