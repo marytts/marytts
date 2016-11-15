@@ -10,6 +10,9 @@ mainClassName = 'marytts.server.Mary'
 
 run {
     systemProperties << ['mary.base': buildDir]
+    doFirst {
+        classpath += fileTree(buildDir).include('lib/*.jar')
+    }
 }
 
 task copyComponentXmlDescriptors(type: Copy) {
