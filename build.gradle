@@ -1,5 +1,5 @@
 plugins {
-    id 'application'
+    id 'base'
 }
 
 allprojects {
@@ -11,39 +11,4 @@ allprojects {
     }
 }
 
-dependencies {
-    runtime project(':marytts-runtime')
-    runtime project(':marytts-languages').subprojects
-    runtime project(':voice-cmu-slt-hsmm')
-}
-
-mainClassName = 'marytts.server.Mary'
-
-run {
-    systemProperties << ['mary.base': buildDir]
-}
-
-task runInstallerGui(type: JavaExec) {
-    classpath run.classpath
-    main 'marytts.tools.install.InstallerGUI'
-    systemProperties << ['mary.base': buildDir]
-}
-
-startScripts {
-    applicationName = 'marytts-server'
-}
-
-task installerGuiStartScripts(type: CreateStartScripts) {
-    applicationName = 'marytts-component-installer'
-    outputDir = startScripts.outputDir
-    classpath = startScripts.classpath
-    mainClassName = 'marytts.tools.install.InstallerGUI'
-    startScripts.finalizedBy it
-}
-
-tasks.withType(CreateStartScripts) {
-    doLast {
-        unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')
-        windowsScript.text = windowsScript.text.replaceAll('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS="-Dmary.base=%APP_HOME%"')
-    }
-}
+apply from: 'applicationLogic.gradle'
