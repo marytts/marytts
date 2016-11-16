@@ -31,6 +31,7 @@ distributions {
             from 'download', {
                 into 'download'
             }
+            from 'LICENSE.md'
         }
     }
 }
