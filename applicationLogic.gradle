@@ -12,7 +12,7 @@ run {
     dependsOn installDist
     systemProperties << ['mary.base': installDist.destinationDir]
     doFirst {
-        classpath += fileTree(installDist.destinationDir).include('lib/*.jar')
+        classpath += fileTree(installDist.destinationDir).include('lib/voice-*.jar', 'lib/marytts-lang-*.jar')
     }
 }
 
