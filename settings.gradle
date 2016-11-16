@@ -1,5 +1,3 @@
-include 'marytts-assembly:assembly-builder'
-include 'marytts-assembly:assembly-runtime'
 include 'marytts-builder'
 include 'marytts-client'
 include 'marytts-common'
