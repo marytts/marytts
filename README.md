@@ -17,13 +17,42 @@ It contains information about compiling and developing the MaryTTS sources.
 The code comes under the Lesser General Public License LGPL version 3 -- see LICENSE.md for details.
 
 
+## Running MaryTTS
+
+Run `./gradlew run`  (or `gradlew.bat run` on Windows) to start a MaryTTS server.
+Then access it at http://localhost:59125 using your web browser.
+
+
+## Downloading and installing voices
+
+Run `./gradlew runInstallerGui` to start an installer GUI to download and install more voices.
+A running MaryTTS server needs to be restarted before the new voices can be used.
+
+
+## Building MaryTTS
+
+Run `./gradlew build`.
+This will compile and test all modules, and create the output for each under `build/`.
+
+Note that previously, MaryTTS v5.x was built with Maven. Please refer to the [**5.x branch**](https://github.com/marytts/marytts/tree/5.x).
+
+
+## Packaging MaryTTS
+
+Run `./gradlew distZip` or `./gradlew distTar` to build a distribution package under `build/distributions`.
+You can also "install" an unpacked distribution directly into `build/install` by running `./gradlew installDist`.
+
+The distribution contains all the files required to run a standalone MaryTTS server instance, or to download and install more voices.
+The scripts to run the server or installer GUI can be found inside the distribution in the `bin/` directory.
+
+
 ##  Using MaryTTS in your own Java projects
 
-### Adding the MaryTTS to your dependencies
+The easiest way to use MaryTTS in your own Java projects is to declare a dependency on a relevant MaryTTS artifact, such as the default US English HSMM voice:
 
-The easiest way to use MaryTTS in your own Java projects is to declare a dependency on a relevant MaryTTS artifact:
+### Maven
 
-- in the `pom.xml` for Maven:
+Add to your `pom.xml`:
 ```xml
 <repositories>
   <repository>
@@ -39,19 +68,22 @@ The easiest way to use MaryTTS in your own Java projects is to declare a depende
   </dependency>
 </dependencies>
 ```
-- in the `build.gradle` for Gradle
+
+### Gradle
+
+Add to your `build.gradle`:
 ```groovy
 repositories {
   jcenter()
 }
 
 dependencies {
-  compile 'de.dfki.mary:marytts:5.2'
+  compile group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2'
 }
 ```
 
 
-### Synthesizing speech
+## Synthesizing speech
 
 Text to wav basic examples are proposed in this repository
 - Maven: https://github.com/marytts/marytts-txt2wav/tree/maven
@@ -67,38 +99,6 @@ If you want to use MaryTTS for other programming languages (like python for exam
 3. query synthesis on the server
 
 
-### Compiling MaryTTS on the command line
-
-MaryTTS v5.x builds with Maven 3.0.x.
-If it is not installed on your system, see
-http://maven.apache.org/download.html or install it using your favorite package manager.
-
-Compiling the MARY system itself can be done using
-
-    mvn install
-
-in the top-level folder.
-
-This will compile the system, run all unit and integration tests, package the system to the extent possible, and install it in your local maven repository.
-
-
-### Running the freshly built MaryTTS server
-
-After a successful compile, you should find a ready-to-run unpacked installation of the MaryTTS server system in `target/marytts-<VERSION>`.
-Run the server as
-
-	target/marytts-<VERSION>/bin/marytts-server
-
-Then connect to it with your browser at http://localhost:59125 or using the `marytts-client` in the same folder.
-
-The runtime system is also available as deployable packages:
-
-    target/marytts-<VERSION>.zip
-
-Installation is easy:
-unpack anywhere, and run the scripts in the `bin/` folder.
-
-
 ### Synthesize speech using the server
 
 Synthesizing speech, using the server, is pretty easy.
@@ -108,9 +108,7 @@ Examples are proposed :
 - shell: https://github.com/marytts/marytts-txt2wav/tree/sh
 
 
-## Developing MaryTTS
-
-### Working on MaryTTS code
+## Contributing
 
 The recommended workflow for making contributions to the MaryTTS source code is to follow the GitHub model:
 
@@ -129,4 +127,5 @@ Have a look at the [GitHub documentation](http://help.github.com/) for further d
 Wiki pages are available to help you to configure your IDE to develop MaryTTS.
 The following IDEs have been tested and documented:
 
+- IntelliJ IDEA
 - Eclipse: https://github.com/marytts/marytts/wiki/Eclipse

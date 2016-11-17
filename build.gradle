@@ -10,3 +10,5 @@ allprojects {
         jcenter()
     }
 }
+
+apply from: 'applicationLogic.gradle'

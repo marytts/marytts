@@ -11,5 +11,5 @@ dependencies {
 
 test {
     useTestNG()
-    systemProperty 'mary.base', rootDir
+    systemProperty 'lb.userdict', "$rootDir/src/main/dist/user-dictionaries/userdict-lb.txt"
 }

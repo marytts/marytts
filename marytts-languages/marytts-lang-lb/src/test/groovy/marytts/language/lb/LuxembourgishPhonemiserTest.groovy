@@ -20,6 +20,11 @@ class LuxembourgishPhonemiserTest {
         phonemiser = new LuxembourgishPhonemiser()
     }
 
+    @Test
+    void hasUserDict() {
+        assert phonemiser.userdict
+    }
+
     /**
      * Add any number of lemmas with their corresponding expected transcription to the map below.
      * @return data provider 2-D array for parameterized testing
