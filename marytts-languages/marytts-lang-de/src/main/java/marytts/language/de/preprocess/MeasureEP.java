@@ -117,6 +117,8 @@ public class MeasureEP extends ExpansionPattern {
 		for (int i = 2; i < _nuDeFeMeasureSymbolNames.length; i += 2) {
 			_sMeasureSymbol.append("|" + _nuDeFeMeasureSymbolNames[i]);
 		}
+        if (_nuDeFeMeasureSymbolNames.length > 0 && _maMeasureSymbolNames.length > 0)
+            _sMeasureSymbol.append("|");
 		if (_maMeasureSymbolNames.length > 0)
 			_sMeasureSymbol.append(_maMeasureSymbolNames[0]);
 		for (int i = 2; i < _maMeasureSymbolNames.length; i += 2) {
