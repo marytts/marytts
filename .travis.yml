@@ -2,7 +2,8 @@ sudo: false
 
 branches:
   only:
-    - design_data_types
+    - 6.x
+    - master
 
 language: java
 install: ./gradlew b

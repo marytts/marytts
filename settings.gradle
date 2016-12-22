@@ -5,12 +5,6 @@ include ':marytts-utils'
 include ':marytts-signalproc'
 include ':marytts-common'
 
-// Tools
-include ':marytts-builder'
-include ':marytts-redstart'
-include ':marytts-transcription'
-include ':marytts-client'
-
 // Languages
 include ':marytts-languages:marytts-lang-de'
 include ':marytts-languages:marytts-lang-en'
