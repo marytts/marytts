@@ -31,7 +31,7 @@ import marytts.server.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.analysis.Phone;
 import marytts.unitselection.select.SelectedUnit;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.data.Datagram;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;

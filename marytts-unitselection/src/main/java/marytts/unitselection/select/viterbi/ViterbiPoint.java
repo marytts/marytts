@@ -34,7 +34,7 @@ package marytts.unitselection.select.viterbi;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 
 /**
  * Represents a point in the Viterbi path. A point corresponds to an item, e.g. a Segment. Each ViterbiPoint knows about its next

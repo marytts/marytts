@@ -23,8 +23,8 @@ package marytts.unitselection.data;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * @author marc

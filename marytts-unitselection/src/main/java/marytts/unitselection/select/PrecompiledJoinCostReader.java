@@ -43,9 +43,9 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.server.MaryProperties;
 import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
-import marytts.features.Target;
-import marytts.features.DiphoneTarget;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.DiphoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
 
 /**
  * Loads a precompiled join cost file and provides access to the join cost.

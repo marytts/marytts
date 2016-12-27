@@ -27,8 +27,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * @author marc

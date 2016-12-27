@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.features;
+package marytts.modeling.features;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ import java.util.logging.Logger;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
-import marytts.features.HalfPhoneTarget;
-import marytts.features.Target;
+import marytts.modeling.features.MaryGenericFeatureProcessors.TargetElementNavigator;
+import marytts.modeling.features.HalfPhoneTarget;
+import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.BasicConfigurator;
@@ -77,7 +77,7 @@ public class FeatureProcessorIT {
 				Logger.global.warning("System property 'mary.base' is not defined -- trying " + new File(".").getAbsolutePath()
                                       + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
 			}
-			mgr = new marytts.features.FeatureProcessorManager("en_US");
+			mgr = new marytts.modeling.features.FeatureProcessorManager("en_US");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -88,8 +88,8 @@ import marytts.modules.acoustic.HMMModel;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureRegistry;
 
 import org.apache.log4j.Logger;
 

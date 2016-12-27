@@ -29,7 +29,7 @@ import java.util.ListIterator;
 
 import marytts.datatypes.MaryXML;
 import marytts.modules.acoustic.ProsodyElementHandler;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.MaryUtils;
 

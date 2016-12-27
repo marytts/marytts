@@ -36,7 +36,7 @@ import java.util.Vector;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;

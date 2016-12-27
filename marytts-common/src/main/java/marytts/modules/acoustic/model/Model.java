@@ -27,11 +27,11 @@ import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.TargetFeatureComputer;
+import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;

@@ -23,8 +23,8 @@ import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureRegistry;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureRegistry;
 import marytts.util.FeatureUtils;
 
 import org.w3c.dom.Document;

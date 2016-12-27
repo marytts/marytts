@@ -67,7 +67,7 @@ import marytts.modeling.cart.Node;
 import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;

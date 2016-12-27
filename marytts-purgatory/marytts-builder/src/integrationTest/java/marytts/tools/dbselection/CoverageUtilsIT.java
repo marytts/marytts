@@ -22,9 +22,9 @@ package marytts.tools.dbselection;
 import java.util.Locale;
 
 import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureRegistry;
-import marytts.features.TargetFeatureComputer;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.TargetFeatureComputer;
 import marytts.server.Mary;
 
 

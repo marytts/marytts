@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * The leaf of a CART.

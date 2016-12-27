@@ -42,7 +42,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;

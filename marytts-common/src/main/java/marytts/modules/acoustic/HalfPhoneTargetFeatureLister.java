@@ -24,8 +24,8 @@ import java.util.List;
 
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.Target;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.HalfPhoneTarget;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;

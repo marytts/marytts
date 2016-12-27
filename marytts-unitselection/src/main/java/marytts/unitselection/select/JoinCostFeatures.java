@@ -37,11 +37,11 @@ import java.nio.channels.FileChannel;
 import java.util.Vector;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.ByteValuedFeatureProcessor;
-import marytts.features.MaryGenericFeatureProcessors;
-import marytts.features.Target;
-import marytts.features.DiphoneTarget;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.ByteValuedFeatureProcessor;
+import marytts.modeling.features.MaryGenericFeatureProcessors;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.DiphoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;

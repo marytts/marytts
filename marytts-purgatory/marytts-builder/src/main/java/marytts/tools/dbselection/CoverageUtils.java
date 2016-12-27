@@ -27,8 +27,8 @@ import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.FeatureUtils;
 
 /**

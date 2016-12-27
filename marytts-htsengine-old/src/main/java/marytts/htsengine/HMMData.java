@@ -82,7 +82,7 @@ import java.util.Vector;
 
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.util.FeatureUtils;
 import marytts.htsengine.HMMData.FeatureType;

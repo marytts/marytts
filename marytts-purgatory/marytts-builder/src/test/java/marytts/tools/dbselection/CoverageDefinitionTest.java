@@ -21,8 +21,8 @@ package marytts.tools.dbselection;
 
 import java.util.Set;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.FeatureUtils;
 import marytts.util.io.FileUtils;
 

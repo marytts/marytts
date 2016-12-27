@@ -27,8 +27,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.data.MaryHeader;
 
 public class VocalizationFeatureFileReader extends marytts.unitselection.data.FeatureFileReader {

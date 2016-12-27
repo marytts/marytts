@@ -22,7 +22,7 @@ package marytts.tools.voiceimport;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 
 public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter {
 	protected FeatureDefinition leftFeatureDef;

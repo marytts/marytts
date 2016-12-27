@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.features;
+package marytts.modeling.features;
 
 import java.io.InputStream;
 import java.util.Map;

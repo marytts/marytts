@@ -25,7 +25,7 @@ import java.util.List;
 import marytts.modeling.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.StatisticalCostFunction;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;

@@ -22,7 +22,7 @@ package marytts.tools.voiceimport.traintrees;
 
 import java.io.IOException;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.util.math.Polynomial;
 
@@ -49,8 +49,8 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * @param fv2
 	 *            fv2
 	 * @return dist
-	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
-	 *      marytts.features.FeatureVector)
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.modeling.features.FeatureVector,
+	 *      marytts.modeling.features.FeatureVector)
 	 */
 	public float distance(FeatureVector fv1, FeatureVector fv2) {
 		float dist = (float) Polynomial.polynomialDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);
@@ -66,8 +66,8 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure {
 	 * @param fv2
 	 *            fv2
 	 * @return dist
-	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
-	 *      marytts.features.FeatureVector)
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.modeling.features.FeatureVector,
+	 *      marytts.modeling.features.FeatureVector)
 	 */
 	public float squaredDistance(FeatureVector fv1, FeatureVector fv2) {
 		float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[fv1.unitIndex], contourCoeffs[fv2.unitIndex]);

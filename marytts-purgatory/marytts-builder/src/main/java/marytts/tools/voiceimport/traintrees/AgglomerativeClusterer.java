@@ -38,8 +38,8 @@ import marytts.modeling.cart.LeafNode;
 import marytts.modeling.cart.Node;
 import marytts.modeling.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.modeling.cart.impose.FeatureArrayIndexer;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * @author marc

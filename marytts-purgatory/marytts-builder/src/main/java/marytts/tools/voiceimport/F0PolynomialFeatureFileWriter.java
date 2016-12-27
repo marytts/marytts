@@ -43,8 +43,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.swing.JFrame;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.display.FunctionGraph;

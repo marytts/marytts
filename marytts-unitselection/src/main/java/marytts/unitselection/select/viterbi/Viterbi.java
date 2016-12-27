@@ -48,8 +48,8 @@ import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.TargetCostFunction;
-import marytts.features.Target;
-import marytts.features.DiphoneTarget;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.DiphoneTarget;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Level;

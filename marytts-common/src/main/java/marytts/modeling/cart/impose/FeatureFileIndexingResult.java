@@ -19,7 +19,7 @@
  */
 package marytts.modeling.cart.impose;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * A helper class to return the query results from the FeatureFileIndexer.

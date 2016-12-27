@@ -20,7 +20,7 @@
 
 package marytts.tools.voiceimport.traintrees;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * @author marc

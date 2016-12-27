@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.unitselection.data.UnitDatabase;
-import marytts.features.Target;
-import marytts.features.DiphoneTarget;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.DiphoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
 
 import org.w3c.dom.Element;
 

@@ -21,8 +21,8 @@ package marytts.util;
 
 import java.io.IOException;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.io.FileUtils;
 
 import org.testng.Assert;

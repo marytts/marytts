@@ -30,7 +30,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.features;
+package marytts.modeling.features;
 
 import java.util.ArrayList;
 import java.util.Arrays;

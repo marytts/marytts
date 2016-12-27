@@ -23,8 +23,8 @@ package marytts.modules.acoustic.model;
 import java.io.InputStream;
 import java.util.List;
 
-import marytts.features.FeatureProcessorManager;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.Target;
 
 import org.w3c.dom.Element;
 

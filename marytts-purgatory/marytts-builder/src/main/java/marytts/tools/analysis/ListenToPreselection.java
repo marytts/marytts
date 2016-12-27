@@ -24,8 +24,8 @@ import java.io.File;
 
 import marytts.modeling.cart.impose.FeatureArrayIndexer;
 import marytts.modeling.cart.impose.FeatureFileIndexingResult;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.HalfPhoneFeatureFileWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;

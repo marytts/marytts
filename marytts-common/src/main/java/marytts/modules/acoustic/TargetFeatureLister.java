@@ -26,11 +26,11 @@ import java.util.Locale;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.FeatureRegistry;
-import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
+import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;

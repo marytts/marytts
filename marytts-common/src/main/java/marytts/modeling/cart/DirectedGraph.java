@@ -23,9 +23,9 @@ package marytts.modeling.cart;
 import java.util.Iterator;
 import java.util.Properties;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

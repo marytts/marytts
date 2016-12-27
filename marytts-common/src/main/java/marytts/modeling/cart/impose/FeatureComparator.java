@@ -21,7 +21,7 @@ package marytts.modeling.cart.impose;
 
 import java.util.Comparator;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 public class FeatureComparator implements Comparator<FeatureVector> {
 

@@ -21,8 +21,8 @@ package marytts.modeling.cart.impose;
 
 import java.util.Arrays;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * A class branched from FeatureFileIndexer which works directly on a feature array, rather than extending FeatureFileReader.

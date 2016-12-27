@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.features;
+package marytts.modeling.features;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.modules.nlp.phonemiser.Allophone;
 
 import org.w3c.dom.Element;

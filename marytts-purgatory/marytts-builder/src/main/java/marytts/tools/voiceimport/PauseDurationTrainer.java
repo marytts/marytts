@@ -33,8 +33,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.modeling.cart.StringPredictionTree;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.modeling.machinelearning.GmmDiscretizer;
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;

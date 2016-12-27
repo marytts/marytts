@@ -27,8 +27,8 @@ import java.io.InputStream;
 import marytts.modeling.cart.DirectedGraph;
 import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.Target;
 
 /**
  * Model for applying a CART to a list of Targets

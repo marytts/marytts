@@ -19,8 +19,8 @@
  */
 package marytts.unitselection.select;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
