@@ -46,7 +46,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import marytts.cart.CART;
+import marytts.modeling.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;

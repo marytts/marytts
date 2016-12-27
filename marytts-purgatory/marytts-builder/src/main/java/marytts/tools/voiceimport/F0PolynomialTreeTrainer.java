@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.cart.CART;
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphWriter;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.io.DirectedGraphWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;

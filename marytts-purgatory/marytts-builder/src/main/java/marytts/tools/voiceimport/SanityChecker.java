@@ -33,9 +33,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.cart.CART;
-import marytts.cart.LeafNode;
-import marytts.cart.io.MaryCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;

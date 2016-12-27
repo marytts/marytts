@@ -25,10 +25,10 @@ import java.util.Arrays;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.machinelearning.ContextualGMMParams;
-import marytts.machinelearning.GMM;
-import marytts.machinelearning.GMMTrainer;
-import marytts.machinelearning.GMMTrainerParams;
+import marytts.modeling.machinelearning.ContextualGMMParams;
+import marytts.modeling.machinelearning.GMM;
+import marytts.modeling.machinelearning.GMMTrainer;
+import marytts.modeling.machinelearning.GMMTrainerParams;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;

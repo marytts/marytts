@@ -21,8 +21,8 @@ package marytts.modules.acoustic.f0;
 
 import java.util.Locale;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

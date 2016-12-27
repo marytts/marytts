@@ -22,8 +22,8 @@ package marytts.tools.analysis;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-import marytts.cart.impose.FeatureArrayIndexer;
-import marytts.cart.impose.FeatureFileIndexingResult;
+import marytts.modeling.cart.impose.FeatureArrayIndexer;
+import marytts.modeling.cart.impose.FeatureFileIndexingResult;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.DatabaseLayout;

@@ -46,7 +46,7 @@
  *  PERFORMANCE OF THIS SOFTWARE.                                    
  *                                                                   
  */
-package marytts.cart.io;
+package marytts.modeling.cart.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -60,12 +60,12 @@ import java.io.StringReader;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-import marytts.cart.CART;
-import marytts.cart.DecisionNode;
-import marytts.cart.LeafNode;
-import marytts.cart.Node;
-import marytts.cart.DecisionNode.BinaryByteDecisionNode;
-import marytts.cart.LeafNode.PdfLeafNode;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DecisionNode;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.Node;
+import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
+import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;

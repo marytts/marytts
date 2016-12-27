@@ -46,8 +46,8 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioFormat;
 
-import marytts.cart.CART;
-import marytts.cart.io.MaryCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.features.FeatureDefinition;

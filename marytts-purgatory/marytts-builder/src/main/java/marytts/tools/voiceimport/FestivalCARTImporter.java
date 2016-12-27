@@ -45,10 +45,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import marytts.cart.CART;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.WagonCARTReader;
-import marytts.cart.io.WagonCARTWriter;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.LeafNode.LeafType;
+import marytts.modeling.cart.io.WagonCARTReader;
+import marytts.modeling.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.util.data.MaryHeader;
 

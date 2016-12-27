@@ -42,8 +42,8 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.config.MaryConfig;
 import marytts.config.VoiceConfig;
 import marytts.datatypes.MaryData;

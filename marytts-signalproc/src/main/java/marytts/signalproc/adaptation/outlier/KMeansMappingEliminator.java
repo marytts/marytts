@@ -22,8 +22,8 @@ package marytts.signalproc.adaptation.outlier;
 import java.io.IOException;
 import java.util.Arrays;
 
-import marytts.machinelearning.KMeansClusteringTrainer;
-import marytts.machinelearning.KMeansClusteringTrainerParams;
+import marytts.modeling.machinelearning.KMeansClusteringTrainer;
+import marytts.modeling.machinelearning.KMeansClusteringTrainerParams;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.OutlierStatus;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;

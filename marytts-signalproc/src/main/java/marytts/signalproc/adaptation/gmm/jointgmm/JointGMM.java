@@ -21,7 +21,7 @@ package marytts.signalproc.adaptation.gmm.jointgmm;
 
 import java.io.IOException;
 
-import marytts.machinelearning.GMM;
+import marytts.modeling.machinelearning.GMM;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;

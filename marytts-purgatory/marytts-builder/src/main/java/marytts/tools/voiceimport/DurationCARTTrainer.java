@@ -28,11 +28,11 @@ import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.cart.CART;
-import marytts.cart.Node;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.Node;
+import marytts.modeling.cart.LeafNode.LeafType;
+import marytts.modeling.cart.io.MaryCARTWriter;
+import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;

@@ -49,10 +49,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import marytts.cart.CART;
-import marytts.cart.Node;
-import marytts.cart.LeafNode.PdfLeafNode;
-import marytts.cart.io.HTSCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.Node;
+import marytts.modeling.cart.LeafNode.PdfLeafNode;
+import marytts.modeling.cart.io.HTSCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;

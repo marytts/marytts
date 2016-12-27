@@ -22,7 +22,7 @@ package marytts.signalproc.adaptation.gmm.jointgmm;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.machinelearning.ContextualGMMParams;
+import marytts.modeling.machinelearning.ContextualGMMParams;
 import marytts.signalproc.adaptation.VocalTractTransformationData;
 import marytts.util.io.MaryRandomAccessFile;
 

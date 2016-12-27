@@ -73,9 +73,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-import marytts.cart.CART;
-import marytts.cart.DecisionNode;
-import marytts.cart.DecisionNode.BinaryByteDecisionNode;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DecisionNode;
+import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.features.FeatureDefinition;
 import marytts.util.MaryUtils;
 

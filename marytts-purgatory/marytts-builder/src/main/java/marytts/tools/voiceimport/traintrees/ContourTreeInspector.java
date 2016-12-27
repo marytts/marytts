@@ -24,10 +24,10 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.LeafNode;
-import marytts.cart.LeafNode.IntArrayLeafNode;
-import marytts.cart.io.DirectedGraphReader;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.LeafNode.IntArrayLeafNode;
+import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.util.math.ArrayUtils;

@@ -19,7 +19,7 @@
  */
 package marytts.signalproc.adaptation.outlier;
 
-import marytts.machinelearning.KMeansClusteringTrainerParams;
+import marytts.modeling.machinelearning.KMeansClusteringTrainerParams;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 
 /**
