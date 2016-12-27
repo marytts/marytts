@@ -34,10 +34,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import marytts.cart.CART;
-import marytts.cart.LeafNode;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.WagonCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.LeafNode.LeafType;
+import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;

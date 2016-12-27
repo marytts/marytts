@@ -22,7 +22,7 @@ package marytts.unitselection.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.cart.CART;
+import marytts.modeling.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.features.Target;

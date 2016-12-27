@@ -33,9 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import marytts.cart.CART;
-import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.MaryCARTWriter;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.io.MaryCARTReader;
+import marytts.modeling.cart.io.MaryCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;

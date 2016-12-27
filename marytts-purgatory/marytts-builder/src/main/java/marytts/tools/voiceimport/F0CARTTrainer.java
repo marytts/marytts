@@ -34,10 +34,10 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.cart.CART;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.LeafNode.LeafType;
+import marytts.modeling.cart.io.MaryCARTWriter;
+import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -291,7 +291,7 @@ public class F0CARTTrainer extends VoiceImportComponent {
 			// F0 Left file
 			String destinationFile = getProp(F0LEFTTREEFILE);
 			WagonCARTReader wagonLReader = new WagonCARTReader(LeafType.FloatLeafNode);
-			marytts.cart.Node rootLNode = wagonLReader.load(new BufferedReader(new FileReader(wagonLeftTreeFile)),
+			marytts.modeling.cart.Node rootLNode = wagonLReader.load(new BufferedReader(new FileReader(wagonLeftTreeFile)),
 					featureDefinition);
 			CART leftF0Cart = new CART(rootLNode, featureDefinition);
 			MaryCARTWriter wwl = new MaryCARTWriter();
@@ -300,7 +300,7 @@ public class F0CARTTrainer extends VoiceImportComponent {
 			// F0 Mid tree
 			destinationFile = getProp(F0MIDTREEFILE);
 			WagonCARTReader wagonMReader = new WagonCARTReader(LeafType.FloatLeafNode);
-			marytts.cart.Node rootMNode = wagonMReader.load(new BufferedReader(new FileReader(wagonMidTreeFile)),
+			marytts.modeling.cart.Node rootMNode = wagonMReader.load(new BufferedReader(new FileReader(wagonMidTreeFile)),
 					featureDefinition);
 			CART midF0Cart = new CART(rootMNode, featureDefinition);
 			MaryCARTWriter wwm = new MaryCARTWriter();
@@ -309,7 +309,7 @@ public class F0CARTTrainer extends VoiceImportComponent {
 			// F0 Right tree
 			destinationFile = getProp(F0RIGHTTREEFILE);
 			WagonCARTReader wagonRReader = new WagonCARTReader(LeafType.FloatLeafNode);
-			marytts.cart.Node rootRNode = wagonRReader.load(new BufferedReader(new FileReader(wagonRightTreeFile)),
+			marytts.modeling.cart.Node rootRNode = wagonRReader.load(new BufferedReader(new FileReader(wagonRightTreeFile)),
 					featureDefinition);
 			CART rightF0Cart = new CART(rootRNode, featureDefinition);
 			MaryCARTWriter wwr = new MaryCARTWriter();

@@ -32,7 +32,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
-import marytts.machinelearning.SoP;
+import marytts.modeling.machinelearning.SoP;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;

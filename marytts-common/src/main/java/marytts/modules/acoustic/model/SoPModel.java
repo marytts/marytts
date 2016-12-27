@@ -33,7 +33,7 @@ import java.util.Scanner;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.machinelearning.SoP;
+import marytts.modeling.machinelearning.SoP;
 import marytts.features.Target;
 import marytts.util.MaryUtils;
 

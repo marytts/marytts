@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 
 import java.io.InputStream;
 
-import marytts.cart.CART;
+import marytts.modeling.cart.CART;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 

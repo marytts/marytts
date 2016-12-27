@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.Target;

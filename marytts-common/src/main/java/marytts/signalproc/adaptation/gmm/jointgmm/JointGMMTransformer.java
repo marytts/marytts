@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.machinelearning.ContextualGMMParams;
+import marytts.modeling.machinelearning.ContextualGMMParams;
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;

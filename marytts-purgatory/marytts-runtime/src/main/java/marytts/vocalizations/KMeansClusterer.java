@@ -33,9 +33,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
-import marytts.machinelearning.KMeansClusteringTrainerParams;
-import marytts.machinelearning.PolynomialCluster;
-import marytts.machinelearning.PolynomialKMeansClusteringTrainer;
+import marytts.modeling.machinelearning.KMeansClusteringTrainerParams;
+import marytts.modeling.machinelearning.PolynomialCluster;
+import marytts.modeling.machinelearning.PolynomialKMeansClusteringTrainer;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;

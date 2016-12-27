@@ -24,10 +24,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Locale;
 
-import marytts.cart.CART;
-import marytts.cart.DirectedGraph;
-import marytts.cart.StringPredictionTree;
-import marytts.cart.io.DirectedGraphReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.StringPredictionTree;
+import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

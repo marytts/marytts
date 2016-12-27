@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.cart.CART;
-import marytts.cart.StringPredictionTree;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.StringPredictionTree;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;

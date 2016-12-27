@@ -34,8 +34,8 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-import marytts.machinelearning.KMeansClusteringTrainer;
-import marytts.machinelearning.KMeansClusteringTrainerParams;
+import marytts.modeling.machinelearning.KMeansClusteringTrainer;
+import marytts.modeling.machinelearning.KMeansClusteringTrainerParams;
 import marytts.signalproc.window.RectWindow;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;

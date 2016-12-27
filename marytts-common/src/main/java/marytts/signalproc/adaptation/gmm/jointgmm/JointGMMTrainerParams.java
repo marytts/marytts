@@ -19,8 +19,8 @@
  */
 package marytts.signalproc.adaptation.gmm.jointgmm;
 
-import marytts.machinelearning.ContextualGMMParams;
-import marytts.machinelearning.GMMTrainerParams;
+import marytts.modeling.machinelearning.ContextualGMMParams;
+import marytts.modeling.machinelearning.GMMTrainerParams;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselineTrainerParams;
 

@@ -22,11 +22,11 @@ package weka.classifiers.trees.j48;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.cart.CART;
-import marytts.cart.DecisionNode;
-import marytts.cart.LeafNode;
-import marytts.cart.Node;
-import marytts.cart.StringPredictionTree;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DecisionNode;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.Node;
+import marytts.modeling.cart.StringPredictionTree;
 import marytts.features.FeatureDefinition;
 import weka.core.Instances;
 

@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Locale;
 
-import marytts.cart.CART;
-import marytts.cart.io.MaryCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.io.MaryCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

@@ -29,15 +29,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import marytts.cart.CART;
-import marytts.cart.DecisionNode;
-import marytts.cart.DirectedGraph;
-import marytts.cart.DirectedGraphNode;
-import marytts.cart.FeatureVectorCART;
-import marytts.cart.LeafNode;
-import marytts.cart.Node;
-import marytts.cart.LeafNode.FeatureVectorLeafNode;
-import marytts.cart.impose.FeatureArrayIndexer;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DecisionNode;
+import marytts.modeling.cart.DirectedGraph;
+import marytts.modeling.cart.DirectedGraphNode;
+import marytts.modeling.cart.FeatureVectorCART;
+import marytts.modeling.cart.LeafNode;
+import marytts.modeling.cart.Node;
+import marytts.modeling.cart.LeafNode.FeatureVectorLeafNode;
+import marytts.modeling.cart.impose.FeatureArrayIndexer;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 

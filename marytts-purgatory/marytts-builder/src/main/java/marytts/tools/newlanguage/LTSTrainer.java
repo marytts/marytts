@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import marytts.cart.CART;
-import marytts.cart.DecisionNode;
-import marytts.cart.io.MaryCARTWriter;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.DecisionNode;
+import marytts.modeling.cart.io.MaryCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;

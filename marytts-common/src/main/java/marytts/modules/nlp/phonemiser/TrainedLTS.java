@@ -28,9 +28,9 @@ import java.util.Properties;
 
 import org.hsqldb.error.Error;
 
-import marytts.cart.CART;
-import marytts.cart.LeafNode.StringAndFloatLeafNode;
-import marytts.cart.io.MaryCARTReader;
+import marytts.modeling.cart.CART;
+import marytts.modeling.cart.LeafNode.StringAndFloatLeafNode;
+import marytts.modeling.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;

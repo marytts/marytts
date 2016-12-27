@@ -40,8 +40,8 @@ import javax.swing.JScrollPane;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.machinelearning.SFFS;
-import marytts.machinelearning.SoP;
+import marytts.modeling.machinelearning.SFFS;
+import marytts.modeling.machinelearning.SoP;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;

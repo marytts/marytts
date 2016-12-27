@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import marytts.modules.InternalModule;
 
-import marytts.cart.StringPredictionTree;
+import marytts.modeling.cart.StringPredictionTree;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
