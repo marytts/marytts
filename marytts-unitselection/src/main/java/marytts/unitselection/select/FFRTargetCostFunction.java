@@ -25,11 +25,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.TargetFeatureComputer;
+import marytts.modeling.features.Target;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.FeatureFileReader;

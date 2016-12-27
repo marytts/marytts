@@ -20,7 +20,7 @@
 package marytts.unitselection.select;
 
 import marytts.unitselection.data.Unit;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 
 /**
  * A unit selected from Viterbi

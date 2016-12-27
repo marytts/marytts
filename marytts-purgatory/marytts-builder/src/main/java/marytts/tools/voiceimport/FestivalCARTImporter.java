@@ -49,7 +49,7 @@ import marytts.modeling.cart.CART;
 import marytts.modeling.cart.LeafNode.LeafType;
 import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.modeling.cart.io.WagonCARTWriter;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.util.data.MaryHeader;
 
 /**

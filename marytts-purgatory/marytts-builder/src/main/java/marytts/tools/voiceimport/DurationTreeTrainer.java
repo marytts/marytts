@@ -32,7 +32,7 @@ import marytts.modeling.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.modeling.cart.LeafNode.FloatLeafNode;
 import marytts.modeling.cart.io.DirectedGraphWriter;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.tools.voiceimport.traintrees.AgglomerativeClusterer;
 import marytts.tools.voiceimport.traintrees.DurationDistanceMeasure;
 import marytts.unitselection.data.FeatureFileReader;

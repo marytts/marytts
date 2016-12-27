@@ -38,8 +38,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.modeling.machinelearning.SFFS;
 import marytts.modeling.machinelearning.SoP;
 import marytts.unitselection.data.FeatureFileReader;

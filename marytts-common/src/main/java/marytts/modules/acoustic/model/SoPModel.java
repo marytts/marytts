@@ -31,10 +31,10 @@ import java.util.Map;
 import java.util.Scanner;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.machinelearning.SoP;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 
 import marytts.modules.InternalModule;

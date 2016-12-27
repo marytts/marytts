@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 
 /**
  * A join cost function for evaluating the goodness-of-fit of a given pair of left and right unit.

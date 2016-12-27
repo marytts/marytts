@@ -25,14 +25,14 @@ import java.util.Locale;
 import java.util.Map;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.MaryGenericFeatureProcessors;
-import marytts.features.MaryLanguageFeatureProcessors;
+import marytts.modeling.features.MaryGenericFeatureProcessors;
+import marytts.modeling.features.MaryLanguageFeatureProcessors;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 
-public class FeatureProcessorManager extends marytts.features.FeatureProcessorManager {
+public class FeatureProcessorManager extends marytts.modeling.features.FeatureProcessorManager {
 
 	/**
 	 * Builds a new manager. This manager uses the english phoneset of FreeTTS and a PoS conversion file if the english PoS tagger

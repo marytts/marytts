@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 import marytts.modeling.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.modeling.cart.LeafNode.LeafType;
 import marytts.modeling.cart.io.WagonCARTReader;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.Target;
 
 //import com.sun.tools.javac.code.Attribute.Array;
 

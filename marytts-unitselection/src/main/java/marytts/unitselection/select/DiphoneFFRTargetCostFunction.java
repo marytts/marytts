@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureVector;
-import marytts.features.Target;
-import marytts.features.DiphoneTarget;
-import marytts.features.HalfPhoneTarget;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.Target;
+import marytts.modeling.features.DiphoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HalfPhoneFeatureFileReader;

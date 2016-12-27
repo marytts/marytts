@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureVector;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.Target;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 

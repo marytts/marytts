@@ -20,7 +20,7 @@
 
 package marytts.unitselection.data;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * This class represents the section of a feature file which constitutes a sentence.

@@ -80,8 +80,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.htsengine.PhoneTranslator;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;

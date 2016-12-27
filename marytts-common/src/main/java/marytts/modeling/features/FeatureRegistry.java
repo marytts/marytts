@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.features;
+package marytts.modeling.features;
 
 import java.util.Collection;
 import java.util.Comparator;

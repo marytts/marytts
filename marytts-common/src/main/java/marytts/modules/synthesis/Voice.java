@@ -52,9 +52,9 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.FeatureFileReader;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.FeatureFileReader;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.model.BoundaryModel;
@@ -274,7 +274,7 @@ public abstract class Voice {
 	/**
 	 * Try to determine a feature processor manager. This will look for the voice-specific config setting
 	 * <code>voice.(voicename).featuremanager</code>. If a feature processor manager is found, it is initialised and entered into
-	 * the {@link marytts.features.FeatureRegistry}.
+	 * the {@link marytts.modeling.features.FeatureRegistry}.
 	 *
 	 * @throws MaryConfigurationException
 	 *             if the feature processor manager cannot be initialised.

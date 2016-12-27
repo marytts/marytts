@@ -38,8 +38,8 @@ import marytts.modeling.cart.CART;
 import marytts.modeling.cart.LeafNode;
 import marytts.modeling.cart.LeafNode.LeafType;
 import marytts.modeling.cart.io.WagonCARTReader;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

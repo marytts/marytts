@@ -21,8 +21,8 @@ package marytts.modeling.cart;
 
 import marytts.modeling.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.modeling.cart.LeafNode.IntArrayLeafNode;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * A decision node that determines the next Node to go to in the CART. All decision nodes inherit from this class

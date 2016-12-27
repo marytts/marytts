@@ -24,8 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;

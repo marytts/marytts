@@ -1,4 +1,4 @@
-package marytts.features;
+package marytts.modeling.features;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -6,7 +6,7 @@ import org.testng.annotations.*;
 
 import java.util.Locale;
 
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.string.ByteStringTranslator;
 
 public class TargetFeatureComputerTest {

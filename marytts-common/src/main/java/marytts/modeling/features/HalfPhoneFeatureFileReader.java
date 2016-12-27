@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.features;
+package marytts.modeling.features;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -27,8 +27,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.data.MaryHeader;
 
 public class HalfPhoneFeatureFileReader extends FeatureFileReader {

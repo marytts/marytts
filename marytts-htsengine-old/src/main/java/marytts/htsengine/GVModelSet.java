@@ -76,7 +76,7 @@ import java.util.StringTokenizer;
 import marytts.modeling.cart.CART;
 import marytts.modeling.cart.DecisionNode;
 import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

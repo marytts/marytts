@@ -69,8 +69,8 @@ import marytts.modeling.cart.CART;
 import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.modeling.cart.io.HTSCARTReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;
 

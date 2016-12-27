@@ -34,7 +34,7 @@ import marytts.modeling.cart.LeafNode.LeafType;
 import marytts.modeling.cart.io.MaryCARTWriter;
 import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;

@@ -40,7 +40,7 @@ import marytts.modeling.cart.LeafNode.FloatLeafNode;
 import marytts.modeling.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.modeling.cart.LeafNode.IntArrayLeafNode;
 import marytts.modeling.cart.LeafNode.LeafType;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 

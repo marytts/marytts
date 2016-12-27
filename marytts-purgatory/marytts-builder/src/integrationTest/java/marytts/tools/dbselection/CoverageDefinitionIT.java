@@ -21,8 +21,8 @@ package marytts.tools.dbselection;
 
 import java.util.Locale;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureRegistry;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureRegistry;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

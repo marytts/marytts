@@ -32,8 +32,8 @@ import marytts.modeling.cart.DecisionNode;
 import marytts.modeling.cart.LeafNode;
 import marytts.modeling.cart.Node;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.data.MaryHeader;
 
 /**

@@ -37,7 +37,7 @@ import marytts.modeling.cart.CART;
 import marytts.modeling.cart.DecisionNode;
 import marytts.modeling.cart.io.MaryCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
 import marytts.modules.nlp.phonemiser.Allophone;

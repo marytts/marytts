@@ -24,10 +24,10 @@ import gnu.trove.TIntHashSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.features.FeatureVector;
-import marytts.features.DiphoneTarget;
-import marytts.features.HalfPhoneTarget;
-import marytts.features.Target;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.DiphoneTarget;
+import marytts.modeling.features.HalfPhoneTarget;
+import marytts.modeling.features.Target;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;

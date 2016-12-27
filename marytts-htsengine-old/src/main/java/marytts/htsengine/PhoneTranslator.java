@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Vector;
 
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

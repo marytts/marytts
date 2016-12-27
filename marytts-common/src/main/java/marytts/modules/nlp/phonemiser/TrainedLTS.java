@@ -32,8 +32,8 @@ import marytts.modeling.cart.CART;
 import marytts.modeling.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.modeling.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 
 /**
  *

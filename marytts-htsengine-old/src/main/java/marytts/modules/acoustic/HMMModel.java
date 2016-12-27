@@ -28,16 +28,16 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureVector;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
 import marytts.modules.acoustic.model.Model;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

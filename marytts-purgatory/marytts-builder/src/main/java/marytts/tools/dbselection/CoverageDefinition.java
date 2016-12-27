@@ -44,7 +44,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 
 /**
  * Builds and manages the cover sets

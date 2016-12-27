@@ -17,11 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.features;
+package marytts.modeling.features;
 
 import marytts.datatypes.MaryXML;
-import marytts.features.FeatureVector;
-import marytts.features.MaryGenericFeatureProcessors;
+import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.MaryGenericFeatureProcessors;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;

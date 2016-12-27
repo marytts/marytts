@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * A type of node that can be at the same time a decision node and a leaf node, and that can have more than one mother. Other than

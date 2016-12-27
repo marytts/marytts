@@ -24,7 +24,7 @@ import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.viterbi.Viterbi;
 import marytts.util.MaryUtils;

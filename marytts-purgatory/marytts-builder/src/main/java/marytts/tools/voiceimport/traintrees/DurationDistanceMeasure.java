@@ -22,7 +22,7 @@ package marytts.tools.voiceimport.traintrees;
 
 import java.io.IOException;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 import marytts.unitselection.data.UnitFileReader;
 
 /**
@@ -45,8 +45,8 @@ public class DurationDistanceMeasure implements DistanceMeasure {
 	 * @param fv2
 	 *            fv2
 	 * @return math.abs(d1 - d2)
-	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
-	 *      marytts.features.FeatureVector)
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.modeling.features.FeatureVector,
+	 *      marytts.modeling.features.FeatureVector)
 	 */
 	public float distance(FeatureVector fv1, FeatureVector fv2) {
 		float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float) units.getSampleRate();
@@ -63,8 +63,8 @@ public class DurationDistanceMeasure implements DistanceMeasure {
 	 * @param fv2
 	 *            fv2
 	 * @return diff * diff
-	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.features.FeatureVector,
-	 *      marytts.features.FeatureVector)
+	 * @see marytts.tools.voiceimport.traintrees.DistanceMeasure#distance(marytts.modeling.features.FeatureVector,
+	 *      marytts.modeling.features.FeatureVector)
 	 */
 	public float squaredDistance(FeatureVector fv1, FeatureVector fv2) {
 		float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float) units.getSampleRate();

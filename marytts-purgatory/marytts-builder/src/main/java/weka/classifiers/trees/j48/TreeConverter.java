@@ -27,7 +27,7 @@ import marytts.modeling.cart.DecisionNode;
 import marytts.modeling.cart.LeafNode;
 import marytts.modeling.cart.Node;
 import marytts.modeling.cart.StringPredictionTree;
-import marytts.features.FeatureDefinition;
+import marytts.modeling.features.FeatureDefinition;
 import weka.core.Instances;
 
 public class TreeConverter {

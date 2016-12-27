@@ -23,11 +23,11 @@ package marytts.language.de;
 import java.util.Locale;
 
 import marytts.datatypes.MaryXML;
-import marytts.features.ByteValuedFeatureProcessor;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
+import marytts.modeling.features.ByteValuedFeatureProcessor;
+import marytts.modeling.features.FeatureProcessorManager;
+import marytts.modeling.features.FeatureRegistry;
 import marytts.server.Mary;
-import marytts.features.Target;
+import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;

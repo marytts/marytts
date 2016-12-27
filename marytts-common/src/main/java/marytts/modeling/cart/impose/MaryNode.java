@@ -19,7 +19,7 @@
  */
 package marytts.modeling.cart.impose;
 
-import marytts.features.FeatureVector;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * A generic node class for the tree structures.
