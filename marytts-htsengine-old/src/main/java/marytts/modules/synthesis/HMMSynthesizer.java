@@ -78,6 +78,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.TargetFeatureComputer;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.HTSEngine;
@@ -86,7 +87,6 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.TargetFeatureLister;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
-import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -210,7 +210,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 			// --d.setPlainText(targetFeatureString);
 			d.setDefaultVoice(voice);
 
-			List<Target> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
+			List<FeatureVector> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
 
 			// the actual durations are already fixed in the htsEngine.process()
 			// here i pass segements and boundaries to update the realised acoustparams, dur and f0

@@ -31,13 +31,13 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.Target; /* FIXME: just for evaluate => should be remove when evaluate can be changed */
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
 import marytts.modules.acoustic.model.Model;
-import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -212,7 +212,7 @@ public class HMMModel extends Model {
 	private HTSUttModel predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements)
 			throws MaryConfigurationException {
 		List<Element> predictorElements = predictFromElements;
-		List<Target> predictorTargets = getTargets(predictorElements);
+		List<FeatureVector> predictorTargets = getTargetVectors(predictorElements);
 		FeatureVector fv = null;
 		HTSUttModel um = new HTSUttModel();
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
@@ -225,7 +225,7 @@ public class HMMModel extends Model {
 			for (int i = 0; i < predictorTargets.size(); i++) {
 
 				// Retrieve values
-				fv = predictorTargets.get(i).getFeatureVector();
+				fv = predictorTargets.get(i);
 				um.addUttModel(new HTSModel(cart.getNumStates()));
 				HTSModel m = um.getUttModel(i);
 				Element element = applyToElements.get(i);
@@ -382,7 +382,7 @@ public class HMMModel extends Model {
 		int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
 		HTSModel m;
 		List<Element> predictorElements = predictFromElements;
-		List<Target> predictorTargets = getTargets(predictorElements);
+		List<FeatureVector> predictorTargets = getTargetVectors(predictorElements);
 		FeatureVector fv;
 		HTSUttModel um = new HTSUttModel();
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
@@ -393,7 +393,7 @@ public class HMMModel extends Model {
 		try {
 			// (1) Predict the values
 			for (i = 0; i < predictorTargets.size(); i++) {
-				fv = predictorTargets.get(i).getFeatureVector();
+				fv = predictorTargets.get(i);
 				Element e = predictFromElements.get(i);
 				um.addUttModel(new HTSModel(cart.getNumStates()));
 				m = um.getUttModel(i);
