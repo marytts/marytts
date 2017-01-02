@@ -263,6 +263,27 @@ public abstract class Model {
 	}
 
 	/**
+	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
+	 * corresponding Element.
+	 *
+	 * @param elements
+	 *            List of Elements
+	 * @return List of Targets
+	 */
+	protected List<FeatureVector> getTargetVectors(List<Element> elements) {
+		List<FeatureVector> targets = new ArrayList<FeatureVector>(elements.size());
+		for (Element element : elements) {
+			assert element.getTagName() == MaryXML.PHONE;
+			String phone = MaryDomUtils.getPhoneSymbol(element);
+			Target target = new Target(phone, element);
+			// compute FeatureVectors for Targets:
+			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
+			targets.add(targetFeatureVector);
+		}
+		return targets;
+	}
+
+	/**
 	 * Evaluate model on a Target to obtain the target value as a float.
 	 *
 	 * @param target

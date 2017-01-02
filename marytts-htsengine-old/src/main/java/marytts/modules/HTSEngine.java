@@ -93,7 +93,6 @@ import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
-import marytts.modeling.features.Target;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;
@@ -197,7 +196,7 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return output
 	 */
-	public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries,
+	public MaryData process(MaryData d, List<FeatureVector> targetFeaturesList, List<Element> segmentsAndBoundaries,
                             List<Element> tokensAndBoundaries) throws Exception {
 
 		Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
@@ -302,7 +301,7 @@ public class HTSEngine extends InternalModule {
 
 	public HTSUttModel processUttFromFile(String feaFile, HMMData htsData) throws Exception {
 
-		List<Target> targetFeaturesList = getTargetsFromFile(feaFile, htsData);
+		List<FeatureVector> targetFeaturesList = getTargetsFromFile(feaFile, htsData);
 		return processTargetList(targetFeaturesList, null, htsData);
 
 	}
@@ -318,8 +317,8 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return targets
 	 */
-	public static List<Target> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
-		List<Target> targets = null;
+	public static List<FeatureVector> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
+		List<FeatureVector> targets = null;
 		Scanner s = null;
 		try {
 			/* parse text in label file */
@@ -346,8 +345,8 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return targets
 	 */
-	public List<Target> getTargetsFromText(String LabText, HMMData htsData) throws Exception {
-		List<Target> targets;
+	public List<FeatureVector> getTargetsFromText(String LabText, HMMData htsData) throws Exception {
+		List<FeatureVector> targets;
 		Scanner s = null;
 		try {
 			s = new Scanner(LabText);
@@ -359,14 +358,13 @@ public class HTSEngine extends InternalModule {
 		return targets;
 	}
 
-	public static List<Target> getTargets(Scanner s, HMMData htsData) {
+	public static List<FeatureVector> getTargets(Scanner s, HMMData htsData) {
 		int i;
 		// Scanner s = null;
 		String nextLine;
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
-		List<Target> targets = new ArrayList<Target>();
+		List<FeatureVector> targets = new ArrayList<FeatureVector>();
 		FeatureVector fv;
-		Target t;
 		/* Skip mary context features definition */
 		while (s.hasNext()) {
 			nextLine = s.nextLine();
@@ -387,9 +385,7 @@ public class HTSEngine extends InternalModule {
 			nextLine = s.nextLine();
 			// System.out.println("STR: " + nextLine);
 			fv = feaDef.toFeatureVector(0, nextLine);
-			t = new Target(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef), null);
-			t.setFeatureVector(fv);
-			targets.add(t);
+            targets.add(fv);
 		}
 		return targets;
 	}
@@ -407,7 +403,7 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return um
 	 */
-	protected HTSUttModel processTargetList(List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
+	protected HTSUttModel processTargetList(List<FeatureVector> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
 			throws Exception {
 		HTSUttModel um = new HTSUttModel();
 		CartTreeSet cart = htsData.getCartTreeSet();
@@ -432,9 +428,8 @@ public class HTSEngine extends InternalModule {
 
 		// process feature vectors in targetFeatureList
 		int i = 0;
-		for (Target target : targetFeaturesList) {
+		for (FeatureVector fv : targetFeaturesList) {
 
-			FeatureVector fv = target.getFeatureVector(); // feaDef.toFeatureVector(0, nextLine);
 			HTSModel m = new HTSModel(cart.getNumStates());
 			um.addUttModel(m);
 			m.setPhoneName(fv.getFeatureAsString(featureIndex, feaDef));
