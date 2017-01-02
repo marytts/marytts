@@ -151,17 +151,17 @@ public class FeatureProcessorIT {
 		Element next = phoneTargets.get(1).getMaryxmlElement();
 		for (Target t : phoneTargets) {
 			Assert.assertEquals(prevprev,
-                                prevprevSegmentNavigator.getElement(t),
+                                prevprevSegmentNavigator.getElement(t.getMaryxmlElement()),
                                 "Mismatch: expected " + getPhoneName(prevprev) + ", got "
-                                + getPhoneName(prevprevSegmentNavigator.getElement(t)));
-            Assert.assertEquals(prev, prevSegmentNavigator.getElement(t));
-            Assert.assertEquals(seg, segmentNavigator.getElement(t));
-            Assert.assertEquals(next, nextSegmentNavigator.getElement(t),
-                                "Mismatch: expected " + getPhoneName(next) + ", got " + getPhoneName(nextSegmentNavigator.getElement(t)));
+                                + getPhoneName(prevprevSegmentNavigator.getElement(t.getMaryxmlElement())));
+            Assert.assertEquals(prev, prevSegmentNavigator.getElement(t.getMaryxmlElement()));
+            Assert.assertEquals(seg, segmentNavigator.getElement(t.getMaryxmlElement()));
+            Assert.assertEquals(next, nextSegmentNavigator.getElement(t.getMaryxmlElement()),
+                                "Mismatch: expected " + getPhoneName(next) + ", got " + getPhoneName(nextSegmentNavigator.getElement(t.getMaryxmlElement())));
             prevprev = prev;
             prev = seg;
             seg = next;
-            next = nextnextSegmentNavigator.getElement(t);
+            next = nextnextSegmentNavigator.getElement(t.getMaryxmlElement());
         }
     }
 
@@ -188,18 +188,18 @@ public class FeatureProcessorIT {
         Element firstSegPhrase2 = MaryDomUtils.getFirstChildElement(firstSylPhrase2);
         Target t1 = new Target(getPhoneName(lastSegPhrase1), lastSegPhrase1);
         Target t2 = new Target(getPhoneName(firstSegPhrase2), firstSegPhrase2);
-        Assert.assertEquals(lastSylPhrase1, syllableNavigator.getElement(t1));
-        Assert.assertEquals(prevSylPhrase1, prevSyllableNavigator.getElement(t1));
-        Assert.assertNull(prevprevSyllableNavigator.getElement(t1));
+        Assert.assertEquals(lastSylPhrase1, syllableNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(prevSylPhrase1, prevSyllableNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertNull(prevprevSyllableNavigator.getElement(t1.getMaryxmlElement()));
         // syllable navigator crosses phrase boundaries
-        Assert.assertEquals(firstSylPhrase2, nextSyllableNavigator.getElement(t1));
-        Assert.assertEquals(secondSylPhrase2, nextnextSyllableNavigator.getElement(t1));
+        Assert.assertEquals(firstSylPhrase2, nextSyllableNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(secondSylPhrase2, nextnextSyllableNavigator.getElement(t1.getMaryxmlElement()));
         // and for the other target:
-        Assert.assertEquals(prevSylPhrase1, prevprevSyllableNavigator.getElement(t2));
-        Assert.assertEquals(lastSylPhrase1, prevSyllableNavigator.getElement(t2));
-        Assert.assertEquals(firstSylPhrase2, syllableNavigator.getElement(t2));
-        Assert.assertEquals(secondSylPhrase2, nextSyllableNavigator.getElement(t2));
-        Assert.assertEquals(thirdSylPhrase2, nextnextSyllableNavigator.getElement(t2));
+        Assert.assertEquals(prevSylPhrase1, prevprevSyllableNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase1, prevSyllableNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(firstSylPhrase2, syllableNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(secondSylPhrase2, nextSyllableNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(thirdSylPhrase2, nextnextSyllableNavigator.getElement(t2.getMaryxmlElement()));
     }
 
     @Test
@@ -241,32 +241,32 @@ public class FeatureProcessorIT {
         Target t1 = new Target(getPhoneName(lastSegPhrase1), lastSegPhrase1);
         Target t2 = new Target(getPhoneName(firstSegPhrase2), firstSegPhrase2);
 
-        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t0));
-        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t1));
+        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t1.getMaryxmlElement()));
 
-        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t0));
-        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t1));
+        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t1.getMaryxmlElement()));
 
-        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t0));
-        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t1));
+        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t1.getMaryxmlElement()));
 
-        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t0));
-        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t1));
+        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t1.getMaryxmlElement()));
 
-        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t0));
-        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t1));
+        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t1.getMaryxmlElement()));
 
-        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t0));
-        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t1));
-        Assert.assertEquals(lastSylPhrase2, lastSylInPhraseNavigator.getElement(t2));
+        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase2, lastSylInPhraseNavigator.getElement(t2.getMaryxmlElement()));
 
-        Assert.assertEquals(firstWord, wordNavigator.getElement(t0));
-        Assert.assertEquals(firstWordPhrase2, wordNavigator.getElement(t2));
+        Assert.assertEquals(firstWord, wordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(firstWordPhrase2, wordNavigator.getElement(t2.getMaryxmlElement()));
 
-        Assert.assertEquals(firstWordPhrase2, nextWordNavigator.getElement(t0));
+        Assert.assertEquals(firstWordPhrase2, nextWordNavigator.getElement(t0.getMaryxmlElement()));
 
-        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t0));
-        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t2));
+        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t2.getMaryxmlElement()));
     }
 
     @Test
