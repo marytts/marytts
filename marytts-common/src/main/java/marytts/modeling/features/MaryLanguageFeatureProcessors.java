@@ -91,7 +91,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		}
 
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target);
+			Element segment = navigator.getElement(target.getMaryxmlElement());
 			if (segment == null)
 				return values.get(pauseSymbol);
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -198,7 +198,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		}
 
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target);
+			Element segment = navigator.getElement(target.getMaryxmlElement());
 			if (segment == null)
 				return values.get("0");
 			String ph;
@@ -248,7 +248,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 * @return a guess at the part-of-speech for the item
 		 */
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return values.get("0");
 			String pos = word.getAttribute("pos");
@@ -295,13 +295,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return values.get("0");
 			String pos = word.getAttribute("pos");
@@ -395,13 +395,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Give back the phone class of the target
-		 * 
+		 *
 		 * @param target
 		 *            target
 		 * @return the phone class of the target
 		 */
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target);
+			Element segment = navigator.getElement(target.getMaryxmlElement());
 			if (segment == null)
 				return values.get("0");
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -443,13 +443,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return the frequency of the current word, on a ten-point scale from 0=unknown=very rare to 9=very frequent.
 		 */
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return (byte) 0;
 			String wordString = MaryDomUtils.tokenText(word);

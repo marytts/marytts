@@ -48,50 +48,47 @@ import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * A collection of feature processors that operate on Target objects.
- * 
+ *
  * @author schroed
  *
  */
 public class MaryGenericFeatureProcessors {
 	/**
 	 * Navigate from a target to an item. Classes implementing this interface will retrieve meaningful items given the target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 */
 	public static interface TargetElementNavigator {
 		/**
 		 * Given the target, retrieve an XML Element.
-		 * 
+		 *
 		 * @param target
 		 *            target
 		 * @return an item selected according to this navigator, or null if there is no such item.
 		 */
-		public Element getElement(Target target);
+		public Element getElement(Element target);
 	}
 
 	/**
 	 * Retrieve the segment belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class SegmentNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			return target.getMaryxmlElement();
+		public Element getElement(Element target) {
+			return target;
 		}
 	}
 
 	/**
 	 * Retrieve the segment preceding the segment which belongs to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class PrevSegmentNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
 			if (sentence == null)
 				return null;
@@ -104,15 +101,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the segment two before the segment which belongs to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class PrevPrevSegmentNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
 			if (sentence == null)
 				return null;
@@ -126,15 +120,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the segment following the segment which belongs to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class NextSegmentNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
 			if (sentence == null)
 				return null;
@@ -147,15 +138,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the segment two after the segment which belongs to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class NextNextSegmentNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
 			if (sentence == null)
 				return null;
@@ -172,10 +160,7 @@ public class MaryGenericFeatureProcessors {
 	 *
 	 */
 	public static class FirstSegmentInWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word == null)
 				return null;
@@ -194,10 +179,7 @@ public class MaryGenericFeatureProcessors {
 	 *
 	 */
 	public static class LastSegmentInWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word == null)
 				return null;
@@ -216,10 +198,7 @@ public class MaryGenericFeatureProcessors {
 	 *
 	 */
 	public static class FirstSyllableInWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word == null)
 				return null;
@@ -238,10 +217,7 @@ public class MaryGenericFeatureProcessors {
 	 *
 	 */
 	public static class LastSyllableInWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word == null)
 				return null;
@@ -257,15 +233,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the syllable belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class SyllableNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
 				return null;
 			Element syllable = (Element) segment.getParentNode();
@@ -279,15 +252,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the syllable before the syllable belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class PrevSyllableNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element syllable = (Element) segment.getParentNode();
@@ -313,15 +283,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the syllable two before the syllable belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class PrevPrevSyllableNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element syllable = (Element) segment.getParentNode();
@@ -348,15 +315,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the syllable following the syllable belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class NextSyllableNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element syllable = (Element) segment.getParentNode();
@@ -382,15 +346,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the syllable two after the syllable belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class NextNextSyllableNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element syllable = (Element) segment.getParentNode();
@@ -417,15 +378,12 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Retrieve the word belonging to this target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
 	public static class WordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word != null) {
 				assert word.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
@@ -437,10 +395,7 @@ public class MaryGenericFeatureProcessors {
 
 	/** Last syllable in phrase. */
 	public static class LastSyllableInPhraseNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
 			if (phrase == null)
 				return null;
@@ -455,10 +410,7 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	public static class NextWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -491,10 +443,7 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	public static class PrevWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -527,10 +476,7 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	public static class FirstSegmentNextWordNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element current;
 			if (segment.getTagName().equals(MaryXML.PHONE)) {
 				Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -570,10 +516,7 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	public static class LastWordInSentenceNavigator implements TargetElementNavigator {
-		public Element getElement(Target target) {
-			Element segment = target.getMaryxmlElement();
-			if (segment == null)
-				return null;
+		public Element getElement(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
 			if (sentence == null)
 				return null;
@@ -633,7 +576,7 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Is the given half phone target a left or a right half?
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
@@ -666,7 +609,7 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Sentence Style for the given target
-	 * 
+	 *
 	 * @author Sathish Chandra Pammi
 	 *
 	 */
@@ -733,13 +676,13 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return "1" if the syllable is accented; otherwise "0"
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable != null && syllable.hasAttribute("accent")) {
 				return (byte) 1;
 			} else {
@@ -770,13 +713,13 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return "1" if the syllable is stressed; otherwise "0"
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			String value = syllable.getAttribute("stress");
@@ -793,7 +736,7 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Syllable tone for the given target
-	 * 
+	 *
 	 * @author sathish pammi
 	 *
 	 */
@@ -816,13 +759,13 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return tone value
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			String value = syllable.getAttribute("tone");
@@ -853,7 +796,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * 
+		 *
 		 * @return the number of phrases in the sentence
 		 */
 		public byte process(Target target) {
@@ -963,10 +906,10 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the item to process
-		 * 
+		 *
 		 * @return the number of words in the phrase
 		 */
 		public byte process(Target target) {
@@ -1075,10 +1018,10 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the item to process
-		 * 
+		 *
 		 * @return the number of segments in the given word
 		 */
 		public byte process(Target target) {
@@ -1238,7 +1181,7 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Performs some processing on the given item.
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return the position of the phone in the syllable
@@ -1366,7 +1309,7 @@ public class MaryGenericFeatureProcessors {
 		 * @return the break level after the syllable returned by syllableNavigator
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			// is there another syllable following in the token?
@@ -1444,7 +1387,7 @@ public class MaryGenericFeatureProcessors {
 		 * @return classifies the syllable as "single", "final", "initial" or "mid"
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			String type;
@@ -1485,13 +1428,13 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Check if segment is a pause
-		 * 
+		 *
 		 * @param target
 		 *            the target to process
 		 * @return 0 if false, 1 if true
 		 */
 		public byte process(Target target) {
-			Element seg = navigator.getElement(target);
+			Element seg = navigator.getElement(target.getMaryxmlElement());
 			if (seg == null)
 				return 0;
 			if (seg.getTagName().equals(MaryXML.BOUNDARY))
@@ -1596,7 +1539,7 @@ public class MaryGenericFeatureProcessors {
 		 * For the given syllable item, return its tobi accent, or 0 if there is none.
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			String accent = syllable.getAttribute("accent");
@@ -1634,7 +1577,7 @@ public class MaryGenericFeatureProcessors {
 		 * For the given syllable item, return its tobi end tone, or 0 if there is none.
 		 */
 		public byte process(Target target) {
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.SENTENCE);
@@ -2481,7 +2424,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
@@ -2510,7 +2453,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
@@ -2542,7 +2485,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
@@ -2578,7 +2521,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
@@ -2616,7 +2559,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public byte process(Target target) {
-			Element word = navigator.getElement(target);
+			Element word = navigator.getElement(target.getMaryxmlElement());
 			if (word == null)
 				return 0;
 			Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
@@ -2643,7 +2586,7 @@ public class MaryGenericFeatureProcessors {
 
 	/**
 	 * Determine the prosodic property of a target
-	 * 
+	 *
 	 * @author Anna Hunecke
 	 *
 	 */
@@ -2670,7 +2613,7 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Determine the prosodic property of the target
-		 * 
+		 *
 		 * @param target
 		 *            the target
 		 * @return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent 3 - nuclear accent, 4 - phrase final high, 5 - phrase
@@ -2678,7 +2621,7 @@ public class MaryGenericFeatureProcessors {
 		 */
 		public byte process(Target target) {
 			// first find out if syllable is stressed
-			Element syllable = navigator.getElement(target);
+			Element syllable = navigator.getElement(target.getMaryxmlElement());
 			if (syllable == null)
 				return (byte) 0;
 			boolean stressed = false;
@@ -2794,7 +2737,7 @@ public class MaryGenericFeatureProcessors {
 
 		/**
 		 * Compute log f0 and log f0 delta for the given target.
-		 * 
+		 *
 		 * @param target
 		 *            target
 		 * @param delta
