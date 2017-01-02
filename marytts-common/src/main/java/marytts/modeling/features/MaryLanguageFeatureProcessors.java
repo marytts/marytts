@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -53,7 +53,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 	/**
 	 * The phone symbol for the given target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
@@ -65,7 +65,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Initialise a phone feature processor.
-		 * 
+		 *
 		 * @param name
 		 *            the name of the feature
 		 * @param possibleValues
@@ -90,8 +90,12 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 			return values.getStringValues();
 		}
 
+        @Deprecated
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
 			if (segment == null)
 				return values.get(pauseSymbol);
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -109,7 +113,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 	/**
 	 * The unit name for the given half phone target.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
@@ -120,7 +124,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Initialise a UnitName feature processor.
-		 * 
+		 *
 		 * @param possiblePhonemes
 		 *            the possible phonemes
 		 * @param pauseSymbol
@@ -168,7 +172,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 	/**
 	 * A parametrisable class which can retrieve all sorts of phone features, given a phone set.
-	 * 
+	 *
 	 * @author Marc Schr&ouml;der
 	 *
 	 */
@@ -197,8 +201,12 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 			return values.getStringValues();
 		}
 
+        @Deprecated
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
 			if (segment == null)
 				return values.get("0");
 			String ph;
@@ -247,8 +255,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
+        @Deprecated
 		public byte process(Target target) {
-			Element word = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
+			Element word = navigator.getElement(segment);
 			if (word == null)
 				return values.get("0");
 			String pos = word.getAttribute("pos");
@@ -300,8 +313,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
+        @Deprecated
 		public byte process(Target target) {
-			Element word = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
+			Element word = navigator.getElement(segment);
 			if (word == null)
 				return values.get("0");
 			String pos = word.getAttribute("pos");
@@ -338,16 +356,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 			return values.getStringValues();
 		}
 
+        @Deprecated
 		public byte process(Target target) {
-			Element s = target.getMaryxmlElement();
-			if (s == null) {
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
+			if (segment == null) {
 				return 0;
 			}
-			if (!s.getTagName().equals(MaryXML.PHONE))
+			if (!segment.getTagName().equals(MaryXML.PHONE))
 				return 0;
 
-			while ((s = MaryDomUtils.getNextSiblingElement(s)) != null) {
-				String ph = s.getAttribute("p");
+			while ((segment = MaryDomUtils.getNextSiblingElement(segment)) != null) {
+				String ph = segment.getAttribute("p");
 				if ("+".equals(phoneSet.getPhoneFeature(ph, "vc"))) {
 					return values.get("onset");
 				}
@@ -358,7 +380,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 	/**
 	 * The phone class for the given target.
-	 * 
+	 *
 	 * @author Anna Hunecke
 	 *
 	 */
@@ -370,7 +392,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 
 		/**
 		 * Initialise the feature processor.
-		 * 
+		 *
 		 * @param phones2Classes
 		 *            the mapping of phones to their classes
 		 * @param classes
@@ -400,8 +422,12 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            target
 		 * @return the phone class of the target
 		 */
+        @Deprecated
 		public byte process(Target target) {
-			Element segment = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
 			if (segment == null)
 				return values.get("0");
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -448,8 +474,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the target to process
 		 * @return the frequency of the current word, on a ten-point scale from 0=unknown=very rare to 9=very frequent.
 		 */
+        @Deprecated
 		public byte process(Target target) {
-			Element word = navigator.getElement(target.getMaryxmlElement());
+            return process(target.getMaryxmlElement());
+        }
+
+		public byte process(Element segment) {
+			Element word = navigator.getElement(segment);
 			if (word == null)
 				return (byte) 0;
 			String wordString = MaryDomUtils.tokenText(word);
