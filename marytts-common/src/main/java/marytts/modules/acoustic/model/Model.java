@@ -31,7 +31,6 @@ import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.TargetFeatureComputer;
-import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
@@ -195,10 +194,10 @@ public abstract class Model {
 		assert applyToElements != null;
 		assert predictFromElements.size() == applyToElements.size();
 
-		List<Target> predictFromTargets = getTargets(predictFromElements);
+		List<FeatureVector> predictFromTargets = getTargets(predictFromElements);
 
 		for (int i = 0; i < applyToElements.size(); i++) {
-			Target target = predictFromTargets.get(i);
+			FeatureVector target = predictFromTargets.get(i);
 
 			float targetValue;
 			try {
@@ -247,38 +246,13 @@ public abstract class Model {
 	 *            List of Elements
 	 * @return List of Targets
 	 */
-	protected List<Target> getTargets(List<Element> elements) {
-		List<Target> targets = new ArrayList<Target>(elements.size());
-		for (Element element : elements) {
-			assert element.getTagName() == MaryXML.PHONE;
-			String phone = MaryDomUtils.getPhoneSymbol(element);
-			Target target = new Target(phone, element);
-			targets.add(target);
-			// compute FeatureVectors for Targets:
-			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
-			target.setFeatureVector(targetFeatureVector); // this is critical!
-			element.setUserData("target", target, Target.targetFeatureCloner);
-		}
-		return targets;
-	}
-
-	/**
-	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
-	 * corresponding Element.
-	 *
-	 * @param elements
-	 *            List of Elements
-	 * @return List of Targets
-	 */
-	protected List<FeatureVector> getTargetVectors(List<Element> elements) {
+	protected List<FeatureVector> getTargets(List<Element> elements) {
 		List<FeatureVector> targets = new ArrayList<FeatureVector>(elements.size());
 		for (Element element : elements) {
 			assert element.getTagName() == MaryXML.PHONE;
-			String phone = MaryDomUtils.getPhoneSymbol(element);
-			Target target = new Target(phone, element);
 			// compute FeatureVectors for Targets:
-			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
-			targets.add(targetFeatureVector);
+			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(element);
+			targets.add(targetFeatureVector); // this is critical!
 		}
 		return targets;
 	}
@@ -292,7 +266,7 @@ public abstract class Model {
 	 * @throws Exception
 	 *             if the target value cannot be predicted
 	 */
-	protected abstract float evaluate(Target target) throws Exception;
+	protected abstract float evaluate(FeatureVector target) throws Exception;
 
 	// several getters:
 

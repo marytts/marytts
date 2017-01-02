@@ -30,7 +30,6 @@ import marytts.modeling.features.FeatureRegistry;
 import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
-import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
@@ -94,12 +93,12 @@ public class TargetFeatureLister extends InternalModule {
 	 */
 	public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
 		String pauseSymbol = featureComputer.getPauseSymbol();
-		List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
+		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
 		// Third, compute the feature vectors and convert them to text
 		String header = featureComputer.getAllFeatureProcessorNamesAndValues();
 		StringBuilder text = new StringBuilder();
 		StringBuilder bin = new StringBuilder();
-		for (Target target : targets) {
+		for (Element target : targets) {
 			FeatureVector features = featureComputer.computeFeatureVector(target);
 			text.append(featureComputer.toStringValues(features)).append("\n");
 			bin.append(features.toString()).append("\n");
@@ -121,16 +120,13 @@ public class TargetFeatureLister extends InternalModule {
 	 */
 	public List<FeatureVector> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
 		String pauseSymbol = featureComputer.getPauseSymbol();
-		List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
-        List<FeatureVector> target_vectors = new ArrayList<FeatureVector>();
-		for (Target target : targets) {
-			if (!target.hasFeatureVector()) {
-				FeatureVector features = featureComputer.computeFeatureVector(target);
-				target.setFeatureVector(features);
-			}
-            target_vectors.add(target.getFeatureVector());
-		}
-		return target_vectors;
+		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
+        List<FeatureVector> target_features = new ArrayList<FeatureVector>();
+
+		for (Element target : targets) {
+            target_features.add(featureComputer.computeFeatureVector(target));
+        }
+		return target_features;
 	}
 
 	/**
@@ -143,7 +139,7 @@ public class TargetFeatureLister extends InternalModule {
 	 *            pauseSymbol
 	 * @return TargetFeatureLister
 	 */
-	protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
+	protected List<Element> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
 		return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
 	}
 
@@ -156,10 +152,11 @@ public class TargetFeatureLister extends InternalModule {
 	 *            silenceSymbol
 	 * @return a list of Target objects
 	 */
-	public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
-		List<Target> targets = new ArrayList<Target>();
+	public static List<Element> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
+		List<Element> targets = new ArrayList<Element>();
 		if (segmentsAndBoundaries.size() == 0)
-			return targets;
+			return segmentsAndBoundaries;
+
 		Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size() - 1);
 		if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
 			Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
@@ -168,15 +165,7 @@ public class TargetFeatureLister extends InternalModule {
 			parent.appendChild(finalPause);
 			segmentsAndBoundaries.add(finalPause);
 		}
-		for (Element sOrB : segmentsAndBoundaries) {
-			String phone = MaryDomUtils.getPhoneSymbol(sOrB);
-			Target t = (Target) sOrB.getUserData("target");
-			if (t == null) {
-				t = new Target(phone, sOrB);
-				sOrB.setUserData("target", t, Target.targetFeatureCloner);
-			}
-			targets.add(t);
-		}
-		return targets;
+
+		return segmentsAndBoundaries;
 	}
 }

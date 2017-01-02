@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -31,6 +31,7 @@
  */
 package marytts.modeling.features;
 
+import org.w3c.dom.Element;
 
 /**
  * Performs a specific type of processing on an item and returns an object.
@@ -39,10 +40,10 @@ public interface ShortValuedFeatureProcessor extends MaryFeatureProcessor {
 	/**
 	 * List the possible values of the feature processor, as clear-text values. Short values as returned by process() can be
 	 * translated into their string equivalent by using the short value as an index in the String[] returned.
-	 * 
+	 *
 	 * @return an array containing the possible return values of this feature processor, in String representation.
 	 */
 	public String[] getValues();
 
-	public short process(Target target);
+	public short process(Element target);
 }

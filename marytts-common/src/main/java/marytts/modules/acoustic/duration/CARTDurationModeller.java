@@ -32,10 +32,10 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureDefinition;
+import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.modeling.features.TargetFeatureComputer;
-import marytts.modeling.features.Target;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
@@ -214,8 +214,7 @@ public class CARTDurationModeller extends InternalModule {
 			while ((segmentOrBoundary = (Element) tw.nextNode()) != null)
             {
 				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
-				Target t = new Target(phone, segmentOrBoundary);
-				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+				FeatureVector t = currentFeatureComputer.computeFeatureVector(segmentOrBoundary);
 				float durInSeconds;
 
                 // a pause
@@ -289,8 +288,7 @@ public class CARTDurationModeller extends InternalModule {
 
 		assert currentPauseFeatureComputer != null;
 		String phone = previous.getAttribute("p");
-		Target t = new Target(phone, previous);
-		t.setFeatureVector(currentPauseFeatureComputer.computeFeatureVector(t));
+		FeatureVector t = currentPauseFeatureComputer.computeFeatureVector(previous);
 
 		String durationString = currentPauseTree.getMostProbableString(t);
 		// strip off "ms"

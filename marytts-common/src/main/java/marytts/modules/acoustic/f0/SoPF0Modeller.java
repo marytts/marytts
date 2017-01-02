@@ -31,13 +31,13 @@ import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
+import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modeling.machinelearning.SoP;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.modeling.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -237,8 +237,7 @@ public class SoPF0Modeller extends InternalModule {
 					String phone = vowel.getAttribute("p");
 					System.out.print("PHONE: " + phone + "  ");
 
-					Target t = new Target(phone, vowel);
-					t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+					FeatureVector t = currentFeatureComputer.computeFeatureVector(vowel);
 
 					// float[] left = (float[])currentLeftSoP.interpret(t, 0);
 					float left = (float) currentLeftSop.solve(t, voiceFeatDef, logF0, false);

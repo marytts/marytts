@@ -6,8 +6,10 @@ import org.testng.annotations.*;
 
 import java.util.Locale;
 
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.string.ByteStringTranslator;
+
+import org.w3c.dom.Element;
 
 public class TargetFeatureComputerTest {
 
@@ -57,7 +59,7 @@ public class TargetFeatureComputerTest {
 		}
 
 		@Override
-		public byte process(Target target) {
+		public byte process(Element target) {
 			return 0;
 		}
 

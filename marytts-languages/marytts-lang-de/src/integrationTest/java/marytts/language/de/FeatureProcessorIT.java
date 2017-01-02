@@ -27,7 +27,6 @@ import marytts.modeling.features.ByteValuedFeatureProcessor;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.server.Mary;
-import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -53,23 +52,22 @@ public class FeatureProcessorIT {
 	}
 
 	// /// Utilities
-	private Target createRareWordTarget() {
+	private Element createRareWordTarget() {
 		return createWordTarget("Sprachsynthese");
 	}
 
-	private Target createFrequentWordTarget() {
+	private Element createFrequentWordTarget() {
 		return createWordTarget("der");
 	}
 
-	private Target createWordTarget(String word) {
+	private Element createWordTarget(String word) {
 		Document doc = MaryXML.newDocument();
 		Element s = MaryXML.appendChildElement(doc.getDocumentElement(), MaryXML.SENTENCE);
 		Element t = MaryXML.appendChildElement(s, MaryXML.TOKEN);
 		MaryDomUtils.setTokenText(t, word);
 		Element syl = MaryXML.appendChildElement(t, MaryXML.SYLLABLE);
 		Element ph = MaryXML.appendChildElement(syl, MaryXML.PHONE);
-		Target target = new Target("dummy", ph);
-		return target;
+        return ph;
 	}
 
 	// /// Tests
@@ -78,8 +76,8 @@ public class FeatureProcessorIT {
 	public void testWordFrequency() {
 		// Setup SUT
 		ByteValuedFeatureProcessor wf = (ByteValuedFeatureProcessor) fpm.getFeatureProcessor("word_frequency");
-		Target t1 = createRareWordTarget();
-		Target t2 = createFrequentWordTarget();
+		Element t1 = createRareWordTarget();
+		Element t2 = createFrequentWordTarget();
 		// Exercise SUT
 		byte f1 = wf.process(t1);
 		byte f2 = wf.process(t2);

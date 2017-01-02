@@ -30,7 +30,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.MaryGenericFeatureProcessors.TargetElementNavigator;
 // import marytts.modeling.features.HalfPhoneTarget;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.BasicConfigurator;
@@ -48,8 +48,7 @@ import org.testng.annotations.*;
  */
 public class FeatureProcessorIT {
 	private static MaryData acoustparams;
-	private static List<Target> phoneTargets;
-	private static List<Target> halfphoneTargets;
+	private static List<Element> phoneTargets;
 	private static FeatureProcessorManager mgr;
 
 	@BeforeClass
@@ -58,8 +57,7 @@ public class FeatureProcessorIT {
 
 		acoustparams = new MaryData(MaryDataType.ACOUSTPARAMS, Locale.ENGLISH);
 		acoustparams.readFrom(FeatureProcessorIT.class.getResourceAsStream("test1.acoustparams"));
-		phoneTargets = new ArrayList<Target>();
-		halfphoneTargets = new ArrayList<Target>();
+		phoneTargets = new ArrayList<Element>();
 		Document doc = acoustparams.getDocument();
 		NodeIterator segs = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
 		Element s;
@@ -69,9 +67,7 @@ public class FeatureProcessorIT {
 				phone = s.getAttribute("p");
 			else
 				phone = "_"; // boundary --> pause
-			phoneTargets.add(new Target(phone, s));
-			// halfphoneTargets.add(new HalfPhoneTarget(phone, s, true));
-			// halfphoneTargets.add(new HalfPhoneTarget(phone, s, false));
+			phoneTargets.add(s);
 		}
 
 		try {
@@ -112,24 +108,6 @@ public class FeatureProcessorIT {
 		Assert.assertEquals(segs.getLength() + boundaries.getLength(), phoneTargets.size());
 	}
 
-	@Test
-	public void targetHasMatchingXML() {
-		for (Target p : phoneTargets) {
-			targetHasMatchingXML(p);
-		}
-		for (Target p : halfphoneTargets) {
-			targetHasMatchingXML(p);
-		}
-
-	}
-
-	private void targetHasMatchingXML(Target p) {
-		Element sOrB = p.getMaryxmlElement();
-		Assert.assertNotNull(sOrB);
-		Assert.assertTrue(sOrB.getTagName().equals(MaryXML.PHONE) || sOrB.getTagName().equals(MaryXML.BOUNDARY));
-		Assert.assertTrue(p.getName().equals(getPhoneName(sOrB)));
-	}
-
 	private String getPhoneName(Element segmentOrBoundary) {
 		if (segmentOrBoundary == null)
 			return "null";
@@ -150,21 +128,21 @@ public class FeatureProcessorIT {
 		TargetElementNavigator nextnextSegmentNavigator = new MaryGenericFeatureProcessors.NextNextSegmentNavigator();
 		Element prevprev = null;
 		Element prev = null;
-		Element seg = phoneTargets.get(0).getMaryxmlElement();
-		Element next = phoneTargets.get(1).getMaryxmlElement();
-		for (Target t : phoneTargets) {
+		Element seg = phoneTargets.get(0);
+		Element next = phoneTargets.get(1);
+		for (Element t : phoneTargets) {
 			Assert.assertEquals(prevprev,
-                                prevprevSegmentNavigator.getElement(t.getMaryxmlElement()),
+                                prevprevSegmentNavigator.getElement(t),
                                 "Mismatch: expected " + getPhoneName(prevprev) + ", got "
-                                + getPhoneName(prevprevSegmentNavigator.getElement(t.getMaryxmlElement())));
-            Assert.assertEquals(prev, prevSegmentNavigator.getElement(t.getMaryxmlElement()));
-            Assert.assertEquals(seg, segmentNavigator.getElement(t.getMaryxmlElement()));
-            Assert.assertEquals(next, nextSegmentNavigator.getElement(t.getMaryxmlElement()),
-                                "Mismatch: expected " + getPhoneName(next) + ", got " + getPhoneName(nextSegmentNavigator.getElement(t.getMaryxmlElement())));
+                                + getPhoneName(prevprevSegmentNavigator.getElement(t)));
+            Assert.assertEquals(prev, prevSegmentNavigator.getElement(t));
+            Assert.assertEquals(seg, segmentNavigator.getElement(t));
+            Assert.assertEquals(next, nextSegmentNavigator.getElement(t),
+                                "Mismatch: expected " + getPhoneName(next) + ", got " + getPhoneName(nextSegmentNavigator.getElement(t)));
             prevprev = prev;
             prev = seg;
             seg = next;
-            next = nextnextSegmentNavigator.getElement(t.getMaryxmlElement());
+            next = nextnextSegmentNavigator.getElement(t);
         }
     }
 
@@ -189,20 +167,20 @@ public class FeatureProcessorIT {
         Element thirdSylPhrase2 = (Element) syllables2.item(2);
         Element lastSegPhrase1 = MaryDomUtils.getLastChildElement(lastSylPhrase1);
         Element firstSegPhrase2 = MaryDomUtils.getFirstChildElement(firstSylPhrase2);
-        Target t1 = new Target(getPhoneName(lastSegPhrase1), lastSegPhrase1);
-        Target t2 = new Target(getPhoneName(firstSegPhrase2), firstSegPhrase2);
-        Assert.assertEquals(lastSylPhrase1, syllableNavigator.getElement(t1.getMaryxmlElement()));
-        Assert.assertEquals(prevSylPhrase1, prevSyllableNavigator.getElement(t1.getMaryxmlElement()));
-        Assert.assertNull(prevprevSyllableNavigator.getElement(t1.getMaryxmlElement()));
+        Element t1 = lastSegPhrase1;
+        Element t2 = firstSegPhrase2;
+        Assert.assertEquals(lastSylPhrase1, syllableNavigator.getElement(t1));
+        Assert.assertEquals(prevSylPhrase1, prevSyllableNavigator.getElement(t1));
+        Assert.assertNull(prevprevSyllableNavigator.getElement(t1));
         // syllable navigator crosses phrase boundaries
-        Assert.assertEquals(firstSylPhrase2, nextSyllableNavigator.getElement(t1.getMaryxmlElement()));
-        Assert.assertEquals(secondSylPhrase2, nextnextSyllableNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(firstSylPhrase2, nextSyllableNavigator.getElement(t1));
+        Assert.assertEquals(secondSylPhrase2, nextnextSyllableNavigator.getElement(t1));
         // and for the other target:
-        Assert.assertEquals(prevSylPhrase1, prevprevSyllableNavigator.getElement(t2.getMaryxmlElement()));
-        Assert.assertEquals(lastSylPhrase1, prevSyllableNavigator.getElement(t2.getMaryxmlElement()));
-        Assert.assertEquals(firstSylPhrase2, syllableNavigator.getElement(t2.getMaryxmlElement()));
-        Assert.assertEquals(secondSylPhrase2, nextSyllableNavigator.getElement(t2.getMaryxmlElement()));
-        Assert.assertEquals(thirdSylPhrase2, nextnextSyllableNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(prevSylPhrase1, prevprevSyllableNavigator.getElement(t2));
+        Assert.assertEquals(lastSylPhrase1, prevSyllableNavigator.getElement(t2));
+        Assert.assertEquals(firstSylPhrase2, syllableNavigator.getElement(t2));
+        Assert.assertEquals(secondSylPhrase2, nextSyllableNavigator.getElement(t2));
+        Assert.assertEquals(thirdSylPhrase2, nextnextSyllableNavigator.getElement(t2));
     }
 
     @Test
@@ -240,47 +218,47 @@ public class FeatureProcessorIT {
         Element firstWordPhrase2 = (Element) firstSylPhrase2.getParentNode();
         Element lastWord = (Element) lastSylPhrase2.getParentNode();
 
-        Target t0 = new Target(getPhoneName(firstSegPhrase1), firstSegPhrase1);
-        Target t1 = new Target(getPhoneName(lastSegPhrase1), lastSegPhrase1);
-        Target t2 = new Target(getPhoneName(firstSegPhrase2), firstSegPhrase2);
+        Element t0 = firstSegPhrase1;
+        Element t1 = lastSegPhrase1;
+        Element t2 = firstSegPhrase2;
 
-        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t0));
+        Assert.assertEquals(firstSegPhrase1, firstSegInWordNavigator.getElement(t1));
 
-        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t0));
+        Assert.assertEquals(firstSegPhrase2, firstSegNextWordNavigator.getElement(t1));
 
-        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t0));
+        Assert.assertEquals(lastSegPhrase1, lastSegInWordNavigator.getElement(t1));
 
-        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t0));
+        Assert.assertEquals(firstSylPhrase1, firstSylInWordNavigator.getElement(t1));
 
-        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t1.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t0));
+        Assert.assertEquals(lastSylPhrase1, lastSylInWordNavigator.getElement(t1));
 
-        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t1.getMaryxmlElement()));
-        Assert.assertEquals(lastSylPhrase2, lastSylInPhraseNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t0));
+        Assert.assertEquals(lastSylPhrase1, lastSylInPhraseNavigator.getElement(t1));
+        Assert.assertEquals(lastSylPhrase2, lastSylInPhraseNavigator.getElement(t2));
 
-        Assert.assertEquals(firstWord, wordNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(firstWordPhrase2, wordNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(firstWord, wordNavigator.getElement(t0));
+        Assert.assertEquals(firstWordPhrase2, wordNavigator.getElement(t2));
 
-        Assert.assertEquals(firstWordPhrase2, nextWordNavigator.getElement(t0.getMaryxmlElement()));
+        Assert.assertEquals(firstWordPhrase2, nextWordNavigator.getElement(t0));
 
-        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t0.getMaryxmlElement()));
-        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t2.getMaryxmlElement()));
+        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t0));
+        Assert.assertEquals(lastWord, lastWordInSentenceNavigator.getElement(t2));
     }
 
-    @Test
-    public void phone() {
-        ByteValuedFeatureProcessor phoneFP = (ByteValuedFeatureProcessor) mgr.getFeatureProcessor("phone");
-        for (Target t : halfphoneTargets) {
-            String phone = getPhoneName(t.getMaryxmlElement());
-            String predicted = phoneFP.getValues()[phoneFP.process(t)];
-            Assert.assertEquals(phone, predicted);
-        }
-    }
+    // @Test
+    // public void phone() {
+    //     ByteValuedFeatureProcessor phoneFP = (ByteValuedFeatureProcessor) mgr.getFeatureProcessor("phone");
+    //     for (Target t : halfphoneTargets) {
+    //         String phone = getPhoneName(t);
+    //         String predicted = phoneFP.getValues()[phoneFP.process(t)];
+    //         Assert.assertEquals(phone, predicted);
+    //     }
+    // }
 
     // TODO: write test methods for the all the other feature processors...
 }

@@ -34,7 +34,7 @@ import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.modeling.features.FeatureFileReader;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -169,10 +169,9 @@ public class PolynomialF0Modeller extends InternalModule {
 				}
 				// only predict F0 values if we have a vowel:
 				if (vowel != null) {
-					// Now predict the f0 values using the CARTs:ssh
+					// Now predict the f0 values using the CARTs
 					String phone = vowel.getAttribute("p");
-					Target t = new Target(phone, vowel);
-					t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+					FeatureVector t = currentFeatureComputer.computeFeatureVector(vowel);
 					// double[] coeffs = ArrayUtils.toDoubleArray((float[]) currentGraph.interpret(t));
 					int[] leafContours = (int[]) currentGraph.interpret(t);
 					if (leafContours == null) { // no prediction :-(

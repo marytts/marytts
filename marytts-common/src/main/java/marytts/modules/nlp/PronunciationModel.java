@@ -44,7 +44,6 @@ import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
-import marytts.modeling.features.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.modules.synthesis.Voice;
