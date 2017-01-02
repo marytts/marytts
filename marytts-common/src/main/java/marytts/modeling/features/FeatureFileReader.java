@@ -38,7 +38,7 @@ public class FeatureFileReader {
 
 	/**
 	 * Get a feature file reader representing the given feature file.
-	 * 
+	 *
 	 * @param fileName
 	 *            the filename of a valid feature file.
 	 * @return a feature file object representing the given file.
@@ -51,14 +51,12 @@ public class FeatureFileReader {
 		int fileType = MaryHeader.peekFileType(fileName);
 		if (fileType == MaryHeader.UNITFEATS)
 			return new FeatureFileReader(fileName);
-		else if (fileType == MaryHeader.HALFPHONE_UNITFEATS)
-			return new HalfPhoneFeatureFileReader(fileName);
 		throw new MaryConfigurationException("File " + fileName + ": Type " + fileType + " is not a known unit feature file type");
 	}
 
 	/**
 	 * Empty constructor; need to call load() separately when using this.
-	 * 
+	 *
 	 * @see load(String)
 	 */
 	public FeatureFileReader() {
@@ -114,7 +112,7 @@ public class FeatureFileReader {
 
 	/**
 	 * Get the unit feature vector for the given unit index number.
-	 * 
+	 *
 	 * @param unitIndex
 	 *            the absolute index number of a unit in the database
 	 * @return the corresponding feature vector
@@ -125,7 +123,7 @@ public class FeatureFileReader {
 
 	/**
 	 * Return a shallow copy of the array of feature vectors.
-	 * 
+	 *
 	 * @return a new array containing the internal feature vectors
 	 */
 	public FeatureVector[] getCopyOfFeatureVectors() {
@@ -134,7 +132,7 @@ public class FeatureFileReader {
 
 	/**
 	 * Return the internal array of feature vectors.
-	 * 
+	 *
 	 * @return the internal array of feature vectors.
 	 */
 	public FeatureVector[] getFeatureVectors() {
@@ -144,7 +142,7 @@ public class FeatureFileReader {
 	/**
 	 * feature vector mapping according to new feature definition Note: The new feature definition should be a subset of original
 	 * feature definition
-	 * 
+	 *
 	 * @param newFeatureDefinition
 	 * @return
 	 */
