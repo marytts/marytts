@@ -4,7 +4,6 @@ branches:
   only:
     - 6.x
     - master
-    - split_feature_targets
 
 language: java
 install: ./gradlew b
