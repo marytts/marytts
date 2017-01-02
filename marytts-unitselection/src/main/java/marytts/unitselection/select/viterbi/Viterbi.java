@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -48,7 +48,7 @@ import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.TargetCostFunction;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.modeling.features.DiphoneTarget;
 import marytts.util.MaryUtils;
 
@@ -64,14 +64,14 @@ import org.apache.log4j.Logger;
  * path that has the least cost. By default, if two candidates come from units that are adjacent in the database, the cost is 0
  * (i.e., they were spoken together, so they are a perfect match).
  * <p>
- * 
+ *
  * Repeat the previous process for each candidate in the next unit, creating a list of least cost paths between the candidates
  * between the current unit and the unit following it.
  * <p>
- * 
+ *
  * Toss out all candidates in the current unit that are not included in a path.
  * <p>
- * 
+ *
  * Move to the next unit and repeat the process.
  */
 public class Viterbi {
@@ -103,7 +103,7 @@ public class Viterbi {
 	/**
 	 * Creates a Viterbi class to process the given utterance. A queue of ViterbiPoints corresponding to the Items in the Relation
 	 * segs is built up.
-	 * 
+	 *
 	 * @param targets
 	 *            targets
 	 * @param database
@@ -113,7 +113,7 @@ public class Viterbi {
 	 * @param beamSize
 	 *            beamSize
 	 */
-	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, int beamSize) {
+	public Viterbi(List<TargetUnit> targets, UnitDatabase database, float wTargetCosts, int beamSize) {
 		this.database = database;
 		this.targetCostFunction = database.getTargetCostFunction();
 		this.joinCostFunction = database.getJoinCostFunction();
@@ -129,7 +129,7 @@ public class Viterbi {
 		this.nTargetCosts = 0;
 		ViterbiPoint last = null;
 		// for each segment, build a ViterbiPoint
-		for (Target target : targets) {
+		for (TargetUnit target : targets) {
 			ViterbiPoint nextPoint = new ViterbiPoint(target);
 
 			if (last != null) { // continue to build up the queue
@@ -152,7 +152,7 @@ public class Viterbi {
 	/**
 	 * Creates a Viterbi class to process the given utterance. A queue of ViterbiPoints corresponding to the Items in the Relation
 	 * segs is built up.
-	 * 
+	 *
 	 * @param targets
 	 *            targets
 	 * @param database
@@ -164,7 +164,7 @@ public class Viterbi {
 	 * @param beamSize
 	 *            beamSize
 	 */
-	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, float wSCosts, int beamSize) {
+	public Viterbi(List<TargetUnit> targets, UnitDatabase database, float wTargetCosts, float wSCosts, int beamSize) {
 		this.database = database;
 		this.targetCostFunction = database.getTargetCostFunction();
 		this.joinCostFunction = database.getJoinCostFunction();
@@ -180,7 +180,7 @@ public class Viterbi {
 		this.nTargetCosts = 0;
 		ViterbiPoint last = null;
 		// for each segment, build a ViterbiPoint
-		for (Target target : targets) {
+		for (TargetUnit target : targets) {
 			ViterbiPoint nextPoint = new ViterbiPoint(target);
 
 			if (last != null) { // continue to build up the queue
@@ -209,7 +209,7 @@ public class Viterbi {
 	 * one Path leading to each Candidate is retained, viz. the Path with the best Score. All that is left to do is to call
 	 * result() to get the best-rated path from among the paths associated with the last Point, and to associate the resulting
 	 * Candidates with the segment items they will realise.
-	 * 
+	 *
 	 * @throws SynthesisException
 	 *             if for any part of the target chain, no candidates can be found
 	 */
@@ -220,15 +220,15 @@ public class Viterbi {
 		for (ViterbiPoint point = firstPoint; point.next != null; point = point.next) {
 			// The candidates for the current item:
 			// candidate selection is carried out by UnitSelector
-			Target target = point.target;
+			TargetUnit target = point.target;
 			List<ViterbiCandidate> candidates = database.getCandidates(target);
 			if (candidates.size() == 0) {
 				if (target instanceof DiphoneTarget) {
 					logger.debug("No diphone '" + target.getName() + "' -- will build from halfphones");
 					DiphoneTarget dt = (DiphoneTarget) target;
 					// replace diphone viterbi point with two half-phone viterbi points
-					Target left = dt.left;
-					Target right = dt.right;
+					TargetUnit left = dt.left;
+					TargetUnit right = dt.right;
 					point.setTarget(left);
 					ViterbiPoint newP = new ViterbiPoint(right);
 					newP.next = point.next;
@@ -321,7 +321,7 @@ public class Viterbi {
 
 	/**
 	 * Collect and return the best path, as a List of SelectedUnit objects. Note: This is a replacement for result().
-	 * 
+	 *
 	 * @return the list of selected units, or null if no path could be found.
 	 */
 	public List<SelectedUnit> getSelectedUnits() {
@@ -337,7 +337,7 @@ public class Viterbi {
 		for (ViterbiPath path = best; path != null; path = path.getPrevious()) {
 			if (path.candidate != null) {
 				Unit u = path.candidate.unit;
-				Target t = path.candidate.target;
+				TargetUnit t = path.candidate.target;
 				if (u instanceof DiphoneUnit) {
 					assert t instanceof DiphoneTarget;
 					DiphoneUnit du = (DiphoneUnit) u;
@@ -464,7 +464,7 @@ public class Viterbi {
 	private ViterbiPath getPath(ViterbiPath path, ViterbiCandidate candidate) {
 		double cost;
 
-		Target candidateTarget = candidate.target;
+		TargetUnit candidateTarget = candidate.target;
 		Unit candidateUnit = candidate.unit;
 
 		double joinCost;
@@ -478,7 +478,7 @@ public class Viterbi {
 		} else {
 			// Join costs:
 			ViterbiCandidate prevCandidate = path.candidate;
-			Target prevTarget = prevCandidate.target;
+			TargetUnit prevTarget = prevCandidate.target;
 			Unit prevUnit = prevCandidate.unit;
 			joinCost = joinCostFunction.cost(prevTarget, prevUnit, candidateTarget, candidateUnit);
 			if (sCostFunction != null)

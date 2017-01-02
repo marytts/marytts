@@ -25,7 +25,7 @@ import java.util.List;
 import marytts.modeling.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.StatisticalCostFunction;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;
@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
 
 /**
  * The unit database of a voice
- * 
+ *
  * @author Marc Schr&ouml;der
  *
  */
@@ -104,13 +104,13 @@ public class UnitDatabase {
 
 	/**
 	 * Preselect a set of candidates that could be used to realise the given target.
-	 * 
+	 *
 	 * @param target
 	 *            a Target object representing an optimal unit
 	 * @return an <span style="color:red;">unsorted</span> ArrayList of ViterbiCandidates, each containing the (same) target and a
 	 *         (different) Unit object
 	 */
-	public List<ViterbiCandidate> getCandidates(Target target) {
+	public List<ViterbiCandidate> getCandidates(TargetUnit target) {
 		// BEGIN blacklisting
 		// The point of this is to get the value of the "blacklist" attribute in the first child element of the MaryXML
 		// and store it in the blacklist String variable.
@@ -152,7 +152,7 @@ public class UnitDatabase {
 	/**
 	 * For debugging, return the basename of the original audio file from which the unit is coming, as well as the start time in
 	 * that file.
-	 * 
+	 *
 	 * @param unit
 	 *            unit
 	 * @return a String containing basename followed by a space and the unit's start time, in seconds, from the beginning of the
@@ -176,7 +176,7 @@ public class UnitDatabase {
 
 	/**
 	 * For debugging, return the basename of the original audio file from which the unit is coming.
-	 * 
+	 *
 	 * @param unit
 	 *            unit
 	 * @return a String containing basename. If no basenameTimeline was specified for this voice, returns the string

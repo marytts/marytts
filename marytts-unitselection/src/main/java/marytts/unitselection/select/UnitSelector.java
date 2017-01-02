@@ -24,7 +24,7 @@ import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.viterbi.Viterbi;
 import marytts.util.MaryUtils;
@@ -35,7 +35,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * Selects the units for an utterance
- * 
+ *
  * @author Marc Schr&ouml;der
  *
  */
@@ -48,7 +48,7 @@ public class UnitSelector {
 
 	/**
 	 * Initialise the unit selector. Need to call load() separately.
-	 * 
+	 *
 	 * @see #load(UnitDatabase unitDatabase, float targetCostWeight, int beamSize)
 	 * @throws Exception
 	 *             Exception
@@ -72,7 +72,7 @@ public class UnitSelector {
 
 	/**
 	 * Select the units for the targets in the given list of tokens and boundaries. Collect them in a list and return it.
-	 * 
+	 *
 	 * @param tokensAndBoundaries
 	 *            the token and boundary MaryXML elements representing an utterance.
 	 * @param voice
@@ -98,10 +98,10 @@ public class UnitSelector {
 			}
 		}
 
-		List<Target> targets = createTargets(segmentsAndBoundaries);
+		List<TargetUnit> targets = createTargets(segmentsAndBoundaries);
 		// compute target features for each target in the chain
 		TargetCostFunction tcf = database.getTargetCostFunction();
-		for (Target target : targets) {
+		for (TargetUnit target : targets) {
 			tcf.computeTargetFeatures(target);
 		}
 
@@ -127,16 +127,16 @@ public class UnitSelector {
 
 	/**
 	 * Create the list of targets from the XML elements to synthesize.
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
 	 * @return a list of Target objects
 	 */
-	protected List<Target> createTargets(List<Element> segmentsAndBoundaries) {
-		List<Target> targets = new ArrayList<Target>();
+	protected List<TargetUnit> createTargets(List<Element> segmentsAndBoundaries) {
+		List<TargetUnit> targets = new ArrayList<TargetUnit>();
 		for (Element sOrB : segmentsAndBoundaries) {
 			String phone = getPhoneSymbol(sOrB);
-			targets.add(new Target(phone, sOrB));
+			targets.add(new TargetUnit(phone, sOrB));
 		}
 		return targets;
 	}

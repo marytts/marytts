@@ -27,7 +27,7 @@ import java.util.List;
 import marytts.modeling.features.FeatureVector;
 import marytts.modeling.features.DiphoneTarget;
 import marytts.modeling.features.HalfPhoneTarget;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
@@ -43,14 +43,14 @@ public class DiphoneUnitDatabase extends UnitDatabase {
 
 	/**
 	 * Preselect a set of candidates that could be used to realise the given target.
-	 * 
+	 *
 	 * @param target
 	 *            a Target object representing an optimal unit
 	 * @return an <span style="color:red;">unsorted</span> ArrayList of ViterbiCandidates, each containing the (same) target and a
 	 *         (different) Unit object
 	 */
 	@Override
-	public List<ViterbiCandidate> getCandidates(Target target) {
+	public List<ViterbiCandidate> getCandidates(TargetUnit target) {
 		if (!(target instanceof DiphoneTarget))
 			return super.getCandidates(target);
 		// Basic idea: get the candidates for each half phone separately,

@@ -31,14 +31,14 @@ import marytts.server.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.analysis.Phone;
 import marytts.unitselection.select.SelectedUnit;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.util.data.Datagram;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
 /**
  * A unit concatenator that supports FD-PSOLA based prosody modifications during speech synthesis
- * 
+ *
  * @author Oytun T&uuml;rk, modified by steiner
  *
  */
@@ -51,7 +51,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	private double maxPitchScaleFactor = 2.0;
 
 	/**
-     * 
+     *
      */
 	public FdpsolaUnitConcatenator() {
 		super();
@@ -59,7 +59,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 
 	/**
 	 * Alternative constructor that allows overriding the modification value ranges
-	 * 
+	 *
 	 * @param minTimeScaleFactor
 	 *            minimum duration scale factor
 	 * @param maxTimeScaleFactor
@@ -81,7 +81,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	/**
 	 * Get the Datagrams from a List of SelectedUnits as an array of arrays; the number of elements in the array is equal to the
 	 * number of Units, and each element contains that Unit's Datagrams as an array.
-	 * 
+	 *
 	 * @param units
 	 *            units
 	 * @return array of Datagram arrays
@@ -97,7 +97,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 
 	/**
 	 * Convenience method to return the rightmost Datagram from each element in a List of SelectedUnits
-	 * 
+	 *
 	 * @param units
 	 *            units
 	 * @return rightmost Datagrams as an array
@@ -115,7 +115,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	/**
 	 * Get voicing for every Datagram in a List of SelectedUnits, as an array of arrays of booleans. This queries the phonological
 	 * voicedness value for the Target as defined in the AllophoneSet
-	 * 
+	 *
 	 * @param units
 	 *            units
 	 * @return array of boolean voicing arrays
@@ -161,9 +161,9 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 		SelectedUnit unit = null;
 		SelectedUnit nextUnit = null;
 
-		Target prevTarget = null;
-		Target target = null;
-		Target nextTarget = null;
+		TargetUnit prevTarget = null;
+		TargetUnit target = null;
+		TargetUnit nextTarget = null;
 
 		// Estimation of pitch scale modification amounts
 		for (i = 0; i < len; i++) {
@@ -368,7 +368,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 
 	/**
 	 * Convenience method to grep those SelectedUnits from a List which have positive duration
-	 * 
+	 *
 	 * @param units
 	 *            units
 	 * @return units with positive duration
@@ -519,7 +519,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 
 	/**
 	 * Generate audio to match the target pitchmarks as closely as possible.
-	 * 
+	 *
 	 * @param units
 	 *            units
 	 * @return stream
@@ -556,7 +556,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 	/**
 	 * Explicitly propagate durations of Datagrams to UnitData for each SelectedUnit; those durations are otherwise oblivious to
 	 * the data they describe...
-	 * 
+	 *
 	 * @param units
 	 *            whose data should have its durations updated
 	 * @param datagrams

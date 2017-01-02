@@ -29,7 +29,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.MaryGenericFeatureProcessors.TargetElementNavigator;
-import marytts.modeling.features.HalfPhoneTarget;
+// import marytts.modeling.features.HalfPhoneTarget;
 import marytts.modeling.features.Target;
 import marytts.util.dom.MaryDomUtils;
 
@@ -43,6 +43,9 @@ import org.w3c.dom.traversal.NodeIterator;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
+/**
+ * FIXME: commented half-phone part should be in another test part
+ */
 public class FeatureProcessorIT {
 	private static MaryData acoustparams;
 	private static List<Target> phoneTargets;
@@ -67,8 +70,8 @@ public class FeatureProcessorIT {
 			else
 				phone = "_"; // boundary --> pause
 			phoneTargets.add(new Target(phone, s));
-			halfphoneTargets.add(new HalfPhoneTarget(phone, s, true));
-			halfphoneTargets.add(new HalfPhoneTarget(phone, s, false));
+			// halfphoneTargets.add(new HalfPhoneTarget(phone, s, true));
+			// halfphoneTargets.add(new HalfPhoneTarget(phone, s, false));
 		}
 
 		try {
@@ -97,9 +100,9 @@ public class FeatureProcessorIT {
 	@Test
 	public void haveTargets() {
 		Assert.assertNotNull(phoneTargets);
-		Assert.assertNotNull(halfphoneTargets);
+		// Assert.assertNotNull(halfphoneTargets);
 		Assert.assertTrue(phoneTargets.size() > 0);
-		Assert.assertTrue(phoneTargets.size() * 2 == halfphoneTargets.size());
+		// Assert.assertTrue(phoneTargets.size() * 2 == halfphoneTargets.size());
 	}
 
 	@Test

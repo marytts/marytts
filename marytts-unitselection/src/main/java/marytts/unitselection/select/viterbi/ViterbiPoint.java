@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -34,14 +34,14 @@ package marytts.unitselection.select.viterbi;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 
 /**
  * Represents a point in the Viterbi path. A point corresponds to an item, e.g. a Segment. Each ViterbiPoint knows about its next
  * ViterbiPoint, i.e. they can form a queue.
  */
 public class ViterbiPoint {
-	Target target = null;
+	TargetUnit target = null;
 	List<ViterbiCandidate> candidates = null;
 	List<ViterbiPath> paths = new ArrayList<ViterbiPath>();
 	ViterbiPoint next = null;
@@ -52,32 +52,32 @@ public class ViterbiPoint {
 	 * @param target
 	 *            the target of interest
 	 */
-	public ViterbiPoint(Target target) {
+	public ViterbiPoint(TargetUnit target) {
 		this.target = target;
 	}
 
 	/**
 	 * Gets the target of this point
-	 * 
+	 *
 	 * @return the target
 	 */
-	public Target getTarget() {
+	public TargetUnit getTarget() {
 		return target;
 	}
 
 	/**
 	 * Sets the target of this point
-	 * 
+	 *
 	 * @param target
 	 *            the new target
 	 */
-	public void setTarget(Target target) {
+	public void setTarget(TargetUnit target) {
 		this.target = target;
 	}
 
 	/**
 	 * Gets the candidates of this point
-	 * 
+	 *
 	 * @return the candidates
 	 */
 	public List<ViterbiCandidate> getCandidates() {
@@ -86,7 +86,7 @@ public class ViterbiPoint {
 
 	/**
 	 * Sets the candidates of this point
-	 * 
+	 *
 	 * @param candidates
 	 *            the candidates
 	 */
@@ -97,7 +97,7 @@ public class ViterbiPoint {
 	/**
 	 * Gets the sorted set containting the paths of the candidates of this point, sorted by score. getPaths().first() will return
 	 * the path with the lowest score, i.e. the best path.
-	 * 
+	 *
 	 * @return a sorted set.
 	 */
 	public List<ViterbiPath> getPaths() {
@@ -106,7 +106,7 @@ public class ViterbiPoint {
 
 	/**
 	 * Gets the next point in the queue
-	 * 
+	 *
 	 * @return the next point
 	 */
 	public ViterbiPoint getNext() {
@@ -115,7 +115,7 @@ public class ViterbiPoint {
 
 	/**
 	 * Sets the next point in the queue
-	 * 
+	 *
 	 * @param next
 	 *            the next point
 	 */

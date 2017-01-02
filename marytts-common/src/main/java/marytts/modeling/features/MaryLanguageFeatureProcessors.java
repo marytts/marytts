@@ -112,65 +112,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 	}
 
 	/**
-	 * The unit name for the given half phone target.
-	 *
-	 * @author Marc Schr&ouml;der
-	 *
-	 */
-	public static class HalfPhoneUnitName implements ByteValuedFeatureProcessor {
-		protected String name;
-		protected ByteStringTranslator values;
-		protected String pauseSymbol;
-
-		/**
-		 * Initialise a UnitName feature processor.
-		 *
-		 * @param possiblePhonemes
-		 *            the possible phonemes
-		 * @param pauseSymbol
-		 *            the pause symbol
-		 */
-		public HalfPhoneUnitName(String[] possiblePhonemes, String pauseSymbol) {
-			this.name = "halfphone_unitname";
-			this.pauseSymbol = pauseSymbol;
-			String[] possibleValues = new String[2 * possiblePhonemes.length + 1];
-			possibleValues[0] = "0"; // the "n/a" value
-			for (int i = 0; i < possiblePhonemes.length; i++) {
-				possibleValues[2 * i + 1] = possiblePhonemes[i] + "_L";
-				possibleValues[2 * i + 2] = possiblePhonemes[i] + "_R";
-			}
-			this.values = new ByteStringTranslator(possibleValues);
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public String[] getValues() {
-			return values.getStringValues();
-		}
-
-		public byte process(Target target) {
-			if (!(target instanceof HalfPhoneTarget))
-				return 0;
-			HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
-			Element segment = target.getMaryxmlElement();
-			String phoneLabel;
-			if (segment == null) {
-				phoneLabel = pauseSymbol;
-			} else if (!segment.getTagName().equals(MaryXML.PHONE)) {
-				phoneLabel = pauseSymbol;
-			} else {
-				phoneLabel = segment.getAttribute("p");
-			}
-			if (phoneLabel.equals(""))
-				return values.get("0");
-			String unitLabel = phoneLabel + (hpTarget.isLeftHalf() ? "_L" : "_R");
-			return values.get(unitLabel);
-		}
-	}
-
-	/**
 	 * A parametrisable class which can retrieve all sorts of phone features, given a phone set.
 	 *
 	 * @author Marc Schr&ouml;der

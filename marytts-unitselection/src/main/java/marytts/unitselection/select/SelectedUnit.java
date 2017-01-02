@@ -20,21 +20,21 @@
 package marytts.unitselection.select;
 
 import marytts.unitselection.data.Unit;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 
 /**
  * A unit selected from Viterbi
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class SelectedUnit {
 	protected Unit unit;
-	protected Target target;
+	protected TargetUnit target;
 	protected Object concatenationData;
 	protected double[] audio;
 
-	public SelectedUnit(Unit unit, Target target) {
+	public SelectedUnit(Unit unit, TargetUnit target) {
 		this.unit = unit;
 		this.target = target;
 		this.audio = null;
@@ -44,14 +44,14 @@ public class SelectedUnit {
 		return unit;
 	}
 
-	public Target getTarget() {
+	public TargetUnit getTarget() {
 		return target;
 	}
 
 	/**
 	 * Remember data about this selected unit which is relevant for unit concatenation. What type of data is saved here depends on
 	 * the UnitConcatenator used.
-	 * 
+	 *
 	 * @param concatenationData
 	 *            concatenationData
 	 */

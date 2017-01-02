@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.unitselection.data.UnitDatabase;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.modeling.features.DiphoneTarget;
 import marytts.modeling.features.HalfPhoneTarget;
 
@@ -33,7 +33,7 @@ public class DiphoneUnitSelector extends UnitSelector {
 
 	/**
 	 * Initialise the unit selector. Need to call load() separately.
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -43,13 +43,13 @@ public class DiphoneUnitSelector extends UnitSelector {
 
 	/**
 	 * Create the list of targets from the XML elements to synthesize.
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
 	 * @return a list of Target objects
 	 */
-	protected List<Target> createTargets(List<Element> segmentsAndBoundaries) {
-		List<Target> targets = new ArrayList<Target>();
+	protected List<TargetUnit> createTargets(List<Element> segmentsAndBoundaries) {
+		List<TargetUnit> targets = new ArrayList<TargetUnit>();
 		// TODO: how can we know the silence symbol here?
 		String silenceSymbol = "_"; // in sampa
 

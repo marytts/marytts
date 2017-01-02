@@ -34,23 +34,19 @@ import org.w3c.dom.UserDataHandler;
 
 /**
  * A representation of a target representing the ideal properties of a unit in a target utterance.
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class Target {
 	protected String name;
 	protected Element maryxmlElement;
-
 	protected FeatureVector featureVector = null;
-
-	protected float duration = -1;
-	protected float f0 = -1;
 	protected int isSilence = -1;
 
 	/**
 	 * Create a target associated to the given element in the MaryXML tree.
-	 * 
+	 *
 	 * @param name
 	 *            a name for the target, which may or may not coincide with the segment name.
 	 * @param maryxmlElement
@@ -77,50 +73,6 @@ public class Target {
 		this.featureVector = featureVector;
 	}
 
-	public float getTargetDurationInSeconds() {
-		if (duration != -1) {
-			return duration;
-		} else {
-			if (maryxmlElement == null)
-				return 0;
-			// throw new NullPointerException("Target "+name+" does not have a maryxml element.");
-			duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
-			return duration;
-		}
-	}
-
-	/**
-	 * 
-	 * 
-	 * @param newDuration
-	 *            newDuration
-	 */
-	public void setTargetDurationInSeconds(float newDuration) {
-		if (maryxmlElement != null) {
-			if (maryxmlElement.getTagName().equals(MaryXML.PHONE)) {
-				maryxmlElement.setAttribute("d", Float.toString(newDuration));
-			} else {
-				assert maryxmlElement.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "
-						+ maryxmlElement.getTagName();
-				maryxmlElement.setAttribute("duration", Float.toString(newDuration));
-			}
-		}
-	}
-
-	public float getTargetF0InHz() {
-		if (f0 != -1) {
-			return f0;
-		} else {
-			if (maryxmlElement == null)
-				throw new NullPointerException("Target " + name + " does not have a maryxml element.");
-			float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
-			if (logf0 == 0)
-				f0 = 0;
-			else
-				f0 = (float) Math.exp(logf0);
-			return f0;
-		}
-	}
 
 	public boolean hasFeatureVector() {
 		return featureVector != null;
@@ -136,7 +88,7 @@ public class Target {
 
 	/**
 	 * Determine whether this target is a silence target
-	 * 
+	 *
 	 * @return true if the target represents silence, false otherwise
 	 */
 	public boolean isSilence() {
@@ -186,4 +138,5 @@ public class Target {
 	public String toString() {
 		return name;
 	}
+
 }
