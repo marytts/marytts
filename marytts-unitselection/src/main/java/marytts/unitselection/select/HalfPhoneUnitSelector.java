@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.unitselection.data.UnitDatabase;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.modeling.features.HalfPhoneTarget;
 
 import org.w3c.dom.Element;
@@ -32,7 +32,7 @@ public class HalfPhoneUnitSelector extends UnitSelector {
 
 	/**
 	 * Initialise the unit selector. Need to call load() separately.
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -42,13 +42,13 @@ public class HalfPhoneUnitSelector extends UnitSelector {
 
 	/**
 	 * Create the list of targets from the XML elements to synthesize.
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
 	 * @return a list of Target objects
 	 */
-	protected List<Target> createTargets(List<Element> segmentsAndBoundaries) {
-		List<Target> targets = new ArrayList<Target>();
+	protected List<TargetUnit> createTargets(List<Element> segmentsAndBoundaries) {
+		List<TargetUnit> targets = new ArrayList<TargetUnit>();
 		for (Element sOrB : segmentsAndBoundaries) {
 			String phone = getPhoneSymbol(sOrB);
 			targets.add(new HalfPhoneTarget(phone + "_L", sOrB, true)); // left half

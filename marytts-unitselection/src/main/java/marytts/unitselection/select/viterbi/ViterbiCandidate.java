@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -32,20 +32,20 @@
 package marytts.unitselection.select.viterbi;
 
 import marytts.unitselection.data.Unit;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.TargetUnit;
 import marytts.unitselection.select.TargetCostFunction;
 
 /**
  * Represents a candidate for the Viterbi algorthm. Each candidate knows about its next candidate, i.e. they can form a queue.
  */
 public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
-	final Target target;
+	final TargetUnit target;
 	final Unit unit;
 	final double targetCost;
 	ViterbiPath bestPath = null;
 	ViterbiCandidate next = null;
 
-	public ViterbiCandidate(Target target, Unit unit, TargetCostFunction tcf) {
+	public ViterbiCandidate(TargetUnit target, Unit unit, TargetCostFunction tcf) {
 		this.target = target;
 		this.unit = unit;
 		this.targetCost = tcf.cost(target, unit);
@@ -53,7 +53,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 
 	/**
 	 * Calculates and returns the target cost for this candidate
-	 * 
+	 *
 	 * @return the target cost
 	 */
 	public double getTargetCost() {
@@ -62,7 +62,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 
 	/**
 	 * Gets the next candidate in the queue
-	 * 
+	 *
 	 * @return the next candidate
 	 */
 	public ViterbiCandidate getNext() {
@@ -71,7 +71,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 
 	/**
 	 * Sets the next candidate in the queue
-	 * 
+	 *
 	 * @param next
 	 *            the next candidate
 	 */
@@ -81,16 +81,16 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 
 	/**
 	 * Gets the target of this candidate
-	 * 
+	 *
 	 * @return the target
 	 */
-	public Target getTarget() {
+	public TargetUnit getTarget() {
 		return target;
 	}
 
 	/**
 	 * Gets the index of this
-	 * 
+	 *
 	 * @return the unit index
 	 */
 	public Unit getUnit() {
@@ -100,7 +100,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 	/**
 	 * Sets the currently best path leading to this candidate. Each path leads to exactly one candidate; in the candidate, we only
 	 * remember the best path leading to it.
-	 * 
+	 *
 	 * @param bestPath
 	 *            bestPath
 	 */
@@ -110,7 +110,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate> {
 
 	/**
 	 * Gets the best path leading to this candidate
-	 * 
+	 *
 	 * @return the best path, or null
 	 */
 	public ViterbiPath getBestPath() {

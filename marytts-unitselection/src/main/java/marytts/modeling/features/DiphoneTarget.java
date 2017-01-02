@@ -24,7 +24,7 @@ import marytts.modules.nlp.phonemiser.Allophone;
 
 import org.w3c.dom.Element;
 
-public class DiphoneTarget extends Target {
+public class DiphoneTarget extends TargetUnit {
 	public final HalfPhoneTarget left;
 	public final HalfPhoneTarget right;
 
@@ -57,7 +57,7 @@ public class DiphoneTarget extends Target {
 
 	/**
 	 * Determine whether this target is a silence target
-	 * 
+	 *
 	 * @return true if the target represents silence, false otherwise
 	 */
 	public boolean isSilence() {

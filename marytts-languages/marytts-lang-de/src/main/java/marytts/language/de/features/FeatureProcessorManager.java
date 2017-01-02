@@ -38,14 +38,14 @@ public class FeatureProcessorManager extends marytts.modeling.features.FeaturePr
 	 * Builds a new manager. This manager uses the english phoneset of FreeTTS and a PoS conversion file if the english PoS tagger
 	 * is used. All feature processors loaded are language specific.
 	 */
-	public FeatureProcessorManager() {
-		super();
+	public FeatureProcessorManager() throws MaryConfigurationException {
+		super(Locale.GERMAN);
 		setupAdditionalFeatureProcessors();
 	}
 
 	/**
 	 * Constructor called from a Voice in Locale DE that has its own acoustic models
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 * @throws MaryConfigurationException
@@ -187,20 +187,20 @@ public class FeatureProcessorManager extends marytts.modeling.features.FeaturePr
 			/*
 			 * processors_en.put("seg_coda_fric", new LanguageFeatureProcessors.SegCodaFric(phoneSet));
 			 * processors_en.put("seg_onset_fric", new LanguageFeatureProcessors.SegOnsetFric(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_stop", new LanguageFeatureProcessors.SegCodaStop(phoneSet));
 			 * processors_en.put("seg_onset_stop", new LanguageFeatureProcessors.SegOnsetStop(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_nasal", new LanguageFeatureProcessors.SegCodaNasal(phoneSet));
 			 * processors_en.put("seg_onset_nasal", new LanguageFeatureProcessors.SegOnsetNasal(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_glide", new LanguageFeatureProcessors.SegCodaGlide(phoneSet));
 			 * processors_en.put("seg_onset_glide", new LanguageFeatureProcessors.SegOnsetGlide(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("syl_codasize", new LanguageFeatureProcessors.SylCodaSize(phoneSet));
 			 * processors_en.put("syl_onsetsize", new LanguageFeatureProcessors.SylOnsetSize(phoneSet));
 			 * processors_en.put("accented", new GenericFeatureProcessors.Accented());
-			 * 
+			 *
 			 * processors_en.put("token_pos_guess", new LanguageFeatureProcessors.TokenPosGuess());
 			 */
 		} catch (Exception e) {

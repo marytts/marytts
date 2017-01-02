@@ -21,12 +21,12 @@ package marytts.modeling.features;
 
 import org.w3c.dom.Element;
 
-public class HalfPhoneTarget extends Target {
+public class HalfPhoneTarget extends TargetUnit {
 	protected boolean isLeftHalf;
 
 	/**
 	 * Create a target associated to the given segment item.
-	 * 
+	 *
 	 * @param name
 	 *            a name for the target, which may or may not coincide with the segment name.
 	 * @param maryxmlElement
@@ -41,7 +41,7 @@ public class HalfPhoneTarget extends Target {
 
 	/**
 	 * Is this target the left half of a phone?
-	 * 
+	 *
 	 * @return isLeftHalf
 	 */
 	public boolean isLeftHalf() {
@@ -50,7 +50,7 @@ public class HalfPhoneTarget extends Target {
 
 	/**
 	 * Is this target the right half of a phone?
-	 * 
+	 *
 	 * @return !isLeftHalf
 	 */
 	public boolean isRightHalf() {

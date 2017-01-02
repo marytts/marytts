@@ -40,7 +40,7 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 	/**
 	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
 	 * method in local code.
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            segmentsAndBoundaries
 	 * @param pauseSymbol
@@ -54,7 +54,7 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister {
 
 	/**
 	 * Create the list of targets from the segments to be synthesized Prepend and append pauses if necessary
-	 * 
+	 *
 	 * @param segmentsAndBoundaries
 	 *            a list of MaryXML phone and boundary elements
 	 * @param silenceSymbol

@@ -33,23 +33,24 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-public class FeatureProcessorManager {
-	protected Map<String, MaryFeatureProcessor> processors;
+import marytts.util.string.ByteStringTranslator;
 
-	protected Map<String, String[]> phonefeatures2values;
+/**
+ *
+ *
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ */
+public class UnitSelectionFeatureProcessorManager extends FeatureProcessorManager
+{
 
-	protected Locale locale;
 
-	public FeatureProcessorManager(String localeString) throws MaryConfigurationException {
-		this(MaryUtils.string2locale(localeString));
+
+	public UnitSelectionFeatureProcessorManager(String localeString) throws MaryConfigurationException {
+		super(MaryUtils.string2locale(localeString));
 	}
 
-	public FeatureProcessorManager(Locale locale) throws MaryConfigurationException {
-		this.locale = locale;
-		setupGenericFeatureProcessors();
-
-		AllophoneSet allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(locale) + ".allophoneset");
-		setupPhoneFeatureProcessors(allophoneSet, null, null, null);
+	public UnitSelectionFeatureProcessorManager(Locale locale) throws MaryConfigurationException {
+        super(locale);
 	}
 
 	/**
@@ -60,9 +61,8 @@ public class FeatureProcessorManager {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public FeatureProcessorManager(Voice voice) throws MaryConfigurationException {
-		this(voice.getLocale());
-		registerAcousticModels(voice);
+	public UnitSelectionFeatureProcessorManager(Voice voice) throws MaryConfigurationException {
+		super(voice.getLocale());
 	}
 
 	/**
@@ -71,31 +71,26 @@ public class FeatureProcessorManager {
 	 * @param voice
 	 *            voice
 	 */
+    @Override
 	protected void registerAcousticModels(Voice voice) {
+		Map<String, Model> acousticModels = voice.getAcousticModels();
+		if (acousticModels == null) {
+			return;
+		}
+		for (Model model : acousticModels.values()) {
+			// does this model predict a custom continuous feature...?
+			String modelFeatureName = model.getFeatureName();
+			if (modelFeatureName != null && !listContinuousFeatureProcessorNames().contains(modelFeatureName)) {
+				// ...then add a generic featureProcessor for the custom feature:
+				String modelAttributeName = model.getTargetAttributeName();
+				MaryFeatureProcessor featureProcessor = new MaryUnitSelectionFeatureProcessors.GenericContinuousFeature(
+						modelFeatureName, modelAttributeName);
+				addFeatureProcessor(featureProcessor);
+			}
+		}
 	}
 
-	@Deprecated
-	protected void setupHardcodedPhoneFeatureValues() {
-		// Set up default values for phone features:
-		phonefeatures2values = new HashMap<String, String[]>();
-		// cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
-		phonefeatures2values.put("cplace", new String[] { "0", "l", "a", "p", "b", "d", "v", "g" });
-		// ctype: 0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
-		phonefeatures2values.put("ctype", new String[] { "0", "s", "f", "a", "n", "l", "r" });
-		// cvox: 0=n/a +=on -=off
-		phonefeatures2values.put("cvox", new String[] { "0", "+", "-" });
-		// vc: 0=n/a +=vowel -=consonant
-		phonefeatures2values.put("vc", new String[] { "0", "+", "-" });
-		// vfront: 0-n/a 1-front 2-mid 3-back
-		phonefeatures2values.put("vfront", new String[] { "0", "1", "2", "3" });
-		// vheight: 0-n/a 1-high 2-mid 3-low
-		phonefeatures2values.put("vheight", new String[] { "0", "1", "2", "3" });
-		// vlng: 0-n/a s-short l-long d-dipthong a-schwa
-		phonefeatures2values.put("vlng", new String[] { "0", "s", "l", "d", "a" });
-		// vrnd: 0=n/a +=on -=off
-		phonefeatures2values.put("vrnd", new String[] { "0", "+", "-" });
-	}
-
+    @Override
 	protected void setupGenericFeatureProcessors() {
 		processors = new TreeMap<String, MaryFeatureProcessor>();
 
@@ -109,6 +104,7 @@ public class FeatureProcessorManager {
 		MaryGenericFeatureProcessors.TargetElementNavigator lastWord = new MaryGenericFeatureProcessors.LastWordInSentenceNavigator();
 
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Edge());
+		addFeatureProcessor(new MaryUnitSelectionFeatureProcessors.HalfPhoneLeftRight());
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Accented("accented", syllable));
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("stressed", syllable));
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("prev_stressed", prevSyllable));
@@ -166,89 +162,12 @@ public class FeatureProcessorManager {
 		addFeatureProcessor(new MaryGenericFeatureProcessors.WordsToNextPunctuation());
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Selection_Prosody(syllable));
 		addFeatureProcessor(new MaryGenericFeatureProcessors.Style());
-    }
 
-	/**
-	 * Get the locale for this feature processor manager. Locale-specific subclasses must override this method to return the
-	 * respective locale. This base class returns null to indicate that the feature processor manager can be used as a fallback
-	 * for any locale.
-	 *
-	 * @return locale
-	 */
-	public Locale getLocale() {
-		return locale;
+		addFeatureProcessor(new MaryUnitSelectionFeatureProcessors.UnitDuration());
+		addFeatureProcessor(new MaryUnitSelectionFeatureProcessors.UnitLogF0());
+		addFeatureProcessor(new MaryUnitSelectionFeatureProcessors.UnitLogF0Delta());
 	}
 
-	/**
-	 * Provide a space-separated list of the feature names for all the feature processors known to this feature processor manager.
-	 * The list is unsorted except that byte-valued feature processors come first, followed by short-valued feature processors,
-	 * followed by continuous feature processors.
-	 *
-	 * @return sb to string
-	 */
-	public String listFeatureProcessorNames() {
-		String bytes = listByteValuedFeatureProcessorNames();
-		String shorts = listShortValuedFeatureProcessorNames();
-		String conts = listContinuousFeatureProcessorNames();
-		StringBuilder sb = new StringBuilder(bytes.length() + shorts.length() + conts.length() + 2);
-		sb.append(bytes);
-		if (bytes.length() > 0 && shorts.length() > 0) {
-			sb.append(" ");
-		}
-		sb.append(shorts);
-		if (conts.length() > 0) {
-			sb.append(" ");
-		}
-		sb.append(conts);
-		return sb.toString();
-	}
-
-	public String listByteValuedFeatureProcessorNames() {
-		StringBuilder sb = new StringBuilder();
-		for (String name : processors.keySet()) {
-			MaryFeatureProcessor fp = processors.get(name);
-			if (fp instanceof ByteValuedFeatureProcessor) {
-				if (sb.length() > 0)
-					sb.append(" ");
-				sb.append(name);
-			}
-		}
-		return sb.toString();
-	}
-
-	public String listShortValuedFeatureProcessorNames() {
-		StringBuilder sb = new StringBuilder();
-		for (String name : processors.keySet()) {
-			MaryFeatureProcessor fp = processors.get(name);
-			if (fp instanceof ShortValuedFeatureProcessor) {
-				if (sb.length() > 0)
-					sb.append(" ");
-				sb.append(name);
-			}
-		}
-		return sb.toString();
-	}
-
-	public String listContinuousFeatureProcessorNames() {
-		StringBuilder sb = new StringBuilder();
-		for (String name : processors.keySet()) {
-			MaryFeatureProcessor fp = processors.get(name);
-			if (fp instanceof ContinuousFeatureProcessor) {
-				if (sb.length() > 0)
-					sb.append(" ");
-				sb.append(name);
-			}
-		}
-		return sb.toString();
-	}
-
-	protected void addFeatureProcessor(MaryFeatureProcessor fp) {
-		processors.put(fp.getName(), fp);
-	}
-
-	public MaryFeatureProcessor getFeatureProcessor(String name) {
-		return processors.get(name);
-	}
 
 	/**
 	 * Set up phone feature processors based on phoneset.
@@ -262,6 +181,7 @@ public class FeatureProcessorManager {
 	 * @param featuresToValues
 	 *            map listing the possible values for each feature. Optional. If null, will query phoneset.
 	 */
+    @Override
 	protected void setupPhoneFeatureProcessors(AllophoneSet phoneset, String[] phoneValues, String pauseSymbol,
 			Map<String, String[]> featuresToValues) {
 		MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
@@ -276,6 +196,7 @@ public class FeatureProcessorManager {
 			pauseSymbol = phoneset.getSilence().name();
 		}
 		addFeatureProcessor(new MaryLanguageFeatureProcessors.Phone("phone", phoneValues, pauseSymbol, segment));
+		addFeatureProcessor(new MaryUnitSelectionFeatureProcessors.HalfPhoneUnitName(phoneValues, pauseSymbol));
 		addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneset));
 		// Phone features:
 		Set<String> featureNames;
@@ -316,5 +237,7 @@ public class FeatureProcessorManager {
 		}
 
 	}
-
 }
+
+
+/* UnitSelectionFeatureProcessorManager.java ends here */
