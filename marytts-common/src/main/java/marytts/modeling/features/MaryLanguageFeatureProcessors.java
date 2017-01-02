@@ -90,11 +90,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 			return values.getStringValues();
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
-
 		public byte process(Element segment) {
 			if (segment == null)
 				return values.get(pauseSymbol);
@@ -141,11 +136,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		public String[] getValues() {
 			return values.getStringValues();
 		}
-
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (segment == null)
@@ -196,11 +186,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
-
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
 			if (word == null)
@@ -254,11 +239,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the item to process
 		 * @return a guess at the part-of-speech for the item
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
-
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
 			if (word == null)
@@ -296,11 +276,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		public String[] getValues() {
 			return values.getStringValues();
 		}
-
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (segment == null) {
@@ -363,11 +338,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            target
 		 * @return the phone class of the target
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
-
 		public byte process(Element segment) {
 			if (segment == null)
 				return values.get("0");
@@ -415,11 +385,6 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors 
 		 *            the target to process
 		 * @return the frequency of the current word, on a ten-point scale from 0=unknown=very rare to 9=very frequent.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
-
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
 			if (word == null)

@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 
 import org.w3c.dom.Element;
 
@@ -32,9 +32,9 @@ import org.w3c.dom.Element;
  * Model which currently predicts only a flat 400 ms duration for each boundary Element
  * <p>
  * Could be replaced by a PauseTree or something else, but that would require a CARTModel instead of this.
- * 
+ *
  * @author steiner
- * 
+ *
  */
 public class BoundaryModel extends Model {
 	public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream,
@@ -56,7 +56,7 @@ public class BoundaryModel extends Model {
 	 * For boundaries, this does nothing;
 	 */
 	@Override
-	protected float evaluate(Target target) {
+	protected float evaluate(FeatureVector target) {
 		return Float.NaN;
 	}
 

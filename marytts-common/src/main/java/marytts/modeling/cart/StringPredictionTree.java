@@ -28,7 +28,6 @@ import marytts.modeling.cart.LeafNode.LeafType;
 import marytts.modeling.cart.io.WagonCARTReader;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureVector;
-import marytts.modeling.features.Target;
 
 //import com.sun.tools.javac.code.Attribute.Array;
 
@@ -44,7 +43,7 @@ public class StringPredictionTree extends CART {
 	Pattern delimPattern = Pattern.compile(",\\d+:|}$");
 
 	/**
-	 * 
+	 *
 	 * @param aRootNode
 	 *            the root node of this tree. This node has to be set to be a root node beforehand.
 	 * @param aFeatDef
@@ -62,13 +61,13 @@ public class StringPredictionTree extends CART {
 	}
 
 	/**
-	 * 
+	 *
 	 * This constructs a new string prediction tree from a stream containing a tree in wagon format. In addition to the
 	 * constructor of ExtendedClassificationTree it reads in the mapping from numbers to the Strings from a stream. The encoding
 	 * has to be the first line in the file (a empty line is allowed).
-	 * 
+	 *
 	 * It has the form:
-	 * 
+	 *
 	 * ;;target={1:'string_a',2:'string_b,'...',26:'string_z'}
 	 *
 	 * @param reader
@@ -77,7 +76,7 @@ public class StringPredictionTree extends CART {
 	 *            featDefinition
 	 * @throws IOException
 	 *             IOException
-	 * 
+	 *
 	 */
 
 	public StringPredictionTree(BufferedReader reader, FeatureDefinition featDefinition) throws IOException {
@@ -154,14 +153,14 @@ public class StringPredictionTree extends CART {
 
 	/**
 	 * TODO: copied from CART, does not work as expected with minNumberOfData = 0
-	 * 
+	 *
 	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
-	 * 
+	 *
 	 * @param featureVector
 	 *            the feature vector to analyze
 	 * @param minNumberOfData
 	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
-	 * 
+	 *
 	 * @return the Node
 	 */
 	public Node interpretToNode(FeatureVector featureVector, int minNumberOfData) {
@@ -219,11 +218,4 @@ public class StringPredictionTree extends CART {
 		// get the String representation
 		return this.stringIdDecoding[bestInd];
 	}
-
-	public String getMostProbableString(Target aTarget) {
-		// get the String representation
-		return this.getMostProbableString(aTarget.getFeatureVector());
-
-	}
-
 }

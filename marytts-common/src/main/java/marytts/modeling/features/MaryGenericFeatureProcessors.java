@@ -568,10 +568,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * This processor always returns 0 for targets.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			return (byte) 0;
@@ -607,10 +603,6 @@ public class MaryGenericFeatureProcessors {
 			return values.getStringValues();
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
             String style = null;
@@ -655,10 +647,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return "1" if the syllable is accented; otherwise "0"
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -697,10 +685,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return "1" if the syllable is stressed; otherwise "0"
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -748,10 +732,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return tone value
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -788,10 +768,6 @@ public class MaryGenericFeatureProcessors {
 		 *
 		 * @return the number of phrases in the sentence
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -826,10 +802,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * @return the number of words in the sentence
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -865,10 +837,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * @return the number of words in the phrase
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -907,10 +875,6 @@ public class MaryGenericFeatureProcessors {
 		 *
 		 * @return the number of words in the phrase
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -945,10 +909,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * @return the number of syllables in the given word
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -982,10 +942,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * @return the number of segments in the given word
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -1025,10 +981,6 @@ public class MaryGenericFeatureProcessors {
 		 *
 		 * @return the number of segments in the given word
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -1079,10 +1031,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the phone in the syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -1116,10 +1064,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the phone in the syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -1153,10 +1097,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the phone in the syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -1195,10 +1135,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the phone in the syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -1235,10 +1171,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the syllable in the word
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -1275,10 +1207,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the position of the phone in the syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (!segment.getTagName().equals(MaryXML.PHONE))
@@ -1323,10 +1251,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the break level after the syllable returned by syllableNavigator
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -1406,10 +1330,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return classifies the syllable as "single", "final", "initial" or "mid"
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -1458,10 +1378,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return 0 if false, 1 if true
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			if (segment.getTagName().equals(MaryXML.BOUNDARY))
@@ -1485,10 +1401,6 @@ public class MaryGenericFeatureProcessors {
 			return values.getStringValues();
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
@@ -1567,10 +1479,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * For the given syllable item, return its tobi accent, or 0 if there is none.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -1610,10 +1518,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * For the given syllable item, return its tobi end tone, or 0 if there is none.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element syllable = navigator.getElement(segment);
@@ -1650,10 +1554,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * Search for an accented syllable, and return its tobi accent, or 0 if there is none.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element current;
@@ -1692,10 +1592,6 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * Search for an accented syllable, and return its tobi accent, or 0 if there is none.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element current;
@@ -1740,10 +1636,6 @@ public class MaryGenericFeatureProcessors {
 			super("prev_phrase_endtone", null);
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -1783,10 +1675,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -1828,10 +1716,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of accented syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -1868,10 +1752,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of stressed syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -1915,10 +1795,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of stressed syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -1957,10 +1833,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of accented syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2004,10 +1876,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of accented syllables since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2046,10 +1914,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of words since the last major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2093,10 +1957,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of words until the next major break
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2135,10 +1995,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of words since the beginning of the sentence
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -2182,10 +2038,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of words until the end of the sentence
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -2224,10 +2076,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of phrases since the start of the sentence
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -2269,10 +2117,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of phrases until the end of the sentence.
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
@@ -2309,10 +2153,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of syllables since the last accent
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2357,10 +2197,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of syllables until the next accent
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2400,10 +2236,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of syllables since the last accent
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2448,10 +2280,6 @@ public class MaryGenericFeatureProcessors {
 		 *            the target to process
 		 * @return the number of syllables until the next stressed syllable
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
@@ -2500,10 +2328,6 @@ public class MaryGenericFeatureProcessors {
 			return values.getStringValues();
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
@@ -2534,10 +2358,6 @@ public class MaryGenericFeatureProcessors {
 			super("next_punctuation", new WordNavigator());
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
@@ -2571,10 +2391,6 @@ public class MaryGenericFeatureProcessors {
 			super("prev_punctuation", new WordNavigator());
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
@@ -2612,10 +2428,6 @@ public class MaryGenericFeatureProcessors {
 			return ZERO_TO_NINETEEN;
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
@@ -2655,10 +2467,6 @@ public class MaryGenericFeatureProcessors {
 			return ZERO_TO_NINETEEN;
 		}
 
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			Element word = navigator.getElement(segment);
@@ -2721,10 +2529,6 @@ public class MaryGenericFeatureProcessors {
 		 * @return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent 3 - nuclear accent, 4 - phrase final high, 5 - phrase
 		 *         final low, 6 - phrase final (with unknown high/low status).
 		 */
-        @Deprecated
-		public byte process(Target target) {
-            return process(target.getMaryxmlElement());
-        }
 
 		public byte process(Element segment) {
 			// first find out if syllable is stressed

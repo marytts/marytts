@@ -34,7 +34,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.machinelearning.SoP;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryUtils;
 
 import marytts.modules.InternalModule;
@@ -136,25 +136,26 @@ public class SoPModel extends Model {
 	 * @return result predicted value
 	 */
 	@Override
-	protected float evaluate(Target target) {
-		float result = 0;
+	protected float evaluate(FeatureVector target) {
+		// float result = 0;
 
-		if (targetAttributeName.contentEquals("f0")) {
-			result = (float) sopModels.get("f0").interpret(target);
-		} else {
-			if (target.getAllophone().isVowel())
-				result = (float) sopModels.get("vowel").interpret(target);
-			else if (target.getAllophone().isConsonant())
-				result = (float) sopModels.get("consonant").interpret(target);
-			else if (target.getAllophone().isPause())
-				result = (float) sopModels.get("pause").interpret(target);
-			else {
-				// ignore but complain
-				MaryUtils.getLogger("SoPModel").warn("Warning: No SoP model for target " + target.toString());
-			}
-		}
+		// if (targetAttributeName.contentEquals("f0")) {
+		// 	result = (float) sopModels.get("f0").interpret(target);
+		// } else {
+		// 	if (target.getAllophone().isVowel())
+		// 		result = (float) sopModels.get("vowel").interpret(target);
+		// 	else if (target.getAllophone().isConsonant())
+		// 		result = (float) sopModels.get("consonant").interpret(target);
+		// 	else if (target.getAllophone().isPause())
+		// 		result = (float) sopModels.get("pause").interpret(target);
+		// 	else {
+		// 		// ignore but complain
+		// 		MaryUtils.getLogger("SoPModel").warn("Warning: No SoP model for target " + target.toString());
+		// 	}
+		// }
 
-		return result;
+		// return result;
+        throw new UnsupportedOperationException("as long as target problem is not solved this model is not available");
 	}
 
 }

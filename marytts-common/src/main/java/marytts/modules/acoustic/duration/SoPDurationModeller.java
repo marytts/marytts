@@ -36,7 +36,7 @@ import marytts.modeling.machinelearning.SoP;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -198,8 +198,7 @@ public class SoPDurationModeller extends InternalModule {
 			while ((segmentOrBoundary = (Element) tw.nextNode()) != null) {
 				String phone = MaryDomUtils.getPhoneSymbol(segmentOrBoundary);
 
-				Target t = new Target(phone, segmentOrBoundary);
-				t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
+				FeatureVector t = currentFeatureComputer.computeFeatureVector(segmentOrBoundary);
 
 				if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
 					System.out.print("Pause PHONE: " + phone);

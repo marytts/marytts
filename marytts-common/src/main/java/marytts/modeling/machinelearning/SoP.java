@@ -27,15 +27,15 @@ import java.io.StringReader;
 import java.util.Scanner;
 
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * Contains the coefficients and factors of an equation of the form: if interceptTterm = TRUE solution = coeffs[0] +
  * coeffs[1]*factors[0] + coeffs[2]*factors[1] + ... + coeffs[n]*factors[n-1] if interceptterm = FALSE solution =
  * coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
- * 
+ *
  * @author marcela
- * 
+ *
  */
 public class SoP {
 
@@ -77,7 +77,7 @@ public class SoP {
 
 	/**
 	 * Build a new empty sop with the given feature definition.
-	 * 
+	 *
 	 * @param featDef
 	 *            featDef
 	 */
@@ -89,7 +89,7 @@ public class SoP {
 	 * if b0=true then the number of selected factors 0 numCoeffs-1 (there is one coeff more) if b0=false then the number of
 	 * selected factor is the same as the number of coeffs When setting the factors, it checks to which indexes correspond
 	 * according to the featureDefinition.
-	 * 
+	 *
 	 * @param coeffsVal
 	 *            coeffsVal
 	 * @param selectedFactorsIndex
@@ -232,7 +232,7 @@ public class SoP {
 	 * Solve the linear equation given the features (factors) in t and coeffs and factors in the SoP object * if interceptTterm =
 	 * TRUE solution = coeffs[0] + coeffs[1]*factors[0] + coeffs[2]*factors[1] + ... + coeffs[n]*factors[n-1] if interceptterm =
 	 * FALSE solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
-	 * 
+	 *
 	 * @param t
 	 *            t
 	 * @param feaDef
@@ -241,14 +241,14 @@ public class SoP {
 	 *            log
 	 * @return solution
 	 */
-	public double solve(Target t, FeatureDefinition feaDef, boolean log) {
+	public double solve(FeatureVector t, FeatureDefinition feaDef, boolean log) {
 		solution = 0.0f;
 		double lastPosSolution = 0.0;
 		if (interceptTerm) {
 			// the first factor is empty filled with "_" so it should not be used
 			solution = coeffs[0];
 			for (int i = 1; i < coeffs.length; i++) {
-				solution = solution + (coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]));
+				solution = solution + (coeffs[i] * t.getByteFeature(factorsIndex[i]));
 				if (solution > 0.0)
 					lastPosSolution = solution;
 				else
@@ -256,7 +256,7 @@ public class SoP {
 			}
 		} else {
 			for (int i = 0; i < coeffs.length; i++) {
-				solution = solution + (coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]));
+				solution = solution + (coeffs[i] * t.getByteFeature(factorsIndex[i]));
 				if (solution > 0.0)
 					lastPosSolution = solution;
 				else
@@ -272,7 +272,7 @@ public class SoP {
 			return solution;
 	}
 
-	public double solve(Target t, FeatureDefinition feaDef, boolean log, boolean debug) {
+	public double solve(FeatureVector t, FeatureDefinition feaDef, boolean log, boolean debug) {
 		solution = 0.0f;
 		double lastPosSolution = 0.0;
 		if (interceptTerm) {
@@ -282,8 +282,8 @@ public class SoP {
 				System.out.format("   solution = %.3f (coeff[0])\n", coeffs[0]);
 			for (int i = 1; i < coeffs.length; i++) {
 				// check if the retrieved bytevalue is allowed for the kind of feature factor
-				byte feaVal = t.getFeatureVector().getByteFeature(factorsIndex[i]);
-				String feaValStr = t.getFeatureVector().getFeatureAsString(factorsIndex[i], feaDef);
+				byte feaVal = t.getByteFeature(factorsIndex[i]);
+				String feaValStr = t.getFeatureAsString(factorsIndex[i], feaDef);
 				if (feaDef.hasFeatureValue(factorsIndex[i], feaValStr)) {
 					if (debug)
 						System.out.format("   %.3f + (%.3f * %d (%s) = ", solution, coeffs[i], feaVal, factors[i]);
@@ -298,7 +298,7 @@ public class SoP {
 			}
 		} else {
 			for (int i = 0; i < coeffs.length; i++)
-				solution = solution + (coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]));
+				solution = solution + (coeffs[i] * t.getByteFeature(factorsIndex[i]));
 			if (solution > 0.0)
 				lastPosSolution = solution;
 
@@ -316,7 +316,7 @@ public class SoP {
 		}
 	}
 
-	public double interpret(Target t) {
+	public double interpret(FeatureVector t) {
 
 		return solve(t, this.featureDefinition, false);
 
@@ -324,7 +324,7 @@ public class SoP {
 
 	/***
 	 * First line vowel coefficients plus factors, second line consonant coefficients plus factors
-	 * 
+	 *
 	 * @param toSopFile
 	 *            toSopFile
 	 */

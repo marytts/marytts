@@ -28,13 +28,13 @@ import marytts.modeling.cart.DirectedGraph;
 import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.Target;
+import marytts.modeling.features.FeatureVector;
 
 /**
  * Model for applying a CART to a list of Targets
- * 
+ *
  * @author steiner
- * 
+ *
  */
 public class CARTModel extends Model {
 	private DirectedGraph cart;
@@ -67,7 +67,7 @@ public class CARTModel extends Model {
 	 * Apply the CART to a Target to get its predicted value
 	 */
 	@Override
-	protected float evaluate(Target target) throws Exception {
+	protected float evaluate(FeatureVector target) throws Exception {
 		assert target != null;
 
 		float[] result = null;

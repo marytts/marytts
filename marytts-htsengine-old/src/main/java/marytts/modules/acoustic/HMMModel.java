@@ -31,7 +31,6 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureVector;
-import marytts.modeling.features.Target; /* FIXME: just for evaluate => should be remove when evaluate can be changed */
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
@@ -212,7 +211,7 @@ public class HMMModel extends Model {
 	private HTSUttModel predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements)
 			throws MaryConfigurationException {
 		List<Element> predictorElements = predictFromElements;
-		List<FeatureVector> predictorTargets = getTargetVectors(predictorElements);
+		List<FeatureVector> predictorTargets = getTargets(predictorElements);
 		FeatureVector fv = null;
 		HTSUttModel um = new HTSUttModel();
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
@@ -382,7 +381,7 @@ public class HMMModel extends Model {
 		int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
 		HTSModel m;
 		List<Element> predictorElements = predictFromElements;
-		List<FeatureVector> predictorTargets = getTargetVectors(predictorElements);
+		List<FeatureVector> predictorTargets = getTargets(predictorElements);
 		FeatureVector fv;
 		HTSUttModel um = new HTSUttModel();
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
@@ -446,7 +445,7 @@ public class HMMModel extends Model {
 	 *             if this method is called.
 	 */
 	@Override
-	protected float evaluate(Target target) {
+	protected float evaluate(FeatureVector target) {
 		throw new RuntimeException("This method should never be called");
 	}
 
