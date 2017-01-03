@@ -1,50 +1,50 @@
-/**   
- *           The HMM-Based Speech Synthesis System (HTS)             
- *                       HTS Working Group                           
- *                                                                   
- *                  Department of Computer Science                   
- *                  Nagoya Institute of Technology                   
- *                               and                                 
- *   Interdisciplinary Graduate School of Science and Engineering    
- *                  Tokyo Institute of Technology                    
- *                                                                   
- *                Portions Copyright (c) 2001-2006                       
+/**
+ *           The HMM-Based Speech Synthesis System (HTS)
+ *                       HTS Working Group
+ *
+ *                  Department of Computer Science
+ *                  Nagoya Institute of Technology
+ *                               and
+ *   Interdisciplinary Graduate School of Science and Engineering
+ *                  Tokyo Institute of Technology
+ *
+ *                Portions Copyright (c) 2001-2006
  *                       All Rights Reserved.
- *                         
+ *
  *              Portions Copyright 2000-2007 DFKI GmbH.
- *                      All Rights Reserved.                  
- *                                                                   
- *  Permission is hereby granted, free of charge, to use and         
- *  distribute this software and its documentation without           
- *  restriction, including without limitation the rights to use,     
- *  copy, modify, merge, publish, distribute, sublicense, and/or     
- *  sell copies of this work, and to permit persons to whom this     
- *  work is furnished to do so, subject to the following conditions: 
- *                                                                   
- *    1. The source code must retain the above copyright notice,     
- *       this list of conditions and the following disclaimer.       
- *                                                                   
- *    2. Any modifications to the source code must be clearly        
- *       marked as such.                                             
- *                                                                   
- *    3. Redistributions in binary form must reproduce the above     
- *       copyright notice, this list of conditions and the           
- *       following disclaimer in the documentation and/or other      
- *       materials provided with the distribution.  Otherwise, one   
- *       must contact the HTS working group.                         
- *                                                                   
- *  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
- *  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
- *  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
- *  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
- *  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
- *  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
- *  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
- *  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
- *  PERFORMANCE OF THIS SOFTWARE.                                    
- *                                                                   
+ *                      All Rights Reserved.
+ *
+ *  Permission is hereby granted, free of charge, to use and
+ *  distribute this software and its documentation without
+ *  restriction, including without limitation the rights to use,
+ *  copy, modify, merge, publish, distribute, sublicense, and/or
+ *  sell copies of this work, and to permit persons to whom this
+ *  work is furnished to do so, subject to the following conditions:
+ *
+ *    1. The source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *
+ *    2. Any modifications to the source code must be clearly
+ *       marked as such.
+ *
+ *    3. Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the
+ *       following disclaimer in the documentation and/or other
+ *       materials provided with the distribution.  Otherwise, one
+ *       must contact the HTS working group.
+ *
+ *  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,
+ *  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM
+ *  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL
+ *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT
+ *  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF
+ *  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE
+ *  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ *  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS
+ *  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THIS SOFTWARE.
+ *
  */
 package marytts.modeling.cart.io;
 
@@ -60,6 +60,9 @@ import java.io.StringReader;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+
+import weka.classifiers.trees.SimpleCart;
+import marytts.cart.DecisionTree;
 import marytts.modeling.cart.CART;
 import marytts.modeling.cart.DecisionNode;
 import marytts.modeling.cart.LeafNode;
@@ -76,7 +79,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Reader functions for CARTs in HTS format
- * 
+ *
  * @author Marcela Charfuelan
  */
 public class HTSCARTReader {
@@ -92,7 +95,7 @@ public class HTSCARTReader {
 
 	/**
 	 * Load the cart from the given file
-	 * 
+	 *
 	 * @param numStates
 	 *            number of states in the HTS model, it will create one cart tree per state.
 	 * @param treeStream
@@ -124,8 +127,12 @@ public class HTSCARTReader {
 
 		// create the number of carts it is going to read
 		CART treeSet[] = new CART[numStates];
+        DecisionTree treeSet2[] = new DecisionTree[numStates];
 		for (i = 0; i < numStates; i++)
+        {
 			treeSet[i] = new CART();
+            treeSet2[i] = new DecisionTree();
+        }
 
 		// First load pdfs, so when creates the tree fill the leaf nodes with
 		// the corresponding mean and variances.
@@ -156,8 +163,12 @@ public class HTSCARTReader {
 			if (line.indexOf("{*}") >= 0) { /* this is the indicator of a new state-tree */
 				aux = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
 				state = Integer.parseInt(aux);
+
 				// loads one cart tree per state
 				treeSet[state - 2].setRootNode(loadStateTree(s, pdf[state - 2]));
+
+				// loads one cart tree per state
+				treeSet[state - 2] = loadStateTree2(s, pdf[state - 2]);
 
 				// Now count all data once, so that getNumberOfData()
 				// will return the correct figure.
@@ -182,7 +193,120 @@ public class HTSCARTReader {
 
 	/**
 	 * Load a tree per state
-	 * 
+	 *
+	 * @param s
+	 *            : text scanner of the whole tree-*.inf file
+	 * @param pdf
+	 *            : the pdfs for this state, pdf[numPdfs][numStreams][2*vectorSize]
+	 */
+	private DecisionTree loadStateTree2(BufferedReader s, double pdf[][][]) throws IOException, MaryConfigurationException {
+
+        ArrayList<int[]> tree_arch_info = new ArrayList<int[]>();
+        ArrayList<String[]> tree_node_value_info = new ArrayList<String[]>();
+		StringTokenizer sline;
+		String aux, buf;
+
+		// create an empty binary decision node with unique id=0, this will be the rootNode
+		Node nextNode = new DecisionNode.BinaryByteDecisionNode(0, featDef);
+
+		// this is the rootNode
+		rootNode = nextNode;
+		nextNode.setIsRoot(true);
+
+		int ino, iyes;
+		ndec = 0;
+		nleaf = 0;
+		aux = s.readLine(); /* next line for this state tree must be { */
+		int id;
+
+		if (aux.indexOf("{") >= 0) {
+			while ((aux = s.readLine()) != null && aux.indexOf("}") < 0) { /* last line for this state tree must be } */
+				/* then parse this line, it contains 4 fields */
+				/* 1: node index # 2: Question name 3: NO # node 4: YES # node */
+				sline = new StringTokenizer(aux);
+
+				/* 1: gets index node and looks for the node whose idx = buf */
+				buf = sline.nextToken();
+				if (buf.startsWith("-")) {
+					id = Integer.parseInt(buf.substring(1));
+				} else if (buf.contentEquals("0"))
+					id = 0;
+				else
+					throw new MaryConfigurationException("LoadStateTree: line does not start with a decision node (-id), line="
+							+ aux);
+
+
+                /* 2: gets question name and question name val */
+                buf = sline.nextToken();
+                String[] fea_val = buf.split("="); /* splits featureName=featureValue */
+
+                /* Replace back punctuation values */
+                /* what about tricky phones, if using halfphones it would not be necessary */
+                if (fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation")
+                    || fea_val[0].contentEquals("next_punctuation")) {
+                    fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
+                } else if (fea_val[0].contains("tobi_")) {
+                    fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
+                } else if (fea_val[0].contains("phone")) {
+                    fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
+                }
+
+
+                // add NO and YES indexes to the daughther nodes
+                /* NO index */
+                buf = sline.nextToken();
+                if (buf.startsWith("-")) { // Decision node
+                    ino = Integer.parseInt(buf.substring(1));
+                } else { // LeafNode
+                    ino = -Integer.parseInt(buf.substring(buf.lastIndexOf("_") + 1, buf.length() - 1));
+                }
+
+                /* YES index */
+                buf = sline.nextToken();
+                if (buf.startsWith("-")) { // Decision node
+                    iyes = Integer.parseInt(buf.substring(1));
+                } else { // LeafNode
+                    iyes = -Integer.parseInt(buf.substring(buf.lastIndexOf("_") + 1, buf.length() - 1));
+                }
+				sline = null;
+
+
+                // add the current elemenbt to the list
+                int[] cur_node_sons = new int[2];
+                cur_node_sons[0] = ino;
+                cur_node_sons[1] = iyes;
+                tree_arch_info.add(cur_node_sons);
+
+                tree_node_value_info.add(fea_val);
+
+
+
+			} /* while there is another line and the line does not contain } */
+		} /* if not "{" */
+
+
+		logger.debug("loadStateTree2: loaded CART contains " + (ndec + 1) + " Decision nodes and " + nleaf + " Leaf nodes.");
+		return rootNode;
+
+	} /* method loadTree2() */
+
+    private DecisionTree buildSubtree(ArrayList<int[]> tree_arch_info, ArrayList<String[]> tree_node_value_info, int cur_index)
+    {
+        DecisionTree left, right;
+
+        // Initialisation using the current node
+        String[] infos = tree_node_value_info.get(cur_index);
+        DecisionTree the_tree = new DecisionTree(infos[0], infos[1]);
+
+
+
+
+
+        return the_tree;
+    }
+	/**
+	 * Load a tree per state
+	 *
 	 * @param s
 	 *            : text scanner of the whole tree-*.inf file
 	 * @param pdf
@@ -519,42 +643,4 @@ public class HTSCARTReader {
 		return pdf;
 
 	} /* method loadPdfs */
-
-	public static void main(String[] args) throws IOException, InterruptedException {
-		/* configure log info */
-		org.apache.log4j.BasicConfigurator.configure();
-
-		String contextFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";
-		Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
-		String strContext = "";
-		while (context.hasNext()) {
-			strContext += context.nextLine();
-			strContext += "\n";
-		}
-		context.close();
-		// System.out.println(strContext);
-		FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-
-		CART[] mgcTree = null;
-		int numStates = 5;
-		String trickyPhones = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/trickyPhones.txt";
-		String treefile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/tree-dur.inf";
-		String pdffile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/dur.pdf";
-		int vSize;
-
-		// Check if there are tricky phones, and create a PhoneTranslator object
-		PhoneTranslator phTranslator = new PhoneTranslator(new FileInputStream(trickyPhones));
-
-		HTSCARTReader htsReader = new HTSCARTReader();
-		try {
-			mgcTree = htsReader.load(numStates, new FileInputStream(treefile), new FileInputStream(pdffile), PdfFileFormat.dur,
-					feaDef, phTranslator);
-			vSize = htsReader.getVectorSize();
-			System.out.println("loaded " + pdffile + "  vector size=" + vSize);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-
-	}
-
 }
