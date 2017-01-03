@@ -78,7 +78,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Set of CART trees used in HMM synthesis.
- * 
+ *
  * @author Marcela Charfuelan
  */
 public class CartTreeSet {
@@ -132,7 +132,7 @@ public class CartTreeSet {
 
 	/**
 	 * Loads all the CART trees
-	 * 
+	 *
 	 * @param htsData
 	 *            htsData
 	 * @param featureDef
@@ -192,7 +192,7 @@ public class CartTreeSet {
 
 	/***
 	 * Searches fv in durTree CART[] set of trees, per state, and fill the information in the HTSModel m.
-	 * 
+	 *
 	 * @param m
 	 *            HTSModel where mean and variances per state are copied
 	 * @param fv
@@ -246,7 +246,7 @@ public class CartTreeSet {
 
 	/***
 	 * Searches fv in Lf0Tree CART[] set of trees, per state, and fill the information in the HTSModel m.
-	 * 
+	 *
 	 * @param m
 	 *            HTSModel where mean and variances per state are copied
 	 * @param fv
@@ -272,7 +272,7 @@ public class CartTreeSet {
 
 	/***
 	 * Searches fv in mgcTree CART[] set of trees, per state, and fill the information in the HTSModel m.
-	 * 
+	 *
 	 * @param m
 	 *            HTSModel where mean and variances per state are copied
 	 * @param fv
@@ -290,7 +290,7 @@ public class CartTreeSet {
 
 	/***
 	 * Searches fv in StrTree CART[] set of trees, per state, and fill the information in the HTSModel m.
-	 * 
+	 *
 	 * @param m
 	 *            HTSModel where mean and variances per state are copied
 	 * @param fv
@@ -308,7 +308,7 @@ public class CartTreeSet {
 
 	/***
 	 * Searches fv in MagTree CART[] set of trees, per state, and fill the information in the HTSModel m.
-	 * 
+	 *
 	 * @param m
 	 *            HTSModel where mean and variances per state are copied
 	 * @param fv
@@ -327,7 +327,7 @@ public class CartTreeSet {
 	/**
 	 * creates a HTSModel (pre-HMM optimization vector data for all parameter streams of a given phoneme) given a feature vector
 	 * compare with original code in the main loop of marytts.modules.HTSEngine#processTargetList()
-	 * 
+	 *
 	 * @param htsData
 	 *            htsData
 	 * @param feaDef
