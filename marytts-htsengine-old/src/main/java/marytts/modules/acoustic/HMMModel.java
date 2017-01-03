@@ -267,7 +267,7 @@ public class HMMModel extends Model {
 				 * Find pdf for LF0, this function sets the pdf for each state. and determines, according to the HMM models,
 				 * whether the states are voiced or unvoiced, (it can be possible that some states are voiced and some unvoiced).
 				 */
-				cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+				cart.searchLf0InCartTree(m, fv, htsData.getUV());
 				for (int mstate = 0; mstate < cart.getNumStates(); mstate++) {
 					for (int frame = 0; frame < m.getDur(mstate); frame++) {
 						if (m.getVoiced(mstate))
@@ -425,7 +425,7 @@ public class HMMModel extends Model {
 				 * Find pdf for LF0, this function sets the pdf for each state. and determines, according to the HMM models,
 				 * whether the states are voiced or unvoiced, (it can be possible that some states are voiced and some unvoiced).
 				 */
-				cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+				cart.searchLf0InCartTree(m, fv, htsData.getUV());
 				for (mstate = 0; mstate < cart.getNumStates(); mstate++) {
 					for (frame = 0; frame < m.getDur(mstate); frame++)
 						if (m.getVoiced(mstate))

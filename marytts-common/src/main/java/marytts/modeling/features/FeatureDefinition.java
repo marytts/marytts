@@ -43,7 +43,7 @@ import marytts.util.string.ShortStringTranslator;
  * A feature definition object represents the "meaning" of feature vectors. It consists of a list of byte-valued, short-valued and
  * continuous features by name and index position in the feature vector; the respective possible feature values (and corresponding
  * byte and short codes); and, optionally, the weights and, for continuous features, weighting functions for each feature.
- * 
+ *
  * @author Marc Schr&ouml;der
  * @author steiner
  */
@@ -71,7 +71,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Create a feature definition object, reading textual data from the given BufferedReader.
-	 * 
+	 *
 	 * @param input
 	 *            a BufferedReader from which a textual feature definition can be read.
 	 * @param readWeights
@@ -240,7 +240,7 @@ public class FeatureDefinition {
 
 	/**
 	 * read similarity matrices from feature definition file
-	 * 
+	 *
 	 * @param input
 	 *            input
 	 * @throws IOException
@@ -301,9 +301,12 @@ public class FeatureDefinition {
 
 	}
 
+    public List<String> getNames() {
+        return featureNames.getValues();
+    }
 	/**
 	 * Create a feature definition object, reading binary data from the given DataInput.
-	 * 
+	 *
 	 * @param input
 	 *            a DataInputStream or a RandomAccessFile from which a binary feature definition can be read.
 	 * @throws IOException
@@ -375,7 +378,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Create a feature definition object, reading binary data from the given byte buffer.
-	 * 
+	 *
 	 * @param bb
 	 *            a byte buffer from which a binary feature definition can be read.
 	 * @throws IOException
@@ -447,7 +450,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Write this feature definition in binary format to the given output.
-	 * 
+	 *
 	 * @param out
 	 *            a DataOutputStream or RandomAccessFile to which the FeatureDefinition should be written.
 	 * @throws IOException
@@ -506,7 +509,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Write this feature definition in binary format to the given output, dropping featuresToDrop
-	 * 
+	 *
 	 * @param out
 	 *            a DataOutputStream or RandomAccessFile to which the FeatureDefinition should be written.
 	 * @param featuresToDrop
@@ -587,7 +590,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get the total number of features.
-	 * 
+	 *
 	 * @return the number of features
 	 */
 	public int getNumberOfFeatures() {
@@ -596,7 +599,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get the number of byte features.
-	 * 
+	 *
 	 * @return the number of features
 	 */
 	public int getNumberOfByteFeatures() {
@@ -605,7 +608,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get the number of short features.
-	 * 
+	 *
 	 * @return the number of features
 	 */
 	public int getNumberOfShortFeatures() {
@@ -614,7 +617,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get the number of continuous features.
-	 * 
+	 *
 	 * @return the number of features
 	 */
 	public int getNumberOfContinuousFeatures() {
@@ -623,7 +626,7 @@ public class FeatureDefinition {
 
 	/**
 	 * For the feature with the given index, return the weight.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            featureIndex
 	 * @return a non-negative weight.
@@ -640,7 +643,7 @@ public class FeatureDefinition {
 	 * Get the name of any weighting function associated with the given feature index. For byte-valued and short-valued features,
 	 * this method will always return null; for continuous features, the method will return the name of a weighting function, or
 	 * null.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            featureIndex
 	 * @return the name of a weighting function, or null
@@ -653,7 +656,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Translate between a feature index and a feature name.
-	 * 
+	 *
 	 * @param index
 	 *            a feature index, as could be used to access a feature value in a FeatureVector.
 	 * @return the name of the feature corresponding to the index
@@ -666,7 +669,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Translate between an array of feature indexes and an array of feature names.
-	 * 
+	 *
 	 * @param index
 	 *            an array of feature indexes, as could be used to access a feature value in a FeatureVector.
 	 * @return an array with the name of the features corresponding to the index
@@ -683,7 +686,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get names of all features
-	 * 
+	 *
 	 * @return an array of all feature name strings
 	 */
 	public String[] getFeatureNameArray() {
@@ -696,7 +699,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get names of byte features
-	 * 
+	 *
 	 * @return an array of byte feature name strings
 	 */
 	public String[] getByteFeatureNameArray() {
@@ -710,7 +713,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get names of short features
-	 * 
+	 *
 	 * @return an array of short feature name strings
 	 */
 	public String[] getShortFeatureNameArray() {
@@ -725,7 +728,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Get names of continuous features
-	 * 
+	 *
 	 * @return an array of continuous feature name strings
 	 */
 	public String[] getContinuousFeatureNameArray() {
@@ -740,7 +743,7 @@ public class FeatureDefinition {
 
 	/**
 	 * List all feature names, separated by white space, in their order of definition.
-	 * 
+	 *
 	 * @return buf converted into a string
 	 */
 	public String getFeatureNames() {
@@ -755,7 +758,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Indicate whether the feature definition contains the feature with the given name
-	 * 
+	 *
 	 * @param name
 	 *            the feature name in question, e.g. "next_next_phone"
 	 * @return featureNames.contains(name)
@@ -769,7 +772,7 @@ public class FeatureDefinition {
 	 * feature. In other words, this will return true exactly if the given feature is a byte feature and
 	 * getFeatureValueAsByte(featureName, featureValue) will not throw an exception or if the given feature is a short feature and
 	 * getFeatureValueAsShort(featureName, featureValue) will not throw an exception.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @param featureValue
@@ -785,7 +788,7 @@ public class FeatureDefinition {
 	 * feature. In other words, this will return true exactly if the given feature is a byte feature and
 	 * getFeatureValueAsByte(featureIndex, featureValue) will not throw an exception or if the given feature is a short feature
 	 * and getFeatureValueAsShort(featureIndex, featureValue) will not throw an exception.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            featureIndex
 	 * @param featureValue
@@ -809,7 +812,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given name is a byte feature.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @return true if the feature is a byte feature, false if the feature is not known or is not a byte feature
@@ -825,7 +828,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given index number is a byte feature.
-	 * 
+	 *
 	 * @param index
 	 *            index
 	 * @return true if the feature is a byte feature, false if the feature is not a byte feature or is invalid
@@ -836,7 +839,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given name is a short feature.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @return true if the feature is a short feature, false if the feature is not known or is not a short feature
@@ -852,7 +855,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given index number is a short feature.
-	 * 
+	 *
 	 * @param index
 	 *            index
 	 * @return true if the feature is a short feature, false if the feature is not a short feature or is invalid
@@ -864,7 +867,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given name is a continuous feature.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @return true if the feature is a continuous feature, false if the feature is not known or is not a continuous feature
@@ -880,7 +883,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Determine whether the feature with the given index number is a continuous feature.
-	 * 
+	 *
 	 * @param index
 	 *            index
 	 * @return true if the feature is a continuous feature, false if the feature is not a continuous feature or is invalid
@@ -893,7 +896,7 @@ public class FeatureDefinition {
 
 	/**
 	 * true, if given feature index contains similarity matrix
-	 * 
+	 *
 	 * @param featureIndex
 	 *            featureIndex
 	 * @return true if this.similarityMatrices different from null and this.similarityMatrices[featureIndex] different from null,
@@ -912,7 +915,7 @@ public class FeatureDefinition {
 
 	/**
 	 * true, if given feature name contains similarity matrix
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @return hasSimilarityMatrix(this.getFeatureIndex(featureName))
@@ -923,7 +926,7 @@ public class FeatureDefinition {
 
 	/**
 	 * To get a similarity between two feature values
-	 * 
+	 *
 	 * @param featureIndex
 	 *            featureIndex
 	 * @param i
@@ -941,7 +944,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Translate between a feature name and a feature index.
-	 * 
+	 *
 	 * @param featureName
 	 *            a valid feature name
 	 * @return a feature index, as could be used to access a feature value in a FeatureVector.
@@ -954,7 +957,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Translate between an array of feature names and an array of feature indexes.
-	 * 
+	 *
 	 * @param featureName
 	 *            an array of valid feature names
 	 * @return an array of feature indexes, as could be used to access a feature value in a FeatureVector.
@@ -972,7 +975,7 @@ public class FeatureDefinition {
 	/**
 	 * Get the number of possible values for the feature with the given index number. This method must only be called for
 	 * byte-valued or short-valued features.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            the index number of the feature.
 	 * @return for byte-valued and short-valued features, return the number of values.
@@ -992,7 +995,7 @@ public class FeatureDefinition {
 	 * Get the list of possible String values for the feature with the given index number. This method must only be called for
 	 * byte-valued or short-valued features. The position in the String array corresponds to the byte or short value of the
 	 * feature obtained from a FeatureVector.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            the index number of the feature.
 	 * @return for byte-valued and short-valued features, return the array of String values.
@@ -1011,7 +1014,7 @@ public class FeatureDefinition {
 	/**
 	 * For the feature with the given index number, translate its byte or short value to its String value. This method must only
 	 * be called for byte-valued or short-valued features.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            the index number of the feature.
 	 * @param value
@@ -1021,8 +1024,8 @@ public class FeatureDefinition {
 	 *             if featureIndex &lt; 0 or featureIndex &ge; getNumberOfByteFeatures() + getNumberOfShortFeatures()
 	 * @throws IndexOutOfBoundsException
 	 *             if value is not a legal value for this feature
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public String getFeatureValueAsString(int featureIndex, int value) {
 		if (featureIndex < numByteFeatures)
@@ -1035,7 +1038,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Simple access to string-based features.
-	 * 
+	 *
 	 * @param featureName
 	 *            featureName
 	 * @param fv
@@ -1050,7 +1053,7 @@ public class FeatureDefinition {
 	/**
 	 * For the feature with the given name, translate its String value to its byte value. This method must only be called for
 	 * byte-valued features.
-	 * 
+	 *
 	 * @param featureName
 	 *            the name of the feature.
 	 * @param value
@@ -1069,7 +1072,7 @@ public class FeatureDefinition {
 	/**
 	 * For the feature with the given index number, translate its String value to its byte value. This method must only be called
 	 * for byte-valued features.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            the name of the feature.
 	 * @param value
@@ -1099,7 +1102,7 @@ public class FeatureDefinition {
 	/**
 	 * For the feature with the given name, translate its String value to its short value. This method must only be called for
 	 * short-valued features.
-	 * 
+	 *
 	 * @param featureName
 	 *            the name of the feature.
 	 * @param value
@@ -1121,7 +1124,7 @@ public class FeatureDefinition {
 	/**
 	 * For the feature with the given name, translate its String value to its short value. This method must only be called for
 	 * short-valued features.
-	 * 
+	 *
 	 * @param featureIndex
 	 *            the name of the feature.
 	 * @param value
@@ -1142,7 +1145,7 @@ public class FeatureDefinition {
 	/**
 	 * Determine whether two feature definitions are equal, with respect to number, names, and possible values of the three kinds
 	 * of features (byte-valued, short-valued, continuous). This method does not compare any weights.
-	 * 
+	 *
 	 * @param other
 	 *            the feature definition to compare to
 	 * @return true if all features and values are identical, false otherwise
@@ -1170,7 +1173,7 @@ public class FeatureDefinition {
 
 	/**
 	 * An extension of the previous method.
-	 * 
+	 *
 	 * @param other
 	 *            other
 	 * @return number of byte features, or number of short features, or number of continuous features, or feature name
@@ -1211,7 +1214,7 @@ public class FeatureDefinition {
 	/**
 	 * Determine whether two feature definitions are equal, regarding both the actual feature definitions and the weights. The
 	 * comparison of weights will succeed if both have no weights or if both have exactly the same weights
-	 * 
+	 *
 	 * @param obj
 	 *            the feature definition to compare to
 	 * @return true if all features, values and weights are identical, false otherwise
@@ -1268,7 +1271,7 @@ public class FeatureDefinition {
 	 * <li>for byte-valued and short-valued features, the possible feature values must be the same in <b>this</b> and
 	 * <b>other</b>.</li>
 	 * </ol>
-	 * 
+	 *
 	 * @param other
 	 *            FeatureDefinition
 	 * @return <i>true</i> if
@@ -1314,7 +1317,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Create a new FeatureDefinition that contains a subset of the features in this.
-	 * 
+	 *
 	 * @param featureNamesToDrop
 	 *            array of Strings containing the names of the features to drop from the new FeatureDefinition
 	 * @return new FeatureDefinition
@@ -1360,7 +1363,7 @@ public class FeatureDefinition {
 	 * Create a feature vector consistent with this feature definition by reading the data from a String representation. In that
 	 * String, the String values for each feature must be separated by white space. For example, this format is created by
 	 * toFeatureString(FeatureVector).
-	 * 
+	 *
 	 * @param unitIndex
 	 *            an index number to assign to the feature vector
 	 * @param featureString
@@ -1404,7 +1407,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Create a feature vector consistent with this feature definition by reading the data from the given input.
-	 * 
+	 *
 	 * @param input
 	 *            a DataInputStream or RandomAccessFile to read the feature values from.
 	 * @param currentUnitIndex
@@ -1429,7 +1432,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Create a feature vector consistent with this feature definition by reading the data from the byte buffer.
-	 * 
+	 *
 	 * @param currentUnitIndex
 	 *            currentUnitIndex
 	 * @param bb
@@ -1455,7 +1458,7 @@ public class FeatureDefinition {
 	/**
 	 * Create a feature vector that marks a start or end of a unit. All feature values are set to the neutral value "0", except
 	 * for the EDGEFEATURE, which is set to start if start == true, to end otherwise.
-	 * 
+	 *
 	 * @param unitIndex
 	 *            index of the unit
 	 * @param start
@@ -1488,7 +1491,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Convert a feature vector into a String representation.
-	 * 
+	 *
 	 * @param fv
 	 *            a feature vector which must be consistent with this feature definition.
 	 * @return a String containing the String values of all features, separated by white space.
@@ -1522,7 +1525,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Export this feature definition in the text format which can also be read by this class.
-	 * 
+	 *
 	 * @param out
 	 *            the destination of the data
 	 * @param writeWeights
@@ -1572,7 +1575,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Export this feature definition in the "all.desc" format which can be read by wagon.
-	 * 
+	 *
 	 * @param out
 	 *            the destination of the data
 	 */
@@ -1582,7 +1585,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Export this feature definition in the "all.desc" format which can be read by wagon.
-	 * 
+	 *
 	 * @param out
 	 *            the destination of the data
 	 * @param featuresToIgnore
@@ -1630,7 +1633,7 @@ public class FeatureDefinition {
 
 	/**
 	 * Print this feature definition plus weights to a .txt file
-	 * 
+	 *
 	 * @param out
 	 *            the destination of the data
 	 */
@@ -1729,7 +1732,7 @@ public class FeatureDefinition {
 	/**
 	 * Compares two feature vectors in terms of how many discrete features they have in common. WARNING: this assumes that the
 	 * feature vectors are issued from the same FeatureDefinition; only the number of features is checked for compatibility.
-	 * 
+	 *
 	 * @param v1
 	 *            A feature vector.
 	 * @param v2

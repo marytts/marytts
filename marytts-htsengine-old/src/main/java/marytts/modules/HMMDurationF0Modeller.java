@@ -736,7 +736,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 			 * Find pdf for LF0, this function sets the pdf for each state. here the model (phone) is defined as voiced or
 			 * unvoiced.
 			 */
-			cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+			cart.searchLf0InCartTree(m, fv, htsData.getUV());
 
 			/* increment number of models in utterance model */
 			um.setNumModel(um.getNumModel() + 1);

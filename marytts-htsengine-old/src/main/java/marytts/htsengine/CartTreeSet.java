@@ -63,9 +63,11 @@
 
 package marytts.htsengine;
 
+import java.util.Map;
+import java.util.Hashtable;
 import java.io.IOException;
 
-import marytts.modeling.cart.CART;
+import marytts.cart.DecisionTree;
 import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.modeling.cart.io.HTSCARTReader;
 import marytts.exceptions.MaryConfigurationException;
@@ -85,11 +87,12 @@ public class CartTreeSet {
 
 	private Logger logger = MaryUtils.getLogger("CartTreeSet");
 
-	private CART[] durTree; // CART trees for duration
-	private CART[] lf0Tree; // CART trees for log F0
-	private CART[] mgcTree; // CART trees for spectrum
-	private CART[] strTree; // CART trees for strengths
-	private CART[] magTree; // CART trees for Fourier magnitudes
+    private FeatureDefinition featDef;
+	private DecisionTree[] durTree; // DecisionTree trees for duration
+	private DecisionTree[] lf0Tree; // DecisionTree trees for log F0
+	private DecisionTree[] mgcTree; // DecisionTree trees for spectrum
+	private DecisionTree[] strTree; // DecisionTree trees for strengths
+	private DecisionTree[] magTree; // DecisionTree trees for Fourier magnitudes
 
 	private int numStates; /* # of HMM states for individual HMM */
 	private int lf0Stream; /* # of stream for log f0 modeling */
@@ -148,15 +151,16 @@ public class CartTreeSet {
 			MaryConfigurationException {
 		// Check if there are tricky phones, and create a PhoneTranslator object
 		PhoneTranslator phTranslator = trickyPhones;
-
+        featDef = featureDef;
 		HTSCARTReader htsReader = new HTSCARTReader();
+
 		/*
 		 * DUR, LF0 and Mgc are required as minimum for generating voice. The duration tree has only one state. The size of the
 		 * vector in duration is the number of states.
 		 */
 		if (htsData.getTreeDurStream() != null) {
 			logger.debug("Loading duration tree...");
-			durTree = htsReader.load(1, htsData.getTreeDurStream(), htsData.getPdfDurStream(), PdfFileFormat.dur, featureDef,
+			durTree = htsReader.load(1, htsData.getTreeDurStream(), htsData.getPdfDurStream(), PdfFileFormat.dur,
 					phTranslator);
 			numStates = htsReader.getVectorSize();
 		}
@@ -164,14 +168,14 @@ public class CartTreeSet {
 		if (htsData.getTreeLf0Stream() != null) {
 			logger.debug("Loading log F0 tree...");
 			lf0Tree = htsReader.load(numStates, htsData.getTreeLf0Stream(), htsData.getPdfLf0Stream(), PdfFileFormat.lf0,
-					featureDef, phTranslator);
+                                     phTranslator);
 			lf0Stream = htsReader.getVectorSize();
 		}
 
 		if (htsData.getTreeMgcStream() != null) {
 			logger.debug("Loading mgc tree...");
 			mgcTree = htsReader.load(numStates, htsData.getTreeMgcStream(), htsData.getPdfMgcStream(), PdfFileFormat.mgc,
-					featureDef, phTranslator);
+                                     phTranslator);
 			mcepVsize = htsReader.getVectorSize();
 		}
 
@@ -179,13 +183,13 @@ public class CartTreeSet {
 		if (htsData.getTreeStrStream() != null) {
 			logger.debug("Loading str tree...");
 			strTree = htsReader.load(numStates, htsData.getTreeStrStream(), htsData.getPdfStrStream(), PdfFileFormat.str,
-					featureDef, phTranslator);
+                                     phTranslator);
 			strVsize = htsReader.getVectorSize();
 		}
 		if (htsData.getTreeMagStream() != null) {
 			logger.debug("Loading mag tree...");
 			magTree = htsReader.load(numStates, htsData.getTreeMagStream(), htsData.getPdfMagStream(), PdfFileFormat.mag,
-					featureDef, phTranslator);
+                                     phTranslator);
 			magVsize = htsReader.getVectorSize();
 		}
 	}
@@ -209,12 +213,18 @@ public class CartTreeSet {
 
 	public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, boolean firstPh, boolean lastPh,
 			double diffdur) {
+        Map<String, String> features = new Hashtable<String, String>();
+        for (String feat_name: featDef.getNames()) {
+            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+        }
+
 		double data, dd;
 		double rho = htsData.getRho();
 		double durscale = htsData.getDurationScale();
 		double meanVector[], varVector[];
+
 		// the duration tree has only one state
-		PdfLeafNode node = (PdfLeafNode) durTree[0].interpretToNode(fv, 0);
+		PdfLeafNode node = (PdfLeafNode) durTree[0].traverse(features);
 
 		meanVector = node.getMean();
 		varVector = node.getVariance();
@@ -256,9 +266,13 @@ public class CartTreeSet {
 	 * @param uvthresh
 	 *            uvthresh
 	 */
-	public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) {
+	public void searchLf0InCartTree(HTSModel m, FeatureVector fv, double uvthresh) {
+        Map<String, String> features = new Hashtable<String, String>();
+        for (String feat_name: featDef.getNames()) {
+            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+        }
 		for (int s = 0; s < numStates; s++) {
-			PdfLeafNode node = (PdfLeafNode) lf0Tree[s].interpretToNode(fv, 1);
+			PdfLeafNode node = (PdfLeafNode) lf0Tree[s].traverse(features);
 			m.setLf0Mean(s, node.getMean());
 			m.setLf0Variance(s, node.getVariance());
 			// set voiced or unvoiced
@@ -280,9 +294,13 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchMgcInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
+	public void searchMgcInCartTree(HTSModel m, FeatureVector fv) {
+        Map<String, String> features = new Hashtable<String, String>();
+        for (String feat_name: featDef.getNames()) {
+            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+        }
 		for (int s = 0; s < numStates; s++) {
-			PdfLeafNode node = (PdfLeafNode) mgcTree[s].interpretToNode(fv, 1);
+			PdfLeafNode node = (PdfLeafNode) mgcTree[s].traverse(features);
 			m.setMcepMean(s, node.getMean());
 			m.setMcepVariance(s, node.getVariance());
 		}
@@ -298,9 +316,15 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
+	public void searchStrInCartTree(HTSModel m, FeatureVector fv) {
+
+        Map<String, String> features = new Hashtable<String, String>();
+        for (String feat_name: featDef.getNames()) {
+            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+        }
+
 		for (int s = 0; s < numStates; s++) {
-			PdfLeafNode node = (PdfLeafNode) strTree[s].interpretToNode(fv, 1);
+			PdfLeafNode node = (PdfLeafNode) strTree[s].traverse(features);
 			m.setStrMean(s, node.getMean());
 			m.setStrVariance(s, node.getVariance());
 		}
@@ -316,9 +340,15 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) {
+	public void searchMagInCartTree(HTSModel m, FeatureVector fv) {
+
+        Map<String, String> features = new Hashtable<String, String>();
+        for (String feat_name: featDef.getNames()) {
+            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+        }
+
 		for (int s = 0; s < numStates; s++) {
-			PdfLeafNode node = (PdfLeafNode) magTree[s].interpretToNode(fv, 1);
+			PdfLeafNode node = (PdfLeafNode) magTree[s].traverse(features);
 			m.setMagMean(s, node.getMean());
 			m.setMagVariance(s, node.getVariance());
 		}
@@ -355,18 +385,18 @@ public class CartTreeSet {
 			// if ( ! htsData.getUseUnitDurationContinuousFeature() )
 			// Here according to the HMM models it is decided whether the states of this model are voiced or unvoiced
 			// even if f0 is taken from maryXml here we need to set the voived/unvoiced values per model and state
-			searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+			searchLf0InCartTree(m, fv, htsData.getUV());
 
 			/* Find pdf for MGC, this function sets the pdf for each state. */
-			searchMgcInCartTree(m, fv, feaDef);
+			searchMgcInCartTree(m, fv);
 
 			/* Find pdf for strengths, this function sets the pdf for each state. */
 			if (htsData.getTreeStrStream() != null)
-				searchStrInCartTree(m, fv, feaDef);
+				searchStrInCartTree(m, fv);
 
 			/* Find pdf for Fourier magnitudes, this function sets the pdf for each state. */
 			if (htsData.getTreeMagStream() != null)
-				searchMagInCartTree(m, fv, feaDef);
+				searchMagInCartTree(m, fv);
 
 		} catch (Exception e) {
 			e.printStackTrace();

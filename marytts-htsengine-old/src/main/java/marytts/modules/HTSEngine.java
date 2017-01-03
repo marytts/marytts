@@ -552,18 +552,18 @@ public class HTSEngine extends InternalModule {
 			// if ( ! htsData.getUseUnitDurationContinuousFeature() )
 			// Here according to the HMM models it is decided whether the states of this model are voiced or unvoiced
 			// even if f0 is taken from maryXml here we need to set the voived/unvoiced values per model and state
-			cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+			cart.searchLf0InCartTree(m, fv, htsData.getUV());
 
 			/* Find pdf for Mgc, this function sets the pdf for each state. */
-			cart.searchMgcInCartTree(m, fv, feaDef);
+			cart.searchMgcInCartTree(m, fv);
 
 			/* Find pdf for strengths, this function sets the pdf for each state. */
 			if (htsData.getTreeStrStream() != null)
-				cart.searchStrInCartTree(m, fv, feaDef);
+				cart.searchStrInCartTree(m, fv);
 
 			/* Find pdf for Fourier magnitudes, this function sets the pdf for each state. */
 			if (htsData.getTreeMagStream() != null)
-				cart.searchMagInCartTree(m, fv, feaDef);
+				cart.searchMagInCartTree(m, fv);
 
 			/* increment number of models in utterance model */
 			um.setNumModel(um.getNumModel() + 1);
