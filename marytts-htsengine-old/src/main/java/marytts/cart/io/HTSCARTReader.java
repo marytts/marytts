@@ -48,6 +48,8 @@
  */
 package marytts.modeling.cart.io;
 
+import java.util.ArrayList;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -83,8 +85,6 @@ import org.apache.log4j.Logger;
  * @author Marcela Charfuelan
  */
 public class HTSCARTReader {
-
-	private FeatureDefinition featDef;
 	private PhoneTranslator phTrans;
 	private Logger logger = MaryUtils.getLogger("HTSCARTReader");
 	private int vectorSize; // the vector size of the mean and variance on the leaves of the tree.
@@ -104,8 +104,6 @@ public class HTSCARTReader {
 	 *            the corresponding HTS pdf binary file, example mgc.pdf.
 	 * @param fileFormat
 	 *            fileFormat
-	 * @param featDefinition
-	 *            the feature definition
 	 * @param phTranslator
 	 *            a phone translator
 	 * @return the size of the mean and variance vectors on the leaves.
@@ -114,24 +112,21 @@ public class HTSCARTReader {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public CART[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat,
-			FeatureDefinition featDefinition, PhoneTranslator phTranslator) throws IOException, MaryConfigurationException {
-
-		featDef = featDefinition;
+	public DecisionTree[] load(int numStates, InputStream treeStream, InputStream pdfStream, PdfFileFormat fileFormat, PhoneTranslator phTranslator)
+        throws IOException, MaryConfigurationException
+    {
 		// phTrans = phoneTranslator;
 		int i, j, length, state;
-		BufferedReader s = null;
+		BufferedReader s = null, s2 = null;
 		String line, aux;
 
 		phTrans = phTranslator;
 
 		// create the number of carts it is going to read
-		CART treeSet[] = new CART[numStates];
-        DecisionTree treeSet2[] = new DecisionTree[numStates];
+        DecisionTree treeSet[] = new DecisionTree[numStates];
 		for (i = 0; i < numStates; i++)
         {
-			treeSet[i] = new CART();
-            treeSet2[i] = new DecisionTree();
+            treeSet[i] = new DecisionTree();
         }
 
 		// First load pdfs, so when creates the tree fill the leaf nodes with
@@ -148,13 +143,12 @@ public class HTSCARTReader {
 		double pdf[][][][];
 		pdf = loadPdfs(numStates, pdfStream, fileFormat);
 
-		assert featDefinition != null : "Feature Definition was not set";
-
 		/* read lines of tree-*.inf fileName */
 		s = new BufferedReader(new InputStreamReader(treeStream, "UTF-8"));
 
-		// skip questions section
+        // skip questions section
 		while ((line = s.readLine()) != null) {
+
 			if (line.indexOf("QS") < 0)
 				break; /* a new state is indicated by {*}[2], {*}[3], ... */
 		}
@@ -165,27 +159,13 @@ public class HTSCARTReader {
 				state = Integer.parseInt(aux);
 
 				// loads one cart tree per state
-				treeSet[state - 2].setRootNode(loadStateTree(s, pdf[state - 2]));
-
-				// loads one cart tree per state
 				treeSet[state - 2] = loadStateTree2(s, pdf[state - 2]);
 
-				// Now count all data once, so that getNumberOfData()
-				// will return the correct figure.
-				if (treeSet[state - 2].getRootNode() instanceof DecisionNode)
-					((DecisionNode) treeSet[state - 2].getRootNode()).countData();
-
-				logger.debug("load: CART[" + (state - 2) + "], total number of nodes in this CART: "
-						+ treeSet[state - 2].getNumNodes());
 			}
 		} /* while */
+
 		if (s != null)
 			s.close();
-
-		/* check that the tree was correctly loaded */
-		if (treeSet.length == 0) {
-			throw new IOException("LoadTreeSet: error no trees loaded");
-		}
 
 		return treeSet;
 
@@ -199,23 +179,16 @@ public class HTSCARTReader {
 	 * @param pdf
 	 *            : the pdfs for this state, pdf[numPdfs][numStreams][2*vectorSize]
 	 */
-	private DecisionTree loadStateTree2(BufferedReader s, double pdf[][][]) throws IOException, MaryConfigurationException {
+	private DecisionTree loadStateTree2(BufferedReader s, double pdf[][][])
+        throws IOException, MaryConfigurationException
+    {
 
         ArrayList<int[]> tree_arch_info = new ArrayList<int[]>();
         ArrayList<String[]> tree_node_value_info = new ArrayList<String[]>();
 		StringTokenizer sline;
 		String aux, buf;
 
-		// create an empty binary decision node with unique id=0, this will be the rootNode
-		Node nextNode = new DecisionNode.BinaryByteDecisionNode(0, featDef);
-
-		// this is the rootNode
-		rootNode = nextNode;
-		nextNode.setIsRoot(true);
-
 		int ino, iyes;
-		ndec = 0;
-		nleaf = 0;
 		aux = s.readLine(); /* next line for this state tree must be { */
 		int id;
 
@@ -284,13 +257,12 @@ public class HTSCARTReader {
 			} /* while there is another line and the line does not contain } */
 		} /* if not "{" */
 
-
-		logger.debug("loadStateTree2: loaded CART contains " + (ndec + 1) + " Decision nodes and " + nleaf + " Leaf nodes.");
-		return rootNode;
+		return buildSubtree(tree_arch_info, tree_node_value_info, 0, pdf);
 
 	} /* method loadTree2() */
 
-    private DecisionTree buildSubtree(ArrayList<int[]> tree_arch_info, ArrayList<String[]> tree_node_value_info, int cur_index)
+    private DecisionTree buildSubtree(ArrayList<int[]> tree_arch_info, ArrayList<String[]> tree_node_value_info, int cur_index, double pdf[][][])
+        throws MaryConfigurationException
     {
         DecisionTree left, right;
 
@@ -298,155 +270,36 @@ public class HTSCARTReader {
         String[] infos = tree_node_value_info.get(cur_index);
         DecisionTree the_tree = new DecisionTree(infos[0], infos[1]);
 
+        int[] arch = tree_arch_info.get(cur_index);
+        if (arch[0] > 0)
+        {
+            left = buildSubtree(tree_arch_info, tree_node_value_info, arch[0], pdf);
+        }
+        else
+        {
+            // create an empty PdfLeafNode
+            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(-arch[0], pdf[-arch[0] - 1]);
+            left = new DecisionTree("dist_" + (-arch[0]), auxnode);
+        }
 
+        if (arch[1] > 0)
+        {
+            right = buildSubtree(tree_arch_info, tree_node_value_info, arch[1],pdf);
+        }
+        else
+        {
+            // create an empty PdfLeafNode
+            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(-arch[1], pdf[-arch[1] - 1]);
+            right = new DecisionTree("dist_" + (-arch[1]), auxnode);
+        }
+
+
+        the_tree.setLeftRight(left, right);
 
 
 
         return the_tree;
     }
-	/**
-	 * Load a tree per state
-	 *
-	 * @param s
-	 *            : text scanner of the whole tree-*.inf file
-	 * @param pdf
-	 *            : the pdfs for this state, pdf[numPdfs][numStreams][2*vectorSize]
-	 */
-	private Node loadStateTree(BufferedReader s, double pdf[][][]) throws IOException, MaryConfigurationException {
-
-		Node rootNode = null;
-		Node lastNode = null;
-
-		StringTokenizer sline;
-		String aux, buf;
-
-		// create an empty binary decision node with unique id=0, this will be the rootNode
-		Node nextNode = new DecisionNode.BinaryByteDecisionNode(0, featDef);
-
-		// this is the rootNode
-		rootNode = nextNode;
-		nextNode.setIsRoot(true);
-
-		int iaux, feaIndex, ndec, nleaf;
-		ndec = 0;
-		nleaf = 0;
-		Node node = null;
-		aux = s.readLine(); /* next line for this state tree must be { */
-		int id;
-
-		if (aux.indexOf("{") >= 0) {
-			while ((aux = s.readLine()) != null && aux.indexOf("}") < 0) { /* last line for this state tree must be } */
-				/* then parse this line, it contains 4 fields */
-				/* 1: node index # 2: Question name 3: NO # node 4: YES # node */
-				sline = new StringTokenizer(aux);
-
-				/* 1: gets index node and looks for the node whose idx = buf */
-				buf = sline.nextToken();
-				if (buf.startsWith("-")) {
-					id = Integer.parseInt(buf.substring(1));
-					ndec++;
-				} else if (buf.contentEquals("0"))
-					id = 0;
-				else
-					throw new MaryConfigurationException("LoadStateTree: line does not start with a decision node (-id), line="
-							+ aux);
-				// 1. find the node in the tree, it has to be already created.
-				node = findDecisionNode(rootNode, id);
-
-				if (node == null)
-					throw new MaryConfigurationException("LoadStateTree: Node not found, index = " + buf);
-				else {
-					/* 2: gets question name and question name val */
-					buf = sline.nextToken();
-					String[] fea_val = buf.split("="); /* splits featureName=featureValue */
-					feaIndex = featDef.getFeatureIndex(fea_val[0]);
-
-					/* Replace back punctuation values */
-					/* what about tricky phones, if using halfphones it would not be necessary */
-					if (fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation")
-							|| fea_val[0].contentEquals("next_punctuation")) {
-						// System.out.print("CART replace punc: " + fea_val[0] + " = " + fea_val[1]);
-						fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
-						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-					} else if (fea_val[0].contains("tobi_")) {
-						// System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
-						fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
-						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-					} else if (fea_val[0].contains("phone")) {
-						// System.out.print("CART replace phone: " + fea_val[0] + " = " + fea_val[1]);
-						fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
-						// System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
-					}
-
-					// add featureName and featureValue to the decision nod
-					((BinaryByteDecisionNode) node).setFeatureAndFeatureValue(fea_val[0], fea_val[1]);
-
-					// add NO and YES indexes to the daughther nodes
-					/* NO index */
-					buf = sline.nextToken();
-					if (buf.startsWith("-")) { // Decision node
-						iaux = Integer.parseInt(buf.substring(1));
-						// create an empty binary decision node with unique id
-						BinaryByteDecisionNode auxnode = new DecisionNode.BinaryByteDecisionNode(iaux, featDef);
-						((DecisionNode) node).replaceDaughter(auxnode, 1);
-					} else { // LeafNode
-						iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_") + 1, buf.length() - 1));
-						// create an empty PdfLeafNode
-						PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux - 1]);
-						((DecisionNode) node).replaceDaughter(auxnode, 1);
-						nleaf++;
-					}
-
-					/* YES index */
-					buf = sline.nextToken();
-					if (buf.startsWith("-")) { // Decision node
-						iaux = Integer.parseInt(buf.substring(1));
-						// create an empty binary decision node with unique id=0
-						BinaryByteDecisionNode auxnode = new DecisionNode.BinaryByteDecisionNode(iaux, featDef);
-						((DecisionNode) node).replaceDaughter(auxnode, 0);
-					} else { // LeafNode
-						iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_") + 1, buf.length() - 1));
-						// create an empty PdfLeafNode
-						PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux - 1]);
-						((DecisionNode) node).replaceDaughter(auxnode, 0);
-						nleaf++;
-					}
-				} /* if node not null */
-				sline = null;
-			} /* while there is another line and the line does not contain } */
-		} /* if not "{" */
-
-		logger.debug("loadStateTree: loaded CART contains " + (ndec + 1) + " Decision nodes and " + nleaf + " Leaf nodes.");
-		return rootNode;
-
-	} /* method loadTree() */
-
-	/**
-	 * @param node
-	 *            , decision node
-	 * @param numId
-	 *            , index to look for.
-	 * @return node if node is instance of decision node, aux if aux != null, return aux otherwise
-	 */
-	private Node findDecisionNode(Node node, int numId) {
-
-		Node aux = null;
-
-		if (node instanceof DecisionNode) {
-			// System.out.print(" id=" + ((DecisionNode)node).getUniqueDecisionNodeId());
-			if (((DecisionNode) node).getUniqueDecisionNodeId() == numId)
-				return node;
-			else {
-				for (int i = 0; i < ((DecisionNode) node).getNumberOfDaugthers(); i++) {
-					aux = findDecisionNode(((DecisionNode) node).getDaughter(i), numId);
-					if (aux != null)
-						return aux;
-				}
-			}
-		}
-		return aux;
-
-	} /* method findDecisionNode */
 
 	/**
 	 * Load pdf's, mean and variance the #leaves corresponds to the unique leaf node id pdf -->

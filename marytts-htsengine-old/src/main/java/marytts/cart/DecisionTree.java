@@ -1,4 +1,7 @@
 package marytts.cart;
+
+import java.util.Map;
+
 /**
  *
  *
@@ -6,8 +9,6 @@ package marytts.cart;
  */
 public class DecisionTree
 {
-    public enum TypeValue { STRING, PDF};
-    private TypeValue type_value;
     private Object value;
     private String name;
     private DecisionTree[] sons;
@@ -20,7 +21,6 @@ public class DecisionTree
     {
         this.name = name;
         this.value = value;
-        this.type_value = type;
     }
 
     public void setLeftRight(DecisionTree left, DecisionTree right)
@@ -30,15 +30,21 @@ public class DecisionTree
         sons[1] = right;
     }
 
-    public booleans isLeaf()
+    public boolean isLeaf()
     {
         return sons == null;
     }
 
-    public DecisionTree interpret(Object value)
+    public Object traverse(Map<String, String> features)
     {
+        if (isLeaf())
+            return getValue();
+
+        if (features.get(getName()).equals(getValue()))
+            return sons[1].traverse(features);
+
         /* TODO */
-        return null;
+        return sons[0].traverse(features);
     }
 
     public Object getValue()
@@ -49,11 +55,6 @@ public class DecisionTree
     public String getName()
     {
         return this.name;
-    }
-
-    public TypeValue getTypeValue()
-    {
-        return type_value;
     }
 
 }
