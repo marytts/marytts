@@ -38,7 +38,7 @@ import marytts.util.data.MaryHeader;
 
 /**
  * IO functions for CARTs in WagonCART format
- * 
+ *
  * @author Anna Hunecke, Marc Schröder, Marcela Charfuelan
  */
 public class WagonCARTReader {
@@ -61,10 +61,10 @@ public class WagonCARTReader {
 
 	/**
 	 * When creating a WagonCARTReader provide a tree type
-	 * 
+	 *
 	 * @param leafType
 	 *            ClasificationTree, ExtendedClassificationTree, RegressionTree, or TopLevelTree.
-	 * 
+	 *
 	 *            <p>
 	 *            ClasificationTree &rarr; IntArrayLeafNode
 	 *            <p>
@@ -83,7 +83,7 @@ public class WagonCARTReader {
 	/**
 	 * For a line representing a leaf in Wagon format, create a leaf. This method decides which implementation of LeafNode is
 	 * used, i.e. which data format is appropriate. Lines are of the form ((index1 float1)...(indexN floatN)) 0))
-	 * 
+	 *
 	 * @param line
 	 *            a line from a wagon cart file, representing a leaf
 	 * @return a leaf node representing the line.
@@ -104,7 +104,7 @@ public class WagonCARTReader {
 	}
 
 	// in case of using the reader more than once for different root nodes.
-	private void cleadReader() {
+	private void clearReader() {
 		rootNode = null;
 		lastNode = null;
 		featDef = null;
@@ -112,9 +112,9 @@ public class WagonCARTReader {
 	}
 
 	/**
-	 * 
+	 *
 	 * This loads a cart from a wagon tree in textual format, from a reader.
-	 * 
+	 *
 	 * @param reader
 	 *            the Reader providing the wagon tree
 	 * @param featDefinition
@@ -123,8 +123,10 @@ public class WagonCARTReader {
 	 *             IOException
 	 * @return rootNode
 	 */
-	public Node load(BufferedReader reader, FeatureDefinition featDefinition) throws IOException {
-		cleadReader();
+	public Node load(BufferedReader reader, FeatureDefinition featDefinition)
+        throws IOException
+    {
+		clearReader();
 		featDef = featDefinition;
 		openBrackets = 0;
 		String line = reader.readLine();
@@ -155,7 +157,7 @@ public class WagonCARTReader {
 
 	/**
 	 * Load the cart from the given file
-	 * 
+	 *
 	 * @param fileName
 	 *            the file to load the cart from
 	 * @param featDefinition
@@ -169,9 +171,10 @@ public class WagonCARTReader {
 	 * @return rootNode
 	 */
 	// TODO: CHECK! do we need that String[] dummy???
-	public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy) throws IOException,
-			MaryConfigurationException {
-		cleadReader();
+	public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy)
+        throws IOException, MaryConfigurationException
+    {
+		clearReader();
 		// System.out.println("Loading file");
 		// open the CART-File and read the header
 		DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
@@ -223,7 +226,7 @@ public class WagonCARTReader {
 
 	/**
 	 * Creates a node from the given input line and add it to the CART.
-	 * 
+	 *
 	 * @param line
 	 *            a line of input to parse
 	 * @throws IOException
@@ -505,7 +508,7 @@ public class WagonCARTReader {
 
 	/**
 	 * Fill the FeatureVector leafs of a tree with the given feature vectors. This function is only used in TopLeavelTree.
-	 * 
+	 *
 	 * @param root
 	 *            node of the tree.
 	 * @param featureVectors

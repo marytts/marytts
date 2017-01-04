@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 
 import marytts.modules.InternalModule;
 
-import marytts.modeling.cart.StringPredictionTree;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -74,9 +73,6 @@ import org.w3c.dom.Document;
  */
 public class PronunciationModel extends InternalModule {
 
-	// for prediction, core of the model - maps phones to decision trees
-	private Map<String, StringPredictionTree> treeMap;
-
 	// used in startup() and later for convenience
 	private FeatureDefinition featDef;
 
@@ -110,38 +106,7 @@ public class PronunciationModel extends InternalModule {
 			// reader for file, readweights = false
 			featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
 
-			// get path where the prediction trees lie
-			File treePath = new File(MaryProperties.needFilename(MaryProperties.localePrefix(getLocale())
-                                                                 + ".pronunciation.treepath"));
-
-			// valid predicion tree files are named prediction_<phone_symbol>.tree
-			Pattern treeFilePattern = Pattern.compile("^prediction_(.*)\\.tree$");
-
-			// initialize the map that contains the trees
-			this.treeMap = new HashMap<String, StringPredictionTree>();
-
-			// iterate through potential prediction tree files
-			File[] fileArray = treePath.listFiles();
-			for (int fileIndex = 0; fileIndex < fileArray.length; fileIndex++) {
-				File f = fileArray[fileIndex];
-
-				// is file name valid?
-				Matcher filePatternMatcher = treeFilePattern.matcher(f.getName());
-
-				if (filePatternMatcher.matches()) {
-					// phone of file name is a group in the regex
-					String phoneId = filePatternMatcher.group(1);
-
-					// construct tree from file and map phone to it
-					StringPredictionTree predictionTree = new StringPredictionTree(new BufferedReader(new FileReader(f)), featDef);
-
-					// back mapping from short id
-					int index = this.featDef.getFeatureIndex("phone");
-					this.treeMap.put(this.featDef.getFeatureValueAsString(index, Short.parseShort(phoneId)), predictionTree);
-					// logger.debug("Read in tree for " + PhoneNameConverter.normForm2phone(phone));
-				}
-			}
-			logger.debug("Reading in feature definition and decision trees finished.");
+			logger.debug("Reading in feature definition finished.");
 
 			// TODO: change property name to german.pronunciation.featuremanager/features
 			String managerClass = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
@@ -228,32 +193,6 @@ public class PronunciationModel extends InternalModule {
         if (w.getSyllables().size() > 0)
             return; // FIXME: maybe throw an exception to indicate that technically we should not arrive in a syllabification stage a second time
 
-        /**********************************************************************
-         *** FIXME: why that ?!
-            StringTokenizer tok = new StringTokenizer(phone, "-");
-            Document document = token.getOwnerDocument();
-            Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
-            String vq = null; // voice quality
-            if (prosody != null) {
-            // Ignore any effects of ancestor prosody tags for now:
-            String volumeString = prosody.getAttribute("volume");
-            int volume = -1;
-            try {
-            volume = Integer.parseInt(volumeString);
-            } catch (NumberFormatException e) {
-            }
-            if (volume >= 0) {
-            if (volume >= 60) {
-            vq = "loud";
-            } else if (volume <= 40) {
-            vq = "soft";
-            } else {
-            vq = null;
-            }
-            }
-            }
-        */
-
         for (Phoneme p:phonemes)
         {
             String sylString = p.getLabel();
@@ -272,11 +211,6 @@ public class PronunciationModel extends InternalModule {
 
                 Phoneme cur_ph = new Phoneme(allophones[i].name());
                 syl_phonemes.add(cur_ph);
-                /*
-                  if (vq != null && !(allophones[i].name().equals("_") || allophones[i].name().equals("?"))) {
-                  segment.setAttribute("vq", vq);
-                  }
-                */
             }
 
             // Check for stress signs:
@@ -297,40 +231,4 @@ public class PronunciationModel extends InternalModule {
             w.addSyllable(new Syllable(syl_phonemes, tone, stress, accent));
         }
     }
-
-// protected void updatePhAttributesFromPhElements(Word w)
-// {
-//     if (token == null)
-//         throw new NullPointerException("Got null token");
-//     if (!token.getTagName().equals(MaryXML.TOKEN)) {
-//         throw new IllegalArgumentException("Argument should be a <" + MaryXML.TOKEN + ">, not a <" + token.getTagName() + ">");
-//     }
-//     StringBuilder tPh = new StringBuilder();
-//     TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
-//     Element syl;
-//     while ((syl = (Element) sylWalker.nextNode()) != null) {
-//         StringBuilder sylPh = new StringBuilder();
-//         String stress = syl.getAttribute("stress");
-//         if (stress.equals("1"))
-//             sylPh.append("'");
-//         else if (stress.equals("2"))
-//             sylPh.append(",");
-//         TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
-//         Element ph;
-//         while ((ph = (Element) phWalker.nextNode()) != null) {
-//             if (sylPh.length() > 0)
-//                 sylPh.append(" ");
-//             sylPh.append(ph.getAttribute("p"));
-//         }
-//         String sylPhString = sylPh.toString();
-//         syl.setAttribute("ph", sylPhString);
-//         if (tPh.length() > 0)
-//             tPh.append(" - ");
-//         tPh.append(sylPhString);
-//         if (syl.hasAttribute("tone")) {
-//             tPh.append(" " + syl.getAttribute("tone"));
-//         }
-//     }
-//     token.setAttribute("ph", tPh.toString());
-// }
 }
