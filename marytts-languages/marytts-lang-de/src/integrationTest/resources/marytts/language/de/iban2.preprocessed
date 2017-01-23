@@ -16,9 +16,11 @@ B
 </mtu>
 </phonology>
 </prosody>
+<mtu accent="last" orig="29">
 <t>
 neunundzwanzig
 </t>
+</mtu>
 </mtu>
 <prosody rate="-20%">
 <phonology precision="precise">
@@ -38,6 +40,7 @@ K
 </mtu>
 </phonology>
 </prosody>
+<mtu accent="last" orig="6016">
 <t>
 sechs
 </t>
@@ -47,6 +50,8 @@ Tausend
 <t>
 sechzehn
 </t>
+</mtu>
+<mtu accent="last" orig="1331">
 <t>
 ein
 </t>
@@ -62,6 +67,8 @@ Hundert
 <t>
 einunddreißig
 </t>
+</mtu>
+<mtu accent="last" orig="9268">
 <t>
 neun
 </t>
@@ -77,9 +84,12 @@ Hundert
 <t>
 achtundsechzig
 </t>
+</mtu>
+<mtu accent="last" orig="19">
 <t>
 neunzehn
 </t>
+</mtu>
 </mtu>
 </s>
 </p>
