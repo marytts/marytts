@@ -56,7 +56,6 @@ import marytts.modeling.features.FeatureFileReader;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.model.BoundaryModel;
-import marytts.modules.acoustic.model.CARTModel;
 import marytts.modules.acoustic.model.Model;
 import marytts.modules.acoustic.model.ModelType;
 import marytts.modules.acoustic.model.SoPModel;

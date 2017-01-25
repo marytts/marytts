@@ -73,9 +73,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-import marytts.modeling.cart.CART;
-import marytts.modeling.cart.DecisionNode;
-import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.util.MaryUtils;
 
@@ -83,9 +80,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Set of Global Mean and (diagonal) Variance for log f0, mel-cepstrum, bandpass voicing strengths and Fourier magnitudes (
- * 
+ *
  * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
- * 
+ *
  * @author Marcela Charfuelan
  */
 public class GVModelSet {
