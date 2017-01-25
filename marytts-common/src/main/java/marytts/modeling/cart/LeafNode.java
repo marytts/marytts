@@ -29,7 +29,7 @@ import marytts.modeling.features.FeatureVector;
 /**
  * The leaf of a CART.
  */
-public abstract class LeafNode extends Node {
+public abstract class LeafNode { //extends Node {
 
 	public enum LeafType {
 		IntArrayLeafNode, FloatLeafNode, IntAndFloatArrayLeafNode, StringAndFloatLeafNode, FeatureVectorLeafNode, PdfLeafNode
@@ -40,14 +40,11 @@ public abstract class LeafNode extends Node {
 
 	/**
 	 * Create a new LeafNode.
-	 * 
+	 *
 	 */
 	public LeafNode() {
-		super();
-		isRoot = false;
 	}
 
-	@Override
 	public boolean isLeafNode() {
 		return true;
 	}
@@ -55,7 +52,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
 	 * and leaf nodes in the tree.
-	 * 
+	 *
 	 * @return 1
 	 */
 	public int getNumberOfNodes() {
@@ -77,7 +74,7 @@ public abstract class LeafNode extends Node {
 
 	/**
 	 * Indicate whether the leaf node has no meaningful data.
-	 * 
+	 *
 	 * @return whether the node is empty or not
 	 */
 	public abstract boolean isEmpty();
@@ -85,7 +82,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Count all the data available at and below this node. The meaning of this depends on the type of nodes; for example, when
 	 * IntArrayLeafNodes are used, it is the total number of ints that are saved in all leaf nodes below the current node.
-	 * 
+	 *
 	 * @return an int counting the data below the current node, or -1 if such a concept is not meaningful.
 	 */
 	public abstract int getNumberOfData();
@@ -93,7 +90,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Get all the data at or below this node. The type of data returned depends on the type of nodes; for example, when
 	 * IntArrayLeafNodes are used, one int[] is returned which contains all int values in all leaf nodes below the current node.
-	 * 
+	 *
 	 * @return an object containing all data below the current node, or null if such a concept is not meaningful.
 	 */
 	public abstract Object getAllData();
@@ -101,7 +98,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * Write this node's data into the target object at pos, making sure that exactly len data are written. The type of data
 	 * written depends on the type of nodes; for example, when IntArrayLeafNodes are used, target would be an int[].
-	 * 
+	 *
 	 * @param target
 	 *            the object to write to, usually an array.
 	 * @param pos
@@ -113,7 +110,7 @@ public abstract class LeafNode extends Node {
 
 	/**
 	 * The type of this leaf node.
-	 * 
+	 *
 	 * @return the type of the leaf node
 	 */
 	public abstract LeafType getLeafNodeType();
@@ -121,7 +118,7 @@ public abstract class LeafNode extends Node {
 	/**
 	 * An LeafNode class suitable for representing the leaves of classification trees -- the leaf is a collection of items
 	 * identified by an index number.
-	 * 
+	 *
 	 * @author marc
 	 *
 	 */
@@ -135,7 +132,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Get all data in this leaf
-		 * 
+		 *
 		 * @return the int array contained in this leaf
 		 */
 		public Object getAllData() {
@@ -170,8 +167,8 @@ public abstract class LeafNode extends Node {
 
 		public String toString() {
 			if (data == null)
-				return super.toString() + "(int[null])";
-			return super.toString() + "(int[" + data.length + "])";
+				return  "(int[null])";
+			return  "(int[" + data.length + "])";
 		}
 
 	}
@@ -192,7 +189,7 @@ public abstract class LeafNode extends Node {
 		/**
 		 * For the int-float pairs in this leaf, return the int value for which the associated float value is the highest one. If
 		 * the float values are probabilities, this method returns the most probable int.
-		 * 
+		 *
 		 * @return the most probable index
 		 */
 		public int mostProbableInt() {
@@ -210,7 +207,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Delete a candidate of the leaf by its given data/index
-		 * 
+		 *
 		 * @param target
 		 *            the given data
 		 */
@@ -235,8 +232,8 @@ public abstract class LeafNode extends Node {
 
 		public String toString() {
 			if (data == null)
-				return super.toString() + "(int and floats[null])";
-			return super.toString() + "(int and floats[" + data.length + "])";
+				return  "(int and floats[null])";
+			return  "(int and floats[" + data.length + "])";
 		}
 
 	}
@@ -250,7 +247,7 @@ public abstract class LeafNode extends Node {
 		/**
 		 * Return the most probable value in this leaf, translated into its string representation using the featureIndex'th
 		 * feature of the given feature definition.
-		 * 
+		 *
 		 * @param featureDefinition
 		 *            featureDefinition
 		 * @param featureIndex
@@ -264,8 +261,8 @@ public abstract class LeafNode extends Node {
 
 		public String toString() {
 			if (data == null)
-				return super.toString() + "(string and floats[null])";
-			return super.toString() + "(string and floats[" + data.length + "])";
+				return  "(string and floats[null])";
+			return  "(string and floats[" + data.length + "])";
 		}
 
 		public LeafType getLeafNodeType() {
@@ -281,7 +278,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Build a new leaf node containing the given feature vectors
-		 * 
+		 *
 		 * @param featureVectors
 		 *            the feature vectors
 		 */
@@ -293,7 +290,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Build a new, empty leaf node to be filled with vectors later
-		 * 
+		 *
 		 */
 		public FeatureVectorLeafNode() {
 			super();
@@ -308,7 +305,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Get the feature vectors of this node
-		 * 
+		 *
 		 * @return the feature vectors
 		 */
 		public FeatureVector[] getFeatureVectors() {
@@ -324,7 +321,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Get all data in this leaf
-		 * 
+		 *
 		 * @return the featurevector array contained in this leaf
 		 */
 		public Object getAllData() {
@@ -363,15 +360,15 @@ public abstract class LeafNode extends Node {
 			if (growable)
 				return "fv[" + featureVectorList.size() + "]";
 			if (featureVectors == null)
-				return super.toString() + "(fv[null])";
-			return super.toString() + "(fv[" + featureVectors.length + "])";
+				return  "(fv[null])";
+			return  "(fv[" + featureVectors.length + "])";
 		}
 
 	}
 
 	/**
 	 * A leaf class that is suitable for regression trees. Here, a leaf consists of a mean and a standard deviation.
-	 * 
+	 *
 	 * @author marc
 	 *
 	 */
@@ -387,7 +384,7 @@ public abstract class LeafNode extends Node {
 
 		/**
 		 * Get all data in this leaf
-		 * 
+		 *
 		 * @return the mean/standard deviation value contained in this leaf
 		 */
 		public Object getAllData() {
@@ -424,8 +421,8 @@ public abstract class LeafNode extends Node {
 
 		public String toString() {
 			if (data == null)
-				return super.toString() + "(mean=null, stddev=null)";
-			return super.toString() + "(mean=" + data[1] + ", stddev=" + data[0] + ")";
+				return  "(mean=null, stddev=null)";
+			return  "(mean=" + data[1] + ", stddev=" + data[0] + ")";
 		}
 
 	}
@@ -532,8 +529,8 @@ public abstract class LeafNode extends Node {
 
 		public String toString() {
 			if (mean == null)
-				return super.toString() + "(mean=null, stddev=null)";
-			return super.toString() + "(mean=[" + vectorSize + "], stddev=[" + vectorSize + "])";
+				return  "(mean=null, stddev=null)";
+			return  "(mean=[" + vectorSize + "], stddev=[" + vectorSize + "])";
 		}
 
 	}
