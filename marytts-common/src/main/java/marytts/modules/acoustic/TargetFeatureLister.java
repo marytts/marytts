@@ -28,6 +28,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.modeling.features.FeatureVector;
+import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
 import marytts.util.dom.MaryDomUtils;
@@ -68,6 +69,8 @@ public class TargetFeatureLister extends InternalModule {
 		}
 		assert featureComputer != null : "Cannot get a feature computer!";
 		Document doc = d.getDocument();
+
+
 		// First, get the list of segments and boundaries in the current document
 		TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
 		List<Element> segmentsAndBoundaries = new ArrayList<Element>();
@@ -75,6 +78,8 @@ public class TargetFeatureLister extends InternalModule {
 		while ((e = (Element) tw.nextNode()) != null) {
 			segmentsAndBoundaries.add(e);
 		}
+
+
 		// Second, construct targets
 		String out = listTargetFeatures(featureComputer, segmentsAndBoundaries);
 		MaryData result = new MaryData(outputType(), d.getLocale());
@@ -91,22 +96,37 @@ public class TargetFeatureLister extends InternalModule {
 	 *            segmentsAndBoundaries
 	 * @return a multi-line string.
 	 */
-	public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
+	public String listTargetFeatures(TargetFeatureComputer featureComputer,
+                                     List<Element> segmentsAndBoundaries)
+    {
 		String pauseSymbol = featureComputer.getPauseSymbol();
 		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
+
 		// Third, compute the feature vectors and convert them to text
-		String header = featureComputer.getAllFeatureProcessorNamesAndValues();
+        FeatureDefinition feat_def = featureComputer.getFeatureDefinition();
+        List<String> feature_names = feat_def.getNames();
+        StringBuilder header = new StringBuilder();
+        header.append("#id");
+        for (String feature_name: feature_names){
+            header.append("\t");
+            header.append(feature_name);
+        }
+
 		StringBuilder text = new StringBuilder();
-		StringBuilder bin = new StringBuilder();
+        int id_seg = 0;
 		for (Element target : targets) {
 			FeatureVector features = featureComputer.computeFeatureVector(target);
-			text.append(featureComputer.toStringValues(features)).append("\n");
-			bin.append(features.toString()).append("\n");
+            text.append(id_seg);
+            for (String feature_name: feature_names) {
+                int i = feat_def.getFeatureIndex(feature_name);
+                text.append("\t" + features.getFeatureAsString(i, feat_def));
+            }
+			text.append("\n");
+            id_seg++;
 		}
 
 		// Leave an empty line between sections:
-		String out = header + "\n" + text + "\n" + bin;
-		return out;
+		return header + "\n" + text;
 	}
 
 	/**
@@ -118,7 +138,8 @@ public class TargetFeatureLister extends InternalModule {
 	 *            segmentsAndBoundaries
 	 * @return targets
 	 */
-	public List<FeatureVector> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) {
+	public List<FeatureVector> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries)
+    {
 		String pauseSymbol = featureComputer.getPauseSymbol();
 		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
         List<FeatureVector> target_features = new ArrayList<FeatureVector>();
@@ -126,6 +147,7 @@ public class TargetFeatureLister extends InternalModule {
 		for (Element target : targets) {
             target_features.add(featureComputer.computeFeatureVector(target));
         }
+
 		return target_features;
 	}
 
