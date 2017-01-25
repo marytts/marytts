@@ -42,8 +42,6 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.modeling.cart.DirectedGraph;
-import marytts.modeling.cart.io.DirectedGraphReader;
 import marytts.config.MaryConfig;
 import marytts.config.VoiceConfig;
 import marytts.datatypes.MaryData;
@@ -139,8 +137,6 @@ public abstract class Voice {
 	String preferredModulesClasses;
 	private Vector<MaryModule> preferredModules;
 	private boolean vocalizationSupport;
-	protected DirectedGraph durationGraph;
-	protected DirectedGraph f0Graph;
 	protected FeatureFileReader f0ContourFeatures;
 	protected Map<String, Model> acousticModels;
 
@@ -223,39 +219,9 @@ public abstract class Voice {
 		}
 		preferredModulesClasses = MaryProperties.getProperty(header + ".preferredModules");
 
-		loadOldStyleProsodyModels(header);
 		loadAcousticModels(header);
 		// initialization of FeatureProcessorManager for this voice, if needed:
 		initFeatureProcessorManager();
-	}
-
-	@Deprecated
-    private void loadOldStyleProsodyModels(String header) throws MaryConfigurationException {
-		// see if there are any voice-specific duration and f0 models to load
-		durationGraph = null;
-		String durationGraphFile = MaryProperties.getFilename(header + ".duration.cart");
-		if (durationGraphFile != null) {
-			logger.debug("...loading duration graph...");
-			try {
-				durationGraph = (new DirectedGraphReader()).load(durationGraphFile);
-			} catch (IOException e) {
-				throw new MaryConfigurationException("Cannot load duration graph file '" + durationGraphFile + "'", e);
-			}
-		}
-
-		f0Graph = null;
-		String f0GraphFile = MaryProperties.getFilename(header + ".f0.graph");
-		if (f0GraphFile != null) {
-			logger.debug("...loading f0 contour graph...");
-			try {
-				f0Graph = (new DirectedGraphReader()).load(f0GraphFile);
-				// If we have the graph, we need the contour:
-				String f0ContourFile = MaryProperties.needFilename(header + ".f0.contours");
-				f0ContourFeatures = new FeatureFileReader(f0ContourFile);
-			} catch (IOException e) {
-				throw new MaryConfigurationException("Cannot load f0 contour graph file '" + f0GraphFile + "'", e);
-			}
-		}
 	}
 
 	/**
@@ -456,14 +422,6 @@ public abstract class Voice {
      */
     public String getDomain() {
         return domain;
-    }
-
-    public DirectedGraph getDurationGraph() {
-        return durationGraph;
-    }
-
-    public DirectedGraph getF0Graph() {
-        return f0Graph;
     }
 
     public FeatureFileReader getF0ContourFeatures() {
