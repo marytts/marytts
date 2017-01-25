@@ -65,10 +65,6 @@ import java.util.StringTokenizer;
 
 import weka.classifiers.trees.SimpleCart;
 import marytts.cart.DecisionTree;
-import marytts.modeling.cart.CART;
-import marytts.modeling.cart.DecisionNode;
-import marytts.modeling.cart.LeafNode;
-import marytts.modeling.cart.Node;
 import marytts.modeling.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.exceptions.MaryConfigurationException;
@@ -278,7 +274,7 @@ public class HTSCARTReader {
         else
         {
             // create an empty PdfLeafNode
-            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(-arch[0], pdf[-arch[0] - 1]);
+            PdfLeafNode auxnode = new PdfLeafNode(-arch[0], pdf[-arch[0] - 1]);
             left = new DecisionTree("dist_" + (-arch[0]), auxnode);
         }
 
@@ -289,7 +285,7 @@ public class HTSCARTReader {
         else
         {
             // create an empty PdfLeafNode
-            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(-arch[1], pdf[-arch[1] - 1]);
+            PdfLeafNode auxnode = new PdfLeafNode(-arch[1], pdf[-arch[1] - 1]);
             right = new DecisionTree("dist_" + (-arch[1]), auxnode);
         }
 
