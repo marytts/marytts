@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -47,19 +47,18 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
  * A pseudo-harmonic representation based synthesizer for the noise part.
- * 
+ *
  * Reference: Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, for Speech and
  * Speaker Modification", Ph.D. thesis, Ecole Nationale Supérieure des Télécommunications.
- * 
+ *
  * @author oytun.turk
- * 
+ *
  */
 public class NoisePartPseudoHarmonicSynthesizer {
 
@@ -326,7 +325,10 @@ public class NoisePartPseudoHarmonicSynthesizer {
 					noisePart[n] += noiseTracks[k][n];
 			}
 
-			if (referenceFile != null && FileUtils.exists(referenceFile) && synthesisParams.writeSeparateHarmonicTracksToOutputs) {
+			if (referenceFile != null &&
+                (new File(referenceFile)).exists() &&
+                synthesisParams.writeSeparateHarmonicTracksToOutputs)
+            {
 				// Write separate tracks to output
 				AudioInputStream inputAudio = null;
 				try {
