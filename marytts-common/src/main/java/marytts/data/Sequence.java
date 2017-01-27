@@ -113,7 +113,7 @@ public class Sequence<E extends Item> extends ArrayList<E>
     public void add(int index, E it, boolean expand_relation)
     {
         super.add(it);
-        it.addSequenceReference(this);
+        it.setSequenceReference(this);
 
         // Remove the items from the target relations
         for (Relation rel: m_target_relation_references)
@@ -134,9 +134,9 @@ public class Sequence<E extends Item> extends ArrayList<E>
     {
         E previous = super.set(index, new_elt);
 
-        new_elt.addSequenceReference(this);
+        new_elt.setSequenceReference(this);
 
-        previous.removeSequenceReference(this);
+        previous.unsetSequenceReference();
 
         return previous;
     }
@@ -160,7 +160,7 @@ public class Sequence<E extends Item> extends ArrayList<E>
         E it = super.remove(index);
 
         // Update the reference of the item to indicate that it is not a member of the sequence
-        it.removeSequenceReference(this);
+        it.unsetSequenceReference();
 
         return it;
     }
@@ -173,7 +173,7 @@ public class Sequence<E extends Item> extends ArrayList<E>
             return false;
 
         // Clean references
-        ((Item) it).removeSequenceReference(this);
+        ((Item) it).unsetSequenceReference();
 
         // And remove properly the item now
         remove(idx);
@@ -205,6 +205,9 @@ public class Sequence<E extends Item> extends ArrayList<E>
     @Override
     public String toString()
     {
-        return "Seq(" + hashCode() + ")";
+        if (this.size() > 0)
+            return "Seq(" + hashCode() + "," + get(0).getClass().getSimpleName() + ")";
+        else
+            return "Seq(" + hashCode() + ")";
     }
 }

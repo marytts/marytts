@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
-  <p>
-    <s>
+  <p>Welcome to the world of speech synthesis!
+    <s>Welcome to the world of speech synthesis!
       <t>
         Welcome
       </t>

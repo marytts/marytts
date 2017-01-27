@@ -92,10 +92,14 @@ public class RelationGraph
 
         // check if source or target are present in the graph
         if (!m_actual_graph.containsVertex(source))
+        {
             return null;
+        }
 
         if (!m_actual_graph.containsVertex(target))
+        {
             return null;
+        }
 
         // Try to get the direct relation
         Relation final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target));
@@ -108,7 +112,8 @@ public class RelationGraph
         // Try to build the relation
         synchronized(m_actual_graph)
         {
-            List<RelationEdge> list_edges = (new DijkstraShortestPath(m_actual_graph, source, target)).getPathEdgeList();
+            List<RelationEdge> list_edges =
+                (new DijkstraShortestPath(m_actual_graph, source, target)).getPathEdgeList();
 
             // No path found
             if (list_edges.isEmpty())
@@ -118,9 +123,13 @@ public class RelationGraph
             RelationEdge first = list_edges.remove(0);
             Sequence<? extends Item> cur_source = (Sequence<? extends Item>) first.getSource();
             Sequence<? extends Item> cur_target = (Sequence<? extends Item>) first.getTarget();
-            final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
-            if (final_rel == null)
-                final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_target, cur_source)).getReverse();
+            if (cur_source == source)
+                final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
+            else
+            {
+                final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target)).getReverse();
+            }
+            Sequence<? extends Item> prev_target = cur_target;
 
             for (RelationEdge cur_edge: list_edges)
             {
@@ -128,10 +137,17 @@ public class RelationGraph
                 cur_target = (Sequence<? extends Item>) cur_edge.getTarget();
 
                 Relation cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
-                if (cur_rel == null)
-                    cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_target, cur_source)).getReverse();
-
+                if (cur_source != prev_target)
+                {
+                    cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target)).getReverse();
+                }
+                else
+                {
+                    System.out.println(cur_rel);
+                }
                 final_rel = final_rel.compose(cur_rel);
+
+                prev_target = cur_target;
             }
         }
         return final_rel;

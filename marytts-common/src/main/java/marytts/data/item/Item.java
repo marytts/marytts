@@ -10,25 +10,39 @@ import marytts.data.Sequence;
  */
 public abstract class Item
 {
-    protected HashSet<Sequence<? extends Item>> m_sequences_references;
+    protected Sequence<? extends Item> m_sequence_reference;
 
     protected Item()
     {
-        m_sequences_references = new HashSet<Sequence<? extends Item>>();
+        m_sequence_reference = null;
     }
 
-    public boolean addSequenceReference(Sequence<? extends Item> seq)
+    public boolean setSequenceReference(Sequence<? extends Item> seq)
     {
-        return m_sequences_references.add(seq);
+        if (m_sequence_reference == null)
+        {
+            m_sequence_reference = seq;
+            return true;
+        }
+        else
+        {
+            m_sequence_reference = seq;
+            return false;
+        }
     }
 
-    public boolean removeSequenceReference(Sequence<? extends Item> seq)
+    public void unsetSequenceReference()
     {
-        return m_sequences_references.remove(seq);
+        m_sequence_reference = null;
     }
 
     public boolean isInSequence(Sequence<? extends Item> seq)
     {
-        return m_sequences_references.contains(seq);
+        return (m_sequence_reference == seq);
+    }
+
+    public Sequence<? extends Item> getSequence()
+    {
+        return m_sequence_reference;
     }
 }

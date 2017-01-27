@@ -112,6 +112,11 @@ public class Utterance
         return m_relation_graph.getRelation(getSequence(source), getSequence(target));
     }
 
+    public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target)
+    {
+        return m_relation_graph.getRelation(source, target);
+    }
+
     /**
      * FIXME: have to check !
      */

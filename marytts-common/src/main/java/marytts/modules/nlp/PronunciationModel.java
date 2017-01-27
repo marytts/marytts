@@ -146,7 +146,14 @@ public class PronunciationModel extends InternalModule {
         AllophoneSet allophoneSet = null;
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(doc);
+
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+        Sequence<Syllable> syllables = new Sequence<Syllable>();
+        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+
+        Sequence<Phoneme> phones = new Sequence<Phoneme>();
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+
         Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD).getReverse();
         HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
@@ -171,8 +178,18 @@ public class PronunciationModel extends InternalModule {
             }
 
             logger.info(allophoneSet);
-            createSubStructure(w, allophoneSet);
+            createSubStructure(w, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_syllable);
         }
+
+        // Relation word/syllable
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+
+        utt.addSequence(SupportedSequenceType.PHONE, phones);
+        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+
 
         // Create the phrase sequence (FIXME: let's be naive for now, 1 sentence = 1 phrase)
         // Create the sentence/phrase relation
@@ -183,15 +200,15 @@ public class PronunciationModel extends InternalModule {
         return result;
     }
 
-    private void createSubStructure(Word w, AllophoneSet allophoneSet)
+    private void createSubStructure(Word w, AllophoneSet allophoneSet,
+                                    Sequence<Syllable> syllables, Sequence<Phoneme> phones,
+                                    ArrayList<IntegerPair> alignment_syllable_phone, int word_index,
+                                    ArrayList<IntegerPair> alignment_word_syllable)
         throws Exception
     {
         ArrayList<Phoneme> phonemes = w.getPhonemes();
         if (phonemes.size() == 0)
             return;
-
-        if (w.getSyllables().size() > 0)
-            return; // FIXME: maybe throw an exception to indicate that technically we should not arrive in a syllabification stage a second time
 
         for (Phoneme p:phonemes)
         {
@@ -199,9 +216,12 @@ public class PronunciationModel extends InternalModule {
             if (sylString.trim().isEmpty()) {
                 continue;
             }
+
             logger.info("Dealing with \"" + sylString + "\"");
             Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
             Phoneme tone = null;
+
+            int phone_offset = phones.size();
             ArrayList<Phoneme> syl_phonemes = new ArrayList<Phoneme>();
             for (int i = 0; i < allophones.length; i++) {
                 if (allophones[i].isTone()) {
@@ -210,7 +230,7 @@ public class PronunciationModel extends InternalModule {
                 }
 
                 Phoneme cur_ph = new Phoneme(allophones[i].name());
-                syl_phonemes.add(cur_ph);
+                phones.add(cur_ph);
             }
 
             // Check for stress signs:
@@ -227,8 +247,17 @@ public class PronunciationModel extends InternalModule {
                 stress = 2;
             }
 
-            // Finally create the syllable and add it to the word
-            w.addSyllable(new Syllable(syl_phonemes, tone, stress, accent));
+            // Create the syllable
+            syllables.add(new Syllable(tone, stress, accent));
+
+            // Update the syllable/Word relation
+            alignment_word_syllable.add(new IntegerPair(word_index, syllables.size() - 1));
+
+            // Update the phone/syllable relation
+            for (int i=phone_offset; i<phones.size(); i++)
+            {
+                alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, i));
+            }
         }
     }
 }

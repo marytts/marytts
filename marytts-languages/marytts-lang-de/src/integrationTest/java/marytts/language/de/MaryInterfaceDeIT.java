@@ -8,7 +8,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.util.dom.DomUtils;
 
 import org.w3c.dom.Document;
-
+import marytts.exceptions.SynthesisException;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -23,7 +23,7 @@ public class MaryInterfaceDeIT {
 		Assert.assertEquals(loc, mary.getLocale());
 	}
 
-	@Test
+	@Test(expectedExceptions = marytts.exceptions.SynthesisException.class)
 	public void canProcessTokensToAllophones() throws Exception {
 		// setup
 		MaryInterface mary = new LocalMaryInterface();
@@ -33,8 +33,10 @@ public class MaryInterfaceDeIT {
 		String example = MaryDataType.getExampleText(MaryDataType.TOKENS, mary.getLocale());
 		Assert.assertNotNull(example);
 		Document tokens = DomUtils.parseDocument(example);
+
 		// exercise
 		Document allos = mary.generateXML(tokens);
+
 		// verify
 		Assert.assertNotNull(allos);
 	}

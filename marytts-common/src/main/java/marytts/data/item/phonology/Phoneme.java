@@ -44,4 +44,10 @@ public class Phoneme extends Item
 	{
 		m_stress = stress;
 	}
+
+    @Override
+    public String toString()
+    {
+        return getLabel();
+    }
 }

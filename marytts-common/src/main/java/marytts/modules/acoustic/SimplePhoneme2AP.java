@@ -78,13 +78,19 @@ public class SimplePhoneme2AP extends InternalModule {
         int cumulDur = 0;
 		boolean isFirst = true;
         Sequence<Word> words = new Sequence<Word>();
+        Sequence<Syllable> syllables = new Sequence<Syllable>();
+        Sequence<Phoneme> phones = new Sequence<Phoneme>();
+        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+        int start_syl = 0;
+        int start_phone = 0;
         StringTokenizer stTokens = new StringTokenizer(phoneString);
 		while (stTokens.hasMoreTokens())
         {
 			String tokenPhonemes = stTokens.nextToken();
 			StringTokenizer stSyllables = new StringTokenizer(tokenPhonemes, "-_");
 
-            ArrayList<Syllable> syllables = new ArrayList<Syllable>();
+            int nb_syl = 0;
 			while (stSyllables.hasMoreTokens())
             {
                 // Get syllable string
@@ -105,8 +111,7 @@ public class SimplePhoneme2AP extends InternalModule {
                     syllable_accent = new Accent("*");
                 }
 
-                // Generate phone
-                ArrayList<Phoneme> phones = new ArrayList<Phoneme>();
+                // Generate phones
                 Allophone[] allophones = allophoneSet.splitIntoAllophones(syllablePhonemes);
 				for (int i = 0; i < allophones.length; i++) {
                     // Dealing with duration of the phone
@@ -127,18 +132,40 @@ public class SimplePhoneme2AP extends InternalModule {
                     cumulDur += dur;
                 }
 
-                Syllable syl = new Syllable(phones, stress);
+                Syllable syl = new Syllable(stress);
                 syl.setAccent(syllable_accent);
                 syllables.add(syl);
+
+                for (int i=0; i<allophones.length; i++)
+                    alignment_syllable_phone.add(new IntegerPair(syllables.size()-1, start_phone+i));
+                start_phone = start_phone + allophones.length;
+
+                nb_syl++;
             }
 
             // Wrapping into a word
-            Word w = new Word("", syllables);
+            Word w = new Word("");
             w.setAccent(word_accent);
             words.add(w);
+
+            for (int i=0; i<nb_syl; i++)
+                alignment_word_syllable.add(new IntegerPair(words.size()-1, start_syl+i));
+            start_syl = start_syl + nb_syl;
         }
 
+        // Generate sequence and relations
+        utt.addSequence(SupportedSequenceType.PHONE, phones);
+
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+        utt.setRelation(SupportedSequenceType.SYLLABLE,
+                        SupportedSequenceType.PHONE,
+                        new Relation(syllables, phones, alignment_word_syllable));
+
         utt.addSequence(SupportedSequenceType.WORD, words);
+        utt.setRelation(SupportedSequenceType.WORD,
+                        SupportedSequenceType.SYLLABLE,
+                        new Relation(words, syllables, alignment_word_syllable));
+
 
         // Wrapping into a phrase
         Boundary boundary = new Boundary(4, 400);

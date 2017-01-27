@@ -19,25 +19,12 @@ public class Word extends Item
 	private String m_POS;
 	private String m_text;
     private String m_sounds_like;
-	private ArrayList<Syllable> m_syllables;
 	private ArrayList<Phoneme> m_phonemes;
 	private String m_g2p_method;
     private Locale m_alternative_locale;
     private Accent m_accent;
 
 	public Word(String text)
-	{
-        super();
-		setText(text);
-        setAlternativeLocale(null);
-        soundsLike(null);
-        setG2PMethod(null);
-        setAccent(null);
-        setSyllables(new ArrayList<Syllable>());
-        setPhonemes(new ArrayList<Phoneme>());
-    }
-
-	public Word(String text, ArrayList<Syllable> syllables)
     {
         super();
         setText(text);
@@ -45,7 +32,6 @@ public class Word extends Item
         soundsLike(null);
         setG2PMethod(null);
         setAccent(null);
-        setSyllables(syllables);
         setPhonemes(new ArrayList<Phoneme>());
     }
 
@@ -57,7 +43,6 @@ public class Word extends Item
         soundsLike(null);
         setG2PMethod(null);
         setAccent(null);
-        setSyllables(new ArrayList<Syllable>());
         setPhonemes(new ArrayList<Phoneme>());
     }
 
@@ -69,19 +54,6 @@ public class Word extends Item
         setG2PMethod(null);
         soundsLike(sounds_like);
         setAccent(null);
-        setSyllables(new ArrayList<Syllable>());
-        setPhonemes(new ArrayList<Phoneme>());
-    }
-
-    public Word(String text, String sounds_like, ArrayList<Syllable> syllables)
-    {
-        super();
-        setText(text);
-        setAlternativeLocale(null);
-        setG2PMethod(null);
-        soundsLike(sounds_like);
-        setAccent(null);
-        setSyllables(syllables);
         setPhonemes(new ArrayList<Phoneme>());
     }
 
@@ -116,21 +88,6 @@ public class Word extends Item
     public void setAlternativeLocale(Locale alternative_locale)
     {
         m_alternative_locale = alternative_locale;
-    }
-
-    public ArrayList<Syllable> getSyllables()
-    {
-        return m_syllables;
-    }
-
-    public void setSyllables(ArrayList<Syllable> syllables)
-    {
-        m_syllables = syllables;
-    }
-
-    public void addSyllable(Syllable syl)
-    {
-        m_syllables.add(syl);
     }
 
     public ArrayList<Phoneme> getPhonemes()

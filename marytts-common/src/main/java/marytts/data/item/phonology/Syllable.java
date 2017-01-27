@@ -12,7 +12,6 @@ import marytts.data.item.Item;
 
 public class Syllable extends Item
 {
-	private ArrayList<Phoneme> m_phonemes;
 	private int m_stress_level;
     private Accent m_accent;
     private Phoneme m_tone;
@@ -20,65 +19,41 @@ public class Syllable extends Item
 	public Syllable()
 	{
         super();
-		setPhonemes(new ArrayList<Phoneme>());
         setStressLevel(0);
         setTone(null);
         setAccent(null);
     }
 
-	public Syllable(ArrayList<Phoneme> phonemes)
-	{
-        super();
-		setPhonemes(phonemes);
-        setStressLevel(0);
-        setTone(null);
-        setAccent(null);
-    }
-
-	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone)
+	public Syllable(Phoneme tone)
     {
         super();
-        setPhonemes(phonemes);
         setStressLevel(0);
         setTone(tone);
     }
 
-	public Syllable(ArrayList<Phoneme> phonemes, int stress_level)
+	public Syllable(int stress_level)
     {
         super();
-        setPhonemes(phonemes);
         setStressLevel(stress_level);
         setTone(null);
         setAccent(null);
     }
 
-	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone, int stress_level)
+	public Syllable(Phoneme tone, int stress_level)
     {
         super();
-        setPhonemes(phonemes);
         setStressLevel(stress_level);
         setTone(tone);
         setAccent(null);
     }
 
-	public Syllable(ArrayList<Phoneme> phonemes, Phoneme tone, int stress_level, Accent accent)
+	public Syllable(Phoneme tone, int stress_level, Accent accent)
     {
         super();
-        setPhonemes(phonemes);
         setStressLevel(stress_level);
         setTone(tone);
         setAccent(accent);
     }
-
-    public ArrayList<Phoneme> getPhonemes()
-	{
-		return m_phonemes;
-	}
-
-	public void setPhonemes(ArrayList<Phoneme> phonemes)
-	{
-		m_phonemes = phonemes;
-	}
 
     public int getStressLevel()
     {
