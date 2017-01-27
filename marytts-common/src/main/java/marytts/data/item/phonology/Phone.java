@@ -35,4 +35,10 @@ public class Phone extends Phoneme
 	{
 		m_duration = duration;
 	}
+
+    @Override
+    public String toString()
+    {
+        return getLabel() + " : " + getDuration();
+    }
 }

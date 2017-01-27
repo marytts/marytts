@@ -5,5 +5,7 @@ public enum SupportedSequenceType {
     PARAGRAPH,
     SENTENCE,
     PHRASE,
-    WORD
+    WORD,
+    SYLLABLE,
+    PHONE
 };
