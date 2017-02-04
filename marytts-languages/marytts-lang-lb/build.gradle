@@ -2,6 +2,8 @@ plugins {
     id 'groovy'
 }
 
+apply plugin: LexiconPlugin
+
 dependencies {
     compile project(':marytts-languages:marytts-lang-fr')
     compile libs.groovy
@@ -12,4 +14,48 @@ dependencies {
 test {
     useTestNG()
     systemProperty 'lb.userdict', "$rootDir/src/main/dist/user-dictionaries/userdict-lb.txt"
+}
+
+class LexiconPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        project.configurations.create 'lexiconCompile'
+
+        project.dependencies {
+            lexiconCompile(group: 'de.dfki.mary', name: 'marytts-transcription', version: '5.2') {
+                exclude module: 'sgt'
+                exclude module: 'mwdumper'
+            }
+        }
+
+        project.task('compileLexicon', type: LexiconCompile) {
+            allophonesFile = project.file('lib/modules/lb/lexicon/allophones.lb.xml')
+            lexiconFile = project.file('lib/modules/lb/lexicon/lb.txt')
+        }
+    }
+}
+
+class LexiconCompile extends DefaultTask {
+    @InputFile
+    File allophonesFile
+
+    @InputFile
+    File lexiconFile
+
+    @TaskAction
+    void compile() {
+        project.copy {
+            from allophonesFile, lexiconFile
+            into temporaryDir
+        }
+        project.javaexec {
+            classpath project.configurations.lexiconCompile
+            main 'marytts.tools.transcription.LTSLexiconPOSBuilder'
+            args "$temporaryDir/$allophonesFile.name", "$temporaryDir/$lexiconFile.name"
+        }
+        project.copy {
+            from temporaryDir
+            into project.buildDir
+            include '*.lts', '*.fst'
+        }
+    }
 }
