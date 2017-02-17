@@ -203,6 +203,20 @@ public class Relation
         return target_items;
     }
 
+    public int[] getSourceRelatedIndexes(int target_index)
+    {
+        assert (target_index >= 0) && (target_index < getRelations().columns());
+
+        IntArrayList column = new IntArrayList();
+        getRelations().viewColumn(target_index).getNonZeros(column, null);
+
+        int[] indexes = new int[column.size()];
+        for (int i=0; i<column.size(); i++)
+            indexes[i] = column.get(i);
+
+        return indexes;
+    }
+
     public Relation getReverse()
     {
 

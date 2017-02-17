@@ -2,8 +2,9 @@ package marytts.features;
 
 import marytts.data.item.Item;
 
+
 /**
- * For now just extend string but technically should be a little bit more accurate
+ * A feature is a specific item with a specific value.
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */

@@ -141,10 +141,6 @@ public class RelationGraph
                 {
                     cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target)).getReverse();
                 }
-                else
-                {
-                    System.out.println(cur_rel);
-                }
                 final_rel = final_rel.compose(cur_rel);
 
                 prev_target = cur_target;
