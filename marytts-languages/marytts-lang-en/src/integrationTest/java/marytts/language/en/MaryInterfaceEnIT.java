@@ -26,6 +26,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.util.FeatureUtils;
+import java.io.IOException;
 
 import org.w3c.dom.Document;
 
@@ -68,7 +69,7 @@ public class MaryInterfaceEnIT {
 		Assert.assertNotNull(doc);
 	}
 
-	@Test
+	@Test(expectedExceptions = IOException.class)
 	public void canSelectTargetfeatures() throws Exception {
 		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
 		String featureNames = "phone stressed";

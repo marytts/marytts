@@ -67,7 +67,6 @@ import weka.classifiers.trees.SimpleCart;
 import marytts.cart.DecisionTree;
 import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modeling.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;

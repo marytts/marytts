@@ -19,9 +19,11 @@
  */
 package marytts.modules.acoustic;
 
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import marytts.data.SupportedSequenceType;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -34,6 +36,13 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
+import marytts.features.FeatureComputer;
+import marytts.features.FeatureMap;
+
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
+import marytts.data.Sequence;
+import marytts.data.item.Item;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,11 +57,12 @@ import org.w3c.dom.traversal.TreeWalker;
 
 public class TargetFeatureLister extends InternalModule {
 
-	public TargetFeatureLister(MaryDataType outputType) {
+	public TargetFeatureLister(MaryDataType outputType) throws Exception{
 		super("TargetFeatureLister", MaryDataType.ACOUSTPARAMS, outputType, null);
+        FeatureComputer.initDefault();
 	}
 
-	public TargetFeatureLister() {
+	public TargetFeatureLister() throws Exception {
 		this(MaryDataType.TARGETFEATURES);
 	}
 
@@ -68,8 +78,34 @@ public class TargetFeatureLister extends InternalModule {
 			featureComputer = FeatureRegistry.getTargetFeatureComputer(locale, features);
 		}
 		assert featureComputer != null : "Cannot get a feature computer!";
+
+        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 		Document doc = d.getDocument();
 
+        XMLSerializer xml_ser = new XMLSerializer();
+        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
+        Set<String> keys = null;
+        String tmp_out = "# ";
+        for (Item it: items) {
+            FeatureMap map = the_feature_computer.process(utt, it);
+
+            if (keys == null) {
+                keys = map.keySet();
+                for (String k: keys)
+                    tmp_out += k + "\t";
+                tmp_out += "\n";
+
+            }
+            for (String k: keys) {
+                String val = map.get(k).getStringValue();
+                if (val == "")
+                    val = "0"; // FIXME: hardcoded
+                tmp_out += val + "\t";
+            }
+            tmp_out += "\n";
+        }
+        System.out.println(tmp_out);
 
 		// First, get the list of segments and boundaries in the current document
 		TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
