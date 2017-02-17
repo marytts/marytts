@@ -186,10 +186,10 @@ public class AbbrevEP extends ExpansionPattern {
 			if (REPattern.onlyDigits.matcher(text).find()) {
 				if (Pattern.matches(NumberEP.sInteger, text)) {
 					logger.debug("Expanding as integer: `" + text + "'");
-					exp.addAll(makeNewTokens(token.getOwnerDocument(), number.expandInteger(text)));
+					exp.addAll(makeNewTokens(token.getOwnerDocument(), number.expandInteger(text), true, text));
 				} else {
 					logger.debug("Expanding as digits: `" + text + "'");
-					exp.addAll(makeNewTokens(token.getOwnerDocument(), number.expandDigits(text)));
+					exp.addAll(makeNewTokens(token.getOwnerDocument(), number.expandDigits(text), true, text));
 				}
 
 			} else if (text.length() > 1) {

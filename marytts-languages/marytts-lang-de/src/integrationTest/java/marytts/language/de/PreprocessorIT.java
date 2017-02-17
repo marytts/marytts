@@ -86,4 +86,9 @@ public class PreprocessorIT extends MaryModuleTestCase {
 		processAndCompare("iban3", Locale.GERMAN);
 	}
 
+	@Test
+	public void testvChr() throws Exception {
+		processAndCompare("vChr", Locale.GERMAN);
+	}
+
 }
