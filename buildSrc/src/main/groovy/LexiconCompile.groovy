@@ -3,10 +3,10 @@ import org.gradle.api.tasks.*
 
 class LexiconCompile extends DefaultTask {
     @InputFile
-    File allophonesFile = project.file("lib/modules/$project.locale/lexicon/allophones.${project.locale}.xml")
+    File allophonesFile = project.file("modules/$project.locale/lexicon/allophones.${project.locale}.xml")
 
     @InputFile
-    File lexiconFile = project.file("lib/modules/$project.locale/lexicon/${project.locale}.txt")
+    File lexiconFile = project.file("modules/$project.locale/lexicon/${project.locale}.txt")
 
     @TaskAction
     void compile() {

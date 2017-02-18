@@ -1,0 +1,5 @@
+ext {
+    locale = 'lb'
+}
+
+apply plugin: LexiconPlugin

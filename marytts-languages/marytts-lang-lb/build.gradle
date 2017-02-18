@@ -2,12 +2,6 @@ plugins {
     id 'groovy'
 }
 
-ext {
-    locale = 'lb'
-}
-
-apply plugin: LexiconPlugin
-
 dependencies {
     compile project(':marytts-languages:marytts-lang-fr')
     compile libs.groovy
