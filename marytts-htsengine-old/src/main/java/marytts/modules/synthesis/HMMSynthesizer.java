@@ -69,6 +69,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -95,6 +97,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+
+import marytts.data.Utterance;
+import marytts.data.Relation;
+import marytts.data.Sequence;
+import marytts.data.item.Item;
+import marytts.features.FeatureMap;
+import marytts.features.FeatureComputer;
 
 /**
  * HTS-HMM synthesiser.
@@ -169,31 +178,15 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 	/**
 	 * {@inheritDoc}
 	 */
-	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
-        throws SynthesisException {
+	public AudioInputStream synthesize(Utterance utt, int sentence_index, Voice voice, String outputParams)
+        throws SynthesisException
+    {
 
 		if (!voice.synthesizer().equals(this)) {
 			throw new IllegalArgumentException("Voice " + voice.getName() + " is not an HMM voice.");
 		}
 		logger.info("Synthesizing one sentence.");
 
-		// from tokens and boundaries, extract segments and boundaries:
-		List<Element> segmentsAndBoundaries = new ArrayList<Element>();
-		Document doc = null;
-		for (Element tOrB : tokensAndBoundaries) {
-			if (tOrB.getTagName().equals(MaryXML.BOUNDARY)) {
-				segmentsAndBoundaries.add(tOrB);
-			} else { // a token -- add all segments below it
-				if (doc == null) {
-					doc = tOrB.getOwnerDocument();
-				}
-				NodeIterator ni = MaryDomUtils.createNodeIterator(doc, tOrB, MaryXML.PHONE);
-				Element s;
-				while ((s = (Element) ni.nextNode()) != null) {
-					segmentsAndBoundaries.add(s);
-				}
-			}
-		}
 		try {
 			assert voice instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + voice.getClass().toString();
 
@@ -201,20 +194,21 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 			// -- mmmmmm it did not work, it takes the comp from the default voice
 			// -- CHECK: do we need to do this for every call???
 			String features = ((HMMVoice) voice).getHMMData().getFeatureDefinition().getFeatureNames();
-			TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
 
-			// it is not faster to pass directly a list of targets?
-			// --String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
+			//TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
+            FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
+
 
 			MaryData d = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
-			// --d.setPlainText(targetFeatureString);
 			d.setDefaultVoice(voice);
 
-			List<FeatureVector> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
+            Relation rel_sent_phones = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHONE);
+            ArrayList<Item> items = (ArrayList<Item>) rel_sent_phones.getRelatedItems(sentence_index);
+			List<FeatureMap> targetFeaturesList = targetFeatureLister.getListTargetFeatures(the_feature_computer, utt, items);
 
 			// the actual durations are already fixed in the htsEngine.process()
 			// here i pass segements and boundaries to update the realised acoustparams, dur and f0
-			MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries, tokensAndBoundaries);
+			MaryData audio = htsEngine.process(d, targetFeaturesList, utt);
 
 			return audio.getAudio();
 
