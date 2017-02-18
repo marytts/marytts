@@ -24,9 +24,11 @@ import java.io.InputStream;
 import java.util.List;
 
 import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.FeatureVector;
+import marytts.features.FeatureMap;
 
-import org.w3c.dom.Element;
+import marytts.data.item.Item;
+import marytts.data.Utterance;
+
 
 /**
  * Model which currently predicts only a flat 400 ms duration for each boundary Element
@@ -37,26 +39,26 @@ import org.w3c.dom.Element;
  *
  */
 public class BoundaryModel extends Model {
-	public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream,
-			String targetAttributeName, String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
-		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
-				applyTo);
+	public BoundaryModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream)
+    {
+		super(featureManager, voiceName, dataStream);
 	}
 
 	@Override
-	public void applyTo(List<Element> elements) {
-		for (Element element : elements) {
-			if (!element.hasAttribute(targetAttributeName)) {
-				element.setAttribute(targetAttributeName, "400");
-			}
-		}
+	public void applyTo(Utterance utt, List<Item> items) {
+        throw new UnsupportedOperationException();
+		// for (Element element : elements) {
+		// 	if (!element.hasAttribute(targetAttributeName)) {
+		// 		element.setAttribute(targetAttributeName, "400");
+		// 	}
+		// }
 	}
 
 	/**
 	 * For boundaries, this does nothing;
 	 */
 	@Override
-	protected float evaluate(FeatureVector target) {
+	protected float evaluate(FeatureMap target) {
 		return Float.NaN;
 	}
 
