@@ -25,7 +25,7 @@ import javax.sound.sampled.AudioInputStream;
 
 import marytts.exceptions.SynthesisException;
 
-import org.w3c.dom.Element;
+import marytts.data.Utterance;
 
 /**
  * Provide a common interface for all waveform synthesizers, to be called from within the "wrapping" Synthesis module.
@@ -52,6 +52,6 @@ public interface WaveformSynthesizer {
 	 * @throws SynthesisException
 	 *             if the voice requested for this section is incompatible with this WaveformSynthesizer.
 	 */
-	public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
+	public AudioInputStream synthesize(Utterance utt, int sentence_index, Voice voice, String outputParams)
         throws SynthesisException;
 }

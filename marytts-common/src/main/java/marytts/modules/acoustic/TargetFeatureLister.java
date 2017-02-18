@@ -84,6 +84,28 @@ public class TargetFeatureLister extends InternalModule {
 
         XMLSerializer xml_ser = new XMLSerializer();
         Utterance utt = xml_ser.unpackDocument(d.getDocument());
+
+		// Second, construct targets
+		MaryData result = new MaryData(outputType(), d.getLocale());
+		result.setPlainText(listTargetFeatures(the_feature_computer, utt));
+		return result;
+	}
+
+	/**
+	 * For the given elements and using the given feature computer, create a string representation of the target features.
+	 *
+	 * @param featureComputer
+	 *            featureComputer
+	 * @param segmentsAndBoundaries
+	 *            segmentsAndBoundaries
+	 * @return a multi-line string.
+	 */
+	public String listTargetFeatures(FeatureComputer the_feature_computer,
+                                     Utterance utt) throws Exception
+    {
+
+        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
+
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
         Set<String> keys = null;
         String tmp_out = "# ";
@@ -105,64 +127,8 @@ public class TargetFeatureLister extends InternalModule {
             }
             tmp_out += "\n";
         }
-        System.out.println(tmp_out);
 
-		// First, get the list of segments and boundaries in the current document
-		TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
-		List<Element> segmentsAndBoundaries = new ArrayList<Element>();
-		Element e;
-		while ((e = (Element) tw.nextNode()) != null) {
-			segmentsAndBoundaries.add(e);
-		}
-
-
-		// Second, construct targets
-		String out = listTargetFeatures(featureComputer, segmentsAndBoundaries);
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setPlainText(out);
-		return result;
-	}
-
-	/**
-	 * For the given elements and using the given feature computer, create a string representation of the target features.
-	 *
-	 * @param featureComputer
-	 *            featureComputer
-	 * @param segmentsAndBoundaries
-	 *            segmentsAndBoundaries
-	 * @return a multi-line string.
-	 */
-	public String listTargetFeatures(TargetFeatureComputer featureComputer,
-                                     List<Element> segmentsAndBoundaries)
-    {
-		String pauseSymbol = featureComputer.getPauseSymbol();
-		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
-
-		// Third, compute the feature vectors and convert them to text
-        FeatureDefinition feat_def = featureComputer.getFeatureDefinition();
-        List<String> feature_names = feat_def.getNames();
-        StringBuilder header = new StringBuilder();
-        header.append("#id");
-        for (String feature_name: feature_names){
-            header.append("\t");
-            header.append(feature_name);
-        }
-
-		StringBuilder text = new StringBuilder();
-        int id_seg = 0;
-		for (Element target : targets) {
-			FeatureVector features = featureComputer.computeFeatureVector(target);
-            text.append(id_seg);
-            for (String feature_name: feature_names) {
-                int i = feat_def.getFeatureIndex(feature_name);
-                text.append("\t" + features.getFeatureAsString(i, feat_def));
-            }
-			text.append("\n");
-            id_seg++;
-		}
-
-		// Leave an empty line between sections:
-		return header + "\n" + text;
+        return tmp_out;
 	}
 
 	/**
@@ -174,56 +140,14 @@ public class TargetFeatureLister extends InternalModule {
 	 *            segmentsAndBoundaries
 	 * @return targets
 	 */
-	public List<FeatureVector> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries)
+	public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt, ArrayList<Item> items)
+        throws Exception
     {
-		String pauseSymbol = featureComputer.getPauseSymbol();
-		List<Element> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
-        List<FeatureVector> target_features = new ArrayList<FeatureVector>();
+        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
 
-		for (Element target : targets) {
-            target_features.add(featureComputer.computeFeatureVector(target));
-        }
+        for (Item it: items)
+            target_features.add(the_feature_computer.process(utt, it));
 
 		return target_features;
-	}
-
-	/**
-	 * Access the code from within the our own code so that a subclass can override it. Use this rather than the public static
-	 * method in local code.
-	 *
-	 * @param segmentsAndBoundaries
-	 *            segmentsAndBoundaries
-	 * @param pauseSymbol
-	 *            pauseSymbol
-	 * @return TargetFeatureLister
-	 */
-	protected List<Element> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol) {
-		return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
-	}
-
-	/**
-	 * Create the list of targets from the segments to be synthesized Prepend and append pauses if necessary
-	 *
-	 * @param segmentsAndBoundaries
-	 *            a list of MaryXML phone and boundary elements
-	 * @param silenceSymbol
-	 *            silenceSymbol
-	 * @return a list of Target objects
-	 */
-	public static List<Element> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
-		List<Element> targets = new ArrayList<Element>();
-		if (segmentsAndBoundaries.size() == 0)
-			return segmentsAndBoundaries;
-
-		Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size() - 1);
-		if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
-			Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
-			Element token = (Element) MaryDomUtils.getAncestor(last, MaryXML.TOKEN);
-			Element parent = (Element) token.getParentNode();
-			parent.appendChild(finalPause);
-			segmentsAndBoundaries.add(finalPause);
-		}
-
-		return segmentsAndBoundaries;
 	}
 }

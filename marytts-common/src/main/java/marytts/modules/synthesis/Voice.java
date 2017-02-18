@@ -65,6 +65,8 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
+import marytts.data.Utterance;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
@@ -410,8 +412,8 @@ public abstract class Voice {
      *             SynthesisException
      * @return f0ContourFeatures
      */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams) throws SynthesisException {
-        return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
+    public AudioInputStream synthesize(Utterance utt, int sentence_index, String outputParams) throws SynthesisException {
+        return synthesizer.synthesize(utt, sentence_index, this, outputParams);
     }
 
     /**
