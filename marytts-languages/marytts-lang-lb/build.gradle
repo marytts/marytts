@@ -2,6 +2,10 @@ plugins {
     id 'groovy'
 }
 
+ext {
+    locale = 'lb'
+}
+
 apply plugin: LexiconPlugin
 
 dependencies {
@@ -28,8 +32,8 @@ class LexiconPlugin implements Plugin<Project> {
         }
 
         project.task('compileLexicon', type: LexiconCompile) {
-            allophonesFile = project.file('lib/modules/lb/lexicon/allophones.lb.xml')
-            lexiconFile = project.file('lib/modules/lb/lexicon/lb.txt')
+            allophonesFile = project.file("lib/modules/$project.locale/lexicon/allophones.${project.locale}.xml")
+            lexiconFile = project.file("lib/modules/$project.locale/lexicon/${project.locale}.txt")
         }
     }
 }
