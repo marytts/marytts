@@ -28,13 +28,17 @@ import java.util.List;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.FeatureRegistry;
-import marytts.modeling.features.FeatureVector;
-import marytts.modeling.features.TargetFeatureComputer;
+import marytts.features.FeatureMap;
+import marytts.features.FeatureComputer;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import marytts.data.Utterance;
+import marytts.data.Sequence;
+import marytts.data.item.Item;
+import marytts.data.SupportedSequenceType;
 
 /**
  * Base class for acoustic modeling; specific Models should extend this and override methods as needed.
@@ -53,13 +57,6 @@ public abstract class Model {
 	 * The voice with which this model is associated
 	 */
 	protected String voiceName;
-
-	/**
-	 * The attribute into which the predicted acoustic feature should be written.
-	 */
-	protected String targetAttributeName;
-
-	protected String targetAttributeFormat;
 
 	/**
 	 * The name of the predicted acoustic feature, if any. The feature processor that will be created from this will read the
@@ -81,11 +78,8 @@ public abstract class Model {
 	 * The producer of feature vectors for the features in {@link #predictionFeatureNames} as computed by the feature processors
 	 * in {@link #featureManager}.
 	 */
-	protected TargetFeatureComputer featureComputer;
+	protected FeatureComputer featureComputer;
 
-	protected String predictFrom;
-
-	protected String applyTo;
 
 	/**
 	 * Model constructor
@@ -108,25 +102,11 @@ public abstract class Model {
 	 * @param applyTo
 	 *            key of Element Lists to which to apply values; "segments" by default
 	 */
-	protected Model(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
-			String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
+	protected Model(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream)
+    {
 		this.featureManager = featureManager;
 		this.voiceName = voiceName;
 		this.dataStream = dataStream;
-		this.targetAttributeName = targetAttributeName;
-		if (targetAttributeFormat == null) {
-			targetAttributeFormat = "%s";
-		}
-		this.targetAttributeFormat = targetAttributeFormat;
-		this.featureName = featureName;
-		if (predictFrom == null) {
-			predictFrom = "segments";
-		}
-		this.predictFrom = predictFrom;
-		if (applyTo == null) {
-			applyTo = "segments";
-		}
-		this.applyTo = applyTo;
 	}
 
 	/**
@@ -136,7 +116,9 @@ public abstract class Model {
 	 * @throws MaryConfigurationException
 	 *             if the model cannot be set up properly.
 	 */
-	protected final void load() throws MaryConfigurationException {
+	protected final void load()
+        throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    {
 		try {
 			loadData();
 		} catch (IOException ioe) {
@@ -155,9 +137,12 @@ public abstract class Model {
 	 */
 	protected abstract void loadData() throws IOException, MaryConfigurationException;
 
-	protected final void setupFeatureComputer() throws MaryConfigurationException {
+	protected final void setupFeatureComputer()
+        throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    {
 		try {
-			featureComputer = FeatureRegistry.getTargetFeatureComputer(featureManager, predictionFeatureNames);
+            FeatureComputer.initDefault();
+			featureComputer = FeatureComputer.the_feature_computer;
 		} catch (IllegalArgumentException iae) {
 			throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
 					+ "The model needs the following features:\n" + predictionFeatureNames + "\n"
@@ -175,68 +160,8 @@ public abstract class Model {
 	 * @throws MaryConfigurationException
 	 *             if attribute values cannot be predicted because of an invalid voice configuration
 	 */
-	public void applyTo(List<Element> elements) throws MaryConfigurationException {
-		applyFromTo(elements, elements);
-	}
-
-	/**
-	 * Apply this Model to a List of Elements, predicting from a different List of Elements
-	 *
-	 * @param predictFromElements
-	 *            Elements from which to predict the values
-	 * @param applyToElements
-	 *            Elements to which to apply the values predicted by this Model
-	 * @throws MaryConfigurationException
-	 *             if attribute values cannot be predicted because of an invalid voice configuration
-	 */
-	public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) throws MaryConfigurationException {
-		assert predictFromElements != null;
-		assert applyToElements != null;
-		assert predictFromElements.size() == applyToElements.size();
-
-		List<FeatureVector> predictFromTargets = getTargets(predictFromElements);
-
-		for (int i = 0; i < applyToElements.size(); i++) {
-			FeatureVector target = predictFromTargets.get(i);
-
-			float targetValue;
-			try {
-				targetValue = (float) evaluate(target);
-			} catch (Exception e) {
-				throw new MaryConfigurationException("Could not predict value for target: '" + target + "'", e);
-			}
-
-			Element element = applyToElements.get(i);
-
-			// "evaluate" pseudo XPath syntax:
-			// TODO this needs to be extended to take into account
-			// targetAttributeNames like "foo/@bar", which would add the
-			// bar attribute to the foo child of this element, creating the
-			// child if not already present...
-			if (targetAttributeName.startsWith("@")) {
-				targetAttributeName = targetAttributeName.replaceFirst("@", "");
-			}
-
-			String formattedTargetValue = null;
-			try {
-				formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-			} catch (Exception e) {
-				throw new MaryConfigurationException("Could not format target value '" + targetValue + "' using format '"
-						+ targetAttributeFormat + "'", e);
-			}
-
-			// System.out.println("formattedTargetValue = " + formattedTargetValue);
-
-			// if the attribute already exists for this element, append
-			// targetValue:
-			if (element.hasAttribute(targetAttributeName)) {
-				formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
-			}
-
-			// set the new attribute value:
-			element.setAttribute(targetAttributeName, formattedTargetValue);
-		}
-	}
+	public abstract void applyTo(Utterance utt, List<Item> items)
+        throws Exception;
 
 	/**
 	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
@@ -246,13 +171,15 @@ public abstract class Model {
 	 *            List of Elements
 	 * @return List of Targets
 	 */
-	protected List<FeatureVector> getTargets(List<Element> elements) {
-		List<FeatureVector> targets = new ArrayList<FeatureVector>(elements.size());
-		for (Element element : elements) {
-			assert element.getTagName() == MaryXML.PHONE;
-			// compute FeatureVectors for Targets:
-			FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(element);
-			targets.add(targetFeatureVector); // this is critical!
+	protected List<FeatureMap> getTargets(Utterance utt, List<Item> items)
+        throws Exception
+    {
+		List<FeatureMap> targets = new ArrayList<FeatureMap>(items.size());
+		for (Item item : items) {
+
+            // compute FeatureMaps for Targets:
+			FeatureMap targetFeatureMap = featureComputer.process(utt, item);
+			targets.add(targetFeatureMap); // this is critical!
 		}
 		return targets;
 	}
@@ -266,7 +193,7 @@ public abstract class Model {
 	 * @throws Exception
 	 *             if the target value cannot be predicted
 	 */
-	protected abstract float evaluate(FeatureVector target) throws Exception;
+	protected abstract float evaluate(FeatureMap target) throws Exception;
 
 	// several getters:
 
@@ -276,33 +203,5 @@ public abstract class Model {
 	 */
 	public String getVoiceName() {
 		return voiceName;
-	}
-
-	/**
-	 * @return the featureName
-	 */
-	public String getFeatureName() {
-		return featureName;
-	}
-
-	/**
-	 * @return the targetAttributeName
-	 */
-	public String getTargetAttributeName() {
-		return targetAttributeName;
-	}
-
-	/**
-	 * @return the key of Element Lists from which to predict with this Model
-	 */
-	public String getPredictFrom() {
-		return predictFrom;
-	}
-
-	/**
-	 * @return the key of Element Lists to which to apply this Model
-	 */
-	public String getApplyTo() {
-		return applyTo;
 	}
 }

@@ -28,16 +28,19 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.util.Scanner;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.machinelearning.SoP;
-import marytts.modeling.features.FeatureVector;
+import marytts.features.FeatureMap;
 import marytts.util.MaryUtils;
 
-import marytts.modules.InternalModule;
+import marytts.data.Utterance;
+import marytts.data.item.Item;
+
 
 /**
  * Model for predicting duration and F0 from SoP models
@@ -75,11 +78,10 @@ public class SoPModel extends Model {
 	 * @throws MaryConfigurationException
 	 *             if there are missing files.
 	 */
-	public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream, String targetAttributeName,
-                    String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
-        throws MaryConfigurationException {
-		super(featureManager, voiceName, dataStream, targetAttributeName, targetAttributeFormat, featureName, predictFrom,
-              applyTo);
+	public SoPModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream)
+        throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    {
+		super(featureManager, voiceName, dataStream);
 		load();
 	}
 
@@ -128,6 +130,19 @@ public class SoPModel extends Model {
 		}
 	}
 
+
+	@Override
+	public void applyTo(Utterance utt, List<Item> items) {
+        throw new UnsupportedOperationException();
+		// for (Element element : elements) {
+		// 	if (!element.hasAttribute(targetAttributeName)) {
+		// 		element.setAttribute(targetAttributeName, "400");
+		// 	}
+		// }
+	}
+
+
+
 	/**
 	 * Apply the SoP to a Target to get its predicted value
 	 *
@@ -136,7 +151,7 @@ public class SoPModel extends Model {
 	 * @return result predicted value
 	 */
 	@Override
-	protected float evaluate(FeatureVector target) {
+	protected float evaluate(FeatureMap target) {
 		// float result = 0;
 
 		// if (targetAttributeName.contentEquals("f0")) {
