@@ -8,6 +8,12 @@ class LexiconCompile extends DefaultTask {
     @InputFile
     File lexiconFile = project.file("modules/$project.locale/lexicon/${project.locale}.txt")
 
+    @OutputFile
+    File ltsFile = project.file("$temporaryDir/${project.locale}.lts")
+
+    @OutputFile
+    File fstFile = project.file("$temporaryDir/${project.locale}_lexicon.fst")
+
     @TaskAction
     void compile() {
         project.copy {
@@ -18,11 +24,6 @@ class LexiconCompile extends DefaultTask {
             classpath project.configurations.lexiconCompile
             main 'marytts.tools.transcription.LTSLexiconPOSBuilder'
             args "$temporaryDir/$allophonesFile.name", "$temporaryDir/$lexiconFile.name"
-        }
-        project.copy {
-            from temporaryDir
-            into project.buildDir
-            include '*.lts', '*.fst'
         }
     }
 }
