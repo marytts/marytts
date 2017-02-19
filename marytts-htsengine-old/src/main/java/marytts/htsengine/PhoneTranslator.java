@@ -34,7 +34,7 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureVector;
+import marytts.features.FeatureMap;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -62,113 +62,115 @@ public class PhoneTranslator {
 		contextFeatureFile = str;
 	}
 
+	// /**
+	//  * Convert the feature vector into a context model name to be used by HTS/HTK.
+	//  *
+	//  * @param def
+	//  *            a feature definition
+	//  * @param featuremap
+	//  *            a feature vector which must be consistent with the Feature definition
+	//  * @param featureList
+	//  *            a list of features to use in constructing the context model name. If missing, all features in the feature
+	//  *            definition are used.
+	//  * @return the string representation of one context name. NOTE: is this function used somewhere? CHECK!
+	//  */
+	// public String features2context(FeatureDefinition def, FeatureMap featuremap, Vector<String> featureList) {
+
+	// 	int feaAsInt;
+	// 	String mary_phone, mary_prev_phone, mary_prev_prev_phone, mary_next_phone, mary_next_next_phone;
+
+	// 	if (featureList == null) {
+	// 		featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
+	// 	}
+
+	// 	feaAsInt = featuremap.getFeatureAsInt(iPhoneme);
+	// 	mary_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPhoneme, feaAsInt));
+
+	// 	feaAsInt = featuremap.getFeatureAsInt(iPrevPhoneme);
+	// 	if (feaAsInt > 0)
+	// 		mary_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPhoneme, feaAsInt));
+	// 	else
+	// 		mary_prev_phone = mary_phone;
+	// 	// System.out.println("iPrevPhoneme=" + iPrevPhoneme + "  val=" + feaAsInt);
+
+	// 	feaAsInt = featuremap.getFeatureAsInt(iPrevPrevPhoneme);
+	// 	if (feaAsInt > 0)
+	// 		mary_prev_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPrevPhoneme, feaAsInt));
+	// 	else
+	// 		mary_prev_prev_phone = mary_prev_phone;
+	// 	// System.out.println("iPrevPrevPhoneme=" + iPrevPrevPhoneme + "  val=" + feaAsInt);
+
+	// 	feaAsInt = featuremap.getFeatureAsInt(iNextPhoneme);
+	// 	if (feaAsInt > 0)
+	// 		mary_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextPhoneme, feaAsInt));
+	// 	else
+	// 		mary_next_phone = mary_phone;
+	// 	// System.out.println("iNextPhoneme=" + iNextPhoneme + "  val=" + feaAsInt);
+
+	// 	feaAsInt = featuremap.getFeatureAsInt(iNextNextPhoneme);
+	// 	if (feaAsInt > 0)
+	// 		mary_next_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextNextPhoneme, feaAsInt));
+	// 	else
+	// 		mary_next_next_phone = mary_next_phone;
+	// 	// System.out.println("iNextNextPhoneme=" + iNextNextPhoneme + "  val=" + feaAsInt + "\n");
+
+	// 	StringBuilder contextName = new StringBuilder();
+	// 	contextName.append("prev_prev_phone=" + mary_prev_prev_phone);
+	// 	contextName.append("|prev_phone=" + mary_prev_phone);
+	// 	contextName.append("|phone=" + mary_phone);
+	// 	contextName.append("|next_phone=" + mary_next_phone);
+	// 	contextName.append("|next_next_phone=" + mary_next_next_phone);
+	// 	contextName.append("||");
+	// 	/* append the other context features included in the featureList */
+	// 	for (String f : featureList) {
+	// 		if (!def.hasFeature(f)) {
+	// 			throw new IllegalArgumentException("Feature '" + f
+	// 					+ "' is not known in the feature definition. Valid features are: " + def.getFeatureNames());
+	// 		}
+	// 		// String shortF = shortenPfeat(f);
+	// 		// contextName.append(shortF);
+	// 		contextName.append(f);
+	// 		contextName.append("=");
+	// 		String value = def.getFeatureValueAsString(f, featuremap);
+	// 		if (f.contains("sentence_punc") || f.contains("punctuation"))
+	// 			value = replacePunc(value);
+	// 		else if (f.contains("tobi"))
+	// 			value = replaceToBI(value);
+	// 		contextName.append(value);
+	// 		contextName.append("|");
+	// 	}
+
+	// 	return contextName.toString();
+	// } /* method features2context */
+
 	/**
 	 * Convert the feature vector into a context model name to be used by HTS/HTK.
-	 * 
+	 *
 	 * @param def
 	 *            a feature definition
-	 * @param featureVector
-	 *            a feature vector which must be consistent with the Feature definition
-	 * @param featureList
-	 *            a list of features to use in constructing the context model name. If missing, all features in the feature
-	 *            definition are used.
-	 * @return the string representation of one context name. NOTE: is this function used somewhere? CHECK!
-	 */
-	public String features2context(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList) {
-
-		int feaAsInt;
-		String mary_phone, mary_prev_phone, mary_prev_prev_phone, mary_next_phone, mary_next_next_phone;
-
-		if (featureList == null) {
-			featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
-		}
-
-		feaAsInt = featureVector.getFeatureAsInt(iPhoneme);
-		mary_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPhoneme, feaAsInt));
-
-		feaAsInt = featureVector.getFeatureAsInt(iPrevPhoneme);
-		if (feaAsInt > 0)
-			mary_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPhoneme, feaAsInt));
-		else
-			mary_prev_phone = mary_phone;
-		// System.out.println("iPrevPhoneme=" + iPrevPhoneme + "  val=" + feaAsInt);
-
-		feaAsInt = featureVector.getFeatureAsInt(iPrevPrevPhoneme);
-		if (feaAsInt > 0)
-			mary_prev_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPrevPhoneme, feaAsInt));
-		else
-			mary_prev_prev_phone = mary_prev_phone;
-		// System.out.println("iPrevPrevPhoneme=" + iPrevPrevPhoneme + "  val=" + feaAsInt);
-
-		feaAsInt = featureVector.getFeatureAsInt(iNextPhoneme);
-		if (feaAsInt > 0)
-			mary_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextPhoneme, feaAsInt));
-		else
-			mary_next_phone = mary_phone;
-		// System.out.println("iNextPhoneme=" + iNextPhoneme + "  val=" + feaAsInt);
-
-		feaAsInt = featureVector.getFeatureAsInt(iNextNextPhoneme);
-		if (feaAsInt > 0)
-			mary_next_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextNextPhoneme, feaAsInt));
-		else
-			mary_next_next_phone = mary_next_phone;
-		// System.out.println("iNextNextPhoneme=" + iNextNextPhoneme + "  val=" + feaAsInt + "\n");
-
-		StringBuilder contextName = new StringBuilder();
-		contextName.append("prev_prev_phone=" + mary_prev_prev_phone);
-		contextName.append("|prev_phone=" + mary_prev_phone);
-		contextName.append("|phone=" + mary_phone);
-		contextName.append("|next_phone=" + mary_next_phone);
-		contextName.append("|next_next_phone=" + mary_next_next_phone);
-		contextName.append("||");
-		/* append the other context features included in the featureList */
-		for (String f : featureList) {
-			if (!def.hasFeature(f)) {
-				throw new IllegalArgumentException("Feature '" + f
-						+ "' is not known in the feature definition. Valid features are: " + def.getFeatureNames());
-			}
-			// String shortF = shortenPfeat(f);
-			// contextName.append(shortF);
-			contextName.append(f);
-			contextName.append("=");
-			String value = def.getFeatureValueAsString(f, featureVector);
-			if (f.contains("sentence_punc") || f.contains("punctuation"))
-				value = replacePunc(value);
-			else if (f.contains("tobi"))
-				value = replaceToBI(value);
-			contextName.append(value);
-			contextName.append("|");
-		}
-
-		return contextName.toString();
-	} /* method features2context */
-
-	/**
-	 * Convert the feature vector into a context model name to be used by HTS/HTK.
-	 * 
-	 * @param def
-	 *            a feature definition
-	 * @param featureVector
+	 * @param featuremap
 	 *            a feature vector which must be consistent with the Feature definition
 	 * @param featureList
 	 *            a list of features to use in constructing the context model name. If missing, all features in the feature
 	 *            definition are used.
 	 * @return the string representation of one context name.
 	 */
-	public String features2LongContext(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList) {
+	public String features2LongContext(FeatureDefinition def, FeatureMap featuremap, Vector<String> featureList) {
 		if (featureList == null) {
 			featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
 		}
 		StringBuilder contextName = new StringBuilder();
 		contextName.append("|");
-		for (String f : featureList) {
+
+        for (String f : featureList) {
 			if (!def.hasFeature(f)) {
 				throw new IllegalArgumentException("Feature '" + f
 						+ "' is not known in the feature definition. Valid features are: " + def.getFeatureNames());
 			}
-			contextName.append(f);
+
+            contextName.append(f);
 			contextName.append("=");
-			String value = def.getFeatureValueAsString(f, featureVector);
+			String value = featuremap.get(f).getStringValue();
 			if (f.endsWith("phone"))
 				value = replaceTrickyPhones(value);
 			else if (f.contains("sentence_punc") || f.contains("punctuation"))
@@ -181,6 +183,7 @@ public class PhoneTranslator {
 
 		return contextName.toString();
 	} /* method features2context */
+
 
 	private void loadTrickyPhones(InputStream trickyStream) throws IOException {
 
@@ -204,7 +207,7 @@ public class PhoneTranslator {
 
 	/**
 	 * Translation table for labels which are incompatible with HTK or shell filenames See common_routines.pl in HTS training.
-	 * 
+	 *
 	 * @param lab
 	 *            lab
 	 * @return String
@@ -223,7 +226,7 @@ public class PhoneTranslator {
 	 * Translation table for labels which are incompatible with HTK or shell filenames See common_routines.pl in HTS training. In
 	 * this function the phones as used internally in HTSEngine are changed back to the Mary TTS set, this function is necessary
 	 * when correcting the actual durations of AcousticPhonemes.
-	 * 
+	 *
 	 * @param lab
 	 *            lab
 	 * @return String
@@ -240,7 +243,7 @@ public class PhoneTranslator {
 
 	/**
 	 * Shorten the key name (to make the full context names shorter) See common_routines.pl in HTS training. not needed CHECK
-	 * 
+	 *
 	 * @param fea
 	 *            fea
 	 * @return string
@@ -344,24 +347,6 @@ public class PhoneTranslator {
 			s = s.replace("ht", "^");
 
 		return s;
-
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		PhoneTranslator phTrans;
-		String oriLab, alias, ori;
-		phTrans = new PhoneTranslator(new FileInputStream("/project/mary/marcela/HMM-voices/turkish/mary/trickyPhones.txt"));
-
-		oriLab = "@'";
-		alias = phTrans.replaceTrickyPhones(oriLab);
-		ori = phTrans.replaceBackTrickyPhones(alias);
-		System.out.println("oriLab=" + oriLab + "  alias=" + alias + "  ori=" + ori);
-
-		oriLab = "e~";
-		alias = phTrans.replaceTrickyPhones(oriLab);
-		ori = phTrans.replaceBackTrickyPhones(alias);
-		System.out.println("oriLab=" + oriLab + "  alias=" + alias + "  ori=" + ori);
 
 	}
 
