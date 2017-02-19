@@ -160,7 +160,7 @@ public abstract class Model {
 	 * @throws MaryConfigurationException
 	 *             if attribute values cannot be predicted because of an invalid voice configuration
 	 */
-	public abstract void applyTo(Utterance utt, List<Item> items)
+	public abstract void applyTo(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
         throws Exception;
 
 	/**
@@ -171,12 +171,13 @@ public abstract class Model {
 	 *            List of Elements
 	 * @return List of Targets
 	 */
-	protected List<FeatureMap> getTargets(Utterance utt, List<Item> items)
+	protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
         throws Exception
     {
-		List<FeatureMap> targets = new ArrayList<FeatureMap>(items.size());
-		for (Item item : items) {
-
+        Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
+		List<FeatureMap> targets = new ArrayList<FeatureMap>(item_indexes.size());
+		for (Integer idx : item_indexes) {
+            Item item = seq.get(idx);
             // compute FeatureMaps for Targets:
 			FeatureMap targetFeatureMap = featureComputer.process(utt, item);
 			targets.add(targetFeatureMap); // this is critical!

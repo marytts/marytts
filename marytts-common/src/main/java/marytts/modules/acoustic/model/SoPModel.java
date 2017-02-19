@@ -40,6 +40,7 @@ import marytts.util.MaryUtils;
 
 import marytts.data.Utterance;
 import marytts.data.item.Item;
+import marytts.data.SupportedSequenceType;
 
 
 /**
@@ -132,7 +133,8 @@ public class SoPModel extends Model {
 
 
 	@Override
-	public void applyTo(Utterance utt, List<Item> items) {
+	public void applyTo(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
+    {
         throw new UnsupportedOperationException();
 		// for (Element element : elements) {
 		// 	if (!element.hasAttribute(targetAttributeName)) {
