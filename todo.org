@@ -1,0 +1,19 @@
+#+TITLE: Todo list for MaryTTS
+#+AUTHOR: Sébastien Le Maguer
+#+EMAIL: slemaguer@coli.uni-saarland.de
+#+DATE: 19 February 2017
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  fr
+#+OPTIONS:   H:1 num:t toc:nil  \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+SETUPFILE: ~/environment/src/non-install-utils/org-html-themes/setup/theme-readtheorg.setup
+* MaryTTS Part
+:PROPERTIES:
+:CATEGORY: tools
+:END:
+
+** TODO Reinstore the model problem with HMMDurationModeller (or something like that)
+** TODO See for the AcousticModeller module
+* COMMENT some extra configuration

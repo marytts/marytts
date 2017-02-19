@@ -344,8 +344,7 @@ public class ModuleRegistry {
 			// have already seen (i.e., that would lead to a loop):
 			if (!seenTypes.contains(outputType)) {
 				seenTypes.add(outputType);
-				logger.debug("Module " + candidate.name() + " converts " + sourceType.name() + " into " + outputType
-						+ " (locale " + locale + ", voice " + voice + ")");
+				logger.debug("Module " + candidate.name() + " converts " + sourceType.name() + " into " + outputType + " (locale " + locale + ", voice " + voice + ")");
 				// recursive call:
 				LinkedList<MaryModule> path = modulesRequiredForProcessing(outputType, targetType, locale, voice, seenTypes);
 				if (path != null) {

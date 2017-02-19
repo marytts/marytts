@@ -95,6 +95,12 @@ public class Utterance
         m_sequences.put(type, sequence);
     }
 
+
+    public boolean hasSequence(SupportedSequenceType type)
+    {
+        return m_sequences.containsKey(type);
+    }
+
     public Sequence<? extends Item> getSequence(SupportedSequenceType type)
     {
         if (m_sequences.containsKey(type))

@@ -1,6 +1,7 @@
 package marytts.data.item.phonology;
 
 import marytts.data.item.Item;
+
 /**
  *
  *
@@ -16,6 +17,13 @@ public class Phoneme extends Item
         super();
 		setLabel(label);
         setStress(null);
+    }
+
+	public Phoneme(Phoneme phoneme)
+	{
+        super();
+		setLabel(phoneme.getLabel());
+        setStress(phoneme.getStress());
     }
 
 	public Phoneme(String label, String stress)

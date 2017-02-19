@@ -137,33 +137,33 @@ public class HMMDurationF0Modeller extends InternalModule {
 			segmentsAndBoundaries.add(e);
 		}
 		TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(hmmVoice, features);
-		String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
+		// String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
 
-		if (hmmVoice != null) {
-			String context = targetFeatureString;
-			// System.out.println("TARGETFEATURES:" + context);
+		// if (hmmVoice != null) {
+		// 	String context = targetFeatureString;
+		// 	// System.out.println("TARGETFEATURES:" + context);
 
-			/* Process label file of Mary context features and creates UttModel um */
-			Scanner s = null;
-			String realisedDurations;
-			String realisedDurF0s;
-			try {
-				s = new Scanner(context);
-				// Create the Uttmodel list and get durations
-				realisedDurations = processUtt(s, um, hmmVoice.getHMMData(), hmmVoice.getHMMData().getCartTreeSet());
-				// setActualDurations(tw, realisedDurations);
+		// 	/* Process label file of Mary context features and creates UttModel um */
+		// 	Scanner s = null;
+		// 	String realisedDurations;
+		// 	String realisedDurF0s;
+		// 	try {
+		// 		s = new Scanner(context);
+		// 		// Create the Uttmodel list and get durations
+		// 		realisedDurations = processUtt(s, um, hmmVoice.getHMMData(), hmmVoice.getHMMData().getCartTreeSet());
+		// 		// setActualDurations(tw, realisedDurations);
 
-				// Given the UttModel list generate the F0 parameters
-				realisedDurF0s = HmmF0Generation(um, hmmVoice.getHMMData());
-				setActualDurationsAndF0s(tw, realisedDurF0s);
+		// 		// Given the UttModel list generate the F0 parameters
+		// 		realisedDurF0s = HmmF0Generation(um, hmmVoice.getHMMData());
+		// 		setActualDurationsAndF0s(tw, realisedDurF0s);
 
-			} finally {
-				if (s != null)
-					s.close();
-			}
-		} else {
-			logger.debug("No HMM voice called " + hmmVoiceName);
-		}
+		// 	} finally {
+		// 		if (s != null)
+		// 			s.close();
+		// 	}
+		// } else {
+		// 	logger.debug("No HMM voice called " + hmmVoiceName);
+		// }
 
 		// processing 'prosody' tags
 		ByteArrayOutputStream dummy = new ByteArrayOutputStream();
@@ -669,9 +669,10 @@ public class HMMDurationF0Modeller extends InternalModule {
 	 * @throws Exception
 	 *             Exception
 	 */
-	private String processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart) throws Exception {
+	private String processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart)
+        throws Exception
+    {
 		int i, mstate, frame, k, statesDuration, newStateDuration;
-		;
 		HTSModel m; /* current model, corresponds to a line in label file */
 		String nextLine;
 		double diffdurOld = 0.0;
@@ -706,46 +707,45 @@ public class HMMDurationF0Modeller extends InternalModule {
 		i = 0;
 		while (s.hasNext()) {
 			nextLine = s.nextLine();
-			// System.out.println("STR: " + nextLine);
+			System.out.println("STR: " + nextLine);
 
-			fv = feaDef.toFeatureMap(0, nextLine);
-			um.addUttModel(new HTSModel(cart.getNumStates()));
-			m = um.getUttModel(i);
-			/* this function also sets the phone name, the phone between - and + */
-			m.setPhoneName(fv.get("phone").getStringValue());
+			// fv = feaDef.toFeatureMap(0, nextLine);
+			// um.addUttModel(new HTSModel(cart.getNumStates()));
+			// m = um.getUttModel(i);
+			// /* this function also sets the phone name, the phone between - and + */
+			// m.setPhoneName(fv.get("phone").getStringValue());
 
-			if (!(s.hasNext()))
-				lastPh = true;
+			// if (!(s.hasNext()))
+			// 	lastPh = true;
 
-			// Determine state-level duration
-			// Estimate state duration from state duration model (Gaussian)
-			diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
-			um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
+			// // Determine state-level duration
+			// // Estimate state duration from state duration model (Gaussian)
+			// diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
+			// um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
 
-			// Set realised durations in model
-			m.setTotalDurMillisec((int) (fperiodmillisec * m.getTotalDur()));
-			diffdurOld = diffdurNew;
-			durSec = um.getTotalFrame() * fperiodsec;
+			// // Set realised durations in model
+			// m.setTotalDurMillisec((int) (fperiodmillisec * m.getTotalDur()));
+			// diffdurOld = diffdurNew;
+			// durSec = um.getTotalFrame() * fperiodsec;
 
-			numLab++;
-			dur = m.getTotalDurMillisec();
-			um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
-			// System.out.println("phone=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
+			// numLab++;
+			// dur = m.getTotalDurMillisec();
+			// um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
 
-			/*
-			 * Find pdf for LF0, this function sets the pdf for each state. here the model (phone) is defined as voiced or
-			 * unvoiced.
-			 */
-			cart.searchLf0InCartTree(m, fv, htsData.getUV());
+			// /*
+			//  * Find pdf for LF0, this function sets the pdf for each state. here the model (phone) is defined as voiced or
+			//  * unvoiced.
+			//  */
+			// cart.searchLf0InCartTree(m, fv, htsData.getUV());
 
-			/* increment number of models in utterance model */
-			um.setNumModel(um.getNumModel() + 1);
-			/* update number of states */
-			um.setNumState(um.getNumState() + cart.getNumStates());
-			i++;
+			// /* increment number of models in utterance model */
+			// um.setNumModel(um.getNumModel() + 1);
+			// /* update number of states */
+			// um.setNumState(um.getNumState() + cart.getNumStates());
+			// i++;
 
-			if (firstPh)
-				firstPh = false;
+			// if (firstPh)
+			// 	firstPh = false;
 		}
 
 		for (i = 0; i < um.getNumUttModel(); i++) {
@@ -754,7 +754,6 @@ public class HMMDurationF0Modeller extends InternalModule {
 				for (frame = 0; frame < m.getDur(mstate); frame++)
 					if (m.getVoiced(mstate))
 						um.setLf0Frame(um.getLf0Frame() + 1);
-			// System.out.println("Vector m[" + i + "]=" + m.getPhoneName() );
 		}
 
 		return um.getRealisedAcoustParams();

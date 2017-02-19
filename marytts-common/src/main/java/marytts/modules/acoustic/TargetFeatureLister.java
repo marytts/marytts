@@ -58,7 +58,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class TargetFeatureLister extends InternalModule {
 
 	public TargetFeatureLister(MaryDataType outputType) throws Exception{
-		super("TargetFeatureLister", MaryDataType.ACOUSTPARAMS, outputType, null);
+		super("TargetFeatureLister", MaryDataType.ALLOPHONES, outputType, null);
         FeatureComputer.initDefault();
 	}
 
