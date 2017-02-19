@@ -72,7 +72,7 @@ import marytts.modeling.cart.LeafNode.PdfLeafNode;
 import marytts.modeling.cart.io.HTSCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureVector;
+import marytts.features.FeatureMap;
 import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;
 
@@ -207,15 +207,15 @@ public class CartTreeSet {
 	 *            diffdur
 	 * @return duration
 	 */
-	public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) {
+	public double searchDurInCartTree(HTSModel m, FeatureMap fv, HMMData htsData, double diffdur) {
 		return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
 	}
 
-	public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, boolean firstPh, boolean lastPh,
+	public double searchDurInCartTree(HTSModel m, FeatureMap fv, HMMData htsData, boolean firstPh, boolean lastPh,
 			double diffdur) {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
-            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+            features.put(feat_name, fv.get(feat_name).getStringValue());
         }
 
 		double data, dd;
@@ -266,10 +266,10 @@ public class CartTreeSet {
 	 * @param uvthresh
 	 *            uvthresh
 	 */
-	public void searchLf0InCartTree(HTSModel m, FeatureVector fv, double uvthresh) {
+	public void searchLf0InCartTree(HTSModel m, FeatureMap fv, double uvthresh) {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
-            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+            features.put(feat_name, fv.get(feat_name).getStringValue());
         }
 		for (int s = 0; s < numStates; s++) {
 			PdfLeafNode node = (PdfLeafNode) lf0Tree[s].traverse(features);
@@ -294,10 +294,10 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchMgcInCartTree(HTSModel m, FeatureVector fv) {
+	public void searchMgcInCartTree(HTSModel m, FeatureMap fv) {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
-            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+            features.put(feat_name, fv.get(feat_name).getStringValue());
         }
 		for (int s = 0; s < numStates; s++) {
 			PdfLeafNode node = (PdfLeafNode) mgcTree[s].traverse(features);
@@ -316,11 +316,11 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchStrInCartTree(HTSModel m, FeatureVector fv) {
+	public void searchStrInCartTree(HTSModel m, FeatureMap fv) {
 
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
-            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+            features.put(feat_name, fv.get(feat_name).getStringValue());
         }
 
 		for (int s = 0; s < numStates; s++) {
@@ -340,11 +340,11 @@ public class CartTreeSet {
 	 * @param featureDef
 	 *            Feature definition
 	 */
-	public void searchMagInCartTree(HTSModel m, FeatureVector fv) {
+	public void searchMagInCartTree(HTSModel m, FeatureMap fv) {
 
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
-            features.put(feat_name, fv.getFeatureAsString(featDef.getFeatureIndex(feat_name), featDef));
+            features.put(feat_name, fv.get(feat_name).getStringValue());
         }
 
 		for (int s = 0; s < numStates; s++) {
@@ -368,9 +368,9 @@ public class CartTreeSet {
 	 *            oldErr
 	 * @return m
 	 */
-	public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureVector fv, double oldErr) {
+	public HTSModel generateHTSModel(HMMData htsData, FeatureDefinition feaDef, FeatureMap fv, double oldErr) {
 		HTSModel m = new HTSModel(getNumStates());
-		String phoneFeature = fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef);
+		String phoneFeature = fv.get("phone").getStringValue();
 		m.setPhoneName(phoneFeature);
 		try {
 

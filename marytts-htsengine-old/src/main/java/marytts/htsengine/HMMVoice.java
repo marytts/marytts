@@ -160,8 +160,7 @@ public class HMMVoice extends Voice {
 			acousticModels = new HashMap<String, Model>();
 
 			// add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-			acousticModels.put("boundary", new BoundaryModel(symbolicFPM, getName(), null, "duration", null, null, null,
-                                                             "boundaries"));
+			acousticModels.put("boundary", new BoundaryModel(symbolicFPM, getName(), null));
 
 			StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
 			do {
@@ -203,8 +202,7 @@ public class HMMVoice extends Voice {
                         model = getF0Model();
                         ((HMMModel) model).setPredictDurAndF0(true);
                     } else {
-                        model = new HMMModel(symbolicFPM, getName(), modelDataStream, modelAttributeName,
-                                             modelAttributeFormat, modelFeatureName, modelPredictFrom, modelApplyTo);
+                        model = new HMMModel(symbolicFPM, getName(), modelDataStream);
                     }
                 } catch (Throwable t) {
                     throw new MaryConfigurationException("Cannot instantiate model '" + modelName + "' of type '" + modelType

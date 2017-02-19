@@ -208,7 +208,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
 			// the actual durations are already fixed in the htsEngine.process()
 			// here i pass segements and boundaries to update the realised acoustparams, dur and f0
-			MaryData audio = htsEngine.process(d, targetFeaturesList, utt);
+			MaryData audio = htsEngine.process(d, targetFeaturesList, utt, sentence_index);
 
 			return audio.getAudio();
 

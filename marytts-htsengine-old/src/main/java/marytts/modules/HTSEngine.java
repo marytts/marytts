@@ -91,7 +91,6 @@ import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
-import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
@@ -103,6 +102,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
+
+import marytts.data.Utterance;
+import marytts.data.item.phonology.Phone;
+import marytts.features.FeatureMap;
 
 /**
  * HTSEngine: a compact HMM-based speech synthesis engine.
@@ -116,7 +119,7 @@ public class HTSEngine extends InternalModule {
 	private String realisedDurations; // HMM realised duration to be save in a file
 	private boolean phoneAlignmentForDurations;
 	private boolean stateAlignmentForDurations = false;
-	private Vector<PhonemeDuration> alignDur = null; // list of external duration per phone for alignment
+	private Vector<Phone> alignDur = null; // list of external duration per phone for alignment
 	// this are durations loaded from a external file
 	private double newStateDurationFactor = 0.5; // this is a factor that extends or shrinks the duration of a state
 	// it can be used to try to syncronise the duration specified in a external
@@ -135,7 +138,7 @@ public class HTSEngine extends InternalModule {
 		return stateAlignmentForDurations;
 	}
 
-	public Vector<PhonemeDuration> getAlignDurations() {
+	public Vector<Phone> getAlignDurations() {
 		return alignDur;
 	}
 
@@ -155,7 +158,7 @@ public class HTSEngine extends InternalModule {
 		phoneAlignmentForDurations = bval;
 	}
 
-	public void setAlignDurations(Vector<PhonemeDuration> val) {
+	public void setAlignDurations(Vector<Phone> val) {
 		alignDur = val;
 	}
 
@@ -196,8 +199,9 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return output
 	 */
-	public MaryData process(MaryData d, List<FeatureVector> targetFeaturesList, List<Element> segmentsAndBoundaries,
-                            List<Element> tokensAndBoundaries) throws Exception {
+	public MaryData process(MaryData d, List<FeatureMap> targetFeaturesList, Utterance utt, int sentence_index)
+        throws Exception
+    {
 
 		Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
 		assert v instanceof HMMVoice;
@@ -208,7 +212,7 @@ public class HTSEngine extends InternalModule {
 		 * label file.
 		 */
 		/* Process label file of Mary context features and creates UttModel um */
-		HTSUttModel um = processTargetList(targetFeaturesList, segmentsAndBoundaries, hmmv.getHMMData());
+		HTSUttModel um = processTargetList(targetFeaturesList, utt, sentence_index, hmmv.getHMMData());
 
 		/* Process UttModel */
 		HTSParameterGeneration pdf2par = new HTSParameterGeneration();
@@ -237,74 +241,70 @@ public class HTSEngine extends InternalModule {
 		}
 		output.appendAudio(ais);
 
-		// set the actualDurations in tokensAndBoundaries
-		if (tokensAndBoundaries != null)
-			setRealisedProsody(tokensAndBoundaries, um);
+		// // set the actualDurations in tokensAndBoundaries
+		// if (tokensAndBoundaries != null)
+		// 	setRealisedProsody(tokensAndBoundaries, um);
 
 		return output;
 
 	}
 
-	public static void setRealisedProsody(List<Element> tokensAndBoundaries, HTSUttModel um) throws SynthesisException {
-		int i, j, index;
-		NodeList no1, no2;
-		NamedNodeMap att;
-		Scanner s = null;
-		String line, str[];
-		float totalDur = 0f; // total duration, in seconds
-		double f0[];
-		HTSModel m;
+	// public static void setRealisedProsody(Utterance utt, int sentence_index, HTSUttModel um)
+    //     throws SynthesisException
+    // {
+	// 	int i, j, index;
+	// 	NodeList no1, no2;
+	// 	NamedNodeMap att;
+	// 	Scanner s = null;
+	// 	String line, str[];
+	// 	float totalDur = 0f; // total duration, in seconds
+	// 	double f0[];
+	// 	HTSModel m;
 
-		int numModel = 0;
+	// 	int numModel = 0;
 
-		for (Element e : tokensAndBoundaries) {
-			// System.out.println("TAG: " + e.getTagName());
-			if (e.getTagName().equals(MaryXML.TOKEN)) {
-				NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
-				Element phone;
+	// 	for (Element e : tokensAndBoundaries) {
+	// 		// System.out.println("TAG: " + e.getTagName());
+	// 		if (e.getTagName().equals(MaryXML.TOKEN)) {
+	// 			NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
+	// 			Element phone;
 
-				while ((phone = (Element) nIt.nextNode()) != null) {
-					String p = phone.getAttribute("p");
-					m = um.getUttModel(numModel++);
+	// 			while ((phone = (Element) nIt.nextNode()) != null) {
+	// 				String p = phone.getAttribute("p");
+	// 				m = um.getUttModel(numModel++);
 
-					// CHECK THIS!!!!!!!
+	// 				// CHECK THIS!!!!!!!
 
-					// System.out.println("realised p=" + p + " phoneName=" + m.getPhoneName());
-					// int currentDur = m.getTotalDurMillisec();
-					totalDur += m.getTotalDurMillisec() * 0.001f;
-					// phone.setAttribute("d", String.valueOf(currentDur));
-					phone.setAttribute("d", m.getMaryXmlDur());
-					// phone.setAttribute("end", String.valueOf(totalDur));
+	// 				// System.out.println("realised p=" + p + " phoneName=" + m.getPhoneName());
+	// 				// int currentDur = m.getTotalDurMillisec();
+	// 				totalDur += m.getTotalDurMillisec() * 0.001f;
+	// 				// phone.setAttribute("d", String.valueOf(currentDur));
+	// 				phone.setAttribute("d", m.getMaryXmlDur());
+	// 				// phone.setAttribute("end", String.valueOf(totalDur));
 
-					// phone.setAttribute("f0", m.getUnit_f0ArrayStr());
-					phone.setAttribute("f0", m.getMaryXmlF0());
+	// 				// phone.setAttribute("f0", m.getUnit_f0ArrayStr());
+	// 				phone.setAttribute("f0", m.getMaryXmlF0());
 
-				}
-			} else if (e.getTagName().contentEquals(MaryXML.BOUNDARY)) {
-				int breakindex = 0;
-				try {
-					breakindex = Integer.parseInt(e.getAttribute("breakindex"));
-				} catch (NumberFormatException nfe) {
-				}
-				if (e.hasAttribute("duration") || breakindex >= 3) {
-					m = um.getUttModel(numModel++);
-					if (m.getPhoneName().contentEquals("_")) {
-						int currentDur = m.getTotalDurMillisec();
-						// index = ph.indexOf("_");
-						totalDur += currentDur * 0.001f;
-						e.setAttribute("duration", String.valueOf(currentDur));
-					}
-				}
-			} // else ignore whatever other label...
-		}
-	}
+	// 			}
+	// 		} else if (e.getTagName().contentEquals(MaryXML.BOUNDARY)) {
+	// 			int breakindex = 0;
+	// 			try {
+	// 				breakindex = Integer.parseInt(e.getAttribute("breakindex"));
+	// 			} catch (NumberFormatException nfe) {
+	// 			}
+	// 			if (e.hasAttribute("duration") || breakindex >= 3) {
+	// 				m = um.getUttModel(numModel++);
+	// 				if (m.getPhoneName().contentEquals("_")) {
+	// 					int currentDur = m.getTotalDurMillisec();
+	// 					// index = ph.indexOf("_");
+	// 					totalDur += currentDur * 0.001f;
+	// 					e.setAttribute("duration", String.valueOf(currentDur));
+	// 				}
+	// 			}
+	// 		} // else ignore whatever other label...
+	// 	}
+	// }
 
-	public HTSUttModel processUttFromFile(String feaFile, HMMData htsData) throws Exception {
-
-		List<FeatureVector> targetFeaturesList = getTargetsFromFile(feaFile, htsData);
-		return processTargetList(targetFeaturesList, null, htsData);
-
-	}
 
 	/**
 	 * Reads the Label file, the file which contains the Mary context features, creates an scanner object and calls getTargets
@@ -403,8 +403,9 @@ public class HTSEngine extends InternalModule {
 	 *             Exception
 	 * @return um
 	 */
-	protected HTSUttModel processTargetList(List<FeatureVector> targetFeaturesList, List<Element> segmentsAndBoundaries, HMMData htsData)
-			throws Exception {
+	protected HTSUttModel processTargetList(List<FeatureMap> targetFeaturesList, Utterance utt, int sentence_index, HMMData htsData)
+			throws Exception
+    {
 		HTSUttModel um = new HTSUttModel();
 		CartTreeSet cart = htsData.getCartTreeSet();
 		realisedDurations = "#\n";
@@ -415,9 +416,7 @@ public class HTSEngine extends InternalModule {
 		final float fperiodsec = ((float) htsData.getFperiod() / (float) htsData.getRate());
 		boolean firstPh = true;
 		float durVal = 0.0f;
-		FeatureDefinition feaDef = htsData.getFeatureDefinition();
 
-		int featureIndex = feaDef.getFeatureIndex("phone");
 		if (htsData.getUseAcousticModels()) {
 			phoneAlignmentForDurations = true;
 			loggerHts.info("Using prosody from acoustparams.");
@@ -428,110 +427,110 @@ public class HTSEngine extends InternalModule {
 
 		// process feature vectors in targetFeatureList
 		int i = 0;
-		for (FeatureVector fv : targetFeaturesList) {
+		for (FeatureMap fv : targetFeaturesList) {
 
 			HTSModel m = new HTSModel(cart.getNumStates());
 			um.addUttModel(m);
-			m.setPhoneName(fv.getFeatureAsString(featureIndex, feaDef));
+			m.setPhoneName(fv.get("phone").getStringValue());
 
 			// Check if context-dependent gv (gv without sil)
 			if (htsData.getUseContextDependentGV()) {
 				if (m.getPhoneName().contentEquals("_"))
 					m.setGvSwitch(false);
 			}
-			// System.out.println("HTSEngine: phone=" + m.getPhoneName());
-
 			double diffdurNew;
 
-			// get the duration and f0 values from the acoustparams = segmentsAndBoundaries
-			if (segmentsAndBoundaries != null) {
-				Element e = segmentsAndBoundaries.get(i);
+			// // get the duration and f0 values from the acoustparams = segmentsAndBoundaries
+			// if (segmentsAndBoundaries != null) {
+			// 	Element e = segmentsAndBoundaries.get(i);
 
-				// get the durations of the Gaussians, because we need to know how long each estate should be
-				// knowing the duration of each state we can modified it so the 5 states reflect the external duration
-				// Here the duration for phones and sil (_) are calcualted
-				diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
+			// 	// get the durations of the Gaussians, because we need to know how long each estate should be
+			// 	// knowing the duration of each state we can modified it so the 5 states reflect the external duration
+			// 	// Here the duration for phones and sil (_) are calcualted
+			// 	diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
 
-				if (e.getTagName().contentEquals("ph")) {
-					// No duration => predict one !
-					if ((e.getAttribute("d") == null) || (e.getAttribute("d").equals(""))) {
-						diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
-					}
-					// Use phone duration
-					else {
-						m.setMaryXmlDur(e.getAttribute("d"));
-						durVal = Float.parseFloat(m.getMaryXmlDur());
-						// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states
-						// in
-						// frames
-						// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
-						m.setTotalDur(0);
-						int total = 0;
-						for (int k = 0; k < cart.getNumStates(); k++)
-							total += m.getDur(k);
-						// System.out.println("durval = " + durVal);
-						for (int k = 0; k < cart.getNumStates(); k++) {
-							// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
-							int newStateDuration = Math.round((durVal * m.getDur(k)) / (total * fperiodmillisec));
-							newStateDuration = Math.max(1, newStateDuration);
-							m.setDur(k, newStateDuration);
-							m.incrTotalDur(newStateDuration);
-							// System.out.println(" durNew=" + m.getDur(k));
-						}
-					}
+			// 	if (e.getTagName().contentEquals("ph")) {
+			// 		// No duration => predict one !
+			// 		if ((e.getAttribute("d") == null) || (e.getAttribute("d").equals(""))) {
+			// 			diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
+			// 		}
+			// 		// Use phone duration
+			// 		else {
+			// 			m.setMaryXmlDur(e.getAttribute("d"));
+			// 			durVal = Float.parseFloat(m.getMaryXmlDur());
+			// 			// get proportion of this duration for each state; m.getTotalDur() contains total duration of the 5 states
+			// 			// in
+			// 			// frames
+			// 			// double durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+			// 			m.setTotalDur(0);
+			// 			int total = 0;
+			// 			for (int k = 0; k < cart.getNumStates(); k++)
+			// 				total += m.getDur(k);
+			// 			// System.out.println("durval = " + durVal);
+			// 			for (int k = 0; k < cart.getNumStates(); k++) {
+			// 				// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
+			// 				int newStateDuration = Math.round((durVal * m.getDur(k)) / (total * fperiodmillisec));
+			// 				newStateDuration = Math.max(1, newStateDuration);
+			// 				m.setDur(k, newStateDuration);
+			// 				m.incrTotalDur(newStateDuration);
+			// 				// System.out.println(" durNew=" + m.getDur(k));
+			// 			}
+			// 		}
 
-				}
-				// the duration for boundaries predicted in the AcousticModeller is not calculated with HMMs
-				else if (e.getTagName().contentEquals("boundary")) {
-					durVal = 0;
-					if (!e.getAttribute("duration").isEmpty())
-						durVal = Float.parseFloat(e.getAttribute("duration"));
+			// 	}
+			// 	// the duration for boundaries predicted in the AcousticModeller is not calculated with HMMs
+			// 	else if (e.getTagName().contentEquals("boundary")) {
+			// 		durVal = 0;
+			// 		if (!e.getAttribute("duration").isEmpty())
+			// 			durVal = Float.parseFloat(e.getAttribute("duration"));
 
-					// TODO: here we need to differentiate a duration coming from outside and one fixed by the BoundaryModel
-					// the marytts.modules.acoustic.BoundaryModel fix always duration="400" for breakindex
-					// durations different from 400 milisec. are used here otherwise it is ignored and use the
-					// the duration calculated from the gaussians instead.
-					if (durVal != 0) {
-						// if duration comes from a specified duration in miliseconds, i use that
-						int durValFrames = Math.round(durVal / fperiodmillisec);
-						int totalDurGaussians = m.getTotalDur();
-						m.setTotalDur(durValFrames);
-						// System.out.println(" boundary attribute:duration=" + durVal + " in frames=" + durValFrames);
+			// 		// TODO: here we need to differentiate a duration coming from outside and one fixed by the BoundaryModel
+			// 		// the marytts.modules.acoustic.BoundaryModel fix always duration="400" for breakindex
+			// 		// durations different from 400 milisec. are used here otherwise it is ignored and use the
+			// 		// the duration calculated from the gaussians instead.
+			// 		if (durVal != 0) {
+			// 			// if duration comes from a specified duration in miliseconds, i use that
+			// 			int durValFrames = Math.round(durVal / fperiodmillisec);
+			// 			int totalDurGaussians = m.getTotalDur();
+			// 			m.setTotalDur(durValFrames);
+			// 			// System.out.println(" boundary attribute:duration=" + durVal + " in frames=" + durValFrames);
 
-						// the specified duration has to be split among the five states
-						float durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
-						m.setTotalDur(0);
-						for (int k = 0; k < cart.getNumStates(); k++) {
-							// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
-							int newStateDuration = Math.round(((float) m.getDur(k) / (float) totalDurGaussians) * durValFrames);
-							newStateDuration = Math.max(newStateDuration, 1);
-							m.setDur(k, newStateDuration);
-							m.setTotalDur(m.getTotalDur() + m.getDur(k));
-							// System.out.println(" durNew=" + m.getDur(k));
-						}
+			// 			// the specified duration has to be split among the five states
+			// 			float durationsFraction = durVal / (fperiodmillisec * m.getTotalDur());
+			// 			m.setTotalDur(0);
+			// 			for (int k = 0; k < cart.getNumStates(); k++) {
+			// 				// System.out.print(" state: " + k + " durFromGaussians=" + m.getDur(k));
+			// 				int newStateDuration = Math.round(((float) m.getDur(k) / (float) totalDurGaussians) * durValFrames);
+			// 				newStateDuration = Math.max(newStateDuration, 1);
+			// 				m.setDur(k, newStateDuration);
+			// 				m.setTotalDur(m.getTotalDur() + m.getDur(k));
+			// 				// System.out.println(" durNew=" + m.getDur(k));
+			// 			}
 
-					} else {
-						if (!e.getAttribute("breakindex").isEmpty()) {
-							durVal = Float.parseFloat(e.getAttribute("breakindex"));
-							// System.out.print(" boundary attribute:breakindex=" + durVal);
-						}
-						durVal = (m.getTotalDur() * fperiodmillisec);
-					}
-					// System.out.println(" setMaryXml(durVal)=" + durVal);
-					m.setMaryXmlDur(Float.toString(durVal));
-				}
+			// 		} else {
+			// 			if (!e.getAttribute("breakindex").isEmpty()) {
+			// 				durVal = Float.parseFloat(e.getAttribute("breakindex"));
+			// 				// System.out.print(" boundary attribute:breakindex=" + durVal);
+			// 			}
+			// 			durVal = (m.getTotalDur() * fperiodmillisec);
+			// 		}
+			// 		// System.out.println(" setMaryXml(durVal)=" + durVal);
+			// 		m.setMaryXmlDur(Float.toString(durVal));
+			// 	}
 
-				// set F0 values
-				if (e.hasAttribute("f0")) {
-					m.setMaryXmlF0(e.getAttribute("f0"));
-					// System.out.println(" f0=" + e.getAttribute("f0"));
-				}
+			// 	// set F0 values
+			// 	if (e.hasAttribute("f0")) {
+			// 		m.setMaryXmlF0(e.getAttribute("f0"));
+			// 		// System.out.println(" f0=" + e.getAttribute("f0"));
+			// 	}
 
-			}
-			// Estimate state duration from state duration model (Gaussian)
-			else {
-				diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
-			}
+			// }
+			// // Estimate state duration from state duration model (Gaussian)
+			// else {
+			// 	diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
+			// }
+
+            diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
 
 			um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
 			// System.out.println(" model=" + m.getPhoneName() + " TotalDurFrames=" + m.getTotalDur() + " TotalDurMilisec=" +
@@ -596,108 +595,5 @@ public class HTSEngine extends InternalModule {
 
 		return um;
 	} /* method processTargetList */
-
-	/**
-	 * Stand alone testing using a TARGETFEATURES file as input.
-	 *
-	 * @param args
-	 *            args
-	 * @throws IOException
-	 *             IOException
-	 * @throws InterruptedException
-	 *             InterruptedException
-	 * @throws Exception
-	 *             Exception
-	 */
-	public static void main(String[] args) throws IOException, InterruptedException, Exception {
-
-		int j;
-		/* configure log info */
-		org.apache.log4j.BasicConfigurator.configure();
-
-		/*
-		 * The input for creating a sound file is a TARGETFEATURES file in MARY format, there is an example indicated in the
-		 * configuration file as well. For synthesising other text generate first a TARGETFEATURES file with the MARY system save
-		 * it in a file and use it as feaFile.
-		 */
-		HTSEngine hmm_tts = new HTSEngine();
-
-		/*
-		 * htsData contains: Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. After initHMMData
-		 * it contains: ModelSet: Contains the .pdf's (means and variances) for dur, lf0, Mgc, str and mag these are all the HMMs
-		 * trained for a particular voice TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag these are all the
-		 * trees trained for a particular voice.
-		 */
-		HMMData htsData = new HMMData();
-
-		/* stand alone with cmu-slt-hsmm voice */
-		String MaryBase = "/project/mary/marcela/marytts/";
-		String voiceDir = MaryBase + "voice-cmu-slt-hsmm/src/main/resources/";
-		String voiceName = "cmu-slt-hsmm"; /* voice name */
-		String voiceConfig = "marytts/voice/CmuSltHsmm/voice.config"; /* voice configuration file name. */
-		String durFile = MaryBase + "tmp/tmp.lab"; /* to save realised durations in .lab format */
-		String parFile = MaryBase + "tmp/tmp"; /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
-		String outWavFile = MaryBase + "tmp/tmp.wav"; /* to save generated audio file */
-
-		// The settings for using GV and MixExc can be changed in this way:
-		htsData.initHMMData(voiceName, voiceDir, voiceConfig);
-
-		htsData.setUseGV(true);
-		htsData.setUseMixExc(true);
-
-		// Important: the stand alone works without the acoustic modeler, so it should be de-activated
-		htsData.setUseAcousticModels(false);
-
-		/**
-		 * The utterance model, um, is a Vector (or linked list) of Model objects. It will contain the list of models for current
-		 * label file.
-		 */
-		HTSUttModel um;
-		HTSParameterGeneration pdf2par = new HTSParameterGeneration();
-		HTSVocoder par2speech = new HTSVocoder();
-		AudioInputStream ais;
-
-		/** Example of context features file */
-		String feaFile = voiceDir + "marytts/voice/CmuSltHsmm/cmu_us_arctic_slt_b0487.pfeats";
-
-		try {
-			/*
-			 * Process Mary context features file and creates UttModel um, a linked list of all the models in the utterance. For
-			 * each model, it searches in each tree, dur, cmp, etc, the pdf index that corresponds to a triphone context feature
-			 * and with that index retrieves from the ModelSet the mean and variance for each state of the HMM.
-			 */
-			um = hmm_tts.processUttFromFile(feaFile, htsData);
-
-			/* save realised durations in a lab file */
-			FileWriter outputStream = new FileWriter(durFile);
-			outputStream.write(hmm_tts.getRealisedDurations());
-			outputStream.close();
-
-			/* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
-			/* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
-			boolean debug = true; /* so it save the generated parameters in parFile */
-			pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
-
-			/* Synthesize speech waveform, generate speech out of sequence of parameters */
-			ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
-
-			System.out.println("Saving to file: " + outWavFile);
-			System.out.println("Realised durations saved to file: " + durFile);
-			File fileOut = new File(outWavFile);
-
-			if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE, ais)) {
-				AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
-			}
-
-			System.out.println("Calling audioplayer:");
-			AudioPlayer player = new AudioPlayer(fileOut);
-			player.start();
-			player.join();
-			System.out.println("Audioplayer finished...");
-
-		} catch (Exception e) {
-			System.err.println("Exception: " + e.getMessage());
-		}
-	} /* main method */
 
 } /* class HTSEngine */

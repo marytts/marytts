@@ -39,7 +39,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
-import marytts.modeling.features.FeatureVector;
+import marytts.features.FeatureMap;
 import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.acoustic.TargetFeatureLister;
 import marytts.htsengine.CartTreeSet;
@@ -684,7 +684,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 
 		Float durSec;
 		Integer numLab = 0;
-		FeatureVector fv;
+		FeatureMap fv;
 		FeatureDefinition feaDef = htsData.getFeatureDefinition();
 
 		/* Skip mary context features definition */
@@ -708,11 +708,11 @@ public class HMMDurationF0Modeller extends InternalModule {
 			nextLine = s.nextLine();
 			// System.out.println("STR: " + nextLine);
 
-			fv = feaDef.toFeatureVector(0, nextLine);
+			fv = feaDef.toFeatureMap(0, nextLine);
 			um.addUttModel(new HTSModel(cart.getNumStates()));
 			m = um.getUttModel(i);
 			/* this function also sets the phone name, the phone between - and + */
-			m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
+			m.setPhoneName(fv.get("phone").getStringValue());
 
 			if (!(s.hasNext()))
 				lastPh = true;
