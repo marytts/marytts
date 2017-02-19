@@ -28,7 +28,7 @@ import marytts.features.FeatureMap;
 
 import marytts.data.item.Item;
 import marytts.data.Utterance;
-
+import marytts.data.SupportedSequenceType;
 
 /**
  * Model which currently predicts only a flat 400 ms duration for each boundary Element
@@ -45,7 +45,8 @@ public class BoundaryModel extends Model {
 	}
 
 	@Override
-	public void applyTo(Utterance utt, List<Item> items) {
+	public void applyTo(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
+    {
         throw new UnsupportedOperationException();
 		// for (Element element : elements) {
 		// 	if (!element.hasAttribute(targetAttributeName)) {
