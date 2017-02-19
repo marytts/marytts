@@ -18,14 +18,36 @@ public class Phone extends Phoneme
         setDuration(duration);
 	}
 
+	public Phone(Phoneme phoneme, double start, double duration)
+	{
+		super(phoneme);
+        setStart(start);
+        setDuration(duration);
+	}
+	public Phone(String label, double duration)
+	{
+		super(label);
+        setStart(-1);
+        setDuration(duration);
+	}
+
+	public Phone(Phoneme phoneme, double duration)
+	{
+		super(phoneme);
+        setStart(-1);
+        setDuration(duration);
+	}
+
     public double getStart()
     {
         return m_start;
     }
+
     public void setStart(double start)
     {
         m_start = start;
     }
+
     public double getDuration()
 	{
 		return m_duration;

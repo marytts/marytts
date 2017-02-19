@@ -23,6 +23,7 @@ package marytts.modules.acoustic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -43,9 +44,12 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 import marytts.data.Utterance;
-import marytts.data.item.Item;
 import marytts.data.Sequence;
+import marytts.data.Relation;
+import marytts.data.item.Item;
+import marytts.data.item.acoustic.F0List;
 import marytts.data.item.phonology.Phone;
+import marytts.data.item.phonology.Phoneme;
 import marytts.data.SupportedSequenceType;
 
 /**
@@ -111,7 +115,7 @@ public class HMMModel extends Model {
 	 *             if there are missing files or problems loading trees and pdf files.
 	 */
 	public HMMModel(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream)
-					throws MaryConfigurationException
+        throws Exception
     {
 		super(featureManager, voiceName, dataStream);
 		load();
@@ -185,9 +189,9 @@ public class HMMModel extends Model {
 	 *             if error searching in HMM trees.
 	 */
 	private HTSUttModel predictAndSetDuration(Utterance utt, List<Integer> item_indexes)
-			throws MaryConfigurationException
+        throws Exception
     {
-        Sequence<Phone> phones = (Sequence<Phone>) utt.getSequence(SupportedSequenceType.PHONE);
+        Sequence<Phoneme> phonemes = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
 		List<FeatureMap> predictorTargets = getTargets(utt, SupportedSequenceType.PHONE, item_indexes);
 		FeatureMap fv = null;
 		HTSUttModel um = new HTSUttModel();
@@ -203,7 +207,7 @@ public class HMMModel extends Model {
 				fv = predictorTargets.get(i);
 				um.addUttModel(new HTSModel(cart.getNumStates()));
 				HTSModel m = um.getUttModel(i);
-				Phone phone = phones.get(item_indexes.get(i)); // FIXME: we should be able to check that before !
+				Phoneme phoneme = phonemes.get(item_indexes.get(i)); // FIXME: we should be able to check that before !
 
 				/* this function also sets the phone name, the phone between - and + */
 				m.setPhoneName(fv.get("phone").getStringValue());
@@ -223,8 +227,8 @@ public class HMMModel extends Model {
 				double duration;
 
 				// if the attribute already exists for this element keep it
-				if (phone.getDuration() != null) {
-                    duration = phone.getDuration() / 1000; // FIXME: double check this formating as that is really weird this change of unit !
+				if (phoneme instanceof Phone) {
+                    duration = ((Phone) phoneme).getDuration() / 1000; // FIXME: double check this formating as that is really weird this change of unit !
 					um.setTotalFrame(um.getTotalFrame() + (int) Math.round(duration / fperiodsec));
 				} else {
 
@@ -248,7 +252,8 @@ public class HMMModel extends Model {
 				}
 
 				// set the new attribute value:
-                phone.setDuration(duration);
+                Phone ph = new Phone(phoneme, duration);
+                phonemes.set(i, ph);
 			}
 
 			return um;
@@ -273,7 +278,7 @@ public class HMMModel extends Model {
     {
 		HTSModel m;
 		try {
-            Sequence<Phone> phones = (Sequence<Phone>) utt.getSequence(SupportedSequenceType.PHONE);
+            Sequence<Phoneme> phones = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
 			HTSParameterGeneration pdf2par = new HTSParameterGeneration();
 
             /* Once we have all the phone models Process UttModel */
@@ -289,34 +294,52 @@ public class HMMModel extends Model {
 
             // make sure that the number of applicable elements is the same as the predicted number of elements
 			assert item_indexes.size() == um.getNumModel();
-			float f0;
-			String formattedTargetValue;
 			int t = 0;
 			for (int i = 0; i < item_indexes.size(); i++)  // this will be the same as the utterance model set
             {
 				m = um.getUttModel(i);
 				int k = 1;
+                ArrayList<Integer> positions = new ArrayList<Integer>();
+                ArrayList<Integer> values = new ArrayList<Integer>();
 				int numVoicedInModel = m.getNumVoiced();
-				formattedTargetValue = "";
 				for (int mstate = 0; mstate < cart.getNumStates(); mstate++) {
 					for (int frame = 0; frame < m.getDur(mstate); frame++) {
 						if (voiced[t++]) { // numVoiced and t are not the same because voiced values can be true or false,
 							// numVoiced count just the voiced
-							f0 = (float) Math.exp(pdf2par.getlf0Pst().getPar(numVoiced++, 0));
-							formattedTargetValue += "(" + Integer.toString((int) ((k * 100.0) / numVoicedInModel)) + ","
-									+ Integer.toString((int) f0) + ")";
+							float f0 = (float) Math.exp(pdf2par.getlf0Pst().getPar(numVoiced++, 0));
+                            positions.add((int) ((k * 100.0) / numVoicedInModel));
+                            values.add((int) f0);
 							k++;
 						}
 					}
 				}
-				Phone ph = (Phone) phones.get(i);
+				Phoneme ph = (Phone) phones.get(i);
 
 				// format targetValue according to targetAttributeFormat
 				// String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
 				// set the new attribute value:
 				// if the whole segment is unvoiced then f0 should not be fixed?
-				if (formattedTargetValue.length() > 0)
-					element.setAttribute(f0AttributeName, formattedTargetValue);
+				if (!values.isEmpty())
+                {
+                    Sequence<F0List> seq_f0;
+                    if (!utt.hasSequence(SupportedSequenceType.F0))
+                    {
+                        seq_f0 = new Sequence<F0List>();
+                        utt.addSequence(SupportedSequenceType.F0, seq_f0);
+                    }
+
+                    seq_f0 = (Sequence<F0List>) utt.getSequence(SupportedSequenceType.F0);
+
+                    F0List f0_val = new F0List(positions, values);
+                    seq_f0.add(f0_val);
+                    Relation rel = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.F0);
+                    if (rel == null)
+                    {
+                        rel = new Relation(utt.getSequence(SupportedSequenceType.PHONE), seq_f0);
+                        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.F0, rel);
+                    }
+                    rel.addRelation(i, seq_f0.size()-1);
+                }
 			}
 		} catch (Exception e) {
 			throw new MaryConfigurationException("Error generating F0 out of HMMs trees and pdfs. ", e);
@@ -336,11 +359,11 @@ public class HMMModel extends Model {
 	 *             if error searching in HMM trees.
 	 */
 	private HTSUttModel createUttModel(Utterance utt, List<Integer> item_indexes)
-        throws MaryConfigurationException
+        throws Exception
     {
 		int k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
 		HTSModel m;
-        Sequence<Phone> phones = (Sequence<Phone>) utt.getSequence(SupportedSequenceType.PHONE);
+        Sequence<Phoneme> phones = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
 		List<FeatureMap> predictorTargets = getTargets(utt, SupportedSequenceType.PHONE, item_indexes);
 		FeatureMap fv;
 		HTSUttModel um = new HTSUttModel();
@@ -354,7 +377,7 @@ public class HMMModel extends Model {
 			for (Integer i: item_indexes)
             {
 				fv = predictorTargets.get(i);
-				Phone phone = phones.get(i);
+				Phone phone = (Phone) phones.get(i);
 				um.addUttModel(new HTSModel(cart.getNumStates()));
 				m = um.getUttModel(i);
 
