@@ -3,3 +3,5 @@ ext {
 }
 
 apply plugin: LexiconPlugin
+
+apply from: "$rootDir/buildLogic.gradle"
