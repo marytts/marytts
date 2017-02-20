@@ -198,7 +198,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 			//TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
             FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
-
 			MaryData d = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
 			d.setDefaultVoice(voice);
 

@@ -294,14 +294,17 @@ public class XMLSerializer implements Serializer
         Relation rel_syllable_phone = utt.getRelation(SupportedSequenceType.SYLLABLE,
                                                       SupportedSequenceType.PHONE);
         if (rel_syllable_phone != null)
-            for (Phoneme phone: (ArrayList<Phoneme>) rel_syllable_phone.getRelatedItems(syl_index))
-                syllable_element.appendChild(exportPhone(phone, doc));
-
+        {
+            int[] indexes = rel_syllable_phone.getRelatedIndexes(syl_index);
+            for (int i=0; i<indexes.length; i++)
+                syllable_element.appendChild(exportPhone(utt, indexes[i], doc));
+        }
         return syllable_element;
     }
 
-    public Element exportPhone(Phoneme ph, Document doc)
+    public Element exportPhone(Utterance utt , int ph_index, Document doc)
     {
+        Phoneme ph = ((Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE)).get(ph_index);
         Element phone_element = doc.createElementNS(NAMESPACE, "ph");
 
         phone_element.setAttribute("p", ph.getLabel());
@@ -310,6 +313,17 @@ public class XMLSerializer implements Serializer
         {
             phone_element.setAttribute("start", String.valueOf(((Phone) ph).getStart()));
             phone_element.setAttribute("d", String.valueOf(((Phone) ph).getDuration()));
+        }
+
+        if (utt.hasSequence(SupportedSequenceType.F0))
+        {
+            Relation rel = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.F0);
+            if (rel != null)
+            {
+                ArrayList<Item> f0s = (ArrayList<Item>) rel.getRelatedItems(ph_index);
+                if (f0s.size() > 0)
+                    phone_element.setAttribute("d", f0s.get(0).toString()); // FIXME: only first is taken into account
+            }
         }
         return phone_element;
     }

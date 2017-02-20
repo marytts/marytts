@@ -147,8 +147,9 @@ public class CartTreeSet {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones) throws IOException,
-			MaryConfigurationException {
+	public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, PhoneTranslator trickyPhones)
+        throws IOException, MaryConfigurationException
+    {
 		// Check if there are tricky phones, and create a PhoneTranslator object
 		PhoneTranslator phTranslator = trickyPhones;
         featDef = featureDef;
@@ -207,12 +208,14 @@ public class CartTreeSet {
 	 *            diffdur
 	 * @return duration
 	 */
-	public double searchDurInCartTree(HTSModel m, FeatureMap fv, HMMData htsData, double diffdur) {
+	public double searchDurInCartTree(HTSModel m, FeatureMap fv, HMMData htsData, double diffdur)
+    {
 		return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
 	}
 
 	public double searchDurInCartTree(HTSModel m, FeatureMap fv, HMMData htsData, boolean firstPh, boolean lastPh,
-			double diffdur) {
+			double diffdur)
+    {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
             features.put(feat_name, fv.get(feat_name).getStringValue());
@@ -266,7 +269,8 @@ public class CartTreeSet {
 	 * @param uvthresh
 	 *            uvthresh
 	 */
-	public void searchLf0InCartTree(HTSModel m, FeatureMap fv, double uvthresh) {
+	public void searchLf0InCartTree(HTSModel m, FeatureMap fv, double uvthresh)
+    {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
             features.put(feat_name, fv.get(feat_name).getStringValue());
@@ -298,7 +302,11 @@ public class CartTreeSet {
         Map<String, String> features = new Hashtable<String, String>();
         for (String feat_name: featDef.getNames()) {
             features.put(feat_name, fv.get(feat_name).getStringValue());
+
+            System.out.print(feat_name + ": " + fv.get(feat_name).getStringValue() + ", ");
         }
+        System.out.println();
+
 		for (int s = 0; s < numStates; s++) {
 			PdfLeafNode node = (PdfLeafNode) mgcTree[s].traverse(features);
 			m.setMcepMean(s, node.getMean());

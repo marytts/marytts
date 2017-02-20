@@ -533,8 +533,6 @@ public class HTSEngine extends InternalModule {
             diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, false, diffdurOld);
 
 			um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-			// System.out.println(" model=" + m.getPhoneName() + " TotalDurFrames=" + m.getTotalDur() + " TotalDurMilisec=" +
-			// (fperiodmillisec * m.getTotalDur()) + "\n");
 
 			// Set realised durations
 			m.setTotalDurMillisec((int) (fperiodmillisec * m.getTotalDur()));
