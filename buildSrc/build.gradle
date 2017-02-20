@@ -1,0 +1,15 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'de.dfki.mary', name: 'marytts-common', version: '5.2'
+}
+
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            force 'org.codehaus.groovy:groovy-all:2.4.7'
+        }
+    }
+}
