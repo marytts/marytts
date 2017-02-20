@@ -38,12 +38,19 @@ public class DecisionTree
     public Object traverse(Map<String, String> features)
     {
         if (isLeaf())
+        {
+            System.out.println(name);
             return getValue();
+        }
 
         if (features.get(getName()).equals(getValue()))
+        {
+            System.out.print(name + "=>");
             return sons[1].traverse(features);
+        }
 
         /* TODO */
+        System.out.print("!" + name + "=>");
         return sons[0].traverse(features);
     }
 
