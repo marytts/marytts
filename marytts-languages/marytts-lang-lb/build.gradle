@@ -5,6 +5,7 @@ plugins {
 dependencies {
     compile project(':marytts-languages:marytts-lang-fr')
     compile libs.groovy
+    runtime project('marytts-lexicon-lb')
     testCompile libs.testng
     testCompile libs.xmlunit
 }
