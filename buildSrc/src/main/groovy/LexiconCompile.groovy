@@ -8,6 +8,10 @@ class LexiconCompile extends DefaultTask {
     @InputFile
     File lexiconFile = project.file("modules/$project.locale/lexicon/${project.locale}.txt")
 
+    @Optional
+    @Input
+    Map<String, String> phoneMapping
+
     @OutputFile
     File ltsFile = project.file("$temporaryDir/${project.locale}.lts")
 
