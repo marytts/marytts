@@ -14,5 +14,10 @@ class LexiconPlugin implements Plugin<Project> {
                 it.path = "marytts/language/$project.locale/lexicon/$it.name"
             }
         }
+
+        project.task('testLexicon', type: LexiconTest) {
+            inputs.files project.compileLexicon
+            project.test.dependsOn it
+        }
     }
 }

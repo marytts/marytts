@@ -23,6 +23,9 @@ class LexiconCompile extends DefaultTask {
     @OutputFile
     File fstFile = project.file("$temporaryDir/${project.locale}_lexicon.fst")
 
+    @Internal
+    File sampaLexiconFile = project.file("$temporaryDir/${project.locale}_lexicon.dict")
+
     @TaskAction
     void compile() {
         // load allophoneset
@@ -64,7 +67,6 @@ class LexiconCompile extends DefaultTask {
         ltsTrainer.save(tree, ltsFile.path)
 
         project.logger.lifecycle "save transcription"
-        def sampaLexiconFile = project.file("$temporaryDir/${project.locale}_lexicon.dict")
         sampaLexiconFile.withWriter('UTF-8') { writer ->
             lexicon.each { lemma, transcription ->
                 def transcriptionStr = allophoneSet.splitAllophoneString(transcription)
@@ -72,7 +74,7 @@ class LexiconCompile extends DefaultTask {
             }
         }
         def aligner = new AlignerTrainer(false, true)
-        aligner.readLexicon(sampaLexiconFile.newReader('UTF-8'), '|')
+        aligner.readLexicon(sampaLexiconFile.newReader('UTF-8'), '\\|')
         4.times { aligner.alignIteration() }
 
         def trie = new TransducerTrie()
