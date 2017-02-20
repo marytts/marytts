@@ -134,10 +134,6 @@ public class LTSTrainer extends AlignerTrainer {
 				// quotation signs needed to represent empty string
 				String outAlNr = "'" + alignment[inNr].getString2() + "'";
 
-				// TODO: don't consider alignments to more than three characters
-				if (outAlNr.length() > 5)
-					continue;
-
 				phChains.add(outAlNr);
 
 				// storing context and target
