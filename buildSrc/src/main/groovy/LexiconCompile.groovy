@@ -1,7 +1,10 @@
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 
+import marytts.fst.AlignerTrainer
+import marytts.fst.TransducerTrie
 import marytts.modules.phonemiser.AllophoneSet
+import marytts.tools.newlanguage.LTSTrainer
 
 class LexiconCompile extends DefaultTask {
     @InputFile
@@ -48,5 +51,36 @@ class LexiconCompile extends DefaultTask {
             }
         }
         assert lexicon
+
+        // adapted code from LTSLexiconPOSBuilder#trainLTS and LTSLexiconPOSBuilder#saveTranscription
+        project.logger.lifecycle "train and predict"
+        def ltsTrainer = new LTSTrainer(allophoneSet, true, true, 2)
+        ltsTrainer.readLexicon(lexicon)
+        5.times {
+            project.logger.lifecycle "iteration ${it + 1}"
+            ltsTrainer.alignIteration()
+        }
+        def tree = ltsTrainer.trainTree(100)
+        ltsTrainer.save(tree, ltsFile.path)
+
+        project.logger.lifecycle "save transcription"
+        def sampaLexiconFile = project.file("$temporaryDir/${project.locale}_lexicon.dict")
+        sampaLexiconFile.withWriter('UTF-8') { writer ->
+            lexicon.each { lemma, transcription ->
+                def transcriptionStr = allophoneSet.splitAllophoneString(transcription)
+                writer.println "$lemma|$transcriptionStr"
+            }
+        }
+        def aligner = new AlignerTrainer(false, true)
+        aligner.readLexicon(sampaLexiconFile.newReader('UTF-8'), '|')
+        4.times { aligner.alignIteration() }
+
+        def trie = new TransducerTrie()
+        aligner.lexiconSize().times {
+            trie.add(aligner.getAlignment(it))
+            trie.add(aligner.getInfoAlignment(it))
+        }
+        trie.computeMinimization()
+        trie.writeFST(fstFile.newDataOutputStream(), 'UTF-8')
     }
 }
