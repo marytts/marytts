@@ -34,7 +34,7 @@ class LexiconCompile extends DefaultTask {
         // read transcriptions
         def lexicon = [:]
         lexiconFile.eachLine('UTF-8') { line ->
-            def fields = line.split('\\s')
+            def fields = line.trim().split('\\s+')
             if (fields.first().startsWith('#')) {
                 // a comment
             } else if (fields.size() == 1) {
