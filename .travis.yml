@@ -3,6 +3,7 @@ sudo: false
 branches:
   only:
     - master
+    - lexicon-compiler
 
 language: java
 jdk:

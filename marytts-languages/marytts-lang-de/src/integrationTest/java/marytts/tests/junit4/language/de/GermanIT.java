@@ -51,8 +51,8 @@ public class GermanIT {
 		result = module.phonemise("αββ", "XY", new StringBuilder());
 		result2 = module.phonemise("λόγος", "XY", new StringBuilder());
 		// verify
-		assertEquals(result, null);
-		assertEquals(result2, null);
+		assertEquals(result, "' ? a l - f a: - ' b E - t a: - ' b E - t a:");
+		assertEquals(result2, "' g a - m a:");
 	}
 
 }

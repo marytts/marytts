@@ -5,3 +5,12 @@ ext {
 apply plugin: LexiconPlugin
 
 apply from: "$rootDir/buildLogic.gradle"
+
+compileLexicon {
+    phoneMapping = [
+            'A~:'  : 'a~',
+            'J'    : 'j',
+            's\\\\': 'S',
+            'z\\\\': 'Z'
+    ]
+}
