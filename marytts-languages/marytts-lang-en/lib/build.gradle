@@ -55,9 +55,22 @@ task processCmuDict {
 }
 
 ext {
-    locale = 'en'
+    locale = 'en_US'
 }
 
 apply plugin: LexiconPlugin
+
+compileLexicon {
+    dependsOn processCmuDict
+    allophonesFile = file('modules/en/us/lexicon/allophones.en_US.xml')
+    lexiconFile = processCmuDict.destFile
+    phoneMapping = [:]
+    file('modules/en/synthesis/sampa2mrpa_en.map').eachLine { line ->
+        (line =~ /(.+)<->(.+)/).each { match, sampa, mrpa ->
+            phoneMapping[mrpa] = sampa
+        }
+    }
+    phoneMapping << [0: '', 1: '', 2: '']
+}
 
 apply from: "$rootDir/buildLogic.gradle"
