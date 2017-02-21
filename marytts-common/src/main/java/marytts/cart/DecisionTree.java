@@ -1,6 +1,8 @@
 package marytts.cart;
 
 import java.util.Map;
+import marytts.cart.MatchingNode;
+import de.dfki.lt.tools.tokenizer.regexp.Match;
 
 /**
  *
@@ -43,15 +45,16 @@ public class DecisionTree
             return getValue();
         }
 
-        if (features.get(getName()).equals(getValue()))
-        {
-            System.out.print(name + "=>");
-            return sons[1].traverse(features);
-        }
+        assert getValue() instanceof MatchingNode;
+        MatchingNode the_node = (MatchingNode) getValue();
+        Object val = features.get(getName().split("=")[0]);
+        if (the_node == null)
+            System.out.println(name);
+        int idx = the_node.getIndex(val);
 
         /* TODO */
-        System.out.print("!" + name + "=>");
-        return sons[0].traverse(features);
+        System.out.print( name + " (" + getValue().toString() + ") =>");
+        return sons[idx].traverse(features);
     }
 
     public Object getValue()

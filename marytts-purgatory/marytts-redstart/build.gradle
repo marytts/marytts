@@ -1,4 +1,0 @@
-dependencies {
-    compile project(':marytts-utils')
-    compile project(':marytts-common')
-}

@@ -18,7 +18,7 @@ include ':marytts-languages:marytts-lang-lb'
 
 // Synthesis methodologies
 // include ':marytts-unitselection' // FIXME: for now unit selection is disable
-include ':marytts-htsengine-old'
+// include ':marytts-htsengine-old'
 
 // Voices
-include ':voice-cmu-slt-hsmm'
+// include ':voice-cmu-slt-hsmm'
