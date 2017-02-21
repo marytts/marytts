@@ -1,8 +1,27 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+}
+
+group 'de.dfki.mary'
+version '0.1.0-SNAPSHOT'
+
+gradlePlugin {
+    plugins {
+        lexiconCompilerPlugin {
+            id = 'de.dfki.mary.lexicon-compiler'
+            implementationClass = 'de.dfki.mary.lexicon.LexiconPlugin'
+        }
+    }
+}
+
 repositories {
     jcenter()
 }
 
 dependencies {
+    compile localGroovy()
     compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '5.2'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-dev', version: '3.7.6'
 }

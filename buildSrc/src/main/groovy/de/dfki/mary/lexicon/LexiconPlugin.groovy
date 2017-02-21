@@ -1,3 +1,5 @@
+package de.dfki.mary.lexicon
+
 import org.gradle.api.*
 import org.gradle.api.plugins.JavaPlugin
 

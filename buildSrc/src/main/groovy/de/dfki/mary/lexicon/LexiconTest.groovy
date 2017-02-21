@@ -1,3 +1,5 @@
+package de.dfki.mary.lexicon
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 
