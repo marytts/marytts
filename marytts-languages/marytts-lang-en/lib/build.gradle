@@ -1,3 +1,26 @@
+repositories {
+    ivy {
+        url 'http://festvox.org/packed/festival/2.4/'
+        layout 'pattern', {
+            artifact '[module]_[classifier].[ext]'
+        }
+    }
+    ivy {
+        url 'http://www.cstr.ed.ac.uk/downloads/festival/2.4/'
+        layout 'pattern', {
+            artifact '[module]_[classifier].[ext]'
+        }
+    }
+}
+
+configurations {
+    cmudict
+}
+
+dependencies {
+    cmudict group: 'org.festvox', name: 'festlex', version: '0.4', classifier: 'CMU', ext: 'tar.gz'
+}
+
 ext {
     locale = 'en'
 }
