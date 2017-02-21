@@ -21,6 +21,22 @@ dependencies {
     cmudict group: 'org.festvox', name: 'festlex', version: '0.4', classifier: 'CMU', ext: 'tar.gz'
 }
 
+task copyCmuDict(type: Copy) {
+    from configurations.cmudict
+    into "$buildDir/cmudict-packed"
+}
+
+task unpackCmuDict(type: Copy) {
+    dependsOn copyCmuDict
+    from tarTree(file("$copyCmuDict.destinationDir/festlex-0.4-CMU.tar.gz"))
+    into "$buildDir/cmudict"
+    include '**/cmudict-0.4.scm', '**/cmudict_extensions.scm', '**/COPYING'
+    eachFile {
+        it.path = it.name
+    }
+    includeEmptyDirs = false
+}
+
 ext {
     locale = 'en'
 }
