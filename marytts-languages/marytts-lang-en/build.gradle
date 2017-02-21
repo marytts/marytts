@@ -1,4 +1,5 @@
 dependencies {
+    runtime project('marytts-lexicon-en_US-cmudict')
     testCompile libs.testng
     testCompile libs.xmlunit
 }

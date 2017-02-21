@@ -1,0 +1,7 @@
+ext {
+    locale = 'fr'
+}
+
+apply plugin: LexiconPlugin
+
+apply from: "$rootDir/buildLogic.gradle"

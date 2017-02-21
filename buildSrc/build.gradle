@@ -1,0 +1,16 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'de.dfki.mary', name: 'marytts-runtime', version: '5.2'
+    compile group: 'nz.ac.waikato.cms.weka', name: 'weka-dev', version: '3.7.6'
+}
+
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            force 'org.codehaus.groovy:groovy-all:2.4.7'
+        }
+    }
+}

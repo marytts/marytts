@@ -1,7 +1,6 @@
 dependencies {
-    runtime project('marytts-lexicon-fr')
+    runtime project('marytts-lexicon-ru')
     testCompile libs.testng
-    testCompile libs.xmlunit
 }
 
 test {
