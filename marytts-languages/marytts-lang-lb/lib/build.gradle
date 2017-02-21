@@ -2,7 +2,7 @@ ext {
     locale = 'lb'
 }
 
-apply plugin: LexiconPlugin
+apply plugin: 'de.dfki.mary.lexicon-compiler'
 
 apply from: "$rootDir/buildLogic.gradle"
 
