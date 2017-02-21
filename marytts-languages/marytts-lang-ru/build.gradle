@@ -1,0 +1,8 @@
+dependencies {
+    runtime project('marytts-lexicon-ru')
+    testCompile libs.testng
+}
+
+test {
+    useTestNG()
+}
