@@ -1,5 +1,5 @@
 dependencies {
-    runtime project('marytts-lexicon-it')
+    runtime project('marytts-lexicon-ru')
     testCompile libs.testng
 }
 

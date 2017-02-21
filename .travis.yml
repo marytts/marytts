@@ -10,6 +10,9 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
+env:
+  - GRADLE_OPTS=-Dorg.gradle.daemon=false
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
