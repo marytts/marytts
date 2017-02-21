@@ -15,7 +15,7 @@ class LexiconCompile extends DefaultTask {
 
     @Optional
     @Input
-    Map<String, String> phoneMapping
+    Map<String, String> phoneMapping = [:]
 
     @OutputFile
     File ltsFile = project.file("$temporaryDir/${project.locale}.lts")
