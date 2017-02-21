@@ -76,7 +76,6 @@ compileLexicon {
 apply from: "$rootDir/buildLogic.gradle"
 
 processResources {
-    rename '^en_US(_lexicon)?', 'cmudict'
     from unpackCmuDict, {
         include 'COPYING'
     }
