@@ -1,8 +1,0 @@
-dependencies {
-    compile project(':marytts-utils')
-    compile project(':marytts-common')
-    compile group: 'org.incava', name: 'java-diff', version: '1.1'
-    testCompile project(':marytts-htsengine-old')
-    testCompile project(':voice-cmu-slt-hsmm')
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
-}

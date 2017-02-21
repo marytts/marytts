@@ -1,6 +1,0 @@
-dependencies {
-    compile project(':marytts-utils')
-    compile project(':marytts-common')
-    compile project(':marytts-builder')
-    compile group: 'org.swinglabs', name: 'swing-layout', version: '1.0.3'
-}
