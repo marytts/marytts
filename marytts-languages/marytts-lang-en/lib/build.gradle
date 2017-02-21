@@ -58,7 +58,7 @@ ext {
     locale = 'en_US'
 }
 
-apply plugin: LexiconPlugin
+apply plugin: 'de.dfki.mary.lexicon-compiler'
 
 compileLexicon {
     dependsOn processCmuDict
