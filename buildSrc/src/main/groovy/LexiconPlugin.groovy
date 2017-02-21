@@ -8,8 +8,10 @@ class LexiconPlugin implements Plugin<Project> {
         project.task('compileLexicon', type: LexiconCompile)
 
         project.processResources {
-            from project.compileLexicon
-            from project.compileLexicon.allophonesFile
+            project.afterEvaluate {
+                from project.compileLexicon
+                from project.compileLexicon.allophonesFile
+            }
             eachFile {
                 it.path = "marytts/language/$project.locale/lexicon/$it.name"
             }
