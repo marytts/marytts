@@ -37,6 +37,23 @@ task unpackCmuDict(type: Copy) {
     includeEmptyDirs = false
 }
 
+task processCmuDict {
+    dependsOn unpackCmuDict
+    ext.destFile = file("$unpackCmuDict.destinationDir/cmudict.txt")
+    outputs.file destFile
+    doLast {
+        destFile.withWriter { dest ->
+            fileTree(unpackCmuDict.destinationDir).include('*.scm').each { scmFile ->
+                scmFile.eachLine('UTF-8') { line ->
+                    (line =~ /\("(\w+)" (\w+) \((.+)\)\)/).each { match, lemma, pos, transcription ->
+                        dest.println "$lemma ${transcription.replaceAll(' ', '')}"
+                    }
+                }
+            }
+        }
+    }
+}
+
 ext {
     locale = 'en'
 }
