@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         maven {
-            url 'https://oss.jfrog.org/artifactory/libs-snapshot'
+            url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath group: 'de.dfki.mary', name: 'gradle-marytts-lexicon-compiler-plugin', version: '0.1.0-SNAPSHOT'
+        classpath "gradle.plugin.de.dfki.mary:gradle-marytts-lexicon-compiler-plugin:0.1.0"
     }
 }
 
