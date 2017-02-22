@@ -1,14 +1,3 @@
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "gradle.plugin.de.dfki.mary:gradle-marytts-lexicon-compiler-plugin:0.1.0"
-    }
-}
-
 plugins {
     id 'base'
 }
