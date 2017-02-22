@@ -1,7 +1,0 @@
-ext {
-    locale = 'fr'
-}
-
-apply plugin: 'de.dfki.mary.lexicon-compiler'
-
-apply from: "$rootDir/buildLogic.gradle"
