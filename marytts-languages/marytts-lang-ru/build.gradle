@@ -1,5 +1,5 @@
 dependencies {
-    runtime project('marytts-lexicon-ru')
+    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-ru', version: '0.1.0-SNAPSHOT'
     testCompile libs.testng
 }
 
