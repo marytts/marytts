@@ -8,6 +8,9 @@ allprojects {
 
     repositories {
         jcenter()
+        maven {
+            url 'https://oss.jfrog.org/repo'
+        }
     }
 }
 

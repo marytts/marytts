@@ -21,12 +21,6 @@ configurations {
     }
 }
 
-repositories {
-    maven {
-        url 'https://oss.jfrog.org/repo'
-    }
-}
-
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
