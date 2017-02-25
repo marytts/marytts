@@ -49,7 +49,7 @@ import org.xml.sax.SAXParseException;
 
 /**
  * A lightweight process handling one Request in a thread of its own. This is to be used when running as a socket server.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -65,7 +65,7 @@ public class RequestHandler extends Thread {
 	 * Constructor to be used for Socket processing (running as a standalone socket server). <code>inputReader</code> is a Reader
 	 * reading from from <code>dataSocket.inputStream()</code>. Passing this on is necessary because the mary server does a
 	 * buffered read on that input stream, and without passing that buffered reader on, data gets lost.
-	 * 
+	 *
 	 * @param request
 	 *            request
 	 * @param infoSocket
@@ -123,7 +123,7 @@ public class RequestHandler extends Thread {
 	 * Note that while different request handlers run as different threads, they all use the same module objects. How a given
 	 * module deals with several requests simultaneously is its own problem, the simplest solution being a synchronized
 	 * <code>process()</code> method.
-	 * 
+	 *
 	 * @see Request
 	 * @see marytts.modules.MaryModule
 	 * @see marytts.modules.ExternalModule

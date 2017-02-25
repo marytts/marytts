@@ -35,102 +35,34 @@
 
     <form id="maryWebClient" action="process" method="post">
     <table>
-      <tr>
-        <td>Input Type:
-          <select id="INPUT_TYPE" name="INPUT_TYPE" size="1" onChange="inputTypeChanged();">
-          </select>
-        </td>
-        
-        <td>Output Type:
-          <select id="OUTPUT_TYPE" name="OUTPUT_TYPE" size="1"  onChange="outputTypeChanged();">
-          </select>
-        </td>
+        <tr>
+            <td>script</td>
+            <td>Input:
+                <select id="INPUT_TYPE" name="INPUT_TYPE" size="1" onChange="inputTypeChanged();">
+                </select>
+            </td>
+            <td>Output:
+                <select id="OUTPUT_TYPE" name="OUTPUT_TYPE" size="1"  onChange="outputTypeChanged();">
+                </select>
+            </td>
       </tr>
 
       <tr>
           <td>
-            <div>Input Text:</div>
-            <textarea id="INPUT_TEXT" name="INPUT_TEXT" rows="30" cols="45"></textarea>
-          </td>
-
+              <textarea id="SCRIPT" name="SCRIPT" rows="30" cols="45"></textarea>
           <td>
-            <span id="outputSection">
-              <div id="hideOutputText">Output Text:</div>
+              <textarea id="INPUT_TEXT" name="INPUT_TEXT" rows="30" cols="45"></textarea>
+          </td>
+          <td>
               <textarea id="OUTPUT_TEXT" name="OUTPUT_TEXT" rows="30" cols="45" readonly="true"></textarea>
-            </span>
-			<span id="audioEffectsSection">
-			  <span id="innerAudioEffectsSection" style="display:none;">
-			  <table>
-			   <tr>
-			    <td>
-	              <table id="effectsTable">
-	                <tr>
-	                  <td> </td>
-	                  <td><div id="hideEffects">Effects</div></td> 
-	                  <td><div id="hideParameters">Parameters</div></td>
-	                </tr>
-	              </table>
-	            </td>
-	            <td>
-	              <span id="helpSection">
-	                <table>
-	                  <tr><td><div id="hideHelpTextTitle">Help Text:</div></td></tr>
-	                  <tr><td><textarea name="HELP_TEXT" id="HELP_TEXT" rows="15" cols="50" readonly="true"></textarea></td></tr>
-	                </table>
-	              </span>
-	            </td>
-	           </tr>
-	          </table>
-	          </span>
-            </span>
           </td>
 
         </tr>
       </table>
       <table>
         <tr>
-          <td>&nbsp;</td>
-          <td>
-            <select id="exampleTexts" name="exampleTexts" size="1" onChange="exampleChanged();" style="display:none;">
-            </select>
-        	<div id="showHideTargetFeatures">
-		  		<input type="checkbox" id="specifyTargetFeatures">
-		  		Specify target features:
-		  		<input type="text" value="phone stressed accented" id="targetFeatureList">
-			</div>
-          </td>
-        </tr>
-        <tr>
-          <td>Voice:</td>
-          <td>
-            <select id="VOICE_SELECTIONS" name="VOICE_SELECTIONS" size="1" onChange="voiceChanged();">
-            </select>
-          </td>
-          <td width="50">
-          </td>
-          <td>
-          	  <div id="showHideEffectsButton">
-                <input type="button" value="Show Audio Effects" id="TOGGLE_EFFECTS" onClick="toggleEffectsVisibility();">
-			  </div>
-          
-          </td>
-        </tr>
-
-        <tr>
-            <td><div id="hideAudioOut">Audio-Out:</div></td>
-            <td>
-              <select name="AUDIO_OUT" id="AUDIO_OUT" size="1" onChange="audioOutChanged();">
-              </select>
-              <div id="showHideModification" style="display:none;">
-            	<input type="checkbox" id="modification">
-            	Apply prosody modification
-              </div>
-            </td>
-        </tr>
-        <tr>
           <td>
              <input type="button" value="PROCESS" id="PROCESS" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
-             <input type="button" value="SPEAK" id="SPEAK" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
           </td>
           <td></td>
 
@@ -147,7 +79,7 @@
   <div id="audioDestination"></div>
 
 
-<small><a href="documentation.html">Interactive documentation of the HTTP interface to MARY TTS</a></small> 
+<small><a href="documentation.html">Interactive documentation of the HTTP interface to MARY TTS</a></small>
 
   </font>
 </body>

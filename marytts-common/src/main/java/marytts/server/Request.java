@@ -80,6 +80,9 @@ import org.w3c.dom.traversal.TreeWalker;
 public class Request {
 	protected MaryDataType inputType;
 	protected MaryDataType outputType;
+    protected String script;
+    protected String input_data;
+
 	protected String outputTypeParams;
 	protected AudioFileFormat audioFileFormat;
 	protected AppendableSequenceAudioInputStream appendableAudioStream;
@@ -92,13 +95,129 @@ public class Request {
 	protected Logger logger;
 	protected MaryData inputData;
 	protected MaryData outputData;
-	protected boolean streamAudio = false;;
+	protected boolean streamAudio = false;
 	protected boolean abortRequested = false;
 
 	// Keep track of timing info for each module
 	// (map MaryModule onto Long)
 	protected Set<MaryModule> usedModules;
 	protected Map<MaryModule, Long> timingInfo;
+
+	public Request(MaryDataType inputType, MaryDataType outputType, String script, String input_data) {
+		this.logger = MaryUtils.getLogger("R " + id);
+
+		if (!inputType.isInputType())
+			throw new IllegalArgumentException("not an input type: " + inputType.name());
+		if (!outputType.isOutputType())
+			throw new IllegalArgumentException("not an output type: " + outputType.name());
+		this.inputType = inputType;
+		this.outputType = outputType;
+
+        this.script = script;
+        this.input_data = input_data;
+
+		usedModules = new LinkedHashSet<MaryModule>();
+		timingInfo = new HashMap<MaryModule, Long>();
+	}
+
+    public void process() throws Exception {
+
+        assert Mary.currentState() == Mary.STATE_RUNNING;
+
+        System.out.println("script = " + this.script);
+        System.out.println("input_data = " + this.input_data);
+        Locale cur_locale = Locale.US; // FIXME: hardcoded
+        MaryData input_mary_data = new MaryData(this.inputType, cur_locale);
+        input_mary_data.setData(this.input_data);
+
+		long startTime = System.currentTimeMillis();
+		if (input_mary_data == null)
+			throw new NullPointerException("Input data is not set.");
+		if (inputType.isXMLType() && input_mary_data.getDocument() == null)
+			throw new NullPointerException("Input data contains no XML document.");
+		if (inputType.isMaryXML() && !input_mary_data.getDocument().getDocumentElement().hasAttribute("xml:lang"))
+			throw new IllegalArgumentException("Mandatory attribute xml:lang is missing from maryxml document element.");
+
+		NodeList inputDataList;
+		MaryData rawmaryxml;
+
+		// Is inputdata of a type that must be converted to RAWMARYXML?
+		if (outputType.name().equals("PRAAT_TEXTGRID"))  // never chunk for PRAAT_TEXTGRID
+        {
+			outputData = processOrLookupOneChunk(input_mary_data, outputType, outputTypeParams);
+			return;
+		}
+        else if (inputType.isTextType() && inputType.name().startsWith("TEXT") ||
+                 inputType.isXMLType() && !inputType.isMaryXML())
+        {
+			// Convert to RAWMARYXML
+			rawmaryxml = processOrLookupOneChunk(input_mary_data, MaryDataType.get("RAWMARYXML"), null);
+
+			// assert rawmaryxml.getDefaultVoice() != null;
+			inputDataList = splitIntoChunks(rawmaryxml);
+		}
+        else if (inputType.equals(MaryDataType.get("RAWMARYXML")))
+        {
+			rawmaryxml = input_mary_data;
+			inputDataList = splitIntoChunks(input_mary_data);
+		}
+        else
+        {
+			// other input data types are processed as a whole
+			outputData = processOrLookupOneChunk(input_mary_data, outputType, outputTypeParams);
+			return;
+		}
+		assert rawmaryxml != null && rawmaryxml.getType().equals(MaryDataType.get("RAWMARYXML"))
+				&& rawmaryxml.getDocument() != null;
+		moveBoundariesIntoParagraphs(rawmaryxml.getDocument());
+
+		// Now the beyond-RAWMARYXML processing:
+		outputData = new MaryData(outputType, defaultLocale);
+		if (outputType.isMaryXML())
+        {
+			outputData.setDocument(rawmaryxml.getDocument());
+		}
+
+		int len = inputDataList.getLength();
+		for (int i = 0; i < len && !abortRequested; i++)
+        {
+			Element currentInputParagraph = (Element) inputDataList.item(i);
+			assert currentInputParagraph.getTagName().equals(MaryXML.PARAGRAPH);
+			NodeList outputNodeList = null;
+			// Only process paragraph if there is any text below it:
+			if (MaryDomUtils.getPlainTextBelow(currentInputParagraph).trim().equals("")) {
+				outputNodeList = currentInputParagraph.getChildNodes();
+			} else { // process "real" data:
+				MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
+				// assert oneInputData.getDefaultVoice() != null;
+				MaryData oneOutputData = processOrLookupOneChunk(oneInputData, outputType, outputTypeParams);
+				// assert oneOutputData.getDefaultVoice() != null;
+				if (outputType.isMaryXML()) {
+					NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement()
+							.getElementsByTagName(MaryXML.PARAGRAPH);
+					// This does not hold for Tibetan:
+					// assert outParagraphList.getLength() == 1;
+					outputNodeList = outParagraphList;
+				} else { // output is not MaryXML, e.g. text or audio
+					assert outputData != null;
+					outputData.append(oneOutputData);
+				}
+			}
+			if (outputType.isMaryXML()) {
+				assert outputNodeList != null;
+				// And now replace the paragraph in-place:
+				MaryDomUtils.replaceElement(currentInputParagraph, outputNodeList);
+			}
+		}
+		long stopTime = System.currentTimeMillis();
+		logger.info("Request processed in " + (stopTime - startTime) + " ms.");
+		for (MaryModule m : usedModules) {
+			logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
+		}
+		if (appendableAudioStream != null)
+			appendableAudioStream.doneAppending();
+    }
+
 
 	public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale, Voice defaultVoice,
 			String defaultEffects, String defaultStyle, int id, AudioFileFormat audioFileFormat) {
@@ -203,7 +322,7 @@ public class Request {
 
 	/**
 	 * Set the input data directly, in case it is already in the form of a MaryData object.
-	 * 
+	 *
 	 * @param inputData
 	 *            inputData
 	 */
@@ -228,7 +347,7 @@ public class Request {
 
 	/**
 	 * Read the input data from a Reader.
-	 * 
+	 *
 	 * @param inputReader
 	 *            inputReader
 	 * @throws Exception
@@ -260,111 +379,10 @@ public class Request {
 		inputData.setDefaultEffects(defaultEffects);
 	}
 
-	/**
-	 * Process the input data to produce the output data.
-	 * 
-	 * @throws Exception
-	 *             Exception
-	 * @see #getOutputData for direct access to the resulting output data
-	 * @see #writeOutputData for writing the output data to a stream
-	 */
-	public void process() throws Exception {
-		assert Mary.currentState() == Mary.STATE_RUNNING;
-		long startTime = System.currentTimeMillis();
-		if (inputData == null)
-			throw new NullPointerException("Input data is not set.");
-		if (inputType.isXMLType() && inputData.getDocument() == null)
-			throw new NullPointerException("Input data contains no XML document.");
-		if (inputType.isMaryXML() && !inputData.getDocument().getDocumentElement().hasAttribute("xml:lang"))
-			throw new IllegalArgumentException("Mandatory attribute xml:lang is missing from maryxml document element.");
-
-		NodeList inputDataList;
-		MaryData rawmaryxml;
-		// Is inputdata of a type that must be converted to RAWMARYXML?
-		if (outputType.name().equals("PRAAT_TEXTGRID")) { // never chunk for PRAAT_TEXTGRID
-			outputData = processOrLookupOneChunk(inputData, outputType, outputTypeParams);
-			return;
-		} else if (inputType.isTextType() && inputType.name().startsWith("TEXT") || inputType.isXMLType()
-				&& !inputType.isMaryXML()) {
-			// Convert to RAWMARYXML
-			rawmaryxml = processOrLookupOneChunk(inputData, MaryDataType.get("RAWMARYXML"), null);
-
-			// assert rawmaryxml.getDefaultVoice() != null;
-			inputDataList = splitIntoChunks(rawmaryxml);
-		} else if (inputType.equals(MaryDataType.get("RAWMARYXML"))) {
-			rawmaryxml = inputData;
-			inputDataList = splitIntoChunks(inputData);
-		} else {
-			// other input data types are processed as a whole
-			outputData = processOrLookupOneChunk(inputData, outputType, outputTypeParams);
-			// assert outputData.getDefaultVoice() != null;
-			if (outputType == MaryDataType.AUDIO) {
-				assert appendableAudioStream != null;
-				appendableAudioStream.append(outputData.getAudio());
-				appendableAudioStream.doneAppending();
-			}
-			return;
-		}
-		assert rawmaryxml != null && rawmaryxml.getType().equals(MaryDataType.get("RAWMARYXML"))
-				&& rawmaryxml.getDocument() != null;
-		moveBoundariesIntoParagraphs(rawmaryxml.getDocument());
-
-		// Now the beyond-RAWMARYXML processing:
-		outputData = new MaryData(outputType, defaultLocale);
-		outputData.setDefaultVoice(defaultVoice);
-		outputData.setDefaultStyle(defaultStyle);
-		outputData.setDefaultEffects(defaultEffects);
-		if (outputType.isMaryXML()) {
-			// use the input or intermediate MaryXML document
-			// as the starting point for MaryXML output types,
-			// in order to gradually enrich them:
-			outputData.setDocument(rawmaryxml.getDocument());
-		} else if (outputType.equals(MaryDataType.get("AUDIO"))) {
-			outputData.setAudio(appendableAudioStream);
-			outputData.setAudioFileFormat(audioFileFormat);
-		}
-		int len = inputDataList.getLength();
-		for (int i = 0; i < len && !abortRequested; i++) {
-			Element currentInputParagraph = (Element) inputDataList.item(i);
-			assert currentInputParagraph.getTagName().equals(MaryXML.PARAGRAPH);
-			NodeList outputNodeList = null;
-			// Only process paragraph if there is any text below it:
-			if (MaryDomUtils.getPlainTextBelow(currentInputParagraph).trim().equals("")) {
-				outputNodeList = currentInputParagraph.getChildNodes();
-			} else { // process "real" data:
-				MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
-				// assert oneInputData.getDefaultVoice() != null;
-				MaryData oneOutputData = processOrLookupOneChunk(oneInputData, outputType, outputTypeParams);
-				// assert oneOutputData.getDefaultVoice() != null;
-				if (outputType.isMaryXML()) {
-					NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement()
-							.getElementsByTagName(MaryXML.PARAGRAPH);
-					// This does not hold for Tibetan:
-					// assert outParagraphList.getLength() == 1;
-					outputNodeList = outParagraphList;
-				} else { // output is not MaryXML, e.g. text or audio
-					assert outputData != null;
-					outputData.append(oneOutputData);
-				}
-			}
-			if (outputType.isMaryXML()) {
-				assert outputNodeList != null;
-				// And now replace the paragraph in-place:
-				MaryDomUtils.replaceElement(currentInputParagraph, outputNodeList);
-			}
-		}
-		long stopTime = System.currentTimeMillis();
-		logger.info("Request processed in " + (stopTime - startTime) + " ms.");
-		for (MaryModule m : usedModules) {
-			logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
-		}
-		if (appendableAudioStream != null)
-			appendableAudioStream.doneAppending();
-	}
 
 	/**
 	 * Convert the given data into the requested output type, either by looking it up in the cache or by actually processing it.
-	 * 
+	 *
 	 * @param oneInputData
 	 *            the input data to convert
 	 * @param oneOutputType
@@ -384,8 +402,10 @@ public class Request {
 	 */
 	private MaryData processOrLookupOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams)
 			throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)
-				&& (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
+		if (logger.getEffectiveLevel().equals(Level.DEBUG) &&
+            (oneInputData.getType().isTextType() ||
+             oneInputData.getType().isXMLType()))
+        {
 			logger.debug("Now converting the following input data from " + oneInputData.getType() + " to " + oneOutputType + ":");
 			ByteArrayOutputStream dummy = new ByteArrayOutputStream();
 			oneInputData.writeTo(dummy);
@@ -602,7 +622,7 @@ public class Request {
 	/**
 	 * Split the entire rawmaryxml document into individual paragraph elements. Any text not enclosed by a paragraph in the input
 	 * will be enclosed by a new paragraph element, which is then included in the return.
-	 * 
+	 *
 	 * @param rawmaryxml
 	 *            the maryxml document to split into paragraph chunks; this input document will be modified!
 	 * @return a nodelist containing the paragraph elements in the modified rawmaryxml document.
@@ -691,18 +711,18 @@ public class Request {
 		 * // Second, for each paragraph, create a separate MaryData. tw = ((DocumentTraversal)doc).createTreeWalker(root,
 		 * NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.PARAGRAPH), false); Element paragraph = null; while ((paragraph =
 		 * (Element) tw.nextNode()) != null) { MaryData md = extractParagraphAsMaryData(rawmaryxml, paragraph); result.add(md);
-		 * 
+		 *
 		 * if (logger.getEffectiveLevel().equals(Level.DEBUG)) { logger.debug("Created chunk:"); ByteArrayOutputStream dummy = new
 		 * ByteArrayOutputStream(); try { md.writeTo(dummy); } catch (Exception ex) { logger.debug(ex); } // side effect:
 		 * writeTo() writes to log if debug }
-		 * 
+		 *
 		 * } return result;
 		 */
 	}
 
 	/**
 	 * Move all the boundary elements outside of paragraphs into paragraphs.
-	 * 
+	 *
 	 * @param rawmaryxml
 	 *            rawmaryxml
 	 */
@@ -746,7 +766,7 @@ public class Request {
 	/**
 	 * For a given maryxml document, extract one paragraph element as a separate document, including any parent nodes around the
 	 * paragraph element.
-	 * 
+	 *
 	 * @param maryxml
 	 *            maryxml
 	 * @param paragraph
@@ -797,7 +817,7 @@ public class Request {
 	/**
 	 * For a given instance of MaryData, determine the locale -- either from the data type, or, if it is not specified there, from
 	 * the XML document root element's attribute "xml:lang".
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 */
@@ -823,7 +843,7 @@ public class Request {
 
 	/**
 	 * Direct access to the output data.
-	 * 
+	 *
 	 * @return outputdata
 	 */
 	public MaryData getOutputData() {
@@ -832,7 +852,7 @@ public class Request {
 
 	/**
 	 * Write the output data to the specified OutputStream.
-	 * 
+	 *
 	 * @param outputStream
 	 *            outputStream
 	 * @throws Exception
