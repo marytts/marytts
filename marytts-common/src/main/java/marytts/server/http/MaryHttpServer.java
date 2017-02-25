@@ -119,7 +119,7 @@ import org.apache.log4j.Logger;
  * a synthesis request In response, the server can set SYNTHESIS_OUTPUT to DONE, PENDING, or FAILED depending on the validity and
  * type of te request PENDING is a special case used for handling double requests due to EMBED or OBJECT tags in web browser
  * client html pages
- * 
+ *
  * <p>
  * Additionally, web browser clients should use the following key-value pair to tell the server about their type:
  * <p>
@@ -140,9 +140,9 @@ import org.apache.log4j.Logger;
  * VOICE is installed (hmm-slt), the synthesis result should be sent to the web browser for playback or saving (depending on web
  * browser settings).
  * <p>
- * 
+ *
  * check {@link InfoRequestHandler}, {@link FileRequestHandler}, {@link SynthesisRequestHandler} .
- * 
+ *
  * @author Oytun T&uuml;rk, Marc Schr&ouml;der
  */
 
@@ -187,19 +187,6 @@ public class MaryHttpServer extends Thread {
 		InfoRequestHandler infoRH = new InfoRequestHandler();
 		registry.register("/version", infoRH);
 		registry.register("/datatypes", infoRH);
-		registry.register("/locales", infoRH);
-		registry.register("/voices", infoRH);
-		registry.register("/audioformats", infoRH);
-		registry.register("/exampletext", infoRH);
-		registry.register("/audioeffects", infoRH);
-		registry.register("/audioeffect-default-param", infoRH);
-		registry.register("/audioeffect-full", infoRH);
-		registry.register("/audioeffect-help", infoRH);
-		registry.register("/audioeffect-is-hmm-effect", infoRH);
-		registry.register("/features", infoRH);
-		registry.register("/features-discrete", infoRH);
-		registry.register("/vocalizations", infoRH);
-		registry.register("/styles", infoRH);
 		registry.register("*", new FileRequestHandler());
 
 		handler.setHandlerResolver(registry);
