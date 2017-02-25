@@ -123,12 +123,28 @@ public class Request {
     public void process() throws Exception {
 
         assert Mary.currentState() == Mary.STATE_RUNNING;
+        System.out.println("input_data = " + this.input_data);
 
         System.out.println("script = " + this.script);
-        System.out.println("input_data = " + this.input_data);
+
+
         Locale cur_locale = Locale.US; // FIXME: hardcoded
         MaryData input_mary_data = new MaryData(this.inputType, cur_locale);
         input_mary_data.setData(this.input_data);
+
+		List<MaryModule> neededModules =
+            ModuleRegistry.modulesRequiredForProcessing(input_mary_data.getType(), outputType,
+                                                        cur_locale, null);
+        // Now neededModules contains references to the needed modules,
+		// in the order in which they are to process the data.
+		if (neededModules == null) {
+			// The modules we have cannot be combined such that
+			// the outputType can be generated from the inputData type.
+			String message = "No known way of generating output (" + outputType.name() + ") from input("
+					+ input_mary_data.getType().name() + "), no processing path through modules.";
+			throw new UnsupportedOperationException(message);
+		}
+		usedModules.addAll(neededModules);
 
 		long startTime = System.currentTimeMillis();
 		if (input_mary_data == null)
@@ -532,24 +548,14 @@ public class Request {
 	private MaryData processOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams, Locale locale)
 			throws Exception, TransformerConfigurationException, FileNotFoundException, TransformerException, IOException {
 		logger.debug("Determining which modules to use");
-		List<MaryModule> neededModules = ModuleRegistry.modulesRequiredForProcessing(oneInputData.getType(), oneOutputType,
-				locale, oneInputData.getDefaultVoice());
-		// Now neededModules contains references to the needed modules,
-		// in the order in which they are to process the data.
-		if (neededModules == null) {
-			// The modules we have cannot be combined such that
-			// the outputType can be generated from the inputData type.
-			String message = "No known way of generating output (" + oneOutputType.name() + ") from input("
-					+ oneInputData.getType().name() + "), no processing path through modules.";
-			throw new UnsupportedOperationException(message);
-		}
-		usedModules.addAll(neededModules);
+
+
 		logger.info("Handling request using the following modules:");
-		for (MaryModule m : neededModules) {
+		for (MaryModule m : usedModules) {
 			logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
 		}
 		MaryData currentData = oneInputData;
-		for (MaryModule m : neededModules) {
+		for (MaryModule m : usedModules) {
 			if (abortRequested)
 				break;
 			if (m.getState() == MaryModule.MODULE_OFFLINE) {
