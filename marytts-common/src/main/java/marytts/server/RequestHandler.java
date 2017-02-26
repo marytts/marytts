@@ -147,15 +147,9 @@ public class RequestHandler extends Thread {
 		}
 
 		boolean streamingOutput = false;
-		StreamingOutputWriter rw = null;
 		// Process input data to output data
 		if (ok)
 			try {
-				if (request.getOutputType().equals(MaryDataType.get("AUDIO")) && request.getStreamAudio()) {
-					streamingOutput = true;
-					rw = new StreamingOutputWriter(request, dataSocket.getOutputStream());
-					rw.start();
-				}
 
 				request.process();
 			} catch (Throwable e) {
@@ -188,12 +182,6 @@ public class RequestHandler extends Thread {
 					logger.warn(message, e);
 					ok = false;
 				}
-			} else { // streaming output
-				try {
-					rw.join();
-				} catch (InterruptedException ie) {
-					logger.warn(ie);
-				}
 			}
 		}
 		try {
@@ -214,31 +202,6 @@ public class RequestHandler extends Thread {
 		}
 
 	} // run()
-
-	public static class StreamingOutputWriter extends Thread {
-		private Request request;
-		private OutputStream output;
-		private Logger logger;
-
-		public StreamingOutputWriter(Request request, OutputStream output) throws Exception {
-			this.request = request;
-			this.output = output;
-			this.setName("RW " + request.getId());
-			logger = MaryUtils.getLogger(this.getName());
-		}
-
-		public void run() {
-			try {
-				AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
-				output.flush();
-				output.close();
-				logger.info("Finished writing output");
-			} catch (IOException ioe) {
-				logger.info("Cannot write output, client seems to have disconnected. ", ioe);
-				request.abort();
-			}
-		}
-	}
 
 	// A reader class for debugging purposes for StreamingOutputWriter
 	public static class StreamingOutputPiper extends Thread {

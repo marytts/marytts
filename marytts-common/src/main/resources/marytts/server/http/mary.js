@@ -41,7 +41,7 @@ function initForm()
     document.getElementById('OUTPUT_TYPE').selectedIndex = 0;
     document.getElementById('INPUT_TEXT').value = '';
     document.getElementById('OUTPUT_TEXT').value = '';
-    document.getElementById("SCRIPT").value = "";
+    document.getElementById("CONFIGURATION").value = "";
 	fillTypes();
 };
 

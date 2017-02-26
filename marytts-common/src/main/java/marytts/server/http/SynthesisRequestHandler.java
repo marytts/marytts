@@ -38,7 +38,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
-import marytts.server.RequestHandler.StreamingOutputWriter;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
@@ -61,7 +60,6 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
 		return id++;
 	}
 
-	private StreamingOutputWriter outputToStream;
 	private StreamingOutputPiper streamToPipe;
 	private PipedOutputStream pipedOutput;
 	private PipedInputStream pipedInput;
@@ -69,7 +67,6 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
 	public SynthesisRequestHandler() {
 		super();
 
-		outputToStream = null;
 		streamToPipe = null;
 		pipedOutput = null;
 		pipedInput = null;
@@ -119,11 +116,11 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
 			return;
 		}
 		boolean isOutputText = true;
-        String script = queryItems.get("SCRIPT");
+        String configuration = queryItems.get("CONFIGURATION");
         String input_data = queryItems.get("INPUT_TEXT");
 
         boolean ok = true;
-		final Request maryRequest = new Request(inputType, outputType, script, input_data);
+		final Request maryRequest = new Request(inputType, outputType, configuration, input_data);
 
         try {
             maryRequest.process();
@@ -140,13 +137,10 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
             try {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 maryRequest.writeOutputData(outputStream);
-                String contentType;
+                String contentType = "";
                 if (maryRequest.getOutputType().isXMLType() ||
                     maryRequest.getOutputType().isTextType()) // text output
                     contentType = "text/plain; charset=UTF-8";
-                else
-                    // audio output
-                    contentType = MaryHttpServerUtils.getMimeType(maryRequest.getAudioFileFormat().getType());
                 MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
             } catch (Exception e) {
                 String message = "Cannot write output";

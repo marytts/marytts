@@ -80,7 +80,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class Request {
 	protected MaryDataType inputType;
 	protected MaryDataType outputType;
-    protected String script;
+    protected String configuration;
     protected String input_data;
 
 	protected String outputTypeParams;
@@ -103,7 +103,7 @@ public class Request {
 	protected Set<MaryModule> usedModules;
 	protected Map<MaryModule, Long> timingInfo;
 
-	public Request(MaryDataType inputType, MaryDataType outputType, String script, String input_data) {
+	public Request(MaryDataType inputType, MaryDataType outputType, String configuration, String input_data) {
 		this.logger = MaryUtils.getLogger("R " + id);
 
 		if (!inputType.isInputType())
@@ -113,7 +113,7 @@ public class Request {
 		this.inputType = inputType;
 		this.outputType = outputType;
 
-        this.script = script;
+        this.configuration = configuration;
         this.input_data = input_data;
 
 		usedModules = new LinkedHashSet<MaryModule>();
@@ -124,15 +124,15 @@ public class Request {
 
         assert Mary.currentState() == Mary.STATE_RUNNING;
 
+
+        // Parse configuration to get needed information
+		List<MaryModule> neededModules = null;
+        System.out.println("configuration = " + this.configuration);
+        Locale cur_locale = Locale.US; // FIXME: hardcoded
+
         // Define the data
         MaryData input_mary_data = new MaryData(this.inputType, cur_locale);
         input_mary_data.setData(this.input_data);
-
-        // Parse script to get needed information
-		List<MaryModule> neededModules = null;
-        System.out.println("script = " + this.script);
-        Locale cur_locale = Locale.US; // FIXME: hardcoded
-
 
         if (neededModules == null) {
             neededModules = ModuleRegistry.modulesRequiredForProcessing(input_mary_data.getType(), outputType,
@@ -302,36 +302,8 @@ public class Request {
 		return outputType;
 	}
 
-	public Locale getDefaultLocale() {
-		return defaultLocale;
-	}
-
-	public Voice getDefaultVoice() {
-		return defaultVoice;
-	}
-
-	public String getDefaultStyle() {
-		return defaultStyle;
-	}
-
-	public String getDefaultEffects() {
-		return defaultEffects;
-	}
-
 	public int getId() {
 		return id;
-	}
-
-	public AudioFileFormat getAudioFileFormat() {
-		return audioFileFormat;
-	}
-
-	public AppendableSequenceAudioInputStream getAudio() {
-		return appendableAudioStream;
-	}
-
-	public boolean getStreamAudio() {
-		return streamAudio;
 	}
 
 	/**
@@ -348,23 +320,8 @@ public class Request {
 	 * @param inputData
 	 *            inputData
 	 */
-	public void setInputData(MaryData inputData) {
-		if (inputData != null && inputData.getType() != inputType) {
-			throw new IllegalArgumentException("Input data has wrong data type (expected " + inputType.toString() + ", got "
-					+ inputData.getType().toString());
-		}
-		if (defaultVoice == null) {
-			defaultVoice = Voice.getSuitableVoice(inputData);
-		}
-		// assert defaultVoice != null;
-
-		if (inputData.getDefaultVoice() == null) {
-			inputData.setDefaultVoice(defaultVoice);
-		}
-		inputData.setDefaultStyle(defaultStyle);
-		inputData.setDefaultEffects(defaultEffects);
-
-		this.inputData = inputData;
+	public void setInputData(String input_data) {
+		this.input_data = input_data;
 	}
 
 	/**
@@ -379,28 +336,6 @@ public class Request {
 		String inputText = FileUtils.getReaderAsString(inputReader);
 		setInputData(inputText);
 	}
-
-	public void setInputData(String inputText) throws Exception {
-		inputData = new MaryData(inputType, defaultLocale);
-		inputData.setWarnClient(true); // log warnings to client
-		// For RAWMARYXML, a validating parse is not possible
-		// because RAWMARYXML is not tokenised, so it does not yet
-		// fulfill the MaryXML Schema constraints.
-		if (inputType == MaryDataType.get("RAWMARYXML")) {
-			inputData.setValidating(false);
-		} else if (inputType.isMaryXML()) {
-			inputData.setValidating(MaryProperties.getBoolean("maryxml.validate.input"));
-		}
-		inputData.setData(inputText);
-		if (defaultVoice == null) {
-			defaultVoice = Voice.getSuitableVoice(inputData);
-		}
-		// assert defaultVoice != null;
-		inputData.setDefaultVoice(defaultVoice);
-		inputData.setDefaultStyle(defaultStyle);
-		inputData.setDefaultEffects(defaultEffects);
-	}
-
 
 	/**
 	 * Convert the given data into the requested output type, either by looking it up in the cache or by actually processing it.
