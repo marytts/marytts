@@ -43,7 +43,7 @@ import marytts.util.MaryRuntimeUtils;
 /**
  * This class and its subclasses are intended to grow into a simple-to-use, unified interface for both the local MARY server and a
  * MARY client.
- * 
+ *
  * @author marc
  *
  */
@@ -97,7 +97,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setInputType(java.lang.String)
 	 */
 	@Override
@@ -112,7 +112,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getInputType()
 	 */
 	@Override
@@ -122,7 +122,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setOutputType(java.lang.String)
 	 */
 	@Override
@@ -137,7 +137,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getOutputType()
 	 */
 	@Override
@@ -147,7 +147,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setLocale(java.util.Locale)
 	 */
 	@Override
@@ -162,7 +162,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getLocale()
 	 */
 	@Override
@@ -172,7 +172,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setVoice(java.lang.String)
 	 */
 	@Override
@@ -187,7 +187,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getVoice()
 	 */
 	@Override
@@ -200,7 +200,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setAudioEffects(java.lang.String)
 	 */
 	@Override
@@ -210,7 +210,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getAudioEffects()
 	 */
 	@Override
@@ -220,7 +220,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setStyle(java.lang.String)
 	 */
 	@Override
@@ -230,7 +230,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getStyle()
 	 */
 	@Override
@@ -240,7 +240,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setOutputTypeParams(java.lang.String)
 	 */
 	@Override
@@ -250,7 +250,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#getOutputTypeParams()
 	 */
 	@Override
@@ -260,7 +260,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#setStreamingAudio(boolean)
 	 */
 	@Override
@@ -270,7 +270,7 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#isStreamingAudio()
 	 */
 	@Override
@@ -280,88 +280,28 @@ public class LocalMaryInterface implements MaryInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#generateText(java.lang.String)
 	 */
 	@Override
 	public String generateText(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsText();
-		MaryData in = getMaryDataFromText(text);
-		MaryData out = process(in);
+		MaryData out = process(text);
 		return out.getPlainText();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see marytts.MaryInterface#generateText(org.w3c.dom.Document)
-	 */
-	@Override
-	public String generateText(Document doc) throws SynthesisException {
-		verifyInputTypeIsXML();
-		verifyOutputTypeIsText();
-		MaryData in = getMaryDataFromXML(doc);
-		MaryData out = process(in);
-		return out.getPlainText();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see marytts.MaryInterface#generateXML(java.lang.String)
 	 */
 	@Override
 	public Document generateXML(String text) throws SynthesisException {
 		verifyInputTypeIsText();
 		verifyOutputTypeIsXML();
-		MaryData in = getMaryDataFromText(text);
-		MaryData out = process(in);
+		MaryData out = process(text);
 		return out.getDocument();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see marytts.MaryInterface#generateXML(org.w3c.dom.Document)
-	 */
-	@Override
-	public Document generateXML(Document doc) throws SynthesisException {
-		verifyInputTypeIsXML();
-		verifyOutputTypeIsXML();
-		MaryData in = getMaryDataFromXML(doc);
-		MaryData out = process(in);
-		return out.getDocument();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see marytts.MaryInterface#generateAudio(java.lang.String)
-	 */
-	@Override
-	public AudioInputStream generateAudio(String text) throws SynthesisException {
-		verifyInputTypeIsText();
-		verifyOutputTypeIsAudio();
-		verifyVoiceIsAvailableForLocale();
-		MaryData in = getMaryDataFromText(text);
-		MaryData out = process(in);
-		return out.getAudio();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see marytts.MaryInterface#generateAudio(org.w3c.dom.Document)
-	 */
-	@Override
-	public AudioInputStream generateAudio(Document doc) throws SynthesisException {
-		verifyInputTypeIsXML();
-		verifyOutputTypeIsAudio();
-		verifyVoiceIsAvailableForLocale();
-		MaryData in = getMaryDataFromXML(doc);
-		MaryData out = process(in);
-		return out.getAudio();
 	}
 
 	private void verifyOutputTypeIsXML() {
@@ -398,7 +338,7 @@ public class LocalMaryInterface implements MaryInterface {
 	 * Synthesis will fail if {@link MaryDataType#AUDIO AUDIO} is requested but no voice is available for the requested Locale.
 	 * Moreover, the {@linkplain #audioFileFormat} will be null because {@linkplain #setAudioFileFormatForVoice()} silently
 	 * ignores if {@linkplain #voice} is null.
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 *             which should actually be a {@link MaryConfigurationException}.
 	 */
@@ -430,7 +370,7 @@ public class LocalMaryInterface implements MaryInterface {
 		return in;
 	}
 
-	private MaryData process(MaryData in) throws SynthesisException {
+	private MaryData process(String in) throws SynthesisException {
 		Request r = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, isStreaming,
 				outputTypeParams);
 		r.setInputData(in);

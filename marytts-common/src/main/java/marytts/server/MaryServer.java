@@ -224,7 +224,7 @@ public class MaryServer implements Runnable {
 				// complain
 				String nl = System.getProperty("line.separator");
 				throw new Exception("Expected either a line" + nl +
-                                    "MARY IN=<INPUTTYPE> OUT=<OUTPUTTYPE> SCRIPT=<THE SCRIPT>" + nl +
+                                    "MARY IN=<INPUTTYPE> OUT=<OUTPUTTYPE> CONFIGURATION=<THE CONFIGURATION>" + nl +
                                     "or a line containing only a number identifying a request.");
 			}
 
@@ -232,7 +232,7 @@ public class MaryServer implements Runnable {
 
 		private boolean handleSynthesisRequest(String inputLine) throws Exception {
 			int id = 0;
-            String script = "";
+            String configuration = "";
             String input_data = "";
 			if (!inputLine.startsWith("MARY")) {
 				return false;
@@ -254,7 +254,7 @@ public class MaryServer implements Runnable {
             // Now, the parse is complete.
 			// this request's id:
 			id = getID();
-			Request request = new Request(inputType, outputType, script, input_data);
+			Request request = new Request(inputType, outputType, configuration, input_data);
 			clientOut.println(id);
 
 			// -- create new clientMap entry
@@ -272,19 +272,19 @@ public class MaryServer implements Runnable {
 		 *            the string to read the parameter from
 		 * @param expectedParameterName
 		 *            the expected parameter name
-		 * @param parameterDescription
-		 *            human readable description of the parameter
+		 * @param parameterDeconfigurationion
+		 *            human readable deconfigurationion of the parameter
 		 * @return The value for the given parameter.
 		 * @throws Exception
 		 *             if the parameter is not of the type expected or the protocol is malformed.
 		 * @throws NullPointerException
 		 *             - if token is null
 		 */
-		private String parseProtocolParameter(String token, String expectedParameterType, String parameterDescription)
+		private String parseProtocolParameter(String token, String expectedParameterType, String parameterDeconfigurationion)
             throws Exception {
 			StringTokenizer tt = new StringTokenizer(token, "=");
 			if (tt.countTokens() != 2 || !tt.nextToken().equals(expectedParameterType)) {
-				throw new Exception("Expected " + expectedParameterType + "=<" + parameterDescription + ">");
+				throw new Exception("Expected " + expectedParameterType + "=<" + parameterDeconfigurationion + ">");
 			}
 			return tt.nextToken();
 		}
