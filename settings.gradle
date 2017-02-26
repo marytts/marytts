@@ -8,7 +8,7 @@ include ':marytts-common'
 // Languages
 include ':marytts-languages:marytts-lang-de'
 include ':marytts-languages:marytts-lang-en'
-include ':marytts-languages:marytts-lang-te'
+// include ':marytts-languages:marytts-lang-te' // FIXME: problem with the process in the phonemizer
 include ':marytts-languages:marytts-lang-tr'
 include ':marytts-languages:marytts-lang-ru'
 include ':marytts-languages:marytts-lang-it'

@@ -53,9 +53,6 @@ public class Preprocess extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Document doc = d.getDocument();
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setDocument(doc);
-		return result;
+        return d;
 	}
 }

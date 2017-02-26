@@ -25,8 +25,6 @@ import marytts.datatypes.MaryDataType;
 
 import marytts.modules.InternalModule;
 
-import org.w3c.dom.Document;
-
 /**
  * Transforms a full MaryXML document into an MBROLA format string
  *
@@ -39,10 +37,7 @@ public class RealisedAcoustparamsExtractor extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Document doc = d.getDocument();
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setDocument(doc);
-		return result;
+        return d;
 	}
 
 }

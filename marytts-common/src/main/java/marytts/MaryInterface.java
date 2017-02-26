@@ -192,27 +192,6 @@ public interface MaryInterface {
 	 */
 	public boolean isStreamingAudio();
 
-	/**
-	 * Partial processing command, converting an input text format such as TEXT into an output text format such as TARGETFEATURES.
-	 *
-	 * @param text
-	 *            text
-	 * @throws SynthesisException
-	 *             SynthesisException
-	 * @return text
-	 */
-	public String generateText(String text) throws SynthesisException;
-
-	/**
-	 * Partial processing command, converting an input text format such as TEXT into an XML format such as ALLOPHONES.
-	 *
-	 * @param text
-	 *            text
-	 * @throws SynthesisException
-	 *             SynthesisException
-	 * @return xml
-	 */
-	public Document generateXML(String text) throws SynthesisException;
 
 	/**
 	 * List the names of all the voices that can be used in {@link #setVoice(String)}.

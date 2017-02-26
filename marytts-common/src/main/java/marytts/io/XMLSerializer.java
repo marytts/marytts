@@ -98,7 +98,7 @@ public class XMLSerializer implements Serializer
         }
     }
 
-    public Utterance fromString(String doc_str)
+    public Utterance unpackDocument(String doc_str)
         throws ParserConfigurationException, SAXException, IOException, MaryIOException
     {
         // 1. generate the doc from the string

@@ -189,11 +189,9 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         throws Exception
     {
 
-		Document doc = d.getDocument();
-		inflection.determineEndings(doc); // FIXME: what is that ?
+        // inflection.determineEndings(doc); // FIXME: what is that ?
 
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+        Utterance utt = d.getData();
         ArrayList<Word> words = utt.getAllWords();
 
         for (Word w: words)
@@ -279,8 +277,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
             }
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

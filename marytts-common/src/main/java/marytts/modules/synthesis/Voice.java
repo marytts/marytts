@@ -667,11 +667,7 @@ public abstract class Voice {
     }
 
     public static Voice getSuitableVoice(MaryData d) {
-        Locale docLocale = d.getLocale();
-        if (docLocale == null && d.getType().isXMLType() && d.getDocument() != null
-            && d.getDocument().getDocumentElement().hasAttribute("xml:lang")) {
-            docLocale = MaryUtils.string2locale(d.getDocument().getDocumentElement().getAttribute("xml:lang"));
-        }
+        Locale docLocale = d.getData().getLocale();
         Voice guessedVoice = null;
         if (docLocale != null) {
             guessedVoice = Voice.getDefaultVoice(docLocale);
