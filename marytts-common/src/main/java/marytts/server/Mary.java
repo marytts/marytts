@@ -55,7 +55,6 @@ import marytts.modeling.features.FeatureProcessorManager;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.synthesis.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
@@ -142,8 +141,9 @@ public class Mary {
 		// started.
 		for (MaryModule m : ModuleRegistry.getAllModules()) {
 			// Only start the modules here if in server mode:
-			if (((!MaryProperties.getProperty("server").equals("commandline")) || m instanceof Synthesis)
-                && m.getState() == MaryModule.MODULE_OFFLINE) {
+			if ((!MaryProperties.getProperty("server").equals("commandline")) &&
+                m.getState() == MaryModule.MODULE_OFFLINE)
+            {
 				long before = System.currentTimeMillis();
 				try {
 					m.startup();

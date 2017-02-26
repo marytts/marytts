@@ -108,9 +108,7 @@ public class Phonemiser extends InternalModule {
 	public MaryData process(MaryData d)
         throws Exception
     {
-
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        Utterance utt = d.getData();
 
         for (Word w: utt.getAllWords())
         {
@@ -179,8 +177,7 @@ public class Phonemiser extends InternalModule {
         }
 
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

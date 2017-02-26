@@ -142,10 +142,8 @@ public class PronunciationModel extends InternalModule {
 	 */
 	public MaryData process(MaryData d) throws Exception {
 		// get the xml document
-        Document doc = d.getDocument();
         AllophoneSet allophoneSet = null;
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+        Utterance utt = d.getData();
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -195,8 +193,7 @@ public class PronunciationModel extends InternalModule {
         // Create the sentence/phrase relation
 
         // Create the phrase/word relation
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

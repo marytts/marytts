@@ -111,9 +111,7 @@ public class JTokenizer extends InternalModule {
         throws Exception
     {
         // Initialisation
-		Document doc = d.getDocument();
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+        Utterance utt = d.getData();
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();
@@ -207,8 +205,7 @@ public class JTokenizer extends InternalModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 }

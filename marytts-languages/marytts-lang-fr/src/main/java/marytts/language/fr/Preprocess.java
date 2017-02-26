@@ -8,10 +8,7 @@ import com.ibm.icu.util.ULocale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.modules.InternalModule;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 
 import marytts.io.XMLSerializer;
@@ -42,13 +39,11 @@ public class Preprocess extends InternalModule {
     public MaryData process(MaryData d)
         throws Exception
     {
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        Utterance utt = d.getData();
 
         checkForNumbers(utt);
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

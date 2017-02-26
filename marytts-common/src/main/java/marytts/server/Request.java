@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.BufferedOutputStream;
 import java.io.Reader;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -59,14 +60,9 @@ import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.TreeWalker;
+
+import marytts.io.XMLSerializer;
+import marytts.data.Utterance;
 
 /**
  * A request consists of input data, a desired output data type and the means to process the input data into the data of the
@@ -132,10 +128,12 @@ public class Request {
 
         // Define the data
         MaryData input_mary_data = new MaryData(this.inputType, cur_locale);
-        input_mary_data.setData(this.input_data);
+        XMLSerializer xml_serializer = new XMLSerializer();
+        input_mary_data.setData(xml_serializer.unpackDocument(this.input_data));
 
         if (neededModules == null) {
-            neededModules = ModuleRegistry.modulesRequiredForProcessing(input_mary_data.getType(), outputType,
+            neededModules = ModuleRegistry.modulesRequiredForProcessing(input_mary_data.getType(),
+                                                                        outputType,
                                                                         cur_locale, null);
 
             // Now neededModules contains references to the needed modules,
@@ -153,15 +151,6 @@ public class Request {
 
         // Start to achieve the process
 		long startTime = System.currentTimeMillis();
-		if (input_mary_data == null)
-			throw new NullPointerException("Input data is not set.");
-		if (inputType.isXMLType() && input_mary_data.getDocument() == null)
-			throw new NullPointerException("Input data contains no XML document.");
-		if (inputType.isMaryXML() && !input_mary_data.getDocument().getDocumentElement().hasAttribute("xml:lang"))
-			throw new IllegalArgumentException("Mandatory attribute xml:lang is missing from maryxml document element.");
-
-		NodeList inputDataList;
-		MaryData rawmaryxml;
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
 		logger.info("Handling request using the following modules:");
@@ -183,10 +172,6 @@ public class Request {
 				assert m.getState() == MaryModule.MODULE_RUNNING;
 			}
 			long moduleStartTime = System.currentTimeMillis();
-
-			// // TODO: The following hack makes sure that the Synthesis module gets outputParams. Make this more general and robust.
-			// if (m.outputType() == oneOutputType)
-			// 	outputData.setOutputParams(outputParams);
 
 			logger.info("Next module: " + m.name());
 			MaryData outData = null;
@@ -360,14 +345,10 @@ public class Request {
 			}
 		};
 		int timeout = MaryProperties.getInteger("modules.timeout", 10000);
-		if (outputType.equals(MaryDataType.get("AUDIO"))) {
-			// This means either a lot of data (for WAVE etc.) or a lot of processing
-			// effort (for MP3), so allow for a lot of time:
-			timeout *= 5;
-		}
 		timer.schedule(timerTask, timeout);
 		try {
-			outputData.writeTo(os);
+            XMLSerializer xml_serializer = new XMLSerializer();
+			os.write(xml_serializer.toString(this.outputData.getData()).getBytes());
 		} catch (Exception e) {
 			timer.cancel();
 			throw e;

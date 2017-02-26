@@ -106,10 +106,10 @@ public class OpenNLPPosTagger extends InternalModule {
 	}
 
 	@SuppressWarnings("unchecked")
-	public MaryData process(MaryData d) throws Exception {
-		Document doc = d.getDocument();
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+	public MaryData process(MaryData d)
+        throws Exception
+    {
+		Utterance utt = d.getData();
         Relation rel_sent_word = utt.getRelation(SupportedSequenceType.SENTENCE,
                                                  SupportedSequenceType.WORD);
 
@@ -158,8 +158,7 @@ public class OpenNLPPosTagger extends InternalModule {
             idx_sequence++;
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

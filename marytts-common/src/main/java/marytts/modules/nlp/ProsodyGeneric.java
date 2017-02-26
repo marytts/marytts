@@ -90,9 +90,7 @@ public class ProsodyGeneric extends InternalModule
 	public MaryData process(MaryData d) throws Exception
     {
         // Initialisation
-		Document doc = d.getDocument();
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+        Utterance utt = d.getData();
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);
@@ -133,8 +131,7 @@ public class ProsodyGeneric extends InternalModule
         utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 }

@@ -33,7 +33,6 @@ import java.util.Vector;
 
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
 import org.apache.commons.io.IOUtils;

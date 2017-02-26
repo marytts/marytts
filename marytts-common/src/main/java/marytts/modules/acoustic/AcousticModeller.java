@@ -139,27 +139,22 @@ public class AcousticModeller extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws SynthesisException {
-		Document doc = d.getDocument();
+        Utterance utt = d.getData();
 		MaryData output = new MaryData(outputType(), d.getLocale());
         try {
 
 		// cascaded voice identification:
-		Element voiceElement = (Element) doc.getElementsByTagName(MaryXML.VOICE).item(0);
-		Voice voice = Voice.getVoice(voiceElement);
-		if (voice == null) {
-			voice = d.getDefaultVoice();
-		}
+		Voice voice = null;
 		if (voice == null) {
 			// Determine Locale in order to use default voice
-			Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+			Locale locale = utt.getLocale();
 			voice = Voice.getDefaultVoice(locale);
 		}
 
 		// if no voice can be found for the Locale
 		if (voice == null) {
 			logger.debug("No voice found for locale; could not process!");
-			output.setDocument(doc);
-			return output;
+            return d;
 		}
 		assert voice != null;
 
@@ -168,14 +163,10 @@ public class AcousticModeller extends InternalModule {
 		if (models == null) {
 			// unless voice provides suitable models, pass out unmodified MaryXML, just like DummyAllophones2AcoustParams:
 			logger.debug("No acoustic models defined in " + voice.getName() + "; could not process!");
-			output.setDocument(doc);
-			return output;
+            return d;
 		}
 		assert models != null;
 
-
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
         ArrayList<Integer> indexes = new ArrayList<Integer>();
         int size = utt.getSequence(SupportedSequenceType.PHONE).size();
         for (int i=0; i<size; i++)
@@ -217,7 +208,7 @@ public class AcousticModeller extends InternalModule {
 		// 	throw new SynthesisException("Could not apply boundary model", e);
 		// }
 
-        output.setDocument(xml_ser.generateDocument(utt));
+        output.setData(utt);
 
         } catch (Exception ex) {
             throw new SynthesisException(ex);

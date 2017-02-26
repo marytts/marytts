@@ -47,7 +47,6 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
@@ -173,8 +172,7 @@ public class JPhonemiser extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception
     {
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        Utterance utt = d.getData();
         ArrayList<Word> words = utt.getAllWords();
 
         for (Word w: words)
@@ -243,8 +241,7 @@ public class JPhonemiser extends InternalModule {
         }
 
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
     }
 

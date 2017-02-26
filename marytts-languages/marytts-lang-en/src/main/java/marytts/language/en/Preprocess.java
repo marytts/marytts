@@ -183,13 +183,11 @@ public class Preprocess extends InternalModule {
 	public MaryData process(MaryData d)
         throws Exception
     {
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        Utterance utt = d.getData();
 
 		expand(utt);
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
 	}
 

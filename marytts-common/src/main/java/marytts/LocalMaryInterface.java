@@ -278,32 +278,6 @@ public class LocalMaryInterface implements MaryInterface {
 		return isStreaming;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#generateText(java.lang.String)
-	 */
-	@Override
-	public String generateText(String text) throws SynthesisException {
-		verifyInputTypeIsText();
-		verifyOutputTypeIsText();
-		MaryData out = process(text);
-		return out.getPlainText();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#generateXML(java.lang.String)
-	 */
-	@Override
-	public Document generateXML(String text) throws SynthesisException {
-		verifyInputTypeIsText();
-		verifyOutputTypeIsXML();
-		MaryData out = process(text);
-		return out.getDocument();
-	}
-
 	private void verifyOutputTypeIsXML() {
 		if (!outputType.isXMLType()) {
 			throw new IllegalArgumentException("Cannot provide XML output for non-XML-based output type " + outputType);
@@ -348,26 +322,6 @@ public class LocalMaryInterface implements MaryInterface {
 				throw new IllegalArgumentException("No voice is available for Locale: " + locale);
 			}
 		}
-	}
-
-	private MaryData getMaryDataFromText(String text) throws SynthesisException {
-		MaryData in = new MaryData(inputType, locale);
-		try {
-			in.setData(text);
-		} catch (Exception ioe) {
-			throw new SynthesisException(ioe);
-		}
-		return in;
-	}
-
-	private MaryData getMaryDataFromXML(Document doc) throws SynthesisException {
-		MaryData in = new MaryData(inputType, locale);
-		try {
-			in.setDocument(doc);
-		} catch (Exception ioe) {
-			throw new SynthesisException(ioe);
-		}
-		return in;
 	}
 
 	private MaryData process(String in) throws SynthesisException {

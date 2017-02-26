@@ -44,10 +44,6 @@ import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Read a simple phone string and generate default acoustic parameters.
@@ -67,28 +63,21 @@ public class TargetFeatureLister extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Voice voice = d.getDefaultVoice();
-		String features = d.getOutputParams();
-		TargetFeatureComputer featureComputer;
-		if (voice != null) {
-			featureComputer = FeatureRegistry.getTargetFeatureComputer(voice, features);
-		} else {
-			Locale locale = d.getLocale();
-			assert locale != null;
-			featureComputer = FeatureRegistry.getTargetFeatureComputer(locale, features);
-		}
-		assert featureComputer != null : "Cannot get a feature computer!";
+		// Utterance utt = d.getData();
+		// String features = d.getOutputParams();
+		// TargetFeatureComputer featureComputer;
+        // featureComputer = FeatureRegistry.getTargetFeatureComputer(utt.getLocale(), features);
 
-        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
-		Document doc = d.getDocument();
+		// assert featureComputer != null : "Cannot get a feature computer!";
 
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(d.getDocument());
+        // FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
-		// Second, construct targets
-		MaryData result = new MaryData(outputType(), d.getLocale());
-		result.setPlainText(listTargetFeatures(the_feature_computer, utt));
-		return result;
+		// // Second, construct targets
+		// MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        // result.setPlainText(listTargetFeatures(the_feature_computer, utt));
+		// return result;
+
+        return d;
 	}
 
 	/**

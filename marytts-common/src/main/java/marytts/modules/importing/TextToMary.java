@@ -67,41 +67,43 @@ public class TextToMary extends InternalModule {
 		super.startup();
 	}
 
-	public MaryData process(MaryData d) throws Exception {
+	public MaryData process(MaryData d)
+        throws Exception
+    {
 
-        String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
-		Locale l = determineLocale(plain_text, d.getLocale());
+        // String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
+		// Locale l = determineLocale(plain_text, d.getLocale());
 
-        // FIXME: old xml part still here, remove that
-        MaryData result = new MaryData(outputType(), d.getLocale(), true);
+        // // New utterance part
+        // Utterance utt = new Utterance(plain_text, l);
+        // Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
+		// if (splitIntoParagraphs)
+        // {
+        //     // Empty lines separate paragraphs
+		// 	String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
+		// 	for (int i = 0; i < inputTexts.length; i++)
+        //     {
+		// 		String paragraph_text = inputTexts[i].trim();
+		// 		if (paragraph_text.length() == 0)
+		// 			continue;
+        //         Paragraph p = new Paragraph(paragraph_text);
+        //         paragraphs.add(p);
+        //     }
+		// }
+        // // The whole text as one single paragraph
+        // else
+        // {
+        //     Paragraph p = new Paragraph(plain_text);
+        //     paragraphs.add(p);
+		// }
+        // utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
 
-        // New utterance part
-        Utterance utt = new Utterance(plain_text, l);
-        Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
-		if (splitIntoParagraphs)
-        {
-            // Empty lines separate paragraphs
-			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
-			for (int i = 0; i < inputTexts.length; i++)
-            {
-				String paragraph_text = inputTexts[i].trim();
-				if (paragraph_text.length() == 0)
-					continue;
-                Paragraph p = new Paragraph(paragraph_text);
-                paragraphs.add(p);
-            }
-		}
-        // The whole text as one single paragraph
-        else
-        {
-            Paragraph p = new Paragraph(plain_text);
-            paragraphs.add(p);
-		}
-        utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
 
-        XMLSerializer xml_serializer = new XMLSerializer();
-        result.setDocument(xml_serializer.generateDocument(utt));
-        return result;
+        // // FIXME: old xml part still here, remove that
+        // MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        // return result;
+
+        return null;
 	}
 
 	/**

@@ -77,10 +77,7 @@ public class MinimalisticPosTagger extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		Document doc = d.getDocument();
-
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.unpackDocument(doc);
+		Utterance utt = d.getData();
 
         for (Word w: utt.getAllWords())
         {
@@ -96,8 +93,7 @@ public class MinimalisticPosTagger extends InternalModule {
             w.setPOS(pos);
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(xml_ser.generateDocument(utt));
+        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
         return result;
 	}
 
