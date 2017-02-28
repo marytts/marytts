@@ -23,8 +23,10 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import marytts.data.SupportedSequenceType;
 
+import marytts.data.SupportedSequenceType;
+import marytts.data.Relation;
+import marytts.data.utils.IntegerPair;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -63,21 +65,14 @@ public class TargetFeatureLister extends InternalModule {
 	}
 
 	public MaryData process(MaryData d) throws Exception {
-		// Utterance utt = d.getData();
-		// String features = d.getOutputParams();
-		// TargetFeatureComputer featureComputer;
-        // featureComputer = FeatureRegistry.getTargetFeatureComputer(utt.getLocale(), features);
+		Utterance utt = d.getData();
 
-		// assert featureComputer != null : "Cannot get a feature computer!";
+        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
-        // FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
-
-		// // Second, construct targets
-		// MaryData result = new MaryData(outputType(), d.getLocale(), utt);
-        // result.setPlainText(listTargetFeatures(the_feature_computer, utt));
-		// return result;
-
-        return d;
+        listTargetFeatures(the_feature_computer, utt);
+		// Second, construct targets
+		MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+		return result;
 	}
 
 	/**
@@ -89,35 +84,27 @@ public class TargetFeatureLister extends InternalModule {
 	 *            segmentsAndBoundaries
 	 * @return a multi-line string.
 	 */
-	public String listTargetFeatures(FeatureComputer the_feature_computer,
+	public void listTargetFeatures(FeatureComputer the_feature_computer,
                                      Utterance utt) throws Exception
     {
 
-        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
-
+        Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
         Set<String> keys = null;
-        String tmp_out = "# ";
-        for (Item it: items) {
+        int i=0;
+        List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
+        for (Item it: items)
+        {
             FeatureMap map = the_feature_computer.process(utt, it);
-
-            if (keys == null) {
-                keys = map.keySet();
-                for (String k: keys)
-                    tmp_out += k + "\t";
-                tmp_out += "\n";
-
-            }
-            for (String k: keys) {
-                String val = map.get(k).getStringValue();
-                if (val == "")
-                    val = "0"; // FIXME: hardcoded
-                tmp_out += val + "\t";
-            }
-            tmp_out += "\n";
+            target_features.add(map);
+            i++;
+            list_pairs.add(new IntegerPair(i, i));
         }
 
-        return tmp_out;
+        Relation rel_phone_features = new Relation(items, target_features, list_pairs);
+
+        utt.addSequence(SupportedSequenceType.FEATURES, target_features);
+        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
 	}
 
 	/**

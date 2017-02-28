@@ -19,6 +19,16 @@
  */
 package marytts.server;
 
+
+import java.lang.reflect.Constructor;
+import java.io.StringReader;
+import java.util.Properties;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.commons.lang.StringUtils;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -61,6 +71,7 @@ import marytts.util.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import marytts.io.Serializer;
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 
@@ -91,6 +102,7 @@ public class Request {
 	protected Logger logger;
 	protected MaryData inputData;
 	protected MaryData outputData;
+    protected Serializer output_serializer;
 	protected boolean streamAudio = false;
 	protected boolean abortRequested = false;
 
@@ -120,27 +132,51 @@ public class Request {
 
         assert Mary.currentState() == Mary.STATE_RUNNING;
 
+        // Parser configuration
+        final Properties configuration_properties = new Properties();
+        configuration_properties.load(new StringReader(this.configuration));
 
-        // Parse configuration to get needed information
+        // Input serializer reflection (FIXME: check if serializer is ok)
+        Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
+        Constructor<?> ctor = clazz.getConstructor();
+        Serializer serializer = (Serializer) ctor.newInstance(new Object[] {});
+
+        // Input serializer reflection (FIXME: check if serializer is ok)
+        clazz = Class.forName(configuration_properties.get("output_serializer").toString());
+        ctor = clazz.getConstructor();
+        this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+
+        // Locale reflection (FIXME: Check if locale is correct)
+        Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
+
+        // Module sequence reflexion (FIXME: check if module is existing !)
 		List<MaryModule> neededModules = null;
-        System.out.println("configuration = " + this.configuration);
-        Locale cur_locale = Locale.US; // FIXME: hardcoded
+        String module_names = (String) configuration_properties.get("modules");
+        if (module_names != null)
+        {
+            List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
+            neededModules = new ArrayList<MaryModule>();
+            for (String module_class_name: module_name_list)
+            {
+                if (ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale) != null)
+                    neededModules.add(ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale));
+                else
+                    neededModules.add(ModuleRegistry.getModule(Class.forName(module_class_name)));
+            }
+        }
 
         // Define the data
         MaryData input_mary_data = new MaryData(this.inputType, cur_locale);
-        XMLSerializer xml_serializer = new XMLSerializer();
-        input_mary_data.setData(xml_serializer.unpackDocument(this.input_data));
+        input_mary_data.setData(serializer.fromString(this.input_data));
 
-        if (neededModules == null) {
+
+        /* List the modules if none are specified */
+        if (neededModules == null)
+        {
             neededModules = ModuleRegistry.modulesRequiredForProcessing(input_mary_data.getType(),
                                                                         outputType,
                                                                         cur_locale, null);
-
-            // Now neededModules contains references to the needed modules,
-            // in the order in which they are to process the data.
             if (neededModules == null) {
-                // The modules we have cannot be combined such that
-                // // TODO: he outputType can be generated from the inputData type.
                 String message = "No known way of generating output (" + outputType.name() + ") from input("
 					+ input_mary_data.getType().name() + "), no processing path through modules.";
                 throw new UnsupportedOperationException(message);
@@ -210,59 +246,6 @@ public class Request {
     }
 
 
-	public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale, Voice defaultVoice,
-			String defaultEffects, String defaultStyle, int id, AudioFileFormat audioFileFormat) {
-		this(inputType, outputType, defaultLocale, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false, null);
-	}
-
-	public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale, Voice defaultVoice,
-			String defaultEffects, String defaultStyle, int id, AudioFileFormat audioFileFormat, boolean streamAudio,
-			String outputTypeParams) {
-		if (!inputType.isInputType())
-			throw new IllegalArgumentException("not an input type: " + inputType.name());
-		if (!outputType.isOutputType())
-			throw new IllegalArgumentException("not an output type: " + outputType.name());
-		this.inputType = inputType;
-		this.outputType = outputType;
-		this.defaultLocale = defaultLocale;
-		this.defaultVoice = defaultVoice;
-		this.defaultEffects = defaultEffects;
-		this.defaultStyle = defaultStyle;
-		this.id = id;
-		this.audioFileFormat = audioFileFormat;
-		this.streamAudio = streamAudio;
-		if (outputType == MaryDataType.get("AUDIO")) {
-			if (audioFileFormat == null)
-				throw new NullPointerException("audio file format is needed for output type AUDIO");
-			this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null);
-		} else {
-			this.appendableAudioStream = null;
-		}
-		this.logger = MaryUtils.getLogger("R " + id);
-		this.outputTypeParams = outputTypeParams;
-		this.inputData = null;
-		this.outputData = null;
-		StringBuilder info = new StringBuilder("New request (input type \"" + inputType.name() + "\", output type \""
-				+ outputType.name());
-		if (this.defaultVoice != null)
-			info.append("\", voice \"" + this.defaultVoice.getName());
-		if (this.defaultEffects != null && this.defaultEffects != "")
-			info.append("\", effect \"" + this.defaultEffects);
-		if (this.defaultStyle != null && this.defaultStyle != "")
-			info.append("\", style \"" + this.defaultStyle);
-		if (audioFileFormat != null)
-			info.append("\", audio \"" + audioFileFormat.getType().toString() + "\"");
-		if (streamAudio)
-			info.append(", streaming");
-		info.append(")");
-		logger.info(info.toString());
-
-		// Keep track of timing info for each module
-		// (map MaryModule onto Long)
-		usedModules = new LinkedHashSet<MaryModule>();
-		timingInfo = new HashMap<MaryModule, Long>();
-	}
-
 	public MaryDataType getInputType() {
 		return inputType;
 	}
@@ -323,7 +306,9 @@ public class Request {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public void writeOutputData(OutputStream outputStream) throws Exception {
+	public void writeOutputData(OutputStream outputStream)
+        throws Exception
+    {
 		if (outputData == null) {
 			throw new NullPointerException("No output data -- did process() succeed?");
 		}
@@ -347,8 +332,7 @@ public class Request {
 		int timeout = MaryProperties.getInteger("modules.timeout", 10000);
 		timer.schedule(timerTask, timeout);
 		try {
-            XMLSerializer xml_serializer = new XMLSerializer();
-			os.write(xml_serializer.toString(this.outputData.getData()).getBytes());
+			os.write(output_serializer.toString(this.outputData.getData()).getBytes());
 		} catch (Exception e) {
 			timer.cancel();
 			throw e;
@@ -356,4 +340,60 @@ public class Request {
 		timer.cancel();
 	}
 
+
+
+
+
+	public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale, Voice defaultVoice,
+			String defaultEffects, String defaultStyle, int id, AudioFileFormat audioFileFormat) {
+		this(inputType, outputType, defaultLocale, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false, null);
+	}
+
+	public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale, Voice defaultVoice,
+			String defaultEffects, String defaultStyle, int id, AudioFileFormat audioFileFormat, boolean streamAudio,
+			String outputTypeParams) {
+		if (!inputType.isInputType())
+			throw new IllegalArgumentException("not an input type: " + inputType.name());
+		if (!outputType.isOutputType())
+			throw new IllegalArgumentException("not an output type: " + outputType.name());
+		this.inputType = inputType;
+		this.outputType = outputType;
+		this.defaultLocale = defaultLocale;
+		this.defaultVoice = defaultVoice;
+		this.defaultEffects = defaultEffects;
+		this.defaultStyle = defaultStyle;
+		this.id = id;
+		this.audioFileFormat = audioFileFormat;
+		this.streamAudio = streamAudio;
+		if (outputType == MaryDataType.get("AUDIO")) {
+			if (audioFileFormat == null)
+				throw new NullPointerException("audio file format is needed for output type AUDIO");
+			this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null);
+		} else {
+			this.appendableAudioStream = null;
+		}
+		this.logger = MaryUtils.getLogger("R " + id);
+		this.outputTypeParams = outputTypeParams;
+		this.inputData = null;
+		this.outputData = null;
+		StringBuilder info = new StringBuilder("New request (input type \"" + inputType.name() + "\", output type \""
+				+ outputType.name());
+		if (this.defaultVoice != null)
+			info.append("\", voice \"" + this.defaultVoice.getName());
+		if (this.defaultEffects != null && this.defaultEffects != "")
+			info.append("\", effect \"" + this.defaultEffects);
+		if (this.defaultStyle != null && this.defaultStyle != "")
+			info.append("\", style \"" + this.defaultStyle);
+		if (audioFileFormat != null)
+			info.append("\", audio \"" + audioFileFormat.getType().toString() + "\"");
+		if (streamAudio)
+			info.append(", streaming");
+		info.append(")");
+		logger.info(info.toString());
+
+		// Keep track of timing info for each module
+		// (map MaryModule onto Long)
+		usedModules = new LinkedHashSet<MaryModule>();
+		timingInfo = new HashMap<MaryModule, Long>();
+	}
 }

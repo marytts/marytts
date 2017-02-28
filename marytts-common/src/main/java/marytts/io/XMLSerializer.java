@@ -3,6 +3,7 @@ package marytts.io;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.OutputKeys;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
@@ -42,6 +44,11 @@ import marytts.data.item.linguistic.*;
 import marytts.data.item.phonology.*;
 import marytts.data.item.prosody.*;
 import marytts.data.item.*;
+
+import marytts.features.FeatureMap;
+import marytts.features.Feature;
+
+
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 import org.apache.log4j.Logger;
@@ -79,14 +86,14 @@ public class XMLSerializer implements Serializer
         try
         {
             Document doc = generateDocument(utt);
-            DOMSource domSource = new DOMSource(doc);
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.transform(domSource, result);
-
-            return writer.toString();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            //initialize StreamResult with File object to save to file
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(doc);
+            transformer.transform(source, result);
+            return result.getWriter().toString();
         }
         catch (TransformerConfigurationException ex)
         {
@@ -98,6 +105,18 @@ public class XMLSerializer implements Serializer
         }
     }
 
+    public Utterance fromString(String doc_str)
+        throws MaryIOException
+    {
+        try
+        {
+            return unpackDocument(doc_str);
+        }
+        catch (Exception ex)
+        {
+            throw new MaryIOException("couldn't convert the document from string", ex);
+        }
+    }
     public Utterance unpackDocument(String doc_str)
         throws ParserConfigurationException, SAXException, IOException, MaryIOException
     {
@@ -325,7 +344,41 @@ public class XMLSerializer implements Serializer
                     phone_element.setAttribute("d", f0s.get(0).toString()); // FIXME: only first is taken into account
             }
         }
+
+
+        if (utt.hasSequence(SupportedSequenceType.FEATURES))
+        {
+            Relation rel = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES);
+            if (rel != null)
+            {
+                int[] indexes = rel.getRelatedIndexes(ph_index);
+                for (int i=0; i<indexes.length; i++)
+                {
+                    phone_element.appendChild(exportFeatures(utt, indexes[i], doc));
+                }
+            }
+        }
+
         return phone_element;
+    }
+
+    public Element exportFeatures(Utterance utt, int feat_index, Document doc)
+    {
+        Element features_element = doc.createElementNS(NAMESPACE, "features");
+        FeatureMap features = ((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES)).get(feat_index);
+
+        for (Map.Entry<String, Feature> entry:features.getMap().entrySet())
+        {
+            if ((entry.getValue() != null) && (!entry.getValue().getStringValue().equals("")))
+            {
+                Element feature_element = doc.createElementNS(NAMESPACE, "feature");
+                feature_element.setAttribute("name", entry.getKey());
+                feature_element.setAttribute("value", entry.getValue().getStringValue());
+                features_element.appendChild(feature_element);
+            }
+        }
+
+        return features_element;
     }
 
 

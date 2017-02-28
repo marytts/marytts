@@ -8,5 +8,6 @@ public enum SupportedSequenceType {
     WORD,
     SYLLABLE,
     PHONE,
-    F0
+    F0,
+    FEATURES
 };
