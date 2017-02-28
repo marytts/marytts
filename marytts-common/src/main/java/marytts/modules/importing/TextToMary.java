@@ -21,20 +21,8 @@ package marytts.modules.importing;
 
 import java.util.Locale;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import marytts.data.Utterance;
-import marytts.data.SupportedSequenceType;
-import marytts.data.Sequence;
-import marytts.data.item.linguistic.Paragraph;
-import marytts.io.XMLSerializer;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
-import marytts.util.MaryUtils;
 
 import marytts.modules.InternalModule;
 
@@ -46,82 +34,18 @@ import marytts.modules.InternalModule;
  */
 
 public class TextToMary extends InternalModule {
-    private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
-    private DocumentBuilderFactory factory = null;
-	private DocumentBuilder docBuilder = null;
-	private boolean splitIntoParagraphs;
 
 	public TextToMary() {
 		super("TextToMary", MaryDataType.TEXT, MaryDataType.RAWMARYXML, null);
-		splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
 	}
 
 	public void startup() throws Exception {
-		if (factory == null) {
-			factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-		}
-		if (docBuilder == null) {
-			docBuilder = factory.newDocumentBuilder();
-		}
 		super.startup();
 	}
 
 	public MaryData process(MaryData d)
         throws Exception
     {
-
-        // String plain_text = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
-		// Locale l = determineLocale(plain_text, d.getLocale());
-
-        // // New utterance part
-        // Utterance utt = new Utterance(plain_text, l);
-        // Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
-		// if (splitIntoParagraphs)
-        // {
-        //     // Empty lines separate paragraphs
-		// 	String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
-		// 	for (int i = 0; i < inputTexts.length; i++)
-        //     {
-		// 		String paragraph_text = inputTexts[i].trim();
-		// 		if (paragraph_text.length() == 0)
-		// 			continue;
-        //         Paragraph p = new Paragraph(paragraph_text);
-        //         paragraphs.add(p);
-        //     }
-		// }
-        // // The whole text as one single paragraph
-        // else
-        // {
-        //     Paragraph p = new Paragraph(plain_text);
-        //     paragraphs.add(p);
-		// }
-        // utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
-
-
-        // // FIXME: old xml part still here, remove that
-        // MaryData result = new MaryData(outputType(), d.getLocale(), utt);
-        // return result;
-
-        return null;
+        return d;
 	}
-
-	/**
-	 * Try to determine the locale of the given text. This implementation simply returns the default locale; subclasses can try to
-	 * do something fancy here.
-	 *
-	 * @param text
-	 *            the text whose locale to determine
-	 * @param defaultLocale
-	 *            the default locale of the document.
-	 * @return the locale as inferred from the text and the default locale
-	 */
-	protected Locale determineLocale(String text, Locale defaultLocale) {
-		if (defaultLocale == null) {
-			defaultLocale = Locale.getDefault();
-			logger.warn("Locale is null, overriding with " + defaultLocale);
-		}
-		return defaultLocale;
-	}
-
 }

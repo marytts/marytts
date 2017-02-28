@@ -3,6 +3,7 @@ package marytts.io;
 
 import java.io.File;
 import marytts.data.Utterance;
+import marytts.io.MaryIOException;
 
 /**
  *
@@ -16,5 +17,7 @@ public interface Serializer
     public void save(File file, Utterance utt) throws MaryIOException;
 
     public String toString(Utterance utt) throws MaryIOException;
+
+    public Utterance fromString(String content) throws MaryIOException;
 
 }
