@@ -37,7 +37,6 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
@@ -73,7 +72,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	private PhonemiseDenglish phonemiseDenglish;
 
 	public JPhonemiser() throws IOException, MaryConfigurationException {
-		super("JPhonemiser_de", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, "de.allophoneset", "de.userdict",
+		super("JPhonemiser_de", "de.allophoneset", "de.userdict",
               "de.lexicon", "de.lettertosound");
 	}
 
@@ -277,7 +276,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
             }
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 

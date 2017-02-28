@@ -27,7 +27,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
@@ -67,8 +66,6 @@ import org.apache.log4j.Logger;
 
 public class InternalModule implements MaryModule {
 	private String name = null;
-	private MaryDataType inputType = null;
-	private MaryDataType outputType = null;
 	private Locale locale = null;
 	protected int state;
 	/**
@@ -76,10 +73,8 @@ public class InternalModule implements MaryModule {
 	 */
 	protected Logger logger;
 
-	protected InternalModule(String name, MaryDataType inputType, MaryDataType outputType, Locale locale) {
+	protected InternalModule(String name, Locale locale) {
 		this.name = name;
-		this.inputType = inputType;
-		this.outputType = outputType;
 		this.locale = locale;
 		logger = MaryUtils.getLogger(name());
 		this.state = MODULE_OFFLINE;
@@ -88,24 +83,6 @@ public class InternalModule implements MaryModule {
 	// Interface MaryModule implementation:
 	public String name() {
 		return name;
-	}
-
-	@Deprecated
-	public MaryDataType inputType() {
-		return getInputType();
-	}
-
-	public MaryDataType getInputType() {
-		return inputType;
-	}
-
-	@Deprecated
-	public MaryDataType outputType() {
-		return getOutputType();
-	}
-
-	public MaryDataType getOutputType() {
-		return outputType;
 	}
 
 	public Locale getLocale() {
@@ -118,7 +95,7 @@ public class InternalModule implements MaryModule {
 
 	public void startup() throws Exception {
 		assert state == MODULE_OFFLINE;
-		logger.info("Module started (" + inputType() + "->" + outputType() + ", locale " + getLocale() + ").");
+		logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
 
 		state = MODULE_RUNNING;
 	}

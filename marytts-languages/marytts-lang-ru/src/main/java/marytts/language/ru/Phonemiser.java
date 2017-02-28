@@ -33,7 +33,6 @@ import java.util.StringTokenizer;
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
@@ -68,7 +67,7 @@ public class Phonemiser extends InternalModule {
 
 	public Phonemiser(String propertyPrefix) throws IOException, ParserConfigurationException,
         MaryConfigurationException {
-		this("Phonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, propertyPrefix + "allophoneset", propertyPrefix
+		this("Phonemiser", propertyPrefix + "allophoneset", propertyPrefix
              + "userdict");
 	}
 
@@ -92,11 +91,11 @@ public class Phonemiser extends InternalModule {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public Phonemiser(String componentName, MaryDataType inputType, MaryDataType outputType, String allophonesProperty,
+	public Phonemiser(String componentName, String allophonesProperty,
                       String userdictProperty)
         throws IOException, ParserConfigurationException, MaryConfigurationException
     {
-		super(componentName, inputType, outputType, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
+		super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
 		allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
 		// userdict is optional
 		// Actually here, the user dict is the only source of information we have, so it is not optional:
@@ -177,7 +176,7 @@ public class Phonemiser extends InternalModule {
         }
 
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 

@@ -23,7 +23,6 @@ package marytts.modules;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 
 /**
  * A generic interface for Mary Modules. This interface defines the communication of the Mary.java main program with the
@@ -49,25 +48,6 @@ public interface MaryModule {
 	 */
 	public String name();
 
-	/**
-	 * The type of input data needed by this module.
-	 *
-	 * @return input type
-	 */
-	@Deprecated
-	public MaryDataType inputType();
-
-	public MaryDataType getInputType();
-
-	/**
-	 * The type of output data produced by this module.
-	 *
-	 * @return outputType
-	 */
-	@Deprecated
-	public MaryDataType outputType();
-
-	public MaryDataType getOutputType();
 
 	/**
 	 * The locale of this module, i.e. the locale of data that this module can process. If null, indicates that the module can use

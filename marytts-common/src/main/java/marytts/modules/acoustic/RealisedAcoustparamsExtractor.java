@@ -21,7 +21,6 @@ package marytts.modules.acoustic;
 
 // DOM classes
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 
 import marytts.modules.InternalModule;
 
@@ -33,7 +32,7 @@ import marytts.modules.InternalModule;
 
 public class RealisedAcoustparamsExtractor extends InternalModule {
 	public RealisedAcoustparamsExtractor() {
-		super("Realised acoustparams extractor", MaryDataType.AUDIO, MaryDataType.REALISED_ACOUSTPARAMS, null);
+		super("Realised acoustparams extractor", null);
 	}
 
 	public MaryData process(MaryData d) throws Exception {

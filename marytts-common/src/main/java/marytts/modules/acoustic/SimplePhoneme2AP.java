@@ -35,7 +35,6 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -56,11 +55,11 @@ public class SimplePhoneme2AP extends InternalModule {
 	protected AllophoneSet allophoneSet;
 
     public SimplePhoneme2AP(String localeString) {
-		this(MaryDataType.SIMPLEPHONEMES, MaryDataType.ACOUSTPARAMS, MaryUtils.string2locale(localeString));
+		this(MaryUtils.string2locale(localeString));
 	}
 
-    public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale) {
-		super("SimplePhoneme2AP", inputType, outputType, locale);
+    public SimplePhoneme2AP(Locale locale) {
+		super("SimplePhoneme2AP", locale);
     }
 
 	public void startup() throws Exception {

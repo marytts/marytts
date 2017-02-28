@@ -22,7 +22,6 @@ package marytts.modules.nlp;
 import java.util.Locale;
 import java.util.ArrayList;
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 
 import marytts.modules.InternalModule;
 
@@ -57,9 +56,9 @@ public class ProsodyGeneric extends InternalModule
 		this((Locale) null);
 	}
 
-    public ProsodyGeneric(MaryDataType inputType, MaryDataType outputType, Locale locale, String tobipredFileName,
+    public ProsodyGeneric(Locale locale, String tobipredFileName,
                           String accentPriorities, String syllableAccents, String paragraphDeclination) {
-		super("Prosody", inputType, outputType, locale);
+		super("Prosody", locale);
 
 	}
 
@@ -69,7 +68,7 @@ public class ProsodyGeneric extends InternalModule
 
 	public ProsodyGeneric(Locale locale, String propertyPrefix)
     {
-		super("Prosody", MaryDataType.PHONEMES, MaryDataType.INTONATION, locale);
+		super("Prosody", locale);
 	}
 
 	public ProsodyGeneric(String locale) {
@@ -131,7 +130,7 @@ public class ProsodyGeneric extends InternalModule
         utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 }

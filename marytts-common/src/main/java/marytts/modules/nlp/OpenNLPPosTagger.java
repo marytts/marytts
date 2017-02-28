@@ -32,7 +32,6 @@ import java.util.StringTokenizer;
 import marytts.modules.InternalModule;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
@@ -73,7 +72,7 @@ public class OpenNLPPosTagger extends InternalModule {
 	 *             Exception
 	 */
 	public OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
-		super("OpenNLPPosTagger", MaryDataType.WORDS, MaryDataType.PARTSOFSPEECH, MaryUtils.string2locale(locale));
+		super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
 		if (!propertyPrefix.endsWith("."))
 			propertyPrefix = propertyPrefix + ".";
 		this.propertyPrefix = propertyPrefix;
@@ -158,7 +157,7 @@ public class OpenNLPPosTagger extends InternalModule {
             idx_sequence++;
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 

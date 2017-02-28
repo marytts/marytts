@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -85,7 +84,7 @@ public class AcousticModeller extends InternalModule {
 	 *            locale
 	 */
 	public AcousticModeller(Locale locale) {
-		super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
+		super("AcousticModeller", locale);
 	}
 
 	// three constructors adapted from CARTF0Modeller (used if this is in a voice's preferredModules):
@@ -135,12 +134,12 @@ public class AcousticModeller extends InternalModule {
 	 *            the manager to use when looking up feature processors.
 	 */
 	protected AcousticModeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
-		super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
+		super("AcousticModeller", locale);
 	}
 
 	public MaryData process(MaryData d) throws SynthesisException {
         Utterance utt = d.getData();
-		MaryData output = new MaryData(outputType(), d.getLocale());
+		MaryData output = new MaryData(d.getLocale());
         try {
 
 		// cascaded voice identification:

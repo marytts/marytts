@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
@@ -74,7 +73,7 @@ public class JPhonemiser extends InternalModule {
 	public JPhonemiser(String propertyPrefix)
         throws IOException, MaryConfigurationException
     {
-		this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
+		this("JPhonemiser",
              propertyPrefix + "allophoneset", propertyPrefix + "userdict",
              propertyPrefix + "lexicon", propertyPrefix + "lettertosound",
              propertyPrefix + "removeTrailingOneFromPhones");
@@ -102,12 +101,12 @@ public class JPhonemiser extends InternalModule {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType,
+	public JPhonemiser(String componentName,
                        String allophonesProperty, String userdictProperty, String lexiconProperty,
                        String ltsProperty)
         throws IOException, MaryConfigurationException
     {
-		this(componentName, inputType, outputType, allophonesProperty,
+		this(componentName,allophonesProperty,
              userdictProperty, lexiconProperty, ltsProperty, null);
 	}
 
@@ -135,12 +134,12 @@ public class JPhonemiser extends InternalModule {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public JPhonemiser(String componentName, MaryDataType inputType, MaryDataType outputType,
+	public JPhonemiser(String componentName,
                        String allophonesProperty, String userdictProperty, String lexiconProperty,
                        String ltsProperty, String removetrailingonefromphonesProperty)
         throws IOException, MaryConfigurationException
     {
-		super(componentName, inputType, outputType,
+		super(componentName,
               MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
 		allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
 		// userdict is optional
@@ -241,7 +240,7 @@ public class JPhonemiser extends InternalModule {
         }
 
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 

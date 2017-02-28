@@ -35,44 +35,23 @@ import org.apache.log4j.Logger;
  * @author Marc Schr&ouml;der
  */
 public class MaryData {
-	private MaryDataType type;
 	private Locale locale;
 
     Utterance utt;
-	public MaryData(MaryDataType type, Locale locale) {
-        this(type, locale, null);
+	public MaryData(Locale locale) {
+        this(locale, null);
 	}
 
-	public MaryData(MaryDataType type, Locale locale, Utterance utt) {
-        this.type = type;
+	public MaryData(Locale locale, Utterance utt)
+    {
         this.locale = locale;
         this.utt = utt;
-
-	}
-
-	public MaryDataType getType() {
-		return type;
 	}
 
 	public Locale getLocale() {
 		return locale;
 	}
 
-	/**
-	 * Set the content data of this MaryData object from the given String. For XML data ({@link MaryDataType#isXMLType()}), parse
-	 * the String representation of the data into a DOM tree.
-	 *
-	 * @param dataString
-	 *            string representation of the input data.
-	 * @throws ParserConfigurationException
-	 *             ParserConfigurationException
-	 * @throws IOException
-	 *             IOException
-	 * @throws SAXException
-	 *             SAXException
-	 * @throws IllegalArgumentException
-	 *             if this method is called for MaryDataTypes that are neither text nor XML.
-	 */
 	public void setData(Utterance utt)
     {
         this.utt = utt;

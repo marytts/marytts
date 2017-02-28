@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.InternalModule;
 import marytts.util.dom.MaryDomUtils;
@@ -49,7 +48,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class Preprocess extends InternalModule {
 
 	public Preprocess() {
-		super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.GERMAN);
+		super("Preprocess", Locale.GERMAN);
 	}
 
 	public MaryData process(MaryData d) throws Exception {

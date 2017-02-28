@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Properties;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -72,15 +71,11 @@ public class JTokenizer extends InternalModule {
 	}
 
 	public JTokenizer(String locale) {
-		super("JTokenizer", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
+		super("JTokenizer", new Locale(locale));
 	}
 
 	public JTokenizer(Locale locale) {
-		this(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
-	}
-
-	public JTokenizer(MaryDataType inputType, MaryDataType outputType, Locale locale) {
-		super("JTokenizer", inputType, outputType, locale);
+		super("JTokenizer", locale);
 
         // if locale == null, use default tokenizer
 		if (locale == null) {
@@ -205,7 +200,7 @@ public class JTokenizer extends InternalModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 }

@@ -37,71 +37,10 @@ function addOption(id, text)
 
 function initForm()
 {
-    document.getElementById('INPUT_TYPE').selectedIndex = 0;
-    document.getElementById('OUTPUT_TYPE').selectedIndex = 0;
     document.getElementById('INPUT_TEXT').value = '';
     document.getElementById('OUTPUT_TEXT').value = '';
     document.getElementById("CONFIGURATION").value = "";
-	fillTypes();
 };
-
-
-function fillTypes()
-{
-	var xmlHttp = GetXmlHttpObject();
-    if (xmlHttp==null) {
-        alert ("Your browser does not support AJAX!");
-        return;
-    }
-    var url = "datatypes";
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState==4) {
-        	if (xmlHttp.status == 200) {
-	            var response = xmlHttp.responseText;
-	            var lines = response.split('\n');
-	            for (var l in lines) {
-	            	var line = lines[l];
-	            	if (line.length > 0) {
-		            	var fields = line.split(' ', 1);
-		            	if (line.indexOf('INPUT') != -1) {
-			            	addOption("INPUT_TYPE", fields[0]);
-			            	if (fields[0]=="TEXT") {
-			            		var sel = document.getElementById("INPUT_TYPE");
-			            		sel.selectedIndex = sel.length - 1;
-			            	}
-		            	}
-		            	if (line.indexOf('OUTPUT') != -1) {
-		            		addOption("OUTPUT_TYPE", fields[0]);
-			            	if (fields[0]=="AUDIO") {
-			            		var sel = document.getElementById("OUTPUT_TYPE");
-			            		sel.selectedIndex = sel.length - 1;
-			            	}
-		            	}
-	            	}
-	            }
-        	} else {
-        		alert(xmlHttp.responseText);
-        	}
-        }
-    };
-    xmlHttp.open("GET", url, true);
-    xmlHttp.send(null);
-}
-
-
-function inputTypeChanged()
-{
-}
-
-function getOutputType() {
-	var select = document.getElementById("OUTPUT_TYPE");
-    var outputType = select.options[select.selectedIndex].text;
-	return outputType;
-}
-
-function outputTypeChanged()
-{
-}
 
 
 function doSubmit()
@@ -157,7 +96,6 @@ function requestSynthesis()
         param = param + key + "=" + encodeURIComponent(value);
     }
 
-	var outputType = getOutputType();
 	// for non-audio types, fill OUTPUT_TEXT via AJAX
     var xmlHttp = GetXmlHttpObject();
 	if (xmlHttp==null) {

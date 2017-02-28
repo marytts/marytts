@@ -22,7 +22,6 @@ package marytts.modules.nlp;
 import java.io.InputStream;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
 import marytts.server.MaryProperties;
@@ -61,7 +60,7 @@ public class MinimalisticPosTagger extends InternalModule {
 	 *             Exception
 	 */
 	public MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
-		super("OpenNLPPosTagger", MaryDataType.WORDS, MaryDataType.PARTSOFSPEECH, MaryUtils.string2locale(locale));
+		super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
 		if (!propertyPrefix.endsWith("."))
 			propertyPrefix = propertyPrefix + ".";
 		this.propertyPrefix = propertyPrefix + "partsofspeech.";
@@ -93,7 +92,7 @@ public class MinimalisticPosTagger extends InternalModule {
             w.setPOS(pos);
         }
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData( d.getLocale(), utt);
         return result;
 	}
 

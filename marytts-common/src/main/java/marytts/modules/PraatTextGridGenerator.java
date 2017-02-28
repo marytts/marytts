@@ -22,7 +22,6 @@ package marytts.modules;
 
 // DOM classes
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.util.data.text.PraatInterval;
 import marytts.util.data.text.PraatIntervalTier;
 import marytts.util.data.text.PraatTextGrid;
@@ -39,7 +38,7 @@ import static marytts.datatypes.MaryXML.*;
 public class PraatTextGridGenerator extends InternalModule {
 
 	public PraatTextGridGenerator() {
-		super("Praat TextGrid generator", MaryDataType.REALISED_ACOUSTPARAMS, MaryDataType.PRAAT_TEXTGRID, null);
+		super("Praat TextGrid generator", null);
 	}
 
 	public MaryData process(MaryData d) throws Exception {

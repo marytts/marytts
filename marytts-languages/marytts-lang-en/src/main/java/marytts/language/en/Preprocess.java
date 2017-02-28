@@ -13,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.InternalModule;
@@ -167,7 +166,7 @@ public class Preprocess extends InternalModule {
 	}
 
 	public Preprocess() {
-		super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.ENGLISH);
+		super("Preprocess", Locale.ENGLISH);
 		this.rbnf = new RuleBasedNumberFormat(ULocale.ENGLISH, RuleBasedNumberFormat.SPELLOUT);
 		this.cardinalRule = "%spellout-numbering";
 		this.ordinalRule = getOrdinalRuleName(rbnf);
@@ -187,7 +186,7 @@ public class Preprocess extends InternalModule {
 
 		expand(utt);
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
 	}
 

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -45,7 +44,7 @@ public class Tokenizer extends marytts.modules.nlp.JTokenizer {
      */
 	public Tokenizer()
     {
-		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("ru"));
+		super(new Locale("ru"));
 		setTokenizerLanguage("en");
 	}
 }

@@ -21,7 +21,6 @@ package marytts.modules.acoustic.duration;
 
 // DOM classes
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.util.dom.NameNodeFilter;
 
 import marytts.modules.InternalModule;
@@ -35,7 +34,7 @@ import marytts.modules.InternalModule;
 
 public class RealisedDurationsExtractor extends InternalModule {
 	public RealisedDurationsExtractor() {
-		super("Realised durations extractor", MaryDataType.AUDIO, MaryDataType.REALISED_DURATIONS, null);
+		super("Realised durations extractor", null);
 	}
 
 	public MaryData process(MaryData d) throws Exception {

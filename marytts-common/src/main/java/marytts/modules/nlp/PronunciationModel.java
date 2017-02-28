@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 import marytts.modules.InternalModule;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureProcessorManager;
@@ -87,7 +86,7 @@ public class PronunciationModel extends InternalModule {
 	}
 
 	public PronunciationModel(Locale locale) {
-		super("PronunciationModel", MaryDataType.INTONATION, MaryDataType.ALLOPHONES, locale);
+		super("PronunciationModel", locale);
 	}
 
 	public void startup() throws Exception {
@@ -193,7 +192,7 @@ public class PronunciationModel extends InternalModule {
         // Create the sentence/phrase relation
 
         // Create the phrase/word relation
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 
