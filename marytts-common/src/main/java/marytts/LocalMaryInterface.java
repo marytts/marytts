@@ -33,7 +33,6 @@ import org.w3c.dom.Document;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
@@ -47,10 +46,8 @@ import marytts.util.MaryRuntimeUtils;
  * @author marc
  *
  */
-public class LocalMaryInterface implements MaryInterface {
-
-	private MaryDataType inputType;
-	private MaryDataType outputType;
+public class LocalMaryInterface implements MaryInterface
+{
 	private Locale locale;
 	private Voice voice;
 	private AudioFileFormat audioFileFormat;
@@ -74,8 +71,6 @@ public class LocalMaryInterface implements MaryInterface {
 	}
 
 	protected void setReasonableDefaults() {
-		inputType = MaryDataType.TEXT;
-		outputType = MaryDataType.AUDIO;
 		locale = Locale.US;
 		voice = Voice.getDefaultVoice(locale);
 		setAudioFileFormatForVoice();
@@ -93,56 +88,6 @@ public class LocalMaryInterface implements MaryInterface {
 		} else {
 			audioFileFormat = null;
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setInputType(java.lang.String)
-	 */
-	@Override
-	public void setInputType(String newInputType) throws IllegalArgumentException {
-		inputType = MaryDataType.get(newInputType);
-		if (inputType == null) {
-			throw new IllegalArgumentException("No such type: " + newInputType);
-		} else if (!inputType.isInputType()) {
-			throw new IllegalArgumentException("Not an input type: " + newInputType);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getInputType()
-	 */
-	@Override
-	public String getInputType() {
-		return inputType.name();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setOutputType(java.lang.String)
-	 */
-	@Override
-	public void setOutputType(String newOutputType) throws IllegalArgumentException {
-		outputType = MaryDataType.get(newOutputType);
-		if (outputType == null) {
-			throw new IllegalArgumentException("No such type: " + newOutputType);
-		} else if (!outputType.isOutputType()) {
-			throw new IllegalArgumentException("Not an output type: " + newOutputType);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getOutputType()
-	 */
-	@Override
-	public String getOutputType() {
-		return outputType.name();
 	}
 
 	/*
@@ -278,36 +223,6 @@ public class LocalMaryInterface implements MaryInterface {
 		return isStreaming;
 	}
 
-	private void verifyOutputTypeIsXML() {
-		if (!outputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide XML output for non-XML-based output type " + outputType);
-		}
-	}
-
-	private void verifyInputTypeIsXML() {
-		if (!inputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide XML input for non-XML-based input type " + inputType);
-		}
-	}
-
-	private void verifyInputTypeIsText() {
-		if (inputType.isXMLType()) {
-			throw new IllegalArgumentException("Cannot provide plain-text input for XML-based input type " + inputType);
-		}
-	}
-
-	private void verifyOutputTypeIsAudio() {
-		if (!outputType.equals(MaryDataType.AUDIO)) {
-			throw new IllegalArgumentException("Cannot provide audio output for non-audio output type " + outputType);
-		}
-	}
-
-	private void verifyOutputTypeIsText() {
-		if (outputType.isXMLType() || !outputType.isTextType()) {
-			throw new IllegalArgumentException("Cannot provide text output for non-text output type " + outputType);
-		}
-	}
-
 	/**
 	 * Synthesis will fail if {@link MaryDataType#AUDIO AUDIO} is requested but no voice is available for the requested Locale.
 	 * Moreover, the {@linkplain #audioFileFormat} will be null because {@linkplain #setAudioFileFormatForVoice()} silently
@@ -317,17 +232,15 @@ public class LocalMaryInterface implements MaryInterface {
 	 *             which should actually be a {@link MaryConfigurationException}.
 	 */
 	private void verifyVoiceIsAvailableForLocale() {
-		if (outputType.equals(MaryDataType.AUDIO)) {
-			if (getAvailableVoices(locale).isEmpty()) {
-				throw new IllegalArgumentException("No voice is available for Locale: " + locale);
-			}
-		}
+        if (getAvailableVoices(locale).isEmpty()) {
+            throw new IllegalArgumentException("No voice is available for Locale: " + locale);
+        }
 	}
 
-	private MaryData process(String in) throws SynthesisException {
-		Request r = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, isStreaming,
-				outputTypeParams);
-		r.setInputData(in);
+	private MaryData process(String configuration, String input_data)
+        throws SynthesisException
+    {
+		Request r = new Request(configuration, input_data);
 		try {
 			r.process();
 		} catch (Exception e) {
@@ -361,38 +274,5 @@ public class LocalMaryInterface implements MaryInterface {
 			locales.addAll(lc.getLocales());
 		}
 		return locales;
-	}
-
-	@Override
-	public Set<String> getAvailableInputTypes() {
-		return new HashSet<String>(MaryDataType.getInputTypeStrings());
-	}
-
-	@Override
-	public Set<String> getAvailableOutputTypes() {
-		return new HashSet<String>(MaryDataType.getOutputTypeStrings());
-	}
-
-	@Override
-	public boolean isTextType(String dataType) {
-		MaryDataType d = MaryDataType.get(dataType);
-		if (d != null) {
-			return d.isTextType() && !d.isXMLType();
-		}
-		return false;
-	}
-
-	@Override
-	public boolean isXMLType(String dataType) {
-		MaryDataType d = MaryDataType.get(dataType);
-		if (d != null) {
-			return d.isXMLType();
-		}
-		return false;
-	}
-
-	@Override
-	public boolean isAudioType(String dataType) {
-		return "AUDIO".equals(dataType);
 	}
 }

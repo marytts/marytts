@@ -46,7 +46,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
-import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.effects.AudioEffect;
 import marytts.signalproc.effects.AudioEffects;
@@ -244,9 +243,6 @@ public class MaryServer implements Runnable {
 				t.nextToken(); // discard MARY head
 			}
 
-			MaryDataType inputType = parseSynthesisRequiredInputType(t);
-			MaryDataType outputType = parseSynthesisRequiredOutputType(t);
-
 			while (t.hasMoreTokens()) {
 				String token = t.nextToken();
 			}
@@ -254,7 +250,7 @@ public class MaryServer implements Runnable {
             // Now, the parse is complete.
 			// this request's id:
 			id = getID();
-			Request request = new Request(inputType, outputType, configuration, input_data);
+			Request request = new Request(configuration, input_data);
 			clientOut.println(id);
 
 			// -- create new clientMap entry
@@ -296,30 +292,6 @@ public class MaryServer implements Runnable {
 				log = log + " " + t.nextToken();
 			}
 			logger.info("Connection info: " + log);
-		}
-
-		private MaryDataType parseSynthesisRequiredInputType(StringTokenizer t) throws Exception {
-			if (!t.hasMoreTokens()) {
-				throw new Exception("Expected IN=<INPUTTYPE>");
-			}
-			String input = parseProtocolParameter(t.nextToken(), "IN", "INPUTTYPE");
-			MaryDataType inputType = MaryDataType.get(input);
-			if (inputType == null) {
-				throw new Exception("Invalid input type: " + input);
-			}
-			return inputType;
-		}
-
-		private MaryDataType parseSynthesisRequiredOutputType(StringTokenizer t) throws Exception {
-			if (!t.hasMoreTokens()) {
-				throw new Exception("Expected OUT=<OUTPUTTYPE>");
-			}
-			String output = parseProtocolParameter(t.nextToken(), "OUT", "OUTPUTTYPE");
-			MaryDataType outputType = MaryDataType.get(output);
-			if (outputType == null) {
-				throw new Exception("Invalid output type: " + output);
-			}
-			return outputType;
 		}
     }
 }

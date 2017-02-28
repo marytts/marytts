@@ -37,7 +37,7 @@ import org.apache.http.nio.entity.NStringEntity;
 
 /**
  * Processor class for information http requests to Mary server
- * 
+ *
  * @author Oytun T&uuml;rk, Marc Schr&ouml;der
  */
 public class InfoRequestHandler extends BaseHttpRequestHandler {
@@ -77,69 +77,13 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 
 		if (request.equals("version"))
 			return MaryRuntimeUtils.getMaryVersion();
-		else if (request.equals("datatypes"))
-			return MaryRuntimeUtils.getDataTypes();
 		else if (request.equals("locales"))
 			return MaryRuntimeUtils.getLocales();
 		else if (request.equals("voices"))
 			return MaryRuntimeUtils.getVoices();
 		else if (request.equals("audioformats"))
 			return MaryRuntimeUtils.getAudioFileFormatTypes();
-		else if (request.equals("exampletext")) {
-			if (queryItems != null) {
-				// Voice example text
-				String voice = queryItems.get("voice");
-				if (voice != null) {
-					return MaryRuntimeUtils.getVoiceExampleText(voice);
-				}
-				String datatype = queryItems.get("datatype");
-				String locale = queryItems.get("locale");
-				if (datatype != null && locale != null) {
-					Locale loc = MaryUtils.string2locale(locale);
-					return MaryRuntimeUtils.getExampleText(datatype, loc);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'datatype' and 'locale' or 'voice'");
-			return null;
-		} else if (request.equals("audioeffects"))
-			return MaryRuntimeUtils.getDefaultAudioEffects();
-		else if (request.equals("audioeffect-default-param")) {
-			if (queryItems != null) {
-				String effect = queryItems.get("effect");
-				if (effect != null)
-					return MaryRuntimeUtils.getAudioEffectDefaultParam(effect);
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
-			return null;
-		} else if (request.equals("audioeffect-full")) {
-			if (queryItems != null) {
-				String effect = queryItems.get("effect");
-				String params = queryItems.get("params");
-				if (effect != null && params != null) {
-					return MaryRuntimeUtils.getFullAudioEffect(effect, params);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect' and 'params'");
-			return null;
-		} else if (request.equals("audioeffect-help")) {
-			if (queryItems != null) {
-				String effect = queryItems.get("effect");
-				if (effect != null) {
-					return MaryRuntimeUtils.getAudioEffectHelpText(effect);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
-			return null;
-		} else if (request.equals("audioeffect-is-hmm-effect")) {
-			if (queryItems != null) {
-				String effect = queryItems.get("effect");
-				if (effect != null) {
-					return MaryRuntimeUtils.isHmmAudioEffect(effect);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
-			return null;
-		} else if (request.equals("features") || request.equals("features-discrete")) {
+		else if (request.equals("features") || request.equals("features-discrete")) {
 			if (queryItems != null) {
 				// List of features that can be computed for the voice
 				FeatureProcessorManager mgr = null;

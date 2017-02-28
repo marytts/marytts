@@ -4,7 +4,6 @@ import groovy.util.logging.Log4j
 import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
-import marytts.datatypes.MaryDataType
 import marytts.modules.nlp.MinimalisticPosTagger
 import marytts.util.dom.DomUtils
 
@@ -18,7 +17,6 @@ class EvenMoreMinimalisticPosTagger extends MinimalisticPosTagger {
     @Override
     void startup() {
         assert state == MODULE_OFFLINE
-        log.info "Module started ($inputType -> $outputType, locale $locale)."
         state = MODULE_RUNNING
     }
 

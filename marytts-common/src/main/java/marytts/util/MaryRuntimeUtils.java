@@ -39,7 +39,6 @@ import javax.sound.sampled.AudioSystem;
 import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
@@ -336,24 +335,6 @@ public class MaryRuntimeUtils {
 		return output;
 	}
 
-	public static String getDataTypes() {
-		String output = "";
-
-		List<MaryDataType> allTypes = MaryDataType.getDataTypes();
-
-		for (MaryDataType t : allTypes) {
-			output += t.name();
-			if (t.isInputType())
-				output += " INPUT";
-			if (t.isOutputType())
-				output += " OUTPUT";
-
-			output += System.getProperty("line.separator");
-		}
-
-		return output;
-	}
-
 	public static String getLocales() {
 		StringBuilder out = new StringBuilder();
 		for (LanguageConfig conf : MaryConfig.getLanguageConfigs()) {
@@ -389,35 +370,6 @@ public class MaryRuntimeUtils {
 		}
 
 		return defaultVoiceName;
-	}
-
-	public static String getExampleText(String datatype, Locale locale) {
-		MaryDataType type = MaryDataType.get(datatype);
-		String exampleText = type.exampleText(locale);
-		if (exampleText != null)
-			return exampleText.trim() + System.getProperty("line.separator");
-		return "";
-	}
-
-	public static Vector<String> getDefaultVoiceExampleTexts() {
-		String defaultVoiceName = getDefaultVoiceName();
-		Vector<String> defaultVoiceExampleTexts = null;
-		defaultVoiceExampleTexts = StringUtils.processVoiceExampleText(getVoiceExampleText(defaultVoiceName));
-		if (defaultVoiceExampleTexts == null) // Try for general domain
-		{
-			String str = getExampleText("TEXT", Voice.getVoice(defaultVoiceName).getLocale());
-			if (str != null && str.length() > 0) {
-				defaultVoiceExampleTexts = new Vector<String>();
-				defaultVoiceExampleTexts.add(str);
-			}
-		}
-
-		return defaultVoiceExampleTexts;
-	}
-
-	public static String getVoiceExampleText(String voiceName) {
-		Voice v = Voice.getVoice(voiceName);
-        return v.getExampleText();
 	}
 
 

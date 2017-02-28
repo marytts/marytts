@@ -60,42 +60,6 @@ import org.w3c.dom.Document;
 public interface MaryInterface {
 
 	/**
-	 * Set the input type for processing to the new input type.
-	 *
-	 * @param newInputType
-	 *            a string representation of a MaryDataType.
-	 * @throws IllegalArgumentException
-	 *             if newInputType is not a valid and known input data type.
-	 */
-	public void setInputType(String newInputType) throws IllegalArgumentException;
-
-	/**
-	 * Get the current input type, either the default ("TEXT") or the value most recently set through
-	 * {@link #setInputType(String)}.
-	 *
-	 * @return the currently set input type.
-	 */
-	public String getInputType();
-
-	/**
-	 * Set the output type for processing to the new output type.
-	 *
-	 * @param newOutputType
-	 *            a string representation of a MaryDataType.
-	 * @throws IllegalArgumentException
-	 *             if newOutputType is not a valid and known output data type.
-	 */
-	public void setOutputType(String newOutputType) throws IllegalArgumentException;
-
-	/**
-	 * Get the current output type, either the default ("AUDIO") or the value most recently set through
-	 * {@link #setInputType(String)}.
-	 *
-	 * @return the currently set input type.
-	 */
-	public String getOutputType();
-
-	/**
 	 * Set the locale for processing. Set the voice to the default voice for this locale.
 	 *
 	 * @param newLocale
@@ -217,55 +181,4 @@ public interface MaryInterface {
 	 *
 	 */
 	public Set<Locale> getAvailableLocales();
-
-	/**
-	 * List the names of the input types that can be used in {@link #setInputType(String)}.
-	 *
-	 * @return inputtypes
-	 *
-	 */
-	public Set<String> getAvailableInputTypes();
-
-	/**
-	 * List the names of the input types that can be used in {@link #setInputType(String)}.
-	 *
-	 * @return output types
-	 *
-	 */
-	public Set<String> getAvailableOutputTypes();
-
-	/**
-	 * Check whether the given data type is a text type. For input types (i.e. types contained in
-	 * {@link #getAvailableInputTypes()}) that are text types, the synthesis methods {@link #generateText(String)},
-	 * {@link #generateXML(String)} and {@link #generateAudio(String)} can be used; for output types that are text types, the
-	 * synthesis methods {@link #generateText(String)} and {@link #generateText(Document)} can be used.
-	 *
-	 * @param dataType
-	 *            an input or output data type.
-	 * @return type
-	 */
-	public boolean isTextType(String dataType);
-
-	/**
-	 * Check whether the given data type is an XML type. For input types (i.e. types contained in
-	 * {@link #getAvailableInputTypes()}) that are XML types, the synthesis methods {@link #generateText(Document)},
-	 * {@link #generateXML(Document)} and {@link #generateAudio(Document)} can be used; for output types that are XML types, the
-	 * synthesis methods {@link #generateXML(String)} and {@link #generateXML(Document)} can be used.
-	 *
-	 * @param dataType
-	 *            an input or output data type.
-	 * @return type
-	 */
-	public boolean isXMLType(String dataType);
-
-	/**
-	 * Check whether the given data type is an audio type. There are no input audio types; for output audio types, the methods
-	 * {@link #generateAudio(String)} and {@link #generateAudio(Document)} can be used.
-	 *
-	 * @param dataType
-	 *            an input or output data type
-	 * @return type
-	 */
-	public boolean isAudioType(String dataType);
-
 }

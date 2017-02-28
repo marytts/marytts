@@ -48,7 +48,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
 import marytts.Version;
-import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modeling.features.FeatureProcessorManager;
@@ -415,41 +414,15 @@ public class Mary {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public static void process(String input, String inputTypeName, String outputTypeName, String localeString,
-                               String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)
-        throws Exception {
+	public static void process(String configuration, String input_data, OutputStream output)
+        throws Exception
+    {
 		if (currentState != STATE_RUNNING)
 			throw new IllegalStateException("MARY system is not running");
 
-		MaryDataType inputType = MaryDataType.get(inputTypeName);
-		MaryDataType outputType = MaryDataType.get(outputTypeName);
-		Locale locale = MaryUtils.string2locale(localeString);
-		Voice voice = null;
-		if (voiceName != null)
-			voice = Voice.getVoice(voiceName);
-		AudioFileFormat audioFileFormat = null;
-		AudioFileFormat.Type audioType = null;
-		if (audioTypeName != null) {
-			audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
-			AudioFormat audioFormat = null;
-			if (audioTypeName.equals("MP3")) {
-				audioFormat = MaryRuntimeUtils.getMP3AudioFormat();
-			} else if (audioTypeName.equals("Vorbis")) {
-				audioFormat = MaryRuntimeUtils.getOggAudioFormat();
-			} else if (voice != null) {
-				audioFormat = voice.dbAudioFormat();
-			} else {
-				audioFormat = Voice.AF22050;
-			}
-			audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
-		}
-
-		Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false,
-                                      outputTypeParams);
-		request.setInputData(input);
+		Request request = new Request(configuration, input_data);
 		request.process();
 		request.writeOutputData(output);
-
 	}
 
 	/**
@@ -519,22 +492,7 @@ public class Mary {
 		} else { // command-line mode
 			main = new Runnable() {
 				public void run() {
-					try {
-						InputStream inputStream;
-						if (args.length == 0 || args[0].equals("-"))
-							inputStream = System.in;
-						else
-							inputStream = new FileInputStream(args[0]);
-						String input = FileUtils.getStreamAsString(inputStream, "UTF-8");
-						process(input, MaryProperties.getProperty("input.type", "TEXT"),
-								MaryProperties.getProperty("output.type", "AUDIO"),
-								MaryProperties.getProperty("locale", "en_US"), MaryProperties.getProperty("audio.type", "WAVE"),
-								MaryProperties.getProperty("voice", null), MaryProperties.getProperty("style", null),
-								MaryProperties.getProperty("effect", null),
-								MaryProperties.getProperty("output.type.params", null), System.out);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+                    throw new UnsupportedOperationException();
 				}
 			};
 		}

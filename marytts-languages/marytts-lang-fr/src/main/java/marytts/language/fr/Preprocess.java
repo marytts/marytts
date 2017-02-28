@@ -7,7 +7,6 @@ import java.util.Locale;
 import com.ibm.icu.util.ULocale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.modules.InternalModule;
 
 
@@ -30,7 +29,7 @@ public class Preprocess extends InternalModule {
 
     public Preprocess()
     {
-        super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.FRENCH);
+        super("Preprocess", Locale.FRENCH);
         this.rbnf = new RuleBasedNumberFormat(ULocale.FRENCH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
         this.ordinalRule = getOrdinalRuleName(rbnf);
@@ -43,7 +42,7 @@ public class Preprocess extends InternalModule {
 
         checkForNumbers(utt);
 
-        MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        MaryData result = new MaryData(d.getLocale(), utt);
         return result;
     }
 

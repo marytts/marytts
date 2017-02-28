@@ -34,7 +34,6 @@ import java.net.Socket;
 import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
-import marytts.datatypes.MaryDataType;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;

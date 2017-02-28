@@ -21,8 +21,6 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryDataType;
-
 /**
  *
  * @author Marc Schr&ouml;der
@@ -34,7 +32,7 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
      */
 	public JTokenizer()
     {
-		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
+		super(Locale.ENGLISH);
 	}
 
 }

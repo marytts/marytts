@@ -34,7 +34,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
@@ -94,8 +93,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
                         HttpResponse response)
     {
 		if (queryItems == null ||
-            !(queryItems.containsKey("INPUT_TYPE") && queryItems.containsKey("OUTPUT_TYPE")
-              && queryItems.containsKey("LOCALE") && queryItems.containsKey("INPUT_TEXT")))
+            !(queryItems.containsKey("CONFIGURATION") && queryItems.containsKey("LOCALE") && queryItems.containsKey("INPUT_TEXT")))
         {
 			MaryHttpServerUtils.errorMissingQueryParameter(response,
                                                            "'INPUT_TEXT' and 'INPUT_TYPE' and 'OUTPUT_TYPE' and 'LOCALE'");
@@ -103,24 +101,12 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
 		}
 
 		String inputText = queryItems.get("INPUT_TEXT");
-
-		MaryDataType inputType = MaryDataType.get(queryItems.get("INPUT_TYPE"));
-		if (inputType == null) {
-			MaryHttpServerUtils.errorWrongQueryParameterValue(response, "INPUT_TYPE", queryItems.get("INPUT_TYPE"), null);
-			return;
-		}
-
-		MaryDataType outputType = MaryDataType.get(queryItems.get("OUTPUT_TYPE"));
-		if (outputType == null) {
-			MaryHttpServerUtils.errorWrongQueryParameterValue(response, "OUTPUT_TYPE", queryItems.get("OUTPUT_TYPE"), null);
-			return;
-		}
 		boolean isOutputText = true;
         String configuration = queryItems.get("CONFIGURATION");
         String input_data = queryItems.get("INPUT_TEXT");
 
         boolean ok = true;
-		final Request maryRequest = new Request(inputType, outputType, configuration, input_data);
+		final Request maryRequest = new Request(configuration, input_data);
 
         try {
             maryRequest.process();
@@ -137,10 +123,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
             try {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 maryRequest.writeOutputData(outputStream);
-                String contentType = "";
-                if (maryRequest.getOutputType().isXMLType() ||
-                    maryRequest.getOutputType().isTextType()) // text output
-                    contentType = "text/plain; charset=UTF-8";
+                String contentType = "text/plain; charset=UTF-8"; // FIXME: need to be think for the audio
                 MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
             } catch (Exception e) {
                 String message = "Cannot write output";

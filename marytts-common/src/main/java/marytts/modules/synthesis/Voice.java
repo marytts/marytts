@@ -45,7 +45,6 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.config.MaryConfig;
 import marytts.config.VoiceConfig;
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
@@ -304,49 +303,6 @@ public abstract class Voice {
     public Allophone getAllophone(String phoneSymbol) {
 		return allophoneSet.getAllophone(phoneSymbol);
 	}
-
-	public synchronized Vector<MaryModule> getPreferredModulesAcceptingType(MaryDataType type) {
-        if (preferredModules == null && preferredModulesClasses != null) {
-            // need to initialise the list of modules
-            preferredModules = new Vector<MaryModule>();
-            StringTokenizer st = new StringTokenizer(preferredModulesClasses);
-            while (st.hasMoreTokens()) {
-                String moduleInfo = st.nextToken();
-                try {
-                    MaryModule mm = null;
-                    if (!moduleInfo.contains("(")) { // no constructor info
-                        mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
-                    }
-                    if (mm == null) {
-                        // need to create our own:
-                        logger.warn("Module "
-                                    + moduleInfo
-                                    + " is not in the standard list of modules -- will start our own, but will not be able to shut it down at the end.");
-                        mm = ModuleRegistry.instantiateModule(moduleInfo);
-                        mm.startup();
-                    }
-                    preferredModules.add(mm);
-                } catch (Exception e) {
-                    logger.warn("Cannot initialise preferred module " + moduleInfo + " for voice " + getName() + " -- skipping.",
-                                e);
-                }
-            }
-        }
-        if (preferredModules != null) {
-            Vector<MaryModule> v = new Vector<MaryModule>();
-            for (Iterator<MaryModule> it = preferredModules.iterator(); it.hasNext();) {
-                MaryModule m = (MaryModule) it.next();
-                if (m.inputType().equals(type)) {
-                    v.add(m);
-                }
-            }
-            if (v.size() > 0)
-                return v;
-            else
-                return null;
-        }
-        return null;
-    }
 
 	public boolean hasName(String aName) {
 		return voiceName.equals(aName);

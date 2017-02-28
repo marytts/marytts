@@ -21,8 +21,6 @@ package marytts.modules.nlp;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryDataType;
-
 import marytts.modules.InternalModule;
 
 /**
@@ -43,7 +41,7 @@ public class DummyTokens2Words extends InternalModule {
 	 *            locale
 	 */
 	public DummyTokens2Words(String locale) {
-		super("DummyTokens2Words", MaryDataType.TOKENS, MaryDataType.WORDS, new Locale(locale));
+		super("DummyTokens2Words", new Locale(locale));
 	}
 
 	/**
@@ -53,7 +51,7 @@ public class DummyTokens2Words extends InternalModule {
 	 *            locale
 	 */
 	public DummyTokens2Words(Locale locale) {
-		super("DummyTokens2Words", MaryDataType.TOKENS, MaryDataType.WORDS, locale);
+		super("DummyTokens2Words", locale);
 	}
 
 }

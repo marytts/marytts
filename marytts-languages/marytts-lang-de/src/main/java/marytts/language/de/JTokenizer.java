@@ -20,7 +20,6 @@
 package marytts.language.de;
 
 import java.util.Locale;
-import marytts.datatypes.MaryDataType;
 
 /**
  *
@@ -33,6 +32,6 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer
      */
 	public JTokenizer()
     {
-		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.GERMAN);
+		super(Locale.GERMAN);
 	}
 }

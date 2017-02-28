@@ -4,7 +4,6 @@ import groovy.xml.*
 import groovy.util.slurpersupport.*
 
 import marytts.datatypes.MaryData
-import marytts.datatypes.MaryDataType
 import marytts.datatypes.MaryXML
 import marytts.util.dom.DomUtils
 import marytts.modules.InternalModule
@@ -35,7 +34,7 @@ class LuxembourgishPreprocess extends InternalModule {
 
 
     public LuxembourgishPreprocess() {
-        super("LuxembourgishPreprocess", MaryDataType.TOKENS, MaryDataType.WORDS, LB_LOCALE.toLocale());
+        super("LuxembourgishPreprocess", LB_LOCALE.toLocale());
         formatRules = this.getClass().getResource('preprocess/formatRules.txt').getText('UTF-8')
         rbnf = new RuleBasedNumberFormat(formatRules, LB_LOCALE)
         cardinalRule = "%spellout-numbering"

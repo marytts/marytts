@@ -28,7 +28,6 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.modeling.features.FeatureVector;
@@ -55,13 +54,9 @@ import marytts.data.item.Item;
 
 public class TargetFeatureLister extends InternalModule {
 
-	public TargetFeatureLister(MaryDataType outputType) throws Exception{
-		super("TargetFeatureLister", MaryDataType.ALLOPHONES, outputType, null);
+	public TargetFeatureLister() throws Exception{
+		super("TargetFeatureLister",  null);
         FeatureComputer.initDefault();
-	}
-
-	public TargetFeatureLister() throws Exception {
-		this(MaryDataType.TARGETFEATURES);
 	}
 
 	public MaryData process(MaryData d) throws Exception {
@@ -71,7 +66,7 @@ public class TargetFeatureLister extends InternalModule {
 
         listTargetFeatures(the_feature_computer, utt);
 		// Second, construct targets
-		MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+		MaryData result = new MaryData(d.getLocale(), utt);
 		return result;
 	}
 
