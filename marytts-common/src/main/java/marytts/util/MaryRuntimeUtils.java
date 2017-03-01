@@ -32,10 +32,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-
 import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
@@ -46,10 +42,6 @@ import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
-import marytts.signalproc.effects.AudioEffect;
-import marytts.signalproc.effects.AudioEffects;
-import marytts.util.data.audio.AudioDestination;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.StringUtils;
 
@@ -159,67 +151,6 @@ public class MaryRuntimeUtils {
 	private static long lowMemoryThreshold = -1;
 
 	/**
-	 * List the available audio file format types, as a multi-line string. Each line consists of the name of an Audio file format
-	 * type, followed by a suffix "_FILE" if the format can be produced as a file, and "_STREAM" if the format can be streamed.
-	 *
-	 * @return a multi-line string, or an empty string if no audio file types are available.
-	 */
-	public static String getAudioFileFormatTypes() {
-		StringBuilder output = new StringBuilder();
-		AudioFileFormat.Type[] audioTypes = AudioSystem.getAudioFileTypes();
-		for (int t = 0; t < audioTypes.length; t++) {
-			AudioFileFormat.Type audioType = audioTypes[t];
-			String typeName = audioType.toString();
-			boolean isSupported = true;
-			if (typeName.equals("MP3"))
-				isSupported = canCreateMP3();
-			else if (typeName.equals("Vorbis"))
-				isSupported = canCreateOgg();
-			audioType = MaryAudioUtils.getAudioFileFormatType(typeName);
-			if (audioType == null) {
-				isSupported = false;
-			}
-
-			if (isSupported && AudioSystem.isFileTypeSupported(audioType)) {
-				output.append(typeName).append("_FILE\n");
-
-				if (typeName.equals("MP3") || typeName.equals("Vorbis"))
-					output.append(typeName).append("_STREAM\n");
-			}
-		}
-		return output.toString();
-	}
-
-	/**
-	 * Determine whether conversion to mp3 is possible.
-	 *
-	 * @return AudioSystem.isConversionSupported(getMP3AudioFormat(), Voice.AF22050)
-	 */
-	public static boolean canCreateMP3() {
-		return AudioSystem.isConversionSupported(getMP3AudioFormat(), Voice.AF22050);
-	}
-
-	public static AudioFormat getMP3AudioFormat() {
-		return new AudioFormat(new AudioFormat.Encoding("MPEG1L3"), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, 1,
-                               AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
-		// endianness doesn't matter
-	}
-
-	/**
-	 * Determine whether conversion to ogg vorbis format is possible.
-	 *
-	 * @return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050)
-	 */
-	public static boolean canCreateOgg() {
-		return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050);
-	}
-
-	public static AudioFormat getOggAudioFormat() {
-		return new AudioFormat(new AudioFormat.Encoding("VORBIS"), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, 1,
-                               AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
-	}
-
-	/**
 	 * For an element in a MaryXML document, do what you can to determine the appropriate AllophoneSet. First search for the
 	 * suitable voice, then if that fails, go by locale.
 	 *
@@ -264,34 +195,6 @@ public class MaryRuntimeUtils {
 			allophoneSet = needAllophoneSet(propertyName);
 		}
 		return allophoneSet;
-	}
-
-	/**
-	 * The mary property setting determining where to save audio data.
-	 */
-	private static final String audiostoreProperty = MaryProperties.getProperty("synthesis.audiostore", "ram");
-
-	/**
-	 * Create an AudioDestination to which the audio data can be written. Depending on the mary property "synthesis.audiostore",
-	 * this will use either a ByteArrayOutputStream or a FileOutputStream. The calling code is responsible for administering this
-	 * AudioDestination.
-	 *
-	 * @throws IOException
-	 *             if the underlying OutputStream could not be created.
-	 * @return AudioDestination(ram)
-	 */
-	public static AudioDestination createAudioDestination() throws IOException {
-		boolean ram = false;
-		if (audiostoreProperty.equals("ram"))
-			ram = true;
-		else if (audiostoreProperty.equals("file"))
-			ram = false;
-		else // auto
-            if (lowMemoryCondition())
-                ram = false;
-            else
-                ram = true;
-		return new AudioDestination(ram);
 	}
 
 	/**
@@ -370,71 +273,6 @@ public class MaryRuntimeUtils {
 		}
 
 		return defaultVoiceName;
-	}
-
-
-	/**
-	 * For the voice with the given name, return the list of styles supported by this voice, if any, one style per line. These
-	 * values can be used as the global "style" value in a synthesis request, or in the "style" attribute of the MaryXML prosody
-	 * element.
-	 *
-	 * @param voiceName
-	 *            voiceName
-	 * @return the list of styles, or the empty string if the voice does not support styles.
-	 */
-	public static String getStyles(String voiceName) {
-		Voice v = Voice.getVoice(voiceName);
-		String[] styles = null;
-		if (v != null) {
-			styles = v.getStyles();
-		}
-		if (styles != null) {
-			return StringUtils.toString(styles);
-		}
-		return "";
-	}
-
-	public static String getDefaultAudioEffects() {
-		// Marc, 8.1.09: Simplified format
-		// name params
-		StringBuilder sb = new StringBuilder();
-		for (AudioEffect effect : AudioEffects.getEffects()) {
-			sb.append(effect.getName()).append(" ").append(effect.getExampleParameters()).append("\n");
-		}
-		return sb.toString();
-	}
-
-	public static String getAudioEffectDefaultParam(String effectName) {
-		AudioEffect effect = AudioEffects.getEffect(effectName);
-		if (effect == null) {
-			return "";
-		}
-		return effect.getExampleParameters().trim();
-	}
-
-	public static String getFullAudioEffect(String effectName, String currentEffectParams) {
-		AudioEffect effect = AudioEffects.getEffect(effectName);
-		if (effect == null) {
-			return "";
-		}
-		effect.setParams(currentEffectParams);
-		return effect.getFullEffectAsString();
-	}
-
-	public static String getAudioEffectHelpText(String effectName) {
-		AudioEffect effect = AudioEffects.getEffect(effectName);
-		if (effect == null) {
-			return "";
-		}
-		return effect.getHelpText().trim();
-	}
-
-	public static String isHmmAudioEffect(String effectName) {
-		AudioEffect effect = AudioEffects.getEffect(effectName);
-		if (effect == null) {
-			return "";
-		}
-		return effect.isHMMEffect() ? "yes" : "no";
 	}
 
 	/**

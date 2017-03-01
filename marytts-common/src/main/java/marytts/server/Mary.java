@@ -41,12 +41,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
-
 import marytts.Version;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
@@ -59,7 +53,6 @@ import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Logger;
@@ -261,15 +254,7 @@ public class Mary {
 		for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
 			logger.debug(key + " = " + System.getProperties().get(key));
 		}
-		logger.debug("XML libraries used:");
-		logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
-		try {
-			Class<? extends Object> xercesVersion = Class.forName("org.apache.xerces.impl.Version");
-			logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
-		} catch (Exception e) {
-			// Not xerces, no version number
-		}
-		logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
+
 		try {
 			// Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
 			// Class xalanVersion = Class.forName("org.apache.xalan.Version");
@@ -484,18 +469,7 @@ public class Mary {
 		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s on port " + localPort);
 
 		Runnable main = null;
-
-		if (server.equals("socket")) { // socket server mode
-			main = (Runnable) Class.forName("marytts.server.MaryServer").newInstance();
-		} else if (server.equals("http")) { // http server mode
-			main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
-		} else { // command-line mode
-			main = new Runnable() {
-				public void run() {
-                    throw new UnsupportedOperationException();
-				}
-			};
-		}
+        main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
 
 		main.run();
 

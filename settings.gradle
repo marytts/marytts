@@ -2,7 +2,6 @@ rootProject.name = 'marytts'
 
 // Core
 include ':marytts-utils'
-include ':marytts-signalproc'
 include ':marytts-common'
 
 // Languages
@@ -15,10 +14,3 @@ include ':marytts-languages:marytts-lang-it'
 include ':marytts-languages:marytts-lang-fr'
 include ':marytts-languages:marytts-lang-sv'
 include ':marytts-languages:marytts-lang-lb'
-
-// Synthesis methodologies
-// include ':marytts-unitselection' // FIXME: for now unit selection is disable
-// include ':marytts-htsengine-old'
-
-// Voices
-// include ':voice-cmu-slt-hsmm'

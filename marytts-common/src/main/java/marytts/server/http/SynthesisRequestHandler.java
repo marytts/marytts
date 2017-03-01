@@ -29,17 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
 import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.http.Address;
 
 import org.apache.http.HttpResponse;
@@ -72,12 +66,10 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler {
 	}
 
 	@Override
-	protected void handleClientRequest(String absPath, Map<String, String> queryItems, HttpResponse response,
-			Address serverAddressAtClient) throws IOException {
-		/*
-		 * response.setStatusCode(HttpStatus.SC_OK); TestProducingNHttpEntity entity = new TestProducingNHttpEntity();
-		 * entity.setContentType("audio/x-mp3"); response.setEntity(entity); if (true) return;
-		 */
+	protected void handleClientRequest(String absPath, Map<String, String> queryItems,
+                                       HttpResponse response, Address serverAddressAtClient)
+        throws IOException
+    {
 		logger.debug("New synthesis request: " + absPath);
 		if (queryItems != null) {
 			for (String key : queryItems.keySet()) {

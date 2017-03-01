@@ -1,6 +1,5 @@
 dependencies {
     compile project(':marytts-utils')
-    compile project(':marytts-signalproc')
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'

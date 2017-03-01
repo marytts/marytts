@@ -29,11 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.sound.sampled.AudioFileFormat;
-
 import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpResponse;
@@ -46,7 +43,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Utility functions for Mary http server
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class MaryHttpServerUtils {
@@ -101,7 +98,7 @@ public class MaryHttpServerUtils {
 
 	/**
 	 * Convert HTTP request string into key-value pairs
-	 * 
+	 *
 	 * @param httpString
 	 *            the query part of the http request url
 	 * @param performUrlDecode
@@ -141,21 +138,6 @@ public class MaryHttpServerUtils {
 		}
 
 		return keyValuePairs;
-	}
-
-	//
-
-	public static String getMimeType(AudioFileFormat.Type audioType) {
-		if (audioType == AudioFileFormat.Type.WAVE) {
-			return "audio/x-wav";
-		} else if (audioType == AudioFileFormat.Type.AU) {
-			return "audio/basic";
-		} else if (audioType == AudioFileFormat.Type.AIFF || audioType == AudioFileFormat.Type.AIFC) {
-			return "audio/x-aiff";
-		} else if (audioType.equals(MaryAudioUtils.getAudioFileFormatType("MP3"))) {
-			return "audio/x-mpeg"; // "audio/x-mp3; //Does not work for Internet Explorer"
-		}
-		return "audio/basic"; // this is probably wrong but better than text/plain...
 	}
 
 	public static void errorFileNotFound(HttpResponse response, String uri) {

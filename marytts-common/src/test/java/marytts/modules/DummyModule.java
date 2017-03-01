@@ -22,7 +22,6 @@ package marytts.modules;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 
 /**
  * A dummy module doing nothing.
@@ -33,24 +32,6 @@ import marytts.datatypes.MaryDataType;
 public class DummyModule implements MaryModule {
 	public String name() {
 		return "Dummy";
-	}
-
-	@Deprecated
-	public MaryDataType inputType() {
-		return getInputType();
-	}
-
-	public MaryDataType getInputType() {
-		return MaryDataType.TEXT;
-	}
-
-	@Deprecated
-	public MaryDataType outputType() {
-		return getOutputType();
-	}
-
-	public MaryDataType getOutputType() {
-		return MaryDataType.AUDIO;
 	}
 
 	public Locale getLocale() {
