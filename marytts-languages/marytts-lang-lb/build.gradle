@@ -5,7 +5,7 @@ plugins {
 dependencies {
     compile project(':marytts-languages:marytts-lang-fr')
     compile libs.groovy
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0-SNAPSHOT'
+    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
     testCompile libs.testng
     testCompile libs.xmlunit
 }
