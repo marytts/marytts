@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 import marytts.modules.InternalModule;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -54,9 +53,6 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
-import marytts.io.XMLSerializer;
-
-import org.w3c.dom.Document;
 
 /**
  *
