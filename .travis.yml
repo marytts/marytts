@@ -4,7 +4,6 @@ branches:
   only:
     - 6.x
     - master
-    - replace_feature
 
 language: java
 install: ./gradlew b
