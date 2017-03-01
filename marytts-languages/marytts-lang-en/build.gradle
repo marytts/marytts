@@ -1,5 +1,5 @@
 dependencies {
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0-SNAPSHOT'
+    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0'
     testCompile libs.testng
     testCompile libs.xmlunit
 }

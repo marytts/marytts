@@ -1,3 +1,3 @@
 dependencies {
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-tr', version: '0.1.0-SNAPSHOT'
+    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-tr', version: '0.1.0'
 }
