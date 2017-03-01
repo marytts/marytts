@@ -27,7 +27,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.datatypes.MaryData;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

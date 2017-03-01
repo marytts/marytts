@@ -24,9 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
-import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.FeatureRegistry;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;
@@ -79,58 +76,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 			return MaryRuntimeUtils.getMaryVersion();
 		else if (request.equals("locales"))
 			return MaryRuntimeUtils.getLocales();
-		else if (request.equals("voices"))
-			return MaryRuntimeUtils.getVoices();
 		else if (request.equals("features") || request.equals("features-discrete")) {
-			if (queryItems != null) {
-				// List of features that can be computed for the voice
-				FeatureProcessorManager mgr = null;
-				String voiceName = queryItems.get("voice");
-				String localeName = queryItems.get("locale");
-				if (voiceName != null) {
-					Voice voice = Voice.getVoice(voiceName);
-					if (voice == null) {
-						MaryHttpServerUtils
-								.errorWrongQueryParameterValue(response, "voice", voiceName, "No voice with that name");
-						return null;
-					}
-					mgr = FeatureRegistry.getFeatureProcessorManager(voice);
-					if (mgr == null) {
-						mgr = FeatureRegistry.getFeatureProcessorManager(voice.getLocale());
-					}
-					if (mgr == null) {
-						mgr = FeatureRegistry.getFeatureProcessorManager(new Locale(voice.getLocale().getLanguage()));
-					}
-					if (mgr == null) {
-						mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
-					}
-				} else if (localeName != null) {
-					Locale locale = MaryUtils.string2locale(localeName);
-					mgr = FeatureRegistry.getFeatureProcessorManager(locale);
-					if (mgr == null) {
-						mgr = FeatureRegistry.getFeatureProcessorManager(new Locale(locale.getLanguage()));
-					}
-					if (mgr == null) {
-						StringBuilder localeList = new StringBuilder();
-						for (Locale l : FeatureRegistry.getSupportedLocales()) {
-							if (localeList.length() > 0)
-								localeList.append(",");
-							localeList.append(l.toString());
-						}
-						MaryHttpServerUtils.errorWrongQueryParameterValue(response, "locale", localeName,
-								"The locale is not supported.<br />" + "Supported locales: <code>" + localeList + "</code>");
-						return null;
-					}
-				}
-				if (mgr != null)
-					if (request.equals("features-discrete")) {
-						String discreteFeatureNames = mgr.listByteValuedFeatureProcessorNames()
-								+ mgr.listShortValuedFeatureProcessorNames();
-						return discreteFeatureNames;
-					}
-				return mgr.listFeatureProcessorNames();
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice' or 'locale'");
 			return null;
 		}
 		MaryHttpServerUtils.errorFileNotFound(response, request);

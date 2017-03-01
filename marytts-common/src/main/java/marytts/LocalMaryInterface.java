@@ -35,7 +35,6 @@ import marytts.config.MaryConfig;
 import marytts.datatypes.MaryData;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
-import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.util.MaryRuntimeUtils;
 
@@ -49,10 +48,7 @@ import marytts.util.MaryRuntimeUtils;
 public class LocalMaryInterface implements MaryInterface
 {
 	private Locale locale;
-	private Voice voice;
 	private AudioFileFormat audioFileFormat;
-	private String effects;
-	private String style;
 	private String outputTypeParams;
 	private boolean isStreaming;
 
@@ -72,24 +68,10 @@ public class LocalMaryInterface implements MaryInterface
 
 	protected void setReasonableDefaults() {
 		locale = Locale.US;
-		voice = Voice.getDefaultVoice(locale);
-		setAudioFileFormatForVoice();
-		effects = null;
-		style = null;
 		outputTypeParams = null;
 		isStreaming = false;
 
 	}
-
-	private void setAudioFileFormatForVoice() {
-		if (voice != null) {
-			AudioFormat af = voice.dbAudioFormat();
-			audioFileFormat = new AudioFileFormat(AudioFileFormat.Type.WAVE, af, AudioSystem.NOT_SPECIFIED);
-		} else {
-			audioFileFormat = null;
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -101,8 +83,6 @@ public class LocalMaryInterface implements MaryInterface
 			throw new IllegalArgumentException("Unsupported locale: " + newLocale);
 		}
 		locale = newLocale;
-		voice = Voice.getDefaultVoice(locale);
-		setAudioFileFormatForVoice();
 	}
 
 	/*
@@ -115,128 +95,6 @@ public class LocalMaryInterface implements MaryInterface
 		return locale;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setVoice(java.lang.String)
-	 */
-	@Override
-	public void setVoice(String voiceName) throws IllegalArgumentException {
-		voice = Voice.getVoice(voiceName);
-		if (voice == null) {
-			throw new IllegalArgumentException("No such voice: " + voiceName);
-		}
-		locale = voice.getLocale();
-		setAudioFileFormatForVoice();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getVoice()
-	 */
-	@Override
-	public String getVoice() {
-		if (voice == null) {
-			return null;
-		}
-		return voice.getName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setAudioEffects(java.lang.String)
-	 */
-	@Override
-	public void setAudioEffects(String audioEffects) {
-		effects = audioEffects;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getAudioEffects()
-	 */
-	@Override
-	public String getAudioEffects() {
-		return effects;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setStyle(java.lang.String)
-	 */
-	@Override
-	public void setStyle(String newStyle) {
-		style = newStyle;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getStyle()
-	 */
-	@Override
-	public String getStyle() {
-		return style;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setOutputTypeParams(java.lang.String)
-	 */
-	@Override
-	public void setOutputTypeParams(String params) {
-		this.outputTypeParams = params;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getOutputTypeParams()
-	 */
-	@Override
-	public String getOutputTypeParams() {
-		return outputTypeParams;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setStreamingAudio(boolean)
-	 */
-	@Override
-	public void setStreamingAudio(boolean newIsStreaming) {
-		isStreaming = newIsStreaming;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#isStreamingAudio()
-	 */
-	@Override
-	public boolean isStreamingAudio() {
-		return isStreaming;
-	}
-
-	/**
-	 * Synthesis will fail if {@link MaryDataType#AUDIO AUDIO} is requested but no voice is available for the requested Locale.
-	 * Moreover, the {@linkplain #audioFileFormat} will be null because {@linkplain #setAudioFileFormatForVoice()} silently
-	 * ignores if {@linkplain #voice} is null.
-	 *
-	 * @throws IllegalArgumentException
-	 *             which should actually be a {@link MaryConfigurationException}.
-	 */
-	private void verifyVoiceIsAvailableForLocale() {
-        if (getAvailableVoices(locale).isEmpty()) {
-            throw new IllegalArgumentException("No voice is available for Locale: " + locale);
-        }
-	}
-
 	private MaryData process(String configuration, String input_data)
         throws SynthesisException
     {
@@ -247,24 +105,6 @@ public class LocalMaryInterface implements MaryInterface
 			throw new SynthesisException("cannot process", e);
 		}
 		return r.getOutputData();
-	}
-
-	@Override
-	public Set<String> getAvailableVoices() {
-		Set<String> voices = new HashSet<String>();
-		for (Voice v : Voice.getAvailableVoices()) {
-			voices.add(v.getName());
-		}
-		return voices;
-	}
-
-	@Override
-	public Set<String> getAvailableVoices(Locale aLocale) {
-		Set<String> voices = new HashSet<String>();
-		for (Voice v : Voice.getAvailableVoices(aLocale)) {
-			voices.add(v.getName());
-		}
-		return voices;
 	}
 
 	@Override

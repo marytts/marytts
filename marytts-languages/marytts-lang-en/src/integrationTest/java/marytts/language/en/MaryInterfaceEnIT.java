@@ -21,11 +21,6 @@ package marytts.language.en;
 
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
-import marytts.exceptions.SynthesisException;
-import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureRegistry;
-import marytts.util.FeatureUtils;
-import java.io.IOException;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

@@ -51,7 +51,6 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
@@ -82,7 +81,6 @@ public class Request {
 
 	protected String outputTypeParams;
 	protected Locale defaultLocale;
-	protected Voice defaultVoice;
 
 	protected int id;
 	protected Logger logger;

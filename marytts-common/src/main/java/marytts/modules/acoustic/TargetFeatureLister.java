@@ -29,11 +29,6 @@ import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
-import marytts.modeling.features.FeatureRegistry;
-import marytts.modeling.features.FeatureVector;
-import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.TargetFeatureComputer;
-import marytts.modules.synthesis.Voice;
 import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
