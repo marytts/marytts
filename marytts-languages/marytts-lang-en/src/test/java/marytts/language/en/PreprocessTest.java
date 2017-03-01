@@ -5,25 +5,18 @@ package marytts.language.en;
 
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
-import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.language.en.Preprocess;
-import marytts.util.dom.DomUtils;
 
-import org.custommonkey.xmlunit.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.text.ParseException;
 
 import marytts.data.Utterance;
 import marytts.io.XMLSerializer;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * @author Tristan Hamilton
@@ -119,23 +112,6 @@ public class PreprocessTest {
 		// @formatter:on
 	}
 
-	@Test
-	public void testOneWord()
-        throws Exception
-    {
-		String lemma = "7";
-		mary.setOutputType(MaryDataType.WORDS.name());
-		Document doc = mary.generateXML(lemma);
-		String words = "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p>" + lemma + "<s>" + lemma + "<t>" + lemma + "</t></s></p></maryxml>";
-		Document expectedDoc = DomUtils.parseDocument(words);
-        Utterance utt = xml_ser.unpackDocument(expectedDoc);
-        module.expand(utt);
-
-        // issue where LocalMaryInterface#generateXML and DomUtils#parseDocument dont build the document in same order
-        expectedDoc = xml_ser.generateDocument(utt);
-        Diff diff = XMLUnit.compareXML(expectedDoc, doc);
-        Assert.assertFalse(diff.identical());
-    }
 
     @Test(dataProvider = "NumExpandData")
     public void testExpandNum(String token, String word) {
