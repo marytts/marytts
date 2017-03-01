@@ -46,12 +46,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
@@ -61,7 +55,6 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -88,19 +81,14 @@ public class Request {
     protected String input_data;
 
 	protected String outputTypeParams;
-	protected AudioFileFormat audioFileFormat;
-	protected AppendableSequenceAudioInputStream appendableAudioStream;
 	protected Locale defaultLocale;
 	protected Voice defaultVoice;
-	protected String defaultStyle;
-	protected String defaultEffects;
 
 	protected int id;
 	protected Logger logger;
 	protected MaryData inputData;
 	protected MaryData outputData;
     protected Serializer output_serializer;
-	protected boolean streamAudio = false;
 	protected boolean abortRequested = false;
 
 	// Keep track of timing info for each module

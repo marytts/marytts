@@ -81,8 +81,6 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 			return MaryRuntimeUtils.getLocales();
 		else if (request.equals("voices"))
 			return MaryRuntimeUtils.getVoices();
-		else if (request.equals("audioformats"))
-			return MaryRuntimeUtils.getAudioFileFormatTypes();
 		else if (request.equals("features") || request.equals("features-discrete")) {
 			if (queryItems != null) {
 				// List of features that can be computed for the voice
@@ -133,15 +131,6 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 				return mgr.listFeatureProcessorNames();
 			}
 			MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice' or 'locale'");
-			return null;
-		} else if (request.equals("styles")) {
-			if (queryItems != null) {
-				String voice = queryItems.get("voice");
-				if (voice != null) {
-					return MaryRuntimeUtils.getStyles(voice);
-				}
-			}
-			MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice'");
 			return null;
 		}
 		MaryHttpServerUtils.errorFileNotFound(response, request);
