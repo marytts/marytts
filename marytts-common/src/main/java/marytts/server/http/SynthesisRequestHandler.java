@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
 import marytts.util.MaryRuntimeUtils;

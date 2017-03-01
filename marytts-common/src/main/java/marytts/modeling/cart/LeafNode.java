@@ -24,7 +24,6 @@ import java.util.List;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureVector;
 
 /**
  * The leaf of a CART.
@@ -267,101 +266,6 @@ public abstract class LeafNode { //extends Node {
 
 		public LeafType getLeafNodeType() {
 			return LeafType.StringAndFloatLeafNode;
-		}
-
-	}
-
-	public static class FeatureVectorLeafNode extends LeafNode {
-		private FeatureVector[] featureVectors;
-		private List<FeatureVector> featureVectorList;
-		private boolean growable;
-
-		/**
-		 * Build a new leaf node containing the given feature vectors
-		 *
-		 * @param featureVectors
-		 *            the feature vectors
-		 */
-		public FeatureVectorLeafNode(FeatureVector[] featureVectors) {
-			super();
-			this.featureVectors = featureVectors;
-			growable = false;
-		}
-
-		/**
-		 * Build a new, empty leaf node to be filled with vectors later
-		 *
-		 */
-		public FeatureVectorLeafNode() {
-			super();
-			featureVectorList = new ArrayList<FeatureVector>();
-			featureVectors = null;
-			growable = true;
-		}
-
-		public void addFeatureVector(FeatureVector fv) {
-			featureVectorList.add(fv);
-		}
-
-		/**
-		 * Get the feature vectors of this node
-		 *
-		 * @return the feature vectors
-		 */
-		public FeatureVector[] getFeatureVectors() {
-			if (growable && (featureVectors == null || featureVectors.length == 0)) {
-				featureVectors = (FeatureVector[]) featureVectorList.toArray(new FeatureVector[featureVectorList.size()]);
-			}
-			return featureVectors;
-		}
-
-		public void setFeatureVectors(FeatureVector[] fv) {
-			this.featureVectors = fv;
-		}
-
-		/**
-		 * Get all data in this leaf
-		 *
-		 * @return the featurevector array contained in this leaf
-		 */
-		public Object getAllData() {
-			if (growable && (featureVectors == null || featureVectors.length == 0)) {
-				featureVectors = (FeatureVector[]) featureVectorList.toArray(new FeatureVector[featureVectorList.size()]);
-			}
-			return featureVectors;
-		}
-
-		protected void fillData(Object target, int pos, int len) {
-			if (!(target instanceof FeatureVector[]))
-				throw new IllegalArgumentException("Expected target object of type FeatureVector[], got " + target.getClass());
-			FeatureVector[] array = (FeatureVector[]) target;
-			assert len <= featureVectors.length;
-			System.arraycopy(featureVectors, 0, array, pos, len);
-		}
-
-		public int getNumberOfData() {
-			if (growable) {
-				return featureVectorList.size();
-			}
-			if (featureVectors != null)
-				return featureVectors.length;
-			return 0;
-		}
-
-		public boolean isEmpty() {
-			return featureVectors == null || featureVectors.length == 0;
-		}
-
-		public LeafType getLeafNodeType() {
-			return LeafType.FeatureVectorLeafNode;
-		}
-
-		public String toString() {
-			if (growable)
-				return "fv[" + featureVectorList.size() + "]";
-			if (featureVectors == null)
-				return  "(fv[null])";
-			return  "(fv[" + featureVectors.length + "])";
 		}
 
 	}

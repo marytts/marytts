@@ -27,7 +27,6 @@ import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modeling.features.FeatureProcessorManager;
 import marytts.features.FeatureMap;
 import marytts.features.FeatureComputer;
 import marytts.util.dom.MaryDomUtils;
@@ -53,21 +52,12 @@ public abstract class Model {
 	 */
 	protected InputStream dataStream;
 
-	/**
-	 * The voice with which this model is associated
-	 */
-	protected String voiceName;
 
 	/**
 	 * The name of the predicted acoustic feature, if any. The feature processor that will be created from this will read the
 	 * value from {@link #targetAttributeName}.
 	 */
 	protected String featureName;
-
-	/**
-	 * The feature processors used for prediction.
-	 */
-	protected FeatureProcessorManager featureManager;
 
 	/**
 	 * The names of the features used for prediction.
@@ -102,10 +92,8 @@ public abstract class Model {
 	 * @param applyTo
 	 *            key of Element Lists to which to apply values; "segments" by default
 	 */
-	protected Model(FeatureProcessorManager featureManager, String voiceName, InputStream dataStream)
+	protected Model(InputStream dataStream)
     {
-		this.featureManager = featureManager;
-		this.voiceName = voiceName;
 		this.dataStream = dataStream;
 	}
 
@@ -144,11 +132,6 @@ public abstract class Model {
             FeatureComputer.initDefault();
 			featureComputer = FeatureComputer.the_feature_computer;
 		} catch (IllegalArgumentException iae) {
-			throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
-					+ "The model needs the following features:\n" + predictionFeatureNames + "\n"
-					+ "The FeatureProcessorManager for locale " + featureManager.getLocale() + " ("
-					+ featureManager.getClass().toString() + ") can produce the following features:\n"
-					+ featureManager.listFeatureProcessorNames(), iae);
 		}
 	}
 
@@ -196,13 +179,4 @@ public abstract class Model {
 	 */
 	protected abstract float evaluate(FeatureMap target) throws Exception;
 
-	// several getters:
-
-	/**
-	 *
-	 * @return the name of the voice that this model is associated with
-	 */
-	public String getVoiceName() {
-		return voiceName;
-	}
 }

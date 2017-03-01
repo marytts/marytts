@@ -44,11 +44,8 @@ import java.util.TreeSet;
 import marytts.Version;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.FeatureRegistry;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
@@ -122,7 +119,7 @@ public class Mary {
 			MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
 			// Partially fill module repository here;
 			// TODO: voice-specific entries will be added when each voice is loaded.
-			ModuleRegistry.registerModule(m, m.getLocale(), null);
+			ModuleRegistry.registerModule(m, m.getLocale());
 		}
 		ModuleRegistry.setRegistrationComplete();
 
@@ -156,24 +153,6 @@ public class Mary {
 			logger.debug("Startup times:");
 			for (Pair<MaryModule, Long> p : startupTimes) {
 				logger.debug(p.getFirst().name() + ": " + p.getSecond() + " ms");
-			}
-		}
-	}
-
-	private static void setupFeatureProcessors() throws Exception {
-		for (String fpmInitInfo : MaryProperties.getList("featuremanager.classes.list")) {
-			try {
-
-				FeatureProcessorManager mgr = (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(fpmInitInfo);
-				Locale locale = mgr.getLocale();
-				if (locale != null) {
-					FeatureRegistry.setFeatureProcessorManager(locale, mgr);
-				} else {
-					logger.debug("Setting fallback feature processor manager to '" + fpmInitInfo + "'");
-					FeatureRegistry.setFallbackFeatureProcessorManager(mgr);
-				}
-			} catch (Throwable t) {
-				throw new Exception("Cannot instantiate feature processor manager '" + fpmInitInfo + "'", t);
 			}
 		}
 	}
@@ -271,8 +250,6 @@ public class Mary {
 				shutdown();
 			}
 		});
-
-		setupFeatureProcessors();
 
 		// Instantiate module classes and startup modules:
 		startModules();

@@ -39,7 +39,6 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.dom.MaryDomUtils;
@@ -151,34 +150,6 @@ public class MaryRuntimeUtils {
 	private static long lowMemoryThreshold = -1;
 
 	/**
-	 * For an element in a MaryXML document, do what you can to determine the appropriate AllophoneSet. First search for the
-	 * suitable voice, then if that fails, go by locale.
-	 *
-	 * @param e
-	 *            e
-	 * @return an allophone set if there is any way of determining it, or null.
-	 * @throws MaryConfigurationException
-	 *             if a suitable allophone set exists in principle, but there were problems loading it.
-	 */
-	public static AllophoneSet determineAllophoneSet(Element e) throws MaryConfigurationException {
-		AllophoneSet allophoneSet = null;
-		Element voice = (Element) MaryDomUtils.getAncestor(e, MaryXML.VOICE);
-		Voice maryVoice = Voice.getVoice(voice);
-		if (maryVoice == null) {
-			// Determine Locale in order to use default voice
-			Locale locale = MaryUtils.string2locale(e.getOwnerDocument().getDocumentElement().getAttribute("xml:lang"));
-			maryVoice = Voice.getDefaultVoice(locale);
-		}
-		if (maryVoice != null) {
-			allophoneSet = maryVoice.getAllophoneSet();
-		} else {
-			Locale locale = MaryUtils.string2locale(e.getOwnerDocument().getDocumentElement().getAttribute("xml:lang"));
-			allophoneSet = determineAllophoneSet(locale);
-		}
-		return allophoneSet;
-	}
-
-	/**
 	 * Try to determine the Allophone set to use for the given locale.
 	 *
 	 * @param locale
@@ -246,43 +217,5 @@ public class MaryRuntimeUtils {
 			}
 		}
 		return out.toString();
-	}
-
-	public static String getVoices() {
-		String output = "";
-		Collection<Voice> voices = Voice.getAvailableVoices();
-		for (Iterator<Voice> it = voices.iterator(); it.hasNext();) {
-			Voice v = (Voice) it.next();
-            output += v.toString() + System.getProperty("line.separator");
-        }
-
-        return output;
-    }
-
-    public static String getDefaultVoiceName() {
-        String defaultVoiceName = "";
-		String allVoices = getVoices();
-		if (allVoices != null && allVoices.length() > 0) {
-			StringTokenizer tt = new StringTokenizer(allVoices, System.getProperty("line.separator"));
-			if (tt.hasMoreTokens()) {
-				defaultVoiceName = tt.nextToken();
-				StringTokenizer tt2 = new StringTokenizer(defaultVoiceName, " ");
-				if (tt2.hasMoreTokens())
-					defaultVoiceName = tt2.nextToken();
-			}
-		}
-
-		return defaultVoiceName;
-	}
-
-	/**
-	 * returns a list of strings of voice names, depending on voice type wanted
-	 * parameter passed-> a string such as "unitselection" or "hmm"
-	 * @param voicetype
-	 * @return VoiceNames
-	 */
-	public static List<String> getVoicesList(String voicetype) {
-		List<String> VoiceNames = MaryProperties.getList(voicetype + ".voices.list");
-		return VoiceNames;
 	}
 }

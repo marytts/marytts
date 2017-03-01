@@ -37,14 +37,11 @@ import marytts.modules.InternalModule;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureProcessorManager;
-import marytts.modeling.features.TargetFeatureComputer;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.modules.synthesis.Voice;
 
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
@@ -74,8 +71,6 @@ public class PronunciationModel extends InternalModule {
 
 	// used in startup() and later for convenience
 	private FeatureDefinition featDef;
-
-	private TargetFeatureComputer featureComputer;
 
 	/**
 	 * Constructor, stating that the input is of type INTONATION, the output of type ALLOPHONES.
@@ -107,13 +102,6 @@ public class PronunciationModel extends InternalModule {
 
 			logger.debug("Reading in feature definition finished.");
 
-			// TODO: change property name to german.pronunciation.featuremanager/features
-			String managerClass = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
-                                                              + ".pronunciation.targetfeaturelister.featuremanager");
-			FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
-			String features = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
-                                                          + ".pronunciation.targetfeaturelister.features");
-			this.featureComputer = new TargetFeatureComputer(manager, features);
 		}
 		logger.debug("Building feature computer finished.");
 	}
@@ -161,17 +149,7 @@ public class PronunciationModel extends InternalModule {
 
             // First, create the substructure of <t> elements: <syllable> and <ph>.
             if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
-                Voice maryVoice = Voice.getVoice(utt.getVoiceName());
-                if (maryVoice == null) {
-                    // Determine Locale in order to use default voice
-                    Locale locale = utt.getLocale();
-                    maryVoice = Voice.getDefaultVoice(locale);
-                }
-                if (maryVoice != null) {
-                    allophoneSet = maryVoice.getAllophoneSet();
-                } else {
-                    allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
-                }
+                allophoneSet = MaryRuntimeUtils.determineAllophoneSet(utt.getLocale());
             }
 
             logger.info(allophoneSet);

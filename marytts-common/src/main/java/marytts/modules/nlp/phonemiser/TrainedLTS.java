@@ -29,7 +29,6 @@ import marytts.cart.DecisionTree;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modeling.features.FeatureDefinition;
-import marytts.modeling.features.FeatureVector;
 
 /**
  *
@@ -151,7 +150,7 @@ public class TrainedLTS {
 				// }
 			}
 
-			FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
+			// FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
 
 			// StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
 			// String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);

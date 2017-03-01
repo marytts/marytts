@@ -31,7 +31,6 @@ import java.util.Map;
 import marytts.modules.MaryModule;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.synthesis.Voice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.server.MaryProperties;
@@ -114,7 +113,7 @@ public class ModuleRegistry {
 	 *             if called after registration is complete.
 	 */
 	@SuppressWarnings("unchecked")
-	public static void registerModule(MaryModule module, Locale locale, Voice voice) throws IllegalStateException {
+	public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
 		if (registrationComplete)
 			throw new IllegalStateException("cannot register modules after registration is complete");
 		allModules.add(module);
