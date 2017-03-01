@@ -21,14 +21,11 @@ package marytts.language.en;
 
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
-import marytts.datatypes.MaryDataType;
 import marytts.exceptions.SynthesisException;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modeling.features.FeatureRegistry;
 import marytts.util.FeatureUtils;
 import java.io.IOException;
-
-import org.w3c.dom.Document;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -47,38 +44,4 @@ public class MaryInterfaceEnIT {
 	public void setUp() throws Exception {
 		mary = new LocalMaryInterface();
 	}
-
-	@Test
-	public void convertTextToAcoustparams() throws Exception {
-		mary.setOutputType(MaryDataType.ACOUSTPARAMS.name());
-		Document doc = mary.generateXML("Hello world");
-		Assert.assertNotNull(doc);
-	}
-
-	@Test
-	public void convertTextToTargetfeatures() throws Exception {
-		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
-		String tf = mary.generateText("Hello world");
-		Assert.assertNotNull(tf);
-	}
-
-	@Test
-	public void convertTextToPhonemes() throws Exception {
-		mary.setOutputType(MaryDataType.PHONEMES.name());
-		Document doc = mary.generateXML("Applejuice");
-		Assert.assertNotNull(doc);
-	}
-
-	@Test(expectedExceptions = IOException.class)
-	public void canSelectTargetfeatures() throws Exception {
-		mary.setOutputType(MaryDataType.TARGETFEATURES.name());
-		String featureNames = "phone stressed";
-		mary.setOutputTypeParams(featureNames);
-		String tf = mary.generateText("Hello world");
-		FeatureDefinition expected = FeatureRegistry.getTargetFeatureComputer(mary.getLocale(), featureNames)
-            .getFeatureDefinition();
-		FeatureDefinition actual = FeatureUtils.readFeatureDefinition(tf);
-		Assert.assertEquals(expected, actual, expected.featureEqualsAnalyse(actual));
-	}
-
 }

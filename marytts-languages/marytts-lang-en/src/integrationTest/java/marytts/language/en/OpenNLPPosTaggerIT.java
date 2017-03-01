@@ -22,7 +22,6 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.modules.nlp.OpenNLPPosTagger;
-import marytts.tests.modules.MaryModuleTestCase;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -31,39 +30,16 @@ import org.testng.annotations.*;
  * @author marc
  *
  */
-public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
+public class OpenNLPPosTaggerIT
+{
 
 	/**
 	 * @param needMaryStarted
 	 * @throws Exception
 	 *             Exception
 	 */
-	public OpenNLPPosTaggerIT() throws Exception {
-		super(true); // start MARY
-
+	public OpenNLPPosTaggerIT() throws Exception
+    {
 	}
 
-	@Override
-	protected String inputEnding() {
-		return "words";
-	}
-
-	@Override
-	protected String outputEnding() {
-		return "partsofspeech";
-	}
-
-	@Test
-	public void posExample2() throws Exception {
-		// setup SUT:
-		module = new OpenNLPPosTagger("en", "en.pos");
-		module.startup();
-		// exercise:
-		processAndCompare("example2-en_US", Locale.US);
-		processAndCompare("examplesingle-en_US", Locale.US);
-		processAndCompare("exampleshift-en_US", Locale.US);
-		// teardown:
-		module.shutdown();
-		module = null;
-	}
 }

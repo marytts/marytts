@@ -6,7 +6,6 @@ package marytts.language.de;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import marytts.datatypes.MaryDataType;
 import marytts.fst.FSTLookup;
 import marytts.language.de.JPhonemiser;
 import marytts.server.MaryProperties;
