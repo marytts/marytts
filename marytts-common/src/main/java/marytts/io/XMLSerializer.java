@@ -236,7 +236,7 @@ public class XMLSerializer implements Serializer
     {
         Element phrase_element = doc.createElementNS(NAMESPACE, "phrase");
 
-        logger.info("Serializing phrase");
+        logger.debug("Serializing phrase");
 
 
         Relation rel_phrase_word = utt.getRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD);
@@ -257,7 +257,7 @@ public class XMLSerializer implements Serializer
         Word word = ((Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)).get(w_index);
         Element word_element = doc.createElementNS(NAMESPACE, "t");
 
-        logger.info("Serializing word \"" + word.getText() + "\"");
+        logger.debug("Serializing word \"" + word.getText() + "\"");
 
         // Export node value
         Node text = doc.createTextNode(word.getText());
@@ -299,7 +299,7 @@ public class XMLSerializer implements Serializer
         Syllable syl = ((Sequence<Syllable>) utt.getSequence(SupportedSequenceType.SYLLABLE)).get(syl_index);
         Element syllable_element = doc.createElementNS(NAMESPACE, "syllable");
 
-        logger.info("Serializing syllable");
+        logger.debug("Serializing syllable");
 
         if (syl.getTone() != null)
             syllable_element.setAttribute("tone", syl.getTone().getLabel());
@@ -437,8 +437,8 @@ public class XMLSerializer implements Serializer
         // 2. Dealing relations
         for (SequenceTypePair k: alignments.keySet())
         {
-            logger.info("source: " + utt.getSequence(k.getLeft()));
-            logger.info("target: " + utt.getSequence(k.getRight()));
+            logger.debug("source: " + utt.getSequence(k.getLeft()));
+            logger.debug("target: " + utt.getSequence(k.getRight()));
             Relation rel = new Relation(utt.getSequence(k.getLeft()),
                                         utt.getSequence(k.getRight()),
                                         alignments.get(k));
@@ -463,21 +463,21 @@ public class XMLSerializer implements Serializer
 
         NodeList nl = elt.getChildNodes();
         String text = null;
-        logger.info("Current paragraph contains " + nl.getLength() + " childs");
+        logger.debug("Current paragraph contains " + nl.getLength() + " childs");
         for (int j=0; j<nl.getLength(); j++)
         {
             Node node = nl.item(j);
 
             if (node.getNodeType() == Node.TEXT_NODE)
             {
-                logger.info("Unpack the text");
+                logger.debug("Unpack the text");
 
                 if (!node.getNodeValue().trim().equals(""))
                     text = node.getNodeValue().trim();
             }
             else if (node.getNodeType() == Node.ELEMENT_NODE)
             {
-                logger.info("Unpack the sentence");
+                logger.debug("Unpack the sentence");
                 Element cur_elt = (Element) node;
                 if (cur_elt.getTagName() == "s")
                 {
@@ -822,7 +822,7 @@ public class XMLSerializer implements Serializer
         if (text == null)
             throw new MaryIOException("Cannot find the text of the word", null);
 
-        logger.info("Unpacking word \"" + text + "\"");
+        logger.debug("Unpacking word \"" + text + "\"");
         Word w = new Word(text);
         if (elt.hasAttribute("pos"))
         {
