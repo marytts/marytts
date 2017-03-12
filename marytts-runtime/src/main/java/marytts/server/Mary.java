@@ -490,13 +490,13 @@ public class Mary {
 		addJarsToClasspath();
 
 		String server = MaryProperties.needProperty("server");
-		System.err.print("MARY server " + Version.specificationVersion() + " starting as a ");
+		System.err.print("MARY server " + Version.specificationVersion() + " starting as ");
 		if (server.equals("socket"))
-			System.err.print("socket server...");
+			System.err.print("a socket server...");
 		else if (server.equals("http"))
-			System.err.print("HTTP server...");
+			System.err.print("an HTTP server...");
 		else
-			System.err.print("command-line application...");
+			System.err.print("a command-line application...");
 
 		// first thing we do, let's test if the port is available:
 		int localPort = MaryProperties.needInteger("socket.port");
