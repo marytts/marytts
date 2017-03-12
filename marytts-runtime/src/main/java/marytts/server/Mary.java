@@ -496,7 +496,7 @@ public class Mary {
 		else if (server.equals("http"))
 			System.err.print("an HTTP server...");
 		else
-			System.err.print("command-line application...");
+			System.err.print("a command-line application...");
 
 		// first thing we do, let's test if the port is available:
 		int localPort = MaryProperties.needInteger("socket.port");
