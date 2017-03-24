@@ -5,7 +5,6 @@ import java.util.List;
 
 
 import marytts.data.utils.IntegerPair;
-import marytts.data.utils.SequenceTypePair;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.list.IntArrayList;
 import cern.colt.list.DoubleArrayList;
@@ -165,7 +164,7 @@ public class Relation
         setRelations(gen_matrix);
     }
 
-    private SparseDoubleMatrix2D getRelations()
+    public SparseDoubleMatrix2D getRelations()
     {
         return m_relation_matrix;
     }
@@ -435,6 +434,7 @@ public class Relation
                 }
             }
         }
+
         setRelations(new_matrix);
     }
 

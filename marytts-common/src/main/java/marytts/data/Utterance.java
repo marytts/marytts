@@ -3,6 +3,8 @@ package marytts.data;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -28,6 +30,7 @@ public class Utterance
     private ArrayList<AudioInputStream> m_list_streams;
     private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
     private RelationGraph m_relation_graph;
+    private Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> m_available_relation_set;
 
     public Utterance(String text, Locale locale)
     {
@@ -36,6 +39,7 @@ public class Utterance
         setLocale(locale);
 
         m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
+        m_available_relation_set = new HashSet<ImmutablePair<SupportedSequenceType, SupportedSequenceType>>();
         m_relation_graph = new RelationGraph();
     }
 
@@ -109,6 +113,11 @@ public class Utterance
         return new Sequence<Item>();
     }
 
+    public Set<SupportedSequenceType> listAvailableSequences()
+    {
+        return m_sequences.keySet();
+    }
+
     /**
      * FIXME: not really efficient right now
      *
@@ -129,5 +138,12 @@ public class Utterance
     public void setRelation(SupportedSequenceType source, SupportedSequenceType target, Relation rel)
     {
         m_relation_graph.addRelation(rel);
+        m_available_relation_set.add(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source, target));
+    }
+
+
+    public Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> listAvailableRelations()
+    {
+        return m_available_relation_set;
     }
 }
