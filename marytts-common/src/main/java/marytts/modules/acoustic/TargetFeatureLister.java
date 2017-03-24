@@ -74,8 +74,8 @@ public class TargetFeatureLister extends InternalModule {
 	 *            segmentsAndBoundaries
 	 * @return a multi-line string.
 	 */
-	public void listTargetFeatures(FeatureComputer the_feature_computer,
-                                     Utterance utt) throws Exception
+	public void listTargetFeatures(FeatureComputer the_feature_computer, Utterance utt)
+        throws Exception
     {
 
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
