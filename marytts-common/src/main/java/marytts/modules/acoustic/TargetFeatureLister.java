@@ -87,8 +87,8 @@ public class TargetFeatureLister extends InternalModule {
         {
             FeatureMap map = the_feature_computer.process(utt, it);
             target_features.add(map);
-            i++;
             list_pairs.add(new IntegerPair(i, i));
+            i++;
         }
 
         Relation rel_phone_features = new Relation(items, target_features, list_pairs);
