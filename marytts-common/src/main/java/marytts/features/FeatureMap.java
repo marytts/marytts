@@ -29,4 +29,10 @@ public class FeatureMap extends Item // implements Map<String, Feature>
     {
         return inner_map;
     }
+
+
+    public Feature get(String feature_name)
+    {
+        return inner_map.get(feature_name);
+    }
 }
