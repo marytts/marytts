@@ -26,6 +26,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
  */
 public class ROOTSJSONSerializer implements Serializer
 {
+    private final static int SB_INIT_CAP = 1000;
     public ROOTSJSONSerializer()
     {
     }
@@ -45,75 +46,60 @@ public class ROOTSJSONSerializer implements Serializer
     public String toString(Utterance utt)
         throws MaryIOException
     {
-        String output = "{\n";
-        output += "\t\"sequences\": {\n";
+        StringBuilder sb = new StringBuilder(SB_INIT_CAP);
+        sb.append("{\n");
+        sb.append("\t\"sequences\": {\n");
 
         SupportedSequenceType cur_type = null;
         Object[] types =  utt.listAvailableSequences().toArray();
-        int t = 0;
-        int i = 0;
-        while (t < (types.length-1))
+        for (int t=0; t<types.length; t++)
         {
             cur_type = ((SupportedSequenceType) types[t]);
-            output += "\t\t\"" +  cur_type + "\": [\n";
+            sb.append("\t\t\"" + cur_type +"\": [\n");
             Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
-            i = 0;
-            while (i < (seq.size()-1))
-            {
-                output +="\t\t\t\"" + seq.get(i).toString() + "\",\n";
-                i++;
-            }
-            output +="\t\t\t\"" + seq.get(i).toString() + "\"\n";
-            output += "\t\t],\n";
-            t++;
+            for (int i=0; i<(seq.size()-1); i++)
+                sb.append("\t\t\t\"" + seq.get(i) + "\",\n");
+            sb.append("\t\t\t\"" + seq.get(seq.size() - 1) + "\"\n");
+
+            if (t < (types.length - 1))
+                sb.append("\t\t],\n");
+            else
+                sb.append("\t\t]\n");
         }
+        sb.append("\t},\n");
 
-        cur_type = ((SupportedSequenceType) types[t]);
-        output += "\t\t\"" + cur_type + "\": [\n";
-        output += "\t\t]\n";
-        output += "\t},\n";
-
-        output += "\t\"relations\": [\n";
+        sb.append("\t\"relations\": [\n");
         Object[] relations = utt.listAvailableRelations().toArray();
         ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
         SparseDoubleMatrix2D cur_rel;
 
-        int r = 0;
-        while (r < (relations.length-1))
+        for (int r=0; r<relations.length; r++)
         {
-            output += "\t\t{\n";
+            sb.append("\t\t{\n");
             cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
-            output += "\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n";
-            output += "\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n";
-
+            sb.append("\t\t\t\"source\" : \"" +cur_rel_id.left + "\",\n");
+            sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
 
             cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
-            output += "\t\t\t \"matrix\" : [\n";
+            sb.append("\t\t\t \"matrix\" : [\n");
             for (int j=0; j<cur_rel.rows(); j++)
             {
-                output += "\t\t\t\t";
+                sb.append("\t\t\t\t");
                 for (int k=0; k<cur_rel.columns(); k++)
-                {
-                    output += cur_rel.get(j, k) + " ";
-                }
-                output += "\n";
+                    sb.append(cur_rel.get(j, k) + " ");sb.append(" ");
+                sb.append("\n");
             }
-            output += "\t\t\t]\n";
+            sb.append("\t\t\t]\n");
 
-
-            output += "\t\t},\n";
-            r++;
+            if (r < (relations.length-1))
+                sb.append("\t\t},\n");
+            else
+                sb.append("\t\t}\n");
         }
+        sb.append("\t}\n");
+        sb.append("}\n");
 
-        output += "\t\t{\n";
-        cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
-        output += "\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n";
-        output += "\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n";
-        output += "\t\t},\n";
-
-        output += "\t]\n";
-        output += "}\n";
-        return output;
+        return sb.toString();
     }
 
     public Utterance fromString(String content)
