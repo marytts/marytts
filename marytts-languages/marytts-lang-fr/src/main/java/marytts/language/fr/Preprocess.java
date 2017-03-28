@@ -12,6 +12,8 @@ import marytts.modules.InternalModule;
 
 import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.Sequence;
+import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Word;
 
 import com.ibm.icu.text.RuleBasedNumberFormat;
@@ -48,10 +50,10 @@ public class Preprocess extends InternalModule {
 
     protected void checkForNumbers(Utterance utt)
     {
-        for (Word w: utt.getAllWords())
+        for (Word w: (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD))
         {
             // Ignore phonemise or assmilated token
-            if ((w.getPhonemes().size() > 0) || (w.soundsLike() != null))
+            if (w.soundsLike() != null)
                 continue;
 
             String orig_text = w.getText();

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -48,10 +49,17 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.Sequence;
+import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
+import marytts.data.utils.IntegerPair;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Syllable;
+import marytts.data.item.phonology.Accent;
+
+import com.google.common.base.Splitter;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -184,27 +192,27 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	}
 
 	@Override
-	public MaryData process(MaryData d)
-        throws Exception
+
+	public MaryData process(MaryData d) throws Exception
     {
-
-        // inflection.determineEndings(doc); // FIXME: what is that ?
-
         Utterance utt = d.getData();
-        ArrayList<Word> words = utt.getAllWords();
 
-        for (Word w: words)
+        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+        Sequence<Syllable> syllables = new Sequence<Syllable>();
+        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+
+        Sequence<Phoneme> phones = new Sequence<Phoneme>();
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+
+        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD).getReverse();
+        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+
+
+        for (int i_word=0; i_word<words.size(); i_word++)
         {
-            String text;
+            Word w = words.get(i_word);
 
-            // Do not touch tokens for which a transcription is already
-            // given (exception: transcription contains a '*' character:
-            ArrayList<Phoneme> phonemes = w.getPhonemes();
-            if ((phonemes.size() > 0) &&
-                (!phonemes.get(0).getLabel().contains("*")))
-            {
-                continue;
-            }
+            String text;
 
             if (w.soundsLike() != null)
                 text = w.soundsLike();
@@ -222,9 +230,10 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
             }
 
             // Ok adapt phonemes now
-            ArrayList<Phoneme> new_phonemes = new ArrayList<Phoneme>();
+            ArrayList<String> phonetisation_string = new ArrayList<String>();
             if (maybePronounceable(text, pos))
             {
+
                 // If text consists of several parts (e.g., because that was
                 // inserted into the sounds_like attribute), each part
                 // is transcribed separately.
@@ -243,38 +252,41 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                         if (phon != null)
                             helper.append("foreign:en");
                     }
+
                     if (phon == null) {
                         phon = phonemise(graph, pos, helper);
                     }
 
-
-                    // FIXME what does it mean : null result should not be processed
+                    // FIXME: what does it mean : null result should not be processed
                     if (phon == null)
                         continue;
 
                     if (ph.length() == 0)
                         g2p_method = helper.toString();
 
-                    // FIXME: hardcoded here, not really good
-                    String stress = null;
-                    if (phon.contains("'"))
-                    {
-                        stress = ",";
-                        phon.replaceAll("'", "");
-                    }
-                    new_phonemes.add(new Phoneme(phon, stress));
+                    phonetisation_string.add(phon);
                 }
 
-                if (new_phonemes.size() > 0)
+                if (phonetisation_string.size() > 0)
                 {
-                    // Adapt phoneme
-                    w.setPhonemes(new_phonemes);
+
+                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_syllable);
 
                     // Adapt G2P method
                     w.setG2PMethod(g2p_method);
                 }
             }
         }
+
+
+        // Relation word/syllable
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+
+        utt.addSequence(SupportedSequenceType.PHONE, phones);
+        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
         MaryData result = new MaryData(d.getLocale(), utt);
         return result;

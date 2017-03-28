@@ -30,8 +30,9 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.SupportedSequenceType;
+import marytts.data.Sequence;
 import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
@@ -78,7 +79,7 @@ public class MinimalisticPosTagger extends InternalModule {
 	public MaryData process(MaryData d) throws Exception {
 		Utterance utt = d.getData();
 
-        for (Word w: utt.getAllWords())
+        for (Word w: (Sequence<Word>)utt.getSequence(SupportedSequenceType.WORD))
         {
             String pos = "content";
             String tokenText = w.getText();
