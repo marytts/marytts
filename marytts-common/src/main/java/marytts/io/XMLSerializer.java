@@ -272,16 +272,6 @@ public class XMLSerializer implements Serializer
         if (word.soundsLike() != null)
             word_element.setAttribute("sounds_like", word.soundsLike());
 
-        ArrayList<Phoneme> phonemes = word.getPhonemes();
-        if (phonemes.size() > 0)
-        {
-            String phonemes_str = "";
-            for (int i=0; i<phonemes.size()-1; i++)
-                phonemes_str += phonemes.get(i).getLabel() + " - ";
-            phonemes_str += phonemes.get(phonemes.size() - 1).getLabel();
-            word_element.setAttribute("ph", phonemes_str);
-        }
-
         Relation rel_word_syllable = utt.getRelation(SupportedSequenceType.WORD,
                                                      SupportedSequenceType.SYLLABLE);
         if (rel_word_syllable != null)
@@ -834,18 +824,6 @@ public class XMLSerializer implements Serializer
         {
             String accent = elt.getAttribute("accent");
             w.setAccent(new Accent(accent));
-        }
-
-        // FIXME: this should be a temp hack !
-        if (elt.hasAttribute("ph"))
-        {
-            String[] phoneme_labels = elt.getAttribute("ph").split(" - ");
-            ArrayList<Phoneme> phonemes = new ArrayList<Phoneme>();
-            for (int i=0; i<phoneme_labels.length; i++)
-            {
-                phonemes.add(new Phoneme(phoneme_labels[i]));
-            }
-            w.setPhonemes(phonemes);
         }
 
 

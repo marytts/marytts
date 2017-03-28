@@ -83,11 +83,6 @@ public class Utterance
         return (Sequence<Phrase>) getSequence(SupportedSequenceType.PHRASE);
     }
 
-    public Sequence<Word> getAllWords()
-    {
-        return (Sequence<Word>) getSequence(SupportedSequenceType.WORD);
-    }
-
     /**
      * Adding a sequence. If the label is already existing, the corresponding sequence is replaced
      *

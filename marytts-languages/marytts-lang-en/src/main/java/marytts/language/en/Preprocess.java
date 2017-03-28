@@ -231,7 +231,7 @@ public class Preprocess extends InternalModule {
             isYear = true;
             splitContraction = false;
 
-            if ((t.getPhonemes().size() > 0) || (t.soundsLike() != null))
+            if  (t.soundsLike() != null)
                 continue;
 
             // save the original token text

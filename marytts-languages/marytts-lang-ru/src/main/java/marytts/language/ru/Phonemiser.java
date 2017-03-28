@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -42,13 +43,17 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.w3c.dom.Document;
-
-
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.data.Sequence;
+import marytts.data.Relation;
+import marytts.data.SupportedSequenceType;
+import marytts.data.utils.IntegerPair;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Syllable;
+import marytts.data.item.phonology.Accent;
+
+import com.google.common.base.Splitter;
 
 
 /**
@@ -58,6 +63,12 @@ import marytts.data.item.phonology.Phoneme;
  */
 
 public class Phonemiser extends InternalModule {
+
+    protected final String SYL_SEP = "-";
+    protected final String FIRST_STRESS = "'";
+    protected final String SECOND_STRESS = ",";
+
+
 	// TODO: This reads the userdict only. Replace with a mechanism that can deal with FST lexicon and LTS rules
 
 	protected Map<String, List<String>> userdict;
@@ -104,80 +115,166 @@ public class Phonemiser extends InternalModule {
 			userdict = readLexicon(userdictFilename);
 	}
 
-	public MaryData process(MaryData d)
-        throws Exception
+
+	public MaryData process(MaryData d) throws Exception
     {
         Utterance utt = d.getData();
 
-        for (Word w: utt.getAllWords())
+        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+        Sequence<Syllable> syllables = new Sequence<Syllable>();
+        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+
+        Sequence<Phoneme> phones = new Sequence<Phoneme>();
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+
+        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD).getReverse();
+        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+
+
+        for (int i_word=0; i_word<words.size(); i_word++)
         {
+            Word w = words.get(i_word);
+
             String text;
-
-
-            // Do not touch tokens for which a transcription is already
-            // given (exception: transcription contains a '*' character:
-            if (w.getPhonemes().size() > 0)
-                continue;
 
             if (w.soundsLike() != null)
                 text = w.soundsLike();
             else
                 text = w.getText();
 
-            // use part-of-speech if available
+            // Get POS
             String pos = w.getPOS();
 
-
-            ArrayList<Phoneme> new_phonemes = new ArrayList<Phoneme>();
-
-            // If text consists of several parts (e.g., because that was
-            // inserted into the sounds_like attribute), each part
-            // is transcribed separately.
-            StringBuilder ph = new StringBuilder();
-            String g2p_method = null;
-            StringTokenizer st = new StringTokenizer(text, " -");
-            while (st.hasMoreTokens()) {
-                String graph = st.nextToken();
-                StringBuilder helper = new StringBuilder();
-                if (pos.equals("$PUNCT")) {
-                    continue;
-                }
-
-                String phon = phonemise(graph, pos, helper);
-
-
-                // FIXME what does it mean : null result should not be processed
-                if (phon == null)
-                    continue;
-
-                if (ph.length() == 0)
-                    g2p_method = helper.toString();
-
-                // FIXME: hardcoded here, not really good
-                String stress = null;
-                if (phon.contains("'"))
-                {
-                    stress = ",";
-                    phon.replaceAll("'", "");
-                }
-
-                new_phonemes.add(new Phoneme(phon, stress));
-            }
-
-
-            if (new_phonemes.size() > 0)
+            // Ok adapt phonemes now
+            ArrayList<String> phonetisation_string = new ArrayList<String>();
+            if ((text != null) && (!text.equals("")))
             {
-                // Adapt phoneme
-                w.setPhonemes(new_phonemes);
 
-                // Adapt G2P method
-                w.setG2PMethod(g2p_method);
+                // If text consists of several parts (e.g., because that was
+                // inserted into the sounds_like attribute), each part
+                // is transcribed separately.
+                StringBuilder ph = new StringBuilder();
+                String g2p_method = null;
+                StringTokenizer st = new StringTokenizer(text, " -");
+                while (st.hasMoreTokens())
+                {
+                    String graph = st.nextToken();
+                    StringBuilder helper = new StringBuilder();
+					if (pos.equals("$PUNCT"))
+						continue;
+
+                    String phon = phonemise(graph, pos, helper);
+
+                    // FIXME: what does it mean : null result should not be processed
+                    if (phon == null)
+                        continue;
+
+                    if (ph.length() == 0)
+                        g2p_method = helper.toString();
+
+                    phonetisation_string.add(phon);
+                }
+
+                if (phonetisation_string.size() > 0)
+                {
+
+                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_syllable);
+
+                    // Adapt G2P method
+                    w.setG2PMethod(g2p_method);
+                }
             }
         }
 
 
+        // Relation word/syllable
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+
+        utt.addSequence(SupportedSequenceType.PHONE, phones);
+        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+
         MaryData result = new MaryData(d.getLocale(), utt);
         return result;
+    }
+
+
+    protected void createSubStructure(Word w, ArrayList<String> phonetisation_string, AllophoneSet allophoneSet,
+                                    Sequence<Syllable> syllables, Sequence<Phoneme> phones,
+                                    ArrayList<IntegerPair> alignment_syllable_phone, int word_index,
+                                    ArrayList<IntegerPair> alignment_word_syllable)
+        throws Exception
+    {
+
+        int stress = 0;
+        int phone_offset = phones.size();
+        Accent accent = null;
+        Phoneme tone = null;
+        for (String syl_string: phonetisation_string)
+        {
+            if (syl_string.trim().isEmpty()) {
+                continue;
+            }
+
+            logger.info("Dealing with \"" + syl_string + "\"");
+            Splitter syl_string_plitter = Splitter.on(' ').omitEmptyStrings().trimResults();
+
+            Iterable<String> syl_tokens = syl_string_plitter.split(syl_string);
+            for(String token: syl_tokens){
+
+                // Syllable separator
+                if (token.equals(SYL_SEP))
+                {
+                    // Create the syllable
+                    syllables.add(new Syllable(tone, stress, accent)); // FIXME: ho to get the tone ?
+
+                    // Update the syllable/Word relation
+                    alignment_word_syllable.add(new IntegerPair(word_index, syllables.size() - 1));
+
+                    // Update the phone/syllable relation
+                    for (; phone_offset<phones.size(); phone_offset++)
+                    {
+                        alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
+                    }
+
+                    // Reinit for the next part
+                    tone = null;
+                    stress = 0;
+                    accent = null;
+                }
+                // First stress
+                else if (token.equals(FIRST_STRESS))
+                {
+                    stress = 1;
+                    accent = w.getAccent();
+                }
+                // Second stress
+                else if (token.equals(SECOND_STRESS))
+                {
+                    stress = 2;
+                }
+                else
+                {
+                    Phoneme cur_ph = new Phoneme(token);
+                    phones.add(cur_ph);
+                }
+            }
+
+
+            // Create the syllable
+            syllables.add(new Syllable(tone, stress, accent)); // FIXME: ho to get the tone ?
+
+            // Update the syllable/Word relation
+            alignment_word_syllable.add(new IntegerPair(word_index, syllables.size() - 1));
+
+            // Update the phone/syllable relation
+            for (; phone_offset<phones.size(); phone_offset++)
+            {
+                alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
+            }
+        }
     }
 
     /**

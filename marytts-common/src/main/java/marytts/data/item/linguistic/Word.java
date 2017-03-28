@@ -1,7 +1,5 @@
 package marytts.data.item.linguistic;
 
-import marytts.data.item.phonology.Syllable;
-import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Accent;
 
 import marytts.data.item.Item;
@@ -19,7 +17,6 @@ public class Word extends Item
 	private String m_POS;
 	private String m_text;
     private String m_sounds_like;
-	private ArrayList<Phoneme> m_phonemes;
 	private String m_g2p_method;
     private Locale m_alternative_locale;
     private Accent m_accent;
@@ -32,7 +29,6 @@ public class Word extends Item
         soundsLike(null);
         setG2PMethod(null);
         setAccent(null);
-        setPhonemes(new ArrayList<Phoneme>());
     }
 
     public Word(String text, Locale alternative_locale)
@@ -43,7 +39,6 @@ public class Word extends Item
         soundsLike(null);
         setG2PMethod(null);
         setAccent(null);
-        setPhonemes(new ArrayList<Phoneme>());
     }
 
 	public Word(String text, String sounds_like)
@@ -54,7 +49,6 @@ public class Word extends Item
         setG2PMethod(null);
         soundsLike(sounds_like);
         setAccent(null);
-        setPhonemes(new ArrayList<Phoneme>());
     }
 
     /***************************************************************************************
@@ -88,16 +82,6 @@ public class Word extends Item
     public void setAlternativeLocale(Locale alternative_locale)
     {
         m_alternative_locale = alternative_locale;
-    }
-
-    public ArrayList<Phoneme> getPhonemes()
-    {
-        return m_phonemes;
-    }
-
-    public void setPhonemes(ArrayList<Phoneme> phonemes)
-    {
-        m_phonemes = phonemes;
     }
 
     public String getG2PMethod()
