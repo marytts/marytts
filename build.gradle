@@ -7,7 +7,7 @@ allprojects {
     apply plugin: 'eclipse-wtp'
 
     group 'de.dfki.mary'
-    version '5.2-SNAPSHOT'
+    version '6.0-SNAPSHOT'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
