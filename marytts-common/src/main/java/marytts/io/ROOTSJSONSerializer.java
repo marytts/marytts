@@ -1,11 +1,14 @@
 package marytts.io;
 
-import marytts.data.item.phonology.Phoneme;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.Relation;
-import marytts.features.FeatureMap;
-import marytts.features.Feature;
 import marytts.data.Utterance;
 import marytts.io.MaryIOException;
 import marytts.data.SupportedSequenceType;
@@ -14,6 +17,7 @@ import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.io.File;
 
 
@@ -50,7 +54,26 @@ public class ROOTSJSONSerializer implements Serializer
         try {
         sb.append("{\n");
         sb.append("\t\"sequences\": {\n");
+        appendSequences(utt, sb);
+        sb.append("\t},\n");
 
+        //Dump relation
+        sb.append("\t\"relations\": [\n");
+        appendRelations(utt, sb);
+        sb.append("\t]\n");
+        sb.append("}\n");
+
+        return sb.toString();
+        }
+        catch (Exception ex)
+        {
+            throw new MaryIOException(null, ex);
+        }
+    }
+
+    public void appendSequences(Utterance utt, StringBuilder sb)
+        throws Exception
+    {
         SupportedSequenceType cur_type = null;
         Object[] types =  utt.listAvailableSequences().toArray();
         for (int t=0; t<types.length; t++)
@@ -59,17 +82,92 @@ public class ROOTSJSONSerializer implements Serializer
             sb.append("\t\t\"" + cur_type +"\": [\n");
             Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
             for (int i=0; i<(seq.size()-1); i++)
-                sb.append("\t\t\t\"" + seq.get(i) + "\",\n");
-            sb.append("\t\t\t\"" + seq.get(seq.size() - 1) + "\"\n");
+            {
+                sb.append("\t\t\t");
+                appendItem(seq.get(i), sb);
+                sb.append(",\n");
+            }
+            sb.append("\t\t\t");
+            appendItem(seq.get(seq.size() - 1), sb);
+            sb.append("\n");
 
             if (t < (types.length - 1))
                 sb.append("\t\t],\n");
             else
                 sb.append("\t\t]\n");
         }
-        sb.append("\t},\n");
+    }
 
-        sb.append("\t\"relations\": [\n");
+    public void appendItem(Item it, StringBuilder sb)
+        throws IntrospectionException
+    {
+        sb.append("{");
+        for(PropertyDescriptor propertyDescriptor :
+                Introspector.getBeanInfo(it.getClass()).getPropertyDescriptors())
+        {
+
+            Method method = propertyDescriptor.getReadMethod();
+            String method_name = propertyDescriptor.getReadMethod().toString();
+
+            try
+            {
+                if ((method_name.indexOf("java.lang.Object") < 0) &&
+                    (method_name.indexOf("marytts.data.item.Item") < 0))
+                {
+                    Object value = propertyDescriptor
+                        .getReadMethod()
+                        .invoke(it, (Object[]) null);
+
+
+                    if (isWrapperType(value.getClass()))
+                    {
+                        sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
+                        sb.append("\"" + value.toString() + "\",");
+                    }
+                }
+            }
+            catch (IllegalAccessException iae)
+            {
+                // TODO
+            }
+            catch (IllegalArgumentException iaee)
+            {
+                // TODO
+            }
+            catch (InvocationTargetException ite)
+            {
+                // TODO
+            }
+        }
+
+        sb.append("}");
+    }
+
+    private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+
+    public static boolean isWrapperType(Class<?> clazz)
+    {
+        return WRAPPER_TYPES.contains(clazz);
+    }
+
+    private static Set<Class<?>> getWrapperTypes()
+    {
+        Set<Class<?>> ret = new HashSet<Class<?>>();
+        ret.add(Boolean.class);
+        ret.add(Character.class);
+        ret.add(Byte.class);
+        ret.add(Short.class);
+        ret.add(Integer.class);
+        ret.add(Long.class);
+        ret.add(Float.class);
+        ret.add(Double.class);
+        ret.add(Void.class);
+        ret.add(String.class);
+        return ret;
+    }
+
+    public void appendRelations(Utterance utt, StringBuilder sb)
+    {
         Object[] relations = utt.listAvailableRelations().toArray();
         ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
         SparseDoubleMatrix2D cur_rel;
@@ -96,16 +194,6 @@ public class ROOTSJSONSerializer implements Serializer
                 sb.append("\t\t},\n");
             else
                 sb.append("\t\t}\n");
-        }
-
-        sb.append("\t}\n");
-        sb.append("}\n");
-
-        return sb.toString();
-        }
-        catch (Exception ex)
-        {
-            throw new MaryIOException(sb.toString(), ex);
         }
     }
 
