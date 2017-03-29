@@ -187,7 +187,7 @@ public class JPhonemiser extends InternalModule
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_word_phone = new ArrayList<IntegerPair>();
 
         Sequence<Phoneme> phones = new Sequence<Phoneme>();
         ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
@@ -214,7 +214,6 @@ public class JPhonemiser extends InternalModule
             ArrayList<String> phonetisation_string = new ArrayList<String>();
             if (maybePronounceable(text, pos))
             {
-
                 // If text consists of several parts (e.g., because that was
                 // inserted into the sounds_like attribute), each part
                 // is transcribed separately.
@@ -239,22 +238,26 @@ public class JPhonemiser extends InternalModule
 
                 if (phonetisation_string.size() > 0)
                 {
-
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_syllable);
+                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_phone);
 
                     // Adapt G2P method
                     w.setG2PMethod(g2p_method);
                 }
             }
+            else // if ()
+            {
+                alignment_word_phone.add(new IntegerPair(i_word, phones.size()));
+                phones.add(new Phoneme("_"));
+            }
         }
 
 
         // Relation word/syllable
-        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
-
         utt.addSequence(SupportedSequenceType.PHONE, phones);
+        Relation rel_word_phone = new Relation(words, phones, alignment_word_phone);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.PHONE, rel_word_phone);
+
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
@@ -265,7 +268,7 @@ public class JPhonemiser extends InternalModule
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string, AllophoneSet allophoneSet,
                                     Sequence<Syllable> syllables, Sequence<Phoneme> phones,
                                     ArrayList<IntegerPair> alignment_syllable_phone, int word_index,
-                                    ArrayList<IntegerPair> alignment_word_syllable)
+                                    ArrayList<IntegerPair> alignment_word_phone)
         throws Exception
     {
 
@@ -273,6 +276,7 @@ public class JPhonemiser extends InternalModule
         int phone_offset = phones.size();
         Accent accent = null;
         Phoneme tone = null;
+
         for (String syl_string: phonetisation_string)
         {
             if (syl_string.trim().isEmpty()) {
@@ -291,13 +295,11 @@ public class JPhonemiser extends InternalModule
                     // Create the syllable
                     syllables.add(new Syllable(tone, stress, accent)); // FIXME: ho to get the tone ?
 
-                    // Update the syllable/Word relation
-                    alignment_word_syllable.add(new IntegerPair(word_index, syllables.size() - 1));
-
                     // Update the phone/syllable relation
                     for (; phone_offset<phones.size(); phone_offset++)
                     {
                         alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
+                        alignment_word_phone.add(new IntegerPair(word_index, phone_offset));
                     }
 
                     // Reinit for the next part
@@ -327,13 +329,12 @@ public class JPhonemiser extends InternalModule
             // Create the syllable
             syllables.add(new Syllable(tone, stress, accent)); // FIXME: ho to get the tone ?
 
-            // Update the syllable/Word relation
-            alignment_word_syllable.add(new IntegerPair(word_index, syllables.size() - 1));
 
             // Update the phone/syllable relation
             for (; phone_offset<phones.size(); phone_offset++)
             {
                 alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
+                alignment_word_phone.add(new IntegerPair(word_index, phone_offset));
             }
         }
     }

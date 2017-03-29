@@ -47,6 +47,7 @@ public class ROOTSJSONSerializer implements Serializer
         throws MaryIOException
     {
         StringBuilder sb = new StringBuilder(SB_INIT_CAP);
+        try {
         sb.append("{\n");
         sb.append("\t\"sequences\": {\n");
 
@@ -96,10 +97,16 @@ public class ROOTSJSONSerializer implements Serializer
             else
                 sb.append("\t\t}\n");
         }
+
         sb.append("\t}\n");
         sb.append("}\n");
 
         return sb.toString();
+        }
+        catch (Exception ex)
+        {
+            throw new MaryIOException(sb.toString(), ex);
+        }
     }
 
     public Utterance fromString(String content)
