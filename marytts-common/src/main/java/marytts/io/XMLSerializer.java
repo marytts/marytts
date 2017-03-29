@@ -324,17 +324,6 @@ public class XMLSerializer implements Serializer
             phone_element.setAttribute("d", String.valueOf(((Phone) ph).getDuration()));
         }
 
-        if (utt.hasSequence(SupportedSequenceType.F0))
-        {
-            Relation rel = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.F0);
-            if (rel != null)
-            {
-                ArrayList<Item> f0s = (ArrayList<Item>) rel.getRelatedItems(ph_index);
-                if (f0s.size() > 0)
-                    phone_element.setAttribute("d", f0s.get(0).toString()); // FIXME: only first is taken into account
-            }
-        }
-
 
         if (utt.hasSequence(SupportedSequenceType.FEATURES))
         {

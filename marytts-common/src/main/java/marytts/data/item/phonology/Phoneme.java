@@ -7,41 +7,21 @@ import marytts.data.item.Item;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class Phoneme extends Item
+public class Phoneme extends Segment
 {
     private String m_stress;
-	private String m_label;
 
 	public Phoneme(String label)
 	{
-        super();
-		setLabel(label);
+        super(label);
         setStress(null);
     }
 
 	public Phoneme(Phoneme phoneme)
 	{
-        super();
-		setLabel(phoneme.getLabel());
+        super(phoneme.getLabel());
         setStress(phoneme.getStress());
     }
-
-	public Phoneme(String label, String stress)
-	{
-        super();
-		setLabel(label);
-        setStress(stress);
-    }
-
-	public String getLabel()
-	{
-		return m_label;
-	}
-
-	protected void setLabel(String label)
-	{
-		m_label = label;
-	}
 
 	public String getStress()
 	{
@@ -52,10 +32,4 @@ public class Phoneme extends Item
 	{
 		m_stress = stress;
 	}
-
-    @Override
-    public String toString()
-    {
-        return getLabel();
-    }
 }
