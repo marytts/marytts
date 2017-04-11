@@ -25,10 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
-import marytts.cart.DecisionTree;
-
+import marytts.todisappear.CART;
+import marytts.todisappear.LeafNode.StringAndFloatLeafNode;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modeling.features.FeatureDefinition;
+
+import marytts.todisappear.MaryCARTReader;
+import marytts.todisappear.FeatureVector;
+import marytts.todisappear.FeatureDefinition;
 
 /**
  *
@@ -40,7 +43,7 @@ import marytts.modeling.features.FeatureDefinition;
 public class TrainedLTS {
 	public static final String PREDICTED_STRING_FEATURENAME = "predicted-string";
 
-	private DecisionTree tree;
+	private CART tree;
 	private FeatureDefinition featureDefinition;
 	private int indexPredictedFeature;
 	private int context;
@@ -87,10 +90,10 @@ public class TrainedLTS {
 		this(aPhonSet, treeStream, true);
 	}
 
-	public TrainedLTS(AllophoneSet aPhonSet, DecisionTree predictionTree) {
+	public TrainedLTS(AllophoneSet aPhonSet, CART predictionTree) {
 		this.allophoneSet = aPhonSet;
 		this.tree = predictionTree;
-        /*
+
 		this.featureDefinition = tree.getFeatureDefinition();
 		this.indexPredictedFeature = featureDefinition.getFeatureIndex(PREDICTED_STRING_FEATURENAME);
 		Properties props = tree.getProperties();
@@ -98,7 +101,6 @@ public class TrainedLTS {
 			throw new IllegalArgumentException("Prediction tree does not contain properties");
 		convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
 		context = Integer.parseInt(props.getProperty("context"));
-        */
 	}
 
 	/**
@@ -113,16 +115,16 @@ public class TrainedLTS {
 	 *             MaryConfigurationException
 	 */
 	public void loadTree(InputStream treeStream) throws IOException, MaryConfigurationException {
-		// MaryCARTReader cartReader = new MaryCARTReader();
-		// this.tree = cartReader.loadFromStream(treeStream);
-		// this.featureDefinition = tree.getFeatureDefinition();
-		// this.indexPredictedFeature = featureDefinition.getFeatureIndex(PREDICTED_STRING_FEATURENAME);
-		// this.convertToLowercase = false;
-		// Properties props = tree.getProperties();
-		// if (props == null)
-		// 	throw new IllegalArgumentException("Prediction tree does not contain properties");
-		// convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
-		// context = Integer.parseInt(props.getProperty("context"));
+		MaryCARTReader cartReader = new MaryCARTReader();
+		this.tree = cartReader.loadFromStream(treeStream);
+		this.featureDefinition = tree.getFeatureDefinition();
+		this.indexPredictedFeature = featureDefinition.getFeatureIndex(PREDICTED_STRING_FEATURENAME);
+		this.convertToLowercase = false;
+		Properties props = tree.getProperties();
+		if (props == null)
+			throw new IllegalArgumentException("Prediction tree does not contain properties");
+		convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
+		context = Integer.parseInt(props.getProperty("context"));
 	}
 
 	public String predictPronunciation(String graphemes) {
@@ -140,21 +142,21 @@ public class TrainedLTS {
 
 				String grAtPos = (pos < 0 || pos >= graphemes.length()) ? "null" : graphemes.substring(pos, pos + 1);
 
-				// try {
-				// 	byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, grAtPos);
-				// 	// ... can also try to call explicit:
-				// 	// features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr, cg.substr(pos)
-				// } catch (IllegalArgumentException iae) {
-				// 	// Silently ignore unknown characters
-				// 	byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, "null");
-				// }
+				try {
+					byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, grAtPos);
+					// ... can also try to call explicit:
+					// features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr, cg.substr(pos)
+				} catch (IllegalArgumentException iae) {
+					// Silently ignore unknown characters
+					byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, "null");
+				}
 			}
 
-			// FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
+			FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
 
-			// StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
-			// String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
-			// returnStr += prediction.substring(1, prediction.length() - 1);
+			StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
+			String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
+			returnStr += prediction.substring(1, prediction.length() - 1);
 		}
 
 		return returnStr;
