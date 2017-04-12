@@ -156,8 +156,6 @@ public class HTSLabelSerializer implements Serializer
         return false;
     }
 
-
-
     protected void initPOSConverter()
     {
         pos_converter = new Hashtable<String, String>();
@@ -283,6 +281,8 @@ public class HTSLabelSerializer implements Serializer
             cur_lab += i + RIGHT_SEP + getValue(feature_map, feat) + LEFT_SEP;
             i++;
         }
+
+        cur_lab += i;
 
         return cur_lab;
     }
