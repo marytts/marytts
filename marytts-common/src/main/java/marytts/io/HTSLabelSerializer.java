@@ -10,8 +10,11 @@ import marytts.data.Utterance;
 import marytts.io.MaryIOException;
 import marytts.data.SupportedSequenceType;
 
+// FIXME: for now we use the static feature computer....
+import marytts.features.FeatureComputer;
 
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Map;
 import java.io.File;
 
@@ -25,11 +28,17 @@ public class HTSLabelSerializer implements Serializer
     protected Hashtable<String, String> alphabet_converter;
     protected Hashtable<String, String> pos_converter;
     public static final String UNDEF = "x";
-
+    public static final String LEFT_SEP = "+S";
+    public static final String RIGHT_SEP = "E_";
+    protected static final String PHONE_FEATURE_NAME = "phone";
+    protected Set<String> m_feature_names;
     public HTSLabelSerializer()
     {
         initPhConverter();
         initPOSConverter();
+
+        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
+        m_feature_names.remove(PHONE_FEATURE_NAME);
     }
 
     public Utterance load(File file)
@@ -265,140 +274,15 @@ public class HTSLabelSerializer implements Serializer
 
     protected String format(FeatureMap feature_map)
     {
-        // Check if current phone is nss ?
-        boolean is_nss = isNSS(feature_map);
-
         // Phoneme format
-        String format ="%s^%s-%s+%s=%s@%s_%s";
-        String cur_lab = String.format(format,
-                                       // Phoneme
-                                       convertPh(getValue(feature_map, "prev_prev_phone")),
-                                       convertPh(getValue(feature_map, "prev_phone")),
-                                       convertPh(getValue(feature_map, "phone")),
-                                       convertPh(getValue(feature_map, "next_phone")),
-                                       convertPh(getValue(feature_map, "next_next_phone")),
-                                       is_nss? getValue(feature_map, "pos_in_syl_fb") : UNDEF,
-                                       is_nss? getValue(feature_map, "pos_in_syl_bw") : UNDEF);
+        String cur_lab ="-" + getValue(feature_map, PHONE_FEATURE_NAME) + LEFT_SEP;
 
-
-        // Syllable format
-        format = "/A:%s_%s_%s/B:%s-%s-%s@%s-%s&%s-%s#%s-%s$%s-%s!%s-%s;%s-%s|%s/C:%s+%s+%s";
-        if (is_nss)
+        int i = 0;
+        for (String feat: m_feature_names)
         {
-            cur_lab += String.format(format,
-
-                                     // Previous
-                                     UNDEF, UNDEF, UNDEF,
-
-                                     // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-                                     UNDEF,
-
-                                     // Next
-                                     UNDEF, UNDEF, UNDEF);
+            cur_lab += i + RIGHT_SEP + getValue(feature_map, feat) + LEFT_SEP;
+            i++;
         }
-        else
-        {
-
-            cur_lab += String.format(format,
-
-                                     // Previous
-                                     getValue(feature_map, "prev_syl_accent"),
-                                     UNDEF,
-                                     getValue(feature_map, "prev_syl_numph"),
-
-                                     // Current
-                                     getValue(feature_map, "prev_syl_accent"),
-                                     UNDEF,
-                                     getValue(feature_map, "prev_syl_numph"),
-
-
-                                     getValue(feature_map, "syls_from_word_start"),
-                                     getValue(feature_map, "syls_from_word_end"),
-                                     getValue(feature_map, "syls_from_phrase_start"),
-                                     getValue(feature_map, "syls_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-
-                                     // Next
-                                     getValue(feature_map, "next_syl_accent"),
-                                     UNDEF,
-                                     getValue(feature_map, "next_syl_numph"));
-        }
-
-        // Word format
-        format = "/D:%s_%s/E:%s+%s@%s+%s&%s+%s#%s+%s/F:%s_%s";
-        if (is_nss)
-        {
-            cur_lab += String.format(format,
-                                     // Previous
-                                     UNDEF, UNDEF,
-
-                                     // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-
-                                     // Next
-                                     UNDEF, UNDEF);
-        }
-        else
-        {
-            cur_lab += String.format(format,
-                                     // Previous
-                                     getValue(feature_map, "prev_word_pos"),
-                                     getValue(feature_map, "prev_word_numsyls"),
-
-                                     // Current
-                                     getValue(feature_map, "word_pos"),
-                                     getValue(feature_map, "word_numsyls"),
-                                     getValue(feature_map, "words_from_phrase_start"),
-                                     getValue(feature_map, "words_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-
-                                     // Next
-                                     getValue(feature_map, "next_word_pos"),
-                                     getValue(feature_map, "next_word_numsyls"));
-        }
-
-        // Phrase format
-        format = "/G:%s_%s/H:%s=%s^%s=%s|%s/I:%s_%s";
-        if (is_nss)
-        {
-            cur_lab += String.format(format,
-                                     // Previous
-                                     UNDEF, UNDEF,
-
-                                     // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-
-                                     // Next
-                                     UNDEF, UNDEF);
-        }
-        else
-        {
-            cur_lab += String.format(format,
-                                     // Previous
-                                     getValue(feature_map, "prev_phrase_numsyls"),
-                                     getValue(feature_map, "prev_phrase_numwords"),
-
-                                     // Current
-                                     getValue(feature_map, "phrase_numsyls"),
-                                     getValue(feature_map, "phrase_numwords"),
-                                     getValue(feature_map, "phrases_from_sentence_start"),
-                                     getValue(feature_map, "phrases_from_sentence_end"),
-                                     UNDEF,
-
-                                     // Next
-                                     getValue(feature_map, "next_phrase_numsyls"),
-                                     getValue(feature_map, "next_phrase_numwords"));
-        }
-
-        // Utterance format
-        format = "/J:%s+%s-%s";
-        cur_lab += String.format(format,
-                                 getValue(feature_map, "sentence_numsyllables"),
-                                 getValue(feature_map, "sentence_numwords"),
-                                 getValue(feature_map, "sentence_numphrases"));
 
         return cur_lab;
     }
