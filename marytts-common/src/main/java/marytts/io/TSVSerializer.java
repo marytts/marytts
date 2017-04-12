@@ -14,7 +14,7 @@ import marytts.data.SupportedSequenceType;
 import marytts.features.FeatureComputer;
 
 import java.util.Hashtable;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.io.File;
@@ -26,13 +26,12 @@ import java.io.File;
  */
 public class TSVSerializer implements Serializer
 {
-    protected LinkedList<String> m_feature_names;
+    protected List<String> m_feature_names;
     protected static final String SEP = "\t";
 
     public TSVSerializer()
     {
-        m_feature_names = new LinkedList<String>();
-        m_feature_names.addAll(FeatureComputer.the_feature_computer.listFeatures());
+        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
     }
 
     public Utterance load(File file)

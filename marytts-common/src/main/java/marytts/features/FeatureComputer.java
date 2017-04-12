@@ -2,6 +2,7 @@ package marytts.features;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import marytts.data.SupportedSequenceType;
@@ -20,12 +21,14 @@ public class FeatureComputer
     protected ContextProcessorFactory m_context_factory;
     protected LevelProcessorFactory m_level_factory;
     protected FeatureProcessorFactory m_feature_factory;
+    protected ArrayList<String> m_feature_names;
 
     public FeatureComputer(LevelProcessorFactory level_factory,
                            ContextProcessorFactory context_factory,
                            FeatureProcessorFactory feature_factory)
     {
         m_features = new Hashtable<String, String[]>();
+        m_feature_names = new ArrayList<String>();
         m_context_factory = context_factory;
         m_feature_factory = feature_factory;
         m_level_factory = level_factory;
@@ -34,6 +37,7 @@ public class FeatureComputer
     public void addFeature(String name, String level, String context, String feature)
     {
         m_features.put(name, new String[]{level, context, feature});
+        m_feature_names.add(name);
     }
 
     public Feature compute(Utterance utt, Item item, String level, String context, String feature)
@@ -68,10 +72,11 @@ public class FeatureComputer
         return feature_map;
     }
 
-    public Set<String> listFeatures()
+    public List<String> listFeatures()
     {
-        return m_features.keySet();
+        return m_feature_names;
     }
+
     /* */
     public static FeatureComputer the_feature_computer = null;
 
