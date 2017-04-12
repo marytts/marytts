@@ -14,7 +14,7 @@ import marytts.data.SupportedSequenceType;
 import marytts.features.FeatureComputer;
 
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.List;
 import java.util.Map;
 import java.io.File;
 
@@ -31,7 +31,7 @@ public class HTSLabelSerializer implements Serializer
     public static final String LEFT_SEP = "+S";
     public static final String RIGHT_SEP = "E_";
     protected static final String PHONE_FEATURE_NAME = "phone";
-    protected Set<String> m_feature_names;
+    protected List<String> m_feature_names;
     public HTSLabelSerializer()
     {
         initPhConverter();
