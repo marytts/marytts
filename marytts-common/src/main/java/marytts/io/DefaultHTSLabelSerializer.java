@@ -20,13 +20,13 @@ import java.io.File;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class HTSLabelSerializer implements Serializer
+public class DefaultHTSLabelSerializer implements Serializer
 {
     protected Hashtable<String, String> alphabet_converter;
     protected Hashtable<String, String> pos_converter;
     public static final String UNDEF = "x";
 
-    public HTSLabelSerializer()
+    public DefaultHTSLabelSerializer()
     {
         initPhConverter();
         initPOSConverter();
@@ -369,7 +369,6 @@ public class HTSLabelSerializer implements Serializer
                                  feature_map.get("sentence_numsyllables").getStringValue(),
                                  feature_map.get("sentence_numwords").getStringValue(),
                                  feature_map.get("sentence_numphrases").getStringValue());
-
         return cur_lab;
     }
 }
