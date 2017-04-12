@@ -278,8 +278,8 @@ public class DefaultHTSLabelSerializer implements Serializer
                                        convertPh(getValue(feature_map, "phone")),
                                        convertPh(getValue(feature_map, "next_phone")),
                                        convertPh(getValue(feature_map, "next_next_phone")),
-                                       is_nss? getValue(feature_map, "pos_in_syl_fb") : UNDEF,
-                                       is_nss? getValue(feature_map, "pos_in_syl_bw") : UNDEF);
+                                       is_nss? getValue(feature_map, "ph_from_syl_start") : UNDEF,
+                                       is_nss? getValue(feature_map, "ph_from_syl_end") : UNDEF);
 
 
         // Syllable format
