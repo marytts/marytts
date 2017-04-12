@@ -97,7 +97,7 @@ public class FeatureComputer
         feat_fact.addFeatureProcessor("accented", "marytts.features.featureprocessor.IsAccented");
         feat_fact.addFeatureProcessor("string", "marytts.features.featureprocessor.StringFeature");
         feat_fact.addFeatureProcessor("text", "marytts.features.featureprocessor.TextFeature");
-        feat_fact.addFeatureProcessor("dummy", "marytts.features.featureprocessor.Dummy");
+        feat_fact.addFeatureProcessor("POS", "marytts.features.featureprocessor.POS");
 
 
         ContextProcessorFactory ctx_fact = new ContextProcessorFactory();
@@ -113,36 +113,64 @@ public class FeatureComputer
         lvl_fact.addLevelProcessor("word", "marytts.features.levelprocessor.WordLevel");
         lvl_fact.addLevelProcessor("phrase", "marytts.features.levelprocessor.PhraseLevel");
         lvl_fact.addLevelProcessor("sentence", "marytts.features.levelprocessor.SentenceLevel");
+        lvl_fact.addLevelProcessor("paragraph", "marytts.features.levelprocessor.ParagraphLevel");
 
         // Populate feature computer
         FeatureComputer.the_feature_computer = new FeatureComputer(lvl_fact, ctx_fact, feat_fact);
+        FeatureComputer.the_feature_computer.addFeature("phone", "current", "current", "string");
         FeatureComputer.the_feature_computer.addFeature("prev_prev_phone", "current", "previousprevious", "string");
         FeatureComputer.the_feature_computer.addFeature("prev_phone", "current", "previous", "string");
-        FeatureComputer.the_feature_computer.addFeature("phone", "current", "current", "string");
         FeatureComputer.the_feature_computer.addFeature("next_phone", "current", "next", "string");
         FeatureComputer.the_feature_computer.addFeature("next_next_phone", "current", "nextnext", "string");
+        FeatureComputer.the_feature_computer.addFeature("pos_in_syl", "current", "current", "nbfromsyllable");
+
+        // Syllable
+        FeatureComputer.the_feature_computer.addFeature("prev_syl_numph", "syllable", "previous", "nbphones");
+        FeatureComputer.the_feature_computer.addFeature("prev_syl_accent", "syllable", "previous", "accented");
+        FeatureComputer.the_feature_computer.addFeature("syl_numph", "syllable", "current", "nbphones");
+        FeatureComputer.the_feature_computer.addFeature("syl_accent", "syllable", "current", "accented");
+        FeatureComputer.the_feature_computer.addFeature("next_syl_numph", "syllable", "next", "nbphones");
+        FeatureComputer.the_feature_computer.addFeature("next_syl_accent", "syllable", "next", "accented");
 
         FeatureComputer.the_feature_computer.addFeature("accented_syls_from_phrase_end", "syllable", "current", "nbtophrase");
         FeatureComputer.the_feature_computer.addFeature("accented_syls_from_phrase_start", "syllable", "current", "nbfromphrase");
-        FeatureComputer.the_feature_computer.addFeature("next_accent", "syllable", "current", "accented");
-        FeatureComputer.the_feature_computer.addFeature("phrase_numsyls", "phrase", "current", "nbsyllables");
-        FeatureComputer.the_feature_computer.addFeature("phrase_numwords", "phrase", "current", "nbwords");
-        FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_end", "phrase", "current", "nbtosentence");
-        FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_start", "phrase", "current", "nbfromsentence");
-        FeatureComputer.the_feature_computer.addFeature("pos_in_syl", "current", "current", "nbfromsyllable");
-        FeatureComputer.the_feature_computer.addFeature("sentence_numsyllables", "sentence", "current", "nbsyllables");
-        FeatureComputer.the_feature_computer.addFeature("sentence_numwords", "sentence", "current", "nbwords");
-        FeatureComputer.the_feature_computer.addFeature("sentence_numphrases", "sentence", "current", "nbphrases");
+
         FeatureComputer.the_feature_computer.addFeature("syls_from_phrase_end", "syllable", "current", "nbtophrase");
         FeatureComputer.the_feature_computer.addFeature("syls_from_phrase_start", "syllable", "current", "nbfromphrase");
         FeatureComputer.the_feature_computer.addFeature("syls_from_word_end", "syllable", "current", "nbtoword");
         FeatureComputer.the_feature_computer.addFeature("syls_from_word_start", "syllable", "current", "nbfromword");
-        FeatureComputer.the_feature_computer.addFeature("word_numsegs", "word", "current", "nbphones");
+
+        // Words
+        FeatureComputer.the_feature_computer.addFeature("prev_word_pos", "word", "previous", "POS");
+        FeatureComputer.the_feature_computer.addFeature("prev_word_numsyls", "word", "previous", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("word_pos", "word", "current", "POS");
         FeatureComputer.the_feature_computer.addFeature("word_numsyls", "word", "current", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("next_word_pos", "word", "next", "POS");
+        FeatureComputer.the_feature_computer.addFeature("next_word_numsyls", "word", "next", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("word_numsegs", "word", "current", "nbphones");
         FeatureComputer.the_feature_computer.addFeature("words_from_phrase_end", "word", "current", "nbtophrase");
         FeatureComputer.the_feature_computer.addFeature("words_from_phrase_start", "word", "current", "nbfromphrase");
         FeatureComputer.the_feature_computer.addFeature("words_from_sentence_end", "word", "current", "nbtosentence");
         FeatureComputer.the_feature_computer.addFeature("words_from_sentence_start", "word", "current", "nbfromsentence");
+
+        // Phrases
+        FeatureComputer.the_feature_computer.addFeature("prev_phrase_numsyls", "phrase", "previous", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("prev_phrase_numwords", "phrase", "previous", "nbwords");
+        FeatureComputer.the_feature_computer.addFeature("phrase_numsyls", "phrase", "current", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("phrase_numwords", "phrase", "current", "nbwords");
+        FeatureComputer.the_feature_computer.addFeature("next_phrase_numsyls", "phrase", "next", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("next_phrase_numwords", "phrase", "next", "nbwords");
+        FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_end", "phrase", "current", "nbtosentence");
+        FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_start", "phrase", "current", "nbfromsentence");
+
+
+        // Sentences
+        FeatureComputer.the_feature_computer.addFeature("sentence_numsyllables", "sentence", "current", "nbsyllables");
+        FeatureComputer.the_feature_computer.addFeature("sentence_numwords", "sentence", "current", "nbwords");
+        FeatureComputer.the_feature_computer.addFeature("sentence_numphrases", "sentence", "current", "nbphrases");
+
+        // Paragraph
+        FeatureComputer.the_feature_computer.addFeature("paragraph_numsentences", "paragraph", "current", "nbsentences");
 
     }
 }
