@@ -2,6 +2,7 @@ package marytts.features;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.Set;
 
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
@@ -67,6 +68,10 @@ public class FeatureComputer
         return feature_map;
     }
 
+    public Set<String> listFeatures()
+    {
+        return m_features.keySet();
+    }
     /* */
     public static FeatureComputer the_feature_computer = null;
 
