@@ -258,6 +258,11 @@ public class HTSLabelSerializer implements Serializer
         return "content";
     }
 
+    protected final String getValue(FeatureMap feature_map, String key)
+    {
+        return feature_map.get(key) == null ? UNDEF : feature_map.get(key).getStringValue();
+    }
+
     protected String format(FeatureMap feature_map)
     {
         // Check if current phone is nss ?
@@ -267,13 +272,13 @@ public class HTSLabelSerializer implements Serializer
         String format ="%s^%s-%s+%s=%s@%s_%s";
         String cur_lab = String.format(format,
                                        // Phoneme
-                                       feature_map.get("prev_prev_phone") == null ? UNDEF : convertPh(feature_map.get("prev_prev_phone").getStringValue()),
-                                       feature_map.get("prev_phone") == null ? UNDEF : convertPh(feature_map.get("prev_phone").getStringValue()),
-                                       convertPh(feature_map.get("phone").getStringValue()),
-                                       feature_map.get("next_phone") == null ? UNDEF : convertPh(feature_map.get("next_phone").getStringValue()),
-                                       feature_map.get("next_next_phone") == null ? UNDEF : convertPh(feature_map.get("next_next_phone").getStringValue()),
-                                       is_nss? "x" : UNDEF,
-                                       is_nss? "x" : UNDEF);
+                                       convertPh(getValue(feature_map, "prev_prev_phone")),
+                                       convertPh(getValue(feature_map, "prev_phone")),
+                                       convertPh(getValue(feature_map, "phone")),
+                                       convertPh(getValue(feature_map, "next_phone")),
+                                       convertPh(getValue(feature_map, "next_next_phone")),
+                                       is_nss? getValue(feature_map, "pos_in_syl_fb") : UNDEF,
+                                       is_nss? getValue(feature_map, "pos_in_syl_bw") : UNDEF);
 
 
         // Syllable format
@@ -300,13 +305,26 @@ public class HTSLabelSerializer implements Serializer
             cur_lab += String.format(format,
 
                                      // Previous
-                                     UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "prev_syl_accent"),
+                                     UNDEF,
+                                     getValue(feature_map, "prev_syl_numph"),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "prev_syl_accent"),
+                                     UNDEF,
+                                     getValue(feature_map, "prev_syl_numph"),
+
+
+                                     getValue(feature_map, "syls_from_word_start"),
+                                     getValue(feature_map, "syls_from_word_end"),
+                                     getValue(feature_map, "syls_from_phrase_start"),
+                                     getValue(feature_map, "syls_from_phrase_end"),
+                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
 
                                      // Next
-                                     UNDEF, UNDEF, UNDEF);
+                                     getValue(feature_map, "next_syl_accent"),
+                                     UNDEF,
+                                     getValue(feature_map, "next_syl_numph"));
         }
 
         // Word format
@@ -327,13 +345,19 @@ public class HTSLabelSerializer implements Serializer
         {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getValue(feature_map, "prev_word_pos"),
+                                     getValue(feature_map, "prev_word_numsyls"),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "word_pos"),
+                                     getValue(feature_map, "word_numsyls"),
+                                     getValue(feature_map, "words_from_phrase_start"),
+                                     getValue(feature_map, "words_from_phrase_end"),
+                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getValue(feature_map, "next_word_pos"),
+                                     getValue(feature_map, "next_word_numsyls"));
         }
 
         // Phrase format
@@ -354,21 +378,27 @@ public class HTSLabelSerializer implements Serializer
         {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getValue(feature_map, "prev_phrase_numsyls"),
+                                     getValue(feature_map, "prev_phrase_numwords"),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "phrase_numsyls"),
+                                     getValue(feature_map, "phrase_numwords"),
+                                     getValue(feature_map, "phrases_from_sentence_start"),
+                                     getValue(feature_map, "phrases_from_sentence_end"),
+                                     UNDEF,
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getValue(feature_map, "next_phrase_numsyls"),
+                                     getValue(feature_map, "next_phrase_numwords"));
         }
 
         // Utterance format
         format = "/J:%s+%s-%s";
         cur_lab += String.format(format,
-                                 feature_map.get("sentence_numsyllables").getStringValue(),
-                                 feature_map.get("sentence_numwords").getStringValue(),
-                                 feature_map.get("sentence_numphrases").getStringValue());
+                                 getValue(feature_map, "sentence_numsyllables"),
+                                 getValue(feature_map, "sentence_numwords"),
+                                 getValue(feature_map, "sentence_numphrases"));
 
         return cur_lab;
     }
