@@ -52,18 +52,18 @@ public class ROOTSJSONSerializer implements Serializer
     {
         StringBuilder sb = new StringBuilder(SB_INIT_CAP);
         try {
-        sb.append("{\n");
-        sb.append("\t\"sequences\": {\n");
-        appendSequences(utt, sb);
-        sb.append("\t},\n");
+            sb.append("{\n");
+            sb.append("\t\"sequences\": {\n");
+            appendSequences(utt, sb);
+            sb.append("\t},\n");
 
-        //Dump relation
-        sb.append("\t\"relations\": [\n");
-        appendRelations(utt, sb);
-        sb.append("\t]\n");
-        sb.append("}\n");
+            //Dump relation
+            sb.append("\t\"relations\": [\n");
+            appendRelations(utt, sb);
+            sb.append("\t]\n");
+            sb.append("}\n");
 
-        return sb.toString();
+            return sb.toString();
         }
         catch (Exception ex)
         {
@@ -119,7 +119,7 @@ public class ROOTSJSONSerializer implements Serializer
                         .invoke(it, (Object[]) null);
 
 
-                    if (isWrapperType(value.getClass()))
+                    if ((value != null) && (isWrapperType(value.getClass())))
                     {
                         sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
                         sb.append("\"" + value.toString() + "\",");
