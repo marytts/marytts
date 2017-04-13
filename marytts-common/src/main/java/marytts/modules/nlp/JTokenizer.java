@@ -63,7 +63,7 @@ import de.dfki.lt.tools.tokenizer.output.Token;
 public class JTokenizer extends InternalModule {
 	public static final int TOKEN_MAXLENGTH = 100;
 
-	private JTok tokenizer;
+	private JTok tokenizer = null;
 	private String jtokLocale;
 
 	public JTokenizer() {
@@ -98,8 +98,15 @@ public class JTokenizer extends InternalModule {
 	public void startup() throws Exception {
 		super.startup();
 		Properties jtokProperties = new Properties();
-		jtokProperties.setProperty(jtokLocale, "jtok/" + jtokLocale);
-		tokenizer = new JTok(jtokProperties);
+        if (jtokLocale.equals("default"))
+        {
+            jtokProperties.setProperty(jtokLocale, "jtok/default"); // FIXME: hardcoded
+        }
+        else
+        {
+            jtokProperties.setProperty(jtokLocale, "marytts/modules/nlp/jtok/" + jtokLocale);
+        }
+        tokenizer = new JTok(jtokProperties);
 	}
 
 	public MaryData process(MaryData d)
@@ -126,7 +133,6 @@ public class JTokenizer extends InternalModule {
         {
             // Tokenize current paragraph
             AnnotatedString res = tokenizer.tokenize(p.getText(), jtokLocale);
-
             // Going through the tokens and create the proper MaryTTS representation
             for (Token tok : Outputter.createTokens(res))
             {
