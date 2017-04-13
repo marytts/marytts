@@ -46,12 +46,12 @@ public class FeatureComputer
         LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
         ArrayList<? extends Item> level_items = level_processor.generate(utt, item);
         if (level_items.size() == 0)
-            return null;
+            return Feature.UNDEF_FEATURE;
 
         ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
         Item context_item = context_processor.generate(utt, level_items.get(0));
         if (context_item == null)
-            return null;
+            return Feature.UNDEF_FEATURE;
 
         FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
         if (feature_processor == null)
@@ -110,6 +110,7 @@ public class FeatureComputer
         feat_fact.addFeatureProcessor("accented", "marytts.features.featureprocessor.IsAccented");
         feat_fact.addFeatureProcessor("stressed", "marytts.features.featureprocessor.IsStressed");
         feat_fact.addFeatureProcessor("string", "marytts.features.featureprocessor.StringFeature");
+        feat_fact.addFeatureProcessor("arpa", "marytts.features.featureprocessor.ArpaLabel");
         feat_fact.addFeatureProcessor("text", "marytts.features.featureprocessor.TextFeature");
         feat_fact.addFeatureProcessor("POS", "marytts.features.featureprocessor.POS");
 
@@ -131,11 +132,11 @@ public class FeatureComputer
 
         // Populate feature computer
         FeatureComputer.the_feature_computer = new FeatureComputer(lvl_fact, ctx_fact, feat_fact);
-        FeatureComputer.the_feature_computer.addFeature("phone", "current", "current", "string");
-        FeatureComputer.the_feature_computer.addFeature("prev_prev_phone", "current", "previousprevious", "string");
-        FeatureComputer.the_feature_computer.addFeature("prev_phone", "current", "previous", "string");
-        FeatureComputer.the_feature_computer.addFeature("next_phone", "current", "next", "string");
-        FeatureComputer.the_feature_computer.addFeature("next_next_phone", "current", "nextnext", "string");
+        FeatureComputer.the_feature_computer.addFeature("phone", "current", "current", "arpa");
+        FeatureComputer.the_feature_computer.addFeature("prev_prev_phone", "current", "previousprevious", "arpa");
+        FeatureComputer.the_feature_computer.addFeature("prev_phone", "current", "previous", "arpa");
+        FeatureComputer.the_feature_computer.addFeature("next_phone", "current", "next", "arpa");
+        FeatureComputer.the_feature_computer.addFeature("next_next_phone", "current", "nextnext", "arpa");
         FeatureComputer.the_feature_computer.addFeature("ph_from_syl_start", "current", "current", "nbfromsyllable");
         FeatureComputer.the_feature_computer.addFeature("ph_from_syl_end", "current", "current", "nbtosyllable");
 

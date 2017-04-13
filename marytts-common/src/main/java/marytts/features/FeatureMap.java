@@ -35,4 +35,9 @@ public class FeatureMap extends Item // implements Map<String, Feature>
     {
         return inner_map.get(feature_name);
     }
+
+    public boolean containsKey(String feature_name)
+    {
+        return inner_map.containsKey(feature_name);
+    }
 }
