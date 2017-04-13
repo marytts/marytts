@@ -32,6 +32,7 @@ public class HTSLabelSerializer implements Serializer
     public static final String RIGHT_SEP = "E_";
     protected static final String PHONE_FEATURE_NAME = "phone";
     protected List<String> m_feature_names;
+
     public HTSLabelSerializer()
     {
         initPhConverter();
@@ -267,7 +268,7 @@ public class HTSLabelSerializer implements Serializer
 
     protected final String getValue(FeatureMap feature_map, String key)
     {
-        return feature_map.get(key) == null ? UNDEF : feature_map.get(key).getStringValue();
+        return ((feature_map.containsKey(key)) && (feature_map.get(key) != Feature.UNDEF_FEATURE)) ? feature_map.get(key).getStringValue() : UNDEF;
     }
 
     protected String format(FeatureMap feature_map)
