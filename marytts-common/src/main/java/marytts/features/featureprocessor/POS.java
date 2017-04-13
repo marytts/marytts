@@ -7,6 +7,47 @@ import marytts.data.item.linguistic.Word;
 import marytts.features.Feature;
 import marytts.features.FeatureProcessor;
 
+
+
+        // CC Coordinating conjunction
+        // CD Cardinal number
+        // DT Determiner
+        // EX Existential there
+        // FW Foreign word
+        // IN Preposition or subordinating conjunction
+        // JJ Adjective
+        // JJR Adjective, comparative
+        // JJS Adjective, superlative
+        // LS List item marker
+        // MD Modal
+        // NN Noun, singular or mass
+        // NNS Noun, plural
+        // NNP Proper noun, singular
+        // NNPS Proper noun, plural
+        // PDT Predeterminer
+        // POS Possessive ending
+        // PRP Personal pronoun
+        // PRP$ Possessive pronoun
+        // RB Adverb
+        // RBR Adverb, comparative
+        // RBS Adverb, superlative
+        // RP Particle
+        // SYM Symbol
+        // TO to
+        // UH Interjection
+        // VB Verb, base form
+        // VBD Verb, past tense
+        // VBG Verb, gerund or present participle
+        // VBN Verb, past participle
+        // VBP Verb, non­3rd person singular present
+        // VBZ Verb, 3rd person singular present
+        // WDT Wh­determiner
+        // WP Wh­pronoun
+        // WP$ Possessive wh­pronoun
+        // WRB Wh­adverb
+
+
+
 /**
  *
  *
@@ -15,10 +56,40 @@ import marytts.features.FeatureProcessor;
 public class POS implements FeatureProcessor
 {
 
+    public String convertPOS(String orig_pos)
+    {
+        if (orig_pos.equals("."))
+            return "FULLSTOP";
+        if (orig_pos.equals(","))
+            return "COMMA";
+        if (orig_pos.equals(":"))
+            return "COLON";
+        if (orig_pos.equals(";"))
+            return "SEMICOLON";
+        if (orig_pos.equals("'"))
+            return "APOSTROPHE";
+        if (orig_pos.equals("!"))
+            return "EXCLAM";
+        if (orig_pos.equals("?"))
+            return "QUESTION";
+        if (orig_pos.equals("-"))
+            return "HYPHEN";
+        if (orig_pos.equals("..."))
+            return "ELLIPSIS";
+        if (orig_pos.equals("``"))
+            return "OPENQUOTES";
+        if (orig_pos.equals("''"))
+            return "CLOSQUOTES";
+        return orig_pos;
+
+    }
+
     public Feature generate(Utterance utt, Item item) throws Exception
     {
         if (item instanceof marytts.data.item.linguistic.Word)
-            return new Feature(((Word) item).getPOS());
+        {
+            return new Feature(convertPOS(((Word) item).getPOS()));
+        }
 
         throw new Exception();
     }
