@@ -133,6 +133,7 @@ public class Request {
             List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
             for (String module_class_name: module_name_list)
             {
+                logger.debug("trying to load the following class " + module_class_name + " for locale " + cur_locale);
                 if (ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale) != null)
                     usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale));
                 else
