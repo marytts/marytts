@@ -77,9 +77,10 @@ public class POS implements FeatureProcessor
         if (orig_pos.equals("..."))
             return "ELLIPSIS";
         if (orig_pos.equals("``"))
-            return "OPENQUOTES";
+            return "QUOTES";
         if (orig_pos.equals("''"))
-            return "CLOSQUOTES";
+            return "QUOTES";
+
         return orig_pos;
 
     }
@@ -88,9 +89,16 @@ public class POS implements FeatureProcessor
     {
         if (item instanceof marytts.data.item.linguistic.Word)
         {
-            return new Feature(convertPOS(((Word) item).getPOS()));
+            if ((((Word) item).getPOS()) == null)
+            {
+                return Feature.UNDEF_FEATURE;
+            }
+            else
+            {
+                return new Feature(convertPOS(((Word) item).getPOS()));
+            }
         }
 
-        throw new Exception();
+        throw new Exception("Only a word is accepted not an item of type " + item.getClass().toString() + " (" + item.toString() + ")");
     }
 }
