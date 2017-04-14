@@ -165,6 +165,7 @@ public class JPhonemiser extends InternalModule
 			}
 		}
 		InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
+        logger.debug("Loading lexicon " + MaryProperties.getProperty(lexiconProperty, "<null>") + "for locale " + getLocale() + " from the property " + lexiconProperty);
 		lexicon = new FSTLookup(lexiconStream, lexiconProperty);
 		InputStream ltsStream = MaryProperties.needStream(ltsProperty);
 		if (removetrailingonefromphonesProperty != null) {
@@ -244,7 +245,7 @@ public class JPhonemiser extends InternalModule
                     w.setG2PMethod(g2p_method);
                 }
             }
-            else // if ()
+            else
             {
                 alignment_word_phone.add(new IntegerPair(i_word, phones.size()));
                 phones.add(new Phoneme("_"));
@@ -283,7 +284,7 @@ public class JPhonemiser extends InternalModule
                 continue;
             }
 
-            logger.info("Dealing with \"" + syl_string + "\"");
+            logger.debug("Dealing with \"" + syl_string + "\"");
             Splitter syl_string_plitter = Splitter.on(' ').omitEmptyStrings().trimResults();
 
             Iterable<String> syl_tokens = syl_string_plitter.split(syl_string);
