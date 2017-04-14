@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,12 +40,11 @@ import marytts.util.dom.MaryDomUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
-import marytts.data.item.linguistic.Sentence;
+import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
@@ -109,52 +109,45 @@ public class OpenNLPPosTagger extends InternalModule {
         throws Exception
     {
 		Utterance utt = d.getData();
-        Relation rel_sent_word = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                                 SupportedSequenceType.WORD);
 
-        int idx_sequence = 0;
-        for (Sentence s: (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE))
+        // Generate the list of word in the sentence
+        List<String> tokens = new ArrayList<String>();
+        for (Word w: (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD))
         {
-            ArrayList<Word> words = (ArrayList<Word>) rel_sent_word.getRelatedItems(idx_sequence);
+            tokens.add(w.getText());
+        }
 
-            // Generate the list of word in the sentence
-            List<String> tokens = new ArrayList<String>();
-            for (Word w: words)
-            {
-                tokens.add(w.getText());
+        // Trick the system in case of one ==> add a punctuation
+        if (tokens.size() == 1)
+            tokens.add(".");
+
+        // POS Tagging
+        List<String> partsOfSpeech = null;
+
+        String[] tokensArr = new String[tokens.size()];
+        tokensArr = tokens.toArray(tokensArr);
+        synchronized (this) {
+            partsOfSpeech = Arrays.asList(tagger.tag(tokensArr));
+        }
+
+        // Associate POS to words
+        Iterator<String> posIt = partsOfSpeech.iterator();
+        for (Word w: (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD))
+        {
+            assert posIt.hasNext();
+            String pos = posIt.next();
+
+            if (w.getPOS() != null)
+                continue;
+
+            if (posMapper != null) {
+                String gpos = posMapper.get(pos);
+                if (gpos == null)
+                    logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
+                else
+                    pos = gpos;
             }
-
-            // Trick the system in case of one ==> add a punctuation
-            if (tokens.size() == 1)
-                tokens.add(".");
-
-            // POS Tagging
-            List<String> partsOfSpeech = null;
-            synchronized (this) {
-                partsOfSpeech = tagger.tag(tokens);
-            }
-
-            // Associate POS to words
-            Iterator<String> posIt = partsOfSpeech.iterator();
-            for (Word w: words)
-            {
-                assert posIt.hasNext();
-                String pos = posIt.next();
-
-                if (w.getPOS() != null)
-                    continue;
-
-                if (posMapper != null) {
-                    String gpos = posMapper.get(pos);
-                    if (gpos == null)
-                        logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
-                    else
-                        pos = gpos;
-                }
-                w.setPOS(pos);
-            }
-
-            idx_sequence++;
+            w.setPOS(pos);
         }
 
         MaryData result = new MaryData(d.getLocale(), utt);

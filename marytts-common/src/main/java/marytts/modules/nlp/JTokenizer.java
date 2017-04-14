@@ -125,7 +125,8 @@ public class JTokenizer extends InternalModule {
 
         // Indexes and temp variables
         int p_idx = 0, sent_idx=0, tok_idx=0;
-        int sent_offset=0, tok_offset=0;
+        int sent_offset=0;
+        ArrayList<Integer> token_ids = new ArrayList<Integer>();
         String sent_text = "";
 
         // Tokenize everything
@@ -133,11 +134,20 @@ public class JTokenizer extends InternalModule {
         {
             // Tokenize current paragraph
             AnnotatedString res = tokenizer.tokenize(p.getText(), jtokLocale);
+
             // Going through the tokens and create the proper MaryTTS representation
             for (Token tok : Outputter.createTokens(res))
             {
                 // Create the new token
-                sent_text += tok.getImage() + " ";
+                if (!(tok.getImage().equals("\"") ||
+                      tok.getImage().equals("(") || tok.getImage().equals(")") ||
+                      tok.getImage().equals("[") || tok.getImage().equals("]") ||
+                      tok.getImage().equals("{") || tok.getImage().equals("}")))
+                {
+                    sent_text += tok.getImage() + " ";
+                    token_ids.add(tok_idx);
+                }
+
                 Word w = new Word(tok.getImage());
                 words.add(w);
                 tok_idx++;
@@ -152,9 +162,8 @@ public class JTokenizer extends InternalModule {
                     sentences.add(s);
 
                     // Sent <=> Word relation
-                    for(int i=tok_offset; i<tok_idx; i++)
+                    for(int i: token_ids)
                         alignment_sentence_word.add(new IntegerPair(sent_idx, i));
-                    tok_offset = tok_idx;
 
                     // Paragraph <=> relation
                     alignment_paragraph_sentence.add(new IntegerPair(p_idx, sent_idx));
@@ -162,6 +171,7 @@ public class JTokenizer extends InternalModule {
                     // Prepare the next sentence
                     sent_idx++;
                     sent_text = "";
+                    token_ids.clear();
                 }
             }
 
@@ -170,21 +180,20 @@ public class JTokenizer extends InternalModule {
 
 
         // Maybe something remains after there is no punctuation
-        if (tok_offset < tok_idx)
+        if (!token_ids.isEmpty())
         {
             // Create and add the new sentence
             Sentence s = new Sentence(sent_text);
             sentences.add(s);
 
-            // Add a punctuation token(FIXME: somehow kind of patchy!)
-            Word w = new Word(".");
-            words.add(w);
-            tok_idx++;
+            // // Add a punctuation token(FIXME: somehow kind of patchy!)
+            // Word w = new Word(".");
+            // words.add(w);
+            // tok_idx++;
 
             // Sent <=> Word relation
-            for(int i=tok_offset; i<tok_idx; i++)
+            for(int i: token_ids)
                 alignment_sentence_word.add(new IntegerPair(sent_idx, i));
-            tok_offset = tok_idx;
 
             // Paragraph <=> relation
             alignment_paragraph_sentence.add(new IntegerPair(p_idx-1, sent_idx));
