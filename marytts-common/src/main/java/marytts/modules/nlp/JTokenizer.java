@@ -138,17 +138,28 @@ public class JTokenizer extends InternalModule {
             // Going through the tokens and create the proper MaryTTS representation
             for (Token tok : Outputter.createTokens(res))
             {
+                String tok_string = tok.getImage();
+
                 // Create the new token
-                if (!(tok.getImage().equals("\"") ||
-                      tok.getImage().equals("(") || tok.getImage().equals(")") ||
-                      tok.getImage().equals("[") || tok.getImage().equals("]") ||
-                      tok.getImage().equals("{") || tok.getImage().equals("}")))
+                if (!(tok_string.equals("\"") ||
+                      tok_string.equals("(") || tok_string.equals(")") ||
+                      tok_string.equals("[") || tok_string.equals("]") ||
+                      tok_string.equals("{") || tok_string.equals("}")))
                 {
-                    sent_text += tok.getImage() + " ";
+                    sent_text += tok_string + " ";
                     token_ids.add(tok_idx);
                 }
 
-                Word w = new Word(tok.getImage());
+                if (((tok_string.charAt(0) == '\'') && (tok_string.length() == 1)) ||
+                    ((tok_string.charAt(0) == '\'') && (tok_string.length() > 1) && (tok_string.charAt(1) != '\'')) ||
+                    ((tok_string.length() > 1) && (tok_string.charAt(1) == '\'')))
+                {
+                Word prev = words.get(words.size()-1);
+                prev.setText(prev.getText() + tok_string);
+            }
+                else
+                {
+                Word w = new Word(tok_string);
                 words.add(w);
                 tok_idx++;
 
@@ -172,6 +183,7 @@ public class JTokenizer extends InternalModule {
                     sent_idx++;
                     sent_text = "";
                     token_ids.clear();
+                }
                 }
             }
 
