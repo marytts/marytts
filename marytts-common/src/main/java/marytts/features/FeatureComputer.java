@@ -35,7 +35,10 @@ public class FeatureComputer
     }
 
     public void addFeature(String name, String level, String context, String feature)
+        throws Exception
     {
+        if (m_features.containsKey(name))
+            throw new Exception(name + " is already an added feature");
         m_features.put(name, new String[]{level, context, feature});
         m_feature_names.add(name);
     }
@@ -84,7 +87,8 @@ public class FeatureComputer
     public static FeatureComputer the_feature_computer = null;
 
     public static void initDefault()
-        throws ClassNotFoundException, InstantiationException, IllegalAccessException
+    // throws ClassNotFoundException, InstantiationException, IllegalAccessException
+        throws Exception
     {
 
         // Generate the category
@@ -97,6 +101,7 @@ public class FeatureComputer
         feat_fact.addFeatureProcessor("nbtophrase", "marytts.features.featureprocessor.NbToPhraseEnd");
         feat_fact.addFeatureProcessor("nbfromsentence", "marytts.features.featureprocessor.NbFromSentenceStart");
         feat_fact.addFeatureProcessor("nbtosentence", "marytts.features.featureprocessor.NbToSentenceEnd");
+        feat_fact.addFeatureProcessor("nbtoparagraph", "marytts.features.featureprocessor.NbToParagraphEnd");
 
         feat_fact.addFeatureProcessor("nbphones", "marytts.features.featureprocessor.NbPhonesRelated");
         feat_fact.addFeatureProcessor("nbsyllables", "marytts.features.featureprocessor.NbSyllablesRelated");
@@ -108,11 +113,12 @@ public class FeatureComputer
         feat_fact.addFeatureProcessor("nbaccenttophrase", "marytts.features.featureprocessor.NbAccentToPhraseEnd");
 
         feat_fact.addFeatureProcessor("accented", "marytts.features.featureprocessor.IsAccented");
-        feat_fact.addFeatureProcessor("stressed", "marytts.features.featureprocessor.IsStressed");
+        feat_fact.addFeatureProcessor("stressed", "marytts.features.featureprocessor.StressLevel");
         feat_fact.addFeatureProcessor("string", "marytts.features.featureprocessor.StringFeature");
         feat_fact.addFeatureProcessor("arpa", "marytts.features.featureprocessor.ArpaLabel");
         feat_fact.addFeatureProcessor("text", "marytts.features.featureprocessor.TextFeature");
         feat_fact.addFeatureProcessor("POS", "marytts.features.featureprocessor.POS");
+        feat_fact.addFeatureProcessor("InDirectSpeech", "marytts.features.featureprocessor.InDirectSpeech");
 
 
         ContextProcessorFactory ctx_fact = new ContextProcessorFactory();
@@ -151,13 +157,8 @@ public class FeatureComputer
         FeatureComputer.the_feature_computer.addFeature("next_syl_accent", "syllable", "next", "accented");
         FeatureComputer.the_feature_computer.addFeature("next_syl_stress", "syllable", "next", "stressed");
 
-        FeatureComputer.the_feature_computer.addFeature("accented_syls_from_phrase_end", "syllable", "current", "nbtophrase");
-        FeatureComputer.the_feature_computer.addFeature("accented_syls_from_phrase_start", "syllable", "current", "nbfromphrase");
-
-        FeatureComputer.the_feature_computer.addFeature("syls_from_phrase_end", "syllable", "current", "nbtophrase");
-        FeatureComputer.the_feature_computer.addFeature("syls_from_phrase_start", "syllable", "current", "nbfromphrase");
         FeatureComputer.the_feature_computer.addFeature("syls_from_word_end", "syllable", "current", "nbtoword");
-        FeatureComputer.the_feature_computer.addFeature("syls_from_word_start", "syllable", "current", "nbfromword");
+        FeatureComputer.the_feature_computer.addFeature("syls_from_phrase_end", "syllable", "current", "nbtophrase");
 
         // Words
         FeatureComputer.the_feature_computer.addFeature("prev_word_pos", "word", "previous", "POS");
@@ -168,9 +169,7 @@ public class FeatureComputer
         FeatureComputer.the_feature_computer.addFeature("next_word_numsyls", "word", "next", "nbsyllables");
         FeatureComputer.the_feature_computer.addFeature("word_numsegs", "word", "current", "nbphones");
         FeatureComputer.the_feature_computer.addFeature("words_from_phrase_end", "word", "current", "nbtophrase");
-        FeatureComputer.the_feature_computer.addFeature("words_from_phrase_start", "word", "current", "nbfromphrase");
         FeatureComputer.the_feature_computer.addFeature("words_from_sentence_end", "word", "current", "nbtosentence");
-        FeatureComputer.the_feature_computer.addFeature("words_from_sentence_start", "word", "current", "nbfromsentence");
 
         // Phrases
         FeatureComputer.the_feature_computer.addFeature("prev_phrase_numsyls", "phrase", "previous", "nbsyllables");
@@ -180,16 +179,19 @@ public class FeatureComputer
         FeatureComputer.the_feature_computer.addFeature("next_phrase_numsyls", "phrase", "next", "nbsyllables");
         FeatureComputer.the_feature_computer.addFeature("next_phrase_numwords", "phrase", "next", "nbwords");
         FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_end", "phrase", "current", "nbtosentence");
-        FeatureComputer.the_feature_computer.addFeature("phrases_from_sentence_start", "phrase", "current", "nbfromsentence");
 
 
         // Sentences
         FeatureComputer.the_feature_computer.addFeature("sentence_numsyllables", "sentence", "current", "nbsyllables");
         FeatureComputer.the_feature_computer.addFeature("sentence_numwords", "sentence", "current", "nbwords");
         FeatureComputer.the_feature_computer.addFeature("sentence_numphrases", "sentence", "current", "nbphrases");
+        FeatureComputer.the_feature_computer.addFeature("sentence_from_paragraph_end", "sentence", "current", "nbtoparagraph");
 
         // Paragraph
         FeatureComputer.the_feature_computer.addFeature("paragraph_numsentences", "paragraph", "current", "nbsentences");
+
+        // Speech info
+        FeatureComputer.the_feature_computer.addFeature("inDirectSpeech", "current", "current", "InDirectSpeech");
 
     }
 }
