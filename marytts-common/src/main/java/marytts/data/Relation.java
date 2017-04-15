@@ -324,7 +324,11 @@ public class Relation
         {
             for (int j=0; j<val[new_item_idx].length; j++)
             {
-                if (val[new_item_idx][j] > 0)
+                if (new_item_idx == val.length)
+                {
+                    new_matrix.setQuick(new_item_idx, j, val[new_item_idx-1][j]);
+                }
+                else if (val[new_item_idx][j] > 0)
                 {
                     new_matrix.setQuick(new_item_idx, j, 1);
                 }
@@ -413,7 +417,11 @@ public class Relation
         {
             for (int i=0; i<val.length; i++)
             {
-                if (val[i][new_item_idx] > 0)
+                if (new_item_idx == val[i].length)
+                {
+                    new_matrix.setQuick(i, new_item_idx, val[i][new_item_idx-1]);
+                }
+                else if (val[i][new_item_idx] > 0)
                 {
                     new_matrix.setQuick(i, new_item_idx, 1);
                 }

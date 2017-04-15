@@ -105,7 +105,8 @@ public abstract class Model {
 	 *             if the model cannot be set up properly.
 	 */
 	protected final void load()
-        throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    //throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+        throws Exception
     {
 		try {
 			loadData();
@@ -126,7 +127,8 @@ public abstract class Model {
 	protected abstract void loadData() throws IOException, MaryConfigurationException;
 
 	protected final void setupFeatureComputer()
-        throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
+        throws Exception
+    // MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
     {
 		try {
             FeatureComputer.initDefault();
