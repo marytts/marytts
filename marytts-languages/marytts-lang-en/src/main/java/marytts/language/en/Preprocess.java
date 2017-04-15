@@ -236,41 +236,42 @@ public class Preprocess extends InternalModule {
 
             // save the original token text
             String orig_text = t.getText();
+            String expanded_text =  t.getText();
 
             // remove commas
             if (orig_text.matches("[\\$|£|€]?\\d+,[\\d,]+"))
             {
-                t.setText(orig_text.replaceAll(",", ""));
+                expanded_text = orig_text.replaceAll(",", "");
 
                 // presume that a 4 digit number which had commas is not a year
-                if (t.getText().matches("\\d{4}"))
+                if (expanded_text.matches("\\d{4}"))
                 {
                     isYear = false;
                 }
             }
 
             // isYear extra check
-            if (t.getText().matches("\\d{4}") && !whichCurrency.equals(""))
+            if (expanded_text.matches("\\d{4}") && !whichCurrency.equals(""))
             {
                 isYear = false;
             }
 
             // check if currency
-            if (t.getText().matches(currencySymbPattern.pattern()))
+            if (expanded_text.matches(currencySymbPattern.pattern()))
             {
-                whichCurrency = t.getText();
+                whichCurrency = expanded_text;
             }
 
             /*
              * ACTUAL PROCESSING
              */
-            String token_text = t.getText();
+            String token_text = expanded_text;
 
             // ordinal
             if (token_text.matches("(?i)" + ordinalPattern.pattern()))
             {
                 String matched = token_text.split("(?i)st|nd|rd|th")[0];
-                t.setText(expandOrdinal(Double.parseDouble(matched)));
+                expanded_text = expandOrdinal(Double.parseDouble(matched));
 
             }
             // single a or A character
@@ -285,37 +286,37 @@ public class Preprocess extends InternalModule {
                     next_token.getText().matches(myPunctPattern.pattern()) ||
                     next_token.getText().length() == 1)
                 {
-                    t.setText("_a");
+                    expanded_text = "_a";
                 }
 
             }
             // date
             else if (token_text.matches(datePattern.pattern()))
             {
-                t.setText(expandDate(token_text));
+                expanded_text = expandDate(token_text);
             }
             // number followed by s
             else if (token_text.matches(numberSPattern.pattern()))
             {
-                t.setText(expandNumberS(token_text));
+                expanded_text = expandNumberS(token_text);
 
             }
             // year with bc or ad
             else if (token_text.matches("(?i)" + yearPattern.pattern()))
             {
-                t.setText(expandYearBCAD(token_text));
+                expanded_text = expandYearBCAD(token_text);
 
             }
             // year as just 4 digits &rarr; this should always be checked BEFORE real number
             else if (token_text.matches("\\d{4}") && isYear == true)
             {
-                t.setText(expandYear(Double.parseDouble(token_text)));
+                expanded_text = expandYear(Double.parseDouble(token_text));
 
             }
             // wordAndNumber &rarr; must come AFTER year
             else if (token_text.matches(numberWordPattern.pattern()))
             {
-                t.setText(expandWordNumber(token_text));
+                expanded_text = expandWordNumber(token_text);
 
             }
             // real number & currency
@@ -323,12 +324,12 @@ public class Preprocess extends InternalModule {
             {
                 if (!whichCurrency.equals(""))
                 {
-                    t.setText(expandMoney(token_text, whichCurrency));
+                    expanded_text = expandMoney(token_text, whichCurrency);
                     whichCurrency = "";
                 }
                 else
                 {
-                    t.setText(expandRealNumber(token_text));
+                    expanded_text = expandRealNumber(token_text);
                 }
 
             }
@@ -344,7 +345,7 @@ public class Preprocess extends InternalModule {
                     // if no contraction we allow g2p rules to handle
                     if (!contractions.containsKey(contractionMatch.group(1)))
                     {
-                        t.setText(token_text.replaceAll("'", ""));
+                        expanded_text = token_text.replaceAll("'", "");
                     }
 
                     // FIXME: we do not want to have to phonological word => for now we do not split !
@@ -352,7 +353,7 @@ public class Preprocess extends InternalModule {
                     // else
                     // {
                     // splitContraction = true;
-                    // t.setText(splitContraction(token_text));
+                    // expanded_text = splitContraction(token_text);
                     // }
                 }
 
@@ -360,7 +361,7 @@ public class Preprocess extends InternalModule {
             // acronym
             else if (token_text.matches(acronymPattern.pattern()))
             {
-                t.setText(expandAcronym(token_text));
+                expanded_text = expandAcronym(token_text);
 
             }
             // abbreviation
@@ -379,7 +380,7 @@ public class Preprocess extends InternalModule {
                     nextTokenIsCapital = true;
                 }
 
-                t.setText(expandAbbreviation(token_text, nextTokenIsCapital));
+                expanded_text = expandAbbreviation(token_text, nextTokenIsCapital);
 
             }
             // time
@@ -396,19 +397,19 @@ public class Preprocess extends InternalModule {
                 {
                     next_token_is_time = true;
                 }
-                t.setText(expandTime(token_text, next_token_is_time));
+                expanded_text = expandTime(token_text, next_token_is_time);
 
             }
             // duration
             else if (token_text.matches(durationPattern.pattern()))
             {
-                t.setText(expandDuration(token_text));
+                expanded_text = expandDuration(token_text);
 
             }
             // hashtags
             else if (token_text.matches(hashtagPattern.pattern()))
             {
-                t.setText(expandHashtag(token_text));
+                expanded_text = expandHashtag(token_text);
 
             }
             // URLs
@@ -419,13 +420,13 @@ public class Preprocess extends InternalModule {
                 urlMatcher.find();
                 webEmailTemp = token_text;
                 isURL = true;
-                t.setText(expandURL(urlMatcher.group(2)));
+                expanded_text = expandURL(urlMatcher.group(2));
 
             }
             // dot . for web and email addresses
             else if (token_text.equals(".") && isURL)
             {
-                t.setText("dot");
+                expanded_text = "dot";
                 webEmailTemp = webEmailTemp.replaceFirst("\\.", "dot");
 
                 if (!webEmailTemp.contains("."))
@@ -434,13 +435,13 @@ public class Preprocess extends InternalModule {
             // symbols
             else if (token_text.matches(symbolsPattern.pattern()))
             {
-                t.setText(symbols.get(token_text));
+                expanded_text = symbols.get(token_text);
 
             }
             // number ranges &rarr; before checking for dashes
             else if (token_text.matches(rangePattern.pattern()))
             {
-                t.setText(expandRange(token_text));
+                expanded_text = expandRange(token_text);
 
             }
             // dashes and underscores
@@ -462,7 +463,7 @@ public class Preprocess extends InternalModule {
                     }
                     i++;
                 }
-                t.setText(Arrays.toString(new_tokens).replaceAll("[,\\]\\[]", ""));
+                expanded_text = Arrays.toString(new_tokens).replaceAll("[,\\]\\[]", "");
 
             }
             // words containing only consonants
@@ -470,14 +471,14 @@ public class Preprocess extends InternalModule {
             {
                 // first check lexicon
                 if (MaryRuntimeUtils.checkLexicon("en_US", token_text).length == 0)
-                    t.setText(expandConsonants(token_text));
+                    expanded_text = expandConsonants(token_text);
             }
             // a final attempt to split by punctuation
             else if (punctuationPattern.matcher(token_text).find() && token_text.length() > 1)
             {
                 puncSplit = true;
                 String[] puncTokens = token_text.split("((?<=\\p{Punct})|(?=\\p{Punct}))");
-                t.setText(Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", ""));
+                expanded_text = Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", "");
 
             }
             // Double quotes
@@ -491,51 +492,24 @@ public class Preprocess extends InternalModule {
             }
 
             // if token isn't ignored but there is no handling rule don't add MTU
-            if (!orig_text.equals(t.getText()))
+            if (!orig_text.equals(expanded_text))
             {
-                // finally, split new expanded token separated by spaces into separate tokens (also catch any leftover dashes)
-                String[] new_tokens = t.getText().replaceAll("-", " ").split("\\s+");
-                t.setText(new_tokens[0]);
+                String sounds_like = expanded_text.replaceAll("-", " ");
+                t.soundsLike(sounds_like);
 
-                for (int i=1; i<new_tokens.length; i++)
-                {
-                    // Create the new token
-                    Word new_token = new Word(new_tokens[i]);
-
-                    // if tokens are an expanded contraction update the token
-                    if (splitContraction && new_tokens.length == 2)
-                    {
-                        String text;
-                        if (new_tokens[0].substring(new_tokens[0].length() - 1).matches("[cfkpt]") &&
-                            contractions.get(new_tokens[i]).length > 1)
-                        {
-                            text = contractions.get(new_tokens[i])[1];
-                        }
-                        else
-                        {
-                            text = contractions.get(new_tokens[i])[0];
-                        }
-                        System.out.println(text);
-                        assert false;
-                        //new_token.setPhonemes();
-                    }
-
-                    tokens.add(idx_token+1, new_token);
-                }
-
-                // if expanded url or punctuation go over each node, otherwise let TreeWalker catch up
-                if (!isURL && !puncSplit && !dashSplit)
-                {
-                    idx_token += new_tokens.length - 2;
-                }
-                else
-                {
-                    // if the first node in doc is an email or web address, account for this
-                    if (idx_token == 0)
-                        URLFirst = true;
-                    puncSplit = false;
-                    dashSplit = false;
-                }
+                // // if expanded url or punctuation go over each node, otherwise let TreeWalker catch u
+                // if (!isURL && !puncSplit && !dashSplit)
+                // {
+                //     idx_token += new_tokens.length - 2;
+                // }
+                // else
+                // {
+                //     // if the first node in doc is an email or web address, account for this
+                //     if (idx_token == 0)
+                //         URLFirst = true;
+                //     puncSplit = false;
+                //     dashSplit = false;
+                // }
             }
         }
     }
