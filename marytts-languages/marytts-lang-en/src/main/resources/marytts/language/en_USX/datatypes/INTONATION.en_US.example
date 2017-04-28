@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.4" xml:lang="en-US">
+<p>
+<voice name="cmu-slt">
+<s>
+<phrase>
+<t accent="H*" g2p_method="lexicon" ph="' w E l - k @ m" pos="UH">
+Welcome
+</t>
+<t pos=".">
+!
+</t>
+<boundary breakindex="5" tone="L-L%"/>
+</phrase>
+</s>
+</voice>
+</p>
+</maryxml>
