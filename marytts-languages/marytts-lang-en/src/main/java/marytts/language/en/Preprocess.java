@@ -118,7 +118,7 @@ public class Preprocess extends InternalModule {
 	// Regex initialization
 	static {
 		moneyPattern = Pattern.compile("(\\d+)(\\.\\d+)?");
-		currencySymbPattern = Pattern.compile("[$£€)]");
+		currencySymbPattern = Pattern.compile("[$£€]");
 		timePattern = Pattern.compile(
             "((0?[0-9])|(1[0-1])|(1[2-9])|(2[0-3])):([0-5][0-9])(a\\.m\\.|am|pm|p\\.m\\.|a\\.m|p\\.m)?",
             Pattern.CASE_INSENSITIVE);
