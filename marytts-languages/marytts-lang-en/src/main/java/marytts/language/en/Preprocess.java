@@ -848,6 +848,7 @@ public class Preprocess extends InternalModule {
             }
             break;
         default:
+			logger.warn(String.format("Could not expand amount [%s] for currency [%s]", origText, currency));
             break;
         }
         return money;
