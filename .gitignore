@@ -12,6 +12,9 @@ bin
 .project
 .classpath
 
+# Emacs
+.meghanada
+
 # IDEA
 .idea/
 *.iml
