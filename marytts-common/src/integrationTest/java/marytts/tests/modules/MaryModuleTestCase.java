@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 public class MaryModuleTestCase {
 
 	protected MaryModule module;
+    protected Logger logger;
 
 	public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
 		if (!MaryUtils.isLog4jConfigured()) {
@@ -63,6 +64,8 @@ public class MaryModuleTestCase {
 			if (Mary.currentState() == Mary.STATE_OFF)
 				Mary.startup();
 		}
+
+        logger = MaryUtils.getLogger(getClass());
 	}
 
     protected Utterance loadXMLResource(String resourceName)
@@ -98,11 +101,11 @@ public class MaryModuleTestCase {
 		MaryData processedOut = module.process(input);
 
         ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
-        System.out.println(" ======================== expected =====================");
-        System.out.println(out_ser.toString(targetOut.getData()));
-        System.out.println(" ======================== achieved =====================");
-        System.out.println(out_ser.toString(processedOut.getData()));
-        System.out.println(" =======================================================");
+        logger.debug(" ======================== expected =====================");
+        logger.debug(out_ser.toString(targetOut.getData()));
+        logger.debug(" ======================== achieved =====================");
+        logger.debug(out_ser.toString(processedOut.getData()));
+        logger.debug(" =======================================================");
 
 
         return targetOut.getData().equals(processedOut.getData());
