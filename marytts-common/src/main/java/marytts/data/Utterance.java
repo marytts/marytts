@@ -8,6 +8,8 @@ import java.util.HashSet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import org.apache.log4j.Logger; // FIXME: not really happy with that
+
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.data.item.linguistic.Paragraph;
@@ -16,6 +18,7 @@ import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.prosody.Phrase;
 
 import marytts.data.item.Item;
+import marytts.util.MaryUtils;
 
 /**
  *
@@ -32,6 +35,8 @@ public class Utterance
     private RelationGraph m_relation_graph;
     private Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> m_available_relation_set;
 
+	protected Logger logger;
+
     public Utterance(String text, Locale locale)
     {
         setVoice(null);
@@ -41,6 +46,9 @@ public class Utterance
         m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
         m_available_relation_set = new HashSet<ImmutablePair<SupportedSequenceType, SupportedSequenceType>>();
         m_relation_graph = new RelationGraph();
+
+        // FIXME: have to be more consistent
+		logger = MaryUtils.getLogger("Utterance");
     }
 
     public String getText()
@@ -152,7 +160,7 @@ public class Utterance
 
         if (!utt.m_sequences.keySet().equals(m_sequences.keySet()))
         {
-            System.out.println("Sequences availables are not the same in both utterances: {" + m_sequences.keySet() + "} vs {" + utt.m_sequences.keySet() + "}");
+            logger.debug("Sequences availables are not the same in both utterances: {" + m_sequences.keySet() + "} vs {" + utt.m_sequences.keySet() + "}");
             return false;
         }
 
@@ -165,7 +173,7 @@ public class Utterance
 
             if (cur_seq.size() != other_seq.size())
             {
-                System.out.println(" => " + type + " is not leading to equal sequences (size difference)");
+                logger.debug(" => " + type + " is not leading to equal sequences (size difference)");
                 break;
             }
 
@@ -177,7 +185,7 @@ public class Utterance
                 {
                     not_equal = true;
 
-                    System.out.println(" => " + type + " is not leading to equal sequences");
+                    logger.debug(" => " + type + " is not leading to equal sequences");
                     break;
                 }
             }
