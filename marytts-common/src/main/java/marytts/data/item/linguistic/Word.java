@@ -27,6 +27,7 @@ public class Word extends Item
         setText(text);
         setAlternativeLocale(null);
         soundsLike(null);
+        setPOS(null);
         setG2PMethod(null);
         setAccent(null);
     }
@@ -37,6 +38,7 @@ public class Word extends Item
 		setText(text);
         setAlternativeLocale(alternative_locale);
         soundsLike(null);
+        setPOS(null);
         setG2PMethod(null);
         setAccent(null);
     }
@@ -46,8 +48,9 @@ public class Word extends Item
         super();
 		setText(text);
         setAlternativeLocale(null);
-        setG2PMethod(null);
         soundsLike(sounds_like);
+        setPOS(null);
+        setG2PMethod(null);
         setAccent(null);
     }
 
@@ -113,5 +116,48 @@ public class Word extends Item
     public void setAccent(Accent accent)
     {
         m_accent = accent;
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Word))
+            return false;
+
+        Word wrd = (Word) obj;
+
+        if (!(((wrd.soundsLike() == null) && (soundsLike() == null)) ||
+              ((wrd.soundsLike() != null) && (wrd.soundsLike().equals(soundsLike())))))
+        {
+            return false;
+        }
+
+        if (!(((wrd.getG2PMethod() == null) && (getG2PMethod() == null)) ||
+              ((wrd.getG2PMethod() != null) && (wrd.getG2PMethod().equals(getG2PMethod())))))
+        {
+            return false;
+        }
+
+        if (!(((wrd.getPOS() == null) && (getPOS() == null)) ||
+              ((wrd.getPOS() != null) && (wrd.getPOS().equals(getPOS())))))
+        {
+            return false;
+        }
+
+        if (!(((wrd.getAccent() == null) && (getAccent() == null)) ||
+              ((wrd.getAccent() != null) && (wrd.getAccent().equals(getAccent())))))
+        {
+            return false;
+        }
+
+        if (!(((wrd.getAlternativeLocale() == null) && (getAlternativeLocale() == null)) ||
+              ((wrd.getAlternativeLocale() != null) && (wrd.getAlternativeLocale().equals(getAlternativeLocale())))))
+        {
+            return false;
+        }
+
+        return getText().equals(wrd.getText());
     }
 }

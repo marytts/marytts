@@ -23,4 +23,12 @@ public class Accent
     {
         m_label = label;
     }
+
+    public boolean equals(Accent obj)
+    {
+        if (!(obj instanceof Accent))
+            return false;
+
+        return getLabel().equals(((Accent) obj).getLabel());
+    }
 }

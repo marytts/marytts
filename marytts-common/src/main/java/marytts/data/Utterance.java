@@ -141,4 +141,57 @@ public class Utterance
     {
         return m_available_relation_set;
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (! (obj instanceof Utterance))
+            return false;
+
+        Utterance utt = (Utterance) obj;
+
+        if (!utt.m_sequences.keySet().equals(m_sequences.keySet()))
+        {
+            System.out.println("Sequences availables are not the same in both utterances: {" + m_sequences.keySet() + "} vs {" + utt.m_sequences.keySet() + "}");
+            return false;
+        }
+
+        boolean not_equal = false;
+        for (SupportedSequenceType type: m_sequences.keySet())
+        {
+
+            Sequence<Item> cur_seq = (Sequence<Item>) m_sequences.get(type);
+            Sequence<Item> other_seq = (Sequence<Item>) m_sequences.get(type);
+
+            if (cur_seq.size() != other_seq.size())
+            {
+                System.out.println(" => " + type + " is not leading to equal sequences (size difference)");
+                break;
+            }
+
+            for (int i=0; i<cur_seq.size(); i++)
+            {
+                Item cur_item = cur_seq.get(i);
+                Item other_item = other_seq.get(i);
+                if (!other_item.equals(cur_item))
+                {
+                    not_equal = true;
+
+                    System.out.println(" => " + type + " is not leading to equal sequences");
+                    break;
+                }
+            }
+
+            if (not_equal)
+                break;
+        }
+
+        if (not_equal)
+            return false;
+
+        if (! m_available_relation_set.equals(utt.m_available_relation_set))
+            return false;
+
+        return true;
+    }
 }
