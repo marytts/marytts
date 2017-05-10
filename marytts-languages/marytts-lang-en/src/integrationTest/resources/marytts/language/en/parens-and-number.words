@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="en-US">
+<p>
+<s>
+<t pos=".">
+(
+</t>
+<t>
+parenthesis
+</t>
+<t pos=".">
+)
+</t>
+<t>
+followed
+</t>
+<t>
+by
+</t>
+<mtu orig="1">
+<t>
+one
+</t>
+</mtu>
+<t>
+number
+</t>
+<t pos=".">
+.
+</t>
+</s>
+</p>
+</maryxml>
