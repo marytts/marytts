@@ -2,7 +2,8 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
@@ -14,16 +15,12 @@ public class PreprocessIT extends MaryModuleTestCase {
         module = ModuleRegistry.getModule(Preprocess.class);
     }
 
-    protected String inputEnding() {
-        return "tokenised";
-    }
-
-    protected String outputEnding() {
-        return "words";
-    }
-
     @Test
-    public void testParensAndNumber() throws Exception {
-        processAndCompare("parens-and-number", Locale.US);
+    public void testParensAndNumber()
+        throws Exception
+    {
+        assert processAndCompare("parens-and-number.tokenised",
+                                 "parens-and-number.words",
+                                 Locale.US);
     }
 }
