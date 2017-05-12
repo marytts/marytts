@@ -1,0 +1,137 @@
+<!-- <!DOCTYPE sable SYSTEM "Sable.v0_2.dtd" [                           -->
+<!--;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-->
+<!--                                                                     -->
+<!--               Centre for Speech Technology Research                 -->
+<!--                    University of Edinburgh, UK                      -->
+<!--                        Copyright (c) 1998                           -->
+<!--                       All Rights Reserved.                          -->
+<!--                                                                     -->
+<!-- Permission is hereby granted, free of charge, to use and distribute -->
+<!-- this software and its documentation without restriction, including  -->
+<!-- without limitation the rights to use, copy, modify, merge, publish, -->
+<!-- distribute, sublicense, and/or sell copies of this work, and to     -->
+<!-- permit persons to whom this work is furnished to do so, subject to  -->
+<!-- the following conditions:                                           -->
+<!--  1. The code must retain the above copyright notice, this list of   -->
+<!--     conditions and the following disclaimer.                        -->
+<!--  2. Any modifications must be clearly marked as such.               -->
+<!--  3. Original authors' names are not deleted.                        -->
+<!--  4. The authors' names are not used to endorse or promote products  -->
+<!--     derived from this software without specific prior written       -->
+<!--     permission.                                                     -->
+<!--                                                                     -->
+<!-- THE UNIVERSITY OF EDINBURGH AND THE CONTRIBUTORS TO THIS WORK       -->
+<!-- DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING     -->
+<!-- ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT  -->
+<!-- SHALL THE UNIVERSITY OF EDINBURGH NOR THE CONTRIBUTORS BE LIABLE    -->
+<!-- FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES   -->
+<!-- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN  -->
+<!-- AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,         -->
+<!-- ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF      -->
+<!-- THIS SOFTWARE.                                                      -->
+<!--                                                                     -->
+<!--                                                                     -->
+<!-- An early draft of SABLE 0.1 (Jan 8th 1998)                          -->
+<!--       (Alan W Black awb@cstr.ed.ac.uk)                              -->
+<!-- This not an official DTD just one that allows a mock up of the      -->
+<!-- system for Festival-1.2.1 and later                                 -->
+<!--                                                                     -->
+<!-- Modified to be XML compliant    April 2nd 1998                      -->
+<!--                                                                     -->
+<!-- Modified for SABLE 0.2 (August 15, 1998)                            --> 
+<!--       (Richard Sproat rws@research.bell-labs.com)                   -->
+<!--                                                                     -->
+<!-- Note that in order to use this as both an XML and SGML DTD, we need -->
+<!-- to declare OMITTAG NO in the accompanying sable.decl for SGML.      -->
+<!-- This means that end tags are REQUIRED for a sable document to be    -->
+<!-- conformant, even when viewed as an SGML document.                   -->
+
+<!ENTITY % baseelements "EMPH | 
+			 BREAK |
+			 PITCH |
+                         RATE |
+                         VOLUME |
+                         AUDIO |
+                         ENGINE |
+                         MARKER |
+                         PRON |
+                         SAYAS |
+                         LANGUAGE |
+                         SPEAKER |
+			 DIV">
+
+<!ELEMENT SABLE (#PCDATA| %baseelements; )*>
+
+<!-- The non-hierarchical ones -->
+<!ELEMENT BREAK EMPTY >
+<!ATTLIST BREAK 
+                LEVEL (large|medium|small|none|NUMBER) "medium"
+		TYPE (quest|excl|period|comma) #IMPLIED
+                MSEC CDATA #IMPLIED
+                MARK CDATA #IMPLIED>
+<!ELEMENT AUDIO EMPTY >
+<!ATTLIST AUDIO 
+                SRC CDATA #IMPLIED 
+                MODE (background|insertion) "insertion"
+		LEVEL CDATA #IMPLIED
+                MARK CDATA #IMPLIED>
+<!ELEMENT MARKER EMPTY >
+<!ATTLIST MARKER 
+                MARK CDATA #IMPLIED>
+
+<!-- The non-nestable ones -->
+
+<!ELEMENT PRON (#PCDATA) >
+<!ATTLIST PRON  IPA CDATA #IMPLIED
+                SUB CDATA #IMPLIED
+		ORIGIN CDATA #IMPLIED
+		MARK CDATA #IMPLIED>
+<!ELEMENT SAYAS (#PCDATA) >
+<!ATTLIST SAYAS MODE (literal|date|time|phone|net|postal|currency|math|fraction|measure|ordinal|cardinal|name) #REQUIRED
+                MODETYPE (DMY|MDY|YMD|YM|MY|MD|HM|HMS|EMAIL|URL) #IMPLIED
+		MARK CDATA #IMPLIED>
+
+<!-- The nestable ones -->
+
+<!ELEMENT EMPH ( #PCDATA | %baseelements; )*>
+<!ATTLIST EMPH  LEVEL (Strong|Moderate|None|Reduced|NUMBER) "moderate"
+                MARK CDATA #IMPLIED>
+<!ELEMENT PITCH ( #PCDATA | %baseelements; )*>
+<!ATTLIST PITCH BASE CDATA "0%"
+                MIDDLE  CDATA "0%"
+                RANGE CDATA "0%"
+                MARK CDATA #IMPLIED>
+<!ELEMENT RATE  ( #PCDATA | %baseelements; )*>
+<!ATTLIST RATE  SPEED CDATA "0%"
+                MARK CDATA #IMPLIED>
+<!ELEMENT VOLUME  ( #PCDATA | %baseelements; )*>
+<!ATTLIST VOLUME LEVEL CDATA "medium"
+                 MARK CDATA #IMPLIED>
+<!ELEMENT ENGINE  ( #PCDATA | %baseelements; )*>
+<!ATTLIST ENGINE ID CDATA #IMPLIED
+                 DATA CDATA #IMPLIED
+                 MARK CDATA #IMPLIED>
+
+<!ELEMENT LANGUAGE  ( #PCDATA | %baseelements; )*>
+<!ATTLIST LANGUAGE ID CDATA #IMPLIED
+		   CODE CDATA #IMPLIED
+                   MARK CDATA #IMPLIED>
+<!ELEMENT SPEAKER  ( #PCDATA | %baseelements; )*>
+<!ATTLIST SPEAKER  GENDER (male|female) #IMPLIED
+                   AGE    (older|middle|younger|teen|child) #IMPLIED
+                   NAME   CDATA #IMPLIED
+                   MARK   CDATA #IMPLIED>
+
+<!ELEMENT DIV  ( #PCDATA | %baseelements; )*>
+<!ATTLIST DIV TYPE (sentence|paragraph) #IMPLIED
+              MARK CDATA #IMPLIED>
+
+<!-- Character entities for latin 1 -->
+
+<!ENTITY % ISOlat1 PUBLIC
+  "-//SABLE//ENTITIES Added Latin 1 for SABLE//EN"
+  "sable-latin.ent" >
+%ISOlat1;
+
+
+

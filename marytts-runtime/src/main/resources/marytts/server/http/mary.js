@@ -1,5 +1,3 @@
-
-
 function GetXmlHttpObject()
 {
     var xmlHttp=null;
@@ -660,7 +658,3 @@ function requestSynthesis()
 	    xmlHttp.send(param);
 	}
 }
-
-
-
-

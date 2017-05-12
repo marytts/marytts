@@ -250,6 +250,13 @@ public class Request {
 		} else if (inputType.isMaryXML()) {
 			inputData.setValidating(MaryProperties.getBoolean("maryxml.validate.input"));
 		}
+		/*
+		 * For SABLE & APML, replace DTDs with complete path
+		 */
+		if (inputType == MaryDataType.get("SABLE") || inputType == MaryDataType.get("APML")) {
+			inputText = inputText.replace("Sable.v0_2.dtd", "src/main/resources/marytts/dtd/Sable.v0_2.dtd");
+			inputText = inputText.replace("apml.dtd", "src/main/resources/marytts/dtd/apml.dtd");
+		}
 		inputData.setData(inputText);
 		if (defaultVoice == null) {
 			defaultVoice = Voice.getSuitableVoice(inputData);
