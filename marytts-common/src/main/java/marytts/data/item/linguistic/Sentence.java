@@ -29,4 +29,15 @@ public class Sentence extends Item
 	{
 		m_text = text;
 	}
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Sentence))
+            return false;
+
+        Sentence sent = (Sentence) obj;
+        return sent.getText().equals(getText());
+    }
 }
