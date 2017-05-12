@@ -8,6 +8,8 @@ import java.util.HashSet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import org.apache.log4j.Logger; // FIXME: not really happy with that
+
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.data.item.linguistic.Paragraph;
@@ -16,6 +18,7 @@ import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.prosody.Phrase;
 
 import marytts.data.item.Item;
+import marytts.util.MaryUtils;
 
 /**
  *
@@ -32,6 +35,8 @@ public class Utterance
     private RelationGraph m_relation_graph;
     private Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> m_available_relation_set;
 
+	protected Logger logger;
+
     public Utterance(String text, Locale locale)
     {
         setVoice(null);
@@ -41,6 +46,9 @@ public class Utterance
         m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
         m_available_relation_set = new HashSet<ImmutablePair<SupportedSequenceType, SupportedSequenceType>>();
         m_relation_graph = new RelationGraph();
+
+        // FIXME: have to be more consistent
+		logger = MaryUtils.getLogger("Utterance");
     }
 
     public String getText()
@@ -140,5 +148,58 @@ public class Utterance
     public Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> listAvailableRelations()
     {
         return m_available_relation_set;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (! (obj instanceof Utterance))
+            return false;
+
+        Utterance utt = (Utterance) obj;
+
+        if (!utt.m_sequences.keySet().equals(m_sequences.keySet()))
+        {
+            logger.debug("Sequences availables are not the same in both utterances: {" + m_sequences.keySet() + "} vs {" + utt.m_sequences.keySet() + "}");
+            return false;
+        }
+
+        boolean not_equal = false;
+        for (SupportedSequenceType type: m_sequences.keySet())
+        {
+
+            Sequence<Item> cur_seq = (Sequence<Item>) m_sequences.get(type);
+            Sequence<Item> other_seq = (Sequence<Item>) m_sequences.get(type);
+
+            if (cur_seq.size() != other_seq.size())
+            {
+                logger.debug(" => " + type + " is not leading to equal sequences (size difference)");
+                break;
+            }
+
+            for (int i=0; i<cur_seq.size(); i++)
+            {
+                Item cur_item = cur_seq.get(i);
+                Item other_item = other_seq.get(i);
+                if (!other_item.equals(cur_item))
+                {
+                    not_equal = true;
+
+                    logger.debug(" => " + type + " is not leading to equal sequences");
+                    break;
+                }
+            }
+
+            if (not_equal)
+                break;
+        }
+
+        if (not_equal)
+            return false;
+
+        if (! m_available_relation_set.equals(utt.m_available_relation_set))
+            return false;
+
+        return true;
     }
 }

@@ -28,4 +28,14 @@ public class Paragraph extends Item
 	{
 		m_text = text;
 	}
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Paragraph))
+            return false;
+
+        Paragraph par = (Paragraph) obj;
+        return par.getText().equals(getText());
+    }
 }
