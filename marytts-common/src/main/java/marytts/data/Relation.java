@@ -19,19 +19,19 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Relation {
-	/* < The counter to identify a relation */
+	/** The counter to identify a relation */
 	private static int id_cpt = 0;
 
-	/* < The identifier of the relation */
+	/** The identifier of the relation */
 	private int id;
 
-	/* < The source sequence of the relation */
+	/** The source sequence of the relation */
 	private Sequence<? extends Item> m_source_sequence;
 
-	/* < The target sequence of the relation */
+	/** The target sequence of the relation */
 	private Sequence<? extends Item> m_target_sequence;
 
-	/* < The relation matrix */
+	/** The relation matrix */
 	private SparseDoubleMatrix2D m_relation_matrix;
 
 	/**
@@ -130,32 +130,67 @@ public class Relation {
 	}
 
 	/********************************************************************************************
-	 ** Getters/setters
+	 ** Accessors
 	 ********************************************************************************************/
+	/**
+	 * Internal setter to define the source sequence
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 */
 	protected void setSource(Sequence<? extends Item> source_sequence) {
 		assert source_sequence.size() > 0;
 		m_source_sequence = source_sequence;
 		m_source_sequence.addSourceRelationReference(this);
 	}
 
+	/**
+	 * Method to get the source sequence
+	 *
+	 * @return the source sequence
+	 */
 	public Sequence<? extends Item> getSource() {
 		return m_source_sequence;
 	}
 
+	/**
+	 * Internal setter to define the target sequence
+	 *
+	 * @param target_sequence
+	 *            the target sequence
+	 */
 	protected void setTarget(Sequence<? extends Item> target_sequence) {
 		assert target_sequence.size() > 0;
 		m_target_sequence = target_sequence;
 		m_target_sequence.addTargetRelationReference(this);
 	}
 
+	/**
+	 * Method to get the target sequence
+	 *
+	 * @return the target sequence
+	 */
 	public Sequence<? extends Item> getTarget() {
 		return m_target_sequence;
 	}
 
-	private void setRelations(SparseDoubleMatrix2D relation_matrix) {
+	/**
+	 * Internal method to set the relation matrix
+	 *
+	 * @param relation_matrix
+	 *            the relation matrix
+	 */
+	protected void setRelations(SparseDoubleMatrix2D relation_matrix) {
 		m_relation_matrix = relation_matrix;
 	}
 
+	/**
+	 * Method to set the relation matrix using an array of array of integer
+	 * format
+	 *
+	 * @param relation_matrix
+	 *            the relation matrix
+	 */
 	public void setRelations(int[][] relation_matrix) {
 
 		assert relation_matrix.length == getSource().size();
@@ -172,6 +207,13 @@ public class Relation {
 		setRelations(gen_matrix);
 	}
 
+	/**
+	 * Method to set the relation matrix using an array of array of double
+	 * format
+	 *
+	 * @param relation_matrix
+	 *            the relation matrix
+	 */
 	public void setRelations(double[][] relation_matrix) {
 
 		assert relation_matrix.length == getSource().size();
@@ -189,8 +231,14 @@ public class Relation {
 	}
 
 	/**
+	 * Method to set the relation matrix using a list of pairs (source,
+	 * sequence) of elements which are related
+	 *
 	 * FIXME: sizes not checked !
 	 *
+	 * @param relation_pairs
+	 *            the list of related (source, sequence) elements indexes the
+	 *            relation matrix
 	 */
 	public void setRelations(List<IntegerPair> relation_pairs) {
 
@@ -202,13 +250,24 @@ public class Relation {
 		setRelations(gen_matrix);
 	}
 
+	/**
+	 * Method to get the relation matrix.
+	 *
+	 * @return the relation matrix
+	 */
 	public SparseDoubleMatrix2D getRelations() {
 		return m_relation_matrix;
 	}
 
 	/**
+	 * Method to get the indexes of the related items of the target sequence
+	 * knowing the source item index.
+	 *
 	 * FIXME: not really happy with the int[]
 	 *
+	 * @param source_index
+	 *            the source index
+	 * @return an array of indexes
 	 */
 	public int[] getRelatedIndexes(int source_index) {
 		assert (source_index >= 0) && (source_index < getRelations().rows());
@@ -223,6 +282,14 @@ public class Relation {
 		return indexes;
 	}
 
+	/**
+	 * Method to get the related items of the target sequence knowing the source
+	 * item index.
+	 *
+	 * @param source_index
+	 *            the source index
+	 * @return an array of items
+	 */
 	public ArrayList<? extends Item> getRelatedItems(int source_index) {
 		int[] indexes = getRelatedIndexes(source_index);
 		ArrayList<Item> target_items = new ArrayList<Item>();
@@ -233,6 +300,16 @@ public class Relation {
 		return target_items;
 	}
 
+	/**
+	 * Method to get the indexes of the related items of the source sequence
+	 * knowing the target item index.
+	 *
+	 * FIXME: not really happy with the int[]
+	 *
+	 * @param target_index
+	 *            the target index
+	 * @return an array of indexes
+	 */
 	public int[] getSourceRelatedIndexes(int target_index) {
 		assert (target_index >= 0) && (target_index < getRelations().columns());
 
@@ -249,6 +326,12 @@ public class Relation {
 	/********************************************************************************************
 	 ** Basic relation operations
 	 ********************************************************************************************/
+	/**
+	 * Method to compute the reverse relation from the current one. The matrix
+	 * is transpose to achieve this.
+	 *
+	 * @return the reverse relation
+	 */
 	public Relation getReverse() {
 		Relation reverse = new Relation(getTarget(), getSource(), (new Algebra()).transpose(getRelations()).toArray());
 
@@ -258,6 +341,16 @@ public class Relation {
 		return reverse;
 	}
 
+	/**
+	 * Static method to compose 2 given relations and return the results (a 3rd
+	 * one)
+	 *
+	 * @param rel1
+	 *            a relation
+	 * @param rel2
+	 *            a relation
+	 * @return the composed relation rel1 x rel2
+	 */
 	public static Relation compose(Relation rel1, Relation rel2) {
 		Relation composed = new Relation(rel1.getSource(), rel2.getTarget(),
 				(new Algebra()).mult(rel1.getRelations(), rel2.getRelations()).toArray());
@@ -266,8 +359,15 @@ public class Relation {
 		return composed;
 	}
 
-	public Relation compose(Relation rel2) {
-		return Relation.compose(this, rel2);
+	/**
+	 * Compose the current relation with a given one
+	 *
+	 * @param rel
+	 *            the given relation
+	 * @return the composed relation this x rel
+	 */
+	public Relation compose(Relation rel) {
+		return Relation.compose(this, rel);
 	}
 
 	/********************************************************************************************
@@ -298,7 +398,12 @@ public class Relation {
 	}
 
 	/**
+	 * Method to remove a source item knowing its index
+	 *
 	 * /!\ Only to meant to be called by the sequence class /!\
+	 *
+	 * @param source_idx
+	 *            the index of the source item to remove
 	 */
 	public void removeSourceItem(int source_idx) {
 		double[][] val = getRelations().toArray();
@@ -328,6 +433,9 @@ public class Relation {
 	 * at the specified index
 	 *
 	 * /!\ Only to meant to be called by the sequence class /!\
+	 *
+	 * @param new_item_idx
+	 *            the index of the new item in the source sequence
 	 */
 	public void addSourceItem(int new_item_idx) {
 		addSourceItem(new_item_idx, false);
@@ -339,6 +447,11 @@ public class Relation {
 	 *
 	 * /!\ Only to meant to be called by the sequence class /!\
 	 *
+	 * @param new_item_idx
+	 *            the index of the new item in the source sequence
+	 * @param expand_relation
+	 *            true leads to the expansion of the relation, false doesn't
+	 *            change the <b>shape</b> relation
 	 */
 	public void addSourceItem(int new_item_idx, boolean expand_relation) {
 		double[][] val = getRelations().toArray();
@@ -376,8 +489,12 @@ public class Relation {
 	}
 
 	/**
-	 * /!\ Only to meant to be called by the sequence class /! \
+	 * Method to remove a target item knowing its index
 	 *
+	 * /!\ Only to meant to be called by the sequence class /!\
+	 *
+	 * @param target_idx
+	 *            the index of the target item to remove
 	 */
 	public void removeTargetItem(int target_idx) {
 		double[][] val = getRelations().toArray();
@@ -464,6 +581,25 @@ public class Relation {
 	/********************************************************************************************
 	 ** Object method overriding
 	 ********************************************************************************************/
+	/**
+	 * Method to generate a hash for the relation and therefore being able to
+	 * identify it in the relation graph. The hash is actually the id (see the
+	 * id property) of the relation
+	 *
+	 * @return a hash representation of the utterance
+	 */
+	@Override
+	public int hashCode() {
+		return id;
+	}
+
+	/**
+	 * Method to compare an object to the current relation
+	 *
+	 * @param obj
+	 *            the object to comparee
+	 * @return true if obj is a relation and the hashcode are equals, false else
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -479,6 +615,11 @@ public class Relation {
 				&& getTarget().hashCode() == (((Relation) obj).getTarget().hashCode()));
 	}
 
+	/**
+	 * Method to generate a string representation of the current utterance
+	 *
+	 * @return the string representation of the current utterance
+	 */
 	@Override
 	public String toString() {
 		String message = "source = " + getSource().toString() + "\n";
@@ -487,10 +628,5 @@ public class Relation {
 		message += "Relation now = " + "\n";
 		message += getRelations().toString();
 		return message;
-	}
-
-	@Override
-	public int hashCode() {
-		return id;
 	}
 }
