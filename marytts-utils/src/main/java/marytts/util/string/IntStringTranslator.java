@@ -50,7 +50,8 @@ public class IntStringTranslator {
 	}
 
 	/**
-	 * Initialize a int-string two-way translator, setting int values according to the position of strings in the array.
+	 * Initialize a int-string two-way translator, setting int values according
+	 * to the position of strings in the array.
 	 *
 	 * @param strings
 	 *            strings
@@ -96,9 +97,9 @@ public class IntStringTranslator {
 		return list.toArray(new String[0]);
 	}
 
-    public List<String> getValues() {
-        return list;
-    }
+	public List<String> getValues() {
+		return list;
+	}
 
 	public int getHighestValue() {
 		return list.size();

@@ -47,7 +47,8 @@ public class StringPair {
 
 	public int hashCode() {
 		/*
-		 * if (!hasHash){ this.hash = 31 * string1.hashCode() + string2.hashCode(); this.hasHash = true; }
+		 * if (!hasHash){ this.hash = 31 * string1.hashCode() +
+		 * string2.hashCode(); this.hasHash = true; }
 		 * 
 		 * return this.hash;
 		 */

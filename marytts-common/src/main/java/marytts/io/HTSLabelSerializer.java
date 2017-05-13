@@ -21,81 +21,67 @@ import java.io.File;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class HTSLabelSerializer implements Serializer
-{
-    public static final String UNDEF = "x";
-    public static final String LEFT_SEP = "+S";
-    public static final String RIGHT_SEP = "E_";
-    protected static final String PHONE_FEATURE_NAME = "phone";
-    protected List<String> m_feature_names;
+public class HTSLabelSerializer implements Serializer {
+	public static final String UNDEF = "x";
+	public static final String LEFT_SEP = "+S";
+	public static final String RIGHT_SEP = "E_";
+	protected static final String PHONE_FEATURE_NAME = "phone";
+	protected List<String> m_feature_names;
 
-    public HTSLabelSerializer()
-    {
-        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
-        m_feature_names.remove(PHONE_FEATURE_NAME);
-    }
+	public HTSLabelSerializer() {
+		m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
+		m_feature_names.remove(PHONE_FEATURE_NAME);
+	}
 
-    public Utterance load(File file)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public Utterance load(File file) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-    public void save(File file, Utterance utt)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public void save(File file, Utterance utt) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-    public String toString(Utterance utt)
-        throws MaryIOException
-    {
-        if (!utt.hasSequence(SupportedSequenceType.FEATURES))
-        {
-            throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
-        }
-        Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-        String output = "";
-        for (FeatureMap map: seq_features)
-        {
-            output += format(map);
-            output += "\n";
-        }
+	public String toString(Utterance utt) throws MaryIOException {
+		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
+			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
+		}
+		Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
+		String output = "";
+		for (FeatureMap map : seq_features) {
+			output += format(map);
+			output += "\n";
+		}
 
-        return output;
-    }
+		return output;
+	}
 
-    public Utterance fromString(String content)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public Utterance fromString(String content) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
+	protected final String getValue(FeatureMap feature_map, String key) {
+		return ((feature_map.containsKey(key)) && (feature_map.get(key) != Feature.UNDEF_FEATURE))
+				? feature_map.get(key).getStringValue()
+				: UNDEF;
+	}
 
-    protected final String getValue(FeatureMap feature_map, String key)
-    {
-        return ((feature_map.containsKey(key)) && (feature_map.get(key) != Feature.UNDEF_FEATURE)) ? feature_map.get(key).getStringValue() : UNDEF;
-    }
+	protected String format(FeatureMap feature_map) {
+		// Phoneme format
+		String cur_lab = "-" + getValue(feature_map, PHONE_FEATURE_NAME) + LEFT_SEP;
 
-    protected String format(FeatureMap feature_map)
-    {
-        // Phoneme format
-        String cur_lab ="-" + getValue(feature_map, PHONE_FEATURE_NAME) + LEFT_SEP;
+		int i = 0;
+		for (String feat : m_feature_names) {
+			cur_lab += i + RIGHT_SEP + getValue(feature_map, feat) + LEFT_SEP;
+			i++;
+		}
 
-        int i = 0;
-        for (String feat: m_feature_names)
-        {
-            cur_lab += i + RIGHT_SEP + getValue(feature_map, feat) + LEFT_SEP;
-            i++;
-        }
+		cur_lab += i + RIGHT_SEP;
 
-        cur_lab += i + RIGHT_SEP;
-
-        return cur_lab;
-    }
+		return cur_lab;
+	}
 }
-
 
 /* HTSLabelSerializer.java ends here */

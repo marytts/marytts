@@ -4,7 +4,6 @@ import marytts.language.de.JPhonemiser;
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
 
-
 import org.testng.Assert;
 import org.testng.annotations.*;
 

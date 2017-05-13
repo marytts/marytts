@@ -25,14 +25,15 @@ import java.util.Locale;
 import marytts.datatypes.MaryData;
 
 /**
- * A generic interface for Mary Modules. This interface defines the communication of the Mary.java main program with the
- * individual modules.
+ * A generic interface for Mary Modules. This interface defines the
+ * communication of the Mary.java main program with the individual modules.
  * <p>
  * The main program calls
  * <ul>
- * <li> <code>startup()</code> once after module instantiation,</li>
- * <li> <code>process()</code> many times, from different threads, possibly at the same time, during the lifetime of the server</li>
- * <li> <code>shutdown()</code> once, at the end of the program.</li>
+ * <li><code>startup()</code> once after module instantiation,</li>
+ * <li><code>process()</code> many times, from different threads, possibly at
+ * the same time, during the lifetime of the server</li>
+ * <li><code>shutdown()</code> once, at the end of the program.</li>
  * </ul>
  *
  * @author Marc Schr&ouml;der
@@ -48,18 +49,19 @@ public interface MaryModule {
 	 */
 	public String name();
 
-
 	/**
-	 * The locale of this module, i.e. the locale of data that this module can process. If null, indicates that the module can use
-	 * data of any locale (i.e., the module is language-independent.)
+	 * The locale of this module, i.e. the locale of data that this module can
+	 * process. If null, indicates that the module can use data of any locale
+	 * (i.e., the module is language-independent.)
 	 *
 	 * @return the locale of this module, if any, or null
 	 */
 	public Locale getLocale();
 
 	/**
-	 * Allow the module to start up, performing whatever is necessary to become operational. After successful completion,
-	 * getState() should return MODULE_RUNNING.
+	 * Allow the module to start up, performing whatever is necessary to become
+	 * operational. After successful completion, getState() should return
+	 * MODULE_RUNNING.
 	 *
 	 * @throws Exception
 	 *             Exception
@@ -69,23 +71,28 @@ public interface MaryModule {
 	/**
 	 * Inform about the state of this module.
 	 *
-	 * @return an int identifying the state of this module, either MODULE_OFFLINE or MODULE_RUNNING.
+	 * @return an int identifying the state of this module, either
+	 *         MODULE_OFFLINE or MODULE_RUNNING.
 	 */
 	public int getState();
 
 	/**
-	 * Allow the module to shut down cleanly. After this has successfully completed, getState() should return MODULE_OFFLINE.
+	 * Allow the module to shut down cleanly. After this has successfully
+	 * completed, getState() should return MODULE_OFFLINE.
 	 */
 	public void shutdown();
 
 	/**
-	 * Perform this module's processing on abstract "MaryData" input <code>d</code>. Classes implementing this interface need to
-	 * make the <code>process()</code> method thread-safe, because in server-mode, it will be called from different threads at the
-	 * same time.
+	 * Perform this module's processing on abstract "MaryData" input
+	 * <code>d</code>. Classes implementing this interface need to make the
+	 * <code>process()</code> method thread-safe, because in server-mode, it
+	 * will be called from different threads at the same time.
 	 * <p>
-	 * The result is returned encapsulated in a MaryData object of type <code>outputType()</code>.
+	 * The result is returned encapsulated in a MaryData object of type
+	 * <code>outputType()</code>.
 	 * <p>
-	 * This method should never return <code> null </code>; in case of a failure, an exception should be thrown.
+	 * This method should never return <code> null </code>; in case of a
+	 * failure, an exception should be thrown.
 	 *
 	 * @param d
 	 *            d

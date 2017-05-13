@@ -4,4 +4,3 @@
  * reusable in different contexts.
  */
 package marytts.util.dom;
-

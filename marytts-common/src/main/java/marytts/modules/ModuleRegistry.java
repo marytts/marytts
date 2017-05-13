@@ -40,9 +40,11 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.log4j.Logger;
 
 /**
- * A hierarchical repository for Mary modules, allowing the flexible indexing by an ordered hierarchy of datatype, locale and
- * voice. A given lookup will search for a combination of datatype, locale and voice first; if it does not find a value, it will
- * look for datatype, locale, and null; if it does notfind that, it will look for datatype, null, and null.
+ * A hierarchical repository for Mary modules, allowing the flexible indexing by
+ * an ordered hierarchy of datatype, locale and voice. A given lookup will
+ * search for a combination of datatype, locale and voice first; if it does not
+ * find a value, it will look for datatype, locale, and null; if it does notfind
+ * that, it will look for datatype, null, and null.
  *
  * @author marc
  *
@@ -74,14 +76,15 @@ public class ModuleRegistry {
 	 * From the given module init info, instantiate a new mary module.
 	 *
 	 * @param moduleInitInfo
-	 *            a string description of the module to instantiate. The moduleInitInfo is expected to have one of the following
-	 *            forms:
+	 *            a string description of the module to instantiate. The
+	 *            moduleInitInfo is expected to have one of the following forms:
 	 *            <ol>
 	 *            <li>my.class.which.extends.MaryModule</li>
 	 *            <li>my.class.which.extends.MaryModule(any,string,args,without,spaces)</li>
 	 *            <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
 	 *            </ol>
-	 *            where 'my.special.property' is a property in the property file.
+	 *            where 'my.special.property' is a property in the property
+	 *            file.
 	 * @throws MaryConfigurationException
 	 *             if the module cannot be instantiated
 	 * @return m
@@ -97,18 +100,19 @@ public class ModuleRegistry {
 	// ////////////////////////////////////////////////////////////////
 
 	/**
-	 * Register a MaryModule as an appropriate module to process the given combination of MaryDataType for the input data, locale
-	 * of the input data, and voice requested for processing. Note that it is possible to register more than one module for a
-	 * given combination of input type, locale and voice; in that case, all of them will be remembered, and will be returned as a
-	 * List by get().
+	 * Register a MaryModule as an appropriate module to process the given
+	 * combination of MaryDataType for the input data, locale of the input data,
+	 * and voice requested for processing. Note that it is possible to register
+	 * more than one module for a given combination of input type, locale and
+	 * voice; in that case, all of them will be remembered, and will be returned
+	 * as a List by get().
 	 *
 	 * @param module
-	 *            the module to add to the registry, under its input type and the given locale and voice.
+	 *            the module to add to the registry, under its input type and
+	 *            the given locale and voice.
 	 * @param locale
-	 *            the locale (language or language-COUNTRY) of the input data; can be null to signal that the module is
-	 *            locale-independent.
-	 * @param voice
-	 *            a voice for which this module is suited. Can be null to indicate that the module is not specific to any voice.
+	 *            the locale (language or language-COUNTRY) of the input data;
+	 *            can be null to signal that the module is locale-independent.
 	 * @throws IllegalStateException
 	 *             if called after registration is complete.
 	 */
@@ -120,19 +124,22 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * Determine whether or not the registration is complete. When the registration is not (yet) complete, calls to
+	 * Determine whether or not the registration is complete. When the
+	 * registration is not (yet) complete, calls to
 	 *
-	 * @see #registerModule(MaryModule, Locale, Voice) are possible; when the registration is complete, calls to the other methods
-	 *      are possible.
+	 * @see #registerModule(MaryModule, Locale) are possible; when the
+	 *      registration is complete, calls to the other methods are possible.
 	 *
-	 * @return false when the registration is still open, true when it is complete.
+	 * @return false when the registration is still open, true when it is
+	 *         complete.
 	 */
 	public static boolean getRegistrationComplete() {
 		return registrationComplete;
 	}
 
 	/**
-	 * Indicate that the registration is now complete. No further calls to registerModules() will be possible.
+	 * Indicate that the registration is now complete. No further calls to
+	 * registerModules() will be possible.
 	 *
 	 * @throws IllegalStateException
 	 *             if called when registration was already completed before.
@@ -168,7 +175,8 @@ public class ModuleRegistry {
 	// ////////////////////////////////////////////////////////////////
 
 	/**
-	 * Provide a list containing all MaryModules instances. The order is not important.
+	 * Provide a list containing all MaryModules instances. The order is not
+	 * important.
 	 *
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
@@ -189,7 +197,8 @@ public class ModuleRegistry {
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
 	 */
-	// TODO: what should happen with this method when we parameterise modules, so that there can be several instances of the same
+	// TODO: what should happen with this method when we parameterise modules,
+	// so that there can be several instances of the same
 	// class?
 	public static MaryModule getModule(Class<?> moduleClass) {
 		if (!registrationComplete)
@@ -213,7 +222,8 @@ public class ModuleRegistry {
 	 * @throws IllegalStateException
 	 *             if called while registration is not yet complete.
 	 */
-	// TODO: what should happen with this method when we parameterise modules, so that there can be several instances of the same
+	// TODO: what should happen with this method when we parameterise modules,
+	// so that there can be several instances of the same
 	// class?
 	public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
 		if (!registrationComplete)

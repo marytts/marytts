@@ -16,35 +16,33 @@ import marytts.features.FeatureProcessor;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class NbPhrasesRelated implements FeatureProcessor
-{
-    protected Hashtable<Item, Feature> cache;
+public class NbPhrasesRelated implements FeatureProcessor {
+	protected Hashtable<Item, Feature> cache;
 
-    public NbPhrasesRelated()
-    {
-        cache = new Hashtable<Item, Feature>();
-    }
+	public NbPhrasesRelated() {
+		cache = new Hashtable<Item, Feature>();
+	}
 
-    public Feature generate(Utterance utt, Item item) throws Exception
-    {
-        if (item instanceof Phrase)
-            throw new Exception();
+	public Feature generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof Phrase)
+			throw new Exception();
 
-        if (cache.containsKey(item))
-            return cache.get(item);
+		if (cache.containsKey(item))
+			return cache.get(item);
 
-        Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHRASE));
-        int item_idx = seq_item.indexOf(item);
+		Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
+		Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHRASE));
+		int item_idx = seq_item.indexOf(item);
 
-        // Find the related phrase indexes
-        int[] phr_indexes = rel.getRelatedIndexes(item_idx);
-        Feature tmp =new Feature(phr_indexes.length);
+		// Find the related phrase indexes
+		int[] phr_indexes = rel.getRelatedIndexes(item_idx);
+		Feature tmp = new Feature(phr_indexes.length);
 
-        // Save in the cache
-        cache.put(item, tmp);
-        return tmp;
-    }
+		// Save in the cache
+		cache.put(item, tmp);
+		return tmp;
+	}
 }

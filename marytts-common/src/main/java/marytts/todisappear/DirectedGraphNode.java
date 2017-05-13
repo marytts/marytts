@@ -28,9 +28,10 @@ import java.util.Map;
 import marytts.todisappear.FeatureVector;
 
 /**
- * A type of node that can be at the same time a decision node and a leaf node, and that can have more than one mother. Other than
- * tree nodes, thus, directed graph nodes are not necessarily contained in a strict tree structure; furthermore, each node can
- * potentially carry data.
+ * A type of node that can be at the same time a decision node and a leaf node,
+ * and that can have more than one mother. Other than tree nodes, thus, directed
+ * graph nodes are not necessarily contained in a strict tree structure;
+ * furthermore, each node can potentially carry data.
  *
  * @author marc
  *
@@ -90,7 +91,8 @@ public class DirectedGraphNode extends Node {
 	}
 
 	/**
-	 * Get a mother node of this node. DirectedGraphNodes can have more than one node.
+	 * Get a mother node of this node. DirectedGraphNodes can have more than one
+	 * node.
 	 *
 	 * @return the first mother, or null if there is no mother.
 	 */
@@ -103,7 +105,8 @@ public class DirectedGraphNode extends Node {
 	/**
 	 * Get the index of this node in the mother returned by getMother().
 	 *
-	 * @return the index in the mother's daughter array, or 0 if there is no mother.
+	 * @return the index in the mother's daughter array, or 0 if there is no
+	 *         mother.
 	 */
 	public int getNodeIndex() {
 		Node firstMother = getMother();

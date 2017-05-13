@@ -43,7 +43,8 @@ import java.nio.ByteBuffer;
 import marytts.exceptions.MaryConfigurationException;
 
 /**
- * Common helper class to read/write a standard Mary header to/from the various Mary data files.
+ * Common helper class to read/write a standard Mary header to/from the various
+ * Mary data files.
  *
  * @author sacha
  *
@@ -79,7 +80,8 @@ public class MaryHeader {
 	 *
 	 * @param fileName
 	 *            file name
-	 * @return the file type, or -1 if the file does not have a valid MARY header.
+	 * @return the file type, or -1 if the file does not have a valid MARY
+	 *         header.
 	 * @throws IOException
 	 *             if the file cannot be read
 	 */
@@ -107,10 +109,12 @@ public class MaryHeader {
 	/**
 	 * Consruct a MaryHeader from scratch.
 	 *
-	 * Fundamental guarantee: after construction, the MaryHeader has a valid magic number and a valid type.
+	 * Fundamental guarantee: after construction, the MaryHeader has a valid
+	 * magic number and a valid type.
 	 *
 	 * @param newType
-	 *            The type of MaryHeader to create. See public final constants in this class.
+	 *            The type of MaryHeader to create. See public final constants
+	 *            in this class.
 	 *
 	 * @throws IllegalArgumentException
 	 *             if the input type is unknown.
@@ -128,8 +132,9 @@ public class MaryHeader {
 	}
 
 	/**
-	 * Construct a MaryHeader by reading from a file. Fundamental guarantee: after construction, the MaryHeader has a valid magic
-	 * number and a valid type.
+	 * Construct a MaryHeader by reading from a file. Fundamental guarantee:
+	 * after construction, the MaryHeader has a valid magic number and a valid
+	 * type.
 	 *
 	 * @param input
 	 *            a DataInputStream or RandomAccessFile to read the header from.
@@ -153,8 +158,9 @@ public class MaryHeader {
 	}
 
 	/**
-	 * Construct a MaryHeader by reading from a file. Fundamental guarantee: after construction, the MaryHeader has a valid magic
-	 * number and a valid type.
+	 * Construct a MaryHeader by reading from a file. Fundamental guarantee:
+	 * after construction, the MaryHeader has a valid magic number and a valid
+	 * type.
 	 *
 	 * @param input
 	 *            a byte buffer to read the header from.
@@ -212,7 +218,8 @@ public class MaryHeader {
 	 * Load a mary header.
 	 *
 	 * @param input
-	 *            The data input (DataInputStream or RandomAccessFile) to read from.
+	 *            The data input (DataInputStream or RandomAccessFile) to read
+	 *            from.
 	 *
 	 * @throws IOException
 	 *             if the header data cannot be read

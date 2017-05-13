@@ -54,7 +54,8 @@ import org.w3c.dom.traversal.TreeWalker;
  */
 public class MaryGenericFeatureProcessors {
 	/**
-	 * Navigate from a target to an item. Classes implementing this interface will retrieve meaningful items given the target.
+	 * Navigate from a target to an item. Classes implementing this interface
+	 * will retrieve meaningful items given the target.
 	 *
 	 * @author Marc Schr&ouml;der
 	 */
@@ -64,7 +65,8 @@ public class MaryGenericFeatureProcessors {
 		 *
 		 * @param target
 		 *            target
-		 * @return an item selected according to this navigator, or null if there is no such item.
+		 * @return an item selected according to this navigator, or null if
+		 *         there is no such item.
 		 */
 		public Element getElement(Target target);
 	}
@@ -182,8 +184,8 @@ public class MaryGenericFeatureProcessors {
 			TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
 			Element first = (Element) tw.firstChild();
 			if (first != null) {
-				assert first.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE + ", got "
-						+ first.getTagName();
+				assert first.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE
+						+ ", got " + first.getTagName();
 			}
 			return first;
 		}
@@ -204,8 +206,8 @@ public class MaryGenericFeatureProcessors {
 			TreeWalker tw = MaryDomUtils.createTreeWalker(word, MaryXML.PHONE);
 			Element last = (Element) tw.lastChild();
 			if (last != null) {
-				assert last.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE + ", got "
-						+ last.getTagName();
+				assert last.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE
+						+ ", got " + last.getTagName();
 			}
 			return last;
 		}
@@ -270,8 +272,8 @@ public class MaryGenericFeatureProcessors {
 				return null;
 			Element syllable = (Element) segment.getParentNode();
 			if (syllable != null) {
-				assert syllable.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE
-						+ ", got " + syllable.getTagName();
+				assert syllable.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected "
+						+ MaryXML.SYLLABLE + ", got " + syllable.getTagName();
 			}
 			return syllable;
 		}
@@ -304,8 +306,8 @@ public class MaryGenericFeatureProcessors {
 			tw.setCurrentNode(current);
 			Element previous = (Element) tw.previousNode();
 			if (previous != null) {
-				assert previous.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE
-						+ ", got " + previous.getTagName();
+				assert previous.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected "
+						+ MaryXML.SYLLABLE + ", got " + previous.getTagName();
 			}
 			return previous;
 		}
@@ -339,8 +341,8 @@ public class MaryGenericFeatureProcessors {
 			Element previous = (Element) tw.previousNode();
 			Element pp = (Element) tw.previousNode();
 			if (pp != null) {
-				assert pp.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE + ", got "
-						+ pp.getTagName();
+				assert pp.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE
+						+ ", got " + pp.getTagName();
 			}
 			return pp;
 		}
@@ -408,8 +410,8 @@ public class MaryGenericFeatureProcessors {
 			Element next = (Element) tw.nextNode();
 			Element nn = (Element) tw.nextNode();
 			if (nn != null) {
-				assert nn.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE + ", got "
-						+ nn.getTagName();
+				assert nn.getTagName().equals(MaryXML.SYLLABLE) : "Unexpected tag name: expected " + MaryXML.SYLLABLE
+						+ ", got " + nn.getTagName();
 			}
 			return nn;
 		}
@@ -428,8 +430,8 @@ public class MaryGenericFeatureProcessors {
 				return null;
 			Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
 			if (word != null) {
-				assert word.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
-						+ word.getTagName();
+				assert word.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN
+						+ ", got " + word.getTagName();
 			}
 			return word;
 		}
@@ -483,8 +485,8 @@ public class MaryGenericFeatureProcessors {
 				}
 			}
 			if (nextWord != null) {
-				assert nextWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
-						+ nextWord.getTagName();
+				assert nextWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN
+						+ ", got " + nextWord.getTagName();
 			}
 			return nextWord;
 		}
@@ -519,8 +521,8 @@ public class MaryGenericFeatureProcessors {
 				}
 			}
 			if (prevWord != null) {
-				assert prevWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
-						+ prevWord.getTagName();
+				assert prevWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN
+						+ ", got " + prevWord.getTagName();
 			}
 			return prevWord;
 		}
@@ -557,13 +559,13 @@ public class MaryGenericFeatureProcessors {
 			if (nextWord == null) {
 				return null;
 			}
-			assert nextWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
-					+ nextWord.getTagName();
+			assert nextWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN
+					+ ", got " + nextWord.getTagName();
 			TreeWalker sw = MaryDomUtils.createTreeWalker(nextWord, MaryXML.PHONE);
 			Element first = (Element) sw.firstChild();
 			if (first != null) {
-				assert first.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE + ", got "
-						+ first.getTagName();
+				assert first.getTagName().equals(MaryXML.PHONE) : "Unexpected tag name: expected " + MaryXML.PHONE
+						+ ", got " + first.getTagName();
 			}
 			return first;
 		}
@@ -590,8 +592,8 @@ public class MaryGenericFeatureProcessors {
 			}
 
 			if (lastWord != null) {
-				assert lastWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN + ", got "
-						+ lastWord.getTagName();
+				assert lastWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected " + MaryXML.TOKEN
+						+ ", got " + lastWord.getTagName();
 			}
 			return lastWord;
 		}
@@ -602,16 +604,18 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * flite never returns an int more than 19 from a feature processor, we duplicate that behavior in the processors so that our
-	 * tests will match. let's keep this number as a constant for better overview
+	 * flite never returns an int more than 19 from a feature processor, we
+	 * duplicate that behavior in the processors so that our tests will match.
+	 * let's keep this number as a constant for better overview
 	 */
 	private static final int RAIL_LIMIT = 19;
 
-	private static final String[] ZERO_TO_NINETEEN = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
-			"12", "13", "14", "15", "16", "17", "18", "19" };
+	private static final String[] ZERO_TO_NINETEEN = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+			"10", "11", "12", "13", "14", "15", "16", "17", "18", "19"};
 
 	/**
-	 * Indicate whether a unit is an edge unit, which is never the case for a target.
+	 * Indicate whether a unit is an edge unit, which is never the case for a
+	 * target.
 	 */
 	public static class Edge implements ByteValuedFeatureProcessor {
 		public String getName() {
@@ -619,7 +623,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public String[] getValues() {
-			return new String[] { "0", "start", "end" };
+			return new String[]{"0", "start", "end"};
 		}
 
 		/**
@@ -647,7 +651,8 @@ public class MaryGenericFeatureProcessors {
 		 * Initialize a speaking Style feature processor.
 		 */
 		public Style() {
-			this.values = new ByteStringTranslator(new String[] { "0", "neutral", "poker", "happy", "sad", "angry", "excited" });
+			this.values = new ByteStringTranslator(
+					new String[]{"0", "neutral", "poker", "happy", "sad", "angry", "excited"});
 			this.navigator = new SegmentNavigator();
 		}
 
@@ -663,7 +668,8 @@ public class MaryGenericFeatureProcessors {
 			String style = null;
 			Element segment = target.getMaryxmlElement();
 			if (segment != null) {
-				Element prosody = (Element) MaryDomUtils.getClosestAncestorWithAttribute(segment, MaryXML.PROSODY, styleTagName);
+				Element prosody = (Element) MaryDomUtils.getClosestAncestorWithAttribute(segment, MaryXML.PROSODY,
+						styleTagName);
 				if (prosody != null) {
 					style = prosody.getAttribute(styleTagName);
 				}
@@ -695,7 +701,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public String[] getValues() {
-			return new String[] { "0", "1" };
+			return new String[]{"0", "1"};
 		}
 
 		/**
@@ -732,7 +738,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public String[] getValues() {
-			return new String[] { "0", "1" };
+			return new String[]{"0", "1"};
 		}
 
 		/**
@@ -778,7 +784,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public String[] getValues() {
-			return new String[] { "0", "1", "2", "3", "4" };
+			return new String[]{"0", "1", "2", "3", "4"};
 		}
 
 		/**
@@ -841,8 +847,9 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Returns as an Integer the number of words in the current sentence. This is a feature processor. A feature processor takes
-	 * an item, performs some sort of processing on the item and returns an object.
+	 * Returns as an Integer the number of words in the current sentence. This
+	 * is a feature processor. A feature processor takes an item, performs some
+	 * sort of processing on the item and returns an object.
 	 */
 	public static class SentenceNumWords implements ByteValuedFeatureProcessor {
 		public SentenceNumWords() {
@@ -954,8 +961,9 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Returns as an Integer the number of syllables in the given word. This is a feature processor. A feature processor takes an
-	 * item, performs some sort of processing on the item and returns an object.
+	 * Returns as an Integer the number of syllables in the given word. This is
+	 * a feature processor. A feature processor takes an item, performs some
+	 * sort of processing on the item and returns an object.
 	 */
 	public static class WordNumSyls implements ByteValuedFeatureProcessor {
 		public WordNumSyls() {
@@ -1025,8 +1033,9 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Returns as an Integer the number of segments in the current syllable. This is a feature processor. A feature processor
-	 * takes an item, performs some sort of processing on the item and returns an object.
+	 * Returns as an Integer the number of segments in the current syllable.
+	 * This is a feature processor. A feature processor takes an item, performs
+	 * some sort of processing on the item and returns an object.
 	 */
 	public static class SylNumSegs implements ByteValuedFeatureProcessor {
 		public SylNumSegs() {
@@ -1321,16 +1330,18 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * "4" for a big break, "3" for a break; "1" = word-final; "0" = within-word
+		 * "4" for a big break, "3" for a break; "1" = word-final; "0" =
+		 * within-word
 		 */
 		public String[] getValues() {
-			return new String[] { "0", "1", "unused", "3", "4" };
+			return new String[]{"0", "1", "unused", "3", "4"};
 		}
 
 		/**
 		 * @param target
 		 *            the target to process
-		 * @return the break level after the syllable returned by syllableNavigator
+		 * @return the break level after the syllable returned by
+		 *         syllableNavigator
 		 */
 		public byte process(Target target) {
 			Element syllable = navigator.getElement(target);
@@ -1353,11 +1364,13 @@ public class MaryGenericFeatureProcessors {
 			// The next word is the next token with a "ph" attribute:
 			Element e;
 			while ((e = (Element) tw.nextNode()) != null) {
-				if (e.getTagName().equals(MaryXML.BOUNDARY) || e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("ph"))
+				if (e.getTagName().equals(MaryXML.BOUNDARY)
+						|| e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("ph"))
 					break;
 			}
 			if (e == null) {
-				// we are the last token in the sentence, but there is no boundary...
+				// we are the last token in the sentence, but there is no
+				// boundary...
 				// OK, let's say it is sentence-final anyway:
 				return 4;
 			}
@@ -1365,8 +1378,8 @@ public class MaryGenericFeatureProcessors {
 				// a word follows
 				return 1;
 			}
-			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY + ", got "
-					+ e.getTagName();
+			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY
+					+ ", got " + e.getTagName();
 			String bi = e.getAttribute("breakindex");
 			if (bi.equals("")) {
 				// no breakindex
@@ -1393,7 +1406,7 @@ public class MaryGenericFeatureProcessors {
 		protected ByteStringTranslator values;
 
 		public PositionType() {
-			values = new ByteStringTranslator(new String[] { "0", "single", "final", "initial", "mid" });
+			values = new ByteStringTranslator(new String[]{"0", "single", "final", "initial", "mid"});
 			navigator = new SyllableNavigator();
 		}
 
@@ -1408,7 +1421,8 @@ public class MaryGenericFeatureProcessors {
 		/**
 		 * @param target
 		 *            the target to process
-		 * @return classifies the syllable as "single", "final", "initial" or "mid"
+		 * @return classifies the syllable as "single", "final", "initial" or
+		 *         "mid"
 		 */
 		public byte process(Target target) {
 			Element syllable = navigator.getElement(target);
@@ -1447,7 +1461,7 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		public String[] getValues() {
-			return new String[] { "0", "1" };
+			return new String[]{"0", "1"};
 		}
 
 		/**
@@ -1471,7 +1485,7 @@ public class MaryGenericFeatureProcessors {
 		protected ByteStringTranslator values;
 
 		public BreakIndex() {
-			values = new ByteStringTranslator(new String[] { "0", "1", "2", "3", "4", "5", "6" });
+			values = new ByteStringTranslator(new String[]{"0", "1", "2", "3", "4", "5", "6"});
 		}
 
 		public String getName() {
@@ -1503,11 +1517,13 @@ public class MaryGenericFeatureProcessors {
 			// The next word is the next token with a "ph" attribute:
 			Element e;
 			while ((e = (Element) tw.nextNode()) != null) {
-				if (e.getTagName().equals(MaryXML.BOUNDARY) || e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("ph"))
+				if (e.getTagName().equals(MaryXML.BOUNDARY)
+						|| e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("ph"))
 					break;
 			}
 			if (e == null) {
-				// we are the last token in the sentence, but there is no boundary...
+				// we are the last token in the sentence, but there is no
+				// boundary...
 				// OK, let's say it is sentence-final anyway:
 				return 4;
 			}
@@ -1515,8 +1531,8 @@ public class MaryGenericFeatureProcessors {
 				// a word follows
 				return 1;
 			}
-			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY + ", got "
-					+ e.getTagName();
+			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY
+					+ ", got " + e.getTagName();
 			String bi = e.getAttribute("breakindex");
 			if (bi.equals("")) {
 				// no breakindex
@@ -1547,8 +1563,9 @@ public class MaryGenericFeatureProcessors {
 		public TobiAccent(String name, TargetElementNavigator syllableNavigator) {
 			this.name = name;
 			this.navigator = syllableNavigator;
-			this.values = new ByteStringTranslator(new String[] { "0", "*", "H*", "!H*", "^H*", "L*", "L+H*", "L*+H", "L+!H*",
-					"L*+!H", "L+^H*", "L*+^H", "H+L*", "H+!H*", "H+^H*", "!H+!H*", "^H+!H*", "^H+^H*", "H*+L", "!H*+L" });
+			this.values = new ByteStringTranslator(
+					new String[]{"0", "*", "H*", "!H*", "^H*", "L*", "L+H*", "L*+H", "L+!H*", "L*+!H", "L+^H*", "L*+^H",
+							"H+L*", "H+!H*", "H+^H*", "!H+!H*", "^H+!H*", "^H+^H*", "H*+L", "!H*+L"});
 		}
 
 		public String getName() {
@@ -1560,7 +1577,8 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * For the given syllable item, return its tobi accent, or 0 if there is none.
+		 * For the given syllable item, return its tobi accent, or 0 if there is
+		 * none.
 		 */
 		public byte process(Target target) {
 			Element syllable = navigator.getElement(target);
@@ -1585,8 +1603,8 @@ public class MaryGenericFeatureProcessors {
 		public TobiEndtone(String name, TargetElementNavigator syllableNavigator) {
 			this.name = name;
 			this.navigator = syllableNavigator;
-			this.values = new ByteStringTranslator(new String[] { "0", "H-", "!H-", "L-", "H-%", "!H-%", "H-^H%", "!H-^H%",
-					"L-H%", "L-%", "L-L%", "H-H%", "H-L%" });
+			this.values = new ByteStringTranslator(new String[]{"0", "H-", "!H-", "L-", "H-%", "!H-%", "H-^H%",
+					"!H-^H%", "L-H%", "L-%", "L-L%", "H-H%", "H-L%"});
 		}
 
 		public String getName() {
@@ -1598,7 +1616,8 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * For the given syllable item, return its tobi end tone, or 0 if there is none.
+		 * For the given syllable item, return its tobi end tone, or 0 if there
+		 * is none.
 		 */
 		public byte process(Target target) {
 			Element syllable = navigator.getElement(target);
@@ -1614,8 +1633,8 @@ public class MaryGenericFeatureProcessors {
 				return 0;
 			if (e.getTagName().equals(MaryXML.SYLLABLE))
 				return 0;
-			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY + ", got "
-					+ e.getTagName();
+			assert e.getTagName().equals(MaryXML.BOUNDARY) : "Unexpected tag name: expected " + MaryXML.BOUNDARY
+					+ ", got " + e.getTagName();
 			String endtone = e.getAttribute("tone");
 			if (endtone.equals("")) {
 				return 0;
@@ -1625,7 +1644,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * The next ToBI accent following the current syllable in the current phrase.
+	 * The next ToBI accent following the current syllable in the current
+	 * phrase.
 	 */
 	public static class NextAccent extends TobiAccent {
 		public NextAccent() {
@@ -1633,7 +1653,8 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * Search for an accented syllable, and return its tobi accent, or 0 if there is none.
+		 * Search for an accented syllable, and return its tobi accent, or 0 if
+		 * there is none.
 		 */
 		public byte process(Target target) {
 			Element segment = target.getMaryxmlElement();
@@ -1665,7 +1686,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * The previous ToBI accent preceding the current syllable in the current phrase.
+	 * The previous ToBI accent preceding the current syllable in the current
+	 * phrase.
 	 */
 	public static class PrevAccent extends TobiAccent {
 		public PrevAccent() {
@@ -1673,7 +1695,8 @@ public class MaryGenericFeatureProcessors {
 		}
 
 		/**
-		 * Search for an accented syllable, and return its tobi accent, or 0 if there is none.
+		 * Search for an accented syllable, and return its tobi accent, or 0 if
+		 * there is none.
 		 */
 		public byte process(Target target) {
 			Element segment = target.getMaryxmlElement();
@@ -1714,7 +1737,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * The ToBI endtone associated with the last syllable of the previous phrase.
+	 * The ToBI endtone associated with the last syllable of the previous
+	 * phrase.
 	 */
 	public static class PrevPhraseEndtone extends TobiEndtone {
 		public PrevPhraseEndtone() {
@@ -2245,7 +2269,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Counts the number of syllables since the last accent in the current phrase.
+	 * Counts the number of syllables since the last accent in the current
+	 * phrase.
 	 */
 	public static class SylsFromPrevAccent implements ByteValuedFeatureProcessor {
 		public SylsFromPrevAccent() {
@@ -2291,7 +2316,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Counts the number of syllables until the next accent in the current phrase.
+	 * Counts the number of syllables until the next accent in the current
+	 * phrase.
 	 */
 	public static class SylsToNextAccent implements ByteValuedFeatureProcessor {
 		public SylsToNextAccent() {
@@ -2332,7 +2358,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Counts the number of syllables since the last stressed syllable in the current phrase.
+	 * Counts the number of syllables since the last stressed syllable in the
+	 * current phrase.
 	 */
 	public static class SylsFromPrevStressed implements ByteValuedFeatureProcessor {
 		public SylsFromPrevStressed() {
@@ -2378,7 +2405,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Counts the number of syllables until the next stressed syllable in the current phrase.
+	 * Counts the number of syllables until the next stressed syllable in the
+	 * current phrase.
 	 */
 	public static class SylsToNextStressed implements ByteValuedFeatureProcessor {
 		public SylsToNextStressed() {
@@ -2430,13 +2458,14 @@ public class MaryGenericFeatureProcessors {
 		 * @param name
 		 *            name of this feature processor
 		 * @param wordNavigator
-		 *            a navigator which returns a word for a target. This navigator decides the word for which the punctuation
-		 *            will be computed.
+		 *            a navigator which returns a word for a target. This
+		 *            navigator decides the word for which the punctuation will
+		 *            be computed.
 		 */
 		public WordPunc(String name, TargetElementNavigator wordNavigator) {
 			this.name = name;
 			this.navigator = wordNavigator;
-			this.values = new ByteStringTranslator(new String[] { "0", ".", ",", ";", ":", "(", ")", "?", "!", "\"" });
+			this.values = new ByteStringTranslator(new String[]{"0", ".", ",", ";", ":", "(", ")", "?", "!", "\""});
 		}
 
 		public String getName() {
@@ -2533,7 +2562,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Determines the distance in words to the next word punctuation in the sentence.
+	 * Determines the distance in words to the next word punctuation in the
+	 * sentence.
 	 */
 	public static class WordsToNextPunctuation extends WordPunc {
 		public WordsToNextPunctuation() {
@@ -2571,7 +2601,8 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Determines the distance in words from the previous word punctuation in the sentence.
+	 * Determines the distance in words from the previous word punctuation in
+	 * the sentence.
 	 */
 	public static class WordsFromPrevPunctuation extends WordPunc {
 		public WordsFromPrevPunctuation() {
@@ -2617,11 +2648,11 @@ public class MaryGenericFeatureProcessors {
 	public static class Selection_Prosody implements ByteValuedFeatureProcessor {
 
 		protected TargetElementNavigator navigator;
-		protected ByteStringTranslator values = new ByteStringTranslator(new String[] { "0", "stressed", "pre-nuclear",
-				"nuclear", "finalHigh", "finalLow", "final" });
-		private Set<String> lowEndtones = new HashSet<String>(Arrays.asList(new String[] { "L-", "L-%", "L-L%" }));
-		private Set<String> highEndtones = new HashSet<String>(Arrays.asList(new String[] { "H-", "!H-", "H-%", "H-L%", "!H-%",
-				"H-^H%", "!H-^H%", "L-H%", "H-H%" }));
+		protected ByteStringTranslator values = new ByteStringTranslator(
+				new String[]{"0", "stressed", "pre-nuclear", "nuclear", "finalHigh", "finalLow", "final"});
+		private Set<String> lowEndtones = new HashSet<String>(Arrays.asList(new String[]{"L-", "L-%", "L-L%"}));
+		private Set<String> highEndtones = new HashSet<String>(
+				Arrays.asList(new String[]{"H-", "!H-", "H-%", "H-L%", "!H-%", "H-^H%", "!H-^H%", "L-H%", "H-H%"}));
 
 		public Selection_Prosody(TargetElementNavigator syllableNavigator) {
 			this.navigator = syllableNavigator;
@@ -2640,8 +2671,9 @@ public class MaryGenericFeatureProcessors {
 		 *
 		 * @param target
 		 *            the target
-		 * @return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent 3 - nuclear accent, 4 - phrase final high, 5 - phrase
-		 *         final low, 6 - phrase final (with unknown high/low status).
+		 * @return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent 3 -
+		 *         nuclear accent, 4 - phrase final high, 5 - phrase final low,
+		 *         6 - phrase final (with unknown high/low status).
 		 */
 		public byte process(Target target) {
 			// first find out if syllable is stressed
@@ -2732,7 +2764,8 @@ public class MaryGenericFeatureProcessors {
 				return 0;
 			}
 			try {
-				// parse duration string, and convert from milliseconds into seconds:
+				// parse duration string, and convert from milliseconds into
+				// seconds:
 				phoneDuration = Float.parseFloat(sDur) * 0.001f;
 			} catch (NumberFormatException nfe) {
 			}
@@ -2741,8 +2774,10 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Calculates the log of the fundamental frequency in the middle of a unit segment. This processor should be used by target
-	 * items only -- for unit features during voice building, the actual measured values should be used.
+	 * Calculates the log of the fundamental frequency in the middle of a unit
+	 * segment. This processor should be used by target items only -- for unit
+	 * features during voice building, the actual measured values should be
+	 * used.
 	 */
 	public static class UnitLogF0 implements ContinuousFeatureProcessor {
 		public String getName() {
@@ -2759,13 +2794,18 @@ public class MaryGenericFeatureProcessors {
 		 * @param target
 		 *            target
 		 * @param delta
-		 *            if true, return the delta, i.e. the logF0 slope; if false, return the log f0 value itself.
-		 * @return 0 if seg is null, or if !seg.getTagName().equals(MaryXML.PHONE), 0 if lastPos == null or nextPos == null,
-		 *         return lastF0 otherwise; if delta return slope, return f0 otherwise
+		 *            if true, return the delta, i.e. the logF0 slope; if false,
+		 *            return the log f0 value itself.
+		 * @return 0 if seg is null, or if
+		 *         !seg.getTagName().equals(MaryXML.PHONE), 0 if lastPos == null
+		 *         or nextPos == null, return lastF0 otherwise; if delta return
+		 *         slope, return f0 otherwise
 		 */
 		protected float process(Target target, boolean delta) {
-			// Idea: find the closest f0 targets in the current syllable, left and right of our middle;
-			// linearly interpolate between them to find the value in the middle of this unit.
+			// Idea: find the closest f0 targets in the current syllable, left
+			// and right of our middle;
+			// linearly interpolate between them to find the value in the middle
+			// of this unit.
 			Element seg = target.getMaryxmlElement();
 			if (seg == null) {
 				return 0;
@@ -2773,13 +2813,16 @@ public class MaryGenericFeatureProcessors {
 			if (!seg.getTagName().equals(MaryXML.PHONE)) {
 				return 0;
 			}
-			// get mid position of segment wrt phone start (phone start = 0, phone end = phone duration)
+			// get mid position of segment wrt phone start (phone start = 0,
+			// phone end = phone duration)
 			float mid;
 			float phoneDuration = getDuration(seg);
-            mid = 0.5f;
+			mid = 0.5f;
 
-			// Now mid is the middle of the unit relative to the phone start, in percent
-			Float lastPos = null; // position relative to mid, in milliseconds (negative)
+			// Now mid is the middle of the unit relative to the phone start, in
+			// percent
+			Float lastPos = null; // position relative to mid, in milliseconds
+									// (negative)
 			float lastF0 = 0;
 			Float nextPos = null; // position relative to mid, in milliseconds
 			float nextF0 = 0;
@@ -2787,7 +2830,8 @@ public class MaryGenericFeatureProcessors {
 
 			assert f0values != null;
 			// values are position, f0, position, f0, etc.;
-			// position is in percent of phone duration between 0 and 1, f0 is in Hz
+			// position is in percent of phone duration between 0 and 1, f0 is
+			// in Hz
 			for (int i = 0; i < f0values.length; i += 2) {
 				float pos = f0values[i];
 				if (pos <= mid) {
@@ -2886,7 +2930,8 @@ public class MaryGenericFeatureProcessors {
 				f0 = lastF0 + slope * (-lastPos);
 			}
 			assert !Float.isNaN(f0) : "f0 is not a number";
-			assert lastF0 <= f0 && nextF0 >= f0 || lastF0 >= f0 && nextF0 <= f0 : "f0 should be between last and next values";
+			assert lastF0 <= f0 && nextF0 >= f0
+					|| lastF0 >= f0 && nextF0 <= f0 : "f0 should be between last and next values";
 
 			if (delta)
 				return slope;
@@ -2940,9 +2985,12 @@ public class MaryGenericFeatureProcessors {
 	}
 
 	/**
-	 * Calculates the slope of a linear approximation of the fundamental frequency, in the log domain. The slope is computed by
-	 * linearly connecting the two log f0 values closest to the middle of the unit segment. This processor should be used by
-	 * target items only -- for unit features during voice building, the actual measured values should be used.
+	 * Calculates the slope of a linear approximation of the fundamental
+	 * frequency, in the log domain. The slope is computed by linearly
+	 * connecting the two log f0 values closest to the middle of the unit
+	 * segment. This processor should be used by target items only -- for unit
+	 * features during voice building, the actual measured values should be
+	 * used.
 	 */
 	public static class UnitLogF0Delta extends UnitLogF0 {
 		@Override

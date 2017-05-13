@@ -72,9 +72,11 @@ public class AudioCommon {
 	}
 
 	/**
-	 * Trying to get an audio file type for the passed extension. This works by examining all available file types. For each type,
-	 * if the extension this type promisses to handle matches the extension we are trying to find a type for, this type is
-	 * returned. If no appropriate type is found, null is returned.
+	 * Trying to get an audio file type for the passed extension. This works by
+	 * examining all available file types. For each type, if the extension this
+	 * type promisses to handle matches the extension we are trying to find a
+	 * type for, this type is returned. If no appropriate type is found, null is
+	 * returned.
 	 * 
 	 * @param strExtension
 	 *            strExtension
@@ -106,8 +108,8 @@ public class AudioCommon {
 	}
 
 	/**
-	 * List Mixers. Only Mixers that support either TargetDataLines or SourceDataLines are listed, depending on the value of
-	 * bPlayback.
+	 * List Mixers. Only Mixers that support either TargetDataLines or
+	 * SourceDataLines are listed, depending on the value of bPlayback.
 	 * 
 	 * @param bPlayback
 	 *            bPlayback
@@ -129,8 +131,8 @@ public class AudioCommon {
 	}
 
 	/**
-	 * TODO: This method tries to return a Mixer.Info whose name matches the passed name. If no matching Mixer.Info is found, null
-	 * is returned.
+	 * TODO: This method tries to return a Mixer.Info whose name matches the
+	 * passed name. If no matching Mixer.Info is found, null is returned.
 	 * 
 	 * @param strMixerName
 	 *            str mixer name
@@ -159,13 +161,17 @@ public class AudioCommon {
 	 */
 	public static TargetDataLine getTargetDataLine(String strMixerName, AudioFormat audioFormat, int nBufferSize) {
 		/*
-		 * Asking for a line is a rather tricky thing. We have to construct an Info object that specifies the desired properties
-		 * for the line. First, we have to say which kind of line we want. The possibilities are: SourceDataLine (for playback),
-		 * Clip (for repeated playback) and TargetDataLine (for recording). Here, we want to do normal capture, so we ask for a
-		 * TargetDataLine. Then, we have to pass an AudioFormat object, so that the Line knows which format the data passed to it
-		 * will have. Furthermore, we can give Java Sound a hint about how big the internal buffer for the line should be. This
-		 * isn't used here, signaling that we don't care about the exact size. Java Sound will use some default value for the
-		 * buffer size.
+		 * Asking for a line is a rather tricky thing. We have to construct an
+		 * Info object that specifies the desired properties for the line.
+		 * First, we have to say which kind of line we want. The possibilities
+		 * are: SourceDataLine (for playback), Clip (for repeated playback) and
+		 * TargetDataLine (for recording). Here, we want to do normal capture,
+		 * so we ask for a TargetDataLine. Then, we have to pass an AudioFormat
+		 * object, so that the Line knows which format the data passed to it
+		 * will have. Furthermore, we can give Java Sound a hint about how big
+		 * the internal buffer for the line should be. This isn't used here,
+		 * signaling that we don't care about the exact size. Java Sound will
+		 * use some default value for the buffer size.
 		 */
 		TargetDataLine targetDataLine = null;
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat, nBufferSize);
@@ -186,7 +192,8 @@ public class AudioCommon {
 			}
 
 			/*
-			 * The line is there, but it is not yet ready to receive audio data. We have to open the line.
+			 * The line is there, but it is not yet ready to receive audio data.
+			 * We have to open the line.
 			 */
 			if (DEBUG) {
 				out("AudioCommon.getTargetDataLine(): opening line...");

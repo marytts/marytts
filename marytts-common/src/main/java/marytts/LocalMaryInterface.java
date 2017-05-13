@@ -39,14 +39,13 @@ import marytts.server.Request;
 import marytts.util.MaryRuntimeUtils;
 
 /**
- * This class and its subclasses are intended to grow into a simple-to-use, unified interface for both the local MARY server and a
- * MARY client.
+ * This class and its subclasses are intended to grow into a simple-to-use,
+ * unified interface for both the local MARY server and a MARY client.
  *
  * @author marc
  *
  */
-public class LocalMaryInterface implements MaryInterface
-{
+public class LocalMaryInterface implements MaryInterface {
 	private Locale locale;
 	private AudioFileFormat audioFileFormat;
 	private String outputTypeParams;
@@ -95,9 +94,7 @@ public class LocalMaryInterface implements MaryInterface
 		return locale;
 	}
 
-	private MaryData process(String configuration, String input_data)
-        throws SynthesisException
-    {
+	private MaryData process(String configuration, String input_data) throws SynthesisException {
 		Request r = new Request(configuration, input_data);
 		try {
 			r.process();

@@ -38,7 +38,6 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.InternalModule;
 
-
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 import marytts.io.XMLSerializer;
@@ -51,7 +50,8 @@ import marytts.io.XMLSerializer;
  */
 public class AcousticModeller extends InternalModule {
 
-	// three constructors adapted from DummyAllophones2AcoustParams (used if this is in modules.classes.list):
+	// three constructors adapted from DummyAllophones2AcoustParams (used if
+	// this is in modules.classes.list):
 
 	public AcousticModeller() {
 		this((Locale) null);
@@ -77,8 +77,8 @@ public class AcousticModeller extends InternalModule {
 		super("AcousticModeller", locale);
 	}
 
-	// three constructors adapted from CARTF0Modeller (used if this is in a voice's preferredModules):
-
+	// three constructors adapted from CARTF0Modeller (used if this is in a
+	// voice's preferredModules):
 
 	/**
 	 * Constructor to be called with instantiated objects.
@@ -86,16 +86,14 @@ public class AcousticModeller extends InternalModule {
 	 * @param locale
 	 *            locale
 	 * @param propertyPrefix
-	 *            the prefix to be used when looking up entries in the config files, e.g. "english.f0"
-	 * @param featureProcessorManager
-	 *            the manager to use when looking up feature processors.
+	 *            the prefix to be used when looking up entries in the config
+	 *            files, e.g. "english.f0"
 	 */
-	protected AcousticModeller(Locale locale, String propertyPrefix)
-    {
+	protected AcousticModeller(Locale locale, String propertyPrefix) {
 		super("AcousticModeller", locale);
 	}
 
 	public MaryData process(MaryData d) throws SynthesisException {
-        return d;
+		return d;
 	}
 }

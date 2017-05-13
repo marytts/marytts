@@ -19,45 +19,39 @@
  */
 package marytts.data;
 
-
 import org.testng.Assert;
 import org.testng.annotations.*;
-
 
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.Item;
 
-public class SequenceTest
-{
+public class SequenceTest {
 
 	@Test
-	public void testSequence()
-    {
-        Sequence<Item> seq = new Sequence<Item>();
+	public void testSequence() {
+		Sequence<Item> seq = new Sequence<Item>();
 
-        Word w1 = new Word("Hello");
-        Word w2 = new Word("You");
+		Word w1 = new Word("Hello");
+		Word w2 = new Word("You");
 
-        Assert.assertTrue(seq.size() == 0);
-        seq.add(w1);
-        Assert.assertTrue(seq.size() == 1);
-        seq.add(w2);
-        Assert.assertTrue(seq.size() == 2);
-    }
+		Assert.assertTrue(seq.size() == 0);
+		seq.add(w1);
+		Assert.assertTrue(seq.size() == 1);
+		seq.add(w2);
+		Assert.assertTrue(seq.size() == 2);
+	}
 
-    @Test
-    public void testReference()
-    {
-        Sequence<Item> seq = new Sequence<Item>();
+	@Test
+	public void testReference() {
+		Sequence<Item> seq = new Sequence<Item>();
 
-        Word w1 = new Word("Hello");
-        Word w2 = new Word("You");
+		Word w1 = new Word("Hello");
+		Word w2 = new Word("You");
 
-
-        Assert.assertFalse(w1.isInSequence(seq));
-        seq.add(w1);
-        Assert.assertTrue(w1.isInSequence(seq));
-        seq.add(w2);
-        Assert.assertTrue(w2.isInSequence(seq));
-    }
+		Assert.assertFalse(w1.isInSequence(seq));
+		seq.add(w1);
+		Assert.assertTrue(w1.isInSequence(seq));
+		seq.add(w2);
+		Assert.assertTrue(w2.isInSequence(seq));
+	}
 }

@@ -46,8 +46,9 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
 /**
- * A wrapper class for output of XML DOM trees in a Mary normalised way: One tag or text node per line, no indentation. This is
- * only needed during the transition phase to "real" XML modules.
+ * A wrapper class for output of XML DOM trees in a Mary normalised way: One tag
+ * or text node per line, no indentation. This is only needed during the
+ * transition phase to "real" XML modules.
  * 
  * @author Marc Schr&ouml;der
  */
@@ -61,7 +62,8 @@ public class MaryNormalisedWriter {
 	private Transformer transformer;
 
 	/**
-	 * Default constructor. Calls <code>startup()</code> if it has not been called before.
+	 * Default constructor. Calls <code>startup()</code> if it has not been
+	 * called before.
 	 * 
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
@@ -80,7 +82,8 @@ public class MaryNormalisedWriter {
 	// Methods
 
 	/**
-	 * Start up the static parts, and compile the normalise-maryxml XSLT stylesheet which can then be used by multiple threads.
+	 * Start up the static parts, and compile the normalise-maryxml XSLT
+	 * stylesheet which can then be used by multiple threads.
 	 * 
 	 * @exception TransformerFactoryConfigurationError
 	 *                if the TransformerFactory cannot be instanciated.
@@ -162,8 +165,9 @@ public class MaryNormalisedWriter {
 	}
 
 	/**
-	 * The simplest possible command line interface to the MaryNormalisedWriter. Reads a "real" XML document from stdin, and
-	 * outputs it in the MaryNormalised form to stdout.
+	 * The simplest possible command line interface to the MaryNormalisedWriter.
+	 * Reads a "real" XML document from stdin, and outputs it in the
+	 * MaryNormalised form to stdout.
 	 * 
 	 * @param args
 	 *            args

@@ -107,7 +107,8 @@ public class MaryCARTReader {
 		// read the decision nodes
 		int numDecNodes = raf.readInt(); // number of decision nodes
 
-		// First we need to read all nodes into memory, then we can link them properly
+		// First we need to read all nodes into memory, then we can link them
+		// properly
 		// in terms of parent/child.
 		DecisionNode[] dns = new DecisionNode[numDecNodes];
 		int[][] childIndexes = new int[numDecNodes][];
@@ -118,35 +119,40 @@ public class MaryCARTReader {
 			DecisionNode.Type nodeType = DecisionNode.Type.values()[nodeTypeNr];
 			int numChildren = 2; // for binary nodes
 			switch (nodeType) {
-			case BinaryByteDecisionNode:
-				int criterion = raf.readInt();
-				dns[i] = new DecisionNode.BinaryByteDecisionNode(featureNameIndex, (byte) criterion, featureDefinition);
-				break;
-			case BinaryShortDecisionNode:
-				criterion = raf.readInt();
-				dns[i] = new DecisionNode.BinaryShortDecisionNode(featureNameIndex, (short) criterion, featureDefinition);
-				break;
-			case BinaryFloatDecisionNode:
-				float floatCriterion = raf.readFloat();
-				dns[i] = new DecisionNode.BinaryFloatDecisionNode(featureNameIndex, floatCriterion, featureDefinition);
-				break;
-			case ByteDecisionNode:
-				numChildren = raf.readInt();
-				if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
-					throw new IOException("Inconsistent cart file: feature " + featureDefinition.getFeatureName(featureNameIndex)
-							+ " should have " + featureDefinition.getNumberOfValues(featureNameIndex)
-							+ " values, but decision node " + i + " has only " + numChildren + " child nodes");
-				}
-				dns[i] = new DecisionNode.ByteDecisionNode(featureNameIndex, numChildren, featureDefinition);
-				break;
-			case ShortDecisionNode:
-				numChildren = raf.readInt();
-				if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
-					throw new IOException("Inconsistent cart file: feature " + featureDefinition.getFeatureName(featureNameIndex)
-							+ " should have " + featureDefinition.getNumberOfValues(featureNameIndex)
-							+ " values, but decision node " + i + " has only " + numChildren + " child nodes");
-				}
-				dns[i] = new DecisionNode.ShortDecisionNode(featureNameIndex, numChildren, featureDefinition);
+				case BinaryByteDecisionNode :
+					int criterion = raf.readInt();
+					dns[i] = new DecisionNode.BinaryByteDecisionNode(featureNameIndex, (byte) criterion,
+							featureDefinition);
+					break;
+				case BinaryShortDecisionNode :
+					criterion = raf.readInt();
+					dns[i] = new DecisionNode.BinaryShortDecisionNode(featureNameIndex, (short) criterion,
+							featureDefinition);
+					break;
+				case BinaryFloatDecisionNode :
+					float floatCriterion = raf.readFloat();
+					dns[i] = new DecisionNode.BinaryFloatDecisionNode(featureNameIndex, floatCriterion,
+							featureDefinition);
+					break;
+				case ByteDecisionNode :
+					numChildren = raf.readInt();
+					if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
+						throw new IOException("Inconsistent cart file: feature "
+								+ featureDefinition.getFeatureName(featureNameIndex) + " should have "
+								+ featureDefinition.getNumberOfValues(featureNameIndex) + " values, but decision node "
+								+ i + " has only " + numChildren + " child nodes");
+					}
+					dns[i] = new DecisionNode.ByteDecisionNode(featureNameIndex, numChildren, featureDefinition);
+					break;
+				case ShortDecisionNode :
+					numChildren = raf.readInt();
+					if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
+						throw new IOException("Inconsistent cart file: feature "
+								+ featureDefinition.getFeatureName(featureNameIndex) + " should have "
+								+ featureDefinition.getNumberOfValues(featureNameIndex) + " values, but decision node "
+								+ i + " has only " + numChildren + " child nodes");
+					}
+					dns[i] = new DecisionNode.ShortDecisionNode(featureNameIndex, numChildren, featureDefinition);
 			}
 			// now read the children, indexes only:
 			childIndexes[i] = new int[numChildren];
@@ -156,7 +162,8 @@ public class MaryCARTReader {
 		}
 
 		// read the leaves
-		int numLeafNodes = raf.readInt(); // number of leaves, it does not include empty leaves
+		int numLeafNodes = raf.readInt(); // number of leaves, it does not
+											// include empty leaves
 		LeafNode[] lns = new LeafNode[numLeafNodes];
 
 		for (int j = 0; j < numLeafNodes; j++) {
@@ -164,37 +171,37 @@ public class MaryCARTReader {
 			int leafTypeNr = raf.readInt();
 			LeafNode.LeafType leafNodeType = LeafNode.LeafType.values()[leafTypeNr];
 			switch (leafNodeType) {
-			case IntArrayLeafNode:
-				int numData = raf.readInt();
-				int[] data = new int[numData];
-				for (int d = 0; d < numData; d++) {
-					data[d] = raf.readInt();
-				}
-				lns[j] = new LeafNode.IntArrayLeafNode(data);
-				break;
-			case FloatLeafNode:
-				float stddev = raf.readFloat();
-				float mean = raf.readFloat();
-				lns[j] = new LeafNode.FloatLeafNode(new float[] { stddev, mean });
-				break;
-			case IntAndFloatArrayLeafNode:
-			case StringAndFloatLeafNode:
-				int numPairs = raf.readInt();
-				int[] ints = new int[numPairs];
-				float[] floats = new float[numPairs];
-				for (int d = 0; d < numPairs; d++) {
-					ints[d] = raf.readInt();
-					floats[d] = raf.readFloat();
-				}
-				if (leafNodeType == LeafNode.LeafType.IntAndFloatArrayLeafNode)
-					lns[j] = new LeafNode.IntAndFloatArrayLeafNode(ints, floats);
-				else
-					lns[j] = new LeafNode.StringAndFloatLeafNode(ints, floats);
-				break;
-			case FeatureVectorLeafNode:
-				throw new IllegalArgumentException("Reading feature vector leaf nodes is not yet implemented");
-			case PdfLeafNode:
-				throw new IllegalArgumentException("Reading pdf leaf nodes is not yet implemented");
+				case IntArrayLeafNode :
+					int numData = raf.readInt();
+					int[] data = new int[numData];
+					for (int d = 0; d < numData; d++) {
+						data[d] = raf.readInt();
+					}
+					lns[j] = new LeafNode.IntArrayLeafNode(data);
+					break;
+				case FloatLeafNode :
+					float stddev = raf.readFloat();
+					float mean = raf.readFloat();
+					lns[j] = new LeafNode.FloatLeafNode(new float[]{stddev, mean});
+					break;
+				case IntAndFloatArrayLeafNode :
+				case StringAndFloatLeafNode :
+					int numPairs = raf.readInt();
+					int[] ints = new int[numPairs];
+					float[] floats = new float[numPairs];
+					for (int d = 0; d < numPairs; d++) {
+						ints[d] = raf.readInt();
+						floats[d] = raf.readFloat();
+					}
+					if (leafNodeType == LeafNode.LeafType.IntAndFloatArrayLeafNode)
+						lns[j] = new LeafNode.IntAndFloatArrayLeafNode(ints, floats);
+					else
+						lns[j] = new LeafNode.StringAndFloatLeafNode(ints, floats);
+					break;
+				case FeatureVectorLeafNode :
+					throw new IllegalArgumentException("Reading feature vector leaf nodes is not yet implemented");
+				case PdfLeafNode :
+					throw new IllegalArgumentException("Reading pdf leaf nodes is not yet implemented");
 			}
 		}
 
@@ -237,7 +244,8 @@ public class MaryCARTReader {
 	 * @param featDefinition
 	 *            the feature definition
 	 * @param dummy
-	 *            unused, just here for compatibility with the FeatureFileIndexer.
+	 *            unused, just here for compatibility with the
+	 *            FeatureFileIndexer.
 	 * @throws IOException
 	 *             if a problem occurs while loading
 	 */
@@ -276,7 +284,8 @@ public class MaryCARTReader {
 		// read the decision nodes
 		int numDecNodes = bb.getInt(); // number of decision nodes
 
-		// First we need to read all nodes into memory, then we can link them properly
+		// First we need to read all nodes into memory, then we can link them
+		// properly
 		// in terms of parent/child.
 		DecisionNode[] dns = new DecisionNode[numDecNodes];
 		int[][] childIndexes = new int[numDecNodes][];
@@ -287,35 +296,40 @@ public class MaryCARTReader {
 			DecisionNode.Type nodeType = DecisionNode.Type.values()[nodeTypeNr];
 			int numChildren = 2; // for binary nodes
 			switch (nodeType) {
-			case BinaryByteDecisionNode:
-				int criterion = bb.getInt();
-				dns[i] = new DecisionNode.BinaryByteDecisionNode(featureNameIndex, (byte) criterion, featureDefinition);
-				break;
-			case BinaryShortDecisionNode:
-				criterion = bb.getInt();
-				dns[i] = new DecisionNode.BinaryShortDecisionNode(featureNameIndex, (short) criterion, featureDefinition);
-				break;
-			case BinaryFloatDecisionNode:
-				float floatCriterion = bb.getFloat();
-				dns[i] = new DecisionNode.BinaryFloatDecisionNode(featureNameIndex, floatCriterion, featureDefinition);
-				break;
-			case ByteDecisionNode:
-				numChildren = bb.getInt();
-				if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
-					throw new IOException("Inconsistent cart file: feature " + featureDefinition.getFeatureName(featureNameIndex)
-							+ " should have " + featureDefinition.getNumberOfValues(featureNameIndex)
-							+ " values, but decision node " + i + " has only " + numChildren + " child nodes");
-				}
-				dns[i] = new DecisionNode.ByteDecisionNode(featureNameIndex, numChildren, featureDefinition);
-				break;
-			case ShortDecisionNode:
-				numChildren = bb.getInt();
-				if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
-					throw new IOException("Inconsistent cart file: feature " + featureDefinition.getFeatureName(featureNameIndex)
-							+ " should have " + featureDefinition.getNumberOfValues(featureNameIndex)
-							+ " values, but decision node " + i + " has only " + numChildren + " child nodes");
-				}
-				dns[i] = new DecisionNode.ShortDecisionNode(featureNameIndex, numChildren, featureDefinition);
+				case BinaryByteDecisionNode :
+					int criterion = bb.getInt();
+					dns[i] = new DecisionNode.BinaryByteDecisionNode(featureNameIndex, (byte) criterion,
+							featureDefinition);
+					break;
+				case BinaryShortDecisionNode :
+					criterion = bb.getInt();
+					dns[i] = new DecisionNode.BinaryShortDecisionNode(featureNameIndex, (short) criterion,
+							featureDefinition);
+					break;
+				case BinaryFloatDecisionNode :
+					float floatCriterion = bb.getFloat();
+					dns[i] = new DecisionNode.BinaryFloatDecisionNode(featureNameIndex, floatCriterion,
+							featureDefinition);
+					break;
+				case ByteDecisionNode :
+					numChildren = bb.getInt();
+					if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
+						throw new IOException("Inconsistent cart file: feature "
+								+ featureDefinition.getFeatureName(featureNameIndex) + " should have "
+								+ featureDefinition.getNumberOfValues(featureNameIndex) + " values, but decision node "
+								+ i + " has only " + numChildren + " child nodes");
+					}
+					dns[i] = new DecisionNode.ByteDecisionNode(featureNameIndex, numChildren, featureDefinition);
+					break;
+				case ShortDecisionNode :
+					numChildren = bb.getInt();
+					if (featureDefinition.getNumberOfValues(featureNameIndex) != numChildren) {
+						throw new IOException("Inconsistent cart file: feature "
+								+ featureDefinition.getFeatureName(featureNameIndex) + " should have "
+								+ featureDefinition.getNumberOfValues(featureNameIndex) + " values, but decision node "
+								+ i + " has only " + numChildren + " child nodes");
+					}
+					dns[i] = new DecisionNode.ShortDecisionNode(featureNameIndex, numChildren, featureDefinition);
 			}
 			// now read the children, indexes only:
 			childIndexes[i] = new int[numChildren];
@@ -325,7 +339,8 @@ public class MaryCARTReader {
 		}
 
 		// read the leaves
-		int numLeafNodes = bb.getInt(); // number of leaves, it does not include empty leaves
+		int numLeafNodes = bb.getInt(); // number of leaves, it does not include
+										// empty leaves
 		LeafNode[] lns = new LeafNode[numLeafNodes];
 
 		for (int j = 0; j < numLeafNodes; j++) {
@@ -333,37 +348,37 @@ public class MaryCARTReader {
 			int leafTypeNr = bb.getInt();
 			LeafNode.LeafType leafNodeType = LeafNode.LeafType.values()[leafTypeNr];
 			switch (leafNodeType) {
-			case IntArrayLeafNode:
-				int numData = bb.getInt();
-				int[] data = new int[numData];
-				for (int d = 0; d < numData; d++) {
-					data[d] = bb.getInt();
-				}
-				lns[j] = new LeafNode.IntArrayLeafNode(data);
-				break;
-			case FloatLeafNode:
-				float stddev = bb.getFloat();
-				float mean = bb.getFloat();
-				lns[j] = new LeafNode.FloatLeafNode(new float[] { stddev, mean });
-				break;
-			case IntAndFloatArrayLeafNode:
-			case StringAndFloatLeafNode:
-				int numPairs = bb.getInt();
-				int[] ints = new int[numPairs];
-				float[] floats = new float[numPairs];
-				for (int d = 0; d < numPairs; d++) {
-					ints[d] = bb.getInt();
-					floats[d] = bb.getFloat();
-				}
-				if (leafNodeType == LeafNode.LeafType.IntAndFloatArrayLeafNode)
-					lns[j] = new LeafNode.IntAndFloatArrayLeafNode(ints, floats);
-				else
-					lns[j] = new LeafNode.StringAndFloatLeafNode(ints, floats);
-				break;
-			case FeatureVectorLeafNode:
-				throw new IllegalArgumentException("Reading feature vector leaf nodes is not yet implemented");
-			case PdfLeafNode:
-				throw new IllegalArgumentException("Reading pdf leaf nodes is not yet implemented");
+				case IntArrayLeafNode :
+					int numData = bb.getInt();
+					int[] data = new int[numData];
+					for (int d = 0; d < numData; d++) {
+						data[d] = bb.getInt();
+					}
+					lns[j] = new LeafNode.IntArrayLeafNode(data);
+					break;
+				case FloatLeafNode :
+					float stddev = bb.getFloat();
+					float mean = bb.getFloat();
+					lns[j] = new LeafNode.FloatLeafNode(new float[]{stddev, mean});
+					break;
+				case IntAndFloatArrayLeafNode :
+				case StringAndFloatLeafNode :
+					int numPairs = bb.getInt();
+					int[] ints = new int[numPairs];
+					float[] floats = new float[numPairs];
+					for (int d = 0; d < numPairs; d++) {
+						ints[d] = bb.getInt();
+						floats[d] = bb.getFloat();
+					}
+					if (leafNodeType == LeafNode.LeafType.IntAndFloatArrayLeafNode)
+						lns[j] = new LeafNode.IntAndFloatArrayLeafNode(ints, floats);
+					else
+						lns[j] = new LeafNode.StringAndFloatLeafNode(ints, floats);
+					break;
+				case FeatureVectorLeafNode :
+					throw new IllegalArgumentException("Reading feature vector leaf nodes is not yet implemented");
+				case PdfLeafNode :
+					throw new IllegalArgumentException("Reading pdf leaf nodes is not yet implemented");
 			}
 		}
 

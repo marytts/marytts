@@ -20,7 +20,6 @@
 
 package marytts.util.string;
 
-
 import org.testng.Assert;
 import org.testng.annotations.*;
 
@@ -102,12 +101,14 @@ public class ByteStringTranslatorTest {
 
 	@Test
 	public void maxListCompareString() {
-		Assert.assertEquals(tMax.get((byte) (ByteStringTranslator.MAXNUM - 1)), "b" + (ByteStringTranslator.MAXNUM - 1));
+		Assert.assertEquals(tMax.get((byte) (ByteStringTranslator.MAXNUM - 1)),
+				"b" + (ByteStringTranslator.MAXNUM - 1));
 	}
 
 	@Test
 	public void maxListCompareString2() {
-		Assert.assertEquals(tMax.get("b" + (ByteStringTranslator.MAXNUM - 1)), (byte) (ByteStringTranslator.MAXNUM - 1));
+		Assert.assertEquals(tMax.get("b" + (ByteStringTranslator.MAXNUM - 1)),
+				(byte) (ByteStringTranslator.MAXNUM - 1));
 	}
 
 	@Test

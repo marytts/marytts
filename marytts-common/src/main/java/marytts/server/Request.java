@@ -19,7 +19,6 @@
  */
 package marytts.server;
 
-
 import java.lang.reflect.Constructor;
 import java.io.StringReader;
 import java.util.Properties;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
-
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +43,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
@@ -67,17 +64,21 @@ import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 
 /**
- * A request consists of input data, a desired output data type and the means to process the input data into the data of the
- * output type.<br>
+ * A request consists of input data, a desired output data type and the means to
+ * process the input data into the data of the output type.<br>
  * <br>
- * A request is used as follows. First, its basic properties are set in the constructor, such as its input and output types.
- * Second, the input data is provided to the request either by directly setting it (<code>setInputData()</code>) or by reading it
- * from a Reader (<code>readInputData()</code>). Third, the request is processed (<code>process()</code>). Finally, the output
- * data is either accessed directly (<code>getOutputData()</code>) or written to an output stream (<code>writeOutputData</code>).
+ * A request is used as follows. First, its basic properties are set in the
+ * constructor, such as its input and output types. Second, the input data is
+ * provided to the request either by directly setting it
+ * (<code>setInputData()</code>) or by reading it from a Reader
+ * (<code>readInputData()</code>). Third, the request is processed
+ * (<code>process()</code>). Finally, the output data is either accessed
+ * directly (<code>getOutputData()</code>) or written to an output stream
+ * (<code>writeOutputData</code>).
  */
 public class Request {
-    protected String configuration;
-    protected String input_data;
+	protected String configuration;
+	protected String input_data;
 
 	protected String outputTypeParams;
 	protected Locale defaultLocale;
@@ -86,7 +87,7 @@ public class Request {
 	protected Logger logger;
 	protected MaryData inputData;
 	protected MaryData outputData;
-    protected Serializer output_serializer;
+	protected Serializer output_serializer;
 	protected boolean abortRequested = false;
 
 	// Keep track of timing info for each module
@@ -96,72 +97,65 @@ public class Request {
 	public Request(String configuration, String input_data) {
 		this.logger = MaryUtils.getLogger("R " + id);
 
-        this.configuration = configuration;
-        this.input_data = input_data;
+		this.configuration = configuration;
+		this.input_data = input_data;
 
 		timingInfo = new HashMap<MaryModule, Long>();
 	}
 
-    public void process()
-        throws Exception
-    {
+	public void process() throws Exception {
 
-        assert Mary.currentState() == Mary.STATE_RUNNING;
+		assert Mary.currentState() == Mary.STATE_RUNNING;
 
-        // Parser configuration
-        final Properties configuration_properties = new Properties();
-        configuration_properties.load(new StringReader(this.configuration));
+		// Parser configuration
+		final Properties configuration_properties = new Properties();
+		configuration_properties.load(new StringReader(this.configuration));
 
-        // Input serializer reflection (FIXME: check if serializer is ok)
-        Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
-        Constructor<?> ctor = clazz.getConstructor();
-        Serializer serializer = (Serializer) ctor.newInstance(new Object[] {});
+		// Input serializer reflection (FIXME: check if serializer is ok)
+		Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
+		Constructor<?> ctor = clazz.getConstructor();
+		Serializer serializer = (Serializer) ctor.newInstance(new Object[]{});
 
-        // Input serializer reflection (FIXME: check if serializer is ok)
-        clazz = Class.forName(configuration_properties.get("output_serializer").toString());
-        ctor = clazz.getConstructor();
-        this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+		// Input serializer reflection (FIXME: check if serializer is ok)
+		clazz = Class.forName(configuration_properties.get("output_serializer").toString());
+		ctor = clazz.getConstructor();
+		this.output_serializer = (Serializer) ctor.newInstance(new Object[]{});
 
-        // Locale reflection (FIXME: Check if locale is correct)
-        Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
+		// Locale reflection (FIXME: Check if locale is correct)
+		Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
 
-        // Module sequence reflexion (FIXME: check if module is existing !)
-        List<MaryModule> usedModules = new ArrayList<MaryModule>();
-        String module_names = (String) configuration_properties.get("modules");
-        if (module_names != null)
-        {
-            List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
-            for (String module_class_name: module_name_list)
-            {
-                logger.debug("trying to load the following class " + module_class_name + " for locale " + cur_locale);
-                if (ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale) != null)
-                    usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale));
-                else
-                    usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name)));
-            }
-        }
+		// Module sequence reflexion (FIXME: check if module is existing !)
+		List<MaryModule> usedModules = new ArrayList<MaryModule>();
+		String module_names = (String) configuration_properties.get("modules");
+		if (module_names != null) {
+			List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
+			for (String module_class_name : module_name_list) {
+				logger.debug("trying to load the following class " + module_class_name + " for locale " + cur_locale);
+				if (ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale) != null)
+					usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale));
+				else
+					usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name)));
+			}
+		}
 
-        // Define the data
-        MaryData input_mary_data = new MaryData(cur_locale);
-        input_mary_data.setData(serializer.fromString(this.input_data));
+		// Define the data
+		MaryData input_mary_data = new MaryData(cur_locale);
+		input_mary_data.setData(serializer.fromString(this.input_data));
 
-
-        // Start to achieve the process
+		// Start to achieve the process
 		long startTime = System.currentTimeMillis();
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		logger.info("Handling request using the following modules:");
 		for (MaryModule m : usedModules) {
 			logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
 		}
-        outputData = input_mary_data;
-		for (MaryModule m : usedModules)
-        {
+		outputData = input_mary_data;
+		for (MaryModule m : usedModules) {
 			if (abortRequested)
 				break;
 
-            if (m.getState() == MaryModule.MODULE_OFFLINE)
-            {
+			if (m.getState() == MaryModule.MODULE_OFFLINE) {
 				// This should happen only in command line mode:
 				assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
 				logger.info("Starting module " + m.name());
@@ -204,7 +198,7 @@ public class Request {
 		for (MaryModule m : usedModules) {
 			logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
 		}
-    }
+	}
 
 	public int getId() {
 		return id;
@@ -219,9 +213,10 @@ public class Request {
 	}
 
 	/**
-	 * Set the input data directly, in case it is already in the form of a MaryData object.
+	 * Set the input data directly, in case it is already in the form of a
+	 * MaryData object.
 	 *
-	 * @param inputData
+	 * @param input_data
 	 *            inputData
 	 */
 	public void setInputData(String input_data) {
@@ -258,16 +253,15 @@ public class Request {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public void writeOutputData(OutputStream outputStream)
-        throws Exception
-    {
+	public void writeOutputData(OutputStream outputStream) throws Exception {
 		if (outputData == null) {
 			throw new NullPointerException("No output data -- did process() succeed?");
 		}
 		if (outputStream == null)
 			throw new NullPointerException("cannot write to null output stream");
 		// Safety net: if the output is not written within a certain amount of
-		// time, give up. This prevents our thread from being locked forever if an
+		// time, give up. This prevents our thread from being locked forever if
+		// an
 		// output deadlock occurs (happened very rarely on Java 1.4.2beta).
 		final OutputStream os = outputStream;
 		Timer timer = new Timer();

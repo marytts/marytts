@@ -115,7 +115,8 @@ public class Inflection {
 		Element toInflect = null;
 		while ((toInflect = (Element) ni.nextNode()) != null) {
 			logger.debug("Token `" + MaryDomUtils.tokenText(toInflect) + "' needs an inflection ending.");
-			// If it has an "ending" attribute, it must also have a "sounds_like"
+			// If it has an "ending" attribute, it must also have a
+			// "sounds_like"
 			// attribute.
 			if (!toInflect.hasAttribute("sounds_like")) {
 				logger.warn("Token `" + MaryDomUtils.tokenText(toInflect)
@@ -131,12 +132,12 @@ public class Inflection {
 			// Otherwise, it is an adjective, so we need to analyse the NP/PP:
 			// Start with the fullest possible set of ending classes, then
 			// reduce ambiguity my means of the context.
-			Set<String> endingClasses = new HashSet<String>(Arrays.asList(new String[] { "1", "2", "3", "4", "5", "6", "7", "8",
-					"9" }));
+			Set<String> endingClasses = new HashSet<String>(
+					Arrays.asList(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9"}));
 			// Also need the determiner type:
 			String detType = null;
-			TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
-					MaryXML.TOKEN), true);
+			TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
+					new NameNodeFilter(MaryXML.TOKEN), true);
 			tw.setCurrentNode(toInflect);
 			// If toInflect is not the first token in the NP/PP,
 			// search to the left:
@@ -162,17 +163,42 @@ public class Inflection {
 			tw.setCurrentNode(toInflect);
 			Element t;
 			boolean haveSeenNoun = false;
-			while ((t = (Element) tw.nextNode()) != null && !t.getAttribute("syn_attach").equals("1") && // Stop at conjunction in
-																											// coordinated noun
-																											// phrases
-																											// if the left part
-																											// already has its own
+			while ((t = (Element) tw.nextNode()) != null && !t.getAttribute("syn_attach").equals("1") && // Stop
+																											// at
+																											// conjunction
+																											// in
+																											// coordinated
 																											// noun
-																											// (as in:
-																											// "der 2. Mann und die 3. Frau",
-																											// as opposed to
-																											// "der 2. und der 3. Mann").
-					!((t.getAttribute("syn_phrase").equals("CNP") || t.getAttribute("syn_phrase").equals("CPP")) && haveSeenNoun)) {
+																											// phrases
+																											// if
+																											// the
+																											// left
+																											// part
+																											// already
+																											// has
+																											// its
+																											// own
+																											// noun
+																											// (as
+																											// in:
+																											// "der
+																											// 2.
+																											// Mann
+																											// und
+																											// die
+																											// 3.
+																											// Frau",
+																											// as
+																											// opposed
+																											// to
+																											// "der
+																											// 2.
+																											// und
+																											// der
+																											// 3.
+																											// Mann").
+					!((t.getAttribute("syn_phrase").equals("CNP") || t.getAttribute("syn_phrase").equals("CPP"))
+							&& haveSeenNoun)) {
 				if (!t.getAttribute("syn_attach").equals("2")) {
 					if (t.getAttribute("pos").equals("NN"))
 						haveSeenNoun = true;
@@ -188,10 +214,11 @@ public class Inflection {
 				assert (ending != null);
 				endings.add(ending);
 				logger.debug("...ending class " + endingClass + " with "
-						+ (detType == null ? "no" : (detType.equals("d") ? "definite" : "indefinite")) + " determiner: Ending `e"
-						+ ending + "'");
+						+ (detType == null ? "no" : (detType.equals("d") ? "definite" : "indefinite"))
+						+ " determiner: Ending `e" + ending + "'");
 			}
-			// If there is exactly one ending in the endings Set, then we can use it:
+			// If there is exactly one ending in the endings Set, then we can
+			// use it:
 			if (endings.size() == 1) {
 				String ending = (String) endings.iterator().next();
 				logger.debug("...correct ending should be `e" + ending + "'");
@@ -208,11 +235,13 @@ public class Inflection {
 	}
 
 	/**
-	 * For a given token t, try to determine whether it is a definite or indefinite determiner.
+	 * For a given token t, try to determine whether it is a definite or
+	 * indefinite determiner.
 	 * 
 	 * @param t
 	 *            a token to verify.
-	 * @return "d" for definite determiner, "i" for indefinite determiner, and null if the token is not a determiner.
+	 * @return "d" for definite determiner, "i" for indefinite determiner, and
+	 *         null if the token is not a determiner.
 	 */
 	private String getDeterminerType(Element t) {
 		// special case: APPRART (zum, hinters, ...) is a definite determiner

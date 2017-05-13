@@ -48,10 +48,14 @@ import org.apache.log4j.Logger;
 public class MaryUtils {
 	public static final String LOGPREFIX = "marytts";
 
-	private static Timer maintenanceTimer = new Timer(true); // a daemon timer which will not prohibit system exits.
+	private static Timer maintenanceTimer = new Timer(true); // a daemon timer
+																// which will
+																// not prohibit
+																// system exits.
 
 	/**
-	 * Create a map from an Object array which contains paired entries (key, value, key, value, ....).
+	 * Create a map from an Object array which contains paired entries (key,
+	 * value, key, value, ....).
 	 * 
 	 * @param a
 	 *            a
@@ -74,7 +78,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Join a collection of strings into a single String object, in the order indicated by the collection's iterator.
+	 * Join a collection of strings into a single String object, in the order
+	 * indicated by the collection's iterator.
 	 * 
 	 * @param strings
 	 *            a collection containing exclusively String objects
@@ -92,14 +97,15 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Check if bytes contains a subsequence identical with pattern, and return the index position. Assumes that pattern.length
-	 * ^&lt; bytes.length.
+	 * Check if bytes contains a subsequence identical with pattern, and return
+	 * the index position. Assumes that pattern.length ^&lt; bytes.length.
 	 * 
 	 * @param bytes
 	 *            bytes
 	 * @param pattern
 	 *            pattern
-	 * @return the index position in bytes where pattern starts, or -1 if bytes does not contain pattern.
+	 * @return the index position in bytes where pattern starts, or -1 if bytes
+	 *         does not contain pattern.
 	 */
 	public static int indexOf(byte[] bytes, byte[] pattern) {
 		if (bytes == null || pattern == null || bytes.length < pattern.length || pattern.length == 0) {
@@ -182,7 +188,7 @@ public class MaryUtils {
 		}
 
 		String num = "IVXLCDM";
-		int[] value = { 1, 5, 10, 50, 100, 500, 1000 };
+		int[] value = {1, 5, 10, 50, 100, 500, 1000};
 		int sum = 0;
 		for (int i = romanNumber.length() - 1; i >= 0;) {
 			int posR = num.indexOf(romanNumber.charAt(i));
@@ -205,8 +211,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Tell whether the string contains a positive or negative percentage delta, i.e., a percentage number with an obligatory + or
-	 * - sign.
+	 * Tell whether the string contains a positive or negative percentage delta,
+	 * i.e., a percentage number with an obligatory + or - sign.
 	 * 
 	 * @param string
 	 *            string
@@ -220,12 +226,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing a percentage delta as judged by <code>isPercentageDelta()</code>, return the numerical value,
-	 * rounded to an integer.
+	 * For a string containing a percentage delta as judged by
+	 * <code>isPercentageDelta()</code>, return the numerical value, rounded to
+	 * an integer.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric part of the percentage, rounded to an integer, or 0 if the string is not a valid percentage delta.
+	 * @return the numeric part of the percentage, rounded to an integer, or 0
+	 *         if the string is not a valid percentage delta.
 	 */
 	public static int getPercentageDelta(String string) {
 		String s = string.trim();
@@ -235,12 +243,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Tell whether the string contains a positive or negative semitones delta, i.e., a semitones number with an obligatory + or -
-	 * sign, such as "+3.2st" or "-13.2st".
+	 * Tell whether the string contains a positive or negative semitones delta,
+	 * i.e., a semitones number with an obligatory + or - sign, such as "+3.2st"
+	 * or "-13.2st".
 	 * 
 	 * @param string
 	 *            string
-	 * @return s.substring(s.length() - 2).equals("st") and isNumberDelta(s.substring(0, s.length() - 2))
+	 * @return s.substring(s.length() - 2).equals("st") and
+	 *         isNumberDelta(s.substring(0, s.length() - 2))
 	 */
 	public static boolean isSemitonesDelta(String string) {
 		String s = string.trim();
@@ -251,12 +261,13 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing a semitones delta as judged by <code>isSemitonesDelta()</code>, return the numerical value, as a
-	 * double.
+	 * For a string containing a semitones delta as judged by
+	 * <code>isSemitonesDelta()</code>, return the numerical value, as a double.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric part of the semitones delta, or 0 if the string is not a valid semitones delta.
+	 * @return the numeric part of the semitones delta, or 0 if the string is
+	 *         not a valid semitones delta.
 	 */
 	public static double getSemitonesDelta(String string) {
 		String s = string.trim();
@@ -273,11 +284,13 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Tell whether the string contains a positive or negative number delta, i.e., a number with an obligatory + or - sign.
+	 * Tell whether the string contains a positive or negative number delta,
+	 * i.e., a number with an obligatory + or - sign.
 	 * 
 	 * @param string
 	 *            string
-	 * @return (s.charAt(0) == '+' or s.charAt(0) == '-') and isUnsignedNumber(s.substring(1))
+	 * @return (s.charAt(0) == '+' or s.charAt(0) == '-') and
+	 *         isUnsignedNumber(s.substring(1))
 	 */
 	public static boolean isNumberDelta(String string) {
 		String s = string.trim();
@@ -288,12 +301,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing a number delta as judged by <code>isNumberDelta()</code>, return the numerical value, rounded to an
+	 * For a string containing a number delta as judged by
+	 * <code>isNumberDelta()</code>, return the numerical value, rounded to an
 	 * integer.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number delta.
+	 * @return the numeric value, rounded to an integer, or 0 if the string is
+	 *         not a valid number delta.
 	 */
 	public static int getNumberDelta(String string) {
 		String s = string.trim();
@@ -310,11 +325,13 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Tell whether the string contains an unsigned semitones expression, such as "12st" or "5.4st".
+	 * Tell whether the string contains an unsigned semitones expression, such
+	 * as "12st" or "5.4st".
 	 * 
 	 * @param string
 	 *            string
-	 * @return s.substring(s.length() - 2).equals("st") and isUnsignedNumber(s.substring(0, s.length() - 2))
+	 * @return s.substring(s.length() - 2).equals("st") and
+	 *         isUnsignedNumber(s.substring(0, s.length() - 2))
 	 */
 	public static boolean isUnsignedSemitones(String string) {
 		String s = string.trim();
@@ -324,12 +341,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing an unsigned semitones expression as judged by <code>isUnsignedSemitones()</code>, return the
-	 * numerical value as a double.
+	 * For a string containing an unsigned semitones expression as judged by
+	 * <code>isUnsignedSemitones()</code>, return the numerical value as a
+	 * double.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric part of the semitones expression, or 0 if the string is not a valid unsigned semitones expression.
+	 * @return the numeric part of the semitones expression, or 0 if the string
+	 *         is not a valid unsigned semitones expression.
 	 */
 	public static double getUnsignedSemitones(String string) {
 		String s = string.trim();
@@ -369,12 +388,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing an unsigned number as judged by <code>isUnsignedNumber()</code>, return the numerical value,
-	 * rounded to an integer.
+	 * For a string containing an unsigned number as judged by
+	 * <code>isUnsignedNumber()</code>, return the numerical value, rounded to
+	 * an integer.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid unsigned number.
+	 * @return the numeric value, rounded to an integer, or 0 if the string is
+	 *         not a valid unsigned number.
 	 */
 	public static int getUnsignedNumber(String string) {
 		String s = string.trim();
@@ -410,11 +431,13 @@ public class MaryUtils {
 	}
 
 	/**
-	 * For a string containing a number as judged by <code>isNumber()</code>, return the numerical value, rounded to an integer.
+	 * For a string containing a number as judged by <code>isNumber()</code>,
+	 * return the numerical value, rounded to an integer.
 	 * 
 	 * @param string
 	 *            string
-	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number.
+	 * @return the numeric value, rounded to an integer, or 0 if the string is
+	 *         not a valid number.
 	 */
 	public static int getNumber(String string) {
 		String s = string.trim();
@@ -446,7 +469,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Convert a locale into a string that is conform with XML's xml:lang attribute. Basically it is language-COUNTRY, e.g. en-US.
+	 * Convert a locale into a string that is conform with XML's xml:lang
+	 * attribute. Basically it is language-COUNTRY, e.g. en-US.
 	 * 
 	 * @param locale
 	 *            a locale, must not be null
@@ -464,9 +488,10 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Test for lax Locale equality. More precisely, returns true if (a) both are equal; (b) general only specifies language, and
-	 * specific has the same language; (c) general specifies language and country, and specific has the same language and country.
-	 * Else returns false.
+	 * Test for lax Locale equality. More precisely, returns true if (a) both
+	 * are equal; (b) general only specifies language, and specific has the same
+	 * language; (c) general specifies language and country, and specific has
+	 * the same language and country. Else returns false.
 	 * 
 	 * @param general
 	 *            general
@@ -484,7 +509,8 @@ public class MaryUtils {
 				if (general.getLanguage().equals(specific.getLanguage()))
 					return true;
 			} else {
-				if (general.getLanguage().equals(specific.getLanguage()) && general.getCountry().equals(specific.getCountry()))
+				if (general.getLanguage().equals(specific.getLanguage())
+						&& general.getCountry().equals(specific.getCountry()))
 					return true;
 			}
 		}
@@ -492,9 +518,11 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Determine the amount of available memory. "Available" memory is calculated as <code>(max - total) + free</code>.
+	 * Determine the amount of available memory. "Available" memory is
+	 * calculated as <code>(max - total) + free</code>.
 	 * 
-	 * @return the number of bytes of memory available according to the above algorithm.
+	 * @return the number of bytes of memory available according to the above
+	 *         algorithm.
 	 */
 	public static long availableMemory() {
 		Runtime rt = Runtime.getRuntime();
@@ -502,12 +530,14 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Create a temporary file that will be deleted after a specified number of seconds. The file will be deleted regardless of
-	 * whether it is still used or not, so be sure to specify a sufficiently large value.
+	 * Create a temporary file that will be deleted after a specified number of
+	 * seconds. The file will be deleted regardless of whether it is still used
+	 * or not, so be sure to specify a sufficiently large value.
 	 * 
 	 * @param lifetimeInSeconds
-	 *            the number of seconds after which the file will be deleted -- e.g., 3600 means that the file will be deleted one
-	 *            hour after creation.
+	 *            the number of seconds after which the file will be deleted --
+	 *            e.g., 3600 means that the file will be deleted one hour after
+	 *            creation.
 	 * @return the File that was created.
 	 * @throws IOException
 	 *             IOException
@@ -523,18 +553,19 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Normalise the Unicode text by mapping "exotic" punctuation characters to "standard" ones.
+	 * Normalise the Unicode text by mapping "exotic" punctuation characters to
+	 * "standard" ones.
 	 * 
 	 * @param unicodeText
 	 *            a string that may include "exotic" punctuation characters
-	 * @return the string in which exotic characters have been replaced with their closest relative that can be handled by the
-	 *         TTS.
+	 * @return the string in which exotic characters have been replaced with
+	 *         their closest relative that can be handled by the TTS.
 	 */
 	public static String normaliseUnicodePunctuation(String unicodeText) {
 		return normaliseUnicode(unicodeText, punctuationTable);
 	}
 
-	protected static final char[] punctuationTable = new char[] { 8220, '"', // „
+	protected static final char[] punctuationTable = new char[]{8220, '"', // „
 			8222, '"', // “
 			8211, '-', // -
 			'\u2033', '"', // ″
@@ -562,21 +593,23 @@ public class MaryUtils {
 	};
 
 	/**
-	 * Normalise the Unicode text by mapping "exotic" letter characters to "standard" ones. Standard is locale-dependent. For
-	 * GERMAN: ascii plus german umlauts and ß. For other locales: ascii.
+	 * Normalise the Unicode text by mapping "exotic" letter characters to
+	 * "standard" ones. Standard is locale-dependent. For GERMAN: ascii plus
+	 * german umlauts and ß. For other locales: ascii.
 	 * 
 	 * @param unicodeText
 	 *            a string that may include "exotic" letter characters
 	 * @param targetLocale
 	 *            the locale against which normalisation is to be performed.
-	 * @return the string in which exotic characters have been replaced with their closest relative that can be handled by the
-	 *         TTS.
+	 * @return the string in which exotic characters have been replaced with
+	 *         their closest relative that can be handled by the TTS.
 	 */
 	public static String normaliseUnicodeLetters(String unicodeText, Locale targetLocale) {
 		if (subsumes(Locale.GERMAN, targetLocale)) {
 			return normaliseUnicode(unicodeText, toGermanLetterTable);
 		} else if (subsumes(Locale.ITALIAN, targetLocale)) {
-			// Note: this as my opinion should be done after the lexicon (before LTS rules) ... for the moment here
+			// Note: this as my opinion should be done after the lexicon (before
+			// LTS rules) ... for the moment here
 			return normaliseUnicode(unicodeText, toItalianLetterTable);
 		} else {
 			String german = normaliseUnicode(unicodeText, toGermanLetterTable);
@@ -584,7 +617,7 @@ public class MaryUtils {
 		}
 	}
 
-	protected static final char[] toGermanLetterTable = new char[] { '\u00c0', 'A', // À
+	protected static final char[] toGermanLetterTable = new char[]{'\u00c0', 'A', // À
 			'\u00c1', 'A', // Á
 			'\u00c2', 'A', // Â
 			'\u00c3', 'A', // Ã
@@ -637,7 +670,7 @@ public class MaryUtils {
 			'\u00ff', 'y', // ÿ
 	};
 
-	protected static final char[] toItalianLetterTable = new char[] {
+	protected static final char[] toItalianLetterTable = new char[]{
 			// '\u00c0', 'A', // À
 			// '\u00c1', 'A', // Á
 			'\u00c2', 'A', // Â
@@ -699,8 +732,8 @@ public class MaryUtils {
 			'\u00df', 's', // ß
 	};
 
-	protected static final char[] germanToAsciiLetterTable = new char[] { 'Ä', 'A', 'Ö', 'O', 'Ü', 'U', 'ä', 'a', 'ö', 'o', 'ü',
-			'u', 'ß', 's' };
+	protected static final char[] germanToAsciiLetterTable = new char[]{'Ä', 'A', 'Ö', 'O', 'Ü', 'U', 'ä', 'a', 'ö',
+			'o', 'ü', 'u', 'ß', 's'};
 
 	private static String normaliseUnicode(String unicodeText, char[] mappings) {
 		String result = unicodeText;
@@ -711,8 +744,9 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Apply the toString() method recursively to this throwable and all its causes. The idea is to get cause information as in
-	 * printStackTrace() without the stack trace.
+	 * Apply the toString() method recursively to this throwable and all its
+	 * causes. The idea is to get cause information as in printStackTrace()
+	 * without the stack trace.
 	 * 
 	 * @param t
 	 *            the throwable to print.
@@ -821,7 +855,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
+	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and
+	 * the given nameSuffix.
 	 * 
 	 * @param nameSuffix
 	 *            the suffix to use for the logger name.
@@ -832,7 +867,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
+	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and
+	 * the given nameSuffix.
 	 * 
 	 * @param clazz
 	 *            the class to use for the logger name.
@@ -843,8 +879,9 @@ public class MaryUtils {
 	}
 
 	/**
-	 * Returns true if it appears that log4j have been previously configured. This code checks to see if there are any appenders
-	 * defined for log4j which is the definitive way to tell if log4j is already initialized
+	 * Returns true if it appears that log4j have been previously configured.
+	 * This code checks to see if there are any appenders defined for log4j
+	 * which is the definitive way to tell if log4j is already initialized
 	 * 
 	 * @return true if appenders.hasMoreElements, false otherwise
 	 */
@@ -859,8 +896,8 @@ public class MaryUtils {
 	}
 
 	/**
-	 * From the given throwable or its cause, or cause's cause, etc., get the first one that has a non-empty message, and return
-	 * that message.
+	 * From the given throwable or its cause, or cause's cause, etc., get the
+	 * first one that has a non-empty message, and return that message.
 	 * 
 	 * @param t
 	 *            t

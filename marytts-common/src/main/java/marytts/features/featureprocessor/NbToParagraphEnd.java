@@ -14,32 +14,31 @@ import marytts.features.FeatureProcessor;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class NbToParagraphEnd implements FeatureProcessor
-{
+public class NbToParagraphEnd implements FeatureProcessor {
 
-    public Feature generate(Utterance utt, Item item) throws Exception
-    {
-        if (item instanceof Paragraph)
-            throw new Exception();
+	public Feature generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof Paragraph)
+			throw new Exception();
 
-        Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PARAGRAPH));
-        int item_idx = seq_item.indexOf(item);
+		Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
+		Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PARAGRAPH));
+		int item_idx = seq_item.indexOf(item);
 
-        // Find the related sentase
-        int[] sent_indexes = rel.getRelatedIndexes(item_idx);
-        if (sent_indexes.length <= 0)
-            return Feature.UNDEF_FEATURE;
+		// Find the related sentase
+		int[] sent_indexes = rel.getRelatedIndexes(item_idx);
+		if (sent_indexes.length <= 0)
+			return Feature.UNDEF_FEATURE;
 
-        // Finding the itemlables related to the related sentase
-        int[] item_indexes = rel.getSourceRelatedIndexes(sent_indexes[0]);
-        if (item_indexes.length <= 0)
-            return Feature.UNDEF_FEATURE;
+		// Finding the itemlables related to the related sentase
+		int[] item_indexes = rel.getSourceRelatedIndexes(sent_indexes[0]);
+		if (item_indexes.length <= 0)
+			return Feature.UNDEF_FEATURE;
 
-        int nb = item_indexes[item_indexes.length - 1] - item_idx;
+		int nb = item_indexes[item_indexes.length - 1] - item_idx;
 
-        return new Feature(nb);
-    }
+		return new Feature(nb);
+	}
 }

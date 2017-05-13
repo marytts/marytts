@@ -43,28 +43,31 @@ import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.SAXException;
 
 /**
- * A collection of utilities for MaryXML DOM manipulation or analysis. No object of class MaryDomUtils is created, all methods are
- * static.
+ * A collection of utilities for MaryXML DOM manipulation or analysis. No object
+ * of class MaryDomUtils is created, all methods are static.
  * 
  * @author Marc Schr&ouml;der
  */
 public class MaryDomUtils extends DomUtils {
 
 	/**
-	 * Create a new &lt;mtu&gt; element, inserted in the tree at the position of t and enclosing t.
+	 * Create a new &lt;mtu&gt; element, inserted in the tree at the position of
+	 * t and enclosing t.
 	 * 
 	 * @param t
 	 *            the &lt;t&gt; element to enclose
 	 * @param orig
 	 *            the original text for the MTU, saved in the orig attribute
 	 * @param accentPosition
-	 *            optionally, specify an accent position, saved in the accent attribute of the mtu element. If null, no accent
-	 *            attribute is inserted.
+	 *            optionally, specify an accent position, saved in the accent
+	 *            attribute of the mtu element. If null, no accent attribute is
+	 *            inserted.
 	 * @return the newly created MTU element.
 	 */
 	public static Element encloseWithMTU(Element t, String orig, String accentPosition) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getNodeName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Only t elements allowed, received " + t.getNodeName() + ".");
 		Element parent = (Element) t.getParentNode();
 		assert parent != null;
 		Document doc = t.getOwnerDocument();
@@ -89,7 +92,8 @@ public class MaryDomUtils extends DomUtils {
 	 */
 	public static Element appendToken(Element t, String newTokenText) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getNodeName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Only t elements allowed, received " + t.getNodeName() + ".");
 		Element parent = (Element) t.getParentNode();
 		Document doc = t.getOwnerDocument();
 		Element next = getNextSiblingElement(t);
@@ -108,7 +112,8 @@ public class MaryDomUtils extends DomUtils {
 	 */
 	public static String tokenText(Element t) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getNodeName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Only t elements allowed, received " + t.getNodeName() + ".");
 		// Return all text nodes under t, concatenated and trimmed.
 		return getPlainTextBelow(t).trim();
 	}
@@ -123,8 +128,8 @@ public class MaryDomUtils extends DomUtils {
 	 */
 	public static void setTokenText(Element t, String s) {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only " + MaryXML.TOKEN + " elements allowed, received "
-					+ t.getNodeName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Only " + MaryXML.TOKEN + " elements allowed, received " + t.getNodeName() + ".");
 		// Here, we rely on the fact that a t element has at most
 		// one TEXT child with non-whitespace content:
 		Document doc = t.getOwnerDocument();
@@ -136,7 +141,8 @@ public class MaryDomUtils extends DomUtils {
 			if (!textString.equals(""))
 				break;
 		}
-		if (text == null) { // token doesn't have a non-whitespace text child yet
+		if (text == null) { // token doesn't have a non-whitespace text child
+							// yet
 			text = (Text) t.getOwnerDocument().createTextNode(s);
 			t.appendChild(text);
 		} else { // found the one text element with non-whitespace content
@@ -146,8 +152,8 @@ public class MaryDomUtils extends DomUtils {
 	}
 
 	/**
-	 * Create a default boundary element belonging to document doc, but not yet attached. The boundary has a breakindex of 3 and
-	 * an unknown tone.
+	 * Create a default boundary element belonging to document doc, but not yet
+	 * attached. The boundary has a breakindex of 3 and an unknown tone.
 	 * 
 	 * @param doc
 	 *            the maryxml document in which to create the boundary.
@@ -155,8 +161,8 @@ public class MaryDomUtils extends DomUtils {
 	 */
 	public static Element createBoundary(Document doc) {
 		if (!doc.getDocumentElement().getTagName().equals(MaryXML.MARYXML))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected <" + MaryXML.MARYXML + "> document, received "
-					+ doc.getDocumentElement().getTagName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected <" + MaryXML.MARYXML
+					+ "> document, received " + doc.getDocumentElement().getTagName() + ".");
 		Element boundary = MaryXML.createElement(doc, MaryXML.BOUNDARY);
 		boundary.setAttribute("breakindex", "3");
 		boundary.setAttribute("tone", "unknown");
@@ -164,7 +170,8 @@ public class MaryDomUtils extends DomUtils {
 	}
 
 	/**
-	 * Try to determine the locale of a document by looking at the xml:lang attribute of the document element.
+	 * Try to determine the locale of a document by looking at the xml:lang
+	 * attribute of the document element.
 	 * 
 	 * @param doc
 	 *            the document in which to look for a locale.
@@ -177,9 +184,11 @@ public class MaryDomUtils extends DomUtils {
 	}
 
 	/**
-	 * Verify whether a given document is valid in the sense of Schema XML validation. Note that this implementation will merely
-	 * return false if the document is not valid, but will not provide any details. Use a combination of document2String() and
-	 * parseDocument() to get the detailed error message.
+	 * Verify whether a given document is valid in the sense of Schema XML
+	 * validation. Note that this implementation will merely return false if the
+	 * document is not valid, but will not provide any details. Use a
+	 * combination of document2String() and parseDocument() to get the detailed
+	 * error message.
 	 * 
 	 * @param doc
 	 *            The document to verify.
@@ -210,11 +219,12 @@ public class MaryDomUtils extends DomUtils {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * @author hamilton
 	 * 
-	 * method taken from UnitSelector class, used by several modules in runtime
+	 *         method taken from UnitSelector class, used by several modules in
+	 *         runtime
 	 * @param segmentOrBoundary
 	 * @return
 	 */

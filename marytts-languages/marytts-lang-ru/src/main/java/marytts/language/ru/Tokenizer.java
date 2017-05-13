@@ -40,10 +40,9 @@ import marytts.io.XMLSerializer;
 public class Tokenizer extends marytts.modules.nlp.JTokenizer {
 
 	/**
-     *
-     */
-	public Tokenizer()
-    {
+	 *
+	 */
+	public Tokenizer() {
 		super(new Locale("ru"));
 		setTokenizerLanguage("en");
 	}

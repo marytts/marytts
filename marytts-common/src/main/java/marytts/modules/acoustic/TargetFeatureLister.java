@@ -40,79 +40,88 @@ import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;
 
-
 /**
- * Read a simple phone string and generate default acoustic parameters.
+ * The module which compute the features
  *
  * @author Marc Schr&ouml;der
  */
-
 public class TargetFeatureLister extends InternalModule {
 
-	public TargetFeatureLister() throws Exception{
-		super("TargetFeatureLister",  null);
-        FeatureComputer.initDefault();
+    /**
+     * Default constructor
+     *
+     */
+	public TargetFeatureLister() throws Exception {
+		super("TargetFeatureLister", null);
+		FeatureComputer.initDefault();
 	}
 
+    /**
+     * The process method which take a MaryData object in parameter, compute the features of the
+     * utterance referenced in the parameter and return a new MaryData object which contains the
+     * reference to the updated utterance.
+     *
+     * @param d the input MaryData object
+     * @return the MaryData object with the updated reference
+     * @throws Exception [TODO]
+     */
 	public MaryData process(MaryData d) throws Exception {
 		Utterance utt = d.getData();
 
-        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
+		FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
-        listTargetFeatures(the_feature_computer, utt);
+		listTargetFeatures(the_feature_computer, utt);
 		// Second, construct targets
 		MaryData result = new MaryData(d.getLocale(), utt);
 		return result;
 	}
 
 	/**
-	 * For the given elements and using the given feature computer, create a string representation of the target features.
+	 * Compute the features of a given utterance using a given feature computer
 	 *
-	 * @param featureComputer
-	 *            featureComputer
-	 * @param segmentsAndBoundaries
-	 *            segmentsAndBoundaries
-	 * @return a multi-line string.
+	 * @param the_feature_computer
+	 *            the feature computer used
+	 * @param utt
+	 *            the utterance to update
+     * @throws Exception [TODO]
 	 */
-	public void listTargetFeatures(FeatureComputer the_feature_computer, Utterance utt)
-        throws Exception
-    {
+	public void listTargetFeatures(FeatureComputer the_feature_computer, Utterance utt) throws Exception {
 
-        Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
-        Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
-        Set<String> keys = null;
-        int i=0;
-        List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
-        for (Item it: items)
-        {
-            FeatureMap map = the_feature_computer.process(utt, it);
-            target_features.add(map);
-            list_pairs.add(new IntegerPair(i, i));
-            i++;
-        }
+		Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
+		Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
+		Set<String> keys = null;
+		int i = 0;
+		List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
+		for (Item it : items) {
+			FeatureMap map = the_feature_computer.process(utt, it);
+			target_features.add(map);
+			list_pairs.add(new IntegerPair(i, i));
+			i++;
+		}
 
-        Relation rel_phone_features = new Relation(items, target_features, list_pairs);
+		Relation rel_phone_features = new Relation(items, target_features, list_pairs);
 
-        utt.addSequence(SupportedSequenceType.FEATURES, target_features);
-        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+		utt.addSequence(SupportedSequenceType.FEATURES, target_features);
+		utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
 	}
 
 	/**
 	 * Return directly the targets, and set in each target its feature vector
 	 *
-	 * @param featureComputer
-	 *            featureComputer
-	 * @param segmentsAndBoundaries
-	 *            segmentsAndBoundaries
-	 * @return targets
+	 * @param the_feature_computer
+	 *            the feature computer used
+	 * @param utt
+	 *            the utterance used to compute the features
+     * @param items the items whose features are going to be computed
+	 * @return a list of map of features corresponding of the given items
+     * @throws Exception [TODO]
 	 */
-	public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt, ArrayList<Item> items)
-        throws Exception
-    {
-        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
+	public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
+			ArrayList<Item> items) throws Exception {
+		List<FeatureMap> target_features = new ArrayList<FeatureMap>();
 
-        for (Item it: items)
-            target_features.add(the_feature_computer.process(utt, it));
+		for (Item it : items)
+			target_features.add(the_feature_computer.process(utt, it));
 
 		return target_features;
 	}

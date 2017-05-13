@@ -33,7 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
 
 /**
- * A representation of a target representing the ideal properties of a unit in a target utterance.
+ * A representation of a target representing the ideal properties of a unit in a
+ * target utterance.
  *
  * @author Marc Schr&ouml;der
  *
@@ -52,9 +53,11 @@ public class Target {
 	 * Create a target associated to the given element in the MaryXML tree.
 	 *
 	 * @param name
-	 *            a name for the target, which may or may not coincide with the segment name.
+	 *            a name for the target, which may or may not coincide with the
+	 *            segment name.
 	 * @param maryxmlElement
-	 *            the phone or boundary element in the MaryXML tree to be associated with this target.
+	 *            the phone or boundary element in the MaryXML tree to be
+	 *            associated with this target.
 	 */
 	public Target(String name, Element maryxmlElement) {
 		this.name = name;
@@ -83,7 +86,8 @@ public class Target {
 		} else {
 			if (maryxmlElement == null)
 				return 0;
-			// throw new NullPointerException("Target "+name+" does not have a maryxml element.");
+			// throw new NullPointerException("Target "+name+" does not have a
+			// maryxml element.");
 			duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
 			return duration;
 		}
@@ -100,8 +104,9 @@ public class Target {
 			if (maryxmlElement.getTagName().equals(MaryXML.PHONE)) {
 				maryxmlElement.setAttribute("d", Float.toString(newDuration));
 			} else {
-				assert maryxmlElement.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "
-						+ maryxmlElement.getTagName();
+				assert maryxmlElement.getTagName()
+						.equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "
+								+ maryxmlElement.getTagName();
 				maryxmlElement.setAttribute("duration", Float.toString(newDuration));
 			}
 		}

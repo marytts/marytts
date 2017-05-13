@@ -50,18 +50,24 @@ public class EnvironmentChecks {
 		// XML code
 		if (!(MaryXML.newDocument() instanceof DocumentTraversal)) {
 			throw new Error("XML handling code " + DocumentBuilderFactory.newInstance().getClass()
-					+ " does not support DocumentTraversal.\n" + "Please update your java XML handling code as described in "
+					+ " does not support DocumentTraversal.\n"
+					+ "Please update your java XML handling code as described in "
 					+ MaryProperties.getProperty("mary.base") + File.separator + "README.");
 		}
 
 		// Try to find a suitable XSLT transformer
 		/*
-		 * tFactory = javax.xml.transform.TransformerFactory.newInstance(); if (tFactory instanceof
-		 * org.apache.xalan.processor.TransformerFactoryImpl) { Hashtable xalanEnv = (new
-		 * org.apache.xalan.xslt.EnvironmentCheck()).getEnvironmentHash(); String xalan2Version = (String)
-		 * xalanEnv.get("version.xalan2x"); if (xalan2Version == null || xalan2Version.equals("")) xalan2Version = (String)
-		 * xalanEnv.get("version.xalan2"); if (xalan2Version != null && !xalan2Version.equals("")) System.err.println("Using " +
-		 * xalan2Version); } else { System.err.println("Using XSL processor " + tFactory.getClass().getName()); }
+		 * tFactory = javax.xml.transform.TransformerFactory.newInstance(); if
+		 * (tFactory instanceof
+		 * org.apache.xalan.processor.TransformerFactoryImpl) { Hashtable
+		 * xalanEnv = (new
+		 * org.apache.xalan.xslt.EnvironmentCheck()).getEnvironmentHash();
+		 * String xalan2Version = (String) xalanEnv.get("version.xalan2x"); if
+		 * (xalan2Version == null || xalan2Version.equals("")) xalan2Version =
+		 * (String) xalanEnv.get("version.xalan2"); if (xalan2Version != null &&
+		 * !xalan2Version.equals("")) System.err.println("Using " +
+		 * xalan2Version); } else { System.err.println("Using XSL processor " +
+		 * tFactory.getClass().getName()); }
 		 */
 	}
 }

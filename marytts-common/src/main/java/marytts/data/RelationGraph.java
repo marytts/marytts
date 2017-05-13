@@ -14,164 +14,149 @@ import org.jgrapht.traverse.*;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class RelationGraph
-{
-    public static class RelationEdge<V> extends DefaultEdge {
-        private V m_source;
-        private V m_target;
-        private Relation m_relation;
+public class RelationGraph {
+	public static class RelationEdge<V> extends DefaultEdge {
+		private V m_source;
+		private V m_target;
+		private Relation m_relation;
 
-        public RelationEdge(V source, V target, Relation relation)
-        {
-            this.m_source = source;
-            this.m_target = target;
-            this.m_relation = relation;
-        }
+		public RelationEdge(V source, V target, Relation relation) {
+			this.m_source = source;
+			this.m_target = target;
+			this.m_relation = relation;
+		}
 
-        public V getSource()
-        {
-            return m_source;
-        }
+		public V getSource() {
+			return m_source;
+		}
 
-        public V getTarget()
-        {
-            return m_target;
-        }
+		public V getTarget() {
+			return m_target;
+		}
 
-        public Relation getRelation()
-        {
-            return m_relation;
-        }
+		public Relation getRelation() {
+			return m_relation;
+		}
 
-        public String toString()
-        {
-            return m_relation.toString();
-        }
-    }
+		public String toString() {
+			return m_relation.toString();
+		}
+	}
 
+	private Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> m_relations;
+	private Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> m_computed_relations;
+	private Graph<Sequence<? extends Item>, RelationEdge> m_actual_graph;
 
-    private Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> m_relations;
-    private Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> m_computed_relations;
-    private Graph<Sequence<? extends Item>, RelationEdge> m_actual_graph;
+	public RelationGraph() {
+		m_actual_graph = new SimpleGraph<>(RelationEdge.class);
+		m_relations = new Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation>();
+		m_computed_relations = new Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation>();
+	}
 
-    public RelationGraph()
-    {
-        m_actual_graph = new SimpleGraph<>(RelationEdge.class);
-        m_relations = new Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation>();
-        m_computed_relations = new Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation>();
-    }
+	public void addRelation(Relation rel) {
+		// Add the relation to the map
+		getRelations().put(
+				new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(rel.getSource(), rel.getTarget()),
+				rel);
 
-    public void addRelation(Relation rel)
-    {
-        // Add the relation to the map
-        getRelations().put(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(rel.getSource(), rel.getTarget()), rel);
+		// Creating the edge
+		m_actual_graph.addVertex(rel.getSource());
+		m_actual_graph.addVertex(rel.getTarget());
+		m_actual_graph.addEdge(rel.getSource(), rel.getTarget(),
+				new RelationEdge(rel.getSource(), rel.getTarget(), rel));
+	}
 
-        // Creating the edge
-        m_actual_graph.addVertex(rel.getSource());
-        m_actual_graph.addVertex(rel.getTarget());
-        m_actual_graph.addEdge(rel.getSource(), rel.getTarget(),
-                               new RelationEdge(rel.getSource(),
-                                                rel.getTarget(),
-                                                rel));
-    }
+	public void removeRelation(Relation rel) {
+	}
 
+	public void removeRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) {
+	}
 
-    public void removeRelation(Relation rel)
-    {
-    }
+	public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) {
+		// check if source or target are present in the graph
+		if (!m_actual_graph.containsVertex(source)) {
+			return null;
+		}
 
+		if (!m_actual_graph.containsVertex(target)) {
+			return null;
+		}
 
-    public void removeRelation(Sequence<? extends Item> source,
-                               Sequence<? extends Item> target)
-    {
-    }
+		// Try to get the direct relation
+		Relation final_rel = getRelations()
+				.get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target));
 
-    public Relation getRelation(Sequence<? extends Item> source,
-                                Sequence<? extends Item> target)
-    {
-        // check if source or target are present in the graph
-        if (!m_actual_graph.containsVertex(source))
-        {
-            return null;
-        }
+		// Relation found
+		if (final_rel != null)
+			return final_rel;
 
-        if (!m_actual_graph.containsVertex(target))
-        {
-            return null;
-        }
+		// Try the precomputedrelations
+		final_rel = getComputedRelations()
+				.get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target));
 
-        // Try to get the direct relation
-        Relation final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target));
+		// Relation found
+		if (final_rel != null)
+			return final_rel;
 
-        // Relation found
-        if (final_rel != null)
-            return final_rel;
+		// Try to build the relation
+		synchronized (m_actual_graph) {
+			List<RelationEdge> list_edges = (new DijkstraShortestPath(m_actual_graph, source, target))
+					.getPathEdgeList();
 
-        // Try the precomputedrelations
-        final_rel = getComputedRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target));
+			// No path found
+			if (list_edges.isEmpty()) {
+				getComputedRelations().put(
+						new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target), null);
+				return null;
+			}
 
-        // Relation found
-        if (final_rel != null)
-            return final_rel;
+			// Initialisation
+			RelationEdge first = list_edges.remove(0);
+			Sequence<? extends Item> cur_source = (Sequence<? extends Item>) first.getSource();
+			Sequence<? extends Item> cur_target = (Sequence<? extends Item>) first.getTarget();
+			if (cur_source == source)
+				final_rel = getRelations().get(
+						new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
+			else {
+				final_rel = getRelations().get(
+						new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target))
+						.getReverse();
+			}
+			Sequence<? extends Item> prev_target = cur_target;
 
+			for (RelationEdge cur_edge : list_edges) {
+				cur_source = (Sequence<? extends Item>) cur_edge.getSource();
+				cur_target = (Sequence<? extends Item>) cur_edge.getTarget();
 
-        // Try to build the relation
-        synchronized(m_actual_graph)
-        {
-            List<RelationEdge> list_edges =
-                (new DijkstraShortestPath(m_actual_graph, source, target)).getPathEdgeList();
+				Relation cur_rel = getRelations().get(
+						new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
+				if (cur_source != prev_target) {
+					cur_rel = getRelations()
+							.get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source,
+									cur_target))
+							.getReverse();
+				}
+				final_rel = final_rel.compose(cur_rel);
 
-            // No path found
-            if (list_edges.isEmpty())
-            {
-                getComputedRelations().put(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target), null);
-                return null;
-            }
+				prev_target = cur_target;
+			}
+		}
 
-            // Initialisation
-            RelationEdge first = list_edges.remove(0);
-            Sequence<? extends Item> cur_source = (Sequence<? extends Item>) first.getSource();
-            Sequence<? extends Item> cur_target = (Sequence<? extends Item>) first.getTarget();
-            if (cur_source == source)
-                final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
-            else
-            {
-                final_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target)).getReverse();
-            }
-            Sequence<? extends Item> prev_target = cur_target;
+		// save the computed relation into the cache of precomputed relations
+		getComputedRelations()
+				.put(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target), final_rel);
 
-            for (RelationEdge cur_edge: list_edges)
-            {
-                cur_source = (Sequence<? extends Item>) cur_edge.getSource();
-                cur_target = (Sequence<? extends Item>) cur_edge.getTarget();
+		return final_rel;
+	}
 
-                Relation cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target));
-                if (cur_source != prev_target)
-                {
-                    cur_rel = getRelations().get(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(cur_source, cur_target)).getReverse();
-                }
-                final_rel = final_rel.compose(cur_rel);
+	public Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> getRelations() {
+		return m_relations;
+	}
 
-                prev_target = cur_target;
-            }
-        }
-
-
-        // save the computed relation into the cache of precomputed relations
-        getComputedRelations().put(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target), final_rel);
-
-        return final_rel;
-    }
-
-    public Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> getRelations()
-    {
-        return m_relations;
-    }
-
-    public Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> getComputedRelations()
-    {
-        return m_computed_relations;
-    }
+	public Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation> getComputedRelations() {
+		return m_computed_relations;
+	}
 }

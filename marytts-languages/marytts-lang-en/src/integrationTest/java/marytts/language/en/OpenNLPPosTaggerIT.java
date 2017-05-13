@@ -30,16 +30,14 @@ import org.testng.annotations.*;
  * @author marc
  *
  */
-public class OpenNLPPosTaggerIT
-{
+public class OpenNLPPosTaggerIT {
 
 	/**
 	 * @param needMaryStarted
 	 * @throws Exception
 	 *             Exception
 	 */
-	public OpenNLPPosTaggerIT() throws Exception
-    {
+	public OpenNLPPosTaggerIT() throws Exception {
 	}
 
 }

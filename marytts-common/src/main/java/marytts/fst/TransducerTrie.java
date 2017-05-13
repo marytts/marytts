@@ -34,11 +34,13 @@ import java.util.List;
 
 /**
  * 
- * This is a particular Trie whose Symbols are Pairs of Strings, the first of which is interpreted as an input symbol and the
- * second as an output symbol. The transducer obtained by trie minimization can be written to a file in the transducer format used
- * by MARY.
+ * This is a particular Trie whose Symbols are Pairs of Strings, the first of
+ * which is interpreted as an input symbol and the second as an output symbol.
+ * The transducer obtained by trie minimization can be written to a file in the
+ * transducer format used by MARY.
  * 
- * To get the transducer representation first compute the minimization of the trie, then write the transducer to disk.
+ * To get the transducer representation first compute the minimization of the
+ * trie, then write the transducer to disk.
  * 
  * See main method for example usage.
  * 
@@ -75,18 +77,21 @@ public class TransducerTrie extends Trie<StringPair> {
 		int maxAO = arcOffsets[arcOffsets.length - 1];
 
 		// to ensure that number can be encoded:
-		// shift to right by the number of available bits and look if something remains
+		// shift to right by the number of available bits and look if something
+		// remains
 		if ((maxAO >> ARCOFFSET_BITS) != 0) {
 			int numBitsNeeded = (int) Math.ceil(Math.log(maxAO) / Math.log(2));
-			throw new IOException("Cannot write transducer: too many arcs to be encoded in binary fst format (would need "
-					+ numBitsNeeded + " bits, have " + ARCOFFSET_BITS + ")");
+			throw new IOException(
+					"Cannot write transducer: too many arcs to be encoded in binary fst format (would need "
+							+ numBitsNeeded + " bits, have " + ARCOFFSET_BITS + ")");
 		}
 
 		int maxLID = this.labels.size() + 2;
 		if ((maxLID >> LABELID_BITS) != 0) {
 			int numBitsNeeded = (int) Math.ceil(Math.log(maxLID) / Math.log(2));
-			throw new IOException("Cannot write transducer: too many arc-labels to be encoded in binary fst format (would need "
-					+ numBitsNeeded + " bits, have " + LABELID_BITS + ")");
+			throw new IOException(
+					"Cannot write transducer: too many arc-labels to be encoded in binary fst format (would need "
+							+ numBitsNeeded + " bits, have " + LABELID_BITS + ")");
 		}
 
 		if (!Charset.isSupported(encoding))
@@ -201,14 +206,15 @@ public class TransducerTrie extends Trie<StringPair> {
 		String path = "/Users/benjaminroth/Desktop/mary/fst/german/";
 
 		// specify location of lexicon you want to encode
-		BufferedReader lexReader = new BufferedReader(new InputStreamReader(new FileInputStream(path + "lexicon.txt"),
-				"ISO-8859-1"));
+		BufferedReader lexReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(path + "lexicon.txt"), "ISO-8859-1"));
 
 		// specify location of output
 		String fstLocation = path + "lexicon.fst";
 
 		// initialize trainer
-		// AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
+		// AlignerTrainer at = new
+		// AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
 		AlignerTrainer at = new AlignerTrainer(false, true);
 
 		System.out.println("reading lexicon...");

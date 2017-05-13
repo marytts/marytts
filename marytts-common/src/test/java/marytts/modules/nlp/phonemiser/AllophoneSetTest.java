@@ -54,19 +54,11 @@ public class AllophoneSetTest {
 	private Object[][] allophoneArrayData() {
 		Allophone t = allophoneSet.getAllophone("t");
 		Allophone oy = allophoneSet.getAllophone("OY");
-		Allophone[] allophones = new Allophone[] { t, oy, t, oy, t, oy };
+		Allophone[] allophones = new Allophone[]{t, oy, t, oy, t, oy};
 		// @formatter:off
-		return new Object[][] {
-            { "tOYtOYtOY", allophones },
-            { "'tOYtOYtOY", allophones },
-            { ",tOYtOY'tOY", allophones },
-            { "tOY tOY tOY", allophones },
-            { "'tOY tOY tOY", allophones },
-            { ",tOY tOY 'tOY", allophones },
-            { "tOY-tOY-tOY", allophones },
-            { "'tOY-tOY-tOY", allophones },
-            { ",tOY-tOY-'tOY", allophones }
-		};
+		return new Object[][]{{"tOYtOYtOY", allophones}, {"'tOYtOYtOY", allophones}, {",tOYtOY'tOY", allophones},
+				{"tOY tOY tOY", allophones}, {"'tOY tOY tOY", allophones}, {",tOY tOY 'tOY", allophones},
+				{"tOY-tOY-tOY", allophones}, {"'tOY-tOY-tOY", allophones}, {",tOY-tOY-'tOY", allophones}};
 		// @formatter:on
 	}
 
@@ -87,17 +79,11 @@ public class AllophoneSetTest {
 	@DataProvider
 	private Object[][] allophoneStringData() {
 		// @formatter:off
-		return new Object[][] {
-            { "tOYtOYtOY", "t OY t OY t OY" },
-            { "'tOYtOYtOY", "' t OY t OY t OY" },
-            { ",tOYtOY'tOY", ", t OY t OY ' t OY" },
-            { "tOY tOY tOY", "t OY t OY t OY" },
-            { "'tOY tOY tOY", "' t OY t OY t OY" },
-            { ",tOY tOY 'tOY", ", t OY t OY ' t OY" },
-            { "tOY-tOY-tOY", "t OY - t OY - t OY" },
-            { "'tOY-tOY-tOY", "' t OY - t OY - t OY" },
-            { ",tOY-tOY-'tOY", ", t OY - t OY - ' t OY" }
-		};
+		return new Object[][]{{"tOYtOYtOY", "t OY t OY t OY"}, {"'tOYtOYtOY", "' t OY t OY t OY"},
+				{",tOYtOY'tOY", ", t OY t OY ' t OY"}, {"tOY tOY tOY", "t OY t OY t OY"},
+				{"'tOY tOY tOY", "' t OY t OY t OY"}, {",tOY tOY 'tOY", ", t OY t OY ' t OY"},
+				{"tOY-tOY-tOY", "t OY - t OY - t OY"}, {"'tOY-tOY-tOY", "' t OY - t OY - t OY"},
+				{",tOY-tOY-'tOY", ", t OY - t OY - ' t OY"}};
 		// @formatter:on
 	}
 
@@ -120,30 +106,16 @@ public class AllophoneSetTest {
 	@DataProvider
 	private Object[][] syllabifierData() {
 		// @formatter:off
-		return new Object[][] {
-            { "ma", "' m a" },
-            { "'ma", "' m a" },
-            { "mama", "' m a - m a" },
-            { "'mama", "' m a - m a" },
-            { "ma'ma", "m a - ' m a" },
-            { "mamama", "' m a - m a - m a" },
-            { "'mamama", "' m a - m a - m a" },
-            { "ma'mama", "m a - ' m a - m a" },
-            { "mama'ma", "m a - m a - ' m a" },
-            { "mamamama", "' m a - m a - m a - m a" },
-            { "'mamamama", "' m a - m a - m a - m a" },
-            { "ma'mamama", "m a - ' m a - m a - m a" },
-            { "mama'mama", "m a - m a - ' m a - m a" },
-            { "mamama'ma", "m a - m a - m a - ' m a" },
-            { ",mama'mama", ", m a - m a - ' m a - m a" },
-            { "StaInSla:k", "' S t aI n - S l a: k" },
-            { "StRUntsdUm", "' S t R U n ts - d U m" },
-            { "a:b6", "' a: - b 6" },
-            { "daU6vU6st", "' d aU - 6 - v U 6 s t" },
-            { "fOY6maU6", "' f OY - 6 - m aU - 6" },
-            { ",ha6tbE6ktU6mg@'ve:6", ", h a 6 t - b E 6 k - t U 6 m - g @ - ' v e: 6" },
-            { "'pfaU@n,SlOY@", "' pf aU - @ n - , S l OY - @" }
-		};
+		return new Object[][]{{"ma", "' m a"}, {"'ma", "' m a"}, {"mama", "' m a - m a"}, {"'mama", "' m a - m a"},
+				{"ma'ma", "m a - ' m a"}, {"mamama", "' m a - m a - m a"}, {"'mamama", "' m a - m a - m a"},
+				{"ma'mama", "m a - ' m a - m a"}, {"mama'ma", "m a - m a - ' m a"},
+				{"mamamama", "' m a - m a - m a - m a"}, {"'mamamama", "' m a - m a - m a - m a"},
+				{"ma'mamama", "m a - ' m a - m a - m a"}, {"mama'mama", "m a - m a - ' m a - m a"},
+				{"mamama'ma", "m a - m a - m a - ' m a"}, {",mama'mama", ", m a - m a - ' m a - m a"},
+				{"StaInSla:k", "' S t aI n - S l a: k"}, {"StRUntsdUm", "' S t R U n ts - d U m"},
+				{"a:b6", "' a: - b 6"}, {"daU6vU6st", "' d aU - 6 - v U 6 s t"}, {"fOY6maU6", "' f OY - 6 - m aU - 6"},
+				{",ha6tbE6ktU6mg@'ve:6", ", h a 6 t - b E 6 k - t U 6 m - g @ - ' v e: 6"},
+				{"'pfaU@n,SlOY@", "' pf aU - @ n - , S l OY - @"}};
 		// @formatter:on
 	}
 
@@ -163,18 +135,10 @@ public class AllophoneSetTest {
 	@DataProvider
 	private Object[][] legacySyllabifierData() {
 		// @formatter:off
-		return new Object[][] {
-            { "ma1", "' m a" },
-            { "ma1ma", "' m a - m a" },
-            { "mama1", "m a - ' m a" },
-            { "ma1mama", "' m a - m a - m a" },
-            { "mama1ma", "m a - ' m a - m a" },
-            { "mamama1", "m a - m a - ' m a" },
-            { "ma1mamama", "' m a - m a - m a - m a" },
-            { "mama1mama", "m a - ' m a - m a - m a" },
-            { "mamama1ma", "m a - m a - ' m a - m a" },
-            { "mamamama1", "m a - m a - m a - ' m a" }
-		};
+		return new Object[][]{{"ma1", "' m a"}, {"ma1ma", "' m a - m a"}, {"mama1", "m a - ' m a"},
+				{"ma1mama", "' m a - m a - m a"}, {"mama1ma", "m a - ' m a - m a"}, {"mamama1", "m a - m a - ' m a"},
+				{"ma1mamama", "' m a - m a - m a - m a"}, {"mama1mama", "m a - ' m a - m a - m a"},
+				{"mamama1ma", "m a - m a - ' m a - m a"}, {"mamamama1", "m a - m a - m a - ' m a"}};
 		// @formatter:on
 	}
 

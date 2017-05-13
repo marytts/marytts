@@ -19,7 +19,6 @@
  */
 package marytts.language.en;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.util.Set;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
-
 
 import org.testng.Assert;
 import org.testng.annotations.*;

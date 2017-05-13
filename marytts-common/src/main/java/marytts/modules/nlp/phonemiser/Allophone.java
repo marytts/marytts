@@ -40,8 +40,8 @@ public class Allophone extends Phoneme {
 	 *             if a is not as expected
 	 */
 	public Allophone(Element a, String[] featureNames) {
-        super(a.getAttribute("ph"));
-        String vc;
+		super(a.getAttribute("ph"));
+		String vc;
 		String isTone;
 		if (getLabel().equals(""))
 			throw new IllegalArgumentException("Element must have a 'ph' attribute");
@@ -58,8 +58,8 @@ public class Allophone extends Phoneme {
 			vc = "0";
 			isTone = "+";
 		} else {
-			throw new IllegalArgumentException("Element must be one of <vowel>, <consonant> and <silence>, but is <"
-                                               + a.getTagName() + ">");
+			throw new IllegalArgumentException(
+					"Element must be one of <vowel>, <consonant> and <silence>, but is <" + a.getTagName() + ">");
 		}
 		Map<String, String> feats = new HashMap<String, String>();
 		feats.put("vc", vc);
@@ -71,7 +71,8 @@ public class Allophone extends Phoneme {
 	}
 
 	/**
-	 * Return the requested attribute of e, or "0" if there is no such attribute.
+	 * Return the requested attribute of e, or "0" if there is no such
+	 * attribute.
 	 *
 	 * @param e
 	 * @param att
@@ -84,12 +85,12 @@ public class Allophone extends Phoneme {
 		return val;
 	}
 
-    @Deprecated
+	@Deprecated
 	public String name() {
 		return getLabel();
-    }
+	}
 
-    @Deprecated
+	@Deprecated
 	public String toString() {
 		return getLabel();
 	}
@@ -160,7 +161,8 @@ public class Allophone extends Phoneme {
 		if (isVowel()) {
 			String vlng = features.get("vlng");
 			if (vlng == null)
-				return 5; // language doesn't make a distinction between vowels of different length
+				return 5; // language doesn't make a distinction between vowels
+							// of different length
 			if ("ld".contains(vlng))
 				return 6;
 			else if ("s".equals(vlng))
@@ -186,9 +188,10 @@ public class Allophone extends Phoneme {
 	}
 
 	/**
-	 * Return the feature with name feat. Three types of values are possible: 1. an informative feature; 2. the value "0" to
-	 * indicate that the feature exists but is not meaningful for this allophone; 3. null to indicate that the feature does not
-	 * exist.
+	 * Return the feature with name feat. Three types of values are possible: 1.
+	 * an informative feature; 2. the value "0" to indicate that the feature
+	 * exists but is not meaningful for this allophone; 3. null to indicate that
+	 * the feature does not exist.
 	 *
 	 * @param feat
 	 *            feat

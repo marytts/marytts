@@ -27,14 +27,17 @@ import java.util.Map;
 
 /**
  * 
- * This class represents a trie, i.e. a symbol (or 'letter') tree. Each trie node has arcs, to each of which a symbol is attached.
- * The symbols guide the lookup of entries in the trie.
+ * This class represents a trie, i.e. a symbol (or 'letter') tree. Each trie
+ * node has arcs, to each of which a symbol is attached. The symbols guide the
+ * lookup of entries in the trie.
  * 
- * The main purpose of this particular trie implementation is not the direct use of the trie (e.g. lookup) but its conversion to a
- * finite-state machine that allows for an even more efficient storage and lookup.
+ * The main purpose of this particular trie implementation is not the direct use
+ * of the trie (e.g. lookup) but its conversion to a finite-state machine that
+ * allows for an even more efficient storage and lookup.
  * 
- * We are very thankful to Andreas Eisele who had the idea of using tries and transducers for our purposes and who provided us
- * with c-code this particular implemention is based on.
+ * We are very thankful to Andreas Eisele who had the idea of using tries and
+ * transducers for our purposes and who provided us with c-code this particular
+ * implemention is based on.
  * 
  * @author benjaminroth
  *
@@ -71,18 +74,21 @@ public class Trie<Symbol> {
 
 		/**
 		 * 
-		 * This adds an entry (word...) to the node and its daughters. The entry is entered from the specified index on.
+		 * This adds an entry (word...) to the node and its daughters. The entry
+		 * is entered from the specified index on.
 		 * 
 		 * @param entry
 		 *            word to be entered.
 		 * @param index
-		 *            position from which on the entry is to be enetered at this node.
+		 *            position from which on the entry is to be enetered at this
+		 *            node.
 		 * @return the final node of this entry.
 		 */
 		protected TrieNode add(Symbol[] entry, int index) {
 
 			if (index == entry.length) {
-				// index points to the end of the word: already everything entered.
+				// index points to the end of the word: already everything
+				// entered.
 				this.isFinal = true;
 
 				return this;
@@ -182,7 +188,8 @@ public class Trie<Symbol> {
 		}
 
 		/**
-		 * this checks if equivalent states in the right language of this node are already identified.
+		 * this checks if equivalent states in the right language of this node
+		 * are already identified.
 		 * 
 		 * @return true iff so
 		 */
@@ -269,8 +276,9 @@ public class Trie<Symbol> {
 	}
 
 	/**
-	 * This computes the minimization of the trie, i.e. equivalent nodes are identified. This is necessary to store a compact
-	 * version of this trie as a minimal transducer. The trie itself is not represented more compactly.
+	 * This computes the minimization of the trie, i.e. equivalent nodes are
+	 * identified. This is necessary to store a compact version of this trie as
+	 * a minimal transducer. The trie itself is not represented more compactly.
 	 * 
 	 */
 	public void computeMinimization() {
@@ -302,11 +310,13 @@ public class Trie<Symbol> {
 			// does it belong to one of the already identified equiv. classes?
 			if (this.reprs.containsKey(currCan)) {
 				currCan.setId(reprs.get(currCan));
-				// System.out.println("identifies identical nodes for class " + currCan.getId());
+				// System.out.println("identifies identical nodes for class " +
+				// currCan.getId());
 			}
 
 			/*
-			 * for (TrieNode repr : reprs){ if ( currCan.identicalTo(repr) ){ currCan.setId( repr.getId() ); break; } }
+			 * for (TrieNode repr : reprs){ if ( currCan.identicalTo(repr) ){
+			 * currCan.setId( repr.getId() ); break; } }
 			 */
 
 			// ... if not, let it represent a new class
@@ -321,7 +331,8 @@ public class Trie<Symbol> {
 			// add the predecessor of this node if...
 			if (null != pred && // 1. there is one
 					!pred.hasId() && // 2. it is not already processed
-					pred.rightIdentified() // 3. but its successors are processed
+					pred.rightIdentified() // 3. but its successors are
+											// processed
 			) {
 				identityCandidates.add(pred);
 			}

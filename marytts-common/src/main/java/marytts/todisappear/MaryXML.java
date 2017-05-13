@@ -32,7 +32,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Class containing only static methods. All knowledge about MaryXML documents is grouped here.
+ * Class containing only static methods. All knowledge about MaryXML documents
+ * is grouped here.
  */
 
 public class MaryXML {
@@ -93,7 +94,8 @@ public class MaryXML {
 	}
 
 	/**
-	 * In the given MaryXML document, create a new element of the given name, with the proper namespace.
+	 * In the given MaryXML document, create a new element of the given name,
+	 * with the proper namespace.
 	 *
 	 * @param doc
 	 *            a MaryXML document
@@ -101,7 +103,8 @@ public class MaryXML {
 	 *            the name of the MaryXML document
 	 * @return the newly created MaryXML element.
 	 * @throws IllegalArgumentException
-	 *             if the document is not a maryxml document with the proper namespace.
+	 *             if the document is not a maryxml document with the proper
+	 *             namespace.
 	 */
 	public static Element createElement(Document doc, String elementName) {
 		if (doc == null)
@@ -112,7 +115,8 @@ public class MaryXML {
 			throw new IllegalArgumentException("Document has no namespace!");
 		}
 		if (!doc.getDocumentElement().getNamespaceURI().equals(getNamespace()))
-			throw new IllegalArgumentException("Document has wrong namespace: " + doc.getDocumentElement().getNamespaceURI());
+			throw new IllegalArgumentException(
+					"Document has wrong namespace: " + doc.getDocumentElement().getNamespaceURI());
 		return doc.createElementNS(getNamespace(), elementName);
 	}
 

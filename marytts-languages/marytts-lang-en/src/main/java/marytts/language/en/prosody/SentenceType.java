@@ -24,7 +24,8 @@ package marytts.language.en.prosody;
  */
 public class SentenceType {
 	public static final SentenceType declarative = new SentenceType("declarative", "L-L%", "H-L%", "H-", "!H*", "L+H*");
-	public static final SentenceType interrogative = new SentenceType("interrogative", "H-H%", "H-L%", "H-", "L*", "H*");
+	public static final SentenceType interrogative = new SentenceType("interrogative", "H-H%", "H-L%", "H-", "L*",
+			"H*");
 	public static final SentenceType exclamation = new SentenceType("exclamation", "L-L%", "H-L%", "H-", "H*", "H*");
 	public static final SentenceType interrogYN = new SentenceType("interrogYN", "H-H%", "H-L%", "H-", "L*", "H*");
 	public static final SentenceType interrogWH = new SentenceType("interrogWH", "L-L%", "H-L%", "H-", "H*", "H*");

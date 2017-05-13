@@ -47,14 +47,17 @@ public abstract class MaryConfig {
 	private static final ServiceLoader<MaryConfig> configLoader = ServiceLoader.load(MaryConfig.class);
 
 	/**
-	 * This method will try to check that the available configs are consistent and will spot obvious reasons why they might not
-	 * work together as a full system. Reasons that are detected include:
+	 * This method will try to check that the available configs are consistent
+	 * and will spot obvious reasons why they might not work together as a full
+	 * system. Reasons that are detected include:
 	 * <ul>
 	 * <li>There is no main config;</li>
-	 * <li>There is a voice with a certain locale but no language component has that locale.</li>
+	 * <li>There is a voice with a certain locale but no language component has
+	 * that locale.</li>
 	 * </ul>
-	 * This method will return allright if everything is OK; if there is a problem, it will throw an Exception with a message
-	 * indicating the problem.
+	 * This method will return allright if everything is OK; if there is a
+	 * problem, it will throw an Exception with a message indicating the
+	 * problem.
 	 * 
 	 * @throws MaryConfigurationException
 	 *             if the configuration cannot work as it is now.
@@ -144,11 +147,13 @@ public abstract class MaryConfig {
 		}
 		return null;
 	}
-	
+
 	/***
 	 * get a synthesis config
+	 * 
 	 * @param type
-	 * 			the type of synthesis, equal to the configs name. e.g. 'unitselection'
+	 *            the type of synthesis, equal to the configs name. e.g.
+	 *            'unitselection'
 	 * @return
 	 */
 	public static SynthesisConfig getSynthesisConfig(String type) {
@@ -164,7 +169,8 @@ public abstract class MaryConfig {
 	}
 
 	/**
-	 * Get the voice config for the given voice name, or null if there is no such voice config.
+	 * Get the voice config for the given voice name, or null if there is no
+	 * such voice config.
 	 * 
 	 * @param voiceName
 	 *            voiceName
@@ -187,13 +193,16 @@ public abstract class MaryConfig {
 	}
 
 	/**
-	 * Get the allophone set for the given locale, or null if it cannot be retrieved.
+	 * Get the allophone set for the given locale, or null if it cannot be
+	 * retrieved.
 	 * 
 	 * @param locale
 	 *            locale
-	 * @return the allophone set for the given locale, or null of the locale is not supported.
+	 * @return the allophone set for the given locale, or null of the locale is
+	 *         not supported.
 	 * @throws MaryConfigurationException
-	 *             if the locale is supported in principle but no allophone set can be retrieved.
+	 *             if the locale is supported in principle but no allophone set
+	 *             can be retrieved.
 	 */
 	public static AllophoneSet getAllophoneSet(Locale locale) throws MaryConfigurationException {
 		LanguageConfig lc = getLanguageConfig(locale);
@@ -240,9 +249,11 @@ public abstract class MaryConfig {
 	 * Convenience access to this config's properties.
 	 * 
 	 * @param systemPropertiesOverride
-	 *            whether to use system properties in priority if they exist. If true, any property requested from this properties
-	 *            accessor will first be looked up in the system properties, and only if it is not defined there, it will be
-	 *            looked up in this config's properties.
+	 *            whether to use system properties in priority if they exist. If
+	 *            true, any property requested from this properties accessor
+	 *            will first be looked up in the system properties, and only if
+	 *            it is not defined there, it will be looked up in this config's
+	 *            properties.
 	 * @return PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap)
 	 */
 	public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
@@ -252,7 +263,8 @@ public abstract class MaryConfig {
 	}
 
 	/**
-	 * Get the given property. If it is not defined, the defaultValue is returned.
+	 * Get the given property. If it is not defined, the defaultValue is
+	 * returned.
 	 * 
 	 * @param property
 	 *            name of the property to retrieve
@@ -265,12 +277,13 @@ public abstract class MaryConfig {
 	}
 
 	/**
-	 * For the given property name, return the value of that property as a list of items (interpreting the property value as a
-	 * space-separated list).
+	 * For the given property name, return the value of that property as a list
+	 * of items (interpreting the property value as a space-separated list).
 	 * 
 	 * @param propertyName
 	 *            propertyName
-	 * @return the list of items, or an empty list if the property is not defined or contains no items
+	 * @return the list of items, or an empty list if the property is not
+	 *         defined or contains no items
 	 */
 	public List<String> getList(String propertyName) {
 		String val = props.getProperty(propertyName);

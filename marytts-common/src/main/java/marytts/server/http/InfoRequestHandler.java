@@ -48,7 +48,8 @@ public class InfoRequestHandler extends BaseHttpRequestHandler {
 			Address serverAddressAtClient) throws IOException {
 		// Individual info request
 		String infoResponse = handleInfoRequest(absPath, queryItems, response);
-		if (infoResponse == null) { // error condition, handleInfoRequest has set an error message
+		if (infoResponse == null) { // error condition, handleInfoRequest has
+									// set an error message
 			return;
 		}
 

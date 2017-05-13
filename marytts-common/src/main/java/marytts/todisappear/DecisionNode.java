@@ -25,7 +25,8 @@ import marytts.todisappear.FeatureDefinition;
 import marytts.todisappear.FeatureVector;
 
 /**
- * A decision node that determines the next Node to go to in the CART. All decision nodes inherit from this class
+ * A decision node that determines the next Node to go to in the CART. All
+ * decision nodes inherit from this class
  */
 public abstract class DecisionNode extends Node {
 	public enum Type {
@@ -171,8 +172,8 @@ public abstract class DecisionNode extends Node {
 	 */
 	public void replaceDaughter(Node newDaughter, int index) {
 		if (index > daughters.length - 1 || index < 0) {
-			throw new RuntimeException("Can not replace daughter number " + index + ", since daughter index goes from 0 to "
-					+ (daughters.length - 1) + "!");
+			throw new RuntimeException("Can not replace daughter number " + index
+					+ ", since daughter index goes from 0 to " + (daughters.length - 1) + "!");
 		}
 		daughters[index] = newDaughter;
 		newDaughter.setMother(this, index);
@@ -200,7 +201,8 @@ public abstract class DecisionNode extends Node {
 		if (firstLeaf == null)
 			return null;
 		Object result;
-		if (firstLeaf instanceof IntArrayLeafNode) { // this includes subclass IntAndFloatArrayLeafNode
+		if (firstLeaf instanceof IntArrayLeafNode) { // this includes subclass
+														// IntAndFloatArrayLeafNode
 			result = new int[nData];
 		} else if (firstLeaf instanceof FeatureVectorLeafNode) {
 			result = new FeatureVector[nData];
@@ -223,8 +225,9 @@ public abstract class DecisionNode extends Node {
 	}
 
 	/**
-	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
-	 * and leaf nodes in the tree.
+	 * Count all the nodes at and below this node. A leaf will return 1; the
+	 * root node will report the total number of decision and leaf nodes in the
+	 * tree.
 	 *
 	 * @return the number of nodes
 	 */
@@ -251,8 +254,8 @@ public abstract class DecisionNode extends Node {
 	}
 
 	/**
-	 * Set the number of candidates correctly, by counting while walking down the tree. This needs to be done once for the entire
-	 * tree.
+	 * Set the number of candidates correctly, by counting while walking down
+	 * the tree. This needs to be done once for the entire tree.
 	 *
 	 */
 	// protected void countData() {
@@ -272,7 +275,8 @@ public abstract class DecisionNode extends Node {
 	}
 
 	/**
-	 * Get the path leading to the daughter with the given index. This will recursively go up to the root node.
+	 * Get the path leading to the daughter with the given index. This will
+	 * recursively go up to the root node.
 	 *
 	 * @param daughterIndex
 	 *            daughterIndex
@@ -341,8 +345,9 @@ public abstract class DecisionNode extends Node {
 		}
 
 		/***
-		 * Creates an empty BinaryByteDecisionNode, the feature and feature value of this node should be filled with
-		 * setFeatureAndFeatureValue() function.
+		 * Creates an empty BinaryByteDecisionNode, the feature and feature
+		 * value of this node should be filled with setFeatureAndFeatureValue()
+		 * function.
 		 *
 		 * @param uniqueId
 		 *            unique index from tree HTS test file.
@@ -356,7 +361,8 @@ public abstract class DecisionNode extends Node {
 		}
 
 		/***
-		 * Fill the feature and feature value of an already created (empty) BinaryByteDecisionNode.
+		 * Fill the feature and feature value of an already created (empty)
+		 * BinaryByteDecisionNode.
 		 *
 		 * @param feature
 		 *            feature
@@ -393,8 +399,9 @@ public abstract class DecisionNode extends Node {
 				returnNode = daughters[1];
 			}
 			if (TRACE) {
-				System.out.print("    " + feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, value)
-						+ " == " + featureDefinition.getFeatureValueAsString(featureIndex, val));
+				System.out
+						.print("    " + feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, value)
+								+ " == " + featureDefinition.getFeatureValueAsString(featureIndex, val));
 				if (val == value)
 					System.out.println(" YES ");
 				else
@@ -626,8 +633,8 @@ public abstract class DecisionNode extends Node {
 	}
 
 	/**
-	 * An decision Node with an arbitrary number of daughters. Value of the target corresponds to the index number of next
-	 * daughter.
+	 * An decision Node with an arbitrary number of daughters. Value of the
+	 * target corresponds to the index number of next daughter.
 	 */
 	public static class ByteDecisionNode extends DecisionNode {
 
@@ -675,7 +682,8 @@ public abstract class DecisionNode extends Node {
 		}
 
 		public String getDecisionPath(int daughterIndex) {
-			String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
+			String thisNodeInfo = feature + "=="
+					+ featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
 			if (mother == null)
 				return thisNodeInfo;
 			else if (mother.isDecisionNode())
@@ -700,8 +708,8 @@ public abstract class DecisionNode extends Node {
 	}
 
 	/**
-	 * An decision Node with an arbitrary number of daughters. Value of the target corresponds to the index number of next
-	 * daughter.
+	 * An decision Node with an arbitrary number of daughters. Value of the
+	 * target corresponds to the index number of next daughter.
 	 */
 	public static class ShortDecisionNode extends DecisionNode {
 
@@ -749,7 +757,8 @@ public abstract class DecisionNode extends Node {
 		}
 
 		public String getDecisionPath(int daughterIndex) {
-			String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
+			String thisNodeInfo = feature + "=="
+					+ featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
 			if (mother == null)
 				return thisNodeInfo;
 			else if (mother.isDecisionNode())

@@ -25,10 +25,8 @@ import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-
 import org.testng.Assert;
 import org.testng.annotations.*;
-
 
 /**
  * @author marc

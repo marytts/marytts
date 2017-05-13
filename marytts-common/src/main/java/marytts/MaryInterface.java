@@ -10,10 +10,12 @@ import marytts.exceptions.SynthesisException;
 import org.w3c.dom.Document;
 
 /**
- * A simple access API for using MARY TTS. The same API can be used to interact with a local TTS runtime, in the same JVM, or with
- * a remote TTS server via a client-server protocol.
+ * A simple access API for using MARY TTS. The same API can be used to interact
+ * with a local TTS runtime, in the same JVM, or with a remote TTS server via a
+ * client-server protocol.
  *
- * The basic idea is to use reasonable defaults when instantiating a MaryInterface, but to let the user adapt all parts of it.
+ * The basic idea is to use reasonable defaults when instantiating a
+ * MaryInterface, but to let the user adapt all parts of it.
  *
  * Examples of use:
  *
@@ -43,7 +45,8 @@ import org.w3c.dom.Document;
  * String targetfeatures = marytts.generateText(ssmlDoc);
  * </code>
  *
- * The exact same syntax should work with the RemoteMaryInterface included in the marytts-client package: <code>
+ * The exact same syntax should work with the RemoteMaryInterface included in
+ * the marytts-client package: <code>
  * MaryInterface marytts = new RemoteMaryInterface("localhost", 59125);
  * AudioInputStream audio = marytts.generateAudio("This is my text.");
  * </code>
@@ -60,7 +63,8 @@ import org.w3c.dom.Document;
 public interface MaryInterface {
 
 	/**
-	 * Set the locale for processing. Set the voice to the default voice for this locale.
+	 * Set the locale for processing. Set the voice to the default voice for
+	 * this locale.
 	 *
 	 * @param newLocale
 	 *            a supported locale.
@@ -70,13 +74,13 @@ public interface MaryInterface {
 	public void setLocale(Locale newLocale) throws IllegalArgumentException;
 
 	/**
-	 * Get the current locale used for processing. Either the default (US English) or the value most recently set through
-	 * {@link #setLocale(Locale)} or indirectly through {@link #setVoice(String)}.
+	 * Get the current locale used for processing. Either the default (US
+	 * English) or the value most recently set through
+	 * {@link #setLocale(Locale)}
 	 *
 	 * @return the locale
 	 */
 	public Locale getLocale();
-
 
 	/**
 	 * List the locales that can be used in {@link #setLocale(Locale)}.

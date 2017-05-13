@@ -30,7 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Telugu letter to sound(LTS) module - It converts UTF8 graphemes to IT3 pronunciation
+ * Telugu letter to sound(LTS) module - It converts UTF8 graphemes to IT3
+ * pronunciation
  * 
  * @author sathish, adopted from student work by Jyotsna and Chandu
  */
@@ -157,7 +158,8 @@ public class TeluguLTS {
 	 * 
 	 * @param pos
 	 *            pos
-	 * @return true listPhoneSym.get(pos + 1).equals("n:") || listPhoneSym.get(pos + 1).equals("a:"), false otherwise
+	 * @return true listPhoneSym.get(pos + 1).equals("n:") ||
+	 *         listPhoneSym.get(pos + 1).equals("a:"), false otherwise
 	 */
 	private boolean isNextSemiConsonant(int pos) {
 		if ((pos + 1) >= listPhoneSym.size())
@@ -194,14 +196,14 @@ public class TeluguLTS {
 	private String toHex4(int ch) {
 		String hex = Integer.toHexString(ch).toUpperCase();
 		switch (hex.length()) {
-		case 3:
-			return "0" + hex;
-		case 2:
-			return "00" + hex;
-		case 1:
-			return "000" + hex;
-		default:
-			return hex;
+			case 3 :
+				return "0" + hex;
+			case 2 :
+				return "00" + hex;
+			case 1 :
+				return "000" + hex;
+			default :
+				return hex;
 		}
 	}
 
@@ -429,7 +431,8 @@ public class TeluguLTS {
 
 		// utf8r.makeProperIt3("/home/sathish/Desktop/telugu-utf8-txt.done.data");
 		// String nameString = "\u0C05\u0C38\u0C1F\u0C08\u0C05\u0C37";
-		// PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("telugu-utf.txt"), "UTF8"));
+		// PrintWriter pw = new PrintWriter(new OutputStreamWriter(new
+		// FileOutputStream("telugu-utf.txt"), "UTF8"));
 		// pw.print(nameString);
 		// pw.flush();
 		// pw.close();

@@ -17,14 +17,12 @@ public class JPhonemiserIT extends MaryModuleTestCase {
 		module = ModuleRegistry.getModule(JPhonemiser.class);
 	}
 
-    /*
-      @Test
-      public void testIsPosPunctuation() {
-      Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FB"));
-      Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FC"));
-      Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FF"));
-      Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FS"));
-      Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
-      }
-    */
+	/*
+	 * @Test public void testIsPosPunctuation() {
+	 * Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FB"));
+	 * Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FC"));
+	 * Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FF"));
+	 * Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("FS"));
+	 * Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN")); }
+	 */
 }

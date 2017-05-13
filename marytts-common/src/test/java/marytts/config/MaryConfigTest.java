@@ -55,8 +55,9 @@ public class MaryConfigTest {
 	 * @author Tristan
 	 * @author ingmar
 	 *
-	 *         Test to check properties file for trailing whitespace [SOLVED] -> created PropertiesTrimTrailingWhitespace class to
-	 *         trim trailing whitespace
+	 *         Test to check properties file for trailing whitespace [SOLVED] ->
+	 *         created PropertiesTrimTrailingWhitespace class to trim trailing
+	 *         whitespace
 	 * @throws MaryConfigurationException
 	 * @throws IOException
 	 *

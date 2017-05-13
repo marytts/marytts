@@ -10,15 +10,14 @@ import marytts.features.FeatureProcessor;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class TextFeature implements FeatureProcessor
-{
-    public Feature generate(Utterance utt, Item item) throws Exception
-    {
-        if (item instanceof marytts.data.item.linguistic.Word)
-            return new Feature(((Word) item).getText());
+public class TextFeature implements FeatureProcessor {
+	public Feature generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof marytts.data.item.linguistic.Word)
+			return new Feature(((Word) item).getText());
 
-        throw new Exception();
-    }
+		throw new Exception();
+	}
 }

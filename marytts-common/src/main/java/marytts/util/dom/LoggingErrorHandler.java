@@ -29,7 +29,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
 /**
- * Implements an ErrorHandler for XML parsing that provides error and warning messages to the log4j logger.
+ * Implements an ErrorHandler for XML parsing that provides error and warning
+ * messages to the log4j logger.
  * 
  * @author Marc Schr&ouml;der
  */

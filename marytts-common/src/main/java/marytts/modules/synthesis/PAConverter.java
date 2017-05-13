@@ -32,7 +32,8 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * Phonetic Alphabet converter. Converts individual phonetic symbols between different phonetic alphabets.
+ * Phonetic Alphabet converter. Converts individual phonetic symbols between
+ * different phonetic alphabets.
  * 
  * @author Marc Schr&ouml;der
  */
@@ -79,7 +80,8 @@ public class PAConverter {
 	}
 
 	/**
-	 * Converts a single phonetic symbol in English sampa representation into its equivalent in German sampa representation.
+	 * Converts a single phonetic symbol in English sampa representation into
+	 * its equivalent in German sampa representation.
 	 * 
 	 * @param En
 	 *            En
@@ -94,7 +96,8 @@ public class PAConverter {
 	}
 
 	/**
-	 * Converts an english sampa string into a german sampa string, keeping syllable boundaries and stress markers
+	 * Converts an english sampa string into a german sampa string, keeping
+	 * syllable boundaries and stress markers
 	 * 
 	 * @param sEn
 	 *            sEn

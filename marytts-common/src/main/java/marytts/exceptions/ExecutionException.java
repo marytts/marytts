@@ -20,8 +20,9 @@
 package marytts.exceptions;
 
 /**
- * A special type of expected error conditions This class represents error conditions for external scripts such as Exceptions at
- * runtime when processing fails
+ * A special type of expected error conditions This class represents error
+ * conditions for external scripts such as Exceptions at runtime when processing
+ * fails
  * 
  * @author sathish
  * 

@@ -38,8 +38,9 @@ import marytts.todisappear.FeatureVector;
 import marytts.todisappear.Target;
 
 /**
- * A tree is a specific kind of directed graph in which each node can have only a single parent node. It consists exclusively of
- * DecisionNode and LeafNode nodes.
+ * A tree is a specific kind of directed graph in which each node can have only
+ * a single parent node. It consists exclusively of DecisionNode and LeafNode
+ * nodes.
  *
  * @author marc
  *
@@ -69,7 +70,8 @@ public class CART extends DirectedGraph {
 	 * @param rootNode
 	 *            the root node of the CART
 	 * @param featDef
-	 *            the feature definition used for interpreting the meaning of decision node criteria.
+	 *            the feature definition used for interpreting the meaning of
+	 *            decision node criteria.
 	 */
 	public CART(Node rootNode, FeatureDefinition featDef) {
 		super(rootNode, featDef);
@@ -81,22 +83,26 @@ public class CART extends DirectedGraph {
 	 * @param rootNode
 	 *            the root node of the CART
 	 * @param featDef
-	 *            the feature definition used for interpreting the meaning of decision node criteria.
+	 *            the feature definition used for interpreting the meaning of
+	 *            decision node criteria.
 	 * @param properties
-	 *            a generic properties object, which can be used to encode information about the tree and the way the data in it
-	 *            should be represented.
+	 *            a generic properties object, which can be used to encode
+	 *            information about the tree and the way the data in it should
+	 *            be represented.
 	 */
 	public CART(Node rootNode, FeatureDefinition featDef, Properties properties) {
 		super(rootNode, featDef, properties);
 	}
 
 	/**
-	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
+	 * Passes the given item through this CART and returns the leaf Node, or the
+	 * Node it stopped walking down.
 	 *
 	 * @param target
 	 *            the target to analyze
 	 * @param minNumberOfData
-	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
+	 *            the minimum number of data requested. If this is 0, walk down
+	 *            the CART until the leaf level.
 	 *
 	 * @return the Node
 	 */
@@ -105,12 +111,14 @@ public class CART extends DirectedGraph {
 	}
 
 	/**
-	 * Passes the given item through this CART and returns the leaf Node, or the Node it stopped walking down.
+	 * Passes the given item through this CART and returns the leaf Node, or the
+	 * Node it stopped walking down.
 	 *
 	 * @param featureVector
 	 *            the target to analyze
 	 * @param minNumberOfData
-	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
+	 *            the minimum number of data requested. If this is 0, walk down
+	 *            the CART until the leaf level.
 	 *
 	 * @return the Node
 	 */
@@ -119,7 +127,8 @@ public class CART extends DirectedGraph {
 		Node prevNode = null;
 
 		// logger.debug("Starting cart at "+nodeIndex);
-		while (currentNode != null && currentNode.getNumberOfData() > minNumberOfData && !(currentNode instanceof LeafNode)) {
+		while (currentNode != null && currentNode.getNumberOfData() > minNumberOfData
+				&& !(currentNode instanceof LeafNode)) {
 			// while we have not reached the bottom,
 			// get the next node based on the features of the target
 			prevNode = currentNode;
@@ -148,7 +157,8 @@ public class CART extends DirectedGraph {
 	 * @param target
 	 *            the target to analyze
 	 * @param minNumberOfData
-	 *            the minimum number of data requested. If this is 0, walk down the CART until the leaf level.
+	 *            the minimum number of data requested. If this is 0, walk down
+	 *            the CART until the leaf level.
 	 *
 	 * @return the interpretation
 	 */

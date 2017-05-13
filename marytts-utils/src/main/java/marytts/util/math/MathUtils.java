@@ -29,7 +29,8 @@ import marytts.util.string.StringUtils;
  * @author Marc Schr&ouml;der, Oytun Tuerk
  * 
  * 
- *         An uninstantiable class, containing static utility methods in the Math domain.
+ *         An uninstantiable class, containing static utility methods in the
+ *         Math domain.
  * 
  */
 public class MathUtils {
@@ -83,7 +84,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
+	 * Find the maximum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -104,7 +106,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
+	 * Find the maximum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -125,7 +128,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
+	 * Find the minimum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -146,7 +150,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
+	 * Find the minimum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -167,7 +172,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Build the sum of all elements in the array, ignoring elements that are NaN.
+	 * Build the sum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -230,7 +236,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
+	 * Find the maximum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -257,7 +264,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the maximum of the absolute values of all elements in the array, ignoring elements that are NaN.
+	 * Find the maximum of the absolute values of all elements in the array,
+	 * ignoring elements that are NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -268,7 +276,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the maximum of the absolute values of all elements in the given subarray, ignoring elements that are NaN.
+	 * Find the maximum of the absolute values of all elements in the given
+	 * subarray, ignoring elements that are NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -291,7 +300,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
+	 * Find the minimum of all elements in the array, ignoring elements that are
+	 * NaN.
 	 * 
 	 * @param data
 	 *            data
@@ -322,7 +332,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
+	 * Compute the mean of all elements in the array. No missing values (NaN)
+	 * are allowed.
 	 * 
 	 * @param data
 	 *            data
@@ -356,7 +367,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
+	 * Compute the mean of all elements in the array with given indices. No
+	 * missing values (NaN) are allowed.
 	 * 
 	 * @param data
 	 *            data
@@ -379,7 +391,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
+	 * Compute the mean of all elements in the array. No missing values (NaN)
+	 * are allowed.
 	 * 
 	 * @param data
 	 *            data
@@ -417,7 +430,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
+	 * Compute the mean of all elements in the array with given indices. No
+	 * missing values (NaN) are allowed.
 	 * 
 	 * @param data
 	 *            data
@@ -440,7 +454,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the mean of all elements in the array. this function can deal with NaNs
+	 * Compute the mean of all elements in the array. this function can deal
+	 * with NaNs
 	 * 
 	 * @param data
 	 *            double[]
@@ -488,13 +503,15 @@ public class MathUtils {
 	}
 
 	/**
-	 * Compute the standard deviation of the given data, this function can deal with NaNs
+	 * Compute the standard deviation of the given data, this function can deal
+	 * with NaNs
 	 * 
 	 * @param data
 	 *            double[]
 	 * @param opt
-	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance, 1: normalizes
-	 *            with N, this provides the square root of the second moment around the mean
+	 *            0: normalizes with N-1, this provides the square root of best
+	 *            unbiased estimator of the variance, 1: normalizes with N, this
+	 *            provides the square root of the second moment around the mean
 	 * @return Math.sqrt(variance(data, opt))
 	 */
 	public static double standardDeviation(double[] data, int opt) {
@@ -510,8 +527,9 @@ public class MathUtils {
 	 * @param data
 	 *            double[]
 	 * @param opt
-	 *            0: normalizes with N-1, this provides the square root of best unbiased estimator of the variance, 1: normalizes
-	 *            with N, this provides the square root of the second moment around the mean
+	 *            0: normalizes with N-1, this provides the square root of best
+	 *            unbiased estimator of the variance, 1: normalizes with N, this
+	 *            provides the square root of the second moment around the mean
 	 * @return S / numData -1 if opt is 0, S / numData otherwise
 	 */
 	public static double variance(double[] data, int opt) {
@@ -523,7 +541,8 @@ public class MathUtils {
 		// n = n + 1
 		// delta = x - mean
 		// mean = mean + delta/n
-		// S = S + delta*(x - mean) // This expression uses the new value of mean
+		// S = S + delta*(x - mean) // This expression uses the new value of
+		// mean
 		// end for
 		// variance = S/(n - 1)
 		double mean = 0;
@@ -598,10 +617,12 @@ public class MathUtils {
 	 * @param x
 	 *            the matrix consisting of row vectors
 	 * @param meanVector
-	 *            the vector of mean values -- a column vector if row-wise variances are to be computed, or a row vector if
-	 *            column-wise variances are to be calculated. param isAlongRows if true, compute the variance of x[0][0], x[1][0]
-	 *            etc. given mean[0]; if false, compute the variances for the vectors x[0], x[1] etc. separately, given the
-	 *            respective mean[0], mean[1] etc.
+	 *            the vector of mean values -- a column vector if row-wise
+	 *            variances are to be computed, or a row vector if column-wise
+	 *            variances are to be calculated. param isAlongRows if true,
+	 *            compute the variance of x[0][0], x[1][0] etc. given mean[0];
+	 *            if false, compute the variances for the vectors x[0], x[1]
+	 *            etc. separately, given the respective mean[0], mean[1] etc.
 	 * @param isAlongRows
 	 *            isAlongRows
 	 * @return var
@@ -773,7 +794,8 @@ public class MathUtils {
 	}
 
 	/***
-	 * Sample correlation coefficient Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
+	 * Sample correlation coefficient Ref:
+	 * http://en.wikipedia.org/wiki/Correlation_and_dependence
 	 * 
 	 * @param x
 	 *            x
@@ -946,8 +968,8 @@ public class MathUtils {
 
 	public static ComplexNumber[] polar2complex(double[] amps, float[] phasesInRadian) {
 		if (amps.length != phasesInRadian.length) {
-			throw new IllegalArgumentException("Arrays must have same length, but are " + amps.length + " vs. "
-					+ phasesInRadian.length);
+			throw new IllegalArgumentException(
+					"Arrays must have same length, but are " + amps.length + " vs. " + phasesInRadian.length);
 		}
 
 		ComplexNumber[] comps = new ComplexNumber[amps.length];
@@ -959,8 +981,8 @@ public class MathUtils {
 
 	public static ComplexNumber[] polar2complex(double[] amps, double[] phasesInRadian) {
 		if (amps.length != phasesInRadian.length) {
-			throw new IllegalArgumentException("Arrays must have same length, but are " + amps.length + " vs. "
-					+ phasesInRadian.length);
+			throw new IllegalArgumentException(
+					"Arrays must have same length, but are " + amps.length + " vs. " + phasesInRadian.length);
 		}
 
 		ComplexNumber[] comps = new ComplexNumber[amps.length];
@@ -1049,8 +1071,9 @@ public class MathUtils {
 	 * 
 	 * @param a
 	 *            array to invert
-	 * @return a new array of the same size as <b>a</b>, in which each element is equal to the multiplicative inverse of the
-	 *         corresponding element in <b>a</b>
+	 * @return a new array of the same size as <b>a</b>, in which each element
+	 *         is equal to the multiplicative inverse of the corresponding
+	 *         element in <b>a</b>
 	 * @throws IllegalArgumentException
 	 *             if the array is null
 	 */
@@ -1165,7 +1188,8 @@ public class MathUtils {
 	public static ComplexNumber divideComplex(ComplexNumber x1, ComplexNumber x2) {
 		double denum = magnitudeComplexSquared(x2.real, x2.imag);
 
-		return new ComplexNumber((x1.real * x2.real + x1.imag * x2.imag) / denum, (x1.imag * x2.real - x1.real * x2.imag) / denum);
+		return new ComplexNumber((x1.real * x2.real + x1.imag * x2.imag) / denum,
+				(x1.imag * x2.real - x1.real * x2.imag) / denum);
 	}
 
 	public static ComplexNumber divideComplex(double xReal, double xImag, double yReal, double yImag) {
@@ -1219,14 +1243,15 @@ public class MathUtils {
 
 	public static double phaseInRadians(ComplexNumber x) {
 		/*
-		 * double modul = MathUtils.magnitudeComplex(x); // modulus double phase = Math.atan2(x.imag, x.real); // use atan2: theta
-		 * ranges from [-pi,pi]
+		 * double modul = MathUtils.magnitudeComplex(x); // modulus double phase
+		 * = Math.atan2(x.imag, x.real); // use atan2: theta ranges from
+		 * [-pi,pi]
 		 * 
-		 * if (x.imag<0.0) // lower half plane (Im<0), needs shifting { phase += MathUtils.TWOPI; // shift by adding 2pi to lower
-		 * half plane
+		 * if (x.imag<0.0) // lower half plane (Im<0), needs shifting { phase +=
+		 * MathUtils.TWOPI; // shift by adding 2pi to lower half plane
 		 * 
-		 * // fix the discontinuity between phase = 0 and phase = 2pi if (x.real>0.0 && x.imag<0.0 && Math.abs(x.imag)<1e-10)
-		 * phase = 0.0; }
+		 * // fix the discontinuity between phase = 0 and phase = 2pi if
+		 * (x.real>0.0 && x.imag<0.0 && Math.abs(x.imag)<1e-10) phase = 0.0; }
 		 * 
 		 * return phase;
 		 */
@@ -1370,7 +1395,8 @@ public class MathUtils {
 		return multiply(1.0 / a, x);
 	}
 
-	// Matrix of size NxM multiplied by an appropriate sized vector, i.e. Mx1, returns a vector of size Nx1
+	// Matrix of size NxM multiplied by an appropriate sized vector, i.e. Mx1,
+	// returns a vector of size Nx1
 	public static double[] matrixProduct(double[][] x, double[] y) {
 		double[][] y2 = new double[y.length][1];
 		int i;
@@ -1451,12 +1477,15 @@ public class MathUtils {
 		return matrixProduct(x2, y);
 	}
 
-	// This is a "*" product --> should return a matrix provided that the sizes are appropriate
+	// This is a "*" product --> should return a matrix provided that the sizes
+	// are appropriate
 	public static double[][] matrixProduct(double[][] x, double[][] y) {
 		double[][] z = null;
 
 		if (x != null && y != null) {
-			if (x.length == 1 && y.length == 1) // Special case -- diagonal matrix multiplication, returns a diagonal matrix
+			if (x.length == 1 && y.length == 1) // Special case -- diagonal
+												// matrix multiplication,
+												// returns a diagonal matrix
 			{
 				assert x[0].length == y[0].length;
 				z = new double[1][x[0].length];
@@ -1491,12 +1520,15 @@ public class MathUtils {
 		return z;
 	}
 
-	// This is a "*" product --> should return a matrix provided that the sizes are appropriate
+	// This is a "*" product --> should return a matrix provided that the sizes
+	// are appropriate
 	public static ComplexNumber[][] matrixProduct(ComplexNumber[][] x, ComplexNumber[][] y) {
 		ComplexNumber[][] z = null;
 
 		if (x != null && y != null) {
-			if (x.length == 1 && y.length == 1) // Special case -- diagonal matrix multiplication, returns a diagonal matrix
+			if (x.length == 1 && y.length == 1) // Special case -- diagonal
+												// matrix multiplication,
+												// returns a diagonal matrix
 			{
 				assert x[0].length == y[0].length;
 				z = new ComplexNumber[1][x[0].length];
@@ -1517,11 +1549,14 @@ public class MathUtils {
 				z = new ComplexNumber[rowSizex][colSizey];
 
 				/**
-				 * Marc Schröder, 3 July 2009: The following implementation used up about 93% of total processing time. Replacing
-				 * it with a less elegant but more efficient implementation:
+				 * Marc Schröder, 3 July 2009: The following implementation used
+				 * up about 93% of total processing time. Replacing it with a
+				 * less elegant but more efficient implementation:
 				 * 
-				 * ComplexNumber tmpSum; for (i=0; i<rowSizex; i++) { for (j=0; j<colSizey; j++) { tmpSum = new ComplexNumber(0.0,
-				 * 0.0); for (m=0; m<x[i].length; m++) tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
+				 * ComplexNumber tmpSum; for (i=0; i<rowSizex; i++) { for (j=0;
+				 * j<colSizey; j++) { tmpSum = new ComplexNumber(0.0, 0.0); for
+				 * (m=0; m<x[i].length; m++) tmpSum = addComplex(tmpSum,
+				 * multiplyComplex(x[i][m],y[m][j]));
 				 * 
 				 * z[i][j] = new ComplexNumber(tmpSum); } }
 				 */
@@ -1605,11 +1640,13 @@ public class MathUtils {
 	}
 
 	/**
-	 * Convert energy from linear scale to db SPL scale (comparing energies to the minimum audible energy, one Pascal squared).
+	 * Convert energy from linear scale to db SPL scale (comparing energies to
+	 * the minimum audible energy, one Pascal squared).
 	 * 
 	 * @param energy
 	 *            in time or frequency domain, on a linear energy scale
-	 * @return energy on a db scale, or NaN if energy is less than or equal to 0.
+	 * @return energy on a db scale, or NaN if energy is less than or equal to
+	 *         0.
 	 */
 	public static double dbSPL(double energy) {
 		if (energy <= 0)
@@ -1627,7 +1664,8 @@ public class MathUtils {
 	 * 
 	 * @param energy
 	 *            in time or frequency domain, on a linear energy scale
-	 * @return energy on a db scale, or NaN if energy is less than or equal to 0.
+	 * @return energy on a db scale, or NaN if energy is less than or equal to
+	 *         0.
 	 */
 	public static double db(double energy) {
 		if (energy <= 1e-80)
@@ -1792,8 +1830,9 @@ public class MathUtils {
 	}
 
 	/**
-	 * Build the sum of the squared difference of all elements with the same index numbers in the arrays. Any NaN values in either
-	 * a or b are ignored in computing the error.
+	 * Build the sum of the squared difference of all elements with the same
+	 * index numbers in the arrays. Any NaN values in either a or b are ignored
+	 * in computing the error.
 	 * 
 	 * @param a
 	 *            a
@@ -1929,8 +1968,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Convert a pair of arrays from cartesian (x, y) coordinates to polar (r, phi) coordinates. Phi will be in radians, i.e. a
-	 * full circle is two pi.
+	 * Convert a pair of arrays from cartesian (x, y) coordinates to polar (r,
+	 * phi) coordinates. Phi will be in radians, i.e. a full circle is two pi.
 	 * 
 	 * @param x
 	 *            as input, the x coordinate; as output, the r coordinate;
@@ -1950,8 +1989,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Convert a pair of arrays from polar (r, phi) coordinates to cartesian (x, y) coordinates. Phi is in radians, i.e. a whole
-	 * circle is two pi.
+	 * Convert a pair of arrays from polar (r, phi) coordinates to cartesian (x,
+	 * y) coordinates. Phi is in radians, i.e. a whole circle is two pi.
 	 * 
 	 * @param r
 	 *            as input, the r coordinate; as output, the x coordinate;
@@ -1971,7 +2010,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * For a given angle in radians, return the equivalent angle in the range [-PI, PI].
+	 * For a given angle in radians, return the equivalent angle in the range
+	 * [-PI, PI].
 	 * 
 	 * @param angle
 	 *            angle
@@ -1982,7 +2022,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * For each of an array of angles (in radians), return the equivalent angle in the range [-PI, PI].
+	 * For each of an array of angles (in radians), return the equivalent angle
+	 * in the range [-PI, PI].
 	 * 
 	 * @param angle
 	 *            angle
@@ -1995,7 +2036,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * This is the Java source code for a Levinson Recursion. from http://www.nauticom.net/www/jdtaft/JavaLevinson.htm
+	 * This is the Java source code for a Levinson Recursion. from
+	 * http://www.nauticom.net/www/jdtaft/JavaLevinson.htm
 	 * 
 	 * @param r
 	 *            contains the autocorrelation lags as input [r(0)...r(m)].
@@ -2005,7 +2047,8 @@ public class MathUtils {
 	 */
 	public static double[] levinson(double[] r, int m) {
 		// The matrix l is unit lower triangular.
-		// It's i-th row contains upon completion the i-th prediction error filter,
+		// It's i-th row contains upon completion the i-th prediction error
+		// filter,
 		// with the coefficients in reverse order. The vector e contains upon
 		// completion the prediction errors.
 		// The last section extracts the maximum length whitening filter
@@ -2049,22 +2092,27 @@ public class MathUtils {
 			coeffs[i] = l[m][m - i];
 		}
 		/*
-		 * double sum = 0.; for (i = 0; i < m; i++) { sum += coeffs[i]; } for (i = 0; i < m; i++) { coeffs[i] = coeffs[i] / sum; }
+		 * double sum = 0.; for (i = 0; i < m; i++) { sum += coeffs[i]; } for (i
+		 * = 0; i < m; i++) { coeffs[i] = coeffs[i] / sum; }
 		 */
 		return coeffs;
 	}
 
-	// Modified(Generalized) Levinson recursion to solve the matrix equation R*h=c
+	// Modified(Generalized) Levinson recursion to solve the matrix equation
+	// R*h=c
 	// where R is a complex-valued Toeplitz matrix
 	//
-	// r : Complex vector of length N containing the first row of the correlation matrix R
+	// r : Complex vector of length N containing the first row of the
+	// correlation matrix R
 	// c : Complex vector containing the right handside of the equation
 	public static ComplexNumber[] levinson(ComplexNumber[] r, ComplexNumber[] c) {
 		assert r.length == c.length;
 
 		int M = r.length; // Order of equations to be solved
-		ComplexNumber[] a = new ComplexNumber[M]; // Temporary array for computations
-		ComplexNumber[] b = new ComplexNumber[M]; // Temporary array for computations
+		ComplexNumber[] a = new ComplexNumber[M]; // Temporary array for
+													// computations
+		ComplexNumber[] b = new ComplexNumber[M]; // Temporary array for
+													// computations
 		ComplexNumber[] h = new ComplexNumber[M]; // Output
 		ComplexNumber alpha, beta, gamma, xk, q;
 		int i;
@@ -2105,8 +2153,8 @@ public class MathUtils {
 			xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), MathUtils.complexConjugate(alpha));
 
 			for (i = 2; i <= N; i++)
-				b[i - 1] = MathUtils
-						.addComplex(a[i - 1], MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(a[N + 1 - i])));
+				b[i - 1] = MathUtils.addComplex(a[i - 1],
+						MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(a[N + 1 - i])));
 
 			for (i = 2; i <= N; i++)
 				a[i - 1] = new ComplexNumber(b[i - 1]);
@@ -2116,7 +2164,8 @@ public class MathUtils {
 			q = MathUtils.divideComplex(MathUtils.subtractComplex(c[N], gamma), MathUtils.complexConjugate(alpha));
 			h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N])));
 			for (i = 2; i <= N; i++)
-				h[i - 1] = MathUtils.addComplex(h[i - 1], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N + 1 - i])));
+				h[i - 1] = MathUtils.addComplex(h[i - 1],
+						MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N + 1 - i])));
 
 			h[N] = new ComplexNumber(q);
 
@@ -2153,7 +2202,8 @@ public class MathUtils {
 			return null;
 	}
 
-	// Performs linear interpolation to increase or decrease the size of array x to newLength
+	// Performs linear interpolation to increase or decrease the size of array x
+	// to newLength
 	public static double[] interpolate(double[] x, int newLength) {
 		double[] y = null;
 		if (newLength > 0) {
@@ -2179,8 +2229,8 @@ public class MathUtils {
 						y[i] = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd], x[leftInd + 1]);
 					else {
 						if (leftInd > 0)
-							y[i] = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd], 2 * x[leftInd]
-									- x[leftInd - 1]);
+							y[i] = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd],
+									2 * x[leftInd] - x[leftInd - 1]);
 						else
 							y[i] = x[leftInd];
 					}
@@ -2191,7 +2241,8 @@ public class MathUtils {
 		return y;
 	}
 
-	// Performs linear interpolation to increase or decrease the size of array x to newLength
+	// Performs linear interpolation to increase or decrease the size of array x
+	// to newLength
 	public static ComplexNumber[] interpolate(ComplexNumber[] x, int newLength) {
 		ComplexNumber[] y = null;
 		if (newLength > 0) {
@@ -2215,15 +2266,17 @@ public class MathUtils {
 				for (int i = 0; i < newLength; i++) {
 					leftInd = (int) Math.floor(i * ratio);
 					if (leftInd < x.length - 1) {
-						yReal = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].real, x[leftInd + 1].real);
-						yImag = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].imag, x[leftInd + 1].imag);
+						yReal = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].real,
+								x[leftInd + 1].real);
+						yImag = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].imag,
+								x[leftInd + 1].imag);
 						y[i] = new ComplexNumber(yReal, yImag);
 					} else {
 						if (leftInd > 0) {
-							yReal = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].real, 2 * x[leftInd].real
-									- x[leftInd - 1].real);
-							yImag = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].imag, 2 * x[leftInd].imag
-									- x[leftInd - 1].imag);
+							yReal = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].real,
+									2 * x[leftInd].real - x[leftInd - 1].real);
+							yImag = interpolatedSample(leftInd, i * ratio, leftInd + 1, x[leftInd].imag,
+									2 * x[leftInd].imag - x[leftInd - 1].imag);
 							y[i] = new ComplexNumber(yReal, yImag);
 						} else
 							y[i] = new ComplexNumber(x[leftInd]);
@@ -2235,7 +2288,8 @@ public class MathUtils {
 		return y;
 	}
 
-	// Linear interpolation of values in xVals at indices xInds to give values at indices xInds2
+	// Linear interpolation of values in xVals at indices xInds to give values
+	// at indices xInds2
 	public static double[] interpolate(int[] xInds, double[] xVals, int[] xInds2) {
 		double[] xVals2 = new double[xInds2.length];
 		assert xInds.length == xVals.length;
@@ -2250,8 +2304,8 @@ public class MathUtils {
 							xVals[closestInd - 1], xVals[closestInd]);
 				else {
 					if (closestInd + 1 < xVals.length)
-						xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd] - 1, xInds2[i], xInds[closestInd], 2
-								* xVals[closestInd] - xVals[closestInd + 1], xVals[closestInd]);
+						xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd] - 1, xInds2[i], xInds[closestInd],
+								2 * xVals[closestInd] - xVals[closestInd + 1], xVals[closestInd]);
 					else
 						xVals2[i] = xVals[closestInd];
 				}
@@ -2543,10 +2597,13 @@ public class MathUtils {
 		return maxx;
 	}
 
-	// Return the local peak index for values x[startInd],x[startInd+1],...,x[endInd]
+	// Return the local peak index for values
+	// x[startInd],x[startInd+1],...,x[endInd]
 	// Note that the returned index is in the range [startInd,endInd]
-	// If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
-	// However, it is the responsibility of the calling function to further check this situation as the returned index
+	// If there is no local peak, -1 is returned. This means that the peak is
+	// either at [startInd] or [endInd].
+	// However, it is the responsibility of the calling function to further
+	// check this situation as the returned index
 	// will be -1 in both cases
 	public static int getAbsMaxInd(double[] x, int startInd, int endInd) {
 		int index = -1;
@@ -2657,7 +2714,8 @@ public class MathUtils {
 		return findOr(xd, comparator1, val1, comparator2, val2);
 	}
 
-	// Returns the indices that satisfy both comparator1, val1 and comparator2, val2
+	// Returns the indices that satisfy both comparator1, val1 and comparator2,
+	// val2
 	public static int[] findAnd(double[] x, int comparator1, double val1, int comparator2, double val2) {
 		int[] indices = null;
 		int[] indices1 = find(x, comparator1, val1);
@@ -2695,7 +2753,8 @@ public class MathUtils {
 		return indices;
 	}
 
-	// Returns the indices that satisfy both comparator1, val1 or comparator2, val2
+	// Returns the indices that satisfy both comparator1, val1 or comparator2,
+	// val2
 	public static int[] findOr(double[] x, int comparator1, double val1, int comparator2, double val2) {
 		int[] indices = null;
 		int[] indices1 = find(x, comparator1, val1);
@@ -2735,48 +2794,49 @@ public class MathUtils {
 		return vals;
 	}
 
-	// Returns the indices satisying the condition specificed by the comparator and val
+	// Returns the indices satisying the condition specificed by the comparator
+	// and val
 	public static int[] find(double[] x, int comparator, double val) {
 		int[] inds = null;
 		int totalFound = 0;
 
 		switch (comparator) {
-		case EQUALS:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] == val)
-					totalFound++;
-			}
-			break;
-		case GREATER_THAN:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] > val)
-					totalFound++;
-			}
-			break;
-		case GREATER_THAN_OR_EQUALS:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] >= val)
-					totalFound++;
-			}
-			break;
-		case LESS_THAN:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] < val)
-					totalFound++;
-			}
-			break;
-		case LESS_THAN_OR_EQUALS:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] <= val)
-					totalFound++;
-			}
-			break;
-		case NOT_EQUALS:
-			for (int i = 0; i < x.length; i++) {
-				if (x[i] != val)
-					totalFound++;
-			}
-			break;
+			case EQUALS :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] == val)
+						totalFound++;
+				}
+				break;
+			case GREATER_THAN :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] > val)
+						totalFound++;
+				}
+				break;
+			case GREATER_THAN_OR_EQUALS :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] >= val)
+						totalFound++;
+				}
+				break;
+			case LESS_THAN :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] < val)
+						totalFound++;
+				}
+				break;
+			case LESS_THAN_OR_EQUALS :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] <= val)
+						totalFound++;
+				}
+				break;
+			case NOT_EQUALS :
+				for (int i = 0; i < x.length; i++) {
+					if (x[i] != val)
+						totalFound++;
+				}
+				break;
 		}
 
 		if (totalFound > 0) {
@@ -2784,54 +2844,54 @@ public class MathUtils {
 			inds = new int[totalFound];
 
 			switch (comparator) {
-			case EQUALS:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] == val) {
-						inds[currentInd++] = i;
-						totalFound++;
+				case EQUALS :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] == val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
-			case GREATER_THAN:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] > val) {
-						inds[currentInd++] = i;
-						totalFound++;
+					break;
+				case GREATER_THAN :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] > val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
-			case GREATER_THAN_OR_EQUALS:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] >= val) {
-						inds[currentInd++] = i;
-						totalFound++;
+					break;
+				case GREATER_THAN_OR_EQUALS :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] >= val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
-			case LESS_THAN:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] < val) {
-						inds[currentInd++] = i;
-						totalFound++;
+					break;
+				case LESS_THAN :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] < val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
-			case LESS_THAN_OR_EQUALS:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] <= val) {
-						inds[currentInd++] = i;
-						totalFound++;
+					break;
+				case LESS_THAN_OR_EQUALS :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] <= val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
-			case NOT_EQUALS:
-				for (int i = 0; i < x.length; i++) {
-					if (x[i] != val) {
-						inds[currentInd++] = i;
-						totalFound++;
+					break;
+				case NOT_EQUALS :
+					for (int i = 0; i < x.length; i++) {
+						if (x[i] != val) {
+							inds[currentInd++] = i;
+							totalFound++;
+						}
 					}
-				}
-				break;
+					break;
 			}
 		}
 
@@ -2903,7 +2963,8 @@ public class MathUtils {
 		return ret;
 	}
 
-	// Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given
+	// Find the extremum points that are larger/smaller than numLefNs and
+	// numRightNs neighbours and larger/smaller than the given
 	// th value
 	public static int[] getExtrema(double[] x, int numLeftN, int numRightN, boolean isMaxima) {
 		return getExtrema(x, numLeftN, numRightN, isMaxima, 0);
@@ -2913,7 +2974,8 @@ public class MathUtils {
 		return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, x.length - 1);
 	}
 
-	public static int[] getExtrema(double[] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd) {
+	public static int[] getExtrema(double[] x, int numLeftN, int numRightN, boolean isMaxima, int startInd,
+			int endInd) {
 		double th;
 
 		if (isMaxima)
@@ -2924,7 +2986,8 @@ public class MathUtils {
 		return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, endInd, th);
 	}
 
-	public static int[] getExtrema(double[] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd, double th) {
+	public static int[] getExtrema(double[] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd,
+			double th) {
 		int[] numLeftNs = new int[x.length];
 		int[] numRightNs = new int[x.length];
 		Arrays.fill(numLeftNs, numLeftN);
@@ -2941,7 +3004,8 @@ public class MathUtils {
 		return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length - 1);
 	}
 
-	public static int[] getExtrema(double[] x, int[] numLeftNs, int[] numRightNs, boolean isMaxima, int startInd, int endInd) {
+	public static int[] getExtrema(double[] x, int[] numLeftNs, int[] numRightNs, boolean isMaxima, int startInd,
+			int endInd) {
 		double th;
 
 		if (isMaxima)
@@ -2952,8 +3016,8 @@ public class MathUtils {
 		return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th);
 	}
 
-	public static int[] getExtrema(double[] x, int[] numLeftNs, int[] numRightNs, boolean isMaxima, int startInd, int endInd,
-			double th) {
+	public static int[] getExtrema(double[] x, int[] numLeftNs, int[] numRightNs, boolean isMaxima, int startInd,
+			int endInd, double th) {
 		int[] tmpInds = new int[x.length];
 		int[] inds = null;
 		int total = 0;
@@ -3056,7 +3120,8 @@ public class MathUtils {
 		return getRandoms(len, 0.0, 1.0);
 	}
 
-	// Returns an array of values selected randomly in the interval minVal and maxVal
+	// Returns an array of values selected randomly in the interval minVal and
+	// maxVal
 	public static double[] getRandoms(int len, double minVal, double maxVal) {
 		double[] x = null;
 
@@ -3246,8 +3311,10 @@ public class MathUtils {
 		return sinc(2 * x, Math.PI);
 	}
 
-	// Returns the index of the smallest element that is larger than %percentSmallerThan of the data in x
-	// It simply sorts the data in x and then finds the smallest value that is larger than
+	// Returns the index of the smallest element that is larger than
+	// %percentSmallerThan of the data in x
+	// It simply sorts the data in x and then finds the smallest value that is
+	// larger than
 	// the [percentSmallerThan/100.0*(x.length-1)]th entry
 	public static double getSortedValue(double[] x, double percentSmallerThan) {
 		int retInd = -1;
@@ -3266,10 +3333,13 @@ public class MathUtils {
 	}
 
 	// Factorial design of all possible paths
-	// totalItemsInNodes is a vector containing the total number of element at each node,
-	// The output is the zero-based indices of elements in successive nodes covering all possible paths
+	// totalItemsInNodes is a vector containing the total number of element at
+	// each node,
+	// The output is the zero-based indices of elements in successive nodes
+	// covering all possible paths
 	// from the first node to the last
-	// Note that all elements of totalItemsInNodes should be greater than 0 (otherwise it is assumed that the corresponding
+	// Note that all elements of totalItemsInNodes should be greater than 0
+	// (otherwise it is assumed that the corresponding
 	// element is 1)
 	public static int[][] factorialDesign(int[] totalItemsInNodes) {
 		int totalPaths = 1;
@@ -3304,7 +3374,8 @@ public class MathUtils {
 		return pathInds;
 	}
 
-	// Returns the linearly mapped version of x which is in range xStart and xEnd in a new range
+	// Returns the linearly mapped version of x which is in range xStart and
+	// xEnd in a new range
 	// yStart and yEnd
 	public static float linearMap(float x, float xStart, float xEnd, float yStart, float yEnd) {
 		return (x - xStart) / (xEnd - xStart) * (yEnd - yStart) + yStart;
@@ -3356,7 +3427,8 @@ public class MathUtils {
 		return indices;
 	}
 
-	// In place sorting of elements of array x between startIndex(included) and endIndex(included)
+	// In place sorting of elements of array x between startIndex(included) and
+	// endIndex(included)
 	// Sorting is from lowest to highest
 	public static int[] quickSort(double[] x, int startIndex, int endIndex) {
 		if (startIndex < 0)
@@ -3385,7 +3457,8 @@ public class MathUtils {
 		return indices;
 	}
 
-	// In place sorting of elements of array x between startIndex(included) and endIndex(included)
+	// In place sorting of elements of array x between startIndex(included) and
+	// endIndex(included)
 	// Sorting is from lowest to highest
 	public static int[] quickSort(float[] x, int startIndex, int endIndex) {
 		if (startIndex < 0)
@@ -3562,7 +3635,8 @@ public class MathUtils {
 	}
 
 	/***
-	 * Calculates x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
+	 * Calculates x_i = (x_i - mean(x)) / std(x) This function can deal with
+	 * NaNs
 	 * 
 	 * @param x
 	 *            x
@@ -3677,7 +3751,8 @@ public class MathUtils {
 	//
 
 	// Adjusts mean and standard deviation of x
-	public static void adjustMeanStandardDeviation(double[] x, double currentMean, double newMean, double newStandardDeviation) {
+	public static void adjustMeanStandardDeviation(double[] x, double currentMean, double newMean,
+			double newStandardDeviation) {
 		double currentStdDev = standardDeviation(x, currentMean);
 
 		for (int i = 0; i < x.length; i++)
@@ -3686,7 +3761,8 @@ public class MathUtils {
 
 	//
 
-	// Adjusts range so that the minimum value equals minVal and maximum equals maxVal
+	// Adjusts range so that the minimum value equals minVal and maximum equals
+	// maxVal
 	public static void adjustRange(double[] x, double minVal, double maxVal) {
 		double minOrig = MathUtils.min(x);
 		double maxOrig = MathUtils.max(x);
@@ -3702,8 +3778,8 @@ public class MathUtils {
 	}
 
 	/**
-	 * Adjust values in x so that all values smaller than minVal are set to minVal, and all values greater than maxVal are set to
-	 * maxVal
+	 * Adjust values in x so that all values smaller than minVal are set to
+	 * minVal, and all values greater than maxVal are set to maxVal
 	 * 
 	 * @param x
 	 *            array of doubles to adjust; if x is null, nothing happens
@@ -3711,7 +3787,8 @@ public class MathUtils {
 	 *            minimum of all values in x after adjustment
 	 * @param maxVal
 	 *            maximum of all values in x after adjustment
-	 * @return true if one or more values in x were modified, false if x is unchanged
+	 * @return true if one or more values in x were modified, false if x is
+	 *         unchanged
 	 */
 	public static boolean clipRange(double[] x, double minVal, double maxVal) {
 		boolean modified = false;
@@ -3809,7 +3886,10 @@ public class MathUtils {
 	}
 
 	public static double getGaussianPdfValueConstantTermLog(int featureDimension, double detCovarianceMatrix) {
-		double constantTermLog = 0.5 * featureDimension * Math.log(2 * Math.PI); // double constantTerm = Math.pow(2*Math.PI,
+		double constantTermLog = 0.5 * featureDimension * Math.log(2 * Math.PI); // double
+																					// constantTerm
+																					// =
+																					// Math.pow(2*Math.PI,
 																					// 0.5*featureDimension);
 		constantTermLog += Math.log(Math.sqrt(detCovarianceMatrix));
 		constantTermLog = -constantTermLog;
@@ -3825,7 +3905,8 @@ public class MathUtils {
 
 	// Diagonal covariance case
 	// This version enables using pre-computed constant term
-	public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix, double constantTerm) {
+	public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix,
+			double constantTerm) {
 		double P = 0.0;
 		int i;
 
@@ -3840,7 +3921,8 @@ public class MathUtils {
 	}
 
 	// Log domain version
-	public static double getGaussianPdfValueLog(double[] x, double[] meanVector, double[] covarianceMatrix, double constantTermLog) {
+	public static double getGaussianPdfValueLog(double[] x, double[] meanVector, double[] covarianceMatrix,
+			double constantTermLog) {
 		double P = Double.MIN_VALUE;
 		int i;
 		double z;
@@ -3893,7 +3975,8 @@ public class MathUtils {
 	}
 
 	// Computes the determinant of a square matrix
-	// Note that if the matrix contains large values and of a large size, one may get overflow
+	// Note that if the matrix contains large values and of a large size, one
+	// may get overflow
 	public static double determinant(double[][] matrix) {
 		double result = 0.0;
 
@@ -4496,7 +4579,8 @@ public class MathUtils {
 	 *            min
 	 * @param max
 	 *            max
-	 * @return min if untrimmedValue is less than min; max if untrimmedValue is more than max; untrimmedValue otherwise.
+	 * @return min if untrimmedValue is less than min; max if untrimmedValue is
+	 *         more than max; untrimmedValue otherwise.
 	 */
 	public static double trimToRange(double untrimmedValue, double min, double max) {
 		return Math.max(min, Math.min(max, untrimmedValue));
@@ -4522,7 +4606,8 @@ public class MathUtils {
 					break;
 				} else {
 					for (int j = i; j < index; j++) {
-						// contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
+						// contour[j] = contour[i-1] * (index - j) +
+						// contour[index] * (j - (i-1)) / ( index - i );
 						if (i == 0) {
 							contour[j] = contour[index];
 						} else {
@@ -4584,8 +4669,10 @@ public class MathUtils {
 				continue;
 			}
 			// Linear Interpolation
-			// newSignal[i] = (diffVal * samples[nVal+1]) + ((1 - diffVal) * samples[nVal]);
-			// System.err.println("i "+i+" fraction "+fraction+" posIdx "+posIdx+" nVal "+nVal+" diffVal "+diffVal+" !!");
+			// newSignal[i] = (diffVal * samples[nVal+1]) + ((1 - diffVal) *
+			// samples[nVal]);
+			// System.err.println("i "+i+" fraction "+fraction+" posIdx
+			// "+posIdx+" nVal "+nVal+" diffVal "+diffVal+" !!");
 			double fVal = (diffVal * source[nVal + 1]) + ((1 - diffVal) * source[nVal]);
 			newSignal[i] = fVal;
 		}
@@ -4597,8 +4684,9 @@ public class MathUtils {
 	 * 
 	 * @param a
 	 *            a
-	 * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null
-	 *         if <b>a</b> is null, or [] if the length of <b>a</b> is less than 2.
+	 * @return array of differences between adjacent values in <b>a</b>, length
+	 *         is <code>a.length-1</code>; otherwise return null if <b>a</b> is
+	 *         null, or [] if the length of <b>a</b> is less than 2.
 	 */
 	public static double[] diff(double[] a) {
 		if (a == null) {

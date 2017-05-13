@@ -7,8 +7,6 @@ import marytts.data.item.linguistic.Word;
 import marytts.features.Feature;
 import marytts.features.FeatureProcessor;
 
-
-
 // CC Coordinating conjunction
 // CD Cardinal number
 // DT Determiner
@@ -46,59 +44,52 @@ import marytts.features.FeatureProcessor;
 // WP$ Possessive wh­pronoun
 // WRB Wh­adverb
 
-
-
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class POS implements FeatureProcessor
-{
+public class POS implements FeatureProcessor {
 
-    public String convertPOS(String orig_pos)
-    {
-        if (orig_pos.equals("."))
-            return "FULLSTOP";
-        if (orig_pos.equals(","))
-            return "COMMA";
-        if (orig_pos.equals(":"))
-            return "COLON";
-        if (orig_pos.equals(";"))
-            return "SEMICOLON";
-        if (orig_pos.equals("'"))
-            return "APOSTROPHE";
-        if (orig_pos.equals("!"))
-            return "EXCLAM";
-        if (orig_pos.equals("?"))
-            return "QUESTION";
-        if (orig_pos.equals("-"))
-            return "HYPHEN";
-        if (orig_pos.equals("..."))
-            return "ELLIPSIS";
-        if (orig_pos.equals("``"))
-            return "OPENQUOTES";
-        if (orig_pos.equals("''"))
-            return "CLOSEQUOTES";
+	public String convertPOS(String orig_pos) {
+		if (orig_pos.equals("."))
+			return "FULLSTOP";
+		if (orig_pos.equals(","))
+			return "COMMA";
+		if (orig_pos.equals(":"))
+			return "COLON";
+		if (orig_pos.equals(";"))
+			return "SEMICOLON";
+		if (orig_pos.equals("'"))
+			return "APOSTROPHE";
+		if (orig_pos.equals("!"))
+			return "EXCLAM";
+		if (orig_pos.equals("?"))
+			return "QUESTION";
+		if (orig_pos.equals("-"))
+			return "HYPHEN";
+		if (orig_pos.equals("..."))
+			return "ELLIPSIS";
+		if (orig_pos.equals("``"))
+			return "OPENQUOTES";
+		if (orig_pos.equals("''"))
+			return "CLOSEQUOTES";
 
-        return orig_pos;
+		return orig_pos;
 
-    }
+	}
 
-    public Feature generate(Utterance utt, Item item) throws Exception
-    {
-        if (item instanceof marytts.data.item.linguistic.Word)
-        {
-            if ((((Word) item).getPOS()) == null)
-            {
-                return Feature.UNDEF_FEATURE;
-            }
-            else
-            {
-                return new Feature(convertPOS(((Word) item).getPOS()));
-            }
-        }
+	public Feature generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof marytts.data.item.linguistic.Word) {
+			if ((((Word) item).getPOS()) == null) {
+				return Feature.UNDEF_FEATURE;
+			} else {
+				return new Feature(convertPOS(((Word) item).getPOS()));
+			}
+		}
 
-        throw new Exception("Only a word is accepted not an item of type " + item.getClass().toString() + " (" + item.toString() + ")");
-    }
+		throw new Exception("Only a word is accepted not an item of type " + item.getClass().toString() + " ("
+				+ item.toString() + ")");
+	}
 }

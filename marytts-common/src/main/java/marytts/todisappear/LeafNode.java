@@ -53,8 +53,9 @@ public abstract class LeafNode extends Node {
 	}
 
 	/**
-	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
-	 * and leaf nodes in the tree.
+	 * Count all the nodes at and below this node. A leaf will return 1; the
+	 * root node will report the total number of decision and leaf nodes in the
+	 * tree.
 	 *
 	 * @return 1
 	 */
@@ -83,31 +84,40 @@ public abstract class LeafNode extends Node {
 	public abstract boolean isEmpty();
 
 	/**
-	 * Count all the data available at and below this node. The meaning of this depends on the type of nodes; for example, when
-	 * IntArrayLeafNodes are used, it is the total number of ints that are saved in all leaf nodes below the current node.
+	 * Count all the data available at and below this node. The meaning of this
+	 * depends on the type of nodes; for example, when IntArrayLeafNodes are
+	 * used, it is the total number of ints that are saved in all leaf nodes
+	 * below the current node.
 	 *
-	 * @return an int counting the data below the current node, or -1 if such a concept is not meaningful.
+	 * @return an int counting the data below the current node, or -1 if such a
+	 *         concept is not meaningful.
 	 */
 	public abstract int getNumberOfData();
 
 	/**
-	 * Get all the data at or below this node. The type of data returned depends on the type of nodes; for example, when
-	 * IntArrayLeafNodes are used, one int[] is returned which contains all int values in all leaf nodes below the current node.
+	 * Get all the data at or below this node. The type of data returned depends
+	 * on the type of nodes; for example, when IntArrayLeafNodes are used, one
+	 * int[] is returned which contains all int values in all leaf nodes below
+	 * the current node.
 	 *
-	 * @return an object containing all data below the current node, or null if such a concept is not meaningful.
+	 * @return an object containing all data below the current node, or null if
+	 *         such a concept is not meaningful.
 	 */
 	public abstract Object getAllData();
 
 	/**
-	 * Write this node's data into the target object at pos, making sure that exactly len data are written. The type of data
-	 * written depends on the type of nodes; for example, when IntArrayLeafNodes are used, target would be an int[].
+	 * Write this node's data into the target object at pos, making sure that
+	 * exactly len data are written. The type of data written depends on the
+	 * type of nodes; for example, when IntArrayLeafNodes are used, target would
+	 * be an int[].
 	 *
 	 * @param target
 	 *            the object to write to, usually an array.
 	 * @param pos
 	 *            the position in the target at which to start writing
 	 * @param len
-	 *            the amount of data items to write, usually equals getNumberOfData().
+	 *            the amount of data items to write, usually equals
+	 *            getNumberOfData().
 	 */
 	protected abstract void fillData(Object target, int pos, int len);
 
@@ -119,8 +129,8 @@ public abstract class LeafNode extends Node {
 	public abstract LeafType getLeafNodeType();
 
 	/**
-	 * An LeafNode class suitable for representing the leaves of classification trees -- the leaf is a collection of items
-	 * identified by an index number.
+	 * An LeafNode class suitable for representing the leaves of classification
+	 * trees -- the leaf is a collection of items identified by an index number.
 	 *
 	 * @author marc
 	 *
@@ -190,8 +200,9 @@ public abstract class LeafNode extends Node {
 		}
 
 		/**
-		 * For the int-float pairs in this leaf, return the int value for which the associated float value is the highest one. If
-		 * the float values are probabilities, this method returns the most probable int.
+		 * For the int-float pairs in this leaf, return the int value for which
+		 * the associated float value is the highest one. If the float values
+		 * are probabilities, this method returns the most probable int.
 		 *
 		 * @return the most probable index
 		 */
@@ -248,14 +259,16 @@ public abstract class LeafNode extends Node {
 		}
 
 		/**
-		 * Return the most probable value in this leaf, translated into its string representation using the featureIndex'th
-		 * feature of the given feature definition.
+		 * Return the most probable value in this leaf, translated into its
+		 * string representation using the featureIndex'th feature of the given
+		 * feature definition.
 		 *
 		 * @param featureDefinition
 		 *            featureDefinition
 		 * @param featureIndex
 		 *            featureIndex
-		 * @return featureDefinition.getFeatureValueAsString(featureIndex, bestInd)
+		 * @return featureDefinition.getFeatureValueAsString(featureIndex,
+		 *         bestInd)
 		 */
 		public String mostProbableString(FeatureDefinition featureDefinition, int featureIndex) {
 			int bestInd = mostProbableInt();
@@ -313,7 +326,8 @@ public abstract class LeafNode extends Node {
 		 */
 		public FeatureVector[] getFeatureVectors() {
 			if (growable && (featureVectors == null || featureVectors.length == 0)) {
-				featureVectors = (FeatureVector[]) featureVectorList.toArray(new FeatureVector[featureVectorList.size()]);
+				featureVectors = (FeatureVector[]) featureVectorList
+						.toArray(new FeatureVector[featureVectorList.size()]);
 			}
 			return featureVectors;
 		}
@@ -329,14 +343,16 @@ public abstract class LeafNode extends Node {
 		 */
 		public Object getAllData() {
 			if (growable && (featureVectors == null || featureVectors.length == 0)) {
-				featureVectors = (FeatureVector[]) featureVectorList.toArray(new FeatureVector[featureVectorList.size()]);
+				featureVectors = (FeatureVector[]) featureVectorList
+						.toArray(new FeatureVector[featureVectorList.size()]);
 			}
 			return featureVectors;
 		}
 
 		protected void fillData(Object target, int pos, int len) {
 			if (!(target instanceof FeatureVector[]))
-				throw new IllegalArgumentException("Expected target object of type FeatureVector[], got " + target.getClass());
+				throw new IllegalArgumentException(
+						"Expected target object of type FeatureVector[], got " + target.getClass());
 			FeatureVector[] array = (FeatureVector[]) target;
 			assert len <= featureVectors.length;
 			System.arraycopy(featureVectors, 0, array, pos, len);
@@ -370,7 +386,8 @@ public abstract class LeafNode extends Node {
 	}
 
 	/**
-	 * A leaf class that is suitable for regression trees. Here, a leaf consists of a mean and a standard deviation.
+	 * A leaf class that is suitable for regression trees. Here, a leaf consists
+	 * of a mean and a standard deviation.
 	 *
 	 * @author marc
 	 *
@@ -431,8 +448,9 @@ public abstract class LeafNode extends Node {
 	}
 
 	/**
-	 * A leaf class that is suitable for regression trees. Here, a leaf consists of a mean and a diagonal covariance vectors. This
-	 * node will be used in HTS CART trees.
+	 * A leaf class that is suitable for regression trees. Here, a leaf consists
+	 * of a mean and a diagonal covariance vectors. This node will be used in
+	 * HTS CART trees.
 	 *
 	 */
 	public static class PdfLeafNode extends LeafNode {
@@ -458,7 +476,8 @@ public abstract class LeafNode extends Node {
 				int i, j, vsize, nstream;
 				nstream = pdf.length;
 
-				if (nstream == 1) { // This is the case for dur, mgc, str, mag, or joinModel.
+				if (nstream == 1) { // This is the case for dur, mgc, str, mag,
+									// or joinModel.
 					vsize = (pdf[0].length) / 2;
 					vectorSize = vsize;
 					mean = new double[vsize];
@@ -475,8 +494,10 @@ public abstract class LeafNode extends Node {
 					for (int stream = 0; stream < nstream; stream++) {
 						mean[stream] = pdf[stream][0];
 						variance[stream] = pdf[stream][1];
-						// vw = lf0pdf[numStates][numPdfs][numStreams][2]; /* voiced weight */
-						// uvw = lf0pdf[numStates][numPdfs][numStreams][3]; /* unvoiced weight */
+						// vw = lf0pdf[numStates][numPdfs][numStreams][2]; /*
+						// voiced weight */
+						// uvw = lf0pdf[numStates][numPdfs][numStreams][3]; /*
+						// unvoiced weight */
 						if (stream == 0)
 							voicedWeight = pdf[stream][2];
 					}

@@ -61,8 +61,8 @@ public class OpenNLPPosTagger extends InternalModule {
 	private Map<String, String> posMapper = null;
 
 	/**
-	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
-	 * different settings.
+	 * Constructor which can be directly called from init info in the config
+	 * file. Different languages can call this code with different settings.
 	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
@@ -94,7 +94,8 @@ public class OpenNLPPosTagger extends InternalModule {
 				// skip comments and empty lines
 				if (line.startsWith("#") || line.trim().equals(""))
 					continue;
-				// Entry format: POS GPOS, i.e. two space-separated entries per line
+				// Entry format: POS GPOS, i.e. two space-separated entries per
+				// line
 				StringTokenizer st = new StringTokenizer(line);
 				String pos = st.nextToken();
 				String gpos = st.nextToken();
@@ -105,53 +106,49 @@ public class OpenNLPPosTagger extends InternalModule {
 	}
 
 	@SuppressWarnings("unchecked")
-	public MaryData process(MaryData d)
-        throws Exception
-    {
+	public MaryData process(MaryData d) throws Exception {
 		Utterance utt = d.getData();
 
-        // Generate the list of word in the sentence
-        List<String> tokens = new ArrayList<String>();
-        for (Word w: (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD))
-        {
-            tokens.add(w.getText());
-        }
+		// Generate the list of word in the sentence
+		List<String> tokens = new ArrayList<String>();
+		for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
+			tokens.add(w.getText());
+		}
 
-        // Trick the system in case of one ==> add a punctuation
-        if (tokens.size() == 1)
-            tokens.add(".");
+		// Trick the system in case of one ==> add a punctuation
+		if (tokens.size() == 1)
+			tokens.add(".");
 
-        // POS Tagging
-        List<String> partsOfSpeech = null;
+		// POS Tagging
+		List<String> partsOfSpeech = null;
 
-        String[] tokensArr = new String[tokens.size()];
-        tokensArr = tokens.toArray(tokensArr);
-        synchronized (this) {
-            partsOfSpeech = Arrays.asList(tagger.tag(tokensArr));
-        }
+		String[] tokensArr = new String[tokens.size()];
+		tokensArr = tokens.toArray(tokensArr);
+		synchronized (this) {
+			partsOfSpeech = Arrays.asList(tagger.tag(tokensArr));
+		}
 
-        // Associate POS to words
-        Iterator<String> posIt = partsOfSpeech.iterator();
-        for (Word w: (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD))
-        {
-            assert posIt.hasNext();
-            String pos = posIt.next();
+		// Associate POS to words
+		Iterator<String> posIt = partsOfSpeech.iterator();
+		for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
+			assert posIt.hasNext();
+			String pos = posIt.next();
 
-            if (w.getPOS() != null)
-                continue;
+			if (w.getPOS() != null)
+				continue;
 
-            if (posMapper != null) {
-                String gpos = posMapper.get(pos);
-                if (gpos == null)
-                    logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
-                else
-                    pos = gpos;
-            }
-            w.setPOS(pos);
-        }
+			if (posMapper != null) {
+				String gpos = posMapper.get(pos);
+				if (gpos == null)
+					logger.warn("POS map file incomplete: do not know how to map '" + pos + "'");
+				else
+					pos = gpos;
+			}
+			w.setPOS(pos);
+		}
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
-    }
+		MaryData result = new MaryData(d.getLocale(), utt);
+		return result;
+	}
 
 }

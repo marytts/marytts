@@ -47,17 +47,16 @@ import marytts.data.utils.SequenceTypePair;
  * @author Stephanie Becker
  */
 
-public class ProsodyGeneric extends InternalModule
-{
-    public static final int DEFAULT_BREAKINDEX = 5;
-    public static final int DEFAULT_DURATION = 400;
+public class ProsodyGeneric extends InternalModule {
+	public static final int DEFAULT_BREAKINDEX = 5;
+	public static final int DEFAULT_DURATION = 400;
 
-    public ProsodyGeneric() {
+	public ProsodyGeneric() {
 		this((Locale) null);
 	}
 
-    public ProsodyGeneric(Locale locale, String tobipredFileName,
-                          String accentPriorities, String syllableAccents, String paragraphDeclination) {
+	public ProsodyGeneric(Locale locale, String tobipredFileName, String accentPriorities, String syllableAccents,
+			String paragraphDeclination) {
 		super("Prosody", locale);
 
 	}
@@ -66,8 +65,7 @@ public class ProsodyGeneric extends InternalModule
 		this(new Locale(locale), propertyPrefix);
 	}
 
-	public ProsodyGeneric(Locale locale, String propertyPrefix)
-    {
+	public ProsodyGeneric(Locale locale, String propertyPrefix) {
 		super("Prosody", locale);
 	}
 
@@ -79,58 +77,50 @@ public class ProsodyGeneric extends InternalModule
 		this(locale, "fallback.prosody.");
 	}
 
-	public void startup()
-        throws Exception
-    {
+	public void startup() throws Exception {
 		super.startup();
 	}
 
+	public MaryData process(MaryData d) throws Exception {
+		// Initialisation
+		Utterance utt = d.getData();
 
-	public MaryData process(MaryData d) throws Exception
-    {
-        // Initialisation
-        Utterance utt = d.getData();
+		// Initialise sequences
+		Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);
+		Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+		Sequence<Phrase> phrases = new Sequence<Phrase>();
 
-        // Initialise sequences
-        Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
-        Sequence<Phrase> phrases = new Sequence<Phrase>();
+		// Initialise relations
+		Relation rel_sent_wrd = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD);
 
-        // Initialise relations
-        Relation rel_sent_wrd = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                                SupportedSequenceType.WORD);
+		// Alignment initialisation
+		ArrayList<IntegerPair> alignment_sentence_phrase = new ArrayList<IntegerPair>();
+		ArrayList<IntegerPair> alignment_phrase_word = new ArrayList<IntegerPair>();
 
-        // Alignment initialisation
-        ArrayList<IntegerPair> alignment_sentence_phrase = new ArrayList<IntegerPair>();
-        ArrayList<IntegerPair> alignment_phrase_word = new ArrayList<IntegerPair>();
+		// By default : 1 sentence = 1 phrase
+		// FIXME (artificial breakindex = 5, artificial duration = 400)
+		for (int sent_idx = 0; sent_idx < sentences.size(); sent_idx++) {
+			int[] word_indexes = rel_sent_wrd.getRelatedIndexes(sent_idx);
+			for (int i = 0; i < word_indexes.length; i++)
+				alignment_phrase_word.add(new IntegerPair(sent_idx, word_indexes[i]));
 
-        // By default : 1 sentence = 1 phrase
-        // FIXME (artificial breakindex = 5, artificial duration = 400)
-        for (int sent_idx=0; sent_idx<sentences.size(); sent_idx++)
-        {
-            int[] word_indexes = rel_sent_wrd.getRelatedIndexes(sent_idx);
-            for (int i=0; i<word_indexes.length; i++)
-                alignment_phrase_word.add(new IntegerPair(sent_idx, word_indexes[i]));
+			Phrase ph = new Phrase(new Boundary(DEFAULT_BREAKINDEX, DEFAULT_DURATION));
+			phrases.add(ph);
+			alignment_sentence_phrase.add(new IntegerPair(sent_idx, sent_idx));
+		}
 
-            Phrase ph = new Phrase(new Boundary(DEFAULT_BREAKINDEX, DEFAULT_DURATION));
-            phrases.add(ph);
-            alignment_sentence_phrase.add(new IntegerPair(sent_idx, sent_idx));
-        }
+		utt.addSequence(SupportedSequenceType.PHRASE, phrases);
 
-        utt.addSequence(SupportedSequenceType.PHRASE, phrases);
+		// Create the relations and add them to the utterance
+		Relation rel_sent_phrase = new Relation(utt.getSequence(SupportedSequenceType.SENTENCE),
+				utt.getSequence(SupportedSequenceType.PHRASE), alignment_sentence_phrase);
+		utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE, rel_sent_phrase);
+		Relation rel_phrase_wrd = new Relation(utt.getSequence(SupportedSequenceType.PHRASE),
+				utt.getSequence(SupportedSequenceType.WORD), alignment_phrase_word);
+		utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
-        // Create the relations and add them to the utterance
-        Relation rel_sent_phrase = new Relation(utt.getSequence(SupportedSequenceType.SENTENCE),
-                                                utt.getSequence(SupportedSequenceType.PHRASE),
-                                                alignment_sentence_phrase);
-        utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE, rel_sent_phrase);
-        Relation rel_phrase_wrd = new Relation(utt.getSequence(SupportedSequenceType.PHRASE),
-                                               utt.getSequence(SupportedSequenceType.WORD),
-                                               alignment_phrase_word);
-        utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
-
-        // Generate the result
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
-    }
+		// Generate the result
+		MaryData result = new MaryData(d.getLocale(), utt);
+		return result;
+	}
 }
