@@ -582,9 +582,8 @@ public class Relation {
 	 ** Object method overriding
 	 ********************************************************************************************/
 	/**
-	 * Method to generate a hash for the relation and therefore being able to
-	 * identify it in the relation graph. The hash is actually the id (see the
-	 * id property) of the relation
+	 * Method to generate a hash for the relation. The hash is actually the id
+	 * (see the id property) of the relation
 	 *
 	 * @return a hash representation of the utterance
 	 */
@@ -597,7 +596,7 @@ public class Relation {
 	 * Method to compare an object to the current relation
 	 *
 	 * @param obj
-	 *            the object to comparee
+	 *            the object to compare
 	 * @return true if obj is a relation and the hashcode are equals, false else
 	 */
 	@Override
@@ -616,9 +615,9 @@ public class Relation {
 	}
 
 	/**
-	 * Method to generate a string representation of the current utterance
+	 * Method to generate a string representation of the current relation
 	 *
-	 * @return the string representation of the current utterance
+	 * @return the string representation of the current relation
 	 */
 	@Override
 	public String toString() {
