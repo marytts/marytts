@@ -40,7 +40,8 @@ public class Utterance {
 	private ArrayList<AudioInputStream> m_list_streams;
 
 	/**
-	 *  The sequences which contains the data of the utterance. Organized by type for now
+	 * The sequences which contains the data of the utterance. Organized by type
+	 * for now
 	 */
 	private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
 
@@ -251,9 +252,8 @@ public class Utterance {
 	 *
 	 * @param obj
 	 *            the object to compare
-	 * @return true
-	 *            if the object is an utterance and equals the current one,
-	 *            false else
+	 * @return true if the object is an utterance and equals the current one,
+	 *         false else
 	 */
 	@Override
 	public boolean equals(Object obj) {

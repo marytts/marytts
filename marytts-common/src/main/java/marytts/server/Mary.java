@@ -376,8 +376,10 @@ public class Mary {
 	 * settings, intermediate processing results can be generated or provided as
 	 * input.
 	 *
-     * @param configuration the configuration of mary as a properties string
-     * @param input_data the input data as a string
+	 * @param configuration
+	 *            the configuration of mary as a properties string
+	 * @param input_data
+	 *            the input data as a string
 	 * @param output
 	 *            the output stream into which the processing result will be
 	 *            written.

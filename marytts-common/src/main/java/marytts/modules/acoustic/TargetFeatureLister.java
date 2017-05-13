@@ -47,24 +47,26 @@ import marytts.data.item.Item;
  */
 public class TargetFeatureLister extends InternalModule {
 
-    /**
-     * Default constructor
-     *
-     */
+	/**
+	 * Default constructor
+	 *
+	 */
 	public TargetFeatureLister() throws Exception {
 		super("TargetFeatureLister", null);
 		FeatureComputer.initDefault();
 	}
 
-    /**
-     * The process method which take a MaryData object in parameter, compute the features of the
-     * utterance referenced in the parameter and return a new MaryData object which contains the
-     * reference to the updated utterance.
-     *
-     * @param d the input MaryData object
-     * @return the MaryData object with the updated reference
-     * @throws Exception [TODO]
-     */
+	/**
+	 * The process method which take a MaryData object in parameter, compute the
+	 * features of the utterance referenced in the parameter and return a new
+	 * MaryData object which contains the reference to the updated utterance.
+	 *
+	 * @param d
+	 *            the input MaryData object
+	 * @return the MaryData object with the updated reference
+	 * @throws Exception
+	 *             [TODO]
+	 */
 	public MaryData process(MaryData d) throws Exception {
 		Utterance utt = d.getData();
 
@@ -83,7 +85,8 @@ public class TargetFeatureLister extends InternalModule {
 	 *            the feature computer used
 	 * @param utt
 	 *            the utterance to update
-     * @throws Exception [TODO]
+	 * @throws Exception
+	 *             [TODO]
 	 */
 	public void listTargetFeatures(FeatureComputer the_feature_computer, Utterance utt) throws Exception {
 
@@ -112,9 +115,11 @@ public class TargetFeatureLister extends InternalModule {
 	 *            the feature computer used
 	 * @param utt
 	 *            the utterance used to compute the features
-     * @param items the items whose features are going to be computed
+	 * @param items
+	 *            the items whose features are going to be computed
 	 * @return a list of map of features corresponding of the given items
-     * @throws Exception [TODO]
+	 * @throws Exception
+	 *             [TODO]
 	 */
 	public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
 			ArrayList<Item> items) throws Exception {

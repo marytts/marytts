@@ -122,9 +122,12 @@ public abstract class Model {
 	/**
 	 * Apply this Model to a list of items
 	 *
-	 * @param utt the utterance
-     * @param seq_type the type of inpacted sequence
-     * @param item_indexes the indexes of the inpacted items
+	 * @param utt
+	 *            the utterance
+	 * @param seq_type
+	 *            the type of inpacted sequence
+	 * @param item_indexes
+	 *            the indexes of the inpacted items
 	 * @throws MaryConfigurationException
 	 *             if attribute values cannot be predicted because of an invalid
 	 *             voice configuration
@@ -133,14 +136,18 @@ public abstract class Model {
 			throws Exception;
 
 	/**
-	 * For a list of items, return a list of features, where each FeatureMap is constructed from the
-	 * corresponding items.
+	 * For a list of items, return a list of features, where each FeatureMap is
+	 * constructed from the corresponding items.
 	 *
-	 * @param utt the utterance
-     * @param seq_type the type of inpacted sequence
-     * @param item_indexes the indexes of the inpacted items
+	 * @param utt
+	 *            the utterance
+	 * @param seq_type
+	 *            the type of inpacted sequence
+	 * @param item_indexes
+	 *            the indexes of the inpacted items
 	 * @return List of features
-     * @throws Exception [TODO]
+	 * @throws Exception
+	 *             [TODO]
 	 */
 	protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
 			throws Exception {

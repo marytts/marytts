@@ -197,8 +197,7 @@ public class Preprocess extends InternalModule {
 	}
 
 	/***
-	 * processes an utterane, from Tokens to Words which can
-	 * be phonemised.
+	 * processes an utterane, from Tokens to Words which can be phonemised.
 	 *
 	 * @param utt
 	 *            the utterance
