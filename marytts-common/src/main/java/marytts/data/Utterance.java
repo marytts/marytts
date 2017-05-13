@@ -21,7 +21,8 @@ import marytts.data.item.Item;
 import marytts.util.MaryUtils;
 
 /**
- *
+ * The Utterance is the entry point to the data used in MaryTTS. It is a container to access to all
+ * the information computed during the process.
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
