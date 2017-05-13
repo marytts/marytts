@@ -166,9 +166,8 @@ public class RelationGraph {
 	 *            the source sequence of the relation
 	 * @param target
 	 *            the target sequence of the relation
-	 * @param the
-	 *            found or computed relation, null if there is no way in the
-	 *            graph to compute this relation.
+	 * @return the found or computed relation, null if there is no way in the
+	 *         graph to compute this relation.
 	 */
 	public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) {
 		// check if source or target are present in the graph
