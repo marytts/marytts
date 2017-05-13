@@ -10,38 +10,40 @@ import marytts.data.SupportedSequenceType;
  *         Maguer</a>
  */
 public class SequenceTypePair {
-    /** the left member of the pair */
+	/** the left member of the pair */
 	private SupportedSequenceType left;
 
-    /** the right member of the pair */
+	/** the right member of the pair */
 	private SupportedSequenceType right;
 
-    /**
-     * Constructor
-     *
-     * @param left the left member to set
-     * @param right the right member to set
-     */
+	/**
+	 * Constructor
+	 *
+	 * @param left
+	 *            the left member to set
+	 * @param right
+	 *            the right member to set
+	 */
 	public SequenceTypePair(SupportedSequenceType left, SupportedSequenceType right) {
 		this.left = left;
 		this.right = right;
 	}
 
-    /**
-     * Get the left member of the pair
-     *
-     * @return the left member of the pair
-     */
+	/**
+	 * Get the left member of the pair
+	 *
+	 * @return the left member of the pair
+	 */
 
 	public SupportedSequenceType getLeft() {
 		return left;
 	}
 
-    /**
-     * Get the right member of the pair
-     *
-     * @return the right member of the pair
-     */
+	/**
+	 * Get the right member of the pair
+	 *
+	 * @return the right member of the pair
+	 */
 	public SupportedSequenceType getRight() {
 		return right;
 	}
@@ -49,12 +51,13 @@ public class SequenceTypePair {
 	/**************************************************************************************
 	 ** Object overriding part
 	 **************************************************************************************/
-    /**
-     * Method to compare the current pair of sequence type to a given one
-     *
-     * @param obj the other pair of sequence type
-     * @return true if obj is a pair of sequence type equals to the current one
-     */
+	/**
+	 * Method to compare the current pair of sequence type to a given one
+	 *
+	 * @param obj
+	 *            the other pair of sequence type
+	 * @return true if obj is a pair of sequence type equals to the current one
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

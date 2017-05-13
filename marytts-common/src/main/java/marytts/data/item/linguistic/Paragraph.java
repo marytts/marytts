@@ -11,33 +11,35 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Paragraph extends Item {
-    /** the text of the paragraph */
+	/** the text of the paragraph */
 	private String m_text;
 
-    /**
-     * Constructor of a paragraph
-     *
-     * @param text the text of the paragraph
-     */
+	/**
+	 * Constructor of a paragraph
+	 *
+	 * @param text
+	 *            the text of the paragraph
+	 */
 	public Paragraph(String text) {
 		super();
 		setText(text);
 	}
 
-    /**
-     * Accessor to get the text of the paragraph
-     *
-     * @return the text of the paragraph
-     */
+	/**
+	 * Accessor to get the text of the paragraph
+	 *
+	 * @return the text of the paragraph
+	 */
 	public String getText() {
 		return m_text;
 	}
 
-    /**
-     * Accessor to set the text of the paragraph
-     *
-     * @param text the text of the paragraph
-     */
+	/**
+	 * Accessor to set the text of the paragraph
+	 *
+	 * @param text
+	 *            the text of the paragraph
+	 */
 	protected void setText(String text) {
 		m_text = text;
 	}
@@ -47,7 +49,8 @@ public class Paragraph extends Item {
 	 *
 	 * @param obj
 	 *            the object to compare
-	 * @return true if obj is a paragraph and the paragraph are equals, false else
+	 * @return true if obj is a paragraph and the paragraph are equals, false
+	 *         else
 	 */
 	@Override
 	public boolean equals(Object obj) {

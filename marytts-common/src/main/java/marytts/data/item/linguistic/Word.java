@@ -13,29 +13,30 @@ import java.util.Locale;
  *         Maguer</a>
  */
 public class Word extends Item {
-    /** The text of the word */
+	/** The text of the word */
 	private String m_text;
 
-    /** The part of speech of the word */
+	/** The part of speech of the word */
 	private String m_POS;
 
-    /** */
+	/** */
 	private String m_sounds_like;
 
-    /** the G2P method to use to phonemize this word */
+	/** the G2P method to use to phonemize this word */
 	private String m_g2p_method;
 
-    /** The alternative locale */
+	/** The alternative locale */
 	private Locale m_alternative_locale;
 
-    /** The accent of the word */
+	/** The accent of the word */
 	private Accent m_accent;
 
-    /**
-     * Minimal constructor, the text is mandatory
-     *
-     * @param text the text of the word
-     */
+	/**
+	 * Minimal constructor, the text is mandatory
+	 *
+	 * @param text
+	 *            the text of the word
+	 */
 	public Word(String text) {
 		super();
 		setText(text);
@@ -46,12 +47,15 @@ public class Word extends Item {
 		setAccent(null);
 	}
 
-    /**
-     * Alternative locale constructor, the text is mandatory and the alternative locale is given
-     *
-     * @param text the text of the word
-     * @param alternative_locale the alternative locale
-     */
+	/**
+	 * Alternative locale constructor, the text is mandatory and the alternative
+	 * locale is given
+	 *
+	 * @param text
+	 *            the text of the word
+	 * @param alternative_locale
+	 *            the alternative locale
+	 */
 	public Word(String text, Locale alternative_locale) {
 		super();
 		setText(text);
@@ -62,13 +66,15 @@ public class Word extends Item {
 		setAccent(null);
 	}
 
-    /**
-     * Sounds like constructor, the text is mandatory and the alternative pronunciation word is
-     * given
-     *
-     * @param text the text of the word
-     * @param sounds_like alternative pronunciation word
-     */
+	/**
+	 * Sounds like constructor, the text is mandatory and the alternative
+	 * pronunciation word is given
+	 *
+	 * @param text
+	 *            the text of the word
+	 * @param sounds_like
+	 *            alternative pronunciation word
+	 */
 	public Word(String text, String sounds_like) {
 		super();
 		setText(text);
@@ -79,13 +85,13 @@ public class Word extends Item {
 		setAccent(null);
 	}
 
-    /*************************************************************************************
-     * Getters / Setters
-     *************************************************************************************/
+	/*************************************************************************************
+	 * Getters / Setters
+	 *************************************************************************************/
 
 	/**
-     * Gets the part of speech of the word
-     *
+	 * Gets the part of speech of the word
+	 *
 	 * @return the part of speech
 	 */
 	public String getPOS() {
@@ -95,7 +101,8 @@ public class Word extends Item {
 	/**
 	 * Sets the part of speech.
 	 *
-	 * @param POS the new part of speech
+	 * @param POS
+	 *            the new part of speech
 	 */
 	public void setPOS(String POS) {
 		m_POS = POS;
@@ -113,7 +120,8 @@ public class Word extends Item {
 	/**
 	 * Sets the text.
 	 *
-	 * @param text the new text
+	 * @param text
+	 *            the new text
 	 */
 	public void setText(String text) {
 		m_text = text;
@@ -131,7 +139,8 @@ public class Word extends Item {
 	/**
 	 * Sets the alternative locale.
 	 *
-	 * @param alternative_locale the new alternative locale
+	 * @param alternative_locale
+	 *            the new alternative locale
 	 */
 	public void setAlternativeLocale(Locale alternative_locale) {
 		m_alternative_locale = alternative_locale;
@@ -149,7 +158,8 @@ public class Word extends Item {
 	/**
 	 * Sets the grapheme to phoneme method.
 	 *
-	 * @param g2p_method the new grapheme to phoneme method
+	 * @param g2p_method
+	 *            the new grapheme to phoneme method
 	 */
 	public void setG2PMethod(String g2p_method) {
 		m_g2p_method = g2p_method;
@@ -167,7 +177,8 @@ public class Word extends Item {
 	/**
 	 * Sets the sounds like word
 	 *
-	 * @param sounds_like the sounds like to use
+	 * @param sounds_like
+	 *            the sounds like to use
 	 */
 	public void soundsLike(String sounds_like) {
 		m_sounds_like = sounds_like;
@@ -185,7 +196,8 @@ public class Word extends Item {
 	/**
 	 * Sets the accent.
 	 *
-	 * @param accent the new accent
+	 * @param accent
+	 *            the new accent
 	 */
 	public void setAccent(Accent accent) {
 		m_accent = accent;
