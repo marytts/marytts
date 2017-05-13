@@ -19,28 +19,32 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Relation {
-    /*< The counter to identify a relation */
+	/* < The counter to identify a relation */
 	private static int id_cpt = 0;
 
-    /*< The identifier of the relation*/
+	/* < The identifier of the relation */
 	private int id;
 
-    /*< The source sequence of the relation */
+	/* < The source sequence of the relation */
 	private Sequence<? extends Item> m_source_sequence;
 
-    /*< The target sequence of the relation */
+	/* < The target sequence of the relation */
 	private Sequence<? extends Item> m_target_sequence;
 
-    /*< The relation matrix */
+	/* < The relation matrix */
 	private SparseDoubleMatrix2D m_relation_matrix;
 
-    /**
-     * The relation constructor using a matrix formatted in SparseDoubleMatrix2D.
-     *
-     * @param source_sequence the source sequence
-     * @param target_sequence the target sequence
-     * @param relation_matrix the relation matrix formatted in SparseDoubleMatrix2D
-     */
+	/**
+	 * The relation constructor using a matrix formatted in
+	 * SparseDoubleMatrix2D.
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 * @param target_sequence
+	 *            the target sequence
+	 * @param relation_matrix
+	 *            the relation matrix formatted in SparseDoubleMatrix2D
+	 */
 	public Relation(Sequence<? extends Item> source_sequence, Sequence<? extends Item> target_sequence,
 			SparseDoubleMatrix2D relation_matrix) {
 		id = id_cpt++;
@@ -49,13 +53,17 @@ public class Relation {
 		setRelations(relation_matrix);
 	}
 
-    /**
-     * The relation constructor using a matrix formatted in an array of array of integer.
-     *
-     * @param source_sequence the source sequence
-     * @param target_sequence the target sequence
-     * @param relation_matrix the relation matrix formatted in an array of array of integer
-     */
+	/**
+	 * The relation constructor using a matrix formatted in an array of array of
+	 * integer.
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 * @param target_sequence
+	 *            the target sequence
+	 * @param relation_matrix
+	 *            the relation matrix formatted in an array of array of integer
+	 */
 	public Relation(Sequence<? extends Item> source_sequence, Sequence<? extends Item> target_sequence,
 			int[][] relation_matrix) {
 		id = id_cpt++;
@@ -64,13 +72,17 @@ public class Relation {
 		setRelations(relation_matrix);
 	}
 
-    /**
-     * The relation constructor using a matrix formatted in an array of array of double.
-     *
-     * @param source_sequence the source sequence
-     * @param target_sequence the target sequence
-     * @param relation_matrix the relation matrix formatted in an array of array of double
-     */
+	/**
+	 * The relation constructor using a matrix formatted in an array of array of
+	 * double.
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 * @param target_sequence
+	 *            the target sequence
+	 * @param relation_matrix
+	 *            the relation matrix formatted in an array of array of double
+	 */
 	public Relation(Sequence<? extends Item> source_sequence, Sequence<? extends Item> target_sequence,
 			double[][] relation_matrix) {
 		id = id_cpt++;
@@ -79,14 +91,19 @@ public class Relation {
 		setRelations(relation_matrix);
 	}
 
-    /**
-     * The relation constructor using a matrix formatted in a list of integer pair. This pair
-     * contains the indexes of the source and target items in relation.
-     *
-     * @param source_sequence the source sequence
-     * @param target_sequence the target sequence
-     * @param relation_matrix the relation matrix formatted in a sparse list of integer pair.
-     */
+	/**
+	 * The relation constructor using a matrix formatted in a list of integer
+	 * pair. This pair contains the indexes of the source and target items in
+	 * relation.
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 * @param target_sequence
+	 *            the target sequence
+	 * @param relation_matrix
+	 *            the relation matrix formatted in a sparse list of integer
+	 *            pair.
+	 */
 
 	public Relation(Sequence<? extends Item> source_sequence, Sequence<? extends Item> target_sequence,
 			List<IntegerPair> relation_matrix) {
@@ -96,12 +113,15 @@ public class Relation {
 		setRelations(relation_matrix);
 	}
 
-    /**
-     * The relation constructor of an empty relation. Therefore the matrix is empty
-     *
-     * @param source_sequence the source sequence
-     * @param target_sequence the target sequence
-     */
+	/**
+	 * The relation constructor of an empty relation. Therefore the matrix is
+	 * empty
+	 *
+	 * @param source_sequence
+	 *            the source sequence
+	 * @param target_sequence
+	 *            the target sequence
+	 */
 	public Relation(Sequence<? extends Item> source_sequence, Sequence<? extends Item> target_sequence) {
 		id = id_cpt++;
 		setSource(source_sequence);
@@ -232,7 +252,7 @@ public class Relation {
 	public Relation getReverse() {
 		Relation reverse = new Relation(getTarget(), getSource(), (new Algebra()).transpose(getRelations()).toArray());
 
-        this.getTarget().addSourceRelationReference(reverse);
+		this.getTarget().addSourceRelationReference(reverse);
 		this.getSource().addTargetRelationReference(reverse);
 
 		return reverse;
@@ -253,22 +273,26 @@ public class Relation {
 	/********************************************************************************************
 	 ** Update operations
 	 ********************************************************************************************/
-    /**
-     * Remove relation between two items
-     *
-     * @param source_idx the index of the item in the source sequence
-     * @param target_idx the index of the item in the target sequence
-     */
+	/**
+	 * Remove relation between two items
+	 *
+	 * @param source_idx
+	 *            the index of the item in the source sequence
+	 * @param target_idx
+	 *            the index of the item in the target sequence
+	 */
 	public void removeRelation(int source_idx, int target_idx) {
 		getRelations().set(source_idx, target_idx, 0);
 	}
 
-    /**
-     * Add relation between two items
-     *
-     * @param source_idx the index of the item in the source sequence
-     * @param target_idx the index of the item in the target sequence
-     */
+	/**
+	 * Add relation between two items
+	 *
+	 * @param source_idx
+	 *            the index of the item in the source sequence
+	 * @param target_idx
+	 *            the index of the item in the target sequence
+	 */
 	public void addRelation(int source_idx, int target_idx) {
 		getRelations().set(source_idx, target_idx, 1);
 	}
@@ -378,12 +402,13 @@ public class Relation {
 	}
 
 	/**
-	 * Adapt the matrix to take into account a new item on the target sequence at the specified
-	 * index. The relation is not expanded in this case
+	 * Adapt the matrix to take into account a new item on the target sequence
+	 * at the specified index. The relation is not expanded in this case
 	 *
 	 * /!\ Only to meant to be called by the sequence class /! \
-     *
-     * @param new_item_idx the index of the new item in the target sequence
+	 *
+	 * @param new_item_idx
+	 *            the index of the new item in the target sequence
 	 */
 	public void addTargetItem(int new_item_idx) {
 		addTargetItem(new_item_idx, false);
@@ -394,9 +419,12 @@ public class Relation {
 	 * at the specified index
 	 *
 	 * /!\ Only to meant to be called by the sequence class /! \
-     *
-     * @param new_item_idx the index of the new item in  the target sequence
-     * @param expand_relation true leads to the expansion of the relation, false doesn't change the <b>shape</b> relation
+	 *
+	 * @param new_item_idx
+	 *            the index of the new item in the target sequence
+	 * @param expand_relation
+	 *            true leads to the expansion of the relation, false doesn't
+	 *            change the <b>shape</b> relation
 	 */
 	public void addTargetItem(int new_item_idx, boolean expand_relation) {
 		double[][] val = getRelations().toArray();
