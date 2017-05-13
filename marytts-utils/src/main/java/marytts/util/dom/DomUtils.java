@@ -66,7 +66,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * A collection of utilities for DOM manipulation or analysis. No object of class DomUtils is created, all methods are static.
+ * A collection of utilities for DOM manipulation or analysis. No object of
+ * class DomUtils is created, all methods are static.
  * 
  * @author Marc Schr&ouml;der, Sathish and Ingmar
  */
@@ -91,8 +92,8 @@ public class DomUtils {
 			validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 					"http://www.w3.org/2001/XMLSchema");
 			// Specify other factory configuration settings
-			Object[] schemas = new Object[] { DomUtils.class.getResource("xml.xsd").toString(),
-					DomUtils.class.getResource("MaryXML.xsd").toString() };
+			Object[] schemas = new Object[]{DomUtils.class.getResource("xml.xsd").toString(),
+					DomUtils.class.getResource("MaryXML.xsd").toString()};
 			validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
 		} catch (Exception x) {
 			// This can happen if the parser does not support JAXP 1.2
@@ -102,7 +103,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+	 * Parse XML data into a DOM representation, taking local resources and
+	 * Schemas into account.
 	 * 
 	 * @param inputData
 	 *            a string representation of the XML data to be parsed.
@@ -116,13 +118,14 @@ public class DomUtils {
 	 * @throws IOException
 	 *             if there was a problem reading from the string
 	 */
-	public static Document parseDocument(String inputData, boolean validating) throws ParserConfigurationException, SAXException,
-			IOException {
+	public static Document parseDocument(String inputData, boolean validating)
+			throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(new StringReader(inputData), validating);
 	}
 
 	/**
-	 * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+	 * Parse XML data into a DOM representation, taking local resources and
+	 * Schemas into account.
 	 * 
 	 * @param inputData
 	 *            a reader from which the XML data is to be read.
@@ -136,8 +139,8 @@ public class DomUtils {
 	 * @throws IOException
 	 *             if there was a problem reading from the reader
 	 */
-	public static Document parseDocument(Reader inputData, boolean validating) throws ParserConfigurationException, SAXException,
-			IOException {
+	public static Document parseDocument(Reader inputData, boolean validating)
+			throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilder builder = createDocumentBuilder(validating);
 		/*
 		 * Set Entity resolver for APML and SABLE
@@ -148,7 +151,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+	 * Parse XML data into a DOM representation, taking local resources and
+	 * Schemas into account.
 	 * 
 	 * @param file
 	 *            a file from which the XML data is to be read.
@@ -162,13 +166,14 @@ public class DomUtils {
 	 * @throws IOException
 	 *             if there was a problem reading from the file
 	 */
-	public static Document parseDocument(File file, boolean validating) throws ParserConfigurationException, SAXException,
-			IOException {
+	public static Document parseDocument(File file, boolean validating)
+			throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(new FileInputStream(file), validating);
 	}
 
 	/**
-	 * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+	 * Parse XML data into a DOM representation, taking local resources and
+	 * Schemas into account.
 	 * 
 	 * @param is
 	 *            an input stream from which the XML data is to be read.
@@ -182,8 +187,8 @@ public class DomUtils {
 	 * @throws IOException
 	 *             if there was a problem reading from the stream
 	 */
-	public static Document parseDocument(InputStream is, boolean validating) throws ParserConfigurationException, SAXException,
-			IOException {
+	public static Document parseDocument(InputStream is, boolean validating)
+			throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilder builder = createDocumentBuilder(validating);
 		return builder.parse(is);
 	}
@@ -237,7 +242,8 @@ public class DomUtils {
 	 * @throws IOException
 	 *             IOException
 	 */
-	public static Document parseDocument(String inputData) throws ParserConfigurationException, SAXException, IOException {
+	public static Document parseDocument(String inputData)
+			throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
 	}
 
@@ -254,7 +260,8 @@ public class DomUtils {
 	 * @throws IOException
 	 *             IOException
 	 */
-	public static Document parseDocument(Reader inputData) throws ParserConfigurationException, SAXException, IOException {
+	public static Document parseDocument(Reader inputData)
+			throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
 	}
 
@@ -288,7 +295,8 @@ public class DomUtils {
 	 * @throws IOException
 	 *             IOException
 	 */
-	public static Document parseDocument(InputStream inputData) throws ParserConfigurationException, SAXException, IOException {
+	public static Document parseDocument(InputStream inputData)
+			throws ParserConfigurationException, SAXException, IOException {
 		return parseDocument(inputData, false);
 	}
 
@@ -311,7 +319,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Verify if <code>node</code> has an ancestor with name <code>ancestorName</code>
+	 * Verify if <code>node</code> has an ancestor with name
+	 * <code>ancestorName</code>
 	 * 
 	 * @param node
 	 *            node
@@ -321,9 +330,11 @@ public class DomUtils {
 	 */
 	public static boolean hasAncestor(Node node, String ancestorName) {
 		Node p = node;
-		// System.err.println("Searching for ancestor \"" + ancestorName + "\" for token \"" + p.getNodeName() + "\"");
+		// System.err.println("Searching for ancestor \"" + ancestorName + "\"
+		// for token \"" + p.getNodeName() + "\"");
 		while ((p = p.getParentNode()) != null) {
-			// System.err.println("  Looking at next parent node: " + p.getNodeName());
+			// System.err.println(" Looking at next parent node: " +
+			// p.getNodeName());
 			if (p.getNodeName().equals(ancestorName))
 				return true;
 		}
@@ -331,8 +342,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * If <code>node</code> has an ancestor with name <code>ancestorName</code>, return that ancestor. Else return
-	 * <code>null</code>.
+	 * If <code>node</code> has an ancestor with name <code>ancestorName</code>,
+	 * return that ancestor. Else return <code>null</code>.
 	 * 
 	 * @param node
 	 *            node
@@ -350,8 +361,9 @@ public class DomUtils {
 	}
 
 	/**
-	 * If <code>node</code> has an ancestor with one of the names in <code>ancestorNames</code>, return the closest of these
-	 * ancestors. Else return <code>null</code>.
+	 * If <code>node</code> has an ancestor with one of the names in
+	 * <code>ancestorNames</code>, return the closest of these ancestors. Else
+	 * return <code>null</code>.
 	 * 
 	 * @param node
 	 *            node
@@ -368,7 +380,11 @@ public class DomUtils {
 			if (ancestor != null) {
 				if (closestAncestor == null) {
 					closestAncestor = ancestor;
-				} else if (isAncestor(closestAncestor, ancestor)) { // new one is closer than closest so far
+				} else if (isAncestor(closestAncestor, ancestor)) { // new one
+																	// is closer
+																	// than
+																	// closest
+																	// so far
 					closestAncestor = ancestor;
 				} // else leave as is
 			}
@@ -377,9 +393,10 @@ public class DomUtils {
 	}
 
 	/**
-	 * Search upwards through the ancestors of <code>node</code> with name <code>ancestorName</code>, and return the first
-	 * ancestor for which an attribute named <code>attributeName</code> is present. Return <code>null</code> if no such ancestor
-	 * exists.
+	 * Search upwards through the ancestors of <code>node</code> with name
+	 * <code>ancestorName</code>, and return the first ancestor for which an
+	 * attribute named <code>attributeName</code> is present. Return
+	 * <code>null</code> if no such ancestor exists.
 	 * 
 	 * @param node
 	 *            node
@@ -401,15 +418,16 @@ public class DomUtils {
 	}
 
 	/**
-	 * Climb through <code>node</code>'s ancestors, looking for one with an attribute named <code>attributeName</code>,
-	 * irrespective of the respective <code>ancestorName</code>, and return the attribute's value
+	 * Climb through <code>node</code>'s ancestors, looking for one with an
+	 * attribute named <code>attributeName</code>, irrespective of the
+	 * respective <code>ancestorName</code>, and return the attribute's value
 	 * 
 	 * @param node
 	 *            node
 	 * @param attributeName
 	 *            attributeName
-	 * @return value of attribute from closest ancestor with that attribute, or the empty string if no ancestor has that
-	 *         attribute.
+	 * @return value of attribute from closest ancestor with that attribute, or
+	 *         the empty string if no ancestor has that attribute.
 	 * 
 	 */
 	public static String getAttributeFromClosestAncestorOfAnyKind(Node node, String attributeName) {
@@ -427,8 +445,9 @@ public class DomUtils {
 	}
 
 	/**
-	 * If <code>node</code> has ancestors with name <code>ancestorName</code>, return the one closest to the root. If there is no
-	 * ancestor with that name, return <code>null</code>.
+	 * If <code>node</code> has ancestors with name <code>ancestorName</code>,
+	 * return the one closest to the root. If there is no ancestor with that
+	 * name, return <code>null</code>.
 	 * 
 	 * @param node
 	 *            node
@@ -446,7 +465,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the next sibling of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * Get the next sibling of <code>e</code> which is an element, or
+	 * <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -464,7 +484,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the previous sibling of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * Get the previous sibling of <code>e</code> which is an element, or
+	 * <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -482,8 +503,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the next sibling of <code>e</code> which is an element and has tag name <code>name</code>, or <code>null</code> if
-	 * there is no such element.
+	 * Get the next sibling of <code>e</code> which is an element and has tag
+	 * name <code>name</code>, or <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -503,8 +524,9 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the previous sibling of <code>e</code> which is an element and has tag name <code>name</code>, or <code>null</code> if
-	 * there is no such element.
+	 * Get the previous sibling of <code>e</code> which is an element and has
+	 * tag name <code>name</code>, or <code>null</code> if there is no such
+	 * element.
 	 * 
 	 * @param e
 	 *            e
@@ -524,7 +546,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the first child of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * Get the first child of <code>e</code> which is an element, or
+	 * <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -540,7 +563,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the last child of <code>e</code> which is an element, or <code>null</code> if there is no such element.
+	 * Get the last child of <code>e</code> which is an element, or
+	 * <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -556,7 +580,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Get the first child element with the given tag name, or <code>null</code> if there is no such element.
+	 * Get the first child element with the given tag name, or <code>null</code>
+	 * if there is no such element.
 	 * 
 	 * @param n
 	 *            n
@@ -566,12 +591,14 @@ public class DomUtils {
 	 */
 	public static Element getFirstElementByTagName(Node n, String name) {
 		Document doc = (n instanceof Document) ? (Document) n : n.getOwnerDocument();
-		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(n, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(name), true);
+		TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(n, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(name),
+				true);
 		return (Element) tw.nextNode();
 	}
 
 	/**
-	 * Get the last descendant element with the given tag name, or <code>null</code> if there is no such element.
+	 * Get the last descendant element with the given tag name, or
+	 * <code>null</code> if there is no such element.
 	 * 
 	 * @param e
 	 *            e
@@ -630,8 +657,10 @@ public class DomUtils {
 	}
 
 	/**
-	 * Find the Element with the same tag name as <code>element</code> preceding <code>element</code> within the same subtree
-	 * under <code>root</code>. Precondition: <code>root</code> must be an ancestor of <code>element</code>.
+	 * Find the Element with the same tag name as <code>element</code> preceding
+	 * <code>element</code> within the same subtree under <code>root</code>.
+	 * Precondition: <code>root</code> must be an ancestor of
+	 * <code>element</code>.
 	 * 
 	 * @param element
 	 *            element
@@ -655,8 +684,10 @@ public class DomUtils {
 	}
 
 	/**
-	 * Find the Element with the same tag name as <code>element</code> following <code>element</code> within the same subtree
-	 * under <code>root</code>. Precondition: <code>root</code> must be an ancestor of <code>element</code>.
+	 * Find the Element with the same tag name as <code>element</code> following
+	 * <code>element</code> within the same subtree under <code>root</code>.
+	 * Precondition: <code>root</code> must be an ancestor of
+	 * <code>element</code>.
 	 * 
 	 * @param element
 	 *            element
@@ -693,16 +724,19 @@ public class DomUtils {
 	}
 
 	/**
-	 * Create a new Element placed in the document tree such that it encloses two existing Nodes. The new element will have the
-	 * same namespace as the document element.
+	 * Create a new Element placed in the document tree such that it encloses
+	 * two existing Nodes. The new element will have the same namespace as the
+	 * document element.
 	 * <p>
 	 * Algorithm:
 	 * <ol>
 	 * <li>Find closest common ancestor <code>a</code></li>
-	 * <li>Identify first (<code>childA</code>) and last (<code>childZ</code>) of <code>a</code>'s children that need to be
-	 * enclosed by the new Element</li>
+	 * <li>Identify first (<code>childA</code>) and last (<code>childZ</code>)
+	 * of <code>a</code>'s children that need to be enclosed by the new
+	 * Element</li>
 	 * <li>Insert a new Element node before the first of these children</li>
-	 * <li>Move all children between <code>childA</code> and <code>childZ</code> into the new Element.</li>
+	 * <li>Move all children between <code>childA</code> and <code>childZ</code>
+	 * into the new Element.</li>
 	 * </ol>
 	 * 
 	 * @param first
@@ -760,8 +794,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Return the concatenation of the values of all text nodes below the given node. One space character is inserted between
-	 * adjacent text nodes.
+	 * Return the concatenation of the values of all text nodes below the given
+	 * node. One space character is inserted between adjacent text nodes.
 	 * 
 	 * @param n
 	 *            n
@@ -787,7 +821,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Analogous to the Node.insertBefore() method, insert a newNode after a refNode.
+	 * Analogous to the Node.insertBefore() method, insert a newNode after a
+	 * refNode.
 	 * 
 	 * @param newNode
 	 *            new node
@@ -807,8 +842,8 @@ public class DomUtils {
 	}
 
 	/**
-	 * Go through all text nodes below this node, and replace their text with a trimmed version of their text. This changes the
-	 * DOM document.
+	 * Go through all text nodes below this node, and replace their text with a
+	 * trimmed version of their text. This changes the DOM document.
 	 * 
 	 * @param root
 	 *            root
@@ -949,37 +984,43 @@ public class DomUtils {
 	}
 
 	public static TreeWalker createTreeWalker(Document doc, Node root, String... tagNames) {
-		return ((DocumentTraversal) doc).createTreeWalker(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames), false);
+		return ((DocumentTraversal) doc).createTreeWalker(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames),
+				false);
 	}
 
 	public static TreeWalker createTreeWalker(Node root, String... tagNames) {
-		return createTreeWalker(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(), root,
-				tagNames);
+		return createTreeWalker(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(),
+				root, tagNames);
 	}
 
 	public static NodeIterator createNodeIterator(Document doc, Node root, String... tagNames) {
-		return ((DocumentTraversal) doc).createNodeIterator(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames), false);
+		return ((DocumentTraversal) doc).createNodeIterator(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames),
+				false);
 	}
 
 	public static NodeIterator createNodeIterator(Node root, String... tagNames) {
-		return createNodeIterator(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(), root,
-				tagNames);
+		return createNodeIterator(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(),
+				root, tagNames);
 	}
 
 	/**
 	 * Remove any empty text nodes below node.
 	 * 
 	 * 
-	 * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file
-	 * distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you
-	 * under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You
-	 * may obtain a copy of the License at
+	 * Licensed to the Apache Software Foundation (ASF) under one or more
+	 * contributor license agreements. See the NOTICE file distributed with this
+	 * work for additional information regarding copyright ownership. The ASF
+	 * licenses this file to you under the Apache License, Version 2.0 (the
+	 * "License"); you may not use this file except in compliance with the
+	 * License. You may obtain a copy of the License at
 	 * 
 	 * http://www.apache.org/licenses/LICENSE-2.0
 	 * 
-	 * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
-	 * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
-	 * language governing permissions and limitations under the License.
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+	 * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+	 * License for the specific language governing permissions and limitations
+	 * under the License.
 	 * 
 	 * @param node
 	 *            the node below which to trim.
@@ -1014,18 +1055,23 @@ public class DomUtils {
 	}
 
 	/**
-	 * Compare two DOM trees. if they are not equal, throw an exception providing a description of the the reason why they differ.
+	 * Compare two DOM trees. if they are not equal, throw an exception
+	 * providing a description of the the reason why they differ.
 	 * 
-	 * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file
-	 * distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you
-	 * under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You
-	 * may obtain a copy of the License at
+	 * Licensed to the Apache Software Foundation (ASF) under one or more
+	 * contributor license agreements. See the NOTICE file distributed with this
+	 * work for additional information regarding copyright ownership. The ASF
+	 * licenses this file to you under the Apache License, Version 2.0 (the
+	 * "License"); you may not use this file except in compliance with the
+	 * License. You may obtain a copy of the License at
 	 * 
 	 * http://www.apache.org/licenses/LICENSE-2.0
 	 * 
-	 * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
-	 * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
-	 * language governing permissions and limitations under the License.
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+	 * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+	 * License for the specific language governing permissions and limitations
+	 * under the License.
 	 * 
 	 * @param expected
 	 *            expected
@@ -1079,19 +1125,24 @@ public class DomUtils {
 					continue;
 				}
 				Attr actualAttr = null;
-				/* We don't do namespace-aware attribute handline in MARY for now: */
 				/*
-				 * if (expectedAttr.getNamespaceURI() == null) { actualAttr = (Attr)
-				 * actualAttrs.getNamedItem(expectedAttr.getName()); } else { actualAttr = (Attr)
-				 * actualAttrs.getNamedItemNS(expectedAttr.getNamespaceURI(), expectedAttr.getLocalName()); }
+				 * We don't do namespace-aware attribute handline in MARY for
+				 * now:
+				 */
+				/*
+				 * if (expectedAttr.getNamespaceURI() == null) { actualAttr =
+				 * (Attr) actualAttrs.getNamedItem(expectedAttr.getName()); }
+				 * else { actualAttr = (Attr)
+				 * actualAttrs.getNamedItemNS(expectedAttr.getNamespaceURI(),
+				 * expectedAttr.getLocalName()); }
 				 */
 				actualAttr = (Attr) actualAttrs.getNamedItem(expectedAttr.getName());
 				if (actualAttr == null) {
 					throw new Exception(elementName + ": No attribute found:" + expectedAttr);
 				}
 				if (!expectedAttr.getValue().equals(actualAttr.getValue())) {
-					throw new Exception(elementName + ": Attribute values do not match: " + expectedAttr.getValue() + " "
-							+ actualAttr.getValue());
+					throw new Exception(elementName + ": Attribute values do not match: " + expectedAttr.getValue()
+							+ " " + actualAttr.getValue());
 				}
 			}
 
@@ -1099,8 +1150,8 @@ public class DomUtils {
 			NodeList expectedChildren = expectedElement.getChildNodes();
 			NodeList actualChildren = actualElement.getChildNodes();
 			if (expectedChildren.getLength() != actualChildren.getLength()) {
-				throw new Exception(elementName + ": Number of children do not match up: " + expectedChildren.getLength() + " "
-						+ actualChildren.getLength());
+				throw new Exception(elementName + ": Number of children do not match up: "
+						+ expectedChildren.getLength() + " " + actualChildren.getLength());
 			}
 			for (int i = 0; i < expectedChildren.getLength(); i++) {
 				Node expectedChild = expectedChildren.item(i);

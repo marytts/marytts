@@ -40,7 +40,8 @@ import marytts.data.item.Item;
 import marytts.data.SupportedSequenceType;
 
 /**
- * Base class for acoustic modeling; specific Models should extend this and override methods as needed.
+ * Base class for acoustic modeling; specific Models should extend this and
+ * override methods as needed.
  *
  * @author steiner
  *
@@ -52,10 +53,8 @@ public abstract class Model {
 	 */
 	protected InputStream dataStream;
 
-
 	/**
-	 * The name of the predicted acoustic feature, if any. The feature processor that will be created from this will read the
-	 * value from {@link #targetAttributeName}.
+	 * The name of the predicted acoustic feature, if any.
 	 */
 	protected String featureName;
 
@@ -65,49 +64,32 @@ public abstract class Model {
 	protected String predictionFeatureNames;
 
 	/**
-	 * The producer of feature vectors for the features in {@link #predictionFeatureNames} as computed by the feature processors
-	 * in {@link #featureManager}.
+	 * The producer of feature vectors
 	 */
 	protected FeatureComputer featureComputer;
-
 
 	/**
 	 * Model constructor
 	 *
-	 * @param featureManager
-	 *            the feature processor manager used to compute the symbolic features used for prediction
-	 * @param voiceName
-	 *            name of the voice
 	 * @param dataStream
 	 *            data file for this Model
-	 * @param targetAttributeName
-	 *            attribute in MaryXML to predict
-	 * @param targetAttributeFormat
-	 *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places; "%s" by
-	 *            default
-	 * @param featureName
-	 *            name of the custom continuous feature predicted by this model, or null
-	 * @param predictFrom
-	 *            key of Element Lists from which to predict values; "segments" by default
-	 * @param applyTo
-	 *            key of Element Lists to which to apply values; "segments" by default
 	 */
-	protected Model(InputStream dataStream)
-    {
+	protected Model(InputStream dataStream) {
 		this.dataStream = dataStream;
 	}
 
 	/**
-	 * Try to load this model and set the target feature computer appropriately. This must be called from the constructor of
-	 * subclasses, so that the subclass implementation of loadDataFile() is visible.
+	 * Try to load this model and set the target feature computer appropriately.
+	 * This must be called from the constructor of subclasses, so that the
+	 * subclass implementation of loadDataFile() is visible.
 	 *
 	 * @throws MaryConfigurationException
 	 *             if the model cannot be set up properly.
 	 */
 	protected final void load()
-    //throws MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
-        throws Exception
-    {
+			// throws MaryConfigurationException, ClassNotFoundException,
+			// InstantiationException, IllegalAccessException
+			throws Exception {
 		try {
 			loadData();
 		} catch (IOException ioe) {
@@ -126,44 +108,47 @@ public abstract class Model {
 	 */
 	protected abstract void loadData() throws IOException, MaryConfigurationException;
 
-	protected final void setupFeatureComputer()
-        throws Exception
-    // MaryConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException
-    {
+	protected final void setupFeatureComputer() throws Exception
+	// MaryConfigurationException, ClassNotFoundException,
+	// InstantiationException, IllegalAccessException
+	{
 		try {
-            FeatureComputer.initDefault();
+			FeatureComputer.initDefault();
 			featureComputer = FeatureComputer.the_feature_computer;
 		} catch (IllegalArgumentException iae) {
 		}
 	}
 
 	/**
-	 * Apply this Model to a List of Elements, predicting from those same Elements
+	 * Apply this Model to a list of items
 	 *
-	 * @param elements
-	 *            Elements for which to predict the values
+	 * @param utt the utterance
+     * @param seq_type the type of inpacted sequence
+     * @param item_indexes the indexes of the inpacted items
 	 * @throws MaryConfigurationException
-	 *             if attribute values cannot be predicted because of an invalid voice configuration
+	 *             if attribute values cannot be predicted because of an invalid
+	 *             voice configuration
 	 */
 	public abstract void applyTo(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
-        throws Exception;
+			throws Exception;
 
 	/**
-	 * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
-	 * corresponding Element.
+	 * For a list of items, return a list of features, where each FeatureMap is constructed from the
+	 * corresponding items.
 	 *
-	 * @param elements
-	 *            List of Elements
-	 * @return List of Targets
+	 * @param utt the utterance
+     * @param seq_type the type of inpacted sequence
+     * @param item_indexes the indexes of the inpacted items
+	 * @return List of features
+     * @throws Exception [TODO]
 	 */
 	protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
-        throws Exception
-    {
-        Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
+			throws Exception {
+		Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
 		List<FeatureMap> targets = new ArrayList<FeatureMap>(item_indexes.size());
 		for (Integer idx : item_indexes) {
-            Item item = seq.get(idx);
-            // compute FeatureMaps for Targets:
+			Item item = seq.get(idx);
+			// compute FeatureMaps for Targets:
 			FeatureMap targetFeatureMap = featureComputer.process(utt, item);
 			targets.add(targetFeatureMap); // this is critical!
 		}

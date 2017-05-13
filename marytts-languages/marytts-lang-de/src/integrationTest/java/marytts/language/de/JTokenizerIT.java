@@ -16,7 +16,6 @@ import org.testng.annotations.*;
  *
  *
  */
-public class JTokenizerIT
-{
+public class JTokenizerIT {
 
 }

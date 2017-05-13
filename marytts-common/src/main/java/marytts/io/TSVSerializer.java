@@ -22,85 +22,69 @@ import java.io.File;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class TSVSerializer implements Serializer
-{
-    protected List<String> m_feature_names;
-    protected static final String SEP = "\t";
+public class TSVSerializer implements Serializer {
+	protected List<String> m_feature_names;
+	protected static final String SEP = "\t";
 
-    public TSVSerializer()
-    {
-        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
-    }
+	public TSVSerializer() {
+		m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
+	}
 
-    public Utterance load(File file)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public Utterance load(File file) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-    public void save(File file, Utterance utt)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public void save(File file, Utterance utt) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-    public String toString(Utterance utt)
-        throws MaryIOException
-    {
-        if (!utt.hasSequence(SupportedSequenceType.FEATURES))
-        {
-            throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
-        }
+	public String toString(Utterance utt) throws MaryIOException {
+		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
+			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
+		}
 
-        Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
+		Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
 
-        // Header
-        String output = "#";
-        Iterator<String> it_names = m_feature_names.iterator();
-        while (it_names.hasNext())
-        {
-            String feature_name = it_names.next();
-            output += feature_name;
+		// Header
+		String output = "#";
+		Iterator<String> it_names = m_feature_names.iterator();
+		while (it_names.hasNext()) {
+			String feature_name = it_names.next();
+			output += feature_name;
 
-            if (it_names.hasNext())
-                output += SEP;
-            else
-                output += "\n";
-        }
+			if (it_names.hasNext())
+				output += SEP;
+			else
+				output += "\n";
+		}
 
-        // Content
-        for (FeatureMap feature_map: seq_features)
-        {
-            it_names = m_feature_names.iterator();
-            while (it_names.hasNext())
-            {
-                String feature_name = it_names.next();
-                output += getValue(feature_map, feature_name);
+		// Content
+		for (FeatureMap feature_map : seq_features) {
+			it_names = m_feature_names.iterator();
+			while (it_names.hasNext()) {
+				String feature_name = it_names.next();
+				output += getValue(feature_map, feature_name);
 
-                if (it_names.hasNext())
-                    output += SEP;
-                else
-                    output += "\n";
-            }
-        }
+				if (it_names.hasNext())
+					output += SEP;
+				else
+					output += "\n";
+			}
+		}
 
-        return output;
-    }
+		return output;
+	}
 
-    public Utterance fromString(String content)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public Utterance fromString(String content) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-
-    protected final String getValue(FeatureMap feature_map, String key)
-    {
-        return feature_map.get(key) == null ? "" : feature_map.get(key).getStringValue();
-    }
+	protected final String getValue(FeatureMap feature_map, String key) {
+		return feature_map.get(key) == null ? "" : feature_map.get(key).getStringValue();
+	}
 }
-
 
 /* HTSLabelSerializer.java ends here */

@@ -80,8 +80,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	private PhonemiseDenglish phonemiseDenglish;
 
 	public JPhonemiser() throws IOException, MaryConfigurationException {
-		super("JPhonemiser_de", "de.allophoneset", "de.userdict",
-              "de.lexicon", "de.lettertosound");
+		super("JPhonemiser_de", "de.allophoneset", "de.userdict", "de.lexicon", "de.lettertosound");
 	}
 
 	public void startup() throws Exception {
@@ -97,11 +96,11 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 					logger.info("Creating log directory " + logDir.getCanonicalPath());
 					FileUtils.forceMkdir(logDir);
 				}
-				logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename", logBasepath
-                                                                + "de_unknown.txt");
+				logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename",
+						logBasepath + "de_unknown.txt");
 				unknown2Frequency = new HashMap<String, Integer>();
-				logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename", logBasepath
-                                                                + "de_english-words.txt");
+				logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename",
+						logBasepath + "de_english-words.txt");
 				english2Frequency = new HashMap<String, Integer>();
 			} catch (IOException e) {
 				logger.info("Could not create log directory " + logDir.getCanonicalPath() + " Logging disabled!", e);
@@ -126,7 +125,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
 				// open file
 				PrintWriter logUnknown = new PrintWriter(
-                    new OutputStreamWriter(new FileOutputStream(logUnknownFileName), "UTF-8"));
+						new OutputStreamWriter(new FileOutputStream(logUnknownFileName), "UTF-8"));
 				// sort the words
 				Set<String> unknownWords = unknown2Frequency.keySet();
 				SortedMap<Integer, List<String>> freq2Unknown = new TreeMap<Integer, List<String>>();
@@ -159,7 +158,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 				/* print english words */
 				// open the file
 				PrintWriter logEnglish = new PrintWriter(
-                    new OutputStreamWriter(new FileOutputStream(logEnglishFileName), "UTF-8"));
+						new OutputStreamWriter(new FileOutputStream(logEnglishFileName), "UTF-8"));
 				// sort the words
 				SortedMap<Integer, List<String>> freq2English = new TreeMap<Integer, List<String>>();
 				for (String nextEnglish : english2Frequency.keySet()) {
@@ -193,121 +192,118 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
 	@Override
 
-	public MaryData process(MaryData d) throws Exception
-    {
-        Utterance utt = d.getData();
+	public MaryData process(MaryData d) throws Exception {
+		Utterance utt = d.getData();
 
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
-        Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+		Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+		Sequence<Syllable> syllables = new Sequence<Syllable>();
+		ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
 
-        Sequence<Phoneme> phones = new Sequence<Phoneme>();
-        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+		Sequence<Phoneme> phones = new Sequence<Phoneme>();
+		ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
 
-        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD).getReverse();
-        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+		Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD)
+				.getReverse();
+		HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
+		for (int i_word = 0; i_word < words.size(); i_word++) {
+			Word w = words.get(i_word);
 
-        for (int i_word=0; i_word<words.size(); i_word++)
-        {
-            Word w = words.get(i_word);
+			String text;
 
-            String text;
+			if (w.soundsLike() != null)
+				text = w.soundsLike();
+			else
+				text = w.getText();
 
-            if (w.soundsLike() != null)
-                text = w.soundsLike();
-            else
-                text = w.getText();
+			// Get POS
+			String pos = w.getPOS();
 
-            // Get POS
-            String pos = w.getPOS();
+			boolean isEnglish = false;
+			if ((w.getAlternativeLocale() != null) && (w.getAlternativeLocale().equals(Locale.ENGLISH))) {
+				isEnglish = true;
+			}
 
-            boolean isEnglish = false;
-            if ((w.getAlternativeLocale() != null) &&
-                (w.getAlternativeLocale().equals(Locale.ENGLISH)))
-            {
-                isEnglish = true;
-            }
+			// Ok adapt phonemes now
+			ArrayList<String> phonetisation_string = new ArrayList<String>();
+			if (maybePronounceable(text, pos)) {
 
-            // Ok adapt phonemes now
-            ArrayList<String> phonetisation_string = new ArrayList<String>();
-            if (maybePronounceable(text, pos))
-            {
+				// If text consists of several parts (e.g., because that was
+				// inserted into the sounds_like attribute), each part
+				// is transcribed separately.
+				StringBuilder ph = new StringBuilder();
+				String g2p_method = null;
+				StringTokenizer st = new StringTokenizer(text, " -");
+				while (st.hasMoreTokens()) {
+					String graph = st.nextToken();
+					StringBuilder helper = new StringBuilder();
+					String phon = null;
 
-                // If text consists of several parts (e.g., because that was
-                // inserted into the sounds_like attribute), each part
-                // is transcribed separately.
-                StringBuilder ph = new StringBuilder();
-                String g2p_method = null;
-                StringTokenizer st = new StringTokenizer(text, " -");
-                while (st.hasMoreTokens())
-                {
-                    String graph = st.nextToken();
-                    StringBuilder helper = new StringBuilder();
-                    String phon = null;
+					if (isEnglish && usEnglishLexicon != null) {
+						phon = phonemiseEn(graph);
+						if (phon != null)
+							helper.append("foreign:en");
+					}
 
-                    if (isEnglish && usEnglishLexicon != null)
-                    {
-                        phon = phonemiseEn(graph);
-                        if (phon != null)
-                            helper.append("foreign:en");
-                    }
+					if (phon == null) {
+						phon = phonemise(graph, pos, helper);
+					}
 
-                    if (phon == null) {
-                        phon = phonemise(graph, pos, helper);
-                    }
+					// FIXME: what does it mean : null result should not be
+					// processed
+					if (phon == null)
+						continue;
 
-                    // FIXME: what does it mean : null result should not be processed
-                    if (phon == null)
-                        continue;
+					if (ph.length() == 0)
+						g2p_method = helper.toString();
 
-                    if (ph.length() == 0)
-                        g2p_method = helper.toString();
+					phonetisation_string.add(phon);
+				}
 
-                    phonetisation_string.add(phon);
-                }
+				if (phonetisation_string.size() > 0) {
 
-                if (phonetisation_string.size() > 0)
-                {
+					createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
+							alignment_syllable_phone, i_word, alignment_word_syllable);
 
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones, alignment_syllable_phone, i_word, alignment_word_syllable);
+					// Adapt G2P method
+					w.setG2PMethod(g2p_method);
+				}
+			}
+		}
 
-                    // Adapt G2P method
-                    w.setG2PMethod(g2p_method);
-                }
-            }
-        }
+		// Relation word/syllable
+		utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+		Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+		utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
 
+		utt.addSequence(SupportedSequenceType.PHONE, phones);
+		Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+		utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        // Relation word/syllable
-        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+		MaryData result = new MaryData(d.getLocale(), utt);
+		return result;
+	}
 
-        utt.addSequence(SupportedSequenceType.PHONE, phones);
-        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
-        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
-
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
-    }
-
-/**
- * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
- * letter-to-sound rules if nothing else was successful.
- *
- * @param text
- *            the textual (graphemic) form of a word.
- * @param pos
- *            pos
- * @param g2pMethod
- *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
- *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
- * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
- */
-    @Override
-    public String phonemise(String text, String pos, StringBuilder g2pMethod) {
-        // First, try a simple userdict and lexicon lookup:
+	/**
+	 * Phonemise the word text. This starts with a simple lexicon lookup,
+	 * followed by some heuristics, and finally applies letter-to-sound rules if
+	 * nothing else was successful.
+	 *
+	 * @param text
+	 *            the textual (graphemic) form of a word.
+	 * @param pos
+	 *            pos
+	 * @param g2pMethod
+	 *            This is an awkward way to return a second String parameter via
+	 *            a StringBuilder. If a phonemisation of the text is found, this
+	 *            parameter will be filled with the method of phonemisation
+	 *            ("lexicon", ... "rules").
+	 * @return a phonemisation of the text if one can be generated, or null if
+	 *         no phonemisation method was successful.
+	 */
+	@Override
+	public String phonemise(String text, String pos, StringBuilder g2pMethod) {
+		// First, try a simple userdict and lexicon lookup:
 		String result = userdictLookup(text, pos);
 		if (result != null) {
 			g2pMethod.append("userdict");
@@ -319,9 +315,10 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 			return result;
 		}
 		/**
-		 * // Not found? Try a compound "analysis": result = compoundSearch(text);
-		 * //logger.debug("Compound here: "+compoundSearch(text)); if (result != null) { g2pMethod.append("compound"); return
-		 * result; }
+		 * // Not found? Try a compound "analysis": result =
+		 * compoundSearch(text); //logger.debug("Compound here:
+		 * "+compoundSearch(text)); if (result != null) {
+		 * g2pMethod.append("compound"); return result; }
 		 **/
 
 		// Lookup attempts failed. Try normalising exotic letters
@@ -340,12 +337,14 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 				return result;
 			}
 			/**
-			 * // Not found? Try a compound "analysis": result = compoundSearch(normalised); if (result != null) {
+			 * // Not found? Try a compound "analysis": result =
+			 * compoundSearch(normalised); if (result != null) {
 			 * g2pMethod.append("compound"); return result; }
 			 **/
 		}
 
-		// plain English word must be looked up in English lexicon before phonemiseDenglish starts
+		// plain English word must be looked up in English lexicon before
+		// phonemiseDenglish starts
 		if (usEnglishLexicon != null) {
 			String englishTranscription = phonemiseEn(text);
 			if (englishTranscription != null) {
@@ -415,7 +414,8 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 	}
 
 	/**
-	 * Try to determine an English transcription of the text according to English rules, but using German Sampa.
+	 * Try to determine an English transcription of the text according to
+	 * English rules, but using German Sampa.
 	 *
 	 * @param text
 	 *            Word to transcribe
@@ -427,7 +427,8 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 		String normalisedEn = MaryUtils.normaliseUnicodeLetters(text, Locale.US);
 		normalisedEn = normalisedEn.toLowerCase();
 		String[] transcriptions = usEnglishLexicon.lookup(normalisedEn);
-		assert transcriptions != null; // if nothing is found, an array of length 0 is returned.
+		assert transcriptions != null; // if nothing is found, an array of
+										// length 0 is returned.
 		if (transcriptions.length == 0) {
 			return null;
 		}

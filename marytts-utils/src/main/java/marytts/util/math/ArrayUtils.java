@@ -21,13 +21,13 @@ package marytts.util.math;
 
 /**
  * A collection of static helper functions for dealing with arrays.
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class ArrayUtils {
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -40,7 +40,7 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -53,7 +53,7 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -66,7 +66,7 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -79,7 +79,7 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -92,7 +92,7 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#clone} instead
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.clone instead
 	 * @param orig
 	 *            orig
 	 * @return subarray(orig, 0, orig.length) if orig != null, null otherwise
@@ -450,8 +450,8 @@ public class ArrayUtils {
 
 	/**
 	 * Returns the vector [x y]
-	 * 
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
+	 *
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.addAll instead
 	 * @param x
 	 *            x
 	 * @param y
@@ -485,8 +485,8 @@ public class ArrayUtils {
 
 	/**
 	 * Returns the vector [x y]
-	 * 
-	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
+	 *
+	 * @deprecated use org.apache.commons.lang.ArrayUtils.addAll instead
 	 * @param x
 	 *            x
 	 * @param y

@@ -93,7 +93,8 @@ public class DeLex {
 									org.w3c.dom.Text textNode = (org.w3c.dom.Text) valueTextNodeList.item(a);
 									valueString += textNode.getData().trim();
 
-									// Element valueDOM = (Element) valueElementNodeList.item(a);
+									// Element valueDOM = (Element)
+									// valueElementNodeList.item(a);
 									// valueString = document2String(valueDOM);
 								}
 							}

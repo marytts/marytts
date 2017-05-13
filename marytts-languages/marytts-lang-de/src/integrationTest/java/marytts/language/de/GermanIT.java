@@ -48,9 +48,9 @@ public class GermanIT {
 		result = module.phonemise("αββ", "XY", new StringBuilder());
 		result2 = module.phonemise("λόγος", "XY", new StringBuilder());
 
-//verify
-        Assert.assertEquals(result, null);
-        Assert.assertEquals(result2, null);
+		// verify
+		Assert.assertEquals(result, null);
+		Assert.assertEquals(result2, null);
 	}
 
 }

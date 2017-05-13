@@ -65,7 +65,8 @@ import org.apache.log4j.Level;
 public class FileUtils {
 
 	/*
-	 * Close a socket and closeables. Use this in a finally clause. Exists because Sockets are only closeable in jdk 1.7.
+	 * Close a socket and closeables. Use this in a finally clause. Exists
+	 * because Sockets are only closeable in jdk 1.7.
 	 * 
 	 * @param socket to close.
 	 * 
@@ -91,9 +92,10 @@ public class FileUtils {
 	}
 
 	/**
-	 * Close a PreparedStatement and a series of result sets. Use this in a finally clause. While closing the PreparedStatement
-	 * supposedly closes it's resultsets, i was told that some buggy implementations don't. Exists because PreparedStatement and
-	 * ResultŜet are only closeable on jdk 1.7
+	 * Close a PreparedStatement and a series of result sets. Use this in a
+	 * finally clause. While closing the PreparedStatement supposedly closes
+	 * it's resultsets, i was told that some buggy implementations don't. Exists
+	 * because PreparedStatement and ResultŜet are only closeable on jdk 1.7
 	 * 
 	 * @param ps
 	 *            ps
@@ -138,9 +140,11 @@ public class FileUtils {
 	}
 
 	/**
-	 * List the basenames of all files in directory that end in suffix, without that suffix. For example, if suffix is ".wav",
-	 * return the names of all .wav files in the directory, but without the .wav extension. The file names are sorted in
-	 * alphabetical order, according to java's string search.
+	 * List the basenames of all files in directory that end in suffix, without
+	 * that suffix. For example, if suffix is ".wav", return the names of all
+	 * .wav files in the directory, but without the .wav extension. The file
+	 * names are sorted in alphabetical order, according to java's string
+	 * search.
 	 * 
 	 * @param directory
 	 *            directory
@@ -167,7 +171,8 @@ public class FileUtils {
 	}
 
 	/**
-	 * Read a file into a string, using the given encoding, and return that string.
+	 * Read a file into a string, using the given encoding, and return that
+	 * string.
 	 * 
 	 * @param file
 	 *            file
@@ -176,7 +181,9 @@ public class FileUtils {
 	 * @throws IOException
 	 *             IOException
 	 * @return stream as string(fis, encoding)
-	 * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
+	 * @deprecated use
+	 *             {@link org.apache.commons.io.FileUtils#readFileToString(File, String)}
+	 *             instead
 	 */
 	@Deprecated
 	public static String getFileAsString(File file, String encoding) throws IOException {
@@ -189,7 +196,9 @@ public class FileUtils {
 	}
 
 	/**
-	 * @deprecated use {@link org.apache.commons.io.IOUtils#toString(InputStream, String)} instead
+	 * @deprecated use
+	 *             {@link org.apache.commons.io.IOUtils#toString(InputStream, String)}
+	 *             instead
 	 * @param inputStream
 	 *            inputStream
 	 * @param encoding
@@ -450,8 +459,8 @@ public class FileUtils {
 			MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());
 			out.write(buf);
 		} catch (Exception e) {
-			System.out.println("Error copying file " + source.getAbsolutePath() + " to " + dest.getAbsolutePath() + " : "
-					+ e.getMessage());
+			System.out.println("Error copying file " + source.getAbsolutePath() + " to " + dest.getAbsolutePath()
+					+ " : " + e.getMessage());
 			throw new IOException();
 		} finally {
 			FileUtils.close(in, out);
@@ -462,7 +471,8 @@ public class FileUtils {
 		copyFolder(sourceFolder, targetFolder, false);
 	}
 
-	public static void copyFolder(String sourceFolder, String targetFolder, boolean bForceDeleteTarget) throws IOException {
+	public static void copyFolder(String sourceFolder, String targetFolder, boolean bForceDeleteTarget)
+			throws IOException {
 		if (exists(sourceFolder)) {
 			if (exists(targetFolder) && bForceDeleteTarget)
 				delete(targetFolder);
@@ -549,7 +559,8 @@ public class FileUtils {
 				int ind = files[i].lastIndexOf(oldExt);
 				String newFile = folder + files[i].substring(0, ind) + newExt;
 				FileUtils.rename(files[i], newFile);
-				System.out.println("Changed extension " + String.valueOf(i + 1) + " of " + String.valueOf(files.length));
+				System.out
+						.println("Changed extension " + String.valueOf(i + 1) + " of " + String.valueOf(files.length));
 			}
 		}
 	}
@@ -723,13 +734,15 @@ public class FileUtils {
 	}
 
 	/**
-	 * Unzip a zip archive into a directory on the file system. Thanks to Piotr Gabryanczyk for making this code available at
+	 * Unzip a zip archive into a directory on the file system. Thanks to Piotr
+	 * Gabryanczyk for making this code available at
 	 * http://piotrga.wordpress.com/2008/05/07/how-to-unzip-archive-in-java/
 	 * 
 	 * @param archive
 	 *            the zip file to extract
 	 * @param outputDir
-	 *            the directory below which to extract the contents of the zip file. If this does not exist, it is created.
+	 *            the directory below which to extract the contents of the zip
+	 *            file. If this does not exist, it is created.
 	 * @throws IOException
 	 *             if any part of the process fails.
 	 */

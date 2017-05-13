@@ -22,8 +22,9 @@ package marytts.util.math;
 import java.util.Arrays;
 
 /**
- * This is a wrapper class that can hold two double arrays, one of which is interpreted as containing the real values, the other
- * the imaginary values of the complex numbers.
+ * This is a wrapper class that can hold two double arrays, one of which is
+ * interpreted as containing the real values, the other the imaginary values of
+ * the complex numbers.
  * 
  * @author Marc Schr&ouml;der
  * 

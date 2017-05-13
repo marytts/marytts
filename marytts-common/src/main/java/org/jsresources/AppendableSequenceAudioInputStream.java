@@ -19,9 +19,11 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	protected boolean doneAppending = false;
 
 	/**
-	 * Create a sequence audio input stream to which more AudioInputStreams can be appended after creation. When the currently
-	 * available audio input streams have been read, calls to read() will block until new audio data is appended or
-	 * doneAppending() is called. After doneAppending() is called, read() will return -1 when running out of data.
+	 * Create a sequence audio input stream to which more AudioInputStreams can
+	 * be appended after creation. When the currently available audio input
+	 * streams have been read, calls to read() will block until new audio data
+	 * is appended or doneAppending() is called. After doneAppending() is
+	 * called, read() will return -1 when running out of data.
 	 * 
 	 * @param audioFormat
 	 *            audioformat
@@ -33,7 +35,8 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	}
 
 	/**
-	 * Append the new audio input stream to the end of the list of audio input streams.
+	 * Append the new audio input stream to the end of the list of audio input
+	 * streams.
 	 * 
 	 * @param ais
 	 *            ais
@@ -51,8 +54,8 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	}
 
 	/**
-	 * Inform this audio input stream not to expect any further calls to append(), and report end-of-stream when all data has been
-	 * read.
+	 * Inform this audio input stream not to expect any further calls to
+	 * append(), and report end-of-stream when all data has been read.
 	 */
 	public synchronized void doneAppending() {
 		doneAppending = true;
@@ -96,7 +99,10 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 			}
 		}
 		// Try to read data
-		while (m_nCurrentStream >= m_audioInputStreamList.size() || (n = super.read(buf, off, len)) <= 0) { // no data, but more
+		while (m_nCurrentStream >= m_audioInputStreamList.size() || (n = super.read(buf, off, len)) <= 0) { // no
+																											// data,
+																											// but
+																											// more
 																											// expected
 			if (n == -1 && doneAppending) // finished reading
 				return -1;
@@ -111,9 +117,10 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	}
 
 	/**
-	 * Return the frame length of this appendable sequence audio input stream. As long as <code>doneAppending()</code> has not
-	 * been called, returns <code>AudioSystem.NOT_SPECIFIED</code>; after that, the frame length is the sum of the frame lengths
-	 * of individual frame lengths.
+	 * Return the frame length of this appendable sequence audio input stream.
+	 * As long as <code>doneAppending()</code> has not been called, returns
+	 * <code>AudioSystem.NOT_SPECIFIED</code>; after that, the frame length is
+	 * the sum of the frame lengths of individual frame lengths.
 	 * 
 	 * @return total
 	 */

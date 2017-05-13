@@ -40,53 +40,66 @@ public class PhonologicalRules {
 	// {"([bdg])@(n)", "$1@$2", "$1@$2", "$1@$2"}
 	private static final String[][] _rules = {
 			// @-Elision mit -en, -el, -em
-			{ "([dlrszSt])@n", "$1@n", "$1@n", "$1@n" },
+			{"([dlrszSt])@n", "$1@n", "$1@n", "$1@n"},
 			// warning: mbrola de1/2 don't have Z-n diphone
 
 			// @Elision mit -en, -el, -em; Assimilation
-			{ "f@n", "f@n", "f@n", "f@n" },
-			{ "g@n", "g@n", "g@n", "g@n" }, // warning: mbrola de1 doesn't have g-N diphone
-			{ "k@n", "k@n", "k@n", "k@n" },// warning: mbrola de1 doesn't have k-N diphone
-			{ "p@n", "p@n", "p@n", "p@n" },
-			{ "x@n", "x@n", "x@n", "x@n" },// warning: mbrola de1/2 don't have x-N diphone
+			{"f@n", "f@n", "f@n", "f@n"}, {"g@n", "g@n", "g@n", "g@n"}, // warning:
+																		// mbrola
+																		// de1
+																		// doesn't
+																		// have
+																		// g-N
+																		// diphone
+			{"k@n", "k@n", "k@n", "k@n"}, // warning: mbrola de1 doesn't have
+											// k-N diphone
+			{"p@n", "p@n", "p@n", "p@n"}, {"x@n", "x@n", "x@n", "x@n"}, // warning:
+																		// mbrola
+																		// de1/2
+																		// don't
+																		// have
+																		// x-N
+																		// diphone
 
 			// @-Elision mit -en, -el, -em; Assimilation und Geminatenreduktion
-			{ "b@n", "b@n", "b@n", "b@n" },// warning: mbrola de1 doesn't have b-m diphone
-			{ "m@n", "m@n", "m@n", "m@n" },
-			{ "n@n", "n@n", "n@n", "n@n" },
-			// bei Geminatenreduktion wird der uebrigbleibende Laut eigentlich gelaengt.
-			// Da es jedoch noch kein Symbol und keine Semantik fuer Laengung gibt,
+			{"b@n", "b@n", "b@n", "b@n"}, // warning: mbrola de1 doesn't have
+											// b-m diphone
+			{"m@n", "m@n", "m@n", "m@n"}, {"n@n", "n@n", "n@n", "n@n"},
+			// bei Geminatenreduktion wird der uebrigbleibende Laut eigentlich
+			// gelaengt.
+			// Da es jedoch noch kein Symbol und keine Semantik fuer Laengung
+			// gibt,
 			// soll an dieser Stelle nur darauf hingewiesen werden.
 
 			// Assimilation der Artikulationsart
-			{ "g-n", "g-n", "g-n", "g-n" },
+			{"g-n", "g-n", "g-n", "g-n"},
 
 			// Assimilation und Geminatenreduktion
-			{ "m-b", "m-b", "m-b", "m-b" },
-			{ "t-t", "t-t", "t-t", "t-t" },
-			// bei Geminatenreduktion wird der uebrigbleibende Laut eigentlich gelaengt.
-			// Da es jedoch noch kein Symbol und keine Semantik fuer Laengung gibt,
+			{"m-b", "m-b", "m-b", "m-b"}, {"t-t", "t-t", "t-t", "t-t"},
+			// bei Geminatenreduktion wird der uebrigbleibende Laut eigentlich
+			// gelaengt.
+			// Da es jedoch noch kein Symbol und keine Semantik fuer Laengung
+			// gibt,
 			// soll an dieser Stelle nur darauf hingewiesen werden.
 
 			// glottal stop removal:
-			{ "\\?(aI|OY|aU|[iIyYe\\{E29uUoOaA])", "?$1", "?$1", "?$1" },
+			{"\\?(aI|OY|aU|[iIyYe\\{E29uUoOaA])", "?$1", "?$1", "?$1"},
 
 			// Reduce E6 -> 6 in unstressed syllables only:
 			// {"^([^'-]*)E6", "$16", "$16", "$16"},
 			// {"-([^'-]*)E6", "-$16", "-$16", "-$16"},
 
 			// be more specific: reduce fE6 -> f6 in unstressed syllables only
-			{ "^([^'-]*)fE6", "$1f6", "$1f6", "$1f6" },
-			{ "-([^'-]*)fE6", "-$1f6", "-$1f6", "-$1f6" },
+			{"^([^'-]*)fE6", "$1f6", "$1f6", "$1f6"}, {"-([^'-]*)fE6", "-$1f6", "-$1f6", "-$1f6"},
 
 			// Replace ?6 with ?E6 wordinitial
-			{ "\\?6", "\\?E6", "\\?E6", "\\?E6" },
+			{"\\?6", "\\?E6", "\\?E6", "\\?E6"},
 
 			// !! Translate the old MARY SAMPA to the new MARY SAMPA:
-			{ "O~:", "a~", "a~", "a~" }, { "o~:", "o~", "o~", "o~" }, { "9~:", "9~", "9~", "9~" }, { "E~:", "e~", "e~", "e~" },
-			{ "O~", "a~", "a~", "a~" }, { "o~", "o~", "o~", "o~" }, { "9~", "9~", "9~", "9~" }, { "E~", "e~", "e~", "e~" },
-			{ "\\{", "E", "E", "E" },
-	// {"r", "R", "R", "R"}
+			{"O~:", "a~", "a~", "a~"}, {"o~:", "o~", "o~", "o~"}, {"9~:", "9~", "9~", "9~"}, {"E~:", "e~", "e~", "e~"},
+			{"O~", "a~", "a~", "a~"}, {"o~", "o~", "o~", "o~"}, {"9~", "9~", "9~", "9~"}, {"E~", "e~", "e~", "e~"},
+			{"\\{", "E", "E", "E"},
+			// {"r", "R", "R", "R"}
 	};
 	private static final List rules = initialiseRules();
 

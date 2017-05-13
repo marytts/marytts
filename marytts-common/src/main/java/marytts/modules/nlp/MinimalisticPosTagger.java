@@ -38,7 +38,8 @@ import marytts.data.item.linguistic.Word;
 import org.w3c.dom.Document;
 
 /**
- * Minimalistic part-of-speech tagger, using only function word tags as marked in the Transcription GUI.
+ * Minimalistic part-of-speech tagger, using only function word tags as marked
+ * in the Transcription GUI.
  *
  * @author Sathish Pammi
  * @author Marc Schr&ouml;der
@@ -50,8 +51,8 @@ public class MinimalisticPosTagger extends InternalModule {
 	private String punctuationList;
 
 	/**
-	 * Constructor which can be directly called from init info in the config file. Different languages can call this code with
-	 * different settings.
+	 * Constructor which can be directly called from init info in the config
+	 * file. Different languages can call this code with different settings.
 	 *
 	 * @param locale
 	 *            a locale string, e.g. "en"
@@ -79,22 +80,21 @@ public class MinimalisticPosTagger extends InternalModule {
 	public MaryData process(MaryData d) throws Exception {
 		Utterance utt = d.getData();
 
-        for (Word w: (Sequence<Word>)utt.getSequence(SupportedSequenceType.WORD))
-        {
-            String pos = "content";
-            String tokenText = w.getText();
-            if (punctuationList.contains(tokenText)) {
-                pos = "$PUNCT";
-            } else if (posFST != null) {
-                String[] result = posFST.lookup(tokenText);
-                if (result.length != 0)
-                    pos = "function";
-            }
-            w.setPOS(pos);
-        }
+		for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
+			String pos = "content";
+			String tokenText = w.getText();
+			if (punctuationList.contains(tokenText)) {
+				pos = "$PUNCT";
+			} else if (posFST != null) {
+				String[] result = posFST.lookup(tokenText);
+				if (result.length != 0)
+					pos = "function";
+			}
+			w.setPOS(pos);
+		}
 
-        MaryData result = new MaryData( d.getLocale(), utt);
-        return result;
+		MaryData result = new MaryData(d.getLocale(), utt);
+		return result;
 	}
 
 }

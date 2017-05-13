@@ -42,7 +42,7 @@ public class SynthesisConfig extends MaryConfig {
 	public boolean isSynthesisConfig() {
 		return true;
 	}
-	
+
 	/**
 	 * The synthesizer's name.
 	 * 

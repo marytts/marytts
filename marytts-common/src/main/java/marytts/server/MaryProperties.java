@@ -36,9 +36,11 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 
 /**
- * A static class reading once, at program start, properties from a number of external property files, and providing them via
- * static getter methods to anyone wishing to read them. At program start, this will read all the config files in the
- * MARY_BASE/conf directory that end in *.config. See the config files for more information.
+ * A static class reading once, at program start, properties from a number of
+ * external property files, and providing them via static getter methods to
+ * anyone wishing to read them. At program start, this will read all the config
+ * files in the MARY_BASE/conf directory that end in *.config. See the config
+ * files for more information.
  *
  * @author Marc Schr&ouml;der
  */
@@ -96,7 +98,8 @@ public class MaryProperties {
 	/**
 	 * Names of the classes to use as modules, plus optional parameter info.
 	 * 
-	 * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details on expected format.
+	 * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details
+	 *      on expected format.
 	 * @return getList("modules.classes.list")
 	 */
 	public static List<String> moduleInitInfo() {
@@ -122,8 +125,9 @@ public class MaryProperties {
 	}
 
 	/**
-	 * From a path entry in the properties, create an expanded form. Replace the string MARY_BASE with the value of property
-	 * "mary.base"; replace all "/" and "\\" with the platform-specific file separator.
+	 * From a path entry in the properties, create an expanded form. Replace the
+	 * string MARY_BASE with the value of property "mary.base"; replace all "/"
+	 * and "\\" with the platform-specific file separator.
 	 * 
 	 * @param path
 	 *            path
@@ -175,8 +179,9 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get or infer a boolean property from the underlying properties. Apart from the values "true"and "false", a value "auto" is
-	 * permitted; it will resolve to "true" in server mode and to "false" in non-server mode.
+	 * Get or infer a boolean property from the underlying properties. Apart
+	 * from the values "true"and "false", a value "auto" is permitted; it will
+	 * resolve to "true" in server mode and to "false" in non-server mode.
 	 * 
 	 * @param property
 	 *            the property requested
@@ -198,12 +203,14 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get a filename property from the underlying properties. The string MARY_BASE is replaced with the value of the property
-	 * mary.base, and path separators are adapted to the current platform.
+	 * Get a filename property from the underlying properties. The string
+	 * MARY_BASE is replaced with the value of the property mary.base, and path
+	 * separators are adapted to the current platform.
 	 * 
 	 * @param property
 	 *            the property requested
-	 * @return the filename corresponding to the property value if found, null otherwise.
+	 * @return the filename corresponding to the property value if found, null
+	 *         otherwise.
 	 */
 	public static String getFilename(String property) {
 		return getFilename(property, null);
@@ -216,7 +223,8 @@ public class MaryProperties {
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the boolean property value if found and valid, defaultValue otherwise.
+	 * @return the boolean property value if found and valid, defaultValue
+	 *         otherwise.
 	 */
 	public static boolean getBoolean(String property, boolean defaultValue) {
 		String value = getProperty(property);
@@ -230,8 +238,9 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get or infer a boolean property from the underlying properties. Apart from the values "true"and "false", a value "auto" is
-	 * permitted; it will resolve to "true" in server mode and to "false" in non-server mode.
+	 * Get or infer a boolean property from the underlying properties. Apart
+	 * from the values "true"and "false", a value "auto" is permitted; it will
+	 * resolve to "true" in server mode and to "false" in non-server mode.
 	 * 
 	 * @param property
 	 *            the property requested
@@ -257,7 +266,8 @@ public class MaryProperties {
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the integer property value if found and valid, defaultValue otherwise.
+	 * @return the integer property value if found and valid, defaultValue
+	 *         otherwise.
 	 */
 	public static int getInteger(String property, int defaultValue) {
 		String value = getProperty(property);
@@ -272,14 +282,16 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get a filename property from the underlying properties. The string MARY_BASE is replaced with the value of the property
-	 * mary.base, and path separators are adapted to the current platform.
+	 * Get a filename property from the underlying properties. The string
+	 * MARY_BASE is replaced with the value of the property mary.base, and path
+	 * separators are adapted to the current platform.
 	 * 
 	 * @param property
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the filename corresponding to the property value if found, defaultValue otherwise.
+	 * @return the filename corresponding to the property value if found,
+	 *         defaultValue otherwise.
 	 */
 	public static String getFilename(String property, String defaultValue) {
 		String filename = getProperty(property);
@@ -290,7 +302,8 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get a property from the underlying properties, throwing an exception if it is not defined.
+	 * Get a property from the underlying properties, throwing an exception if
+	 * it is not defined.
 	 * 
 	 * @param property
 	 *            the property required
@@ -307,7 +320,8 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get a boolean property from the underlying properties, throwing an exception if it is not defined.
+	 * Get a boolean property from the underlying properties, throwing an
+	 * exception if it is not defined.
 	 * 
 	 * @param property
 	 *            the property requested
@@ -323,15 +337,16 @@ public class MaryProperties {
 		try {
 			return Boolean.valueOf(value).booleanValue();
 		} catch (NumberFormatException e) {
-			throw new NoSuchPropertyException("Boolean property `" + property + "' in configuration files has wrong value `"
-					+ value + "'");
+			throw new NoSuchPropertyException(
+					"Boolean property `" + property + "' in configuration files has wrong value `" + value + "'");
 		}
 	}
 
 	/**
-	 * Get or infer a boolean property from the underlying properties, throwing an exception if it is not defined. Apart from the
-	 * values "true"and "false", a value "auto" is permitted; it will resolve to "true" in server mode and to "false" in
-	 * non-server mode.
+	 * Get or infer a boolean property from the underlying properties, throwing
+	 * an exception if it is not defined. Apart from the values "true"and
+	 * "false", a value "auto" is permitted; it will resolve to "true" in server
+	 * mode and to "false" in non-server mode.
 	 * 
 	 * @param property
 	 *            the property requested
@@ -352,7 +367,8 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get an integer property from the underlying properties, throwing an exception if it is not defined.
+	 * Get an integer property from the underlying properties, throwing an
+	 * exception if it is not defined.
 	 * 
 	 * @param property
 	 *            the property requested
@@ -368,61 +384,76 @@ public class MaryProperties {
 		try {
 			return Integer.decode(value).intValue();
 		} catch (NumberFormatException e) {
-			throw new NoSuchPropertyException("Integer property `" + property + "' in configuration files has wrong value `"
-					+ value + "'");
+			throw new NoSuchPropertyException(
+					"Integer property `" + property + "' in configuration files has wrong value `" + value + "'");
 		}
 	}
 
 	/**
-	 * Get a filename property from the underlying properties, throwing an exception if it is not defined. The string MARY_BASE is
-	 * replaced with the value of the property mary.base, and path separators are adapted to the current platform.
+	 * Get a filename property from the underlying properties, throwing an
+	 * exception if it is not defined. The string MARY_BASE is replaced with the
+	 * value of the property mary.base, and path separators are adapted to the
+	 * current platform.
 	 * 
 	 * @param property
 	 *            the property requested
 	 * @return the filename corresponding to the property value
 	 * @throws NoSuchPropertyException
-	 *             if the property is not defined or the value is not a valid filename
+	 *             if the property is not defined or the value is not a valid
+	 *             filename
 	 */
 	public static String needFilename(String property) throws NoSuchPropertyException {
 		String filename = expandPath(needProperty(property));
 		if (!new File(filename).canRead()) {
-			throw new NoSuchPropertyException("Cannot read file `" + filename + "'. Check property `" + property
-					+ "' in configuration files");
+			throw new NoSuchPropertyException(
+					"Cannot read file `" + filename + "'. Check property `" + property + "' in configuration files");
 		}
 		return filename;
 	}
 
 	/**
-	 * For the named property, attempt to get an open input stream. If the property value starts with "jar:", the remainder of the
-	 * value is interpreted as an absolute path in the classpath. Otherwise it is interpreted as a file name.
+	 * For the named property, attempt to get an open input stream. If the
+	 * property value starts with "jar:", the remainder of the value is
+	 * interpreted as an absolute path in the classpath. Otherwise it is
+	 * interpreted as a file name.
 	 * 
 	 * @param propertyName
-	 *            the name of a property defined in one of the mary config files.
+	 *            the name of a property defined in one of the mary config
+	 *            files.
 	 * @return an InputStream representing the given resource
 	 * @throws NoSuchPropertyException
 	 *             if the property is not defined
 	 * @throws FileNotFoundException
-	 *             if the property value is a file name and the file cannot be opened
+	 *             if the property value is a file name and the file cannot be
+	 *             opened
 	 * @throws MaryConfigurationException
-	 *             if the property value is a classpath entry which cannot be opened
+	 *             if the property value is a classpath entry which cannot be
+	 *             opened
 	 */
-	public static InputStream needStream(String propertyName) throws NoSuchPropertyException, FileNotFoundException,
-			MaryConfigurationException {
-		MaryProperties.needProperty(propertyName); // to throw exceptions if not defined
+	public static InputStream needStream(String propertyName)
+			throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
+		MaryProperties.needProperty(propertyName); // to throw exceptions if not
+													// defined
 		return getStream(propertyName);
 	}
 
 	/**
-	 * For the named property, attempt to get an open input stream. If the property value starts with "jar:", the remainder of the
-	 * value is interpreted as an absolute path in the classpath. Otherwise it is interpreted as a file name.
+	 * For the named property, attempt to get an open input stream. If the
+	 * property value starts with "jar:", the remainder of the value is
+	 * interpreted as an absolute path in the classpath. Otherwise it is
+	 * interpreted as a file name.
 	 * 
 	 * @param propertyName
-	 *            the name of a property defined in one of the mary config files.
-	 * @return an InputStream representing the given resource, or null if the property was not defined.
+	 *            the name of a property defined in one of the mary config
+	 *            files.
+	 * @return an InputStream representing the given resource, or null if the
+	 *         property was not defined.
 	 * @throws FileNotFoundException
-	 *             if the property value is a file name and the file cannot be opened
+	 *             if the property value is a file name and the file cannot be
+	 *             opened
 	 * @throws MaryConfigurationException
-	 *             if the property value is a classpath entry which cannot be opened
+	 *             if the property value is a classpath entry which cannot be
+	 *             opened
 	 */
 	public static InputStream getStream(String propertyName) throws FileNotFoundException, MaryConfigurationException {
 		InputStream stream;
@@ -433,8 +464,8 @@ public class MaryProperties {
 			String classpathLocation = propertyValue.substring("jar:".length());
 			stream = MaryProperties.class.getResourceAsStream(classpathLocation);
 			if (stream == null) {
-				throw new MaryConfigurationException("For property '" + propertyName + "', no classpath resource available at '"
-						+ classpathLocation + "'");
+				throw new MaryConfigurationException("For property '" + propertyName
+						+ "', no classpath resource available at '" + classpathLocation + "'");
 			}
 		} else {
 			String fileName = MaryProperties.getFilename(propertyName);
@@ -445,13 +476,15 @@ public class MaryProperties {
 	}
 
 	/**
-	 * Get a Class property from the underlying properties, throwing an exception if it is not defined.
+	 * Get a Class property from the underlying properties, throwing an
+	 * exception if it is not defined.
 	 * 
 	 * @param property
 	 *            the property requested
 	 * @return the Class corresponding to the property value
 	 * @throws NoSuchPropertyException
-	 *             if the property is not defined or the value is not a valid class
+	 *             if the property is not defined or the value is not a valid
+	 *             class
 	 */
 	public static Class needClass(String property) throws NoSuchPropertyException {
 		String value = needProperty(property);
@@ -459,15 +492,16 @@ public class MaryProperties {
 		try {
 			c = Class.forName(value);
 		} catch (ClassNotFoundException e) {
-			throw new NoSuchPropertyException("Cannot find class `" + value + "'. Check property `" + property
-					+ "' in configuration files");
+			throw new NoSuchPropertyException(
+					"Cannot find class `" + value + "'. Check property `" + property + "' in configuration files");
 		}
 		return c;
 	}
 
 	/**
-	 * Provide the config file prefix used for different locales in the config files. Will return the string representation of the
-	 * locale as produced by locale.toString(), e.g. "en_GB"; if locale is null, return null.
+	 * Provide the config file prefix used for different locales in the config
+	 * files. Will return the string representation of the locale as produced by
+	 * locale.toString(), e.g. "en_GB"; if locale is null, return null.
 	 * 
 	 * @param locale
 	 *            locale

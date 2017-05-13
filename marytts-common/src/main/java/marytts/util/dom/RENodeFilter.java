@@ -25,7 +25,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeFilter;
 
 /**
- * A NodeFilter accepting only nodes with names matching a given regular expression.
+ * A NodeFilter accepting only nodes with names matching a given regular
+ * expression.
  * 
  * @author Marc Schr&ouml;der
  */

@@ -29,8 +29,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
- * An implementation of a finite state transducer. This class does nothing but load and represent the FST. It is used by other
- * classes doing something reasonable with it.
+ * An implementation of a finite state transducer. This class does nothing but
+ * load and represent the FST. It is used by other classes doing something
+ * reasonable with it.
  * 
  * @author Andreas Eisele
  */
@@ -68,12 +69,14 @@ public class FST {
 	}
 
 	/**
-	 * Initialise the finite state transducer. Loads from headerless legacy file format.
+	 * Initialise the finite state transducer. Loads from headerless legacy file
+	 * format.
 	 * 
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param encoding
-	 *            the name of the encoding used in the file (e.g., UTF-8 or ISO-8859-1).
+	 *            the name of the encoding used in the file (e.g., UTF-8 or
+	 *            ISO-8859-1).
 	 * @throws IOException
 	 *             if the FST cannot be loaded from the given file.
 	 * @throws UnsupportedEncodingException
@@ -84,7 +87,8 @@ public class FST {
 	}
 
 	/**
-	 * Initialise the finite state transducer. This constructor will assume that the file uses the system default encoding.
+	 * Initialise the finite state transducer. This constructor will assume that
+	 * the file uses the system default encoding.
 	 * 
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
@@ -103,9 +107,11 @@ public class FST {
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param encoding
-	 *            the name of the encoding used in the file (e.g., UTF-8 or ISO-8859-1).
+	 *            the name of the encoding used in the file (e.g., UTF-8 or
+	 *            ISO-8859-1).
 	 * 
-	 *            This constructor is to be used for old FST-files where the encoding was not yet specified in the header.
+	 *            This constructor is to be used for old FST-files where the
+	 *            encoding was not yet specified in the header.
 	 * 
 	 * @param verbose
 	 *            whether to write a report to stderr after loading.
@@ -124,7 +130,8 @@ public class FST {
 	}
 
 	/**
-	 * Load the fst from the given input stream. Assumes headerless legacy file format.
+	 * Load the fst from the given input stream. Assumes headerless legacy file
+	 * format.
 	 * 
 	 * @param inStream
 	 *            inStream
@@ -195,8 +202,8 @@ public class FST {
 		createMapping(mapping, bytes, encoding);
 	}
 
-	private void loadHeaderless(InputStream inStream, String encoding, boolean verbose) throws IOException,
-			UnsupportedEncodingException {
+	private void loadHeaderless(InputStream inStream, String encoding, boolean verbose)
+			throws IOException, UnsupportedEncodingException {
 		int i;
 		DataInputStream in = new DataInputStream(new BufferedInputStream(inStream));
 		// int fileSize= (int) f.length();

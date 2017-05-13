@@ -64,12 +64,13 @@ public class JPhonemiser extends InternalModule {
 	protected AllophoneSet allophoneSet;
 
 	public JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
-		this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, propertyPrefix + "allophoneset", propertyPrefix
-				+ "userdict", propertyPrefix + "utf8toit3map");
+		this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES, propertyPrefix + "allophoneset",
+				propertyPrefix + "userdict", propertyPrefix + "utf8toit3map");
 	}
 
 	/**
-	 * Constructor providing the individual filenames of files that are required.
+	 * Constructor providing the individual filenames of files that are
+	 * required.
 	 * 
 	 * @param componentName
 	 *            componentName
@@ -167,17 +168,21 @@ public class JPhonemiser extends InternalModule {
 	}
 
 	/**
-	 * Phonemise the word text. This starts with a simple lexicon lookup, followed by some heuristics, and finally applies
-	 * letter-to-sound rules if nothing else was successful.
+	 * Phonemise the word text. This starts with a simple lexicon lookup,
+	 * followed by some heuristics, and finally applies letter-to-sound rules if
+	 * nothing else was successful.
 	 * 
 	 * @param text
 	 *            the textual (graphemic) form of a word.
 	 * @param pos
 	 *            the part-of-speech of the word
 	 * @param g2pMethod
-	 *            This is an awkward way to return a second String parameter via a StringBuilder. If a phonemisation of the text
-	 *            is found, this parameter will be filled with the method of phonemisation ("lexicon", ... "rules").
-	 * @return a phonemisation of the text if one can be generated, or null if no phonemisation method was successful.
+	 *            This is an awkward way to return a second String parameter via
+	 *            a StringBuilder. If a phonemisation of the text is found, this
+	 *            parameter will be filled with the method of phonemisation
+	 *            ("lexicon", ... "rules").
+	 * @return a phonemisation of the text if one can be generated, or null if
+	 *         no phonemisation method was successful.
 	 * @throws IOException
 	 *             IOException
 	 */
@@ -203,7 +208,8 @@ public class JPhonemiser extends InternalModule {
 	}
 
 	/**
-	 * look a given text up in the userdict. part-of-speech is used in case of ambiguity.
+	 * look a given text up in the userdict. part-of-speech is used in case of
+	 * ambiguity.
 	 * 
 	 * @param text
 	 *            IOException
@@ -252,7 +258,8 @@ public class JPhonemiser extends InternalModule {
 	 * 
 	 * graphemestring | phonestring | optional-parts-of-speech
 	 * 
-	 * The pos-item is optional. Different pos's belonging to one grapheme chain may be separated by whitespace
+	 * The pos-item is optional. Different pos's belonging to one grapheme chain
+	 * may be separated by whitespace
 	 * 
 	 * 
 	 * @param lexiconFilename
@@ -265,7 +272,8 @@ public class JPhonemiser extends InternalModule {
 		String line;
 		Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
 
-		BufferedReader lexiconFile = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
+		BufferedReader lexiconFile = new BufferedReader(
+				new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
 		while ((line = lexiconFile.readLine()) != null) {
 			// Ignore empty lines and comments:
 			if (line.trim().equals("") || line.startsWith("#"))
@@ -299,7 +307,8 @@ public class JPhonemiser extends InternalModule {
 
 	protected void setPh(Element t, String ph) {
 		if (!t.getTagName().equals(MaryXML.TOKEN))
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getTagName() + ".");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Only t elements allowed, received " + t.getTagName() + ".");
 		if (t.hasAttribute("ph")) {
 			String prevPh = t.getAttribute("ph");
 			// In previous sampa, replace star with sampa:

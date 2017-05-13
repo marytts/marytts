@@ -32,10 +32,13 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * A stub implementation of the MaryModule interface as a basis for internal modules.
+ * A stub implementation of the MaryModule interface as a basis for internal
+ * modules.
  * <p>
- * Any internal module extending this class will need to implement a constructor calling this class's constructor, and override
- * <code>process()</code> in a meaningful way. Care must be taken to make sure the <code>process()</code> method is thread-seafe.
+ * Any internal module extending this class will need to implement a constructor
+ * calling this class's constructor, and override <code>process()</code> in a
+ * meaningful way. Care must be taken to make sure the <code>process()</code>
+ * method is thread-seafe.
  * <p>
  * Example for a subclass:
  *
@@ -68,7 +71,8 @@ public class InternalModule implements MaryModule {
 	private Locale locale = null;
 	protected int state;
 	/**
-	 * The logger instance to be used by this module. It will identify the origin of the log message in the log file.
+	 * The logger instance to be used by this module. It will identify the
+	 * origin of the log message in the log file.
 	 */
 	protected Logger logger;
 
@@ -106,14 +110,19 @@ public class InternalModule implements MaryModule {
 	}
 
 	/**
-	 * Perform this module's processing on abstract "MaryData" input <code>d</code>. Subclasses need to make sure that the
-	 * <code>process()</code> method is thread-safe, because in server-mode, it will be called from different threads at the same
-	 * time. A sensible way to do this seems to be not to use any global or static variables, or to use them read-only.
+	 * Perform this module's processing on abstract "MaryData" input
+	 * <code>d</code>. Subclasses need to make sure that the
+	 * <code>process()</code> method is thread-safe, because in server-mode, it
+	 * will be called from different threads at the same time. A sensible way to
+	 * do this seems to be not to use any global or static variables, or to use
+	 * them read-only.
 	 * <p>
 	 *
-	 * @return A MaryData object of type <code>outputType()</code> encapsulating the processing result.
+	 * @return A MaryData object of type <code>outputType()</code> encapsulating
+	 *         the processing result.
 	 *         <p>
-	 *         This method just returns its input. Subclasses should override this.
+	 *         This method just returns its input. Subclasses should override
+	 *         this.
 	 */
 	public MaryData process(MaryData d) throws Exception {
 		return d; // just return input.

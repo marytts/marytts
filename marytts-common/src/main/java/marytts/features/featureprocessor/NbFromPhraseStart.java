@@ -14,30 +14,29 @@ import marytts.features.FeatureProcessor;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class NbFromPhraseStart implements FeatureProcessor
-{
-    public Feature generate(Utterance utt, Item item) throws Exception
-    {
-        if (item instanceof Phrase)
-            throw new Exception();
+public class NbFromPhraseStart implements FeatureProcessor {
+	public Feature generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof Phrase)
+			throw new Exception();
 
-        Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHRASE));
-        int item_idx = seq_item.indexOf(item);
+		Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
+		Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHRASE));
+		int item_idx = seq_item.indexOf(item);
 
-        // Find the related phrase
-        int[] phr_indexes = rel.getRelatedIndexes(item_idx);
-        if (phr_indexes.length <= 0)
-            return Feature.UNDEF_FEATURE;
+		// Find the related phrase
+		int[] phr_indexes = rel.getRelatedIndexes(item_idx);
+		if (phr_indexes.length <= 0)
+			return Feature.UNDEF_FEATURE;
 
-        // Finding the items related to the related phrase
-        int[] item_indexes = rel.getSourceRelatedIndexes(phr_indexes[0]);
-        if (item_indexes.length <= 0)
-            return Feature.UNDEF_FEATURE;
+		// Finding the items related to the related phrase
+		int[] item_indexes = rel.getSourceRelatedIndexes(phr_indexes[0]);
+		if (item_indexes.length <= 0)
+			return Feature.UNDEF_FEATURE;
 
-        int nb = item_idx - item_indexes[0];
-        return new Feature(nb);
-    }
+		int nb = item_idx - item_indexes[0];
+		return new Feature(nb);
+	}
 }

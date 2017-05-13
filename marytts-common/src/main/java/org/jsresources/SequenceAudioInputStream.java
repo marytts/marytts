@@ -85,12 +85,14 @@ public class SequenceAudioInputStream extends AudioInputStream {
 		int nByte = stream.read();
 		if (nByte == -1) {
 			/*
-			 * The end of the current stream has been signaled. We try to advance to the next stream.
+			 * The end of the current stream has been signaled. We try to
+			 * advance to the next stream.
 			 */
 			boolean bAnotherStreamAvailable = advanceStream();
 			if (bAnotherStreamAvailable) {
 				/*
-				 * There is another stream. We recurse into this method to read from it.
+				 * There is another stream. We recurse into this method to read
+				 * from it.
 				 */
 				return read();
 			} else {
@@ -112,12 +114,14 @@ public class SequenceAudioInputStream extends AudioInputStream {
 		int nBytesRead = stream.read(abData, nOffset, nLength);
 		if (nBytesRead == -1) {
 			/*
-			 * The end of the current stream has been signaled. We try to advance to the next stream.
+			 * The end of the current stream has been signaled. We try to
+			 * advance to the next stream.
 			 */
 			boolean bAnotherStreamAvailable = advanceStream();
 			if (bAnotherStreamAvailable) {
 				/*
-				 * There is another stream. We recurse into this method to read from it.
+				 * There is another stream. We recurse into this method to read
+				 * from it.
 				 */
 				return read(abData, nOffset, nLength);
 			} else {
@@ -147,11 +151,13 @@ public class SequenceAudioInputStream extends AudioInputStream {
 	}
 
 	public void mark(int nReadLimit) {
-		throw new RuntimeException("mark() is not implemented in class SequenceInputStream. Mail if you need this feature.");
+		throw new RuntimeException(
+				"mark() is not implemented in class SequenceInputStream. Mail if you need this feature.");
 	}
 
 	public void reset() throws IOException {
-		throw new IOException("reset() is not implemented in class SequenceInputStream. Mail if you need this feature.");
+		throw new IOException(
+				"reset() is not implemented in class SequenceInputStream. Mail if you need this feature.");
 	}
 
 	public boolean markSupported() {

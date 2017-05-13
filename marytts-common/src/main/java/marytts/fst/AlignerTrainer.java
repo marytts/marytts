@@ -33,16 +33,20 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * This trains an alignment model between Strings. Applications are for example letter-to-sound rule training (see LTSTrainer) or
- * transducer construction/minimization.
+ * This trains an alignment model between Strings. Applications are for example
+ * letter-to-sound rule training (see LTSTrainer) or transducer
+ * construction/minimization.
  * <p>
- * The basic idea is to perform a Levenshtein search for the cheapest path and read off an alignment from that. The costs used in
- * the distance computation are not uniform but estimated in an iterative process, according to -log of the relative frequencies
- * of the respective operations in the previous iteration. Perform several iterations (e.g. 4) of aligning in order to get stable
- * estimates of the costs (and a good alignment in turn).
+ * The basic idea is to perform a Levenshtein search for the cheapest path and
+ * read off an alignment from that. The costs used in the distance computation
+ * are not uniform but estimated in an iterative process, according to -log of
+ * the relative frequencies of the respective operations in the previous
+ * iteration. Perform several iterations (e.g. 4) of aligning in order to get
+ * stable estimates of the costs (and a good alignment in turn).
  * <p>
- * The algorithm, in its essence, is implemented after a description of Levenshtein distance as it can be found in Wikipedia (see
- * below); consider the costs used in the pseudo-code:
+ * The algorithm, in its essence, is implemented after a description of
+ * Levenshtein distance as it can be found in Wikipedia (see below); consider
+ * the costs used in the pseudo-code:
  * 
  * <pre>
  * d[i, j] := minimum
@@ -53,26 +57,33 @@ import org.apache.log4j.Logger;
  * )
  * </pre>
  *
- * In our implementation there are only two operations, corresponding to deletion and insertion. So, if you look at the matrices
- * in the wiki article, you can only go down and to the right, but not diagonal. Second, the costs are not 1 but set as explained
- * in the following (note that this is a heuristic that seems to work fine but <em>not</em> a derived EM-algorithm).
+ * In our implementation there are only two operations, corresponding to
+ * deletion and insertion. So, if you look at the matrices in the wiki article,
+ * you can only go down and to the right, but not diagonal. Second, the costs
+ * are not 1 but set as explained in the following (note that this is a
+ * heuristic that seems to work fine but <em>not</em> a derived EM-algorithm).
  * <p>
- * "insertion" menas in our case, to insert something for (dependent on) the current input symbol. The cost for this operation is
- * lower if the two symbols were already aligned in the preceding iteration, they are set to -log
+ * "insertion" menas in our case, to insert something for (dependent on) the
+ * current input symbol. The cost for this operation is lower if the two symbols
+ * were already aligned in the preceding iteration, they are set to -log
  * P(output-symbol|"insertion",input-symbol).
  * <p>
- * "deletion" means in our case to go to the next input symbol. If a deletion operation is performed without an preceding
- * insertion operation (i.e. two subsequent deletion operations) this is called a "skip" and will produce costs, going to the next
- * symbol after an insertion is free (this is to avoid unaligned input symbols). The skip costs are estimated from the preceding
+ * "deletion" means in our case to go to the next input symbol. If a deletion
+ * operation is performed without an preceding insertion operation (i.e. two
+ * subsequent deletion operations) this is called a "skip" and will produce
+ * costs, going to the next symbol after an insertion is free (this is to avoid
+ * unaligned input symbols). The skip costs are estimated from the preceding
  * iteration and set to -log P(skip|"deletion").
  * <p>
- * In addition, I made the following optimization, described in Wikipedia: <blockquote>We can adapt the algorithm to use less
- * space, O(m) instead of O(mn), since it only requires that the previous row and current row be stored at any one time.
- * </blockquote> therefore the three arrays for all information and the swapping statements in the align method. (note that what
- * are rows in Wikipedia are columns here)
+ * In addition, I made the following optimization, described in Wikipedia:
+ * <blockquote>We can adapt the algorithm to use less space, O(m) instead of
+ * O(mn), since it only requires that the previous row and current row be stored
+ * at any one time. </blockquote> therefore the three arrays for all information
+ * and the swapping statements in the align method. (note that what are rows in
+ * Wikipedia are columns here)
  * 
- * @see <a
- *      href="http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance">Computing
+ * @see <a href=
+ *      "http://en.wikipedia.org/w/index.php?title=Levenshtein_distance&oldid=349201802#Computing_Levenshtein_distance">Computing
  *      Levenshtein distance</a>
  * @author benjaminroth
  *
@@ -104,8 +115,9 @@ public class AlignerTrainer {
 	/**
 	 * 
 	 * @param inIsOutAlphabet
-	 *            boolean indicating as input and output strings should be considered as belonging to the same symbol sets
-	 *            (alignment between identical symbol is then cost-free)
+	 *            boolean indicating as input and output strings should be
+	 *            considered as belonging to the same symbol sets (alignment
+	 *            between identical symbol is then cost-free)
 	 * @param hasOptInfo
 	 *            has opt info
 	 */
@@ -128,7 +140,8 @@ public class AlignerTrainer {
 	}
 
 	/**
-	 * New AlignerTrainer for pairs of different symbol sets with no optional info.
+	 * New AlignerTrainer for pairs of different symbol sets with no optional
+	 * info.
 	 */
 	public AlignerTrainer() {
 		this(false, false);
@@ -137,9 +150,11 @@ public class AlignerTrainer {
 
 	/**
 	 * 
-	 * This reads a lexicon where input and output strings are separated by a delimiter that can be specified (splitSym). Strings
-	 * are taken as they are no normalization (eg. stress/syllable symbol removal, lower-casing ...) is performed; if space
-	 * characters are present in the output string, it is used as a separator. In a third row additional info (eg. part of speech)
+	 * This reads a lexicon where input and output strings are separated by a
+	 * delimiter that can be specified (splitSym). Strings are taken as they are
+	 * no normalization (eg. stress/syllable symbol removal, lower-casing ...)
+	 * is performed; if space characters are present in the output string, it is
+	 * used as a separator. In a third row additional info (eg. part of speech)
 	 * can be given. Strings are stored split into symbols.
 	 * 
 	 * @param lexicon
@@ -166,9 +181,10 @@ public class AlignerTrainer {
 	}
 
 	/**
-	 * This adds the input and output string in the most simple way: symbols are simply the characters of the strings - no
-	 * phonemisation/syllabification or whatsoever is performed. If outStr contains space characters, it is used as a separator
-	 * for splitting.
+	 * This adds the input and output string in the most simple way: symbols are
+	 * simply the characters of the strings - no phonemisation/syllabification
+	 * or whatsoever is performed. If outStr contains space characters, it is
+	 * used as a separator for splitting.
 	 * 
 	 * @param inStr
 	 *            inStr
@@ -202,8 +218,8 @@ public class AlignerTrainer {
 	}
 
 	public void addAlreadySplit(List<String> inStr, List<String> outStr) {
-		this.inSplit.add(inStr.toArray(new String[] {}));
-		this.outSplit.add(outStr.toArray(new String[] {}));
+		this.inSplit.add(inStr.toArray(new String[]{}));
+		this.outSplit.add(outStr.toArray(new String[]{}));
 	}
 
 	public void addAlreadySplit(String[] inStr, String[] outStr) {
@@ -212,8 +228,8 @@ public class AlignerTrainer {
 	}
 
 	public void addAlreadySplit(List<String> inStr, List<String> outStr, String optionalInfo) {
-		this.inSplit.add(inStr.toArray(new String[] {}));
-		this.outSplit.add(outStr.toArray(new String[] {}));
+		this.inSplit.add(inStr.toArray(new String[]{}));
+		this.outSplit.add(outStr.toArray(new String[]{}));
 		this.optInfo.add(optionalInfo);
 	}
 
@@ -224,9 +240,11 @@ public class AlignerTrainer {
 	}
 
 	/**
-	 * One iteration of alignment, using adapted Levenshtein distance. After the iteration, the costs between a grapheme and a
-	 * phone are set by the log probability of the phone given the grapheme. Analogously, The deletion cost is set by the log of
-	 * deletion probability. In the first iteration, all operations cost maxCost.
+	 * One iteration of alignment, using adapted Levenshtein distance. After the
+	 * iteration, the costs between a grapheme and a phone are set by the log
+	 * probability of the phone given the grapheme. Analogously, The deletion
+	 * cost is set by the log of deletion probability. In the first iteration,
+	 * all operations cost maxCost.
 	 *
 	 */
 	public void alignIteration() {
@@ -234,7 +252,8 @@ public class AlignerTrainer {
 		// this counts how many times a symbol is mapped to symbols
 		Map<String, Integer> symMapCount = new HashMap<String, Integer>();
 
-		// this counts how often particular mappings from one symbol to another occurred
+		// this counts how often particular mappings from one symbol to another
+		// occurred
 		Map<StringPair, Integer> sym2symCount = new HashMap<StringPair, Integer>();
 
 		// how many symbols are on input side
@@ -317,9 +336,10 @@ public class AlignerTrainer {
 
 	/**
 	 *
-	 * gets an alignment of the graphemes to the phones of an entry. a StringPair array is returned, where every entry contains a
-	 * grapheme together with the phone sequence it is mapped to. The phone String is just the concatenation of the symbols in the
-	 * aligned sequence.
+	 * gets an alignment of the graphemes to the phones of an entry. a
+	 * StringPair array is returned, where every entry contains a grapheme
+	 * together with the phone sequence it is mapped to. The phone String is
+	 * just the concatenation of the symbols in the aligned sequence.
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
@@ -375,9 +395,12 @@ public class AlignerTrainer {
 
 	/**
 	 *
-	 * gets an alignment of the graphemes to the phones of an entry. a StringPair array is returned, where every entry contains a
-	 * grapheme together with the phone sequence it is mapped to. The phone String is just the concatenation of the symbols in the
-	 * aligned sequence. In addition, the extra info (eg. POS) is appended as one symbol on the input side.
+	 * gets an alignment of the graphemes to the phones of an entry. a
+	 * StringPair array is returned, where every entry contains a grapheme
+	 * together with the phone sequence it is mapped to. The phone String is
+	 * just the concatenation of the symbols in the aligned sequence. In
+	 * addition, the extra info (eg. POS) is appended as one symbol on the input
+	 * side.
 	 *
 	 * @param entryNr
 	 *            nr of the lexicon entry
@@ -452,16 +475,20 @@ public class AlignerTrainer {
 
 	/**
 	 *
-	 * This computes the alignment that has the lowest distance between two Strings.
+	 * This computes the alignment that has the lowest distance between two
+	 * Strings.
 	 *
 	 * There are three differences to the normal Levenshtein-distance:
 	 *
-	 * 1. Only insertions and deletions are allowed, no replacements (i.e. no "diagonal" transitions) 2. insertion costs are
-	 * dependent on a particular phone on the input side (the one they are aligned to) 3. deletion is equivalent to a symbol on
-	 * the input side that is not aligned. There are costs associated with that.
+	 * 1. Only insertions and deletions are allowed, no replacements (i.e. no
+	 * "diagonal" transitions) 2. insertion costs are dependent on a particular
+	 * phone on the input side (the one they are aligned to) 3. deletion is
+	 * equivalent to a symbol on the input side that is not aligned. There are
+	 * costs associated with that.
 	 *
-	 * The method returns for each input symbol the indix of the right alignment boundary. eg. for input ['a','b'] and output
-	 * ['a','a','b'] a correct alignment would be: [2,3]
+	 * The method returns for each input symbol the indix of the right alignment
+	 * boundary. eg. for input ['a','b'] and output ['a','a','b'] a correct
+	 * alignment would be: [2,3]
 	 *
 	 * @param istr
 	 *            the input string
@@ -481,7 +508,8 @@ public class AlignerTrainer {
 		// 3. dummy array for swapping, when switching to new column
 		int[] _d;
 
-		// array indicating if a skip was performed (= if current character has not been aligned)
+		// array indicating if a skip was performed (= if current character has
+		// not been aligned)
 		// same arrays as for distances
 		boolean[] p_sk = new boolean[ostr.length + 1];
 		boolean[] sk = new boolean[ostr.length + 1];

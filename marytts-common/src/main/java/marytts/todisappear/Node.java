@@ -45,7 +45,8 @@ public abstract class Node {
 	protected int nodeIndex;
 
 	/**
-	 * set the mother node of this node, and remember this node's index in mother.
+	 * set the mother node of this node, and remember this node's index in
+	 * mother.
 	 *
 	 * @param node
 	 *            the mother node
@@ -129,39 +130,49 @@ public abstract class Node {
 	}
 
 	/**
-	 * Count all the nodes at and below this node. A leaf will return 1; the root node will report the total number of decision
-	 * and leaf nodes in the tree.
+	 * Count all the nodes at and below this node. A leaf will return 1; the
+	 * root node will report the total number of decision and leaf nodes in the
+	 * tree.
 	 *
 	 * @return number of nodes
 	 */
 	public abstract int getNumberOfNodes();
 
 	/**
-	 * Count all the data available at and below this node. The meaning of this depends on the type of nodes; for example, when
-	 * IntArrayLeafNodes are used, it is the total number of ints that are saved in all leaf nodes below the current node.
+	 * Count all the data available at and below this node. The meaning of this
+	 * depends on the type of nodes; for example, when IntArrayLeafNodes are
+	 * used, it is the total number of ints that are saved in all leaf nodes
+	 * below the current node.
 	 *
-	 * @return an int counting the data below the current node, or -1 if such a concept is not meaningful.
+	 * @return an int counting the data below the current node, or -1 if such a
+	 *         concept is not meaningful.
 	 */
 	public abstract int getNumberOfData();
 
 	/**
-	 * Get all the data at or below this node. The type of data returned depends on the type of nodes; for example, when
-	 * IntArrayLeafNodes are used, one int[] is returned which contains all int values in all leaf nodes below the current node.
+	 * Get all the data at or below this node. The type of data returned depends
+	 * on the type of nodes; for example, when IntArrayLeafNodes are used, one
+	 * int[] is returned which contains all int values in all leaf nodes below
+	 * the current node.
 	 *
-	 * @return an object containing all data below the current node, or null if such a concept is not meaningful.
+	 * @return an object containing all data below the current node, or null if
+	 *         such a concept is not meaningful.
 	 */
 	public abstract Object getAllData();
 
 	/**
-	 * Write this node's data into the target object at pos, making sure that exactly len data are written. The type of data
-	 * written depends on the type of nodes; for example, when IntArrayLeafNodes are used, target would be an int[].
+	 * Write this node's data into the target object at pos, making sure that
+	 * exactly len data are written. The type of data written depends on the
+	 * type of nodes; for example, when IntArrayLeafNodes are used, target would
+	 * be an int[].
 	 *
 	 * @param target
 	 *            the object to write to, usually an array.
 	 * @param pos
 	 *            the position in the target at which to start writing
 	 * @param len
-	 *            the amount of data items to write, usually equals getNumberOfData().
+	 *            the amount of data items to write, usually equals
+	 *            getNumberOfData().
 	 */
 	protected abstract void fillData(Object target, int pos, int len);
 

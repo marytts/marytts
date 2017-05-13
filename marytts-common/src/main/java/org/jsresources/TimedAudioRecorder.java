@@ -58,26 +58,30 @@ import javax.sound.sampled.TargetDataLine;
  * </p>
  * 
  * <p>
- * Purpose: Records audio data and stores it in a file. The data is recorded in CD quality (44.1 kHz, 16 bit linear, stereo) and
- * stored in a .wav file.
+ * Purpose: Records audio data and stores it in a file. The data is recorded in
+ * CD quality (44.1 kHz, 16 bit linear, stereo) and stored in a .wav file.
  * </p>
  * 
  * <p>
- * Usage: java TimedAudioRecorder choice="plain" -h java TimedAudioRecorder choice="plain" audiofile
+ * Usage: java TimedAudioRecorder choice="plain" -h java TimedAudioRecorder
+ * choice="plain" audiofile
  * </p>
  * 
  * <p>
- * Parameters: -h print usage information, then exit audiofile the file name of the audio file that should be produced from the
- * recorded data
+ * Parameters: -h print usage information, then exit audiofile the file name of
+ * the audio file that should be produced from the recorded data
  * </p>
  * 
  * <p>
- * Bugs, limitations: You cannot select audio formats and the audio file type on the command line. See AudioRecorder for a version
- * that has more advanced options. Due to a bug in the Sun jdk1.3/1.4, this program does not work with it.
+ * Bugs, limitations: You cannot select audio formats and the audio file type on
+ * the command line. See AudioRecorder for a version that has more advanced
+ * options. Due to a bug in the Sun jdk1.3/1.4, this program does not work with
+ * it.
  * </p>
  * 
  * <p>
- * Source code: <a href="TimedAudioRecorder.java.html">TimedAudioRecorder.java </a>
+ * Source code: <a href="TimedAudioRecorder.java.html">TimedAudioRecorder.java
+ * </a>
  * </p>
  * 
  */
@@ -101,18 +105,20 @@ public class TimedAudioRecorder extends Thread {
 	}
 
 	/**
-	 * Starts the recording. To accomplish this, (i) the line is started and (ii) the thread is started.
+	 * Starts the recording. To accomplish this, (i) the line is started and
+	 * (ii) the thread is started.
 	 */
 	public void start() {
 		/*
-		 * Starting the TargetDataLine. It tells the line that we now want to read data from it. If this method isn't called, we
-		 * won't be able to read data from the line at all.
+		 * Starting the TargetDataLine. It tells the line that we now want to
+		 * read data from it. If this method isn't called, we won't be able to
+		 * read data from the line at all.
 		 */
 		m_line.start();
 
 		/*
-		 * Starting the thread. This call results in the method 'run()' (see below) being called. There, the data is actually read
-		 * from the line.
+		 * Starting the thread. This call results in the method 'run()' (see
+		 * below) being called. There, the data is actually read from the line.
 		 */
 		super.start();
 	}
@@ -120,13 +126,16 @@ public class TimedAudioRecorder extends Thread {
 	/**
 	 * Stops the recording.
 	 * 
-	 * Note that stopping the thread explicitely is not necessary. Once no more data can be read from the TargetDataLine, no more
-	 * data be read from our AudioInputStream. And if there is no more data from the AudioInputStream, the method
-	 * 'AudioSystem.write()' (called in 'run()' returns. Returning from 'AudioSystem.write()' is followed by returning from
-	 * 'run()', and thus, the thread is terminated automatically.
+	 * Note that stopping the thread explicitely is not necessary. Once no more
+	 * data can be read from the TargetDataLine, no more data be read from our
+	 * AudioInputStream. And if there is no more data from the AudioInputStream,
+	 * the method 'AudioSystem.write()' (called in 'run()' returns. Returning
+	 * from 'AudioSystem.write()' is followed by returning from 'run()', and
+	 * thus, the thread is terminated automatically.
 	 * 
-	 * It's not a good idea to call this method just 'stop()' because stop() is a (deprecated) method of the class 'Thread'. And
-	 * we don't want to override this method.
+	 * It's not a good idea to call this method just 'stop()' because stop() is
+	 * a (deprecated) method of the class 'Thread'. And we don't want to
+	 * override this method.
 	 */
 	public void stopRecording() {
 		m_line.stop();
@@ -134,13 +143,18 @@ public class TimedAudioRecorder extends Thread {
 	}
 
 	/**
-	 * Main working method. You may be surprised that here, just 'AudioSystem.write()' is called. But internally, it works like
-	 * this: AudioSystem.write() contains a loop that is trying to read from the passed AudioInputStream. Since we have a special
-	 * AudioInputStream that gets its data from a TargetDataLine, reading from the AudioInputStream leads to reading from the
-	 * TargetDataLine. The data read this way is then written to the passed File. Before writing of audio data starts, a header is
-	 * written according to the desired audio file type. Reading continues untill no more data can be read from the
-	 * AudioInputStream. In our case, this happens if no more data can be read from the TargetDataLine. This, in turn, happens if
-	 * the TargetDataLine is stopped or closed (which implies stopping). (Also see the comment above.) Then, the file is closed
+	 * Main working method. You may be surprised that here, just
+	 * 'AudioSystem.write()' is called. But internally, it works like this:
+	 * AudioSystem.write() contains a loop that is trying to read from the
+	 * passed AudioInputStream. Since we have a special AudioInputStream that
+	 * gets its data from a TargetDataLine, reading from the AudioInputStream
+	 * leads to reading from the TargetDataLine. The data read this way is then
+	 * written to the passed File. Before writing of audio data starts, a header
+	 * is written according to the desired audio file type. Reading continues
+	 * untill no more data can be read from the AudioInputStream. In our case,
+	 * this happens if no more data can be read from the TargetDataLine. This,
+	 * in turn, happens if the TargetDataLine is stopped or closed (which
+	 * implies stopping). (Also see the comment above.) Then, the file is closed
 	 * and 'AudioSystem.write()' returns.
 	 */
 	public void run() {
@@ -190,17 +204,19 @@ public class TimedAudioRecorder extends Thread {
 			}
 		}
 		/*
-		 * We have made shure that there is only one command line argument. This is taken as the filename of the soundfile to
-		 * store to.
+		 * We have made shure that there is only one command line argument. This
+		 * is taken as the filename of the soundfile to store to.
 		 */
 		String strFilename = args[args.length - 1];
 		File outputFile = new File(strFilename);
 
-		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, channels, 2 * channels, rate, false);
+		AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, channels, 2 * channels,
+				rate, false);
 
 		/*
-		 * Now, we are trying to get a TargetDataLine. The TargetDataLine is used later to read audio data from it. If requesting
-		 * the line was successful, we are opening it (important!).
+		 * Now, we are trying to get a TargetDataLine. The TargetDataLine is
+		 * used later to read audio data from it. If requesting the line was
+		 * successful, we are opening it (important!).
 		 */
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
 		TargetDataLine targetDataLine = null;
@@ -219,8 +235,9 @@ public class TimedAudioRecorder extends Thread {
 		AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
 
 		/*
-		 * Now, we are creating an SimpleAudioRecorder object. It contains the logic of starting and stopping the recording,
-		 * reading audio data from the TargetDataLine and writing the data to a file.
+		 * Now, we are creating an SimpleAudioRecorder object. It contains the
+		 * logic of starting and stopping the recording, reading audio data from
+		 * the TargetDataLine and writing the data to a file.
 		 */
 		TimedAudioRecorder recorder = new TimedAudioRecorder(targetDataLine, targetType, outputFile, duration);
 
@@ -250,4 +267,3 @@ public class TimedAudioRecorder extends Thread {
 }
 
 /** * SimpleAudioRecorder.java ** */
-

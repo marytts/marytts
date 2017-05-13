@@ -23,13 +23,18 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * Compact representation of a list of byte-valued, short-valued and float-valued (continuous) features. In the user interface,
- * features are identified through one index number, covering all three types of features. For example, a feature vector
- * consisting of three bytes, four shorts and two floats will have nine features. Use getByteFeature(), getShortFeature() and
- * getContinuousFeature() to access the features as primitives; note that you have to respect the index restrictions, i.e. in the
- * example, calling getShortFeature(6) would be OK, but getShortFeature(2) or getShortFeature(8) would throw an
- * IndexOutOfBoundsException. Use isShortFeature(i) to test whether a given feature is a short feature. Alternatively, you can use
- * an Object interface to access all features in a uniform way: getFeature(i) will return a Number object for all valid indexes.
+ * Compact representation of a list of byte-valued, short-valued and
+ * float-valued (continuous) features. In the user interface, features are
+ * identified through one index number, covering all three types of features.
+ * For example, a feature vector consisting of three bytes, four shorts and two
+ * floats will have nine features. Use getByteFeature(), getShortFeature() and
+ * getContinuousFeature() to access the features as primitives; note that you
+ * have to respect the index restrictions, i.e. in the example, calling
+ * getShortFeature(6) would be OK, but getShortFeature(2) or getShortFeature(8)
+ * would throw an IndexOutOfBoundsException. Use isShortFeature(i) to test
+ * whether a given feature is a short feature. Alternatively, you can use an
+ * Object interface to access all features in a uniform way: getFeature(i) will
+ * return a Number object for all valid indexes.
  *
  * @author Marc Schr&ouml;der
  *
@@ -44,13 +49,14 @@ public class FeatureVector {
 	public final short[] shortValuedDiscreteFeatures;
 	public final float[] continuousFeatures;
 
-	public FeatureVector(byte[] byteValuedDiscreteFeatures, short[] shortValuedDiscreteFeatures, float[] continuousFeatures,
-			int setUnitIndex) {
+	public FeatureVector(byte[] byteValuedDiscreteFeatures, short[] shortValuedDiscreteFeatures,
+			float[] continuousFeatures, int setUnitIndex) {
 		this.byteValuedDiscreteFeatures = byteValuedDiscreteFeatures;
 		this.shortValuedDiscreteFeatures = shortValuedDiscreteFeatures;
 		this.continuousFeatures = continuousFeatures;
 		if (setUnitIndex < 0) {
-			throw new RuntimeException("The unit index can't be negative or null when instanciating a new feature vector.");
+			throw new RuntimeException(
+					"The unit index can't be negative or null when instanciating a new feature vector.");
 		}
 		this.unitIndex = setUnitIndex;
 	}
@@ -69,9 +75,8 @@ public class FeatureVector {
 
 	public FeatureType getFeatureType(int featureIndex) {
 		FeatureType t = null;
-		if (featureIndex < 0
-				|| featureIndex >= byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length
-						+ continuousFeatures.length) {
+		if (featureIndex < 0 || featureIndex >= byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length
+				+ continuousFeatures.length) {
 			throw new IllegalArgumentException("Index " + featureIndex + " is out of range [0, " + getLength() + "[");
 		}
 		if (featureIndex < byteValuedDiscreteFeatures.length) {
@@ -135,8 +140,8 @@ public class FeatureVector {
 	 *
 	 * @param index
 	 *            a feature index between 0 and getLength()-1
-	 * @return a Number object, which will be a Byte, a Short or a Float depending on the type of the feature with the given index
-	 *         number.
+	 * @return a Number object, which will be a Byte, a Short or a Float
+	 *         depending on the type of the feature with the given index number.
 	 */
 	public Number getFeature(int index) {
 		if (index < byteValuedDiscreteFeatures.length)
@@ -151,7 +156,8 @@ public class FeatureVector {
 	}
 
 	/**
-	 * A wrapper to getFeature(), to get the result as an int value, e.g., for subsequent array indexing.
+	 * A wrapper to getFeature(), to get the result as an int value, e.g., for
+	 * subsequent array indexing.
 	 *
 	 * @param index
 	 *            A feature index between 0 and getLength()-1.
@@ -164,12 +170,14 @@ public class FeatureVector {
 	}
 
 	/**
-	 * A wrapper to getFeature(), to get the result as an String value, e.g., for subsequent System.out output.
+	 * A wrapper to getFeature(), to get the result as an String value, e.g.,
+	 * for subsequent System.out output.
 	 *
 	 * @param index
 	 *            A feature index between 0 and getLength()-1.
 	 * @param feaDef
-	 *            A FeatureDefinition object allowing to decode the feature value.
+	 *            A FeatureDefinition object allowing to decode the feature
+	 *            value.
 	 * @return The feature value, as a String.
 	 *
 	 * @see FeatureVector#getFeature(int)
@@ -184,10 +192,12 @@ public class FeatureVector {
 	 * An efficient way to access byte-valued features in this feature vector.
 	 *
 	 * @param index
-	 *            the index number of the byte-valued feature in this feature vector.
+	 *            the index number of the byte-valued feature in this feature
+	 *            vector.
 	 * @return the byte value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index&lt;0 or index &ge; getNumberOfByteFeatures(). check {@link #getNumberOfByteFeatures()} . check
+	 *             if index&lt;0 or index &ge; getNumberOfByteFeatures(). check
+	 *             {@link #getNumberOfByteFeatures()} . check
 	 *             {@link #isByteFeature(int index)} .
 	 */
 	public final byte getByteFeature(int index) {
@@ -201,10 +211,12 @@ public class FeatureVector {
 	 * An efficient way to access short-valued features in this feature vector.
 	 *
 	 * @param index
-	 *            the index number of the short-valued feature in this feature vector.
+	 *            the index number of the short-valued feature in this feature
+	 *            vector.
 	 * @return the short value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index&lt;getNumberOfByteFeatures() or index &ge; getNumberOfByteFeatures()+getNumberOfShortFeatures().
+	 *             if index&lt;getNumberOfByteFeatures() or index &ge;
+	 *             getNumberOfByteFeatures()+getNumberOfShortFeatures().
 	 * @see #getNumberOfByteFeatures()
 	 * @see #getNumberOfShortFeatures()
 	 * @see #isShortFeature(int index)
@@ -217,10 +229,13 @@ public class FeatureVector {
 	 * An efficient way to access continuous features in this feature vector.
 	 *
 	 * @param index
-	 *            the index number of the continuous feature in this feature vector.
+	 *            the index number of the continuous feature in this feature
+	 *            vector.
 	 * @return the float value of the feature with the given index.
 	 * @throws IndexOutOfBoundsException
-	 *             if index&lt;getNumberOfByteFeatures()+getNumberOfShortFeatures() or index &ge; getLength().
+	 *             if
+	 *             index&lt;getNumberOfByteFeatures()+getNumberOfShortFeatures()
+	 *             or index &ge; getLength().
 	 * @see #getNumberOfByteFeatures()
 	 * @see #getNumberOfShortFeatures()
 	 * @see #getNumberOfContinuousFeatures()
@@ -236,8 +251,9 @@ public class FeatureVector {
 	 *
 	 * @param index
 	 *            index
-	 * @return This will return true exactly if getByteFeature(index) would return a value without throwing an exception, i.e. if
-	 *         index&ge;0 and index &lt; getNumberOfByteFeatures().
+	 * @return This will return true exactly if getByteFeature(index) would
+	 *         return a value without throwing an exception, i.e. if index&ge;0
+	 *         and index &lt; getNumberOfByteFeatures().
 	 */
 	public boolean isByteFeature(int index) {
 		return 0 <= index && index < byteValuedDiscreteFeatures.length;
@@ -248,8 +264,10 @@ public class FeatureVector {
 	 *
 	 * @param index
 	 *            index
-	 * @return This will return true exactly if getShortFeature(index) would return a value without throwing an exception, i.e. if
-	 *         index&ge;getNumberOfByteFeatures() and index &lt; getNumberOfByteFeatures()+getNumberOfShortFeatures().
+	 * @return This will return true exactly if getShortFeature(index) would
+	 *         return a value without throwing an exception, i.e. if
+	 *         index&ge;getNumberOfByteFeatures() and index &lt;
+	 *         getNumberOfByteFeatures()+getNumberOfShortFeatures().
 	 */
 	public boolean isShortFeature(int index) {
 		return byteValuedDiscreteFeatures.length <= index
@@ -257,16 +275,20 @@ public class FeatureVector {
 	}
 
 	/**
-	 * Test whether the feature with the given index number is a continuous feature.
+	 * Test whether the feature with the given index number is a continuous
+	 * feature.
 	 *
 	 * @param index
 	 *            index
-	 * @return This will return true exactly if getContinuousFeature(index) would return a value without throwing an exception,
-	 *         i.e. if index&ge;getNumberOfByteFeatures()+getNumberOfShortFeatures() and index &lt; getLength().
+	 * @return This will return true exactly if getContinuousFeature(index)
+	 *         would return a value without throwing an exception, i.e. if
+	 *         index&ge;getNumberOfByteFeatures()+getNumberOfShortFeatures() and
+	 *         index &lt; getLength().
 	 */
 	public boolean isContinuousFeature(int index) {
 		return byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length <= index
-				&& index < byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length + continuousFeatures.length;
+				&& index < byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length
+						+ continuousFeatures.length;
 	}
 
 	public byte[] getByteValuedDiscreteFeatures() {
@@ -282,10 +304,12 @@ public class FeatureVector {
 	}
 
 	/**
-	 * Write a binary representation of this feature vector to the given data output.
+	 * Write a binary representation of this feature vector to the given data
+	 * output.
 	 *
 	 * @param out
-	 *            the DataOutputStream or RandomAccessFile in which to write the binary representation of the feature vector.
+	 *            the DataOutputStream or RandomAccessFile in which to write the
+	 *            binary representation of the feature vector.
 	 * @throws IOException
 	 *             IOException
 	 */
@@ -306,7 +330,8 @@ public class FeatureVector {
 	}
 
 	/**
-	 * Return a string representation of this set of target features; feature values separated by spaces.
+	 * Return a string representation of this set of target features; feature
+	 * values separated by spaces.
 	 *
 	 * @return out.toString
 	 */

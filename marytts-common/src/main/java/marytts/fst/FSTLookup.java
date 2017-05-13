@@ -47,8 +47,8 @@ public class FSTLookup {
 	private FST fst;
 
 	/**
-	 * Initialise the finite state transducer lookup. This constructor will assume that the file contains a header indicating the
-	 * proper encoding.
+	 * Initialise the finite state transducer lookup. This constructor will
+	 * assume that the file contains a header indicating the proper encoding.
 	 * 
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
@@ -65,8 +65,8 @@ public class FSTLookup {
 	}
 
 	/**
-	 * Initialise the finite state transducer lookup. This constructor will assume that the stream contains a header indicating
-	 * the proper encoding.
+	 * Initialise the finite state transducer lookup. This constructor will
+	 * assume that the stream contains a header indicating the proper encoding.
 	 * 
 	 * @param inStream
 	 *            the stream from which to load the FST.
@@ -89,12 +89,14 @@ public class FSTLookup {
 	}
 
 	/**
-	 * Initialise the finite state transducer lookup. This is a constructor for legacy headerless FST files.
+	 * Initialise the finite state transducer lookup. This is a constructor for
+	 * legacy headerless FST files.
 	 * 
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param encoding
-	 *            the name of the encoding used in the file (e.g., UTF-8 or ISO-8859-1).
+	 *            the name of the encoding used in the file (e.g., UTF-8 or
+	 *            ISO-8859-1).
 	 * @throws IOException
 	 *             if the FST cannot be loaded from the given file.
 	 * @throws UnsupportedEncodingException
@@ -110,24 +112,28 @@ public class FSTLookup {
 	}
 
 	/**
-	 * Initialise the finite state transducer lookup. This is a constructor for legacy headerless FST files.
+	 * Initialise the finite state transducer lookup. This is a constructor for
+	 * legacy headerless FST files.
 	 * 
 	 * @param inStream
 	 *            the stream from which to load the FST.
 	 * @param identifier
 	 *            an identifier by which the FST lookup can be retrieved.
 	 * @param encoding
-	 *            the name of the encoding used in the file (e.g., UTF-8 or ISO-8859-1).
+	 *            the name of the encoding used in the file (e.g., UTF-8 or
+	 *            ISO-8859-1).
 	 * @throws IOException
 	 *             if the FST cannot be loaded from the given file.
 	 * @throws UnsupportedEncodingException
 	 *             if the encoding is not supported.
 	 */
-	public FSTLookup(InputStream inStream, String identifier, String encoding) throws IOException, UnsupportedEncodingException {
+	public FSTLookup(InputStream inStream, String identifier, String encoding)
+			throws IOException, UnsupportedEncodingException {
 		init(inStream, identifier, encoding);
 	}
 
-	private void init(InputStream inStream, String identifier, String encoding) throws IOException, UnsupportedEncodingException {
+	private void init(InputStream inStream, String identifier, String encoding)
+			throws IOException, UnsupportedEncodingException {
 		String key = identifier + " " + encoding;
 		fst = knownFSTs.get(key);
 		if (fst == null) {
@@ -137,12 +143,13 @@ public class FSTLookup {
 	}
 
 	/**
-	 * Look up a word in the FST. The FST runs in normal mode, i.e. it generates the expanded forms from the original forms. This
-	 * method is thread-safe.
+	 * Look up a word in the FST. The FST runs in normal mode, i.e. it generates
+	 * the expanded forms from the original forms. This method is thread-safe.
 	 * 
 	 * @param word
 	 *            the word to look up.
-	 * @return a string array containing all expansions of word. If no expansion is found, an array of length 0 is returned.
+	 * @return a string array containing all expansions of word. If no expansion
+	 *         is found, an array of length 0 is returned.
 	 */
 	public String[] lookup(String word) {
 		return lookup(word, false);
@@ -154,8 +161,10 @@ public class FSTLookup {
 	 * @param word
 	 *            the word to look up.
 	 * @param generate
-	 *            whether the FST is to run in inverse direction, i.e. generating the original form from the expanded form.
-	 * @return a string array containing all expansions of word. If no expansion is found, an array of length 0 is returned.
+	 *            whether the FST is to run in inverse direction, i.e.
+	 *            generating the original form from the expanded form.
+	 * @return a string array containing all expansions of word. If no expansion
+	 *         is found, an array of length 0 is returned.
 	 */
 	public String[] lookup(String word, boolean generate) {
 		StringBuilder buffer2 = new StringBuilder();
@@ -168,7 +177,8 @@ public class FSTLookup {
 		return resultArray;
 	}
 
-	private void lookup(String word, int offset1, int arc, boolean generate, StringBuilder buffer2, List<String> results) {
+	private void lookup(String word, int offset1, int arc, boolean generate, StringBuilder buffer2,
+			List<String> results) {
 		do {
 			int label = fst.labels[arc];
 			int offset2 = buffer2.length();

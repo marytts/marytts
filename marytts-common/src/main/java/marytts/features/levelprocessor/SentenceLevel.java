@@ -1,6 +1,5 @@
 package marytts.features.levelprocessor;
 
-
 import java.util.ArrayList;
 
 import marytts.data.Utterance;
@@ -11,30 +10,26 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.item.Item;
 import marytts.data.item.linguistic.Word;
 
-
 import marytts.features.LevelProcessor;
 
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class SentenceLevel implements LevelProcessor
-{
-    public ArrayList<? extends Item> generate(Utterance utt, Item item)
-        throws Exception
-    {
-        if (item instanceof marytts.data.item.linguistic.Sentence)
-        {
-            ArrayList<Item> list_items = new ArrayList<Item>();
-            list_items.add(item);
-            return list_items;
-        }
+public class SentenceLevel implements LevelProcessor {
+	public ArrayList<? extends Item> generate(Utterance utt, Item item) throws Exception {
+		if (item instanceof marytts.data.item.linguistic.Sentence) {
+			ArrayList<Item> list_items = new ArrayList<Item>();
+			list_items.add(item);
+			return list_items;
+		}
 
-        Sequence<? extends Item> seq = item.getSequence();
-        Relation relation = utt.getRelation(seq, utt.getSequence(SupportedSequenceType.SENTENCE));
+		Sequence<? extends Item> seq = item.getSequence();
+		Relation relation = utt.getRelation(seq, utt.getSequence(SupportedSequenceType.SENTENCE));
 
-        int item_idx = seq.indexOf(item);
-        return relation.getRelatedItems(item_idx);
-    }
+		int item_idx = seq.indexOf(item);
+		return relation.getRelatedItems(item_idx);
+	}
 }

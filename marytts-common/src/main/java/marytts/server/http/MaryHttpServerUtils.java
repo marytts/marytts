@@ -68,7 +68,8 @@ public class MaryHttpServerUtils {
 		response.setStatusCode(HttpStatus.SC_OK);
 	}
 
-	public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType) throws IOException {
+	public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType)
+			throws IOException {
 		toHttpResponse(stream, response, contentType, -1);
 	}
 
@@ -80,7 +81,8 @@ public class MaryHttpServerUtils {
 		response.setStatusCode(HttpStatus.SC_OK);
 	}
 
-	public static void fileToHttpResponse(String fullPathFile, HttpResponse response, String contentType, boolean useFileChannels) {
+	public static void fileToHttpResponse(String fullPathFile, HttpResponse response, String contentType,
+			boolean useFileChannels) {
 		int status;
 		final File file = new File(fullPathFile);
 		if (!file.exists())
@@ -146,8 +148,8 @@ public class MaryHttpServerUtils {
 		String message = "File " + uri + " not found";
 		logger.debug("Returning HTTP status " + status + ": " + message);
 		try {
-			NStringEntity entity = new NStringEntity("<html><body><h1>File not found</h1><p>" + message + "</p></body></html>",
-					"UTF-8");
+			NStringEntity entity = new NStringEntity(
+					"<html><body><h1>File not found</h1><p>" + message + "</p></body></html>", "UTF-8");
 			entity.setContentType("text/html; charset=UTF-8");
 			response.setEntity(entity);
 		} catch (UnsupportedEncodingException e) {
@@ -176,8 +178,8 @@ public class MaryHttpServerUtils {
 		String message = "Request must contain the parameter " + param;
 		logger.debug("Returning HTTP status " + status + ": " + message);
 		try {
-			NStringEntity entity = new NStringEntity("<html><body><h1>Bad request</h1><p>" + message + ".</h1></body></html>",
-					"UTF-8");
+			NStringEntity entity = new NStringEntity(
+					"<html><body><h1>Bad request</h1><p>" + message + ".</h1></body></html>", "UTF-8");
 			entity.setContentType("text/html; charset=UTF-8");
 			response.setEntity(entity);
 		} catch (UnsupportedEncodingException e) {
@@ -192,8 +194,8 @@ public class MaryHttpServerUtils {
 				+ (explanation != null ? ": " + explanation : "");
 		logger.debug("Returning HTTP status " + status + ": " + message);
 		try {
-			NStringEntity entity = new NStringEntity("<html><body><h1>Bad request</h1><p>" + message + ".</h1></body></html>",
-					"UTF-8");
+			NStringEntity entity = new NStringEntity(
+					"<html><body><h1>Bad request</h1><p>" + message + ".</h1></body></html>", "UTF-8");
 			entity.setContentType("text/html; charset=UTF-8");
 			response.setEntity(entity);
 		} catch (UnsupportedEncodingException e) {

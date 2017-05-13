@@ -70,10 +70,11 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 	}
 
 	/**
-	 * The entry point of all HttpRequestHandlers. When this method returns, the response is sent to the client.
+	 * The entry point of all HttpRequestHandlers. When this method returns, the
+	 * response is sent to the client.
 	 */
-	public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context) throws HttpException,
-			IOException {
+	public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
+			throws HttpException, IOException {
 		try {
 			Header[] tmp = request.getHeaders("Host");
 			Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue());
@@ -103,7 +104,8 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 				queryItems = MaryHttpServerUtils.toKeyValuePairs(query, true);
 			}
 
-			// Try and get parameters from different HTTP POST requests if you have not been able to do this above
+			// Try and get parameters from different HTTP POST requests if you
+			// have not been able to do this above
 			if (method.equals("POST") && queryItems == null && request instanceof HttpEntityEnclosingRequest) {
 				try {
 					String postQuery = EntityUtils.toString(((HttpEntityEnclosingRequest) request).getEntity());

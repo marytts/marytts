@@ -51,12 +51,12 @@ public class StringUtils {
 
 	/**
 	 * Join labels into string
-	 * 
+	 *
 	 * @param glue
 	 *            String inserted between the elements as they are joined
 	 * @param items
 	 *            Strings to be joined together
-	 * 
+	 *
 	 * @return joined String, or the empty string if items has length 0
 	 * @throws NullPointerException
 	 *             if either glue or items or any of the items is null
@@ -194,8 +194,9 @@ public class StringUtils {
 	}
 
 	/**
-	 * Purge non-breaking spaces from <b>input</b> by replacing them with regular spaces.
-	 * 
+	 * Purge non-breaking spaces from <b>input</b> by replacing them with
+	 * regular spaces.
+	 *
 	 * @param input
 	 *            to purge
 	 * @return purged <b>input</b>
@@ -205,7 +206,8 @@ public class StringUtils {
 		return output;
 	}
 
-	// Check first file extension separator character and add it if it does not exist
+	// Check first file extension separator character and add it if it does not
+	// exist
 	public static String checkFirstDot(String strIn) {
 		String strOut = strIn;
 
@@ -232,7 +234,8 @@ public class StringUtils {
 		return indexedNameGenerator(preName, numFiles, startIndex, postName, ".tmp");
 	}
 
-	public static String[] indexedNameGenerator(String preName, int numFiles, int startIndex, String postName, String extension) {
+	public static String[] indexedNameGenerator(String preName, int numFiles, int startIndex, String postName,
+			String extension) {
 		int numDigits = 0;
 		if (numFiles > 0)
 			numDigits = (int) Math.floor(Math.log10(startIndex + numFiles - 1));
@@ -245,11 +248,13 @@ public class StringUtils {
 	// <preName>startIndex+1<postName>.extension
 	// <preName>startIndex+2<postName>.extension
 	// ...
-	// The number of required characters for the largest index is computed automatically if numDigits<required number of
+	// The number of required characters for the largest index is computed
+	// automatically if numDigits<required number of
 	// characters for the largest index
-	// The minimum value of startIndex is 0 (negative values are converted to zero)
-	public static String[] indexedNameGenerator(String preName, int numFiles, int startIndex, String postName, String extension,
-			int numDigits) {
+	// The minimum value of startIndex is 0 (negative values are converted to
+	// zero)
+	public static String[] indexedNameGenerator(String preName, int numFiles, int startIndex, String postName,
+			String extension, int numDigits) {
 		String[] fileList = null;
 
 		if (numFiles > 0) {
@@ -290,13 +295,14 @@ public class StringUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param strFilename
 	 *            strFilename
 	 * @param isIncludeDot
 	 *            isIncludeDot
 	 * @return strExtension
-	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getExtension(String)} instead
+	 * @deprecated use org.apache.commons.io.FilenameUtils.getExtension(String)
+	 *             instead
 	 */
 	@Deprecated
 	public static String getFileExtension(String strFilename, boolean isIncludeDot) {
@@ -369,11 +375,12 @@ public class StringUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fullpathFilename
 	 *            fullpathFilename
 	 * @return foldername
-	 * @deprecated use {@link org.apache.commons.io.FilenameUtils#getFullPath(String)} instead
+	 * @deprecated use org.apache.commons.io.FilenameUtils.getFullPath(String)
+	 *             instead
 	 */
 	@Deprecated
 	public static String getFolderName(String fullpathFilename) {
@@ -405,7 +412,8 @@ public class StringUtils {
 		return strRet;
 	}
 
-	public static String[][] readTextFileInRows(String textFile, String encoding, int minimumItemsInOneLine) throws IOException {
+	public static String[][] readTextFileInRows(String textFile, String encoding, int minimumItemsInOneLine)
+			throws IOException {
 		String[][] entries = null;
 		String allText = FileUtils.readFileToString(new File(textFile), encoding);
 
@@ -580,7 +588,8 @@ public class StringUtils {
 
 		bRet = false;
 		for (int i = 0; i < str1.length(); i++) {
-			if (Integer.valueOf(String.valueOf(str1.charAt(i))) == 1 && Integer.valueOf(String.valueOf(str2.charAt(i))) == 1) {
+			if (Integer.valueOf(String.valueOf(str1.charAt(i))) == 1
+					&& Integer.valueOf(String.valueOf(str2.charAt(i))) == 1) {
 				bRet = true;
 				break;
 			}
@@ -634,8 +643,8 @@ public class StringUtils {
 	 * @param allInOneLine
 	 *            allInOneLine
 	 * @return result.toArray(new String[0])
-	 * @deprecated Unstable due to platform-specific behavior. Use {@link org.apache.commons.lang.StringUtils#split} or similar
-	 *             instead.
+	 * @deprecated Unstable due to platform-specific behavior. Use
+	 *             org.apache.commons.lang.StringUtils.split or similar instead.
 	 */
 	@Deprecated
 	public static String[] toStringArray(String allInOneLine) {
@@ -680,8 +689,9 @@ public class StringUtils {
 	}
 
 	/**
-	 * Combine the elements of the given string array into a single string, containing one array element per line.
-	 * 
+	 * Combine the elements of the given string array into a single string,
+	 * containing one array element per line.
+	 *
 	 * @param stringArray
 	 *            stringArray
 	 * @return toString(stringArray, 0)
@@ -691,8 +701,9 @@ public class StringUtils {
 	}
 
 	/**
-	 * Combine the elements of the given string array into a single string, containing one array element per line.
-	 * 
+	 * Combine the elements of the given string array into a single string,
+	 * containing one array element per line.
+	 *
 	 * @param stringArray
 	 *            stringArray
 	 * @param startIndex
@@ -704,8 +715,9 @@ public class StringUtils {
 	}
 
 	/**
-	 * Combine the elements of the given string array into a single string, containing one array element per line.
-	 * 
+	 * Combine the elements of the given string array into a single string,
+	 * containing one array element per line.
+	 *
 	 * @param stringArray
 	 *            stringArray
 	 * @param startIndex
@@ -772,14 +784,15 @@ public class StringUtils {
 			e.printStackTrace();
 		}
 
-		// decoded = StringUtils.replace(decoded, "_HTTPREQUESTLINEBREAK_", System.getProperty("line.separator"));
+		// decoded = StringUtils.replace(decoded, "_HTTPREQUESTLINEBREAK_",
+		// System.getProperty("line.separator"));
 
 		return decoded;
 	}
 
 	/**
 	 * Divides the example text of a voice into sentences in a vector
-	 * 
+	 *
 	 * @param text
 	 *            the example text
 	 * @return vector of example sentences
@@ -816,8 +829,9 @@ public class StringUtils {
 	}
 
 	/**
-	 * Determine whether the given codepoint is either a letter or a modifier according to the Unicode standard. More precisely,
-	 * this returns true if codepoint belongs to one of the following categories as defined at
+	 * Determine whether the given codepoint is either a letter or a modifier
+	 * according to the Unicode standard. More precisely, this returns true if
+	 * codepoint belongs to one of the following categories as defined at
 	 * http://unicode.org/Public/UNIDATA/UCD.html#General_Category_Values:
 	 * <ul>
 	 * <li>Lu Letter, Uppercase</li>
@@ -829,17 +843,19 @@ public class StringUtils {
 	 * <li>Mc Mark, Spacing Combining</li>
 	 * <li>Me Mark, Enclosing</li>
 	 * </ul>
-	 * Whether a given character is associated with this category can be looked up at
-	 * http://unicode.org/Public/UNIDATA/UnicodeData.txt
-	 * 
+	 * Whether a given character is associated with this category can be looked
+	 * up at http://unicode.org/Public/UNIDATA/UnicodeData.txt
+	 *
 	 * @param codePoint
-	 *            the unicode codepoint as determined e.g. by String.codePointAt().
+	 *            the unicode codepoint as determined e.g. by
+	 *            String.codePointAt().
 	 * @return true if the above condition is met, false otherwise
 	 */
 	public static boolean isLetterOrModifier(int codePoint) {
 		int type = Character.getType(codePoint);
-		return type == Character.UPPERCASE_LETTER || type == Character.LOWERCASE_LETTER || type == Character.TITLECASE_LETTER
-				|| type == Character.MODIFIER_LETTER || type == Character.OTHER_LETTER || type == Character.NON_SPACING_MARK
+		return type == Character.UPPERCASE_LETTER || type == Character.LOWERCASE_LETTER
+				|| type == Character.TITLECASE_LETTER || type == Character.MODIFIER_LETTER
+				|| type == Character.OTHER_LETTER || type == Character.NON_SPACING_MARK
 				|| type == Character.COMBINING_SPACING_MARK || type == Character.ENCLOSING_MARK;
 	}
 
@@ -880,14 +896,17 @@ public class StringUtils {
 	}
 
 	/**
-	 * Parse a string containing pairs of integers in brackets, and return as one array of integers. This will ignore any string
-	 * content that does not match the bracket pattern.
-	 * 
+	 * Parse a string containing pairs of integers in brackets, and return as
+	 * one array of integers. This will ignore any string content that does not
+	 * match the bracket pattern.
+	 *
 	 * @param attribute
-	 *            - the string containing the bracketed expression. For example, 'f0' attribute of 'ph' element in MaryXML.
-	 *            Expected format: "(5,248)(47,258)(100,433)"
-	 * @return an int array with an even number of elements, such that the i'th pair can be accessed as array[2*i] and
-	 *         array[2*i+1], or an empty array if no bracket expressions are found.
+	 *            - the string containing the bracketed expression. For example,
+	 *            'f0' attribute of 'ph' element in MaryXML. Expected format:
+	 *            "(5,248)(47,258)(100,433)"
+	 * @return an int array with an even number of elements, such that the i'th
+	 *         pair can be accessed as array[2*i] and array[2*i+1], or an empty
+	 *         array if no bracket expressions are found.
 	 * @throws NullPointerException
 	 *             if attribute is null.
 	 */
@@ -897,7 +916,8 @@ public class StringUtils {
 		}
 
 		Pattern p = Pattern.compile("(\\d+,\\d+)");
-		int[] temp = new int[attribute.length() / 2]; // will definitely be more than long enough
+		int[] temp = new int[attribute.length() / 2]; // will definitely be more
+														// than long enough
 		// Split input with the pattern
 		Matcher m = p.matcher(attribute);
 		int i = 0; // count pairs
@@ -917,7 +937,7 @@ public class StringUtils {
 		int[] inds1 = StringUtils.getDifferentItemsIndices(items1);
 		String[] diffItems1 = StringUtils.getDifferentItemsList(items1);
 
-		int[] items2 = { 1, 2, 3, 4, 1, 1, 2, 2, 4, 4, 10 };
+		int[] items2 = {1, 2, 3, 4, 1, 1, 2, 2, 4, 4, 10};
 		int[] inds2 = StringUtils.getDifferentItemsIndices(items2);
 		int[] diffItems2 = StringUtils.getDifferentItemsList(items2);
 

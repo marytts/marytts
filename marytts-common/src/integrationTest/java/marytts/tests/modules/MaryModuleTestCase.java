@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
 public class MaryModuleTestCase {
 
 	protected MaryModule module;
-    protected Logger logger;
+	protected Logger logger;
 
 	public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
 		if (!MaryUtils.isLog4jConfigured()) {
@@ -55,9 +55,9 @@ public class MaryModuleTestCase {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		if (System.getProperty("mary.base") == null) {
 			System.setProperty("mary.base", ".");
-			Logger.getRootLogger().warn(
-                "System property 'mary.base' is not defined -- trying " + new File(".").getAbsolutePath()
-                + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+			Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "
+					+ new File(".").getAbsolutePath()
+					+ " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
 		}
 
 		if (needMaryStarted) {
@@ -65,50 +65,44 @@ public class MaryModuleTestCase {
 				Mary.startup();
 		}
 
-        logger = MaryUtils.getLogger(getClass());
+		logger = MaryUtils.getLogger(getClass());
 	}
 
-    protected Utterance loadXMLResource(String resourceName)
-        throws IOException, MaryIOException
-    {
-        // Define a reader to the resource
+	protected Utterance loadXMLResource(String resourceName) throws IOException, MaryIOException {
+		// Define a reader to the resource
 		BufferedReader br = new BufferedReader(
-            new InputStreamReader(this.getClass().getResourceAsStream(resourceName), "UTF-8"));
+				new InputStreamReader(this.getClass().getResourceAsStream(resourceName), "UTF-8"));
 
-        // Loading the XML content file into a string
+		// Loading the XML content file into a string
 		StringBuilder buf = new StringBuilder();
 		String line;
 		while ((line = br.readLine()) != null) {
 			buf.append(line);
 			buf.append("\n");
 		}
-		String document =  buf.toString();
+		String document = buf.toString();
 
-        // Using serializer to extract the utterance the from "string" document
-        XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.fromString(document);
+		// Using serializer to extract the utterance the from "string" document
+		XMLSerializer xml_ser = new XMLSerializer();
+		Utterance utt = xml_ser.fromString(document);
 
-        // Return loaded utterance
-        return utt;
-    }
+		// Return loaded utterance
+		return utt;
+	}
 
-
-	protected boolean processAndCompare(String in, String target_out, Locale locale)
-        throws Exception
-    {
+	protected boolean processAndCompare(String in, String target_out, Locale locale) throws Exception {
 		MaryData input = new MaryData(locale, loadXMLResource(in));
-        MaryData targetOut = new MaryData(input.getLocale(), loadXMLResource(target_out));
+		MaryData targetOut = new MaryData(input.getLocale(), loadXMLResource(target_out));
 		MaryData processedOut = module.process(input);
 
-        ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
-        logger.debug(" ======================== expected =====================");
-        logger.debug(out_ser.toString(targetOut.getData()));
-        logger.debug(" ======================== achieved =====================");
-        logger.debug(out_ser.toString(processedOut.getData()));
-        logger.debug(" =======================================================");
+		ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
+		logger.debug(" ======================== expected =====================");
+		logger.debug(out_ser.toString(targetOut.getData()));
+		logger.debug(" ======================== achieved =====================");
+		logger.debug(out_ser.toString(processedOut.getData()));
+		logger.debug(" =======================================================");
 
-
-        return targetOut.getData().equals(processedOut.getData());
+		return targetOut.getData().equals(processedOut.getData());
 	}
 
 }

@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-
 import java.io.File;
 import java.io.StringWriter;
 import java.io.StringReader;
@@ -51,80 +50,66 @@ import org.apache.log4j.Logger;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class TextSerializer implements Serializer
-{
-    private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
+public class TextSerializer implements Serializer {
+	private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
 	private static final String NAMESPACE = "http://mary.dfki.de/2002/MaryXML";
-    private boolean splitIntoParagraphs;
-    protected Logger logger;
+	private boolean splitIntoParagraphs;
+	protected Logger logger;
 
-
-    public TextSerializer()
-    {
+	public TextSerializer() {
 		logger = MaryUtils.getLogger("TextSerializer");
 		splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
-    }
+	}
 
-    public String toString(Utterance utt)
-        throws MaryIOException
+	public String toString(Utterance utt) throws MaryIOException
 
-    {
-        String output = "";
-        Sequence<Paragraph> paragraphs = (Sequence<Paragraph>) utt.getSequence(SupportedSequenceType.PARAGRAPH);
+	{
+		String output = "";
+		Sequence<Paragraph> paragraphs = (Sequence<Paragraph>) utt.getSequence(SupportedSequenceType.PARAGRAPH);
 
-        for (Paragraph par : paragraphs)
-        {
-            output += par.getText() + "\n";
-        }
+		for (Paragraph par : paragraphs) {
+			output += par.getText() + "\n";
+		}
 
-        return output;
-    }
-    public Utterance fromString(String str)
-        throws MaryIOException
-    {
+		return output;
+	}
+	public Utterance fromString(String str) throws MaryIOException {
 
-        String plain_text = MaryUtils.normaliseUnicodePunctuation(str);
+		String plain_text = MaryUtils.normaliseUnicodePunctuation(str);
 		Locale l = Locale.US; // FIXME: we really need to fix this !
 
-        // New utterance part
-        Utterance utt = new Utterance(plain_text, l);
-        Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
-		if (splitIntoParagraphs)
-        {
-            // Empty lines separate paragraphs
+		// New utterance part
+		Utterance utt = new Utterance(plain_text, l);
+		Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
+		if (splitIntoParagraphs) {
+			// Empty lines separate paragraphs
 			String[] inputTexts = plain_text.split(PARAGRAPH_SEPARATOR);
-			for (int i = 0; i < inputTexts.length; i++)
-            {
+			for (int i = 0; i < inputTexts.length; i++) {
 				String paragraph_text = inputTexts[i].trim();
 				if (paragraph_text.length() == 0)
 					continue;
-                Paragraph p = new Paragraph(paragraph_text);
-                paragraphs.add(p);
-            }
+				Paragraph p = new Paragraph(paragraph_text);
+				paragraphs.add(p);
+			}
 		}
-        // The whole text as one single paragraph
-        else
-        {
-            Paragraph p = new Paragraph(plain_text);
-            paragraphs.add(p);
+		// The whole text as one single paragraph
+		else {
+			Paragraph p = new Paragraph(plain_text);
+			paragraphs.add(p);
 		}
-        utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
+		utt.addSequence(SupportedSequenceType.PARAGRAPH, paragraphs);
 
-        return utt;
-    }
+		return utt;
+	}
 
+	public Utterance load(File file) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 
-    public Utterance load(File file)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public void save(File file, Utterance utt)
-        throws MaryIOException
-    {
-        throw new UnsupportedOperationException();
-    }
+	public void save(File file, Utterance utt) throws MaryIOException {
+		throw new UnsupportedOperationException();
+	}
 }

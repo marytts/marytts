@@ -50,28 +50,28 @@ public class MaryCacheTest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		maryCacheFile = File.createTempFile("temp-file-name", ".tmp");
-        c = new MaryCache(maryCacheFile, true);
-        c.insertText(inputtype, outputtype, locale, voice, inputtext, targetValue);
-        c.insertAudio(inputtype, locale, voice, inputtext, targetAudio);
-        c.insertText(inputtype, outputtype, locale, voice, inputtext2, targetValue2);
-    }
+		c = new MaryCache(maryCacheFile, true);
+		c.insertText(inputtype, outputtype, locale, voice, inputtext, targetValue);
+		c.insertAudio(inputtype, locale, voice, inputtext, targetAudio);
+		c.insertText(inputtype, outputtype, locale, voice, inputtext2, targetValue2);
+	}
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass
-    public static void tearDown() throws Exception {
-        c.shutdown();
-    }
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@AfterClass
+	public static void tearDown() throws Exception {
+		c.shutdown();
+	}
 
-    @Test
-    public void lookupText() throws Exception {
-        String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
-        Assert.assertEquals(targetValue, lookupValue);
-    }
+	@Test
+	public void lookupText() throws Exception {
+		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext);
+		Assert.assertEquals(targetValue, lookupValue);
+	}
 
-    @Test
-    public void lookupText2() throws Exception {
+	@Test
+	public void lookupText2() throws Exception {
 		String lookupValue = c.lookupText(inputtype, outputtype, locale, voice, inputtext2);
 		Assert.assertEquals(targetValue2, lookupValue);
 	}

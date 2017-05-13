@@ -86,7 +86,8 @@ public class Word {
 		return this.flectionEnding;
 	}
 
-	// public void setUsedOtherLanguageToPhonemise (boolean usedOtherLanguageToPhonemise) {
+	// public void setUsedOtherLanguageToPhonemise (boolean
+	// usedOtherLanguageToPhonemise) {
 	// this.usedOtherLanguageToPhonemise = usedOtherLanguageToPhonemise;
 	// }
 

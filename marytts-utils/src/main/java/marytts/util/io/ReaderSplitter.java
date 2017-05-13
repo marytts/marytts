@@ -26,9 +26,10 @@ import java.io.Reader;
 import java.io.StringReader;
 
 /**
- * A class splitting a Reader into chunks. In a continuous input Reader, search for lines containing a specific "end-of-chunk"
- * marking (e.g., an XML root end tag), and return individual readers, each of which will provide one chunk (including the line
- * containing the end-of-chunk marking).
+ * A class splitting a Reader into chunks. In a continuous input Reader, search
+ * for lines containing a specific "end-of-chunk" marking (e.g., an XML root end
+ * tag), and return individual readers, each of which will provide one chunk
+ * (including the line containing the end-of-chunk marking).
  * 
  * @author Marc Schr&ouml;der
  */
@@ -45,8 +46,10 @@ public class ReaderSplitter {
 	}
 
 	/**
-	 * Return a reader from which one chunk can be read, followed by EOF. Chunks are delimited by start of file, lines containing
-	 * the end marker string (line is last line in chunk), and end of file. Returns null if nothing more can be read.
+	 * Return a reader from which one chunk can be read, followed by EOF. Chunks
+	 * are delimited by start of file, lines containing the end marker string
+	 * (line is last line in chunk), and end of file. Returns null if nothing
+	 * more can be read.
 	 * 
 	 * @throws IOException
 	 *             IOException

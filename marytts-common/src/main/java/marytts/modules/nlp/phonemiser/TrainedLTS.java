@@ -53,7 +53,8 @@ public class TrainedLTS {
 
 	/**
 	 *
-	 * Initializes letter to sound system with a phoneSet, and load the decision tree from the given file.
+	 * Initializes letter to sound system with a phoneSet, and load the decision
+	 * tree from the given file.
 	 *
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
@@ -66,8 +67,8 @@ public class TrainedLTS {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream, boolean removeTrailingOneFromPhones) throws IOException,
-        MaryConfigurationException {
+	public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream, boolean removeTrailingOneFromPhones)
+			throws IOException, MaryConfigurationException {
 		this.allophoneSet = aPhonSet;
 		this.loadTree(treeStream);
 		this.removeTrailingOneFromPhones = removeTrailingOneFromPhones;
@@ -75,7 +76,8 @@ public class TrainedLTS {
 
 	/**
 	 *
-	 * Initializes letter to sound system with a phoneSet, and load the decision tree from the given file.
+	 * Initializes letter to sound system with a phoneSet, and load the decision
+	 * tree from the given file.
 	 *
 	 * @param aPhonSet
 	 *            phoneset used in syllabification
@@ -145,14 +147,15 @@ public class TrainedLTS {
 				try {
 					byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, grAtPos);
 					// ... can also try to call explicit:
-					// features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr, cg.substr(pos)
+					// features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr,
+					// cg.substr(pos)
 				} catch (IllegalArgumentException iae) {
 					// Silently ignore unknown characters
 					byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, "null");
 				}
 			}
 
-			FeatureVector fv = new FeatureVector(byteFeatures, new short[] {}, new float[] {}, 0);
+			FeatureVector fv = new FeatureVector(byteFeatures, new short[]{}, new float[]{}, 0);
 
 			StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
 			String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
@@ -164,11 +167,13 @@ public class TrainedLTS {
 	}
 
 	/**
-	 * Phone chain is syllabified. After that, no white spaces are included, stress is on syllable of first stress bearing vowal,
-	 * or assigned rule-based if there is no stress predicted by the tree.
+	 * Phone chain is syllabified. After that, no white spaces are included,
+	 * stress is on syllable of first stress bearing vowal, or assigned
+	 * rule-based if there is no stress predicted by the tree.
 	 *
 	 * @param phones
-	 *            input phone chain, unsyllabified, stress marking attached to vowals
+	 *            input phone chain, unsyllabified, stress marking attached to
+	 *            vowals
 	 * @return phone chain, with syllable sepeators "-" and stress symbols "'"
 	 * @throws IllegalArgumentException
 	 *             if the input cannot be syllabified

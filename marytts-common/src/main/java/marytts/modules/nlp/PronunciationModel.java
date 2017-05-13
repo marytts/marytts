@@ -56,9 +56,11 @@ import marytts.data.utils.IntegerPair;
 
 /**
  *
- * This module serves as a post-lexical pronunciation model. Its appropriate place in the module chain is after intonisation. The
- * target features are taken and fed into decision trees that predict the new pronunciation. A new mary xml is output, with the
- * difference being that the old pronunciation is replaced by the newly predicted one, and a finer grained xml structure.
+ * This module serves as a post-lexical pronunciation model. Its appropriate
+ * place in the module chain is after intonisation. The target features are
+ * taken and fed into decision trees that predict the new pronunciation. A new
+ * mary xml is output, with the difference being that the old pronunciation is
+ * replaced by the newly predicted one, and a finer grained xml structure.
  *
  * @author ben
  *
@@ -69,7 +71,8 @@ public class PronunciationModel extends InternalModule {
 	private FeatureDefinition featDef;
 
 	/**
-	 * Constructor, stating that the input is of type INTONATION, the output of type ALLOPHONES.
+	 * Constructor, stating that the input is of type INTONATION, the output of
+	 * type ALLOPHONES.
 	 *
 	 */
 	public PronunciationModel() {
@@ -83,13 +86,14 @@ public class PronunciationModel extends InternalModule {
 	public void startup() throws Exception {
 		super.startup();
 
-		// TODO: pronunciation model tree and feature definition should be voice-specific
+		// TODO: pronunciation model tree and feature definition should be
+		// voice-specific
 		// get featureDefinition used for trees - just to tell the tree that the
 		// features are discrete
 		String fdFilename = null;
 		if (getLocale() != null) {
 			fdFilename = MaryProperties
-                .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
+					.getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
 		}
 		if (fdFilename != null) {
 			File fdFile = new File(fdFilename);
@@ -103,10 +107,12 @@ public class PronunciationModel extends InternalModule {
 	}
 
 	/**
-	 * Optionally, a language-specific subclass can implement any postlexical rules on the document.
+	 * Optionally, a language-specific subclass can implement any postlexical
+	 * rules on the document.
 	 *
 	 * @param token
-	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt; substructure.
+	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt;
+	 *            substructure.
 	 * @param allophoneSet
 	 *            allophoneSet
 	 * @return true if something was changed, false otherwise
@@ -116,16 +122,15 @@ public class PronunciationModel extends InternalModule {
 	}
 
 	/**
-	 * This computes a new pronunciation for the elements of some MaryData, that is phonemised.
+	 * This computes a new pronunciation for the elements of some MaryData, that
+	 * is phonemised.
 	 *
 	 * @param d
 	 *            d
 	 * @throws Exception
 	 *             Exception
 	 */
-	public MaryData process(MaryData d)
-        throws Exception
-    {
-        return d;
-    }
+	public MaryData process(MaryData d) throws Exception {
+		return d;
+	}
 }

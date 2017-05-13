@@ -12,8 +12,8 @@ import java.util.Properties;
 import marytts.exceptions.MaryConfigurationException;
 
 /**
- * provide comfortable access to a properties, optionally overriding settings with system properties, and optionally providing
- * string replacements.
+ * provide comfortable access to a properties, optionally overriding settings
+ * with system properties, and optionally providing string replacements.
  * 
  * @author marc
  *
@@ -33,12 +33,15 @@ public class PropertiesAccessor {
 	 * @param p
 	 *            the properties to access
 	 * @param letSystemPropertiesOverride
-	 *            if true, any property will first be looked up in the system properties; only if it is not found there, it will
-	 *            be looked up in p
+	 *            if true, any property will first be looked up in the system
+	 *            properties; only if it is not found there, it will be looked
+	 *            up in p
 	 * @param stringReplacements
-	 *            before &rarr; after pairs of string replacements to perform before returning any property values.
+	 *            before &rarr; after pairs of string replacements to perform
+	 *            before returning any property values.
 	 */
-	public PropertiesAccessor(Properties p, boolean letSystemPropertiesOverride, Map<String, String> stringReplacements) {
+	public PropertiesAccessor(Properties p, boolean letSystemPropertiesOverride,
+			Map<String, String> stringReplacements) {
 		this.p = p;
 		this.isSystemOverrides = letSystemPropertiesOverride;
 		this.replacements = stringReplacements;
@@ -99,7 +102,8 @@ public class PropertiesAccessor {
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the boolean property value if found and valid, defaultValue otherwise.
+	 * @return the boolean property value if found and valid, defaultValue
+	 *         otherwise.
 	 */
 	public boolean getBoolean(String property, boolean defaultValue) {
 		String value = getProperty(property);
@@ -130,7 +134,8 @@ public class PropertiesAccessor {
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the integer property value if found and valid, defaultValue otherwise.
+	 * @return the integer property value if found and valid, defaultValue
+	 *         otherwise.
 	 */
 	public int getInteger(String property, int defaultValue) {
 		String value = getProperty(property);
@@ -162,7 +167,8 @@ public class PropertiesAccessor {
 	 *            the property requested
 	 * @param defaultValue
 	 *            the value to return if the property is not defined
-	 * @return the double property value if found and valid, defaultValue otherwise.
+	 * @return the double property value if found and valid, defaultValue
+	 *         otherwise.
 	 */
 	public double getDouble(String property, double defaultValue) {
 		String value = getProperty(property);
@@ -177,16 +183,22 @@ public class PropertiesAccessor {
 	}
 
 	/**
-	 * For the named property, attempt to get an open input stream. If the property value starts with "jar:", the remainder of the
-	 * value is interpreted as an absolute path in the classpath. Otherwise it is interpreted as a file name.
+	 * For the named property, attempt to get an open input stream. If the
+	 * property value starts with "jar:", the remainder of the value is
+	 * interpreted as an absolute path in the classpath. Otherwise it is
+	 * interpreted as a file name.
 	 * 
 	 * @param propertyName
-	 *            the name of a property defined in one of the mary config files.
-	 * @return an InputStream representing the given resource, or null if the property was not defined.
+	 *            the name of a property defined in one of the mary config
+	 *            files.
+	 * @return an InputStream representing the given resource, or null if the
+	 *         property was not defined.
 	 * @throws FileNotFoundException
-	 *             if the property value is a file name and the file cannot be opened
+	 *             if the property value is a file name and the file cannot be
+	 *             opened
 	 * @throws MaryConfigurationException
-	 *             if the property value is a classpath entry which cannot be opened
+	 *             if the property value is a classpath entry which cannot be
+	 *             opened
 	 */
 	public InputStream getStream(String propertyName) throws FileNotFoundException, MaryConfigurationException {
 		InputStream stream;
@@ -197,8 +209,8 @@ public class PropertiesAccessor {
 			String classpathLocation = propertyValue.substring("jar:".length());
 			stream = this.getClass().getResourceAsStream(classpathLocation);
 			if (stream == null) {
-				throw new MaryConfigurationException("For property '" + propertyName + "', no classpath resource available at '"
-						+ classpathLocation + "'");
+				throw new MaryConfigurationException("For property '" + propertyName
+						+ "', no classpath resource available at '" + classpathLocation + "'");
 			}
 		} else {
 			String fileName = propertyValue;

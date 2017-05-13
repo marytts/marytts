@@ -36,9 +36,7 @@ public class OpenNLPPosTaggerIT {
 	 * @throws Exception
 	 *             Exception
 	 */
-	public OpenNLPPosTaggerIT()
-        throws Exception
-    {
-    }
+	public OpenNLPPosTaggerIT() throws Exception {
+	}
 
 }

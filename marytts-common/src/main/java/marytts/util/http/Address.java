@@ -66,7 +66,8 @@ public class Address {
 		if (portIn != "") {
 			this.port = Integer.valueOf(portIn);
 			this.fullAddress = this.host + ":" + portIn;
-		} else // No port address specified, set fullAdrress equal to host address
+		} else // No port address specified, set fullAdrress equal to host
+				// address
 		{
 			this.port = Integer.MIN_VALUE;
 			this.fullAddress = this.host;

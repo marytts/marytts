@@ -46,8 +46,8 @@ public class MorphologyReader {
 
 	}
 
-	public Hashtable<String, String> loadInputModel(InputStream modelStream) throws ParserConfigurationException, SAXException,
-			IOException, MaryConfigurationException {
+	public Hashtable<String, String> loadInputModel(InputStream modelStream)
+			throws ParserConfigurationException, SAXException, IOException, MaryConfigurationException {
 		Hashtable<String, String> modelTable;
 		modelTable = new Hashtable<String, String>(40);
 

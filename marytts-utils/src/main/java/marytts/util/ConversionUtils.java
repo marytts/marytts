@@ -25,7 +25,7 @@ package marytts.util;
  */
 public class ConversionUtils {
 	public static byte[] toByteArray(byte byteArray) {
-		return new byte[] { byteArray };
+		return new byte[]{byteArray};
 	}
 
 	public static byte[] toByteArray(byte[] byteArray) {
@@ -33,7 +33,7 @@ public class ConversionUtils {
 	}
 
 	public static byte[] toByteArray(short data) {
-		return new byte[] { (byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff), };
+		return new byte[]{(byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff),};
 	}
 
 	public static byte[] toByteArray(short[] data) {
@@ -49,7 +49,7 @@ public class ConversionUtils {
 	}
 
 	public static byte[] toByteArray(char data) {
-		return new byte[] { (byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff), };
+		return new byte[]{(byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff),};
 	}
 
 	public static byte[] toByteArray(char[] data) {
@@ -65,8 +65,8 @@ public class ConversionUtils {
 	}
 
 	public static byte[] toByteArray(int data) {
-		return new byte[] { (byte) ((data >> 24) & 0xff), (byte) ((data >> 16) & 0xff), (byte) ((data >> 8) & 0xff),
-				(byte) ((data >> 0) & 0xff), };
+		return new byte[]{(byte) ((data >> 24) & 0xff), (byte) ((data >> 16) & 0xff), (byte) ((data >> 8) & 0xff),
+				(byte) ((data >> 0) & 0xff),};
 	}
 
 	public static byte[] toByteArray(int[] data) {
@@ -82,9 +82,9 @@ public class ConversionUtils {
 	}
 
 	public static byte[] toByteArray(long data) {
-		return new byte[] { (byte) ((data >> 56) & 0xff), (byte) ((data >> 48) & 0xff), (byte) ((data >> 40) & 0xff),
+		return new byte[]{(byte) ((data >> 56) & 0xff), (byte) ((data >> 48) & 0xff), (byte) ((data >> 40) & 0xff),
 				(byte) ((data >> 32) & 0xff), (byte) ((data >> 24) & 0xff), (byte) ((data >> 16) & 0xff),
-				(byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff), };
+				(byte) ((data >> 8) & 0xff), (byte) ((data >> 0) & 0xff),};
 	}
 
 	public static byte[] toByteArray(long[] data) {
@@ -132,7 +132,7 @@ public class ConversionUtils {
 	}
 
 	public static byte[] toByteArray(boolean data) {
-		return new byte[] { (byte) (data ? 0x01 : 0x00) };
+		return new byte[]{(byte) (data ? 0x01 : 0x00)};
 	}
 
 	public static byte[] toByteArray(boolean[] data) {
@@ -219,7 +219,7 @@ public class ConversionUtils {
 		short[] shts = new short[byteArray.length / 2];
 
 		for (int i = 0; i < shts.length; i++) {
-			shts[i] = toShort(new byte[] { byteArray[(i * 2)], byteArray[(i * 2) + 1] });
+			shts[i] = toShort(new byte[]{byteArray[(i * 2)], byteArray[(i * 2) + 1]});
 		}
 
 		return shts;
@@ -239,7 +239,7 @@ public class ConversionUtils {
 		char[] chrs = new char[byteArray.length / 2];
 
 		for (int i = 0; i < chrs.length; i++) {
-			chrs[i] = toChar(new byte[] { byteArray[(i * 2)], byteArray[(i * 2) + 1], });
+			chrs[i] = toChar(new byte[]{byteArray[(i * 2)], byteArray[(i * 2) + 1],});
 		}
 
 		return chrs;
@@ -249,7 +249,8 @@ public class ConversionUtils {
 		if (byteArray == null || byteArray.length != 4)
 			return 0x0;
 
-		return (int) ((0xff & byteArray[0]) << 24 | (0xff & byteArray[1]) << 16 | (0xff & byteArray[2]) << 8 | (0xff & byteArray[3]) << 0);
+		return (int) ((0xff & byteArray[0]) << 24 | (0xff & byteArray[1]) << 16 | (0xff & byteArray[2]) << 8
+				| (0xff & byteArray[3]) << 0);
 	}
 
 	public static int[] toIntArray(byte[] byteArray) {
@@ -259,8 +260,8 @@ public class ConversionUtils {
 		int[] ints = new int[byteArray.length / 4];
 
 		for (int i = 0; i < ints.length; i++) {
-			ints[i] = toInt(new byte[] { byteArray[(i * 4)], byteArray[(i * 4) + 1], byteArray[(i * 4) + 2],
-					byteArray[(i * 4) + 3], });
+			ints[i] = toInt(new byte[]{byteArray[(i * 4)], byteArray[(i * 4) + 1], byteArray[(i * 4) + 2],
+					byteArray[(i * 4) + 3],});
 		}
 
 		return ints;
@@ -271,8 +272,9 @@ public class ConversionUtils {
 			return 0x0;
 
 		return (long) ((long) (0xff & byteArray[0]) << 56 | (long) (0xff & byteArray[1]) << 48
-				| (long) (0xff & byteArray[2]) << 40 | (long) (0xff & byteArray[3]) << 32 | (long) (0xff & byteArray[4]) << 24
-				| (long) (0xff & byteArray[5]) << 16 | (long) (0xff & byteArray[6]) << 8 | (long) (0xff & byteArray[7]) << 0);
+				| (long) (0xff & byteArray[2]) << 40 | (long) (0xff & byteArray[3]) << 32
+				| (long) (0xff & byteArray[4]) << 24 | (long) (0xff & byteArray[5]) << 16
+				| (long) (0xff & byteArray[6]) << 8 | (long) (0xff & byteArray[7]) << 0);
 	}
 
 	public static long[] toLongArray(byte[] byteArray) {
@@ -282,9 +284,9 @@ public class ConversionUtils {
 		long[] lngs = new long[byteArray.length / 8];
 
 		for (int i = 0; i < lngs.length; i++) {
-			lngs[i] = toLong(new byte[] { byteArray[(i * 8)], byteArray[(i * 8) + 1], byteArray[(i * 8) + 2],
+			lngs[i] = toLong(new byte[]{byteArray[(i * 8)], byteArray[(i * 8) + 1], byteArray[(i * 8) + 2],
 					byteArray[(i * 8) + 3], byteArray[(i * 8) + 4], byteArray[(i * 8) + 5], byteArray[(i * 8) + 6],
-					byteArray[(i * 8) + 7], });
+					byteArray[(i * 8) + 7],});
 		}
 
 		return lngs;
@@ -304,8 +306,8 @@ public class ConversionUtils {
 		float[] flts = new float[byteArray.length / 4];
 
 		for (int i = 0; i < flts.length; i++) {
-			flts[i] = toFloat(new byte[] { byteArray[(i * 4)], byteArray[(i * 4) + 1], byteArray[(i * 4) + 2],
-					byteArray[(i * 4) + 3], });
+			flts[i] = toFloat(new byte[]{byteArray[(i * 4)], byteArray[(i * 4) + 1], byteArray[(i * 4) + 2],
+					byteArray[(i * 4) + 3],});
 		}
 
 		return flts;
@@ -328,9 +330,9 @@ public class ConversionUtils {
 		double[] dbls = new double[byteArray.length / 8];
 
 		for (int i = 0; i < dbls.length; i++) {
-			dbls[i] = toDouble(new byte[] { byteArray[(i * 8)], byteArray[(i * 8) + 1], byteArray[(i * 8) + 2],
+			dbls[i] = toDouble(new byte[]{byteArray[(i * 8)], byteArray[(i * 8) + 1], byteArray[(i * 8) + 2],
 					byteArray[(i * 8) + 3], byteArray[(i * 8) + 4], byteArray[(i * 8) + 5], byteArray[(i * 8) + 6],
-					byteArray[(i * 8) + 7], });
+					byteArray[(i * 8) + 7],});
 		}
 
 		return dbls;
@@ -344,7 +346,7 @@ public class ConversionUtils {
 		if (byteArray == null || byteArray.length < 4)
 			return null;
 
-		int len = toInt(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
+		int len = toInt(new byte[]{byteArray[0], byteArray[1], byteArray[2], byteArray[3]});
 		boolean[] bools = new boolean[len];
 
 		for (int i = 0, j = 4, k = 7; i < bools.length; i++) {

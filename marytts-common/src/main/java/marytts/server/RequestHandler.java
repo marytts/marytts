@@ -47,7 +47,8 @@ import org.apache.log4j.WriterAppender;
 import org.xml.sax.SAXParseException;
 
 /**
- * A lightweight process handling one Request in a thread of its own. This is to be used when running as a socket server.
+ * A lightweight process handling one Request in a thread of its own. This is to
+ * be used when running as a socket server.
  *
  * @author Marc Schr&ouml;der
  */
@@ -61,9 +62,11 @@ public class RequestHandler extends Thread {
 	private Logger clientLogger;
 
 	/**
-	 * Constructor to be used for Socket processing (running as a standalone socket server). <code>inputReader</code> is a Reader
-	 * reading from from <code>dataSocket.inputStream()</code>. Passing this on is necessary because the mary server does a
-	 * buffered read on that input stream, and without passing that buffered reader on, data gets lost.
+	 * Constructor to be used for Socket processing (running as a standalone
+	 * socket server). <code>inputReader</code> is a Reader reading from from
+	 * <code>dataSocket.inputStream()</code>. Passing this on is necessary
+	 * because the mary server does a buffered read on that input stream, and
+	 * without passing that buffered reader on, data gets lost.
 	 *
 	 * @param request
 	 *            request
@@ -89,7 +92,8 @@ public class RequestHandler extends Thread {
 		this.inputReader = new LoggingReader(inputReader, logger);
 		clientLogger = MaryUtils.getLogger(this.getName() + " client");
 		try {
-			clientLogger.addAppender(new WriterAppender(new SimpleLayout(), new PrintWriter(infoSocket.getOutputStream(), true)));
+			clientLogger.addAppender(
+					new WriterAppender(new SimpleLayout(), new PrintWriter(infoSocket.getOutputStream(), true)));
 			clientLogger.setLevel(Level.WARN);
 			// What goes to clientLogger does not go to the normal logfile:
 			clientLogger.setAdditivity(false);
@@ -117,15 +121,16 @@ public class RequestHandler extends Thread {
 	}
 
 	/**
-	 * Perform the actual processing by calling the appropriate methods of the associated <code>Request</code> object.
+	 * Perform the actual processing by calling the appropriate methods of the
+	 * associated <code>Request</code> object.
 	 * <p>
-	 * Note that while different request handlers run as different threads, they all use the same module objects. How a given
-	 * module deals with several requests simultaneously is its own problem, the simplest solution being a synchronized
-	 * <code>process()</code> method.
+	 * Note that while different request handlers run as different threads, they
+	 * all use the same module objects. How a given module deals with several
+	 * requests simultaneously is its own problem, the simplest solution being a
+	 * synchronized <code>process()</code> method.
 	 *
 	 * @see Request
 	 * @see marytts.modules.MaryModule
-	 * @see marytts.modules.ExternalModule
 	 * @see marytts.modules.InternalModule
 	 */
 	public void run() {
@@ -280,7 +285,8 @@ public class RequestHandler extends Thread {
 				} else if (response != null) {
 					MaryHttpServerUtils.toHttpResponse(input, response, contentType);
 
-					// Important! input.close() is not needed here since toHttpResponse already closes the input
+					// Important! input.close() is not needed here since
+					// toHttpResponse already closes the input
 				} else {
 					System.out.println("Error: No writers initialised!");
 					input.close();

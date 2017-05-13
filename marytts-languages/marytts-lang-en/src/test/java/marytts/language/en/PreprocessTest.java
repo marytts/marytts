@@ -27,102 +27,86 @@ public class PreprocessTest {
 
 	private static Preprocess module;
 	private static MaryInterface mary;
-    private static XMLSerializer xml_ser;
+	private static XMLSerializer xml_ser;
 
 	@BeforeSuite
 	public static void setUpBeforeClass() throws MaryConfigurationException {
 		module = new Preprocess();
 		mary = new LocalMaryInterface();
-        xml_ser = new XMLSerializer();
-    }
+		xml_ser = new XMLSerializer();
+	}
 
 	@DataProvider(name = "NumExpandData")
 	private Object[][] numberExpansionDocDataCardinal() {
 		// @formatter:off
-		return new Object[][] { { "1", "one" },
-								{ "2", "two" },
-								{ "3", "three" },
-								{ "4", "four" },
-								{ "100", "one hundred" },
-								{ "42", "forty-two"} };
+		return new Object[][]{{"1", "one"}, {"2", "two"}, {"3", "three"}, {"4", "four"}, {"100", "one hundred"},
+				{"42", "forty-two"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "RealNumExpandData")
 	private Object[][] numberExpansionDocDataRealNumbers() {
 		// @formatter:off
-		return new Object[][] { { "1.8", "one point eight" },
-								{ "-2", "minus two" },
-								{ "03.45", "three point four five" },
-								{ "42.56%", "forty-two point five six per cent" } };
+		return new Object[][]{{"1.8", "one point eight"}, {"-2", "minus two"}, {"03.45", "three point four five"},
+				{"42.56%", "forty-two point five six per cent"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "OrdinalExpandData")
 	private Object[][] numberExpansionDocDataOrdinal() {
 		// @formatter:off
-		return new Object[][] { { "2", "second" },
-								{ "3", "third" },
-								{ "4", "fourth" } };
+		return new Object[][]{{"2", "second"}, {"3", "third"}, {"4", "fourth"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "YearExpandData")
 	private Object[][] numberExpansionDocDataYear() {
 		// @formatter:off
-		return new Object[][] { { "1918", "nineteen eighteen" },
-								{ "1908", "nineteen oh-eight" },
-								{ "2000", "two thousand" },
-								{ "2015", "twenty fifteen" } };
+		return new Object[][]{{"1918", "nineteen eighteen"}, {"1908", "nineteen oh-eight"}, {"2000", "two thousand"},
+				{"2015", "twenty fifteen"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "wordNumExpandData")
 	private Object[][] expansionDocDataNumWord() {
 		// @formatter:off
-		return new Object[][] { { "123abc", "one two three  abc" },
-								{ "1hello5", "one  hello five " } };
+		return new Object[][]{{"123abc", "one two three  abc"}, {"1hello5", "one  hello five "}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "timeExpandData")
 	private Object[][] expansionDocDataTime() {
 		// @formatter:off
-		return new Object[][] { { "09:00", "nine a m" },
-								{ "12:15", "twelve fifteen p m" },
-								{ "00:05am", "twelve oh five a m" },
-								{ "23:30", "eleven thirty p m" } };
+		return new Object[][]{{"09:00", "nine a m"}, {"12:15", "twelve fifteen p m"}, {"00:05am", "twelve oh five a m"},
+				{"23:30", "eleven thirty p m"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "dateExpandData")
 	private Object[][] expansionDocDataDate() {
 		// @formatter:off
-		return new Object[][] { { "06/29/1993", "June twenty-ninth nineteen ninety-three" },
-								{ "06/22/1992", "June twenty-second nineteen ninety-two" } };
+		return new Object[][]{{"06/29/1993", "June twenty-ninth nineteen ninety-three"},
+				{"06/22/1992", "June twenty-second nineteen ninety-two"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "abbrevExpandData")
 	private Object[][] expansionDocDataAbbrev() {
 		// @formatter:off
-		return new Object[][] { { "dr.", "drive" },
-								{ "mrs", "missus" },
-								{ "Mr.", "mister" } };
+		return new Object[][]{{"dr.", "drive"}, {"mrs", "missus"}, {"Mr.", "mister"}};
 		// @formatter:on
 	}
 
+	@Test(dataProvider = "NumExpandData")
+	public void testExpandNum(String token, String word) {
+		double x = Double.parseDouble(token);
+		String actual = module.expandNumber(x);
+		Assert.assertEquals(actual, word);
+	}
 
-    @Test(dataProvider = "NumExpandData")
-    public void testExpandNum(String token, String word) {
-        double x = Double.parseDouble(token);
-        String actual = module.expandNumber(x);
-        Assert.assertEquals(actual, word);
-    }
-
-    @Test(dataProvider = "RealNumExpandData")
-    public void testExpandRealNum(String token, String word) {
-        String actual = module.expandRealNumber(token);
+	@Test(dataProvider = "RealNumExpandData")
+	public void testExpandRealNum(String token, String word) {
+		String actual = module.expandRealNumber(token);
 		Assert.assertEquals(actual, word);
 	}
 
@@ -171,7 +155,8 @@ public class PreprocessTest {
 		Assert.assertEquals(actual, word);
 	}
 
-	// FIXME: As long as we can't separate phonological words and syntax words => disable this test
+	// FIXME: As long as we can't separate phonological words and syntax words
+	// => disable this test
 	// @Test
 	// public void testSplitContraction() {
 	// String test = "cat's";

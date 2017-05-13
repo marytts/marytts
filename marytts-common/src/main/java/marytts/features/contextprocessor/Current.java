@@ -8,13 +8,11 @@ import marytts.features.ContextProcessor;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
+ *         Maguer</a>
  */
-public class Current implements ContextProcessor
-{
-    public Item generate(Utterance utt, Item item)
-        throws Exception
-    {
-        return item;
-    }
+public class Current implements ContextProcessor {
+	public Item generate(Utterance utt, Item item) throws Exception {
+		return item;
+	}
 }

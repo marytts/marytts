@@ -28,10 +28,9 @@ import java.util.Locale;
 public class JTokenizer extends marytts.modules.nlp.JTokenizer {
 
 	/**
-     *
-     */
-	public JTokenizer()
-    {
+	 *
+	 */
+	public JTokenizer() {
 		super(Locale.ENGLISH);
 	}
 

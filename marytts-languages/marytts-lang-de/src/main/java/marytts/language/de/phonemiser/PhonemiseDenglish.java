@@ -38,8 +38,8 @@ import org.apache.log4j.Logger;
 public class PhonemiseDenglish {
 	private static Logger logger = MaryUtils.getLogger("PhonemiseDenglish");
 
-	private String[] vowels = { "a", "e", "i", "o", "u" };
-	private String[] dentalPlosives = { "t", "d" };
+	private String[] vowels = {"a", "e", "i", "o", "u"};
+	private String[] dentalPlosives = {"t", "d"};
 	private Hashtable<String, String> flectionToPhon = null;
 	private Hashtable<String, String> prefixLexicon = null;
 	private Hashtable<String, String> endingsAndAffixes = null;
@@ -49,7 +49,8 @@ public class PhonemiseDenglish {
 	private int maxPrefixLength = 0;
 
 	private Locale locale;
-	private JPhonemiser jphon = null;// building an instance of JPhonemiser for using
+	private JPhonemiser jphon = null;// building an instance of JPhonemiser for
+										// using
 	// lexiconLookup method and transducers from this class
 
 	private MorphologyReader mr = new MorphologyReader();
@@ -58,17 +59,23 @@ public class PhonemiseDenglish {
 
 		this.jphon = jphon;
 		String classpathPrefix = "/marytts/language/de/lexicon/denglish/";
-		this.flectionToPhon = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "flectionsPhonLex.xml"));
+		this.flectionToPhon = mr
+				.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "flectionsPhonLex.xml"));
 		this.prefixLexicon = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "PrefixLex.xml"));
 		for (Iterator<String> prefixIt = prefixLexicon.keySet().iterator(); prefixIt.hasNext();) {
 			String prefix = prefixIt.next();
 			if (prefix.length() > this.maxPrefixLength)
 				this.maxPrefixLength = prefix.length();
 		}
-		this.endingsAndAffixes = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "germanEndings.xml"));
-		this.terminalVoicings = mr.loadInputModel(getClass().getResourceAsStream(
-				classpathPrefix + "terminal_voicing_for_german.xml"));
-		String[] endingList = getEndingsAndAffixes("flections");// list of flection endings of a specific language
+		this.endingsAndAffixes = mr
+				.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "germanEndings.xml"));
+		this.terminalVoicings = mr
+				.loadInputModel(getClass().getResourceAsStream(classpathPrefix + "terminal_voicing_for_german.xml"));
+		String[] endingList = getEndingsAndAffixes("flections");// list of
+																// flection
+																// endings of a
+																// specific
+																// language
 		if (endingList != null) {
 			this.endingSet = new HashSet<String>(50);//
 			for (int j = 0; j < endingList.length; j++) {
@@ -116,7 +123,8 @@ public class PhonemiseDenglish {
 			logger.debug("Processing took: " + end + " ms");
 			// return transcription;
 			currentResult.setTranscription(transcription);
-			// System.out.println("1) var is "+currentResult.isUsedOtherLanguageToPhonemise());
+			// System.out.println("1) var is
+			// "+currentResult.isUsedOtherLanguageToPhonemise());
 			return currentResult;
 		}
 		// try compound analysis, first without, then with other language:
@@ -127,7 +135,8 @@ public class PhonemiseDenglish {
 			logger.debug("Processing took: " + end + " ms");
 			// return transcription;
 			currentResult.setTranscription(transcription);
-			// System.out.println("2) var is "+currentResult.isUsedOtherLanguageToPhonemise());
+			// System.out.println("2) var is
+			// "+currentResult.isUsedOtherLanguageToPhonemise());
 			return currentResult;
 		}
 		transcription = compoundAnalysis(currentWord, currentResult, allowOtherLanguage);
@@ -137,7 +146,8 @@ public class PhonemiseDenglish {
 			logger.debug("Processing took: " + end + " ms");
 			// return transcription;
 			currentResult.setTranscription(transcription);
-			// System.out.println("2) var is "+currentResult.isUsedOtherLanguageToPhonemise());
+			// System.out.println("2) var is
+			// "+currentResult.isUsedOtherLanguageToPhonemise());
 			return currentResult;
 		}
 		// return null;
@@ -145,13 +155,15 @@ public class PhonemiseDenglish {
 	}
 
 	/**
-	 * Try to process the input word, as it stands, or by cutting off prefixes or inflectional suffixes.
+	 * Try to process the input word, as it stands, or by cutting off prefixes
+	 * or inflectional suffixes.
 	 * 
 	 * @param toBePhonemised
 	 *            the input word
 	 * @param allowOtherLanguage
 	 *            allowOtherLanguage
-	 * @return the transcription of the word, or null if the word could not be transcribed
+	 * @return the transcription of the word, or null if the word could not be
+	 *         transcribed
 	 */
 	private String processFlection(Word word, Result currentResult, boolean allowOtherLanguage) {
 		String toBePhonemised = word.getToBePhonemised();
@@ -165,7 +177,8 @@ public class PhonemiseDenglish {
 		if (transcription != null) {
 			return transcription;
 		}
-		// Try to process by cutting off endings only, without cutting off prefix:
+		// Try to process by cutting off endings only, without cutting off
+		// prefix:
 		if (allowOtherLanguage) {
 			transcription = processFlectionEnding(word, currentResult);
 		}
@@ -173,7 +186,8 @@ public class PhonemiseDenglish {
 			return transcription;
 		}
 		// try removing prefix:
-		// Enforce at least 3 characters in the stem (the part of the word that comes after the prefix):
+		// Enforce at least 3 characters in the stem (the part of the word that
+		// comes after the prefix):
 		int maxPrefLen = Math.min(this.maxPrefixLength, word.getToBePhonemised().length() - 3);
 		for (int i = maxPrefLen; i > 0; i--) {
 			String prefix = word.getToBePhonemised().substring(0, i).toLowerCase();
@@ -210,8 +224,10 @@ public class PhonemiseDenglish {
 		String wordMinusFlectionEnding = null;
 		String flectionEnding = null;
 		String result = null;
-		// separateFlectionEndings returns null if no valid flection ending can be found
-		// otherwise it returns an array containing the word without flection and the flection
+		// separateFlectionEndings returns null if no valid flection ending can
+		// be found
+		// otherwise it returns an array containing the word without flection
+		// and the flection
 		String[] wordPlusEnding = separateFlectionEndings(toBePhonemised, this.maxEndingLength);
 		if (wordPlusEnding != null) {
 			wordMinusFlectionEnding = wordPlusEnding[0];
@@ -221,7 +237,8 @@ public class PhonemiseDenglish {
 				word.setFlectionEnding(flectionEnding);
 				result = transcribeFlection(word, currentResult);// language-dependent
 			} else {// case of upgedatete
-					// start separateFlectionEndings() with a smaller number of ending chars
+					// start separateFlectionEndings() with a smaller number of
+					// ending chars
 				int currentEndingLength = flectionEnding.length();
 				wordPlusEnding = separateFlectionEndings(toBePhonemised, currentEndingLength - 1);
 				if (wordPlusEnding != null) {
@@ -245,7 +262,8 @@ public class PhonemiseDenglish {
 						}
 					}
 				} else {// array is null
-					// we have sth. that is already without flection ending like 'check'
+					// we have sth. that is already without flection ending like
+					// 'check'
 					word = transformWordToEnBaseForm(toBePhonemised, null, word);// language-dependent
 					if (word.getOtherLanguageBaseForm() != null) {
 						result = transcribeFlection(word, currentResult);// language-dependent
@@ -255,7 +273,8 @@ public class PhonemiseDenglish {
 				}
 			}
 		}
-		// System.out.println("var is in processFlection: "+currentResult.isUsedOtherLanguageToPhonemise());
+		// System.out.println("var is in processFlection:
+		// "+currentResult.isUsedOtherLanguageToPhonemise());
 		logger.debug("processFlection: " + result);
 		return result;
 	}
@@ -268,26 +287,32 @@ public class PhonemiseDenglish {
 	 * @param currentResult
 	 *            currentResult
 	 * @param allowOtherLanguage
-	 *            whether to allow component words from other language in compound analysis
-	 * @return If a transcription for the input can be found, then it is returned. Otherwise returns null.
+	 *            whether to allow component words from other language in
+	 *            compound analysis
+	 * @return If a transcription for the input can be found, then it is
+	 *         returned. Otherwise returns null.
 	 */
 	private String compoundAnalysis(Word word, Result currentResult, boolean allowOtherLanguage) {
 		// Chop off longest possible prefixes and try to look them up
-		// in the lexicon. Any part must have a minimum length of 3 -> 2!! characters.
+		// in the lexicon. Any part must have a minimum length of 3 -> 2!!
+		// characters.
 		logger.debug("compoundAnalysis is starting with: " + word.getToBePhonemised());
 
-		for (int i = word.getToBePhonemised().length() - 3; i >= 3; i--) { // -3!!! >= 3!!!
+		for (int i = word.getToBePhonemised().length() - 3; i >= 3; i--) { // -3!!!
+																			// >=
+																			// 3!!!
 
 			String firstPhon = null;
 			String fugePhon = null;
 			String restPhon = null;
-			String[] genitiveAccusativeAndPluralEndings = getEndingsAndAffixes("noun_genitive_accusative_and_plural_endings");// should
-																																// be
-																																// 's'
-																																// and
-																																// 'n'
-																																// for
-																																// german
+			String[] genitiveAccusativeAndPluralEndings = getEndingsAndAffixes(
+					"noun_genitive_accusative_and_plural_endings");// should
+																	// be
+																	// 's'
+																	// and
+																	// 'n'
+																	// for
+																	// german
 			String prefix = word.getToBePhonemised().substring(0, i);
 			logger.debug("Pre: " + prefix);
 
@@ -329,7 +354,8 @@ public class PhonemiseDenglish {
 							String restPhonDe = jphon.userdictLookup(restWithoutLast, null);
 							if (restPhonDe == null)
 								restPhonDe = jphon.lexiconLookup(restWithoutLast, null);
-							String genitiveAndPluralEndingTrans = endingTranscriptionLookup(genitiveAccusativeAndPluralEndings[j]);
+							String genitiveAndPluralEndingTrans = endingTranscriptionLookup(
+									genitiveAccusativeAndPluralEndings[j]);
 							if (restPhonDe != null) {
 								restPhon = restPhonDe + genitiveAndPluralEndingTrans;
 							} else if (allowOtherLanguage) {
@@ -367,10 +393,14 @@ public class PhonemiseDenglish {
 				}
 				// Maybe rest is a flection
 				if (restPhon == null) {
-					// System.out.println("1) new word is : "+rest+". processFlection is called from here. var is : "+currentResult.isUsedOtherLanguageToPhonemise());
+					// System.out.println("1) new word is : "+rest+".
+					// processFlection is called from here. var is :
+					// "+currentResult.isUsedOtherLanguageToPhonemise());
 
 					restPhon = processFlection(new Word(rest), currentResult, allowOtherLanguage);
-					// System.out.println("2) new word was : "+rest+". processFlection is called from here. var is : "+currentResult.isUsedOtherLanguageToPhonemise());
+					// System.out.println("2) new word was : "+rest+".
+					// processFlection is called from here. var is :
+					// "+currentResult.isUsedOtherLanguageToPhonemise());
 				}
 				// Or can the rest be analysed as a compound?
 				if (restPhon == null)
@@ -391,8 +421,9 @@ public class PhonemiseDenglish {
 	 * 
 	 * @param suffix
 	 *            a part of a word with a prefix already removed.
-	 * @return a two-item String array. First string is the trannscnscription of the Fuge found, second is the suffix after the
-	 *         Fuge was removed. Returns null if no Fuge was found.
+	 * @return a two-item String array. First string is the trannscnscription of
+	 *         the Fuge found, second is the suffix after the Fuge was removed.
+	 *         Returns null if no Fuge was found.
 	 */
 	private String[] fugeSearch(String suffix) {
 		String fugePhon = null;
@@ -422,8 +453,9 @@ public class PhonemiseDenglish {
 	 *            the input word
 	 * @param endingLength
 	 *            endings from language specific ending list
-	 * @return when valid flection ending is found, returns a string array of two elements (first is stem, second is ending);
-	 *         else, returns null.
+	 * @return when valid flection ending is found, returns a string array of
+	 *         two elements (first is stem, second is ending); else, returns
+	 *         null.
 	 */
 	private String[] separateFlectionEndings(String toBePhonemised, int endingLength) {
 		String wordMinusFlectionEnding = null;
@@ -440,7 +472,8 @@ public class PhonemiseDenglish {
 	}
 
 	/**
-	 * Try to find baseform of otherLanguageWord (i.e. english infinitive in denglish word)
+	 * Try to find baseform of otherLanguageWord (i.e. english infinitive in
+	 * denglish word)
 	 * 
 	 * @param wordMinusFlectionEnding
 	 *            wordMinusFlectionEnding
@@ -452,25 +485,37 @@ public class PhonemiseDenglish {
 	 */
 	private Word transformWordToEnBaseForm(String wordMinusFlectionEnding, String flectionEnding, Word word) {
 		logger.debug("getEnBaseForm is starting with...: " + wordMinusFlectionEnding);
-		String[] participleBaseLong = getEndingsAndAffixes("participle_base_long");// 'et' for german
-		String[] participleBaseShort = getEndingsAndAffixes("participle_base_short");// 't' for german
-		// String[] flectionFuge = getEndingsAndAffixes("flection_fuge");//should be 'e' for german
+		String[] participleBaseLong = getEndingsAndAffixes("participle_base_long");// 'et'
+																					// for
+																					// german
+		String[] participleBaseShort = getEndingsAndAffixes("participle_base_short");// 't'
+																						// for
+																						// german
+		// String[] flectionFuge =
+		// getEndingsAndAffixes("flection_fuge");//should be 'e' for german
 		String wordMinusFlectionEndingPenultimateChar = null;
 		String wordMinusFlectionEndingUltimateChar = null;
 		if (wordMinusFlectionEnding.length() > 2) {
-			wordMinusFlectionEndingPenultimateChar = wordMinusFlectionEnding.substring(wordMinusFlectionEnding.length() - 2,
-					wordMinusFlectionEnding.length() - 1);
+			wordMinusFlectionEndingPenultimateChar = wordMinusFlectionEnding
+					.substring(wordMinusFlectionEnding.length() - 2, wordMinusFlectionEnding.length() - 1);
 		}
 		if (wordMinusFlectionEnding.length() > 1) {
-			wordMinusFlectionEndingUltimateChar = wordMinusFlectionEnding.substring(wordMinusFlectionEnding.length() - 1,
-					wordMinusFlectionEnding.length());
+			wordMinusFlectionEndingUltimateChar = wordMinusFlectionEnding
+					.substring(wordMinusFlectionEnding.length() - 1, wordMinusFlectionEnding.length());
 		}
-		String wordMinusFlectionEndingLastTwo = wordMinusFlectionEndingPenultimateChar + wordMinusFlectionEndingUltimateChar;
+		String wordMinusFlectionEndingLastTwo = wordMinusFlectionEndingPenultimateChar
+				+ wordMinusFlectionEndingUltimateChar;
 		if (wordMinusFlectionEnding.length() > 3) {
-			if (knowEnBaseForm(wordMinusFlectionEnding)) {// item without ending is already en base form like >boot<
+			if (knowEnBaseForm(wordMinusFlectionEnding)) {// item without ending
+															// is already en
+															// base form like
+															// >boot<
 				if (flectionEnding != null) {
 					if (isLongParticipleBaseEnding(flectionEnding, participleBaseLong)
-							|| isShortParticipleBaseEnding(flectionEnding, participleBaseShort)) {// 'boot >et< or 'scroll>t<'
+							|| isShortParticipleBaseEnding(flectionEnding, participleBaseShort)) {// 'boot
+																									// >et<
+																									// or
+																									// 'scroll>t<'
 						word.setOtherLanguageBaseForm(wordMinusFlectionEnding);
 						word.setCouldBeParticiple(true);
 						word.setCouldBeParticipleInBaseForm(true);
@@ -493,26 +538,30 @@ public class PhonemiseDenglish {
 			// scroll >t< (en) (j=1)
 			// scan >nt< (en) (j=2)
 			if (word.getOtherLanguageBaseForm() == null) {
-				for (int j = 1; j < 3; j++) {// chop off 1-3 chars from end of word
-					logger.debug("new(2a): " + wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - j));
+				for (int j = 1; j < 3; j++) {// chop off 1-3 chars from end of
+												// word
+					logger.debug(
+							"new(2a): " + wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - j));
 					if (knowEnBaseForm(wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - j))) {
 
 						if (isLongParticipleBaseEnding(wordMinusFlectionEndingLastTwo, participleBaseLong) // 'et'
 								|| isShortParticipleBaseEnding(wordMinusFlectionEndingUltimateChar, participleBaseShort)
-								&& !(isShortParticipleBaseEnding(wordMinusFlectionEndingUltimateChar, participleBaseShort) && // to
-																																// force
-																																// that
-																																// sth
-																																// like
-																																// 'cha>tt<en'
-																																// is
-																																// correctly
-								isShortParticipleBaseEnding(wordMinusFlectionEndingPenultimateChar, participleBaseShort))) {// processed
-																															// in
-																															// geminate
-																															// clause
-							word.setOtherLanguageBaseForm(wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length()
-									- j));
+										&& !(isShortParticipleBaseEnding(wordMinusFlectionEndingUltimateChar,
+												participleBaseShort) && // to
+																		// force
+																		// that
+																		// sth
+																		// like
+																		// 'cha>tt<en'
+																		// is
+																		// correctly
+												isShortParticipleBaseEnding(wordMinusFlectionEndingPenultimateChar,
+														participleBaseShort))) {// processed
+																				// in
+																				// geminate
+																				// clause
+							word.setOtherLanguageBaseForm(
+									wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - j));
 							word.setCouldBeParticiple(true);
 							word.setCutOffCharacter(true);
 							logger.debug("new(2a)");
@@ -528,7 +577,8 @@ public class PhonemiseDenglish {
 				logger.debug("in geminate clause: " + wordMinusFlectionEnding);
 				if (wordMinusFlectionEndingUltimateChar.equals(wordMinusFlectionEndingPenultimateChar)) {// sca>nn<
 					if (knowEnBaseForm(wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - 1))) {
-						word.setOtherLanguageBaseForm(wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - 1));
+						word.setOtherLanguageBaseForm(
+								wordMinusFlectionEnding.substring(0, wordMinusFlectionEnding.length() - 1));
 						logger.debug("geminate.......");
 					}
 				}
@@ -559,7 +609,10 @@ public class PhonemiseDenglish {
 		logger.debug("found gerund..........");
 		for (int j = 0; j < flectionFuge.length; j++) {
 			if (knowEnBaseForm(word.substring(0, word.length() - 3) + flectionFuge[j])) {// updat>e<nd
-				enBaseForm = word.substring(0, word.length() - 3) + flectionFuge[j];// like updat >e< nd
+				enBaseForm = word.substring(0, word.length() - 3) + flectionFuge[j];// like
+																					// updat
+																					// >e<
+																					// nd
 				logger.debug("gerund case 3");
 			}
 			if (enBaseForm != null)
@@ -567,10 +620,14 @@ public class PhonemiseDenglish {
 		}
 		if (enBaseForm == null) {
 			if (knowEnBaseForm(word.substring(0, word.length() - 3))) {// download>end<
-				enBaseForm = word.substring(0, word.length() - 3);// item without 'end' is base
+				enBaseForm = word.substring(0, word.length() - 3);// item
+																	// without
+																	// 'end' is
+																	// base
 				logger.debug("gerund case 1");
 			} else if (knowEnBaseForm(word.substring(0, word.length() - 4))
-					&& word.charAt(word.length() - 4) == word.charAt(word.length() - 5)) {// scan>n< end
+					&& word.charAt(word.length() - 4) == word.charAt(word.length() - 5)) {// scan>n<
+																							// end
 				enBaseForm = word.substring(0, word.length() - 4);
 				logger.debug("gerund case 2");
 			}
@@ -605,9 +662,12 @@ public class PhonemiseDenglish {
 					logger.debug("extraSyll true");
 				}
 			}
-			// System.out.println("var is in transcribeFlection: "+currentResult.isUsedOtherLanguageToPhonemise());
-			// for cases like 'scrollet' where 'et' is flection ending and NOT ending of
-			// participleBaseForm; otherwise 'scrollet' would sound like 'scrollt'
+			// System.out.println("var is in transcribeFlection:
+			// "+currentResult.isUsedOtherLanguageToPhonemise());
+			// for cases like 'scrollet' where 'et' is flection ending and NOT
+			// ending of
+			// participleBaseForm; otherwise 'scrollet' would sound like
+			// 'scrollt'
 			String[] participleBaseLongEndings = getEndingsAndAffixes("participle_base_long");
 			for (int j = 0; j < participleBaseLongEndings.length; j++) {
 				if (word.getFlectionEnding() != null && word.getFlectionEnding().equals(participleBaseLongEndings[j])
@@ -615,22 +675,33 @@ public class PhonemiseDenglish {
 					word.setExtraSyll(true);
 				}
 			}
-			String[] gerundEndings = getEndingsAndAffixes("gerund_ending");// should be 'end' -> bootend
-			// String gerundEndingTrans = endingTranscriptionLookup(gerundEnding);//should be '@nt'
+			String[] gerundEndings = getEndingsAndAffixes("gerund_ending");// should
+																			// be
+																			// 'end'
+																			// ->
+																			// bootend
+			// String gerundEndingTrans =
+			// endingTranscriptionLookup(gerundEnding);//should be '@nt'
 			for (int j = 0; j < gerundEndings.length; j++) {
 				if (endingTranscriptionLookup(gerundEndings[j]) != null) {
 					gerundEndingTrans = endingTranscriptionLookup(gerundEndings[j]);
 				}
 			}
 			String[] participleBaseShortEndings = getEndingsAndAffixes("participle_base_short");
-			// If the participle ends with 'ed' or 'et' doesn't matter -> you get the same transcription
-			// String participleBaseEndingTrans = endingTranscriptionLookup(participleBaseEnding);//gives you 't'
+			// If the participle ends with 'ed' or 'et' doesn't matter -> you
+			// get the same transcription
+			// String participleBaseEndingTrans =
+			// endingTranscriptionLookup(participleBaseEnding);//gives you 't'
 			for (int j = 0; j < participleBaseShortEndings.length; j++) {
 				if (endingTranscriptionLookup(participleBaseShortEndings[j]) != null) {
-					participleBaseShortEndingTrans = endingTranscriptionLookup(participleBaseShortEndings[j]);// gives you 't'
+					participleBaseShortEndingTrans = endingTranscriptionLookup(participleBaseShortEndings[j]);// gives
+																												// you
+																												// 't'
 				}
 			}
-			String[] flectionFuge = getEndingsAndAffixes("flection_fuge");// gives you 'e'
+			String[] flectionFuge = getEndingsAndAffixes("flection_fuge");// gives
+																			// you
+																			// 'e'
 			for (int j = 0; j < flectionFuge.length; j++) {
 				if (endingTranscriptionLookup(flectionFuge[j]) != null) {
 					flectionFugeTrans = endingTranscriptionLookup(flectionFuge[j]);
@@ -639,35 +710,47 @@ public class PhonemiseDenglish {
 
 			endingTranscription = endingTranscriptionLookup(word.getFlectionEnding());
 			String newEnTranscription = rebuildTrans(otherLanguageTranscription);
-			String newGerundEndingTrans = rebuildTrans(gerundEndingTrans);// should then be '@n-t'
-			String voicedNewGerundEndingTrans = voiceFinal(newGerundEndingTrans);// should be '@n-d'
-			// String voicedGerundEndingTrans = voiceFinal(gerundEndingTrans); //should be '@nd'
+			String newGerundEndingTrans = rebuildTrans(gerundEndingTrans);// should
+																			// then
+																			// be
+																			// '@n-t'
+			String voicedNewGerundEndingTrans = voiceFinal(newGerundEndingTrans);// should
+																					// be
+																					// '@n-d'
+			// String voicedGerundEndingTrans = voiceFinal(gerundEndingTrans);
+			// //should be '@nd'
 			logger.debug("enTrans: " + otherLanguageTranscription);
 
 			if (word.getFlectionEnding() != null) {
 				if (endingTranscriptionLookup(word.getFlectionEnding()) != null) {
-					// special rule in case of enBaseForm's last char equals valid flection ending i.e. 't'
+					// special rule in case of enBaseForm's last char equals
+					// valid flection ending i.e. 't'
 					// in this case give us back the enBaseForm aka enInfinitive
-					// testing for participle because of date>te< enBaseForm ends with found ending
+					// testing for participle because of date>te< enBaseForm
+					// ends with found ending
 					if (otherLanguageTranscription.endsWith(word.getFlectionEnding()) && !(word.getIsVerbalGerund())
 							&& !(word.getCouldBeParticiple())) {
 						result = otherLanguageTranscription;
 						logger.debug("(0)");
 					} else {
-						if (word.getCouldBeParticiple() && isShortSuperlative(word.getFlectionEnding()) && word.getExtraSyll()) {// i.e.
-																																	// downgeloadetsten
+						if (word.getCouldBeParticiple() && isShortSuperlative(word.getFlectionEnding())
+								&& word.getExtraSyll()) {// i.e.
+															// downgeloadetsten
 							result = newEnTranscription + flectionFugeTrans + participleBaseShortEndingTrans
 									+ endingTranscription;
 							logger.debug("(1)");
-						} else if (word.getCouldBeParticiple() && word.getCouldBeParticipleInBaseForm() && word.getExtraSyll()) {// scrollet
-																																	// or
-																																	// downloadet
+						} else if (word.getCouldBeParticiple() && word.getCouldBeParticipleInBaseForm()
+								&& word.getExtraSyll()) {// scrollet
+															// or
+															// downloadet
 							result = newEnTranscription + flectionFugeTrans + participleBaseShortEndingTrans;
 							logger.debug("(2)");
-						} else if (word.getCouldBeParticiple() && word.getExtraSyll() && word.getWordMinusFlectionEndsWithVowel()) {
+						} else if (word.getCouldBeParticiple() && word.getExtraSyll()
+								&& word.getWordMinusFlectionEndsWithVowel()) {
 							result = newEnTranscription + flectionFugeTrans + "-" + endingTranscription;
 							logger.debug("(3)");
-						} else if (word.getCouldBeParticiple() && word.getExtraSyll()) {// i.e. downgeloadetere
+						} else if (word.getCouldBeParticiple() && word.getExtraSyll()) {// i.e.
+																						// downgeloadetere
 							result = newEnTranscription + flectionFugeTrans + "-" + participleBaseShortEndingTrans
 									+ endingTranscription;
 							logger.debug("(4)");
@@ -678,8 +761,10 @@ public class PhonemiseDenglish {
 						} else if (word.getCouldBeParticiple() && word.getCouldBeParticipleInBaseForm()) {
 							result = otherLanguageTranscription + participleBaseShortEndingTrans;
 							logger.debug("(6)");
-						} else if (word.getCouldBeParticiple()) {// i.e. gescrolltestem
-							result = otherLanguageTranscription + "-" + participleBaseShortEndingTrans + endingTranscription;
+						} else if (word.getCouldBeParticiple()) {// i.e.
+																	// gescrolltestem
+							result = otherLanguageTranscription + "-" + participleBaseShortEndingTrans
+									+ endingTranscription;
 							logger.debug("(7)");
 						} else {
 							if (word.getIsVerbalGerund()) {
@@ -692,11 +777,15 @@ public class PhonemiseDenglish {
 							} else {
 								if (isShortSuperlative(word.getFlectionEnding())) {
 									result = otherLanguageTranscription + endingTranscription;
-								} else {// no Gerund, no superlative but maybe something like 'scannst'
-									if (word.getExtraSyll()) {// means: word ends on 't' or 'd'
+								} else {// no Gerund, no superlative but maybe
+										// something like 'scannst'
+									if (word.getExtraSyll()) {// means: word
+																// ends on 't'
+																// or 'd'
 										logger.debug("extraSyll is true here...");
 										result = newEnTranscription + endingTranscription;
-									} else {// means: word ends on something else
+									} else {// means: word ends on something
+											// else
 										if (endingContainsVowel(word.getFlectionEnding())
 												&& (!(endingBeginsWithVowel(word.getFlectionEnding())))) {
 											result = otherLanguageTranscription + "-" + endingTranscription;
@@ -714,7 +803,8 @@ public class PhonemiseDenglish {
 						}
 					}
 				}
-			} else {// flection ending is null: two possibilities: en-Word like boot or ger gerund like bootend
+			} else {// flection ending is null: two possibilities: en-Word like
+					// boot or ger gerund like bootend
 				if (word.getIsVerbalGerund()) {
 					result = newEnTranscription + gerundEndingTrans;
 					logger.debug("(((1)))");
@@ -777,17 +867,21 @@ public class PhonemiseDenglish {
 		}
 		if (getVoicedFinal(finalPhoneme) != null) {
 			voicedFinalPhoneme = getVoicedFinal(finalPhoneme);
-			voicedEnding = ending.substring(0, ending.length() - 1) + voicedFinalPhoneme;// return new ending voiced
+			voicedEnding = ending.substring(0, ending.length() - 1) + voicedFinalPhoneme;// return
+																							// new
+																							// ending
+																							// voiced
 		} else {
-			// if there is no voiced value for the last phone, return ending as it came in
+			// if there is no voiced value for the last phone, return ending as
+			// it came in
 			voicedEnding = ending;
 		}
 		return voicedEnding;
 	}
 
 	/**
-	 * If the given string ends with a consonant, insert a syllable boundary before that consonant. Otherwise, append a syllable
-	 * boundary.
+	 * If the given string ends with a consonant, insert a syllable boundary
+	 * before that consonant. Otherwise, append a syllable boundary.
 	 * 
 	 * @param s
 	 *            input syllable
@@ -799,7 +893,8 @@ public class PhonemiseDenglish {
 			Allophone[] allophones = set.splitIntoAllophones(s);
 			if (allophones != null && allophones.length > 0) {
 				Allophone last = allophones[allophones.length - 1];
-				if (last.isConsonant()) { // insert a syllable boundary before final consonant
+				if (last.isConsonant()) { // insert a syllable boundary before
+											// final consonant
 					String lastPh = last.name();
 					return s.substring(0, s.length() - lastPh.length()) + "-" + lastPh;
 				}
@@ -809,18 +904,27 @@ public class PhonemiseDenglish {
 	}
 
 	/**
-	 * Checks if input string is a gerund - means: input ends with 'end' Sets global var isVerbalGerund which is important for
-	 * building transcription later on
+	 * Checks if input string is a gerund - means: input ends with 'end' Sets
+	 * global var isVerbalGerund which is important for building transcription
+	 * later on
 	 * 
 	 * @param s
 	 *            input string
-	 * @return true if s.substring(s.length -3, s.length).equals(gerundEndings[j]), false otherwise
+	 * @return true if s.substring(s.length -3,
+	 *         s.length).equals(gerundEndings[j]), false otherwise
 	 */
 	private boolean checkIfGerund(String s) {
-		String[] gerundEndings = getEndingsAndAffixes("gerund_ending");// should be 'end' for german
+		String[] gerundEndings = getEndingsAndAffixes("gerund_ending");// should
+																		// be
+																		// 'end'
+																		// for
+																		// german
 		for (int j = 0; j < gerundEndings.length; j++) {
 			if (s.length() > gerundEndings[j].length()) {
-				if (s.substring(s.length() - 3, s.length()).equals(gerundEndings[j])) {// we have an gerund
+				if (s.substring(s.length() - 3, s.length()).equals(gerundEndings[j])) {// we
+																						// have
+																						// an
+																						// gerund
 					return true;
 				}
 			}
@@ -928,13 +1032,14 @@ public class PhonemiseDenglish {
 		return false;
 	}
 
-	// public boolean usedOtherLanguageToPhonemise(boolean usedOtherLanguageToPhonemise) {
+	// public boolean usedOtherLanguageToPhonemise(boolean
+	// usedOtherLanguageToPhonemise) {
 	// return usedOtherLanguageToPhonemise;
 	// }
 
 	/**
 	 ******************************************************************************
-	 Hashtable lookup methods for morphology & phonology information
+	 * Hashtable lookup methods for morphology & phonology information
 	 ******************************************************************************
 	 **/
 	/**
@@ -957,7 +1062,8 @@ public class PhonemiseDenglish {
 	}
 
 	/**
-	 * Looks up in terminal voicing hash if there is a match for a unvoiced consonant
+	 * Looks up in terminal voicing hash if there is a match for a unvoiced
+	 * consonant
 	 * 
 	 * @param phon
 	 *            The unvoiced consonant
@@ -979,7 +1085,8 @@ public class PhonemiseDenglish {
 	 * Looks up list of all endings and affixes for specific language
 	 * 
 	 * @param key
-	 *            key of the affixes/endings you want to get, i.e. superlative_short
+	 *            key of the affixes/endings you want to get, i.e.
+	 *            superlative_short
 	 * @return list of endings or affixes if key is valid, null otherwise
 	 */
 	private String[] getEndingsAndAffixes(String key) {

@@ -31,10 +31,12 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * A directed graph is a layered structure of nodes, in which there are mother-daughter relationships between the node. There is a
- * single root node. Each node can have multiple daughters and/or multiple mothers. Three types of nodes are allowed:
- * DirectedGraphNode (which can have multiple mothers, a leaf and a decision node), LeafNodes (which carry data), and
- * DecisionNodes (which can have multiple daughters).
+ * A directed graph is a layered structure of nodes, in which there are
+ * mother-daughter relationships between the node. There is a single root node.
+ * Each node can have multiple daughters and/or multiple mothers. Three types of
+ * nodes are allowed: DirectedGraphNode (which can have multiple mothers, a leaf
+ * and a decision node), LeafNodes (which carry data), and DecisionNodes (which
+ * can have multiple daughters).
  *
  * @author marc
  *
@@ -60,7 +62,8 @@ public class DirectedGraph {
 	 * Build a new empty graph with the given feature definition.
 	 *
 	 * @param featDef
-	 *            the feature definition used for interpreting the meaning of decision node criteria.
+	 *            the feature definition used for interpreting the meaning of
+	 *            decision node criteria.
 	 */
 	public DirectedGraph(FeatureDefinition featDef) {
 		this(null, featDef);
@@ -72,7 +75,8 @@ public class DirectedGraph {
 	 * @param rootNode
 	 *            the root node of the graph
 	 * @param featDef
-	 *            the feature definition used for interpreting the meaning of decision node criteria.
+	 *            the feature definition used for interpreting the meaning of
+	 *            decision node criteria.
 	 */
 	public DirectedGraph(Node rootNode, FeatureDefinition featDef) {
 		this(rootNode, featDef, null);
@@ -84,10 +88,12 @@ public class DirectedGraph {
 	 * @param rootNode
 	 *            the root node of the graph
 	 * @param featDef
-	 *            the feature definition used for interpreting the meaning of decision node criteria.
+	 *            the feature definition used for interpreting the meaning of
+	 *            decision node criteria.
 	 * @param properties
-	 *            a generic properties object, which can be used to encode information about the tree and the way the data in it
-	 *            should be represented.
+	 *            a generic properties object, which can be used to encode
+	 *            information about the tree and the way the data in it should
+	 *            be represented.
 	 */
 	public DirectedGraph(Node rootNode, FeatureDefinition featDef, Properties properties) {
 		this.rootNode = rootNode;
@@ -100,27 +106,31 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Walk down the graph as far as possible according to the features in fv, and return the data in the leaf node found there.
+	 * Walk down the graph as far as possible according to the features in fv,
+	 * and return the data in the leaf node found there.
 	 *
 	 * @param fv
-	 *            a feature vector which must be consistent with the graph's feature definition. (@see #getFeatureDefinition()).
-	 * @return the most specific non-null leaf node data that can be retrieved, or null if there is no non-null leaf node data
-	 *         along the fv's path.
+	 *            a feature vector which must be consistent with the graph's
+	 *            feature definition. (@see #getFeatureDefinition()).
+	 * @return the most specific non-null leaf node data that can be retrieved,
+	 *         or null if there is no non-null leaf node data along the fv's
+	 *         path.
 	 */
 	public Object interpret(FeatureVector fv) {
 		return interpret(rootNode, fv);
 	}
 
 	/**
-	 * Follow the directed graph down to the most specific leaf with data, starting from node n. This is recursively calling
-	 * itself.
+	 * Follow the directed graph down to the most specific leaf with data,
+	 * starting from node n. This is recursively calling itself.
 	 *
 	 * @param n
 	 *            n
 	 * @param fv
 	 *            fv
-	 * @return null if n=null, n.getAllData if n.isLeafNode, interpret (next, fv) if next = ((DecisionNode) n).getNextNode(fv),
-	 *         data if data != null, interpret(g.getLeafNode(), fv) otherwise
+	 * @return null if n=null, n.getAllData if n.isLeafNode, interpret (next,
+	 *         fv) if next = ((DecisionNode) n).getNextNode(fv), data if data !=
+	 *         null, interpret(g.getLeafNode(), fv) otherwise
 	 */
 	protected Object interpret(Node n, FeatureVector fv) {
 		if (n == null)
@@ -142,7 +152,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Return an iterator which returns all nodes in the tree exactly once. Search is done in a depth-first way.
+	 * Return an iterator which returns all nodes in the tree exactly once.
+	 * Search is done in a depth-first way.
 	 *
 	 * @return a new NodeIterator(Node)
 	 */
@@ -151,7 +162,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Return an iterator which returns all leaf nodes in the tree exactly once. Search is done in a depth-first way.
+	 * Return an iterator which returns all leaf nodes in the tree exactly once.
+	 * Search is done in a depth-first way.
 	 *
 	 * @return a new NodeIterator(LeafNode)
 	 */
@@ -160,7 +172,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Return an iterator which returns all decision nodes in the tree exactly once. Search is done in a depth-first way.
+	 * Return an iterator which returns all decision nodes in the tree exactly
+	 * once. Search is done in a depth-first way.
 	 *
 	 * @return a new NodeIterator(DecisionNode)
 	 */
@@ -169,7 +182,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Return an iterator which returns all directed graph nodes in the tree exactly once. Search is done in a depth-first way.
+	 * Return an iterator which returns all directed graph nodes in the tree
+	 * exactly once. Search is done in a depth-first way.
 	 *
 	 * @return a new NodeIterator(DirectedGraphNode)
 	 */
@@ -178,7 +192,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * A representation of the corresponding node iterator that can be used in extended for() statements.
+	 * A representation of the corresponding node iterator that can be used in
+	 * extended for() statements.
 	 *
 	 * @return a new Iterable(Node)
 	 */
@@ -191,7 +206,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * A representation of the corresponding node iterator that can be used in extended for() statements.
+	 * A representation of the corresponding node iterator that can be used in
+	 * extended for() statements.
 	 *
 	 * @return a new Iterable(LeafNode)
 	 */
@@ -204,7 +220,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * A representation of the corresponding node iterator that can be used in extended for() statements.
+	 * A representation of the corresponding node iterator that can be used in
+	 * extended for() statements.
 	 *
 	 * @return a new Iterable(DecisionNode)
 	 */
@@ -217,7 +234,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * A representation of the corresponding node iterator that can be used in extended for() statements.
+	 * A representation of the corresponding node iterator that can be used in
+	 * extended for() statements.
 	 *
 	 * @return a new Iterable(DirectedGraphNode)
 	 */
@@ -230,7 +248,8 @@ public class DirectedGraph {
 	}
 
 	/**
-	 * Get the properties object associated with this tree, or null if there is no such object.
+	 * Get the properties object associated with this tree, or null if there is
+	 * no such object.
 	 *
 	 * @return the properties
 	 */

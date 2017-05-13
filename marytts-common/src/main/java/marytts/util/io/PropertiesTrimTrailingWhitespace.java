@@ -8,7 +8,8 @@ import java.util.Properties;
 import java.util.Scanner;
 
 /**
- * extends properties class to allow trimming of trailing whitespace from input streams
+ * extends properties class to allow trimming of trailing whitespace from input
+ * streams
  * 
  * @author Tristan
  * 
