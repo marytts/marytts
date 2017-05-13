@@ -7,47 +7,50 @@ package marytts.data.utils;
  *         Maguer</a>
  */
 public class IntegerPair {
-    /** the left member of the pair */
+	/** the left member of the pair */
 	private Integer left;
 
-    /** the right member of the pair */
+	/** the right member of the pair */
 	private Integer right; // right member of pair
 
-    /**
-     * Constructor
-     *
-     * @param left the left member to set
-     * @param right the right member to set
-     */
+	/**
+	 * Constructor
+	 *
+	 * @param left
+	 *            the left member to set
+	 * @param right
+	 *            the right member to set
+	 */
 	public IntegerPair(Integer left, Integer right) {
 		this.left = left;
 		this.right = right;
 	}
 
-    /**
-     * Get the left member of the pair
-     *
-     * @return the left member of the pair
-     */
+	/**
+	 * Get the left member of the pair
+	 *
+	 * @return the left member of the pair
+	 */
 	public Integer getLeft() {
 		return left;
 	}
 
-    /**
-     * Get the right member of the pair
-     *
-     * @return the right member of the pair
-     */
+	/**
+	 * Get the right member of the pair
+	 *
+	 * @return the right member of the pair
+	 */
 	public Integer getRight() {
 		return right;
 	}
 
-    /**
-     * Method to compare the current pair of integer to a given one
-     *
-     * @param obj the other pair of integer
-     * @return true if obj is a pair of integer equals to the current one
-     */
+	/**
+	 * Method to compare the current pair of integer to a given one
+	 *
+	 * @param obj
+	 *            the other pair of integer
+	 * @return true if obj is a pair of integer equals to the current one
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

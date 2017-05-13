@@ -11,33 +11,35 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Sentence extends Item {
-    /** the text of the sentence */
+	/** the text of the sentence */
 	private String m_text;
 
-    /**
-     * Constructor of a sentence
-     *
-     * @param text the text of the sentence
-     */
+	/**
+	 * Constructor of a sentence
+	 *
+	 * @param text
+	 *            the text of the sentence
+	 */
 	public Sentence(String text) {
 		super();
 		setText(text);
 	}
 
-    /**
-     * Accessor to get the text of the sentence
-     *
-     * @return the text of the sentence
-     */
+	/**
+	 * Accessor to get the text of the sentence
+	 *
+	 * @return the text of the sentence
+	 */
 	public String getText() {
 		return m_text;
 	}
 
-    /**
-     * Accessor to set the text of the sentence
-     *
-     * @param text the text of the sentence
-     */
+	/**
+	 * Accessor to set the text of the sentence
+	 *
+	 * @param text
+	 *            the text of the sentence
+	 */
 	protected void setText(String text) {
 		m_text = text;
 	}
