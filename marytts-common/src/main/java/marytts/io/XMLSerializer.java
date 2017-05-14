@@ -66,14 +66,6 @@ public class XMLSerializer implements Serializer {
 		logger = MaryUtils.getLogger("XMLSerializer");
 	}
 
-	public Utterance load(File file) throws MaryIOException {
-		return new Utterance("", Locale.ENGLISH); // TODO: makes compiler happy
-													// for now
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-	}
-
 	public String toString(Utterance utt) throws MaryIOException {
 		try {
 			Document doc = generateDocument(utt);

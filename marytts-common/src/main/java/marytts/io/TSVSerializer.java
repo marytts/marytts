@@ -33,13 +33,6 @@ public class TSVSerializer implements Serializer {
 		m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
 	}
 
-	public Utterance load(File file) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
 
 	public String toString(Utterance utt) throws MaryIOException {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {

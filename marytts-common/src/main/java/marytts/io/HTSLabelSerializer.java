@@ -36,13 +36,6 @@ public class HTSLabelSerializer implements Serializer {
 		m_feature_names.remove(PHONE_FEATURE_NAME);
 	}
 
-	public Utterance load(File file) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
 
 	public String toString(Utterance utt) throws MaryIOException {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
