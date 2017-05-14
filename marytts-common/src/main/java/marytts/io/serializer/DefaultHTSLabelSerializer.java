@@ -1,35 +1,56 @@
 package marytts.io.serializer;
 
-import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
+/* Utils part */
+import java.util.Map;
+import java.util.Hashtable;
+
+/* Mary data part */
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
 import marytts.data.Utterance;
-import marytts.io.MaryIOException;
 import marytts.data.SupportedSequenceType;
 
-import java.util.Hashtable;
-import java.util.Map;
+/* IO Part */
+import marytts.io.MaryIOException;
 import java.io.File;
 
 /**
- *
+ * This serializer is aimed to generate HTS compatible labels as Festival would
+ * do.
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
 public class DefaultHTSLabelSerializer implements Serializer {
+	/** The phoneme alphabet conversion map */
 	protected Hashtable<String, String> alphabet_converter;
+
+	/** the POS tag conversion */
 	protected Hashtable<String, String> pos_converter;
+
+	/** The undefined value constant */
 	public static final String UNDEF = "x";
 
+	/**
+	 * Constructor
+	 *
+	 */
 	public DefaultHTSLabelSerializer() {
 		initPhConverter();
 		initPOSConverter();
 	}
 
+	/**
+	 * Generate the HTS Labels from the given utterance
+	 *
+	 * @param utt
+	 *            the utterance
+	 * @return the HTS label content
+	 * @throws MaryIOException
+	 *             when something is going wrong
+	 */
 	public String toString(Utterance utt) throws MaryIOException {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
 			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
@@ -44,15 +65,25 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		return output;
 	}
 
+	/**
+	 * Generate an utterance from the HTS labels. <b>Not supported for now</b>
+	 *
+	 * @param content
+	 *            the HTS labels
+	 * @return the utterance generated
+	 * @throws MaryIOException
+	 *             when something is going wrong
+	 */
 	public Utterance fromString(String content) throws MaryIOException {
 		throw new UnsupportedOperationException();
 	}
 
-	/*
-	 * =========================================================================
-	 * ================= # Conversion helpers
-	 * =========================================================================
-	 * =================
+	/************************************************************************************************
+	 * Conversion helpers
+	 ************************************************************************************************/
+	/**
+	 * Method to generate the mapping between phonemes
+	 *
 	 */
 	protected void initPhConverter() {
 		alphabet_converter = new Hashtable<String, String>();
@@ -110,6 +141,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		alphabet_converter.put("?", "dt");
 	}
 
+	/**
+	 * Method to convert the phoneme label to be compatible with HTS
+	 *
+	 * @param ph
+	 *            the phoneme to convert
+	 * @return the converted phoneme
+	 */
 	protected String convertPh(String ph) {
 		String fest_ph = alphabet_converter.get(ph);
 		if (fest_ph != null)
@@ -118,6 +156,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		return ph;
 	}
 
+	/**
+	 * Method to check if a segment is a NonSpeechSound (NSS)
+	 *
+	 * @param feature_map
+	 *            the map of features of the segment
+	 * @return true if it is a NSS
+	 */
 	protected boolean isNSS(FeatureMap feature_map) {
 		if (feature_map.get("phone").getStringValue().equals("_"))
 			return true;
@@ -125,6 +170,10 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		return false;
 	}
 
+	/**
+	 * Method to generate the mapping between Part Of Speech tags
+	 *
+	 */
 	protected void initPOSConverter() {
 		pos_converter = new Hashtable<String, String>();
 
@@ -214,15 +263,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		// content => default do nothing
 	}
 
-	protected String convertPOS(Hashtable<String, String> cur_wrd) {
-		String fest_pos = pos_converter.get(cur_wrd.get("label"));
-
-		if (fest_pos != null)
-			return fest_pos;
-
-		return "content";
-	}
-
+	/**
+	 * The POS tag to convert.
+	 *
+	 * @param pos
+	 *            the original POS tag
+	 * @return the converted POS tag
+	 */
 	protected String convertPOS(String pos) {
 		String fest_pos = pos_converter.get(pos);
 		if (fest_pos != null)
@@ -231,10 +278,29 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		return "content";
 	}
 
-	protected final String getValue(FeatureMap feature_map, String key) {
-		return feature_map.get(key) == null ? UNDEF : feature_map.get(key).getStringValue();
+	/**
+	 * Wrapper to get the value of specific feature
+	 *
+	 * @param feature_map
+	 *            the feature map
+	 * @param feature_name
+	 *            the feature name
+	 * @return the value of feature_name in feature_map or the UNDEF value if
+	 *         the feature_name is not existing in the map
+	 */
+	protected final String getValue(FeatureMap feature_map, String feature_name) {
+		return ((feature_map.containsKey(feature_name)) && (feature_map.get(feature_name) != Feature.UNDEF_FEATURE))
+				? feature_map.get(feature_name).getStringValue()
+				: UNDEF;
 	}
 
+	/**
+	 * Method to output the feature map in the HTS label format
+	 *
+	 * @param feature_map
+	 *            the feature map
+	 * @return the corresponding HTS label
+	 */
 	protected String format(FeatureMap feature_map) {
 		// Check if current phone is nss ?
 		boolean is_nss = isNSS(feature_map);

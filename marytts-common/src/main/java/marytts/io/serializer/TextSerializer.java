@@ -1,50 +1,33 @@
 package marytts.io.serializer;
 
+/* Utils part */
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import marytts.server.MaryProperties; // FIXME: need to be moved !
+import marytts.util.MaryUtils;
+import marytts.util.string.StringUtils;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-
+/* IO part */
 import java.io.File;
 import java.io.StringWriter;
 import java.io.StringReader;
 import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.OutputKeys;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.SAXException;
-import org.xml.sax.InputSource;
-
-import marytts.util.dom.MaryEntityResolver;
-
-import marytts.data.utils.IntegerPair;
-import marytts.data.utils.SequenceTypePair;
 import marytts.io.MaryIOException;
+
+/* Marytts data part */
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
+import marytts.data.utils.IntegerPair;
+import marytts.data.utils.SequenceTypePair;
 import marytts.data.item.linguistic.*;
 import marytts.data.item.phonology.*;
 import marytts.data.item.prosody.*;
 import marytts.data.item.*;
-import marytts.server.MaryProperties; // FIXME: need to be moved !
-import marytts.util.MaryUtils;
-import marytts.util.string.StringUtils;
+
+/* Logger */
 import org.apache.log4j.Logger;
 
 /**
@@ -55,18 +38,30 @@ import org.apache.log4j.Logger;
  */
 public class TextSerializer implements Serializer {
 	private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
-	private static final String NAMESPACE = "http://mary.dfki.de/2002/MaryXML";
 	private boolean splitIntoParagraphs;
 	protected Logger logger;
 
+	/**
+	 * Constructor
+	 *
+	 */
 	public TextSerializer() {
 		logger = MaryUtils.getLogger("TextSerializer");
 		splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
 	}
 
-	public String toString(Utterance utt) throws MaryIOException
-
-	{
+	/**
+	 * Transform the utterance to a text. The result is actually just the
+	 * concatenation of the paragraph's text.
+	 *
+	 * @param utt
+	 *            the utterance
+	 * @return the text composed by the concatenation of the text of the
+	 *         paragraphs
+	 * @throws MaryIOException
+	 *             if anything is going wrong
+	 */
+	public String toString(Utterance utt) throws MaryIOException {
 		String output = "";
 		Sequence<Paragraph> paragraphs = (Sequence<Paragraph>) utt.getSequence(SupportedSequenceType.PARAGRAPH);
 
@@ -76,9 +71,19 @@ public class TextSerializer implements Serializer {
 
 		return output;
 	}
-	public Utterance fromString(String str) throws MaryIOException {
 
-		String plain_text = MaryUtils.normaliseUnicodePunctuation(str);
+	/**
+	 * Import the text. The text is split into paragraph. Therefore the created
+	 * utterance contains only a sequence of paragraphs.
+	 *
+	 * @param text
+	 *            the input text
+	 * @return the created utterance
+	 * @throws MaryIOException
+	 *             if anything is going wrong
+	 */
+	public Utterance fromString(String text) throws MaryIOException {
+		String plain_text = MaryUtils.normaliseUnicodePunctuation(text);
 		Locale l = Locale.US; // FIXME: we really need to fix this !
 
 		// New utterance part

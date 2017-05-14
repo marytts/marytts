@@ -1,40 +1,92 @@
 package marytts.io.serializer;
 
+/* Introspection part */
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/* MaryTTS data part */
 import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.Utterance;
-import marytts.io.MaryIOException;
 import marytts.data.SupportedSequenceType;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
+/* IO part */
+import marytts.io.MaryIOException;
+import java.io.File;
+
+/* Utils part */
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
-import java.io.File;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
- *
+ * ROOTS JSON serializer. This serializer is the most accurate considering the
+ * topology of the
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
 public class ROOTSJSONSerializer implements Serializer {
+	/** The string builder initial capacity */
 	private final static int SB_INIT_CAP = 1000;
 
+	/** The set of wrappers for primitive types */
+	private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+
+	/**
+	 * Method to check if the given class is a wrapper one
+	 *
+	 * @param clazz
+	 *            the class to check
+	 * @return true if clazz is a wrapper for primitive types
+	 */
+	public static boolean isWrapperType(Class<?> clazz) {
+		return WRAPPER_TYPES.contains(clazz);
+	}
+
+	/**
+	 * List wrapper types
+	 *
+	 * @return the set of wrapper classes
+	 */
+	private static Set<Class<?>> getWrapperTypes() {
+		Set<Class<?>> ret = new HashSet<Class<?>>();
+		ret.add(Boolean.class);
+		ret.add(Character.class);
+		ret.add(Byte.class);
+		ret.add(Short.class);
+		ret.add(Integer.class);
+		ret.add(Long.class);
+		ret.add(Float.class);
+		ret.add(Double.class);
+		ret.add(Void.class);
+		ret.add(String.class);
+		return ret;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 */
 	public ROOTSJSONSerializer() {
 	}
 
-
+	/**
+	 * Generate the JSON formatted string of the ROOTS utterance
+	 *
+	 * @param utt
+	 *            the utterance to export
+	 * @return the JSON formatted string
+	 * @throws MaryIOException
+	 *             if anything is going wrong
+	 */
 	public String toString(Utterance utt) throws MaryIOException {
 		StringBuilder sb = new StringBuilder(SB_INIT_CAP);
 		try {
@@ -55,7 +107,18 @@ public class ROOTSJSONSerializer implements Serializer {
 		}
 	}
 
-	public void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
+	/**
+	 * Export the sequences of the given utterance to the string builder in a
+	 * JSON format
+	 *
+	 * @param utt
+	 *            the given utterance
+	 * @param sb
+	 *            the string builder
+	 * @throws Exception
+	 *             any kind of exception
+	 */
+	protected void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
 		SupportedSequenceType cur_type = null;
 		Object[] types = utt.listAvailableSequences().toArray();
 		for (int t = 0; t < types.length; t++) {
@@ -78,57 +141,46 @@ public class ROOTSJSONSerializer implements Serializer {
 		}
 	}
 
-	public void appendItem(Item it, StringBuilder sb) throws IntrospectionException {
+	/**
+	 * Export the given item to the string builder in a JSON format
+	 *
+	 * @param it
+	 *            the given item
+	 * @param sb
+	 *            the string builder
+	 * @throws Exception
+	 *             any kind of exception
+	 */
+	protected void appendItem(Item it, StringBuilder sb) throws Exception {
 		sb.append("{");
 		for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(it.getClass()).getPropertyDescriptors()) {
 
 			Method method = propertyDescriptor.getReadMethod();
 			String method_name = propertyDescriptor.getReadMethod().toString();
 
-			try {
-				if ((method_name.indexOf("java.lang.Object") < 0)
-						&& (method_name.indexOf("marytts.data.item.Item") < 0)) {
-					Object value = propertyDescriptor.getReadMethod().invoke(it, (Object[]) null);
+			if ((method_name.indexOf("java.lang.Object") < 0) && (method_name.indexOf("marytts.data.item.Item") < 0)) {
+				Object value = propertyDescriptor.getReadMethod().invoke(it, (Object[]) null);
 
-					if ((value != null) && (isWrapperType(value.getClass()))) {
-						sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
-						sb.append("\"" + value.toString() + "\",");
-					}
+				if ((value != null) && (isWrapperType(value.getClass()))) {
+					sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
+					sb.append("\"" + value.toString() + "\",");
 				}
-			} catch (IllegalAccessException iae) {
-				// TODO
-			} catch (IllegalArgumentException iaee) {
-				// TODO
-			} catch (InvocationTargetException ite) {
-				// TODO
 			}
 		}
 
 		sb.append("}");
 	}
 
-	private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
-
-	public static boolean isWrapperType(Class<?> clazz) {
-		return WRAPPER_TYPES.contains(clazz);
-	}
-
-	private static Set<Class<?>> getWrapperTypes() {
-		Set<Class<?>> ret = new HashSet<Class<?>>();
-		ret.add(Boolean.class);
-		ret.add(Character.class);
-		ret.add(Byte.class);
-		ret.add(Short.class);
-		ret.add(Integer.class);
-		ret.add(Long.class);
-		ret.add(Float.class);
-		ret.add(Double.class);
-		ret.add(Void.class);
-		ret.add(String.class);
-		return ret;
-	}
-
-	public void appendRelations(Utterance utt, StringBuilder sb) {
+	/**
+	 * Export the relations of the given utterance to the string builder in a
+	 * JSON format
+	 *
+	 * @param utt
+	 *            the given utterance
+	 * @param sb
+	 *            the string builder
+	 */
+	protected void appendRelations(Utterance utt, StringBuilder sb) {
 		Object[] relations = utt.listAvailableRelations().toArray();
 		ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
 		SparseDoubleMatrix2D cur_rel;
@@ -157,10 +209,19 @@ public class ROOTSJSONSerializer implements Serializer {
 		}
 	}
 
+	/**
+	 * Generate an utterance from the ROOTS json information stored in the
+	 * string format. For now, it is not supported.
+	 *
+	 * @param content
+	 *            the json roots content
+	 * @return the created utterance
+	 * @throws MaryIOException
+	 *             if anything is going wrong
+	 */
 	public Utterance fromString(String content) throws MaryIOException {
 		throw new UnsupportedOperationException();
 	}
-
 }
 
 /* ROOTSJSONSerializer.java ends here */
