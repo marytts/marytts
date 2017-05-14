@@ -1,4 +1,4 @@
-package marytts.io;
+package marytts.io.serializer;
 
 import java.util.Locale;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import marytts.util.dom.MaryEntityResolver;
 
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
-
+import marytts.io.MaryIOException;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;

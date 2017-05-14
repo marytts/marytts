@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
+import marytts.io.serializer.XMLSerializer;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -31,7 +32,6 @@ import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
-import marytts.io.XMLSerializer;
 
 /**
  *

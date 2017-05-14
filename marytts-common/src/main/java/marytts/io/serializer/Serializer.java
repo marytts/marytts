@@ -1,4 +1,4 @@
-package marytts.io;
+package marytts.io.serializer;
 
 import java.io.File;
 import marytts.data.Utterance;

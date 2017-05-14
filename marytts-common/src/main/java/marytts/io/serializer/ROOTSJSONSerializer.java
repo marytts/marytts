@@ -1,4 +1,4 @@
-package marytts.io;
+package marytts.io.serializer;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;

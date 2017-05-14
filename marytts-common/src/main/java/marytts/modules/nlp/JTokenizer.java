@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
+import marytts.io.serializer.XMLSerializer;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -37,8 +38,6 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
-import marytts.io.XMLSerializer;
-
 import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;

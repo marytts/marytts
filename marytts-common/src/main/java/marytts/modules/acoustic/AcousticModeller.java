@@ -29,6 +29,7 @@ import java.util.Map;
 import marytts.datatypes.MaryData;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
+import marytts.io.serializer.XMLSerializer;
 import marytts.modules.acoustic.model.Model;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -40,7 +41,6 @@ import marytts.modules.InternalModule;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
-import marytts.io.XMLSerializer;
 
 /**
  * Predict duration and F0 using CARTs or other models
