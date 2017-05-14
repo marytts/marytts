@@ -7,9 +7,8 @@ import java.util.Locale;
 import com.ibm.icu.util.ULocale;
 
 import marytts.datatypes.MaryData;
+import marytts.io.serializer.XMLSerializer;
 import marytts.modules.InternalModule;
-
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;

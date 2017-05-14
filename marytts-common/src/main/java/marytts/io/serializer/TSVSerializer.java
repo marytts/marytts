@@ -1,4 +1,4 @@
-package marytts.io;
+package marytts.io.serializer;
 
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Phone;
@@ -15,6 +15,7 @@ import marytts.features.FeatureComputer;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.io.File;
 
@@ -24,16 +25,12 @@ import java.io.File;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class HTSLabelSerializer implements Serializer {
-	public static final String UNDEF = "x";
-	public static final String LEFT_SEP = "+S";
-	public static final String RIGHT_SEP = "E_";
-	protected static final String PHONE_FEATURE_NAME = "phone";
+public class TSVSerializer implements Serializer {
 	protected List<String> m_feature_names;
+	protected static final String SEP = "\t";
 
-	public HTSLabelSerializer() {
+	public TSVSerializer() {
 		m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
-		m_feature_names.remove(PHONE_FEATURE_NAME);
 	}
 
 
@@ -41,11 +38,34 @@ public class HTSLabelSerializer implements Serializer {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
 			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
 		}
+
 		Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-		String output = "";
-		for (FeatureMap map : seq_features) {
-			output += format(map);
-			output += "\n";
+
+		// Header
+		String output = "#";
+		Iterator<String> it_names = m_feature_names.iterator();
+		while (it_names.hasNext()) {
+			String feature_name = it_names.next();
+			output += feature_name;
+
+			if (it_names.hasNext())
+				output += SEP;
+			else
+				output += "\n";
+		}
+
+		// Content
+		for (FeatureMap feature_map : seq_features) {
+			it_names = m_feature_names.iterator();
+			while (it_names.hasNext()) {
+				String feature_name = it_names.next();
+				output += getValue(feature_map, feature_name);
+
+				if (it_names.hasNext())
+					output += SEP;
+				else
+					output += "\n";
+			}
 		}
 
 		return output;
@@ -56,24 +76,7 @@ public class HTSLabelSerializer implements Serializer {
 	}
 
 	protected final String getValue(FeatureMap feature_map, String key) {
-		return ((feature_map.containsKey(key)) && (feature_map.get(key) != Feature.UNDEF_FEATURE))
-				? feature_map.get(key).getStringValue()
-				: UNDEF;
-	}
-
-	protected String format(FeatureMap feature_map) {
-		// Phoneme format
-		String cur_lab = "-" + getValue(feature_map, PHONE_FEATURE_NAME) + LEFT_SEP;
-
-		int i = 0;
-		for (String feat : m_feature_names) {
-			cur_lab += i + RIGHT_SEP + getValue(feature_map, feat) + LEFT_SEP;
-			i++;
-		}
-
-		cur_lab += i + RIGHT_SEP;
-
-		return cur_lab;
+		return feature_map.get(key) == null ? "" : feature_map.get(key).getStringValue();
 	}
 }
 

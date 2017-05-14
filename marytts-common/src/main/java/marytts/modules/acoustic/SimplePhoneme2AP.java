@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -35,6 +34,7 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
 import marytts.datatypes.MaryData;
+import marytts.io.serializer.XMLSerializer;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;

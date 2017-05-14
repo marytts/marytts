@@ -22,7 +22,7 @@ package marytts.modules.nlp;
 import java.util.Locale;
 import java.util.ArrayList;
 import marytts.datatypes.MaryData;
-
+import marytts.io.serializer.XMLSerializer;
 import marytts.modules.InternalModule;
 
 import org.w3c.dom.Document;
@@ -36,8 +36,6 @@ import marytts.data.item.prosody.Boundary;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 import marytts.data.SupportedSequenceType;
-import marytts.io.XMLSerializer;
-
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 

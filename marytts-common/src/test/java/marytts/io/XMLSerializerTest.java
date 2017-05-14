@@ -36,8 +36,8 @@ import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.BasicConfigurator;
 
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
+import marytts.io.serializer.XMLSerializer;
 
 /**
  * TODO: think about a real test....

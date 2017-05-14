@@ -1,4 +1,4 @@
-package marytts.io;
+package marytts.io.serializer;
 
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Phone;
@@ -12,7 +12,6 @@ import marytts.data.SupportedSequenceType;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 import java.io.File;
 
 /**
@@ -21,48 +20,27 @@ import java.io.File;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class JSONFeatureSerializer implements Serializer {
+public class DefaultHTSLabelSerializer implements Serializer {
 	protected Hashtable<String, String> alphabet_converter;
 	protected Hashtable<String, String> pos_converter;
 	public static final String UNDEF = "x";
 
-	public JSONFeatureSerializer() {
+	public DefaultHTSLabelSerializer() {
 		initPhConverter();
 		initPOSConverter();
 	}
-
 
 	public String toString(Utterance utt) throws MaryIOException {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
 			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
 		}
 		Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-		String output = "[";
-		int i_seg = 0;
-		int nb_segs = seq_features.size();
+		String output = "";
 		for (FeatureMap map : seq_features) {
-			Map<String, Feature> real_map = map.getMap();
-			Set<String> key_set = real_map.keySet();
-			int nb_features = key_set.size();
-			int i_feat = 0;
-			output += "{";
-			for (String k : key_set) {
-				output += "\"" + k + "\":\"" + real_map.get(k).getStringValue() + "\"";
-
-				if ((i_feat + 1) < nb_features)
-					output += ",";
-
-				i_feat++;
-			}
-
-			if ((i_seg + 1) == nb_segs)
-				output += "}\n";
-			else
-				output += "},\n";
-
-			i_seg++;
+			output += format(map);
+			output += "\n";
 		}
-		output += "]\n";
+
 		return output;
 	}
 
@@ -78,6 +56,7 @@ public class JSONFeatureSerializer implements Serializer {
 	 */
 	protected void initPhConverter() {
 		alphabet_converter = new Hashtable<String, String>();
+
 		// Vowels
 		alphabet_converter.put("A", "aa");
 		alphabet_converter.put("AI", "ay");
@@ -129,6 +108,21 @@ public class JSONFeatureSerializer implements Serializer {
 		alphabet_converter.put("6", "er");
 		alphabet_converter.put("9", "oe");
 		alphabet_converter.put("?", "dt");
+	}
+
+	protected String convertPh(String ph) {
+		String fest_ph = alphabet_converter.get(ph);
+		if (fest_ph != null)
+			return fest_ph;
+
+		return ph;
+	}
+
+	protected boolean isNSS(FeatureMap feature_map) {
+		if (feature_map.get("phone").getStringValue().equals("_"))
+			return true;
+
+		return false;
 	}
 
 	protected void initPOSConverter() {
@@ -236,6 +230,116 @@ public class JSONFeatureSerializer implements Serializer {
 
 		return "content";
 	}
+
+	protected final String getValue(FeatureMap feature_map, String key) {
+		return feature_map.get(key) == null ? UNDEF : feature_map.get(key).getStringValue();
+	}
+
+	protected String format(FeatureMap feature_map) {
+		// Check if current phone is nss ?
+		boolean is_nss = isNSS(feature_map);
+
+		// Phoneme format
+		String format = "%s^%s-%s+%s=%s@%s_%s";
+		String cur_lab = String.format(format,
+				// Phoneme
+				convertPh(getValue(feature_map, "prev_prev_phone")), convertPh(getValue(feature_map, "prev_phone")),
+				convertPh(getValue(feature_map, "phone")), convertPh(getValue(feature_map, "next_phone")),
+				convertPh(getValue(feature_map, "next_next_phone")),
+				is_nss ? getValue(feature_map, "ph_from_syl_start") : UNDEF,
+				is_nss ? getValue(feature_map, "ph_from_syl_end") : UNDEF);
+
+		// Syllable format
+		format = "/A:%s_%s_%s/B:%s-%s-%s@%s-%s&%s-%s#%s-%s$%s-%s!%s-%s;%s-%s|%s/C:%s+%s+%s";
+		if (is_nss) {
+			cur_lab += String.format(format,
+
+					// Previous
+					UNDEF, UNDEF, UNDEF,
+
+					// Current
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+
+					// Next
+					UNDEF, UNDEF, UNDEF);
+		} else {
+
+			cur_lab += String.format(format,
+
+					// Previous
+					getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+
+					// Current
+					getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+
+					getValue(feature_map, "syls_from_word_start"), getValue(feature_map, "syls_from_word_end"),
+					getValue(feature_map, "syls_from_phrase_start"), getValue(feature_map, "syls_from_phrase_end"),
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+
+					// Next
+					getValue(feature_map, "next_syl_accent"), UNDEF, getValue(feature_map, "next_syl_numph"));
+		}
+
+		// Word format
+		format = "/D:%s_%s/E:%s+%s@%s+%s&%s+%s#%s+%s/F:%s_%s";
+		if (is_nss) {
+			cur_lab += String.format(format,
+					// Previous
+					UNDEF, UNDEF,
+
+					// Current
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+
+					// Next
+					UNDEF, UNDEF);
+		} else {
+			cur_lab += String.format(format,
+					// Previous
+					getValue(feature_map, "prev_word_pos"), getValue(feature_map, "prev_word_numsyls"),
+
+					// Current
+					getValue(feature_map, "word_pos"), getValue(feature_map, "word_numsyls"),
+					getValue(feature_map, "words_from_phrase_start"), getValue(feature_map, "words_from_phrase_end"),
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+
+					// Next
+					getValue(feature_map, "next_word_pos"), getValue(feature_map, "next_word_numsyls"));
+		}
+
+		// Phrase format
+		format = "/G:%s_%s/H:%s=%s^%s=%s|%s/I:%s_%s";
+		if (is_nss) {
+			cur_lab += String.format(format,
+					// Previous
+					UNDEF, UNDEF,
+
+					// Current
+					UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+
+					// Next
+					UNDEF, UNDEF);
+		} else {
+			cur_lab += String.format(format,
+					// Previous
+					getValue(feature_map, "prev_phrase_numsyls"), getValue(feature_map, "prev_phrase_numwords"),
+
+					// Current
+					getValue(feature_map, "phrase_numsyls"), getValue(feature_map, "phrase_numwords"),
+					getValue(feature_map, "phrases_from_sentence_start"),
+					getValue(feature_map, "phrases_from_sentence_end"), UNDEF,
+
+					// Next
+					getValue(feature_map, "next_phrase_numsyls"), getValue(feature_map, "next_phrase_numwords"));
+		}
+
+		// Utterance format
+		format = "/J:%s+%s-%s";
+		cur_lab += String.format(format, getValue(feature_map, "sentence_numsyllables"),
+				getValue(feature_map, "sentence_numwords"), getValue(feature_map, "sentence_numphrases"));
+
+		return cur_lab;
+	}
 }
 
-/* HTSLabelSerializer.java ends here */
+/* DefaultHTSLabelSerializer.java ends here */

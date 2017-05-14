@@ -7,6 +7,7 @@ import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
+import marytts.io.serializer.XMLSerializer;
 import marytts.language.en.Preprocess;
 
 import org.testng.Assert;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import marytts.data.Utterance;
-import marytts.io.XMLSerializer;
 
 /**
  * @author Tristan Hamilton

@@ -15,12 +15,11 @@ import java.util.regex.Pattern;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.io.serializer.XMLSerializer;
 import marytts.modules.InternalModule;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
-
-import marytts.io.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;

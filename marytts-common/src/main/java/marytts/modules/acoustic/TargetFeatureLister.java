@@ -34,8 +34,7 @@ import marytts.util.dom.MaryDomUtils;
 import marytts.modules.InternalModule;
 import marytts.features.FeatureComputer;
 import marytts.features.FeatureMap;
-
-import marytts.io.XMLSerializer;
+import marytts.io.serializer.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;

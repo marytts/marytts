@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
 
-import marytts.io.XMLSerializer;
-import marytts.io.ROOTSJSONSerializer;
 import marytts.io.MaryIOException;
+import marytts.io.serializer.ROOTSJSONSerializer;
+import marytts.io.serializer.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.datatypes.MaryData;
 import marytts.modules.MaryModule;
