@@ -104,12 +104,4 @@ public class TextSerializer implements Serializer {
 
 		return utt;
 	}
-
-	public Utterance load(File file) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
 }

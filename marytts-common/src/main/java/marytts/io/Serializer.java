@@ -11,12 +11,7 @@ import marytts.io.MaryIOException;
  *         Maguer</a>
  */
 public interface Serializer {
-	public Utterance load(File file) throws MaryIOException;
-
-	public void save(File file, Utterance utt) throws MaryIOException;
-
 	public String toString(Utterance utt) throws MaryIOException;
 
 	public Utterance fromString(String content) throws MaryIOException;
-
 }

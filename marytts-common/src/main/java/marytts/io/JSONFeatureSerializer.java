@@ -31,13 +31,6 @@ public class JSONFeatureSerializer implements Serializer {
 		initPOSConverter();
 	}
 
-	public Utterance load(File file) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
 
 	public String toString(Utterance utt) throws MaryIOException {
 		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {

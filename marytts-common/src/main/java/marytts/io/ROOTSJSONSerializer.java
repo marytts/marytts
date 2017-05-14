@@ -30,16 +30,10 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
  */
 public class ROOTSJSONSerializer implements Serializer {
 	private final static int SB_INIT_CAP = 1000;
+
 	public ROOTSJSONSerializer() {
 	}
 
-	public Utterance load(File file) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void save(File file, Utterance utt) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
 
 	public String toString(Utterance utt) throws MaryIOException {
 		StringBuilder sb = new StringBuilder(SB_INIT_CAP);
