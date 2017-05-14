@@ -64,6 +64,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>marytts-lang-fa</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>marytts-lang-sv</artifactId>
 			<version>${project.version}</version>
 		</dependency>
