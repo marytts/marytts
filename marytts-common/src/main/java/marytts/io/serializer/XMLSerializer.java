@@ -53,36 +53,39 @@ import marytts.util.string.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
- * Serialiazer to be able to support the MaryXML document format. Some decisions has been take to
- * force the compatibility with the current code. Therefore, from now, the paragraph node and the
- * sentence node <b>must have</b> the corresponding text.
+ * Serialiazer to be able to support the MaryXML document format. Some decisions
+ * has been take to force the compatibility with the current code. Therefore,
+ * from now, the paragraph node and the sentence node <b>must have</b> the
+ * corresponding text.
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
 public class XMLSerializer implements Serializer {
 
-    /** The namespace of MaryXML */
+	/** The namespace of MaryXML */
 	private static final String NAMESPACE = "http://mary.dfki.de/2002/MaryXML";
 
-    /** The logger of the serializer */
+	/** The logger of the serializer */
 	protected Logger logger;
 
-    /**
-     * Constructor
-     *
-     */
+	/**
+	 * Constructor
+	 *
+	 */
 	public XMLSerializer() {
 		logger = MaryUtils.getLogger("XMLSerializer");
 	}
 
-    /**
-     * Serialize a given utterance to an XML document.
-     *
-     * @param utt the given utterance
-     * @return the XML document in String format
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Serialize a given utterance to an XML document.
+	 *
+	 * @param utt
+	 *            the given utterance
+	 * @return the XML document in String format
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public String toString(Utterance utt) throws MaryIOException {
 		try {
 			Document doc = generateDocument(utt);
@@ -101,13 +104,15 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-    /**
-     * Load an utterance from the XML document string given in parameter
-     *
-     * @param doc_str the XML document
-     * @return the loaded utterance
-     *  @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Load an utterance from the XML document string given in parameter
+	 *
+	 * @param doc_str
+	 *            the XML document
+	 * @return the loaded utterance
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public Utterance fromString(String doc_str) throws MaryIOException {
 		try {
 			return unpackDocument(doc_str);
@@ -116,17 +121,18 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-
 	/************************************************************************************************
 	 * Document generation part
 	 ***********************************************************************************************/
-    /**
-     * Generate the XML document from the utterance
-     *
-     * @param utt the utterance
-     * @return the XML document
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Generate the XML document from the utterance
+	 *
+	 * @param utt
+	 *            the utterance
+	 * @return the XML document
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public Document generateDocument(Utterance utt) throws MaryIOException {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -158,14 +164,17 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-    /**
-     * Call back to export a paragraph into an XML Element
-     *
-     * @param utt the utterance which contains the paragraph sequence
-     * @param par_index the index of the paragraph
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the paragraph in the XML document
-     */
+	/**
+	 * Call back to export a paragraph into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the paragraph sequence
+	 * @param par_index
+	 *            the index of the paragraph
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the paragraph in the XML document
+	 */
 	public Element exportParagraph(Utterance utt, int par_index, Document doc) {
 		// FIXME: to remove
 		Element par_element = doc.createElementNS(NAMESPACE, "p");
@@ -188,15 +197,17 @@ public class XMLSerializer implements Serializer {
 		return par_element;
 	}
 
-
-    /**
-     * Call back to export a sentence into an XML Element
-     *
-     * @param utt the utterance which contains the sentence sequence
-     * @param sent_index the index of the sentence
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the sentence in the XML document
-     */
+	/**
+	 * Call back to export a sentence into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the sentence sequence
+	 * @param sent_index
+	 *            the index of the sentence
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the sentence in the XML document
+	 */
 	public Element exportSentence(Utterance utt, int sent_index, Document doc) {
 		Sentence sentence = ((Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE)).get(sent_index);
 
@@ -224,15 +235,17 @@ public class XMLSerializer implements Serializer {
 		return sent_element;
 	}
 
-
-    /**
-     * Call back to export a phrase into an XML Element
-     *
-     * @param utt the utterance which contains the phrase sequence
-     * @param phrase_index the index of the phrase
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the phrase in the XML document
-     */
+	/**
+	 * Call back to export a phrase into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the phrase sequence
+	 * @param phrase_index
+	 *            the index of the phrase
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the phrase in the XML document
+	 */
 	public Element exportPhrase(Utterance utt, int phrase_index, Document doc) {
 		Element phrase_element = doc.createElementNS(NAMESPACE, "phrase");
 
@@ -250,15 +263,17 @@ public class XMLSerializer implements Serializer {
 		return prosody_element;
 	}
 
-
-    /**
-     * Call back to export a word into an XML Element
-     *
-     * @param utt the utterance which contains the word sequence
-     * @param w_index the index of the word
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the word in the XML document
-     */
+	/**
+	 * Call back to export a word into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the word sequence
+	 * @param w_index
+	 *            the index of the word
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the word in the XML document
+	 */
 	public Element exportWord(Utterance utt, int w_index, Document doc) {
 		Word word = ((Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)).get(w_index);
 		Element word_element = doc.createElementNS(NAMESPACE, "t");
@@ -288,15 +303,17 @@ public class XMLSerializer implements Serializer {
 		return word_element;
 	}
 
-
-    /**
-     * Call back to export a syllable into an XML Element
-     *
-     * @param utt the utterance which contains the syllable sequence
-     * @param syl_index the index of the syllable
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the syllable in the XML document
-     */
+	/**
+	 * Call back to export a syllable into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the syllable sequence
+	 * @param syl_index
+	 *            the index of the syllable
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the syllable in the XML document
+	 */
 	public Element exportSyllable(Utterance utt, int syl_index, Document doc) {
 		Syllable syl = ((Sequence<Syllable>) utt.getSequence(SupportedSequenceType.SYLLABLE)).get(syl_index);
 		Element syllable_element = doc.createElementNS(NAMESPACE, "syllable");
@@ -320,15 +337,17 @@ public class XMLSerializer implements Serializer {
 		return syllable_element;
 	}
 
-
-    /**
-     * Call back to export a phone into an XML Element
-     *
-     * @param utt the utterance which contains the phone sequence
-     * @param ph_index the index of the phone
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the phone in the XML document
-     */
+	/**
+	 * Call back to export a phone into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the phone sequence
+	 * @param ph_index
+	 *            the index of the phone
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the phone in the XML document
+	 */
 	public Element exportPhone(Utterance utt, int ph_index, Document doc) {
 		Phoneme ph = ((Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE)).get(ph_index);
 		Element phone_element = doc.createElementNS(NAMESPACE, "ph");
@@ -353,15 +372,17 @@ public class XMLSerializer implements Serializer {
 		return phone_element;
 	}
 
-
-    /**
-     * Call back to export a feature map into an XML Element
-     *
-     * @param utt the utterance which contains the feature map sequence
-     * @param feat_index the index of the feature map
-     * @param doc the XML document which is going to contain the created element
-     * @return the element corresponding to the feature map in the XML document
-     */
+	/**
+	 * Call back to export a feature map into an XML Element
+	 *
+	 * @param utt
+	 *            the utterance which contains the feature map sequence
+	 * @param feat_index
+	 *            the index of the feature map
+	 * @param doc
+	 *            the XML document which is going to contain the created element
+	 * @return the element corresponding to the feature map in the XML document
+	 */
 	public Element exportFeatures(Utterance utt, int feat_index, Document doc) {
 		Element features_element = doc.createElementNS(NAMESPACE, "features");
 		FeatureMap features = ((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES)).get(feat_index);
@@ -381,17 +402,22 @@ public class XMLSerializer implements Serializer {
 	/************************************************************************************************
 	 * Extract utterance from document
 	 ***********************************************************************************************/
-    /**
-     * Generate an utterance from a document in a string format. This method is used to deal with
-     * more Exceptions than the fromString one.
-     *
-     * @param doc_str the document in string format
-     * @return the created utterance
-     * @throws ParserConfigurationException If something wrong happens in the XML parsing
-     * @throws SAXException If something wrong happens in the XML parsing
-     * @throws IOException If something wrong happens in the XML parsing
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Generate an utterance from a document in a string format. This method is
+	 * used to deal with more Exceptions than the fromString one.
+	 *
+	 * @param doc_str
+	 *            the document in string format
+	 * @return the created utterance
+	 * @throws ParserConfigurationException
+	 *             If something wrong happens in the XML parsing
+	 * @throws SAXException
+	 *             If something wrong happens in the XML parsing
+	 * @throws IOException
+	 *             If something wrong happens in the XML parsing
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public Utterance unpackDocument(String doc_str)
 			throws ParserConfigurationException, SAXException, IOException, MaryIOException {
 		// 1. generate the doc from the string
@@ -409,13 +435,15 @@ public class XMLSerializer implements Serializer {
 		return unpackDocument(doc);
 	}
 
-    /**
-     * Generate the utterance from an XML document
-     *
-     * @param doc the XML document
-     * @return the created utterance
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Generate the utterance from an XML document
+	 *
+	 * @param doc
+	 *            the XML document
+	 * @return the created utterance
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public Utterance unpackDocument(Document doc) throws MaryIOException {
 		Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments;
 		Locale l;
@@ -473,15 +501,20 @@ public class XMLSerializer implements Serializer {
 		return utt;
 	}
 
-    /**
-     * Extract paragraph from the given element, update the sequence in the utterance and the
-     * alignments. The relation are not generated in this method, only the alignments are updated.
-     *
-     * @param elt the element representing the paragraph
-     * @param utt the target utterance
-     * @param alignments the saved alignments
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Extract paragraph from the given element, update the sequence in the
+	 * utterance and the alignments. The relation are not generated in this
+	 * method, only the alignments are updated.
+	 *
+	 * @param elt
+	 *            the element representing the paragraph
+	 * @param utt
+	 *            the target utterance
+	 * @param alignments
+	 *            the saved alignments
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public void generateParagraph(Element elt, Utterance utt,
 			Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
 		assert elt.getTagName() == "p";
@@ -548,16 +581,20 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-
-    /**
-     * Extract sentence from the given element, update the sequence in the utterance and the
-     * alignments. The relation are not generated in this method, only the alignments are updated.
-     *
-     * @param elt the element representing the sentence
-     * @param utt the target utterance
-     * @param alignments the saved alignments
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Extract sentence from the given element, update the sequence in the
+	 * utterance and the alignments. The relation are not generated in this
+	 * method, only the alignments are updated.
+	 *
+	 * @param elt
+	 *            the element representing the sentence
+	 * @param utt
+	 *            the target utterance
+	 * @param alignments
+	 *            the saved alignments
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public void generateSentence(Element elt, Utterance utt,
 			Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
 		assert elt.getTagName() == "s";
@@ -668,15 +705,20 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-    /**
-     * Extract phrase from the given element, update the sequence in the utterance and the
-     * alignments. The relation are not generated in this method, only the alignments are updated.
-     *
-     * @param elt the element representing the phrase
-     * @param utt the target utterance
-     * @param alignments the saved alignments
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Extract phrase from the given element, update the sequence in the
+	 * utterance and the alignments. The relation are not generated in this
+	 * method, only the alignments are updated.
+	 *
+	 * @param elt
+	 *            the element representing the phrase
+	 * @param utt
+	 *            the target utterance
+	 * @param alignments
+	 *            the saved alignments
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public void generatePhrase(Element elt, Utterance utt,
 			Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
 		assert elt.getTagName().equals("phrase");
@@ -750,15 +792,20 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-    /**
-     * Extract word from the given element, update the sequence in the utterance and the
-     * alignments. The relation are not generated in this method, only the alignments are updated.
-     *
-     * @param elt the element representing the word
-     * @param utt the target utterance
-     * @param alignments the saved alignments
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Extract word from the given element, update the sequence in the utterance
+	 * and the alignments. The relation are not generated in this method, only
+	 * the alignments are updated.
+	 *
+	 * @param elt
+	 *            the element representing the word
+	 * @param utt
+	 *            the target utterance
+	 * @param alignments
+	 *            the saved alignments
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public void generateWord(Element elt, Utterance utt, Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
 			throws MaryIOException {
 		assert elt.getTagName().equals("t");
@@ -828,16 +875,20 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-
-    /**
-     * Extract syllable from the given element, update the sequence in the utterance and the
-     * alignments. The relation are not generated in this method, only the alignments are updated.
-     *
-     * @param elt the element representing the syllable
-     * @param utt the target utterance
-     * @param alignments the saved alignments
-     * @throws MaryIOException if something wrong happened
-     */
+	/**
+	 * Extract syllable from the given element, update the sequence in the
+	 * utterance and the alignments. The relation are not generated in this
+	 * method, only the alignments are updated.
+	 *
+	 * @param elt
+	 *            the element representing the syllable
+	 * @param utt
+	 *            the target utterance
+	 * @param alignments
+	 *            the saved alignments
+	 * @throws MaryIOException
+	 *             if something wrong happened
+	 */
 	public void generateSyllable(Element elt, Utterance utt,
 			Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
 		assert elt.getTagName() == "syllable";
@@ -908,12 +959,15 @@ public class XMLSerializer implements Serializer {
 		}
 	}
 
-    /**
-     * Extract phone from the given element, update the sequence in the utterance.
-     *
-     * @param elt the element representing the phone
-     * @param utt the target utterance
-     */
+	/**
+	 * Extract phone from the given element, update the sequence in the
+	 * utterance.
+	 *
+	 * @param elt
+	 *            the element representing the phone
+	 * @param utt
+	 *            the target utterance
+	 */
 	public void generatePhone(Element elt, Utterance utt) {
 		assert elt.getTagName() == "ph";
 		Phoneme ph = new Phoneme(elt.getAttribute("p"));
