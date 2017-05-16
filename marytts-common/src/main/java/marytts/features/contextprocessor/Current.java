@@ -12,7 +12,7 @@ import marytts.features.ContextProcessor;
  *         Maguer</a>
  */
 public class Current implements ContextProcessor {
-	public Item generate(Utterance utt, Item item) throws Exception {
+	public Item get(Utterance utt, Item item) throws Exception {
 		return item;
 	}
 }
