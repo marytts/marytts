@@ -12,17 +12,21 @@ import marytts.features.ContextProcessor;
  *         Maguer</a>
  */
 public class Previous implements ContextProcessor {
-    /**
-     * Return the previous item of the given item in the sequence
-     *
-     * @param item the given item
-     * @return the previous item of the given item or null if there is no such things.
-     * @throws Exception (actually NotInSequenceException) if the given item is not in a sequence
-     */
+	/**
+	 * Return the previous item of the given item in the sequence
+	 *
+	 * @param item
+	 *            the given item
+	 * @return the previous item of the given item or null if there is no such
+	 *         things.
+	 * @throws Exception
+	 *             (actually NotInSequenceException) if the given item is not in
+	 *             a sequence
+	 */
 	public Item get(Item item) throws Exception {
 		Sequence<? extends Item> seq = item.getSequence();
 
-        // FIXME: Should be replace by a "notinsequence" exception
+		// FIXME: Should be replace by a "notinsequence" exception
 		if (seq == null)
 			throw new Exception();
 
