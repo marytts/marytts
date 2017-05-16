@@ -19,7 +19,7 @@ import marytts.features.LevelProcessor;
  *         Maguer</a>
  */
 public class PhraseLevel implements LevelProcessor {
-	public ArrayList<? extends Item> generate(Utterance utt, Item item) throws Exception {
+	public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception {
 		if (item instanceof marytts.data.item.prosody.Phrase) {
 			ArrayList<Item> list_items = new ArrayList<Item>();
 			list_items.add(item);

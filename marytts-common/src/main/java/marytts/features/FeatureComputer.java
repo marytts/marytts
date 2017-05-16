@@ -39,18 +39,14 @@ public class FeatureComputer {
 		m_feature_names.add(name);
 	}
 
-	public Feature compute(Utterance utt, Item item, String level, String context, String feature) throws Exception // FIXME:
-																													// be
-																													// more
-																													// specific
-	{
+	public Feature compute(Utterance utt, Item item, String level, String context, String feature) throws Exception {
 		LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
-		ArrayList<? extends Item> level_items = level_processor.generate(utt, item);
+		ArrayList<? extends Item> level_items = level_processor.get(utt, item);
 		if (level_items.size() == 0)
 			return Feature.UNDEF_FEATURE;
 
 		ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
-		Item context_item = context_processor.generate(utt, level_items.get(0));
+		Item context_item = context_processor.get(utt, level_items.get(0));
 		if (context_item == null)
 			return Feature.UNDEF_FEATURE;
 
