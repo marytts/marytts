@@ -22,6 +22,15 @@ import marytts.data.item.Item;
  */
 public class FeatureComputer {
 
+    /** Constant for the level processor index in the "m_features" table value */
+    private final static int LEVEL_INDEX = 0;
+
+    /** Constant for the context processor index in the "m_features" table value */
+    private final static int CONTEXT_INDEX = 0;
+
+    /** Constant for the feature processor index in the "m_features" table value */
+    private final static int FEATURE_INDEX = 0;
+
 	/** Table of features name => (level, context, feature) */
 	protected Hashtable<String, String[]> m_features;
 
@@ -75,11 +84,11 @@ public class FeatureComputer {
 	 * @throws FeatureCollisionException
 	 *             if the feature, identified by its name, is already in the map
 	 */
-	public boolean addFeature(String name, String level, String context, String feature)
+	public void addFeature(String name, String level, String context, String feature)
 			throws FeatureCollisionException {
 
 		if (m_features.containsKey(name))
-			throw new Exception(name + " is already an added feature");
+			throw new FeatureCollisionException(name + " is already an added feature");
 
 		m_features.put(name, new String[]{level, context, feature});
 		m_feature_names.add(name);
@@ -109,7 +118,7 @@ public class FeatureComputer {
 			return Feature.UNDEF_FEATURE;
 
 		ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
-		Item context_item = context_processor.get(utt, level_items.get(0));
+		Item context_item = context_processor.get(level_items.get(0));
 		if (context_item == null)
 			return Feature.UNDEF_FEATURE;
 
