@@ -15,13 +15,11 @@ public interface ContextProcessor {
 	 * Get the item from a source item in the implenting context (see the
 	 * description of the implementing class)
 	 *
-	 * @param utt
-	 *            the utterance which contains the sequence
 	 * @param item
 	 *            the source item
 	 * @return the item corresponding to the context of the source item
 	 * @throws Exception
 	 *             if something is going wrong
 	 */
-	public Item get(Utterance utt, Item item) throws Exception;
+	public Item get(Item item) throws Exception;
 }

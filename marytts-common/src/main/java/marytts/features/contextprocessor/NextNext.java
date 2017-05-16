@@ -12,7 +12,7 @@ import marytts.features.ContextProcessor;
  *         Maguer</a>
  */
 public class NextNext implements ContextProcessor {
-	public Item get(Utterance utt, Item item) throws Exception {
+	public Item get(Item item) throws Exception {
 		Sequence<? extends Item> seq = item.getSequence();
 		if (seq == null)
 			throw new Exception(); // FIXME: Should be replace by a
