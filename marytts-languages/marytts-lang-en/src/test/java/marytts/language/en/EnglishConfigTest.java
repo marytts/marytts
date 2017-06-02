@@ -39,42 +39,42 @@ import org.testng.annotations.*;
  */
 public class EnglishConfigTest {
 
-	@Test
-	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new EnglishConfig();
-		Assert.assertFalse(m.isMainConfig());
-	}
+    @Test
+    public void isNotMainConfig() throws MaryConfigurationException {
+        MaryConfig m = new EnglishConfig();
+        Assert.assertFalse(m.isMainConfig());
+    }
 
-	@Test
-	public void haveLanguageConfig() {
-		Assert.assertTrue(MaryConfig.countLanguageConfigs() > 0);
-	}
+    @Test
+    public void haveLanguageConfig() {
+        Assert.assertTrue(MaryConfig.countLanguageConfigs() > 0);
+    }
 
-	@Test
-	public void haveLanguageConfig2() {
-		Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
-		Assert.assertNotNull(lcs);
-		Assert.assertTrue(lcs.iterator().hasNext());
-	}
+    @Test
+    public void haveLanguageConfig2() {
+        Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
+        Assert.assertNotNull(lcs);
+        Assert.assertTrue(lcs.iterator().hasNext());
+    }
 
-	@Test
-	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
-		Assert.assertNotNull(m);
-		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
-	}
+    @Test
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
+        Assert.assertNotNull(m);
+        Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
+    }
 
-	@Test
-	public void hasEnglishLocale() throws MaryConfigurationException {
-		LanguageConfig e = new EnglishConfig();
-		Assert.assertTrue(e.getLocales().contains(Locale.US));
-	}
+    @Test
+    public void hasEnglishLocale() throws MaryConfigurationException {
+        LanguageConfig e = new EnglishConfig();
+        Assert.assertTrue(e.getLocales().contains(Locale.US));
+    }
 
-	@Test
-	public void hasAllophoneSet() throws MaryConfigurationException {
-		LanguageConfig e = new EnglishConfig();
-		Assert.assertNotNull(e.getAllophoneSet(Locale.US));
-		Assert.assertNotNull(e.getAllophoneSet(Locale.UK));
-	}
+    @Test
+    public void hasAllophoneSet() throws MaryConfigurationException {
+        LanguageConfig e = new EnglishConfig();
+        Assert.assertNotNull(e.getAllophoneSet(Locale.US));
+        Assert.assertNotNull(e.getAllophoneSet(Locale.UK));
+    }
 
 }

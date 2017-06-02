@@ -13,7 +13,7 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class StringFeature implements FeatureProcessor {
-	public Feature generate(Utterance utt, Item item) throws Exception {
-		return new Feature(item.toString());
-	}
+    public Feature generate(Utterance utt, Item item) throws Exception {
+        return new Feature(item.toString());
+    }
 }

@@ -21,45 +21,45 @@ package marytts.language.de.phonemiser;
 
 /**
  * @author steigner
- * 
+ *
  *         To change the template for this generated type comment go to
  *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class Result {
-	private boolean usedOtherLanguageToPhonemise = false;
-	private String transcription = null;
+    private boolean usedOtherLanguageToPhonemise = false;
+    private String transcription = null;
 
-	public Result() {
-	}
+    public Result() {
+    }
 
-	/**
-	 * @return transcription
-	 */
-	public String getTranscription() {
-		return transcription;
-	}
+    /**
+     * @return transcription
+     */
+    public String getTranscription() {
+        return transcription;
+    }
 
-	/**
-	 * @return usedOtherLanguageToPhonemise
-	 */
-	public boolean isUsedOtherLanguageToPhonemise() {
-		return usedOtherLanguageToPhonemise;
-	}
+    /**
+     * @return usedOtherLanguageToPhonemise
+     */
+    public boolean isUsedOtherLanguageToPhonemise() {
+        return usedOtherLanguageToPhonemise;
+    }
 
-	/**
-	 * @param string
-	 *            string
-	 */
-	public void setTranscription(String string) {
-		transcription = string;
-	}
+    /**
+     * @param string
+     *            string
+     */
+    public void setTranscription(String string) {
+        transcription = string;
+    }
 
-	/**
-	 * @param b
-	 *            b
-	 */
-	public void setUsedOtherLanguageToPhonemise(boolean b) {
-		usedOtherLanguageToPhonemise = b;
-	}
+    /**
+     * @param b
+     *            b
+     */
+    public void setUsedOtherLanguageToPhonemise(boolean b) {
+        usedOtherLanguageToPhonemise = b;
+    }
 
 }

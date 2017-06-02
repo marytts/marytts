@@ -14,13 +14,13 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class IsStressed implements FeatureProcessor {
-	public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws Exception {
 
-		if (item instanceof marytts.data.item.phonology.Syllable) {
-			Syllable syl = (Syllable) item;
-			return new Feature(syl.getStressLevel() == 0);
-		}
+        if (item instanceof marytts.data.item.phonology.Syllable) {
+            Syllable syl = (Syllable) item;
+            return new Feature(syl.getStressLevel() == 0);
+        }
 
-		throw new Exception();
-	}
+        throw new Exception();
+    }
 }

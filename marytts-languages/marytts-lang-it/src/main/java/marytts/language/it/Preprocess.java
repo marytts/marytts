@@ -47,11 +47,11 @@ import org.w3c.dom.traversal.TreeWalker;
 
 public class Preprocess extends InternalModule {
 
-	public Preprocess() {
-		super("Preprocess", Locale.ITALIAN);
-	}
+    public Preprocess() {
+        super("Preprocess", Locale.ITALIAN);
+    }
 
-	public MaryData process(MaryData d) throws Exception {
-		return d;
-	}
+    public MaryData process(MaryData d) throws Exception {
+        return d;
+    }
 }

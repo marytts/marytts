@@ -23,7 +23,7 @@ import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 
 public class LuxembourgishConfig extends LanguageConfig {
-	public LuxembourgishConfig() throws MaryConfigurationException {
-		super(LuxembourgishConfig.class.getResourceAsStream("lb.config"));
-	}
+    public LuxembourgishConfig() throws MaryConfigurationException {
+        super(LuxembourgishConfig.class.getResourceAsStream("lb.config"));
+    }
 }

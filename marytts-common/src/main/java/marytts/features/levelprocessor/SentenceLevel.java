@@ -19,17 +19,17 @@ import marytts.features.LevelProcessor;
  *         Maguer</a>
  */
 public class SentenceLevel implements LevelProcessor {
-	public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception {
-		if (item instanceof marytts.data.item.linguistic.Sentence) {
-			ArrayList<Item> list_items = new ArrayList<Item>();
-			list_items.add(item);
-			return list_items;
-		}
+    public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception {
+        if (item instanceof marytts.data.item.linguistic.Sentence) {
+            ArrayList<Item> list_items = new ArrayList<Item>();
+            list_items.add(item);
+            return list_items;
+        }
 
-		Sequence<? extends Item> seq = item.getSequence();
-		Relation relation = utt.getRelation(seq, utt.getSequence(SupportedSequenceType.SENTENCE));
+        Sequence<? extends Item> seq = item.getSequence();
+        Relation relation = utt.getRelation(seq, utt.getSequence(SupportedSequenceType.SENTENCE));
 
-		int item_idx = seq.indexOf(item);
-		return relation.getRelatedItems(item_idx);
-	}
+        int item_idx = seq.indexOf(item);
+        return relation.getRelatedItems(item_idx);
+    }
 }

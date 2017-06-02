@@ -31,24 +31,24 @@ import marytts.util.MaryUtils;
  */
 public class SynthesisConfig extends MaryConfig {
 
-	public SynthesisConfig(InputStream propertyStream) throws MaryConfigurationException {
-		super(propertyStream);
-		if (getSynthesisName() == null) {
-			throw new MaryConfigurationException("No synthesizer class defined in config file");
-		}
-	}
+    public SynthesisConfig(InputStream propertyStream) throws MaryConfigurationException {
+        super(propertyStream);
+        if (getSynthesisName() == null) {
+            throw new MaryConfigurationException("No synthesizer class defined in config file");
+        }
+    }
 
-	@Override
-	public boolean isSynthesisConfig() {
-		return true;
-	}
+    @Override
+    public boolean isSynthesisConfig() {
+        return true;
+    }
 
-	/**
-	 * The synthesizer's name.
-	 * 
-	 * @return
-	 */
-	public String getSynthesisName() {
-		return getProperties().getProperty("synthesizers.classes.list");
-	}
+    /**
+     * The synthesizer's name.
+     *
+     * @return
+     */
+    public String getSynthesisName() {
+        return getProperties().getProperty("synthesizers.classes.list");
+    }
 }

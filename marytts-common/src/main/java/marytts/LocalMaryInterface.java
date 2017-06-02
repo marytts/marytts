@@ -46,70 +46,70 @@ import marytts.util.MaryRuntimeUtils;
  *
  */
 public class LocalMaryInterface implements MaryInterface {
-	private Locale locale;
-	private AudioFileFormat audioFileFormat;
-	private String outputTypeParams;
-	private boolean isStreaming;
+    private Locale locale;
+    private AudioFileFormat audioFileFormat;
+    private String outputTypeParams;
+    private boolean isStreaming;
 
-	public LocalMaryInterface() throws MaryConfigurationException {
-		try {
-			MaryRuntimeUtils.ensureMaryStarted();
-		} catch (Exception e) {
-			throw new MaryConfigurationException("Cannot start MARY server", e);
-		}
+    public LocalMaryInterface() throws MaryConfigurationException {
+        try {
+            MaryRuntimeUtils.ensureMaryStarted();
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot start MARY server", e);
+        }
 
-		init();
-	}
+        init();
+    }
 
-	protected void init() {
-		setReasonableDefaults();
-	}
+    protected void init() {
+        setReasonableDefaults();
+    }
 
-	protected void setReasonableDefaults() {
-		locale = Locale.US;
-		outputTypeParams = null;
-		isStreaming = false;
+    protected void setReasonableDefaults() {
+        locale = Locale.US;
+        outputTypeParams = null;
+        isStreaming = false;
 
-	}
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#setLocale(java.util.Locale)
-	 */
-	@Override
-	public void setLocale(Locale newLocale) throws IllegalArgumentException {
-		if (MaryConfig.getLanguageConfig(newLocale) == null) {
-			throw new IllegalArgumentException("Unsupported locale: " + newLocale);
-		}
-		locale = newLocale;
-	}
+    }
+    /*
+     * (non-Javadoc)
+     *
+     * @see marytts.MaryInterface#setLocale(java.util.Locale)
+     */
+    @Override
+    public void setLocale(Locale newLocale) throws IllegalArgumentException {
+        if (MaryConfig.getLanguageConfig(newLocale) == null) {
+            throw new IllegalArgumentException("Unsupported locale: " + newLocale);
+        }
+        locale = newLocale;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see marytts.MaryInterface#getLocale()
-	 */
-	@Override
-	public Locale getLocale() {
-		return locale;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see marytts.MaryInterface#getLocale()
+     */
+    @Override
+    public Locale getLocale() {
+        return locale;
+    }
 
-	private MaryData process(String configuration, String input_data) throws SynthesisException {
-		Request r = new Request(configuration, input_data);
-		try {
-			r.process();
-		} catch (Exception e) {
-			throw new SynthesisException("cannot process", e);
-		}
-		return r.getOutputData();
-	}
+    private MaryData process(String configuration, String input_data) throws SynthesisException {
+        Request r = new Request(configuration, input_data);
+        try {
+            r.process();
+        } catch (Exception e) {
+            throw new SynthesisException("cannot process", e);
+        }
+        return r.getOutputData();
+    }
 
-	@Override
-	public Set<Locale> getAvailableLocales() {
-		Set<Locale> locales = new HashSet<Locale>();
-		for (LanguageConfig lc : MaryConfig.getLanguageConfigs()) {
-			locales.addAll(lc.getLocales());
-		}
-		return locales;
-	}
+    @Override
+    public Set<Locale> getAvailableLocales() {
+        Set<Locale> locales = new HashSet<Locale>();
+        for (LanguageConfig lc : MaryConfig.getLanguageConfigs()) {
+            locales.addAll(lc.getLocales());
+        }
+        return locales;
+    }
 }

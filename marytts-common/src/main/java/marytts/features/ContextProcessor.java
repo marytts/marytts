@@ -11,15 +11,15 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public interface ContextProcessor {
-	/**
-	 * Get the item from a source item in the implenting context (see the
-	 * description of the implementing class)
-	 *
-	 * @param item
-	 *            the source item
-	 * @return the item corresponding to the context of the source item
-	 * @throws Exception
-	 *             if something is going wrong
-	 */
-	public Item get(Item item) throws Exception;
+    /**
+     * Get the item from a source item in the implenting context (see the
+     * description of the implementing class)
+     *
+     * @param item
+     *            the source item
+     * @return the item corresponding to the context of the source item
+     * @throws Exception
+     *             if something is going wrong
+     */
+    public Item get(Item item) throws Exception;
 }

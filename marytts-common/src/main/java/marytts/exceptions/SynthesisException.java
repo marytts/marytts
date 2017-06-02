@@ -20,20 +20,20 @@
 package marytts.exceptions;
 
 public class SynthesisException extends Exception {
-	public SynthesisException() {
-		super();
-	}
+    public SynthesisException() {
+        super();
+    }
 
-	public SynthesisException(String message) {
-		super(message);
-	}
+    public SynthesisException(String message) {
+        super(message);
+    }
 
-	public SynthesisException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public SynthesisException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public SynthesisException(Throwable cause) {
-		super(cause);
-	}
+    public SynthesisException(Throwable cause) {
+        super(cause);
+    }
 
 }

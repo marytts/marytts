@@ -9,16 +9,16 @@ package marytts.features;
  *         Maguer</a>
  */
 public class UnknownProcessorException extends Exception {
-	/**
-	 * Only constructor as a message needs to be defined to explain the proper
-	 * cause.
-	 *
-	 * @param msg
-	 *            the message to identify the proper cause
-	 */
-	public UnknownProcessorException(String msg) {
-		super(msg);
-	}
+    /**
+     * Only constructor as a message needs to be defined to explain the proper
+     * cause.
+     *
+     * @param msg
+     *            the message to identify the proper cause
+     */
+    public UnknownProcessorException(String msg) {
+        super(msg);
+    }
 }
 
 /* UnknownProcessorException.java ends here */

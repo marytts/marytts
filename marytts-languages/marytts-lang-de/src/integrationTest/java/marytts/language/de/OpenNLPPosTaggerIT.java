@@ -32,11 +32,11 @@ import org.testng.annotations.*;
  */
 public class OpenNLPPosTaggerIT {
 
-	/**
-	 * @throws Exception
-	 *             Exception
-	 */
-	public OpenNLPPosTaggerIT() throws Exception {
-	}
+    /**
+     * @throws Exception
+     *             Exception
+     */
+    public OpenNLPPosTaggerIT() throws Exception {
+    }
 
 }

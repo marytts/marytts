@@ -67,70 +67,70 @@ import marytts.data.utils.IntegerPair;
  */
 public class PronunciationModel extends InternalModule {
 
-	// used in startup() and later for convenience
-	private FeatureDefinition featDef;
+    // used in startup() and later for convenience
+    private FeatureDefinition featDef;
 
-	/**
-	 * Constructor, stating that the input is of type INTONATION, the output of
-	 * type ALLOPHONES.
-	 *
-	 */
-	public PronunciationModel() {
-		this(null);
-	}
+    /**
+     * Constructor, stating that the input is of type INTONATION, the output of
+     * type ALLOPHONES.
+     *
+     */
+    public PronunciationModel() {
+        this(null);
+    }
 
-	public PronunciationModel(Locale locale) {
-		super("PronunciationModel", locale);
-	}
+    public PronunciationModel(Locale locale) {
+        super("PronunciationModel", locale);
+    }
 
-	public void startup() throws Exception {
-		super.startup();
+    public void startup() throws Exception {
+        super.startup();
 
-		// TODO: pronunciation model tree and feature definition should be
-		// voice-specific
-		// get featureDefinition used for trees - just to tell the tree that the
-		// features are discrete
-		String fdFilename = null;
-		if (getLocale() != null) {
-			fdFilename = MaryProperties
-					.getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
-		}
-		if (fdFilename != null) {
-			File fdFile = new File(fdFilename);
-			// reader for file, readweights = false
-			featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
+        // TODO: pronunciation model tree and feature definition should be
+        // voice-specific
+        // get featureDefinition used for trees - just to tell the tree that the
+        // features are discrete
+        String fdFilename = null;
+        if (getLocale() != null) {
+            fdFilename = MaryProperties
+                         .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
+        }
+        if (fdFilename != null) {
+            File fdFile = new File(fdFilename);
+            // reader for file, readweights = false
+            featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
 
-			logger.debug("Reading in feature definition finished.");
+            logger.debug("Reading in feature definition finished.");
 
-		}
-		logger.debug("Building feature computer finished.");
-	}
+        }
+        logger.debug("Building feature computer finished.");
+    }
 
-	/**
-	 * Optionally, a language-specific subclass can implement any postlexical
-	 * rules on the document.
-	 *
-	 * @param token
-	 *            a &lt;t&gt; element with a syllable and &lt;ph&gt;
-	 *            substructure.
-	 * @param allophoneSet
-	 *            allophoneSet
-	 * @return true if something was changed, false otherwise
-	 */
-	protected boolean postlexicalRules(Word token, AllophoneSet allophoneSet) {
-		return false;
-	}
+    /**
+     * Optionally, a language-specific subclass can implement any postlexical
+     * rules on the document.
+     *
+     * @param token
+     *            a &lt;t&gt; element with a syllable and &lt;ph&gt;
+     *            substructure.
+     * @param allophoneSet
+     *            allophoneSet
+     * @return true if something was changed, false otherwise
+     */
+    protected boolean postlexicalRules(Word token, AllophoneSet allophoneSet) {
+        return false;
+    }
 
-	/**
-	 * This computes a new pronunciation for the elements of some MaryData, that
-	 * is phonemised.
-	 *
-	 * @param d
-	 *            d
-	 * @throws Exception
-	 *             Exception
-	 */
-	public MaryData process(MaryData d) throws Exception {
-		return d;
-	}
+    /**
+     * This computes a new pronunciation for the elements of some MaryData, that
+     * is phonemised.
+     *
+     * @param d
+     *            d
+     * @throws Exception
+     *             Exception
+     */
+    public MaryData process(MaryData d) throws Exception {
+        return d;
+    }
 }

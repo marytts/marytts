@@ -23,67 +23,71 @@ import java.io.File;
  */
 public class JSONFeatureSerializer implements Serializer {
 
-	/**
-	 * Constructor
-	 *
-	 */
-	public JSONFeatureSerializer() {
-		;
-	}
+    /**
+     * Constructor
+     *
+     */
+    public JSONFeatureSerializer() {
+        ;
+    }
 
-	/**
-	 * Generate the JSON formatted map of features from the given utterance
-	 *
-	 * @param utt
-	 *            the utterance
-	 * @return the JSON formatted string of the map of the features
-	 * @throws MaryIOException
-	 *             when something goes wrong
-	 */
-	public String toString(Utterance utt) throws MaryIOException {
+    /**
+     * Generate the JSON formatted map of features from the given utterance
+     *
+     * @param utt
+     *            the utterance
+     * @return the JSON formatted string of the map of the features
+     * @throws MaryIOException
+     *             when something goes wrong
+     */
+    public String toString(Utterance utt) throws MaryIOException {
 
-		// Check that the sequence of features exists
-		if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
-			throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence", null);
-		}
+        // Check that the sequence of features exists
+        if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
+            throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
+                                      null);
+        }
 
-		// Initialize
-		Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-		String output = "[";
-		int i_seg = 0;
-		int nb_segs = seq_features.size();
+        // Initialize
+        Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
+                                                SupportedSequenceType.FEATURES);
+        String output = "[";
+        int i_seg = 0;
+        int nb_segs = seq_features.size();
 
-		for (FeatureMap map : seq_features) {
-			Map<String, Feature> real_map = map.getMap();
-			Set<String> key_set = real_map.keySet();
-			int nb_features = key_set.size();
-			int i_feat = 0;
+        for (FeatureMap map : seq_features) {
+            Map<String, Feature> real_map = map.getMap();
+            Set<String> key_set = real_map.keySet();
+            int nb_features = key_set.size();
+            int i_feat = 0;
 
-			// Generate a JSON map for eache feature map
-			output += "{";
-			for (String k : key_set) {
-				output += "\"" + k + "\":\"" + real_map.get(k).getStringValue() + "\"";
+            // Generate a JSON map for eache feature map
+            output += "{";
+            for (String k : key_set) {
+                output += "\"" + k + "\":\"" + real_map.get(k).getStringValue() + "\"";
 
-				if ((i_feat + 1) < nb_features)
-					output += ",";
+                if ((i_feat + 1) < nb_features) {
+                    output += ",";
+                }
 
-				i_feat++;
-			}
+                i_feat++;
+            }
 
-			if ((i_seg + 1) == nb_segs)
-				output += "}\n";
-			else
-				output += "},\n";
+            if ((i_seg + 1) == nb_segs) {
+                output += "}\n";
+            } else {
+                output += "},\n";
+            }
 
-			i_seg++;
-		}
-		output += "]\n";
-		return output;
-	}
+            i_seg++;
+        }
+        output += "]\n";
+        return output;
+    }
 
-	public Utterance fromString(String content) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
+    public Utterance fromString(String content) throws MaryIOException {
+        throw new UnsupportedOperationException();
+    }
 }
 
 /* JSONFeatureSerializer.java ends here */

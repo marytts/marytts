@@ -33,10 +33,10 @@ import org.testng.annotations.*;
  */
 public class MaryInterfaceEnIT {
 
-	private MaryInterface mary;
+    private MaryInterface mary;
 
-	@BeforeMethod
-	public void setUp() throws Exception {
-		mary = new LocalMaryInterface();
-	}
+    @BeforeMethod
+    public void setUp() throws Exception {
+        mary = new LocalMaryInterface();
+    }
 }

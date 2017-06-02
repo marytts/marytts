@@ -14,15 +14,16 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class IsAccented implements FeatureProcessor {
-	public Feature generate(Utterance utt, Item item) throws Exception {
-		if (item instanceof marytts.data.item.phonology.Syllable) {
-			Syllable syl = (Syllable) item;
-			if (syl.getAccent() == null)
-				return new Feature(Boolean.FALSE);
-			else
-				return new Feature(Boolean.TRUE);
-		}
+    public Feature generate(Utterance utt, Item item) throws Exception {
+        if (item instanceof marytts.data.item.phonology.Syllable) {
+            Syllable syl = (Syllable) item;
+            if (syl.getAccent() == null) {
+                return new Feature(Boolean.FALSE);
+            } else {
+                return new Feature(Boolean.TRUE);
+            }
+        }
 
-		throw new Exception();
-	}
+        throw new Exception();
+    }
 }

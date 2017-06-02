@@ -30,103 +30,103 @@ import marytts.data.item.linguistic.Word;
  *
  */
 public class RelationTest {
-	@Test
-	public void testBaselineRelation() {
-		Word w1 = new Word("Hello");
-		Word w2 = new Word("You");
+    @Test
+    public void testBaselineRelation() {
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
 
-		Sequence<Word> seq1 = new Sequence<Word>();
-		seq1.add(w1);
-		seq1.add(w2);
+        Sequence<Word> seq1 = new Sequence<Word>();
+        seq1.add(w1);
+        seq1.add(w2);
 
-		Sequence<Word> seq2 = new Sequence<Word>();
-		seq2.add(w1);
-		seq2.add(w2);
+        Sequence<Word> seq2 = new Sequence<Word>();
+        seq2.add(w1);
+        seq2.add(w2);
 
-		Relation rel = new Relation(seq1, seq2);
-	}
+        Relation rel = new Relation(seq1, seq2);
+    }
 
-	@Test
-	public void testBackwardReferencesNominalCase() {
-		Word w1 = new Word("Hello");
-		Word w2 = new Word("You");
+    @Test
+    public void testBackwardReferencesNominalCase() {
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
 
-		Sequence<Word> seq1 = new Sequence<Word>();
-		seq1.add(w1);
-		seq1.add(w2);
+        Sequence<Word> seq1 = new Sequence<Word>();
+        seq1.add(w1);
+        seq1.add(w2);
 
-		Sequence<Word> seq2 = new Sequence<Word>();
-		seq2.add(w1);
-		seq2.add(w2);
+        Sequence<Word> seq2 = new Sequence<Word>();
+        seq2.add(w1);
+        seq2.add(w2);
 
-		Relation rel = new Relation(seq1, seq2);
+        Relation rel = new Relation(seq1, seq2);
 
-		Sequence<Word> seq3 = new Sequence<Word>();
-		seq3.add(w1);
-		seq3.add(w2);
+        Sequence<Word> seq3 = new Sequence<Word>();
+        seq3.add(w1);
+        seq3.add(w2);
 
-		// Check double direction relation
-		Assert.assertTrue(seq1.isRelatedWith(seq2));
-		Assert.assertTrue(seq2.isRelatedWith(seq1));
+        // Check double direction relation
+        Assert.assertTrue(seq1.isRelatedWith(seq2));
+        Assert.assertTrue(seq2.isRelatedWith(seq1));
 
-		// Check non relation
-		Assert.assertFalse(seq1.isRelatedWith(seq3));
+        // Check non relation
+        Assert.assertFalse(seq1.isRelatedWith(seq3));
 
-		rel.addRelation(1, 0);
-		System.out.println(rel);
-		rel.addRelation(1, 1);
-		System.out.println(rel);
-		rel.addRelation(0, 1);
-		System.out.println(rel);
-		seq1.remove(1);
-		System.out.println(rel);
-		seq1.remove(0);
-		System.out.println(rel);
+        rel.addRelation(1, 0);
+        System.out.println(rel);
+        rel.addRelation(1, 1);
+        System.out.println(rel);
+        rel.addRelation(0, 1);
+        System.out.println(rel);
+        seq1.remove(1);
+        System.out.println(rel);
+        seq1.remove(0);
+        System.out.println(rel);
 
-		seq1.add(w2);
-		rel.addRelation(0, 1);
-		System.out.println(rel);
+        seq1.add(w2);
+        rel.addRelation(0, 1);
+        System.out.println(rel);
 
-		seq1.add(w2, true);
-		System.out.println(rel);
+        seq1.add(w2, true);
+        System.out.println(rel);
 
-		seq2.add(w2, true);
-		System.out.println(rel);
+        seq2.add(w2, true);
+        System.out.println(rel);
 
-		// Assert.assertFalse(true);
-	}
+        // Assert.assertFalse(true);
+    }
 
-	@Test(expectedExceptions = AssertionError.class)
-	public void testRemoveOutBoundaries1() {
-		Word w1 = new Word("Hello");
-		Word w2 = new Word("You");
+    @Test(expectedExceptions = AssertionError.class)
+    public void testRemoveOutBoundaries1() {
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
 
-		Sequence<Word> seq1 = new Sequence<Word>();
-		seq1.add(w1);
-		seq1.add(w2);
+        Sequence<Word> seq1 = new Sequence<Word>();
+        seq1.add(w1);
+        seq1.add(w2);
 
-		Sequence<Word> seq2 = new Sequence<Word>();
-		seq2.add(w1);
-		seq2.add(w2);
+        Sequence<Word> seq2 = new Sequence<Word>();
+        seq2.add(w1);
+        seq2.add(w2);
 
-		Relation rel = new Relation(seq1, seq2);
-		seq1.remove(10);
-	}
+        Relation rel = new Relation(seq1, seq2);
+        seq1.remove(10);
+    }
 
-	@Test(expectedExceptions = AssertionError.class)
-	public void testRemoveOutBoundaries2() {
-		Word w1 = new Word("Hello");
-		Word w2 = new Word("You");
+    @Test(expectedExceptions = AssertionError.class)
+    public void testRemoveOutBoundaries2() {
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
 
-		Sequence<Word> seq1 = new Sequence<Word>();
-		seq1.add(w1);
-		seq1.add(w2);
+        Sequence<Word> seq1 = new Sequence<Word>();
+        seq1.add(w1);
+        seq1.add(w2);
 
-		Sequence<Word> seq2 = new Sequence<Word>();
-		seq2.add(w1);
-		seq2.add(w2);
+        Sequence<Word> seq2 = new Sequence<Word>();
+        seq2.add(w1);
+        seq2.add(w2);
 
-		Relation rel = new Relation(seq1, seq2);
-		seq2.remove(10);
-	}
+        Relation rel = new Relation(seq1, seq2);
+        seq2.remove(10);
+    }
 }

@@ -36,27 +36,27 @@ import org.apache.log4j.Logger;
  * @author Marc Schr&ouml;der
  */
 public class MaryData {
-	private Locale locale;
+    private Locale locale;
 
-	Utterance utt;
-	public MaryData(Locale locale) {
-		this(locale, null);
-	}
+    Utterance utt;
+    public MaryData(Locale locale) {
+        this(locale, null);
+    }
 
-	public MaryData(Locale locale, Utterance utt) {
-		this.locale = locale;
-		this.utt = utt;
-	}
+    public MaryData(Locale locale, Utterance utt) {
+        this.locale = locale;
+        this.utt = utt;
+    }
 
-	public Locale getLocale() {
-		return locale;
-	}
+    public Locale getLocale() {
+        return locale;
+    }
 
-	public void setData(Utterance utt) {
-		this.utt = utt;
-	}
+    public void setData(Utterance utt) {
+        this.utt = utt;
+    }
 
-	public Utterance getData() {
-		return this.utt;
-	}
+    public Utterance getData() {
+        return this.utt;
+    }
 }

@@ -1,7 +1,7 @@
 /*
- *	SequenceAudioInputStream.java
+ *  SequenceAudioInputStream.java
  *
- *	This file is part of jsresources.org
+ *  This file is part of jsresources.org
  */
 
 /*
@@ -48,120 +48,120 @@ import javax.sound.sampled.AudioSystem;
 
 public class SequenceAudioInputStream extends AudioInputStream {
 
-	protected List m_audioInputStreamList;
-	protected int m_nCurrentStream;
+    protected List m_audioInputStreamList;
+    protected int m_nCurrentStream;
 
-	public SequenceAudioInputStream(AudioFormat audioFormat, Collection audioInputStreams) {
-		super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
-		m_audioInputStreamList = new ArrayList(audioInputStreams);
-		m_nCurrentStream = 0;
-		// correct frameLength if possible:
-		Iterator streamIterator = m_audioInputStreamList.iterator();
-		frameLength = 0;
-		while (streamIterator.hasNext()) {
-			AudioInputStream stream = (AudioInputStream) streamIterator.next();
-			long lLength = stream.getFrameLength();
-			if (lLength == AudioSystem.NOT_SPECIFIED) {
-				frameLength = AudioSystem.NOT_SPECIFIED;
-				break;
-			} else {
-				frameLength += lLength;
-			}
-		}
-	}
+    public SequenceAudioInputStream(AudioFormat audioFormat, Collection audioInputStreams) {
+        super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
+        m_audioInputStreamList = new ArrayList(audioInputStreams);
+        m_nCurrentStream = 0;
+        // correct frameLength if possible:
+        Iterator streamIterator = m_audioInputStreamList.iterator();
+        frameLength = 0;
+        while (streamIterator.hasNext()) {
+            AudioInputStream stream = (AudioInputStream) streamIterator.next();
+            long lLength = stream.getFrameLength();
+            if (lLength == AudioSystem.NOT_SPECIFIED) {
+                frameLength = AudioSystem.NOT_SPECIFIED;
+                break;
+            } else {
+                frameLength += lLength;
+            }
+        }
+    }
 
-	private AudioInputStream getCurrentStream() {
-		return (AudioInputStream) m_audioInputStreamList.get(m_nCurrentStream);
-	}
+    private AudioInputStream getCurrentStream() {
+        return (AudioInputStream) m_audioInputStreamList.get(m_nCurrentStream);
+    }
 
-	private boolean advanceStream() {
-		m_nCurrentStream++;
-		boolean bAnotherStreamAvailable = (m_nCurrentStream < m_audioInputStreamList.size());
-		return bAnotherStreamAvailable;
-	}
+    private boolean advanceStream() {
+        m_nCurrentStream++;
+        boolean bAnotherStreamAvailable = (m_nCurrentStream < m_audioInputStreamList.size());
+        return bAnotherStreamAvailable;
+    }
 
-	public int read() throws IOException {
-		AudioInputStream stream = getCurrentStream();
-		int nByte = stream.read();
-		if (nByte == -1) {
-			/*
-			 * The end of the current stream has been signaled. We try to
-			 * advance to the next stream.
-			 */
-			boolean bAnotherStreamAvailable = advanceStream();
-			if (bAnotherStreamAvailable) {
-				/*
-				 * There is another stream. We recurse into this method to read
-				 * from it.
-				 */
-				return read();
-			} else {
-				/*
-				 * No more data. We signal EOF.
-				 */
-				return -1;
-			}
-		} else {
-			/*
-			 * The most common case: We return the byte.
-			 */
-			return nByte;
-		}
-	}
+    public int read() throws IOException {
+        AudioInputStream stream = getCurrentStream();
+        int nByte = stream.read();
+        if (nByte == -1) {
+            /*
+             * The end of the current stream has been signaled. We try to
+             * advance to the next stream.
+             */
+            boolean bAnotherStreamAvailable = advanceStream();
+            if (bAnotherStreamAvailable) {
+                /*
+                 * There is another stream. We recurse into this method to read
+                 * from it.
+                 */
+                return read();
+            } else {
+                /*
+                 * No more data. We signal EOF.
+                 */
+                return -1;
+            }
+        } else {
+            /*
+             * The most common case: We return the byte.
+             */
+            return nByte;
+        }
+    }
 
-	public int read(byte[] abData, int nOffset, int nLength) throws IOException {
-		AudioInputStream stream = getCurrentStream();
-		int nBytesRead = stream.read(abData, nOffset, nLength);
-		if (nBytesRead == -1) {
-			/*
-			 * The end of the current stream has been signaled. We try to
-			 * advance to the next stream.
-			 */
-			boolean bAnotherStreamAvailable = advanceStream();
-			if (bAnotherStreamAvailable) {
-				/*
-				 * There is another stream. We recurse into this method to read
-				 * from it.
-				 */
-				return read(abData, nOffset, nLength);
-			} else {
-				/*
-				 * No more data. We signal EOF.
-				 */
-				return -1;
-			}
-		} else {
-			/*
-			 * The most common case: We return the length.
-			 */
-			return nBytesRead;
-		}
-	}
+    public int read(byte[] abData, int nOffset, int nLength) throws IOException {
+        AudioInputStream stream = getCurrentStream();
+        int nBytesRead = stream.read(abData, nOffset, nLength);
+        if (nBytesRead == -1) {
+            /*
+             * The end of the current stream has been signaled. We try to
+             * advance to the next stream.
+             */
+            boolean bAnotherStreamAvailable = advanceStream();
+            if (bAnotherStreamAvailable) {
+                /*
+                 * There is another stream. We recurse into this method to read
+                 * from it.
+                 */
+                return read(abData, nOffset, nLength);
+            } else {
+                /*
+                 * No more data. We signal EOF.
+                 */
+                return -1;
+            }
+        } else {
+            /*
+             * The most common case: We return the length.
+             */
+            return nBytesRead;
+        }
+    }
 
-	public long skip(long lLength) throws IOException {
-		throw new IOException("skip() is not implemented in class SequenceInputStream. Mail if you need this feature.");
-	}
+    public long skip(long lLength) throws IOException {
+        throw new IOException("skip() is not implemented in class SequenceInputStream. Mail if you need this feature.");
+    }
 
-	public int available() throws IOException {
-		return getCurrentStream().available();
-	}
+    public int available() throws IOException {
+        return getCurrentStream().available();
+    }
 
-	public void close() throws IOException {
-		// TODO: should we close all streams in the list?
-	}
+    public void close() throws IOException {
+        // TODO: should we close all streams in the list?
+    }
 
-	public void mark(int nReadLimit) {
-		throw new RuntimeException(
-				"mark() is not implemented in class SequenceInputStream. Mail if you need this feature.");
-	}
+    public void mark(int nReadLimit) {
+        throw new RuntimeException(
+            "mark() is not implemented in class SequenceInputStream. Mail if you need this feature.");
+    }
 
-	public void reset() throws IOException {
-		throw new IOException(
-				"reset() is not implemented in class SequenceInputStream. Mail if you need this feature.");
-	}
+    public void reset() throws IOException {
+        throw new IOException(
+            "reset() is not implemented in class SequenceInputStream. Mail if you need this feature.");
+    }
 
-	public boolean markSupported() {
-		return false;
-	}
+    public boolean markSupported() {
+        return false;
+    }
 
 }

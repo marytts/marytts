@@ -26,10 +26,10 @@ import java.util.Locale;
  * @author Marc Schr&ouml;der
  */
 public class JTokenizer extends marytts.modules.nlp.JTokenizer {
-	/**
-	 *
-	 */
-	public JTokenizer() {
-		super(Locale.GERMAN);
-	}
+    /**
+     *
+     */
+    public JTokenizer() {
+        super(Locale.GERMAN);
+    }
 }
