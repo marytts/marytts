@@ -39,49 +39,51 @@ import org.apache.http.nio.entity.NStringEntity;
  */
 public class InfoRequestHandler extends BaseHttpRequestHandler {
 
-	public InfoRequestHandler() {
-		super();
-	}
+    public InfoRequestHandler() {
+        super();
+    }
 
-	@Override
-	protected void handleClientRequest(String absPath, Map<String, String> queryItems, HttpResponse response,
-			Address serverAddressAtClient) throws IOException {
-		// Individual info request
-		String infoResponse = handleInfoRequest(absPath, queryItems, response);
-		if (infoResponse == null) { // error condition, handleInfoRequest has
-									// set an error message
-			return;
-		}
+    @Override
+    protected void handleClientRequest(String absPath, Map<String, String> queryItems,
+                                       HttpResponse response,
+                                       Address serverAddressAtClient) throws IOException {
+        // Individual info request
+        String infoResponse = handleInfoRequest(absPath, queryItems, response);
+        if (infoResponse == null) { // error condition, handleInfoRequest has
+            // set an error message
+            return;
+        }
 
-		response.setStatusCode(HttpStatus.SC_OK);
-		try {
-			NStringEntity entity = new NStringEntity(infoResponse, "UTF-8");
-			entity.setContentType("text/plain; charset=UTF-8");
-			response.setEntity(entity);
-		} catch (UnsupportedEncodingException e) {
-		}
-	}
+        response.setStatusCode(HttpStatus.SC_OK);
+        try {
+            NStringEntity entity = new NStringEntity(infoResponse, "UTF-8");
+            entity.setContentType("text/plain; charset=UTF-8");
+            response.setEntity(entity);
+        } catch (UnsupportedEncodingException e) {
+        }
+    }
 
-	private String handleInfoRequest(String absPath, Map<String, String> queryItems, HttpResponse response) {
-		logger.debug("New info request: " + absPath);
-		if (queryItems != null) {
-			for (String key : queryItems.keySet()) {
-				logger.debug("    " + key + "=" + queryItems.get(key));
-			}
-		}
+    private String handleInfoRequest(String absPath, Map<String, String> queryItems,
+                                     HttpResponse response) {
+        logger.debug("New info request: " + absPath);
+        if (queryItems != null) {
+            for (String key : queryItems.keySet()) {
+                logger.debug("    " + key + "=" + queryItems.get(key));
+            }
+        }
 
-		assert absPath.startsWith("/") : "Absolute path '" + absPath + "' does not start with a slash!";
-		String request = absPath.substring(1); // without the initial slash
+        assert absPath.startsWith("/") : "Absolute path '" + absPath + "' does not start with a slash!";
+        String request = absPath.substring(1); // without the initial slash
 
-		if (request.equals("version"))
-			return MaryRuntimeUtils.getMaryVersion();
-		else if (request.equals("locales"))
-			return MaryRuntimeUtils.getLocales();
-		else if (request.equals("features") || request.equals("features-discrete")) {
-			return null;
-		}
-		MaryHttpServerUtils.errorFileNotFound(response, request);
-		return null;
-	}
+        if (request.equals("version")) {
+            return MaryRuntimeUtils.getMaryVersion();
+        } else if (request.equals("locales")) {
+            return MaryRuntimeUtils.getLocales();
+        } else if (request.equals("features") || request.equals("features-discrete")) {
+            return null;
+        }
+        MaryHttpServerUtils.errorFileNotFound(response, request);
+        return null;
+    }
 
 }

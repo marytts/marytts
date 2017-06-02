@@ -23,7 +23,7 @@ import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 
 public class ItalianConfig extends LanguageConfig {
-	public ItalianConfig() throws MaryConfigurationException {
-		super(ItalianConfig.class.getResourceAsStream("it.config"));
-	}
+    public ItalianConfig() throws MaryConfigurationException {
+        super(ItalianConfig.class.getResourceAsStream("it.config"));
+    }
 }

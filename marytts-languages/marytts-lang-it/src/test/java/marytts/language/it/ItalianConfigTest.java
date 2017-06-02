@@ -34,22 +34,22 @@ import org.testng.annotations.*;
  */
 public class ItalianConfigTest {
 
-	@Test
-	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new ItalianConfig();
-		Assert.assertFalse(m.isMainConfig());
-	}
+    @Test
+    public void isNotMainConfig() throws MaryConfigurationException {
+        MaryConfig m = new ItalianConfig();
+        Assert.assertFalse(m.isMainConfig());
+    }
 
-	@Test
-	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(Locale.ITALIAN);
-		Assert.assertNotNull(m);
-		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.ITALIAN));
-	}
+    @Test
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(Locale.ITALIAN);
+        Assert.assertNotNull(m);
+        Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.ITALIAN));
+    }
 
-	@Test
-	public void hasItalianLocale() throws MaryConfigurationException {
-		LanguageConfig e = new ItalianConfig();
-		Assert.assertTrue(e.getLocales().contains(Locale.ITALIAN));
-	}
+    @Test
+    public void hasItalianLocale() throws MaryConfigurationException {
+        LanguageConfig e = new ItalianConfig();
+        Assert.assertTrue(e.getLocales().contains(Locale.ITALIAN));
+    }
 }

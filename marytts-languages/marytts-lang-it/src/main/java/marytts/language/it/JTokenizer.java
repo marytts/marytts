@@ -42,12 +42,12 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 public class JTokenizer extends marytts.modules.nlp.JTokenizer {
 
-	public JTokenizer() {
-		super(Locale.ITALIAN);
-	}
+    public JTokenizer() {
+        super(Locale.ITALIAN);
+    }
 
-	public MaryData process(MaryData d) throws Exception {
-		MaryData result = super.process(d);
-		return result;
-	}
+    public MaryData process(MaryData d) throws Exception {
+        MaryData result = super.process(d);
+        return result;
+    }
 }

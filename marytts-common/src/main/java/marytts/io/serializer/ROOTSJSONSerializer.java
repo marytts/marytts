@@ -34,194 +34,199 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
  *         Maguer</a>
  */
 public class ROOTSJSONSerializer implements Serializer {
-	/** The string builder initial capacity */
-	private final static int SB_INIT_CAP = 1000;
+    /** The string builder initial capacity */
+    private final static int SB_INIT_CAP = 1000;
 
-	/** The set of wrappers for primitive types */
-	private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+    /** The set of wrappers for primitive types */
+    private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
-	/**
-	 * Method to check if the given class is a wrapper one
-	 *
-	 * @param clazz
-	 *            the class to check
-	 * @return true if clazz is a wrapper for primitive types
-	 */
-	public static boolean isWrapperType(Class<?> clazz) {
-		return WRAPPER_TYPES.contains(clazz);
-	}
+    /**
+     * Method to check if the given class is a wrapper one
+     *
+     * @param clazz
+     *            the class to check
+     * @return true if clazz is a wrapper for primitive types
+     */
+    public static boolean isWrapperType(Class<?> clazz) {
+        return WRAPPER_TYPES.contains(clazz);
+    }
 
-	/**
-	 * List wrapper types
-	 *
-	 * @return the set of wrapper classes
-	 */
-	private static Set<Class<?>> getWrapperTypes() {
-		Set<Class<?>> ret = new HashSet<Class<?>>();
-		ret.add(Boolean.class);
-		ret.add(Character.class);
-		ret.add(Byte.class);
-		ret.add(Short.class);
-		ret.add(Integer.class);
-		ret.add(Long.class);
-		ret.add(Float.class);
-		ret.add(Double.class);
-		ret.add(Void.class);
-		ret.add(String.class);
-		return ret;
-	}
+    /**
+     * List wrapper types
+     *
+     * @return the set of wrapper classes
+     */
+    private static Set<Class<?>> getWrapperTypes() {
+        Set<Class<?>> ret = new HashSet<Class<?>>();
+        ret.add(Boolean.class);
+        ret.add(Character.class);
+        ret.add(Byte.class);
+        ret.add(Short.class);
+        ret.add(Integer.class);
+        ret.add(Long.class);
+        ret.add(Float.class);
+        ret.add(Double.class);
+        ret.add(Void.class);
+        ret.add(String.class);
+        return ret;
+    }
 
-	/**
-	 * Constructor
-	 *
-	 */
-	public ROOTSJSONSerializer() {
-	}
+    /**
+     * Constructor
+     *
+     */
+    public ROOTSJSONSerializer() {
+    }
 
-	/**
-	 * Generate the JSON formatted string of the ROOTS utterance
-	 *
-	 * @param utt
-	 *            the utterance to export
-	 * @return the JSON formatted string
-	 * @throws MaryIOException
-	 *             if anything is going wrong
-	 */
-	public String toString(Utterance utt) throws MaryIOException {
-		StringBuilder sb = new StringBuilder(SB_INIT_CAP);
-		try {
-			sb.append("{\n");
-			sb.append("\t\"sequences\": {\n");
-			appendSequences(utt, sb);
-			sb.append("\t},\n");
+    /**
+     * Generate the JSON formatted string of the ROOTS utterance
+     *
+     * @param utt
+     *            the utterance to export
+     * @return the JSON formatted string
+     * @throws MaryIOException
+     *             if anything is going wrong
+     */
+    public String toString(Utterance utt) throws MaryIOException {
+        StringBuilder sb = new StringBuilder(SB_INIT_CAP);
+        try {
+            sb.append("{\n");
+            sb.append("\t\"sequences\": {\n");
+            appendSequences(utt, sb);
+            sb.append("\t},\n");
 
-			// Dump relation
-			sb.append("\t\"relations\": [\n");
-			appendRelations(utt, sb);
-			sb.append("\t]\n");
-			sb.append("}\n");
+            // Dump relation
+            sb.append("\t\"relations\": [\n");
+            appendRelations(utt, sb);
+            sb.append("\t]\n");
+            sb.append("}\n");
 
-			return sb.toString();
-		} catch (Exception ex) {
-			throw new MaryIOException(null, ex);
-		}
-	}
+            return sb.toString();
+        } catch (Exception ex) {
+            throw new MaryIOException(null, ex);
+        }
+    }
 
-	/**
-	 * Export the sequences of the given utterance to the string builder in a
-	 * JSON format
-	 *
-	 * @param utt
-	 *            the given utterance
-	 * @param sb
-	 *            the string builder
-	 * @throws Exception
-	 *             any kind of exception
-	 */
-	protected void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
-		SupportedSequenceType cur_type = null;
-		Object[] types = utt.listAvailableSequences().toArray();
-		for (int t = 0; t < types.length; t++) {
-			cur_type = ((SupportedSequenceType) types[t]);
-			sb.append("\t\t\"" + cur_type + "\": [\n");
-			Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
-			for (int i = 0; i < (seq.size() - 1); i++) {
-				sb.append("\t\t\t");
-				appendItem(seq.get(i), sb);
-				sb.append(",\n");
-			}
-			sb.append("\t\t\t");
-			appendItem(seq.get(seq.size() - 1), sb);
-			sb.append("\n");
+    /**
+     * Export the sequences of the given utterance to the string builder in a
+     * JSON format
+     *
+     * @param utt
+     *            the given utterance
+     * @param sb
+     *            the string builder
+     * @throws Exception
+     *             any kind of exception
+     */
+    protected void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
+        SupportedSequenceType cur_type = null;
+        Object[] types = utt.listAvailableSequences().toArray();
+        for (int t = 0; t < types.length; t++) {
+            cur_type = ((SupportedSequenceType) types[t]);
+            sb.append("\t\t\"" + cur_type + "\": [\n");
+            Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
+            for (int i = 0; i < (seq.size() - 1); i++) {
+                sb.append("\t\t\t");
+                appendItem(seq.get(i), sb);
+                sb.append(",\n");
+            }
+            sb.append("\t\t\t");
+            appendItem(seq.get(seq.size() - 1), sb);
+            sb.append("\n");
 
-			if (t < (types.length - 1))
-				sb.append("\t\t],\n");
-			else
-				sb.append("\t\t]\n");
-		}
-	}
+            if (t < (types.length - 1)) {
+                sb.append("\t\t],\n");
+            } else {
+                sb.append("\t\t]\n");
+            }
+        }
+    }
 
-	/**
-	 * Export the given item to the string builder in a JSON format
-	 *
-	 * @param it
-	 *            the given item
-	 * @param sb
-	 *            the string builder
-	 * @throws Exception
-	 *             any kind of exception
-	 */
-	protected void appendItem(Item it, StringBuilder sb) throws Exception {
-		sb.append("{");
-		for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(it.getClass()).getPropertyDescriptors()) {
+    /**
+     * Export the given item to the string builder in a JSON format
+     *
+     * @param it
+     *            the given item
+     * @param sb
+     *            the string builder
+     * @throws Exception
+     *             any kind of exception
+     */
+    protected void appendItem(Item it, StringBuilder sb) throws Exception {
+        sb.append("{");
+        for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(
+                    it.getClass()).getPropertyDescriptors()) {
 
-			Method method = propertyDescriptor.getReadMethod();
-			String method_name = propertyDescriptor.getReadMethod().toString();
+            Method method = propertyDescriptor.getReadMethod();
+            String method_name = propertyDescriptor.getReadMethod().toString();
 
-			if ((method_name.indexOf("java.lang.Object") < 0) && (method_name.indexOf("marytts.data.item.Item") < 0)) {
-				Object value = propertyDescriptor.getReadMethod().invoke(it, (Object[]) null);
+            if ((method_name.indexOf("java.lang.Object") < 0) &&
+                    (method_name.indexOf("marytts.data.item.Item") < 0)) {
+                Object value = propertyDescriptor.getReadMethod().invoke(it, (Object[]) null);
 
-				if ((value != null) && (isWrapperType(value.getClass()))) {
-					sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
-					sb.append("\"" + value.toString() + "\",");
-				}
-			}
-		}
+                if ((value != null) && (isWrapperType(value.getClass()))) {
+                    sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
+                    sb.append("\"" + value.toString() + "\",");
+                }
+            }
+        }
 
-		sb.append("}");
-	}
+        sb.append("}");
+    }
 
-	/**
-	 * Export the relations of the given utterance to the string builder in a
-	 * JSON format
-	 *
-	 * @param utt
-	 *            the given utterance
-	 * @param sb
-	 *            the string builder
-	 */
-	protected void appendRelations(Utterance utt, StringBuilder sb) {
-		Object[] relations = utt.listAvailableRelations().toArray();
-		ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
-		SparseDoubleMatrix2D cur_rel;
+    /**
+     * Export the relations of the given utterance to the string builder in a
+     * JSON format
+     *
+     * @param utt
+     *            the given utterance
+     * @param sb
+     *            the string builder
+     */
+    protected void appendRelations(Utterance utt, StringBuilder sb) {
+        Object[] relations = utt.listAvailableRelations().toArray();
+        ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
+        SparseDoubleMatrix2D cur_rel;
 
-		for (int r = 0; r < relations.length; r++) {
-			sb.append("\t\t{\n");
-			cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
-			sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
-			sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
+        for (int r = 0; r < relations.length; r++) {
+            sb.append("\t\t{\n");
+            cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
+            sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
+            sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
 
-			cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
-			sb.append("\t\t\t \"matrix\" : [\n");
-			for (int j = 0; j < cur_rel.rows(); j++) {
-				sb.append("\t\t\t\t");
-				for (int k = 0; k < cur_rel.columns(); k++)
-					sb.append(cur_rel.get(j, k) + " ");
-				sb.append(" ");
-				sb.append("\n");
-			}
-			sb.append("\t\t\t]\n");
+            cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
+            sb.append("\t\t\t \"matrix\" : [\n");
+            for (int j = 0; j < cur_rel.rows(); j++) {
+                sb.append("\t\t\t\t");
+                for (int k = 0; k < cur_rel.columns(); k++) {
+                    sb.append(cur_rel.get(j, k) + " ");
+                }
+                sb.append(" ");
+                sb.append("\n");
+            }
+            sb.append("\t\t\t]\n");
 
-			if (r < (relations.length - 1))
-				sb.append("\t\t},\n");
-			else
-				sb.append("\t\t}\n");
-		}
-	}
+            if (r < (relations.length - 1)) {
+                sb.append("\t\t},\n");
+            } else {
+                sb.append("\t\t}\n");
+            }
+        }
+    }
 
-	/**
-	 * Generate an utterance from the ROOTS json information stored in the
-	 * string format. For now, it is not supported.
-	 *
-	 * @param content
-	 *            the json roots content
-	 * @return the created utterance
-	 * @throws MaryIOException
-	 *             if anything is going wrong
-	 */
-	public Utterance fromString(String content) throws MaryIOException {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * Generate an utterance from the ROOTS json information stored in the
+     * string format. For now, it is not supported.
+     *
+     * @param content
+     *            the json roots content
+     * @return the created utterance
+     * @throws MaryIOException
+     *             if anything is going wrong
+     */
+    public Utterance fromString(String content) throws MaryIOException {
+        throw new UnsupportedOperationException();
+    }
 }
 
 /* ROOTSJSONSerializer.java ends here */

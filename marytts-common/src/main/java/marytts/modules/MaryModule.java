@@ -39,66 +39,66 @@ import marytts.datatypes.MaryData;
  * @author Marc Schr&ouml;der
  */
 public interface MaryModule {
-	public final int MODULE_OFFLINE = 0;
-	public final int MODULE_RUNNING = 1;
+    public final int MODULE_OFFLINE = 0;
+    public final int MODULE_RUNNING = 1;
 
-	/**
-	 * This module's name, as free text, for example "Tokenizer"
-	 *
-	 * @return name
-	 */
-	public String name();
+    /**
+     * This module's name, as free text, for example "Tokenizer"
+     *
+     * @return name
+     */
+    public String name();
 
-	/**
-	 * The locale of this module, i.e. the locale of data that this module can
-	 * process. If null, indicates that the module can use data of any locale
-	 * (i.e., the module is language-independent.)
-	 *
-	 * @return the locale of this module, if any, or null
-	 */
-	public Locale getLocale();
+    /**
+     * The locale of this module, i.e. the locale of data that this module can
+     * process. If null, indicates that the module can use data of any locale
+     * (i.e., the module is language-independent.)
+     *
+     * @return the locale of this module, if any, or null
+     */
+    public Locale getLocale();
 
-	/**
-	 * Allow the module to start up, performing whatever is necessary to become
-	 * operational. After successful completion, getState() should return
-	 * MODULE_RUNNING.
-	 *
-	 * @throws Exception
-	 *             Exception
-	 */
-	public void startup() throws Exception;
+    /**
+     * Allow the module to start up, performing whatever is necessary to become
+     * operational. After successful completion, getState() should return
+     * MODULE_RUNNING.
+     *
+     * @throws Exception
+     *             Exception
+     */
+    public void startup() throws Exception;
 
-	/**
-	 * Inform about the state of this module.
-	 *
-	 * @return an int identifying the state of this module, either
-	 *         MODULE_OFFLINE or MODULE_RUNNING.
-	 */
-	public int getState();
+    /**
+     * Inform about the state of this module.
+     *
+     * @return an int identifying the state of this module, either
+     *         MODULE_OFFLINE or MODULE_RUNNING.
+     */
+    public int getState();
 
-	/**
-	 * Allow the module to shut down cleanly. After this has successfully
-	 * completed, getState() should return MODULE_OFFLINE.
-	 */
-	public void shutdown();
+    /**
+     * Allow the module to shut down cleanly. After this has successfully
+     * completed, getState() should return MODULE_OFFLINE.
+     */
+    public void shutdown();
 
-	/**
-	 * Perform this module's processing on abstract "MaryData" input
-	 * <code>d</code>. Classes implementing this interface need to make the
-	 * <code>process()</code> method thread-safe, because in server-mode, it
-	 * will be called from different threads at the same time.
-	 * <p>
-	 * The result is returned encapsulated in a MaryData object of type
-	 * <code>outputType()</code>.
-	 * <p>
-	 * This method should never return <code> null </code>; in case of a
-	 * failure, an exception should be thrown.
-	 *
-	 * @param d
-	 *            d
-	 * @throws Exception
-	 *             Exception
-	 * @return result
-	 */
-	public MaryData process(MaryData d) throws Exception;
+    /**
+     * Perform this module's processing on abstract "MaryData" input
+     * <code>d</code>. Classes implementing this interface need to make the
+     * <code>process()</code> method thread-safe, because in server-mode, it
+     * will be called from different threads at the same time.
+     * <p>
+     * The result is returned encapsulated in a MaryData object of type
+     * <code>outputType()</code>.
+     * <p>
+     * This method should never return <code> null </code>; in case of a
+     * failure, an exception should be thrown.
+     *
+     * @param d
+     *            d
+     * @throws Exception
+     *             Exception
+     * @return result
+     */
+    public MaryData process(MaryData d) throws Exception;
 }

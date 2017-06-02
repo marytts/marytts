@@ -12,35 +12,35 @@ import org.testng.annotations.*;
  */
 public class MainConfigTest {
 
-	private MaryConfig mc;
+    private MaryConfig mc;
 
-	@BeforeTest
-	public void setUp() throws MaryConfigurationException {
-		mc = new MainConfig();
-	}
+    @BeforeTest
+    public void setUp() throws MaryConfigurationException {
+        mc = new MainConfig();
+    }
 
-	@Test
-	public void isMainConfig() {
-		Assert.assertTrue(mc.isMainConfig());
-	}
+    @Test
+    public void isMainConfig() {
+        Assert.assertTrue(mc.isMainConfig());
+    }
 
-	@Test
-	public void hasProperties() {
-		Assert.assertNotNull(mc.getProperties());
-	}
+    @Test
+    public void hasProperties() {
+        Assert.assertNotNull(mc.getProperties());
+    }
 
-	@Test
-	public void hasModules() {
-		Assert.assertNotNull(MaryProperties.moduleInitInfo());
-	}
+    @Test
+    public void hasModules() {
+        Assert.assertNotNull(MaryProperties.moduleInitInfo());
+    }
 
-	@Test
-	public void hasSynthesizers() {
-		Assert.assertNotNull(MaryProperties.synthesizerClasses());
-	}
+    @Test
+    public void hasSynthesizers() {
+        Assert.assertNotNull(MaryProperties.synthesizerClasses());
+    }
 
-	@Test
-	public void hasEffects() {
-		Assert.assertNotNull(MaryProperties.effectClasses());
-	}
+    @Test
+    public void hasEffects() {
+        Assert.assertNotNull(MaryProperties.effectClasses());
+    }
 }

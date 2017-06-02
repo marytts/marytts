@@ -37,15 +37,15 @@ import marytts.todisappear.Target;
  * Performs a specific type of processing on an item and returns an object.
  */
 public interface ByteValuedFeatureProcessor extends MaryFeatureProcessor {
-	/**
-	 * List the possible values of the feature processor, as clear-text values.
-	 * Byte values as returned by process() can be translated into their string
-	 * equivalent by using the byte value as an index in the String[] returned.
-	 *
-	 * @return an array containing the possible return values of this feature
-	 *         processor, in String representation.
-	 */
-	public String[] getValues();
+    /**
+     * List the possible values of the feature processor, as clear-text values.
+     * Byte values as returned by process() can be translated into their string
+     * equivalent by using the byte value as an index in the String[] returned.
+     *
+     * @return an array containing the possible return values of this feature
+     *         processor, in String representation.
+     */
+    public String[] getValues();
 
-	public byte process(Target target);
+    public byte process(Target target);
 }

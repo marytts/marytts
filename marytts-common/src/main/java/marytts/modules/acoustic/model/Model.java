@@ -48,129 +48,131 @@ import marytts.data.SupportedSequenceType;
  */
 public abstract class Model {
 
-	/**
-	 * The stream from which we will read our acoustic model.
-	 */
-	protected InputStream dataStream;
+    /**
+     * The stream from which we will read our acoustic model.
+     */
+    protected InputStream dataStream;
 
-	/**
-	 * The name of the predicted acoustic feature, if any.
-	 */
-	protected String featureName;
+    /**
+     * The name of the predicted acoustic feature, if any.
+     */
+    protected String featureName;
 
-	/**
-	 * The names of the features used for prediction.
-	 */
-	protected String predictionFeatureNames;
+    /**
+     * The names of the features used for prediction.
+     */
+    protected String predictionFeatureNames;
 
-	/**
-	 * The producer of feature vectors
-	 */
-	protected FeatureComputer featureComputer;
+    /**
+     * The producer of feature vectors
+     */
+    protected FeatureComputer featureComputer;
 
-	/**
-	 * Model constructor
-	 *
-	 * @param dataStream
-	 *            data file for this Model
-	 */
-	protected Model(InputStream dataStream) {
-		this.dataStream = dataStream;
-	}
+    /**
+     * Model constructor
+     *
+     * @param dataStream
+     *            data file for this Model
+     */
+    protected Model(InputStream dataStream) {
+        this.dataStream = dataStream;
+    }
 
-	/**
-	 * Try to load this model and set the target feature computer appropriately.
-	 * This must be called from the constructor of subclasses, so that the
-	 * subclass implementation of loadDataFile() is visible.
-	 *
-	 * @throws MaryConfigurationException
-	 *             if the model cannot be set up properly.
-	 */
-	protected final void load()
-			// throws MaryConfigurationException, ClassNotFoundException,
-			// InstantiationException, IllegalAccessException
-			throws Exception {
-		try {
-			loadData();
-		} catch (IOException ioe) {
-			throw new MaryConfigurationException("Cannot load model data from stream", ioe);
-		}
-		setupFeatureComputer();
-	}
+    /**
+     * Try to load this model and set the target feature computer appropriately.
+     * This must be called from the constructor of subclasses, so that the
+     * subclass implementation of loadDataFile() is visible.
+     *
+     * @throws MaryConfigurationException
+     *             if the model cannot be set up properly.
+     */
+    protected final void load()
+    // throws MaryConfigurationException, ClassNotFoundException,
+    // InstantiationException, IllegalAccessException
+    throws Exception {
+        try {
+            loadData();
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Cannot load model data from stream", ioe);
+        }
+        setupFeatureComputer();
+    }
 
-	/**
-	 * Load dataFile for this model; only extension classes know how to do this
-	 *
-	 * @throws IOException
-	 *             if any files cannot be properly read
-	 * @throws MaryConfigurationException
-	 *             if files can be read but contain problematic content
-	 */
-	protected abstract void loadData() throws IOException, MaryConfigurationException;
+    /**
+     * Load dataFile for this model; only extension classes know how to do this
+     *
+     * @throws IOException
+     *             if any files cannot be properly read
+     * @throws MaryConfigurationException
+     *             if files can be read but contain problematic content
+     */
+    protected abstract void loadData() throws IOException, MaryConfigurationException;
 
-	protected final void setupFeatureComputer() throws Exception
-	// MaryConfigurationException, ClassNotFoundException,
-	// InstantiationException, IllegalAccessException
-	{
-		try {
-			FeatureComputer.initDefault();
-			featureComputer = FeatureComputer.the_feature_computer;
-		} catch (IllegalArgumentException iae) {
-		}
-	}
+    protected final void setupFeatureComputer() throws Exception
+        // MaryConfigurationException, ClassNotFoundException,
+        // InstantiationException, IllegalAccessException
+    {
+        try {
+            FeatureComputer.initDefault();
+            featureComputer = FeatureComputer.the_feature_computer;
+        } catch (IllegalArgumentException iae) {
+        }
+    }
 
-	/**
-	 * Apply this Model to a list of items
-	 *
-	 * @param utt
-	 *            the utterance
-	 * @param seq_type
-	 *            the type of inpacted sequence
-	 * @param item_indexes
-	 *            the indexes of the inpacted items
-	 * @throws MaryConfigurationException
-	 *             if attribute values cannot be predicted because of an invalid
-	 *             voice configuration
-	 */
-	public abstract void applyTo(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
-			throws Exception;
+    /**
+     * Apply this Model to a list of items
+     *
+     * @param utt
+     *            the utterance
+     * @param seq_type
+     *            the type of inpacted sequence
+     * @param item_indexes
+     *            the indexes of the inpacted items
+     * @throws MaryConfigurationException
+     *             if attribute values cannot be predicted because of an invalid
+     *             voice configuration
+     */
+    public abstract void applyTo(Utterance utt, SupportedSequenceType seq_type,
+                                 List<Integer> item_indexes)
+    throws Exception;
 
-	/**
-	 * For a list of items, return a list of features, where each FeatureMap is
-	 * constructed from the corresponding items.
-	 *
-	 * @param utt
-	 *            the utterance
-	 * @param seq_type
-	 *            the type of inpacted sequence
-	 * @param item_indexes
-	 *            the indexes of the inpacted items
-	 * @return List of features
-	 * @throws Exception
-	 *             [TODO]
-	 */
-	protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type, List<Integer> item_indexes)
-			throws Exception {
-		Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
-		List<FeatureMap> targets = new ArrayList<FeatureMap>(item_indexes.size());
-		for (Integer idx : item_indexes) {
-			Item item = seq.get(idx);
-			// compute FeatureMaps for Targets:
-			FeatureMap targetFeatureMap = featureComputer.process(utt, item);
-			targets.add(targetFeatureMap); // this is critical!
-		}
-		return targets;
-	}
+    /**
+     * For a list of items, return a list of features, where each FeatureMap is
+     * constructed from the corresponding items.
+     *
+     * @param utt
+     *            the utterance
+     * @param seq_type
+     *            the type of inpacted sequence
+     * @param item_indexes
+     *            the indexes of the inpacted items
+     * @return List of features
+     * @throws Exception
+     *             [TODO]
+     */
+    protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type,
+                                          List<Integer> item_indexes)
+    throws Exception {
+        Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
+        List<FeatureMap> targets = new ArrayList<FeatureMap>(item_indexes.size());
+        for (Integer idx : item_indexes) {
+            Item item = seq.get(idx);
+            // compute FeatureMaps for Targets:
+            FeatureMap targetFeatureMap = featureComputer.process(utt, item);
+            targets.add(targetFeatureMap); // this is critical!
+        }
+        return targets;
+    }
 
-	/**
-	 * Evaluate model on a Target to obtain the target value as a float.
-	 *
-	 * @param target
-	 *            target
-	 * @return target value
-	 * @throws Exception
-	 *             if the target value cannot be predicted
-	 */
-	protected abstract float evaluate(FeatureMap target) throws Exception;
+    /**
+     * Evaluate model on a Target to obtain the target value as a float.
+     *
+     * @param target
+     *            target
+     * @return target value
+     * @throws Exception
+     *             if the target value cannot be predicted
+     */
+    protected abstract float evaluate(FeatureMap target) throws Exception;
 
 }

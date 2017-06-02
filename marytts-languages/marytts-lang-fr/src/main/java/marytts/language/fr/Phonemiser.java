@@ -26,58 +26,58 @@ import marytts.util.MaryUtils;
 
 public class Phonemiser extends marytts.modules.nlp.JPhonemiser {
 
-	public Phonemiser() throws IOException, MaryConfigurationException {
-		super("fr.");
-	}
+    public Phonemiser() throws IOException, MaryConfigurationException {
+        super("fr.");
+    }
 
-	@Override
-	public String phonemise(String text, String pos, StringBuilder g2pMethod) {
-		// First, try a simple userdict and lexicon lookup:
+    @Override
+    public String phonemise(String text, String pos, StringBuilder g2pMethod) {
+        // First, try a simple userdict and lexicon lookup:
 
-		text = text.replaceAll("[0-9]+", "");
-		String result = userdictLookup(text, pos);
-		if (result != null) {
-			g2pMethod.append("userdict");
-			return result;
-		}
+        text = text.replaceAll("[0-9]+", "");
+        String result = userdictLookup(text, pos);
+        if (result != null) {
+            g2pMethod.append("userdict");
+            return result;
+        }
 
-		result = lexiconLookup(text, pos);
-		if (result != null) {
-			g2pMethod.append("lexicon");
-			return result;
-		}
+        result = lexiconLookup(text, pos);
+        if (result != null) {
+            g2pMethod.append("lexicon");
+            return result;
+        }
 
-		// Lookup attempts failed. Try normalising exotic letters
-		// (diacritics on vowels, etc.), look up again:
-		String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
-		if (!normalised.equals(text)) {
-			result = userdictLookup(normalised, pos);
-			if (result != null) {
-				g2pMethod.append("userdict");
-				return result;
-			}
-			result = lexiconLookup(normalised, pos);
-			if (result != null) {
-				g2pMethod.append("lexicon");
-				return result;
-			}
-		}
+        // Lookup attempts failed. Try normalising exotic letters
+        // (diacritics on vowels, etc.), look up again:
+        String normalised = MaryUtils.normaliseUnicodeLetters(text, getLocale());
+        if (!normalised.equals(text)) {
+            result = userdictLookup(normalised, pos);
+            if (result != null) {
+                g2pMethod.append("userdict");
+                return result;
+            }
+            result = lexiconLookup(normalised, pos);
+            if (result != null) {
+                g2pMethod.append("lexicon");
+                return result;
+            }
+        }
 
-		// Cannot find it in the lexicon -- apply letter-to-sound rules
-		// to the normalised form
+        // Cannot find it in the lexicon -- apply letter-to-sound rules
+        // to the normalised form
 
-		String phones = lts.predictPronunciation(text);
-		try {
-			result = lts.syllabify(phones);
-		} catch (IllegalArgumentException e) {
-			logger.error(String.format("Problem with token <%s> [%s]: %s", text, phones, e.getMessage()));
-		}
-		if (result != null) {
-			g2pMethod.append("rules");
-			return result;
-		}
+        String phones = lts.predictPronunciation(text);
+        try {
+            result = lts.syllabify(phones);
+        } catch (IllegalArgumentException e) {
+            logger.error(String.format("Problem with token <%s> [%s]: %s", text, phones, e.getMessage()));
+        }
+        if (result != null) {
+            g2pMethod.append("rules");
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
 }

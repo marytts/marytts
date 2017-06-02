@@ -11,53 +11,54 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Paragraph extends Item {
-	/** the text of the paragraph */
-	private String m_text;
+    /** the text of the paragraph */
+    private String m_text;
 
-	/**
-	 * Constructor of a paragraph
-	 *
-	 * @param text
-	 *            the text of the paragraph
-	 */
-	public Paragraph(String text) {
-		super();
-		setText(text);
-	}
+    /**
+     * Constructor of a paragraph
+     *
+     * @param text
+     *            the text of the paragraph
+     */
+    public Paragraph(String text) {
+        super();
+        setText(text);
+    }
 
-	/**
-	 * Accessor to get the text of the paragraph
-	 *
-	 * @return the text of the paragraph
-	 */
-	public String getText() {
-		return m_text;
-	}
+    /**
+     * Accessor to get the text of the paragraph
+     *
+     * @return the text of the paragraph
+     */
+    public String getText() {
+        return m_text;
+    }
 
-	/**
-	 * Accessor to set the text of the paragraph
-	 *
-	 * @param text
-	 *            the text of the paragraph
-	 */
-	protected void setText(String text) {
-		m_text = text;
-	}
+    /**
+     * Accessor to set the text of the paragraph
+     *
+     * @param text
+     *            the text of the paragraph
+     */
+    protected void setText(String text) {
+        m_text = text;
+    }
 
-	/**
-	 * Method to compare an object to the current paragraph
-	 *
-	 * @param obj
-	 *            the object to compare
-	 * @return true if obj is a paragraph and the paragraph are equals, false
-	 *         else
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Paragraph))
-			return false;
+    /**
+     * Method to compare an object to the current paragraph
+     *
+     * @param obj
+     *            the object to compare
+     * @return true if obj is a paragraph and the paragraph are equals, false
+     *         else
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Paragraph)) {
+            return false;
+        }
 
-		Paragraph par = (Paragraph) obj;
-		return par.getText().equals(getText());
-	}
+        Paragraph par = (Paragraph) obj;
+        return par.getText().equals(getText());
+    }
 }

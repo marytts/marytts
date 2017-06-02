@@ -31,45 +31,45 @@ import org.xml.sax.SAXParseException;
 /**
  * Implements an ErrorHandler for XML parsing that provides error and warning
  * messages to the log4j logger.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
 public class LoggingErrorHandler implements ErrorHandler, ErrorListener {
-	Logger logger;
+    Logger logger;
 
-	public LoggingErrorHandler(String name) {
-		logger = MaryUtils.getLogger(name);
-	}
+    public LoggingErrorHandler(String name) {
+        logger = MaryUtils.getLogger(name);
+    }
 
-	public void error(SAXParseException e) throws SAXParseException {
-		logger.warn(e.getMessage());
-		throw e;
-	}
+    public void error(SAXParseException e) throws SAXParseException {
+        logger.warn(e.getMessage());
+        throw e;
+    }
 
-	public void error(TransformerException e) throws TransformerException {
-		logger.warn(e.getMessageAndLocation());
-		throw e;
-	}
+    public void error(TransformerException e) throws TransformerException {
+        logger.warn(e.getMessageAndLocation());
+        throw e;
+    }
 
-	public void warning(SAXParseException e) throws SAXParseException {
-		logger.warn(e.getMessage());
-		throw e;
-	}
+    public void warning(SAXParseException e) throws SAXParseException {
+        logger.warn(e.getMessage());
+        throw e;
+    }
 
-	public void warning(TransformerException e) throws TransformerException {
-		logger.warn(e.getMessageAndLocation());
-		throw e;
-	}
+    public void warning(TransformerException e) throws TransformerException {
+        logger.warn(e.getMessageAndLocation());
+        throw e;
+    }
 
-	public void fatalError(SAXParseException e) throws SAXParseException {
-		logger.warn(e.getMessage());
-		throw e;
-	}
+    public void fatalError(SAXParseException e) throws SAXParseException {
+        logger.warn(e.getMessage());
+        throw e;
+    }
 
-	public void fatalError(TransformerException e) throws TransformerException {
-		logger.warn(e.getMessageAndLocation());
-		throw e;
-	}
+    public void fatalError(TransformerException e) throws TransformerException {
+        logger.warn(e.getMessageAndLocation());
+        throw e;
+    }
 
 }

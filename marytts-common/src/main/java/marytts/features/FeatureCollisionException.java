@@ -9,15 +9,15 @@ package marytts.features;
  */
 public class FeatureCollisionException extends Exception {
 
-	/**
-	 * Constructor
-	 *
-	 * @param msg
-	 *            the message of the exception
-	 */
-	public FeatureCollisionException(String msg) {
-		super(msg);
-	}
+    /**
+     * Constructor
+     *
+     * @param msg
+     *            the message of the exception
+     */
+    public FeatureCollisionException(String msg) {
+        super(msg);
+    }
 }
 
 /* FeatureCollisionException.java ends here */

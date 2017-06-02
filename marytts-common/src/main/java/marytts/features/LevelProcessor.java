@@ -12,18 +12,18 @@ import java.util.ArrayList;
  *         Maguer</a>
  */
 public interface LevelProcessor {
-	/**
-	 * Get a list of potential items related to the source item (see the
-	 * description of the implementing class)
-	 *
-	 * @param utt
-	 *            the utterance which contains the sequences and the relations
-	 *            needed to find the corresponding items
-	 * @param item
-	 *            the source item
-	 * @return the list of potential corresponding items
-	 * @throws Exception
-	 *             if something is going wrong
-	 */
-	public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception;
+    /**
+     * Get a list of potential items related to the source item (see the
+     * description of the implementing class)
+     *
+     * @param utt
+     *            the utterance which contains the sequences and the relations
+     *            needed to find the corresponding items
+     * @param item
+     *            the source item
+     * @return the list of potential corresponding items
+     * @throws Exception
+     *             if something is going wrong
+     */
+    public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception;
 }

@@ -30,28 +30,28 @@ import marytts.modules.InternalModule;
  */
 
 public class DummyTokens2Words extends InternalModule {
-	public DummyTokens2Words() {
-		this((Locale) null);
-	}
+    public DummyTokens2Words() {
+        this((Locale) null);
+    }
 
-	/**
-	 * Constructor to be called with instantiated objects.
-	 *
-	 * @param locale
-	 *            locale
-	 */
-	public DummyTokens2Words(String locale) {
-		super("DummyTokens2Words", new Locale(locale));
-	}
+    /**
+     * Constructor to be called with instantiated objects.
+     *
+     * @param locale
+     *            locale
+     */
+    public DummyTokens2Words(String locale) {
+        super("DummyTokens2Words", new Locale(locale));
+    }
 
-	/**
-	 * Constructor to be called with instantiated objects.
-	 *
-	 * @param locale
-	 *            locale
-	 */
-	public DummyTokens2Words(Locale locale) {
-		super("DummyTokens2Words", locale);
-	}
+    /**
+     * Constructor to be called with instantiated objects.
+     *
+     * @param locale
+     *            locale
+     */
+    public DummyTokens2Words(Locale locale) {
+        super("DummyTokens2Words", locale);
+    }
 
 }

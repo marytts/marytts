@@ -46,88 +46,92 @@ import org.apache.log4j.Logger;
  *
  */
 public class SynthesisRequestHandler extends BaseHttpRequestHandler {
-	private static int id = 0;
+    private static int id = 0;
 
-	private static synchronized int getId() {
-		return id++;
-	}
+    private static synchronized int getId() {
+        return id++;
+    }
 
-	private StreamingOutputPiper streamToPipe;
-	private PipedOutputStream pipedOutput;
-	private PipedInputStream pipedInput;
+    private StreamingOutputPiper streamToPipe;
+    private PipedOutputStream pipedOutput;
+    private PipedInputStream pipedInput;
 
-	public SynthesisRequestHandler() {
-		super();
+    public SynthesisRequestHandler() {
+        super();
 
-		streamToPipe = null;
-		pipedOutput = null;
-		pipedInput = null;
-	}
+        streamToPipe = null;
+        pipedOutput = null;
+        pipedInput = null;
+    }
 
-	@Override
-	protected void handleClientRequest(String absPath, Map<String, String> queryItems, HttpResponse response,
-			Address serverAddressAtClient) throws IOException {
-		logger.debug("New synthesis request: " + absPath);
-		if (queryItems != null) {
-			for (String key : queryItems.keySet()) {
-				logger.debug("    " + key + "=" + queryItems.get(key));
-			}
-		}
-		process(serverAddressAtClient, queryItems, response);
+    @Override
+    protected void handleClientRequest(String absPath, Map<String, String> queryItems,
+                                       HttpResponse response,
+                                       Address serverAddressAtClient) throws IOException {
+        logger.debug("New synthesis request: " + absPath);
+        if (queryItems != null) {
+            for (String key : queryItems.keySet()) {
+                logger.debug("    " + key + "=" + queryItems.get(key));
+            }
+        }
+        process(serverAddressAtClient, queryItems, response);
 
-	}
+    }
 
-	public void process(Address serverAddressAtClient, Map<String, String> queryItems, HttpResponse response) {
-		if (queryItems == null || !(queryItems.containsKey("CONFIGURATION") && queryItems.containsKey("LOCALE")
-				&& queryItems.containsKey("INPUT_TEXT"))) {
-			MaryHttpServerUtils.errorMissingQueryParameter(response,
-					"'INPUT_TEXT' and 'INPUT_TYPE' and 'OUTPUT_TYPE' and 'LOCALE'");
-			return;
-		}
+    public void process(Address serverAddressAtClient, Map<String, String> queryItems,
+                        HttpResponse response) {
+        if (queryItems == null || !(queryItems.containsKey("CONFIGURATION") &&
+                                    queryItems.containsKey("LOCALE")
+                                    && queryItems.containsKey("INPUT_TEXT"))) {
+            MaryHttpServerUtils.errorMissingQueryParameter(response,
+                    "'INPUT_TEXT' and 'INPUT_TYPE' and 'OUTPUT_TYPE' and 'LOCALE'");
+            return;
+        }
 
-		String inputText = queryItems.get("INPUT_TEXT");
-		boolean isOutputText = true;
-		String configuration = queryItems.get("CONFIGURATION");
-		String input_data = queryItems.get("INPUT_TEXT");
+        String inputText = queryItems.get("INPUT_TEXT");
+        boolean isOutputText = true;
+        String configuration = queryItems.get("CONFIGURATION");
+        String input_data = queryItems.get("INPUT_TEXT");
 
-		boolean ok = true;
-		final Request maryRequest = new Request(configuration, input_data);
+        boolean ok = true;
+        final Request maryRequest = new Request(configuration, input_data);
 
-		try {
-			maryRequest.process();
-		} catch (Exception e) {
-			String message = "error in process";
-			logger.warn(message, e);
-			MaryHttpServerUtils.errorInternalServerError(response, message, e);
-			ok = false;
-		}
+        try {
+            maryRequest.process();
+        } catch (Exception e) {
+            String message = "error in process";
+            logger.warn(message, e);
+            MaryHttpServerUtils.errorInternalServerError(response, message, e);
+            ok = false;
+        }
 
-		if (ok) {
-			// Write output data to client
-			try {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				maryRequest.writeOutputData(outputStream);
-				String contentType = "text/plain; charset=UTF-8"; // FIXME: need
-																	// to be
-																	// think for
-																	// the audio
-				MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
-			} catch (Exception e) {
-				String message = "Cannot write output";
-				logger.warn(message, e);
-				MaryHttpServerUtils.errorInternalServerError(response, message, e);
-				ok = false;
-			}
-		}
-		if (ok)
-			logger.info("Request handled successfully.");
-		else
-			logger.info("Request couldn't be handled successfully.");
-		if (MaryRuntimeUtils.lowMemoryCondition()) {
-			logger.info("Low memory condition detected (only " + MaryUtils.availableMemory()
-					+ " bytes left). Triggering garbage collection.");
-			Runtime.getRuntime().gc();
-			logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
-		}
-	}
+        if (ok) {
+            // Write output data to client
+            try {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                maryRequest.writeOutputData(outputStream);
+                String contentType = "text/plain; charset=UTF-8"; // FIXME: need
+                // to be
+                // think for
+                // the audio
+                MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
+            } catch (Exception e) {
+                String message = "Cannot write output";
+                logger.warn(message, e);
+                MaryHttpServerUtils.errorInternalServerError(response, message, e);
+                ok = false;
+            }
+        }
+        if (ok) {
+            logger.info("Request handled successfully.");
+        } else {
+            logger.info("Request couldn't be handled successfully.");
+        }
+        if (MaryRuntimeUtils.lowMemoryCondition()) {
+            logger.info("Low memory condition detected (only " + MaryUtils.availableMemory()
+                        + " bytes left). Triggering garbage collection.");
+            Runtime.getRuntime().gc();
+            logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
+        }
+    }
 }

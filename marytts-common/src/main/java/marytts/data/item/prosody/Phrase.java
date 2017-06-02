@@ -13,44 +13,44 @@ import marytts.data.item.Item;
  */
 public class Phrase extends Item {
 
-	/** The m boundary. */
-	private Boundary m_boundary;
+    /** The m boundary. */
+    private Boundary m_boundary;
 
-	/**
-	 * Instantiates a new phrase.
-	 */
-	public Phrase() {
-		super();
-		setBoundary(null);
-	}
+    /**
+     * Instantiates a new phrase.
+     */
+    public Phrase() {
+        super();
+        setBoundary(null);
+    }
 
-	/**
-	 * Instantiates a new phrase.
-	 *
-	 * @param boundary
-	 *            the boundary
-	 */
-	public Phrase(Boundary boundary) {
-		super();
-		setBoundary(boundary);
-	}
+    /**
+     * Instantiates a new phrase.
+     *
+     * @param boundary
+     *            the boundary
+     */
+    public Phrase(Boundary boundary) {
+        super();
+        setBoundary(boundary);
+    }
 
-	/**
-	 * Gets the boundary.
-	 *
-	 * @return the boundary
-	 */
-	public Boundary getBoundary() {
-		return m_boundary;
-	}
+    /**
+     * Gets the boundary.
+     *
+     * @return the boundary
+     */
+    public Boundary getBoundary() {
+        return m_boundary;
+    }
 
-	/**
-	 * Sets the boundary.
-	 *
-	 * @param boundary
-	 *            the new boundary
-	 */
-	public void setBoundary(Boundary boundary) {
-		m_boundary = boundary;
-	}
+    /**
+     * Sets the boundary.
+     *
+     * @param boundary
+     *            the new boundary
+     */
+    public void setBoundary(Boundary boundary) {
+        m_boundary = boundary;
+    }
 }

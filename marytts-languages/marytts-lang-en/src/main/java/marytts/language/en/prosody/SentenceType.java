@@ -23,67 +23,74 @@ package marytts.language.en.prosody;
  * Information on how to recognize and how to realize different sentence types.
  */
 public class SentenceType {
-	public static final SentenceType declarative = new SentenceType("declarative", "L-L%", "H-L%", "H-", "!H*", "L+H*");
-	public static final SentenceType interrogative = new SentenceType("interrogative", "H-H%", "H-L%", "H-", "L*",
-			"H*");
-	public static final SentenceType exclamation = new SentenceType("exclamation", "L-L%", "H-L%", "H-", "H*", "H*");
-	public static final SentenceType interrogYN = new SentenceType("interrogYN", "H-H%", "H-L%", "H-", "L*", "H*");
-	public static final SentenceType interrogWH = new SentenceType("interrogWH", "L-L%", "H-L%", "H-", "H*", "H*");
+    public static final SentenceType declarative = new SentenceType("declarative", "L-L%", "H-L%", "H-",
+            "!H*", "L+H*");
+    public static final SentenceType interrogative = new SentenceType("interrogative", "H-H%", "H-L%",
+            "H-", "L*",
+            "H*");
+    public static final SentenceType exclamation = new SentenceType("exclamation", "L-L%", "H-L%", "H-",
+            "H*", "H*");
+    public static final SentenceType interrogYN = new SentenceType("interrogYN", "H-H%", "H-L%", "H-",
+            "L*", "H*");
+    public static final SentenceType interrogWH = new SentenceType("interrogWH", "L-L%", "H-L%", "H-",
+            "H*", "H*");
 
-	public static SentenceType punctuationType(String punct) {
-		if (punct.equals("."))
-			return declarative;
-		else if (punct.equals("?"))
-			return interrogative;
-		else if (punct.equals("!"))
-			return exclamation;
-		else
-			return null;
-	}
+    public static SentenceType punctuationType(String punct) {
+        if (punct.equals(".")) {
+            return declarative;
+        } else if (punct.equals("?")) {
+            return interrogative;
+        } else if (punct.equals("!")) {
+            return exclamation;
+        } else {
+            return null;
+        }
+    }
 
-	private String name;
-	private String sentenceFinalBoundary;
-	private String nonFinalMajorBoundary;
-	private String minorBoundary;
-	private String nuclearAccent;
-	private String nonNuclearAccent;
+    private String name;
+    private String sentenceFinalBoundary;
+    private String nonFinalMajorBoundary;
+    private String minorBoundary;
+    private String nuclearAccent;
+    private String nonNuclearAccent;
 
-	private SentenceType(String name, String sentenceFinalBoundary, String nonFinalMajorBoundary, String minorBoundary,
-			String nuclearAccent, String nonNuclearAccent) {
-		this.name = name;
-		this.sentenceFinalBoundary = sentenceFinalBoundary;
-		this.nonFinalMajorBoundary = nonFinalMajorBoundary;
-		this.minorBoundary = minorBoundary;
-		this.nuclearAccent = nuclearAccent;
-		this.nonNuclearAccent = nonNuclearAccent;
-	}
+    private SentenceType(String name, String sentenceFinalBoundary, String nonFinalMajorBoundary,
+                         String minorBoundary,
+                         String nuclearAccent, String nonNuclearAccent) {
+        this.name = name;
+        this.sentenceFinalBoundary = sentenceFinalBoundary;
+        this.nonFinalMajorBoundary = nonFinalMajorBoundary;
+        this.minorBoundary = minorBoundary;
+        this.nuclearAccent = nuclearAccent;
+        this.nonNuclearAccent = nonNuclearAccent;
+    }
 
-	public String name() {
-		return name;
-	}
+    public String name() {
+        return name;
+    }
 
-	public String toString() {
-		return name();
-	}
+    public String toString() {
+        return name();
+    }
 
-	public String sentenceFinalBoundary() {
-		return sentenceFinalBoundary;
-	}
+    public String sentenceFinalBoundary() {
+        return sentenceFinalBoundary;
+    }
 
-	public String nonFinalMajorBoundary() {
-		return nonFinalMajorBoundary;
-	}
+    public String nonFinalMajorBoundary() {
+        return nonFinalMajorBoundary;
+    }
 
-	public String minorBoundary() {
-		return minorBoundary;
-	}
+    public String minorBoundary() {
+        return minorBoundary;
+    }
 
-	public String nuclearAccent() {
-		return nuclearAccent;
-	}
+    public String nuclearAccent() {
+        return nuclearAccent;
+    }
 
-	public String nonNuclearAccent() {
-		return nonNuclearAccent;
-	}
+    public String nonNuclearAccent() {
+        return nonNuclearAccent;
+    }
 
 }

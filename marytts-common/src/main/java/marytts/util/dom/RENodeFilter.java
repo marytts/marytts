@@ -27,25 +27,26 @@ import org.w3c.dom.traversal.NodeFilter;
 /**
  * A NodeFilter accepting only nodes with names matching a given regular
  * expression.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
 public class RENodeFilter implements NodeFilter {
-	private Pattern re;
+    private Pattern re;
 
-	public RENodeFilter(String reString) {
-		this.re = Pattern.compile(reString);
-	}
+    public RENodeFilter(String reString) {
+        this.re = Pattern.compile(reString);
+    }
 
-	public RENodeFilter(Pattern re) {
-		this.re = re;
-	}
+    public RENodeFilter(Pattern re) {
+        this.re = re;
+    }
 
-	public short acceptNode(Node n) {
-		if (re.matcher(n.getNodeName()).matches())
-			return NodeFilter.FILTER_ACCEPT;
-		else
-			return NodeFilter.FILTER_SKIP;
-	}
+    public short acceptNode(Node n) {
+        if (re.matcher(n.getNodeName()).matches()) {
+            return NodeFilter.FILTER_ACCEPT;
+        } else {
+            return NodeFilter.FILTER_SKIP;
+        }
+    }
 }

@@ -34,24 +34,24 @@ import org.testng.annotations.*;
  *
  */
 public class LuxembourgishConfigTest {
-	private static final Locale LUXEMBOURGISH = new Locale("lb");
+    private static final Locale LUXEMBOURGISH = new Locale("lb");
 
-	@Test
-	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new LuxembourgishConfig();
-		assertFalse(m.isMainConfig());
-	}
+    @Test
+    public void isNotMainConfig() throws MaryConfigurationException {
+        MaryConfig m = new LuxembourgishConfig();
+        assertFalse(m.isMainConfig());
+    }
 
-	@Test
-	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(LUXEMBOURGISH);
-		assertNotNull(m);
-		assertTrue(((LanguageConfig) m).getLocales().contains(LUXEMBOURGISH));
-	}
+    @Test
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(LUXEMBOURGISH);
+        assertNotNull(m);
+        assertTrue(((LanguageConfig) m).getLocales().contains(LUXEMBOURGISH));
+    }
 
-	@Test
-	public void hasLuxembourgishLocale() throws MaryConfigurationException {
-		LanguageConfig e = new LuxembourgishConfig();
-		assertTrue(e.getLocales().contains(LUXEMBOURGISH));
-	}
+    @Test
+    public void hasLuxembourgishLocale() throws MaryConfigurationException {
+        LanguageConfig e = new LuxembourgishConfig();
+        assertTrue(e.getLocales().contains(LUXEMBOURGISH));
+    }
 }

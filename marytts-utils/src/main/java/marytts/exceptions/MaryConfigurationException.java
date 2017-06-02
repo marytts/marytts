@@ -26,37 +26,37 @@ package marytts.exceptions;
  * According to the fail-early strategy, it is preferable to throw
  * MaryConfigurationException during server startup, and to abort the startup if
  * one is thrown.
- * 
+ *
  * @author marc
- * 
+ *
  */
 public class MaryConfigurationException extends Exception {
-	/**
-	 * Construct a MaryConfigurationException with only an error message. This
-	 * constructor should only be used if our program code has identified the
-	 * error condition. In order to wrap another Exception into a
-	 * MaryConfigurationException with a meaningful error message, use
-	 * {@link #MaryConfigurationException(String, Throwable)}.
-	 * 
-	 * @param message
-	 *            a meaningful error message describing the problem.
-	 */
-	public MaryConfigurationException(String message) {
-		super(message);
-	}
+    /**
+     * Construct a MaryConfigurationException with only an error message. This
+     * constructor should only be used if our program code has identified the
+     * error condition. In order to wrap another Exception into a
+     * MaryConfigurationException with a meaningful error message, use
+     * {@link #MaryConfigurationException(String, Throwable)}.
+     *
+     * @param message
+     *            a meaningful error message describing the problem.
+     */
+    public MaryConfigurationException(String message) {
+        super(message);
+    }
 
-	/**
-	 * Create a MaryConfigurationException with a message and a cause. Use this
-	 * to wrap another Exception into a MaryConfigurationException with a
-	 * meaningful error message.
-	 * 
-	 * @param message
-	 *            a meaningful error message describing the problem.
-	 * @param cause
-	 *            the exception or error that caused the problem.
-	 */
-	public MaryConfigurationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * Create a MaryConfigurationException with a message and a cause. Use this
+     * to wrap another Exception into a MaryConfigurationException with a
+     * meaningful error message.
+     *
+     * @param message
+     *            a meaningful error message describing the problem.
+     * @param cause
+     *            the exception or error that caused the problem.
+     */
+    public MaryConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

@@ -39,11 +39,11 @@ import marytts.data.item.linguistic.Word;
  */
 public class Tokenizer extends marytts.modules.nlp.JTokenizer {
 
-	/**
-	 *
-	 */
-	public Tokenizer() {
-		super(new Locale("ru"));
-		setTokenizerLanguage("en");
-	}
+    /**
+     *
+     */
+    public Tokenizer() {
+        super(new Locale("ru"));
+        setTokenizerLanguage("en");
+    }
 }
