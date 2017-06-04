@@ -21,6 +21,7 @@
 package marytts.language.de.preprocess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,8 +29,10 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import marytts.datatypes.MaryXML;
+import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -129,7 +132,14 @@ public abstract class ExpansionPattern {
 	}
 
 	public static List<ExpansionPattern> allPatterns() {
-		return expansionPatterns;
+		List<ExpansionPattern> limitedPatterns = new ArrayList<>(expansionPatterns);
+		List<String> exclusions = MaryProperties.getList("de.preprocess.automatic.expansionpatterns.exclusion.list");
+		// only keep EPs whose classname is not part of the exlusions list
+		limitedPatterns = limitedPatterns.stream().filter(ep -> {
+			return !exclusions.contains(ep.getClass().getName());
+		}).collect(Collectors.toList());
+		System.err.println("TIMOS wilde Liste: " + limitedPatterns.toString());
+		return limitedPatterns;
 	}
 
 	public static ExpansionPattern getPattern(String typeString) {
