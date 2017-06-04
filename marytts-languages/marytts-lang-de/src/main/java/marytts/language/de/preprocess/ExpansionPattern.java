@@ -20,10 +20,14 @@
 
 package marytts.language.de.preprocess;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
