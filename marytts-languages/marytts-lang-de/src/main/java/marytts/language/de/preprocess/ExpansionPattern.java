@@ -20,16 +20,13 @@
 
 package marytts.language.de.preprocess;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import marytts.datatypes.MaryXML;
+import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -126,6 +123,13 @@ public abstract class ExpansionPattern {
 		expansionPatterns.add(specialChar);
 		for (it = specialChar.knownTypes().iterator(); it.hasNext();)
 			patternTable.put(it.next(), specialChar);
+		List<String> exclusions = MaryProperties.getList("de.preprocess.automatic.expansionpatterns.exclusion.list");
+		// only keep EPs whose classname is not part of the exlusions list
+		for (Iterator<ExpansionPattern> iter = expansionPatterns.iterator(); it.hasNext(); ) {
+			ExpansionPattern ep = iter.next();
+			if (exclusions.contains(ep.getClass().getName()))
+				iter.remove();
+		}
 	}
 
 	public static List<ExpansionPattern> allPatterns() {
