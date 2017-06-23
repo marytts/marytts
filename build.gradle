@@ -187,3 +187,33 @@ task server (type:JavaExec, group: 'Runtime', description: 'Start the MaryTTS se
     systemProperty "mary.base", "$buildDir"
     main "marytts.server.Mary"
 }
+
+/**********************************************************************************************
+ ** Publishing part
+ ***********************************************************************************************/
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier 'sources'
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "$rootProject.buildDir/repo"
+        }
+        maven {
+            url version.endsWith('-SNAPSHOT') ? 'https://oss.jfrog.org/artifactory/oss-snapshot-local' : null // FIXME:not publishing is the best ! 'https://api.bintray.com/maven/marytts/marytts/marytts'
+            credentials {
+                username = findProperty('bintrayUser')
+                password = findProperty('bintrayApiKey')
+            }
+        }
+    }
+}
