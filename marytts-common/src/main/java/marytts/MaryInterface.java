@@ -62,31 +62,31 @@ import org.w3c.dom.Document;
  */
 public interface MaryInterface {
 
-	/**
-	 * Set the locale for processing. Set the voice to the default voice for
-	 * this locale.
-	 *
-	 * @param newLocale
-	 *            a supported locale.
-	 * @throws IllegalArgumentException
-	 *             if newLocale is not among the {@link #getAvailableLocales()}.
-	 */
-	public void setLocale(Locale newLocale) throws IllegalArgumentException;
+    /**
+     * Set the locale for processing. Set the voice to the default voice for
+     * this locale.
+     *
+     * @param newLocale
+     *            a supported locale.
+     * @throws IllegalArgumentException
+     *             if newLocale is not among the {@link #getAvailableLocales()}.
+     */
+    public void setLocale(Locale newLocale) throws IllegalArgumentException;
 
-	/**
-	 * Get the current locale used for processing. Either the default (US
-	 * English) or the value most recently set through
-	 * {@link #setLocale(Locale)}
-	 *
-	 * @return the locale
-	 */
-	public Locale getLocale();
+    /**
+     * Get the current locale used for processing. Either the default (US
+     * English) or the value most recently set through
+     * {@link #setLocale(Locale)}
+     *
+     * @return the locale
+     */
+    public Locale getLocale();
 
-	/**
-	 * List the locales that can be used in {@link #setLocale(Locale)}.
-	 *
-	 * @return locales
-	 *
-	 */
-	public Set<Locale> getAvailableLocales();
+    /**
+     * List the locales that can be used in {@link #setLocale(Locale)}.
+     *
+     * @return locales
+     *
+     */
+    public Set<Locale> getAvailableLocales();
 }

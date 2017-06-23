@@ -44,22 +44,22 @@ import org.apache.log4j.Logger;
  *
  * <pre>
  * public class Postlex extends InternalModule {
- * 	public Postlex() {
- * 		super(&quot;Postlex&quot;, MaryDataType.PHONEMISED, MaryDataType.POSTPROCESSED);
- * 	}
+ *  public Postlex() {
+ *      super(&quot;Postlex&quot;, MaryDataType.PHONEMISED, MaryDataType.POSTPROCESSED);
+ *  }
  *
- * 	public MaryData process(MaryData d) throws Exception {
- * 		Document doc = d.getDocument();
- * 		mtuPostlex(doc);
- * 		phonologicalRules(doc);
- * 		MaryData result = new MaryData(outputType());
- * 		result.setDocument(doc);
- * 		return result;
- * 	}
+ *  public MaryData process(MaryData d) throws Exception {
+ *      Document doc = d.getDocument();
+ *      mtuPostlex(doc);
+ *      phonologicalRules(doc);
+ *      MaryData result = new MaryData(outputType());
+ *      result.setDocument(doc);
+ *      return result;
+ *  }
  *
- * 	private void mtuPostlex(Document doc) {...}
+ *  private void mtuPostlex(Document doc) {...}
  *
- * 	private void phonologicalRules(Document doc) {...}
+ *  private void phonologicalRules(Document doc) {...}
  * }
  * </pre>
  *
@@ -67,65 +67,66 @@ import org.apache.log4j.Logger;
  */
 
 public class InternalModule implements MaryModule {
-	private String name = null;
-	private Locale locale = null;
-	protected int state;
-	/**
-	 * The logger instance to be used by this module. It will identify the
-	 * origin of the log message in the log file.
-	 */
-	protected Logger logger;
+    private String name = null;
+    private Locale locale = null;
+    protected int state;
+    /**
+     * The logger instance to be used by this module. It will identify the
+     * origin of the log message in the log file.
+     */
+    protected Logger logger;
 
-	protected InternalModule(String name, Locale locale) {
-		this.name = name;
-		this.locale = locale;
-		logger = MaryUtils.getLogger(name());
-		this.state = MODULE_OFFLINE;
-	}
+    protected InternalModule(String name, Locale locale) {
+        this.name = name;
+        this.locale = locale;
+        logger = MaryUtils.getLogger(name());
+        this.state = MODULE_OFFLINE;
+    }
 
-	// Interface MaryModule implementation:
-	public String name() {
-		return name;
-	}
+    // Interface MaryModule implementation:
+    public String name() {
+        return name;
+    }
 
-	public Locale getLocale() {
-		return locale;
-	}
+    public Locale getLocale() {
+        return locale;
+    }
 
-	public int getState() {
-		return state;
-	}
+    public int getState() {
+        return state;
+    }
 
-	public void startup() throws Exception {
-		assert state == MODULE_OFFLINE;
-		logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
+    public void startup() throws Exception {
+        assert state == MODULE_OFFLINE;
+        logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() +
+                    ").");
 
-		state = MODULE_RUNNING;
-	}
+        state = MODULE_RUNNING;
+    }
 
-	public void shutdown() {
-		logger = MaryUtils.getLogger(name());
-		logger.info("Module shut down.");
-		state = MODULE_OFFLINE;
-	}
+    public void shutdown() {
+        logger = MaryUtils.getLogger(name());
+        logger.info("Module shut down.");
+        state = MODULE_OFFLINE;
+    }
 
-	/**
-	 * Perform this module's processing on abstract "MaryData" input
-	 * <code>d</code>. Subclasses need to make sure that the
-	 * <code>process()</code> method is thread-safe, because in server-mode, it
-	 * will be called from different threads at the same time. A sensible way to
-	 * do this seems to be not to use any global or static variables, or to use
-	 * them read-only.
-	 * <p>
-	 *
-	 * @return A MaryData object of type <code>outputType()</code> encapsulating
-	 *         the processing result.
-	 *         <p>
-	 *         This method just returns its input. Subclasses should override
-	 *         this.
-	 */
-	public MaryData process(MaryData d) throws Exception {
-		return d; // just return input.
-	}
+    /**
+     * Perform this module's processing on abstract "MaryData" input
+     * <code>d</code>. Subclasses need to make sure that the
+     * <code>process()</code> method is thread-safe, because in server-mode, it
+     * will be called from different threads at the same time. A sensible way to
+     * do this seems to be not to use any global or static variables, or to use
+     * them read-only.
+     * <p>
+     *
+     * @return A MaryData object of type <code>outputType()</code> encapsulating
+     *         the processing result.
+     *         <p>
+     *         This method just returns its input. Subclasses should override
+     *         this.
+     */
+    public MaryData process(MaryData d) throws Exception {
+        return d; // just return input.
+    }
 
 }

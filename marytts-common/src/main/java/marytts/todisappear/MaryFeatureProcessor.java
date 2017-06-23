@@ -36,5 +36,5 @@ package marytts.todisappear;
  */
 public interface MaryFeatureProcessor {
 
-	public String getName();
+    public String getName();
 }

@@ -50,193 +50,200 @@ import org.apache.log4j.Logger;
  *
  */
 public class ModuleRegistry {
-	private static List<MaryModule> allModules;
-	private static boolean registrationComplete;
-	private static Logger logger;
+    private static List<MaryModule> allModules;
+    private static boolean registrationComplete;
+    private static Logger logger;
 
-	private static List<MaryModule> preferredModules;
+    private static List<MaryModule> preferredModules;
 
-	private ModuleRegistry() {
-	}
+    private ModuleRegistry() {
+    }
 
-	/**
-	 * Create a new, empty module repository.
-	 */
-	static {
-		allModules = new ArrayList<MaryModule>();
-		registrationComplete = false;
-		logger = MaryUtils.getLogger("ModuleRegistry");
-	}
+    /**
+     * Create a new, empty module repository.
+     */
+    static {
+        allModules = new ArrayList<MaryModule>();
+        registrationComplete = false;
+        logger = MaryUtils.getLogger("ModuleRegistry");
+    }
 
-	// ////////////////////////////////////////////////////////////////
-	// /////////////////////// instantiation //////////////////////////
-	// ////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////
+    // /////////////////////// instantiation //////////////////////////
+    // ////////////////////////////////////////////////////////////////
 
-	/**
-	 * From the given module init info, instantiate a new mary module.
-	 *
-	 * @param moduleInitInfo
-	 *            a string description of the module to instantiate. The
-	 *            moduleInitInfo is expected to have one of the following forms:
-	 *            <ol>
-	 *            <li>my.class.which.extends.MaryModule</li>
-	 *            <li>my.class.which.extends.MaryModule(any,string,args,without,spaces)</li>
-	 *            <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
-	 *            </ol>
-	 *            where 'my.special.property' is a property in the property
-	 *            file.
-	 * @throws MaryConfigurationException
-	 *             if the module cannot be instantiated
-	 * @return m
-	 */
-	public static MaryModule instantiateModule(String moduleInitInfo) throws MaryConfigurationException {
-		logger.info("Now initiating mary module '" + moduleInitInfo + "'");
-		MaryModule m = (MaryModule) MaryRuntimeUtils.instantiateObject(moduleInitInfo);
-		return m;
-	}
+    /**
+     * From the given module init info, instantiate a new mary module.
+     *
+     * @param moduleInitInfo
+     *            a string description of the module to instantiate. The
+     *            moduleInitInfo is expected to have one of the following forms:
+     *            <ol>
+     *            <li>my.class.which.extends.MaryModule</li>
+     *            <li>my.class.which.extends.MaryModule(any,string,args,without,spaces)</li>
+     *            <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
+     *            </ol>
+     *            where 'my.special.property' is a property in the property
+     *            file.
+     * @throws MaryConfigurationException
+     *             if the module cannot be instantiated
+     * @return m
+     */
+    public static MaryModule instantiateModule(String moduleInitInfo) throws
+        MaryConfigurationException {
+        logger.info("Now initiating mary module '" + moduleInitInfo + "'");
+        MaryModule m = (MaryModule) MaryRuntimeUtils.instantiateObject(moduleInitInfo);
+        return m;
+    }
 
-	// ////////////////////////////////////////////////////////////////
-	// /////////////////////// registration ///////////////////////////
-	// ////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////
+    // /////////////////////// registration ///////////////////////////
+    // ////////////////////////////////////////////////////////////////
 
-	/**
-	 * Register a MaryModule as an appropriate module to process the given
-	 * combination of MaryDataType for the input data, locale of the input data,
-	 * and voice requested for processing. Note that it is possible to register
-	 * more than one module for a given combination of input type, locale and
-	 * voice; in that case, all of them will be remembered, and will be returned
-	 * as a List by get().
-	 *
-	 * @param module
-	 *            the module to add to the registry, under its input type and
-	 *            the given locale and voice.
-	 * @param locale
-	 *            the locale (language or language-COUNTRY) of the input data;
-	 *            can be null to signal that the module is locale-independent.
-	 * @throws IllegalStateException
-	 *             if called after registration is complete.
-	 */
-	@SuppressWarnings("unchecked")
-	public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
-		if (registrationComplete)
-			throw new IllegalStateException("cannot register modules after registration is complete");
-		allModules.add(module);
-	}
+    /**
+     * Register a MaryModule as an appropriate module to process the given
+     * combination of MaryDataType for the input data, locale of the input data,
+     * and voice requested for processing. Note that it is possible to register
+     * more than one module for a given combination of input type, locale and
+     * voice; in that case, all of them will be remembered, and will be returned
+     * as a List by get().
+     *
+     * @param module
+     *            the module to add to the registry, under its input type and
+     *            the given locale and voice.
+     * @param locale
+     *            the locale (language or language-COUNTRY) of the input data;
+     *            can be null to signal that the module is locale-independent.
+     * @throws IllegalStateException
+     *             if called after registration is complete.
+     */
+    @SuppressWarnings("unchecked")
+    public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
+        if (registrationComplete) {
+            throw new IllegalStateException("cannot register modules after registration is complete");
+        }
+        allModules.add(module);
+    }
 
-	/**
-	 * Determine whether or not the registration is complete. When the
-	 * registration is not (yet) complete, calls to
-	 *
-	 * @see #registerModule(MaryModule, Locale) are possible; when the
-	 *      registration is complete, calls to the other methods are possible.
-	 *
-	 * @return false when the registration is still open, true when it is
-	 *         complete.
-	 */
-	public static boolean getRegistrationComplete() {
-		return registrationComplete;
-	}
+    /**
+     * Determine whether or not the registration is complete. When the
+     * registration is not (yet) complete, calls to
+     *
+     * @see #registerModule(MaryModule, Locale) are possible; when the
+     *      registration is complete, calls to the other methods are possible.
+     *
+     * @return false when the registration is still open, true when it is
+     *         complete.
+     */
+    public static boolean getRegistrationComplete() {
+        return registrationComplete;
+    }
 
-	/**
-	 * Indicate that the registration is now complete. No further calls to
-	 * registerModules() will be possible.
-	 *
-	 * @throws IllegalStateException
-	 *             if called when registration was already completed before.
-	 */
-	public static void setRegistrationComplete() throws IllegalStateException {
-		if (registrationComplete)
-			throw new IllegalStateException("Registration has already completed, cannot do that a second time");
+    /**
+     * Indicate that the registration is now complete. No further calls to
+     * registerModules() will be possible.
+     *
+     * @throws IllegalStateException
+     *             if called when registration was already completed before.
+     */
+    public static void setRegistrationComplete() throws IllegalStateException {
+        if (registrationComplete) {
+            throw new IllegalStateException("Registration has already completed, cannot do that a second time");
+        }
 
-		// Set registration complete lockup
-		registrationComplete = true;
+        // Set registration complete lockup
+        registrationComplete = true;
 
-		// Define system preferred modules
-		List<String> preferredModulesClasses = MaryProperties.getList("modules.preferred.classes.list");
-		if ((preferredModulesClasses == null) || (preferredModulesClasses.isEmpty()))
-			return;
+        // Define system preferred modules
+        List<String> preferredModulesClasses = MaryProperties.getList("modules.preferred.classes.list");
+        if ((preferredModulesClasses == null) || (preferredModulesClasses.isEmpty())) {
+            return;
+        }
 
-		preferredModules = new ArrayList<MaryModule>();
-		for (String moduleInfo : preferredModulesClasses) {
-			try {
-				MaryModule mm = null;
-				if (!moduleInfo.contains("(")) { // no constructor info
-					mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
-				}
-				preferredModules.add(mm);
-			} catch (ClassNotFoundException e) {
-				logger.warn("Cannot initialise preferred module " + moduleInfo + " -- skipping.", e);
-			}
-		}
-	}
+        preferredModules = new ArrayList<MaryModule>();
+        for (String moduleInfo : preferredModulesClasses) {
+            try {
+                MaryModule mm = null;
+                if (!moduleInfo.contains("(")) { // no constructor info
+                    mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
+                }
+                preferredModules.add(mm);
+            } catch (ClassNotFoundException e) {
+                logger.warn("Cannot initialise preferred module " + moduleInfo + " -- skipping.", e);
+            }
+        }
+    }
 
-	// ////////////////////////////////////////////////////////////////
-	// /////////////////////// modules /////////////////////////////
-	// ////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////
+    // /////////////////////// modules /////////////////////////////
+    // ////////////////////////////////////////////////////////////////
 
-	/**
-	 * Provide a list containing all MaryModules instances. The order is not
-	 * important.
-	 *
-	 * @throws IllegalStateException
-	 *             if called while registration is not yet complete.
-	 * @return Collections.unmodifiableList(allModules)
-	 */
-	public static List<MaryModule> getAllModules() {
-		if (!registrationComplete)
-			throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
-		return Collections.unmodifiableList(allModules);
-	}
+    /**
+     * Provide a list containing all MaryModules instances. The order is not
+     * important.
+     *
+     * @throws IllegalStateException
+     *             if called while registration is not yet complete.
+     * @return Collections.unmodifiableList(allModules)
+     */
+    public static List<MaryModule> getAllModules() {
+        if (!registrationComplete) {
+            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
+        }
+        return Collections.unmodifiableList(allModules);
+    }
 
-	/**
-	 * Find an active module by its class.
-	 *
-	 * @param moduleClass
-	 *            moduleClass
-	 * @return the module instance if found, or null if not found.
-	 * @throws IllegalStateException
-	 *             if called while registration is not yet complete.
-	 */
-	// TODO: what should happen with this method when we parameterise modules,
-	// so that there can be several instances of the same
-	// class?
-	public static MaryModule getModule(Class<?> moduleClass) {
-		if (!registrationComplete)
-			throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
-		for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
-			MaryModule m = it.next();
-			if (moduleClass.isInstance(m)) {
-				return m;
-			}
-		}
-		// Not found:
-		return null;
-	}
+    /**
+     * Find an active module by its class.
+     *
+     * @param moduleClass
+     *            moduleClass
+     * @return the module instance if found, or null if not found.
+     * @throws IllegalStateException
+     *             if called while registration is not yet complete.
+     */
+    // TODO: what should happen with this method when we parameterise modules,
+    // so that there can be several instances of the same
+    // class?
+    public static MaryModule getModule(Class<?> moduleClass) {
+        if (!registrationComplete) {
+            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
+        }
+        for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
+            MaryModule m = it.next();
+            if (moduleClass.isInstance(m)) {
+                return m;
+            }
+        }
+        // Not found:
+        return null;
+    }
 
-	/**
-	 * Find an active module by its class.
-	 *
-	 * @param moduleClass
-	 *            moduleClass
-	 * @return the module instance if found, or null if not found.
-	 * @throws IllegalStateException
-	 *             if called while registration is not yet complete.
-	 */
-	// TODO: what should happen with this method when we parameterise modules,
-	// so that there can be several instances of the same
-	// class?
-	public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
-		if (!registrationComplete)
-			throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
+    /**
+     * Find an active module by its class.
+     *
+     * @param moduleClass
+     *            moduleClass
+     * @return the module instance if found, or null if not found.
+     * @throws IllegalStateException
+     *             if called while registration is not yet complete.
+     */
+    // TODO: what should happen with this method when we parameterise modules,
+    // so that there can be several instances of the same
+    // class?
+    public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
+        if (!registrationComplete) {
+            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
+        }
 
-		for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
-			MaryModule m = it.next();
-			if (moduleClass.isInstance(m) && (locale.equals(m.getLocale()))) {
-				return m;
-			}
-		}
+        for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
+            MaryModule m = it.next();
+            if (moduleClass.isInstance(m) && (locale.equals(m.getLocale()))) {
+                return m;
+            }
+        }
 
-		// Not found:
-		return null;
-	}
+        // Not found:
+        return null;
+    }
 }

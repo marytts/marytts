@@ -7,7 +7,7 @@ package marytts.cart;
  *         Maguer</a>
  */
 public interface IndexedNode {
-	public int getIndex(Object value);
+    public int getIndex(Object value);
 }
 
 /* IndexedNode.java ends here */

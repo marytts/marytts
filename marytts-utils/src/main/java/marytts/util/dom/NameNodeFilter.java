@@ -24,29 +24,32 @@ import org.w3c.dom.traversal.NodeFilter;
 
 /**
  * A NodeFilter accepting only nodes with a given name.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
 public class NameNodeFilter implements NodeFilter {
-	private String[] names;
+    private String[] names;
 
-	public NameNodeFilter(String... names) {
-		if (names == null)
-			throw new NullPointerException("Cannot filter on null names");
-		this.names = names;
-		for (int i = 0; i < names.length; i++) {
-			if (names[i] == null)
-				throw new NullPointerException("Cannot filter on null name");
-		}
-	}
+    public NameNodeFilter(String... names) {
+        if (names == null) {
+            throw new NullPointerException("Cannot filter on null names");
+        }
+        this.names = names;
+        for (int i = 0; i < names.length; i++) {
+            if (names[i] == null) {
+                throw new NullPointerException("Cannot filter on null name");
+            }
+        }
+    }
 
-	public short acceptNode(Node n) {
-		String name = n.getNodeName();
-		for (int i = 0; i < names.length; i++) {
-			if (name.equals(names[i]))
-				return NodeFilter.FILTER_ACCEPT;
-		}
-		return NodeFilter.FILTER_SKIP;
-	}
+    public short acceptNode(Node n) {
+        String name = n.getNodeName();
+        for (int i = 0; i < names.length; i++) {
+            if (name.equals(names[i])) {
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        }
+        return NodeFilter.FILTER_SKIP;
+    }
 }

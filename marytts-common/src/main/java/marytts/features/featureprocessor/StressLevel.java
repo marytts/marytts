@@ -14,12 +14,12 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class StressLevel implements FeatureProcessor {
-	public Feature generate(Utterance utt, Item item) throws Exception {
-		if (item instanceof marytts.data.item.phonology.Syllable) {
-			Syllable syl = (Syllable) item;
-			return new Feature(syl.getStressLevel());
-		}
+    public Feature generate(Utterance utt, Item item) throws Exception {
+        if (item instanceof marytts.data.item.phonology.Syllable) {
+            Syllable syl = (Syllable) item;
+            return new Feature(syl.getStressLevel());
+        }
 
-		throw new Exception();
-	}
+        throw new Exception();
+    }
 }

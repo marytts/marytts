@@ -33,24 +33,24 @@ import org.testng.annotations.*;
  *
  */
 public class TurkishConfigTest {
-	private static final Locale TURKISH = new Locale("tr");
+    private static final Locale TURKISH = new Locale("tr");
 
-	@Test
-	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new TurkishConfig();
-		Assert.assertFalse(m.isMainConfig());
-	}
+    @Test
+    public void isNotMainConfig() throws MaryConfigurationException {
+        MaryConfig m = new TurkishConfig();
+        Assert.assertFalse(m.isMainConfig());
+    }
 
-	@Test
-	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(TURKISH);
-		Assert.assertNotNull(m);
-		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(TURKISH));
-	}
+    @Test
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(TURKISH);
+        Assert.assertNotNull(m);
+        Assert.assertTrue(((LanguageConfig) m).getLocales().contains(TURKISH));
+    }
 
-	@Test
-	public void hasRussianLocale() throws MaryConfigurationException {
-		LanguageConfig e = new TurkishConfig();
-		Assert.assertTrue(e.getLocales().contains(TURKISH));
-	}
+    @Test
+    public void hasRussianLocale() throws MaryConfigurationException {
+        LanguageConfig e = new TurkishConfig();
+        Assert.assertTrue(e.getLocales().contains(TURKISH));
+    }
 }

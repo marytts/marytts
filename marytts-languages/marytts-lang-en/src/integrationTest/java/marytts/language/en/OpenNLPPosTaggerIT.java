@@ -32,12 +32,12 @@ import org.testng.annotations.*;
  */
 public class OpenNLPPosTaggerIT {
 
-	/**
-	 * @param needMaryStarted
-	 * @throws Exception
-	 *             Exception
-	 */
-	public OpenNLPPosTaggerIT() throws Exception {
-	}
+    /**
+     * @param needMaryStarted
+     * @throws Exception
+     *             Exception
+     */
+    public OpenNLPPosTaggerIT() throws Exception {
+    }
 
 }

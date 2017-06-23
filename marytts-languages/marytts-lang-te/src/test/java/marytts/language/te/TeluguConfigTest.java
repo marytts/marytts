@@ -33,24 +33,24 @@ import org.testng.annotations.*;
  *
  */
 public class TeluguConfigTest {
-	private static final Locale TELUGU = new Locale("te");
+    private static final Locale TELUGU = new Locale("te");
 
-	@Test
-	public void isNotMainConfig() throws MaryConfigurationException {
-		MaryConfig m = new TeluguConfig();
-		Assert.assertFalse(m.isMainConfig());
-	}
+    @Test
+    public void isNotMainConfig() throws MaryConfigurationException {
+        MaryConfig m = new TeluguConfig();
+        Assert.assertFalse(m.isMainConfig());
+    }
 
-	@Test
-	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(TELUGU);
-		Assert.assertNotNull(m);
-		Assert.assertTrue(((LanguageConfig) m).getLocales().contains(TELUGU));
-	}
+    @Test
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(TELUGU);
+        Assert.assertNotNull(m);
+        Assert.assertTrue(((LanguageConfig) m).getLocales().contains(TELUGU));
+    }
 
-	@Test
-	public void hasRussianLocale() throws MaryConfigurationException {
-		LanguageConfig e = new TeluguConfig();
-		Assert.assertTrue(e.getLocales().contains(TELUGU));
-	}
+    @Test
+    public void hasRussianLocale() throws MaryConfigurationException {
+        LanguageConfig e = new TeluguConfig();
+        Assert.assertTrue(e.getLocales().contains(TELUGU));
+    }
 }

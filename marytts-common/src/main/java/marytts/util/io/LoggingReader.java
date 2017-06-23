@@ -26,44 +26,44 @@ import java.io.Reader;
 import org.apache.log4j.Logger;
 
 public class LoggingReader extends FilterReader {
-	protected Logger logger;
-	protected StringBuffer logText;
+    protected Logger logger;
+    protected StringBuffer logText;
 
-	public LoggingReader(Reader in, Logger logger) {
-		super(in);
-		this.logger = logger;
-		logText = new StringBuffer();
-	}
+    public LoggingReader(Reader in, Logger logger) {
+        super(in);
+        this.logger = logger;
+        logText = new StringBuffer();
+    }
 
-	public int read() throws IOException {
-		int c = super.read();
-		if (c == -1) {
-			logRead();
-		} else {
-			logText.append((char) c);
-		}
-		return c;
-	}
+    public int read() throws IOException {
+        int c = super.read();
+        if (c == -1) {
+            logRead();
+        } else {
+            logText.append((char) c);
+        }
+        return c;
+    }
 
-	public int read(char[] cbuf, int off, int len) throws IOException {
-		int nr = super.read(cbuf, off, len);
-		if (nr == -1) {
-			logRead();
-		} else {
-			logText.append(new String(cbuf, off, nr));
-		}
-		return nr;
-	}
+    public int read(char[] cbuf, int off, int len) throws IOException {
+        int nr = super.read(cbuf, off, len);
+        if (nr == -1) {
+            logRead();
+        } else {
+            logText.append(new String(cbuf, off, nr));
+        }
+        return nr;
+    }
 
-	public void close() throws IOException {
-		super.close();
-		logRead();
-	}
+    public void close() throws IOException {
+        super.close();
+        logRead();
+    }
 
-	public void logRead() {
-		if (logText.length() > 0) {
-			logger.info("Read:\n" + logText.toString());
-			logText.setLength(0);
-		}
-	}
+    public void logRead() {
+        if (logText.length() > 0) {
+            logger.info("Read:\n" + logText.toString());
+            logText.setLength(0);
+        }
+    }
 }
