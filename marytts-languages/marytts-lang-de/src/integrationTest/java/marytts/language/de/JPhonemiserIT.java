@@ -12,16 +12,16 @@ import org.testng.annotations.*;
  */
 public class JPhonemiserIT extends MaryModuleTestCase {
 
-	public JPhonemiserIT() throws Exception {
-		super(true); // need mary startup
-		module = ModuleRegistry.getModule(JPhonemiser.class);
-	}
+    public JPhonemiserIT() throws Exception {
+        super(true); // need mary startup
+        module = ModuleRegistry.getModule(JPhonemiser.class);
+    }
 
-	@Test
-	public void testIsPosPunctuation() {
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$,"));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$."));
-		Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$("));
-		Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
-	}
+    @Test
+    public void testIsPosPunctuation() {
+        Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$,"));
+        Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$."));
+        Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$("));
+        Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
+    }
 }

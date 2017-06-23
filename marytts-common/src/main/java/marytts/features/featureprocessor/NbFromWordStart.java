@@ -19,25 +19,28 @@ import marytts.features.FeatureProcessor;
  */
 public class NbFromWordStart implements FeatureProcessor {
 
-	public Feature generate(Utterance utt, Item item) throws Exception {
-		if (item instanceof Word)
-			throw new Exception();
+    public Feature generate(Utterance utt, Item item) throws Exception {
+        if (item instanceof Word) {
+            throw new Exception();
+        }
 
-		Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-		Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.WORD));
-		int item_idx = seq_item.indexOf(item);
+        Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
+        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.WORD));
+        int item_idx = seq_item.indexOf(item);
 
-		// Find the related wrdase
-		int[] wrd_indexes = rel.getRelatedIndexes(item_idx);
-		if (wrd_indexes.length <= 0)
-			return Feature.UNDEF_FEATURE;
+        // Find the related wrdase
+        int[] wrd_indexes = rel.getRelatedIndexes(item_idx);
+        if (wrd_indexes.length <= 0) {
+            return Feature.UNDEF_FEATURE;
+        }
 
-		// Finding the itemlables related to the related wrdase
-		int[] item_indexes = rel.getSourceRelatedIndexes(wrd_indexes[0]);
-		if (item_indexes.length <= 0)
-			return Feature.UNDEF_FEATURE;
+        // Finding the itemlables related to the related wrdase
+        int[] item_indexes = rel.getSourceRelatedIndexes(wrd_indexes[0]);
+        if (item_indexes.length <= 0) {
+            return Feature.UNDEF_FEATURE;
+        }
 
-		int nb = item_idx - item_indexes[0];
-		return new Feature(nb);
-	}
+        int nb = item_idx - item_indexes[0];
+        return new Feature(nb);
+    }
 }

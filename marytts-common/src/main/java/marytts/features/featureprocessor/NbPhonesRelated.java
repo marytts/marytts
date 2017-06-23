@@ -19,13 +19,13 @@ import marytts.features.FeatureProcessor;
  */
 public class NbPhonesRelated implements FeatureProcessor {
 
-	public Feature generate(Utterance utt, Item item) throws Exception {
-		Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-		Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHONE));
-		int item_idx = seq_item.indexOf(item);
+    public Feature generate(Utterance utt, Item item) throws Exception {
+        Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
+        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHONE));
+        int item_idx = seq_item.indexOf(item);
 
-		// Find the related sylase
-		int[] ph_indexes = rel.getRelatedIndexes(item_idx);
-		return new Feature(ph_indexes.length);
-	}
+        // Find the related sylase
+        int[] ph_indexes = rel.getRelatedIndexes(item_idx);
+        return new Feature(ph_indexes.length);
+    }
 }

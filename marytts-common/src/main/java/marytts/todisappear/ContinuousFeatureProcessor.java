@@ -38,5 +38,5 @@ import marytts.todisappear.Target;
  */
 public interface ContinuousFeatureProcessor extends MaryFeatureProcessor {
 
-	public float process(Target target);
+    public float process(Target target);
 }

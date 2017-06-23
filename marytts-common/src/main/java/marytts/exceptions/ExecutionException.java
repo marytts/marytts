@@ -23,25 +23,25 @@ package marytts.exceptions;
  * A special type of expected error conditions This class represents error
  * conditions for external scripts such as Exceptions at runtime when processing
  * fails
- * 
+ *
  * @author sathish
- * 
+ *
  */
 public class ExecutionException extends Exception {
-	public ExecutionException() {
-		super();
-	}
+    public ExecutionException() {
+        super();
+    }
 
-	public ExecutionException(String message) {
-		super(message);
-	}
+    public ExecutionException(String message) {
+        super(message);
+    }
 
-	public ExecutionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ExecutionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public ExecutionException(Throwable cause) {
-		super(cause);
-	}
+    public ExecutionException(Throwable cause) {
+        super(cause);
+    }
 
 }

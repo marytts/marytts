@@ -30,26 +30,26 @@ import marytts.datatypes.MaryData;
  */
 
 public class DummyModule implements MaryModule {
-	public String name() {
-		return "Dummy";
-	}
+    public String name() {
+        return "Dummy";
+    }
 
-	public Locale getLocale() {
-		return null;
-	}
+    public Locale getLocale() {
+        return null;
+    }
 
-	public void startup() throws Exception {
-	}
+    public void startup() throws Exception {
+    }
 
-	public void shutdown() {
-	}
+    public void shutdown() {
+    }
 
-	public int getState() {
-		return MODULE_OFFLINE;
-	}
+    public int getState() {
+        return MODULE_OFFLINE;
+    }
 
-	public MaryData process(MaryData d) throws Exception {
-		return d;
-	}
+    public MaryData process(MaryData d) throws Exception {
+        return d;
+    }
 
 }

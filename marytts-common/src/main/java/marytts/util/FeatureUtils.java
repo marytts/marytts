@@ -35,22 +35,24 @@ import marytts.modeling.features.FeatureDefinition;
  */
 public class FeatureUtils {
 
-	public static FeatureDefinition readFeatureDefinition(String targetFeaturesData) throws IOException {
-		BufferedReader in = new BufferedReader(new StringReader(targetFeaturesData));
-		try {
-			return new FeatureDefinition(in, false);
-		} finally {
-			in.close();
-		}
-	}
+    public static FeatureDefinition readFeatureDefinition(String targetFeaturesData) throws
+        IOException {
+        BufferedReader in = new BufferedReader(new StringReader(targetFeaturesData));
+        try {
+            return new FeatureDefinition(in, false);
+        } finally {
+            in.close();
+        }
+    }
 
-	public static FeatureDefinition readFeatureDefinition(InputStream featureStream) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(featureStream, "UTF-8"));
-		try {
-			return new FeatureDefinition(in, false);
-		} finally {
-			in.close();
-		}
-	}
+    public static FeatureDefinition readFeatureDefinition(InputStream featureStream) throws
+        IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(featureStream, "UTF-8"));
+        try {
+            return new FeatureDefinition(in, false);
+        } finally {
+            in.close();
+        }
+    }
 
 }

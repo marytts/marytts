@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -34,44 +34,44 @@ package marytts.util;
  *
  */
 public class Pair<X, Y> {
-	private final X first;
-	private final Y second;
-	private int hash;
-	private boolean haveComputedHash = false;
+    private final X first;
+    private final Y second;
+    private int hash;
+    private boolean haveComputedHash = false;
 
-	public Pair(X first, Y second) {
-		this.first = first;
-		this.second = second;
-	}
+    public Pair(X first, Y second) {
+        this.first = first;
+        this.second = second;
+    }
 
-	public X getFirst() {
-		return first;
-	}
+    public X getFirst() {
+        return first;
+    }
 
-	public Y getSecond() {
-		return second;
-	}
+    public Y getSecond() {
+        return second;
+    }
 
-	@Override
-	public int hashCode() {
-		if (!haveComputedHash) {
-			hash = (first == null ? 0 : first.hashCode() * 31) + (second == null ? 0 : second.hashCode());
-			haveComputedHash = true;
-		}
-		return hash;
-	}
+    @Override
+    public int hashCode() {
+        if (!haveComputedHash) {
+            hash = (first == null ? 0 : first.hashCode() * 31) + (second == null ? 0 : second.hashCode());
+            haveComputedHash = true;
+        }
+        return hash;
+    }
 
-	@Override
-	public boolean equals(Object oth) {
-		if (this == oth) {
-			return true;
-		}
+    @Override
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
 
-		if (oth == null || !(getClass().isInstance(oth))) {
-			return false;
-		}
-		Pair other = (Pair) getClass().cast(oth);
-		return (first == null ? other.first == null : first.equals(other.first))
-				&& (second == null ? other.second == null : second.equals(other.second));
-	}
+        if (oth == null || !(getClass().isInstance(oth))) {
+            return false;
+        }
+        Pair other = (Pair) getClass().cast(oth);
+        return (first == null ? other.first == null : first.equals(other.first))
+               && (second == null ? other.second == null : second.equals(other.second));
+    }
 }

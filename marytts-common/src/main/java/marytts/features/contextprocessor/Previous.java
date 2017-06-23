@@ -6,22 +6,36 @@ import marytts.data.Sequence;
 import marytts.features.ContextProcessor;
 
 /**
- *
+ * Context processor to get the previous item
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
 public class Previous implements ContextProcessor {
-	public Item generate(Utterance utt, Item item) throws Exception {
-		Sequence<? extends Item> seq = item.getSequence();
-		if (seq == null)
-			throw new Exception(); // FIXME: Should be replace by a
-									// "notinsequence" exception
+    /**
+     * Return the previous item of the given item in the sequence
+     *
+     * @param item
+     *            the given item
+     * @return the previous item of the given item or null if there is no such
+     *         things.
+     * @throws Exception
+     *             (actually NotInSequenceException) if the given item is not in
+     *             a sequence
+     */
+    public Item get(Item item) throws Exception {
+        Sequence<? extends Item> seq = item.getSequence();
 
-		int idx = seq.indexOf(item);
-		if (idx <= 0)
-			return null;
+        // FIXME: Should be replace by a "notinsequence" exception
+        if (seq == null) {
+            throw new Exception();
+        }
 
-		return seq.get(idx - 1);
-	}
+        int idx = seq.indexOf(item);
+        if (idx <= 0) {
+            return null;
+        }
+
+        return seq.get(idx - 1);
+    }
 }

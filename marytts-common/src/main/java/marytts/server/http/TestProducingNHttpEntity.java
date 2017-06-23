@@ -34,61 +34,62 @@ import org.apache.http.nio.util.SharedOutputBuffer;
 
 /**
  * @author marc
- * 
+ *
  */
 public class TestProducingNHttpEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
-	public TestProducingNHttpEntity() {
-	}
+    public TestProducingNHttpEntity() {
+    }
 
-	public void finish() {
-	}
+    public void finish() {
+    }
 
-	public void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException {
-		final SharedOutputBuffer ob = new SharedOutputBuffer(8192, ioctrl, new HeapByteBufferAllocator());
-		new Thread() {
-			public void run() {
-				try {
-					FileInputStream fis = new FileInputStream("/Users/marc/Music/enjoytheride_feat.judytzuke_.mp3");
-					int nRead;
-					byte[] bytes = new byte[4096];
-					while ((nRead = fis.read(bytes)) != -1) {
-						synchronized (this) {
-							try {
-								wait(1);
-							} catch (InterruptedException ie) {
-							}
-						}
-						ob.write(bytes, 0, nRead);
-					}
-					ob.writeCompleted();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
-		while (!encoder.isCompleted())
-			ob.produceContent(encoder);
-	}
+    public void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException {
+        final SharedOutputBuffer ob = new SharedOutputBuffer(8192, ioctrl, new HeapByteBufferAllocator());
+        new Thread() {
+            public void run() {
+                try {
+                    FileInputStream fis = new FileInputStream("/Users/marc/Music/enjoytheride_feat.judytzuke_.mp3");
+                    int nRead;
+                    byte[] bytes = new byte[4096];
+                    while ((nRead = fis.read(bytes)) != -1) {
+                        synchronized (this) {
+                            try {
+                                wait(1);
+                            } catch (InterruptedException ie) {
+                            }
+                        }
+                        ob.write(bytes, 0, nRead);
+                    }
+                    ob.writeCompleted();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } .start();
+        while (!encoder.isCompleted()) {
+            ob.produceContent(encoder);
+        }
+    }
 
-	public long getContentLength() {
-		return -1;
-	}
+    public long getContentLength() {
+        return -1;
+    }
 
-	public boolean isRepeatable() {
-		return false;
-	}
+    public boolean isRepeatable() {
+        return false;
+    }
 
-	public boolean isStreaming() {
-		return true;
-	}
+    public boolean isStreaming() {
+        return true;
+    }
 
-	public InputStream getContent() {
-		return null;
-	}
+    public InputStream getContent() {
+        return null;
+    }
 
-	public void writeTo(final OutputStream outstream) throws IOException {
-		throw new RuntimeException("Should not be called");
-	}
+    public void writeTo(final OutputStream outstream) throws IOException {
+        throw new RuntimeException("Should not be called");
+    }
 
 }

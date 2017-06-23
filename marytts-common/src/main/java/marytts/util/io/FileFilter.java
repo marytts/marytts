@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -34,23 +34,25 @@ import java.io.FilenameFilter;
 
 /**
  * @author oytun.turk
- * 
+ *
  */
 public class FileFilter implements FilenameFilter {
-	private String extension;
+    private String extension;
 
-	public FileFilter(String ext) {
-		if (ext.startsWith(".") || ext.compareTo("*.*") == 0)
-			extension = ext;
-		else
-			extension = "." + ext;
-	}
+    public FileFilter(String ext) {
+        if (ext.startsWith(".") || ext.compareTo("*.*") == 0) {
+            extension = ext;
+        } else {
+            extension = "." + ext;
+        }
+    }
 
-	public boolean accept(File dir, String name) {
-		if (extension.compareTo("*.*") == 0)
-			return true;
-		else
-			return name.endsWith(extension);
-	}
+    public boolean accept(File dir, String name) {
+        if (extension.compareTo("*.*") == 0) {
+            return true;
+        } else {
+            return name.endsWith(extension);
+        }
+    }
 
 }

@@ -10,15 +10,15 @@ import marytts.MaryException;
  *         Maguer</a>
  */
 public class MaryIOException extends MaryException {
-	/**
-	 * Constructor
-	 *
-	 * @param message
-	 *            the message
-	 * @param ex
-	 *            the nested exception which leaded to the encapsulation
-	 */
-	public MaryIOException(String message, Exception ex) {
-		super(message, ex);
-	}
+    /**
+     * Constructor
+     *
+     * @param message
+     *            the message
+     * @param ex
+     *            the nested exception which leaded to the encapsulation
+     */
+    public MaryIOException(String message, Exception ex) {
+        super(message, ex);
+    }
 }

@@ -50,50 +50,50 @@ import marytts.data.SupportedSequenceType;
  */
 public class AcousticModeller extends InternalModule {
 
-	// three constructors adapted from DummyAllophones2AcoustParams (used if
-	// this is in modules.classes.list):
+    // three constructors adapted from DummyAllophones2AcoustParams (used if
+    // this is in modules.classes.list):
 
-	public AcousticModeller() {
-		this((Locale) null);
-	}
+    public AcousticModeller() {
+        this((Locale) null);
+    }
 
-	/**
-	 * Constructor to be called with instantiated objects.
-	 *
-	 * @param locale
-	 *            locale
-	 */
-	public AcousticModeller(String locale) {
-		this(MaryUtils.string2locale(locale));
-	}
+    /**
+     * Constructor to be called with instantiated objects.
+     *
+     * @param locale
+     *            locale
+     */
+    public AcousticModeller(String locale) {
+        this(MaryUtils.string2locale(locale));
+    }
 
-	/**
-	 * Constructor to be called with instantiated objects.
-	 *
-	 * @param locale
-	 *            locale
-	 */
-	public AcousticModeller(Locale locale) {
-		super("AcousticModeller", locale);
-	}
+    /**
+     * Constructor to be called with instantiated objects.
+     *
+     * @param locale
+     *            locale
+     */
+    public AcousticModeller(Locale locale) {
+        super("AcousticModeller", locale);
+    }
 
-	// three constructors adapted from CARTF0Modeller (used if this is in a
-	// voice's preferredModules):
+    // three constructors adapted from CARTF0Modeller (used if this is in a
+    // voice's preferredModules):
 
-	/**
-	 * Constructor to be called with instantiated objects.
-	 *
-	 * @param locale
-	 *            locale
-	 * @param propertyPrefix
-	 *            the prefix to be used when looking up entries in the config
-	 *            files, e.g. "english.f0"
-	 */
-	protected AcousticModeller(Locale locale, String propertyPrefix) {
-		super("AcousticModeller", locale);
-	}
+    /**
+     * Constructor to be called with instantiated objects.
+     *
+     * @param locale
+     *            locale
+     * @param propertyPrefix
+     *            the prefix to be used when looking up entries in the config
+     *            files, e.g. "english.f0"
+     */
+    protected AcousticModeller(Locale locale, String propertyPrefix) {
+        super("AcousticModeller", locale);
+    }
 
-	public MaryData process(MaryData d) throws SynthesisException {
-		return d;
-	}
+    public MaryData process(MaryData d) throws SynthesisException {
+        return d;
+    }
 }

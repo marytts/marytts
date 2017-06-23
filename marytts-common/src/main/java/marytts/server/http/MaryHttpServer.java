@@ -175,93 +175,94 @@ import org.apache.log4j.Logger;
  */
 
 public class MaryHttpServer extends Thread {
-	private static Logger logger;
+    private static Logger logger;
 
-	private boolean isReady = false;
+    private boolean isReady = false;
 
-	public MaryHttpServer() {
-		logger = MaryUtils.getLogger("server");
-	}
+    public MaryHttpServer() {
+        logger = MaryUtils.getLogger("server");
+    }
 
-	public boolean isReady() {
-		return isReady;
-	}
+    public boolean isReady() {
+        return isReady;
+    }
 
-	public void run() {
-		logger.info("Starting server.");
+    public void run() {
+        logger.info("Starting server.");
 
-		int localPort = MaryProperties.needInteger("socket.port");
+        int localPort = MaryProperties.needInteger("socket.port");
 
-		HttpParams params = new BasicHttpParams();
-		params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
-				// 0 means no timeout, any positive value means time out in
-				// miliseconds (i.e. 50000 for 50 seconds)
-				.setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-				.setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-				.setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-				.setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+        HttpParams params = new BasicHttpParams();
+        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
+        // 0 means no timeout, any positive value means time out in
+        // miliseconds (i.e. 50000 for 50 seconds)
+        .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+        .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+        .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+        .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
 
-		BasicHttpProcessor httpproc = new BasicHttpProcessor();
-		httpproc.addInterceptor(new ResponseDate());
-		httpproc.addInterceptor(new ResponseServer());
-		httpproc.addInterceptor(new ResponseContent());
-		httpproc.addInterceptor(new ResponseConnControl());
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new ResponseDate());
+        httpproc.addInterceptor(new ResponseServer());
+        httpproc.addInterceptor(new ResponseContent());
+        httpproc.addInterceptor(new ResponseConnControl());
 
-		BufferingHttpServiceHandler handler = new BufferingHttpServiceHandler(httpproc,
-				new DefaultHttpResponseFactory(), new DefaultConnectionReuseStrategy(), params);
+        BufferingHttpServiceHandler handler = new BufferingHttpServiceHandler(httpproc,
+                new DefaultHttpResponseFactory(), new DefaultConnectionReuseStrategy(), params);
 
-		// Set up request handlers
-		HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
-		registry.register("/process", new SynthesisRequestHandler());
-		InfoRequestHandler infoRH = new InfoRequestHandler();
-		registry.register("/version", infoRH);
-		registry.register("/datatypes", infoRH);
-		registry.register("*", new FileRequestHandler());
+        // Set up request handlers
+        HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
+        registry.register("/process", new SynthesisRequestHandler());
+        InfoRequestHandler infoRH = new InfoRequestHandler();
+        registry.register("/version", infoRH);
+        registry.register("/datatypes", infoRH);
+        registry.register("*", new FileRequestHandler());
 
-		handler.setHandlerResolver(registry);
+        handler.setHandlerResolver(registry);
 
-		// Provide an event logger
-		handler.setEventListener(new EventLogger());
+        // Provide an event logger
+        handler.setEventListener(new EventLogger());
 
-		IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
 
-		int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads", 5);
+        int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads", 5);
 
-		logger.info("Waiting for client to connect on port " + localPort);
+        logger.info("Waiting for client to connect on port " + localPort);
 
-		try {
-			ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
-			ioReactor.listen(new InetSocketAddress(localPort));
-			isReady = true;
-			ioReactor.execute(ioEventDispatch);
-		} catch (InterruptedIOException ex) {
-			logger.info("Interrupted", ex);
-		} catch (IOException e) {
-			logger.info("Problem with HTTP connection", e);
-		}
-		logger.debug("Shutdown");
-	}
+        try {
+            ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
+            ioReactor.listen(new InetSocketAddress(localPort));
+            isReady = true;
+            ioReactor.execute(ioEventDispatch);
+        } catch (InterruptedIOException ex) {
+            logger.info("Interrupted", ex);
+        } catch (IOException e) {
+            logger.info("Problem with HTTP connection", e);
+        }
+        logger.debug("Shutdown");
+    }
 
-	static class EventLogger implements EventListener {
-		public void connectionOpen(final NHttpConnection conn) {
-			logger.info("Connection from " + conn.getContext().getAttribute(ExecutionContext.HTTP_TARGET_HOST) // conn.getInetAddress().getHostName()
-			);
-		}
+    static class EventLogger implements EventListener {
+        public void connectionOpen(final NHttpConnection conn) {
+            logger.info("Connection from " + conn.getContext().getAttribute(
+                            ExecutionContext.HTTP_TARGET_HOST) // conn.getInetAddress().getHostName()
+                       );
+        }
 
-		public void connectionTimeout(final NHttpConnection conn) {
-			logger.info("Connection timed out: " + conn);
-		}
+        public void connectionTimeout(final NHttpConnection conn) {
+            logger.info("Connection timed out: " + conn);
+        }
 
-		public void connectionClosed(final NHttpConnection conn) {
-			logger.info("Connection closed: " + conn);
-		}
+        public void connectionClosed(final NHttpConnection conn) {
+            logger.info("Connection closed: " + conn);
+        }
 
-		public void fatalIOException(final IOException ex, final NHttpConnection conn) {
-			logger.info("I/O error: " + ex.getMessage());
-		}
+        public void fatalIOException(final IOException ex, final NHttpConnection conn) {
+            logger.info("I/O error: " + ex.getMessage());
+        }
 
-		public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
-			logger.info("HTTP error: " + ex.getMessage());
-		}
-	}
+        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
+            logger.info("HTTP error: " + ex.getMessage());
+        }
+    }
 }

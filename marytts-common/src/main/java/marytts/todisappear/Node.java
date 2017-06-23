@@ -35,149 +35,149 @@ package marytts.todisappear;
  * A node for the CART or DirectedGraph. All node types inherit from this class
  */
 public abstract class Node {
-	// isRoot should be set to true if this node is the root node
-	protected boolean isRoot;
+    // isRoot should be set to true if this node is the root node
+    protected boolean isRoot;
 
-	// every node except the root node has a mother
-	protected Node mother;
+    // every node except the root node has a mother
+    protected Node mother;
 
-	// the index of the node in the daughters array of its mother
-	protected int nodeIndex;
+    // the index of the node in the daughters array of its mother
+    protected int nodeIndex;
 
-	/**
-	 * set the mother node of this node, and remember this node's index in
-	 * mother.
-	 *
-	 * @param node
-	 *            the mother node
-	 * @param nodeIndex
-	 *            the index of this node in the mother node's list of daughters
-	 */
-	public void setMother(Node node, int nodeIndex) {
-		this.mother = node;
-		this.nodeIndex = nodeIndex;
-	}
+    /**
+     * set the mother node of this node, and remember this node's index in
+     * mother.
+     *
+     * @param node
+     *            the mother node
+     * @param nodeIndex
+     *            the index of this node in the mother node's list of daughters
+     */
+    public void setMother(Node node, int nodeIndex) {
+        this.mother = node;
+        this.nodeIndex = nodeIndex;
+    }
 
-	/**
-	 * Get the mother node of this node
-	 *
-	 * @return the mother node
-	 */
-	public Node getMother() {
-		return mother;
-	}
+    /**
+     * Get the mother node of this node
+     *
+     * @return the mother node
+     */
+    public Node getMother() {
+        return mother;
+    }
 
-	/**
-	 * Get the index of this node in the mother's array of daughters
-	 *
-	 * @return the index
-	 */
-	public int getNodeIndex() {
-		return nodeIndex;
-	}
+    /**
+     * Get the index of this node in the mother's array of daughters
+     *
+     * @return the index
+     */
+    public int getNodeIndex() {
+        return nodeIndex;
+    }
 
-	/**
-	 * Set isRoot to the given value
-	 *
-	 * @param isRoot
-	 *            the new value of isRoot
-	 */
-	public void setIsRoot(boolean isRoot) {
-		this.isRoot = isRoot;
-	}
+    /**
+     * Set isRoot to the given value
+     *
+     * @param isRoot
+     *            the new value of isRoot
+     */
+    public void setIsRoot(boolean isRoot) {
+        this.isRoot = isRoot;
+    }
 
-	/**
-	 * Get the setting of isRoot
-	 *
-	 * @return the setting of isRoot
-	 */
-	public boolean isRoot() {
-		return isRoot;
-	}
+    /**
+     * Get the setting of isRoot
+     *
+     * @return the setting of isRoot
+     */
+    public boolean isRoot() {
+        return isRoot;
+    }
 
-	public boolean isDecisionNode() {
-		return false;
-	}
+    public boolean isDecisionNode() {
+        return false;
+    }
 
-	public boolean isLeafNode() {
-		return false;
-	}
+    public boolean isLeafNode() {
+        return false;
+    }
 
-	public boolean isDirectedGraphNode() {
-		return false;
-	}
+    public boolean isDirectedGraphNode() {
+        return false;
+    }
 
-	public Node getRootNode() {
-		if (isRoot) {
-			assert mother == null;
-			return this;
-		} else {
-			assert mother != null : " I am not root but I have no mother :-(";
-			return mother.getRootNode();
-		}
-	}
+    public Node getRootNode() {
+        if (isRoot) {
+            assert mother == null;
+            return this;
+        } else {
+            assert mother != null : " I am not root but I have no mother :-(";
+            return mother.getRootNode();
+        }
+    }
 
-	public String getDecisionPath() {
-		String ancestorInfo;
-		if (mother == null)
-			ancestorInfo = "null";
-		else if (mother.isDecisionNode()) {
-			ancestorInfo = ((DecisionNode) mother).getDecisionPath(getNodeIndex());
-		} else {
-			ancestorInfo = mother.getDecisionPath();
-		}
-		return ancestorInfo + " - " + toString();
-	}
+    public String getDecisionPath() {
+        String ancestorInfo;
+        if (mother == null) {
+            ancestorInfo = "null";
+        } else if (mother.isDecisionNode()) {
+            ancestorInfo = ((DecisionNode) mother).getDecisionPath(getNodeIndex());
+        } else {
+            ancestorInfo = mother.getDecisionPath();
+        }
+        return ancestorInfo + " - " + toString();
+    }
 
-	/**
-	 * Count all the nodes at and below this node. A leaf will return 1; the
-	 * root node will report the total number of decision and leaf nodes in the
-	 * tree.
-	 *
-	 * @return number of nodes
-	 */
-	public abstract int getNumberOfNodes();
+    /**
+     * Count all the nodes at and below this node. A leaf will return 1; the
+     * root node will report the total number of decision and leaf nodes in the
+     * tree.
+     *
+     * @return number of nodes
+     */
+    public abstract int getNumberOfNodes();
 
-	/**
-	 * Count all the data available at and below this node. The meaning of this
-	 * depends on the type of nodes; for example, when IntArrayLeafNodes are
-	 * used, it is the total number of ints that are saved in all leaf nodes
-	 * below the current node.
-	 *
-	 * @return an int counting the data below the current node, or -1 if such a
-	 *         concept is not meaningful.
-	 */
-	public abstract int getNumberOfData();
+    /**
+     * Count all the data available at and below this node. The meaning of this
+     * depends on the type of nodes; for example, when IntArrayLeafNodes are
+     * used, it is the total number of ints that are saved in all leaf nodes
+     * below the current node.
+     *
+     * @return an int counting the data below the current node, or -1 if such a
+     *         concept is not meaningful.
+     */
+    public abstract int getNumberOfData();
 
-	/**
-	 * Get all the data at or below this node. The type of data returned depends
-	 * on the type of nodes; for example, when IntArrayLeafNodes are used, one
-	 * int[] is returned which contains all int values in all leaf nodes below
-	 * the current node.
-	 *
-	 * @return an object containing all data below the current node, or null if
-	 *         such a concept is not meaningful.
-	 */
-	public abstract Object getAllData();
+    /**
+     * Get all the data at or below this node. The type of data returned depends
+     * on the type of nodes; for example, when IntArrayLeafNodes are used, one
+     * int[] is returned which contains all int values in all leaf nodes below
+     * the current node.
+     *
+     * @return an object containing all data below the current node, or null if
+     *         such a concept is not meaningful.
+     */
+    public abstract Object getAllData();
 
-	/**
-	 * Write this node's data into the target object at pos, making sure that
-	 * exactly len data are written. The type of data written depends on the
-	 * type of nodes; for example, when IntArrayLeafNodes are used, target would
-	 * be an int[].
-	 *
-	 * @param target
-	 *            the object to write to, usually an array.
-	 * @param pos
-	 *            the position in the target at which to start writing
-	 * @param len
-	 *            the amount of data items to write, usually equals
-	 *            getNumberOfData().
-	 */
-	protected abstract void fillData(Object target, int pos, int len);
+    /**
+     * Write this node's data into the target object at pos, making sure that
+     * exactly len data are written. The type of data written depends on the
+     * type of nodes; for example, when IntArrayLeafNodes are used, target would
+     * be an int[].
+     *
+     * @param target
+     *            the object to write to, usually an array.
+     * @param pos
+     *            the position in the target at which to start writing
+     * @param len
+     *            the amount of data items to write, usually equals
+     *            getNumberOfData().
+     */
+    protected abstract void fillData(Object target, int pos, int len);
 
-	public String toString(String prefix) {
-		return prefix + this.toString();
-	}
+    public String toString(String prefix) {
+        return prefix + this.toString();
+    }
 
 }
