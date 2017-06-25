@@ -145,4 +145,16 @@ public class Syllable extends Item {
     public void setAccent(Accent accent) {
         m_accent = accent;
     }
+
+
+    /**
+     * Returns a string representation of the syllable. (just the text Syllable for now)
+     *
+     * @return a string representation of the syllable
+     */
+    @Override
+    public String toString() {
+        return "Syllable";
+    }
+
 }

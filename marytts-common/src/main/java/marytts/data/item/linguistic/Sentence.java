@@ -60,4 +60,15 @@ public class Sentence extends Item {
         Sentence par = (Sentence) obj;
         return par.getText().equals(getText());
     }
+
+
+    /**
+     * Returns a string representation of the sentence.
+     *
+     * @return a string representation of the sentence
+     */
+    @Override
+    public String toString() {
+        return getText();
+    }
 }
