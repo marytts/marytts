@@ -306,6 +306,10 @@ public class XMLSerializer implements Serializer {
             word_element.setAttribute("sounds_like", word.soundsLike());
         }
 
+        if (word.getG2PMethod() != null) {
+            word_element.setAttribute("g2p_method", word.getG2PMethod());
+        }
+
         Relation rel_word_syllable = utt.getRelation(SupportedSequenceType.WORD,
                                      SupportedSequenceType.SYLLABLE);
         if (rel_word_syllable != null) {
