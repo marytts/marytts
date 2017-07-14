@@ -24,8 +24,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
+import marytts.data.Utterance;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -46,8 +45,7 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
         super(Locale.ITALIAN);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        MaryData result = super.process(d);
-        return result;
+    public Utterance process(Utterance utt) throws Exception {
+	return super.process(utt);
     }
 }

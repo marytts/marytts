@@ -26,7 +26,7 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -45,14 +45,14 @@ import org.apache.log4j.Logger;
  * <pre>
  * public class Postlex extends InternalModule {
  *  public Postlex() {
- *      super(&quot;Postlex&quot;, MaryDataType.PHONEMISED, MaryDataType.POSTPROCESSED);
+ *      super(&quot;Postlex&quot;, UtteranceType.PHONEMISED, UtteranceType.POSTPROCESSED);
  *  }
  *
- *  public MaryData process(MaryData d) throws Exception {
+ *  public Utterance process(Utterance d) throws Exception {
  *      Document doc = d.getDocument();
  *      mtuPostlex(doc);
  *      phonologicalRules(doc);
- *      MaryData result = new MaryData(outputType());
+ *      Utterance result = new Utterance(outputType());
  *      result.setDocument(doc);
  *      return result;
  *  }
@@ -66,7 +66,7 @@ import org.apache.log4j.Logger;
  * @author Marc Schr&ouml;der
  */
 
-public class InternalModule implements MaryModule {
+public abstract class InternalModule implements MaryModule {
     private String name = null;
     private Locale locale = null;
     protected int state;
@@ -111,7 +111,7 @@ public class InternalModule implements MaryModule {
     }
 
     /**
-     * Perform this module's processing on abstract "MaryData" input
+     * Perform this module's processing on abstract "Utterance" input
      * <code>d</code>. Subclasses need to make sure that the
      * <code>process()</code> method is thread-safe, because in server-mode, it
      * will be called from different threads at the same time. A sensible way to
@@ -119,14 +119,12 @@ public class InternalModule implements MaryModule {
      * them read-only.
      * <p>
      *
-     * @return A MaryData object of type <code>outputType()</code> encapsulating
+     * @return A Utterance object of type <code>outputType()</code> encapsulating
      *         the processing result.
      *         <p>
      *         This method just returns its input. Subclasses should override
      *         this.
      */
-    public MaryData process(MaryData d) throws Exception {
-        return d; // just return input.
-    }
+    public abstract Utterance process(Utterance d) throws Exception;
 
 }

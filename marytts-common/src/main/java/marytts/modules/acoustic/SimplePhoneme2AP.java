@@ -33,7 +33,7 @@ import marytts.data.item.phonology.*;
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -66,7 +66,7 @@ public class SimplePhoneme2AP extends InternalModule {
         super.startup();
     }
 
-    public MaryData process(MaryData d) throws Exception {
+    public Utterance process(Utterance d) throws Exception {
         // String phoneString = d.getPlainText();
         // Utterance utt = new Utterance(phoneString, d.getLocale());
 
@@ -207,7 +207,7 @@ public class SimplePhoneme2AP extends InternalModule {
         // new Relation(paragraphs, sentences, alignment_paragraph_sentence));
 
         // // Finally serialize and return
-        // MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        // Utterance result = new Utterance(outputType(), d.getLocale(), utt);
         // return result;
 
         return d;

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.io.serializer.XMLSerializer;
@@ -93,7 +93,7 @@ public class AcousticModeller extends InternalModule {
         super("AcousticModeller", locale);
     }
 
-    public MaryData process(MaryData d) throws SynthesisException {
+    public Utterance process(Utterance d) throws SynthesisException {
         return d;
     }
 }

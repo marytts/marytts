@@ -33,8 +33,8 @@ import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
+import marytts.data.Utterance;
+
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.InternalModule;
@@ -110,8 +110,7 @@ public class Phonemiser extends InternalModule {
         }
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -191,8 +190,7 @@ public class Phonemiser extends InternalModule {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,

@@ -29,7 +29,6 @@ import marytts.io.MaryIOException;
 import marytts.io.serializer.ROOTSJSONSerializer;
 import marytts.io.serializer.XMLSerializer;
 import marytts.data.Utterance;
-import marytts.datatypes.MaryData;
 import marytts.modules.MaryModule;
 import marytts.server.Mary;
 import marytts.util.MaryUtils;
@@ -92,18 +91,18 @@ public class MaryModuleTestCase {
     }
 
     protected boolean processAndCompare(String in, String target_out, Locale locale) throws Exception {
-        MaryData input = new MaryData(locale, loadXMLResource(in));
-        MaryData targetOut = new MaryData(input.getLocale(), loadXMLResource(target_out));
-        MaryData processedOut = module.process(input);
+        Utterance input = loadXMLResource(in);
+        Utterance targetOut = loadXMLResource(target_out);
+        Utterance processedOut = module.process(input);
 
         ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
         logger.debug(" ======================== expected =====================");
-        logger.debug(out_ser.toString(targetOut.getData()));
+        logger.debug(out_ser.toString(targetOut));
         logger.debug(" ======================== achieved =====================");
-        logger.debug(out_ser.toString(processedOut.getData()));
+        logger.debug(out_ser.toString(processedOut));
         logger.debug(" =======================================================");
 
-        return targetOut.getData().equals(processedOut.getData());
+        return targetOut.equals(processedOut);
     }
 
 }

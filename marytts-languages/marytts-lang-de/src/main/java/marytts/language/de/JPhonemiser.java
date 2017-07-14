@@ -37,8 +37,6 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.language.de.phonemiser.Inflection;
@@ -193,8 +191,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
     @Override
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -286,8 +283,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
     /**

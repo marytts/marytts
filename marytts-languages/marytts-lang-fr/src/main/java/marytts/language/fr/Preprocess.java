@@ -6,7 +6,6 @@ import java.util.Locale;
 
 import com.ibm.icu.util.ULocale;
 
-import marytts.datatypes.MaryData;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.InternalModule;
 import marytts.data.Utterance;
@@ -34,13 +33,11 @@ public class Preprocess extends InternalModule {
         this.ordinalRule = getOrdinalRuleName(rbnf);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         checkForNumbers(utt);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+        return utt;
     }
 
     protected void checkForNumbers(Utterance utt) {

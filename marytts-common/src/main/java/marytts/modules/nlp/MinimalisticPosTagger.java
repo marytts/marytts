@@ -21,7 +21,7 @@ package marytts.modules.nlp;
 
 import java.io.InputStream;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
 import marytts.server.MaryProperties;
@@ -78,8 +78,7 @@ public class MinimalisticPosTagger extends InternalModule {
         punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";
@@ -95,8 +94,7 @@ public class MinimalisticPosTagger extends InternalModule {
             w.setPOS(pos);
         }
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+        return utt;
     }
 
 }

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import marytts.modules.InternalModule;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -122,7 +122,7 @@ public class PronunciationModel extends InternalModule {
     }
 
     /**
-     * This computes a new pronunciation for the elements of some MaryData, that
+     * This computes a new pronunciation for the elements of some Utterance, that
      * is phonemised.
      *
      * @param d
@@ -130,7 +130,7 @@ public class PronunciationModel extends InternalModule {
      * @throws Exception
      *             Exception
      */
-    public MaryData process(MaryData d) throws Exception {
+    public Utterance process(Utterance d) throws Exception {
         return d;
     }
 }

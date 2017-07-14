@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.server.Request;
@@ -94,7 +94,7 @@ public class LocalMaryInterface implements MaryInterface {
         return locale;
     }
 
-    private MaryData process(String configuration, String input_data) throws SynthesisException {
+    private Utterance process(String configuration, String input_data) throws SynthesisException {
         Request r = new Request(configuration, input_data);
         try {
             r.process();

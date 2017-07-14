@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.io.serializer.XMLSerializer;
 import marytts.util.dom.DomUtils;
@@ -106,9 +106,7 @@ public class JTokenizer extends InternalModule {
         tokenizer = new JTok(jtokProperties);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        // Initialisation
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();
@@ -212,7 +210,6 @@ public class JTokenizer extends InternalModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 }
