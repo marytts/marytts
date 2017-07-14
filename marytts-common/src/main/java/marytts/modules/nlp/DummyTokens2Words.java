@@ -21,7 +21,7 @@ package marytts.modules.nlp;
 
 import java.util.Locale;
 import marytts.data.Utterance;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 /**
  * Dummy modules to support new language (for phone durations and phone f0)
@@ -29,7 +29,7 @@ import marytts.modules.InternalModule;
  * @author Sathish Pammi
  */
 
-public class DummyTokens2Words extends InternalModule {
+public class DummyTokens2Words extends MaryModule {
     public DummyTokens2Words() {
         this((Locale) null);
     }

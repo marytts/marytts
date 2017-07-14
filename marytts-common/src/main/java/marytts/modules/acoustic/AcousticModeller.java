@@ -37,7 +37,7 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
@@ -48,7 +48,7 @@ import marytts.data.SupportedSequenceType;
  * @author steiner
  *
  */
-public class AcousticModeller extends InternalModule {
+public class AcousticModeller extends MaryModule {
 
     // three constructors adapted from DummyAllophones2AcoustParams (used if
     // this is in modules.classes.list):

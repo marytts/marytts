@@ -38,7 +38,7 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,7 +57,7 @@ import de.dfki.lt.tools.tokenizer.output.Token;
  *
  *
  */
-public class JTokenizer extends InternalModule {
+public class JTokenizer extends MaryModule {
     public static final int TOKEN_MAXLENGTH = 100;
 
     private JTok tokenizer = null;

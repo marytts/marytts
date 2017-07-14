@@ -41,7 +41,7 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 /**
  * Read a simple phone string and generate default acoustic parameters.
@@ -49,7 +49,7 @@ import marytts.modules.InternalModule;
  * @author Marc Schr&ouml;der
  */
 
-public class SimplePhoneme2AP extends InternalModule {
+public class SimplePhoneme2AP extends MaryModule {
     protected AllophoneSet allophoneSet;
 
     public SimplePhoneme2AP(String localeString) {

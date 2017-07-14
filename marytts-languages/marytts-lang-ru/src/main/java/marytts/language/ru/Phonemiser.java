@@ -37,7 +37,7 @@ import marytts.data.Utterance;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
@@ -61,7 +61,7 @@ import com.google.common.base.Splitter;
  * @author Nickolay V. Shmyrev, Marc Schr&ouml;der, Sathish
  */
 
-public class Phonemiser extends InternalModule {
+public class Phonemiser extends MaryModule {
 
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";

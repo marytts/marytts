@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.modeling.features.FeatureDefinition;
@@ -65,7 +65,7 @@ import marytts.data.utils.IntegerPair;
  * @author ben
  *
  */
-public class PronunciationModel extends InternalModule {
+public class PronunciationModel extends MaryModule {
 
     // used in startup() and later for convenience
     private FeatureDefinition featDef;

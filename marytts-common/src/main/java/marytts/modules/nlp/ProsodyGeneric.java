@@ -23,7 +23,7 @@ import java.util.Locale;
 import java.util.ArrayList;
 import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import org.w3c.dom.Document;
 
@@ -45,7 +45,7 @@ import marytts.data.utils.SequenceTypePair;
  * @author Stephanie Becker
  */
 
-public class ProsodyGeneric extends InternalModule {
+public class ProsodyGeneric extends MaryModule {
     public static final int DEFAULT_BREAKINDEX = 5;
     public static final int DEFAULT_DURATION = 400;
 

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
@@ -55,7 +55,7 @@ import org.w3c.dom.Document;
  * @author Marc Schr&ouml;der
  */
 
-public class OpenNLPPosTagger extends InternalModule {
+public class OpenNLPPosTagger extends MaryModule {
     private String propertyPrefix;
     private POSTaggerME tagger;
     private Map<String, String> posMapper = null;

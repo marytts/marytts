@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -80,7 +80,7 @@ import com.google.common.collect.Lists;
  *         <li>roman numerals
  *         </ul>
  */
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     // abbreviations map
     private Map<Object, Object> abbrevMap;

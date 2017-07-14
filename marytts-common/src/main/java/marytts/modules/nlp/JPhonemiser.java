@@ -40,7 +40,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
@@ -65,7 +65,7 @@ import com.google.common.base.Splitter;
  * @author ingmar
  */
 
-public class JPhonemiser extends InternalModule {
+public class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";

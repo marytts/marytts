@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import marytts.data.Utterance;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -44,7 +44,7 @@ import org.w3c.dom.traversal.TreeWalker;
  * @author Marc Schr&ouml;der
  */
 
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     public Preprocess() {
         super("Preprocess", Locale.ITALIAN);
