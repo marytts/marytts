@@ -102,7 +102,7 @@ public class ModuleRegistry {
 
     /**
      * Register a MaryModule as an appropriate module to process the given
-     * combination of MaryDataType for the input data, locale of the input data,
+     * combination of UtteranceType for the input data, locale of the input data,
      * and voice requested for processing. Note that it is possible to register
      * more than one module for a given combination of input type, locale and
      * voice; in that case, all of them will be remembered, and will be returned

@@ -1,10 +1,7 @@
 package marytts.language.lb
 
-import groovy.xml.*
-import groovy.util.slurpersupport.*
 
-import marytts.datatypes.MaryData
-import marytts.datatypes.MaryXML
+import marytts.data.Utterance
 import marytts.util.dom.DomUtils
 import marytts.modules.InternalModule
 
@@ -42,7 +39,7 @@ class LuxembourgishPreprocess extends InternalModule {
         yearRule = "%spellout-numbering-year"
     }
 
-    public MaryData process(MaryData input) {
+    public Utterance process(Utterance input) {
         // get XML from input
         def inputXmlStr = DomUtils.serializeToString input.document
         def xml = new XmlSlurper(false, false).parseText inputXmlStr

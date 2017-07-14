@@ -21,7 +21,7 @@ package marytts.modules;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 
 /**
  * A dummy module doing nothing.
@@ -48,8 +48,8 @@ public class DummyModule implements MaryModule {
         return MODULE_OFFLINE;
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        return d;
+    public Utterance process(Utterance utt) throws Exception {
+        return utt;
     }
 
 }

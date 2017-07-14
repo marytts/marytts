@@ -12,8 +12,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.InternalModule;
@@ -187,13 +185,10 @@ public class Preprocess extends InternalModule {
         }
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
-
+    public Utterance process(Utterance utt) throws Exception {
         expand(utt);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
     /***

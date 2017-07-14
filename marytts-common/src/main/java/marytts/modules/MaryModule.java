@@ -22,7 +22,7 @@ package marytts.modules;
 // DOM classes
 import java.util.Locale;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 
 /**
  * A generic interface for Mary Modules. This interface defines the
@@ -83,12 +83,12 @@ public interface MaryModule {
     public void shutdown();
 
     /**
-     * Perform this module's processing on abstract "MaryData" input
+     * Perform this module's processing on abstract "Utterance" input
      * <code>d</code>. Classes implementing this interface need to make the
      * <code>process()</code> method thread-safe, because in server-mode, it
      * will be called from different threads at the same time.
      * <p>
-     * The result is returned encapsulated in a MaryData object of type
+     * The result is returned encapsulated in a Utterance object of type
      * <code>outputType()</code>.
      * <p>
      * This method should never return <code> null </code>; in case of a
@@ -100,5 +100,5 @@ public interface MaryModule {
      *             Exception
      * @return result
      */
-    public MaryData process(MaryData d) throws Exception;
+    public Utterance process(Utterance utt) throws Exception;
 }

@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 
 import marytts.modules.InternalModule;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
@@ -108,8 +108,7 @@ public class OpenNLPPosTagger extends InternalModule {
     }
 
     @SuppressWarnings("unchecked")
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt) throws Exception {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();
@@ -151,9 +150,7 @@ public class OpenNLPPosTagger extends InternalModule {
             }
             w.setPOS(pos);
         }
-
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
 }

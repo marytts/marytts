@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.io.serializer.Serializer;
 import marytts.io.serializer.XMLSerializer;
@@ -85,8 +85,8 @@ public class Request {
 
     protected int id;
     protected Logger logger;
-    protected MaryData inputData;
-    protected MaryData outputData;
+    protected Utterance inputData;
+    protected Utterance outputData;
     protected Serializer output_serializer;
     protected boolean abortRequested = false;
 
@@ -114,7 +114,7 @@ public class Request {
         // Input serializer reflection (FIXME: check if serializer is ok)
         Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
         Constructor<?> ctor = clazz.getConstructor();
-        Serializer serializer = (Serializer) ctor.newInstance(new Object[] {});
+        Serializer input_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
         // Input serializer reflection (FIXME: check if serializer is ok)
         clazz = Class.forName(configuration_properties.get("output_serializer").toString());
@@ -141,8 +141,7 @@ public class Request {
         }
 
         // Define the data
-        MaryData input_mary_data = new MaryData(cur_locale);
-        input_mary_data.setData(serializer.fromString(this.input_data));
+        Utterance input_mary_data = input_serializer.fromString(this.input_data);
 
         // Start to achieve the process
         long startTime = System.currentTimeMillis();
@@ -168,7 +167,7 @@ public class Request {
             long moduleStartTime = System.currentTimeMillis();
 
             logger.info("Next module: " + m.name());
-            MaryData outData = null;
+            Utterance outData = null;
             try {
                 outData = m.process(outputData);
             } catch (Exception e) {
@@ -219,7 +218,7 @@ public class Request {
 
     /**
      * Set the input data directly, in case it is already in the form of a
-     * MaryData object.
+     * Utterance object.
      *
      * @param input_data
      *            inputData
@@ -246,7 +245,7 @@ public class Request {
      *
      * @return outputdata
      */
-    public MaryData getOutputData() {
+    public Utterance getOutputData() {
         return outputData;
     }
 
@@ -284,7 +283,7 @@ public class Request {
         int timeout = MaryProperties.getInteger("modules.timeout", 10000);
         timer.schedule(timerTask, timeout);
         try {
-            os.write(output_serializer.toString(this.outputData.getData()).getBytes());
+            os.write(output_serializer.toString(this.outputData).getBytes());
         } catch (Exception e) {
             timer.cancel();
             throw e;
