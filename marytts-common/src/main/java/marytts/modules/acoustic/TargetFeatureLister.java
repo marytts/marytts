@@ -31,7 +31,7 @@ import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.features.FeatureComputer;
 import marytts.features.FeatureMap;
 import marytts.io.serializer.XMLSerializer;
@@ -44,7 +44,7 @@ import marytts.data.item.Item;
  *
  * @author Marc Schr&ouml;der
  */
-public class TargetFeatureLister extends InternalModule {
+public class TargetFeatureLister extends MaryModule {
 
     /**
      * Default constructor

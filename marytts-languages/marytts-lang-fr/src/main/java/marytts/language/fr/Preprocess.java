@@ -7,7 +7,7 @@ import java.util.Locale;
 import com.ibm.icu.util.ULocale;
 
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
@@ -20,7 +20,7 @@ import com.ibm.icu.text.RuleBasedNumberFormat;
  *
  *         Processes cardinal and ordinal numbers.
  */
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     private RuleBasedNumberFormat rbnf;
     protected final String cardinalRule;

@@ -29,7 +29,10 @@ import marytts.data.Utterance;
  * @author Marc Schr&ouml;der
  */
 
-public class DummyModule implements MaryModule {
+public class DummyModule extends MaryModule {
+    public DummyModule() {
+	super("Dummy");
+    }
     public String name() {
         return "Dummy";
     }

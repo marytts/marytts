@@ -28,7 +28,7 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
@@ -45,7 +45,7 @@ import org.w3c.dom.Document;
  * @author Marc Schr&ouml;der
  */
 
-public class MinimalisticPosTagger extends InternalModule {
+public class MinimalisticPosTagger extends MaryModule {
     private String propertyPrefix;
     private FSTLookup posFST = null;
     private String punctuationList;
