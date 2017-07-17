@@ -11,6 +11,9 @@ import org.jgrapht.generate.*;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.*;
 
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+import cern.colt.matrix.DoubleFactory2D;
+
 /**
  * Graph of the relations. It is separating clearly the available relations from
  * the one which are calculated. This class should not used directly. The
@@ -176,6 +179,12 @@ public class RelationGraph {
      *         graph to compute this relation.
      */
     public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) {
+
+        if (source.equals(target)) {
+            DoubleFactory2D fac = DoubleFactory2D.sparse;
+            return new Relation(source, target, (SparseDoubleMatrix2D) fac.identity(target.size()));
+        }
+
         // check if source or target are present in the graph
         if (!m_actual_graph.containsVertex(source)) {
             return null;
@@ -208,10 +217,11 @@ public class RelationGraph {
             List<RelationEdge> list_edges = (new DijkstraShortestPath(m_actual_graph, source, target))
                                             .getPathEdgeList();
 
-            // No path found
+            // No path found (FIXME: solve the problem of undef )
             if (list_edges.isEmpty()) {
-                getComputedRelations().put(
-                    new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(source, target), null);
+                // getComputedRelations().put(new ImmutablePair<Sequence<? extends Item>,
+                //             Sequence<? extends Item>>(source, target),
+                //             Relation.UNDEF_RELATION());
                 return null;
             }
 

@@ -61,4 +61,15 @@ public class Paragraph extends Item {
         Paragraph par = (Paragraph) obj;
         return par.getText().equals(getText());
     }
+
+
+    /**
+     * Returns a string representation of the paragraph.
+     *
+     * @return a string representation of the paragraph
+     */
+    @Override
+    public String toString() {
+        return getText();
+    }
 }
