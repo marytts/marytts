@@ -34,7 +34,7 @@ import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import opennlp.tools.postag.POSModel;

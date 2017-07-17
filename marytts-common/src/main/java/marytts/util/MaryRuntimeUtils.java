@@ -40,7 +40,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.Mary;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.StringUtils;
 
