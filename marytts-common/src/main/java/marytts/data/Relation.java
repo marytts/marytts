@@ -142,7 +142,10 @@ public class Relation {
     protected void setSource(Sequence<? extends Item> source_sequence) {
         assert source_sequence.size() > 0;
         m_source_sequence = source_sequence;
-        m_source_sequence.addSourceRelationReference(this);
+
+        if (! source_sequence.equals(this.getTarget())) {
+            m_source_sequence.addSourceRelationReference(this);
+        }
     }
 
     /**
@@ -163,7 +166,9 @@ public class Relation {
     protected void setTarget(Sequence<? extends Item> target_sequence) {
         assert target_sequence.size() > 0;
         m_target_sequence = target_sequence;
-        m_target_sequence.addTargetRelationReference(this);
+        if (! target_sequence.equals(this.getSource())) {
+            m_target_sequence.addTargetRelationReference(this);
+        }
     }
 
     /**

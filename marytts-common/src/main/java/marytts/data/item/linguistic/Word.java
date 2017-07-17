@@ -249,4 +249,15 @@ public class Word extends Item {
 
         return getText().equals(wrd.getText());
     }
+
+    /**
+     * Returns a string representation of the word.
+     *
+     * @return a string representation of the word
+     */
+    @Override
+    public String toString() {
+        return getText();
+    }
+
 }
