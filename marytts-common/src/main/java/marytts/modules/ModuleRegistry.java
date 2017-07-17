@@ -33,7 +33,7 @@ import marytts.modules.MaryModule;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.collections.keyvalue.MultiKey;

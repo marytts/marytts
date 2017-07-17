@@ -22,6 +22,7 @@ package marytts.server;
 import java.lang.reflect.Constructor;
 import java.io.StringReader;
 import java.util.Properties;
+import marytts.config.MaryProperties;
 import java.util.ArrayList;
 import java.util.Arrays;
 

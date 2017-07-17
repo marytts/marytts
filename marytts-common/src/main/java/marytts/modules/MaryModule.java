@@ -19,6 +19,8 @@
  */
 package marytts.modules;
 
+import marytts.config.MaryProperties;
+
 // Log4j Logging classes
 import java.io.StringReader;
 import java.util.Locale;
@@ -70,9 +72,11 @@ public abstract class MaryModule {
     public static final int MODULE_OFFLINE = 0;
     public static final int MODULE_RUNNING = 1;
 
+    private MaryProperties default_configuration = null;
     private String name = null;
     private Locale locale = null;
     protected int state;
+
     /**
      * The logger instance to be used by this module. It will identify the
      * origin of the log message in the log file.
@@ -119,21 +123,12 @@ public abstract class MaryModule {
         state = MODULE_OFFLINE;
     }
 
-    /**
-     * Perform this module's processing on abstract "Utterance" input
-     * <code>d</code>. Subclasses need to make sure that the
-     * <code>process()</code> method is thread-safe, because in server-mode, it
-     * will be called from different threads at the same time. A sensible way to
-     * do this seems to be not to use any global or static variables, or to use
-     * them read-only.
-     * <p>
-     *
-     * @return A Utterance object of type <code>outputType()</code> encapsulating
-     *         the processing result.
-     *         <p>
-     *         This method just returns its input. Subclasses should override
-     *         this.
-     */
     public abstract Utterance process(Utterance d) throws Exception;
+    // {
+    // 	return process(d, default_configuration);
+    // }
+
+    // public abstract Utterance process(Utterance d, Properties configuration) throws Exception;
+
 
 }

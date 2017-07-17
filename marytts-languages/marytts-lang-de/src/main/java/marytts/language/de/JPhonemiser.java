@@ -43,7 +43,7 @@ import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.PhonemiseDenglish;
 import marytts.language.de.phonemiser.Result;
 import marytts.modules.synthesis.PAConverter;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
