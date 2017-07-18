@@ -23,6 +23,8 @@ import java.util.Locale;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
+import marytts.config.MaryProperties;
+
 /**
  * Dummy modules to support new language (for phone durations and phone f0)
  *
@@ -70,7 +72,7 @@ public class DummyTokens2Words extends MaryModule {
      *         This method just returns its input. Subclasses should override
      *         this.
      */
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
         return utt; // just return input.
     }
 

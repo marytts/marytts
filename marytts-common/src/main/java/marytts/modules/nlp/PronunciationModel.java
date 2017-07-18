@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marytts.config.MaryProperties;
 import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
@@ -130,7 +131,7 @@ public class PronunciationModel extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public Utterance process(Utterance d) throws Exception {
-        return d;
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+        return utt;
     }
 }

@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -66,7 +68,7 @@ public class SimplePhoneme2AP extends MaryModule {
         super.startup();
     }
 
-    public Utterance process(Utterance d) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
         // String phoneString = d.getPlainText();
         // Utterance utt = new Utterance(phoneString, d.getLocale());
 
@@ -210,6 +212,6 @@ public class SimplePhoneme2AP extends MaryModule {
         // Utterance result = new Utterance(outputType(), d.getLocale(), utt);
         // return result;
 
-        return d;
+        return utt;
     }
 }
