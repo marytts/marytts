@@ -6,6 +6,9 @@ import java.util.Locale;
 
 import com.ibm.icu.util.ULocale;
 
+
+import marytts.config.MaryProperties;
+
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
 import marytts.data.Utterance;
@@ -33,7 +36,7 @@ public class Preprocess extends MaryModule {
         this.ordinalRule = getOrdinalRuleName(rbnf);
     }
 
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         checkForNumbers(utt);
 

@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
@@ -51,7 +53,7 @@ public class Preprocess extends MaryModule {
         super("Preprocess", Locale.GERMAN);
     }
 
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 	return utt;
     }
 }

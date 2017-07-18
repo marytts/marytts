@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
  *      super(&quot;Postlex&quot;, UtteranceType.PHONEMISED, UtteranceType.POSTPROCESSED);
  *  }
  *
- *  public Utterance process(Utterance d) throws Exception {
+ *  public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
  *      Document doc = d.getDocument();
  *      mtuPostlex(doc);
  *      phonologicalRules(doc);
@@ -123,12 +123,10 @@ public abstract class MaryModule {
         state = MODULE_OFFLINE;
     }
 
-    public abstract Utterance process(Utterance d) throws Exception;
-    // {
-    // 	return process(d, default_configuration);
-    // }
+    public Utterance process(Utterance utt) throws Exception
+    {
+    	return process(utt, default_configuration);
+    }
 
-    // public abstract Utterance process(Utterance d, Properties configuration) throws Exception;
-
-
+    public abstract Utterance process(Utterance utt, MaryProperties configuration) throws Exception;
 }

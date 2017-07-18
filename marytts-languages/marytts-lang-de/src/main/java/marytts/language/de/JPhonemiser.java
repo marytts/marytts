@@ -191,7 +191,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
     @Override
 
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();

@@ -30,6 +30,8 @@ import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.MaryModule;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Sequence;
@@ -78,7 +80,7 @@ public class MinimalisticPosTagger extends MaryModule {
         punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
     }
 
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";

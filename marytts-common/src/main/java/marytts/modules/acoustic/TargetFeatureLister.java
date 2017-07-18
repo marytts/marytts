@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.SupportedSequenceType;
 import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
@@ -66,7 +68,7 @@ public class TargetFeatureLister extends MaryModule {
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
