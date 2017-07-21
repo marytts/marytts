@@ -6,9 +6,11 @@ import java.util.Locale;
 
 import com.ibm.icu.util.ULocale;
 
-import marytts.datatypes.MaryData;
+
+import marytts.config.MaryProperties;
+
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
@@ -21,7 +23,7 @@ import com.ibm.icu.text.RuleBasedNumberFormat;
  *
  *         Processes cardinal and ordinal numbers.
  */
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     private RuleBasedNumberFormat rbnf;
     protected final String cardinalRule;
@@ -34,13 +36,11 @@ public class Preprocess extends InternalModule {
         this.ordinalRule = getOrdinalRuleName(rbnf);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         checkForNumbers(utt);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+        return utt;
     }
 
     protected void checkForNumbers(Utterance utt) {

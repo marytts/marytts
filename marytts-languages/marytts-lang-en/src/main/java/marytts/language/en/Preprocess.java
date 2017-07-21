@@ -12,11 +12,11 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryXML;
+import marytts.config.MaryProperties;
+
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -82,7 +82,7 @@ import com.google.common.collect.Lists;
  *         <li>roman numerals
  *         </ul>
  */
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     // abbreviations map
     private Map<Object, Object> abbrevMap;
@@ -187,13 +187,10 @@ public class Preprocess extends InternalModule {
         }
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
-
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
         expand(utt);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
     /***

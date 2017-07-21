@@ -25,9 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import marytts.datatypes.MaryData;
+import marytts.config.MaryProperties;
+
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -45,13 +47,13 @@ import org.w3c.dom.traversal.TreeWalker;
  * @author Marc Schr&ouml;der
  */
 
-public class Preprocess extends InternalModule {
+public class Preprocess extends MaryModule {
 
     public Preprocess() {
         super("Preprocess", Locale.GERMAN);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        return d;
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+	return utt;
     }
 }

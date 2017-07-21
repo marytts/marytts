@@ -5,7 +5,6 @@ package marytts.language.fr;
 
 import marytts.language.fr.Preprocess;
 import java.util.Locale;
-import marytts.datatypes.MaryData;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

@@ -4,7 +4,7 @@ package marytts.io.serializer;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import marytts.server.MaryProperties; // FIXME: need to be moved !
+import marytts.config.MaryProperties; // FIXME: need to be moved !
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
@@ -61,7 +61,7 @@ public class TextSerializer implements Serializer {
      * @throws MaryIOException
      *             if anything is going wrong
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
         String output = "";
         Sequence<Paragraph> paragraphs = (Sequence<Paragraph>) utt.getSequence(
                                              SupportedSequenceType.PARAGRAPH);
@@ -83,7 +83,7 @@ public class TextSerializer implements Serializer {
      * @throws MaryIOException
      *             if anything is going wrong
      */
-    public Utterance fromString(String text) throws MaryIOException {
+    public Utterance load(String text) throws MaryIOException {
         String plain_text = MaryUtils.normaliseUnicodePunctuation(text);
         Locale l = Locale.US; // FIXME: we really need to fix this !
 

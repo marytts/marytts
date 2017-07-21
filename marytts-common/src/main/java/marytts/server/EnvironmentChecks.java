@@ -21,6 +21,8 @@ package marytts.server;
 
 import java.io.File;
 
+import marytts.config.MaryProperties;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.datatypes.MaryXML;

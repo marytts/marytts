@@ -19,86 +19,116 @@
  */
 package marytts.modules;
 
-// DOM classes
+import marytts.config.MaryProperties;
+
+// Log4j Logging classes
+import java.io.StringReader;
 import java.util.Locale;
 
-import marytts.datatypes.MaryData;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+
+import marytts.data.Utterance;
+import marytts.util.MaryUtils;
+
+import org.apache.log4j.Logger;
 
 /**
- * A generic interface for Mary Modules. This interface defines the
- * communication of the Mary.java main program with the individual modules.
+ * A stub implementation of the MaryModule interface as a basis for internal
+ * modules.
  * <p>
- * The main program calls
- * <ul>
- * <li><code>startup()</code> once after module instantiation,</li>
- * <li><code>process()</code> many times, from different threads, possibly at
- * the same time, during the lifetime of the server</li>
- * <li><code>shutdown()</code> once, at the end of the program.</li>
- * </ul>
+ * Any internal module extending this class will need to implement a constructor
+ * calling this class's constructor, and override <code>process()</code> in a
+ * meaningful way. Care must be taken to make sure the <code>process()</code>
+ * method is thread-seafe.
+ * <p>
+ * Example for a subclass:
+ *
+ * <pre>
+ * public class Postlex extends MaryModule {
+ *  public Postlex() {
+ *      super(&quot;Postlex&quot;, UtteranceType.PHONEMISED, UtteranceType.POSTPROCESSED);
+ *  }
+ *
+ *  public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+ *      Document doc = d.getDocument();
+ *      mtuPostlex(doc);
+ *      phonologicalRules(doc);
+ *      Utterance result = new Utterance(outputType());
+ *      result.setDocument(doc);
+ *      return result;
+ *  }
+ *
+ *  private void mtuPostlex(Document doc) {...}
+ *
+ *  private void phonologicalRules(Document doc) {...}
+ * }
+ * </pre>
  *
  * @author Marc Schr&ouml;der
  */
-public interface MaryModule {
-    public final int MODULE_OFFLINE = 0;
-    public final int MODULE_RUNNING = 1;
+
+public abstract class MaryModule {
+    public static final int MODULE_OFFLINE = 0;
+    public static final int MODULE_RUNNING = 1;
+
+    private MaryProperties default_configuration = null;
+    private String name = null;
+    private Locale locale = null;
+    protected int state;
 
     /**
-     * This module's name, as free text, for example "Tokenizer"
-     *
-     * @return name
+     * The logger instance to be used by this module. It will identify the
+     * origin of the log message in the log file.
      */
-    public String name();
+    protected Logger logger;
 
-    /**
-     * The locale of this module, i.e. the locale of data that this module can
-     * process. If null, indicates that the module can use data of any locale
-     * (i.e., the module is language-independent.)
-     *
-     * @return the locale of this module, if any, or null
-     */
-    public Locale getLocale();
 
-    /**
-     * Allow the module to start up, performing whatever is necessary to become
-     * operational. After successful completion, getState() should return
-     * MODULE_RUNNING.
-     *
-     * @throws Exception
-     *             Exception
-     */
-    public void startup() throws Exception;
+    protected MaryModule(String name) {
+	this.name = name;
+	this.locale = Locale.getDefault();
+        logger = MaryUtils.getLogger(name());
+        this.state = MODULE_OFFLINE;
+    }
 
-    /**
-     * Inform about the state of this module.
-     *
-     * @return an int identifying the state of this module, either
-     *         MODULE_OFFLINE or MODULE_RUNNING.
-     */
-    public int getState();
+    protected MaryModule(String name, Locale locale) {
+        this.name = name;
+        this.locale = locale;
+        logger = MaryUtils.getLogger(name());
+        this.state = MODULE_OFFLINE;
+    }
 
-    /**
-     * Allow the module to shut down cleanly. After this has successfully
-     * completed, getState() should return MODULE_OFFLINE.
-     */
-    public void shutdown();
+    // Interface MaryModule implementation:
+    public String name() {
+        return name;
+    }
 
-    /**
-     * Perform this module's processing on abstract "MaryData" input
-     * <code>d</code>. Classes implementing this interface need to make the
-     * <code>process()</code> method thread-safe, because in server-mode, it
-     * will be called from different threads at the same time.
-     * <p>
-     * The result is returned encapsulated in a MaryData object of type
-     * <code>outputType()</code>.
-     * <p>
-     * This method should never return <code> null </code>; in case of a
-     * failure, an exception should be thrown.
-     *
-     * @param d
-     *            d
-     * @throws Exception
-     *             Exception
-     * @return result
-     */
-    public MaryData process(MaryData d) throws Exception;
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void startup() throws Exception {
+        assert state == MODULE_OFFLINE;
+        logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() +
+                    ").");
+
+        state = MODULE_RUNNING;
+    }
+
+    public void shutdown() {
+        logger = MaryUtils.getLogger(name());
+        logger.info("Module shut down.");
+        state = MODULE_OFFLINE;
+    }
+
+    public Utterance process(Utterance utt) throws Exception
+    {
+    	return process(utt, default_configuration);
+    }
+
+    public abstract Utterance process(Utterance utt, MaryProperties configuration) throws Exception;
 }

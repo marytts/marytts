@@ -30,12 +30,12 @@ public class FeatureComputer {
     /**
      * Constant for the context processor index in the "m_features" table value
      */
-    private final static int CONTEXT_INDEX = 0;
+    private final static int CONTEXT_INDEX = 1;
 
     /**
      * Constant for the feature processor index in the "m_features" table value
      */
-    private final static int FEATURE_INDEX = 0;
+    private final static int FEATURE_INDEX = 2;
 
     /** Table of features name => (level, context, feature) */
     protected Hashtable<String, String[]> m_features;

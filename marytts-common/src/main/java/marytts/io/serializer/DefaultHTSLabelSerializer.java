@@ -51,7 +51,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
      * @throws MaryIOException
      *             when something is going wrong
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
         if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
             throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
                                       null);
@@ -76,7 +76,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
      * @throws MaryIOException
      *             when something is going wrong
      */
-    public Utterance fromString(String content) throws MaryIOException {
+    public Utterance load(String content) throws MaryIOException {
         throw new UnsupportedOperationException();
     }
 

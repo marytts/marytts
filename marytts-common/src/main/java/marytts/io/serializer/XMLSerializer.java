@@ -86,7 +86,7 @@ public class XMLSerializer implements Serializer {
      * @throws MaryIOException
      *             if something wrong happened
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
         try {
             Document doc = generateDocument(utt);
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -113,7 +113,7 @@ public class XMLSerializer implements Serializer {
      * @throws MaryIOException
      *             if something wrong happened
      */
-    public Utterance fromString(String doc_str) throws MaryIOException {
+    public Utterance load(String doc_str) throws MaryIOException {
         try {
             return unpackDocument(doc_str);
         } catch (Exception ex) {
@@ -417,6 +417,7 @@ public class XMLSerializer implements Serializer {
                 Element feature_element = doc.createElementNS(NAMESPACE, "feature");
                 feature_element.setAttribute("name", entry.getKey());
                 feature_element.setAttribute("value", entry.getValue().getStringValue());
+		feature_element.setAttribute("value_class", entry.getValue().getValue().getClass().getName());
                 features_element.appendChild(feature_element);
             }
         }
@@ -429,7 +430,7 @@ public class XMLSerializer implements Serializer {
      ***********************************************************************************************/
     /**
      * Generate an utterance from a document in a string format. This method is
-     * used to deal with more Exceptions than the fromString one.
+     * used to deal with more Exceptions than the import one.
      *
      * @param doc_str
      *            the document in string format
@@ -685,8 +686,15 @@ public class XMLSerializer implements Serializer {
                     if (status_loading == 1) {
                         throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
                     }
-                    // FIXME: what do we do with this first child idea....
-                    generatePhrase((Element) cur_elt.getFirstChild(), utt, alignments);
+
+		    // FIXME: assume that the first node is a phrase
+                    NodeList cur_nl = cur_elt.getChildNodes();
+                    for (int k = 0; k < cur_nl.getLength(); k++) {
+                        Node first_node = cur_nl.item(k);
+                        if (first_node.getNodeType() == Node.ELEMENT_NODE) {
+			    generatePhrase((Element) first_node, utt, alignments);
+			}
+		    }
                     status_loading = 2;
                 } else if (cur_elt.getTagName() == "phrase") {
                     if (status_loading == 1) {
@@ -963,7 +971,7 @@ public class XMLSerializer implements Serializer {
                 }
             } else if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element phoneme_elt = (Element) node;
-                generatePhone(phoneme_elt, utt);
+                generatePhone(phoneme_elt, utt, alignments);
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
                                           null);
@@ -1025,16 +1033,102 @@ public class XMLSerializer implements Serializer {
      * @param utt
      *            the target utterance
      */
-    public void generatePhone(Element elt, Utterance utt) {
+    public void generatePhone(Element elt, Utterance utt,
+                                 Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
         assert elt.getTagName() == "ph";
-        Phoneme ph = new Phoneme(elt.getAttribute("p"));
 
-        // Create the phrase and add the phrase to the
+
+        int features_offset = 0;
+        if (utt.getSequence(SupportedSequenceType.FEATURES) != null) {
+            features_offset = utt.getSequence(SupportedSequenceType.FEATURES).size();
+        }
+
+	// Create the phone and add the phone to the utterance
+        Phoneme ph = new Phoneme(elt.getAttribute("p"));
         Sequence<Phoneme> seq_phone = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
         if (seq_phone == null) {
             seq_phone = new Sequence<Phoneme>();
         }
         utt.addSequence(SupportedSequenceType.PHONE, seq_phone);
         seq_phone.add(ph);
+
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+        for (int j = 0; j < nl.getLength(); j++) {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE) {
+		continue;
+            } else if (node.getNodeType() == Node.ELEMENT_NODE) {
+		Element features_elt = (Element) node;
+		if (features_elt.getTagName().equals("features")) {
+		    generateFeatures(features_elt, utt);
+		} else {
+		    throw new MaryIOException("node with tag \"" + features_elt.getTagName() + "\" should not be linked to a phone(me)", null);
+		}
+            } else {
+                throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
+                                          null);
+            }
+        }
+
+        // Syllable/Phone alignment
+        if ((utt.getSequence(SupportedSequenceType.FEATURES) != null)
+	    && (utt.getSequence(SupportedSequenceType.FEATURES).size() > 0)) {
+
+            if (!alignments.containsKey(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES))) {
+                alignments.put(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES),
+                               new ArrayList<IntegerPair>());
+            }
+
+            ArrayList<IntegerPair> alignment_phone_features = alignments
+                    .get(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES));
+
+            int size_features = utt.getSequence(SupportedSequenceType.FEATURES).size();
+            int id_phone = seq_phone.size() - 1;
+            for (int i = features_offset; i < size_features; i++) {
+                alignment_phone_features.add(new IntegerPair(id_phone, i));
+            }
+        }
+    }
+
+
+
+    public void generateFeatures(Element elt, Utterance utt) throws MaryIOException {
+
+        NodeList nl = elt.getChildNodes();
+        String text = null;
+
+	FeatureMap feature_map = new FeatureMap();
+
+        for (int j = 0; j < nl.getLength(); j++) {
+            Node node = nl.item(j);
+
+            if (node.getNodeType() == Node.TEXT_NODE) {
+            } else if (node.getNodeType() == Node.ELEMENT_NODE) {
+		Element cur_feat_elt = (Element) node;
+
+		if (cur_feat_elt.getTagName().equals("feature")) {
+		    // FIXME: how to inject value type knowledge ?! (if the type is an integer, we want to extract an integer from the string)
+		    String value = cur_feat_elt.getAttribute("value");
+		    feature_map.put(cur_feat_elt.getAttribute("name"),
+				    new Feature(value));
+		} else {
+		    throw new MaryIOException("node with tag \"" + cur_feat_elt.getTagName() + "\" should not be part of the feature map", null);
+		}
+            } else {
+                throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
+                                          null);
+            }
+        }
+
+
+	Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
+	if (seq_features == null) {
+	    seq_features = new Sequence<FeatureMap>();
+	}
+	seq_features.add(feature_map);
+	utt.addSequence(SupportedSequenceType.FEATURES, seq_features);
     }
 }

@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import marytts.fst.FSTLookup;
 import marytts.language.de.JPhonemiser;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

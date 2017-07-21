@@ -40,7 +40,7 @@ public class JSONFeatureSerializer implements Serializer {
      * @throws MaryIOException
      *             when something goes wrong
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
 
         // Check that the sequence of features exists
         if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
@@ -85,7 +85,7 @@ public class JSONFeatureSerializer implements Serializer {
         return output;
     }
 
-    public Utterance fromString(String content) throws MaryIOException {
+    public Utterance load(String content) throws MaryIOException {
         throw new UnsupportedOperationException();
     }
 }

@@ -24,14 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.SupportedSequenceType;
 import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.features.FeatureComputer;
 import marytts.features.FeatureMap;
 import marytts.io.serializer.XMLSerializer;
@@ -44,7 +46,7 @@ import marytts.data.item.Item;
  *
  * @author Marc Schr&ouml;der
  */
-public class TargetFeatureLister extends InternalModule {
+public class TargetFeatureLister extends MaryModule {
 
     /**
      * Default constructor
@@ -56,25 +58,23 @@ public class TargetFeatureLister extends InternalModule {
     }
 
     /**
-     * The process method which take a MaryData object in parameter, compute the
+     * The process method which take a Utterance object in parameter, compute the
      * features of the utterance referenced in the parameter and return a new
-     * MaryData object which contains the reference to the updated utterance.
+     * Utterance object which contains the reference to the updated utterance.
      *
      * @param d
-     *            the input MaryData object
-     * @return the MaryData object with the updated reference
+     *            the input Utterance object
+     * @return the Utterance object with the updated reference
      * @throws Exception
      *             [TODO]
      */
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
         listTargetFeatures(the_feature_computer, utt);
-        // Second, construct targets
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+
+	return utt;
     }
 
     /**

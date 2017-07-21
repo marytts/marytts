@@ -13,4 +13,4 @@ include ':marytts-languages:marytts-lang-ru'
 include ':marytts-languages:marytts-lang-it'
 include ':marytts-languages:marytts-lang-fr'
 include ':marytts-languages:marytts-lang-sv'
-include ':marytts-languages:marytts-lang-lb'
+// include ':marytts-languages:marytts-lang-lb' // FIXME: problem with datatype,  needs to be converted to roots

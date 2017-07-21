@@ -32,13 +32,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.modules.InternalModule;
+import marytts.config.MaryProperties;
+import marytts.modules.MaryModule;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -65,7 +66,7 @@ import marytts.data.utils.IntegerPair;
  * @author ben
  *
  */
-public class PronunciationModel extends InternalModule {
+public class PronunciationModel extends MaryModule {
 
     // used in startup() and later for convenience
     private FeatureDefinition featDef;
@@ -122,7 +123,7 @@ public class PronunciationModel extends InternalModule {
     }
 
     /**
-     * This computes a new pronunciation for the elements of some MaryData, that
+     * This computes a new pronunciation for the elements of some Utterance, that
      * is phonemised.
      *
      * @param d
@@ -130,7 +131,7 @@ public class PronunciationModel extends InternalModule {
      * @throws Exception
      *             Exception
      */
-    public MaryData process(MaryData d) throws Exception {
-        return d;
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+        return utt;
     }
 }

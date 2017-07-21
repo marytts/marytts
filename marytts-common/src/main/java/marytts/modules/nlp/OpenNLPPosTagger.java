@@ -30,15 +30,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
+
+import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -55,7 +57,7 @@ import org.w3c.dom.Document;
  * @author Marc Schr&ouml;der
  */
 
-public class OpenNLPPosTagger extends InternalModule {
+public class OpenNLPPosTagger extends MaryModule {
     private String propertyPrefix;
     private POSTaggerME tagger;
     private Map<String, String> posMapper = null;
@@ -108,8 +110,7 @@ public class OpenNLPPosTagger extends InternalModule {
     }
 
     @SuppressWarnings("unchecked")
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();
@@ -151,9 +152,7 @@ public class OpenNLPPosTagger extends InternalModule {
             }
             w.setPOS(pos);
         }
-
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
 }

@@ -21,9 +21,10 @@ package marytts.modules.nlp;
 
 import java.util.Locale;
 import java.util.ArrayList;
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
+import marytts.config.MaryProperties;
 
 import org.w3c.dom.Document;
 
@@ -45,7 +46,7 @@ import marytts.data.utils.SequenceTypePair;
  * @author Stephanie Becker
  */
 
-public class ProsodyGeneric extends InternalModule {
+public class ProsodyGeneric extends MaryModule {
     public static final int DEFAULT_BREAKINDEX = 5;
     public static final int DEFAULT_DURATION = 400;
 
@@ -80,9 +81,7 @@ public class ProsodyGeneric extends InternalModule {
         super.startup();
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        // Initialisation
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);
@@ -119,8 +118,6 @@ public class ProsodyGeneric extends InternalModule {
                                                utt.getSequence(SupportedSequenceType.WORD), alignment_phrase_word);
         utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
-        // Generate the result
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 }
