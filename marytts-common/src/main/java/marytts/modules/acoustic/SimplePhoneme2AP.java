@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
+import marytts.config.MaryProperties;
+
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -33,15 +35,15 @@ import marytts.data.item.phonology.*;
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 /**
  * Read a simple phone string and generate default acoustic parameters.
@@ -49,7 +51,7 @@ import marytts.modules.InternalModule;
  * @author Marc Schr&ouml;der
  */
 
-public class SimplePhoneme2AP extends InternalModule {
+public class SimplePhoneme2AP extends MaryModule {
     protected AllophoneSet allophoneSet;
 
     public SimplePhoneme2AP(String localeString) {
@@ -66,7 +68,7 @@ public class SimplePhoneme2AP extends InternalModule {
         super.startup();
     }
 
-    public MaryData process(MaryData d) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
         // String phoneString = d.getPlainText();
         // Utterance utt = new Utterance(phoneString, d.getLocale());
 
@@ -207,9 +209,9 @@ public class SimplePhoneme2AP extends InternalModule {
         // new Relation(paragraphs, sentences, alignment_paragraph_sentence));
 
         // // Finally serialize and return
-        // MaryData result = new MaryData(outputType(), d.getLocale(), utt);
+        // Utterance result = new Utterance(outputType(), d.getLocale(), utt);
         // return result;
 
-        return d;
+        return utt;
     }
 }

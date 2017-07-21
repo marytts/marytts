@@ -34,14 +34,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import marytts.datatypes.MaryData;
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;
-import marytts.modules.InternalModule;
-import marytts.server.MaryProperties;
+import marytts.modules.MaryModule;
+import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -65,7 +65,7 @@ import com.google.common.base.Splitter;
  * @author ingmar
  */
 
-public class JPhonemiser extends InternalModule {
+public class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -169,8 +169,7 @@ public class JPhonemiser extends InternalModule {
         setUnpronounceablePosRegex();
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -247,8 +246,7 @@ public class JPhonemiser extends InternalModule {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,

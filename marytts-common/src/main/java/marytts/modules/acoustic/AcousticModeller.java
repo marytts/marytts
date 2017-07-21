@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import marytts.datatypes.MaryData;
+import marytts.config.MaryProperties;
+import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.io.serializer.XMLSerializer;
@@ -37,7 +38,7 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
@@ -48,7 +49,7 @@ import marytts.data.SupportedSequenceType;
  * @author steiner
  *
  */
-public class AcousticModeller extends InternalModule {
+public class AcousticModeller extends MaryModule {
 
     // three constructors adapted from DummyAllophones2AcoustParams (used if
     // this is in modules.classes.list):
@@ -93,7 +94,7 @@ public class AcousticModeller extends InternalModule {
         super("AcousticModeller", locale);
     }
 
-    public MaryData process(MaryData d) throws SynthesisException {
-        return d;
+    public Utterance process(Utterance utt, MaryProperties configuration) throws SynthesisException {
+        return utt;
     }
 }

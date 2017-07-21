@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 
-import marytts.datatypes.MaryData;
+import marytts.config.MaryProperties;
+
+import marytts.data.Utterance;
 import marytts.datatypes.MaryXML;
 import marytts.io.serializer.XMLSerializer;
 import marytts.util.dom.DomUtils;
@@ -38,7 +40,7 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,7 +59,7 @@ import de.dfki.lt.tools.tokenizer.output.Token;
  *
  *
  */
-public class JTokenizer extends InternalModule {
+public class JTokenizer extends MaryModule {
     public static final int TOKEN_MAXLENGTH = 100;
 
     private JTok tokenizer = null;
@@ -106,9 +108,7 @@ public class JTokenizer extends InternalModule {
         tokenizer = new JTok(jtokProperties);
     }
 
-    public MaryData process(MaryData d) throws Exception {
-        // Initialisation
-        Utterance utt = d.getData();
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();
@@ -212,7 +212,6 @@ public class JTokenizer extends InternalModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-        MaryData result = new MaryData(d.getLocale(), utt);
-        return result;
+	return utt;
     }
 }

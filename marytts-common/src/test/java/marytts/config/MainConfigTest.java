@@ -1,7 +1,7 @@
 package marytts.config;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

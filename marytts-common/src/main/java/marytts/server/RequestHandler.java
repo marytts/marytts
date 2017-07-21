@@ -138,7 +138,7 @@ public class RequestHandler extends Thread {
      *
      * @see Request
      * @see marytts.modules.MaryModule
-     * @see marytts.modules.InternalModule
+     * @see marytts.modules.MaryModule
      */
     public void run() {
         boolean ok = true;

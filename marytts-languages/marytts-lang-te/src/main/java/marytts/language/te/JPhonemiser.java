@@ -38,9 +38,9 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.language.te.phonemiser.TeluguLTS;
-import marytts.modules.InternalModule;
+import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -55,7 +55,7 @@ import org.w3c.dom.traversal.NodeIterator;
  * @author Marc Schr&ouml;der, Sathish
  */
 
-public class JPhonemiser extends InternalModule {
+public class JPhonemiser extends MaryModule {
 
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;

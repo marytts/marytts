@@ -22,7 +22,7 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.modules.nlp.ProsodyGeneric;
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 
 public class Prosody extends ProsodyGeneric {
     public Prosody() {

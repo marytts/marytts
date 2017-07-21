@@ -20,8 +20,10 @@
 package marytts.modules.nlp;
 
 import java.util.Locale;
+import marytts.data.Utterance;
+import marytts.modules.MaryModule;
 
-import marytts.modules.InternalModule;
+import marytts.config.MaryProperties;
 
 /**
  * Dummy modules to support new language (for phone durations and phone f0)
@@ -29,7 +31,7 @@ import marytts.modules.InternalModule;
  * @author Sathish Pammi
  */
 
-public class DummyTokens2Words extends InternalModule {
+public class DummyTokens2Words extends MaryModule {
     public DummyTokens2Words() {
         this((Locale) null);
     }
@@ -52,6 +54,26 @@ public class DummyTokens2Words extends InternalModule {
      */
     public DummyTokens2Words(Locale locale) {
         super("DummyTokens2Words", locale);
+    }
+
+
+    /**
+     * Perform this module's processing on abstract "Utterance" input
+     * <code>d</code>. Subclasses need to make sure that the
+     * <code>process()</code> method is thread-safe, because in server-mode, it
+     * will be called from different threads at the same time. A sensible way to
+     * do this seems to be not to use any global or static variables, or to use
+     * them read-only.
+     * <p>
+     *
+     * @return A Utterance object of type <code>outputType()</code> encapsulating
+     *         the processing result.
+     *         <p>
+     *         This method just returns its input. Subclasses should override
+     *         this.
+     */
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+        return utt; // just return input.
     }
 
 }

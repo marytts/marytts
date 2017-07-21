@@ -87,7 +87,7 @@ public class ROOTSJSONSerializer implements Serializer {
      * @throws MaryIOException
      *             if anything is going wrong
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
         StringBuilder sb = new StringBuilder(SB_INIT_CAP);
         try {
             sb.append("{\n");
@@ -224,7 +224,7 @@ public class ROOTSJSONSerializer implements Serializer {
      * @throws MaryIOException
      *             if anything is going wrong
      */
-    public Utterance fromString(String content) throws MaryIOException {
+    public Utterance load(String content) throws MaryIOException {
         throw new UnsupportedOperationException();
     }
 }

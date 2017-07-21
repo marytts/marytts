@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 
-import marytts.server.MaryProperties;
+import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.apache.http.HttpException;
