@@ -3,7 +3,7 @@ package marytts.features;
 import java.util.Hashtable;
 import marytts.data.item.Item;
 import java.util.Map;
-
+import java.util.ArrayList;
 /**
  * Map which associate a feature name to its value. For now it is overriding
  * basic map methods. It is extending the Item class
@@ -66,5 +66,26 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      */
     public boolean containsKey(String feature_name) {
         return inner_map.containsKey(feature_name);
+    }
+
+    @Override
+    public String toString() {
+        String string = "{";
+        String cur_key;
+        ArrayList<String> keys = new ArrayList<String>(inner_map.keySet());
+        int k = 0;
+        while (k < (keys.size() - 1)) {
+            cur_key = keys.get(k);
+            string += cur_key + ":" + inner_map.get(cur_key) + ",";
+            k++;
+        }
+
+        if (k < keys.size()) {
+            cur_key = keys.get(k);
+            string += cur_key + ":" + inner_map.get(cur_key);
+        }
+        string += "}";
+
+        return string;
     }
 }

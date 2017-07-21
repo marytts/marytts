@@ -62,6 +62,11 @@ public class Feature extends Item {
         return (getValue() == ((Feature) o).getValue());
     }
 
+    @Override
+    public String toString() {
+        return getStringValue();
+    }
+
     /** Constant to represent an undefined feature */
     public static final Feature UNDEF_FEATURE = new Feature(null);
 }

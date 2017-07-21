@@ -58,4 +58,23 @@ public class ContextProcessorFactory {
         }
         return cp;
     }
+
+
+    /**
+     * Check if we can create a context processor based on a given name
+     *
+     * @param name
+     *            the name of the wanted processor
+     * @return true if the processor exists, false else
+     * @throws UnknownProcessorException
+     *             if the processor name doesn't exists
+     */
+    public boolean canCreateContextProcessor(String name) throws UnknownProcessorException {
+        ContextProcessor lp = context_processors.get(name);
+        if (lp == null) {
+            return false;
+        }
+
+        return true;
+    }
 }

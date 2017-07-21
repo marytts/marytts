@@ -58,4 +58,23 @@ public class FeatureProcessorFactory {
         }
         return fp;
     }
+
+
+    /**
+     * Check if we can create a feature processor based on a given name
+     *
+     * @param name
+     *            the name of the wanted processor
+     * @return true if the processor exists, false else
+     * @throws UnknownProcessorException
+     *             if the processor name doesn't exists
+     */
+    public boolean canCreateFeatureProcessor(String name) throws UnknownProcessorException {
+        FeatureProcessor fp = feature_processors.get(name);
+        if (fp == null) {
+            return false;
+        }
+
+        return true;
+    }
 }
