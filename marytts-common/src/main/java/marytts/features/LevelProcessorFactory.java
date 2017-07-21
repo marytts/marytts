@@ -58,4 +58,23 @@ public class LevelProcessorFactory {
         }
         return lp;
     }
+
+
+    /**
+     * Check if we can create a level processor based on a given name
+     *
+     * @param name
+     *            the name of the wanted processor
+     * @return true if the processor exists, false else
+     * @throws UnknownProcessorException
+     *             if the processor name doesn't exists
+     */
+    public boolean canCreateLevelProcessor(String name) throws UnknownProcessorException {
+        LevelProcessor lp = level_processors.get(name);
+        if (lp == null) {
+            return false;
+        }
+
+        return true;
+    }
 }

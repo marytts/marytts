@@ -91,10 +91,22 @@ public class FeatureComputer {
      *             if the feature, identified by its name, is already in the map
      */
     public void addFeature(String name, String level, String context,
-                           String feature) throws FeatureCollisionException {
+                           String feature) throws FeatureCollisionException, UnknownProcessorException {
 
         if (m_features.containsKey(name)) {
             throw new FeatureCollisionException(name + " is already an added feature");
+        }
+
+        if (! m_level_factory.canCreateLevelProcessor(level)) {
+            throw new UnknownProcessorException(name + ": cannot create level processor \"" + level + "\"");
+        }
+
+        if (! m_context_factory.canCreateContextProcessor(context)) {
+            throw new UnknownProcessorException(name + ": cannot create context processor \"" + context + "\"");
+        }
+
+        if (! m_feature_factory.canCreateFeatureProcessor(feature)) {
+            throw new UnknownProcessorException(name + ": cannot create feature processor \"" + feature + "\"");
         }
 
         m_features.put(name, new String[] {level, context, feature});
@@ -134,7 +146,8 @@ public class FeatureComputer {
 
         FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
         if (feature_processor == null) {
-            throw new Exception(feature + " is not part of the factory");
+            throw new Exception(feature + " is not part of the factory for items : (level=" + level + ", context=" + context + ", feature=" +
+                                feature + ")");
         }
 
         return feature_processor.generate(utt, context_item);
