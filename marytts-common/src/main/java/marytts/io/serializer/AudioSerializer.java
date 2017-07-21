@@ -13,9 +13,8 @@ import marytts.data.item.acoustic.AudioItem;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class AudioSerializer
+public class AudioSerializer implements Serializer
 {
-
     public AudioSerializer()
     {
     }
@@ -30,8 +29,18 @@ public class AudioSerializer
      * @throws MaryIOException
      *             if anything is going wrong
      */
-    public String toString(Utterance utt) throws MaryIOException {
-        throw new UnsupportedOperationException();
+    public Object export(Utterance utt) throws MaryIOException {
+	Sequence<AudioItem> seq_au = (Sequence<AudioItem>) utt.getSequence(SupportedSequenceType.AUDIO);
+
+	if (seq_au == null)
+	    throw new MaryIOException("There is no audio to serialize (no sequence available)", null);
+
+	if (seq_au.size() == 0)
+	    throw new MaryIOException("There is no audio to serialize (sequence is empty)", null);
+
+	// FIXME: what to do with multiple audio, merge them
+	return ((AudioItem) seq_au.get(0)).getAudio();
+
     }
 
 
@@ -45,10 +54,9 @@ public class AudioSerializer
      * @throws MaryIOException
      *             never done
      */
-    public Utterance fromString(String content) throws MaryIOException {
+    public Utterance load(String content) throws MaryIOException {
         throw new UnsupportedOperationException();
     }
-
 }
 
 

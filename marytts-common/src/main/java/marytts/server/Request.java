@@ -25,6 +25,8 @@ import java.util.Properties;
 import marytts.config.MaryProperties;
 import java.util.ArrayList;
 import java.util.Arrays;
+import marytts.io.MaryIOException;
+import marytts.MaryException;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -112,15 +114,21 @@ public class Request {
         final Properties configuration_properties = new Properties();
         configuration_properties.load(new StringReader(this.configuration));
 
-        // Input serializer reflection (FIXME: check if serializer is ok)
+        // Input serializer reflection
         Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
         Constructor<?> ctor = clazz.getConstructor();
         Serializer input_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
-        // Input serializer reflection (FIXME: check if serializer is ok)
+	if (input_serializer == null)
+	    throw new MaryException("input serializer class \"" + configuration_properties.get("input_serializer") + "\" doesn't exist", null);
+
+        // Input serializer reflection
         clazz = Class.forName(configuration_properties.get("output_serializer").toString());
         ctor = clazz.getConstructor();
         this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+
+	if (output_serializer == null)
+	    throw new MaryException("output serializer class \"" + configuration_properties.get("output_serializer") + "\" doesn't exist", null);
 
         // Locale reflection (FIXME: Check if locale is correct)
         Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
@@ -133,21 +141,25 @@ public class Request {
             for (String module_class_name : module_name_list) {
                 logger.debug("trying to load the following class " + module_class_name + " for locale " +
                              cur_locale);
-                if (ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale) != null) {
-                    usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale));
-                } else {
-                    usedModules.add(ModuleRegistry.getModule(Class.forName(module_class_name)));
+		MaryModule cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
+                if (cur_module == null) {
+		    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
                 }
+
+		if (cur_module == null)
+		    throw new MaryException("Cannot load module \"" + module_class_name +"\" as it is not existing", null);
+
+	    usedModules.add(cur_module);
             }
         }
 
         // Define the data
-        Utterance input_mary_data = input_serializer.fromString(this.input_data);
+        Utterance input_mary_data = input_serializer.load(this.input_data);
 
         // Start to achieve the process
         long startTime = System.currentTimeMillis();
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
+
         logger.info("Handling request using the following modules:");
         for (MaryModule m : usedModules) {
             logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
@@ -250,6 +262,10 @@ public class Request {
         return outputData;
     }
 
+    public Object serializeFinaleUtterance() throws MaryIOException {
+	return output_serializer.export(this.outputData);
+    }
+
     /**
      * Write the output data to the specified OutputStream.
      *
@@ -259,36 +275,36 @@ public class Request {
      *             Exception
      */
     public void writeOutputData(OutputStream outputStream) throws Exception {
-        if (outputData == null) {
-            throw new NullPointerException("No output data -- did process() succeed?");
-        }
-        if (outputStream == null) {
-            throw new NullPointerException("cannot write to null output stream");
-        }
-        // Safety net: if the output is not written within a certain amount of
-        // time, give up. This prevents our thread from being locked forever if
-        // an
-        // output deadlock occurs (happened very rarely on Java 1.4.2beta).
-        final OutputStream os = outputStream;
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            public void run() {
-                logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
-                try {
-                    os.close();
-                } catch (IOException ioe) {
-                    logger.warn(ioe);
-                }
-            }
-        };
-        int timeout = MaryProperties.getInteger("modules.timeout", 10000);
-        timer.schedule(timerTask, timeout);
-        try {
-            os.write(output_serializer.toString(this.outputData).getBytes());
-        } catch (Exception e) {
-            timer.cancel();
-            throw e;
-        }
-        timer.cancel();
+        // if (outputData == null) {
+        //     throw new NullPointerException("No output data -- did process() succeed?");
+        // }
+        // if (outputStream == null) {
+        //     throw new NullPointerException("cannot write to null output stream");
+        // }
+        // // Safety net: if the output is not written within a certain amount of
+        // // time, give up. This prevents our thread from being locked forever if
+        // // an
+        // // output deadlock occurs (happened very rarely on Java 1.4.2beta).
+        // final OutputStream os = outputStream;
+        // Timer timer = new Timer();
+        // TimerTask timerTask = new TimerTask() {
+        //     public void run() {
+        //         logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
+        //         try {
+        //             os.close();
+        //         } catch (IOException ioe) {
+        //             logger.warn(ioe);
+        //         }
+        //     }
+        // };
+        // int timeout = MaryProperties.getInteger("modules.timeout", 10000);
+        // timer.schedule(timerTask, timeout);
+        // try {
+        //     os.write(output_serializer.export(this.outputData).getBytes());
+        // } catch (Exception e) {
+        //     timer.cancel();
+        //     throw e;
+        // }
+        // timer.cancel();
     }
 }

@@ -86,7 +86,7 @@ public class XMLSerializer implements Serializer {
      * @throws MaryIOException
      *             if something wrong happened
      */
-    public String toString(Utterance utt) throws MaryIOException {
+    public Object export(Utterance utt) throws MaryIOException {
         try {
             Document doc = generateDocument(utt);
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -113,7 +113,7 @@ public class XMLSerializer implements Serializer {
      * @throws MaryIOException
      *             if something wrong happened
      */
-    public Utterance fromString(String doc_str) throws MaryIOException {
+    public Utterance load(String doc_str) throws MaryIOException {
         try {
             return unpackDocument(doc_str);
         } catch (Exception ex) {
@@ -426,7 +426,7 @@ public class XMLSerializer implements Serializer {
      ***********************************************************************************************/
     /**
      * Generate an utterance from a document in a string format. This method is
-     * used to deal with more Exceptions than the fromString one.
+     * used to deal with more Exceptions than the import one.
      *
      * @param doc_str
      *            the document in string format

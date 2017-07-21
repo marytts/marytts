@@ -3,6 +3,8 @@ package marytts.data.item.acoustic;
 import marytts.data.item.Item;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -32,7 +34,8 @@ public class AudioItem extends Item
     }
 
     public void setAudio(String filename) throws UnsupportedAudioFileException, IOException {
-	AudioInputStream stream = AudioSystem.getAudioInputStream(new File(filename));
+
+	AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(Files.readAllBytes(new File(filename).toPath())));
 	setAudio(stream);
     }
 
