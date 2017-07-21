@@ -87,6 +87,8 @@ public abstract class MaryModule {
     protected MaryModule(String name) {
 	this.name = name;
 	this.locale = Locale.getDefault();
+        logger = MaryUtils.getLogger(name());
+        this.state = MODULE_OFFLINE;
     }
 
     protected MaryModule(String name, Locale locale) {
