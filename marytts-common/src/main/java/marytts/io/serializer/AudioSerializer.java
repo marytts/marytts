@@ -46,10 +46,10 @@ public class AudioSerializer implements Serializer
 	Sequence<AudioItem> seq_au = (Sequence<AudioItem>) utt.getSequence(SupportedSequenceType.AUDIO);
 
 	if (seq_au == null)
-	    throw new MaryIOException("There is no audio to serialize (no sequence available)", null);
+	    throw new MaryIOException("There is no audio to serialize (no sequence available)");
 
 	if (seq_au.size() == 0)
-	    throw new MaryIOException("There is no audio to serialize (sequence is empty)", null);
+	    throw new MaryIOException("There is no audio to serialize (sequence is empty)");
 
 	// FIXME: what to do with multiple audio, merge them
 	AudioInputStream ais = ((AudioItem) seq_au.get(0)).getAudio();

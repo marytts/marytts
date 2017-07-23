@@ -120,7 +120,7 @@ public class Request {
         Serializer input_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
 	if (input_serializer == null)
-	    throw new MaryException("input serializer class \"" + configuration_properties.get("input_serializer") + "\" doesn't exist", null);
+	    throw new MaryException("input serializer class \"" + configuration_properties.get("input_serializer") + "\" doesn't exist");
 
         // Input serializer reflection
         clazz = Class.forName(configuration_properties.get("output_serializer").toString());
@@ -128,7 +128,7 @@ public class Request {
         this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
 	if (output_serializer == null)
-	    throw new MaryException("output serializer class \"" + configuration_properties.get("output_serializer") + "\" doesn't exist", null);
+	    throw new MaryException("output serializer class \"" + configuration_properties.get("output_serializer") + "\" doesn't exist");
 
         // Locale reflection (FIXME: Check if locale is correct)
         Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
@@ -147,7 +147,7 @@ public class Request {
                 }
 
 		if (cur_module == null)
-		    throw new MaryException("Cannot load module \"" + module_class_name +"\" as it is not existing", null);
+		    throw new MaryException("Cannot load module \"" + module_class_name +"\" as it is not existing");
 
 	    usedModules.add(cur_module);
             }
