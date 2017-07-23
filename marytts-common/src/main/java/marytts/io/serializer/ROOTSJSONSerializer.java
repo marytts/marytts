@@ -103,7 +103,7 @@ public class ROOTSJSONSerializer implements Serializer {
 
             return sb.toString();
         } catch (Exception ex) {
-            throw new MaryIOException(null, ex);
+            throw new MaryIOException("Cannot serialize utt", ex);
         }
     }
 

@@ -10,11 +10,24 @@ import marytts.MaryException;
  *         Maguer</a>
  */
 public class MaryIOException extends MaryException {
+
     /**
      * Constructor
      *
      * @param message
      *            the message
+     */
+    public MaryIOException(String message) {
+        super(message);
+    }
+
+    /**
+     * Constructor with a nested exception
+     *
+     * @param message
+     *            the message
+     * @param utt
+     *            the current state of the utterance
      * @param ex
      *            the nested exception which leaded to the encapsulation
      */

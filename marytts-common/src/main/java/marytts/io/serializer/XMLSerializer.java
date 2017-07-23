@@ -160,7 +160,7 @@ public class XMLSerializer implements Serializer {
             doc.appendChild(rootElement);
             return doc;
         } catch (ParserConfigurationException ex) {
-            throw new MaryIOException("Parsing exception", ex);
+            throw new MaryIOException("Parsing exception (utterance not created so no rendering)", ex);
         }
     }
 
@@ -509,7 +509,7 @@ public class XMLSerializer implements Serializer {
             }
 
             if (!found_text) {
-                throw new MaryIOException("Cannot find the text of the paragraph", null);
+                throw new MaryIOException("Cannot find the text of the paragraph");
             }
 
             generateParagraph(p, utt, alignments);
@@ -572,7 +572,7 @@ public class XMLSerializer implements Serializer {
                 if (cur_elt.getTagName() == "s") {
                     generateSentence(cur_elt, utt, alignments);
                 } else if (cur_elt.getTagName() == "voice") {
-                    throw new MaryIOException("I do not now what to do with voice tag !", null);
+                    throw new MaryIOException("I do not now what to do with voice tag !");
                 }
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
@@ -581,7 +581,7 @@ public class XMLSerializer implements Serializer {
         }
 
         if (text == null) {
-            throw new MaryIOException("Cannot find the text of the paragraph", null);
+            throw new MaryIOException("Cannot find the text of the paragraph");
         }
 
         // Create/modify the sequence by adding the paragraph
@@ -661,13 +661,13 @@ public class XMLSerializer implements Serializer {
                 Element cur_elt = (Element) node;
                 if (cur_elt.getTagName() == "t") {
                     if (status_loading == 2) {
-                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase");
                     }
                     generateWord(cur_elt, utt, alignments);
                     status_loading = 1;
                 } else if (cur_elt.getTagName() == "mtu") {
                     if (status_loading == 2) {
-                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase");
                     }
                     NodeList mtu_nl = cur_elt.getChildNodes();
 
@@ -677,14 +677,14 @@ public class XMLSerializer implements Serializer {
                             generateWord((Element) word_node, utt, alignments);
                         } else {
                             throw new MaryIOException(
-                                "Unknown node element type during unpacking the mtu: " + node.getNodeType(), null);
+                                "Unknown node element type during unpacking the mtu: " + node.getNodeType());
                         }
                     }
 
                     status_loading = 1;
                 } else if (cur_elt.getTagName() == "prosody") {
                     if (status_loading == 1) {
-                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase");
                     }
 
 		    // FIXME: assume that the first node is a phrase
@@ -698,13 +698,13 @@ public class XMLSerializer implements Serializer {
                     status_loading = 2;
                 } else if (cur_elt.getTagName() == "phrase") {
                     if (status_loading == 1) {
-                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
+                        throw new MaryIOException("Cannot unserialize a word isolated from a phrase");
                     }
 
                     generatePhrase(cur_elt, utt, alignments);
                     status_loading = 2;
                 } else {
-                    throw new MaryIOException("Unknown node element during unpacking: " + cur_elt.getTagName(), null);
+                    throw new MaryIOException("Unknown node element during unpacking: " + cur_elt.getTagName());
                 }
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
@@ -805,7 +805,7 @@ public class XMLSerializer implements Serializer {
                             generateWord((Element) word_node, utt, alignments);
                         } else {
                             throw new MaryIOException(
-                                "Unknown node element type during unpacking the mtu: " + node.getNodeType(), null);
+                                "Unknown node element type during unpacking the mtu: " + node.getNodeType());
                         }
                     }
 
@@ -814,7 +814,7 @@ public class XMLSerializer implements Serializer {
                     String tone = cur_elt.getAttribute("tone");
                     boundary = new Boundary(breakindex, tone);
                 } else {
-                    throw new MaryIOException("Unknown node element during unpacking: " + cur_elt.getTagName(), null);
+                    throw new MaryIOException("Unknown node element during unpacking: " + cur_elt.getTagName());
                 }
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
@@ -893,7 +893,7 @@ public class XMLSerializer implements Serializer {
         }
 
         if (text == null) {
-            throw new MaryIOException("Cannot find the text of the word", null);
+            throw new MaryIOException("Cannot find the text of the word");
         }
 
         logger.debug("Unpacking word \"" + text + "\"");
@@ -1065,7 +1065,7 @@ public class XMLSerializer implements Serializer {
 		if (features_elt.getTagName().equals("features")) {
 		    generateFeatures(features_elt, utt);
 		} else {
-		    throw new MaryIOException("node with tag \"" + features_elt.getTagName() + "\" should not be linked to a phone(me)", null);
+		    throw new MaryIOException("node with tag \"" + features_elt.getTagName() + "\" should not be linked to a phone(me)");
 		}
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
@@ -1115,7 +1115,7 @@ public class XMLSerializer implements Serializer {
 		    feature_map.put(cur_feat_elt.getAttribute("name"),
 				    new Feature(value));
 		} else {
-		    throw new MaryIOException("node with tag \"" + cur_feat_elt.getTagName() + "\" should not be part of the feature map", null);
+		    throw new MaryIOException("node with tag \"" + cur_feat_elt.getTagName() + "\" should not be part of the feature map");
 		}
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
