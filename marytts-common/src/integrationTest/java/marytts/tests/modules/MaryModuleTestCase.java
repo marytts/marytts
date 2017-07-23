@@ -84,7 +84,7 @@ public class MaryModuleTestCase {
 
         // Using serializer to extract the utterance the from "string" document
         XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.fromString(document);
+        Utterance utt = xml_ser.load(document);
 
         // Return loaded utterance
         return utt;
@@ -97,9 +97,9 @@ public class MaryModuleTestCase {
 
         ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
         logger.debug(" ======================== expected =====================");
-        logger.debug(out_ser.toString(targetOut));
+        logger.debug(out_ser.export(targetOut));
         logger.debug(" ======================== achieved =====================");
-        logger.debug(out_ser.toString(processedOut));
+        logger.debug(out_ser.export(processedOut));
         logger.debug(" =======================================================");
 
         return targetOut.equals(processedOut);

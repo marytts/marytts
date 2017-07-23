@@ -76,6 +76,6 @@ public class XMLSerializerTest {
         Document original_document = DomUtils.parseDocument(str_original_document);
         XMLSerializer xml_seri = new XMLSerializer();
         Utterance utt = xml_seri.unpackDocument(original_document);
-        System.out.println(xml_seri.toString(utt));
+        System.out.println(xml_seri.export(utt));
     }
 }
