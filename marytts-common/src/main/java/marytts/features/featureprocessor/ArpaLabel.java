@@ -26,47 +26,55 @@ public class ArpaLabel implements FeatureProcessor {
     protected void initPhConverter() {
         alphabet_converter = new Hashtable<String, String>();
 
-        alphabet_converter.put("o", "ao");
-        alphabet_converter.put("aa", "aa");
-        alphabet_converter.put("ii", "iy");
-        alphabet_converter.put("uu", "u");
-        alphabet_converter.put("e", "eh");
-        alphabet_converter.put("i", "ih");
-        alphabet_converter.put("u", "uh");
-        alphabet_converter.put("uh", "ah");
-        alphabet_converter.put("@", "ax");
-        alphabet_converter.put("a", "ae");
-        alphabet_converter.put("ei", "ei");
-        alphabet_converter.put("ai", "ay");
-        alphabet_converter.put("oo", "o");
-        alphabet_converter.put("ou", "ow");
-        alphabet_converter.put("Q", "er");
-        alphabet_converter.put("au", "aw");
-        alphabet_converter.put("oi", "oy");
-        alphabet_converter.put("ch", "ch");
-        alphabet_converter.put("jh", "jh");
-        alphabet_converter.put("th", "th");
-        alphabet_converter.put("dh", "dh");
-        alphabet_converter.put("sh", "sh");
-        alphabet_converter.put("zh", "zh");
-        alphabet_converter.put("ng", "ng");
-        alphabet_converter.put("y", "y");
-        alphabet_converter.put("d", "d");
-        alphabet_converter.put("m", "m");
-        alphabet_converter.put("n", "n");
-        alphabet_converter.put("r", "r");
-        alphabet_converter.put("s", "s");
-        alphabet_converter.put("t", "t");
-        alphabet_converter.put("b", "b");
-        alphabet_converter.put("f", "f");
-        alphabet_converter.put("g", "g");
-        alphabet_converter.put("h", "h");
-        alphabet_converter.put("k", "k");
-        alphabet_converter.put("l", "l");
-        alphabet_converter.put("p", "p");
-        alphabet_converter.put("v", "v");
-        alphabet_converter.put("w", "w");
-        alphabet_converter.put("z", "z");
+	alphabet_converter.put("A", "aa");
+	alphabet_converter.put("O", "ao");
+	alphabet_converter.put("u", "uw");
+	alphabet_converter.put("i", "iy");
+
+	alphabet_converter.put("{", "ae");
+	alphabet_converter.put("V", "ah");
+	alphabet_converter.put("E", "eh");
+	alphabet_converter.put("I", "ih");
+	alphabet_converter.put("U", "uh");
+
+	alphabet_converter.put("@", "ah");
+	alphabet_converter.put("r=", "er"); // FIXME: what is this one ?
+
+
+	alphabet_converter.put("aU", "aw");
+	alphabet_converter.put("OI", "oy");
+	alphabet_converter.put("@U", "ah");
+	alphabet_converter.put("EI", "ey");
+	alphabet_converter.put("AI", "ay");
+
+	alphabet_converter.put("p", "p");
+	alphabet_converter.put("t", "t");
+	alphabet_converter.put("k", "k");
+	alphabet_converter.put("b", "b");
+	alphabet_converter.put("d", "d");
+	alphabet_converter.put("g", "g");
+
+	alphabet_converter.put("tS", "ch");
+	alphabet_converter.put("dZ", "jh");
+
+	alphabet_converter.put("f", "f");
+	alphabet_converter.put("v", "v");
+	alphabet_converter.put("T", "th");
+	alphabet_converter.put("D", "dh");
+	alphabet_converter.put("s", "s");
+	alphabet_converter.put("z", "z");
+	alphabet_converter.put("S", "sh");
+	alphabet_converter.put("Z", "zh");
+	alphabet_converter.put("h", "h");
+
+	alphabet_converter.put("l", "l");
+	alphabet_converter.put("m", "m");
+	alphabet_converter.put("n", "n");
+	alphabet_converter.put("N", "ng");
+	alphabet_converter.put("r", "r"); // FIXME: what is this one ?
+	alphabet_converter.put("w", "w");
+	alphabet_converter.put("j", "y");
+
         alphabet_converter.put("sil", "pau");
         alphabet_converter.put("_", "pau");
     }

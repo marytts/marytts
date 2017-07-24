@@ -40,7 +40,7 @@ public class NbFromSentenceStart implements FeatureProcessor {
             return Feature.UNDEF_FEATURE;
         }
 
-        int nb = item_idx - item_indexes[0];
+        int nb = item_idx - item_indexes[0] + 1;
         return new Feature(nb);
     }
 }
