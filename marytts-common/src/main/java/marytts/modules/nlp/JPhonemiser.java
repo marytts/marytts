@@ -183,6 +183,9 @@ public class JPhonemiser extends MaryModule {
                                   .getReverse();
         HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
+	// FIXME: add pause de facto
+	phones.add(new Phoneme("_"));
+
         for (int i_word = 0; i_word < words.size(); i_word++) {
             Word w = words.get(i_word);
 
@@ -236,6 +239,8 @@ public class JPhonemiser extends MaryModule {
                 phones.add(new Phoneme("_"));
             }
         }
+
+	phones.add(new Phoneme("_"));
 
         // Relation word/syllable
         utt.addSequence(SupportedSequenceType.PHONE, phones);
