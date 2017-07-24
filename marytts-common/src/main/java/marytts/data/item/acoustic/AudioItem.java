@@ -5,12 +5,16 @@ import marytts.data.item.Item;
 import java.io.File;
 import java.nio.file.Files;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import java.util.Base64;
 
 /**
  *
@@ -44,9 +48,23 @@ public class AudioItem extends Item
 
     }
 
-    public AudioInputStream getAudio() {
+    public AudioInputStream getAudioStream() {
 	return ais;
     }
+
+    public String getAudioStringEncoded() throws IOException {
+
+	// FIXME: what to do with multiple audio, merge them
+	AudioInputStream ais = getAudioStream();
+	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+	AudioSystem.write(ais
+			  ,AudioFileFormat.Type.WAVE
+			  ,baos);
+
+	return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
 }
 
 
