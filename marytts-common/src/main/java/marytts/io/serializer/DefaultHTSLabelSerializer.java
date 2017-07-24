@@ -27,11 +27,9 @@ public class DefaultHTSLabelSerializer implements Serializer {
     /** The phoneme alphabet conversion map */
     protected Hashtable<String, String> alphabet_converter;
 
-    /** the POS tag conversion */
-    protected Hashtable<String, String> pos_converter;
 
     /** The undefined value constant */
-    public static final String UNDEF = "x";
+    public static final String UNDEF = "xx";
 
     /**
      * Constructor
@@ -39,7 +37,6 @@ public class DefaultHTSLabelSerializer implements Serializer {
      */
     public DefaultHTSLabelSerializer() {
         initPhConverter();
-        initPOSConverter();
     }
 
     /**
@@ -167,120 +164,11 @@ public class DefaultHTSLabelSerializer implements Serializer {
      * @return true if it is a NSS
      */
     protected boolean isNSS(FeatureMap feature_map) {
-        if (feature_map.get("phone").getStringValue().equals("_")) {
+        if (feature_map.get("phone").getStringValue().equals("pau")) {
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Method to generate the mapping between Part Of Speech tags
-     *
-     */
-    protected void initPOSConverter() {
-        pos_converter = new Hashtable<String, String>();
-
-        // aux
-        pos_converter.put("is", "aux");
-        pos_converter.put("am", "aux");
-        pos_converter.put("are", "aux");
-        pos_converter.put("was", "aux");
-        pos_converter.put("were", "aux");
-        pos_converter.put("has", "aux");
-        pos_converter.put("have", "aux");
-        pos_converter.put("had", "aux");
-        pos_converter.put("be", "aux");
-
-        // cc
-        pos_converter.put("and", "cc");
-        pos_converter.put("but", "cc");
-        pos_converter.put("or", "cc");
-        pos_converter.put("plus", "cc");
-        pos_converter.put("yet", "cc");
-        pos_converter.put("nor", "cc");
-
-        // det
-        pos_converter.put("the", "det");
-        pos_converter.put("a", "det");
-        pos_converter.put("an", "det");
-        pos_converter.put("no", "det");
-        pos_converter.put("some", "det");
-        pos_converter.put("this", "det");
-        pos_converter.put("that", "det");
-        pos_converter.put("each", "det");
-        pos_converter.put("another", "det");
-        pos_converter.put("those", "det");
-        pos_converter.put("every", "det");
-        pos_converter.put("all", "det");
-        pos_converter.put("any", "det");
-        pos_converter.put("these", "det");
-        pos_converter.put("both", "det");
-        pos_converter.put("neither", "det");
-        pos_converter.put("no", "det");
-        pos_converter.put("many", "det");
-
-        // in
-        pos_converter.put("in", "in");
-
-        // md
-        pos_converter.put("will", "md");
-        pos_converter.put("may", "md");
-        pos_converter.put("would", "md");
-        pos_converter.put("can", "md");
-        pos_converter.put("could", "md");
-        pos_converter.put("must", "md");
-        pos_converter.put("ought", "md");
-        pos_converter.put("might", "md");
-
-        // pps
-        pos_converter.put("her", "pps");
-        pos_converter.put("his", "pps");
-        pos_converter.put("their", "pps");
-        pos_converter.put("its", "pps");
-        pos_converter.put("our", "pps");
-        pos_converter.put("their", "pps");
-        pos_converter.put("mine", "pps");
-
-        // to
-        pos_converter.put("to", "to");
-
-        // wp
-        pos_converter.put("who", "wp");
-        pos_converter.put("what", "wp");
-        pos_converter.put("where", "wp");
-        pos_converter.put("when", "wp");
-        pos_converter.put("how", "wp");
-
-        // punc
-        pos_converter.put(".", "punc");
-        pos_converter.put(",", "punc");
-        pos_converter.put(":", "punc");
-        pos_converter.put(";", "punc");
-        pos_converter.put("\"", "punc");
-        pos_converter.put("'", "punc");
-        pos_converter.put("(", "punc");
-        pos_converter.put("?", "punc");
-        pos_converter.put(")", "punc");
-        pos_converter.put("!", "punc");
-
-        // content => default do nothing
-    }
-
-    /**
-     * The POS tag to convert.
-     *
-     * @param pos
-     *            the original POS tag
-     * @return the converted POS tag
-     */
-    protected String convertPOS(String pos) {
-        String fest_pos = pos_converter.get(pos);
-        if (fest_pos != null) {
-            return fest_pos;
-        }
-
-        return "content";
     }
 
     /**
@@ -294,10 +182,22 @@ public class DefaultHTSLabelSerializer implements Serializer {
      *         the feature_name is not existing in the map
      */
     protected final String getValue(FeatureMap feature_map, String feature_name) {
-        return ((feature_map.containsKey(feature_name)) &&
-                (feature_map.get(feature_name) != Feature.UNDEF_FEATURE))
-               ? feature_map.get(feature_name).getStringValue()
-               : UNDEF;
+
+	if (! feature_map.containsKey(feature_name)) {
+	    System.out.println("feature \"" + feature_name + "\" is not defined");
+	    return UNDEF;
+	}
+	if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE)
+	    return UNDEF;
+
+        String feat = feature_map.get(feature_name).getStringValue();
+
+	if (feat.equals("false"))
+	    return "0";
+	if (feat.equals("true"))
+	    return "1";
+
+	return feat;
     }
 
     /**
@@ -318,8 +218,8 @@ public class DefaultHTSLabelSerializer implements Serializer {
                                        convertPh(getValue(feature_map, "prev_prev_phone")), convertPh(getValue(feature_map, "prev_phone")),
                                        convertPh(getValue(feature_map, "phone")), convertPh(getValue(feature_map, "next_phone")),
                                        convertPh(getValue(feature_map, "next_next_phone")),
-                                       is_nss ? getValue(feature_map, "ph_from_syl_start") : UNDEF,
-                                       is_nss ? getValue(feature_map, "ph_from_syl_end") : UNDEF);
+                                       getValue(feature_map, "ph_from_syl_start"),
+                                       getValue(feature_map, "ph_from_syl_end"));
 
         // Syllable format
         format = "/A:%s_%s_%s/B:%s-%s-%s@%s-%s&%s-%s#%s-%s$%s-%s!%s-%s;%s-%s|%s/C:%s+%s+%s";

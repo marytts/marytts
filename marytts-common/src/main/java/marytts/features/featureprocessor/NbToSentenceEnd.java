@@ -40,7 +40,7 @@ public class NbToSentenceEnd implements FeatureProcessor {
             return Feature.UNDEF_FEATURE;
         }
 
-        int nb = item_indexes[item_indexes.length - 1] - item_idx;
+        int nb = item_indexes[item_indexes.length - 1] - item_idx + 1;
 
         return new Feature(nb);
     }

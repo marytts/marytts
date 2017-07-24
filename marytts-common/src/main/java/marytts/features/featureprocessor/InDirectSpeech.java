@@ -28,6 +28,9 @@ public class InDirectSpeech implements FeatureProcessor {
 
         // Find the related word indexes
         int[] wrd_indexes = rel.getRelatedIndexes(item_idx);
+	if (wrd_indexes.length <= 0)
+	    return Feature.UNDEF_FEATURE;
+
         int idx_wrd = wrd_indexes[0] - 1;
         boolean open_found = false;
 
