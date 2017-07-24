@@ -34,38 +34,7 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 
 /**
- * A stub implementation of the MaryModule interface as a basis for internal
- * modules.
- * <p>
- * Any internal module extending this class will need to implement a constructor
- * calling this class's constructor, and override <code>process()</code> in a
- * meaningful way. Care must be taken to make sure the <code>process()</code>
- * method is thread-seafe.
- * <p>
- * Example for a subclass:
  *
- * <pre>
- * public class Postlex extends MaryModule {
- *  public Postlex() {
- *      super(&quot;Postlex&quot;, UtteranceType.PHONEMISED, UtteranceType.POSTPROCESSED);
- *  }
- *
- *  public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
- *      Document doc = d.getDocument();
- *      mtuPostlex(doc);
- *      phonologicalRules(doc);
- *      Utterance result = new Utterance(outputType());
- *      result.setDocument(doc);
- *      return result;
- *  }
- *
- *  private void mtuPostlex(Document doc) {...}
- *
- *  private void phonologicalRules(Document doc) {...}
- * }
- * </pre>
- *
- * @author Marc Schr&ouml;der
  */
 
 public abstract class MaryModule {
