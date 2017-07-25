@@ -24,6 +24,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
@@ -103,6 +104,7 @@ public class ROOTSJSONSerializer implements Serializer {
 
             return sb.toString();
         } catch (Exception ex) {
+
             throw new MaryIOException("Cannot serialize utt", ex);
         }
     }
@@ -125,13 +127,18 @@ public class ROOTSJSONSerializer implements Serializer {
             cur_type = ((SupportedSequenceType) types[t]);
             sb.append("\t\t\"" + cur_type + "\": [\n");
             Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
-            for (int i = 0; i < (seq.size() - 1); i++) {
+	    int s = 0;
+	    while (s < (seq.size() - 1)) {
                 sb.append("\t\t\t");
-                appendItem(seq.get(i), sb);
+                appendItem(seq.get(s), sb);
                 sb.append(",\n");
+		s++;
             }
-            sb.append("\t\t\t");
-            appendItem(seq.get(seq.size() - 1), sb);
+
+	    if (s < seq.size()) {
+		sb.append("\t\t\t");
+		appendItem(seq.get(seq.size() - 1), sb);
+	    }
             sb.append("\n");
 
             if (t < (types.length - 1)) {
@@ -153,25 +160,40 @@ public class ROOTSJSONSerializer implements Serializer {
      *             any kind of exception
      */
     protected void appendItem(Item it, StringBuilder sb) throws Exception {
-        sb.append("{");
-        for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(
-                    it.getClass()).getPropertyDescriptors()) {
-
+	Hashtable<String, String> methods = new Hashtable<String, String>();
+	sb.append("{ ");
+        for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(it.getClass()).getPropertyDescriptors()) {
             Method method = propertyDescriptor.getReadMethod();
-            String method_name = propertyDescriptor.getReadMethod().toString();
+	    if (method != null) {
+		String method_name = method.toString();
 
-            if ((method_name.indexOf("java.lang.Object") < 0) &&
-                    (method_name.indexOf("marytts.data.item.Item") < 0)) {
-                Object value = propertyDescriptor.getReadMethod().invoke(it, (Object[]) null);
+		if ((method_name.indexOf("java.lang.Object") < 0) &&
+		    (method_name.indexOf("marytts.data.item.Item") < 0)) {
+		    Object value = method.invoke(it, (Object[]) null);
 
-                if ((value != null) && (isWrapperType(value.getClass()))) {
-                    sb.append("\"" + propertyDescriptor.getReadMethod().toString() + "\": ");
-                    sb.append("\"" + value.toString() + "\",");
-                }
-            }
-        }
+		    if ((value != null) && (isWrapperType(value.getClass()))) {
+			methods.put(method.getName().replaceFirst("get", "").toLowerCase(),
+				    value.toString());
+		    }
+		}
+	    }
+	}
 
-        sb.append("}");
+	ArrayList<String> keys = new ArrayList<String>(methods.keySet());
+	int i=0;
+	while (i < (keys.size()-1)) {
+	    // Append method informations
+	    sb.append("\"" + keys.get(i) + "\": ");
+	    sb.append("\"" + methods.get(keys.get(i))  + "\", ");
+	    i++;
+	}
+
+	if (i < keys.size()) {
+	    sb.append("\"" + keys.get(i) + "\": ");
+	    sb.append("\"" + methods.get(keys.get(i)) + "\"");
+	}
+
+	sb.append(" }");
     }
 
     /**
@@ -184,34 +206,36 @@ public class ROOTSJSONSerializer implements Serializer {
      *            the string builder
      */
     protected void appendRelations(Utterance utt, StringBuilder sb) {
-        Object[] relations = utt.listAvailableRelations().toArray();
-        ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
-        SparseDoubleMatrix2D cur_rel;
+	Object[] relations = utt.listAvailableRelations().toArray();
+	ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
+	SparseDoubleMatrix2D cur_rel;
 
-        for (int r = 0; r < relations.length; r++) {
-            sb.append("\t\t{\n");
-            cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
-            sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
-            sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
+	for (int r = 0; r < relations.length; r++) {
+	    sb.append("\t\t{\n");
+	    cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
+	    sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
+	    sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
 
-            cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
-            sb.append("\t\t\t \"matrix\" : [\n");
-            for (int j = 0; j < cur_rel.rows(); j++) {
-                sb.append("\t\t\t\t");
-                for (int k = 0; k < cur_rel.columns(); k++) {
-                    sb.append(cur_rel.get(j, k) + " ");
-                }
-                sb.append(" ");
-                sb.append("\n");
-            }
-            sb.append("\t\t\t]\n");
+	    cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
+	    sb.append("\t\t\t \"matrix\" : [\n");
+	    for (int j = 0; j < cur_rel.rows(); j++) {
+		sb.append("\t\t\t\t");
+		for (int k = 0; k < cur_rel.columns(); k++) {
+		    sb.append(cur_rel.get(j, k));
+		    if ((j < (cur_rel.rows() - 1)) ||
+			(k < (cur_rel.columns() - 1)))
+			sb.append(", ");
+		}
+		sb.append("\n");
+	    }
+	    sb.append("\t\t\t]\n");
 
-            if (r < (relations.length - 1)) {
-                sb.append("\t\t},\n");
-            } else {
-                sb.append("\t\t}\n");
-            }
-        }
+	    if (r < (relations.length - 1)) {
+		sb.append("\t\t},\n");
+	    } else {
+		sb.append("\t\t}\n");
+	    }
+	}
     }
 
     /**
@@ -225,7 +249,7 @@ public class ROOTSJSONSerializer implements Serializer {
      *             if anything is going wrong
      */
     public Utterance load(String content) throws MaryIOException {
-        throw new UnsupportedOperationException();
+	throw new UnsupportedOperationException();
     }
 }
 
