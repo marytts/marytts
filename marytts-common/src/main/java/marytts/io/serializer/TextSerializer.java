@@ -84,7 +84,7 @@ public class TextSerializer implements Serializer {
      *             if anything is going wrong
      */
     public Utterance load(String text) throws MaryIOException {
-        String plain_text = MaryUtils.normaliseUnicodePunctuation(text);
+        String plain_text = MaryUtils.normaliseUnicodePunctuation(text).replaceAll("\n", " ");
         Locale l = Locale.US; // FIXME: we really need to fix this !
 
         // New utterance part
