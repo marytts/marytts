@@ -52,15 +52,19 @@ public class AudioItem extends Item
 	return ais;
     }
 
+    public String getAis() throws IOException {
+	return getAudioStringEncoded();
+    }
+
     public String getAudioStringEncoded() throws IOException {
 
 	// FIXME: what to do with multiple audio, merge them
 	AudioInputStream ais = getAudioStream();
 	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-	AudioSystem.write(ais
-			  ,AudioFileFormat.Type.WAVE
-			  ,baos);
+	AudioSystem.write(ais,
+			  AudioFileFormat.Type.WAVE,
+			  baos);
 
 	return Base64.getEncoder().encodeToString(baos.toByteArray());
     }

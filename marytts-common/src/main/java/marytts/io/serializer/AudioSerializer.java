@@ -1,5 +1,5 @@
-
 package marytts.io.serializer;
+
 import marytts.io.serializer.Serializer;
 import marytts.io.MaryIOException;
 
