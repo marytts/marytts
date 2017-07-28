@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class FeatureMap extends Item { // implements Map<String, Feature>
     /** The map which associate the feature name to the feature itself */
-    private Hashtable<String, Feature> inner_map;
+    private Hashtable<String, Feature> map;
 
     /**
      * Constructor
@@ -21,7 +21,7 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      */
     public FeatureMap() {
         super();
-        inner_map = new Hashtable<String, Feature>();
+        map = new Hashtable<String, Feature>();
     }
 
     /**
@@ -33,7 +33,7 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      *            the actual feature
      */
     public void put(String feature_name, Feature the_feature) {
-        inner_map.put(feature_name, the_feature);
+        map.put(feature_name, the_feature);
     }
 
     /**
@@ -43,7 +43,7 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      * @return the actual map
      */
     public Map<String, Feature> getMap() {
-        return (Map<String, Feature>) inner_map.clone();
+        return (Map<String, Feature>) map.clone();
     }
 
     /**
@@ -54,7 +54,7 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      * @return the feature or null if the feature doesn't exists
      */
     public Feature get(String feature_name) {
-        return inner_map.get(feature_name);
+        return map.get(feature_name);
     }
 
     /**
@@ -65,24 +65,24 @@ public class FeatureMap extends Item { // implements Map<String, Feature>
      * @return true if the feature exists, false else
      */
     public boolean containsKey(String feature_name) {
-        return inner_map.containsKey(feature_name);
+        return map.containsKey(feature_name);
     }
 
     @Override
     public String toString() {
         String string = "{";
         String cur_key;
-        ArrayList<String> keys = new ArrayList<String>(inner_map.keySet());
+        ArrayList<String> keys = new ArrayList<String>(map.keySet());
         int k = 0;
         while (k < (keys.size() - 1)) {
             cur_key = keys.get(k);
-            string += cur_key + ":" + inner_map.get(cur_key) + ",";
+            string += cur_key + ":" + map.get(cur_key) + ",";
             k++;
         }
 
         if (k < keys.size()) {
             cur_key = keys.get(k);
-            string += cur_key + ":" + inner_map.get(cur_key);
+            string += cur_key + ":" + map.get(cur_key);
         }
         string += "}";
 
