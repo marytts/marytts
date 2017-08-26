@@ -265,46 +265,4 @@ public class Request {
     public Object serializeFinaleUtterance() throws MaryIOException {
 	return output_serializer.export(this.outputData);
     }
-
-    /**
-     * Write the output data to the specified OutputStream.
-     *
-     * @param outputStream
-     *            outputStream
-     * @throws Exception
-     *             Exception
-     */
-    public void writeOutputData(OutputStream outputStream) throws Exception {
-        // if (outputData == null) {
-        //     throw new NullPointerException("No output data -- did process() succeed?");
-        // }
-        // if (outputStream == null) {
-        //     throw new NullPointerException("cannot write to null output stream");
-        // }
-        // // Safety net: if the output is not written within a certain amount of
-        // // time, give up. This prevents our thread from being locked forever if
-        // // an
-        // // output deadlock occurs (happened very rarely on Java 1.4.2beta).
-        // final OutputStream os = outputStream;
-        // Timer timer = new Timer();
-        // TimerTask timerTask = new TimerTask() {
-        //     public void run() {
-        //         logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
-        //         try {
-        //             os.close();
-        //         } catch (IOException ioe) {
-        //             logger.warn(ioe);
-        //         }
-        //     }
-        // };
-        // int timeout = MaryProperties.getInteger("modules.timeout", 10000);
-        // timer.schedule(timerTask, timeout);
-        // try {
-        //     os.write(output_serializer.export(this.outputData).getBytes());
-        // } catch (Exception e) {
-        //     timer.cancel();
-        //     throw e;
-        // }
-        // timer.cancel();
-    }
 }
