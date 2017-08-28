@@ -3,7 +3,6 @@ package marytts.language.de;
 import java.util.Locale;
 
 import marytts.LocalMaryInterface;
-import marytts.MaryInterface;
 
 import marytts.exceptions.SynthesisException;
 import org.testng.Assert;
@@ -13,7 +12,7 @@ public class MaryInterfaceDeIT {
 
     @Test
     public void canSetLocale() throws Exception {
-        MaryInterface mary = new LocalMaryInterface();
+        LocalMaryInterface mary = new LocalMaryInterface();
         Locale loc = Locale.GERMAN;
         Assert.assertTrue(!loc.equals(mary.getLocale()));
         mary.setLocale(loc);

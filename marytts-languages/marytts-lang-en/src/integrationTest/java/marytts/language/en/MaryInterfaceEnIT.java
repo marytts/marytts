@@ -20,7 +20,6 @@
 package marytts.language.en;
 
 import marytts.LocalMaryInterface;
-import marytts.MaryInterface;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -33,7 +32,7 @@ import org.testng.annotations.*;
  */
 public class MaryInterfaceEnIT {
 
-    private MaryInterface mary;
+    private LocalMaryInterface mary;
 
     @BeforeMethod
     public void setUp() throws Exception {
