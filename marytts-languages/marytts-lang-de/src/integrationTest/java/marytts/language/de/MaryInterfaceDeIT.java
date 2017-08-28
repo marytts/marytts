@@ -2,7 +2,7 @@ package marytts.language.de;
 
 import java.util.Locale;
 
-import marytts.LocalMaryInterface;
+import marytts.runutils.LocalMaryInterface;
 
 import marytts.exceptions.SynthesisException;
 import org.testng.Assert;

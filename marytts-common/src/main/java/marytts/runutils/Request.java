@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.server;
+package marytts.runutils;
 
 import java.lang.reflect.Constructor;
 import java.io.StringReader;
@@ -48,9 +48,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.io.serializer.Serializer;
-import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.util.MaryCache;

@@ -19,7 +19,7 @@
  */
 package marytts.language.en;
 
-import marytts.LocalMaryInterface;
+import marytts.runutils.LocalMaryInterface;
 
 import org.testng.Assert;
 import org.testng.annotations.*;

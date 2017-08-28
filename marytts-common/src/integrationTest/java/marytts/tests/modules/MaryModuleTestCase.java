@@ -30,7 +30,7 @@ import marytts.io.serializer.ROOTSJSONSerializer;
 import marytts.io.serializer.XMLSerializer;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
-import marytts.server.Mary;
+import marytts.runutils.Mary;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.BasicConfigurator;
