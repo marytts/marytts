@@ -4,7 +4,6 @@
 package marytts.language.en;
 
 import marytts.LocalMaryInterface;
-import marytts.MaryInterface;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.io.serializer.XMLSerializer;
@@ -26,7 +25,7 @@ import marytts.data.Utterance;
 public class PreprocessTest {
 
     private static Preprocess module;
-    private static MaryInterface mary;
+    private static LocalMaryInterface mary;
     private static XMLSerializer xml_ser;
 
     @BeforeSuite

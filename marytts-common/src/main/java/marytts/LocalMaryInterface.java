@@ -45,7 +45,7 @@ import marytts.util.MaryRuntimeUtils;
  * @author marc
  *
  */
-public class LocalMaryInterface implements MaryInterface {
+public class LocalMaryInterface {
     private Locale locale;
     private AudioFileFormat audioFileFormat;
     private String outputTypeParams;
@@ -76,7 +76,6 @@ public class LocalMaryInterface implements MaryInterface {
      *
      * @see marytts.MaryInterface#setLocale(java.util.Locale)
      */
-    @Override
     public void setLocale(Locale newLocale) throws IllegalArgumentException {
         if (MaryConfig.getLanguageConfig(newLocale) == null) {
             throw new IllegalArgumentException("Unsupported locale: " + newLocale);
@@ -89,7 +88,6 @@ public class LocalMaryInterface implements MaryInterface {
      *
      * @see marytts.MaryInterface#getLocale()
      */
-    @Override
     public Locale getLocale() {
         return locale;
     }
@@ -104,7 +102,6 @@ public class LocalMaryInterface implements MaryInterface {
         return r.getOutputData();
     }
 
-    @Override
     public Set<Locale> getAvailableLocales() {
         Set<Locale> locales = new HashSet<Locale>();
         for (LanguageConfig lc : MaryConfig.getLanguageConfigs()) {

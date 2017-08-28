@@ -245,18 +245,6 @@ public class Mary {
             logger.debug(key + " = " + System.getProperties().get(key));
         }
 
-        try {
-            // Nov 2009, Marc: This causes "[Deprecated] Xalan:
-            // org.apache.xalan.Version" to be written to the console.
-            // Class xalanVersion = Class.forName("org.apache.xalan.Version");
-            // logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
-        } catch (Exception e) {
-            // Not xalan, no version number
-        }
-
-        // Essential environment checks:
-        EnvironmentChecks.check();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 shutdown();
