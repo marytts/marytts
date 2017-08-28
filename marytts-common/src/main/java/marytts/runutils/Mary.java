@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.server;
+package marytts.runutils;
 
 // General Java Classes
 import java.io.BufferedInputStream;

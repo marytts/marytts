@@ -39,7 +39,7 @@ pidof_marytts() {
 
 marytts_start() {
 	CLASSPATH="$MARY_BASE/java/mary-common.jar:$MARY_BASE/java/log4j-1.2.15.jar"
-	$SUDO $JAVA -ea -Xms40m -Xmx1g -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" marytts.server.Mary &
+	$SUDO $JAVA -ea -Xms40m -Xmx1g -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" marytts.runutils.Mary &
 	PID="$!"
 	echo $PID > $MARY_PIDFILE
 }

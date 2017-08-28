@@ -3,7 +3,7 @@
  */
 package marytts.language.en;
 
-import marytts.LocalMaryInterface;
+import marytts.runutils.LocalMaryInterface;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.io.serializer.XMLSerializer;

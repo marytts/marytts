@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts;
+package marytts.runutils;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -35,7 +35,6 @@ import marytts.config.MaryConfig;
 import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
-import marytts.server.Request;
 import marytts.util.MaryRuntimeUtils;
 
 /**

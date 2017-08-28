@@ -185,7 +185,7 @@ task server (type:JavaExec, group: 'Runtime', description: 'Start the MaryTTS se
     jvmArgs "-showversion", "-Xms40m", "-Xmx1g"
     classpath = project.fileTree("$buildDir/libs")
     systemProperty "mary.base", "$buildDir"
-    main "marytts.server.Mary"
+    main "marytts.runutils.Mary"
 }
 
 /**********************************************************************************************
