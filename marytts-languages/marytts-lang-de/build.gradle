@@ -1,3 +1,23 @@
+repositories {
+    ivy {
+        url 'http://opennlp.sourceforge.net'
+        layout 'pattern', {
+            artifact 'models-[revision]/[module].[ext]'
+        }
+    }
+}
+
+configurations {
+    opennlp
+}
+
 dependencies {
+    opennlp group: 'org.apache.opennlp', name: 'de-pos-maxent', version: '1.5', ext: 'bin'
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.0'
+}
+
+processResources {
+    from configurations.opennlp, {
+        into "marytts/language/de/tagger"
+    }
 }
