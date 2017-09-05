@@ -12,7 +12,6 @@ install: mvn install -DskipTests=true -P!standard-with-extra-repos
 script: mvn verify
 jdk:
   - openjdk7
-  - oraclejdk7
   - oraclejdk8
 
 cache:
