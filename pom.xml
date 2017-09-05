@@ -416,7 +416,7 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.6</version>
+					<version>3.1.0</version>
 				</plugin>
 
 				<plugin>
@@ -426,7 +426,7 @@
 
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.5.1</version>
+					<version>3.7.0</version>
 				</plugin>
 
 				<plugin>
@@ -436,12 +436,12 @@
 
 				<plugin>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.4.1</version>
+					<version>3.0.0-M1</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>2.20</version>
 				</plugin>
 
 				<plugin>
@@ -451,22 +451,22 @@
 
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.6</version>
+					<version>3.0.2</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.7</version>
+					<version>3.0.2</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>2.4.3</version>
+					<version>3.1.0</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.5.1</version>
+					<version>3.6</version>
 					<dependencies>
 						<dependency>
 							<groupId>com.pcl-solutions.maven.wagons</groupId>
@@ -486,12 +486,12 @@
 
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.0.1</version>
 				</plugin>
 
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>2.20</version>
 				</plugin>
 
 				<plugin>
@@ -503,7 +503,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.10</version>
+					<version>3.0.0</version>
 				</plugin>
 
 				<plugin>
@@ -521,13 +521,13 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
-					<version>2.2</version>
+					<version>2.4</version>
 				</plugin>
 
 				<plugin>
 					<groupId>org.fortasoft</groupId>
 					<artifactId>gradle-maven-plugin</artifactId>
-					<version>1.0.7</version>
+					<version>1.0.8</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -558,12 +558,15 @@
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>enforce-java-7-or-higher</id>
+						<id>enforce-maven-java</id>
 						<goals>
 							<goal>enforce</goal>
 						</goals>
 						<configuration>
 							<rules>
+								<requireMavenVersion>
+									<version>3.0.4</version>
+								</requireMavenVersion>
 								<requireJavaVersion>
 									<version>1.7</version>
 								</requireJavaVersion>
@@ -690,7 +693,7 @@
 			<!-- Generate javadoc -->
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
+				<version>3.0.0-M1</version>
 				<configuration>
 					<destDir>javadoc</destDir>
 					<skip>false</skip>
