@@ -1,7 +1,27 @@
+repositories {
+    ivy {
+        url 'http://opennlp.sourceforge.net'
+        layout 'pattern', {
+            artifact 'models-[revision]/[module].[ext]'
+        }
+    }
+}
+
+configurations {
+    opennlp
+}
+
 dependencies {
+    opennlp group: 'org.apache.opennlp', name: 'en-pos-maxent', version: '1.5', ext: 'bin'
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0'
     testCompile libs.testng
     testCompile libs.xmlunit
+}
+
+processResources {
+    from configurations.opennlp, {
+        into "marytts/language/en/tagger"
+    }
 }
 
 test {
