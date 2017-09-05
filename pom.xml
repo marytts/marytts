@@ -527,7 +527,7 @@
 				<plugin>
 					<groupId>org.fortasoft</groupId>
 					<artifactId>gradle-maven-plugin</artifactId>
-					<version>1.0.7</version>
+					<version>1.0.8</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -658,14 +658,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.fortasoft</groupId>
-				<artifactId>gradle-maven-plugin</artifactId>
-				<configuration>
-					<gradleVersion>2.11</gradleVersion>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
