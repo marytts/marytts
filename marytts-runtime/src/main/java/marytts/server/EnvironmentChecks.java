@@ -42,8 +42,9 @@ public class EnvironmentChecks {
 	 */
 	public static void check() {
 		// Java version
-		String javaVersion = System.getProperty("java.version");
-		if (Float.parseFloat(javaVersion.substring(0, 3)) < 1.499) {
+		String javaVersion = System.getProperty("java.specification.version");
+
+		if (Float.parseFloat(javaVersion) < 1.499) {
 			// 1.499 instead of 1.5 because of rounding error
 			throw new Error("Wrong java version: Required 1.5, found " + javaVersion);
 		}
