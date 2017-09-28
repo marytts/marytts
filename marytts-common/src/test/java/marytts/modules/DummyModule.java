@@ -32,7 +32,7 @@ import marytts.data.Utterance;
 
 public class DummyModule extends MaryModule {
     public DummyModule() {
-	super("Dummy");
+        super("Dummy");
     }
     public String name() {
         return "Dummy";

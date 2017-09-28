@@ -27,8 +27,6 @@ import java.util.Set;
 import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,6 +46,6 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
-	return super.process(utt);
+        return super.process(utt);
     }
 }

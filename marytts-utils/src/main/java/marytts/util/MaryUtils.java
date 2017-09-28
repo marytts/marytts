@@ -36,9 +36,6 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 /**
  * A collection of useful static little utility methods.
  *
@@ -46,7 +43,6 @@ import org.apache.log4j.Logger;
  */
 
 public class MaryUtils {
-    public static final String LOGPREFIX = "marytts";
 
     private static Timer maintenanceTimer = new Timer(true); // a daemon timer
     // which will
@@ -879,46 +875,6 @@ public class MaryUtils {
         }
     }
 
-    /**
-     * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and
-     * the given nameSuffix.
-     *
-     * @param nameSuffix
-     *            the suffix to use for the logger name.
-     * @return Logger.getLogger(LOGPREFIX + "." + nameSuffix)
-     */
-    public static Logger getLogger(String nameSuffix) {
-        return Logger.getLogger(LOGPREFIX + "." + nameSuffix);
-    }
-
-    /**
-     * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and
-     * the given nameSuffix.
-     *
-     * @param clazz
-     *            the class to use for the logger name.
-     * @return getLogger(clazz.getSimpleName())
-     */
-    public static Logger getLogger(Class clazz) {
-        return getLogger(clazz.getSimpleName());
-    }
-
-    /**
-     * Returns true if it appears that log4j have been previously configured.
-     * This code checks to see if there are any appenders defined for log4j
-     * which is the definitive way to tell if log4j is already initialized
-     *
-     * @return true if appenders.hasMoreElements, false otherwise
-     */
-    @SuppressWarnings("unchecked")
-    public static boolean isLog4jConfigured() {
-        System.setProperty("log4j.defaultInitOverride", "true");
-        Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
-        if (appenders.hasMoreElements()) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * From the given throwable or its cause, or cause's cause, etc., get the

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util.dom;
+package marytts.todisappear;
 
 // DOM classes
 import java.io.ByteArrayOutputStream;
@@ -41,7 +41,10 @@ import javax.xml.transform.TransformerException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
@@ -75,7 +78,7 @@ public class DomUtils {
     protected static DocumentBuilderFactory factory;
     protected static DocumentBuilderFactory validatingFactory;
 
-    protected static Logger logger = MaryUtils.getLogger("DomUtils");
+    protected static Logger logger = LogManager.getLogger(DomUtils.class);
 
     // Static constructor:
     static {

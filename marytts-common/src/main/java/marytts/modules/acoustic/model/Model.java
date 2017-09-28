@@ -25,11 +25,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureMap;
 import marytts.features.FeatureComputer;
-import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

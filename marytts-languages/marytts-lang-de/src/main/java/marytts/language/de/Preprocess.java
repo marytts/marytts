@@ -28,10 +28,7 @@ import java.util.Locale;
 import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Level;
 import org.w3c.dom.Document;
@@ -54,6 +51,6 @@ public class Preprocess extends MaryModule {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
-	return utt;
+        return utt;
     }
 }

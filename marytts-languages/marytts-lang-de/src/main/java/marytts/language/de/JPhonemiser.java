@@ -45,7 +45,6 @@ import marytts.language.de.phonemiser.Result;
 import marytts.modules.synthesis.PAConverter;
 import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -283,7 +282,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-	return utt;
+        return utt;
     }
 
     /**

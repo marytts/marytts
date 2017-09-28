@@ -54,7 +54,10 @@ import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Level;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * A collection of public static utility methods, doing file operations.
@@ -63,6 +66,7 @@ import org.apache.log4j.Level;
  *
  */
 public class FileUtils {
+    private static Logger logger =  LogManager.getLogger(FileUtils.class);
 
     /*
      * Close a socket and closeables. Use this in a finally clause. Exists
@@ -78,7 +82,7 @@ public class FileUtils {
                 try {
                     c.close();
                 } catch (Exception ex) {
-                    MaryUtils.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Closeable.", ex);
+                    logger.log(Level.WARN, "Couldn't close Closeable.", ex);
                 }
             }
         }
@@ -86,7 +90,7 @@ public class FileUtils {
             try {
                 socket.close();
             } catch (Exception ex) {
-                MaryUtils.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Socket.", ex);
+                logger.log(Level.WARN, "Couldn't close Socket.", ex);
             }
         }
     }
@@ -108,7 +112,7 @@ public class FileUtils {
                 try {
                     c.close();
                 } catch (Exception ex) {
-                    MaryUtils.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close ResultSet.", ex);
+                    logger.log(Level.WARN, "Couldn't close ResultSet.", ex);
                 }
             }
         }
@@ -116,8 +120,8 @@ public class FileUtils {
             try {
                 ps.close();
             } catch (Exception ex) {
-                MaryUtils.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close PreparedStatement.",
-                        ex);
+                logger.log(Level.WARN, "Couldn't close PreparedStatement.",
+                           ex);
             }
         }
     }
@@ -134,7 +138,7 @@ public class FileUtils {
                 try {
                     c.close();
                 } catch (Exception ex) {
-                    MaryUtils.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Closeable.", ex);
+                    logger.log(Level.WARN, "Couldn't close Closeable.", ex);
                 }
             }
         }

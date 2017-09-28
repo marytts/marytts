@@ -26,10 +26,7 @@ import java.util.Properties;
 import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.io.serializer.XMLSerializer;
-import marytts.util.dom.DomUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
@@ -41,13 +38,6 @@ import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.linguistic.Word;
 import marytts.modules.MaryModule;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 import de.dfki.lt.tools.tokenizer.JTok;
 import de.dfki.lt.tools.tokenizer.annotate.AnnotatedString;
@@ -212,6 +202,6 @@ public class JTokenizer extends MaryModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-	return utt;
+        return utt;
     }
 }

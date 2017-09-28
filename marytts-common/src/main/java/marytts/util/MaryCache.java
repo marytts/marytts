@@ -32,12 +32,17 @@ import java.sql.Statement;
 
 import marytts.config.MaryProperties;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+
 /**
  * @author marc
  *
  */
 public class MaryCache {
     private static MaryCache maryCache;
+    private static Logger logger =  LogManager.getLogger(MaryCache.class);
 
     /**
      * Try to get the MaryCache object. This will either return the previously
@@ -60,7 +65,7 @@ public class MaryCache {
                 }
                 maryCache = new MaryCache(targetFile, MaryProperties.getBoolean("cache.clearOnStart", false));
             } catch (Exception e) {
-                MaryUtils.getLogger(MaryCache.class).warn("Cannot set up cache", e);
+                logger.warn("Cannot set up cache", e);
             }
         }
         return maryCache;

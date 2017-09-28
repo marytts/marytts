@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.util.dom.DomUtils;
+import marytts.todisappear.DomUtils;
 
 import org.apache.log4j.BasicConfigurator;
 
