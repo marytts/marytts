@@ -54,6 +54,6 @@ public class Preprocess extends MaryModule {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
-	return utt;
+        return utt;
     }
 }

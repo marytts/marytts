@@ -42,7 +42,9 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.io.ReaderSplitter;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 
 /**
@@ -57,7 +59,7 @@ public class MaryNormalisedWriter {
     private static TransformerFactory tFactory = null;
     private static Templates stylesheet = null;
 
-    private static Logger logger; // only used for extensive debug output
+    protected static Logger logger = LogManager.getLogger(MaryNormalisedWriter.class);
 
     private Transformer transformer;
 
@@ -103,10 +105,6 @@ public class MaryNormalisedWriter {
                 MaryNormalisedWriter.class.getResourceAsStream("normalise-maryxml.xsl"));
             stylesheet = tFactory.newTemplates(stylesheetStream);
         }
-        if (logger == null) {
-            logger = MaryUtils.getLogger("MaryNormalisedWriter");
-        }
-
     }
 
     /**

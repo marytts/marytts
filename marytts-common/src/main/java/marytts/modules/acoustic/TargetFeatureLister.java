@@ -74,7 +74,7 @@ public class TargetFeatureLister extends MaryModule {
 
         listTargetFeatures(the_feature_computer, utt);
 
-	return utt;
+        return utt;
     }
 
     /**

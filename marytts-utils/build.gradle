@@ -2,7 +2,7 @@ dependencies {
     compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
     compile group: 'gov.nist.math', name: 'Jampack', version: '1.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
-    compile group: 'log4j', name: 'log4j', version: '1.2.16'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
 }
 
 processResources {
@@ -10,4 +10,3 @@ processResources {
         expand project.properties
     }
 }
-

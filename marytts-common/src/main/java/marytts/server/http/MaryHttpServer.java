@@ -47,7 +47,9 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Listen for clients as an Http server at port
@@ -180,7 +182,7 @@ public class MaryHttpServer extends Thread {
     private boolean isReady = false;
 
     public MaryHttpServer() {
-        logger = MaryUtils.getLogger("server");
+        logger = LogManager.getLogger("server");
     }
 
     public boolean isReady() {

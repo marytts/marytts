@@ -30,13 +30,15 @@ import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author steigner
  */
 public class PhonemiseDenglish {
-    private static Logger logger = MaryUtils.getLogger("PhonemiseDenglish");
+    private static Logger logger = LogManager.getLogger(PhonemiseDenglish.class);
 
     private String[] vowels = {"a", "e", "i", "o", "u"};
     private String[] dentalPlosives = {"t", "d"};

@@ -50,7 +50,11 @@ import marytts.features.Feature;
 
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
-import org.apache.log4j.Logger;
+
+
+/* Logger */
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Serialiazer to be able to support the MaryXML document format. Some decisions
@@ -67,14 +71,13 @@ public class XMLSerializer implements Serializer {
     private static final String NAMESPACE = "http://mary.dfki.de/2002/MaryXML";
 
     /** The logger of the serializer */
-    protected Logger logger;
+    protected static Logger logger =  LogManager.getLogger(XMLSerializer.class);
 
     /**
      * Constructor
      *
      */
     public XMLSerializer() {
-        logger = MaryUtils.getLogger("XMLSerializer");
     }
 
     /**
@@ -413,7 +416,7 @@ public class XMLSerializer implements Serializer {
                 Element feature_element = doc.createElementNS(NAMESPACE, "feature");
                 feature_element.setAttribute("name", entry.getKey());
                 feature_element.setAttribute("value", entry.getValue().getStringValue());
-		feature_element.setAttribute("value_class", entry.getValue().getValue().getClass().getName());
+                feature_element.setAttribute("value_class", entry.getValue().getValue().getClass().getName());
                 features_element.appendChild(feature_element);
             }
         }
@@ -683,14 +686,14 @@ public class XMLSerializer implements Serializer {
                         throw new MaryIOException("Cannot unserialize a word isolated from a phrase", null);
                     }
 
-		    // FIXME: assume that the first node is a phrase
+                    // FIXME: assume that the first node is a phrase
                     NodeList cur_nl = cur_elt.getChildNodes();
                     for (int k = 0; k < cur_nl.getLength(); k++) {
                         Node first_node = cur_nl.item(k);
                         if (first_node.getNodeType() == Node.ELEMENT_NODE) {
-			    generatePhrase((Element) first_node, utt, alignments);
-			}
-		    }
+                            generatePhrase((Element) first_node, utt, alignments);
+                        }
+                    }
                     status_loading = 2;
                 } else if (cur_elt.getTagName() == "phrase") {
                     if (status_loading == 1) {
@@ -1030,7 +1033,7 @@ public class XMLSerializer implements Serializer {
      *            the target utterance
      */
     public void generatePhone(Element elt, Utterance utt,
-                                 Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
+                              Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments) throws MaryIOException {
         assert elt.getTagName() == "ph";
 
 
@@ -1039,7 +1042,7 @@ public class XMLSerializer implements Serializer {
             features_offset = utt.getSequence(SupportedSequenceType.FEATURES).size();
         }
 
-	// Create the phone and add the phone to the utterance
+        // Create the phone and add the phone to the utterance
         Phoneme ph = new Phoneme(elt.getAttribute("p"));
         Sequence<Phoneme> seq_phone = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
         if (seq_phone == null) {
@@ -1055,14 +1058,14 @@ public class XMLSerializer implements Serializer {
             Node node = nl.item(j);
 
             if (node.getNodeType() == Node.TEXT_NODE) {
-		continue;
+                continue;
             } else if (node.getNodeType() == Node.ELEMENT_NODE) {
-		Element features_elt = (Element) node;
-		if (features_elt.getTagName().equals("features")) {
-		    generateFeatures(features_elt, utt);
-		} else {
-		    throw new MaryIOException("node with tag \"" + features_elt.getTagName() + "\" should not be linked to a phone(me)", null);
-		}
+                Element features_elt = (Element) node;
+                if (features_elt.getTagName().equals("features")) {
+                    generateFeatures(features_elt, utt);
+                } else {
+                    throw new MaryIOException("node with tag \"" + features_elt.getTagName() + "\" should not be linked to a phone(me)", null);
+                }
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
                                           null);
@@ -1071,7 +1074,7 @@ public class XMLSerializer implements Serializer {
 
         // Syllable/Phone alignment
         if ((utt.getSequence(SupportedSequenceType.FEATURES) != null)
-	    && (utt.getSequence(SupportedSequenceType.FEATURES).size() > 0)) {
+                && (utt.getSequence(SupportedSequenceType.FEATURES).size() > 0)) {
 
             if (!alignments.containsKey(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES),
@@ -1096,23 +1099,23 @@ public class XMLSerializer implements Serializer {
         NodeList nl = elt.getChildNodes();
         String text = null;
 
-	FeatureMap feature_map = new FeatureMap();
+        FeatureMap feature_map = new FeatureMap();
 
         for (int j = 0; j < nl.getLength(); j++) {
             Node node = nl.item(j);
 
             if (node.getNodeType() == Node.TEXT_NODE) {
             } else if (node.getNodeType() == Node.ELEMENT_NODE) {
-		Element cur_feat_elt = (Element) node;
+                Element cur_feat_elt = (Element) node;
 
-		if (cur_feat_elt.getTagName().equals("feature")) {
-		    // FIXME: how to inject value type knowledge ?! (if the type is an integer, we want to extract an integer from the string)
-		    String value = cur_feat_elt.getAttribute("value");
-		    feature_map.put(cur_feat_elt.getAttribute("name"),
-				    new Feature(value));
-		} else {
-		    throw new MaryIOException("node with tag \"" + cur_feat_elt.getTagName() + "\" should not be part of the feature map", null);
-		}
+                if (cur_feat_elt.getTagName().equals("feature")) {
+                    // FIXME: how to inject value type knowledge ?! (if the type is an integer, we want to extract an integer from the string)
+                    String value = cur_feat_elt.getAttribute("value");
+                    feature_map.put(cur_feat_elt.getAttribute("name"),
+                                    new Feature(value));
+                } else {
+                    throw new MaryIOException("node with tag \"" + cur_feat_elt.getTagName() + "\" should not be part of the feature map", null);
+                }
             } else {
                 throw new MaryIOException("Unknown node element type during unpacking: " + node.getNodeType(),
                                           null);
@@ -1120,11 +1123,11 @@ public class XMLSerializer implements Serializer {
         }
 
 
-	Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-	if (seq_features == null) {
-	    seq_features = new Sequence<FeatureMap>();
-	}
-	seq_features.add(feature_map);
-	utt.addSequence(SupportedSequenceType.FEATURES, seq_features);
+        Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
+        if (seq_features == null) {
+            seq_features = new Sequence<FeatureMap>();
+        }
+        seq_features.add(feature_map);
+        utt.addSequence(SupportedSequenceType.FEATURES, seq_features);
     }
 }

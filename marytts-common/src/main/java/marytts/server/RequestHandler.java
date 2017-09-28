@@ -37,13 +37,19 @@ import javax.xml.transform.TransformerException;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
+import java.util.Map;
 import marytts.util.io.LoggingReader;
 
 import org.apache.http.HttpResponse;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
-import org.apache.log4j.WriterAppender;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.Appender;
+import java.nio.charset.Charset;
+
 import org.xml.sax.SAXParseException;
 
 /**
@@ -91,18 +97,24 @@ public class RequestHandler extends Thread {
         }
         this.dataSocket = dataSocket;
         this.setName("RH " + request.getId());
-        logger = MaryUtils.getLogger(this.getName());
+        logger = LogManager.getLogger(this.getName());
         this.inputReader = new LoggingReader(inputReader, logger);
-        clientLogger = MaryUtils.getLogger(this.getName() + " client");
-        try {
-            clientLogger.addAppender(
-                new WriterAppender(new SimpleLayout(), new PrintWriter(infoSocket.getOutputStream(), true)));
-            clientLogger.setLevel(Level.WARN);
-            // What goes to clientLogger does not go to the normal logfile:
-            clientLogger.setAdditivity(false);
-        } catch (IOException e) {
-            logger.warn("Cannot write warnings to client", e);
-        }
+        clientLogger = LogManager.getLogger(this.getName() + " client");
+        // try {
+
+
+        //     Configurator.setLevel(this.getName() + " client", Level.WARN);
+
+        //     WriterAppender.Builder b =  new WriterAppender.Builder();
+        //     b.setLayout(PatternLayout.newBuilder().withPattern("%level - %m%n").build());
+        //     b.setTarget(new PrintWriter(infoSocket.getOutputStream(), true));
+
+        //     Configurator.newAppender(this.getName() + " client",  b);
+        //     // What goes to clientLogger does not go to the normal logfile:
+        //     clientLogger.setAdditive(false);
+        // } catch (IOException e) {
+        //     logger.warn("Cannot write warnings to client", e);
+        // }
     }
 
     private void clientLogWarning(String message, Exception e) {
@@ -174,7 +186,6 @@ public class RequestHandler extends Thread {
         // the data on dataSocket. Otherwise there may be deadlock.
         try {
             if (clientLogger != null) {
-                clientLogger.removeAllAppenders();
                 clientLogger = null;
             }
             infoSocket.close();
@@ -228,7 +239,7 @@ public class RequestHandler extends Thread {
         public StreamingOutputPiper(InputStream input) throws Exception {
             this.input = input;
 
-            logger = MaryUtils.getLogger(this.getName());
+            logger = LogManager.getLogger(this.getName());
             textWriter = null;
             binaryWriter = null;
             response = null;
