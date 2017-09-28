@@ -212,6 +212,6 @@ public class JTokenizer extends MaryModule {
         utt.setRelation(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD, rel_sent_wrd);
 
         // Generate the result
-	return utt;
+        return utt;
     }
 }

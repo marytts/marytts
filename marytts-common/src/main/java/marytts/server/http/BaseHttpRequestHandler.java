@@ -48,7 +48,9 @@ import org.apache.http.nio.protocol.SimpleNHttpRequestHandler;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Provides baseline functionality to process http requests to the Mary server.
@@ -65,7 +67,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 
     public BaseHttpRequestHandler() {
         super();
-        logger = MaryUtils.getLogger("server");
+        logger = LogManager.getLogger("server");
         requestMap = Collections.synchronizedMap(new HashMap<String, Object[]>());
 
     }

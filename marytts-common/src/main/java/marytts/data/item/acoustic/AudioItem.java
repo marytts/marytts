@@ -17,35 +17,34 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class AudioItem extends Item
-{
+public class AudioItem extends Item {
     private AudioInputStream ais;
-    public AudioItem()
-    {
-	ais = null;
+    public AudioItem() {
+        ais = null;
     }
 
     public AudioItem(String filename) throws UnsupportedAudioFileException, IOException {
-	setAudio(filename);
+        setAudio(filename);
     }
 
     public AudioItem(AudioInputStream ais) {
-	setAudio(ais);
+        setAudio(ais);
     }
 
     public void setAudio(String filename) throws UnsupportedAudioFileException, IOException {
 
-	AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(Files.readAllBytes(new File(filename).toPath())));
-	setAudio(stream);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(Files.readAllBytes(new File(
+                                      filename).toPath())));
+        setAudio(stream);
     }
 
     public void setAudio(AudioInputStream ais) {
-	this.ais = ais;
+        this.ais = ais;
 
     }
 
     public AudioInputStream getAudio() {
-	return ais;
+        return ais;
     }
 }
 

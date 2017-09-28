@@ -190,7 +190,7 @@ public class Preprocess extends MaryModule {
     public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
         expand(utt);
 
-	return utt;
+        return utt;
     }
 
     /***

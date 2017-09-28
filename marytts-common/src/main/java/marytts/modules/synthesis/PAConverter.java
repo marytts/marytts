@@ -29,7 +29,9 @@ import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Phonetic Alphabet converter. Converts individual phonetic symbols between
@@ -39,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 
 public class PAConverter {
-    private static Logger logger = MaryUtils.getLogger("PAConverter");
+    private static Logger logger = LogManager.getLogger(PAConverter.class);
 
     // The following map has as its keys Locales and as its values PhonemeSets.
     private static Map<Locale, AllophoneSet> sampa;

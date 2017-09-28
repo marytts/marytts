@@ -33,9 +33,9 @@ import marytts.modules.MaryModule;
 import marytts.server.Mary;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Marc Schr&ouml;der
@@ -48,15 +48,14 @@ public class MaryModuleTestCase {
     protected Logger logger;
 
     public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
-        if (!MaryUtils.isLog4jConfigured()) {
-            BasicConfigurator.configure();
-        }
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        logger = LogManager.getLogger(getClass());
+
+        // FIXME: BasicConfigurator.configure();
         if (System.getProperty("mary.base") == null) {
             System.setProperty("mary.base", ".");
-            Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "
-                                        + new File(".").getAbsolutePath()
-                                        + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+            logger.warn("System property 'mary.base' is not defined -- trying "
+                        + new File(".").getAbsolutePath()
+                        + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
         }
 
         if (needMaryStarted) {
@@ -65,7 +64,6 @@ public class MaryModuleTestCase {
             }
         }
 
-        logger = MaryUtils.getLogger(getClass());
     }
 
     protected Utterance loadXMLResource(String resourceName) throws IOException, MaryIOException {
@@ -84,7 +82,7 @@ public class MaryModuleTestCase {
 
         // Using serializer to extract the utterance the from "string" document
         XMLSerializer xml_ser = new XMLSerializer();
-        Utterance utt = xml_ser.fromString(document);
+        Utterance utt = xml_ser.load(document);
 
         // Return loaded utterance
         return utt;
@@ -97,9 +95,9 @@ public class MaryModuleTestCase {
 
         ROOTSJSONSerializer out_ser = new ROOTSJSONSerializer();
         logger.debug(" ======================== expected =====================");
-        logger.debug(out_ser.toString(targetOut));
+        logger.debug(out_ser.export(targetOut));
         logger.debug(" ======================== achieved =====================");
-        logger.debug(out_ser.toString(processedOut));
+        logger.debug(out_ser.export(processedOut));
         logger.debug(" =======================================================");
 
         return targetOut.equals(processedOut);

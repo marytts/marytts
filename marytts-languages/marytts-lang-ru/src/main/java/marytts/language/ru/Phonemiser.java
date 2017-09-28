@@ -190,7 +190,7 @@ public class Phonemiser extends MaryModule {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-	return utt;
+        return utt;
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,

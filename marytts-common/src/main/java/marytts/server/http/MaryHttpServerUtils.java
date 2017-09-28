@@ -39,7 +39,10 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.log4j.Logger;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility functions for Mary http server
@@ -47,7 +50,7 @@ import org.apache.log4j.Logger;
  * @author Oytun T&uuml;rk
  */
 public class MaryHttpServerUtils {
-    private static Logger logger = MaryUtils.getLogger("http");
+    private static Logger logger = LogManager.getLogger(MaryHttpServerUtils.class);
 
     public static void toHttpResponse(double[] x, HttpResponse response,
                                       String contentType) throws IOException {

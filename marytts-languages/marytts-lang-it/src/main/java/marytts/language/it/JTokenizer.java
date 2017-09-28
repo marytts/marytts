@@ -48,6 +48,6 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
-	return super.process(utt);
+        return super.process(utt);
     }
 }

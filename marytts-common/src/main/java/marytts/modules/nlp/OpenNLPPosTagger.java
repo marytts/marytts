@@ -152,7 +152,7 @@ public class OpenNLPPosTagger extends MaryModule {
             }
             w.setPOS(pos);
         }
-	return utt;
+        return utt;
     }
 
 }
