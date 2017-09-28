@@ -30,16 +30,6 @@ import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
-
-import org.apache.log4j.Level;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * The preprocessing module.

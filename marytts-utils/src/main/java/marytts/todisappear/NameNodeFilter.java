@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util.dom;
+package marytts.todisappear;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeFilter;

@@ -253,9 +253,6 @@ public class Mary {
             // Not xalan, no version number
         }
 
-        // Essential environment checks:
-        EnvironmentChecks.check();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 shutdown();

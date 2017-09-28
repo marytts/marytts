@@ -28,10 +28,7 @@ import java.util.Locale;
 import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Level;
 import org.w3c.dom.Document;

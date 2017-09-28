@@ -30,7 +30,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
 
-import marytts.util.dom.MaryEntityResolver;
+import marytts.todisappear.MaryEntityResolver;
 
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
