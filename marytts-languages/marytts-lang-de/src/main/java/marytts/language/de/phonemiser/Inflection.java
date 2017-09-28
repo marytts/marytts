@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 
-import marytts.datatypes.MaryXML;
+import marytts.todisappear.MaryXML;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
+import marytts.todisappear.MaryDomUtils;
+import marytts.todisappear.NameNodeFilter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

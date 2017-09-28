@@ -41,7 +41,6 @@ import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;

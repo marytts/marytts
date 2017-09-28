@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util.dom;
+package marytts.todisappear;
 
 // DOM classes
 import java.io.ByteArrayOutputStream;

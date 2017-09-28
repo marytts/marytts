@@ -48,7 +48,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.io.serializer.Serializer;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
@@ -56,9 +55,6 @@ import marytts.modules.ModuleRegistry;
 import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.dom.DomUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 import marytts.util.io.FileUtils;
 
 import org.apache.logging.log4j.Level;

@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -44,7 +43,6 @@ import marytts.modules.MaryModule;
 import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;

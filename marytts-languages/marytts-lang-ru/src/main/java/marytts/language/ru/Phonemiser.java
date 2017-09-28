@@ -41,7 +41,6 @@ import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;

@@ -35,13 +35,11 @@ import java.util.Vector;
 import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.server.Mary;
 import marytts.config.MaryProperties;
-import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.StringUtils;
 
 import org.w3c.dom.Element;

@@ -21,13 +21,6 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryXML;
-import marytts.modules.nlp.phonemiser.Allophone;
-import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.util.dom.MaryDomUtils;
-
-import marytts.data.item.linguistic.Word;
-
 /**
  * A pronunciation model that takes into account some English postlexical rules.
  *

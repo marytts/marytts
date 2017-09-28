@@ -30,8 +30,6 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.MaryModule;
 import marytts.features.FeatureComputer;

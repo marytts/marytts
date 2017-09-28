@@ -45,7 +45,6 @@ import marytts.language.de.phonemiser.Result;
 import marytts.modules.synthesis.PAConverter;
 import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
