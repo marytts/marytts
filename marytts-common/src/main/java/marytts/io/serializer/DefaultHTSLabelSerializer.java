@@ -183,21 +183,24 @@ public class DefaultHTSLabelSerializer implements Serializer {
      */
     protected final String getValue(FeatureMap feature_map, String feature_name) {
 
-	if (! feature_map.containsKey(feature_name)) {
-	    System.out.println("feature \"" + feature_name + "\" is not defined");
-	    return UNDEF;
-	}
-	if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE)
-	    return UNDEF;
+        if (! feature_map.containsKey(feature_name)) {
+            System.out.println("feature \"" + feature_name + "\" is not defined");
+            return UNDEF;
+        }
+        if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE) {
+            return UNDEF;
+        }
 
         String feat = feature_map.get(feature_name).getStringValue();
 
-	if (feat.equals("false"))
-	    return "0";
-	if (feat.equals("true"))
-	    return "1";
+        if (feat.equals("false")) {
+            return "0";
+        }
+        if (feat.equals("true")) {
+            return "1";
+        }
 
-	return feat;
+        return feat;
     }
 
     /**

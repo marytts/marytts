@@ -118,6 +118,6 @@ public class ProsodyGeneric extends MaryModule {
                                                utt.getSequence(SupportedSequenceType.WORD), alignment_phrase_word);
         utt.setRelation(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD, rel_phrase_wrd);
 
-	return utt;
+        return utt;
     }
 }

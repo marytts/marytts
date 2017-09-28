@@ -31,7 +31,9 @@ import javax.sound.sampled.AudioSystem;
 import marytts.data.Utterance;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -54,16 +56,16 @@ public abstract class MaryModule {
 
 
     protected MaryModule(String name) {
-	this.name = name;
-	this.locale = Locale.getDefault();
-        logger = MaryUtils.getLogger(name());
+        this.name = name;
+        this.locale = Locale.getDefault();
+        logger = LogManager.getLogger(this);
         this.state = MODULE_OFFLINE;
     }
 
     protected MaryModule(String name, Locale locale) {
         this.name = name;
         this.locale = locale;
-        logger = MaryUtils.getLogger(name());
+        logger = LogManager.getLogger(this);
         this.state = MODULE_OFFLINE;
     }
 
@@ -89,14 +91,12 @@ public abstract class MaryModule {
     }
 
     public void shutdown() {
-        logger = MaryUtils.getLogger(name());
         logger.info("Module shut down.");
         state = MODULE_OFFLINE;
     }
 
-    public Utterance process(Utterance utt) throws Exception
-    {
-    	return process(utt, default_configuration);
+    public Utterance process(Utterance utt) throws Exception {
+        return process(utt, default_configuration);
     }
 
     public abstract Utterance process(Utterance utt, MaryProperties configuration) throws Exception;

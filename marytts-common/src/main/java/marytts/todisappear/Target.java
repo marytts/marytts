@@ -19,13 +19,11 @@
  */
 package marytts.todisappear;
 
-import marytts.datatypes.MaryXML;
 import marytts.todisappear.FeatureVector;
 import marytts.todisappear.MaryGenericFeatureProcessors;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryRuntimeUtils;
-import marytts.util.dom.MaryDomUtils;
 import java.util.Locale;
 
 import org.w3c.dom.Element;

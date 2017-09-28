@@ -28,7 +28,9 @@ import marytts.todisappear.FeatureVector;
 import marytts.todisappear.Target;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A directed graph is a layered structure of nodes, in which there are
@@ -42,7 +44,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class DirectedGraph {
-    protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
+    protected Logger logger = LogManager.getLogger(this.getClass());
 
     protected Node rootNode;
 

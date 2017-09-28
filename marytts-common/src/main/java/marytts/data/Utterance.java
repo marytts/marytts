@@ -8,17 +8,17 @@ import java.util.HashSet;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import org.apache.log4j.Logger; // FIXME: not really happy with that
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.sound.sampled.AudioInputStream;
 
+
+import marytts.data.item.Item;
 import marytts.data.item.linguistic.Paragraph;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.linguistic.Sentence;
 import marytts.data.item.prosody.Phrase;
-
-import marytts.data.item.Item;
-import marytts.util.MaryUtils;
 
 /**
  * The Utterance is the entry point to the data used in MaryTTS. It is a
@@ -53,7 +53,7 @@ public class Utterance {
     private Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> m_available_relation_set;
 
     /** The logger of the utterance */
-    protected Logger logger;
+    protected static Logger logger = LogManager.getLogger(Utterance.class);
 
     /**
      * The constructor of the utterance which forces to define a text and an
@@ -74,8 +74,6 @@ public class Utterance {
         HashSet<ImmutablePair<SupportedSequenceType, SupportedSequenceType>>();
         m_relation_graph = new RelationGraph();
 
-        // FIXME: have to be more consistent
-        logger = MaryUtils.getLogger("Utterance");
     }
 
     /******************************************************************************************************************************************

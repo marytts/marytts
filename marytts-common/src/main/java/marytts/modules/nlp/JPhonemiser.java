@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
@@ -44,7 +43,6 @@ import marytts.modules.MaryModule;
 import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -183,8 +181,8 @@ public class JPhonemiser extends MaryModule {
                                   .getReverse();
         HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
-	// FIXME: add pause de facto
-	phones.add(new Phoneme("_"));
+        // FIXME: add pause de facto
+        phones.add(new Phoneme("_"));
 
         for (int i_word = 0; i_word < words.size(); i_word++) {
             Word w = words.get(i_word);
@@ -240,7 +238,7 @@ public class JPhonemiser extends MaryModule {
             }
         }
 
-	phones.add(new Phoneme("_"));
+        phones.add(new Phoneme("_"));
 
         // Relation word/syllable
         utt.addSequence(SupportedSequenceType.PHONE, phones);
@@ -251,7 +249,7 @@ public class JPhonemiser extends MaryModule {
         Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
         utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-	return utt;
+        return utt;
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,

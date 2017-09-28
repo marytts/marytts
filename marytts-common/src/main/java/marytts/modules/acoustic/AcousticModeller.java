@@ -36,7 +36,6 @@ import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.MaryModule;
 

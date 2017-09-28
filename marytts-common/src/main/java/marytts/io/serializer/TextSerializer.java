@@ -28,7 +28,8 @@ import marytts.data.item.prosody.*;
 import marytts.data.item.*;
 
 /* Logger */
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -39,14 +40,13 @@ import org.apache.log4j.Logger;
 public class TextSerializer implements Serializer {
     private static final String PARAGRAPH_SEPARATOR = "\\n(\\s*\\n)+";
     private boolean splitIntoParagraphs;
-    protected Logger logger;
+    protected static Logger logger =  LogManager.getLogger(TextSerializer.class);
 
     /**
      * Constructor
      *
      */
     public TextSerializer() {
-        logger = MaryUtils.getLogger("TextSerializer");
         splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
     }
 

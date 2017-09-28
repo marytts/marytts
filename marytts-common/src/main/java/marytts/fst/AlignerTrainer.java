@@ -30,7 +30,8 @@ import java.util.Set;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This trains an alignment model between Strings. Applications are for example
@@ -108,7 +109,7 @@ public class AlignerTrainer {
 
     protected Set<String> graphemeSet;
 
-    protected Logger logger;
+    protected static Logger logger =  LogManager.getLogger(AlignerTrainer.class);
 
     private boolean inIsOut;
 
@@ -136,7 +137,6 @@ public class AlignerTrainer {
         if (hasOptInfo) {
             this.optInfo = new ArrayList<String>();
         }
-        this.logger = MaryUtils.getLogger(this.getClass());
     }
 
     /**

@@ -39,7 +39,7 @@ import java.util.TreeSet;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
-import marytts.util.dom.DomUtils;
+import marytts.todisappear.DomUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;

@@ -22,11 +22,9 @@ package marytts.modules.nlp;
 import java.io.InputStream;
 
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
 import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.MaryModule;
 

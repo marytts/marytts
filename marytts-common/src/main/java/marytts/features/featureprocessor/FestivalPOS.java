@@ -61,7 +61,7 @@ public class FestivalPOS implements FeatureProcessor {
     }
 
     static {
-	pos_converter = new Hashtable<String, String>();
+        pos_converter = new Hashtable<String, String>();
 
         // aux
         pos_converter.put("is", "aux");
@@ -169,7 +169,7 @@ public class FestivalPOS implements FeatureProcessor {
             if ((((Word) item).getText()) == null) {
                 return Feature.UNDEF_FEATURE;
             } else {
-		String lc_word = ((Word) item).getText().toLowerCase();
+                String lc_word = ((Word) item).getText().toLowerCase();
                 return new Feature(convertPOS(lc_word));
             }
         }

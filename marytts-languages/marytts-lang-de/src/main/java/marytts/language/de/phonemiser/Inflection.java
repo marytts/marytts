@@ -27,13 +27,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
 
-import marytts.datatypes.MaryXML;
+import marytts.todisappear.MaryXML;
 import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
+import marytts.todisappear.MaryDomUtils;
+import marytts.todisappear.NameNodeFilter;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -97,7 +99,7 @@ public class Inflection {
         endingTable.put("9d", ""); // with definite determiner
         endingTable.put("9i", "s"); // with indefinite determiner
         endingTable.put("9", "s"); // without determiner
-        logger = MaryUtils.getLogger("Inflection");
+        logger = LogManager.getLogger("Inflection");
     }
 
     public void determineEndings(Document doc) {

@@ -30,8 +30,6 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.Relation;
 import marytts.data.utils.IntegerPair;
 import marytts.data.Utterance;
-import marytts.datatypes.MaryXML;
-import marytts.util.dom.MaryDomUtils;
 
 import marytts.modules.MaryModule;
 import marytts.features.FeatureComputer;
@@ -74,7 +72,7 @@ public class TargetFeatureLister extends MaryModule {
 
         listTargetFeatures(the_feature_computer, utt);
 
-	return utt;
+        return utt;
     }
 
     /**

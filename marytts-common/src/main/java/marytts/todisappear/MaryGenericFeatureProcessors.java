@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import marytts.todisappear.Target;
-import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.ByteStringTranslator;
 
 import org.w3c.dom.Document;

@@ -54,8 +54,9 @@ import marytts.util.io.FileUtils;
 
 import marytts.config.MaryProperties;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The main program for the mary TtS system. It can run as a socket server or as
@@ -70,7 +71,7 @@ public class Mary {
     public static final int STATE_RUNNING = 2;
     public static final int STATE_SHUTTING_DOWN = 3;
 
-    private static Logger logger;
+    private static Logger logger =  LogManager.getLogger(Mary.class);
 
     private static int currentState = STATE_OFF;
     private static boolean jarsAdded = false;
@@ -205,8 +206,6 @@ public class Mary {
             addJarsToClasspath();
         }
 
-        configureLogging();
-
         logger.info("Mary starting up...");
         logger.info("Specification version " + Version.specificationVersion());
         logger.info("Implementation version " + Version.implementationVersion());
@@ -256,48 +255,6 @@ public class Mary {
 
         logger.info("Startup complete.");
         currentState = STATE_RUNNING;
-    }
-
-    /**
-     * Log4j initialisation, called from {@link #startup(boolean)}.
-     *
-     * @throws NoSuchPropertyException
-     *             NoSuchPropertyException
-     * @throws IOException
-     *             IOException
-     */
-    private static void configureLogging() throws MaryConfigurationException, IOException {
-        if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally
-            Properties logprops = new Properties();
-            InputStream propIS = new BufferedInputStream(MaryProperties.needStream("log.config"));
-            logprops.load(propIS);
-            propIS.close();
-            // Now replace MARY_BASE with the install location of MARY in every
-            // property:
-            for (Object key : logprops.keySet()) {
-                String val = (String) logprops.get(key);
-                if (val.contains("MARY_BASE")) {
-                    String maryBase = MaryProperties.maryBase();
-                    if (maryBase.contains("\\")) {
-                        maryBase = maryBase.replaceAll("\\\\", "/");
-                    }
-                    val = val.replaceAll("MARY_BASE", maryBase);
-                    logprops.put(key, val);
-                }
-            }
-            // And allow MaryProperties (and thus System properties) to
-            // overwrite the single entry
-            // log4j.logger.marytts:
-            String loggerMaryttsKey = "log4j.logger.marytts";
-            String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
-            if (loggerMaryttsValue != null) {
-                logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
-            }
-            PropertyConfigurator.configure(logprops);
-        }
-
-        logger = MaryUtils.getLogger("main");
-
     }
 
     /**
