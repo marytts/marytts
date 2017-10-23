@@ -44,13 +44,13 @@ public class Utterance {
      * The sequences which contains the data of the utterance. Organized by type
      * for now
      */
-    private Hashtable<SupportedSequenceType, Sequence<? extends Item>> m_sequences;
+    private Hashtable<String, Sequence<? extends Item>> m_sequences;
 
     /** The relation graph to link te sequences */
     private RelationGraph m_relation_graph;
 
     /** The set of "not computed" relation based on types */
-    private Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> m_available_relation_set;
+    private Set<ImmutablePair<String, String>> m_available_relation_set;
 
     /** The logger of the utterance */
     protected static Logger logger = LogManager.getLogger(Utterance.class);
@@ -69,9 +69,9 @@ public class Utterance {
         setText(text);
         setLocale(locale);
 
-        m_sequences = new Hashtable<SupportedSequenceType, Sequence<? extends Item>>();
+        m_sequences = new Hashtable<String, Sequence<? extends Item>>();
         m_available_relation_set = new
-        HashSet<ImmutablePair<SupportedSequenceType, SupportedSequenceType>>();
+        HashSet<ImmutablePair<String, String>>();
         m_relation_graph = new RelationGraph();
 
     }
@@ -160,7 +160,7 @@ public class Utterance {
      * @param sequence
      *            the sequence
      */
-    public void addSequence(SupportedSequenceType type, Sequence<? extends Item> sequence) {
+    public void addSequence(String type, Sequence<? extends Item> sequence) {
         m_sequences.put(type, sequence);
     }
 
@@ -172,7 +172,7 @@ public class Utterance {
      * @return true if a sequence of the given type is already defined, false
      *         else
      */
-    public boolean hasSequence(SupportedSequenceType type) {
+    public boolean hasSequence(String type) {
         return m_sequences.containsKey(type);
     }
 
@@ -183,7 +183,7 @@ public class Utterance {
      *            the type of the sequence
      * @return the found sequence or an empty sequence
      */
-    public Sequence<? extends Item> getSequence(SupportedSequenceType type) {
+    public Sequence<? extends Item> getSequence(String type) {
         if (m_sequences.containsKey(type)) {
             return m_sequences.get(type);
         }
@@ -196,7 +196,7 @@ public class Utterance {
      *
      * @return the available sequence types
      */
-    public Set<SupportedSequenceType> listAvailableSequences() {
+    public Set<String> listAvailableSequences() {
         return m_sequences.keySet();
     }
 
@@ -214,7 +214,7 @@ public class Utterance {
      *         the target sequence of type target, or null if there is no
      *         relation
      */
-    public Relation getRelation(SupportedSequenceType source, SupportedSequenceType target) {
+    public Relation getRelation(String source, String target) {
         return m_relation_graph.getRelation(getSequence(source), getSequence(target));
     }
 
@@ -230,9 +230,9 @@ public class Utterance {
      * @param target
      *            the type of the target sequence
      */
-    public void setRelation(SupportedSequenceType source, SupportedSequenceType target, Relation rel) {
+    public void setRelation(String source, String target, Relation rel) {
         m_relation_graph.addRelation(rel);
-        m_available_relation_set.add(new ImmutablePair<SupportedSequenceType, SupportedSequenceType>(source,
+        m_available_relation_set.add(new ImmutablePair<String, String>(source,
                                      target));
     }
 
@@ -242,7 +242,7 @@ public class Utterance {
      *
      * @return the set of all relations.
      */
-    public Set<ImmutablePair<SupportedSequenceType, SupportedSequenceType>> listAvailableRelations() {
+    public Set<ImmutablePair<String, String>> listAvailableRelations() {
         return m_available_relation_set;
     }
 
@@ -273,7 +273,7 @@ public class Utterance {
         }
 
         boolean not_equal = false;
-        for (SupportedSequenceType type : m_sequences.keySet()) {
+        for (String type : m_sequences.keySet()) {
 
             Sequence<Item> cur_seq = (Sequence<Item>) m_sequences.get(type);
             Sequence<Item> other_seq = (Sequence<Item>) m_sequences.get(type);
