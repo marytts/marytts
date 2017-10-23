@@ -121,10 +121,10 @@ public class ROOTSJSONSerializer implements Serializer {
      *             any kind of exception
      */
     protected void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
-        SupportedSequenceType cur_type = null;
+        String cur_type = null;
         Object[] types = utt.listAvailableSequences().toArray();
         for (int t = 0; t < types.length; t++) {
-            cur_type = ((SupportedSequenceType) types[t]);
+            cur_type = ((String) types[t]);
             sb.append("\t\t\"" + cur_type + "\": [\n");
             Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
             int s = 0;
@@ -207,12 +207,12 @@ public class ROOTSJSONSerializer implements Serializer {
      */
     protected void appendRelations(Utterance utt, StringBuilder sb) {
         Object[] relations = utt.listAvailableRelations().toArray();
-        ImmutablePair<SupportedSequenceType, SupportedSequenceType> cur_rel_id;
+        ImmutablePair<String, String> cur_rel_id;
         SparseDoubleMatrix2D cur_rel;
 
         for (int r = 0; r < relations.length; r++) {
             sb.append("\t\t{\n");
-            cur_rel_id = (ImmutablePair<SupportedSequenceType, SupportedSequenceType>) relations[r];
+            cur_rel_id = (ImmutablePair<String, String>) relations[r];
             sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
             sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
 

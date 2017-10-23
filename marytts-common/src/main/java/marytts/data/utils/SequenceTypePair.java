@@ -1,7 +1,6 @@
 package marytts.data.utils;
 
 import marytts.data.Utterance;
-import marytts.data.SupportedSequenceType;
 
 /**
  * Encapsulation of a pair of sequence type for hashing purpose
@@ -11,10 +10,10 @@ import marytts.data.SupportedSequenceType;
  */
 public class SequenceTypePair {
     /** the left member of the pair */
-    private SupportedSequenceType left;
+    private String left;
 
     /** the right member of the pair */
-    private SupportedSequenceType right;
+    private String right;
 
     /**
      * Constructor
@@ -24,7 +23,7 @@ public class SequenceTypePair {
      * @param right
      *            the right member to set
      */
-    public SequenceTypePair(SupportedSequenceType left, SupportedSequenceType right) {
+    public SequenceTypePair(String left, String right) {
         this.left = left;
         this.right = right;
     }
@@ -35,7 +34,7 @@ public class SequenceTypePair {
      * @return the left member of the pair
      */
 
-    public SupportedSequenceType getLeft() {
+    public String getLeft() {
         return left;
     }
 
@@ -44,7 +43,7 @@ public class SequenceTypePair {
      *
      * @return the right member of the pair
      */
-    public SupportedSequenceType getRight() {
+    public String getRight() {
         return right;
     }
 
@@ -72,8 +71,8 @@ public class SequenceTypePair {
             return false;
         }
 
-        return ((getLeft() == ((SequenceTypePair) obj).getLeft())
-                && (getRight() == (((SequenceTypePair) obj).getRight())));
+        return ((getLeft().equals(((SequenceTypePair) obj).getLeft()))
+                && (getRight().equals(((SequenceTypePair) obj).getRight())));
     }
 
     /**
@@ -85,8 +84,8 @@ public class SequenceTypePair {
     @Override
     public int hashCode() {
         // see Map.Entry API specification
-        return (getLeft() == null ? 0 : getLeft().hashCode()) ^ (getRight() == null ? 0 :
-                getRight().hashCode());
+        return (getLeft() == null ? 0 : getLeft().hashCode()) ^
+	    (getRight() == null ? 0 : getRight().hashCode());
     }
 
     /**
@@ -96,6 +95,6 @@ public class SequenceTypePair {
      */
     @Override
     public String toString() {
-        return "(" + getLeft().toString() + ", " + getRight().toString() + ")";
+        return "(" + getLeft() + ", " + getRight() + ")";
     }
 }

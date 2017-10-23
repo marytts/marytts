@@ -35,7 +35,6 @@ import org.w3c.dom.Node;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;
-import marytts.data.SupportedSequenceType;
 
 /**
  * Base class for acoustic modeling; specific Models should extend this and
@@ -130,7 +129,7 @@ public abstract class Model {
      *             if attribute values cannot be predicted because of an invalid
      *             voice configuration
      */
-    public abstract void applyTo(Utterance utt, SupportedSequenceType seq_type,
+    public abstract void applyTo(Utterance utt, String seq_type,
                                  List<Integer> item_indexes)
     throws Exception;
 
@@ -148,7 +147,7 @@ public abstract class Model {
      * @throws Exception
      *             [TODO]
      */
-    protected List<FeatureMap> getTargets(Utterance utt, SupportedSequenceType seq_type,
+    protected List<FeatureMap> getTargets(Utterance utt, String seq_type,
                                           List<Integer> item_indexes)
     throws Exception {
         Sequence<Item> seq = (Sequence<Item>) utt.getSequence(seq_type);
