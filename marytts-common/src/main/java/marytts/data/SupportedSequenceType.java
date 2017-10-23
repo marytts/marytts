@@ -1,7 +1,12 @@
 package marytts.data;
 
+import java.util.Set;
+import java.util.Arrays;
+import java.util.HashSet;
+
 /**
- * The type to label the kinds of sequence which are currently supported
+ * Supported sequence label manager
+ *
  */
 public class SupportedSequenceType {
     public static final String PARAGRAPH = "PARAGRAPH";
@@ -14,4 +19,41 @@ public class SupportedSequenceType {
     public static final String SEGMENT = "SEGMENT";
     public static final String FEATURES = "FEATURES";
     public static final String AUDIO = "AUDIO";
+
+    // Initialize default available sequences
+    public static final String[] SET_VALUES = new String[] {
+	PARAGRAPH, SENTENCE, PHRASE, WORD, SYLLABLE, PHONE, NSS, SEGMENT, FEATURES, AUDIO
+    };
+    public static final Set<String> TYPE_SET = new HashSet<>(Arrays.asList(SET_VALUES));
+
+
+    /**
+     *  Add a new type to the list of available ones
+     *
+     *  @param id the label identifying the type
+     */
+    public static synchronized void addSupportedType(String type_id) {
+	TYPE_SET.add(type_id);
+    }
+
+    /**
+     *  List all the available types. The set returned is a copy !
+     *
+     *  @return a set containing the available types
+     */
+    public static synchronized Set<String> listAvailableTypes() {
+	return new HashSet(TYPE_SET);
+    }
+
+    /**
+     *  Check if a type is available
+     *
+     *  @param id the type label to check
+     *  @return true if it is available, false else
+     */
+    public static synchronized boolean isSequenceTypeAvailable(String id) {
+	return TYPE_SET.contains(id);
+    }
+
+
 };
