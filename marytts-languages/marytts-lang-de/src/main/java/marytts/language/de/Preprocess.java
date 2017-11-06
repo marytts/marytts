@@ -29,14 +29,7 @@ import marytts.config.MaryProperties;
 
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
-
-import org.apache.log4j.Level;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.TreeWalker;
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -49,6 +42,16 @@ public class Preprocess extends MaryModule {
 
     public Preprocess() {
         super("Preprocess", Locale.GERMAN);
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

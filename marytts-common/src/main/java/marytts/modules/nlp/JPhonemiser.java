@@ -56,6 +56,7 @@ import marytts.data.item.phonology.Accent;
 
 import com.google.common.base.Splitter;
 
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -167,6 +168,22 @@ public class JPhonemiser extends MaryModule {
         super.startup();
         setPunctuationPosRegex();
         setUnpronounceablePosRegex();
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.SENTENCE)) {
+            throw new MaryException("Sentence sequence is missing", null);
+        }
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
+        }
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

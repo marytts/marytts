@@ -44,6 +44,7 @@ import de.dfki.lt.tools.tokenizer.annotate.AnnotatedString;
 import de.dfki.lt.tools.tokenizer.output.Outputter;
 import de.dfki.lt.tools.tokenizer.output.Token;
 
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -98,6 +99,19 @@ public class JTokenizer extends MaryModule {
             jtokProperties.setProperty(jtokLocale, "marytts/modules/nlp/jtok/" + jtokLocale);
         }
         tokenizer = new JTok(jtokProperties);
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.PARAGRAPH)) {
+            throw new MaryException("Paragraph sequence is missing", null);
+        }
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

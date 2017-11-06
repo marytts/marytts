@@ -27,7 +27,7 @@ import java.util.Locale;
 
 
 import marytts.config.MaryProperties;
-
+import marytts.MaryException;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
@@ -42,6 +42,16 @@ public class Preprocess extends MaryModule {
 
     public Preprocess() {
         super("Preprocess", Locale.ITALIAN);
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

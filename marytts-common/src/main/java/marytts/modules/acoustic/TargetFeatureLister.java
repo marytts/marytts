@@ -39,6 +39,8 @@ import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;
 
+import marytts.MaryException;
+
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -55,6 +57,19 @@ public class TargetFeatureLister extends MaryModule {
     public TargetFeatureLister() throws Exception {
         super("TargetFeatureLister", null);
         FeatureComputer.initDefault();
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.PHONE)) {
+            throw new MaryException("Phone sequence is missing", null);
+        }
     }
 
     /**

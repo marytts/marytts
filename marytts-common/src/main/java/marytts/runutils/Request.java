@@ -188,6 +188,10 @@ public class Request {
                 break;
             }
 
+            logger.info("Next module: " + m.name());
+
+            // Start module if needed
+            logger.debug("Starting the module");
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
                 assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
@@ -197,12 +201,15 @@ public class Request {
             }
             long moduleStartTime = System.currentTimeMillis();
 
-            logger.info("Next module: " + m.name());
+            // Assess the input is ok
+            m.checkInput(outputData);
+
+            // Process the module
             Utterance outData = null;
             try {
                 outData = m.process(outputData); // FIXME: what about the configuration and the logger
             } catch (Exception e) {
-                throw new Exception("Module " + m.name() + ": Problem processing the data.", e);
+                throw new MaryException("Module " + m.name() + ": Problem processing the data.", e);
             }
 
             if (outData == null) {

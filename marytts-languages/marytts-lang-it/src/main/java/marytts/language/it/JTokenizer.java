@@ -25,16 +25,11 @@ import java.util.Locale;
 import java.util.Set;
 
 import marytts.config.MaryProperties;
-
+import marytts.MaryException;
 import marytts.data.Utterance;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
-
 import org.apache.logging.log4j.core.Appender;
+
 /**
  * Italian Tokenizer using JTok for Italian
  *
@@ -44,6 +39,17 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
 
     public JTokenizer() {
         super(Locale.ITALIAN);
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        super.checkInput(utt);
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

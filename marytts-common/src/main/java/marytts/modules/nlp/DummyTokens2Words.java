@@ -24,6 +24,9 @@ import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
 import marytts.config.MaryProperties;
+import marytts.data.SupportedSequenceType;
+
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -57,6 +60,18 @@ public class DummyTokens2Words extends MaryModule {
         super("DummyTokens2Words", locale);
     }
 
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
+        }
+    }
 
     /**
      * Perform this module's processing on abstract "Utterance" input

@@ -54,6 +54,7 @@ import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -121,6 +122,17 @@ public class PronunciationModel extends MaryModule {
      */
     protected boolean postlexicalRules(Word token, AllophoneSet allophoneSet) {
         return false;
+    }
+
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
     }
 
     /**
