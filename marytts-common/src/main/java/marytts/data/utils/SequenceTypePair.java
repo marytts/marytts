@@ -85,7 +85,7 @@ public class SequenceTypePair {
     public int hashCode() {
         // see Map.Entry API specification
         return (getLeft() == null ? 0 : getLeft().hashCode()) ^
-	    (getRight() == null ? 0 : getRight().hashCode());
+               (getRight() == null ? 0 : getRight().hashCode());
     }
 
     /**
