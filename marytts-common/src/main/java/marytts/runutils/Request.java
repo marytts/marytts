@@ -116,20 +116,28 @@ public class Request {
         configuration_properties.load(new StringReader(this.configuration));
 
         // Input serializer reflection
-        Class<?> clazz = Class.forName(configuration_properties.get("input_serializer").toString());
-        Constructor<?> ctor = clazz.getConstructor();
-        Serializer input_serializer = (Serializer) ctor.newInstance(new Object[] {});
-
+	Class<?> clazz;
+	Constructor<?> ctor;
+	Serializer input_serializer = null;
+	try {
+	    clazz = Class.forName(configuration_properties.get("input_serializer").toString());
+	    ctor = clazz.getConstructor();
+	    input_serializer = (Serializer) ctor.newInstance(new Object[] {});
+	} catch (ClassNotFoundException ex) {
+	}
         if (input_serializer == null) {
             throw new MaryException("input serializer class \"" +
 				    configuration_properties.get("input_serializer") + "\" doesn't exist");
         }
 
         // Input serializer reflection
-        clazz = Class.forName(configuration_properties.get("output_serializer").toString());
-        ctor = clazz.getConstructor();
-        this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
-
+	output_serializer = null;
+	try {
+	    clazz = Class.forName(configuration_properties.get("output_serializer").toString());
+	    ctor = clazz.getConstructor();
+	    this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+	} catch (ClassNotFoundException ex) {
+	}
         if (output_serializer == null) {
             throw new MaryException("output serializer class \"" +
 				    configuration_properties.get("output_serializer") + "\" doesn't exist");
@@ -148,11 +156,11 @@ public class Request {
                 logger.debug("trying to load the following class " + module_class_name + " for locale " +
                              cur_locale);
 
-
-                MaryModule cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
-                if (cur_module == null) {
-                    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
-                }
+		MaryModule cur_module = null;
+		cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
+		if (cur_module == null) {
+		    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
+		}
 
                 if (cur_module == null) {
                     throw new MaryException("Cannot load module \"" + module_class_name +
@@ -168,7 +176,6 @@ public class Request {
 
         // Start to achieve the process
         long startTime = System.currentTimeMillis();
-
 
         logger.info("Handling request using the following modules:");
         for (MaryModule m : usedModules) {
