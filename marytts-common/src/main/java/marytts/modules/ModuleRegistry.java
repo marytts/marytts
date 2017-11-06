@@ -52,10 +52,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ModuleRegistry {
     private static List<MaryModule> allModules;
-    private static boolean registrationComplete;
     private static Logger logger;
-
-    private static List<MaryModule> preferredModules;
 
     private ModuleRegistry() {
     }
@@ -65,7 +62,6 @@ public class ModuleRegistry {
      */
     static {
         allModules = new ArrayList<MaryModule>();
-        registrationComplete = false;
         logger = LogManager.getLogger(ModuleRegistry.class);
     }
 
@@ -120,59 +116,7 @@ public class ModuleRegistry {
      */
     @SuppressWarnings("unchecked")
     public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
-        if (registrationComplete) {
-            throw new IllegalStateException("cannot register modules after registration is complete");
-        }
         allModules.add(module);
-    }
-
-    /**
-     * Determine whether or not the registration is complete. When the
-     * registration is not (yet) complete, calls to
-     *
-     * @see #registerModule(MaryModule, Locale) are possible; when the
-     *      registration is complete, calls to the other methods are possible.
-     *
-     * @return false when the registration is still open, true when it is
-     *         complete.
-     */
-    public static boolean getRegistrationComplete() {
-        return registrationComplete;
-    }
-
-    /**
-     * Indicate that the registration is now complete. No further calls to
-     * registerModules() will be possible.
-     *
-     * @throws IllegalStateException
-     *             if called when registration was already completed before.
-     */
-    public static void setRegistrationComplete() throws IllegalStateException {
-        if (registrationComplete) {
-            throw new IllegalStateException("Registration has already completed, cannot do that a second time");
-        }
-
-        // Set registration complete lockup
-        registrationComplete = true;
-
-        // Define system preferred modules
-        List<String> preferredModulesClasses = MaryProperties.getList("modules.preferred.classes.list");
-        if ((preferredModulesClasses == null) || (preferredModulesClasses.isEmpty())) {
-            return;
-        }
-
-        preferredModules = new ArrayList<MaryModule>();
-        for (String moduleInfo : preferredModulesClasses) {
-            try {
-                MaryModule mm = null;
-                if (!moduleInfo.contains("(")) { // no constructor info
-                    mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
-                }
-                preferredModules.add(mm);
-            } catch (ClassNotFoundException e) {
-                logger.warn("Cannot initialise preferred module " + moduleInfo + " -- skipping.", e);
-            }
-        }
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -187,10 +131,7 @@ public class ModuleRegistry {
      *             if called while registration is not yet complete.
      * @return Collections.unmodifiableList(allModules)
      */
-    public static List<MaryModule> getAllModules() {
-        if (!registrationComplete) {
-            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
-        }
+    public static List<MaryModule> listRegisteredModules() {
         return Collections.unmodifiableList(allModules);
     }
 
@@ -207,9 +148,6 @@ public class ModuleRegistry {
     // so that there can be several instances of the same
     // class?
     public static MaryModule getModule(Class<?> moduleClass) {
-        if (!registrationComplete) {
-            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
-        }
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
             if (moduleClass.isInstance(m)) {
@@ -233,9 +171,7 @@ public class ModuleRegistry {
     // so that there can be several instances of the same
     // class?
     public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
-        if (!registrationComplete) {
-            throw new IllegalStateException("Cannot inquire about modules while registration is ongoing");
-        }
+
 
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
