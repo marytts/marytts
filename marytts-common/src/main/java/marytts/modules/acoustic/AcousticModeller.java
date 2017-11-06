@@ -42,6 +42,7 @@ import marytts.modules.MaryModule;
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -93,6 +94,17 @@ public class AcousticModeller extends MaryModule {
      */
     protected AcousticModeller(Locale locale, String propertyPrefix) {
         super("AcousticModeller", locale);
+    }
+
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws SynthesisException {

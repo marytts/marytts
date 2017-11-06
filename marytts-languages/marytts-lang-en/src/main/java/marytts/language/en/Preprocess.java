@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import marytts.config.MaryProperties;
-
+import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
@@ -183,6 +183,20 @@ public class Preprocess extends MaryModule {
             this.abbrevMap = loadAbbrevMap();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
         }
     }
 

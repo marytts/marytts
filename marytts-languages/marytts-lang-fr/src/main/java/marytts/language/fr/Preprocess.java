@@ -8,7 +8,7 @@ import com.ibm.icu.util.ULocale;
 
 
 import marytts.config.MaryProperties;
-
+import marytts.MaryException;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
 import marytts.data.Utterance;
@@ -35,6 +35,19 @@ public class Preprocess extends MaryModule {
         this.rbnf = new RuleBasedNumberFormat(ULocale.FRENCH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
         this.ordinalRule = getOrdinalRuleName(rbnf);
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
+        }
     }
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {

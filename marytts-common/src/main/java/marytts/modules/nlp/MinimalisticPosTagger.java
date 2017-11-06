@@ -37,6 +37,7 @@ import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
 
+import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
 
@@ -80,6 +81,20 @@ public class MinimalisticPosTagger extends MaryModule {
         }
         punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
     }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
+        }
+    }
+
 
     public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 

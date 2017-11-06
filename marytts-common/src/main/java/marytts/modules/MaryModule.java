@@ -30,7 +30,7 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.data.Utterance;
 import marytts.util.MaryUtils;
-
+import marytts.MaryException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,10 +96,18 @@ public abstract class MaryModule {
         state = MODULE_OFFLINE;
     }
 
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public abstract void checkInput(Utterance utt) throws MaryException;
+
     public Utterance process(Utterance utt) throws Exception {
         return process(utt, default_configuration, null);
     }
-
 
     public Utterance process(Utterance utt, Appender app) throws Exception {
         return process(utt, default_configuration, app);

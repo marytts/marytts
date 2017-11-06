@@ -24,4 +24,12 @@ public class MaryException extends Exception {
     public Exception getEmbeddedException() {
         return m_embedded_exception;
     }
+
+    public String getEmbeddedExceptionClassName() {
+        if (m_embedded_exception != null) {
+            return m_embedded_exception.getClass().getName();
+        }
+
+        return null;
+    }
 }

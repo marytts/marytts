@@ -41,7 +41,7 @@ import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
-
+import marytts.MaryException;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -107,6 +107,22 @@ public class Phonemiser extends MaryModule {
         String userdictFilename = MaryProperties.needFilename(userdictProperty);
         if (userdictFilename != null) {
             userdict = readLexicon(userdictFilename);
+        }
+    }
+
+    /**
+     *  Check if the input contains all the information needed to be
+     *  processed by the module.
+     *
+     *  @param utt the input utterance
+     *  @throws MaryException which indicates what is missing if something is missing
+     */
+    public void checkInput(Utterance utt) throws MaryException {
+        if (!utt.hasSequence(SupportedSequenceType.SENTENCE)) {
+            throw new MaryException("Sentence sequence is missing", null);
+        }
+        if (!utt.hasSequence(SupportedSequenceType.WORD)) {
+            throw new MaryException("Word sequence is missing", null);
         }
     }
 

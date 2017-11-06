@@ -20,7 +20,8 @@ CLOSED: [2017-10-23 Mon 20:58] SCHEDULED: <2017-10-23 Mon>
 CLOSED: [2017-11-06 Mon 16:20]
 ** DONE Define proper error messages for the configuration & module
 CLOSED: [2017-11-06 Mon 16:23]
-** TODO Add a Check method in the MaryModule interface (force to check we have all the sequence needed)
+** DONE Add a Check method in the MaryModule interface (force to check we have all the sequence needed)
+CLOSED: [2017-11-06 Mon 18:00]
 ** TODO See for the duration prediction using DNN (in native java)
 SCHEDULED: <2017-11-30 Thu>
 ** TODO Reinstore the model problem with HMMDurationModeller (or something like that)
