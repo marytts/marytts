@@ -122,21 +122,19 @@ public class Mary {
 
     private static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
+
+	// Instantiate availabe modules
         for (String moduleClassName : MaryProperties.moduleInitInfo()) {
             MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
-            // Partially fill module repository here;
-            // TODO: voice-specific entries will be added when each voice is
-            // loaded.
             ModuleRegistry.registerModule(m, m.getLocale());
         }
-        ModuleRegistry.setRegistrationComplete();
 
         List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
 
         // Separate loop for startup allows modules to cross-reference to each
         // other via Mary.getModule(Class) even if some have not yet been
         // started.
-        for (MaryModule m : ModuleRegistry.getAllModules()) {
+        for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
             // Only start the modules here if in server mode:
             if ((!MaryProperties.getProperty("server").equals("commandline"))
                     && m.getState() == MaryModule.MODULE_OFFLINE) {
@@ -270,7 +268,7 @@ public class Mary {
         currentState = STATE_SHUTTING_DOWN;
         logger.info("Shutting down modules...");
         // Shut down modules:
-        for (MaryModule m : ModuleRegistry.getAllModules()) {
+        for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
             if (m.getState() == MaryModule.MODULE_RUNNING) {
                 m.shutdown();
             }
