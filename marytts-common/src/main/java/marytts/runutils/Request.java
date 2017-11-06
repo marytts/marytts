@@ -96,10 +96,11 @@ public class Request {
 
     public Request(Appender app, String configuration, String input_data) {
         this.logger = LogManager.getLogger("R " + id);
-	this.appender = app;
+        this.appender = app;
 
-	if (app != null)
-	    ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
+        if (app != null) {
+            ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
+        }
 
         this.configuration = configuration;
         this.input_data = input_data;
@@ -116,31 +117,31 @@ public class Request {
         configuration_properties.load(new StringReader(this.configuration));
 
         // Input serializer reflection
-	Class<?> clazz;
-	Constructor<?> ctor;
-	Serializer input_serializer = null;
-	try {
-	    clazz = Class.forName(configuration_properties.get("input_serializer").toString());
-	    ctor = clazz.getConstructor();
-	    input_serializer = (Serializer) ctor.newInstance(new Object[] {});
-	} catch (ClassNotFoundException ex) {
-	}
+        Class<?> clazz;
+        Constructor<?> ctor;
+        Serializer input_serializer = null;
+        try {
+            clazz = Class.forName(configuration_properties.get("input_serializer").toString());
+            ctor = clazz.getConstructor();
+            input_serializer = (Serializer) ctor.newInstance(new Object[] {});
+        } catch (ClassNotFoundException ex) {
+        }
         if (input_serializer == null) {
             throw new MaryException("input serializer class \"" +
-				    configuration_properties.get("input_serializer") + "\" doesn't exist");
+                                    configuration_properties.get("input_serializer") + "\" doesn't exist");
         }
 
         // Input serializer reflection
-	output_serializer = null;
-	try {
-	    clazz = Class.forName(configuration_properties.get("output_serializer").toString());
-	    ctor = clazz.getConstructor();
-	    this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
-	} catch (ClassNotFoundException ex) {
-	}
+        output_serializer = null;
+        try {
+            clazz = Class.forName(configuration_properties.get("output_serializer").toString());
+            ctor = clazz.getConstructor();
+            this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+        } catch (ClassNotFoundException ex) {
+        }
         if (output_serializer == null) {
             throw new MaryException("output serializer class \"" +
-				    configuration_properties.get("output_serializer") + "\" doesn't exist");
+                                    configuration_properties.get("output_serializer") + "\" doesn't exist");
         }
 
         // Locale reflection (FIXME: Check if locale is correct)
@@ -156,15 +157,15 @@ public class Request {
                 logger.debug("trying to load the following class " + module_class_name + " for locale " +
                              cur_locale);
 
-		MaryModule cur_module = null;
-		cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
-		if (cur_module == null) {
-		    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
-		}
+                MaryModule cur_module = null;
+                cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
+                if (cur_module == null) {
+                    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
+                }
 
                 if (cur_module == null) {
                     throw new MaryException("Cannot load module \"" + module_class_name +
-					    "\" as it is not existing");
+                                            "\" as it is not existing");
                 }
 
                 usedModules.add(cur_module);

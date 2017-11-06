@@ -22,7 +22,7 @@ public class SupportedSequenceType {
 
     // Initialize default available sequences
     public static final String[] SET_VALUES = new String[] {
-	PARAGRAPH, SENTENCE, PHRASE, WORD, SYLLABLE, PHONE, NSS, SEGMENT, FEATURES, AUDIO
+        PARAGRAPH, SENTENCE, PHRASE, WORD, SYLLABLE, PHONE, NSS, SEGMENT, FEATURES, AUDIO
     };
     public static final Set<String> TYPE_SET = new HashSet<>(Arrays.asList(SET_VALUES));
 
@@ -33,7 +33,7 @@ public class SupportedSequenceType {
      *  @param id the label identifying the type
      */
     public static synchronized void addSupportedType(String type_id) {
-	TYPE_SET.add(type_id);
+        TYPE_SET.add(type_id);
     }
 
     /**
@@ -42,7 +42,7 @@ public class SupportedSequenceType {
      *  @return a set containing the available types
      */
     public static synchronized Set<String> listAvailableTypes() {
-	return new HashSet(TYPE_SET);
+        return new HashSet(TYPE_SET);
     }
 
     /**
@@ -52,7 +52,7 @@ public class SupportedSequenceType {
      *  @return true if it is available, false else
      */
     public static synchronized boolean isSequenceTypeAvailable(String id) {
-	return TYPE_SET.contains(id);
+        return TYPE_SET.contains(id);
     }
 
 

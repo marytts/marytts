@@ -122,7 +122,7 @@ public class Mary {
     private static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
-	// Instantiate availabe modules
+        // Instantiate availabe modules
         for (String moduleClassName : MaryProperties.moduleInitInfo()) {
             MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
             ModuleRegistry.registerModule(m, m.getLocale());

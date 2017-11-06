@@ -16,8 +16,10 @@
 :END:
 ** DONE Replace sequencetype constants by a set of string
 CLOSED: [2017-10-23 Mon 20:58] SCHEDULED: <2017-10-23 Mon>
-** TODO Finish the log part
-** TODO Define proper error messages for the configuration & module
+** DONE Finish the log part
+CLOSED: [2017-11-06 Mon 16:20]
+** DONE Define proper error messages for the configuration & module
+CLOSED: [2017-11-06 Mon 16:23]
 ** TODO Add a Check method in the MaryModule interface (force to check we have all the sequence needed)
 ** TODO See for the duration prediction using DNN (in native java)
 SCHEDULED: <2017-11-30 Thu>
