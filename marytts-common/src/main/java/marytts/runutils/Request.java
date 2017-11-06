@@ -51,7 +51,6 @@ import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
@@ -116,7 +115,8 @@ public class Request {
         Serializer input_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
         if (input_serializer == null) {
-            throw new MaryException("input serializer class \"" + configuration_properties.get("input_serializer") + "\" doesn't exist");
+            throw new MaryException("input serializer class \"" +
+				    configuration_properties.get("input_serializer") + "\" doesn't exist");
         }
 
         // Input serializer reflection
@@ -125,7 +125,8 @@ public class Request {
         this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
 
         if (output_serializer == null) {
-            throw new MaryException("output serializer class \"" + configuration_properties.get("output_serializer") + "\" doesn't exist");
+            throw new MaryException("output serializer class \"" +
+				    configuration_properties.get("output_serializer") + "\" doesn't exist");
         }
 
         // Locale reflection (FIXME: Check if locale is correct)
@@ -136,16 +137,20 @@ public class Request {
         String module_names = (String) configuration_properties.get("modules");
         if (module_names != null) {
             List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
+
             for (String module_class_name : module_name_list) {
                 logger.debug("trying to load the following class " + module_class_name + " for locale " +
                              cur_locale);
+
+
                 MaryModule cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
                 if (cur_module == null) {
                     cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
                 }
 
                 if (cur_module == null) {
-                    throw new MaryException("Cannot load module \"" + module_class_name + "\" as it is not existing");
+                    throw new MaryException("Cannot load module \"" + module_class_name +
+					    "\" as it is not existing");
                 }
 
                 usedModules.add(cur_module);
