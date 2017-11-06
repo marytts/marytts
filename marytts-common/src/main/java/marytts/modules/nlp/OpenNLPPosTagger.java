@@ -49,6 +49,9 @@ import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
 
+
+import org.apache.logging.log4j.core.Appender;
+
 /**
  * Part-of-speech tagger using OpenNLP.
  *
@@ -108,7 +111,7 @@ public class OpenNLPPosTagger extends MaryModule {
     }
 
     @SuppressWarnings("unchecked")
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();

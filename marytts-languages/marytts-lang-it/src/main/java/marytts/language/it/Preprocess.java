@@ -31,6 +31,7 @@ import marytts.config.MaryProperties;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
+import org.apache.logging.log4j.core.Appender;
 /**
  * The preprocessing module.
  *
@@ -43,7 +44,7 @@ public class Preprocess extends MaryModule {
         super("Preprocess", Locale.ITALIAN);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         return utt;
     }
 }

@@ -40,6 +40,9 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
+
+import org.apache.logging.log4j.core.Appender;
+
 /**
  * The generic prosody module.
  *
@@ -81,7 +84,7 @@ public class ProsodyGeneric extends MaryModule {
         super.startup();
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);

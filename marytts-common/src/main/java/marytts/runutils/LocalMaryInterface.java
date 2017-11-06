@@ -37,6 +37,9 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.util.MaryRuntimeUtils;
 
+
+import org.apache.logging.log4j.core.Appender;
+
 /**
  * This class and its subclasses are intended to grow into a simple-to-use,
  * unified interface for both the local MARY server and a MARY client.
@@ -91,8 +94,8 @@ public class LocalMaryInterface {
         return locale;
     }
 
-    private Utterance process(String configuration, String input_data) throws SynthesisException {
-        Request r = new Request(configuration, input_data);
+    private Utterance process(Appender app, String configuration, String input_data) throws SynthesisException {
+        Request r = new Request(app, configuration, input_data);
         try {
             r.process();
         } catch (Exception e) {

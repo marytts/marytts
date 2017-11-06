@@ -54,6 +54,8 @@ import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  *
  * This module serves as a post-lexical pronunciation model. Its appropriate
@@ -130,7 +132,7 @@ public class PronunciationModel extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         return utt;
     }
 }

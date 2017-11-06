@@ -38,6 +38,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
+import org.apache.logging.log4j.core.Appender;
 /**
  * The preprocessing module.
  *
@@ -50,7 +51,7 @@ public class Preprocess extends MaryModule {
         super("Preprocess", Locale.GERMAN);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         return utt;
     }
 }

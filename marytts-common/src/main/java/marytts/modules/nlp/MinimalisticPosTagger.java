@@ -37,6 +37,9 @@ import marytts.data.item.linguistic.Word;
 
 import org.w3c.dom.Document;
 
+
+import org.apache.logging.log4j.core.Appender;
+
 /**
  * Minimalistic part-of-speech tagger, using only function word tags as marked
  * in the Transcription GUI.
@@ -78,7 +81,7 @@ public class MinimalisticPosTagger extends MaryModule {
         punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";

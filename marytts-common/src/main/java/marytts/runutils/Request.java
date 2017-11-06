@@ -57,6 +57,7 @@ import marytts.util.io.FileUtils;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.LogManager;
 
 import marytts.data.Utterance;
@@ -87,13 +88,18 @@ public class Request {
     protected Utterance outputData;
     protected Serializer output_serializer;
     protected boolean abortRequested = false;
+    protected Appender appender;
 
     // Keep track of timing info for each module
     // (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
 
-    public Request(String configuration, String input_data) {
+    public Request(Appender app, String configuration, String input_data) {
         this.logger = LogManager.getLogger("R " + id);
+	this.appender = app;
+
+	if (app != null)
+	    ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
 
         this.configuration = configuration;
         this.input_data = input_data;
@@ -186,7 +192,7 @@ public class Request {
             logger.info("Next module: " + m.name());
             Utterance outData = null;
             try {
-                outData = m.process(outputData);
+                outData = m.process(outputData); // FIXME: what about the configuration and the logger
             } catch (Exception e) {
                 throw new Exception("Module " + m.name() + ": Problem processing the data.", e);
             }

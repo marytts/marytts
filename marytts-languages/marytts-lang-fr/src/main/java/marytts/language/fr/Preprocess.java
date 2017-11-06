@@ -18,6 +18,7 @@ import marytts.data.item.linguistic.Word;
 
 import com.ibm.icu.text.RuleBasedNumberFormat;
 
+import org.apache.logging.log4j.core.Appender;
 /**
  * @author Tristan Hamilton
  *
@@ -36,7 +37,7 @@ public class Preprocess extends MaryModule {
         this.ordinalRule = getOrdinalRuleName(rbnf);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         checkForNumbers(utt);
 

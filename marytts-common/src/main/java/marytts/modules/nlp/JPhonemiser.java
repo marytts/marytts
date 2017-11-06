@@ -56,6 +56,8 @@ import marytts.data.item.phonology.Accent;
 
 import com.google.common.base.Splitter;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  * The phonemiser module -- java implementation.
  *
@@ -167,7 +169,7 @@ public class JPhonemiser extends MaryModule {
         setUnpronounceablePosRegex();
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();

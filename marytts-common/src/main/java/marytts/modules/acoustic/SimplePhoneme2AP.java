@@ -45,6 +45,8 @@ import marytts.util.MaryUtils;
 
 import marytts.modules.MaryModule;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  * Read a simple phone string and generate default acoustic parameters.
  *
@@ -68,7 +70,7 @@ public class SimplePhoneme2AP extends MaryModule {
         super.startup();
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         // String phoneString = d.getPlainText();
         // Utterance utt = new Utterance(phoneString, d.getLocale());
 

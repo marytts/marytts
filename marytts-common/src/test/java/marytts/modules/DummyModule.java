@@ -24,6 +24,8 @@ import java.util.Locale;
 import marytts.config.MaryProperties;
 import marytts.data.Utterance;
 
+import org.apache.logging.log4j.core.Appender;
+
 /**
  * A dummy module doing nothing.
  *
@@ -52,7 +54,7 @@ public class DummyModule extends MaryModule {
         return MODULE_OFFLINE;
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         return utt;
     }
 

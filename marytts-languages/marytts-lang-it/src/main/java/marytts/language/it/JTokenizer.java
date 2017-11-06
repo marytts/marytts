@@ -34,6 +34,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
+import org.apache.logging.log4j.core.Appender;
 /**
  * Italian Tokenizer using JTok for Italian
  *
@@ -45,7 +46,7 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
         super(Locale.ITALIAN);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         return super.process(utt);
     }
 }

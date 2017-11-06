@@ -34,6 +34,7 @@ import marytts.util.MaryUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
 
 /**
  *
@@ -96,8 +97,18 @@ public abstract class MaryModule {
     }
 
     public Utterance process(Utterance utt) throws Exception {
-        return process(utt, default_configuration);
+        return process(utt, default_configuration, null);
     }
 
-    public abstract Utterance process(Utterance utt, MaryProperties configuration) throws Exception;
+
+    public Utterance process(Utterance utt, Appender app) throws Exception {
+        return process(utt, default_configuration, app);
+    }
+
+
+    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+        return process(utt, configuration, null);
+    }
+
+    public abstract Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception;
 }

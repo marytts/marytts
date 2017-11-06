@@ -42,6 +42,8 @@ import marytts.modules.MaryModule;
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  * Predict duration and F0 using CARTs or other models
  *
@@ -93,7 +95,7 @@ public class AcousticModeller extends MaryModule {
         super("AcousticModeller", locale);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws SynthesisException {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws SynthesisException {
         return utt;
     }
 }
