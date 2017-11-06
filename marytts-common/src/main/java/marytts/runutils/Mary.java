@@ -46,7 +46,6 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.util.MaryCache;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
@@ -274,14 +273,6 @@ public class Mary {
             }
         }
 
-        if (MaryCache.haveCache()) {
-            MaryCache cache = MaryCache.getCache();
-            try {
-                cache.shutdown();
-            } catch (SQLException e) {
-                logger.warn("Cannot shutdown cache: ", e);
-            }
-        }
         logger.info("Shutdown complete.");
         currentState = STATE_OFF;
     }
