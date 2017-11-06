@@ -44,6 +44,8 @@ import de.dfki.lt.tools.tokenizer.annotate.AnnotatedString;
 import de.dfki.lt.tools.tokenizer.output.Outputter;
 import de.dfki.lt.tools.tokenizer.output.Token;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  * @author Marc Schr&ouml;der
  *
@@ -98,7 +100,7 @@ public class JTokenizer extends MaryModule {
         tokenizer = new JTok(jtokProperties);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();

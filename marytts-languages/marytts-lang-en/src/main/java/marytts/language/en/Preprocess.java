@@ -30,6 +30,7 @@ import com.ibm.icu.text.RuleBasedNumberFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import org.apache.logging.log4j.core.Appender;
 /**
  * @author Tristan Hamilton
  *
@@ -185,7 +186,7 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
         expand(utt);
 
         return utt;

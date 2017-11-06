@@ -39,6 +39,8 @@ import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.item.Item;
 
+
+import org.apache.logging.log4j.core.Appender;
 /**
  * The module which compute the features
  *
@@ -66,7 +68,7 @@ public class TargetFeatureLister extends MaryModule {
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
 
         FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
