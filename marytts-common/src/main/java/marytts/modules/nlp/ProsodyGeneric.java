@@ -96,9 +96,6 @@ public class ProsodyGeneric extends MaryModule {
         if (!utt.hasSequence(SupportedSequenceType.SENTENCE)) {
             throw new MaryException("Sentence sequence is missing", null);
         }
-        if (!utt.hasSequence(SupportedSequenceType.PHRASE)) {
-            throw new MaryException("Phrase sequence is missing", null);
-        }
         if (!utt.hasSequence(SupportedSequenceType.WORD)) {
             throw new MaryException("Word sequence is missing", null);
         }
