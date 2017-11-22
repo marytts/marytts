@@ -34,7 +34,7 @@ import marytts.util.MaryUtils;
  * @author marc
  *
  */
-public class LanguageConfig extends MaryConfig {
+public class LanguageConfig extends PropertiesMaryConfig {
 
     private Set<Locale> locales = new HashSet<Locale>();
 

@@ -87,10 +87,12 @@ public class MaryProperties {
         }
         // Then, try the configs. First one wins:
         for (MaryConfig mc : MaryConfig.getConfigs()) {
-            val = mc.getProperties().getProperty(property);
-            if (val != null) {
-                return val;
-            }
+	    if (mc instanceof PropertiesMaryConfig) {
+		val = ((PropertiesMaryConfig) mc).getProperties().getProperty(property);
+		if (val != null) {
+		    return val;
+		}
+	    }
         }
         return defaultValue;
     }

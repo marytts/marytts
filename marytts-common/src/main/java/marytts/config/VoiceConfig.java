@@ -29,7 +29,7 @@ import marytts.util.MaryUtils;
  * @author marc
  *
  */
-public class VoiceConfig extends MaryConfig {
+public class VoiceConfig extends PropertiesMaryConfig {
 
     public VoiceConfig(InputStream propertyStream) throws MaryConfigurationException {
         super(propertyStream);

@@ -9,7 +9,7 @@ import marytts.exceptions.MaryConfigurationException;
  * @author marc
  *
  */
-public class MainConfig extends MaryConfig {
+public class MainConfig extends PropertiesMaryConfig {
 
     public MainConfig() throws MaryConfigurationException {
         super(MainConfig.class.getResourceAsStream("marybase.config"));

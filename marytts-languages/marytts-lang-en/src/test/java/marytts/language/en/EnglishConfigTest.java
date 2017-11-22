@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import marytts.config.LanguageConfig;
-import marytts.config.MaryConfig;
+import marytts.config.PropertiesMaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
 import org.testng.Assert;
@@ -41,25 +41,25 @@ public class EnglishConfigTest {
 
     @Test
     public void isNotMainConfig() throws MaryConfigurationException {
-        MaryConfig m = new EnglishConfig();
+        PropertiesMaryConfig m = new EnglishConfig();
         Assert.assertFalse(m.isMainConfig());
     }
 
     @Test
     public void haveLanguageConfig() {
-        Assert.assertTrue(MaryConfig.countLanguageConfigs() > 0);
+        Assert.assertTrue(PropertiesMaryConfig.countLanguageConfigs() > 0);
     }
 
     @Test
     public void haveLanguageConfig2() {
-        Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
+        Iterable<LanguageConfig> lcs = PropertiesMaryConfig.getLanguageConfigs();
         Assert.assertNotNull(lcs);
         Assert.assertTrue(lcs.iterator().hasNext());
     }
 
     @Test
     public void canGet() {
-        MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
+        PropertiesMaryConfig m = PropertiesMaryConfig.getLanguageConfig(Locale.US);
         Assert.assertNotNull(m);
         Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
     }

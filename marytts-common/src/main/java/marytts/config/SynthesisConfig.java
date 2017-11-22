@@ -29,7 +29,7 @@ import marytts.util.MaryUtils;
  * @author marc
  *
  */
-public class SynthesisConfig extends MaryConfig {
+public class SynthesisConfig extends PropertiesMaryConfig {
 
     public SynthesisConfig(InputStream propertyStream) throws MaryConfigurationException {
         super(propertyStream);

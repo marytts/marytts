@@ -12,7 +12,7 @@ import org.testng.annotations.*;
  */
 public class MainConfigTest {
 
-    private MaryConfig mc;
+    private PropertiesMaryConfig mc;
 
     @BeforeTest
     public void setUp() throws MaryConfigurationException {

@@ -44,7 +44,7 @@ import marytts.util.io.PropertiesTrimTrailingWhitespace;
  *
  */
 public abstract class MaryConfig {
-    private static final ServiceLoader<MaryConfig> configLoader = ServiceLoader.load(MaryConfig.class);
+    protected static final ServiceLoader<MaryConfig> configLoader = ServiceLoader.load(MaryConfig.class);
 
     /**
      * This method will try to check that the available configs are consistent
@@ -85,34 +85,7 @@ public abstract class MaryConfig {
         return num;
     }
 
-    public static int countLanguageConfigs() {
-        int num = 0;
-        for (MaryConfig mc : configLoader) {
-            if (mc.isLanguageConfig()) {
-                num++;
-            }
-        }
-        return num;
-    }
 
-    public static int countVoiceConfigs() {
-        int num = 0;
-        for (MaryConfig mc : configLoader) {
-            if (mc.isVoiceConfig()) {
-                num++;
-            }
-        }
-        return num;
-    }
-
-    public static MaryConfig getMainConfig() {
-        for (MaryConfig mc : configLoader) {
-            if (mc.isMainConfig()) {
-                return mc;
-            }
-        }
-        return null;
-    }
 
     public static Iterable<LanguageConfig> getLanguageConfigs() {
         Set<LanguageConfig> lcs = new HashSet<LanguageConfig>();
@@ -124,6 +97,7 @@ public abstract class MaryConfig {
         }
         return lcs;
     }
+
 
     public static Iterable<VoiceConfig> getVoiceConfigs() {
         Set<VoiceConfig> vcs = new HashSet<VoiceConfig>();
@@ -148,41 +122,10 @@ public abstract class MaryConfig {
         return null;
     }
 
-    /***
-     * get a synthesis config
-     *
-     * @param type
-     *            the type of synthesis, equal to the configs name. e.g.
-     *            'unitselection'
-     * @return
-     */
-    public static SynthesisConfig getSynthesisConfig(String type) {
+    public static MaryConfig getMainConfig() {
         for (MaryConfig mc : configLoader) {
-            if (mc.isSynthesisConfig()) {
-                SynthesisConfig sc = (SynthesisConfig) mc;
-                if (sc.getProperty("name", null).equals(type)) {
-                    return sc;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get the voice config for the given voice name, or null if there is no
-     * such voice config.
-     *
-     * @param voiceName
-     *            voiceName
-     * @return vc if vc.getName().equals(voiceName), null otherwise
-     */
-    public static VoiceConfig getVoiceConfig(String voiceName) {
-        for (MaryConfig mc : configLoader) {
-            if (mc.isVoiceConfig()) {
-                VoiceConfig vc = (VoiceConfig) mc;
-                if (vc.getName().equals(voiceName)) {
-                    return vc;
-                }
+            if (mc.isMainConfig()) {
+                return mc;
             }
         }
         return null;
@@ -214,15 +157,7 @@ public abstract class MaryConfig {
 
     // ////////// Non-static / base class methods //////////////
 
-    private Properties props;
-
     protected MaryConfig(InputStream propertyStream) throws MaryConfigurationException {
-        props = new PropertiesTrimTrailingWhitespace();
-        try {
-            props.load(propertyStream);
-        } catch (Exception e) {
-            throw new MaryConfigurationException("cannot load properties", e);
-        }
     }
 
     public boolean isMainConfig() {
@@ -241,56 +176,7 @@ public abstract class MaryConfig {
         return false;
     }
 
-    public Properties getProperties() {
-        return props;
-    }
 
-    /**
-     * Convenience access to this config's properties.
-     *
-     * @param systemPropertiesOverride
-     *            whether to use system properties in priority if they exist. If
-     *            true, any property requested from this properties accessor
-     *            will first be looked up in the system properties, and only if
-     *            it is not defined there, it will be looked up in this config's
-     *            properties.
-     * @return PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap)
-     */
-    public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
-        Map<String, String> maryBaseMap = new HashMap<String, String>();
-        maryBaseMap.put("MARY_BASE", MaryProperties.maryBase());
-        return new PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap);
-    }
-
-    /**
-     * Get the given property. If it is not defined, the defaultValue is
-     * returned.
-     *
-     * @param property
-     *            name of the property to retrieve
-     * @param defaultValue
-     *            value to return if the property is not defined.
-     * @return props.getProperty(property, defaultValue)
-     */
-    public String getProperty(String property, String defaultValue) {
-        return props.getProperty(property, defaultValue);
-    }
-
-    /**
-     * For the given property name, return the value of that property as a list
-     * of items (interpreting the property value as a space-separated list).
-     *
-     * @param propertyName
-     *            propertyName
-     * @return the list of items, or an empty list if the property is not
-     *         defined or contains no items
-     */
-    public List<String> getList(String propertyName) {
-        String val = props.getProperty(propertyName);
-        if (val == null) {
-            return new ArrayList<String>();
-        }
-        return Arrays.asList(StringUtils.split(val));
-
-    }
+    // FIXME: to delete from here
+    public abstract List<String> getList(String propertyName);
 }
