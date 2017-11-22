@@ -35,19 +35,19 @@ import org.testng.annotations.*;
  * @author marc
  *
  */
-public class MaryConfigTest {
+public class PropertiesMaryConfigTest {
 
     @Test
     public void canCountConfigs() {
         // exercise
-        int num = MaryConfig.countConfigs();
+        int num = PropertiesMaryConfig.countConfigs();
         // verify
         Assert.assertTrue(num >= 0);
     }
 
     @Test
     public void haveMainConfig() {
-        MaryConfig m = MaryConfig.getMainConfig();
+        PropertiesMaryConfig m = (PropertiesMaryConfig) PropertiesMaryConfig.getMainConfig();
         Assert.assertNotNull(m);
     }
 
@@ -66,7 +66,7 @@ public class MaryConfigTest {
     public void ensureTrailingWhitespaceIsTrimmed() throws MaryConfigurationException, IOException {
         String testResourceName = "test.config";
         InputStream actualInput = this.getClass().getResourceAsStream(testResourceName);
-        MaryConfig testConfig = new TestConfig(actualInput);
+        PropertiesMaryConfig testConfig = new TestConfig(actualInput);
         Properties testProps = new Properties();
         InputStream expectedInput = this.getClass().getResourceAsStream(testResourceName);
         testProps.load(expectedInput);
@@ -111,7 +111,7 @@ public class MaryConfigTest {
         Assert.assertEquals("c", it.next());
     }
 
-    class TestConfig extends MaryConfig {
+    class TestConfig extends PropertiesMaryConfig {
 
         protected TestConfig(InputStream propertyStream) throws MaryConfigurationException {
             super(propertyStream);
