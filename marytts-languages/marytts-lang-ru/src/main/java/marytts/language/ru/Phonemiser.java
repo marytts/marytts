@@ -39,7 +39,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.util.MaryRuntimeUtils;
 import marytts.MaryException;
 import marytts.data.Utterance;
@@ -101,13 +101,14 @@ public class Phonemiser extends MaryModule {
     throws IOException, ParserConfigurationException, MaryConfigurationException {
         super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
         allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
-        // userdict is optional
-        // Actually here, the user dict is the only source of information we
-        // have, so it is not optional:
-        String userdictFilename = MaryProperties.needFilename(userdictProperty);
-        if (userdictFilename != null) {
-            userdict = readLexicon(userdictFilename);
-        }
+
+        // // userdict is optional
+        // // Actually here, the user dict is the only source of information we
+        // // have, so it is not optional:
+        // String userdictFilename = MaryProperties.needFilename(userdictProperty);
+        // if (userdictFilename != null) {
+        //     userdict = readLexicon(userdictFilename);
+        // }
     }
 
     /**
@@ -126,7 +127,7 @@ public class Phonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();

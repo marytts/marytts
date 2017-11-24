@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -107,7 +107,7 @@ public class AcousticModeller extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws SynthesisException {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws SynthesisException {
         return utt;
     }
 }

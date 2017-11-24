@@ -21,7 +21,7 @@ package marytts.modules;
 
 import java.util.Locale;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.MaryException;
 
@@ -67,7 +67,7 @@ public class DummyModule extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
         return utt;
     }
 

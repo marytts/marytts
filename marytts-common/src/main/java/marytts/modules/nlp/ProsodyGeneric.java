@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import org.w3c.dom.Document;
 
@@ -101,7 +101,7 @@ public class ProsodyGeneric extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);

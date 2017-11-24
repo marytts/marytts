@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
@@ -114,7 +114,7 @@ public class JTokenizer extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();

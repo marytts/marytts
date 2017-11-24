@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
@@ -200,7 +200,7 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
         expand(utt);
 
         return utt;

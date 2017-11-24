@@ -18,12 +18,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 
 /**
- *
+ * Configuration class
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class MaryConfiguration
-{
+public class MaryConfiguration {
     /** The logger */
     protected Logger logger;
     /** Map to associate a class and a list of properties to define during the configuration stage */
@@ -44,9 +43,9 @@ public class MaryConfiguration
      *
      */
     public MaryConfiguration() {
-	m_class_property_map = new HashMap<String, Set<String>>();
-	m_configuration_map = new HashMap<StringPair, String>();
-	m_is_strict = false;
+        m_class_property_map = new HashMap<String, Set<String>>();
+        m_configuration_map = new HashMap<StringPair, String>();
+        m_is_strict = false;
         logger = LogManager.getLogger(this);
     }
 
@@ -56,9 +55,9 @@ public class MaryConfiguration
      * @param strict the strictness of the configuration (@see m_is_strict)
      */
     public MaryConfiguration(boolean is_strict) {
-	m_class_property_map = new HashMap<String, Set<String>>();
-	m_configuration_map = new HashMap<StringPair, String>();
-	m_is_strict = is_strict;
+        m_class_property_map = new HashMap<String, Set<String>>();
+        m_configuration_map = new HashMap<StringPair, String>();
+        m_is_strict = is_strict;
         logger = LogManager.getLogger(this);
     }
 
@@ -69,16 +68,16 @@ public class MaryConfiguration
      *  @param map_property_values the map which associates the property and its value
      */
     public void addConfigurationClass(String class_name, HashMap<String, String> map_property_values) {
-	if (!m_class_property_map.containsKey(class_name)) {
-	    m_class_property_map.put(class_name, new HashSet<String>());
-	}
+        if (!m_class_property_map.containsKey(class_name)) {
+            m_class_property_map.put(class_name, new HashSet<String>());
+        }
 
-	for (Map.Entry<String, String> entry : map_property_values.entrySet()) {
-	    String property = entry.getKey();
-	    property = property.substring(0,1).toUpperCase() + property.substring(1).toLowerCase();
-	    m_class_property_map.get(class_name).add(property);
-	    m_configuration_map.put(new StringPair(class_name, property), entry.getValue());
-	}
+        for (Map.Entry<String, String> entry : map_property_values.entrySet()) {
+            String property = entry.getKey();
+            property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
+            m_class_property_map.get(class_name).add(property);
+            m_configuration_map.put(new StringPair(class_name, property), entry.getValue());
+        }
     }
 
     /**
@@ -89,13 +88,13 @@ public class MaryConfiguration
      *  @param value the value of the property for the class
      */
     public void addConfigurationProperty(String class_name, String property, String value) {
-	property = property.substring(0,1).toUpperCase() + property.substring(1).toLowerCase();
-	if (!m_class_property_map.containsKey(class_name)) {
-	    m_class_property_map.put(class_name, new HashSet<String>());
-	}
+        property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
+        if (!m_class_property_map.containsKey(class_name)) {
+            m_class_property_map.put(class_name, new HashSet<String>());
+        }
 
-	m_class_property_map.get(class_name).add(property);
-	m_configuration_map.put(new StringPair(class_name, property), value);
+        m_class_property_map.get(class_name).add(property);
+        m_configuration_map.put(new StringPair(class_name, property), value);
     }
 
     /**
@@ -106,27 +105,28 @@ public class MaryConfiguration
      */
     public void applyConfiguration(Object obj) throws MaryException {
 
-	try {
-	    String class_name = obj.getClass().toString();
-	    Set<String> m_properties = m_class_property_map.get(class_name);
+        try {
+            String class_name = obj.getClass().toString();
+            Set<String> m_properties = m_class_property_map.get(class_name);
 
-	    for (String property: m_properties) {
-		try {
-		    Method m = obj.getClass().getMethod("set" + property, String.class);
-		    m.invoke(obj, m_configuration_map.get(new StringPair(class_name, property)));
-		} catch (NoSuchMethodException ex) {
-		    if (m_is_strict)
-			throw ex;
+            for (String property : m_properties) {
+                try {
+                    Method m = obj.getClass().getMethod("set" + property, String.class);
+                    m.invoke(obj, m_configuration_map.get(new StringPair(class_name, property)));
+                } catch (NoSuchMethodException ex) {
+                    if (m_is_strict) {
+                        throw ex;
+                    }
 
-		    logger.warn("Object of class \"" + obj.getClass().toString() +
-				   "\" doesn't have a setter for property \"" + property.toLowerCase() + "\"");
-		}
-	    }
+                    logger.warn("Object of class \"" + obj.getClass().toString() +
+                                "\" doesn't have a setter for property \"" + property.toLowerCase() + "\"");
+                }
+            }
 
-	} catch (Exception ex) {
-	    throw new MaryException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
-				    ex);
-	}
+        } catch (Exception ex) {
+            throw new MaryException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
+                                    ex);
+        }
     }
 }
 
