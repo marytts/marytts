@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
@@ -54,7 +54,7 @@ public class Preprocess extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
         return utt;
     }
 }

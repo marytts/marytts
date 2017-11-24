@@ -19,9 +19,8 @@
  */
 package marytts.modules;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
-// Log4j Logging classes
 import java.io.StringReader;
 import java.util.Locale;
 
@@ -32,6 +31,7 @@ import marytts.data.Utterance;
 import marytts.util.MaryUtils;
 import marytts.MaryException;
 
+// Logging
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
@@ -44,7 +44,7 @@ public abstract class MaryModule {
     public static final int MODULE_OFFLINE = 0;
     public static final int MODULE_RUNNING = 1;
 
-    private MaryProperties default_configuration = null;
+    private MaryConfiguration default_configuration = null;
     private String name = null;
     private Locale locale = null;
     protected int state;
@@ -114,9 +114,9 @@ public abstract class MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryProperties configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws Exception {
         return process(utt, configuration, null);
     }
 
-    public abstract Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception;
+    public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration, Appender app) throws Exception;
 }

@@ -40,7 +40,7 @@ import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;
 import marytts.modules.MaryModule;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
@@ -137,31 +137,32 @@ public class JPhonemiser extends MaryModule {
                        String lexiconProperty,
                        String ltsProperty, String removetrailingonefromphonesProperty)
     throws IOException, MaryConfigurationException {
-        super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
-        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
-        // userdict is optional
-        String userdictFilename = MaryProperties.getFilename(userdictProperty); // may
-        // be
-        // null
-        if (userdictFilename != null) {
-            if (new File(userdictFilename).exists()) {
-                userdict = readLexicon(userdictFilename);
-            } else {
-                logger.info("User dictionary '" + userdictFilename + "' for locale '" + getLocale()
-                            + "' does not exist. Ignoring.");
-            }
-        }
-        InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
-        logger.debug("Loading lexicon " + MaryProperties.getProperty(lexiconProperty,
-                     "<null>") + "for locale "
-                     + getLocale() + " from the property " + lexiconProperty);
-        lexicon = new FSTLookup(lexiconStream, lexiconProperty);
-        InputStream ltsStream = MaryProperties.needStream(ltsProperty);
-        if (removetrailingonefromphonesProperty != null) {
-            this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty,
-                                               true);
-        }
-        lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
+
+	super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
+        // allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
+        // // userdict is optional
+        // String userdictFilename = MaryProperties.getFilename(userdictProperty); // may
+        // // be
+        // // null
+        // if (userdictFilename != null) {
+        //     if (new File(userdictFilename).exists()) {
+        //         userdict = readLexicon(userdictFilename);
+        //     } else {
+        //         logger.info("User dictionary '" + userdictFilename + "' for locale '" + getLocale()
+        //                     + "' does not exist. Ignoring.");
+        //     }
+        // }
+        // InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
+        // logger.debug("Loading lexicon " + MaryProperties.getProperty(lexiconProperty,
+        //              "<null>") + "for locale "
+        //              + getLocale() + " from the property " + lexiconProperty);
+        // lexicon = new FSTLookup(lexiconStream, lexiconProperty);
+        // InputStream ltsStream = MaryProperties.needStream(ltsProperty);
+        // if (removetrailingonefromphonesProperty != null) {
+        //     this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty,
+        //                                        true);
+        // }
+        // lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
     }
 
     public void startup() throws Exception {
@@ -186,7 +187,7 @@ public class JPhonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -584,23 +585,23 @@ public class JPhonemiser extends MaryModule {
      *
      */
     protected void setPunctuationPosRegex() {
-        String language = getLocale().getLanguage();
-        String propertyName = language + ".pos.punct.regex";
-        String defaultRegex = "\\$PUNCT";
-        String regex = MaryProperties.getProperty(propertyName);
-        if (regex == null) {
-            logger.debug(String.format("Property %s not set, using default", propertyName));
-            regex = defaultRegex;
-        } else {
-            logger.debug(String.format("Using property %s", propertyName));
-        }
-        try {
-            punctuationPosRegex = Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
-            punctuationPosRegex = Pattern.compile(defaultRegex);
-        }
-        logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
+        // String language = getLocale().getLanguage();
+        // String propertyName = language + ".pos.punct.regex";
+        // String defaultRegex = "\\$PUNCT";
+        // String regex = MaryProperties.getProperty(propertyName);
+        // if (regex == null) {
+        //     logger.debug(String.format("Property %s not set, using default", propertyName));
+        //     regex = defaultRegex;
+        // } else {
+        //     logger.debug(String.format("Using property %s", propertyName));
+        // }
+        // try {
+        //     punctuationPosRegex = Pattern.compile(regex);
+        // } catch (PatternSyntaxException e) {
+        //     logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+        //     punctuationPosRegex = Pattern.compile(defaultRegex);
+        // }
+        // logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
     }
 
     /**
@@ -610,23 +611,23 @@ public class JPhonemiser extends MaryModule {
      *
      */
     protected void setUnpronounceablePosRegex() {
-        String language = getLocale().getLanguage();
-        String propertyName = language + ".pos.unprounounceable.regex";
-        String defaultRegex = "^[^a-zA-Z]+$";
-        String regex = MaryProperties.getProperty(propertyName);
-        if (regex == null) {
-            logger.debug(String.format("Property %s not set, using default", propertyName));
-            regex = defaultRegex;
-        } else {
-            logger.debug(String.format("Using property %s", propertyName));
-        }
-        try {
-            unpronounceablePosRegex = Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
-            unpronounceablePosRegex = Pattern.compile(defaultRegex);
-        }
-        logger.debug(String.format("Punctuation regex pattern set to /%s/", unpronounceablePosRegex));
+        // String language = getLocale().getLanguage();
+        // String propertyName = language + ".pos.unprounounceable.regex";
+        // String defaultRegex = "^[^a-zA-Z]+$";
+        // String regex = MaryProperties.getProperty(propertyName);
+        // if (regex == null) {
+        //     logger.debug(String.format("Property %s not set, using default", propertyName));
+        //     regex = defaultRegex;
+        // } else {
+        //     logger.debug(String.format("Using property %s", propertyName));
+        // }
+        // try {
+        //     unpronounceablePosRegex = Pattern.compile(regex);
+        // } catch (PatternSyntaxException e) {
+        //     logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+        //     unpronounceablePosRegex = Pattern.compile(defaultRegex);
+        // }
+        // logger.debug(String.format("Punctuation regex pattern set to /%s/", unpronounceablePosRegex));
     }
 
     /**

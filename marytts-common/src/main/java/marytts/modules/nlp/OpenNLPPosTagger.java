@@ -38,7 +38,7 @@ import marytts.util.MaryUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -126,7 +126,7 @@ public class OpenNLPPosTagger extends MaryModule {
     }
 
     @SuppressWarnings("unchecked")
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();

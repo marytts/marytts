@@ -43,7 +43,7 @@ import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.PhonemiseDenglish;
 import marytts.language.de.phonemiser.Result;
 import marytts.modules.synthesis.PAConverter;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.util.MaryUtils;
 
 import marytts.data.Utterance;
@@ -86,35 +86,35 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         phonemiseDenglish = new PhonemiseDenglish(this);
         inflection = new Inflection();
 
-        if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
-            String logBasepath = MaryProperties.maryBase() + File.separator + "log" + File.separator;
-            File logDir = new File(logBasepath);
-            try {
-                if (!logDir.isDirectory()) {
-                    logger.info("Creating log directory " + logDir.getCanonicalPath());
-                    FileUtils.forceMkdir(logDir);
-                }
-                logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename",
-                                     logBasepath + "de_unknown.txt");
-                unknown2Frequency = new HashMap<String, Integer>();
-                logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename",
-                                     logBasepath + "de_english-words.txt");
-                english2Frequency = new HashMap<String, Integer>();
-            } catch (IOException e) {
-                logger.info("Could not create log directory " + logDir.getCanonicalPath() + " Logging disabled!",
-                            e);
-            }
-        }
-        if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
-            InputStream usLexStream = MaryProperties.getStream("en_US.lexicon");
-            if (usLexStream != null) {
-                try {
-                    usEnglishLexicon = new FSTLookup(usLexStream, MaryProperties.getProperty("en_US.lexicon"));
-                } catch (Exception e) {
-                    logger.info("Cannot load English lexicon '" + MaryProperties.getProperty("en_US.lexicon") + "'", e);
-                }
-            }
-        }
+        // if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
+        //     String logBasepath = MaryProperties.maryBase() + File.separator + "log" + File.separator;
+        //     File logDir = new File(logBasepath);
+        //     try {
+        //         if (!logDir.isDirectory()) {
+        //             logger.info("Creating log directory " + logDir.getCanonicalPath());
+        //             FileUtils.forceMkdir(logDir);
+        //         }
+        //         logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename",
+        //                              logBasepath + "de_unknown.txt");
+        //         unknown2Frequency = new HashMap<String, Integer>();
+        //         logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename",
+        //                              logBasepath + "de_english-words.txt");
+        //         english2Frequency = new HashMap<String, Integer>();
+        //     } catch (IOException e) {
+        //         logger.info("Could not create log directory " + logDir.getCanonicalPath() + " Logging disabled!",
+        //                     e);
+        //     }
+        // }
+        // if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
+        //     InputStream usLexStream = MaryProperties.getStream("en_US.lexicon");
+        //     if (usLexStream != null) {
+        //         try {
+        //             usEnglishLexicon = new FSTLookup(usLexStream, MaryProperties.getProperty("en_US.lexicon"));
+        //         } catch (Exception e) {
+        //             logger.info("Cannot load English lexicon '" + MaryProperties.getProperty("en_US.lexicon") + "'", e);
+        //         }
+        //     }
+        // }
     }
 
     public void shutdown() {
@@ -191,7 +191,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
     @Override
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();

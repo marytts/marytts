@@ -28,7 +28,7 @@ import marytts.util.MaryUtils;
 
 import marytts.modules.MaryModule;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
@@ -96,7 +96,7 @@ public class MinimalisticPosTagger extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";

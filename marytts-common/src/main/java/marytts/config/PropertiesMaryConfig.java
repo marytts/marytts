@@ -100,7 +100,7 @@ public abstract class PropertiesMaryConfig extends MaryConfig {
     private Properties props;
 
     protected PropertiesMaryConfig(InputStream propertyStream) throws MaryConfigurationException {
-	super(propertyStream);
+        super(propertyStream);
         props = new PropertiesTrimTrailingWhitespace();
         try {
             props.load(propertyStream);

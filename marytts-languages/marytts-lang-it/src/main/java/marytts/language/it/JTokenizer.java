@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.MaryException;
 import marytts.data.Utterance;
 
@@ -52,7 +52,7 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
         super.checkInput(utt);
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
         return super.process(utt);
     }
 }
