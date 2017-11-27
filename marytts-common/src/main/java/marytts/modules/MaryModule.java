@@ -115,7 +115,7 @@ public abstract class MaryModule {
 
 
     public Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws Exception {
-        return process(utt, configuration, null);
+        return process(utt, runtime_configuration, null);
     }
 
     public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration, Appender app) throws Exception;

@@ -57,6 +57,9 @@ import org.apache.logging.log4j.core.Appender;
 public class SimplePhoneme2AP extends MaryModule {
     protected AllophoneSet allophoneSet;
 
+    public SimplePhoneme2AP() {
+	this(Locale.getDefault());
+    }
     public SimplePhoneme2AP(String localeString) {
         this(MaryUtils.string2locale(localeString));
     }

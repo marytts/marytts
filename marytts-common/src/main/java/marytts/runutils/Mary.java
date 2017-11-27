@@ -27,7 +27,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -41,7 +40,11 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import marytts.Version;
+// Reflection
+import org.reflections.Reflections;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
+
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.MaryModule;
@@ -122,10 +125,13 @@ public class Mary {
     private static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
-        // Instantiate availabe modules
-        for (String moduleClassName : MaryProperties.moduleInitInfo()) {
-            MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
-            ModuleRegistry.registerModule(m, m.getLocale());
+	// Instantiate vailable modules
+	Reflections reflections = new Reflections("marytts");
+        for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
+	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
+		MaryModule m = ModuleRegistry.instantiateModule(moduleClass.getName());
+		ModuleRegistry.registerModule(m, m.getLocale());
+	    }
         }
 
         List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
@@ -135,8 +141,7 @@ public class Mary {
         // started.
         for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
             // Only start the modules here if in server mode:
-            if ((!MaryProperties.getProperty("server").equals("commandline"))
-                    && m.getState() == MaryModule.MODULE_OFFLINE) {
+            if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 long before = System.currentTimeMillis();
                 try {
                     m.startup();
@@ -204,38 +209,10 @@ public class Mary {
         }
 
         logger.info("Mary starting up...");
-        logger.info("Specification version " + Version.specificationVersion());
-        logger.info("Implementation version " + Version.implementationVersion());
         logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "
                     + System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
                     + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
-        logger.debug("MARY_BASE: " + MaryProperties.maryBase());
-        String[] installedFilenames = new File(MaryProperties.maryBase() + "/installed").list();
-        if (installedFilenames == null) {
-            logger.debug("The installed/ folder does not exist.");
-        } else {
-            StringBuilder installedMsg = new StringBuilder();
-            for (String filename : installedFilenames) {
-                if (installedMsg.length() > 0) {
-                    installedMsg.append(", ");
-                }
-                installedMsg.append(filename);
-            }
-            logger.debug("Content of installed/ folder: " + installedMsg);
-        }
-        String[] confFilenames = new File(MaryProperties.maryBase() + "/conf").list();
-        if (confFilenames == null) {
-            logger.debug("The conf/ folder does not exist.");
-        } else {
-            StringBuilder confMsg = new StringBuilder();
-            for (String filename : confFilenames) {
-                if (confMsg.length() > 0) {
-                    confMsg.append(", ");
-                }
-                confMsg.append(filename);
-            }
-            logger.debug("Content of conf/ folder: " + confMsg);
-        }
+
         logger.debug("Full dump of system properties:");
         for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
             logger.debug(key + " = " + System.getProperties().get(key));

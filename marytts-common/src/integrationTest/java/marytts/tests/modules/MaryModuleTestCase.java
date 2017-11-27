@@ -50,14 +50,6 @@ public class MaryModuleTestCase {
     public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
         logger = LogManager.getLogger(getClass());
 
-        // FIXME: BasicConfigurator.configure();
-        if (System.getProperty("mary.base") == null) {
-            System.setProperty("mary.base", ".");
-            logger.warn("System property 'mary.base' is not defined -- trying "
-                        + new File(".").getAbsolutePath()
-                        + " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
-        }
-
         if (needMaryStarted) {
             if (Mary.currentState() == Mary.STATE_OFF) {
                 Mary.startup();

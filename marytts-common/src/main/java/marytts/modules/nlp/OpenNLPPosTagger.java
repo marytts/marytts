@@ -59,7 +59,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author Marc Schr&ouml;der
  */
 
-public class OpenNLPPosTagger extends MaryModule {
+public abstract class OpenNLPPosTagger extends MaryModule {
     private String propertyPrefix;
     private POSTaggerME tagger;
     private Map<String, String> posMapper = null;
@@ -75,7 +75,7 @@ public class OpenNLPPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
+    protected OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
         super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
         if (!propertyPrefix.endsWith(".")) {
             propertyPrefix = propertyPrefix + ".";
