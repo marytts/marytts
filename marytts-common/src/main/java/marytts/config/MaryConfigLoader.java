@@ -45,5 +45,4 @@ import marytts.util.io.PropertiesTrimTrailingWhitespace;
 public abstract class MaryConfigLoader {
     protected static final ServiceLoader<MaryConfigLoader> configLoader = ServiceLoader.load(MaryConfigLoader.class);
 
-
 }
