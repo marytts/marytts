@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import marytts.fst.FSTLookup;
 
 import marytts.config.MaryConfiguration;
 import marytts.MaryException;
@@ -82,6 +83,9 @@ import org.apache.logging.log4j.core.Appender;
  *         </ul>
  */
 public class Preprocess extends MaryModule {
+
+    // lexicon
+    FSTLookup lexicon;
 
     // abbreviations map
     private Map<Object, Object> abbrevMap;
@@ -173,7 +177,8 @@ public class Preprocess extends MaryModule {
     }
 
     public Preprocess() {
-        super("Preprocess", Locale.ENGLISH);
+        super("Preprocess", Locale.ENGLISH, null);
+	this.lexicon = null;
         this.rbnf = new RuleBasedNumberFormat(ULocale.ENGLISH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
         this.ordinalRule = getOrdinalRuleName(rbnf);
@@ -200,7 +205,8 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration user_configuration, Appender app) throws Exception {
+	user_configuration.applyConfiguration(this);
         expand(utt);
 
         return utt;
@@ -336,7 +342,7 @@ public class Preprocess extends MaryModule {
             // contractions
             else if (token_text.matches(contractPattern.pattern())) {
                 // first check lexicon
-                if (MaryRuntimeUtils.checkLexicon("en_US", token_text).length == 0) {
+                if (checkLexicon(token_text).length == 0) {
                     Matcher contractionMatch = contractPattern.matcher(token_text);
                     contractionMatch.find();
 
@@ -454,7 +460,7 @@ public class Preprocess extends MaryModule {
             // words containing only consonants
             else if (token_text.matches("(?i)" + consonantPattern.pattern())) {
                 // first check lexicon
-                if (MaryRuntimeUtils.checkLexicon("en_US", token_text).length == 0) {
+                if (checkLexicon(token_text).length == 0) {
                     expanded_text = expandConsonants(token_text);
                 }
             }
@@ -882,5 +888,12 @@ public class Preprocess extends MaryModule {
         Map<Object, Object> abbMap = new Properties();
         ((Properties) abbMap).load(Preprocess.class.getResourceAsStream("preprocess/abbrev.dat"));
         return abbMap;
+    }
+
+    public String[] checkLexicon(String token) {
+	if (lexicon == null)
+	    return null;
+
+	return lexicon.lookup(token.toLowerCase());
     }
 }

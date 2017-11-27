@@ -50,20 +50,6 @@ public class PAConverter {
 
     // Static constructor:
     static {
-        sampa = new HashMap<Locale, AllophoneSet>();
-        try {
-            AllophoneSet usenSampa = MaryRuntimeUtils.needAllophoneSet("en_US.allophoneset");
-            sampa.put(Locale.US, usenSampa);
-        } catch (Exception e) {
-            logger.warn("Cannot load US English allophone set", e);
-        }
-        try {
-            AllophoneSet deSampa = MaryRuntimeUtils.needAllophoneSet("de.allophoneset");
-            sampa.put(Locale.GERMAN, deSampa);
-        } catch (Exception e) {
-            logger.warn("Cannot load German allophone set", e);
-        }
-
         // English Sampa to German Sampa
         sampaEn2sampaDe = new HashMap<String, String>();
         sampaEn2sampaDe.put("p_h", "p");
@@ -96,45 +82,4 @@ public class PAConverter {
         }
         return result;
     }
-
-    /**
-     * Converts an english sampa string into a german sampa string, keeping
-     * syllable boundaries and stress markers
-     *
-     * @param sEn
-     *            sEn
-     * @return result.toString
-     */
-    public static String sampaEnString2sampaDeString(String sEn) {
-        StringBuilder result = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(sEn, "-");
-        while (st.hasMoreTokens()) {
-            boolean stressed = false;
-            String syl = st.nextToken();
-            if (syl.startsWith("'")) {
-                result.append("'");
-                stressed = true;
-            }
-            Allophone[] phon = sampa(Locale.US).splitIntoAllophones(syl);
-            for (int i = 0; i < phon.length; i++) {
-                String eng = phon[i].name();
-                String sDe = sampaEn2sampaDe(eng);
-                if (sDe.equals("6") && stressed) {
-                    sDe = "96";
-                }
-                result.append(sDe);
-            }
-            if (st.hasMoreTokens()) {
-                result.append("-");
-            }
-
-        }
-        return result.toString();
-
-    }
-
-    public static AllophoneSet sampa(Locale locale) {
-        return sampa.get(locale);
-    }
-
 }

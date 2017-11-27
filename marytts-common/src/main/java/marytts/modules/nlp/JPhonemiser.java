@@ -19,31 +19,44 @@
  */
 package marytts.modules.nlp;
 
+// IO
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+// Collections
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
+
+// Parsing
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import com.google.common.base.Splitter;
 
-import marytts.data.Utterance;
+// Locale
+import java.util.Locale;
+
+// Configuration
+import marytts.config.MaryConfiguration;
 import marytts.exceptions.MaryConfigurationException;
+
+// Main mary
+import marytts.MaryException;
 import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;
 import marytts.modules.MaryModule;
-import marytts.config.MaryConfiguration;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
+// Data
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -54,11 +67,9 @@ import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 
-import com.google.common.base.Splitter;
-
-import marytts.MaryException;
-
+// Logging
 import org.apache.logging.log4j.core.Appender;
+
 /**
  * The phonemiser module -- java implementation.
  *
@@ -81,36 +92,6 @@ public abstract class JPhonemiser extends MaryModule {
     protected Pattern punctuationPosRegex;
     protected Pattern unpronounceablePosRegex;
 
-    protected JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
-        this("JPhonemiser", propertyPrefix + "allophoneset", propertyPrefix + "userdict",
-             propertyPrefix + "lexicon",
-             propertyPrefix + "lettertosound", propertyPrefix + "removeTrailingOneFromPhones");
-    }
-
-    /**
-     * Constructor providing the individual filenames of files that are
-     * required.
-     *
-     * @param componentName
-     *            componentName
-     * @param allophonesProperty
-     *            allophonesProperty
-     * @param userdictProperty
-     *            userdictProperty
-     * @param lexiconProperty
-     *            lexiconProperty
-     * @param ltsProperty
-     *            ltsProperty
-     * @throws IOException
-     *             IOException
-     * @throws MaryConfigurationException
-     *             MaryConfigurationException
-     */
-    public JPhonemiser(String componentName, String allophonesProperty, String userdictProperty,
-                       String lexiconProperty,
-                       String ltsProperty) throws IOException, MaryConfigurationException {
-        this(componentName, allophonesProperty, userdictProperty, lexiconProperty, ltsProperty, null);
-    }
 
     /**
      * Constructor providing the individual filenames of files that are
@@ -133,42 +114,17 @@ public abstract class JPhonemiser extends MaryModule {
      * @throws MaryConfigurationException
      *             MaryConfigurationException
      */
-    public JPhonemiser(String componentName, String allophonesProperty, String userdictProperty,
-                       String lexiconProperty,
-                       String ltsProperty, String removetrailingonefromphonesProperty)
-    throws IOException, MaryConfigurationException {
+    protected JPhonemiser(String componentName, Locale locale, MaryConfiguration configuration) throws IOException, MaryConfigurationException {
 
-	super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
-        // allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
-        // // userdict is optional
-        // String userdictFilename = MaryProperties.getFilename(userdictProperty); // may
-        // // be
-        // // null
-        // if (userdictFilename != null) {
-        //     if (new File(userdictFilename).exists()) {
-        //         userdict = readLexicon(userdictFilename);
-        //     } else {
-        //         logger.info("User dictionary '" + userdictFilename + "' for locale '" + getLocale()
-        //                     + "' does not exist. Ignoring.");
-        //     }
-        // }
-        // InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
-        // logger.debug("Loading lexicon " + MaryProperties.getProperty(lexiconProperty,
-        //              "<null>") + "for locale "
-        //              + getLocale() + " from the property " + lexiconProperty);
-        // lexicon = new FSTLookup(lexiconStream, lexiconProperty);
-        // InputStream ltsStream = MaryProperties.needStream(ltsProperty);
-        // if (removetrailingonefromphonesProperty != null) {
-        //     this.removeTrailingOneFromPhones = MaryProperties.getBoolean(removetrailingonefromphonesProperty,
-        //                                        true);
-        // }
-        // lts = new TrainedLTS(allophoneSet, ltsStream, this.removeTrailingOneFromPhones);
+	super(componentName, locale);
+
+	// FIXME: add property configuration part
     }
 
     public void startup() throws Exception {
-        super.startup();
         setPunctuationPosRegex();
         setUnpronounceablePosRegex();
+        super.startup();
     }
 
     /**
@@ -329,10 +285,8 @@ public abstract class JPhonemiser extends MaryModule {
                 }
             }
 
-            // Create the syllable
-            syllables.add(new Syllable(tone, stress, accent)); // FIXME: ho to
-            // get the tone
-            // ?
+            // Create the syllable (FIXME: how to get the tone?)
+            syllables.add(new Syllable(tone, stress, accent));
 
             // Update the phone/syllable relation
             for (; phone_offset < phones.size(); phone_offset++) {

@@ -54,9 +54,6 @@ import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
 
-import marytts.config.MaryProperties;
-
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

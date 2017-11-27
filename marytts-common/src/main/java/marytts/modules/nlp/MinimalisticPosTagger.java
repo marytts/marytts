@@ -23,7 +23,6 @@ import java.io.InputStream;
 
 import marytts.data.Utterance;
 import marytts.fst.FSTLookup;
-import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 
 import marytts.modules.MaryModule;

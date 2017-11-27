@@ -20,12 +20,17 @@
 
 package marytts.language.de;
 
+
+// IO
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import org.apache.commons.io.FileUtils;
+
+// Collections
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,15 +42,33 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+// Parsing
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import com.google.common.base.Splitter;
+
+// Locale
+import java.util.Locale;
+
+// Configuration
+import marytts.config.MaryConfiguration;
 import marytts.exceptions.MaryConfigurationException;
+
+// Main mary
+import marytts.MaryException;
 import marytts.fst.FSTLookup;
 import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.PhonemiseDenglish;
 import marytts.language.de.phonemiser.Result;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
+import marytts.modules.nlp.phonemiser.TrainedLTS;
+import marytts.modules.MaryModule;
 import marytts.modules.synthesis.PAConverter;
-import marytts.config.MaryConfiguration;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
+// Data
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -56,12 +79,10 @@ import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 
-import com.google.common.base.Splitter;
-
-import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
-
+// Logging
 import org.apache.logging.log4j.core.Appender;
+
+
 /**
  * The phonemiser module -- java implementation.
  *
@@ -78,7 +99,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     private PhonemiseDenglish phonemiseDenglish;
 
     public JPhonemiser() throws IOException, MaryConfigurationException {
-        super("JPhonemiser_de", "de.allophoneset", "de.userdict", "de.lexicon", "de.lettertosound");
+        super("JPhonemiser_de", Locale.GERMAN, null); // FIXME: Configuration factory, give me the german one please :D
     }
 
     public void startup() throws Exception {
@@ -436,7 +457,8 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         }
         String usSampa = transcriptions[0];
 
-        String deSampa = PAConverter.sampaEnString2sampaDeString(usSampa);
+	// FIXME: check
+        String deSampa = PAConverter.sampaEn2sampaDe(usSampa);
         // logger.debug("converted "+usSampa+" to "+deSampa);
         return deSampa;
     }

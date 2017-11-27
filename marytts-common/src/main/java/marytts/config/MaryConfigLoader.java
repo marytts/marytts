@@ -20,35 +20,30 @@
 package marytts.config;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ServiceLoader;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.util.MaryUtils;
+import marytts.modules.nlp.phonemiser.AllophoneSet;
+import marytts.util.io.PropertiesAccessor;
+import marytts.util.io.PropertiesTrimTrailingWhitespace;
 
 /**
  * @author marc
  *
  */
-public class SynthesisConfig extends PropertiesMaryConfig {
+public abstract class MaryConfigLoader {
+    protected static final ServiceLoader<MaryConfigLoader> configLoader = ServiceLoader.load(MaryConfigLoader.class);
 
-    public SynthesisConfig(InputStream propertyStream) throws MaryConfigurationException {
-        super(propertyStream);
-        if (getSynthesisName() == null) {
-            throw new MaryConfigurationException("No synthesizer class defined in config file");
-        }
-    }
 
-    @Override
-    public boolean isSynthesisConfig() {
-        return true;
-    }
-
-    /**
-     * The synthesizer's name.
-     *
-     * @return
-     */
-    public String getSynthesisName() {
-        return getProperties().getProperty("synthesizers.classes.list");
-    }
 }

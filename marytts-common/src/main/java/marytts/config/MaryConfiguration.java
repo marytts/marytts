@@ -9,8 +9,8 @@ import java.util.HashSet;
 /* Reflection */
 import java.lang.reflect.Method;
 
-/** FIXME: subclass? */
-import marytts.MaryException;
+/* Exceptions */
+import marytts.exceptions.MaryConfigurationException;
 
 /* Logging */
 import org.apache.logging.log4j.LogManager;
@@ -103,7 +103,7 @@ public class MaryConfiguration {
      *  @param obj the given object
      *  @throws MaryConfiguration if the configuration failed
      */
-    public void applyConfiguration(Object obj) throws MaryException {
+    public void applyConfiguration(Object obj) throws MaryConfigurationException {
 
         try {
             String class_name = obj.getClass().toString();
@@ -124,7 +124,7 @@ public class MaryConfiguration {
             }
 
         } catch (Exception ex) {
-            throw new MaryException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
+            throw new MaryConfigurationException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
                                     ex);
         }
     }
