@@ -66,7 +66,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author ingmar
  */
 
-public class JPhonemiser extends MaryModule {
+public abstract class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -81,7 +81,7 @@ public class JPhonemiser extends MaryModule {
     protected Pattern punctuationPosRegex;
     protected Pattern unpronounceablePosRegex;
 
-    public JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
+    protected JPhonemiser(String propertyPrefix) throws IOException, MaryConfigurationException {
         this("JPhonemiser", propertyPrefix + "allophoneset", propertyPrefix + "userdict",
              propertyPrefix + "lexicon",
              propertyPrefix + "lettertosound", propertyPrefix + "removeTrailingOneFromPhones");

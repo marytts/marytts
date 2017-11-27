@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import marytts.Version;
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
@@ -217,12 +216,6 @@ public class MaryRuntimeUtils {
         return lexicon.lookup(token.toLowerCase());
     }
 
-    public static String getMaryVersion() {
-        String output = "Mary TTS server " + Version.specificationVersion() + " (impl. "
-                        + Version.implementationVersion() + ")";
-
-        return output;
-    }
 
     public static String getLocales() {
         StringBuilder out = new StringBuilder();

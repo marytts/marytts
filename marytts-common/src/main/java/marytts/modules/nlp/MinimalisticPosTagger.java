@@ -49,7 +49,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author Marc Schr&ouml;der
  */
 
-public class MinimalisticPosTagger extends MaryModule {
+public abstract class MinimalisticPosTagger extends MaryModule {
     private String propertyPrefix;
     private FSTLookup posFST = null;
     private String punctuationList;
@@ -65,7 +65,7 @@ public class MinimalisticPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
+    protected MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
         super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
         if (!propertyPrefix.endsWith(".")) {
             propertyPrefix = propertyPrefix + ".";
