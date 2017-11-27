@@ -33,7 +33,6 @@ import java.util.StringTokenizer;
 import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
-import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;

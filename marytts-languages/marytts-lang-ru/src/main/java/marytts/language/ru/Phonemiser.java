@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -77,38 +78,7 @@ public class Phonemiser extends MaryModule {
 
     public Phonemiser(String propertyPrefix)
     throws IOException, ParserConfigurationException, MaryConfigurationException {
-        this("Phonemiser", propertyPrefix + "allophoneset", propertyPrefix + "userdict");
-    }
-
-    /**
-     * Constructor providing the individual filenames of files that are
-     * required.
-     *
-     * @param componentName
-     *            componentName
-     * @param allophonesProperty
-     *            allophonesProperty
-     * @param userdictProperty
-     *            userdictProperty
-     * @throws IOException
-     *             IOException
-     * @throws ParserConfigurationException
-     *             ParserConfigurationException
-     * @throws MaryConfigurationException
-     *             MaryConfigurationException
-     */
-    public Phonemiser(String componentName, String allophonesProperty, String userdictProperty)
-    throws IOException, ParserConfigurationException, MaryConfigurationException {
-        super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
-        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
-
-        // // userdict is optional
-        // // Actually here, the user dict is the only source of information we
-        // // have, so it is not optional:
-        // String userdictFilename = MaryProperties.needFilename(userdictProperty);
-        // if (userdictFilename != null) {
-        //     userdict = readLexicon(userdictFilename);
-        // }
+        super("Phonemiser", new Locale.Builder().setLanguage("ru").setScript("Cyrl").build());
     }
 
     /**

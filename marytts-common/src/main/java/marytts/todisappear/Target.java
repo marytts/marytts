@@ -159,29 +159,6 @@ public class Target {
         return isSilence == 1;
     }
 
-    public Allophone getAllophone() {
-        if (maryxmlElement != null) {
-            AllophoneSet allophoneSet = null;
-            if (allophoneSet == null) {
-                try {
-                    allophoneSet = MaryRuntimeUtils.determineAllophoneSet(Locale.US);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            String sampa;
-            if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
-                sampa = maryxmlElement.getAttribute("p");
-            } else {
-                assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
-                sampa = "_";
-            }
-            return allophoneSet.getAllophone(sampa);
-        }
-        return null;
-    }
-
     public String toString() {
         return name;
     }

@@ -28,10 +28,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import org.w3c.dom.Document;
-
-import marytts.config.LanguageConfig;
-import marytts.config.MaryConfig;
+import marytts.config.MaryConfigLoader;
 import marytts.data.Utterance;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -64,34 +61,7 @@ public class LocalMaryInterface {
     }
 
     protected void init() {
-        setReasonableDefaults();
-    }
 
-    protected void setReasonableDefaults() {
-        locale = Locale.US;
-        outputTypeParams = null;
-        isStreaming = false;
-
-    }
-    /*
-     * (non-Javadoc)
-     *
-     * @see marytts.MaryInterface#setLocale(java.util.Locale)
-     */
-    public void setLocale(Locale newLocale) throws IllegalArgumentException {
-        if (MaryConfig.getLanguageConfig(newLocale) == null) {
-            throw new IllegalArgumentException("Unsupported locale: " + newLocale);
-        }
-        locale = newLocale;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see marytts.MaryInterface#getLocale()
-     */
-    public Locale getLocale() {
-        return locale;
     }
 
     private Utterance process(Appender app, String configuration, String input_data) throws SynthesisException {
@@ -102,13 +72,5 @@ public class LocalMaryInterface {
             throw new SynthesisException("cannot process", e);
         }
         return r.getOutputData();
-    }
-
-    public Set<Locale> getAvailableLocales() {
-        Set<Locale> locales = new HashSet<Locale>();
-        for (LanguageConfig lc : MaryConfig.getLanguageConfigs()) {
-            locales.addAll(lc.getLocales());
-        }
-        return locales;
     }
 }

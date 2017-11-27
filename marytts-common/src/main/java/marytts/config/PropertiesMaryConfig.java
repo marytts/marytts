@@ -35,72 +35,25 @@ import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.config.MaryProperties;
 import marytts.util.io.PropertiesAccessor;
 import marytts.util.io.PropertiesTrimTrailingWhitespace;
+import marytts.exceptions.NoSuchPropertyException;
+import java.io.FileNotFoundException;
 
 /**
  * @author marc
  *
  */
-public abstract class PropertiesMaryConfig extends MaryConfig {
+public abstract class PropertiesMaryConfig extends MaryConfigLoader {
 
-    /**
-     * This method will try to check that the available configs are consistent
-     * and will spot obvious reasons why they might not work together as a full
-     * system. Reasons that are detected include:
-     * <ul>
-     * <li>There is no main config;</li>
-     * <li>There is a voice with a certain locale but no language component has
-     * that locale.</li>
-     * </ul>
-     * This method will return allright if everything is OK; if there is a
-     * problem, it will throw an Exception with a message indicating the
-     * problem.
-     *
-     * @throws MaryConfigurationException
-     *             if the configuration cannot work as it is now.
-     */
-    public static void checkConsistency() throws MaryConfigurationException {
-        // Check that we have a main config
-        if (getMainConfig() == null) {
-            throw new MaryConfigurationException("No main config");
-        }
-        // Check that for each voice, we have a matching language config
-        for (VoiceConfig vc : getVoiceConfigs()) {
-            if (getLanguageConfig(vc.getLocale()) == null) {
-                throw new MaryConfigurationException("Voice '" + vc.getName() + "' has locale '" + vc.getLocale()
-                                                     + "', but there is no corresponding language config.");
-            }
-        }
-    }
 
-    /**
-     * Get the allophone set for the given locale, or null if it cannot be
-     * retrieved.
-     *
-     * @param locale
-     *            locale
-     * @return the allophone set for the given locale, or null of the locale is
-     *         not supported.
-     * @throws MaryConfigurationException
-     *             if the locale is supported in principle but no allophone set
-     *             can be retrieved.
-     */
-    public static AllophoneSet getAllophoneSet(Locale locale) throws MaryConfigurationException {
-        LanguageConfig lc = getLanguageConfig(locale);
-        if (lc == null) {
-            return null;
-        }
-        return lc.getAllophoneSetFor(locale);
-    }
 
     // ////////// Non-static / base class methods //////////////
 
     private Properties props;
 
     protected PropertiesMaryConfig(InputStream propertyStream) throws MaryConfigurationException {
-        super(propertyStream);
+
         props = new PropertiesTrimTrailingWhitespace();
         try {
             props.load(propertyStream);
@@ -128,7 +81,6 @@ public abstract class PropertiesMaryConfig extends MaryConfig {
      */
     public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
         Map<String, String> maryBaseMap = new HashMap<String, String>();
-        maryBaseMap.put("MARY_BASE", MaryProperties.maryBase());
         return new PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap);
     }
 
@@ -165,70 +117,400 @@ public abstract class PropertiesMaryConfig extends MaryConfig {
     }
 
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////
-
-    public static int countLanguageConfigs() {
-        int num = 0;
-        for (MaryConfig mc : configLoader) {
-            if (mc.isLanguageConfig()) {
-                num++;
-            }
-        }
-        return num;
-    }
-
-    public static int countVoiceConfigs() {
-        int num = 0;
-        for (MaryConfig mc : configLoader) {
-            if (mc.isVoiceConfig()) {
-                num++;
-            }
-        }
-        return num;
-    }
-
-
-    /***
-     * get a synthesis config
+    /**
+     * From a path entry in the properties, create an expanded form. Replace the
+     * string MARY_BASE with the value of property "mary.base"; replace all "/"
+     * and "\\" with the platform-specific file separator.
      *
-     * @param type
-     *            the type of synthesis, equal to the configs name. e.g.
-     *            'unitselection'
-     * @return
+     * @param path
+     *            path
+     * @return buf.toString
      */
-    public static SynthesisConfig getSynthesisConfig(String type) {
-        for (MaryConfig mc : configLoader) {
-            if (mc.isSynthesisConfig()) {
-                SynthesisConfig sc = (SynthesisConfig) mc;
-                if (sc.getProperty("name", null).equals(type)) {
-                    return sc;
-                }
-            }
+    private static String expandPath(String path) {
+        final String MARY_BASE = "MARY_BASE";
+        StringBuilder buf = null;
+        if (path.startsWith(MARY_BASE)) {
+            buf = new StringBuilder(maryBase());
+            buf.append(path.substring(MARY_BASE.length()));
+        } else {
+            buf = new StringBuilder(path);
         }
-        return null;
+        if (File.separator.equals("/")) {
+            int i = -1;
+            while ((i = buf.indexOf("\\")) != -1) {
+                buf.replace(i, i + 1, "/");
+            }
+        } else if (File.separator.equals("\\")) {
+            int i = -1;
+            while ((i = buf.indexOf("/")) != -1) {
+                buf.replace(i, i + 1, "\\");
+            }
+        } else {
+            throw new Error("Unexpected File.separator: `" + File.separator + "'");
+        }
+        return buf.toString();
     }
 
     /**
-     * Get the voice config for the given voice name, or null if there is no
-     * such voice config.
+     * Get a property from the underlying properties.
      *
-     * @param voiceName
-     *            voiceName
-     * @return vc if vc.getName().equals(voiceName), null otherwise
+     * @param property
+     *            the property requested
+     * @return the property value if found, null otherwise.
      */
-    public static VoiceConfig getVoiceConfig(String voiceName) {
-        for (MaryConfig mc : configLoader) {
-            if (mc.isVoiceConfig()) {
-                VoiceConfig vc = (VoiceConfig) mc;
-                if (vc.getName().equals(voiceName)) {
-                    return vc;
-                }
-            }
-        }
-        return null;
+    public static String getProperty(String property) {
+        return getProperty(property, null);
     }
 
+    /**
+     * Get a boolean property from the underlying properties.
+     *
+     * @param property
+     *            the property requested
+     * @return the boolean property value if found, false otherwise.
+     */
+    public static boolean getBoolean(String property) {
+        return getBoolean(property, false);
+    }
+
+    /**
+     * Get or infer a boolean property from the underlying properties. Apart
+     * from the values "true"and "false", a value "auto" is permitted; it will
+     * resolve to "true" in server mode and to "false" in non-server mode.
+     *
+     * @param property
+     *            the property requested
+     * @return the boolean property value if found, false otherwise.
+     */
+    public static boolean getAutoBoolean(String property) {
+        return getAutoBoolean(property, false);
+    }
+
+    /**
+     * Get an integer property from the underlying properties.
+     *
+     * @param property
+     *            the property requested
+     * @return the integer property value if found, -1 otherwise.
+     */
+    public static int getInteger(String property) {
+        return getInteger(property, -1);
+    }
+
+    /**
+     * Get a filename property from the underlying properties. The string
+     * MARY_BASE is replaced with the value of the property mary.base, and path
+     * separators are adapted to the current platform.
+     *
+     * @param property
+     *            the property requested
+     * @return the filename corresponding to the property value if found, null
+     *         otherwise.
+     */
+    public static String getFilename(String property) {
+        return getFilename(property, null);
+    }
+
+    /**
+     * Get a boolean property from the underlying properties.
+     *
+     * @param property
+     *            the property requested
+     * @param defaultValue
+     *            the value to return if the property is not defined
+     * @return the boolean property value if found and valid, defaultValue
+     *         otherwise.
+     */
+    public static boolean getBoolean(String property, boolean defaultValue) {
+        String value = getProperty(property);
+        if (value == null) {
+            return defaultValue;
+        }
+        try {
+            return Boolean.valueOf(value).booleanValue();
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Get or infer a boolean property from the underlying properties. Apart
+     * from the values "true"and "false", a value "auto" is permitted; it will
+     * resolve to "true" in server mode and to "false" in non-server mode.
+     *
+     * @param property
+     *            the property requested
+     * @param defaultValue
+     *            the value to return if the property is not defined
+     * @return the boolean property value if found and valid, false otherwise.
+     */
+    public static boolean getAutoBoolean(String property, boolean defaultValue) {
+        String value = getProperty(property);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value.equals("auto")) {
+            return (getProperty("server").equals("commandline") ? false : true);
+        } else {
+            return getBoolean(property, defaultValue);
+        }
+    }
+
+    /**
+     * Get a property from the underlying properties.
+     *
+     * @param property
+     *            the property requested
+     * @param defaultValue
+     *            the value to return if the property is not defined
+     * @return the integer property value if found and valid, defaultValue
+     *         otherwise.
+     */
+    public static int getInteger(String property, int defaultValue) {
+        String value = getProperty(property);
+        if (value == null) {
+            return defaultValue;
+        }
+        try {
+            return Integer.decode(value).intValue();
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Get a filename property from the underlying properties. The string
+     * MARY_BASE is replaced with the value of the property mary.base, and path
+     * separators are adapted to the current platform.
+     *
+     * @param property
+     *            the property requested
+     * @param defaultValue
+     *            the value to return if the property is not defined
+     * @return the filename corresponding to the property value if found,
+     *         defaultValue otherwise.
+     */
+    public static String getFilename(String property, String defaultValue) {
+        String filename = getProperty(property);
+        if (filename == null) {
+            return defaultValue;
+        }
+        return expandPath(filename);
+    }
+
+    /**
+     * Get a property from the underlying properties, throwing an exception if
+     * it is not defined.
+     *
+     * @param property
+     *            the property required
+     * @return the property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined.
+     */
+    public static String needProperty(String property) throws NoSuchPropertyException {
+        String value = getProperty(property);
+        if (value == null) {
+            throw new NoSuchPropertyException("Missing value `" + property + "' in configuration files");
+        }
+        return value;
+    }
+
+    /**
+     * Get a boolean property from the underlying properties, throwing an
+     * exception if it is not defined.
+     *
+     * @param property
+     *            the property requested
+     * @return the boolean property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined.
+     */
+    public static boolean needBoolean(String property) throws NoSuchPropertyException {
+        String value = getProperty(property);
+        if (value == null) {
+            throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
+        try {
+            return Boolean.valueOf(value).booleanValue();
+        } catch (NumberFormatException e) {
+            throw new NoSuchPropertyException(
+                "Boolean property `" + property + "' in configuration files has wrong value `" + value + "'");
+        }
+    }
+
+    /**
+     * Get or infer a boolean property from the underlying properties, throwing
+     * an exception if it is not defined. Apart from the values "true"and
+     * "false", a value "auto" is permitted; it will resolve to "true" in server
+     * mode and to "false" in non-server mode.
+     *
+     * @param property
+     *            the property requested
+     * @return the boolean property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined.
+     */
+    public static boolean needAutoBoolean(String property) throws NoSuchPropertyException {
+        String value = getProperty(property);
+        if (value == null) {
+            throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
+        if (value.equals("auto")) {
+            return (needProperty("server").equals("commandline") ? false : true);
+        } else {
+            return needBoolean(property);
+        }
+    }
+
+    /**
+     * Get an integer property from the underlying properties, throwing an
+     * exception if it is not defined.
+     *
+     * @param property
+     *            the property requested
+     * @return the integer property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined.
+     */
+    public static int needInteger(String property) throws NoSuchPropertyException {
+        String value = getProperty(property);
+        if (value == null) {
+            throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
+        try {
+            return Integer.decode(value).intValue();
+        } catch (NumberFormatException e) {
+            throw new NoSuchPropertyException(
+                "Integer property `" + property + "' in configuration files has wrong value `" + value + "'");
+        }
+    }
+
+    /**
+     * Get a filename property from the underlying properties, throwing an
+     * exception if it is not defined. The string MARY_BASE is replaced with the
+     * value of the property mary.base, and path separators are adapted to the
+     * current platform.
+     *
+     * @param property
+     *            the property requested
+     * @return the filename corresponding to the property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined or the value is not a valid
+     *             filename
+     */
+    public static String needFilename(String property) throws NoSuchPropertyException {
+        String filename = expandPath(needProperty(property));
+        if (!new File(filename).canRead()) {
+            throw new NoSuchPropertyException(
+                "Cannot read file `" + filename + "'. Check property `" + property + "' in configuration files");
+        }
+        return filename;
+    }
+
+    /**
+     * For the named property, attempt to get an open input stream. If the
+     * property value starts with "jar:", the remainder of the value is
+     * interpreted as an absolute path in the classpath. Otherwise it is
+     * interpreted as a file name.
+     *
+     * @param propertyName
+     *            the name of a property defined in one of the mary config
+     *            files.
+     * @return an InputStream representing the given resource
+     * @throws NoSuchPropertyException
+     *             if the property is not defined
+     * @throws FileNotFoundException
+     *             if the property value is a file name and the file cannot be
+     *             opened
+     * @throws MaryConfigurationException
+     *             if the property value is a classpath entry which cannot be
+     *             opened
+     */
+    public static InputStream needStream(String propertyName)
+    throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
+        MaryProperties.needProperty(propertyName); // to throw exceptions if not
+        // defined
+        return getStream(propertyName);
+    }
+
+    /**
+     * For the named property, attempt to get an open input stream. If the
+     * property value starts with "jar:", the remainder of the value is
+     * interpreted as an absolute path in the classpath. Otherwise it is
+     * interpreted as a file name.
+     *
+     * @param propertyName
+     *            the name of a property defined in one of the mary config
+     *            files.
+     * @return an InputStream representing the given resource, or null if the
+     *         property was not defined.
+     * @throws FileNotFoundException
+     *             if the property value is a file name and the file cannot be
+     *             opened
+     * @throws MaryConfigurationException
+     *             if the property value is a classpath entry which cannot be
+     *             opened
+     */
+    public static InputStream getStream(String propertyName) throws FileNotFoundException,
+        MaryConfigurationException {
+        InputStream stream;
+        String propertyValue = getProperty(propertyName);
+        if (propertyValue == null) {
+            return null;
+        } else if (propertyValue.startsWith("jar:")) { // read from classpath
+            String classpathLocation = propertyValue.substring("jar:".length());
+            stream = MaryProperties.class.getResourceAsStream(classpathLocation);
+            if (stream == null) {
+                throw new MaryConfigurationException("For property '" + propertyName
+                                                     + "', no classpath resource available at '" + classpathLocation + "'");
+            }
+        } else {
+            String fileName = MaryProperties.getFilename(propertyName);
+            stream = new FileInputStream(fileName);
+        }
+        return stream;
+
+    }
+
+    /**
+     * Get a Class property from the underlying properties, throwing an
+     * exception if it is not defined.
+     *
+     * @param property
+     *            the property requested
+     * @return the Class corresponding to the property value
+     * @throws NoSuchPropertyException
+     *             if the property is not defined or the value is not a valid
+     *             class
+     */
+    public static Class needClass(String property) throws NoSuchPropertyException {
+        String value = needProperty(property);
+        Class c = null;
+        try {
+            c = Class.forName(value);
+        } catch (ClassNotFoundException e) {
+            throw new NoSuchPropertyException(
+                "Cannot find class `" + value + "'. Check property `" + property + "' in configuration files");
+        }
+        return c;
+    }
+
+    /**
+     * Provide the config file prefix used for different locales in the config
+     * files. Will return the string representation of the locale as produced by
+     * locale.toString(), e.g. "en_GB"; if locale is null, return null.
+     *
+     * @param locale
+     *            locale
+     * @return locale converted to string
+     */
+    public static String localePrefix(Locale locale) {
+        if (locale == null) {
+            return null;
+        }
+        return locale.toString();
+    }
 }

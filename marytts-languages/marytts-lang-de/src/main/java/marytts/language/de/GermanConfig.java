@@ -19,10 +19,10 @@
  */
 package marytts.language.de;
 
-import marytts.config.LanguageConfig;
+import marytts.config.PropertiesMaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-public class GermanConfig extends LanguageConfig {
+public class GermanConfig extends PropertiesMaryConfig {
     public GermanConfig() throws MaryConfigurationException {
         super(GermanConfig.class.getResourceAsStream("de.config"));
     }

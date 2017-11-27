@@ -4,7 +4,6 @@ package marytts.io.serializer;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import marytts.config.MaryProperties; // FIXME: need to be moved !
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 

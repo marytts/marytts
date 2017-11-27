@@ -39,7 +39,6 @@ import marytts.data.Utterance;
 import marytts.modeling.features.FeatureDefinition;
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.config.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 
 import marytts.data.item.phonology.Syllable;
@@ -93,11 +92,12 @@ public class PronunciationModel extends MaryModule {
         // voice-specific
         // get featureDefinition used for trees - just to tell the tree that the
         // features are discrete
+	// FIXME: solve the problem of the path
         String fdFilename = null;
-        if (getLocale() != null) {
-            fdFilename = MaryProperties
-                         .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
-        }
+        // if (getLocale() != null) {
+        //     fdFilename = MaryProperties
+        //                  .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
+        // }
         if (fdFilename != null) {
             File fdFile = new File(fdFilename);
             // reader for file, readweights = false
