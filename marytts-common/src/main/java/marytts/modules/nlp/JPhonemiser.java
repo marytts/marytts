@@ -89,7 +89,7 @@ public abstract class JPhonemiser extends MaryModule {
 
     protected AllophoneSet allophoneSet;
 
-    protected Pattern punctuationPosRegex;
+    public Pattern punctuationPosRegex;
     protected Pattern unpronounceablePosRegex;
 
 
@@ -114,14 +114,11 @@ public abstract class JPhonemiser extends MaryModule {
      * @throws MaryConfigurationException
      *             MaryConfigurationException
      */
-    protected JPhonemiser(String componentName, Locale locale, MaryConfiguration default_configuration) throws IOException, MaryConfigurationException {
-
+    protected JPhonemiser(String componentName, Locale locale) throws IOException, MaryConfigurationException {
 	super(componentName, locale);
 
 	String defaultRegex = "\\$PUNCT";
 	punctuationPosRegex = Pattern.compile(defaultRegex);
-
-	// FIXME: add property configuration part
     }
 
     /**
@@ -535,7 +532,7 @@ public abstract class JPhonemiser extends MaryModule {
      * matches the pattern.
      *
      */
-    protected void setPunctuationPosRegex(String regex) {
+    public void setPosPunctRegex(String regex) {
         try {
             punctuationPosRegex = Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
@@ -550,7 +547,7 @@ public abstract class JPhonemiser extends MaryModule {
      * attribute matches the pattern.
      *
      */
-    protected void setUnpronounceablePosRegex() {
+    public void setUnpronounceablePosRegex() {
         // String language = getLocale().getLanguage();
         // String propertyName = language + ".pos.unprounounceable.regex";
         // String defaultRegex = "^[^a-zA-Z]+$";

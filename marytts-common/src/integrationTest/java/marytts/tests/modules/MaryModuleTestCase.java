@@ -37,6 +37,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+
+import org.testng.Assert;
+import marytts.config.MaryConfigurationFactory;
+
 /**
  * @author Marc Schr&ouml;der
  *
@@ -54,8 +58,12 @@ public class MaryModuleTestCase {
             if (Mary.currentState() == Mary.STATE_OFF) {
                 Mary.startup();
             }
+
+	    if (Mary.currentState() != Mary.STATE_RUNNING)
+		throw new Exception("Mary is not started!");
         }
 
+	Assert.assertNotNull(MaryConfigurationFactory.getDefaultConfiguration());
     }
 
     protected Utterance loadXMLResource(String resourceName) throws IOException, MaryIOException {

@@ -1,6 +1,7 @@
 package marytts.config;
 
 import java.util.HashMap;
+import marytts.exceptions.MaryConfigurationException;
 
 /**
  * The MaryConfiguration factory. All methods are static are we don't
@@ -24,7 +25,7 @@ public class MaryConfigurationFactory
      */
     public synchronized static void addConfiguration(String set, MaryConfiguration configuration) {
 	if (configuration_map.containsKey(set)) {
-	    configuration_map.get(set).merge(configuration);
+	    configuration_map.get(set).merge(configuration); // .merge();
 	}
 	configuration_map.put(set, configuration);
     }
@@ -47,6 +48,10 @@ public class MaryConfigurationFactory
      */
     public synchronized static MaryConfiguration getDefaultConfiguration() {
 	return configuration_map.get(MaryConfigurationFactory.DEFAULT_KEY);
+    }
+
+    public synchronized static void applyDefaultConfiguration(Object obj) throws MaryConfigurationException {
+	getDefaultConfiguration().applyConfiguration(obj);
     }
 }
 

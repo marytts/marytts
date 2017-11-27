@@ -138,9 +138,6 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
-    // TODO: what should happen with this method when we parameterise modules,
-    // so that there can be several instances of the same
-    // class?
     public static MaryModule getModule(Class<?> moduleClass) {
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
@@ -161,9 +158,6 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
-    // TODO: what should happen with this method when we parameterise modules,
-    // so that there can be several instances of the same
-    // class?
     public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
