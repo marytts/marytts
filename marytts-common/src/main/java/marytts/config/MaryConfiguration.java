@@ -83,7 +83,6 @@ public class MaryConfiguration {
 
         for (Map.Entry<String, String> entry : map_property_values.entrySet()) {
             String property = entry.getKey();
-            property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
             m_class_property_map.get(class_name).add(property);
             m_configuration_value_map.put(new StringPair(class_name, property), entry.getValue());
         }
@@ -102,7 +101,6 @@ public class MaryConfiguration {
 
         for (Map.Entry<String, InputStream> entry : map_property_values.entrySet()) {
             String property = entry.getKey();
-            property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
             m_class_property_map.get(class_name).add(property);
             m_configuration_stream_map.put(new StringPair(class_name, property), entry.getValue());
         }
@@ -116,7 +114,6 @@ public class MaryConfiguration {
      *  @param value the value of the property for the class
      */
     public void addConfigurationValueProperty(String class_name, String property, String value) {
-        property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
         if (!m_class_property_map.containsKey(class_name)) {
             m_class_property_map.put(class_name, new HashSet<String>());
         }
@@ -133,7 +130,6 @@ public class MaryConfiguration {
      *  @param value the value of the property for the class
      */
     public void addConfigurationStreamProperty(String class_name, String property, InputStream value) {
-        property = property.substring(0, 1).toUpperCase() + property.substring(1).toLowerCase();
         if (!m_class_property_map.containsKey(class_name)) {
             m_class_property_map.put(class_name, new HashSet<String>());
         }
@@ -143,13 +139,24 @@ public class MaryConfiguration {
     }
 
     /**
+     *  Merging configuration from another MaryConfiguration object to the current one
+     *  The current one has the priority if conflicts
+     *
+     *  @param mc2 the other MaryConfiguration object
+     */
+    public void merge(MaryConfiguration mc2) {
+	m_class_property_map.putAll(mc2.m_class_property_map);
+	m_configuration_stream_map.putAll(mc2.m_configuration_stream_map);
+	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
+    }
+
+    /**
      *  Apply the configuration to a given object
      *
      *  @param obj the given object
      *  @throws MaryConfiguration if the configuration failed
      */
     public void applyConfiguration(Object obj) throws MaryConfigurationException {
-
         try {
             String class_name = obj.getClass().toString();
             Set<String> m_properties = m_class_property_map.get(class_name);
@@ -186,6 +193,20 @@ public class MaryConfiguration {
             throw new MaryConfigurationException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
                                     ex);
         }
+    }
+
+    @Override
+    public String toString() {
+	String configuration_str = "";
+	for (StringPair key: m_configuration_value_map.keySet()) {
+	    configuration_str += "(" + key.getLeft() + "," + key.getRight() + ") => " + m_configuration_value_map.get(key) + ";\n";
+	}
+
+	for (StringPair key: m_configuration_stream_map.keySet()) {
+	    configuration_str += "(" + key.getLeft() + "," + key.getRight() + ") => <stream>;\n";
+	}
+
+	return configuration_str;
     }
 }
 
