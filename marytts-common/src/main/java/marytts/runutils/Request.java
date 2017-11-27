@@ -193,8 +193,7 @@ public class Request {
             logger.debug("Starting the module");
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
-                assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
-                logger.info("Starting module " + m.name());
+		logger.info("Starting module " + m.name());
                 m.startup();
                 assert m.getState() == MaryModule.MODULE_RUNNING;
             }
@@ -226,12 +225,13 @@ public class Request {
                 timingInfo.put(m, new Long(delta));
             }
 
-            if (MaryRuntimeUtils.veryLowMemoryCondition()) {
-                logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory()
-                            + " bytes left). Triggering garbage collection.");
-                Runtime.getRuntime().gc();
-                logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
-            }
+	    // // FIXME: fix memory part
+            // if (MaryRuntimeUtils.veryLowMemoryCondition()) {
+            //     logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory()
+            //                 + " bytes left). Triggering garbage collection.");
+            //     Runtime.getRuntime().gc();
+            //     logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
+            // }
         }
 
         long stopTime = System.currentTimeMillis();

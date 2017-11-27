@@ -46,7 +46,7 @@ public class TextSerializer implements Serializer {
      *
      */
     public TextSerializer() {
-        splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
+        splitIntoParagraphs = true; // FIXME: MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
     }
 
     /**

@@ -19,6 +19,9 @@
  */
 package marytts.config;
 
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +51,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
 
 
 
-    // ////////// Non-static / base class methods //////////////
+    // ////////// Non-/ base class methods //////////////
 
     private Properties props;
 
@@ -118,7 +121,14 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    /**
+     * The mary base directory, e.g. /usr/local/mary
+     *
+     * @return getFilename("mary.base", ".")
+     */
+    public String maryBase() {
+        return getFilename("mary.base", ".");
+    }
     /**
      * From a path entry in the properties, create an expanded form. Replace the
      * string MARY_BASE with the value of property "mary.base"; replace all "/"
@@ -128,7 +138,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            path
      * @return buf.toString
      */
-    private static String expandPath(String path) {
+    private String expandPath(String path) {
         final String MARY_BASE = "MARY_BASE";
         StringBuilder buf = null;
         if (path.startsWith(MARY_BASE)) {
@@ -160,8 +170,21 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            the property requested
      * @return the property value if found, null otherwise.
      */
-    public static String getProperty(String property) {
-        return getProperty(property, null);
+    public String getProperty(String property) {
+
+        // First, try system properties:
+        String val = System.getProperty(property);
+        if (val != null) {
+            return val;
+        }
+
+        // Then, try the configs. First one wins:
+	val = this.getProperties().getProperty(property);
+	if (val != null) {
+	    return val;
+        }
+
+	return null;
     }
 
     /**
@@ -171,7 +194,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            the property requested
      * @return the boolean property value if found, false otherwise.
      */
-    public static boolean getBoolean(String property) {
+    public boolean getBoolean(String property) {
         return getBoolean(property, false);
     }
 
@@ -184,7 +207,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            the property requested
      * @return the boolean property value if found, false otherwise.
      */
-    public static boolean getAutoBoolean(String property) {
+    public boolean getAutoBoolean(String property) {
         return getAutoBoolean(property, false);
     }
 
@@ -195,7 +218,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            the property requested
      * @return the integer property value if found, -1 otherwise.
      */
-    public static int getInteger(String property) {
+    public int getInteger(String property) {
         return getInteger(property, -1);
     }
 
@@ -209,7 +232,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @return the filename corresponding to the property value if found, null
      *         otherwise.
      */
-    public static String getFilename(String property) {
+    public String getFilename(String property) {
         return getFilename(property, null);
     }
 
@@ -223,7 +246,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @return the boolean property value if found and valid, defaultValue
      *         otherwise.
      */
-    public static boolean getBoolean(String property, boolean defaultValue) {
+    public boolean getBoolean(String property, boolean defaultValue) {
         String value = getProperty(property);
         if (value == null) {
             return defaultValue;
@@ -246,7 +269,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            the value to return if the property is not defined
      * @return the boolean property value if found and valid, false otherwise.
      */
-    public static boolean getAutoBoolean(String property, boolean defaultValue) {
+    public boolean getAutoBoolean(String property, boolean defaultValue) {
         String value = getProperty(property);
         if (value == null) {
             return defaultValue;
@@ -268,7 +291,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @return the integer property value if found and valid, defaultValue
      *         otherwise.
      */
-    public static int getInteger(String property, int defaultValue) {
+    public int getInteger(String property, int defaultValue) {
         String value = getProperty(property);
         if (value == null) {
             return defaultValue;
@@ -292,7 +315,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @return the filename corresponding to the property value if found,
      *         defaultValue otherwise.
      */
-    public static String getFilename(String property, String defaultValue) {
+    public String getFilename(String property, String defaultValue) {
         String filename = getProperty(property);
         if (filename == null) {
             return defaultValue;
@@ -310,7 +333,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @throws NoSuchPropertyException
      *             if the property is not defined.
      */
-    public static String needProperty(String property) throws NoSuchPropertyException {
+    public String needProperty(String property) throws NoSuchPropertyException {
         String value = getProperty(property);
         if (value == null) {
             throw new NoSuchPropertyException("Missing value `" + property + "' in configuration files");
@@ -328,7 +351,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @throws NoSuchPropertyException
      *             if the property is not defined.
      */
-    public static boolean needBoolean(String property) throws NoSuchPropertyException {
+    public boolean needBoolean(String property) throws NoSuchPropertyException {
         String value = getProperty(property);
         if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
@@ -337,7 +360,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
             return Boolean.valueOf(value).booleanValue();
         } catch (NumberFormatException e) {
             throw new NoSuchPropertyException(
-                "Boolean property `" + property + "' in configuration files has wrong value `" + value + "'");
+					      "Boolean property `" + property + "' in configuration files has wrong value `" + value + "'");
         }
     }
 
@@ -353,7 +376,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @throws NoSuchPropertyException
      *             if the property is not defined.
      */
-    public static boolean needAutoBoolean(String property) throws NoSuchPropertyException {
+    public boolean needAutoBoolean(String property) throws NoSuchPropertyException {
         String value = getProperty(property);
         if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
@@ -375,7 +398,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      * @throws NoSuchPropertyException
      *             if the property is not defined.
      */
-    public static int needInteger(String property) throws NoSuchPropertyException {
+    public int needInteger(String property) throws NoSuchPropertyException {
         String value = getProperty(property);
         if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
@@ -384,7 +407,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
             return Integer.decode(value).intValue();
         } catch (NumberFormatException e) {
             throw new NoSuchPropertyException(
-                "Integer property `" + property + "' in configuration files has wrong value `" + value + "'");
+					      "Integer property `" + property + "' in configuration files has wrong value `" + value + "'");
         }
     }
 
@@ -401,11 +424,11 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *             if the property is not defined or the value is not a valid
      *             filename
      */
-    public static String needFilename(String property) throws NoSuchPropertyException {
+    public String needFilename(String property) throws NoSuchPropertyException {
         String filename = expandPath(needProperty(property));
         if (!new File(filename).canRead()) {
             throw new NoSuchPropertyException(
-                "Cannot read file `" + filename + "'. Check property `" + property + "' in configuration files");
+					      "Cannot read file `" + filename + "'. Check property `" + property + "' in configuration files");
         }
         return filename;
     }
@@ -429,9 +452,9 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *             if the property value is a classpath entry which cannot be
      *             opened
      */
-    public static InputStream needStream(String propertyName)
-    throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
-        MaryProperties.needProperty(propertyName); // to throw exceptions if not
+    public InputStream needStream(String propertyName)
+	throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
+        needProperty(propertyName); // to throw exceptions if not
         // defined
         return getStream(propertyName);
     }
@@ -454,21 +477,21 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *             if the property value is a classpath entry which cannot be
      *             opened
      */
-    public static InputStream getStream(String propertyName) throws FileNotFoundException,
-        MaryConfigurationException {
+    public InputStream getStream(String propertyName) throws FileNotFoundException,
+								    MaryConfigurationException {
         InputStream stream;
         String propertyValue = getProperty(propertyName);
         if (propertyValue == null) {
             return null;
         } else if (propertyValue.startsWith("jar:")) { // read from classpath
             String classpathLocation = propertyValue.substring("jar:".length());
-            stream = MaryProperties.class.getResourceAsStream(classpathLocation);
+            stream = this.getClass().getResourceAsStream(classpathLocation);
             if (stream == null) {
                 throw new MaryConfigurationException("For property '" + propertyName
                                                      + "', no classpath resource available at '" + classpathLocation + "'");
             }
         } else {
-            String fileName = MaryProperties.getFilename(propertyName);
+            String fileName = this.getFilename(propertyName);
             stream = new FileInputStream(fileName);
         }
         return stream;
@@ -486,14 +509,14 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *             if the property is not defined or the value is not a valid
      *             class
      */
-    public static Class needClass(String property) throws NoSuchPropertyException {
+    public Class needClass(String property) throws NoSuchPropertyException {
         String value = needProperty(property);
         Class c = null;
         try {
             c = Class.forName(value);
         } catch (ClassNotFoundException e) {
             throw new NoSuchPropertyException(
-                "Cannot find class `" + value + "'. Check property `" + property + "' in configuration files");
+					      "Cannot find class `" + value + "'. Check property `" + property + "' in configuration files");
         }
         return c;
     }
@@ -507,7 +530,7 @@ public abstract class PropertiesMaryConfig extends MaryConfigLoader {
      *            locale
      * @return locale converted to string
      */
-    public static String localePrefix(Locale locale) {
+    public String localePrefix(Locale locale) {
         if (locale == null) {
             return null;
         }

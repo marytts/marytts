@@ -88,36 +88,6 @@ public class Mary {
         return currentState;
     }
 
-    /**
-     * Add jars to classpath. Normally this is called from startup().
-     *
-     * @throws Exception
-     *             Exception
-     */
-    protected static void addJarsToClasspath() throws Exception {
-        if (true) {
-            return;
-        }
-        // TODO: clean this up when the new modularity mechanism is in place
-        if (jarsAdded) {
-            return;    // have done this already
-        }
-        File jarDir = new File(MaryProperties.maryBase() + "/java");
-        File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
-        assert jarFiles != null;
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-        method.setAccessible(true);
-        for (int i = 0; i < jarFiles.length; i++) {
-            URL jarURL = new URL("file:" + jarFiles[i].getPath());
-            method.invoke(sysloader, new Object[] {jarURL});
-        }
-        jarsAdded = true;
-    }
 
     private static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
@@ -163,22 +133,6 @@ public class Mary {
         }
     }
 
-    /**
-     * Start the MARY system and all modules. This method must be called once
-     * before any calls to
-     * {@link #process(String configuration, String input_data, OutputStream output)}
-     * are possible. The method will dynamically extend the classpath to all jar
-     * files in MARY_BASE/java/*.jar. Use <code>startup(false)</code> if you do
-     * not want to automatically extend the classpath in this way.
-     *
-     * @throws IllegalStateException
-     *             if the system is not offline.
-     * @throws Exception
-     *             Exception
-     */
-    public static void startup() throws Exception {
-        startup(true);
-    }
 
     /**
      * Start the MARY system and all modules. This method must be called once
@@ -186,24 +140,17 @@ public class Mary {
      * {@link #process(String configuration, String input_data, OutputStream output)}
      * are possible.
      *
-     * @param addJarsToClasspath
-     *            if true, the method will dynamically extend the classpath to
-     *            all jar files in MARY_BASE/java/*.jar; if false, the classpath
-     *            will remain unchanged.
      * @throws IllegalStateException
      *             if the system is not offline.
      * @throws Exception
      *             Exception
      */
-    public static void startup(boolean addJarsToClasspath) throws Exception {
+    public static void startup() throws Exception {
         if (currentState != STATE_OFF) {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
         currentState = STATE_STARTING;
 
-        if (addJarsToClasspath) {
-            addJarsToClasspath();
-        }
 
         logger.info("Mary starting up...");
         logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "

@@ -19,6 +19,7 @@
  */
 package marytts.modules.nlp;
 
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -83,31 +84,32 @@ public abstract class OpenNLPPosTagger extends MaryModule {
     }
 
     public void startup() throws Exception {
+	getDefaultConfiguration().applyConfiguration(this);
         super.startup();
+    }
 
-        InputStream modelStream = MaryProperties.needStream(propertyPrefix + "model");
-        InputStream posMapperStream = MaryProperties.getStream(propertyPrefix + "posMap");
+    public void setModel(InputStream model_stream) throws IOException {
+        tagger = new POSTaggerME(new POSModel(model_stream));
+        model_stream.close();
+    }
 
-        tagger = new POSTaggerME(new POSModel(modelStream));
-        modelStream.close();
-        if (posMapperStream != null) {
-            posMapper = new HashMap<String, String>();
-            BufferedReader br = new BufferedReader(new InputStreamReader(posMapperStream, "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                // skip comments and empty lines
-                if (line.startsWith("#") || line.trim().equals("")) {
-                    continue;
-                }
-                // Entry format: POS GPOS, i.e. two space-separated entries per
-                // line
-                StringTokenizer st = new StringTokenizer(line);
-                String pos = st.nextToken();
-                String gpos = st.nextToken();
-                posMapper.put(pos, gpos);
-            }
-            posMapperStream.close();
-        }
+    public void setPosmap(InputStream pos_map_stream) throws IOException {
+	posMapper = new HashMap<String, String>();
+	BufferedReader br = new BufferedReader(new InputStreamReader(pos_map_stream, "UTF-8"));
+	String line;
+	while ((line = br.readLine()) != null) {
+	    // skip comments and empty lines
+	    if (line.startsWith("#") || line.trim().equals("")) {
+		continue;
+	    }
+	    // Entry format: POS GPOS, i.e. two space-separated entries per
+	    // line
+	    StringTokenizer st = new StringTokenizer(line);
+	    String pos = st.nextToken();
+	    String gpos = st.nextToken();
+	    posMapper.put(pos, gpos);
+	}
+	pos_map_stream.close();
     }
 
 

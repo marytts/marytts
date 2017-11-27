@@ -64,21 +64,22 @@ public abstract class MinimalisticPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    protected MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
-        super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
-        if (!propertyPrefix.endsWith(".")) {
-            propertyPrefix = propertyPrefix + ".";
-        }
-        this.propertyPrefix = propertyPrefix + "partsofspeech.";
+    protected MinimalisticPosTagger(String locale, MaryConfiguration default_configuration) throws Exception {
+        super("OpenNLPPosTagger", MaryUtils.string2locale(locale), default_configuration);
     }
 
     public void startup() throws Exception {
+        punctuationList = ",.?!;";
+	applyDefaultConfiguration();
         super.startup();
-        InputStream posFSTStream = MaryProperties.getStream(propertyPrefix + "fst");
-        if (posFSTStream != null) {
-            posFST = new FSTLookup(posFSTStream, MaryProperties.getProperty(propertyPrefix + "fst"));
-        }
-        punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
+    }
+
+    public void setFst(InputStream posFSTStream) throws Exception {
+	posFST = new FSTLookup(posFSTStream, this.getLocale().toString() + "_lexicon_fst");
+    }
+
+    public void setPunctuation(String punctuation) {
+	punctuationList = punctuation;
     }
 
     /**
