@@ -22,13 +22,7 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.modules.nlp.ProsodyGeneric;
-import marytts.config.MaryProperties;
 
 public class Prosody extends ProsodyGeneric {
-    public Prosody() {
-        super(Locale.ENGLISH, MaryProperties.localePrefix(Locale.ENGLISH) + ".prosody.tobipredparams",
-              MaryProperties.localePrefix(Locale.ENGLISH) + ".prosody.accentPriorities",
-              MaryProperties.localePrefix(Locale.ENGLISH) + ".prosody.syllableaccents",
-              MaryProperties.localePrefix(Locale.ENGLISH) + ".prosody.paragraphdeclination");
-    }
+
 }

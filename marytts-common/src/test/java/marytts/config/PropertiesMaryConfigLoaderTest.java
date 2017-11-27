@@ -35,6 +35,6 @@ import org.testng.annotations.*;
  * @author marc
  *
  */
-public class PropertiesMaryConfigTest {
+public class PropertiesMaryConfigLoaderTest {
 
 }

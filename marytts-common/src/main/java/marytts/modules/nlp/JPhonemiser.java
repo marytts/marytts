@@ -114,17 +114,14 @@ public abstract class JPhonemiser extends MaryModule {
      * @throws MaryConfigurationException
      *             MaryConfigurationException
      */
-    protected JPhonemiser(String componentName, Locale locale, MaryConfiguration configuration) throws IOException, MaryConfigurationException {
+    protected JPhonemiser(String componentName, Locale locale, MaryConfiguration default_configuration) throws IOException, MaryConfigurationException {
 
 	super(componentName, locale);
 
-	// FIXME: add property configuration part
-    }
+	String defaultRegex = "\\$PUNCT";
+	punctuationPosRegex = Pattern.compile(defaultRegex);
 
-    public void startup() throws Exception {
-        setPunctuationPosRegex();
-        setUnpronounceablePosRegex();
-        super.startup();
+	// FIXME: add property configuration part
     }
 
     /**
@@ -538,24 +535,13 @@ public abstract class JPhonemiser extends MaryModule {
      * matches the pattern.
      *
      */
-    protected void setPunctuationPosRegex() {
-        // String language = getLocale().getLanguage();
-        // String propertyName = language + ".pos.punct.regex";
-        // String defaultRegex = "\\$PUNCT";
-        // String regex = MaryProperties.getProperty(propertyName);
-        // if (regex == null) {
-        //     logger.debug(String.format("Property %s not set, using default", propertyName));
-        //     regex = defaultRegex;
-        // } else {
-        //     logger.debug(String.format("Using property %s", propertyName));
-        // }
-        // try {
-        //     punctuationPosRegex = Pattern.compile(regex);
-        // } catch (PatternSyntaxException e) {
-        //     logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
-        //     punctuationPosRegex = Pattern.compile(defaultRegex);
-        // }
-        // logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
+    protected void setPunctuationPosRegex(String regex) {
+        try {
+            punctuationPosRegex = Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+        }
+        logger.debug(String.format("Punctuation regex pattern set to /%s/", punctuationPosRegex));
     }
 
     /**

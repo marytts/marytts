@@ -19,11 +19,12 @@
  */
 package marytts.language.de;
 
-import marytts.config.PropertiesMaryConfig;
+import marytts.config.PropertiesMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class GermanConfig extends PropertiesMaryConfig {
+public class GermanConfig extends PropertiesMaryConfigLoader {
     public GermanConfig() throws MaryConfigurationException {
-        super(GermanConfig.class.getResourceAsStream("de.config"));
+	super();
+	loadConfiguration("de_DE", GermanConfig.class.getResourceAsStream("de_DE.config"));
     }
 }

@@ -20,6 +20,8 @@
 package marytts.modules;
 
 import marytts.config.MaryConfiguration;
+import marytts.config.MaryConfigurationFactory;
+import marytts.exceptions.MaryConfigurationException;
 
 import java.io.StringReader;
 import java.util.Locale;
@@ -30,7 +32,6 @@ import javax.sound.sampled.AudioSystem;
 import marytts.data.Utterance;
 import marytts.util.MaryUtils;
 import marytts.MaryException;
-import marytts.exceptions.MaryConfigurationException;
 
 // Logging
 import org.apache.logging.log4j.LogManager;
@@ -58,11 +59,11 @@ public abstract class MaryModule {
 
 
     protected MaryModule(String name) {
-	this(name, Locale.getDefault(), null);
+	this(name, Locale.getDefault(), MaryConfigurationFactory.getDefaultConfiguration());
     }
 
     protected MaryModule(String name, Locale locale) {
-	this(name, locale, null);
+	this(name, locale, MaryConfigurationFactory.getDefaultConfiguration());
     }
 
     protected MaryModule(String name, Locale locale, MaryConfiguration default_configuration) {
@@ -91,13 +92,15 @@ public abstract class MaryModule {
     }
 
     public void applyDefaultConfiguration() throws MaryConfigurationException {
-	default_configuration.applyConfiguration(this);
+	if (default_configuration != null)
+	    default_configuration.applyConfiguration(this);
     }
 
     public void startup() throws Exception {
+	applyDefaultConfiguration();
         assert state == MODULE_OFFLINE;
-        logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
         state = MODULE_RUNNING;
+        logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
     }
 
     public void shutdown() {

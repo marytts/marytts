@@ -45,4 +45,14 @@ import marytts.util.io.PropertiesTrimTrailingWhitespace;
 public abstract class MaryConfigLoader {
     protected static final ServiceLoader<MaryConfigLoader> configLoader = ServiceLoader.load(MaryConfigLoader.class);
 
+    protected MaryConfigLoader() throws MaryConfigurationException {
+	try {
+	    InputStream input_stream = this.getClass().getResourceAsStream(MaryConfigurationFactory.DEFAULT_KEY + ".config");
+	    loadConfiguration("default", input_stream);
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("ahah", ex);
+	}
+    }
+
+    public abstract void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException;
 }
