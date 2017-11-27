@@ -64,8 +64,8 @@ public abstract class MaryModule {
 
     protected MaryModule(String name, Locale locale) {
 	this(name, locale, MaryConfigurationFactory.getDefaultConfiguration());
-    }
 
+    }
     protected MaryModule(String name, Locale locale, MaryConfiguration default_configuration) {
         this.name = name;
         this.locale = locale;
@@ -92,13 +92,14 @@ public abstract class MaryModule {
     }
 
     public void applyDefaultConfiguration() throws MaryConfigurationException {
-	if (default_configuration != null)
+	if (default_configuration != null) {
 	    default_configuration.applyConfiguration(this);
+	}
     }
 
     public void startup() throws Exception {
-	applyDefaultConfiguration();
         assert state == MODULE_OFFLINE;
+	applyDefaultConfiguration();
         state = MODULE_RUNNING;
         logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
     }

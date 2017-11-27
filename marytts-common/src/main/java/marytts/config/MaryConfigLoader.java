@@ -50,9 +50,17 @@ public abstract class MaryConfigLoader {
 	    InputStream input_stream = this.getClass().getResourceAsStream(MaryConfigurationFactory.DEFAULT_KEY + ".config");
 	    loadConfiguration("default", input_stream);
 	} catch (Exception ex) {
-	    throw new MaryConfigurationException("ahah", ex);
 	}
     }
 
     public abstract void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException;
+
+    public void load() {
+	System.out.println("load " + this.getClass().toString() + "....");
+    }
+
+
+    public static synchronized Iterable<MaryConfigLoader> getConfigLoaders() {
+        return configLoader;
+    }
 }

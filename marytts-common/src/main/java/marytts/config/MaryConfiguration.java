@@ -145,6 +145,7 @@ public class MaryConfiguration {
      *  @param mc2 the other MaryConfiguration object
      */
     public void merge(MaryConfiguration mc2) {
+	System.out.println("Merge requested!");
 	m_class_property_map.putAll(mc2.m_class_property_map);
 	m_configuration_stream_map.putAll(mc2.m_configuration_stream_map);
 	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
@@ -156,12 +157,14 @@ public class MaryConfiguration {
      *  @param obj the given object
      *  @throws MaryConfiguration if the configuration failed
      */
-    public void applyConfiguration(Object obj) throws MaryConfigurationException {
+    public synchronized void applyConfiguration(Object obj) throws MaryConfigurationException {
         try {
-            String class_name = obj.getClass().toString();
-            Set<String> m_properties = m_class_property_map.get(class_name);
+            String class_name = obj.getClass().getName();
+            Set<String> properties = m_class_property_map.get(class_name);
+	    if (properties == null)
+		return;
 
-            for (String property : m_properties) {
+            for (String property : properties) {
 		boolean b_is_value = false;
                 try {
                     Method m = obj.getClass().getMethod("set" + property, String.class);

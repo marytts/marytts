@@ -99,7 +99,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     private PhonemiseDenglish phonemiseDenglish;
 
     public JPhonemiser() throws IOException, MaryConfigurationException {
-        super("JPhonemiser_de", Locale.GERMAN, null); // FIXME: Configuration factory, give me the german one please :D
+        super("JPhonemiser_de", Locale.GERMAN); // FIXME: Configuration factory, give me the german one please :D
     }
 
     public void startup() throws Exception {

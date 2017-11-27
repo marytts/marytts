@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.language.de;
+package marytts.config;
 
 import marytts.config.PropertiesMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class GermanConfig extends PropertiesMaryConfigLoader {
-    public GermanConfig() throws MaryConfigurationException {
+public class DefaultConfigLoader extends PropertiesMaryConfigLoader {
+    public DefaultConfigLoader() throws MaryConfigurationException {
 	super();
-	loadConfiguration("de_DE", GermanConfig.class.getResourceAsStream("de_DE.config"));
     }
 }

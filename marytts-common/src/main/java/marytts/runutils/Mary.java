@@ -44,6 +44,10 @@ import java.util.TreeSet;
 import org.reflections.Reflections;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+
+// Configuration
+import marytts.config.MaryConfigLoader;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
@@ -84,15 +88,19 @@ public class Mary {
      * @see #STATE_RUNNING
      * @see #STATE_SHUTTING_DOWN
      */
-    public static int currentState() {
+    public synchronized static int currentState() {
         return currentState;
     }
 
 
-    private static void startModules() throws ClassNotFoundException, InstantiationException,
+    private synchronized static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
-	// Instantiate vailable modules
+	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
+	    mc.load();
+	}
+
+	// Instantiate available modules
 	Reflections reflections = new Reflections("marytts");
         for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
 	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
@@ -145,22 +153,18 @@ public class Mary {
      * @throws Exception
      *             Exception
      */
-    public static void startup() throws Exception {
+    public synchronized static void startup() throws Exception {
         if (currentState != STATE_OFF) {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
         currentState = STATE_STARTING;
 
-
         logger.info("Mary starting up...");
-        logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "
-                    + System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
-                    + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
-
-        logger.debug("Full dump of system properties:");
-        for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
-            logger.debug(key + " = " + System.getProperties().get(key));
-        }
+        logger.info("Running on a Java " + System.getProperty("java.version") +
+		    " implementation by "  + System.getProperty("java.vendor") +
+		    ", on a " + System.getProperty("os.name") +
+		    " platform ("  + System.getProperty("os.arch") + ", " +
+		    System.getProperty("os.version") + ")");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -168,6 +172,7 @@ public class Mary {
             }
         });
 
+	//
         // Instantiate module classes and startup modules:
         startModules();
 
