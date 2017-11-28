@@ -77,7 +77,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author ingmar
  */
 
-public abstract class JPhonemiser extends MaryModule {
+public class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -92,6 +92,17 @@ public abstract class JPhonemiser extends MaryModule {
     public Pattern punctuationPosRegex;
     protected Pattern unpronounceablePosRegex;
 
+
+
+    public JPhonemiser() throws IOException, MaryConfigurationException {
+	super("JPhonemiser");
+
+	String defaultRegex = "\\$PUNCT";
+	punctuationPosRegex = Pattern.compile(defaultRegex);
+
+	defaultRegex = "^[^a-zA-Z]+$";
+	unpronounceablePosRegex = Pattern.compile(defaultRegex);
+    }
 
     /**
      * Constructor providing the individual filenames of files that are
@@ -119,6 +130,9 @@ public abstract class JPhonemiser extends MaryModule {
 
 	String defaultRegex = "\\$PUNCT";
 	punctuationPosRegex = Pattern.compile(defaultRegex);
+
+	defaultRegex = "^[^a-zA-Z]+$";
+	unpronounceablePosRegex = Pattern.compile(defaultRegex);
     }
 
     /**
@@ -526,6 +540,10 @@ public abstract class JPhonemiser extends MaryModule {
         return fLexicon;
     }
 
+
+    public void setAllophoneSet(InputStream allophone_xml) {
+
+    }
     /**
      * Compile a regex pattern used to determine whether tokens are processed as
      * punctuation or not, based on whether their <code>pos</code> attribute
@@ -547,24 +565,14 @@ public abstract class JPhonemiser extends MaryModule {
      * attribute matches the pattern.
      *
      */
-    public void setUnpronounceablePosRegex() {
-        // String language = getLocale().getLanguage();
-        // String propertyName = language + ".pos.unprounounceable.regex";
-        // String defaultRegex = "^[^a-zA-Z]+$";
-        // String regex = MaryProperties.getProperty(propertyName);
-        // if (regex == null) {
-        //     logger.debug(String.format("Property %s not set, using default", propertyName));
-        //     regex = defaultRegex;
-        // } else {
-        //     logger.debug(String.format("Using property %s", propertyName));
-        // }
-        // try {
-        //     unpronounceablePosRegex = Pattern.compile(regex);
-        // } catch (PatternSyntaxException e) {
-        //     logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
-        //     unpronounceablePosRegex = Pattern.compile(defaultRegex);
-        // }
-        // logger.debug(String.format("Punctuation regex pattern set to /%s/", unpronounceablePosRegex));
+    public void setUnpronounceablePosRegex(String regex) {
+        try {
+            unpronounceablePosRegex = Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            logger.error(String.format("Could not compile regex pattern /%s/, using default instead", regex));
+
+        }
+        logger.debug(String.format("Punctuation regex pattern set to /%s/", unpronounceablePosRegex));
     }
 
     /**

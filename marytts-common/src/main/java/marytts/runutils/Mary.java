@@ -121,6 +121,7 @@ public class Mary {
                 try {
                     m.startup();
                 } catch (Throwable t) {
+		    System.out.println("it goes here!");
                     throw new Exception("Problem starting module " + m.name(), t);
                 }
                 long after = System.currentTimeMillis();
@@ -158,7 +159,6 @@ public class Mary {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
         currentState = STATE_STARTING;
-
         logger.info("Mary starting up...");
         logger.info("Running on a Java " + System.getProperty("java.version") +
 		    " implementation by "  + System.getProperty("java.vendor") +

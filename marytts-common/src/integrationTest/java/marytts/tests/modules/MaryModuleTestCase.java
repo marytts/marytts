@@ -39,20 +39,34 @@ import org.apache.logging.log4j.LogManager;
 
 
 import org.testng.Assert;
+import org.testng.annotations.*;
 import marytts.config.MaryConfigurationFactory;
+
+// Log
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LoggerContext;
 
 /**
  * @author Marc Schr&ouml;der
  *
  *
  */
-public class MaryModuleTestCase {
+public abstract class MaryModuleTestCase {
 
     protected MaryModule module;
     protected Logger logger;
 
-    public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
+    public void setup(boolean needMaryStarted) throws Exception {
         logger = LogManager.getLogger(getClass());
+	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+	Configuration config = ctx.getConfiguration();
+	LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+	loggerConfig.setLevel(Level.DEBUG);
+	ctx.updateLoggers();
 
         if (needMaryStarted) {
             if (Mary.currentState() == Mary.STATE_OFF) {
@@ -89,6 +103,7 @@ public class MaryModuleTestCase {
     }
 
     protected boolean processAndCompare(String in, String target_out, Locale locale) throws Exception {
+	MaryConfigurationFactory.getConfiguration(locale.toString()).applyConfiguration(module);
         Utterance input = loadXMLResource(in);
         Utterance targetOut = loadXMLResource(target_out);
         Utterance processedOut = module.process(input);

@@ -119,11 +119,11 @@ public abstract class MaryModule {
     public abstract void checkInput(Utterance utt) throws MaryException;
 
     public Utterance process(Utterance utt) throws Exception {
-        return process(utt, default_configuration, null);
+        return process(utt, new MaryConfiguration(), null);
     }
 
     public Utterance process(Utterance utt, Appender app) throws Exception {
-        return process(utt, default_configuration, app);
+        return process(utt, new MaryConfiguration(), app);
     }
 
 

@@ -892,7 +892,7 @@ public class Preprocess extends MaryModule {
 
     public String[] checkLexicon(String token) {
 	if (lexicon == null)
-	    return null;
+	    return new String[0];
 
 	return lexicon.lookup(token.toLowerCase());
     }

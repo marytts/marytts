@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
 import marytts.modules.MaryModule;
@@ -205,7 +206,8 @@ public class Request {
             // Process the module
             Utterance outData = null;
             try {
-                outData = m.process(outputData); // FIXME: what about the configuration and the logger
+		// FIXME: what about the configuration and the logger
+                outData = m.process(outputData);
             } catch (Exception e) {
                 throw new MaryException("Module " + m.name() + ": Problem processing the data.", e);
             }
