@@ -11,9 +11,11 @@ import marytts.tests.modules.MaryModuleTestCase;
 public class PreprocessIT extends MaryModuleTestCase {
 
     public PreprocessIT() throws Exception {
-        super(true);
+        setup(true); // need mary startup
         module = ModuleRegistry.getModule(Preprocess.class);
+	Assert.assertNotNull(module);
     }
+
 
     @Test
     public void testParensAndNumber() throws Exception {

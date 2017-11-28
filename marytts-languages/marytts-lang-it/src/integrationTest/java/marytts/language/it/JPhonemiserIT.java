@@ -13,8 +13,9 @@ import org.testng.annotations.*;
 public class JPhonemiserIT extends MaryModuleTestCase {
 
     public JPhonemiserIT() throws Exception {
-        super(true); // need mary startup
+        setup(true); // need mary startup
         module = ModuleRegistry.getModule(JPhonemiser.class);
+	Assert.assertNotNull(module);
     }
 
     /*

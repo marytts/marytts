@@ -20,7 +20,7 @@ import org.testng.annotations.*;
 public class PreprocessorIT extends MaryModuleTestCase {
 
     public PreprocessorIT() throws Exception {
-        super(true); // need mary startup
+        setup(true); // need mary startup
         module = ModuleRegistry.getModule(Preprocess.class);
     }
 
