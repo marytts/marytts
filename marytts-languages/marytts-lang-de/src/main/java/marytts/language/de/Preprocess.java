@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import marytts.config.MaryConfiguration;
+import marytts.exceptions.MaryConfigurationException;
 
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
@@ -40,10 +41,10 @@ import org.apache.logging.log4j.core.Appender;
 
 public class Preprocess extends MaryModule {
 
-    public Preprocess() {
-        super("Preprocess", Locale.GERMAN);
-    }
 
+    public void checkStartup() throws MaryConfigurationException {
+
+    }
     /**
      *  Check if the input contains all the information needed to be
      *  processed by the module.

@@ -38,4 +38,9 @@ public class JPhonemiserIT extends MaryModuleTestCase {
         Assert.assertTrue(((JPhonemiser) module).isPosPunctuation("$("));
         Assert.assertFalse(((JPhonemiser) module).isPosPunctuation("NN"));
     }
+
+    // @Test
+    // public void testPhonemise() throws Exception {
+    // 	((JPhonemiser) module).phonemise("hallo", null, null);
+    // }
 }

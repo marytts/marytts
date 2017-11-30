@@ -35,7 +35,6 @@ import java.util.Vector;
 import marytts.config.MaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
-import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.runutils.Mary;
 import marytts.util.string.StringUtils;
 

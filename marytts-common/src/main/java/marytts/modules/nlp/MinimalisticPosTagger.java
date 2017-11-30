@@ -64,8 +64,8 @@ public abstract class MinimalisticPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    protected MinimalisticPosTagger(String locale, MaryConfiguration default_configuration) throws Exception {
-        super("OpenNLPPosTagger", MaryUtils.string2locale(locale), default_configuration);
+    protected MinimalisticPosTagger(MaryConfiguration default_configuration) throws Exception {
+        super(default_configuration);
     }
 
     public void startup() throws Exception {
@@ -75,7 +75,7 @@ public abstract class MinimalisticPosTagger extends MaryModule {
     }
 
     public void setFst(InputStream posFSTStream) throws Exception {
-	posFST = new FSTLookup(posFSTStream, this.getLocale().toString() + "_lexicon_fst");
+	// FIXME: posFST = new FSTLookup(posFSTStream, this.getLocale().toString() + "_lexicon_fst");
     }
 
     public void setPunctuation(String punctuation) {

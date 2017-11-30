@@ -54,6 +54,7 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -78,11 +79,7 @@ public class PronunciationModel extends MaryModule {
      *
      */
     public PronunciationModel() {
-        this(null);
-    }
-
-    public PronunciationModel(Locale locale) {
-        super("PronunciationModel", locale);
+        super();
     }
 
     public void startup() throws Exception {
@@ -108,6 +105,14 @@ public class PronunciationModel extends MaryModule {
         }
         logger.debug("Building feature computer finished.");
     }
+
+
+
+    public void checkStartup() throws MaryConfigurationException {
+	// if (featDef == null)
+	//     throw new MaryConfigurationException("The feature definition is null");
+    }
+
 
     /**
      * Optionally, a language-specific subclass can implement any postlexical

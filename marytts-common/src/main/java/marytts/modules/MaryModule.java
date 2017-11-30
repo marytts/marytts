@@ -47,8 +47,6 @@ public abstract class MaryModule {
     public static final int MODULE_RUNNING = 1;
 
     private MaryConfiguration default_configuration = null;
-    private String name = null;
-    private Locale locale = null;
     protected int state;
 
     /**
@@ -58,29 +56,14 @@ public abstract class MaryModule {
     protected Logger logger;
 
 
-    protected MaryModule(String name) {
-	this(name, Locale.getDefault(), MaryConfigurationFactory.getDefaultConfiguration());
+    protected MaryModule() {
+	this(MaryConfigurationFactory.getDefaultConfiguration());
     }
 
-    protected MaryModule(String name, Locale locale) {
-	this(name, locale, MaryConfigurationFactory.getDefaultConfiguration());
-
-    }
-    protected MaryModule(String name, Locale locale, MaryConfiguration default_configuration) {
-        this.name = name;
-        this.locale = locale;
+    protected MaryModule(MaryConfiguration default_configuration) {
 	this.default_configuration = default_configuration;
         logger = LogManager.getLogger(this);
         this.state = MODULE_OFFLINE;
-    }
-
-    // Interface MaryModule implementation:
-    public String name() {
-        return name;
-    }
-
-    public Locale getLocale() {
-        return locale;
     }
 
     public int getState() {
@@ -101,8 +84,14 @@ public abstract class MaryModule {
         assert state == MODULE_OFFLINE;
 	applyDefaultConfiguration();
         state = MODULE_RUNNING;
-        logger.info("Module " + this.getClass().toGenericString() + "started, locale " + getLocale() + ").");
+
+	logger.info("\n" + MaryConfigurationFactory.dump());
+	checkStartup();
+
+        logger.info("Module " + this.getClass().toGenericString() + "started.");
     }
+
+    public abstract void checkStartup() throws MaryConfigurationException;
 
     public void shutdown() {
         logger.info("Module shut down.");

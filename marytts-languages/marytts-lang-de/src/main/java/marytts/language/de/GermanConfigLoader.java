@@ -27,6 +27,6 @@ import java.io.InputStream;
 public class GermanConfigLoader extends PropertiesMaryConfigLoader {
     public GermanConfigLoader() throws MaryConfigurationException {
 	super();
-	// loadConfiguration("de_DE", GermanConfig.class.getResourceAsStream("de_DE.config"));
+	loadConfiguration("de_DE", GermanConfigLoader.class.getResourceAsStream("de.config"));
     }
 }

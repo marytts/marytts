@@ -75,12 +75,8 @@ public abstract class OpenNLPPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    protected OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
-        super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
-        if (!propertyPrefix.endsWith(".")) {
-            propertyPrefix = propertyPrefix + ".";
-        }
-        this.propertyPrefix = propertyPrefix;
+    protected OpenNLPPosTagger() throws Exception {
+        super();
     }
 
     public void startup() throws Exception {

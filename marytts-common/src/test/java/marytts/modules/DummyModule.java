@@ -24,6 +24,7 @@ import java.util.Locale;
 import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.logging.log4j.core.Appender;
 
@@ -35,14 +36,7 @@ import org.apache.logging.log4j.core.Appender;
 
 public class DummyModule extends MaryModule {
     public DummyModule() {
-        super("Dummy");
-    }
-    public String name() {
-        return "Dummy";
-    }
-
-    public Locale getLocale() {
-        return null;
+        super();
     }
 
     public void startup() throws Exception {
@@ -55,6 +49,10 @@ public class DummyModule extends MaryModule {
         return MODULE_OFFLINE;
     }
 
+
+    public void checkStartup() throws MaryConfigurationException {
+
+    }
 
     /**
      *  Check if the input contains all the information needed to be

@@ -96,24 +96,22 @@ public class Mary {
     private synchronized static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
-	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
-	    mc.load();
-	}
-
 	// Instantiate available modules
 	Reflections reflections = new Reflections("marytts");
         for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
 	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
 		MaryModule m = ModuleRegistry.instantiateModule(moduleClass.getName());
-		ModuleRegistry.registerModule(m, m.getLocale());
+		ModuleRegistry.registerModule(m);
 	    }
         }
 
-        List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
+	// Load configurations
+	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
+	    mc.load();
+	}
 
-        // Separate loop for startup allows modules to cross-reference to each
-        // other via Mary.getModule(Class) even if some have not yet been
-        // started.
+	// Start the modules
+        List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
         for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
             // Only start the modules here if in server mode:
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
@@ -121,8 +119,7 @@ public class Mary {
                 try {
                     m.startup();
                 } catch (Throwable t) {
-		    System.out.println("it goes here!");
-                    throw new Exception("Problem starting module " + m.name(), t);
+                    throw new Exception("Problem starting module " + m.getClass().getName(), t);
                 }
                 long after = System.currentTimeMillis();
                 startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
@@ -137,7 +134,7 @@ public class Mary {
             });
             logger.debug("Startup times:");
             for (Pair<MaryModule, Long> p : startupTimes) {
-                logger.debug(p.getFirst().name() + ": " + p.getSecond() + " ms");
+                logger.debug(p.getFirst().getClass().getName() + ": " + p.getSecond() + " ms");
             }
         }
     }

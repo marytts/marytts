@@ -53,6 +53,7 @@ import java.util.Locale;
 
 // Configuration
 import marytts.config.MaryConfiguration;
+import marytts.config.MaryConfigurationFactory;
 import marytts.exceptions.MaryConfigurationException;
 
 // Main mary
@@ -98,14 +99,18 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     private Map<String, Integer> english2Frequency = null;
     private PhonemiseDenglish phonemiseDenglish;
 
-    public JPhonemiser() throws IOException, MaryConfigurationException {
-        super("JPhonemiser_de", Locale.GERMAN); // FIXME: Configuration factory, give me the german one please :D
+    public JPhonemiser() throws MaryConfigurationException {
+        super(); // FIXME: Configuration factory, give me the german one please :D
     }
 
     public void startup() throws Exception {
         super.startup();
+	MaryConfigurationFactory.getConfiguration("de_DE").applyConfiguration(this);
         phonemiseDenglish = new PhonemiseDenglish(this);
         inflection = new Inflection();
+
+	if (lexicon == null)
+	    throw new MaryConfigurationException("The lexicon has not be defined");
 
         // if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
         //     String logBasepath = MaryProperties.maryBase() + File.separator + "log" + File.separator;

@@ -109,7 +109,7 @@ public class ModuleRegistry {
      *             if called after registration is complete.
      */
     @SuppressWarnings("unchecked")
-    public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
+    public static void registerModule(MaryModule module) throws IllegalStateException {
         allModules.add(module);
     }
 
@@ -145,27 +145,6 @@ public class ModuleRegistry {
                 return m;
             }
         }
-        // Not found:
-        return null;
-    }
-
-    /**
-     * Find an active module by its class.
-     *
-     * @param moduleClass
-     *            moduleClass
-     * @return the module instance if found, or null if not found.
-     * @throws IllegalStateException
-     *             if called while registration is not yet complete.
-     */
-    public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
-        for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
-            MaryModule m = it.next();
-            if (moduleClass.isInstance(m) && (locale.equals(m.getLocale()))) {
-                return m;
-            }
-        }
-
         // Not found:
         return null;
     }

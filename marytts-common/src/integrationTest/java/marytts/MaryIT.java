@@ -54,24 +54,24 @@ import org.apache.logging.log4j.core.LoggerContext;
  *
  *
  */
-public class MaryIT {
+public class MaryIT{
 
-    @Test(priority=9)
+    @Test
     public void testStartingShutting() throws Exception
     {
-	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-	Configuration config = ctx.getConfiguration();
-	LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-	loggerConfig.setLevel(Level.DEBUG);
-	ctx.updateLoggers();
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+    	loggerConfig.setLevel(Level.DEBUG);
+    	ctx.updateLoggers();
 
-	Mary.startup();
+    	Mary.startup();
 
-	if (Mary.currentState() != Mary.STATE_RUNNING)
-	    throw new Exception("Mary is not started!");
+    	if (Mary.currentState() != Mary.STATE_RUNNING)
+    	    throw new Exception("Mary is not started!");
 
-	Assert.assertNotNull(MaryConfigurationFactory.getDefaultConfiguration());
+    	Assert.assertNotNull(MaryConfigurationFactory.getDefaultConfiguration());
 
-	Mary.shutdown();
+    	Mary.shutdown();
     }
 }

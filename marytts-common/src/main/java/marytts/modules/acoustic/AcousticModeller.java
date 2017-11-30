@@ -42,6 +42,7 @@ import marytts.modules.MaryModule;
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
@@ -57,45 +58,11 @@ public class AcousticModeller extends MaryModule {
     // this is in modules.classes.list):
 
     public AcousticModeller() {
-        this((Locale) null);
+        super();
     }
 
-    /**
-     * Constructor to be called with instantiated objects.
-     *
-     * @param locale
-     *            locale
-     */
-    public AcousticModeller(String locale) {
-        this(MaryUtils.string2locale(locale));
+    public void checkStartup() throws MaryConfigurationException {
     }
-
-    /**
-     * Constructor to be called with instantiated objects.
-     *
-     * @param locale
-     *            locale
-     */
-    public AcousticModeller(Locale locale) {
-        super("AcousticModeller", locale);
-    }
-
-    // three constructors adapted from CARTF0Modeller (used if this is in a
-    // voice's preferredModules):
-
-    /**
-     * Constructor to be called with instantiated objects.
-     *
-     * @param locale
-     *            locale
-     * @param propertyPrefix
-     *            the prefix to be used when looking up entries in the config
-     *            files, e.g. "english.f0"
-     */
-    protected AcousticModeller(Locale locale, String propertyPrefix) {
-        super("AcousticModeller", locale);
-    }
-
 
     /**
      *  Check if the input contains all the information needed to be

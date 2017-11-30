@@ -41,7 +41,7 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
 import marytts.MaryException;
-
+import marytts.exceptions.MaryConfigurationException;
 import org.apache.logging.log4j.core.Appender;
 
 /**
@@ -55,34 +55,11 @@ public class ProsodyGeneric extends MaryModule {
     public static final int DEFAULT_DURATION = 400;
 
     public ProsodyGeneric() {
-        this((Locale) null);
+        super();
     }
 
-    public ProsodyGeneric(Locale locale, String tobipredFileName, String accentPriorities,
-                          String syllableAccents,
-                          String paragraphDeclination) {
-        super("Prosody", locale);
 
-    }
-
-    public ProsodyGeneric(String locale, String propertyPrefix) {
-        this(new Locale(locale), propertyPrefix);
-    }
-
-    public ProsodyGeneric(Locale locale, String propertyPrefix) {
-        super("Prosody", locale);
-    }
-
-    public ProsodyGeneric(String locale) {
-        this(new Locale(locale), "fallback.prosody.");
-    }
-
-    public ProsodyGeneric(Locale locale) {
-        this(locale, "fallback.prosody.");
-    }
-
-    public void startup() throws Exception {
-        super.startup();
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**

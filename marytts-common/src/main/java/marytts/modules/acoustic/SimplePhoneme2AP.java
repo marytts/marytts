@@ -44,6 +44,7 @@ import marytts.util.MaryUtils;
 import marytts.modules.MaryModule;
 
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -55,21 +56,12 @@ public class SimplePhoneme2AP extends MaryModule {
     protected AllophoneSet allophoneSet;
 
     public SimplePhoneme2AP() {
-	this(Locale.getDefault());
+	super();
     }
 
-    public SimplePhoneme2AP(Locale locale) {
-        super("SimplePhoneme2AP", locale, null);
-    }
 
-    public SimplePhoneme2AP(Locale locale, MaryConfiguration default_configuration) {
-        super("SimplePhoneme2AP", locale, default_configuration);
+    public void checkStartup() throws MaryConfigurationException {
     }
-
-    public void startup() throws Exception {
-        super.startup();
-    }
-
 
     /**
      *  Check if the input contains all the information needed to be

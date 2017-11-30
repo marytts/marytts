@@ -17,7 +17,7 @@ public class MaryException extends Exception {
     }
 
     public MaryException(String message, Exception embedded_exception) {
-        super(message);
+        super(message, embedded_exception);
         this.m_embedded_exception = embedded_exception;
     }
 

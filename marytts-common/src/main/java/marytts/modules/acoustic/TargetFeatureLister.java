@@ -40,7 +40,7 @@ import marytts.data.Sequence;
 import marytts.data.item.Item;
 
 import marytts.MaryException;
-
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.logging.log4j.core.Appender;
 /**
@@ -55,8 +55,11 @@ public class TargetFeatureLister extends MaryModule {
      *
      */
     public TargetFeatureLister() throws Exception {
-        super("TargetFeatureLister", null);
+        super();
         FeatureComputer.initDefault();
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**
