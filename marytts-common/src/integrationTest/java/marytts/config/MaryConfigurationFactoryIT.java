@@ -40,4 +40,9 @@ public class MaryConfigurationFactoryIT {
 	PropertiesMaryConfigLoader loader = new PropertiesMaryConfigLoader();
 	loader.loadConfiguration("test", stream);
     }
+
+    @Test
+    public void testDumpAvailableConfiguration() throws Exception {
+	System.out.println(MaryConfigurationFactory.dump());
+    }
 }

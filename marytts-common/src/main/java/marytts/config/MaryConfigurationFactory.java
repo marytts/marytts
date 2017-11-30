@@ -54,6 +54,16 @@ public class MaryConfigurationFactory
     public synchronized static void applyDefaultConfiguration(Object obj) throws MaryConfigurationException {
 	getDefaultConfiguration().applyConfiguration(obj);
     }
+
+    public synchronized static String dump() {
+	String result = "";
+	for (String key: configuration_map.keySet()) {
+	    result += key + ":\n";
+	    result += "\t" + configuration_map.get(key).toString().replaceAll("\\\n", "\\\n\\\t");
+	    result += "\n";
+	}
+	return result;
+    }
 }
 
 

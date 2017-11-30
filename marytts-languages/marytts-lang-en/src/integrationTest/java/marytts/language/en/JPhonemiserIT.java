@@ -22,7 +22,11 @@ import org.testng.annotations.*;
 public class JPhonemiserIT extends MaryModuleTestCase {
 
     public JPhonemiserIT() throws Exception {
-        setup(true); // need mary startup
+    }
+
+    @BeforeSuite(alwaysRun = true)
+    public void setup() throws Exception {
+        super.setup(true); // need mary startup
         module = ModuleRegistry.getModule(JPhonemiser.class);
 	Assert.assertNotNull(module);
 	MaryConfigurationFactory.getConfiguration("en_US").applyConfiguration(module);

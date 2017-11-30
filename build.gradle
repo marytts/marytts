@@ -62,7 +62,7 @@ subprojects {
         group 'Verification'
         description 'Runs the integration tests.'
         check.dependsOn it
-
+	testLogging.showStandardStreams = true
         useTestNG()//  {
         //     includeGroups 'integration'
         // }

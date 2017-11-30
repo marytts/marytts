@@ -43,7 +43,6 @@ import org.testng.annotations.*;
 import marytts.config.MaryConfigurationFactory;
 
 // Log
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -60,13 +59,20 @@ public abstract class MaryModuleTestCase {
     protected MaryModule module;
     protected Logger logger;
 
-    public void setup(boolean needMaryStarted) throws Exception {
+    @BeforeClass(alwaysRun = true)
+    protected void setUp() throws SecurityException, IOException
+    {
         logger = LogManager.getLogger(getClass());
 	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 	Configuration config = ctx.getConfiguration();
 	LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
 	loggerConfig.setLevel(Level.DEBUG);
 	ctx.updateLoggers();
+    }
+
+    @BeforeSuite(alwaysRun = true)
+    public abstract void setup() throws Exception;
+    public void setup(boolean needMaryStarted) throws Exception {
 
         if (needMaryStarted) {
             if (Mary.currentState() == Mary.STATE_OFF) {
