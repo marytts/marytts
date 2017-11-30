@@ -19,7 +19,6 @@
  */
 package marytts.language.en;
 
-import marytts.runutils.LocalMaryInterface;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -32,10 +31,4 @@ import org.testng.annotations.*;
  */
 public class MaryInterfaceEnIT {
 
-    private LocalMaryInterface mary;
-
-    @BeforeMethod
-    public void setUp() throws Exception {
-        mary = new LocalMaryInterface();
-    }
 }

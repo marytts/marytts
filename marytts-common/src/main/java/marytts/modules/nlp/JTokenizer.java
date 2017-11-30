@@ -44,6 +44,7 @@ import de.dfki.lt.tools.tokenizer.annotate.AnnotatedString;
 import de.dfki.lt.tools.tokenizer.output.Outputter;
 import de.dfki.lt.tools.tokenizer.output.Token;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.MaryException;
 
 import org.apache.logging.log4j.core.Appender;
@@ -58,23 +59,19 @@ public class JTokenizer extends MaryModule {
     private JTok tokenizer = null;
     private String jtokLocale;
 
-    public JTokenizer() {
-        this((Locale) null);
+    public JTokenizer() throws MaryConfigurationException {
+	super();
+	setLocale("default");
     }
 
-    public JTokenizer(String locale) {
-        super("JTokenizer", new Locale(locale));
-    }
 
-    public JTokenizer(Locale locale) {
-        super("JTokenizer", locale);
 
-        // if locale == null, use default tokenizer
-        if (locale == null) {
-            jtokLocale = "default";
-        } else {
-            jtokLocale = locale.getLanguage();
-        }
+    public void checkStartup() throws MaryConfigurationException {
+	if (tokenizer == null)
+	    throw new MaryConfigurationException("The tokenize is null and should not be");
+
+	if (jtokLocale == null)
+	    throw new MaryConfigurationException("The locale is null and should not be");
     }
 
     /**
@@ -91,14 +88,24 @@ public class JTokenizer extends MaryModule {
 
     public void startup() throws Exception {
         super.startup();
-        Properties jtokProperties = new Properties();
-        if (jtokLocale.equals("default")) {
-            jtokProperties.setProperty(jtokLocale, "jtok/default"); // FIXME:
-            // hardcoded
-        } else {
-            jtokProperties.setProperty(jtokLocale, "marytts/modules/nlp/jtok/" + jtokLocale);
-        }
-        tokenizer = new JTok(jtokProperties);
+    }
+
+    public void setLocale(String locale) throws MaryConfigurationException {
+
+	try {
+	    Properties jtokProperties = new Properties();
+	    if (locale.equals("default")) {
+		jtokProperties.setProperty(locale, "jtok/default"); // FIXME:
+		// hardcoded
+	    } else {
+		// hardcoded
+		jtokProperties.setProperty(locale, "marytts/modules/nlp/jtok/" + jtokLocale);
+	    }
+	    tokenizer = new JTok(jtokProperties);
+	    jtokLocale = locale;
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("Cannot set locale of the tokenizer jtok", ex);
+	}
     }
 
     /**

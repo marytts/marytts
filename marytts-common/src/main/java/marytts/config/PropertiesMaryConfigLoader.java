@@ -40,7 +40,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.util.io.PropertiesAccessor;
 import marytts.util.io.PropertiesTrimTrailingWhitespace;
 import marytts.exceptions.NoSuchPropertyException;

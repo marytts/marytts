@@ -23,7 +23,9 @@ import java.util.Locale;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
+
 import marytts.config.MaryConfiguration;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.data.SupportedSequenceType;
 
 import marytts.MaryException;
@@ -37,27 +39,10 @@ import org.apache.logging.log4j.core.Appender;
 
 public class DummyTokens2Words extends MaryModule {
     public DummyTokens2Words() {
-        this((Locale) null);
     }
 
-    /**
-     * Constructor to be called with instantiated objects.
-     *
-     * @param locale
-     *            locale
-     */
-    public DummyTokens2Words(String locale) {
-        super("DummyTokens2Words", new Locale(locale));
-    }
-
-    /**
-     * Constructor to be called with instantiated objects.
-     *
-     * @param locale
-     *            locale
-     */
-    public DummyTokens2Words(Locale locale) {
-        super("DummyTokens2Words", locale);
+    public void checkStartup() throws MaryConfigurationException {
+	// Nothing to do as we don't need anything !
     }
 
     /**

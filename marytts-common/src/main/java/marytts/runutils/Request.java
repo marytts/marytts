@@ -144,9 +144,6 @@ public class Request {
                                     configuration_properties.get("output_serializer") + "\" doesn't exist");
         }
 
-        // Locale reflection (FIXME: Check if locale is correct)
-        Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
-
         // Module sequence reflexion (FIXME: check if module is existing !)
         List<MaryModule> usedModules = new ArrayList<MaryModule>();
         String module_names = (String) configuration_properties.get("modules");
@@ -154,15 +151,10 @@ public class Request {
             List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
 
             for (String module_class_name : module_name_list) {
-                logger.debug("trying to load the following class " + module_class_name + " for locale " +
-                             cur_locale);
+                logger.debug("trying to load the following class " + module_class_name);
 
                 MaryModule cur_module = null;
-                cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
-                if (cur_module == null) {
-                    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
-                }
-
+                cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
                 if (cur_module == null) {
                     throw new MaryException("Cannot load module \"" + module_class_name +
                                             "\" as it is not existing");
@@ -180,7 +172,7 @@ public class Request {
 
         logger.info("Handling request using the following modules:");
         for (MaryModule m : usedModules) {
-            logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
+            logger.info("- " + m.getClass().getName());
         }
         outputData = input_mary_data;
         for (MaryModule m : usedModules) {
@@ -188,13 +180,13 @@ public class Request {
                 break;
             }
 
-            logger.info("Next module: " + m.name());
+            logger.info("Next module: " + m.getClass().getName());
 
             // Start module if needed
             logger.debug("Starting the module");
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
-		logger.info("Starting module " + m.name());
+		logger.info("Starting module " + m.getClass().getName());
                 m.startup();
                 assert m.getState() == MaryModule.MODULE_RUNNING;
             }
@@ -209,11 +201,11 @@ public class Request {
 		// FIXME: what about the configuration and the logger
                 outData = m.process(outputData);
             } catch (Exception e) {
-                throw new MaryException("Module " + m.name() + ": Problem processing the data.", e);
+                throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }
 
             if (outData == null) {
-                throw new NullPointerException("Module " + m.name() + " returned null. This should not happen.");
+                throw new NullPointerException("Module " + m.getClass().getName() + " returned null. This should not happen.");
             }
 
             outputData = outData;
@@ -239,7 +231,7 @@ public class Request {
         long stopTime = System.currentTimeMillis();
         logger.info("Request processed in " + (stopTime - startTime) + " ms.");
         for (MaryModule m : usedModules) {
-            logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
+            logger.info("   " + m.getClass().getName() + " took " + timingInfo.get(m) + " ms");
         }
     }
 

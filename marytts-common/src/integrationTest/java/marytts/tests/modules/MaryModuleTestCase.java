@@ -72,6 +72,7 @@ public abstract class MaryModuleTestCase {
 
     @BeforeSuite(alwaysRun = true)
     public abstract void setup() throws Exception;
+
     public void setup(boolean needMaryStarted) throws Exception {
 
         if (needMaryStarted) {

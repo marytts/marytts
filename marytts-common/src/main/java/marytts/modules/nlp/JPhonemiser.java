@@ -42,6 +42,7 @@ import com.google.common.base.Splitter;
 
 // Locale
 import java.util.Locale;
+import org.apache.commons.lang.LocaleUtils;
 
 // Configuration
 import marytts.config.MaryConfiguration;
@@ -77,7 +78,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author ingmar
  */
 
-public class JPhonemiser extends MaryModule {
+public abstract class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -86,16 +87,15 @@ public class JPhonemiser extends MaryModule {
     protected FSTLookup lexicon;
     protected TrainedLTS lts;
     protected boolean removeTrailingOneFromPhones = true;
-
+    protected Locale locale;
     protected AllophoneSet allophoneSet;
 
     public Pattern punctuationPosRegex;
     protected Pattern unpronounceablePosRegex;
 
 
-
-    public JPhonemiser() throws IOException, MaryConfigurationException {
-	super("JPhonemiser");
+    public JPhonemiser() throws MaryConfigurationException {
+	super();
 
 	String defaultRegex = "\\$PUNCT";
 	punctuationPosRegex = Pattern.compile(defaultRegex);
@@ -104,35 +104,14 @@ public class JPhonemiser extends MaryModule {
 	unpronounceablePosRegex = Pattern.compile(defaultRegex);
     }
 
-    /**
-     * Constructor providing the individual filenames of files that are
-     * required.
-     *
-     * @param componentName
-     *            componentName
-     * @param allophonesProperty
-     *            allophonesProperty
-     * @param userdictProperty
-     *            userdictProperty
-     * @param lexiconProperty
-     *            lexiconProperty
-     * @param ltsProperty
-     *            ltsProperty
-     * @param removetrailingonefromphonesProperty
-     *            removetrailingonefromphonesProperty
-     * @throws IOException
-     *             IOException
-     * @throws MaryConfigurationException
-     *             MaryConfigurationException
-     */
-    protected JPhonemiser(String componentName, Locale locale) throws IOException, MaryConfigurationException {
-	super(componentName, locale);
 
-	String defaultRegex = "\\$PUNCT";
-	punctuationPosRegex = Pattern.compile(defaultRegex);
 
-	defaultRegex = "^[^a-zA-Z]+$";
-	unpronounceablePosRegex = Pattern.compile(defaultRegex);
+    public void checkStartup() throws MaryConfigurationException {
+	if (punctuationPosRegex == null)
+	    throw new MaryConfigurationException("Problem as the regular expression for punctuation is not defined");
+
+	if (unpronounceablePosRegex == null)
+	    throw new MaryConfigurationException("Problem as the regular expression for unpronounceable tokens is not defined");
     }
 
     /**
@@ -476,8 +455,21 @@ public class JPhonemiser extends MaryModule {
         return allophoneSet;
     }
 
+
+    public Locale getLocale() {
+	return locale;
+    }
+
+    public void setLocale(Locale locale) {
+	this.locale = locale;
+    }
+
+    public void setLocale(String locale) {
+	setLocale(LocaleUtils.toLocale(locale));
+    }
+
     /**
-     * Read a lexicon. Lines must have the format
+     * a lexicon. Lines must have the format
      *
      * graphemestring | phonestring | optional-parts-of-speech
      *
@@ -544,6 +536,7 @@ public class JPhonemiser extends MaryModule {
     public void setAllophoneSet(InputStream allophone_xml) {
 
     }
+
     /**
      * Compile a regex pattern used to determine whether tokens are processed as
      * punctuation or not, based on whether their <code>pos</code> attribute
