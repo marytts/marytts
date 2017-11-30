@@ -145,7 +145,6 @@ public class MaryConfiguration {
      *  @param mc2 the other MaryConfiguration object
      */
     public void merge(MaryConfiguration mc2) {
-	System.out.println("Merge requested!");
 	m_class_property_map.putAll(mc2.m_class_property_map);
 	m_configuration_stream_map.putAll(mc2.m_configuration_stream_map);
 	m_configuration_value_map.putAll(mc2.m_configuration_value_map);

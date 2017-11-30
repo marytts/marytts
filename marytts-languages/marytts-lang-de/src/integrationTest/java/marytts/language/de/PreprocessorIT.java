@@ -20,9 +20,16 @@ import org.testng.annotations.*;
 public class PreprocessorIT extends MaryModuleTestCase {
 
     public PreprocessorIT() throws Exception {
+    }
+
+
+    @BeforeSuite(alwaysRun = true)
+    public void setup() throws Exception {
         setup(true); // need mary startup
         module = ModuleRegistry.getModule(Preprocess.class);
+	Assert.assertNotNull(module);
     }
+
 
     protected String inputEnding() {
         return "tokenised";
