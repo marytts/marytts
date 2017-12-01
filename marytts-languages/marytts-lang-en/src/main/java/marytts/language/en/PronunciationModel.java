@@ -32,6 +32,6 @@ public class PronunciationModel extends marytts.modules.nlp.PronunciationModel {
      *
      */
     public PronunciationModel() {
-        super(Locale.ENGLISH);
+        super();
     }
 }

@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import marytts.config.MaryConfiguration;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
@@ -41,7 +42,9 @@ import org.apache.logging.log4j.core.Appender;
 public class Preprocess extends MaryModule {
 
     public Preprocess() {
-        super("Preprocess", Locale.ITALIAN);
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**

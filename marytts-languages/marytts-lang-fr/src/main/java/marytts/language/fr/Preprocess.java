@@ -9,6 +9,7 @@ import com.ibm.icu.util.ULocale;
 
 import marytts.config.MaryConfiguration;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
 import marytts.data.Utterance;
@@ -31,12 +32,13 @@ public class Preprocess extends MaryModule {
     protected final String ordinalRule;
 
     public Preprocess() {
-        super("Preprocess", Locale.FRENCH);
         this.rbnf = new RuleBasedNumberFormat(ULocale.FRENCH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
         this.ordinalRule = getOrdinalRuleName(rbnf);
     }
 
+    public void checkStartup() throws MaryConfigurationException {
+    }
     /**
      *  Check if the input contains all the information needed to be
      *  processed by the module.
