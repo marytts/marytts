@@ -30,7 +30,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+
+// Locale
 import java.util.Locale;
+import org.apache.commons.lang.LocaleUtils;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -56,12 +60,12 @@ import marytts.data.item.phonology.Accent;
 import com.google.common.base.Splitter;
 
 import org.apache.logging.log4j.core.Appender;
+
 /**
  * Russian phonemiser module
  *
  * @author Nickolay V. Shmyrev, Marc Schr&ouml;der, Sathish
  */
-
 public class Phonemiser extends MaryModule {
 
     protected final String SYL_SEP = "-";
@@ -74,11 +78,31 @@ public class Phonemiser extends MaryModule {
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
 
+    protected Locale locale;
     protected AllophoneSet allophoneSet;
 
-    public Phonemiser(String propertyPrefix)
-    throws IOException, ParserConfigurationException, MaryConfigurationException {
-        super("Phonemiser", new Locale.Builder().setLanguage("ru").setScript("Cyrl").build());
+    public Phonemiser() {
+	super();
+	setLocale(new Locale.Builder().setLanguage("ru").setScript("Cyrl").build());
+    }
+
+
+    public Locale getLocale() {
+	return locale;
+    }
+
+    public void setLocale(Locale locale) {
+	this.locale = locale;
+    }
+
+    public void setLocale(String locale) {
+	setLocale(LocaleUtils.toLocale(locale));
+    }
+
+
+    public void checkStartup() throws MaryConfigurationException {
+	if (getLocale() == null)
+	    throw new MaryConfigurationException("The locale should be set to ru and not changed!");
     }
 
     /**
@@ -107,8 +131,8 @@ public class Phonemiser extends MaryModule {
         ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
 
         Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                  SupportedSequenceType.WORD)
-                                  .getReverse();
+						  SupportedSequenceType.WORD)
+	    .getReverse();
         HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
         for (int i_word = 0; i_word < words.size(); i_word++) {
@@ -353,7 +377,7 @@ public class Phonemiser extends MaryModule {
         Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
 
         BufferedReader lexiconFile = new BufferedReader(
-            new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
+							new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
         while ((line = lexiconFile.readLine()) != null) {
             // Ignore empty lines and comments:
             if (line.trim().equals("") || line.startsWith("#")) {

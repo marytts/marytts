@@ -26,6 +26,7 @@ import java.util.Set;
 
 import marytts.config.MaryConfiguration;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.data.Utterance;
 
 import org.apache.logging.log4j.core.Appender;
@@ -37,8 +38,11 @@ import org.apache.logging.log4j.core.Appender;
  */
 public class JTokenizer extends marytts.modules.nlp.JTokenizer {
 
-    public JTokenizer() {
-        super(Locale.ITALIAN);
+    public JTokenizer() throws MaryConfigurationException {
+	super();
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**

@@ -177,7 +177,6 @@ public class Preprocess extends MaryModule {
     }
 
     public Preprocess() {
-        super("Preprocess", Locale.ENGLISH, null);
 	this.lexicon = null;
         this.rbnf = new RuleBasedNumberFormat(ULocale.ENGLISH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
@@ -192,6 +191,9 @@ public class Preprocess extends MaryModule {
     }
 
 
+    public void checkStartup() throws MaryConfigurationException {
+
+    }
     /**
      *  Check if the input contains all the information needed to be
      *  processed by the module.
