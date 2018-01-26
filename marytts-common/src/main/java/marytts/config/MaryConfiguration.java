@@ -33,7 +33,7 @@ public class MaryConfiguration {
     private HashMap<String, Set<String>> m_class_property_map;
 
     /** Map which associate a couple (class, property) to the actual value of the property of the class */
-    private HashMap<StringPair, String> m_configuration_value_map;
+    private HashMap<StringPair, Object> m_configuration_value_map;
 
     /** Map which associate a couple (class, property) to the stream of the property of the class */
     private HashMap<StringPair, InputStream> m_configuration_stream_map;
@@ -51,7 +51,7 @@ public class MaryConfiguration {
      */
     public MaryConfiguration() {
         m_class_property_map = new HashMap<String, Set<String>>();
-        m_configuration_value_map = new HashMap<StringPair, String>();
+        m_configuration_value_map = new HashMap<StringPair, Object>();
         m_configuration_stream_map = new HashMap<StringPair, InputStream>();
         m_is_strict = false;
         logger = LogManager.getLogger(this);
@@ -64,7 +64,7 @@ public class MaryConfiguration {
      */
     public MaryConfiguration(boolean is_strict) {
         m_class_property_map = new HashMap<String, Set<String>>();
-        m_configuration_value_map = new HashMap<StringPair, String>();
+        m_configuration_value_map = new HashMap<StringPair, Object>();
         m_configuration_stream_map = new HashMap<StringPair, InputStream>();
         m_is_strict = is_strict;
         logger = LogManager.getLogger(this);
@@ -76,12 +76,12 @@ public class MaryConfiguration {
      *  @param class_name the name of the class
      *  @param map_property_values the map which associates the property and its value
      */
-    public void addConfigurationClassValues(String class_name, HashMap<String, String> map_property_values) {
+    public void addConfigurationClassValues(String class_name, HashMap<String, Object> map_property_values) {
         if (!m_class_property_map.containsKey(class_name)) {
             m_class_property_map.put(class_name, new HashSet<String>());
         }
 
-        for (Map.Entry<String, String> entry : map_property_values.entrySet()) {
+        for (Map.Entry<String, Object> entry : map_property_values.entrySet()) {
             String property = entry.getKey();
             m_class_property_map.get(class_name).add(property);
             m_configuration_value_map.put(new StringPair(class_name, property), entry.getValue());
@@ -113,7 +113,7 @@ public class MaryConfiguration {
      *  @param property the name of the property
      *  @param value the value of the property for the class
      */
-    public void addConfigurationValueProperty(String class_name, String property, String value) {
+    public void addConfigurationValueProperty(String class_name, String property, Object value) {
         if (!m_class_property_map.containsKey(class_name)) {
             m_class_property_map.put(class_name, new HashSet<String>());
         }

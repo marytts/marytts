@@ -64,8 +64,6 @@ public class JTokenizer extends MaryModule {
 	setLocale("default");
     }
 
-
-
     public void checkStartup() throws MaryConfigurationException {
 	if (tokenizer == null)
 	    throw new MaryConfigurationException("The tokenize is null and should not be");

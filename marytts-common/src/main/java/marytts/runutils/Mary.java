@@ -96,6 +96,11 @@ public class Mary {
     private synchronized static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
+	// Load configurations
+	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
+	    mc.load();
+	}
+
 	// Instantiate available modules
 	Reflections reflections = new Reflections("marytts");
         for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
@@ -104,11 +109,6 @@ public class Mary {
 		ModuleRegistry.registerModule(m);
 	    }
         }
-
-	// Load configurations
-	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
-	    mc.load();
-	}
 
 	// Start the modules
         List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();

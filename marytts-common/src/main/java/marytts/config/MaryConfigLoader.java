@@ -38,28 +38,53 @@ import marytts.util.io.PropertiesAccessor;
 import marytts.util.io.PropertiesTrimTrailingWhitespace;
 
 /**
- * @author marc
+ * An abstract class to represent a MaryTTS configuration file loader.
  *
+ * @author marc
  */
 public abstract class MaryConfigLoader {
+
+    /** The configuration service loader */
     protected static final ServiceLoader<MaryConfigLoader> configLoader = ServiceLoader.load(MaryConfigLoader.class);
 
+
+    /**
+     * Default constructor to deal with default configuration
+     *
+     *  @throws MaryConfigurationException if something is going wrong while the default
+     *  configuration is loaded
+     */
     protected MaryConfigLoader() throws MaryConfigurationException {
-	try {
 	    InputStream input_stream = this.getClass().getResourceAsStream(MaryConfigurationFactory.DEFAULT_KEY + ".config");
-	    loadConfiguration("default", input_stream);
-	} catch (Exception ex) {
-	}
+	    loadConfiguration(MaryConfigurationFactory.DEFAULT_KEY, input_stream);
     }
 
-    public abstract void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException;
-
+    /**
+     * This method is here to force the loading to happen
+     *
+     * @todo check if we can get rid of it.....
+     */
     public void load() {
 	System.out.println("load " + this.getClass().toString() + "....");
     }
 
 
+    /**
+     * Static method to list the configuration loaders available
+     *
+     * @returns an iterable over the available MaryConfigLoader objects
+     */
     public static synchronized Iterable<MaryConfigLoader> getConfigLoaders() {
         return configLoader;
     }
+
+
+    /**
+     * Configuration loading method
+     *
+     *  @param set the name of the configuration set for later reference in the configuration hash
+     *  @param input_stream the stream containing the configuration
+     */
+    public abstract void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException;
+
 }

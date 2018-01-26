@@ -46,6 +46,9 @@ import marytts.exceptions.NoSuchPropertyException;
 import java.io.FileNotFoundException;
 
 /**
+ * This class is designed to load configuration stored in "extended" java properties.
+ *
+ *
  * @author marc
  *
  */
@@ -53,12 +56,19 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 
     // ////////// Non-/ base class methods //////////////
 
+    /** The properties available in the file */
     private Properties props;
 
     public PropertiesMaryConfigLoader() throws MaryConfigurationException {
 	super();
     }
 
+    /**
+     * Configuration loading method
+     *
+     *  @param set the name of the configuration set for later reference in the configuration hash
+     *  @param input_stream the stream containing the configuration
+     */
     public void loadConfiguration(String set, InputStream propertyStream) throws MaryConfigurationException {
 	MaryConfiguration mc = new MaryConfiguration();
         props = new PropertiesTrimTrailingWhitespace();
@@ -124,6 +134,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 
 	throw new MaryConfigurationException("\"set" + method_name + "\" is not a method of the class");
     }
+
     public String adaptMethodName(String method_name) {
 	method_name = method_name.substring(0,1).toUpperCase() + method_name.substring(1).toLowerCase();
 	StringBuffer result = new StringBuffer();
@@ -137,7 +148,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 
     }
 
-    public Properties getProperties() {
+    protected Properties getProperties() {
         return props;
     }
 
@@ -152,7 +163,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *            properties.
      * @return PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap)
      */
-    public PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
+    protected PropertiesAccessor getPropertiesAccessor(boolean systemPropertiesOverride) {
         Map<String, String> maryBaseMap = new HashMap<String, String>();
         return new PropertiesAccessor(props, systemPropertiesOverride, maryBaseMap);
     }
@@ -167,7 +178,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *            value to return if the property is not defined.
      * @return props.getProperty(property, defaultValue)
      */
-    public String getProperty(String property, String defaultValue) {
+    protected String getProperty(String property, String defaultValue) {
         return props.getProperty(property, defaultValue);
     }
 
@@ -180,7 +191,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      * @return the list of items, or an empty list if the property is not
      *         defined or contains no items
      */
-    public List<String> getList(String propertyName) {
+    protected List<String> getList(String propertyName) {
         String val = props.getProperty(propertyName);
         if (val == null) {
             return new ArrayList<String>();
@@ -196,7 +207,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *
      * @return getFilename("mary.base", ".")
      */
-    public String maryBase() {
+    protected String maryBase() {
 	String mary_base =  getFilename("mary.base");
 	if (mary_base != null)
 	    return mary_base;
@@ -244,7 +255,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *            the property requested
      * @return the property value if found, null otherwise.
      */
-    public String getProperty(String property) {
+    protected String getProperty(String property) {
 
         // First, try system properties:
         String val = System.getProperty(property);
@@ -272,7 +283,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      * @return the filename corresponding to the property value if found, null
      *         otherwise.
      */
-    public String getFilename(String property) {
+    protected String getFilename(String property) {
         String filename = getProperty(property);
         if (filename == null) {
             return null;
@@ -300,7 +311,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *             if the property value is a classpath entry which cannot be
      *             opened
      */
-    public InputStream getStream(String propertyName) throws FileNotFoundException,
+    protected InputStream getStream(String propertyName) throws FileNotFoundException,
 								    MaryConfigurationException {
         InputStream stream;
         String propertyValue = getProperty(propertyName);
@@ -330,7 +341,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *            locale
      * @return locale converted to string
      */
-    public String localePrefix(Locale locale) {
+    protected String localePrefix(Locale locale) {
         if (locale == null) {
             return null;
         }

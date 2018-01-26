@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 DFKI GmbH.
+ * Copyright 2003 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -19,32 +19,33 @@
  */
 package marytts.language.en;
 
-import java.util.Locale;
+import java.io.InputStream;
 
-import marytts.modules.ModuleRegistry;
-import marytts.tests.modules.MaryModuleTestCase;
-import marytts.language.en.OpenNLPPosTagger;
-
-import org.testng.Assert;
-import org.testng.annotations.*;
+import marytts.exceptions.MaryConfigurationException;
 
 /**
- * @author marc
  *
+ *
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
  */
-public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
-    public OpenNLPPosTaggerIT() throws Exception {
-    }
+public class OpenNLPPosTagger extends marytts.modules.nlp.OpenNLPPosTagger
+{
 
+    /**
+     * Constructor which can be directly called from init info in the config
+     * file. Different languages can call this code with different settings.
+     *
+     * @throws Exception
+     *             Exception
+     */
+    public OpenNLPPosTagger() throws Exception {
+        super();
 
-    @BeforeSuite(alwaysRun = true)
-    public void setup() throws Exception {
-        setup(true); // need mary startup
-        module = ModuleRegistry.getModule(OpenNLPPosTagger.class);
-	Assert.assertNotNull(module);
-    }
-
-    @Test
-    public void voidTest() {
+	// Set default
+	InputStream stream = this.getClass().getResourceAsStream("/marytts/language/en/tagger/en-pos-maxent.bin");
+	setModel(stream);
     }
 }
+
+
+/* OpenNLPPosTagger.java ends here */

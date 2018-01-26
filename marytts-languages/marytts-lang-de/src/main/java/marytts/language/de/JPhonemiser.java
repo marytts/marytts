@@ -100,14 +100,20 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     private PhonemiseDenglish phonemiseDenglish;
 
     public JPhonemiser() throws MaryConfigurationException {
-        super(); // FIXME: Configuration factory, give me the german one please :D
+        super();
     }
 
     public void startup() throws Exception {
         super.startup();
+
+	// Apply the german configuration
 	MaryConfigurationFactory.getConfiguration("de_DE").applyConfiguration(this);
         phonemiseDenglish = new PhonemiseDenglish(this);
         inflection = new Inflection();
+
+	setLexicon(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de_lexicon.fst"));
+	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.xml"));
+
 
 	if (lexicon == null)
 	    throw new MaryConfigurationException("The lexicon has not be defined");
@@ -131,6 +137,11 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         //                     e);
         //     }
         // }
+    }
+
+
+    public void setUseEnglish(String use_english) {
+	//FIXME:
         // if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
         //     InputStream usLexStream = MaryProperties.getStream("en_US.lexicon");
         //     if (usLexStream != null) {
