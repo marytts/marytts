@@ -39,6 +39,7 @@ import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
 import marytts.config.MaryConfiguration;
+import marytts.exceptions.MaryConfigurationException;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -82,6 +83,12 @@ public abstract class OpenNLPPosTagger extends MaryModule {
     public void startup() throws Exception {
 	getDefaultConfiguration().applyConfiguration(this);
         super.startup();
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
+	if (tagger == null)
+	    throw new MaryConfigurationException("The tagger is null and should not be");
+
     }
 
     public void setModel(InputStream model_stream) throws IOException {

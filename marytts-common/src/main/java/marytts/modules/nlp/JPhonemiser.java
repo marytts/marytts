@@ -78,7 +78,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author ingmar
  */
 
-public abstract class JPhonemiser extends MaryModule {
+public class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -456,6 +456,17 @@ public abstract class JPhonemiser extends MaryModule {
     }
 
 
+    public void setLexicon(InputStream stream) throws MaryConfigurationException {
+	try {
+	    lexicon = new FSTLookup(stream, this.getClass().getName() + ".lexicon");
+	} catch (IOException ex) {
+	    throw new MaryConfigurationException("Cannot load lexicon", ex);
+	}
+    }
+
+    public void setLetterToSound(InputStream stream) {
+	// FIXME: add the lts loading part
+    }
     public Locale getLocale() {
 	return locale;
     }

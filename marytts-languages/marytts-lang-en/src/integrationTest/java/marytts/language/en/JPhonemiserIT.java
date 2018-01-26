@@ -1,3 +1,4 @@
+
 package marytts.language.en;
 
 import marytts.modules.nlp.JPhonemiser;
@@ -27,6 +28,8 @@ public class JPhonemiserIT extends MaryModuleTestCase {
     @BeforeSuite(alwaysRun = true)
     public void setup() throws Exception {
         super.setup(true); // need mary startup
+	for (MaryModule mod :ModuleRegistry.listRegisteredModules())
+	    System.out.println(mod.getClass().toString());
         module = ModuleRegistry.getModule(JPhonemiser.class);
 	Assert.assertNotNull(module);
 	MaryConfigurationFactory.getConfiguration("en_US").applyConfiguration(module);

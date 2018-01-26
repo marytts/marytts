@@ -22,8 +22,9 @@ public class MaryConfigurationFactory
      *
      *  @param set the set
      *  @param configuration the configuration to add
+     *  @fixme maybe avoid overriding default?
      */
-    // FIXME: maybe avoid overriding default?
+    //
     public synchronized static void addConfiguration(String set, MaryConfiguration configuration) {
 	if (configuration_map.containsKey(set)) {
 	    configuration_map.get(set).merge(configuration);
@@ -36,8 +37,8 @@ public class MaryConfigurationFactory
      *
      *  @param set the set
      *  @return the configuration
+     *  @fixme see for cloning
      */
-    // FIXME: see for cloning
     public synchronized static MaryConfiguration getConfiguration(String set) {
 	return configuration_map.get(set);
     }
