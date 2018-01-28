@@ -85,10 +85,9 @@ public abstract class MaryModule {
 	applyDefaultConfiguration();
         state = MODULE_RUNNING;
 
-	logger.info("\n" + MaryConfigurationFactory.dump());
-	checkStartup();
+	logger.debug("\n" + MaryConfigurationFactory.dump());
 
-        logger.info("Module " + this.getClass().toGenericString() + "started.");
+        logger.info("Module " + this.getClass().toGenericString() + " started.");
     }
 
     public abstract void checkStartup() throws MaryConfigurationException;

@@ -78,7 +78,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author ingmar
  */
 
-public class JPhonemiser extends MaryModule {
+public abstract class JPhonemiser extends MaryModule {
     protected final String SYL_SEP = "-";
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
@@ -94,7 +94,7 @@ public class JPhonemiser extends MaryModule {
     protected Pattern unpronounceablePosRegex;
 
 
-    public JPhonemiser() throws MaryConfigurationException {
+    protected JPhonemiser(Locale locale) throws MaryConfigurationException {
 	super();
 
 	String defaultRegex = "\\$PUNCT";
@@ -102,6 +102,8 @@ public class JPhonemiser extends MaryModule {
 
 	defaultRegex = "^[^a-zA-Z]+$";
 	unpronounceablePosRegex = Pattern.compile(defaultRegex);
+
+	setLocale(locale);
     }
 
 
@@ -112,6 +114,15 @@ public class JPhonemiser extends MaryModule {
 
 	if (unpronounceablePosRegex == null)
 	    throw new MaryConfigurationException("Problem as the regular expression for unpronounceable tokens is not defined");
+
+	if (lexicon == null)
+	    throw new MaryConfigurationException("Problem as the lexicon is not defined");
+
+	if (allophoneSet == null)
+	    throw new MaryConfigurationException("Problem as the allophone set is not defined");
+
+	// if (lts == null)
+	//     throw new MaryConfigurationException("Problem as the lts model is not defined");
     }
 
     /**
@@ -459,24 +470,25 @@ public class JPhonemiser extends MaryModule {
     public void setLexicon(InputStream stream) throws MaryConfigurationException {
 	try {
 	    lexicon = new FSTLookup(stream, this.getClass().getName() + ".lexicon");
-	} catch (IOException ex) {
+	} catch (Exception ex) {
 	    throw new MaryConfigurationException("Cannot load lexicon", ex);
 	}
     }
 
-    public void setLetterToSound(InputStream stream) {
-	// FIXME: add the lts loading part
+    public void setLetterToSound(InputStream stream) throws MaryConfigurationException {
+	try {
+	    lts = new TrainedLTS(allophoneSet, stream, this.removeTrailingOneFromPhones);
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("Cannot load LTS model", ex);
+	}
     }
+
     public Locale getLocale() {
 	return locale;
     }
 
     public void setLocale(Locale locale) {
 	this.locale = locale;
-    }
-
-    public void setLocale(String locale) {
-	setLocale(LocaleUtils.toLocale(locale));
     }
 
     /**
@@ -544,8 +556,8 @@ public class JPhonemiser extends MaryModule {
     }
 
 
-    public void setAllophoneSet(InputStream allophone_xml) {
-
+    public void setAllophoneSet(InputStream allophone_xml_stream) throws MaryConfigurationException {
+        allophoneSet = AllophoneSet.getAllophoneSet(allophone_xml_stream, "de.allophoneset"); // FIXME: hardcoded properties
     }
 
     /**

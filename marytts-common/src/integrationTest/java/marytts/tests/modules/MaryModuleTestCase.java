@@ -76,11 +76,11 @@ public abstract class MaryModuleTestCase {
     public void setup(boolean needMaryStarted) throws Exception {
 
         if (needMaryStarted) {
-            if (Mary.currentState() == Mary.STATE_OFF) {
+            if (Mary.getCurrentState() == Mary.STATE_OFF) {
                 Mary.startup();
             }
 
-	    if (Mary.currentState() != Mary.STATE_RUNNING)
+	    if (Mary.getCurrentState() != Mary.STATE_RUNNING)
 		throw new Exception("Mary is not started!");
         }
 

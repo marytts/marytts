@@ -48,7 +48,7 @@ public class MaryRuntimeUtils {
 
     // FIXME: synchronized mary
     public static void ensureMaryStarted() throws Exception {
-	if (Mary.currentState() == Mary.STATE_OFF) {
+	if (Mary.getCurrentState() == Mary.STATE_OFF) {
 	    Mary.startup();
 	}
     }
