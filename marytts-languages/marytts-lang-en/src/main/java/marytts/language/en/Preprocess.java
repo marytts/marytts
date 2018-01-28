@@ -207,7 +207,7 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration user_configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration user_configuration) throws Exception {
 	user_configuration.applyConfiguration(this);
         expand(utt);
 

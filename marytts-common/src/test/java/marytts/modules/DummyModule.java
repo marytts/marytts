@@ -65,7 +65,7 @@ public class DummyModule extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
         return utt;
     }
 

@@ -121,8 +121,8 @@ public abstract class JPhonemiser extends MaryModule {
 	if (allophoneSet == null)
 	    throw new MaryConfigurationException("Problem as the allophone set is not defined");
 
-	// if (lts == null)
-	//     throw new MaryConfigurationException("Problem as the lts model is not defined");
+	if (lts == null)
+	    throw new MaryConfigurationException("Problem as the lts model is not defined");
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class JPhonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -466,6 +466,9 @@ public abstract class JPhonemiser extends MaryModule {
         return allophoneSet;
     }
 
+    public Locale getLocale() {
+	return locale;
+    }
 
     public void setLexicon(InputStream stream) throws MaryConfigurationException {
 	try {
@@ -475,16 +478,19 @@ public abstract class JPhonemiser extends MaryModule {
 	}
     }
 
+
+    public void setAllophoneSet(InputStream allophone_xml_stream) throws MaryConfigurationException {
+        allophoneSet = AllophoneSet.getAllophoneSet(allophone_xml_stream, getLocale().toString());
+	assert allophoneSet != null;
+    }
+
     public void setLetterToSound(InputStream stream) throws MaryConfigurationException {
 	try {
-	    lts = new TrainedLTS(allophoneSet, stream, this.removeTrailingOneFromPhones);
+	    assert getAllophoneSet() != null;
+	    lts = new TrainedLTS(getAllophoneSet(), stream, this.removeTrailingOneFromPhones);
 	} catch (Exception ex) {
 	    throw new MaryConfigurationException("Cannot load LTS model", ex);
 	}
-    }
-
-    public Locale getLocale() {
-	return locale;
     }
 
     public void setLocale(Locale locale) {
@@ -553,11 +559,6 @@ public abstract class JPhonemiser extends MaryModule {
         }
         lexiconFile.close();
         return fLexicon;
-    }
-
-
-    public void setAllophoneSet(InputStream allophone_xml_stream) throws MaryConfigurationException {
-        allophoneSet = AllophoneSet.getAllophoneSet(allophone_xml_stream, "de.allophoneset"); // FIXME: hardcoded properties
     }
 
     /**

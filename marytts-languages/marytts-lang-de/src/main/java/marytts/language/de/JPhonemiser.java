@@ -113,6 +113,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de_lexicon.fst"));
 	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.de.xml"));
+	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de.lts"));
 
 
         // if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
@@ -225,7 +226,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
     @Override
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();

@@ -74,7 +74,7 @@ public class AcousticModeller extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws SynthesisException {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws SynthesisException {
         return utt;
     }
 }

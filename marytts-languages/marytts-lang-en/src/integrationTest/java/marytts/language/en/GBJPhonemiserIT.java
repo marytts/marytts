@@ -1,5 +1,6 @@
-
 package marytts.language.en;
+
+import java.util.ArrayList;
 
 import marytts.modules.nlp.JPhonemiser;
 import marytts.language.en.GBJPhonemiser;
@@ -58,5 +59,13 @@ public class GBJPhonemiserIT extends MaryModuleTestCase {
         Assert.assertTrue(phonemiser.maybePronounceable("foo", "."));
         Assert.assertTrue(phonemiser.maybePronounceable("@", "NN"));
         Assert.assertFalse(phonemiser.maybePronounceable("@", "."));
+    }
+
+    @Test
+    public void testLTS() {
+        JPhonemiser phonemiser = (JPhonemiser) module;
+	Assert.assertNotNull(phonemiser);
+	StringBuilder sb = new StringBuilder();
+	Assert.assertNotNull(phonemiser.phonemise("webmail", "NN", sb));
     }
 }

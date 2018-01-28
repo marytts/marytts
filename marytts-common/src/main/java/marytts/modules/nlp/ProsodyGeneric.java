@@ -78,7 +78,7 @@ public class ProsodyGeneric extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);

@@ -73,7 +73,7 @@ public class SimplePhoneme2AP extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
         // String phoneString = d.getPlainText();
         // Utterance utt = new Utterance(phoneString, d.getLocale());
 

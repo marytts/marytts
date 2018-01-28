@@ -96,10 +96,9 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     public void startup() throws Exception {
         super.startup();
 
-	// Apply the german configuration
+	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/it/lexicon/allophones.it.xml"));
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/it/lexicon/it_lexicon.fst"));
 	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/it/lexicon/it.lts"));
-	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/it/lexicon/allophones.it.xml"));
 
     }
 }

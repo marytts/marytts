@@ -199,7 +199,7 @@ public class Request {
             Utterance outData = null;
             try {
 		// FIXME: what about the configuration and the logger
-                outData = m.process(outputData);
+                outData = m.process(outputData, this.appender);
             } catch (Exception e) {
                 throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }

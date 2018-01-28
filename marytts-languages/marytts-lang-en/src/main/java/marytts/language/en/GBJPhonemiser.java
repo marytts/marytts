@@ -44,9 +44,10 @@ public class GBJPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
 	// Apply the german configuration
 	MaryConfigurationFactory.getConfiguration("en_GB").applyConfiguration(this);
+	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/allophones.en_GB.xml"));
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/en_GB_lexicon.fst"));
 	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/en_GB.lts"));
-	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/allophones.en_GB.xml"));
+
 
     }
 }
