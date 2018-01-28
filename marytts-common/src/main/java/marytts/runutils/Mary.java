@@ -88,7 +88,7 @@ public class Mary {
      * @see #STATE_RUNNING
      * @see #STATE_SHUTTING_DOWN
      */
-    public synchronized static int currentState() {
+    public synchronized static int getCurrentState() {
         return currentState;
     }
 
@@ -118,6 +118,7 @@ public class Mary {
                 long before = System.currentTimeMillis();
                 try {
                     m.startup();
+		    m.checkStartup();
                 } catch (Throwable t) {
                     throw new Exception("Problem starting module " + m.getClass().getName(), t);
                 }
@@ -138,7 +139,6 @@ public class Mary {
             }
         }
     }
-
 
     /**
      * Start the MARY system and all modules. This method must be called once

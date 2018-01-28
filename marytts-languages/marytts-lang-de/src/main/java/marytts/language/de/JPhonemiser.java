@@ -100,7 +100,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     private PhonemiseDenglish phonemiseDenglish;
 
     public JPhonemiser() throws MaryConfigurationException {
-        super();
+        super(Locale.GERMAN);
     }
 
     public void startup() throws Exception {
@@ -112,11 +112,8 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         inflection = new Inflection();
 
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de_lexicon.fst"));
-	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.xml"));
+	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.de.xml"));
 
-
-	if (lexicon == null)
-	    throw new MaryConfigurationException("The lexicon has not be defined");
 
         // if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
         //     String logBasepath = MaryProperties.maryBase() + File.separator + "log" + File.separator;

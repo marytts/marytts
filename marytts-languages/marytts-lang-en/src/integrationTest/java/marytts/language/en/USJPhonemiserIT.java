@@ -2,6 +2,7 @@
 package marytts.language.en;
 
 import marytts.modules.nlp.JPhonemiser;
+import marytts.language.en.USJPhonemiser;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.MaryModule;
 import marytts.config.MaryConfigurationFactory;
@@ -20,9 +21,9 @@ import org.testng.annotations.*;
 /**
  * @author ingmar
  */
-public class JPhonemiserIT extends MaryModuleTestCase {
+public class USJPhonemiserIT extends MaryModuleTestCase {
 
-    public JPhonemiserIT() throws Exception {
+    public USJPhonemiserIT() throws Exception {
     }
 
     @BeforeSuite(alwaysRun = true)
@@ -30,7 +31,7 @@ public class JPhonemiserIT extends MaryModuleTestCase {
         super.setup(true); // need mary startup
 	for (MaryModule mod :ModuleRegistry.listRegisteredModules())
 	    System.out.println(mod.getClass().toString());
-        module = ModuleRegistry.getModule(JPhonemiser.class);
+        module = ModuleRegistry.getModule(USJPhonemiser.class);
 	Assert.assertNotNull(module);
 	MaryConfigurationFactory.getConfiguration("en_US").applyConfiguration(module);
     }

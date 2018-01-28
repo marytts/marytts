@@ -25,6 +25,5 @@ import marytts.exceptions.MaryConfigurationException;
 public class ItalianConfig extends PropertiesMaryConfigLoader {
     public ItalianConfig() throws MaryConfigurationException {
 	super();
-	loadConfiguration("it_IT", ItalianConfig.class.getResourceAsStream("it.config"));
     }
 }

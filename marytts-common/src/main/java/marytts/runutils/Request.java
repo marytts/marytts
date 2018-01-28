@@ -110,7 +110,7 @@ public class Request {
 
     public void process() throws Exception {
 
-        assert Mary.currentState() == Mary.STATE_RUNNING;
+        assert Mary.getCurrentState() == Mary.STATE_RUNNING;
 
         // Parser configuration
         final Properties configuration_properties = new Properties();
