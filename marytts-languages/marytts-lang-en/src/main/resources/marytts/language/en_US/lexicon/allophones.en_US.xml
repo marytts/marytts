@@ -1,4 +1,4 @@
-<allophones name="sampa" xml:lang="en-US"
+<allophones name="sampa" xml:lang="en_US"
 		features="vlng vheight vfront vrnd ctype cplace cvox">
 	<silence ph="_"/>
 

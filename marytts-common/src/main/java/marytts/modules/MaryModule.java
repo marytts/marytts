@@ -97,6 +97,10 @@ public abstract class MaryModule {
         state = MODULE_OFFLINE;
     }
 
+    protected void addAppender(Appender app) {
+	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
+    }
+
     /**
      *  Check if the input contains all the information needed to be
      *  processed by the module.
@@ -107,17 +111,19 @@ public abstract class MaryModule {
     public abstract void checkInput(Utterance utt) throws MaryException;
 
     public Utterance process(Utterance utt) throws Exception {
-        return process(utt, new MaryConfiguration(), null);
+        return process(utt, new MaryConfiguration());
     }
 
     public Utterance process(Utterance utt, Appender app) throws Exception {
-        return process(utt, new MaryConfiguration(), app);
+	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
+        return process(utt, new MaryConfiguration());
     }
 
 
-    public Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws Exception {
-        return process(utt, runtime_configuration, null);
+    public Utterance process(Utterance utt, MaryConfiguration runtime_configuration, Appender app) throws Exception {
+	addAppender(app);
+        return process(utt, runtime_configuration);
     }
 
-    public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration, Appender app) throws Exception;
+    public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws Exception;
 }

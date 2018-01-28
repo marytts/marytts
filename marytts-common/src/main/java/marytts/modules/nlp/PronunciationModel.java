@@ -149,7 +149,7 @@ public class PronunciationModel extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
         return utt;
     }
 }

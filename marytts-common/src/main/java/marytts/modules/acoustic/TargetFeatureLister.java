@@ -86,7 +86,7 @@ public class TargetFeatureLister extends MaryModule {
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
 
         FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
 
@@ -142,7 +142,7 @@ public class TargetFeatureLister extends MaryModule {
     public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
             ArrayList<Item> items) throws Exception {
         List<FeatureMap> target_features = new ArrayList<FeatureMap>();
-
+	logger.debug("ok try it");
         for (Item it : items) {
             target_features.add(the_feature_computer.process(utt, it));
         }

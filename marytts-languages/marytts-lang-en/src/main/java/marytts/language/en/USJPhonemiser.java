@@ -44,9 +44,11 @@ public class USJPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
 	// Apply the german configuration
 	MaryConfigurationFactory.getConfiguration("en_US").applyConfiguration(this);
-	setLexicon(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.fst"));
-	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.lts"));
 	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/allophones.en_US.xml"));
+
+	setLexicon(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.fst"));
+
+	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.lts"));
 
     }
 }

@@ -96,7 +96,7 @@ public abstract class MinimalisticPosTagger extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";
