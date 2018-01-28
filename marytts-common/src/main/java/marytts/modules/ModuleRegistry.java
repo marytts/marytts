@@ -141,7 +141,7 @@ public class ModuleRegistry {
     public static MaryModule getModule(Class<?> moduleClass) {
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
-            if (moduleClass.isInstance(m)) {
+            if (moduleClass == m.getClass()) {
                 return m;
             }
         }
