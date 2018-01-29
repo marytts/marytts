@@ -40,6 +40,9 @@ public class Utterance {
     /** Not used for now ! */
     private ArrayList<AudioInputStream> m_list_streams;
 
+    /** FIXME: temp feature names, nowhere else to put for now */
+    private ArrayList<String> m_feature_names;
+
     /**
      * The sequences which contains the data of the utterance. Organized by type
      * for now
@@ -73,6 +76,7 @@ public class Utterance {
         m_available_relation_set = new
         HashSet<ImmutablePair<String, String>>();
         m_relation_graph = new RelationGraph();
+	m_feature_names = new ArrayList<String>();
 
     }
 
@@ -308,5 +312,18 @@ public class Utterance {
         }
 
         return true;
+    }
+
+
+
+    /******************************************************************************************************************************************
+     ** Temporary
+     ******************************************************************************************************************************************/
+    public ArrayList<String> getFeatureNames() {
+	return m_feature_names;
+    }
+
+    public void setFeatureNames(ArrayList<String> feature_names) {
+	m_feature_names = feature_names;
     }
 }

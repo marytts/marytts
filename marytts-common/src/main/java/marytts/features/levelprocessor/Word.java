@@ -8,7 +8,6 @@ import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
 
 import marytts.data.item.Item;
-import marytts.data.item.linguistic.Word;
 
 import marytts.features.LevelProcessor;
 
@@ -18,7 +17,7 @@ import marytts.features.LevelProcessor;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class WordLevel implements LevelProcessor {
+public class Word implements LevelProcessor {
     public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception {
         if (item instanceof marytts.data.item.linguistic.Word) {
             ArrayList<Item> list_items = new ArrayList<Item>();
