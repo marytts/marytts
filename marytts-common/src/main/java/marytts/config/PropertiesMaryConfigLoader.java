@@ -96,11 +96,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 
 
 		String property = props.getProperty(key_prop);
-		Matcher m = Pattern.compile("^\\(MARY_BASE\\|jar:\\)").matcher(property);
-		if (m.find())
-		    mc.addConfigurationStreamProperty(class_name, method_name, getStream(property));
-		else
-		    mc.addConfigurationValueProperty(class_name, method_name, property);
+		mc.addConfigurationValueProperty(class_name, method_name, property);
 	    }
 
 	    MaryConfigurationFactory.addConfiguration(set, mc);
@@ -174,71 +170,9 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
         return props.getProperty(property, defaultValue);
     }
 
-    /**
-     * For the given property name, return the value of that property as a list
-     * of items (interpreting the property value as a space-separated list).
-     *
-     * @param propertyName
-     *            propertyName
-     * @return the list of items, or an empty list if the property is not
-     *         defined or contains no items
-     */
-    protected List<String> getList(String propertyName) {
-        String val = props.getProperty(propertyName);
-        if (val == null) {
-            return new ArrayList<String>();
-        }
-        return Arrays.asList(StringUtils.split(val));
-
-    }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * The mary base directory, e.g. /usr/local/mary
-     *
-     * @return getFilename("mary.base", ".")
-     */
-    protected String maryBase() {
-	String mary_base =  getFilename("mary.base");
-	if (mary_base != null)
-	    return mary_base;
-	return ".";
-    }
-
-    /**
-     * From a path entry in the properties, create an expanded form. Replace the
-     * string MARY_BASE with the value of property "mary.base"; replace all "/"
-     * and "\\" with the platform-specific file separator.
-     *
-     * @param path
-     *            path
-     * @return buf.toString
-     */
-    private String expandPath(String path) {
-        final String MARY_BASE = "MARY_BASE";
-        StringBuilder buf = null;
-        if (path.startsWith(MARY_BASE)) {
-            buf = new StringBuilder(maryBase());
-            buf.append(path.substring(MARY_BASE.length()));
-        } else {
-            buf = new StringBuilder(path);
-        }
-        if (File.separator.equals("/")) {
-            int i = -1;
-            while ((i = buf.indexOf("\\")) != -1) {
-                buf.replace(i, i + 1, "/");
-            }
-        } else if (File.separator.equals("\\")) {
-            int i = -1;
-            while ((i = buf.indexOf("/")) != -1) {
-                buf.replace(i, i + 1, "\\");
-            }
-        } else {
-            throw new Error("Unexpected File.separator: `" + File.separator + "'");
-        }
-        return buf.toString();
-    }
 
     /**
      * Get a property from the underlying properties.
@@ -265,78 +199,4 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
     }
 
 
-    /**
-     * Get a filename property from the underlying properties. The string
-     * MARY_BASE is replaced with the value of the property mary.base, and path
-     * separators are adapted to the current platform.
-     *
-     * @param property
-     *            the property requested
-     * @return the filename corresponding to the property value if found, null
-     *         otherwise.
-     */
-    protected String getFilename(String property) {
-        String filename = getProperty(property);
-        if (filename == null) {
-            return null;
-        }
-        return expandPath(filename);
-    }
-
-
-
-    /**
-     * For the named property, attempt to get an open input stream. If the
-     * property value starts with "jar:", the remainder of the value is
-     * interpreted as an absolute path in the classpath. Otherwise it is
-     * interpreted as a file name.
-     *
-     * @param propertyName
-     *            the name of a property defined in one of the mary config
-     *            files.
-     * @return an InputStream representing the given resource, or null if the
-     *         property was not defined.
-     * @throws FileNotFoundException
-     *             if the property value is a file name and the file cannot be
-     *             opened
-     * @throws MaryConfigurationException
-     *             if the property value is a classpath entry which cannot be
-     *             opened
-     */
-    protected InputStream getStream(String propertyName) throws FileNotFoundException,
-								    MaryConfigurationException {
-        InputStream stream;
-        String propertyValue = getProperty(propertyName);
-        if (propertyValue == null) {
-            return null;
-        } else if (propertyValue.startsWith("jar:")) { // read from classpath
-            String classpathLocation = propertyValue.substring("jar:".length());
-            stream = this.getClass().getResourceAsStream(classpathLocation);
-            if (stream == null) {
-                throw new MaryConfigurationException("For property '" + propertyName
-                                                     + "', no classpath resource available at '" + classpathLocation + "'");
-            }
-        } else {
-            String fileName = this.getFilename(propertyName);
-            stream = new FileInputStream(fileName);
-        }
-        return stream;
-
-    }
-
-    /**
-     * Provide the config file prefix used for different locales in the config
-     * files. Will return the string representation of the locale as produced by
-     * locale.toString(), e.g. "en_GB"; if locale is null, return null.
-     *
-     * @param locale
-     *            locale
-     * @return locale converted to string
-     */
-    protected String localePrefix(Locale locale) {
-        if (locale == null) {
-            return null;
-        }
-        return locale.toString();
-    }
 }
