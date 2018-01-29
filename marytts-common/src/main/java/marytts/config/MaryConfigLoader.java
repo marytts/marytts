@@ -55,8 +55,6 @@ public abstract class MaryConfigLoader {
      *  configuration is loaded
      */
     protected MaryConfigLoader() throws MaryConfigurationException {
-	    InputStream input_stream = this.getClass().getResourceAsStream(MaryConfigurationFactory.DEFAULT_KEY + ".config");
-	    loadConfiguration(MaryConfigurationFactory.DEFAULT_KEY, input_stream);
     }
 
     /**
