@@ -35,8 +35,6 @@ public class MaryConfiguration {
     /** Map which associate a couple (class, property) to the actual value of the property of the class */
     private HashMap<StringPair, Object> m_configuration_value_map;
 
-    /** Map which associate a couple (class, property) to the stream of the property of the class */
-    private HashMap<StringPair, InputStream> m_configuration_stream_map;
 
     /**
      * Boolean to see indicate if the behaviour of the configuration
@@ -52,7 +50,6 @@ public class MaryConfiguration {
     public MaryConfiguration() {
         m_class_property_map = new HashMap<String, Set<String>>();
         m_configuration_value_map = new HashMap<StringPair, Object>();
-        m_configuration_stream_map = new HashMap<StringPair, InputStream>();
         m_is_strict = false;
         logger = LogManager.getLogger(this);
     }
@@ -65,7 +62,6 @@ public class MaryConfiguration {
     public MaryConfiguration(boolean is_strict) {
         m_class_property_map = new HashMap<String, Set<String>>();
         m_configuration_value_map = new HashMap<StringPair, Object>();
-        m_configuration_stream_map = new HashMap<StringPair, InputStream>();
         m_is_strict = is_strict;
         logger = LogManager.getLogger(this);
     }
@@ -89,24 +85,6 @@ public class MaryConfiguration {
     }
 
     /**
-     *  Add the configuration for a given class
-     *
-     *  @param class_name the name of the class
-     *  @param map_property_values the map which associates the property and its streams
-     */
-    public void addConfigurationClassStreams(String class_name, HashMap<String, InputStream> map_property_values) {
-        if (!m_class_property_map.containsKey(class_name)) {
-            m_class_property_map.put(class_name, new HashSet<String>());
-        }
-
-        for (Map.Entry<String, InputStream> entry : map_property_values.entrySet()) {
-            String property = entry.getKey();
-            m_class_property_map.get(class_name).add(property);
-            m_configuration_stream_map.put(new StringPair(class_name, property), entry.getValue());
-        }
-    }
-
-    /**
      *  Add the configuration for a given class and a given property
      *
      *  @param class_name the name of the class
@@ -123,22 +101,6 @@ public class MaryConfiguration {
     }
 
     /**
-     *  Add the configuration for a given class and a given property
-     *
-     *  @param class_name the name of the class
-     *  @param property the name of the property
-     *  @param value the value of the property for the class
-     */
-    public void addConfigurationStreamProperty(String class_name, String property, InputStream value) {
-        if (!m_class_property_map.containsKey(class_name)) {
-            m_class_property_map.put(class_name, new HashSet<String>());
-        }
-
-        m_class_property_map.get(class_name).add(property);
-        m_configuration_stream_map.put(new StringPair(class_name, property), value);
-    }
-
-    /**
      *  Merging configuration from another MaryConfiguration object to the current one
      *  The current one has the priority if conflicts
      *
@@ -146,7 +108,6 @@ public class MaryConfiguration {
      */
     public void merge(MaryConfiguration mc2) {
 	m_class_property_map.putAll(mc2.m_class_property_map);
-	m_configuration_stream_map.putAll(mc2.m_configuration_stream_map);
 	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
     }
 
@@ -165,30 +126,16 @@ public class MaryConfiguration {
 
             for (String property : properties) {
 		boolean b_is_value = false;
+		Object val = null;
                 try {
-                    Method m = obj.getClass().getMethod("set" + property, String.class);
-                    m.invoke(obj, m_configuration_value_map.get(new StringPair(class_name, property)));
-		    b_is_value = true;
+		    val = m_configuration_value_map.get(new StringPair(class_name, property));
+                    Method m = obj.getClass().getMethod("set" + property, val.getClass());
+                    m.invoke(obj, val);
                 } catch (NoSuchMethodException ex) {
+		    logger.warn("Object of class \"" + obj.getClass().toString() +
+				"\" doesn't have a setter for property \"" + property.toLowerCase() +
+				"\" with expected argument of class \"" + val.getClass().toString() + "\"");
                 }
-
-
-		// FIXME: see for "cloning the stream"
-		if (! b_is_value) {
-		    try {
-			Method m = obj.getClass().getMethod("set" + property, InputStream.class);
-			m.invoke(obj,
-				 m_configuration_stream_map.get(new StringPair(class_name, property)));
-			b_is_value = true;
-		    } catch (NoSuchMethodException ex) {
-			if (m_is_strict) {
-			    throw ex;
-			}
-
-			logger.warn("Object of class \"" + obj.getClass().toString() +
-				    "\" doesn't have a setter for property \"" + property.toLowerCase() + "\"");
-		    }
-		}
             }
 
         } catch (Exception ex) {
@@ -202,10 +149,6 @@ public class MaryConfiguration {
 	String configuration_str = "";
 	for (StringPair key: m_configuration_value_map.keySet()) {
 	    configuration_str += "(" + key.getLeft() + "," + key.getRight() + ") => " + m_configuration_value_map.get(key) + ";\n";
-	}
-
-	for (StringPair key: m_configuration_stream_map.keySet()) {
-	    configuration_str += "(" + key.getLeft() + "," + key.getRight() + ") => <stream>;\n";
 	}
 
 	return configuration_str;

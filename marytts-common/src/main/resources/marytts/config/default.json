@@ -4,7 +4,7 @@
 	"pos_punct_regex": "\\$,|\\$.|\\$\\("
     },
     "marytts.modules.acoustic.TargetFeatureLister": {
-	"features" : [
+	"feature_processors" : [
 	    "marytts.features.featureprocessor.NbFromSyllableStart",
 	    "marytts.features.featureprocessor.NbToSyllableEnd",
 	    "marytts.features.featureprocessor.NbFromWordStart",
@@ -29,20 +29,56 @@
 	    "marytts.features.featureprocessor.FestivalPOS",
 	    "marytts.features.featureprocessor.InDirectSpeech"
 	],
-	"contexts": [
+	"context_processors": [
 	    "marytts.features.contextprocessor.PreviousPrevious",
 	    "marytts.features.contextprocessor.Previous",
 	    "marytts.features.contextprocessor.Current",
 	    "marytts.features.contextprocessor.Next",
 	    "marytts.features.contextprocessor.NextNext"
 	],
-	"levels": [
-	    "marytts.features.levelprocessor.CurrentLevel",
-	    "marytts.features.levelprocessor.SyllableLevel",
-	    "marytts.features.levelprocessor.WordLevel",
-	    "marytts.features.levelprocessor.PhraseLevel",
-	    "marytts.features.levelprocessor.SentenceLevel",
-	    "marytts.features.levelprocessor.ParagraphLevel"
-	]
+	"level_processors": [
+	    "marytts.features.levelprocessor.Current",
+	    "marytts.features.levelprocessor.Syllable",
+	    "marytts.features.levelprocessor.Word",
+	    "marytts.features.levelprocessor.Phrase",
+	    "marytts.features.levelprocessor.Sentence",
+	    "marytts.features.levelprocessor.Paragraph"
+	],
+	"features": {
+	    "phone": [ "Current", "Current", "ArpaLabel"],
+	    "prev_prev_phone": [ "Current", "PreviousPrevious", "ArpaLabel"],
+	    "prev_phone": [ "Current", "Previous", "ArpaLabel"],
+	    "Next_phone": [ "Current", "Next", "ArpaLabel"],
+	    "Next_Next_phone": [ "Current", "NextNext", "ArpaLabel"],
+	    "ph_from_syl_start": [ "Current", "Current", "NbFromSyllableStart"],
+	    "ph_from_syl_end": [ "Current", "Current", "NbToSyllableEnd"],
+	    "prev_syl_numph": [ "Syllable", "Previous", "NbPhonesRelated"],
+	    "prev_syl_accent": [ "Syllable", "Previous", "IsAccented"],
+	    "prev_syl_stress": [ "Syllable", "Previous", "StressLevel"],
+	    "syl_numph": [ "Syllable", "Current", "NbPhonesRelated"],
+	    "syl_accent": [ "Syllable", "Current", "IsAccented"],
+	    "syl_stress": [ "Syllable", "Current", "StressLevel"],
+	    "syls_from_word_start": [ "Syllable", "Current", "NbFromWordStart"],
+	    "syls_from_word_end": [ "Syllable", "Current", "NbToWordEnd"],
+	    "syls_from_Phrase_start": [ "Syllable", "Current", "NbFromPhraseStart"],
+	    "syls_from_Phrase_end": [ "Syllable", "Current", "NbToPhraseEnd"],
+	    "Next_syl_numph": [ "Syllable", "Next", "NbPhonesRelated"],
+	    "Next_syl_accent": [ "Syllable", "Next", "IsAccented"],
+	    "Next_syl_stress": [ "Syllable", "Next", "StressLevel"],
+	    "prev_Phrase_numsyls": [ "Phrase", "Previous", "NbSyllablesRelated"],
+	    "prev_Phrase_numwords": [ "Phrase", "Previous", "NbWordsRelated"],
+	    "Phrase_numsyls": [ "Phrase", "Current", "NbSyllablesRelated"],
+	    "Phrase_numwords": [ "Phrase", "Current", "NbWordsRelated"],
+	    "Next_Phrase_numsyls": [ "Phrase", "Next", "NbSyllablesRelated"],
+	    "Next_Phrase_numwords": [ "Phrase", "Next", "NbWordsRelated"],
+	    "Phrases_from_Sentence_start": [ "Phrase", "Current", "NbFromSentenceStart"],
+	    "Phrases_from_Sentence_end": [ "Phrase", "Current", "NbToSentenceEnd"],
+	    "Sentence_numSyllables": [ "Sentence", "Current", "NbSyllablesRelated"],
+	    "Sentence_numwords": [ "Sentence", "Current", "NbWordsRelated"],
+	    "Sentence_numPhrases": [ "Sentence", "Current", "NbPhrasesRelated"],
+	    "Sentence_from_Paragraph_end": [ "Sentence", "Current", "NbToParagraphEnd"],
+	    "Paragraph_numSentences": [ "Paragraph", "Current", "NbSentencesRelated"],
+	    "inDirectSpeech": [ "Current", "Current", "InDirectSpeech"]
+	}
     },
 }

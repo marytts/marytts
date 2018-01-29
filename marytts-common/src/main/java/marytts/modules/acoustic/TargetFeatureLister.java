@@ -50,13 +50,15 @@ import org.apache.logging.log4j.core.Appender;
  */
 public class TargetFeatureLister extends MaryModule {
 
+    FeatureComputer feature_computer;
     /**
      * Default constructor
      *
      */
     public TargetFeatureLister() throws Exception {
         super();
-        FeatureComputer.initDefault();
+
+        feature_computer = new FeatureComputer();
     }
 
     public void checkStartup() throws MaryConfigurationException {
@@ -87,34 +89,14 @@ public class TargetFeatureLister extends MaryModule {
      *             [TODO]
      */
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
-
-        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
-
-        listTargetFeatures(the_feature_computer, utt);
-
-        return utt;
-    }
-
-    /**
-     * Compute the features of a given utterance using a given feature computer
-     *
-     * @param the_feature_computer
-     *            the feature computer used
-     * @param utt
-     *            the utterance to update
-     * @throws Exception
-     *             [TODO]
-     */
-    public void listTargetFeatures(FeatureComputer the_feature_computer,
-                                   Utterance utt) throws Exception {
-
+	utt.setFeatureNames(feature_computer.listFeatures());
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
         Set<String> keys = null;
         int i = 0;
         List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
         for (Item it : items) {
-            FeatureMap map = the_feature_computer.process(utt, it);
+            FeatureMap map = feature_computer.process(utt, it);
             target_features.add(map);
             list_pairs.add(new IntegerPair(i, i));
             i++;
@@ -123,7 +105,8 @@ public class TargetFeatureLister extends MaryModule {
         Relation rel_phone_features = new Relation(items, target_features, list_pairs);
 
         utt.addSequence(SupportedSequenceType.FEATURES, target_features);
-        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+	utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+	return utt;
     }
 
     /**
@@ -142,21 +125,27 @@ public class TargetFeatureLister extends MaryModule {
     public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
             ArrayList<Item> items) throws Exception {
         List<FeatureMap> target_features = new ArrayList<FeatureMap>();
-	logger.debug("ok try it");
         for (Item it : items) {
-            target_features.add(the_feature_computer.process(utt, it));
+            target_features.add(feature_computer.process(utt, it));
         }
 
         return target_features;
     }
 
 
-    public void setFeatures(ArrayList<String> features) {
+    public void setFeatureProcessors(ArrayList<String> features) throws MaryConfigurationException {
+	for (String feature: features)
+	    feature_computer.addFeatureProcessor(feature, feature);
     }
 
-    public void setLevels(ArrayList<String> levels) {
+    public void setLevelProcessors(ArrayList<String> levels) throws MaryConfigurationException {
+	for (String level: levels)
+	    feature_computer.addLevelProcessor(level, level);
+
     }
 
-    public void setContexts(ArrayList<String> contexts) {
+    public void setContextProcessors(ArrayList<String> contexts) throws MaryConfigurationException {
+	for (String context: contexts)
+	    feature_computer.addContextProcessor(context, context);
     }
 }

@@ -33,6 +33,7 @@ public class HTSLabelSerializer implements Serializer {
 
     /** Left part of the separator */
     public static final String LEFT_SEP = "+S";
+
     /** Right part of the separator */
     public static final String RIGHT_SEP = "E_";
 
@@ -47,8 +48,6 @@ public class HTSLabelSerializer implements Serializer {
      *
      */
     public HTSLabelSerializer() {
-        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
-        m_feature_names.remove(PHONE_FEATURE_NAME);
     }
 
     /**
@@ -61,10 +60,15 @@ public class HTSLabelSerializer implements Serializer {
      *             when something wrong is happening
      */
     public Object export(Utterance utt) throws MaryIOException {
+
         if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
             throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
                                       null);
         }
+
+        m_feature_names = (List<String>) utt.getFeatureNames().clone();
+        m_feature_names.remove(PHONE_FEATURE_NAME);
+
         Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
                                                 SupportedSequenceType.FEATURES);
         String output = "";
