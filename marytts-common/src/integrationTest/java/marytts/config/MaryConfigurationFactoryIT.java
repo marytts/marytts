@@ -12,7 +12,7 @@ import org.testng.annotations.*;
 public class MaryConfigurationFactoryIT {
     @Test
     public void testDefaultConfigurationLoading() throws MaryConfigurationException {
-	PropertiesMaryConfigLoader loader = new PropertiesMaryConfigLoader();
+	JSONMaryConfigLoader loader = new JSONMaryConfigLoader();
 	Assert.assertNotNull(MaryConfigurationFactory.getDefaultConfiguration());
     }
 
