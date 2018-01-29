@@ -73,44 +73,55 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 	MaryConfiguration mc = new MaryConfiguration();
         try {
 	    JSONObject root_config = (JSONObject)new JSONParser().parse(new InputStreamReader(input_stream));
-	    for (Object ob: root_config.keySet()) {
-		String class_name = (String) ob;
-		System.out.println(class_name);
+	    for (Object class_ob: root_config.keySet()) {
+		String class_name = (String) class_ob;
+
+		try {
+		    Class.forName(class_name, false, this.getClass().getClassLoader());
+		} catch (Exception ex) {
+		    throw new MaryConfigurationException("\"" + class_name + "\" is not in the class path", ex);
+		}
+
+
+		JSONObject properties_map = (JSONObject) root_config.get(class_ob);
+		for (Object prop_ob: properties_map.keySet()) {
+		    String prop_name = (String) prop_ob;
+		    Object val = properties_map.get(prop_ob);
+
+		    // A little bit of adaptation
+		    if (val instanceof JSONArray) {
+			val = jsonArrayToList((JSONArray) val);
+		    }
+
+
+		    // Check if method exists
+		    prop_name = adaptPropertyName(prop_name);
+		    assessMethod(class_name, prop_name, val.getClass());
+
+
+
+		    mc.addConfigurationValueProperty(class_name, prop_name, val);
+		}
+
 	    }
-        //     props.load(propertyStream);
-	//     for (String key_prop: props.stringPropertyNames()) {
-	// 	int d_index  = key_prop.lastIndexOf(".");
-	// 	if (d_index < 0)
-	// 	    throw new MaryConfigurationException("Property \"" + key_prop + "\" is malformed. See JSONMaryConfigLoader documentation");
 
-	// 	// Check if class exists
-	// 	String class_name = key_prop.substring(0, d_index);
-	// 	try {
-	// 	    Class.forName(class_name, false, this.getClass().getClassLoader());
-	// 	} catch (Exception ex) {
-	// 	    throw new MaryConfigurationException("\"" + class_name + "\" is not in the class path", ex);
-	// 	}
-
-	// 	// Check if method exists
-	// 	String method_name = key_prop.substring(d_index+1);
-	// 	method_name = adaptMethodName(method_name);
-	// 	assessMethod(class_name, method_name, String.class);
-
-
-	// 	String property = props.getProperty(key_prop);
-	// 	Matcher m = Pattern.compile("^\\(MARY_BASE\\|jar:\\)").matcher(property);
-	// 	if (m.find())
-	// 	    mc.addConfigurationStreamProperty(class_name, method_name, getStream(property));
-	// 	else
-	// 	    mc.addConfigurationValueProperty(class_name, method_name, property);
-	//     }
-
-	//     MaryConfigurationFactory.addConfiguration(set, mc);
+	    MaryConfigurationFactory.addConfiguration(set, mc);
         } catch (Exception e) {
             throw new MaryConfigurationException("cannot load json configuration", e);
         }
     }
 
+
+    public Object jsonArrayToList(JSONArray array) throws MaryConfigurationException {
+	if (array.size() == 0)
+	    throw new MaryConfigurationException("It is forbiddent to have an empty array in the configuration");
+
+	ArrayList<Object> ar = new ArrayList<Object>();
+	for (Object v: array)
+	    ar.add(v);
+
+	return ar;
+    }
 
     public void assessMethod(String class_name, String property_name, Class<?> class_arg) throws MaryConfigurationException {
 	Class cls = null;
@@ -129,10 +140,10 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 					     "\"is not a method of the class \"" + class_name +  "\"");
     }
 
-    public String adaptMethodName(String method_name) {
-	method_name = method_name.substring(0,1).toUpperCase() + method_name.substring(1).toLowerCase();
+    public String adaptPropertyName(String property_name) {
+	property_name = property_name.substring(0,1).toUpperCase() + property_name.substring(1).toLowerCase();
 	StringBuffer result = new StringBuffer();
-	Matcher m = Pattern.compile("_(\\w)").matcher(method_name);
+	Matcher m = Pattern.compile("_(\\w)").matcher(property_name);
 	while (m.find()) {
 	    m.appendReplacement(result,
 				m.group(1).toUpperCase());

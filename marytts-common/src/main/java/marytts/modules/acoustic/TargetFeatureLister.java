@@ -151,12 +151,12 @@ public class TargetFeatureLister extends MaryModule {
     }
 
 
-    public void setFeatures(List<String> features) {
+    public void setFeatures(ArrayList<String> features) {
     }
 
-    public void setLevels(List<String> levels) {
+    public void setLevels(ArrayList<String> levels) {
     }
 
-    public void setContexts(List<String> contexts) {
+    public void setContexts(ArrayList<String> contexts) {
     }
 }
