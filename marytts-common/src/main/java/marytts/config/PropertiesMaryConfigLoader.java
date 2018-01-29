@@ -61,6 +61,8 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 
     public PropertiesMaryConfigLoader() throws MaryConfigurationException {
 	super();
+	InputStream input_stream = this.getClass().getResourceAsStream(MaryConfigurationFactory.DEFAULT_KEY + ".config");
+	loadConfiguration(MaryConfigurationFactory.DEFAULT_KEY, input_stream);
     }
 
     /**
@@ -90,7 +92,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 		// Check if method exists
 		String method_name = key_prop.substring(d_index+1);
 		method_name = adaptMethodName(method_name);
-		assessMethod(class_name, method_name);
+		assessMethod(class_name, method_name, String.class);
 
 
 		String property = props.getProperty(key_prop);
@@ -108,31 +110,21 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
     }
 
 
-    public void assessMethod(String class_name, String method_name) throws MaryConfigurationException {
+    public void assessMethod(String class_name, String property_name, Class<?> class_arg) throws MaryConfigurationException {
 	Class cls = null;
 	try {
 	    cls =  Class.forName(class_name, false, this.getClass().getClassLoader());
 	    Class[] cArg = new Class[1];
-	    cArg[0] = String.class;
-	    cls.getMethod("set" + method_name, cArg);
+	    cArg[0] = class_arg;
+	    cls.getMethod("set" + property_name, cArg);
 
 	    return;
 	} catch (Exception ex) {
 
 	}
 
-
-	try {
-	    Class[] cArg = new Class[1];
-	    cArg[0] = InputStream.class;
-	    cls.getMethod("set" + method_name, cArg);
-
-	    return;
-	} catch (Exception ex) {
-
-	}
-
-	throw new MaryConfigurationException("\"set" + method_name + "\" is not a method of the class");
+	throw new MaryConfigurationException("\"set" + property_name + "\" with argument of type \"" + class_arg.toString() +
+					     "\"is not a method of the class \"" + class_name +  "\"");
     }
 
     public String adaptMethodName(String method_name) {

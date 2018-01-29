@@ -149,4 +149,14 @@ public class TargetFeatureLister extends MaryModule {
 
         return target_features;
     }
+
+
+    public void setFeatures(List<String> features) {
+    }
+
+    public void setLevels(List<String> levels) {
+    }
+
+    public void setContexts(List<String> contexts) {
+    }
 }

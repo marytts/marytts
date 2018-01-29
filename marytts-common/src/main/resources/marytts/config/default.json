@@ -1,0 +1,48 @@
+{
+
+    "marytts.modules.nlp.JPhonemiser": {
+	"pos_punct_regex": "\\$,|\\$.|\\$\\("
+    },
+    "marytts.modules.acoustic.TargetFeatureLister": {
+	"features" : [
+	    "marytts.features.featureprocessor.NbFromSyllableStart",
+	    "marytts.features.featureprocessor.NbToSyllableEnd",
+	    "marytts.features.featureprocessor.NbFromWordStart",
+	    "marytts.features.featureprocessor.NbToWordEnd",
+	    "marytts.features.featureprocessor.NbFromPhraseStart",
+	    "marytts.features.featureprocessor.NbToPhraseEnd",
+	    "marytts.features.featureprocessor.NbFromSentenceStart",
+	    "marytts.features.featureprocessor.NbToSentenceEnd",
+	    "marytts.features.featureprocessor.NbToParagraphEnd",
+	    "marytts.features.featureprocessor.NbPhonesRelated",
+	    "marytts.features.featureprocessor.NbSyllablesRelated",
+	    "marytts.features.featureprocessor.NbWordsRelated",
+	    "marytts.features.featureprocessor.NbPhrasesRelated",
+	    "marytts.features.featureprocessor.NbSentencesRelated",
+	    "marytts.features.featureprocessor.NbAccentFromPhraseStart",
+	    "marytts.features.featureprocessor.NbAccentToPhraseEnd",
+	    "marytts.features.featureprocessor.IsAccented",
+	    "marytts.features.featureprocessor.StressLevel",
+	    "marytts.features.featureprocessor.StringFeature",
+	    "marytts.features.featureprocessor.ArpaLabel",
+	    "marytts.features.featureprocessor.TextFeature",
+	    "marytts.features.featureprocessor.FestivalPOS",
+	    "marytts.features.featureprocessor.InDirectSpeech"
+	],
+	"contexts": [
+	    "marytts.features.contextprocessor.PreviousPrevious",
+	    "marytts.features.contextprocessor.Previous",
+	    "marytts.features.contextprocessor.Current",
+	    "marytts.features.contextprocessor.Next",
+	    "marytts.features.contextprocessor.NextNext"
+	],
+	"levels": [
+	    "marytts.features.levelprocessor.CurrentLevel",
+	    "marytts.features.levelprocessor.SyllableLevel",
+	    "marytts.features.levelprocessor.WordLevel",
+	    "marytts.features.levelprocessor.PhraseLevel",
+	    "marytts.features.levelprocessor.SentenceLevel",
+	    "marytts.features.levelprocessor.ParagraphLevel"
+	]
+    },
+}

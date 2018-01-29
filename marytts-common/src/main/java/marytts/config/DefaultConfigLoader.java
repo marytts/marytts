@@ -19,10 +19,10 @@
  */
 package marytts.config;
 
-import marytts.config.PropertiesMaryConfigLoader;
+import marytts.config.JSONMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class DefaultConfigLoader extends PropertiesMaryConfigLoader {
+public class DefaultConfigLoader extends JSONMaryConfigLoader {
     public DefaultConfigLoader() throws MaryConfigurationException {
 	super();
     }
