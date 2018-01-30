@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashMap;
 
 import marytts.config.MaryConfiguration;
 
@@ -109,43 +110,90 @@ public class TargetFeatureLister extends MaryModule {
 	return utt;
     }
 
-    /**
-     * Return directly the targets, and set in each target its feature vector
-     *
-     * @param the_feature_computer
-     *            the feature computer used
-     * @param utt
-     *            the utterance used to compute the features
-     * @param items
-     *            the items whose features are going to be computed
-     * @return a list of map of features corresponding of the given items
-     * @throws Exception
-     *             [TODO]
-     */
-    public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
-            ArrayList<Item> items) throws Exception {
-        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
-        for (Item it : items) {
-            target_features.add(feature_computer.process(utt, it));
-        }
+    // /**
+    //  * Return directly the targets, and set in each target its feature vector
+    //  *
+    //  * @param the_feature_computer
+    //  *            the feature computer used
+    //  * @param utt
+    //  *            the utterance used to compute the features
+    //  * @param items
+    //  *            the items whose features are going to be computed
+    //  * @return a list of map of features corresponding of the given items
+    //  * @throws Exception
+    //  *             [TODO]
+    //  */
+    // public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
+    //         ArrayList<Item> items) throws Exception {
+    //     List<FeatureMap> target_features = new ArrayList<FeatureMap>();
+    //     for (Item it : items) {
+    //         target_features.add(feature_computer.process(utt, it));
+    //     }
 
-        return target_features;
+    //     return target_features;
+    // }
+
+    public void setFeatureConfiguration(HashMap<String, Object> configuration) throws MaryConfigurationException {
+	for(String k: configuration.keySet()) {
+	    if (k.equals("level_processors"))
+		setLevelProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("context_processors"))
+		setContextProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("feature_processors"))
+		setFeatureProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("features"))
+		continue;
+	    else
+		throw new MaryConfigurationException(k + " is an unknown part to configure");
+	}
+
+	// Feature is the last and should be the last !
+	setFeatures((ArrayList<ArrayList<String>>) configuration.get("features"));
+    }
+
+    protected void setFeatureProcessors(ArrayList<String> features) throws MaryConfigurationException {
+	for (String feature: features) {
+	    int d_index  = feature.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Feature class name \"" + feature + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = feature.substring(d_index+1);
+	    feature_computer.addFeatureProcessor(class_name, feature);
+	}
+    }
+
+    protected void setLevelProcessors(ArrayList<String> levels) throws MaryConfigurationException {
+	for (String level: levels) {
+	    int d_index  = level.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Level class name \"" + level + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = level.substring(d_index+1);
+	    feature_computer.addLevelProcessor(class_name, level);
+	}
+    }
+
+    protected void setContextProcessors(ArrayList<String> contexts) throws MaryConfigurationException {
+	for (String context: contexts) {
+	    int d_index  = context.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Context class name \"" + context + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = context.substring(d_index+1);
+	    feature_computer.addContextProcessor(class_name, context);
+	}
     }
 
 
-    public void setFeatureProcessors(ArrayList<String> features) throws MaryConfigurationException {
-	for (String feature: features)
-	    feature_computer.addFeatureProcessor(feature, feature);
-    }
-
-    public void setLevelProcessors(ArrayList<String> levels) throws MaryConfigurationException {
-	for (String level: levels)
-	    feature_computer.addLevelProcessor(level, level);
-
-    }
-
-    public void setContextProcessors(ArrayList<String> contexts) throws MaryConfigurationException {
-	for (String context: contexts)
-	    feature_computer.addContextProcessor(context, context);
+    public void setFeatures(ArrayList<ArrayList<String>> features) throws MaryConfigurationException {
+	try {
+	    for (ArrayList<String> feature: features)
+		feature_computer.addFeature(feature.get(0), feature.get(1), feature.get(2), feature.get(3));
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("Cannot add feature definition", ex);
+	}
     }
 }

@@ -82,7 +82,6 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 		    throw new MaryConfigurationException("\"" + class_name + "\" is not in the class path", ex);
 		}
 
-
 		JSONObject properties_map = (JSONObject) root_config.get(class_ob);
 		for (Object prop_ob: properties_map.keySet()) {
 		    String prop_name = (String) prop_ob;
@@ -91,14 +90,13 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 		    // A little bit of adaptation
 		    if (val instanceof JSONArray) {
 			val = jsonArrayToList((JSONArray) val);
+		    } else if (val instanceof JSONObject) {
+			val = jsonObjectToHash((JSONObject) val);
 		    }
-
 
 		    // Check if method exists
 		    prop_name = adaptPropertyName(prop_name);
 		    assessMethod(class_name, prop_name, val.getClass());
-
-
 
 		    mc.addConfigurationValueProperty(class_name, prop_name, val);
 		}
@@ -112,13 +110,40 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
     }
 
 
+    public Object jsonObjectToHash(JSONObject hash) throws MaryConfigurationException {
+	HashMap<String, Object> output_hash = new HashMap<String, Object>();
+	for (Object k_ob: hash.keySet()) {
+	    String k = k_ob.toString();
+	    Object v = hash.get(k_ob);
+	    // A little bit of adaptation
+	    if (v instanceof JSONArray) {
+		v = jsonArrayToList((JSONArray) v);
+	    } else if (v instanceof JSONObject) {
+		v = jsonObjectToHash((JSONObject) v);
+	    }
+
+	    output_hash.put(k, v);
+	}
+
+	return output_hash;
+    }
+
     public Object jsonArrayToList(JSONArray array) throws MaryConfigurationException {
 	if (array.size() == 0)
 	    throw new MaryConfigurationException("It is forbiddent to have an empty array in the configuration");
 
 	ArrayList<Object> ar = new ArrayList<Object>();
-	for (Object v: array)
+	for (Object v: array) {
+
+	    // A little bit of adaptation
+	    if (v instanceof JSONArray) {
+		v = jsonArrayToList((JSONArray) v);
+	    } else if (v instanceof JSONObject) {
+		v = jsonObjectToHash((JSONObject) v);
+	    }
+
 	    ar.add(v);
+	}
 
 	return ar;
     }
@@ -133,11 +158,9 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 
 	    return;
 	} catch (Exception ex) {
-
+	    throw new MaryConfigurationException("\"set" + property_name + "\" with argument of type \"" + class_arg.toString() +
+						 "\"is not a method of the class \"" + class_name +  "\"", ex);
 	}
-
-	throw new MaryConfigurationException("\"set" + property_name + "\" with argument of type \"" + class_arg.toString() +
-					     "\"is not a method of the class \"" + class_name +  "\"");
     }
 
     public String adaptPropertyName(String property_name) {
