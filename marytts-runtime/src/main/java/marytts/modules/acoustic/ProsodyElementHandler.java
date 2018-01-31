@@ -141,6 +141,20 @@ public class ProsodyElementHandler {
 			return;
 		}
 
+
+		if (rateAttribute.endsWith("ms")) {
+			double absoluteValue = new Double(rateAttribute.substring(0, rateAttribute.length() - 2)).doubleValue();
+			modifySpeechRateAbs(nl, absoluteValue);
+			return;
+		}
+
+		if (rateAttribute.endsWith("s")) {
+			double absoluteValue = new Double(rateAttribute.substring(0, rateAttribute.length() - 1)).doubleValue();
+			absoluteValue = absoluteValue * 1000;
+			modifySpeechRateAbs(nl, absoluteValue);
+			return;
+		}
+
 		// if the format contains a fixed label
 		boolean hasLabel = rateAttribute.equals("x-slow") || rateAttribute.equals("slow") || rateAttribute.equals("medium")
 				|| rateAttribute.equals("fast") || rateAttribute.equals("x-fast") || rateAttribute.equals("default");
@@ -193,6 +207,14 @@ public class ProsodyElementHandler {
 	private double[] applyPitchSpecifications(NodeList nl, double[] baseF0Contour, String pitchAttribute) {
 
 		if ("".equals(pitchAttribute)) {
+			return baseF0Contour;
+		}
+
+		if (pitchAttribute.endsWith("abs")) {
+			double absPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 3))).doubleValue();
+			for (int i = 0; i < baseF0Contour.length; i++) {
+				baseF0Contour[i] = absPitch;
+			}
 			return baseF0Contour;
 		}
 
@@ -369,6 +391,61 @@ public class ProsodyElementHandler {
 			}
 
 			e.setAttribute("d", newDurAttribute + "");
+			// System.out.println(durAttribute+" = " +newDurAttribute);
+		}
+
+		Element e = (Element) nl.item(0);
+
+		Element rootElement = e.getOwnerDocument().getDocumentElement();
+		NodeIterator nit = MaryDomUtils.createNodeIterator(rootElement, MaryXML.PHONE, MaryXML.BOUNDARY);
+		Element nd;
+		double duration = 0.0;
+		for (int i = 0; (nd = (Element) nit.nextNode()) != null; i++) {
+			if ("boundary".equals(nd.getNodeName())) {
+				if (nd.hasAttribute("duration")) {
+					duration += new Double(nd.getAttribute("duration")).doubleValue();
+				}
+			} else {
+				if (nd.hasAttribute("d")) {
+					duration += new Double(nd.getAttribute("d")).doubleValue();
+				}
+			}
+			double endTime = 0.001 * duration;
+			if (!nd.getNodeName().equals(MaryXML.BOUNDARY)) {
+				// setting "end" attr for boundaries does not have the intended effect, since elsewhere, only the "duration" attr
+				// is used for boundaries
+				nd.setAttribute("end", String.valueOf(endTime));
+			}
+			// System.out.println(nd.getNodeName()+" = " +nd.getAttribute("end"));
+		}
+
+	}
+
+	/**
+	 * To set duration specifications according to 'rate' requirements
+	 * 
+	 * @param nl
+	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
+	 *            should contain 'd', 'end' attributes
+	 * @param percentage
+	 *            the percentage of increment or decrement in speech rate
+	 * @param increaseSpeechRate
+	 *            whether the request is to increase (value true) or decrease (value false) to speech rate *
+	 */
+	private void modifySpeechRateAbs(NodeList nl, double absoluteValue) {
+
+		assert nl != null;
+
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element e = (Element) nl.item(i);
+			assert "ph".equals(e.getNodeName()) : "NodeList should contain 'ph' elements only";
+			if (!e.hasAttribute("d")) {
+				continue;
+			}
+
+			double durAttribute = new Double(e.getAttribute("d")).doubleValue();
+
+			e.setAttribute("d", absoluteValue + "");
 			// System.out.println(durAttribute+" = " +newDurAttribute);
 		}
 
