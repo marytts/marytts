@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
@@ -76,7 +77,6 @@ import marytts.data.Utterance;
  * (<code>writeOutputData</code>).
  */
 public class Request {
-    protected String configuration;
     protected String input_data;
 
     protected String outputTypeParams;
@@ -86,7 +86,9 @@ public class Request {
     protected Logger logger;
     protected Utterance inputData;
     protected Utterance outputData;
-    protected Serializer output_serializer;
+    protected Serializer output_serializer = null;
+    protected Serializer input_serializer = null;
+    protected List<MaryModule> module_sequence = null;
     protected boolean abortRequested = false;
     protected Appender appender;
 
@@ -94,75 +96,67 @@ public class Request {
     // (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
 
-    public Request(Appender app, String configuration, String input_data) {
+    public Request(Appender app, MaryConfiguration configuration, String input_data) throws MaryConfigurationException
+    {
+
+	// Deal with logger
         this.logger = LogManager.getLogger("R " + id);
         this.appender = app;
-
         if (app != null) {
             ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
         }
 
-        this.configuration = configuration;
+	// Set the configuration
+	configuration.applyConfiguration(this);
+
+	// Set the input data
         this.input_data = input_data;
 
         timingInfo = new HashMap<MaryModule, Long>();
     }
 
-    public void process() throws Exception {
+    public void setOutputSerializer(String output_serializer_classname) throws Exception {
 
-        assert Mary.getCurrentState() == Mary.STATE_RUNNING;
+        // Output serializer reflection
+        Class<?> clazz;
+        Constructor<?> ctor;
+	clazz = Class.forName(output_serializer_classname);
+	ctor = clazz.getConstructor();
+	this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+    }
 
-        // Parser configuration
-        final Properties configuration_properties = new Properties();
-        configuration_properties.load(new StringReader(this.configuration));
+    public void setInputSerializer(String input_serializer_classname) throws Exception {
 
         // Input serializer reflection
         Class<?> clazz;
         Constructor<?> ctor;
-        Serializer input_serializer = null;
-        try {
-            clazz = Class.forName(configuration_properties.get("input_serializer").toString());
-            ctor = clazz.getConstructor();
-            input_serializer = (Serializer) ctor.newInstance(new Object[] {});
-        } catch (ClassNotFoundException ex) {
-        }
-        if (input_serializer == null) {
-            throw new MaryException("input serializer class \"" +
-                                    configuration_properties.get("input_serializer") + "\" doesn't exist");
-        }
+	clazz = Class.forName(input_serializer_classname);
+	ctor = clazz.getConstructor();
+	this.input_serializer = (Serializer) ctor.newInstance(new Object[] {});
+    }
 
-        // Input serializer reflection
-        output_serializer = null;
-        try {
-            clazz = Class.forName(configuration_properties.get("output_serializer").toString());
-            ctor = clazz.getConstructor();
-            this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
-        } catch (ClassNotFoundException ex) {
-        }
-        if (output_serializer == null) {
-            throw new MaryException("output serializer class \"" +
-                                    configuration_properties.get("output_serializer") + "\" doesn't exist");
-        }
+    public void setModuleSequence(ArrayList<String> list_module_names) throws Exception {
+	// Module sequence reflexion (FIXME: check if module is existing !)
+        module_sequence = new ArrayList<MaryModule>();
+	for (String module_class_name : list_module_names) {
+	    logger.debug("trying to load the following class " + module_class_name);
 
-        // Module sequence reflexion (FIXME: check if module is existing !)
-        List<MaryModule> usedModules = new ArrayList<MaryModule>();
-        String module_names = (String) configuration_properties.get("modules");
-        if (module_names != null) {
-            List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
+	    MaryModule cur_module = null;
+	    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
+	    if (cur_module == null) {
+		throw new MaryException("Cannot load module \"" + module_class_name +
+					"\" as it is not existing");
+	    }
 
-            for (String module_class_name : module_name_list) {
-                logger.debug("trying to load the following class " + module_class_name);
+	    module_sequence.add(cur_module);
+	}
+    }
 
-                MaryModule cur_module = null;
-                cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
-                if (cur_module == null) {
-                    throw new MaryException("Cannot load module \"" + module_class_name +
-                                            "\" as it is not existing");
-                }
+    public void process() throws Exception {
 
-                usedModules.add(cur_module);
-            }
-        }
+        assert Mary.getCurrentState() == Mary.STATE_RUNNING;
+	assert input_serializer != null;
+	assert output_serializer != null;
 
         // Define the data
         Utterance input_mary_data = input_serializer.load(this.input_data);
@@ -171,11 +165,11 @@ public class Request {
         long startTime = System.currentTimeMillis();
 
         logger.info("Handling request using the following modules:");
-        for (MaryModule m : usedModules) {
+        for (MaryModule m : module_sequence) {
             logger.info("- " + m.getClass().getName());
         }
         outputData = input_mary_data;
-        for (MaryModule m : usedModules) {
+        for (MaryModule m : module_sequence) {
             if (abortRequested) {
                 break;
             }
@@ -230,7 +224,7 @@ public class Request {
 
         long stopTime = System.currentTimeMillis();
         logger.info("Request processed in " + (stopTime - startTime) + " ms.");
-        for (MaryModule m : usedModules) {
+        for (MaryModule m : module_sequence) {
             logger.info("   " + m.getClass().getName() + " took " + timingInfo.get(m) + " ms");
         }
     }
