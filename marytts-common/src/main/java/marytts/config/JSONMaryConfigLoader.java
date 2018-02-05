@@ -62,14 +62,8 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 	loadConfiguration(MaryConfigurationFactory.DEFAULT_KEY, input_stream);
     }
 
-    /**
-     * Configuration loading method
-     *
-     *  @param set the name of the configuration set for later reference in the configuration hash
-     *  @param input_stream the stream containing the configuration
-     */
-    public void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException {
 
+    public MaryConfiguration loadConfiguration(InputStream input_stream) throws MaryConfigurationException {
 	MaryConfiguration mc = new MaryConfiguration();
         try {
 	    JSONObject root_config = (JSONObject)new JSONParser().parse(new InputStreamReader(input_stream));
@@ -103,10 +97,11 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 
 	    }
 
-	    MaryConfigurationFactory.addConfiguration(set, mc);
         } catch (Exception e) {
             throw new MaryConfigurationException("cannot load json configuration", e);
         }
+
+	return mc;
     }
 
 
