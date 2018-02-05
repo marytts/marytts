@@ -80,9 +80,19 @@ public abstract class MaryConfigLoader {
     /**
      * Configuration loading method
      *
+     *  @param input_stream the stream containing the configuration
+     */
+    public abstract MaryConfiguration loadConfiguration(InputStream input_stream) throws MaryConfigurationException;
+
+
+    /**
+     * Configuration loading method directly into the factory
+     *
      *  @param set the name of the configuration set for later reference in the configuration hash
      *  @param input_stream the stream containing the configuration
      */
-    public abstract void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException;
-
+    public void loadConfiguration(String set, InputStream input_stream) throws MaryConfigurationException {
+	MaryConfiguration mc = loadConfiguration(input_stream);
+	MaryConfigurationFactory.addConfiguration(set, mc);
+    }
 }

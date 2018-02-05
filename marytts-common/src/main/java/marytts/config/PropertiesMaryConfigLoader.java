@@ -69,7 +69,7 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
      *  @param set the name of the configuration set for later reference in the configuration hash
      *  @param input_stream the stream containing the configuration
      */
-    public void loadConfiguration(String set, InputStream propertyStream) throws MaryConfigurationException {
+    public MaryConfiguration loadConfiguration(InputStream propertyStream) throws MaryConfigurationException {
 	MaryConfiguration mc = new MaryConfiguration();
         props = new PropertiesTrimTrailingWhitespace();
         try {
@@ -96,11 +96,11 @@ public class PropertiesMaryConfigLoader extends MaryConfigLoader {
 		String property = props.getProperty(key_prop);
 		mc.addConfigurationValueProperty(class_name, method_name, property);
 	    }
-
-	    MaryConfigurationFactory.addConfiguration(set, mc);
         } catch (Exception e) {
             throw new MaryConfigurationException("cannot load properties", e);
         }
+
+	return mc;
     }
 
 
