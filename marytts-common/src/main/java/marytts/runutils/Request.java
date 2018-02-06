@@ -58,10 +58,19 @@ import marytts.util.io.FileUtils;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
+import org.apache.logging.log4j.core.appender.OutputStreamAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
+
 
 import marytts.data.Utterance;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A request consists of input data, a desired output data type and the means to
@@ -77,6 +86,8 @@ import marytts.data.Utterance;
  * (<code>writeOutputData</code>).
  */
 public class Request {
+    private static final AtomicInteger counter = new AtomicInteger();
+
     protected String input_data;
 
     protected String outputTypeParams;
@@ -91,20 +102,17 @@ public class Request {
     protected List<MaryModule> module_sequence = null;
     protected boolean abortRequested = false;
     protected Appender appender;
+    protected ByteArrayOutputStream baos_logger;
 
-    // Keep track of timing info for each module
-    // (map MaryModule onto Long)
+    // Keep track of timing info for each module (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
 
-    public Request(Appender app, MaryConfiguration configuration, String input_data) throws MaryConfigurationException
+    public Request(MaryConfiguration configuration, String input_data) throws MaryConfigurationException
     {
+	id = counter.getAndIncrement();
 
 	// Deal with logger
         this.logger = LogManager.getLogger("R " + id);
-        this.appender = app;
-        if (app != null) {
-            ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
-        }
 
 	// Set the configuration
 	configuration.applyConfiguration(this);
@@ -113,6 +121,34 @@ public class Request {
         this.input_data = input_data;
 
         timingInfo = new HashMap<MaryModule, Long>();
+    }
+
+
+    public void setLoggerLevel(String level) throws Exception {
+	Level current_level;
+	if (level.equals("ERROR"))
+	    current_level = Level.ERROR;
+	else if (level.equals("WARN"))
+	    current_level = Level.WARN;
+	else if (level.equals("INFO"))
+	    current_level = Level.INFO;
+	else if (level.equals("DEBUG"))
+	    current_level = Level.DEBUG;
+	else
+	    throw new Exception("\"" + level + "\" is an unknown level");
+
+
+	// Logging configuration
+	baos_logger = new ByteArrayOutputStream();
+        ThresholdFilter threshold_filter = ThresholdFilter.createFilter(current_level, null, null);
+        LoggerContext context = LoggerContext.getContext(false);
+        Configuration config = context.getConfiguration();
+        PatternLayout layout = PatternLayout.createDefaultLayout(config);
+	this.appender = OutputStreamAppender.createAppender(layout, threshold_filter, baos_logger,
+							    "client " + (new Integer(id)).toString(),
+							    false, true);
+        this.appender.start();
+	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(this.appender);
     }
 
     public void setOutputSerializer(String output_serializer_classname) throws Exception {
@@ -150,6 +186,10 @@ public class Request {
 
 	    module_sequence.add(cur_module);
 	}
+    }
+
+    public ByteArrayOutputStream getBaosLogger() {
+	return baos_logger;
     }
 
     public void process() throws Exception {
