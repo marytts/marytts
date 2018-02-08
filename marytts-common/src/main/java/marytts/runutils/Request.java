@@ -102,7 +102,7 @@ public class Request {
     protected List<MaryModule> module_sequence = null;
     protected boolean abortRequested = false;
     protected Appender appender;
-    protected ByteArrayOutputStream baos_logger;
+    protected ByteArrayOutputStream baos_logger = new ByteArrayOutputStream();
 
     // Keep track of timing info for each module (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
@@ -233,7 +233,10 @@ public class Request {
             Utterance outData = null;
             try {
 		// FIXME: what about the configuration and the logger
-                outData = m.process(outputData, this.appender);
+		if (this.appender != null)
+		    outData = m.process(outputData, this.appender);
+		else
+		    outData = m.process(outputData);
             } catch (Exception e) {
                 throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }
