@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import java.util.Hashtable;
 import marytts.data.Utterance;
 import marytts.data.item.Item;
@@ -89,7 +91,7 @@ public class ArpaLabel implements FeatureProcessor {
         return ph;
     }
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         return new Feature(convertPh(item.toString()));
     }
 }

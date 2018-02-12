@@ -121,87 +121,91 @@ public class Phonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
-        Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+	try {
+	    Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+	    Sequence<Syllable> syllables = new Sequence<Syllable>();
+	    ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
 
-        Sequence<Phoneme> phones = new Sequence<Phoneme>();
-        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+	    Sequence<Phoneme> phones = new Sequence<Phoneme>();
+	    ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
 
-        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
-						  SupportedSequenceType.WORD)
-	    .getReverse();
-        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+	    Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
+						      SupportedSequenceType.WORD)
+		.getReverse();
+	    HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
-        for (int i_word = 0; i_word < words.size(); i_word++) {
-            Word w = words.get(i_word);
+	    for (int i_word = 0; i_word < words.size(); i_word++) {
+		Word w = words.get(i_word);
 
-            String text;
+		String text;
 
-            if (w.soundsLike() != null) {
-                text = w.soundsLike();
-            } else {
-                text = w.getText();
-            }
+		if (w.soundsLike() != null) {
+		    text = w.soundsLike();
+		} else {
+		    text = w.getText();
+		}
 
-            // Get POS
-            String pos = w.getPOS();
+		// Get POS
+		String pos = w.getPOS();
 
-            // Ok adapt phonemes now
-            ArrayList<String> phonetisation_string = new ArrayList<String>();
-            if ((text != null) && (!text.equals(""))) {
+		// Ok adapt phonemes now
+		ArrayList<String> phonetisation_string = new ArrayList<String>();
+		if ((text != null) && (!text.equals(""))) {
 
-                // If text consists of several parts (e.g., because that was
-                // inserted into the sounds_like attribute), each part
-                // is transcribed separately.
-                StringBuilder ph = new StringBuilder();
-                String g2p_method = null;
-                StringTokenizer st = new StringTokenizer(text, " -");
-                while (st.hasMoreTokens()) {
-                    String graph = st.nextToken();
-                    StringBuilder helper = new StringBuilder();
-                    if (pos.equals("$PUNCT")) {
-                        continue;
-                    }
+		    // If text consists of several parts (e.g., because that was
+		    // inserted into the sounds_like attribute), each part
+		    // is transcribed separately.
+		    StringBuilder ph = new StringBuilder();
+		    String g2p_method = null;
+		    StringTokenizer st = new StringTokenizer(text, " -");
+		    while (st.hasMoreTokens()) {
+			String graph = st.nextToken();
+			StringBuilder helper = new StringBuilder();
+			if (pos.equals("$PUNCT")) {
+			    continue;
+			}
 
-                    String phon = phonemise(graph, pos, helper);
+			String phon = phonemise(graph, pos, helper);
 
-                    // FIXME: what does it mean : null result should not be
-                    // processed
-                    if (phon == null) {
-                        continue;
-                    }
+			// FIXME: what does it mean : null result should not be
+			// processed
+			if (phon == null) {
+			    continue;
+			}
 
-                    if (ph.length() == 0) {
-                        g2p_method = helper.toString();
-                    }
+			if (ph.length() == 0) {
+			    g2p_method = helper.toString();
+			}
 
-                    phonetisation_string.add(phon);
-                }
+			phonetisation_string.add(phon);
+		    }
 
-                if (phonetisation_string.size() > 0) {
+		    if (phonetisation_string.size() > 0) {
 
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
-                                       alignment_syllable_phone, i_word, alignment_word_syllable);
+			createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
+					   alignment_syllable_phone, i_word, alignment_word_syllable);
 
-                    // Adapt G2P method
-                    w.setG2PMethod(g2p_method);
-                }
-            }
-        }
+			// Adapt G2P method
+			w.setG2PMethod(g2p_method);
+		    }
+		}
+	    }
 
-        // Relation word/syllable
-        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+	    // Relation word/syllable
+	    utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+	    Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+	    utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
 
-        utt.addSequence(SupportedSequenceType.PHONE, phones);
-        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
-        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+	    utt.addSequence(SupportedSequenceType.PHONE, phones);
+	    Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+	    utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        return utt;
+	    return utt;
+	} catch (Exception ex) {
+	    throw new MaryException("Can't process", ex);
+	}
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,

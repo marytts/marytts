@@ -52,7 +52,7 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         checkForNumbers(utt);
 

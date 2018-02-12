@@ -20,12 +20,12 @@
 
 package marytts.language.en;
 
+import marytts.MaryException;
+
 // Configuration
 import marytts.config.MaryConfiguration;
 import marytts.config.MaryConfigurationFactory;
 import marytts.exceptions.MaryConfigurationException;
-
-import marytts.MaryException;
 
 import java.util.Locale;
 

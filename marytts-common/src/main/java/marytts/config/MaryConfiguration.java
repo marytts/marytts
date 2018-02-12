@@ -159,6 +159,11 @@ public class MaryConfiguration {
         }
     }
 
+    /**
+     *  Generate a string of the configuration for debug purpose
+     *
+     *  @return the debug string
+     */
     @Override
     public String toString() {
 	String configuration_str = "";

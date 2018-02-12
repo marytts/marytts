@@ -73,7 +73,7 @@ public class DummyTokens2Words extends MaryModule {
      *         This method just returns its input. Subclasses should override
      *         this.
      */
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
         return utt; // just return input.
     }
 

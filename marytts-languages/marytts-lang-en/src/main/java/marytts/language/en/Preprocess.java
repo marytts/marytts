@@ -207,9 +207,13 @@ public class Preprocess extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration user_configuration) throws Exception {
-	user_configuration.applyConfiguration(this);
-        expand(utt);
+    public Utterance process(Utterance utt, MaryConfiguration user_configuration) throws MaryException {
+	try {
+	    user_configuration.applyConfiguration(this);
+	    expand(utt);
+	} catch (Exception ex) {
+	    throw new MaryException("Can't process", ex);
+	}
 
         return utt;
     }

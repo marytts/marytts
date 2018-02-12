@@ -1,5 +1,7 @@
 package marytts.features;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import java.util.ArrayList;
@@ -25,5 +27,5 @@ public interface LevelProcessor {
      * @throws Exception
      *             if something is going wrong
      */
-    public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception;
+    public ArrayList<? extends Item> get(Utterance utt, Item item) throws MaryException;
 }

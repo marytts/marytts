@@ -20,27 +20,11 @@
 
 package marytts.modules.acoustic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
-import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.SynthesisException;
-import marytts.io.serializer.XMLSerializer;
-import marytts.modules.acoustic.model.Model;
-import marytts.modules.nlp.phonemiser.Allophone;
-import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.util.MaryRuntimeUtils;
-import marytts.util.MaryUtils;
-
 import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
-import marytts.data.SupportedSequenceType;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.MaryException;
@@ -74,7 +58,7 @@ public class AcousticModeller extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws SynthesisException {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
         return utt;
     }
 }

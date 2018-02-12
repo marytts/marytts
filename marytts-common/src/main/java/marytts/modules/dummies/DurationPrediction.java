@@ -60,7 +60,7 @@ public class DurationPrediction extends MaryModule
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
 	double start = 0.0;
 	Sequence<Phoneme> ph_seq = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);

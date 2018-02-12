@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.item.linguistic.Word;
@@ -164,7 +166,7 @@ public class FestivalPOS implements FeatureProcessor {
         return "content";
     }
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof marytts.data.item.linguistic.Word) {
             if ((((Word) item).getText()) == null) {
                 return Feature.UNDEF_FEATURE;
@@ -174,7 +176,7 @@ public class FestivalPOS implements FeatureProcessor {
             }
         }
 
-        throw new Exception("Only a word is accepted not an item of type " + item.getClass().toString() +
+        throw new MaryException("Only a word is accepted not an item of type " + item.getClass().toString() +
                             " ("
                             + item.toString() + ")");
     }

@@ -1,5 +1,7 @@
 package marytts.features;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 
@@ -21,5 +23,5 @@ public interface ContextProcessor {
      * @throws Exception
      *             if something is going wrong
      */
-    public Item get(Item item) throws Exception;
+    public Item get(Item item) throws MaryException;
 }
