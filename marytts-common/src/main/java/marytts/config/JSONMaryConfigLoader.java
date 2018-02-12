@@ -150,7 +150,6 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
      *  @throws MaryConfigurationException if anything fails during the instanciation
      */
     protected Object jsonObjectInstantiate(JSONObject hash) throws MaryConfigurationException {
-
 	try {
 	    Class<?> clazz = Class.forName((String) hash.get(CLASS_KEY));
 
@@ -158,7 +157,7 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 	    Object[] args = null;
 	    Constructor<?> ctor = null;
 
-	    if (args == null) { // Default constructor
+	    if (json_args == null) { // Default constructor
 		args = new Object[] {};
 		ctor = clazz.getConstructor();
 	    } else { // With args constructor
@@ -179,7 +178,7 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 
 			// Prepare arguments
 			class_ctor = new Class<?>[1];
-			class_ctor[0] = Class.forName("String");
+			class_ctor[0] = Class.forName("java.lang.String");
 
 			// Get value argument
 			arg_val = new Object[1];
@@ -201,7 +200,6 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 
 		ctor = clazz.getConstructor(arg_classes);
 	    }
-
 
 	    return ctor.newInstance(args);
 	} catch (Exception ex) {
@@ -230,7 +228,7 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 
 	// Load the dictionary
 	HashMap<String, Object> output_hash = new HashMap<String, Object>();
-	for (Object k_ob: hash.keySet()) {
+	for (Object k_ob: key_set) {
 	    String k = k_ob.toString();
 	    Object v = hash.get(k_ob);
 	    // A little bit of adaptation
@@ -255,7 +253,7 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
      */
     protected ArrayList<Object> jsonArrayToList(JSONArray array) throws MaryConfigurationException {
 	if (array.size() == 0)
-	    throw new MaryConfigurationException("It is forbiddent to have an empty array in the configuration");
+	    throw new MaryConfigurationException("It is forbidden to have an empty array in the configuration");
 
 	ArrayList<Object> ar = new ArrayList<Object>();
 	for (Object v: array) {

@@ -9,12 +9,7 @@ import java.nio.charset.StandardCharsets;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
-public class MaryConfigurationFactoryIT {
-    @Test
-    public void testDefaultConfigurationLoading() throws MaryConfigurationException {
-	JSONMaryConfigLoader loader = new JSONMaryConfigLoader();
-	Assert.assertNotNull(MaryConfigurationFactory.getDefaultConfiguration());
-    }
+public class PropertiesMaryConfigLoaderIT {
 
     @Test(expectedExceptions = MaryConfigurationException.class)
     public void testMalformedProperty() throws Exception {
