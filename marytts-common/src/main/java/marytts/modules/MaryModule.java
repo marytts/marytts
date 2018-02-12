@@ -1,36 +1,12 @@
-/**
- * Copyright 2000-2006 DFKI GmbH.
- * All Rights Reserved.  Use is subject to license terms.
- *
- * This file is part of MARY TTS.
- *
- * MARY TTS is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, version 3 of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
 package marytts.modules;
 
+// Mary elementary packages
 import marytts.config.MaryConfiguration;
 import marytts.config.MaryConfigurationFactory;
-import marytts.exceptions.MaryConfigurationException;
-
-import java.io.StringReader;
-import java.util.Locale;
-
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioSystem;
-
 import marytts.data.Utterance;
-import marytts.util.MaryUtils;
+
+// Exceptions
+import marytts.exceptions.MaryConfigurationException;
 import marytts.MaryException;
 
 // Logging
@@ -39,9 +15,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 
 /**
+ * The base class to subclass to implement a module to be used in MaryTTS
  *
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-
 public abstract class MaryModule {
     public static final int MODULE_OFFLINE = 0;
     public static final int MODULE_RUNNING = 1;
