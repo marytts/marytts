@@ -124,8 +124,23 @@ public class MaryConfiguration {
 	    if (properties == null)
 		return;
 
+	    // Logger is always comming first, and just the level is defined
+	    if (properties.remove("logger_level")) {
+		String property = "logger_level";
+		Object val = null;
+                try {
+		    val = m_configuration_value_map.get(new StringPair(class_name, property));
+                    Method m = obj.getClass().getMethod("set" + property, val.getClass());
+                    m.invoke(obj, val);
+                } catch (NoSuchMethodException ex) {
+		    logger.warn("Object of class \"" + obj.getClass().toString() +
+				"\" doesn't have a setter for property \"" + property.toLowerCase() +
+				"\" with expected argument of class \"" + val.getClass().toString() + "\"");
+                }
+	    }
+
+	    // Other parts
             for (String property : properties) {
-		boolean b_is_value = false;
 		Object val = null;
                 try {
 		    val = m_configuration_value_map.get(new StringPair(class_name, property));
