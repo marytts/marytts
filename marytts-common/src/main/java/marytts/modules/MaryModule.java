@@ -80,7 +80,7 @@ public abstract class MaryModule {
 	}
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         assert state == MODULE_OFFLINE;
 	applyDefaultConfiguration();
         state = MODULE_RUNNING;

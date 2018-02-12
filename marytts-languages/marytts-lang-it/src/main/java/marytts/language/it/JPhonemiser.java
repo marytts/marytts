@@ -93,7 +93,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         super(Locale.ITALIAN);
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         super.startup();
 
 	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/it/lexicon/allophones.it.xml"));

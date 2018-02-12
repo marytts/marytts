@@ -68,7 +68,7 @@ public abstract class MinimalisticPosTagger extends MaryModule {
         super(default_configuration);
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         punctuationList = ",.?!;";
 	applyDefaultConfiguration();
         super.startup();

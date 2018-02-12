@@ -24,6 +24,7 @@ package marytts.language.en;
 import marytts.config.MaryConfiguration;
 import marytts.config.MaryConfigurationFactory;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.MaryException;
 
 import java.util.Locale;
 
@@ -39,7 +40,7 @@ public class USJPhonemiser extends marytts.modules.nlp.JPhonemiser {
         super(Locale.US);
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         super.startup();
 
 	// Apply the german configuration

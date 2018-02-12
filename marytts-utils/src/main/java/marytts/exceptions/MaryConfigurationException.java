@@ -19,6 +19,8 @@
  */
 package marytts.exceptions;
 
+import marytts.MaryException;
+
 /**
  * A class representing severe expected error conditions, such as wrong format
  * of data files needed to set up the system. Typically a
@@ -30,7 +32,7 @@ package marytts.exceptions;
  * @author marc
  *
  */
-public class MaryConfigurationException extends Exception {
+public class MaryConfigurationException extends MaryException {
     /**
      * Construct a MaryConfigurationException with only an error message. This
      * constructor should only be used if our program code has identified the

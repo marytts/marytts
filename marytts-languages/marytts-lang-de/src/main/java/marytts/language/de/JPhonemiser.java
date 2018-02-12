@@ -103,19 +103,22 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         super(Locale.GERMAN);
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         super.startup();
 
-	// Apply the german configuration
-	MaryConfigurationFactory.getConfiguration("de_DE").applyConfiguration(this);
-        phonemiseDenglish = new PhonemiseDenglish(this);
-        inflection = new Inflection();
+	try {
+	    // Apply the german configuration
+	    MaryConfigurationFactory.getConfiguration("de_DE").applyConfiguration(this);
+	    phonemiseDenglish = new PhonemiseDenglish(this);
+	    inflection = new Inflection();
 
-	setLexicon(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de_lexicon.fst"));
-	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.de.xml"));
-	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de.lts"));
+	    setLexicon(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de_lexicon.fst"));
+	    setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/allophones.de.xml"));
+	    setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/de/lexicon/de.lts"));
 
-
+	} catch (Exception ex) {
+	    throw new MaryException("Cannot start module", ex);
+	}
         // if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
         //     String logBasepath = MaryProperties.maryBase() + File.separator + "log" + File.separator;
         //     File logDir = new File(logBasepath);
