@@ -20,7 +20,7 @@ import marytts.data.SupportedSequenceType;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class DurationPrediction extends MaryModule
 {
