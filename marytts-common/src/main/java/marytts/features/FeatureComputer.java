@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.MaryException;
 
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
@@ -186,7 +187,7 @@ public class FeatureComputer {
      *             if any kind of errors happened
      */
     protected Feature compute(Utterance utt, Item item, String level, String context,
-                              String feature) throws Exception {
+                              String feature) throws MaryException {
         LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
         ArrayList<? extends Item> level_items = level_processor.get(utt, item);
         if (level_items.size() == 0) {
@@ -201,7 +202,7 @@ public class FeatureComputer {
 
         FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
         if (feature_processor == null) {
-            throw new Exception(feature + " is not part of the factory for items : (level=" + level + ", context=" + context + ", feature=" +
+            throw new MaryException(feature + " is not part of the factory for items : (level=" + level + ", context=" + context + ", feature=" +
                                 feature + ")");
         }
 
@@ -219,7 +220,7 @@ public class FeatureComputer {
      * @throws Exception
      *             if anything is going wrong
      */
-    public FeatureMap process(Utterance utt, Item item) throws Exception {
+    public FeatureMap process(Utterance utt, Item item) throws MaryException {
         FeatureMap feature_map = new FeatureMap();
         for (String feature_name : m_features.keySet()) {
             String[] infos = m_features.get(feature_name);

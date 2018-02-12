@@ -89,7 +89,7 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
     public MaryConfiguration loadConfiguration(InputStream input_stream) throws MaryConfigurationException {
 	MaryConfiguration mc = new MaryConfiguration();
         try {
-	    JSONObject root_config = (JSONObject)new JSONParser().parse(new InputStreamReader(input_stream));
+	    JSONObject root_config = (JSONObject) new JSONParser().parse(new InputStreamReader(input_stream));
 	    for (Object class_ob: root_config.keySet()) {
 		String class_name = (String) class_ob;
 

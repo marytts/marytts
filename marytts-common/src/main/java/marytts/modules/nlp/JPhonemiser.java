@@ -141,7 +141,7 @@ public abstract class JPhonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
         Sequence<Syllable> syllables = new Sequence<Syllable>();
@@ -230,7 +230,7 @@ public abstract class JPhonemiser extends MaryModule {
                                       AllophoneSet allophoneSet,
                                       Sequence<Syllable> syllables, Sequence<Phoneme> phones,
                                       ArrayList<IntegerPair> alignment_syllable_phone,
-                                      int word_index, ArrayList<IntegerPair> alignment_word_phone) throws Exception {
+                                      int word_index, ArrayList<IntegerPair> alignment_word_phone) throws MaryException {
 
         int stress = 0;
         int phone_offset = phones.size();

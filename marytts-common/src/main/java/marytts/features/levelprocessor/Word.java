@@ -1,5 +1,7 @@
 package marytts.features.levelprocessor;
 
+import marytts.MaryException;
+
 import java.util.ArrayList;
 
 import marytts.data.Utterance;
@@ -18,7 +20,7 @@ import marytts.features.LevelProcessor;
  *         Maguer</a>
  */
 public class Word implements LevelProcessor {
-    public ArrayList<? extends Item> get(Utterance utt, Item item) throws Exception {
+    public ArrayList<? extends Item> get(Utterance utt, Item item) throws MaryException {
         if (item instanceof marytts.data.item.linguistic.Word) {
             ArrayList<Item> list_items = new ArrayList<Item>();
             list_items.add(item);

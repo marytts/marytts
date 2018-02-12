@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -17,7 +19,7 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class InDirectSpeech implements FeatureProcessor {
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         // Initialize everything
         Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
         Sequence<Word> seq_wrd = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
