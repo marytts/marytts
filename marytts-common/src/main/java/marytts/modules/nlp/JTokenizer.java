@@ -84,7 +84,7 @@ public class JTokenizer extends MaryModule {
         jtokLocale = languageCode;
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         super.startup();
     }
 

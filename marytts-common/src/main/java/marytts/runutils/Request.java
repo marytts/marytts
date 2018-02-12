@@ -88,25 +88,41 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Request {
     private static final AtomicInteger counter = new AtomicInteger();
 
-    protected String input_data;
-
-    protected String outputTypeParams;
-    protected Locale defaultLocale;
 
     protected int id;
     protected Logger logger;
-    protected Utterance inputData;
+
+
+    protected String input_data;
+    protected Serializer input_serializer = null;
+
+
+    protected List<MaryModule> module_sequence = null;
+
+    protected String outputTypeParams;
     protected Utterance outputData;
     protected Serializer output_serializer = null;
-    protected Serializer input_serializer = null;
-    protected List<MaryModule> module_sequence = null;
+
+
     protected boolean abortRequested = false;
+
+
     protected Appender appender;
     protected ByteArrayOutputStream baos_logger = new ByteArrayOutputStream();
 
     // Keep track of timing info for each module (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
 
+
+    /**
+     *  Constructor.
+     *
+     *  A request is composed by a configuration and an input data
+     *
+     *  @param configuration the configuration object
+     *  @param input_data the input data in a string format (the serializer is going to take care of it late)
+     *  @throws MaryConfigurationException if anything is going wrong
+     */
     public Request(MaryConfiguration configuration, String input_data) throws MaryConfigurationException
     {
 	id = counter.getAndIncrement();
@@ -124,6 +140,12 @@ public class Request {
     }
 
 
+    /**
+     *  Set the request logger level
+     *
+     *  @param level the level in String
+     *  @throws Exception if anything is going wrong
+     */
     public void setLoggerLevel(String level) throws Exception {
 	Level current_level;
 	if (level.equals("ERROR"))
@@ -151,26 +173,39 @@ public class Request {
 	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(this.appender);
     }
 
-    public void setOutputSerializer(String output_serializer_classname) throws Exception {
 
-        // Output serializer reflection
-        Class<?> clazz;
-        Constructor<?> ctor;
-	clazz = Class.forName(output_serializer_classname);
-	ctor = clazz.getConstructor();
+    /**
+     *  Define the output serializer knowing the class name
+     *
+     *  @param output_serializer_classname the output serializer class name
+     *  @throws Exception if anything is going wrong
+     */
+    public void setOutputSerializer(String output_serializer_classname) throws Exception {
+        Class<?> clazz = Class.forName(output_serializer_classname);
+        Constructor<?> ctor = clazz.getConstructor();
 	this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
     }
 
-    public void setInputSerializer(String input_serializer_classname) throws Exception {
 
-        // Input serializer reflection
-        Class<?> clazz;
-        Constructor<?> ctor;
-	clazz = Class.forName(input_serializer_classname);
-	ctor = clazz.getConstructor();
+    /**
+     *  Define the input serializer knowing the class name
+     *
+     *  @param output_serializer_classname the output serializer class name
+     *  @throws Exception if anything is going wrong
+     */
+    public void setInputSerializer(String input_serializer_classname) throws Exception {
+        Class<?> clazz = Class.forName(input_serializer_classname);
+        Constructor<?> ctor = clazz.getConstructor();
 	this.input_serializer = (Serializer) ctor.newInstance(new Object[] {});
     }
 
+
+    /**
+     *  Define module sequence given a list of module names
+     *
+     *  @param list_module_names the list of module names
+     *  @throws Exception if anything is going wrong
+     */
     public void setModuleSequence(ArrayList<String> list_module_names) throws Exception {
 	// Module sequence reflexion (FIXME: check if module is existing !)
         module_sequence = new ArrayList<MaryModule>();
@@ -188,36 +223,50 @@ public class Request {
 	}
     }
 
+    /**
+     *  Get the logger output stream
+     *
+     *  @return the logger output stream
+     */
     public ByteArrayOutputStream getBaosLogger() {
 	return baos_logger;
     }
 
-    public void process() throws Exception {
 
+    /**
+     *  Method to achieve the request (synthesis or generation)
+     *
+     *  @throws MaryException if something is going wrong during the process
+     */
+    public void process() throws MaryException {
+
+	// Assert that everything is ready to run
         assert Mary.getCurrentState() == Mary.STATE_RUNNING;
 	assert input_serializer != null;
 	assert output_serializer != null;
 
-        // Define the data
+        // Load the input data
         Utterance input_mary_data = input_serializer.load(this.input_data);
-
-        // Start to achieve the process
-        long startTime = System.currentTimeMillis();
-
-        logger.info("Handling request using the following modules:");
-        for (MaryModule m : module_sequence) {
-            logger.info("- " + m.getClass().getName());
-        }
         outputData = input_mary_data;
-        for (MaryModule m : module_sequence) {
-            if (abortRequested) {
-                break;
-            }
 
-            logger.info("Next module: " + m.getClass().getName());
+        // Information about what is the module sequence
+	long startTime = System.currentTimeMillis();
+	if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+	    logger.info("Handling request using the following modules:");
+	    for (MaryModule m : module_sequence) {
+		logger.info("- " + m.getClass().getName());
+	    }
+	}
+
+	// Achieve the process
+        for (MaryModule m : module_sequence) {
+
+	    // Abort => exit the loop
+            if (abortRequested)
+                break;
 
             // Start module if needed
-            logger.debug("Starting the module");
+            logger.info("Starting the module " + m.getClass().getName());
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
 		logger.info("Starting module " + m.getClass().getName());
@@ -232,7 +281,6 @@ public class Request {
             // Process the module
             Utterance outData = null;
             try {
-		// FIXME: what about the configuration and the logger
 		if (this.appender != null)
 		    outData = m.process(outputData, this.appender);
 		else
@@ -241,20 +289,24 @@ public class Request {
                 throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }
 
-            if (outData == null) {
-                throw new NullPointerException("Module " + m.getClass().getName() + " returned null. This should not happen.");
-            }
-
+	    // Assess that the output data is correct
+            if (outData == null)
+                throw new NullPointerException("Module " + m.getClass().getName() +
+					       " returned null. This should not happen.");
             outputData = outData;
 
-            long moduleStopTime = System.currentTimeMillis();
-            long delta = moduleStopTime - moduleStartTime;
-            Long soFar = timingInfo.get(m);
-            if (soFar != null) {
-                timingInfo.put(m, new Long(soFar.longValue() + delta));
-            } else {
-                timingInfo.put(m, new Long(delta));
-            }
+	    // If some info are requested => compute some log
+	    if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+		long moduleStopTime = System.currentTimeMillis();
+		long delta = moduleStopTime - moduleStartTime;
+		Long soFar = timingInfo.get(m);
+
+		if (soFar != null) {
+		    timingInfo.put(m, new Long(soFar.longValue() + delta));
+		} else {
+		    timingInfo.put(m, new Long(delta));
+		}
+	    }
 
 	    // // FIXME: fix memory part
             // if (MaryRuntimeUtils.veryLowMemoryCondition()) {
@@ -265,47 +317,32 @@ public class Request {
             // }
         }
 
-        long stopTime = System.currentTimeMillis();
-        logger.info("Request processed in " + (stopTime - startTime) + " ms.");
-        for (MaryModule m : module_sequence) {
-            logger.info("   " + m.getClass().getName() + " took " + timingInfo.get(m) + " ms");
-        }
+
+	if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+	    long stopTime = System.currentTimeMillis();
+	    logger.info("Request processed in " + (stopTime - startTime) + " ms.");
+	    for (MaryModule m : module_sequence) {
+		logger.info("   " + m.getClass().getName() + " took " + timingInfo.get(m) + " ms");
+	    }
+	}
     }
 
+    /**
+     *  Return the id of the request
+     *
+     *  @return the id of the request
+     */
     public int getId() {
         return id;
     }
 
     /**
      * Inform this request that any further processing does not make sense.
+     *
      */
     public void abort() {
         logger.info("Requesting abort.");
         abortRequested = true;
-    }
-
-    /**
-     * Set the input data directly, in case it is already in the form of a
-     * Utterance object.
-     *
-     * @param input_data
-     *            inputData
-     */
-    public void setInputData(String input_data) {
-        this.input_data = input_data;
-    }
-
-    /**
-     * Read the input data from a Reader.
-     *
-     * @param inputReader
-     *            inputReader
-     * @throws Exception
-     *             Exception
-     */
-    public void readInputData(Reader inputReader) throws Exception {
-        String inputText = FileUtils.getReaderAsString(inputReader);
-        setInputData(inputText);
     }
 
     /**
@@ -317,6 +354,12 @@ public class Request {
         return outputData;
     }
 
+    /**
+     *  Serialize utterance
+     *
+     *  @return the utterance serialized
+     *  @throws MaryIOException if the serialization is failing
+     */
     public Object serializeFinaleUtterance() throws MaryIOException {
         return output_serializer.export(this.outputData);
     }

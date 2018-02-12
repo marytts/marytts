@@ -82,28 +82,33 @@ public class PronunciationModel extends MaryModule {
         super();
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
         super.startup();
 
-        // TODO: pronunciation model tree and feature definition should be
-        // voice-specific
-        // get featureDefinition used for trees - just to tell the tree that the
-        // features are discrete
-	// FIXME: solve the problem of the path
-        String fdFilename = null;
-        // if (getLocale() != null) {
-        //     fdFilename = MaryProperties
-        //                  .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
-        // }
-        if (fdFilename != null) {
-            File fdFile = new File(fdFilename);
-            // reader for file, readweights = false
-            featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
+	try {
+	    // TODO: pronunciation model tree and feature definition should be
+	    // voice-specific
+	    // get featureDefinition used for trees - just to tell the tree that the
+	    // features are discrete
+	    // FIXME: solve the problem of the path
+	    String fdFilename = null;
+	    // if (getLocale() != null) {
+	    //     fdFilename = MaryProperties
+	    //                  .getFilename(MaryProperties.localePrefix(getLocale()) + ".pronunciation.featuredefinition");
+	    // }
+	    if (fdFilename != null) {
+		File fdFile = new File(fdFilename);
+		// reader for file, readweights = false
+		featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
 
-            logger.debug("Reading in feature definition finished.");
+		logger.debug("Reading in feature definition finished.");
 
-        }
-        logger.debug("Building feature computer finished.");
+	    }
+	    logger.debug("Building feature computer finished.");
+
+	} catch (Exception ex) {
+	    throw new MaryException("Can't start the module", ex);
+	}
     }
 
 

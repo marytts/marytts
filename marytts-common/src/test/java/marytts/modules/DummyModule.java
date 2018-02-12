@@ -39,7 +39,7 @@ public class DummyModule extends MaryModule {
         super();
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
     }
 
     public void shutdown() {

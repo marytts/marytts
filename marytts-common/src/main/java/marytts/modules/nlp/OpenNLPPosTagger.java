@@ -80,7 +80,7 @@ public abstract class OpenNLPPosTagger extends MaryModule {
         super();
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
 	getDefaultConfiguration().applyConfiguration(this);
         super.startup();
     }
