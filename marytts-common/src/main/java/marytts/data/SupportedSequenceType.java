@@ -18,7 +18,9 @@ public class SupportedSequenceType {
     public static final String NSS = "NSS";
     public static final String SEGMENT = "SEGMENT";
     public static final String FEATURES = "FEATURES";
+    public static final String NORMALISED_FEATURES = "NORMALISED_FEATURES";
     public static final String AUDIO = "AUDIO";
+
 
     // Initialize default available sequences
     public static final String[] SET_VALUES = new String[] {
