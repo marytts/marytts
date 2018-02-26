@@ -46,10 +46,23 @@ public class AlphabetFactory
     }
 
 
+    /**
+     * Add an alphabet given a specific name
+     *
+     * @param name the name of the alphabet
+     * @param instance the alphabet instance
+     */
     public static void addAlphabet(String name, Alphabet instance) {
 	alphabets.put(name.toLowerCase(), instance);
     }
 
+    /**
+     * Get the alphabet instance knowing its name.
+     *
+     * @param name the name of the wanted alphabet
+     * @return the alphabet instance
+     * @throws MaryException if there is no alphabet corresponding this name
+     */
     public static Alphabet getAlphabet(String name) throws MaryException {
 	name = name.toLowerCase();
 	if (!alphabets.containsKey(name))
@@ -58,6 +71,11 @@ public class AlphabetFactory
 	return alphabets.get(name);
     }
 
+    /**
+     * List all available alphabets
+     *
+     * @return the set of alphabet names
+     */
     public static Set<String> listAvailableAlphabets() {
 	return alphabets.keySet();
     }
