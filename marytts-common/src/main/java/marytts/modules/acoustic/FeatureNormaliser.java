@@ -15,7 +15,7 @@ import marytts.MaryException;
  */
 public class FeatureNormaliser
 {
-    /** Everything in qs which is not key in qs_label_name is a continuous part => Just take the value! */
+    /** Everything in qs_list which is not key in qs_answers_map is a continuous part => Just take the value! */
     protected ArrayList<String> qs_list;
     protected HashMap<String,String> qs_label_map;
     protected HashMap<String, Set<String>> qs_answers_map;
@@ -44,11 +44,26 @@ public class FeatureNormaliser
 		    normalised_vector.add(0.0f);
 		}
 	    } else {
-		normalised_vector.add(Float.parseFloat(feature_map.get(label).getStringValue())); // FIXME: string value
+		// FIXME: string value is used. Maybe a more clever solution would be good too :D
+		normalised_vector.add(Float.parseFloat(feature_map.get(label).getStringValue()));
 	    }
 	}
 
 	return normalised_vector;
+    }
+
+    public synchronized void setQsList(ArrayList<String> qs_list) {
+	this.qs_list = qs_list;
+    }
+
+
+    public synchronized void setQsLabelMap(HashMap<String,String> qs_label_map) {
+	this.qs_label_map = qs_label_map;
+    }
+
+
+    public synchronized void setQsAnswersMap(HashMap<String,Set<String>> qs_answers_map) {
+	this.qs_answers_map = qs_answers_map;
     }
 }
 

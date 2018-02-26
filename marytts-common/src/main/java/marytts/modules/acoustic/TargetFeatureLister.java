@@ -19,31 +19,31 @@
  */
 package marytts.modules.acoustic;
 
+// Utils
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.HashMap;
 
-import marytts.config.MaryConfiguration;
-
-import marytts.data.SupportedSequenceType;
-import marytts.data.Relation;
-import marytts.data.utils.IntegerPair;
-import marytts.data.Utterance;
-
+// Mary default
 import marytts.modules.MaryModule;
-import marytts.features.FeatureComputer;
-import marytts.features.FeatureMap;
-import marytts.io.serializer.XMLSerializer;
-import marytts.data.Utterance;
-import marytts.data.Sequence;
-import marytts.data.item.Item;
-
+import marytts.config.MaryConfiguration;
 import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 
-import org.apache.logging.log4j.core.Appender;
+// Mary data representation
+import marytts.data.Relation;
+import marytts.data.Sequence;
+import marytts.data.SupportedSequenceType;
+import marytts.data.Utterance;
+import marytts.data.item.Item;
+import marytts.data.utils.IntegerPair;
+
+// Features
+import marytts.features.FeatureComputer;
+import marytts.features.FeatureMap;
+
 /**
  * The module which compute the features
  *
