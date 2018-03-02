@@ -40,7 +40,7 @@ public class AlphabetFactory
 	    }
 	}
 	catch (Exception ex) {
-	    System.err.println("Cannot initialize alphabet factory");
+	    System.err.println("Cannot initialize alphabet factory: " + ex.toString());
 	    System.exit(-1);
 	}
     }
