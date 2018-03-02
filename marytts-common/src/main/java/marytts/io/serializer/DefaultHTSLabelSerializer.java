@@ -29,7 +29,8 @@ public class DefaultHTSLabelSerializer implements Serializer {
 
 
     /** The undefined value constant */
-    public static final String UNDEF = "xx";
+    private static final String DEFAULT_UNDEF = "xx";
+    protected String undef_symbol;
 
     /**
      * Constructor
@@ -37,6 +38,15 @@ public class DefaultHTSLabelSerializer implements Serializer {
      */
     public DefaultHTSLabelSerializer() {
         initPhConverter();
+        setUndefSymbol(DEFAULT_UNDEF);
+    }
+
+    public String getUndefSymbol() {
+        return undef_symbol;
+    }
+
+    public void setUndefSymbol(String undef_symbol) {
+        this.undef_symbol = undef_symbol;
     }
 
     /**
@@ -76,6 +86,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
     public Utterance load(String content) throws MaryIOException {
         throw new UnsupportedOperationException();
     }
+
 
     /************************************************************************************************
      * Conversion helpers
@@ -185,10 +196,10 @@ public class DefaultHTSLabelSerializer implements Serializer {
 
         if (! feature_map.containsKey(feature_name)) {
             System.out.println("feature \"" + feature_name + "\" is not defined");
-            return UNDEF;
+            return getUndefSymbol();
         }
         if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE) {
-            return UNDEF;
+            return getUndefSymbol();
         }
 
         String feat = feature_map.get(feature_name).getStringValue();
@@ -230,30 +241,30 @@ public class DefaultHTSLabelSerializer implements Serializer {
             cur_lab += String.format(format,
 
                                      // Previous
-                                     UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol());
         } else {
 
             cur_lab += String.format(format,
 
                                      // Previous
-                                     getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+                                     getValue(feature_map, "prev_syl_accent"), getUndefSymbol(), getValue(feature_map, "prev_syl_numph"),
 
                                      // Current
-                                     getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+                                     getValue(feature_map, "prev_syl_accent"), getUndefSymbol(), getValue(feature_map, "prev_syl_numph"),
 
                                      getValue(feature_map, "syls_from_word_start"), getValue(feature_map, "syls_from_word_end"),
                                      getValue(feature_map, "syls_from_phrase_start"), getValue(feature_map, "syls_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     getValue(feature_map, "next_syl_accent"), UNDEF, getValue(feature_map, "next_syl_numph"));
+                                     getValue(feature_map, "next_syl_accent"), getUndefSymbol(), getValue(feature_map, "next_syl_numph"));
         }
 
         // Word format
@@ -261,13 +272,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
         if (is_nss) {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol());
         } else {
             cur_lab += String.format(format,
                                      // Previous
@@ -276,7 +287,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
                                      // Current
                                      getValue(feature_map, "word_pos"), getValue(feature_map, "word_numsyls"),
                                      getValue(feature_map, "words_from_phrase_start"), getValue(feature_map, "words_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
                                      getValue(feature_map, "next_word_pos"), getValue(feature_map, "next_word_numsyls"));
@@ -287,13 +298,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
         if (is_nss) {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol());
         } else {
             cur_lab += String.format(format,
                                      // Previous
@@ -302,7 +313,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
                                      // Current
                                      getValue(feature_map, "phrase_numsyls"), getValue(feature_map, "phrase_numwords"),
                                      getValue(feature_map, "phrases_from_sentence_start"),
-                                     getValue(feature_map, "phrases_from_sentence_end"), UNDEF,
+                                     getValue(feature_map, "phrases_from_sentence_end"), getUndefSymbol(),
 
                                      // Next
                                      getValue(feature_map, "next_phrase_numsyls"), getValue(feature_map, "next_phrase_numwords"));

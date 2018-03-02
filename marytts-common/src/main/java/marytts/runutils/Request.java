@@ -94,6 +94,7 @@ public class Request {
 
 
     protected String input_data;
+    protected MaryConfiguration configuration;
     protected Serializer input_serializer = null;
 
 
@@ -131,7 +132,8 @@ public class Request {
         this.logger = LogManager.getLogger("R " + id);
 
 	// Set the configuration
-	configuration.applyConfiguration(this);
+	this.configuration = configuration;
+	this.configuration.applyConfiguration(this);
 
 	// Set the input data
         this.input_data = input_data;
@@ -246,6 +248,7 @@ public class Request {
 	assert output_serializer != null;
 
         // Load the input data
+        this.configuration.applyConfiguration(input_serializer);
         Utterance input_mary_data = input_serializer.load(this.input_data);
         outputData = input_mary_data;
 
@@ -282,9 +285,9 @@ public class Request {
             Utterance outData = null;
             try {
 		if (this.appender != null)
-		    outData = m.process(outputData, this.appender);
+		    outData = m.process(outputData, this.configuration, this.appender);
 		else
-		    outData = m.process(outputData);
+		    outData = m.process(outputData, this.configuration);
             } catch (Exception e) {
                 throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }
@@ -359,8 +362,10 @@ public class Request {
      *
      *  @return the utterance serialized
      *  @throws MaryIOException if the serialization is failing
+     *  @throws MaryConfigurationException if the configuration associated to the request is malformed
      */
-    public Object serializeFinaleUtterance() throws MaryIOException {
+    public Object serializeFinaleUtterance() throws MaryIOException, MaryConfigurationException {
+        this.configuration.applyConfiguration(output_serializer);
         return output_serializer.export(this.outputData);
     }
 }
