@@ -131,12 +131,13 @@ public class Request {
 	// Deal with logger
         this.logger = LogManager.getLogger("R " + id);
 
+	//
+	this.module_sequence = new ArrayList<MaryModule>();
+        this.input_data = input_data;
+
 	// Set the configuration
 	this.configuration = configuration;
 	this.configuration.applyConfiguration(this);
-
-	// Set the input data
-        this.input_data = input_data;
 
         timingInfo = new HashMap<MaryModule, Long>();
     }
