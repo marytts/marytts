@@ -68,6 +68,9 @@ import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 
+import marytts.phonetic.AlphabetFactory;
+import marytts.phonetic.converter.Alphabet;
+
 // Logging
 import org.apache.logging.log4j.core.Appender;
 
@@ -83,6 +86,7 @@ public abstract class JPhonemiser extends MaryModule {
     protected final String FIRST_STRESS = "'";
     protected final String SECOND_STRESS = ",";
 
+    protected Alphabet sampa2ipa;
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
     protected TrainedLTS lts;
@@ -96,6 +100,12 @@ public abstract class JPhonemiser extends MaryModule {
 
     protected JPhonemiser(Locale locale) throws MaryConfigurationException {
 	super();
+
+	try {
+	    sampa2ipa = AlphabetFactory.getAlphabet("sampa");
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("Cannot instantiate sampa alphabet converter", ex);
+	}
 
 	String defaultRegex = "\\$PUNCT";
 	punctuationPosRegex = Pattern.compile(defaultRegex);
@@ -278,7 +288,7 @@ public abstract class JPhonemiser extends MaryModule {
                 else if (token.equals(SECOND_STRESS)) {
                     stress = 2;
                 } else {
-                    Phoneme cur_ph = new Phoneme(token);
+                    Phoneme cur_ph = new Phoneme(sampa2ipa.getCorrespondingIPA(token));
                     phones.add(cur_ph);
                 }
             }
