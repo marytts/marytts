@@ -20,7 +20,7 @@ public class IsStressed implements FeatureProcessor {
 
         if (item instanceof marytts.data.item.phonology.Syllable) {
             Syllable syl = (Syllable) item;
-            return new Feature(syl.getStressLevel() == 0);
+            return new Feature(syl.getStressLevel() > 0);
         }
 
         throw new MaryException("The item is not a syllable");
