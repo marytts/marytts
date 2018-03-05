@@ -108,6 +108,9 @@ public class DefaultHTSLabelSerializer implements Serializer {
      * @return the converted phoneme
      */
     protected String convertPh(String ph) throws MaryException {
+
+	if ((ph == null) || (ph.isEmpty()))
+	    return getUndefSymbol();
 	if (ph.equals(getUndefSymbol()))
 	    return getUndefSymbol();
 
