@@ -288,8 +288,7 @@ public abstract class JPhonemiser extends MaryModule {
                 else if (token.equals(SECOND_STRESS)) {
                     stress = 2;
                 } else {
-                    Phoneme cur_ph = new Phoneme(sampa2ipa.getCorrespondingIPA(token));
-                    phones.add(cur_ph);
+                    phones.add(generatePhonemeFromLabel(token));
                 }
             }
 
@@ -302,6 +301,10 @@ public abstract class JPhonemiser extends MaryModule {
                 alignment_word_phone.add(new IntegerPair(word_index, phone_offset));
             }
         }
+    }
+
+    protected Phoneme generatePhonemeFromLabel(String label) throws MaryException {
+	return new Phoneme(sampa2ipa.getCorrespondingIPA(label));
     }
 
     /**
@@ -345,6 +348,7 @@ public abstract class JPhonemiser extends MaryModule {
                 g2pMethod.append("userdict");
                 return result;
             }
+
             result = lexiconLookup(normalised, pos);
             if (result != null) {
                 g2pMethod.append("lexicon");
@@ -432,6 +436,7 @@ public abstract class JPhonemiser extends MaryModule {
         if (userdict == null || text == null || text.length() == 0) {
             return null;
         }
+
         List<String> entries = userdict.get(text);
         // If entry is not found directly, try the following changes:
         // - lowercase the word
@@ -463,6 +468,7 @@ public abstract class JPhonemiser extends MaryModule {
                 }
             }
         }
+
         // no match of POS: return last entry
         return transcr;
     }
