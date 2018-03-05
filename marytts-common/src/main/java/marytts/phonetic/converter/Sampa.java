@@ -39,6 +39,7 @@ public class Sampa extends Alphabet
 	// affricates
 	this.addIpaCorrespondance("dS", "tʃ");
 	this.addIpaCorrespondance("dZ", "dʒ");
+	this.addIpaCorrespondance("tS", "ts");
 
 	// Long vowels
 	this.addIpaCorrespondance("A", "ɑ");
