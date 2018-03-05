@@ -312,13 +312,13 @@ public class Request {
 		}
 	    }
 
-	    // // FIXME: fix memory part
-            // if (MaryRuntimeUtils.veryLowMemoryCondition()) {
-            //     logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory()
-            //                 + " bytes left). Triggering garbage collection.");
-            //     Runtime.getRuntime().gc();
-            //     logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
-            // }
+	    // FIXME: fix memory part
+            if (MemoryUtils.veryLowMemoryCondition()) {
+                logger.warn("Very low memory condition detected (only " + MemoryUtils.availableMemory()
+                            + " bytes left). Triggering garbage collection.");
+                Runtime.getRuntime().gc();
+                logger.warn("After garbage collection: " + MemoryUtils.availableMemory() + " bytes available.");
+            }
         }
 
 
