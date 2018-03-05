@@ -38,6 +38,7 @@ public class Arpabet extends Alphabet
 	this.addIpaCorrespondance("ZH", "ʒ");
 
 	// affricates
+	this.addIpaCorrespondance("TS", "ts"); // FIXME: oupsy
 	this.addIpaCorrespondance("CH", "tʃ");
 	this.addIpaCorrespondance("JH", "dʒ");
 
