@@ -28,7 +28,7 @@ public class DurationPrediction extends MaryModule
     private static final double DEFAULT_DUR=1.0;
     public DurationPrediction() throws Exception
     {
-	super();
+	super("duration");
     }
 
 
@@ -71,6 +71,11 @@ public class DurationPrediction extends MaryModule
 	}
 
 	return utt;
+    }
+
+
+    public void setDescription() {
+	this.description = "Dummy duration prediction which sets each phone at 1s.";
     }
 }
 

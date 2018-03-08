@@ -77,7 +77,7 @@ public abstract class OpenNLPPosTagger extends MaryModule {
      *             Exception
      */
     protected OpenNLPPosTagger() throws Exception {
-        super();
+        super("part-of-speech");
     }
 
     public void startup() throws MaryException {

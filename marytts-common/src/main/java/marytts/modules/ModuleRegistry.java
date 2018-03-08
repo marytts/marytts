@@ -56,6 +56,7 @@ import java.lang.reflect.Constructor;
  */
 public class ModuleRegistry {
     private static List<MaryModule> allModules;
+    private static Map<String, List<MaryModule>> module_by_categories;
     private static Logger logger;
 
     private ModuleRegistry() {

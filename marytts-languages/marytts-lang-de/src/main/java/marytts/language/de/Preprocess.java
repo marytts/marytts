@@ -42,6 +42,14 @@ import org.apache.logging.log4j.core.Appender;
 public class Preprocess extends MaryModule {
 
 
+    public Preprocess() {
+	super("preprocessing");
+    }
+
+    protected void setDescription() {
+	this.description = "German preprocessing module";
+    }
+
     public void checkStartup() throws MaryConfigurationException {
 
     }

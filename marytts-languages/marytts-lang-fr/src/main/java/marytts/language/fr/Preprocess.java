@@ -32,9 +32,14 @@ public class Preprocess extends MaryModule {
     protected final String ordinalRule;
 
     public Preprocess() {
+	super("preprocessing");
         this.rbnf = new RuleBasedNumberFormat(ULocale.FRENCH, RuleBasedNumberFormat.SPELLOUT);
         this.cardinalRule = "%spellout-numbering";
         this.ordinalRule = getOrdinalRuleName(rbnf);
+    }
+
+    public void setDescription() {
+	this.description = "French token preprocessing module.";
     }
 
     public void checkStartup() throws MaryConfigurationException {

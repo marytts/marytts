@@ -65,7 +65,7 @@ public abstract class MinimalisticPosTagger extends MaryModule {
      *             Exception
      */
     protected MinimalisticPosTagger(MaryConfiguration default_configuration) throws Exception {
-        super(default_configuration);
+        super(default_configuration, "part-of-speech");
     }
 
     public void startup() throws MaryException {

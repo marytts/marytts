@@ -31,6 +31,10 @@ public class Phonemiser extends marytts.modules.nlp.JPhonemiser {
 	super(Locale.FRENCH);
     }
 
+    protected void setDescription() {
+	this.description = "French phonemiser";
+    }
+
     @Override
     public String phonemise(String text, String pos, StringBuilder g2pMethod) {
         // First, try a simple userdict and lexicon lookup:

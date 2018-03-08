@@ -45,6 +45,11 @@ public class OpenNLPPosTagger extends marytts.modules.nlp.OpenNLPPosTagger
 	InputStream stream = this.getClass().getResourceAsStream("/marytts/language/en/tagger/en-pos-maxent.bin");
 	setModel(stream);
     }
+
+    protected void setDescription() {
+	// super();
+	this.description += "This is the english version of the open NLP pos tagger.";
+    }
 }
 
 
