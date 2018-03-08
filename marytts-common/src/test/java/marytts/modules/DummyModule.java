@@ -36,7 +36,11 @@ import org.apache.logging.log4j.core.Appender;
 
 public class DummyModule extends MaryModule {
     public DummyModule() {
-        super();
+        super("dummy");
+    }
+
+    public void setDescription() {
+	this.description = "this module is totally useless!";
     }
 
     public void startup() throws MaryException {

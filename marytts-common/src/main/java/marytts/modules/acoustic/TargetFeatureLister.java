@@ -57,9 +57,13 @@ public class TargetFeatureLister extends MaryModule {
      *
      */
     public TargetFeatureLister() throws Exception {
-        super();
+        super("feature");
 
         feature_computer = new FeatureComputer();
+    }
+
+    protected void setDescription() {
+	this.description = "The front end feature prediction module";
     }
 
     public void checkStartup() throws MaryConfigurationException {

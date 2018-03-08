@@ -23,7 +23,16 @@ public abstract class MaryModule {
     public static final int MODULE_OFFLINE = 0;
     public static final int MODULE_RUNNING = 1;
 
-    private MaryConfiguration default_configuration = null;
+    /** The default configuration of the module */
+    protected MaryConfiguration default_configuration = null;
+
+    /** The category of the module */
+    protected String category;
+
+    /** The description of the module */
+    protected String description;
+
+    /** The state of the module: offline (MODULE_OFFLINE) or running (MODULE_RUNNING) */
     protected int state;
 
     /**
@@ -33,12 +42,16 @@ public abstract class MaryModule {
     protected Logger logger;
 
 
+    /*************************************************************************************************
+     ** Constructors
+     *************************************************************************************************/
+
     /**
      *  Default constructor but available only for subclass. It just sets the default configuration
      *
      */
-    protected MaryModule() {
-	this(MaryConfigurationFactory.getDefaultConfiguration());
+    protected MaryModule(String category) {
+	this(MaryConfigurationFactory.getDefaultConfiguration(), category);
     }
 
 
@@ -47,10 +60,12 @@ public abstract class MaryModule {
      *
      *  @param default_configuration the given configuration
      */
-    protected MaryModule(MaryConfiguration default_configuration) {
+    protected MaryModule(MaryConfiguration default_configuration, String category) {
+	this.setDescription();
 	this.default_configuration = default_configuration;
         logger = LogManager.getLogger(this);
         this.state = MODULE_OFFLINE;
+	this.category = category;
     }
 
     /**
@@ -62,6 +77,10 @@ public abstract class MaryModule {
         return state;
     }
 
+
+    /*************************************************************************************************
+     ** Configuration
+     *************************************************************************************************/
     /**
      *  Get the default configuration of the module.
      *
@@ -82,6 +101,10 @@ public abstract class MaryModule {
 	}
     }
 
+
+    /*************************************************************************************************
+     ** Operations
+     *************************************************************************************************/
     /**
      *  Method to start the modules. This consists of applying the configuration and change the
      *  state by default.
@@ -185,4 +208,34 @@ public abstract class MaryModule {
      *  @throws MaryException if anything is going wrong
      */
     public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws MaryException;
+
+
+    /*************************************************************************************************
+     ** Module meta data
+     *************************************************************************************************/
+
+    /**
+     *  Get the module description
+     *
+     *  @return the module description
+     */
+    public String getDescription() {
+	return this.description;
+    }
+
+    /**
+     *  Get the module category
+     *
+     *  @return the module category
+     */
+    public String getCategory() {
+	return this.category;
+    }
+
+    /**
+     *  Set the module description. The description should be hardcoded in the module or in a
+     *  template.
+     *
+     */
+    protected abstract void setDescription();
 }

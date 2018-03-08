@@ -60,8 +60,12 @@ public class JTokenizer extends MaryModule {
     private String jtokLocale;
 
     public JTokenizer() throws MaryConfigurationException {
-	super();
+	super("tokenizer");
 	setLocale("default");
+    }
+
+    public void setDescription() {
+	this.description = "The default tokenizer used by MaryTTS. It relies on jtok from dfki.";
     }
 
     public void checkStartup() throws MaryConfigurationException {
@@ -146,27 +150,30 @@ public class JTokenizer extends MaryModule {
                 String tok_string = tok.getImage();
 
                 // Create the new token
-                if (!(tok_string.equals("\"") || tok_string.equals("(") || tok_string.equals(")")
-                        || tok_string.equals("[") || tok_string.equals("]") || tok_string.equals("{")
-                        || tok_string.equals("}"))) {
+                if (!(tok_string.equals("\"") || tok_string.equals("(") || tok_string.equals(")") ||
+		      tok_string.equals("[") || tok_string.equals("]") || tok_string.equals("{") ||
+		      tok_string.equals("}"))) {
                     sent_text += tok_string + " ";
                     token_ids.add(tok_idx);
                 }
 
-                if (((tok_string.charAt(0) == '\'') && (tok_string.length() == 1))
-                        || ((tok_string.charAt(0) == '\'') && (tok_string.length() > 1)
-                            && (tok_string.charAt(1) != '\''))
-                        || ((tok_string.length() > 1) && (tok_string.charAt(1) == '\''))) {
-                    Word prev = words.get(words.size() - 1);
-                    prev.setText(prev.getText() + tok_string);
+
+                if (((tok_string.charAt(0) == '\'') && (tok_string.length() == 1)) ||
+		    ((tok_string.charAt(0) == '\'') && (tok_string.length() > 1) && (tok_string.charAt(1) != '\''))) //  ||
+		    // ((tok_string.length() > 1) && (tok_string.charAt(1) == '\'')))
+		{
+		    Word prev = words.get(words.size() - 1);
+		    prev.setText(prev.getText() + tok_string);
+
                 } else {
                     Word w = new Word(tok_string);
                     words.add(w);
                     tok_idx++;
 
                     // Check if the token is ending the current sentence or not
-                    if (tok.getType().equals("PERIOD") || tok.getType().equals("QUEST")
-                            || tok.getType().equals("EXCLAM")) {
+                    if (tok.getType().equals("PERIOD") ||
+			tok.getType().equals("QUEST") ||
+			tok.getType().equals("EXCLAM")) {
                         // Create and add the new sentence
                         Sentence s = new Sentence(sent_text);
                         sentences.add(s);

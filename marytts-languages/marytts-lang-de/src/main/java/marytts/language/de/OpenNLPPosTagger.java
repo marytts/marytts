@@ -45,6 +45,10 @@ public class OpenNLPPosTagger extends marytts.modules.nlp.OpenNLPPosTagger
 	InputStream stream = this.getClass().getResourceAsStream("/marytts/language/de/tagger/de-pos-maxent.bin");
 	setModel(stream);
     }
+
+    protected void setDescription() {
+	this.description = "German pos-tagger based on the OpenNLP toolkit";
+    }
 }
 
 

@@ -99,7 +99,7 @@ public abstract class JPhonemiser extends MaryModule {
 
 
     protected JPhonemiser(Locale locale) throws MaryConfigurationException {
-	super();
+	super("phonemiser");
 
 	try {
 	    sampa2ipa = AlphabetFactory.getAlphabet("sampa");
@@ -114,6 +114,10 @@ public abstract class JPhonemiser extends MaryModule {
 	unpronounceablePosRegex = Pattern.compile(defaultRegex);
 
 	setLocale(locale);
+    }
+
+    protected void setDescription() {
+	this.description = "Default phonemiser of MaryTTS";
     }
 
 

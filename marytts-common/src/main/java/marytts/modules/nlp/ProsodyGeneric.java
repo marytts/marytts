@@ -55,9 +55,13 @@ public class ProsodyGeneric extends MaryModule {
     public static final int DEFAULT_DURATION = 400;
 
     public ProsodyGeneric() {
-        super();
+        super("prosody");
     }
 
+
+    public void setDescription() {
+	this.description = "Dummy module to predict baseline prosody";
+    }
 
     public void checkStartup() throws MaryConfigurationException {
     }
