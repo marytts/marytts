@@ -41,7 +41,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.todisappear.DomUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
