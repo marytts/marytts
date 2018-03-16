@@ -21,7 +21,7 @@ package marytts.io;
 
 import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.custommonkey.xmlunit.*;
 import org.testng.Assert;

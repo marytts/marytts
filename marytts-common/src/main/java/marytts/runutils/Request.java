@@ -27,7 +27,7 @@ import java.util.Arrays;
 import marytts.io.MaryIOException;
 import marytts.MaryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
