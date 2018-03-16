@@ -1,5 +1,13 @@
 package marytts.io.serializer;
 
+
+/* Regexp */
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/* Reflections part */
+import java.lang.reflect.Constructor;
+
 /* Introspection part */
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -20,12 +28,23 @@ import marytts.io.MaryIOException;
 import java.io.File;
 
 /* Utils part */
+import java.util.Locale;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+/* SparseMatrix */
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+
+/* JSON part */
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * ROOTS JSON serializer. This serializer is the most accurate considering the
@@ -79,6 +98,11 @@ public class ROOTSJSONSerializer implements Serializer {
     public ROOTSJSONSerializer() {
     }
 
+
+    /************************************************************************************************
+     ** Exporting
+     ************************************************************************************************/
+
     /**
      * Generate the JSON formatted string of the ROOTS utterance
      *
@@ -89,20 +113,13 @@ public class ROOTSJSONSerializer implements Serializer {
      *             if anything is going wrong
      */
     public Object export(Utterance utt) throws MaryIOException {
-        StringBuilder sb = new StringBuilder(SB_INIT_CAP);
         try {
-            sb.append("{\n");
-            sb.append("\t\"sequences\": {\n");
-            appendSequences(utt, sb);
-            sb.append("\t},\n");
 
-            // Dump relation
-            sb.append("\t\"relations\": [\n");
-            appendRelations(utt, sb);
-            sb.append("\t]\n");
-            sb.append("}\n");
+	    JSONObject obj = new JSONObject();
+	    obj.put("sequences", exportSequences(utt));
+	    obj.put("relations", exportRelations(utt));
 
-            return sb.toString();
+            return obj.toJSONString();
         } catch (Exception ex) {
 
             throw new MaryIOException("Cannot serialize utt", ex);
@@ -115,38 +132,36 @@ public class ROOTSJSONSerializer implements Serializer {
      *
      * @param utt
      *            the given utterance
-     * @param sb
-     *            the string builder
      * @throws Exception
      *             any kind of exception
      */
-    protected void appendSequences(Utterance utt, StringBuilder sb) throws Exception {
+    protected Object exportSequences(Utterance utt) throws Exception {
         String cur_type = null;
         Object[] types = utt.listAvailableSequences().toArray();
+
+	JSONObject hash_seq = new JSONObject();
         for (int t = 0; t < types.length; t++) {
+
+	    // Get the type of the sequence
             cur_type = ((String) types[t]);
-            sb.append("\t\t\"" + cur_type + "\": [\n");
-            Sequence<Item> seq = (Sequence<Item>) utt.getSequence(cur_type);
-            int s = 0;
-            while (s < (seq.size() - 1)) {
-                sb.append("\t\t\t");
-                appendItem(seq.get(s), sb);
-                sb.append(",\n");
-                s++;
-            }
 
-            if (s < seq.size()) {
-                sb.append("\t\t\t");
-                appendItem(seq.get(seq.size() - 1), sb);
-            }
-            sb.append("\n");
+	    // Get the "root class" of the sequence
+	    JSONObject seq = new JSONObject();
 
-            if (t < (types.length - 1)) {
-                sb.append("\t\t],\n");
-            } else {
-                sb.append("\t\t]\n");
-            }
-        }
+	    // Generate json array from the sequence
+	    JSONArray seq_arr = new JSONArray();
+	    for (Item i: (Sequence<Item>) utt.getSequence(cur_type))
+		seq_arr.add(exportItem(i));
+	    seq.put("items", seq_arr);
+
+	    // // FIXME: get sequence main class type
+	    // seq.put("type", utt.getSequence(cur_type).getPersistentClass().getName());
+
+	    // Add the sequence to the hash
+	    hash_seq.put(cur_type, seq);
+	}
+
+	return hash_seq;
     }
 
     /**
@@ -154,47 +169,25 @@ public class ROOTSJSONSerializer implements Serializer {
      *
      * @param it
      *            the given item
-     * @param sb
-     *            the string builder
      * @throws Exception
      *             any kind of exception
      */
-    protected void appendItem(Item it, StringBuilder sb) throws Exception {
-        Hashtable<String, String> methods = new Hashtable<String, String>();
-        sb.append("{ ");
-        for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(it.getClass()).getPropertyDescriptors()) {
-            Method method = propertyDescriptor.getReadMethod();
-            if (method != null) {
-                String method_name = method.toString();
+    protected Object exportItem(Item it) throws Exception {
 
-                if ((method_name.indexOf("java.lang.Object") < 0) &&
-                        (method_name.indexOf("marytts.data.item.Item") < 0)) {
-                    Object value = method.invoke(it, (Object[]) null);
+	JSONObject json_item = new JSONObject();
+	json_item.put("class", it.getClass().getName());
 
-                    if ((value != null) && (isWrapperType(value.getClass()))) {
-                        methods.put(method.getName().replaceFirst("get", "").toLowerCase(),
-                                    value.toString());
-                    }
-                }
-            }
-        }
+	// Serialize item using gson
+	Gson gson = new Gson();
+	String json = gson.toJson(it);
 
-        ArrayList<String> keys = new ArrayList<String>(methods.keySet());
-        int i = 0;
-        while (i < (keys.size() - 1)) {
-            // Append method informations
-            sb.append("\"" + keys.get(i) + "\": ");
-            sb.append("\"" + methods.get(keys.get(i))  + "\", ");
-            i++;
-        }
+	// Add the json item to the serialized object
+	json_item.put("item", new JSONParser().parse(json));
 
-        if (i < keys.size()) {
-            sb.append("\"" + keys.get(i) + "\": ");
-            sb.append("\"" + methods.get(keys.get(i)) + "\"");
-        }
-
-        sb.append(" }");
+	return json_item;
     }
+
+    // public JSONObject exportObject()
 
     /**
      * Export the relations of the given utterance to the string builder in a
@@ -205,39 +198,44 @@ public class ROOTSJSONSerializer implements Serializer {
      * @param sb
      *            the string builder
      */
-    protected void appendRelations(Utterance utt, StringBuilder sb) {
-        Object[] relations = utt.listAvailableRelations().toArray();
-        ImmutablePair<String, String> cur_rel_id;
-        SparseDoubleMatrix2D cur_rel;
+    protected Object exportRelations(Utterance utt) {
+        SparseDoubleMatrix2D cur_rel_mat;
 
-        for (int r = 0; r < relations.length; r++) {
-            sb.append("\t\t{\n");
-            cur_rel_id = (ImmutablePair<String, String>) relations[r];
-            sb.append("\t\t\t\"source\" : \"" + cur_rel_id.left + "\",\n");
-            sb.append("\t\t\t\"target\" : \"" + cur_rel_id.right + "\",\n");
+	JSONArray relations = new JSONArray();
+	for (ImmutablePair<String, String> cur_rel_id: utt.listAvailableRelations()) {
+	    JSONObject cur_rel = new JSONObject();
+	    cur_rel.put("source", cur_rel_id.left);
+	    cur_rel.put("target", cur_rel_id.right);
 
-            cur_rel = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
-            sb.append("\t\t\t \"matrix\" : [\n");
-            for (int j = 0; j < cur_rel.rows(); j++) {
-                sb.append("\t\t\t\t");
-                for (int k = 0; k < cur_rel.columns(); k++) {
-                    sb.append(cur_rel.get(j, k));
-                    if ((j < (cur_rel.rows() - 1)) ||
-                            (k < (cur_rel.columns() - 1))) {
-                        sb.append(", ");
-                    }
+            cur_rel_mat = utt.getRelation(cur_rel_id.left, cur_rel_id.right).getRelations();
+	    JSONArray mat = new JSONArray();
+            for (int j = 0; j < cur_rel_mat.rows(); j++) {
+
+                for (int k = 0; k < cur_rel_mat.columns(); k++) {
+		    double elt = cur_rel_mat.getQuick(j, k);
+
+		    if (elt > 0) {
+			JSONArray cur_row = new JSONArray();
+			cur_row.add(j);
+			cur_row.add(k);
+			cur_row.add(elt);
+
+			mat.add(cur_row);
+		    }
                 }
-                sb.append("\n");
             }
-            sb.append("\t\t\t]\n");
 
-            if (r < (relations.length - 1)) {
-                sb.append("\t\t},\n");
-            } else {
-                sb.append("\t\t}\n");
-            }
+	    cur_rel.put("matrix", mat);
+	    relations.add(cur_rel);
         }
+
+	return relations;
     }
+
+
+    /************************************************************************************************
+     ** Importing
+     ************************************************************************************************/
 
     /**
      * Generate an utterance from the ROOTS json information stored in the
@@ -250,7 +248,110 @@ public class ROOTSJSONSerializer implements Serializer {
      *             if anything is going wrong
      */
     public Utterance load(String content) throws MaryIOException {
-        throw new UnsupportedOperationException();
+	try {
+	    // Initialisation
+	    Utterance utt = new Utterance();
+	    JSONObject root_utt = (JSONObject) new JSONParser().parse(content);
+
+	    // First load the sequences
+	    loadSequences((JSONObject) root_utt.get("sequences"), utt);
+
+	    // Then load the relations
+	    loadRelations((JSONArray) root_utt.get("relations"), utt);
+
+
+	    return utt;
+	} catch (Exception ex) {
+	    throw new MaryIOException("Cannot load utterance", ex);
+	}
+    }
+
+    /**
+     * Load the relations into the given utterance
+     *
+     * @param relations the relations in JSON format
+     * @param utt the given utterance
+     * @throws Exception if anything is going wrong
+     */
+    public void loadRelations(JSONArray relations, Utterance utt) throws Exception {
+	for (Object rel_ob: relations) {
+	    JSONObject rel_json = (JSONObject) rel_ob;
+
+	    Sequence<Item> source = (Sequence<Item>) utt.getSequence((String) rel_json.get("source"));
+	    Sequence<Item> target = (Sequence<Item>) utt.getSequence((String) rel_json.get("target"));
+
+	    SparseDoubleMatrix2D matrix = new SparseDoubleMatrix2D(source.size(), target.size());
+	    for (Object rel_elts: (JSONArray) rel_json.get("matrix")) {
+		long x = (long) ((JSONArray) rel_elts).get(0);
+		long y = (long) ((JSONArray) rel_elts).get(1);
+		double z = (double) ((JSONArray) rel_elts).get(2);
+		matrix.setQuick((int) x, (int) y, z);
+	    }
+
+	    Relation rel = new Relation(source, target, matrix);
+
+	    utt.setRelation((String) rel_json.get("source"),
+			    (String) rel_json.get("target"),
+			    rel);
+	}
+    }
+
+    /**
+     * Load the sequences into the given utterance
+     *
+     * @param sequences the sequences in JSON format
+     * @param utt the given utterance
+     * @throws Exception if anything is going wrong
+     */
+    public void loadSequences(JSONObject sequences, Utterance utt) throws Exception {
+	for (Object k: sequences.keySet()) {
+	    JSONObject the_seq = (JSONObject) sequences.get(k);
+	    // FIXME: find a way to force the type !
+	    Sequence<Item> seq_item = new Sequence<Item>();
+	    for (Object item: (JSONArray) the_seq.get("items")) {
+		seq_item.add(loadItem((JSONObject) item));
+	    }
+	    utt.addSequence((String) k, seq_item);
+	}
+    }
+
+    /**
+     * Load the item
+     *
+     * @param item the item in JSON format
+     * @return the generated item
+     * @throws Exception if anything is going wrong
+     */
+    public Item loadItem(JSONObject item) throws Exception {
+
+	Gson gson = new Gson();
+	return (Item) gson.fromJson(((JSONObject) item.get("item")).toJSONString(),
+				    (Class) Class.forName((String) item.get("class")));
+    }
+
+    /**
+     *  Internal method to transform a property name to its setter name
+     *
+     *  By convention the first charatecter is always capitalized as all characters prefixed by
+     *  underscores. For example, prop_name is going to be transformed in setPropName.
+     *
+     *  @param property_name the name of the property for which we want the setter method
+     *  @return the setter method name
+     */
+    protected String adaptPropertyName(String property_name) {
+	// Upper case the first letter
+	property_name = property_name.substring(0,1).toUpperCase() + property_name.substring(1).toLowerCase();
+
+	// Upper case the character prefixed by underscores
+	StringBuffer result = new StringBuffer();
+	Matcher m = Pattern.compile("_(\\w)").matcher(property_name);
+	while (m.find()) {
+	    m.appendReplacement(result,
+				m.group(1).toUpperCase());
+	}
+	m.appendTail(result);
+
+	return result.toString();
     }
 }
 

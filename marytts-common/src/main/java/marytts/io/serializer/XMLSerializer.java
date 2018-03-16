@@ -151,7 +151,7 @@ public class XMLSerializer implements Serializer {
             // FIXME: hardcoded part
             rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
             rootElement.setAttribute("version", "0.5");
-            rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
+            // FIXME: rootElement.setAttribute("xml:lang", MaryUtils.locale2xmllang(utt.getLocale()));
 
             // Adding paragraphs
             int nb_par = utt.getSequence(SupportedSequenceType.PARAGRAPH).size();
@@ -486,7 +486,7 @@ public class XMLSerializer implements Serializer {
             l = new Locale.Builder().setLanguage(loc[0]).build();
         }
 
-        Utterance utt = new Utterance("", l); // FIXME: see "Utterance.setText"
+        Utterance utt = new Utterance();
 
         // 1. going through everything and save the alignments
         NodeList elts = root.getElementsByTagName("p");
@@ -518,7 +518,6 @@ public class XMLSerializer implements Serializer {
             generateParagraph(p, utt, alignments);
         }
 
-        utt.setText(text); // FIXME: see "Utterance.setText"
 
         // 2. Dealing relations
         for (SequenceTypePair k : alignments.keySet()) {
