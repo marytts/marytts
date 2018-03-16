@@ -35,15 +35,16 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Phone;
 import marytts.data.item.phonology.Syllable;
-import marytts.io.serializer.ROOTSJSONSerializer;
+import marytts.io.serializer.TextGridSerializer;
 
 
 
 /**
  * TODO: think about a real test....
  */
-public class ROOTSJSONSerializerTest {
+public class TextGridSerializerTest {
 
     public Utterance generateUTT() throws Exception {
 
@@ -67,14 +68,14 @@ public class ROOTSJSONSerializerTest {
 	syl = new Syllable();
 	seq_syl.add(syl);
 
-	Sequence<Phoneme> seq_phone = new Sequence<Phoneme>();
-	Phoneme ph = new Phoneme("a");
+	Sequence<Phone> seq_phone = new Sequence<Phone>();
+	Phone ph = new Phone("a", 0, 1);
 	seq_phone.add(ph);
-	ph = new Phoneme("b");
+	ph = new Phone("b", 1, 1);
 	seq_phone.add(ph);
-	ph = new Phoneme("c");
+	ph = new Phone("c", 2, 1);
 	seq_phone.add(ph);
-	ph = new Phoneme("d");
+	ph = new Phone("d", 3, 1);
 	seq_phone.add(ph);
 
 
@@ -82,47 +83,36 @@ public class ROOTSJSONSerializerTest {
 	alignment_word_phone.add(new IntegerPair(0, 0));
 	alignment_word_phone.add(new IntegerPair(0, 1));
 	alignment_word_phone.add(new IntegerPair(1, 2));
-	alignment_word_phone.add(new IntegerPair(2, 2));
+	alignment_word_phone.add(new IntegerPair(2, 3));
 
 
         ArrayList<IntegerPair> alignment_syl_phone = new ArrayList<IntegerPair>();
 	alignment_syl_phone.add(new IntegerPair(0, 0));
-	alignment_syl_phone.add(new IntegerPair(0, 1));
+	alignment_syl_phone.add(new IntegerPair(1, 1));
 	alignment_syl_phone.add(new IntegerPair(1, 2));
 	alignment_syl_phone.add(new IntegerPair(2, 2));
+	alignment_syl_phone.add(new IntegerPair(2, 3));
 
 
 
 	Utterance utt = new Utterance();
-	utt.addSequence("WORDS", seq_word);
-	utt.addSequence("SYLLABLES", seq_syl);
-	utt.addSequence("PHONES", seq_phone);
+	utt.addSequence("WORD", seq_word);
+	utt.addSequence("SYLLABLE", seq_syl);
+	utt.addSequence("PHONE", seq_phone);
 
 	Relation rel = new Relation(seq_word, seq_phone, alignment_word_phone);
-	utt.setRelation("WORDS", "PHONES", rel);
+	utt.setRelation("WORD", "PHONE", rel);
 
 	rel = new Relation(seq_syl, seq_phone, alignment_syl_phone);
-	utt.setRelation("SYLLABLES", "PHONES", rel);
+	utt.setRelation("SYLLABLE", "PHONE", rel);
 
 	return utt;
     }
 
     @Test
     public void testExport() throws Exception {
-	ROOTSJSONSerializer ser = new ROOTSJSONSerializer();
+	TextGridSerializer ser = new TextGridSerializer();
 	System.out.println(ser.export(generateUTT()));
-    }
-
-    @Test
-    public void testImport() throws Exception {
-	ROOTSJSONSerializer ser = new ROOTSJSONSerializer();
-
-	// Try to export....
-	Utterance origin_utt = generateUTT();
-	String output = (String) ser.export(origin_utt );
-
-	// Reload and assert !
-	Utterance utt = ser.load(output);
-	Assert.assertEquals(origin_utt, utt);
+	Assert.assertNotNull(null);
     }
 }
