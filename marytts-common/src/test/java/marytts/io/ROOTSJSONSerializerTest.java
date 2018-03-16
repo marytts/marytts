@@ -109,10 +109,8 @@ public class ROOTSJSONSerializerTest {
 
     @Test
     public void testExport() throws Exception {
-
 	ROOTSJSONSerializer ser = new ROOTSJSONSerializer();
 	System.out.println(ser.export(generateUTT()));
-	Assert.assertNotNull(null);
     }
 
     @Test

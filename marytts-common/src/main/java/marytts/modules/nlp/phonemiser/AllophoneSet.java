@@ -460,7 +460,7 @@ public class AllophoneSet {
                 if (stress != null && phones.size() > 0) {
                     phones.add(phones.size() - 1, stress);
                 } else {
-                    throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
+                    throw new IllegalArgumentException("(" + name + "," + locale.toString() + ") Found unknown symbol `" + allophoneString.charAt(i)
                                                        + "' in phonetic string `" + allophoneString + "' -- ignoring.");
                 }
             }
