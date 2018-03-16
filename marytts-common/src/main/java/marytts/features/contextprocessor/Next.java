@@ -1,5 +1,6 @@
 package marytts.features.contextprocessor;
 
+import marytts.MaryException;
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -24,12 +25,12 @@ public class Next implements ContextProcessor {
      *             (actually NotInSequenceException) if the given item is not in
      *             a sequence
      */
-    public Item get(Item item) throws Exception {
+    public Item get(Item item) throws MaryException {
         Sequence<? extends Item> seq = item.getSequence();
 
         // FIXME: Should be replace by a "notinsequence" exception
         if (seq == null) {
-            throw new Exception();
+            throw new MaryException("The item is not in a sequence");
         }
 
         int idx = seq.indexOf(item);

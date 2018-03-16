@@ -21,7 +21,9 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.modules.nlp.OpenNLPPosTagger;
+import marytts.modules.ModuleRegistry;
+import marytts.tests.modules.MaryModuleTestCase;
+import marytts.language.en.OpenNLPPosTagger;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -30,14 +32,19 @@ import org.testng.annotations.*;
  * @author marc
  *
  */
-public class OpenNLPPosTaggerIT {
-
-    /**
-     * @param needMaryStarted
-     * @throws Exception
-     *             Exception
-     */
+public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
     public OpenNLPPosTaggerIT() throws Exception {
     }
 
+
+    @BeforeSuite(alwaysRun = true)
+    public void setup() throws Exception {
+        setup(true); // need mary startup
+        module = ModuleRegistry.getModule(OpenNLPPosTagger.class);
+	Assert.assertNotNull(module);
+    }
+
+    @Test
+    public void voidTest() {
+    }
 }

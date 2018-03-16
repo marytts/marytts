@@ -5,8 +5,7 @@ import marytts.data.item.Item;
 /**
  * Class which represents a phoneme
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
- *         Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class Phoneme extends Segment {
 
@@ -50,7 +49,7 @@ public class Phoneme extends Segment {
      * @param stress
      *            the new stress
      */
-    protected void setStress(String stress) {
+    public void setStress(String stress) {
         m_stress = stress;
     }
 }

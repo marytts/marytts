@@ -41,7 +41,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.todisappear.DomUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -460,7 +460,7 @@ public class AllophoneSet {
                 if (stress != null && phones.size() > 0) {
                     phones.add(phones.size() - 1, stress);
                 } else {
-                    throw new IllegalArgumentException("Found unknown symbol `" + allophoneString.charAt(i)
+                    throw new IllegalArgumentException("(" + name + "," + locale.toString() + ") Found unknown symbol `" + allophoneString.charAt(i)
                                                        + "' in phonetic string `" + allophoneString + "' -- ignoring.");
                 }
             }

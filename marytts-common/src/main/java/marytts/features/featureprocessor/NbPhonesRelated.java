@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -19,7 +21,7 @@ import marytts.features.FeatureProcessor;
  */
 public class NbPhonesRelated implements FeatureProcessor {
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
         Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHONE));
         int item_idx = seq_item.indexOf(item);

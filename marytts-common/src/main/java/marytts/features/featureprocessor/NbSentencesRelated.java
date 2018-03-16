@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import java.util.Hashtable;
 
 import marytts.data.Utterance;
@@ -27,9 +29,9 @@ public class NbSentencesRelated implements FeatureProcessor {
         cache = new Hashtable<Item, Feature>();
     }
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Sentence) {
-            throw new Exception();
+            throw new MaryException("The item is not a sentence");
         }
 
         if (cache.containsKey(item)) {

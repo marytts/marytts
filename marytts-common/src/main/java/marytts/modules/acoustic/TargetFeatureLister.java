@@ -19,30 +19,31 @@
  */
 package marytts.modules.acoustic;
 
+// Utils
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashMap;
 
-import marytts.config.MaryProperties;
-
-import marytts.data.SupportedSequenceType;
-import marytts.data.Relation;
-import marytts.data.utils.IntegerPair;
-import marytts.data.Utterance;
-
+// Mary default
 import marytts.modules.MaryModule;
+import marytts.config.MaryConfiguration;
+import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
+
+// Mary data representation
+import marytts.data.Relation;
+import marytts.data.Sequence;
+import marytts.data.SupportedSequenceType;
+import marytts.data.Utterance;
+import marytts.data.item.Item;
+import marytts.data.utils.IntegerPair;
+
+// Features
 import marytts.features.FeatureComputer;
 import marytts.features.FeatureMap;
-import marytts.io.serializer.XMLSerializer;
-import marytts.data.Utterance;
-import marytts.data.Sequence;
-import marytts.data.item.Item;
 
-import marytts.MaryException;
-
-
-import org.apache.logging.log4j.core.Appender;
 /**
  * The module which compute the features
  *
@@ -50,13 +51,22 @@ import org.apache.logging.log4j.core.Appender;
  */
 public class TargetFeatureLister extends MaryModule {
 
+    FeatureComputer feature_computer;
     /**
      * Default constructor
      *
      */
     public TargetFeatureLister() throws Exception {
-        super("TargetFeatureLister", null);
-        FeatureComputer.initDefault();
+        super("feature");
+
+        feature_computer = new FeatureComputer();
+    }
+
+    protected void setDescription() {
+	this.description = "The front end feature prediction module";
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**
@@ -83,35 +93,15 @@ public class TargetFeatureLister extends MaryModule {
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
-
-        FeatureComputer the_feature_computer = FeatureComputer.the_feature_computer;
-
-        listTargetFeatures(the_feature_computer, utt);
-
-        return utt;
-    }
-
-    /**
-     * Compute the features of a given utterance using a given feature computer
-     *
-     * @param the_feature_computer
-     *            the feature computer used
-     * @param utt
-     *            the utterance to update
-     * @throws Exception
-     *             [TODO]
-     */
-    public void listTargetFeatures(FeatureComputer the_feature_computer,
-                                   Utterance utt) throws Exception {
-
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+	utt.setFeatureNames(feature_computer.listFeatures());
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
         Set<String> keys = null;
         int i = 0;
         List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
         for (Item it : items) {
-            FeatureMap map = the_feature_computer.process(utt, it);
+            FeatureMap map = feature_computer.process(utt, it);
             target_features.add(map);
             list_pairs.add(new IntegerPair(i, i));
             i++;
@@ -120,30 +110,94 @@ public class TargetFeatureLister extends MaryModule {
         Relation rel_phone_features = new Relation(items, target_features, list_pairs);
 
         utt.addSequence(SupportedSequenceType.FEATURES, target_features);
-        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+	utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+	return utt;
     }
 
-    /**
-     * Return directly the targets, and set in each target its feature vector
-     *
-     * @param the_feature_computer
-     *            the feature computer used
-     * @param utt
-     *            the utterance used to compute the features
-     * @param items
-     *            the items whose features are going to be computed
-     * @return a list of map of features corresponding of the given items
-     * @throws Exception
-     *             [TODO]
-     */
-    public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
-            ArrayList<Item> items) throws Exception {
-        List<FeatureMap> target_features = new ArrayList<FeatureMap>();
+    // /**
+    //  * Return directly the targets, and set in each target its feature vector
+    //  *
+    //  * @param the_feature_computer
+    //  *            the feature computer used
+    //  * @param utt
+    //  *            the utterance used to compute the features
+    //  * @param items
+    //  *            the items whose features are going to be computed
+    //  * @return a list of map of features corresponding of the given items
+    //  * @throws Exception
+    //  *             [TODO]
+    //  */
+    // public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
+    //         ArrayList<Item> items) throws Exception {
+    //     List<FeatureMap> target_features = new ArrayList<FeatureMap>();
+    //     for (Item it : items) {
+    //         target_features.add(feature_computer.process(utt, it));
+    //     }
 
-        for (Item it : items) {
-            target_features.add(the_feature_computer.process(utt, it));
-        }
+    //     return target_features;
+    // }
 
-        return target_features;
+    public void setFeatureConfiguration(HashMap<String, Object> configuration) throws MaryConfigurationException {
+	for(String k: configuration.keySet()) {
+	    if (k.equals("level_processors"))
+		setLevelProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("context_processors"))
+		setContextProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("feature_processors"))
+		setFeatureProcessors((ArrayList<String>) configuration.get(k));
+	    else if (k.equals("features"))
+		continue;
+	    else
+		throw new MaryConfigurationException(k + " is an unknown part to configure");
+	}
+
+	// Feature is the last and should be the last !
+	setFeatures((ArrayList<ArrayList<String>>) configuration.get("features"));
+    }
+
+    protected void setFeatureProcessors(ArrayList<String> features) throws MaryConfigurationException {
+	for (String feature: features) {
+	    int d_index  = feature.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Feature class name \"" + feature + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = feature.substring(d_index+1);
+	    feature_computer.addFeatureProcessor(class_name, feature);
+	}
+    }
+
+    protected void setLevelProcessors(ArrayList<String> levels) throws MaryConfigurationException {
+	for (String level: levels) {
+	    int d_index  = level.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Level class name \"" + level + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = level.substring(d_index+1);
+	    feature_computer.addLevelProcessor(class_name, level);
+	}
+    }
+
+    protected void setContextProcessors(ArrayList<String> contexts) throws MaryConfigurationException {
+	for (String context: contexts) {
+	    int d_index  = context.lastIndexOf(".");
+	    if (d_index < 0)
+		throw new MaryConfigurationException("Context class name \"" + context + "\" is malformed");
+
+	    // Check if class exists
+	    String class_name = context.substring(d_index+1);
+	    feature_computer.addContextProcessor(class_name, context);
+	}
+    }
+
+
+    public void setFeatures(ArrayList<ArrayList<String>> features) throws MaryConfigurationException {
+	try {
+	    for (ArrayList<String> feature: features)
+		feature_computer.addFeature(feature.get(0), feature.get(1), feature.get(2), feature.get(3));
+	} catch (Exception ex) {
+	    throw new MaryConfigurationException("Cannot add feature definition", ex);
+	}
     }
 }

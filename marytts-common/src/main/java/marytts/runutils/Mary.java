@@ -27,7 +27,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -41,7 +40,15 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import marytts.Version;
+// Reflection
+import org.reflections.Reflections;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+
+// Configuration
+import marytts.config.MaryConfigLoader;
+
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.MaryModule;
@@ -50,9 +57,6 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
-
-import marytts.config.MaryProperties;
-
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,64 +88,39 @@ public class Mary {
      * @see #STATE_RUNNING
      * @see #STATE_SHUTTING_DOWN
      */
-    public static int currentState() {
+    public synchronized static int getCurrentState() {
         return currentState;
     }
 
-    /**
-     * Add jars to classpath. Normally this is called from startup().
-     *
-     * @throws Exception
-     *             Exception
-     */
-    protected static void addJarsToClasspath() throws Exception {
-        if (true) {
-            return;
-        }
-        // TODO: clean this up when the new modularity mechanism is in place
-        if (jarsAdded) {
-            return;    // have done this already
-        }
-        File jarDir = new File(MaryProperties.maryBase() + "/java");
-        File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
-        assert jarFiles != null;
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-        method.setAccessible(true);
-        for (int i = 0; i < jarFiles.length; i++) {
-            URL jarURL = new URL("file:" + jarFiles[i].getPath());
-            method.invoke(sysloader, new Object[] {jarURL});
-        }
-        jarsAdded = true;
-    }
 
-    private static void startModules() throws ClassNotFoundException, InstantiationException,
+    private synchronized static void startModules() throws ClassNotFoundException, InstantiationException,
         Exception {
 
-        // Instantiate availabe modules
-        for (String moduleClassName : MaryProperties.moduleInitInfo()) {
-            MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
-            ModuleRegistry.registerModule(m, m.getLocale());
+	// Load configurations
+	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
+	    mc.load();
+	}
+
+	// Instantiate available modules
+	Reflections reflections = new Reflections("marytts");
+        for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
+	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
+		MaryModule m = ModuleRegistry.instantiateModule(moduleClass.getName());
+		ModuleRegistry.registerModule(m);
+	    }
         }
 
+	// Start the modules
         List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
-
-        // Separate loop for startup allows modules to cross-reference to each
-        // other via Mary.getModule(Class) even if some have not yet been
-        // started.
         for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
             // Only start the modules here if in server mode:
-            if ((!MaryProperties.getProperty("server").equals("commandline"))
-                    && m.getState() == MaryModule.MODULE_OFFLINE) {
+            if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 long before = System.currentTimeMillis();
                 try {
                     m.startup();
+		    m.checkStartup();
                 } catch (Throwable t) {
-                    throw new Exception("Problem starting module " + m.name(), t);
+                    throw new Exception("Problem starting module " + m.getClass().getName(), t);
                 }
                 long after = System.currentTimeMillis();
                 startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
@@ -156,26 +135,9 @@ public class Mary {
             });
             logger.debug("Startup times:");
             for (Pair<MaryModule, Long> p : startupTimes) {
-                logger.debug(p.getFirst().name() + ": " + p.getSecond() + " ms");
+                logger.debug(p.getFirst().getClass().getName() + ": " + p.getSecond() + " ms");
             }
         }
-    }
-
-    /**
-     * Start the MARY system and all modules. This method must be called once
-     * before any calls to
-     * {@link #process(String configuration, String input_data, OutputStream output)}
-     * are possible. The method will dynamically extend the classpath to all jar
-     * files in MARY_BASE/java/*.jar. Use <code>startup(false)</code> if you do
-     * not want to automatically extend the classpath in this way.
-     *
-     * @throws IllegalStateException
-     *             if the system is not offline.
-     * @throws Exception
-     *             Exception
-     */
-    public static void startup() throws Exception {
-        startup(true);
     }
 
     /**
@@ -184,62 +146,22 @@ public class Mary {
      * {@link #process(String configuration, String input_data, OutputStream output)}
      * are possible.
      *
-     * @param addJarsToClasspath
-     *            if true, the method will dynamically extend the classpath to
-     *            all jar files in MARY_BASE/java/*.jar; if false, the classpath
-     *            will remain unchanged.
      * @throws IllegalStateException
      *             if the system is not offline.
      * @throws Exception
      *             Exception
      */
-    public static void startup(boolean addJarsToClasspath) throws Exception {
+    public synchronized static void startup() throws Exception {
         if (currentState != STATE_OFF) {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
         currentState = STATE_STARTING;
-
-        if (addJarsToClasspath) {
-            addJarsToClasspath();
-        }
-
         logger.info("Mary starting up...");
-        logger.info("Specification version " + Version.specificationVersion());
-        logger.info("Implementation version " + Version.implementationVersion());
-        logger.info("Running on a Java " + System.getProperty("java.version") + " implementation by "
-                    + System.getProperty("java.vendor") + ", on a " + System.getProperty("os.name") + " platform ("
-                    + System.getProperty("os.arch") + ", " + System.getProperty("os.version") + ")");
-        logger.debug("MARY_BASE: " + MaryProperties.maryBase());
-        String[] installedFilenames = new File(MaryProperties.maryBase() + "/installed").list();
-        if (installedFilenames == null) {
-            logger.debug("The installed/ folder does not exist.");
-        } else {
-            StringBuilder installedMsg = new StringBuilder();
-            for (String filename : installedFilenames) {
-                if (installedMsg.length() > 0) {
-                    installedMsg.append(", ");
-                }
-                installedMsg.append(filename);
-            }
-            logger.debug("Content of installed/ folder: " + installedMsg);
-        }
-        String[] confFilenames = new File(MaryProperties.maryBase() + "/conf").list();
-        if (confFilenames == null) {
-            logger.debug("The conf/ folder does not exist.");
-        } else {
-            StringBuilder confMsg = new StringBuilder();
-            for (String filename : confFilenames) {
-                if (confMsg.length() > 0) {
-                    confMsg.append(", ");
-                }
-                confMsg.append(filename);
-            }
-            logger.debug("Content of conf/ folder: " + confMsg);
-        }
-        logger.debug("Full dump of system properties:");
-        for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
-            logger.debug(key + " = " + System.getProperties().get(key));
-        }
+        logger.info("Running on a Java " + System.getProperty("java.version") +
+		    " implementation by "  + System.getProperty("java.vendor") +
+		    ", on a " + System.getProperty("os.name") +
+		    " platform ("  + System.getProperty("os.arch") + ", " +
+		    System.getProperty("os.version") + ")");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -247,6 +169,7 @@ public class Mary {
             }
         });
 
+	//
         // Instantiate module classes and startup modules:
         startModules();
 

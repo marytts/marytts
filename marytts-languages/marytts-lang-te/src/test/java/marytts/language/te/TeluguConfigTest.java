@@ -22,7 +22,7 @@ package marytts.language.te;
 import java.util.Locale;
 
 import marytts.config.LanguageConfig;
-import marytts.config.MaryConfig;
+import marytts.config.MaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
 import org.testng.Assert;

@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -18,9 +20,9 @@ import marytts.features.FeatureProcessor;
  *         Maguer</a>
  */
 public class NbFromPhraseStart implements FeatureProcessor {
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Phrase) {
-            throw new Exception();
+            throw new MaryException("The item is not a phrase");
         }
 
         Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
@@ -39,7 +41,7 @@ public class NbFromPhraseStart implements FeatureProcessor {
             return Feature.UNDEF_FEATURE;
         }
 
-        int nb = item_idx - item_indexes[0];
+        int nb = item_idx - item_indexes[0] + 1;
         return new Feature(nb);
     }
 }

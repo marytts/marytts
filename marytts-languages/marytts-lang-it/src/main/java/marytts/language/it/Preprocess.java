@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.Locale;
 
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
 
@@ -41,7 +42,9 @@ import org.apache.logging.log4j.core.Appender;
 public class Preprocess extends MaryModule {
 
     public Preprocess() {
-        super("Preprocess", Locale.ITALIAN);
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**
@@ -54,7 +57,7 @@ public class Preprocess extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
         return utt;
     }
 }

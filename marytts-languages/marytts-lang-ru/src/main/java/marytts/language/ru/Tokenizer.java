@@ -21,6 +21,8 @@ package marytts.language.ru;
 
 import java.util.Locale;
 
+import marytts.exceptions.MaryConfigurationException;
+
 /**
  *
  * @author Marc Schr&ouml;der
@@ -30,8 +32,8 @@ public class Tokenizer extends marytts.modules.nlp.JTokenizer {
     /**
      *
      */
-    public Tokenizer() {
-        super(new Locale("ru"));
+    public Tokenizer() throws MaryConfigurationException {
+        super();
         setTokenizerLanguage("en");
     }
 }

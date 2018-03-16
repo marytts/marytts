@@ -19,6 +19,7 @@
  */
 package marytts.modules.nlp;
 
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,12 +34,12 @@ import java.util.StringTokenizer;
 import marytts.modules.MaryModule;
 
 import marytts.data.Utterance;
-import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
+import marytts.exceptions.MaryConfigurationException;
 
 import marytts.data.Utterance;
 import marytts.data.Sequence;
@@ -59,7 +60,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author Marc Schr&ouml;der
  */
 
-public class OpenNLPPosTagger extends MaryModule {
+public abstract class OpenNLPPosTagger extends MaryModule {
     private String propertyPrefix;
     private POSTaggerME tagger;
     private Map<String, String> posMapper = null;
@@ -75,40 +76,43 @@ public class OpenNLPPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public OpenNLPPosTagger(String locale, String propertyPrefix) throws Exception {
-        super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
-        if (!propertyPrefix.endsWith(".")) {
-            propertyPrefix = propertyPrefix + ".";
-        }
-        this.propertyPrefix = propertyPrefix;
+    protected OpenNLPPosTagger() throws Exception {
+        super("part-of-speech");
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
+	getDefaultConfiguration().applyConfiguration(this);
         super.startup();
+    }
 
-        InputStream modelStream = MaryProperties.needStream(propertyPrefix + "model");
-        InputStream posMapperStream = MaryProperties.getStream(propertyPrefix + "posMap");
+    public void checkStartup() throws MaryConfigurationException {
+	if (tagger == null)
+	    throw new MaryConfigurationException("The tagger is null and should not be");
 
-        tagger = new POSTaggerME(new POSModel(modelStream));
-        modelStream.close();
-        if (posMapperStream != null) {
-            posMapper = new HashMap<String, String>();
-            BufferedReader br = new BufferedReader(new InputStreamReader(posMapperStream, "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                // skip comments and empty lines
-                if (line.startsWith("#") || line.trim().equals("")) {
-                    continue;
-                }
-                // Entry format: POS GPOS, i.e. two space-separated entries per
-                // line
-                StringTokenizer st = new StringTokenizer(line);
-                String pos = st.nextToken();
-                String gpos = st.nextToken();
-                posMapper.put(pos, gpos);
-            }
-            posMapperStream.close();
-        }
+    }
+
+    public void setModel(InputStream model_stream) throws IOException {
+        tagger = new POSTaggerME(new POSModel(model_stream));
+        model_stream.close();
+    }
+
+    public void setPosmap(InputStream pos_map_stream) throws IOException {
+	posMapper = new HashMap<String, String>();
+	BufferedReader br = new BufferedReader(new InputStreamReader(pos_map_stream, "UTF-8"));
+	String line;
+	while ((line = br.readLine()) != null) {
+	    // skip comments and empty lines
+	    if (line.startsWith("#") || line.trim().equals("")) {
+		continue;
+	    }
+	    // Entry format: POS GPOS, i.e. two space-separated entries per
+	    // line
+	    StringTokenizer st = new StringTokenizer(line);
+	    String pos = st.nextToken();
+	    String gpos = st.nextToken();
+	    posMapper.put(pos, gpos);
+	}
+	pos_map_stream.close();
     }
 
 
@@ -126,7 +130,7 @@ public class OpenNLPPosTagger extends MaryModule {
     }
 
     @SuppressWarnings("unchecked")
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();

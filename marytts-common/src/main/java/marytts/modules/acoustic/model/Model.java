@@ -105,13 +105,14 @@ public abstract class Model {
      */
     protected abstract void loadData() throws IOException, MaryConfigurationException;
 
+    // FIXME
     protected final void setupFeatureComputer() throws Exception
         // MaryConfigurationException, ClassNotFoundException,
         // InstantiationException, IllegalAccessException
     {
         try {
-            FeatureComputer.initDefault();
-            featureComputer = FeatureComputer.the_feature_computer;
+            // FeatureComputer.initDefault();
+            // featureComputer = FeatureComputer.the_feature_computer;
         } catch (IllegalArgumentException iae) {
         }
     }

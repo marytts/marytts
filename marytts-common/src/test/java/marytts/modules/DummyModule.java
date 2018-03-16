@@ -21,9 +21,10 @@ package marytts.modules;
 
 import java.util.Locale;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.MaryException;
+import marytts.exceptions.MaryConfigurationException;
 
 import org.apache.logging.log4j.core.Appender;
 
@@ -35,17 +36,14 @@ import org.apache.logging.log4j.core.Appender;
 
 public class DummyModule extends MaryModule {
     public DummyModule() {
-        super("Dummy");
-    }
-    public String name() {
-        return "Dummy";
+        super("dummy");
     }
 
-    public Locale getLocale() {
-        return null;
+    public void setDescription() {
+	this.description = "this module is totally useless!";
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
     }
 
     public void shutdown() {
@@ -55,6 +53,10 @@ public class DummyModule extends MaryModule {
         return MODULE_OFFLINE;
     }
 
+
+    public void checkStartup() throws MaryConfigurationException {
+
+    }
 
     /**
      *  Check if the input contains all the information needed to be
@@ -67,7 +69,7 @@ public class DummyModule extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
         return utt;
     }
 

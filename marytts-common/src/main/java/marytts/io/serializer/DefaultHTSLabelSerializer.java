@@ -16,6 +16,12 @@ import marytts.data.SupportedSequenceType;
 import marytts.io.MaryIOException;
 import java.io.File;
 
+/* Alphabet part */
+import marytts.phonetic.converter.Alphabet;
+import marytts.phonetic.AlphabetFactory;
+
+import marytts.MaryException;
+
 /**
  * This serializer is aimed to generate HTS compatible labels as Festival would
  * do.
@@ -24,19 +30,27 @@ import java.io.File;
  *         Maguer</a>
  */
 public class DefaultHTSLabelSerializer implements Serializer {
-    /** The phoneme alphabet conversion map */
-    protected Hashtable<String, String> alphabet_converter;
 
-
-    /** The undefined value constant */
-    public static final String UNDEF = "xx";
+    /** The default undefined value constant */
+    private static final String DEFAULT_UNDEF = "xx";
+    protected String undef_symbol;
+    protected Alphabet ipa2arp;
 
     /**
      * Constructor
      *
      */
-    public DefaultHTSLabelSerializer() {
-        initPhConverter();
+    public DefaultHTSLabelSerializer() throws MaryException {
+        setUndefSymbol(DEFAULT_UNDEF);
+	ipa2arp = AlphabetFactory.getAlphabet("arpabet");
+    }
+
+    public String getUndefSymbol() {
+        return undef_symbol;
+    }
+
+    public void setUndefSymbol(String undef_symbol) {
+        this.undef_symbol = undef_symbol;
     }
 
     /**
@@ -54,14 +68,18 @@ public class DefaultHTSLabelSerializer implements Serializer {
                                       null);
         }
         Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
-                                                SupportedSequenceType.FEATURES);
-        String output = "";
-        for (FeatureMap map : seq_features) {
-            output += format(map);
-            output += "\n";
-        }
+										   SupportedSequenceType.FEATURES);
+	try {
+	    String output = "";
+	    for (FeatureMap map : seq_features) {
+		output += format(map);
+		output += "\n";
+	    }
 
-        return output;
+	    return output;
+	} catch (MaryException ex) {
+	    throw new MaryIOException("Couldn't format the label", ex);
+	}
     }
 
     /**
@@ -77,68 +95,10 @@ public class DefaultHTSLabelSerializer implements Serializer {
         throw new UnsupportedOperationException();
     }
 
+
     /************************************************************************************************
      * Conversion helpers
      ************************************************************************************************/
-    /**
-     * Method to generate the mapping between phonemes
-     *
-     */
-    protected void initPhConverter() {
-        alphabet_converter = new Hashtable<String, String>();
-
-        // Vowels
-        alphabet_converter.put("A", "aa");
-        alphabet_converter.put("AI", "ay");
-        alphabet_converter.put("E", "eh");
-        alphabet_converter.put("EI", "ey");
-        alphabet_converter.put("I", "ih");
-        alphabet_converter.put("O", "ao");
-        alphabet_converter.put("OI", "oy");
-        alphabet_converter.put("U", "uh");
-        alphabet_converter.put("aU", "aw");
-        alphabet_converter.put("i", "iy");
-        alphabet_converter.put("u", "uw");
-        alphabet_converter.put("@", "ax");
-        alphabet_converter.put("@U", "ow");
-        alphabet_converter.put("V", "ah");
-        alphabet_converter.put("{", "ae");
-
-        alphabet_converter.put("j", "y");
-
-        alphabet_converter.put("D", "dh");
-        alphabet_converter.put("N", "ng");
-        alphabet_converter.put("S", "sh");
-        alphabet_converter.put("T", "th");
-        alphabet_converter.put("Z", "zh");
-        alphabet_converter.put("b", "b");
-        alphabet_converter.put("d", "d");
-        alphabet_converter.put("dZ", "jh"); // FIXME: what it is ?
-        alphabet_converter.put("f", "f");
-        alphabet_converter.put("g", "g");
-        alphabet_converter.put("h", "hh");
-        alphabet_converter.put("k", "k");
-        alphabet_converter.put("l", "l");
-        alphabet_converter.put("m", "m");
-        alphabet_converter.put("n", "n");
-        alphabet_converter.put("p", "p");
-        alphabet_converter.put("r", "r");
-        alphabet_converter.put("r=", "r"); // FIXME: sure ?
-        alphabet_converter.put("s", "s");
-        alphabet_converter.put("t", "t");
-        alphabet_converter.put("tS", "ch");
-        alphabet_converter.put("v", "v");
-        alphabet_converter.put("w", "w");
-        alphabet_converter.put("z", "z");
-
-        alphabet_converter.put("_", "pau");
-
-        alphabet_converter.put("2", "eu");
-        alphabet_converter.put("4", "dx");
-        alphabet_converter.put("6", "er");
-        alphabet_converter.put("9", "oe");
-        alphabet_converter.put("?", "dt");
-    }
 
     /**
      * Method to convert the phoneme label to be compatible with HTS
@@ -147,13 +107,17 @@ public class DefaultHTSLabelSerializer implements Serializer {
      *            the phoneme to convert
      * @return the converted phoneme
      */
-    protected String convertPh(String ph) {
-        String fest_ph = alphabet_converter.get(ph);
-        if (fest_ph != null) {
-            return fest_ph;
-        }
+    protected String convertPh(String ph) throws MaryException {
 
-        return ph;
+	if ((ph == null) || (ph.isEmpty()))
+	    return getUndefSymbol();
+	if (ph.equals(getUndefSymbol()))
+	    return getUndefSymbol();
+
+	if (ph.equals("sil") || ph.equals("_"))
+	    return "pau";
+
+        return ipa2arp.getLabelFromIPA(ph).toLowerCase();
     }
 
     /**
@@ -184,11 +148,11 @@ public class DefaultHTSLabelSerializer implements Serializer {
     protected final String getValue(FeatureMap feature_map, String feature_name) {
 
         if (! feature_map.containsKey(feature_name)) {
-            System.out.println("feature \"" + feature_name + "\" is not defined");
-            return UNDEF;
+            //FIXME log: System.out.println("feature \"" + feature_name + "\" is not defined");
+            return getUndefSymbol();
         }
         if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE) {
-            return UNDEF;
+            return getUndefSymbol();
         }
 
         String feat = feature_map.get(feature_name).getStringValue();
@@ -210,7 +174,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
      *            the feature map
      * @return the corresponding HTS label
      */
-    protected String format(FeatureMap feature_map) {
+    protected String format(FeatureMap feature_map) throws MaryException {
         // Check if current phone is nss ?
         boolean is_nss = isNSS(feature_map);
 
@@ -230,30 +194,36 @@ public class DefaultHTSLabelSerializer implements Serializer {
             cur_lab += String.format(format,
 
                                      // Previous
-                                     UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
+				     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
+				     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
+				     getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol());
         } else {
 
             cur_lab += String.format(format,
 
                                      // Previous
-                                     getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+                                     getValue(feature_map, "prev_syl_accent"), getValue(feature_map, "prev_syl_stress"), getValue(feature_map, "prev_syl_num_phones"),
 
                                      // Current
-                                     getValue(feature_map, "prev_syl_accent"), UNDEF, getValue(feature_map, "prev_syl_numph"),
+                                     getValue(feature_map, "syl_accent"), getValue(feature_map, "syl_stress"), getValue(feature_map, "syl_num_phones"),
 
                                      getValue(feature_map, "syls_from_word_start"), getValue(feature_map, "syls_from_word_end"),
                                      getValue(feature_map, "syls_from_phrase_start"), getValue(feature_map, "syls_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "nb_stress_syls_from_phrase_start"), getValue(feature_map, "nb_stress_syls_to_phrase_end"),
+                                     getValue(feature_map, "nb_accent_syls_from_phrase_start"), getValue(feature_map, "nb_accent_syls_to_phrase_end"),
+				     getUndefSymbol(), getUndefSymbol(),
+				     getUndefSymbol(), getUndefSymbol(),
+				     convertPh(getValue(feature_map, "syl_vowel")),
 
                                      // Next
-                                     getValue(feature_map, "next_syl_accent"), UNDEF, getValue(feature_map, "next_syl_numph"));
+                                     getValue(feature_map, "next_syl_accent"), getValue(feature_map, "next_syl_stress"), getValue(feature_map, "next_syl_num_phones"));
         }
 
         // Word format
@@ -261,25 +231,26 @@ public class DefaultHTSLabelSerializer implements Serializer {
         if (is_nss) {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol());
         } else {
             cur_lab += String.format(format,
                                      // Previous
-                                     getValue(feature_map, "prev_word_pos"), getValue(feature_map, "prev_word_numsyls"),
+                                     getValue(feature_map, "prev_word_pos_festival"), getValue(feature_map, "prev_word_num_syls"),
 
                                      // Current
-                                     getValue(feature_map, "word_pos"), getValue(feature_map, "word_numsyls"),
+                                     getValue(feature_map, "word_pos_festival"), getValue(feature_map, "word_num_syls"),
                                      getValue(feature_map, "words_from_phrase_start"), getValue(feature_map, "words_from_phrase_end"),
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getValue(feature_map, "nb_content_words_from_phrase_start"), getValue(feature_map, "nb_content_words_to_phrase_end"),
+                                     getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     getValue(feature_map, "next_word_pos"), getValue(feature_map, "next_word_numsyls"));
+                                     getValue(feature_map, "next_word_pos_festival"), getValue(feature_map, "next_word_num_syls"));
         }
 
         // Phrase format
@@ -287,31 +258,31 @@ public class DefaultHTSLabelSerializer implements Serializer {
         if (is_nss) {
             cur_lab += String.format(format,
                                      // Previous
-                                     UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(),
 
                                      // Current
-                                     UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF,
+                                     getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(), getUndefSymbol(),
 
                                      // Next
-                                     UNDEF, UNDEF);
+                                     getUndefSymbol(), getUndefSymbol());
         } else {
             cur_lab += String.format(format,
                                      // Previous
-                                     getValue(feature_map, "prev_phrase_numsyls"), getValue(feature_map, "prev_phrase_numwords"),
+                                     getValue(feature_map, "prev_phrase_num_syls"), getValue(feature_map, "prev_phrase_num_words"),
 
                                      // Current
-                                     getValue(feature_map, "phrase_numsyls"), getValue(feature_map, "phrase_numwords"),
+                                     getValue(feature_map, "phrase_num_syls"), getValue(feature_map, "phrase_num_words"),
                                      getValue(feature_map, "phrases_from_sentence_start"),
-                                     getValue(feature_map, "phrases_from_sentence_end"), UNDEF,
+                                     getValue(feature_map, "phrases_from_sentence_end"), getUndefSymbol(),
 
                                      // Next
-                                     getValue(feature_map, "next_phrase_numsyls"), getValue(feature_map, "next_phrase_numwords"));
+                                     getValue(feature_map, "next_phrase_num_syls"), getValue(feature_map, "next_phrase_num_words"));
         }
 
         // Utterance format
         format = "/J:%s+%s-%s";
-        cur_lab += String.format(format, getValue(feature_map, "sentence_numsyllables"),
-                                 getValue(feature_map, "sentence_numwords"), getValue(feature_map, "sentence_numphrases"));
+        cur_lab += String.format(format, getValue(feature_map, "sentence_num_syls"),
+                                 getValue(feature_map, "sentence_num_words"), getValue(feature_map, "sentence_num_phrases"));
 
         return cur_lab;
     }

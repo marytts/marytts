@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -19,7 +21,7 @@ import marytts.features.FeatureProcessor;
  */
 public class NbAccentToPhraseEnd implements FeatureProcessor {
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Syllable) {
 
             Sequence<Syllable> seq_item = (Sequence<Syllable>) item.getSequence();
@@ -39,7 +41,7 @@ public class NbAccentToPhraseEnd implements FeatureProcessor {
             }
 
             int nb = 0;
-            for (int i = item_idx; i < item_indexes[item_indexes.length - 1]; i++) {
+            for (int i = item_idx + 1; i < item_indexes[item_indexes.length - 1]; i++) {
                 Syllable cur_item = seq_item.get(i);
                 if (cur_item.getAccent() != null) {
                     nb++;
@@ -49,6 +51,6 @@ public class NbAccentToPhraseEnd implements FeatureProcessor {
             return new Feature(nb);
         }
 
-        throw new Exception();
+        throw new MaryException("The item is not a syllable");
     }
 }

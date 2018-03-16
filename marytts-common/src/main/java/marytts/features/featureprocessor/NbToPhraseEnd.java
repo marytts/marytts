@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
@@ -19,7 +21,7 @@ import marytts.features.FeatureProcessor;
  */
 public class NbToPhraseEnd implements FeatureProcessor {
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (!(item instanceof Phrase)) {
 
             Sequence<? extends Item> seq_item = item.getSequence();
@@ -43,6 +45,6 @@ public class NbToPhraseEnd implements FeatureProcessor {
             return new Feature(nb);
         }
 
-        throw new Exception();
+        throw new MaryException("The item is not a phrase");
     }
 }

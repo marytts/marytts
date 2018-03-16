@@ -1,5 +1,7 @@
 package marytts.features.featureprocessor;
 
+import marytts.MaryException;
+
 import java.util.Hashtable;
 
 import marytts.data.Utterance;
@@ -26,9 +28,9 @@ public class NbPhrasesRelated implements FeatureProcessor {
         cache = new Hashtable<Item, Feature>();
     }
 
-    public Feature generate(Utterance utt, Item item) throws Exception {
+    public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Phrase) {
-            throw new Exception();
+            throw new MaryException("The item is not a phrase");
         }
 
         if (cache.containsKey(item)) {

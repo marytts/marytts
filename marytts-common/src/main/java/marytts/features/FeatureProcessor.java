@@ -1,5 +1,7 @@
 package marytts.features;
 
+import marytts.MaryException;
+
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 
@@ -21,5 +23,5 @@ public interface FeatureProcessor {
      * @throws Exception
      *             if something is going wrong
      */
-    public Feature generate(Utterance utt, Item item) throws Exception;
+    public Feature generate(Utterance utt, Item item) throws MaryException;
 }

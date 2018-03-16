@@ -22,13 +22,12 @@ package marytts.runutils;
 import java.lang.reflect.Constructor;
 import java.io.StringReader;
 import java.util.Properties;
-import marytts.config.MaryProperties;
 import java.util.ArrayList;
 import java.util.Arrays;
 import marytts.io.MaryIOException;
 import marytts.MaryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,6 +46,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import marytts.exceptions.MaryConfigurationException;
+import marytts.config.MaryConfiguration;
 import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
 import marytts.modules.MaryModule;
@@ -57,10 +58,19 @@ import marytts.util.io.FileUtils;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
+import org.apache.logging.log4j.core.appender.OutputStreamAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
+
 
 import marytts.data.Utterance;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A request consists of input data, a desired output data type and the means to
@@ -76,126 +86,194 @@ import marytts.data.Utterance;
  * (<code>writeOutputData</code>).
  */
 public class Request {
-    protected String configuration;
-    protected String input_data;
+    private static final AtomicInteger counter = new AtomicInteger();
 
-    protected String outputTypeParams;
-    protected Locale defaultLocale;
 
     protected int id;
     protected Logger logger;
-    protected Utterance inputData;
-    protected Utterance outputData;
-    protected Serializer output_serializer;
-    protected boolean abortRequested = false;
-    protected Appender appender;
 
-    // Keep track of timing info for each module
-    // (map MaryModule onto Long)
+
+    protected String input_data;
+    protected MaryConfiguration configuration;
+    protected Serializer input_serializer = null;
+
+
+    protected List<MaryModule> module_sequence = null;
+
+    protected String outputTypeParams;
+    protected Utterance outputData;
+    protected Serializer output_serializer = null;
+
+
+    protected boolean abortRequested = false;
+
+
+    protected Appender appender;
+    protected ByteArrayOutputStream baos_logger = new ByteArrayOutputStream();
+
+    // Keep track of timing info for each module (map MaryModule onto Long)
     protected Map<MaryModule, Long> timingInfo;
 
-    public Request(Appender app, String configuration, String input_data) {
+
+    /**
+     *  Constructor.
+     *
+     *  A request is composed by a configuration and an input data
+     *
+     *  @param configuration the configuration object
+     *  @param input_data the input data in a string format (the serializer is going to take care of it late)
+     *  @throws MaryConfigurationException if anything is going wrong
+     */
+    public Request(MaryConfiguration configuration, String input_data) throws MaryConfigurationException
+    {
+	id = counter.getAndIncrement();
+
+	// Deal with logger
         this.logger = LogManager.getLogger("R " + id);
-        this.appender = app;
 
-        if (app != null) {
-            ((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
-        }
-
-        this.configuration = configuration;
+	//
+	this.module_sequence = new ArrayList<MaryModule>();
         this.input_data = input_data;
+
+	// Set the configuration
+	this.configuration = configuration;
+	this.configuration.applyConfiguration(this);
 
         timingInfo = new HashMap<MaryModule, Long>();
     }
 
-    public void process() throws Exception {
 
-        assert Mary.currentState() == Mary.STATE_RUNNING;
+    /**
+     *  Set the request logger level
+     *
+     *  @param level the level in String
+     *  @throws Exception if anything is going wrong
+     */
+    public void setLoggerLevel(String level) throws Exception {
+	Level current_level;
+	if (level.equals("ERROR"))
+	    current_level = Level.ERROR;
+	else if (level.equals("WARN"))
+	    current_level = Level.WARN;
+	else if (level.equals("INFO"))
+	    current_level = Level.INFO;
+	else if (level.equals("DEBUG"))
+	    current_level = Level.DEBUG;
+	else
+	    throw new Exception("\"" + level + "\" is an unknown level");
 
-        // Parser configuration
-        final Properties configuration_properties = new Properties();
-        configuration_properties.load(new StringReader(this.configuration));
 
-        // Input serializer reflection
-        Class<?> clazz;
-        Constructor<?> ctor;
-        Serializer input_serializer = null;
-        try {
-            clazz = Class.forName(configuration_properties.get("input_serializer").toString());
-            ctor = clazz.getConstructor();
-            input_serializer = (Serializer) ctor.newInstance(new Object[] {});
-        } catch (ClassNotFoundException ex) {
-        }
-        if (input_serializer == null) {
-            throw new MaryException("input serializer class \"" +
-                                    configuration_properties.get("input_serializer") + "\" doesn't exist");
-        }
+	// Logging configuration
+	baos_logger = new ByteArrayOutputStream();
+        ThresholdFilter threshold_filter = ThresholdFilter.createFilter(current_level, null, null);
+        LoggerContext context = LoggerContext.getContext(false);
+        Configuration config = context.getConfiguration();
+        PatternLayout layout = PatternLayout.createDefaultLayout(config);
+	this.appender = OutputStreamAppender.createAppender(layout, threshold_filter, baos_logger,
+							    "client " + (new Integer(id)).toString(),
+							    false, true);
+        this.appender.start();
+	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(this.appender);
+    }
 
-        // Input serializer reflection
-        output_serializer = null;
-        try {
-            clazz = Class.forName(configuration_properties.get("output_serializer").toString());
-            ctor = clazz.getConstructor();
-            this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
-        } catch (ClassNotFoundException ex) {
-        }
-        if (output_serializer == null) {
-            throw new MaryException("output serializer class \"" +
-                                    configuration_properties.get("output_serializer") + "\" doesn't exist");
-        }
 
-        // Locale reflection (FIXME: Check if locale is correct)
-        Locale cur_locale = MaryUtils.string2locale(configuration_properties.get("locale").toString());
+    /**
+     *  Define the output serializer knowing the class name
+     *
+     *  @param output_serializer_classname the output serializer class name
+     *  @throws Exception if anything is going wrong
+     */
+    public void setOutputSerializer(String output_serializer_classname) throws Exception {
+        Class<?> clazz = Class.forName(output_serializer_classname);
+        Constructor<?> ctor = clazz.getConstructor();
+	this.output_serializer = (Serializer) ctor.newInstance(new Object[] {});
+    }
 
-        // Module sequence reflexion (FIXME: check if module is existing !)
-        List<MaryModule> usedModules = new ArrayList<MaryModule>();
-        String module_names = (String) configuration_properties.get("modules");
-        if (module_names != null) {
-            List<String> module_name_list = Arrays.asList(StringUtils.split(module_names));
 
-            for (String module_class_name : module_name_list) {
-                logger.debug("trying to load the following class " + module_class_name + " for locale " +
-                             cur_locale);
+    /**
+     *  Define the input serializer knowing the class name
+     *
+     *  @param output_serializer_classname the output serializer class name
+     *  @throws Exception if anything is going wrong
+     */
+    public void setInputSerializer(String input_serializer_classname) throws Exception {
+        Class<?> clazz = Class.forName(input_serializer_classname);
+        Constructor<?> ctor = clazz.getConstructor();
+	this.input_serializer = (Serializer) ctor.newInstance(new Object[] {});
+    }
 
-                MaryModule cur_module = null;
-                cur_module = ModuleRegistry.getModule(Class.forName(module_class_name), cur_locale);
-                if (cur_module == null) {
-                    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
-                }
 
-                if (cur_module == null) {
-                    throw new MaryException("Cannot load module \"" + module_class_name +
-                                            "\" as it is not existing");
-                }
+    /**
+     *  Define module sequence given a list of module names
+     *
+     *  @param list_module_names the list of module names
+     *  @throws Exception if anything is going wrong
+     */
+    public void setModuleSequence(ArrayList<String> list_module_names) throws Exception {
+	// Module sequence reflexion (FIXME: check if module is existing !)
+        module_sequence = new ArrayList<MaryModule>();
+	for (String module_class_name : list_module_names) {
+	    logger.debug("trying to load the following class " + module_class_name);
 
-                usedModules.add(cur_module);
-            }
-        }
+	    MaryModule cur_module = null;
+	    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
+	    if (cur_module == null) {
+		throw new MaryException("Cannot load module \"" + module_class_name +
+					"\" as it is not existing");
+	    }
 
-        // Define the data
+	    module_sequence.add(cur_module);
+	}
+    }
+
+    /**
+     *  Get the logger output stream
+     *
+     *  @return the logger output stream
+     */
+    public ByteArrayOutputStream getBaosLogger() {
+	return baos_logger;
+    }
+
+
+    /**
+     *  Method to achieve the request (synthesis or generation)
+     *
+     *  @throws MaryException if something is going wrong during the process
+     */
+    public void process() throws MaryException {
+
+	// Assert that everything is ready to run
+        assert Mary.getCurrentState() == Mary.STATE_RUNNING;
+	assert input_serializer != null;
+	assert output_serializer != null;
+
+        // Load the input data
+        this.configuration.applyConfiguration(input_serializer);
         Utterance input_mary_data = input_serializer.load(this.input_data);
-
-        // Start to achieve the process
-        long startTime = System.currentTimeMillis();
-
-        logger.info("Handling request using the following modules:");
-        for (MaryModule m : usedModules) {
-            logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
-        }
         outputData = input_mary_data;
-        for (MaryModule m : usedModules) {
-            if (abortRequested) {
-                break;
-            }
 
-            logger.info("Next module: " + m.name());
+        // Information about what is the module sequence
+	long startTime = System.currentTimeMillis();
+	if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+	    logger.info("Handling request using the following modules:");
+	    for (MaryModule m : module_sequence) {
+		logger.info("- " + m.getClass().getName());
+	    }
+	}
+
+	// Achieve the process
+        for (MaryModule m : module_sequence) {
+
+	    // Abort => exit the loop
+            if (abortRequested)
+                break;
 
             // Start module if needed
-            logger.debug("Starting the module");
+            logger.info("Starting the module " + m.getClass().getName());
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
-                assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
-                logger.info("Starting module " + m.name());
+		logger.info("Starting module " + m.getClass().getName());
                 m.startup();
                 assert m.getState() == MaryModule.MODULE_RUNNING;
             }
@@ -207,75 +285,68 @@ public class Request {
             // Process the module
             Utterance outData = null;
             try {
-                outData = m.process(outputData); // FIXME: what about the configuration and the logger
+		if (this.appender != null)
+		    outData = m.process(outputData, this.configuration, this.appender);
+		else
+		    outData = m.process(outputData, this.configuration);
             } catch (Exception e) {
-                throw new MaryException("Module " + m.name() + ": Problem processing the data.", e);
+                throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }
 
-            if (outData == null) {
-                throw new NullPointerException("Module " + m.name() + " returned null. This should not happen.");
-            }
-
+	    // Assess that the output data is correct
+            if (outData == null)
+                throw new NullPointerException("Module " + m.getClass().getName() +
+					       " returned null. This should not happen.");
             outputData = outData;
 
-            long moduleStopTime = System.currentTimeMillis();
-            long delta = moduleStopTime - moduleStartTime;
-            Long soFar = timingInfo.get(m);
-            if (soFar != null) {
-                timingInfo.put(m, new Long(soFar.longValue() + delta));
-            } else {
-                timingInfo.put(m, new Long(delta));
-            }
+	    // If some info are requested => compute some log
+	    if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+		long moduleStopTime = System.currentTimeMillis();
+		long delta = moduleStopTime - moduleStartTime;
+		Long soFar = timingInfo.get(m);
 
-            if (MaryRuntimeUtils.veryLowMemoryCondition()) {
-                logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory()
+		if (soFar != null) {
+		    timingInfo.put(m, new Long(soFar.longValue() + delta));
+		} else {
+		    timingInfo.put(m, new Long(delta));
+		}
+	    }
+
+	    // FIXME: fix memory part
+            if (MemoryUtils.veryLowMemoryCondition()) {
+                logger.warn("Very low memory condition detected (only " + MemoryUtils.availableMemory()
                             + " bytes left). Triggering garbage collection.");
                 Runtime.getRuntime().gc();
-                logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
+                logger.warn("After garbage collection: " + MemoryUtils.availableMemory() + " bytes available.");
             }
         }
 
-        long stopTime = System.currentTimeMillis();
-        logger.info("Request processed in " + (stopTime - startTime) + " ms.");
-        for (MaryModule m : usedModules) {
-            logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
-        }
+
+	if (logger.getLevel().isLessSpecificThan(Level.INFO)) {
+	    long stopTime = System.currentTimeMillis();
+	    logger.info("Request processed in " + (stopTime - startTime) + " ms.");
+	    for (MaryModule m : module_sequence) {
+		logger.info("   " + m.getClass().getName() + " took " + timingInfo.get(m) + " ms");
+	    }
+	}
     }
 
+    /**
+     *  Return the id of the request
+     *
+     *  @return the id of the request
+     */
     public int getId() {
         return id;
     }
 
     /**
      * Inform this request that any further processing does not make sense.
+     *
      */
     public void abort() {
         logger.info("Requesting abort.");
         abortRequested = true;
-    }
-
-    /**
-     * Set the input data directly, in case it is already in the form of a
-     * Utterance object.
-     *
-     * @param input_data
-     *            inputData
-     */
-    public void setInputData(String input_data) {
-        this.input_data = input_data;
-    }
-
-    /**
-     * Read the input data from a Reader.
-     *
-     * @param inputReader
-     *            inputReader
-     * @throws Exception
-     *             Exception
-     */
-    public void readInputData(Reader inputReader) throws Exception {
-        String inputText = FileUtils.getReaderAsString(inputReader);
-        setInputData(inputText);
     }
 
     /**
@@ -287,7 +358,15 @@ public class Request {
         return outputData;
     }
 
-    public Object serializeFinaleUtterance() throws MaryIOException {
+    /**
+     *  Serialize utterance
+     *
+     *  @return the utterance serialized
+     *  @throws MaryIOException if the serialization is failing
+     *  @throws MaryConfigurationException if the configuration associated to the request is malformed
+     */
+    public Object serializeFinaleUtterance() throws MaryIOException, MaryConfigurationException {
+        this.configuration.applyConfiguration(output_serializer);
         return output_serializer.export(this.outputData);
     }
 }

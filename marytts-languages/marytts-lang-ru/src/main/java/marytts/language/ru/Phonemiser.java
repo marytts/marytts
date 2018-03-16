@@ -31,6 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+
+// Locale
+import java.util.Locale;
+import org.apache.commons.lang.LocaleUtils;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.data.Utterance;
@@ -39,7 +44,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.MaryModule;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 import marytts.util.MaryRuntimeUtils;
 import marytts.MaryException;
 import marytts.data.Utterance;
@@ -55,12 +60,12 @@ import marytts.data.item.phonology.Accent;
 import com.google.common.base.Splitter;
 
 import org.apache.logging.log4j.core.Appender;
+
 /**
  * Russian phonemiser module
  *
  * @author Nickolay V. Shmyrev, Marc Schr&ouml;der, Sathish
  */
-
 public class Phonemiser extends MaryModule {
 
     protected final String SYL_SEP = "-";
@@ -73,41 +78,31 @@ public class Phonemiser extends MaryModule {
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
 
+    protected Locale locale;
     protected AllophoneSet allophoneSet;
 
-    public Phonemiser(String propertyPrefix)
-    throws IOException, ParserConfigurationException, MaryConfigurationException {
-        this("Phonemiser", propertyPrefix + "allophoneset", propertyPrefix + "userdict");
+    public Phonemiser() {
+	super();
+	setLocale(new Locale.Builder().setLanguage("ru").setScript("Cyrl").build());
     }
 
-    /**
-     * Constructor providing the individual filenames of files that are
-     * required.
-     *
-     * @param componentName
-     *            componentName
-     * @param allophonesProperty
-     *            allophonesProperty
-     * @param userdictProperty
-     *            userdictProperty
-     * @throws IOException
-     *             IOException
-     * @throws ParserConfigurationException
-     *             ParserConfigurationException
-     * @throws MaryConfigurationException
-     *             MaryConfigurationException
-     */
-    public Phonemiser(String componentName, String allophonesProperty, String userdictProperty)
-    throws IOException, ParserConfigurationException, MaryConfigurationException {
-        super(componentName, MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
-        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
-        // userdict is optional
-        // Actually here, the user dict is the only source of information we
-        // have, so it is not optional:
-        String userdictFilename = MaryProperties.needFilename(userdictProperty);
-        if (userdictFilename != null) {
-            userdict = readLexicon(userdictFilename);
-        }
+
+    public Locale getLocale() {
+	return locale;
+    }
+
+    public void setLocale(Locale locale) {
+	this.locale = locale;
+    }
+
+    public void setLocale(String locale) {
+	setLocale(LocaleUtils.toLocale(locale));
+    }
+
+
+    public void checkStartup() throws MaryConfigurationException {
+	if (getLocale() == null)
+	    throw new MaryConfigurationException("The locale should be set to ru and not changed!");
     }
 
     /**
@@ -126,87 +121,91 @@ public class Phonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
-        Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
-        Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
+	try {
+	    Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+	    Sequence<Syllable> syllables = new Sequence<Syllable>();
+	    ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
 
-        Sequence<Phoneme> phones = new Sequence<Phoneme>();
-        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+	    Sequence<Phoneme> phones = new Sequence<Phoneme>();
+	    ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
 
-        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                  SupportedSequenceType.WORD)
-                                  .getReverse();
-        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+	    Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
+						      SupportedSequenceType.WORD)
+		.getReverse();
+	    HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
 
-        for (int i_word = 0; i_word < words.size(); i_word++) {
-            Word w = words.get(i_word);
+	    for (int i_word = 0; i_word < words.size(); i_word++) {
+		Word w = words.get(i_word);
 
-            String text;
+		String text;
 
-            if (w.soundsLike() != null) {
-                text = w.soundsLike();
-            } else {
-                text = w.getText();
-            }
+		if (w.soundsLike() != null) {
+		    text = w.soundsLike();
+		} else {
+		    text = w.getText();
+		}
 
-            // Get POS
-            String pos = w.getPOS();
+		// Get POS
+		String pos = w.getPOS();
 
-            // Ok adapt phonemes now
-            ArrayList<String> phonetisation_string = new ArrayList<String>();
-            if ((text != null) && (!text.equals(""))) {
+		// Ok adapt phonemes now
+		ArrayList<String> phonetisation_string = new ArrayList<String>();
+		if ((text != null) && (!text.equals(""))) {
 
-                // If text consists of several parts (e.g., because that was
-                // inserted into the sounds_like attribute), each part
-                // is transcribed separately.
-                StringBuilder ph = new StringBuilder();
-                String g2p_method = null;
-                StringTokenizer st = new StringTokenizer(text, " -");
-                while (st.hasMoreTokens()) {
-                    String graph = st.nextToken();
-                    StringBuilder helper = new StringBuilder();
-                    if (pos.equals("$PUNCT")) {
-                        continue;
-                    }
+		    // If text consists of several parts (e.g., because that was
+		    // inserted into the sounds_like attribute), each part
+		    // is transcribed separately.
+		    StringBuilder ph = new StringBuilder();
+		    String g2p_method = null;
+		    StringTokenizer st = new StringTokenizer(text, " -");
+		    while (st.hasMoreTokens()) {
+			String graph = st.nextToken();
+			StringBuilder helper = new StringBuilder();
+			if (pos.equals("$PUNCT")) {
+			    continue;
+			}
 
-                    String phon = phonemise(graph, pos, helper);
+			String phon = phonemise(graph, pos, helper);
 
-                    // FIXME: what does it mean : null result should not be
-                    // processed
-                    if (phon == null) {
-                        continue;
-                    }
+			// FIXME: what does it mean : null result should not be
+			// processed
+			if (phon == null) {
+			    continue;
+			}
 
-                    if (ph.length() == 0) {
-                        g2p_method = helper.toString();
-                    }
+			if (ph.length() == 0) {
+			    g2p_method = helper.toString();
+			}
 
-                    phonetisation_string.add(phon);
-                }
+			phonetisation_string.add(phon);
+		    }
 
-                if (phonetisation_string.size() > 0) {
+		    if (phonetisation_string.size() > 0) {
 
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
-                                       alignment_syllable_phone, i_word, alignment_word_syllable);
+			createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
+					   alignment_syllable_phone, i_word, alignment_word_syllable);
 
-                    // Adapt G2P method
-                    w.setG2PMethod(g2p_method);
-                }
-            }
-        }
+			// Adapt G2P method
+			w.setG2PMethod(g2p_method);
+		    }
+		}
+	    }
 
-        // Relation word/syllable
-        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+	    // Relation word/syllable
+	    utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+	    Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
+	    utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
 
-        utt.addSequence(SupportedSequenceType.PHONE, phones);
-        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
-        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+	    utt.addSequence(SupportedSequenceType.PHONE, phones);
+	    Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
+	    utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
 
-        return utt;
+	    return utt;
+	} catch (Exception ex) {
+	    throw new MaryException("Can't process", ex);
+	}
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,
@@ -382,7 +381,7 @@ public class Phonemiser extends MaryModule {
         Map<String, List<String>> fLexicon = new HashMap<String, List<String>>();
 
         BufferedReader lexiconFile = new BufferedReader(
-            new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
+							new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
         while ((line = lexiconFile.readLine()) != null) {
             // Ignore empty lines and comments:
             if (line.trim().equals("") || line.startsWith("#")) {

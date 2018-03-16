@@ -19,6 +19,9 @@
  */
 package marytts.language.de;
 
+
+import marytts.exceptions.MaryConfigurationException;
+
 import java.util.Locale;
 
 /**
@@ -29,7 +32,7 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
     /**
      *
      */
-    public JTokenizer() {
-        super(Locale.GERMAN);
+    public JTokenizer() throws MaryConfigurationException {
+        super();
     }
 }

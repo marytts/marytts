@@ -19,11 +19,12 @@
  */
 package marytts.language.fr;
 
-import marytts.config.LanguageConfig;
+import marytts.config.PropertiesMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class FrenchConfig extends LanguageConfig {
+public class FrenchConfig extends PropertiesMaryConfigLoader {
     public FrenchConfig() throws MaryConfigurationException {
-        super(FrenchConfig.class.getResourceAsStream("fr.config"));
+        super();
+	loadConfiguration("fr_FR", FrenchConfig.class.getResourceAsStream("fr.config"));
     }
 }

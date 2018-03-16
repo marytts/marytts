@@ -19,6 +19,7 @@
  */
 package marytts.language.fr;
 
+import java.util.Locale;
 import java.io.IOException;
 
 import marytts.exceptions.MaryConfigurationException;
@@ -27,7 +28,11 @@ import marytts.util.MaryUtils;
 public class Phonemiser extends marytts.modules.nlp.JPhonemiser {
 
     public Phonemiser() throws IOException, MaryConfigurationException {
-        super("fr.");
+	super(Locale.FRENCH);
+    }
+
+    protected void setDescription() {
+	this.description = "French phonemiser";
     }
 
     @Override

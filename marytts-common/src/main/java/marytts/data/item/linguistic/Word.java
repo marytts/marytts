@@ -40,7 +40,7 @@ public class Word extends Item {
     public Word(String text) {
         super();
         setText(text);
-        setAlternativeLocale(null);
+        setAlternativeLocale((Locale) null);
         soundsLike(null);
         setPOS(null);
         setG2PMethod(null);
@@ -78,7 +78,7 @@ public class Word extends Item {
     public Word(String text, String sounds_like) {
         super();
         setText(text);
-        setAlternativeLocale(null);
+        setAlternativeLocale((Locale) null);
         soundsLike(sounds_like);
         setPOS(null);
         setG2PMethod(null);
@@ -134,6 +134,16 @@ public class Word extends Item {
      */
     public Locale getAlternativeLocale() {
         return m_alternative_locale;
+    }
+
+    /**
+     * Sets the alternative locale.
+     *
+     * @param alternative_locale
+     *            the new alternative locale
+     */
+    public void setAlternativeLocale(String alternative_locale) {
+        m_alternative_locale = new Locale(alternative_locale);
     }
 
     /**

@@ -30,15 +30,19 @@ import java.util.StringTokenizer;
 import java.util.Map;
 import marytts.modules.MaryModule;
 
+import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
-import marytts.config.MaryProperties;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+// Reflections
+import java.lang.Class;
+import java.lang.reflect.Constructor;
 
 /**
  * A hierarchical repository for Mary modules, allowing the flexible indexing by
@@ -52,6 +56,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ModuleRegistry {
     private static List<MaryModule> allModules;
+    private static Map<String, List<MaryModule>> module_by_categories;
     private static Logger logger;
 
     private ModuleRegistry() {
@@ -69,28 +74,18 @@ public class ModuleRegistry {
     // /////////////////////// instantiation //////////////////////////
     // ////////////////////////////////////////////////////////////////
 
-    /**
-     * From the given module init info, instantiate a new mary module.
-     *
-     * @param moduleInitInfo
-     *            a string description of the module to instantiate. The
-     *            moduleInitInfo is expected to have one of the following forms:
-     *            <ol>
-     *            <li>my.class.which.extends.MaryModule</li>
-     *            <li>my.class.which.extends.MaryModule(any,string,args,without,spaces)</li>
-     *            <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
-     *            </ol>
-     *            where 'my.special.property' is a property in the property
-     *            file.
-     * @throws MaryConfigurationException
-     *             if the module cannot be instantiated
-     * @return m
-     */
     public static MaryModule instantiateModule(String moduleInitInfo) throws
-        MaryConfigurationException {
+        MaryException {
         logger.info("Now initiating mary module '" + moduleInitInfo + "'");
-        MaryModule m = (MaryModule) MaryRuntimeUtils.instantiateObject(moduleInitInfo);
-        return m;
+
+	try {
+	    Class<?> clazz = Class.forName(moduleInitInfo);
+	    Constructor<?> ctor = clazz.getConstructor();
+	    MaryModule m = (MaryModule) ctor.newInstance(new Object[] {});
+	    return m;
+	} catch (Exception ex) {
+	    throw new MaryException("cannot instantiate module \"" + moduleInitInfo + "\"", ex);
+	}
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -115,7 +110,7 @@ public class ModuleRegistry {
      *             if called after registration is complete.
      */
     @SuppressWarnings("unchecked")
-    public static void registerModule(MaryModule module, Locale locale) throws IllegalStateException {
+    public static void registerModule(MaryModule module) throws IllegalStateException {
         allModules.add(module);
     }
 
@@ -144,42 +139,13 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
-    // TODO: what should happen with this method when we parameterise modules,
-    // so that there can be several instances of the same
-    // class?
     public static MaryModule getModule(Class<?> moduleClass) {
         for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
-            if (moduleClass.isInstance(m)) {
+            if (moduleClass == m.getClass()) {
                 return m;
             }
         }
-        // Not found:
-        return null;
-    }
-
-    /**
-     * Find an active module by its class.
-     *
-     * @param moduleClass
-     *            moduleClass
-     * @return the module instance if found, or null if not found.
-     * @throws IllegalStateException
-     *             if called while registration is not yet complete.
-     */
-    // TODO: what should happen with this method when we parameterise modules,
-    // so that there can be several instances of the same
-    // class?
-    public static MaryModule getModule(Class<?> moduleClass, Locale locale) {
-
-
-        for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
-            MaryModule m = it.next();
-            if (moduleClass.isInstance(m) && (locale.equals(m.getLocale()))) {
-                return m;
-            }
-        }
-
         // Not found:
         return null;
     }

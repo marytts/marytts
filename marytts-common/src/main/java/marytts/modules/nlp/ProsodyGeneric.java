@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import org.w3c.dom.Document;
 
@@ -41,7 +41,7 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.utils.SequenceTypePair;
 
 import marytts.MaryException;
-
+import marytts.exceptions.MaryConfigurationException;
 import org.apache.logging.log4j.core.Appender;
 
 /**
@@ -55,34 +55,15 @@ public class ProsodyGeneric extends MaryModule {
     public static final int DEFAULT_DURATION = 400;
 
     public ProsodyGeneric() {
-        this((Locale) null);
+        super("prosody");
     }
 
-    public ProsodyGeneric(Locale locale, String tobipredFileName, String accentPriorities,
-                          String syllableAccents,
-                          String paragraphDeclination) {
-        super("Prosody", locale);
 
+    public void setDescription() {
+	this.description = "Dummy module to predict baseline prosody";
     }
 
-    public ProsodyGeneric(String locale, String propertyPrefix) {
-        this(new Locale(locale), propertyPrefix);
-    }
-
-    public ProsodyGeneric(Locale locale, String propertyPrefix) {
-        super("Prosody", locale);
-    }
-
-    public ProsodyGeneric(String locale) {
-        this(new Locale(locale), "fallback.prosody.");
-    }
-
-    public ProsodyGeneric(Locale locale) {
-        this(locale, "fallback.prosody.");
-    }
-
-    public void startup() throws Exception {
-        super.startup();
+    public void checkStartup() throws MaryConfigurationException {
     }
 
     /**
@@ -96,15 +77,12 @@ public class ProsodyGeneric extends MaryModule {
         if (!utt.hasSequence(SupportedSequenceType.SENTENCE)) {
             throw new MaryException("Sentence sequence is missing", null);
         }
-        if (!utt.hasSequence(SupportedSequenceType.PHRASE)) {
-            throw new MaryException("Phrase sequence is missing", null);
-        }
         if (!utt.hasSequence(SupportedSequenceType.WORD)) {
             throw new MaryException("Word sequence is missing", null);
         }
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         // Initialise sequences
         Sequence<Sentence> sentences = (Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE);

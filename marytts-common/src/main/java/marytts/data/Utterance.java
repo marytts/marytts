@@ -28,17 +28,11 @@ import marytts.data.item.prosody.Phrase;
  *         Maguer</a>
  */
 public class Utterance {
-    /** The voice used to fill the utterance */
-    private String m_voice_name;
-
-    /** The original text */
-    private String m_text;
-
-    /** The locale used to fill the utterance */
-    private Locale m_locale;
-
     /** Not used for now ! */
     private ArrayList<AudioInputStream> m_list_streams;
+
+    /** FIXME: temp feature names, nowhere else to put for now */
+    private ArrayList<String> m_feature_names;
 
     /**
      * The sequences which contains the data of the utterance. Organized by type
@@ -64,87 +58,14 @@ public class Utterance {
      * @param locale
      *            the locale used for this utterance
      */
-    public Utterance(String text, Locale locale) {
-        setVoice(null);
-        setText(text);
-        setLocale(locale);
+    public Utterance() {
 
         m_sequences = new Hashtable<String, Sequence<? extends Item>>();
         m_available_relation_set = new
         HashSet<ImmutablePair<String, String>>();
         m_relation_graph = new RelationGraph();
+	m_feature_names = new ArrayList<String>();
 
-    }
-
-    /******************************************************************************************************************************************
-     ** Accessors
-     ******************************************************************************************************************************************/
-    /**
-     * Accessor to get the original text of the utterance
-     *
-     * @return the original text of the utterance
-     */
-    public String getText() {
-        return m_text;
-    }
-
-    /**
-     * Accessor to set the original text of the utterance
-     *
-     * FIXME: authorized just for the serializer for now... however needs to be
-     * more robust
-     *
-     * @param text
-     *            the text to set
-     */
-    public void setText(String text) {
-        m_text = text;
-    }
-
-    /**
-     * Accessor to get the locale of the utterance
-     *
-     * @return the locale of the utterance
-     */
-    public Locale getLocale() {
-        return m_locale;
-    }
-
-    /**
-     * Accessor to set the locale of the utterance
-     *
-     * FIXME: authorized just for the serializer for now... however needs to be
-     * more robust
-     *
-     * @param locale
-     *            the locale to set
-     */
-    protected void setLocale(Locale locale) {
-        m_locale = locale;
-    }
-
-    /**
-     * Accessor to get the name of the used voice
-     *
-     * FIXME: not really used except serializer for now
-     *
-     * @return the name of the used voice or null if no voice is used
-     */
-    public String getVoiceName() {
-        return m_voice_name;
-    }
-
-    /**
-     * Accessor to set the voice of the utterance
-     *
-     * FIXME: authorized just for the serializer for now... however needs to be
-     * more robust
-     *
-     * @param voice_name
-     *            the voice to set
-     */
-    public void setVoice(String voice_name) {
-        m_voice_name = voice_name;
     }
 
     /******************************************************************************************************************************************
@@ -308,5 +229,18 @@ public class Utterance {
         }
 
         return true;
+    }
+
+
+
+    /******************************************************************************************************************************************
+     ** Temporary
+     ******************************************************************************************************************************************/
+    public ArrayList<String> getFeatureNames() {
+	return m_feature_names;
+    }
+
+    public void setFeatureNames(ArrayList<String> feature_names) {
+	m_feature_names = feature_names;
     }
 }

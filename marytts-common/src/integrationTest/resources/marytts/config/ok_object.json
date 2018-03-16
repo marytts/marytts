@@ -1,0 +1,13 @@
+{
+    "marytts.data.item.phonology.Phoneme" : {
+	"stress": {
+	    "class": "java.lang.String",
+	    "arguments": [
+		{
+		    "class": "java.lang.String",
+		    "value": "ok"
+		}
+	    ]
+	}
+    }
+}

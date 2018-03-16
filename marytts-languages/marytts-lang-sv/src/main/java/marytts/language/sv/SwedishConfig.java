@@ -19,11 +19,12 @@
  */
 package marytts.language.sv;
 
-import marytts.config.LanguageConfig;
+import marytts.config.PropertiesMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class SwedishConfig extends LanguageConfig {
+public class SwedishConfig extends PropertiesMaryConfigLoader {
     public SwedishConfig() throws MaryConfigurationException {
-        super(SwedishConfig.class.getResourceAsStream("sv.config"));
+	super();
+        // super(SwedishConfig.class.getResourceAsStream("sv.config"));
     }
 }

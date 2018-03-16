@@ -4,7 +4,6 @@ package marytts.io.serializer;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import marytts.config.MaryProperties; // FIXME: need to be moved !
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
@@ -47,7 +46,7 @@ public class TextSerializer implements Serializer {
      *
      */
     public TextSerializer() {
-        splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
+        splitIntoParagraphs = true; // FIXME: MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
     }
 
     /**
@@ -85,10 +84,9 @@ public class TextSerializer implements Serializer {
      */
     public Utterance load(String text) throws MaryIOException {
         String plain_text = MaryUtils.normaliseUnicodePunctuation(text).replaceAll("\n", " ");
-        Locale l = Locale.US; // FIXME: we really need to fix this !
 
         // New utterance part
-        Utterance utt = new Utterance(plain_text, l);
+        Utterance utt = new Utterance();
         Sequence<Paragraph> paragraphs = new Sequence<Paragraph>();
         if (splitIntoParagraphs) {
             // Empty lines separate paragraphs

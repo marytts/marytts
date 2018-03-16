@@ -11,7 +11,7 @@ import marytts.data.Sequence;
  */
 public abstract class Item {
     /** The sequence which is containing the item */
-    protected Sequence<? extends Item> m_sequence_reference;
+    protected transient Sequence<? extends Item> m_sequence_reference;
 
     /**
      * Default constructor to set to null the sequence reference. Protected as

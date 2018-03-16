@@ -38,7 +38,6 @@ public class TSVSerializer implements Serializer {
      *
      */
     public TSVSerializer() {
-        m_feature_names = FeatureComputer.the_feature_computer.listFeatures();
     }
 
     /**
@@ -56,6 +55,8 @@ public class TSVSerializer implements Serializer {
             throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
                                       null);
         }
+
+        m_feature_names = utt.getFeatureNames();
 
         Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
                                                 SupportedSequenceType.FEATURES);

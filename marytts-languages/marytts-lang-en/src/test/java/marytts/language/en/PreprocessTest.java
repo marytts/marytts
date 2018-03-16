@@ -3,7 +3,6 @@
  */
 package marytts.language.en;
 
-import marytts.runutils.LocalMaryInterface;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.io.serializer.XMLSerializer;
@@ -25,13 +24,11 @@ import marytts.data.Utterance;
 public class PreprocessTest {
 
     private static Preprocess module;
-    private static LocalMaryInterface mary;
     private static XMLSerializer xml_ser;
 
     @BeforeSuite
     public static void setUpBeforeClass() throws MaryConfigurationException {
         module = new Preprocess();
-        mary = new LocalMaryInterface();
         xml_ser = new XMLSerializer();
     }
 

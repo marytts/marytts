@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
+import marytts.exceptions.MaryConfigurationException;
 
 import marytts.data.Utterance;
 import marytts.modules.MaryModule;
@@ -40,10 +41,18 @@ import org.apache.logging.log4j.core.Appender;
 
 public class Preprocess extends MaryModule {
 
+
     public Preprocess() {
-        super("Preprocess", Locale.GERMAN);
+	super("preprocessing");
     }
 
+    protected void setDescription() {
+	this.description = "German preprocessing module";
+    }
+
+    public void checkStartup() throws MaryConfigurationException {
+
+    }
     /**
      *  Check if the input contains all the information needed to be
      *  processed by the module.
@@ -54,7 +63,7 @@ public class Preprocess extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
         return utt;
     }
 }

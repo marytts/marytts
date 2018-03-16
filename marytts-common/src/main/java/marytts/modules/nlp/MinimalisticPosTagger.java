@@ -23,12 +23,11 @@ import java.io.InputStream;
 
 import marytts.data.Utterance;
 import marytts.fst.FSTLookup;
-import marytts.config.MaryProperties;
 import marytts.util.MaryUtils;
 
 import marytts.modules.MaryModule;
 
-import marytts.config.MaryProperties;
+import marytts.config.MaryConfiguration;
 
 import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
@@ -49,7 +48,7 @@ import org.apache.logging.log4j.core.Appender;
  * @author Marc Schr&ouml;der
  */
 
-public class MinimalisticPosTagger extends MaryModule {
+public abstract class MinimalisticPosTagger extends MaryModule {
     private String propertyPrefix;
     private FSTLookup posFST = null;
     private String punctuationList;
@@ -65,21 +64,22 @@ public class MinimalisticPosTagger extends MaryModule {
      * @throws Exception
      *             Exception
      */
-    public MinimalisticPosTagger(String locale, String propertyPrefix) throws Exception {
-        super("OpenNLPPosTagger", MaryUtils.string2locale(locale));
-        if (!propertyPrefix.endsWith(".")) {
-            propertyPrefix = propertyPrefix + ".";
-        }
-        this.propertyPrefix = propertyPrefix + "partsofspeech.";
+    protected MinimalisticPosTagger(MaryConfiguration default_configuration) throws Exception {
+        super(default_configuration, "part-of-speech");
     }
 
-    public void startup() throws Exception {
+    public void startup() throws MaryException {
+        punctuationList = ",.?!;";
+	applyDefaultConfiguration();
         super.startup();
-        InputStream posFSTStream = MaryProperties.getStream(propertyPrefix + "fst");
-        if (posFSTStream != null) {
-            posFST = new FSTLookup(posFSTStream, MaryProperties.getProperty(propertyPrefix + "fst"));
-        }
-        punctuationList = MaryProperties.getProperty(propertyPrefix + "punctuation", ",.?!;");
+    }
+
+    public void setFst(InputStream posFSTStream) throws Exception {
+	// FIXME: posFST = new FSTLookup(posFSTStream, this.getLocale().toString() + "_lexicon_fst");
+    }
+
+    public void setPunctuation(String punctuation) {
+	punctuationList = punctuation;
     }
 
     /**
@@ -96,7 +96,7 @@ public class MinimalisticPosTagger extends MaryModule {
     }
 
 
-    public Utterance process(Utterance utt, MaryProperties configuration, Appender app) throws Exception {
+    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         for (Word w : (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)) {
             String pos = "content";

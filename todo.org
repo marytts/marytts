@@ -8,7 +8,7 @@
 #+OPTIONS:   H:1 num:t toc:nil  \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
-#+SETUPFILE: ~/environment/src/non-install-utils/org-html-themes/setup/theme-readtheorg.setup
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.coli.uni-saarland.de/~slemaguer/default.css" />
 
 * MaryTTS Part
 :PROPERTIES:
@@ -23,7 +23,6 @@ CLOSED: [2017-11-06 Mon 16:23]
 ** DONE Add a Check method in the MaryModule interface (force to check we have all the sequence needed)
 CLOSED: [2017-11-06 Mon 18:00]
 ** TODO See for the duration prediction using DNN (in native java)
-SCHEDULED: <2017-11-30 Thu>
 ** TODO Reinstore the model problem with HMMDurationModeller (or something like that)
 ** TODO See for the AcousticModeller module
 * COMMENT some extra configuration
