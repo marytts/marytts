@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Map;
+import java.util.HashMap;
 import marytts.modules.MaryModule;
 
 import marytts.MaryException;
@@ -55,7 +56,7 @@ import java.lang.reflect.Constructor;
  *
  */
 public class ModuleRegistry {
-    private static List<MaryModule> allModules;
+    private static List<MaryModule> all_modules;
     private static Map<String, List<MaryModule>> module_by_categories;
     private static Logger logger;
 
@@ -66,7 +67,8 @@ public class ModuleRegistry {
      * Create a new, empty module repository.
      */
     static {
-        allModules = new ArrayList<MaryModule>();
+        all_modules = new ArrayList<MaryModule>();
+	module_by_categories =  new HashMap<String, List<MaryModule>>();
         logger = LogManager.getLogger(ModuleRegistry.class);
     }
 
@@ -111,7 +113,13 @@ public class ModuleRegistry {
      */
     @SuppressWarnings("unchecked")
     public static void registerModule(MaryModule module) throws IllegalStateException {
-        allModules.add(module);
+        all_modules.add(module);
+	String cat = module.getCategory();
+	if (!module_by_categories.containsKey(cat)) {
+	    module_by_categories.put(cat, new ArrayList<MaryModule>());
+	}
+
+	module_by_categories.get(cat).add(module);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -122,12 +130,22 @@ public class ModuleRegistry {
      * Provide a list containing all MaryModules instances. The order is not
      * important.
      *
-     * @throws IllegalStateException
-     *             if called while registration is not yet complete.
-     * @return Collections.unmodifiableList(allModules)
+     * @return Collections.unmodifiableList(all_modules)
      */
     public static List<MaryModule> listRegisteredModules() {
-        return Collections.unmodifiableList(allModules);
+        return Collections.unmodifiableList(all_modules);
+    }
+
+    /**
+     * Provide a map list modules by categories containing all MaryModules instances. The order is not
+     * important.
+     *
+     * @throws IllegalStateException
+     *             if called while registration is not yet complete.
+     * @return Collections.unmodifiableList(all_modules)
+     */
+    public static Map<String, List<MaryModule>> listModulesByCategories() {
+        return Collections.unmodifiableMap(module_by_categories);
     }
 
     /**
@@ -139,8 +157,22 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
+    public static MaryModule getModule(String class_name) throws ClassNotFoundException {
+	Class<?> cls = Class.forName(class_name);
+
+	return getModule(cls);
+    }
+    /**
+     * Find an active module by its class.
+     *
+     * @param moduleClass
+     *            moduleClass
+     * @return the module instance if found, or null if not found.
+     * @throws IllegalStateException
+     *             if called while registration is not yet complete.
+     */
     public static MaryModule getModule(Class<?> moduleClass) {
-        for (Iterator<MaryModule> it = allModules.iterator(); it.hasNext();) {
+        for (Iterator<MaryModule> it = all_modules.iterator(); it.hasNext();) {
             MaryModule m = it.next();
             if (moduleClass == m.getClass()) {
                 return m;
