@@ -26,6 +26,9 @@ dependencies {
     compile group: 'colt', name: 'colt', version: '1.2.0'
     compile group: "org.jgrapht", name: "jgrapht-core", version: "0.9.2"
 
+    // DNN
+    compile group: 'org.tensorflow', name: 'tensorflow', version: '1.5.0-rc1'
+
 
     // Formatting / IO
     compile group: 'org.m2ci.msp', name:'jtgt', version: '0.5.3'
