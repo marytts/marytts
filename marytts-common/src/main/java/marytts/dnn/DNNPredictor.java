@@ -20,19 +20,22 @@ public class DNNPredictor {
     /** The tag */
     protected String tag;
 
+    protected String model_path;
+
     /**
      *  Constructor. A model is mandatory.
      *
      *  @param model_path the model path
      */
     public DNNPredictor(String model_path) {
-	// Load model
-	model = SavedModelBundle.load(model_path, tag);
-
 	// Default
 	setInputLayerName("input");
 	setOutputLayerName("output");
 	setTag("serve");
+
+	this.model_path = model_path;
+	// FIXME: Load model
+	// model = SavedModelBundle.load(model_path, getTag());
     }
 
     /**
@@ -44,12 +47,19 @@ public class DNNPredictor {
      */
     public Tensor<Float> predict(Tensor<Float> input) throws Exception {
 
-	// Execute the "MyConst" operation in a Session.
+	// FIXME: reload the model at each prediction.....
+	model = SavedModelBundle.load(this.model_path, getTag());
+
+	// Get the session
 	Session s = model.session();
 
+	// Predict
 	Tensor<Float> out =  (Tensor<Float>) s.runner().feed(input_layer_name, input).fetch(output_layer_name).run().get(0);
 
-	s.close();
+	// FIXME: close the model (should just be the session)
+	model.close();
+
+	// Return the prediction result
 	return out;
     }
 
