@@ -34,7 +34,8 @@ public class DNNPredictor {
 	setTag("serve");
 
 	this.model_path = model_path;
-	// FIXME: Load model
+
+	// FIXME: Load model at the beginning
 	// model = SavedModelBundle.load(model_path, getTag());
     }
 

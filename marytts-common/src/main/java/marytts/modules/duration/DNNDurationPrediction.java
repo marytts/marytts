@@ -1,4 +1,4 @@
-package marytts.modules.dummies;
+package marytts.modules.duration;
 
 import marytts.MaryException;
 
@@ -38,9 +38,12 @@ public class DNNDurationPrediction extends MaryModule
     public DNNDurationPrediction() throws Exception
     {
 	super("duration");
+    }
+
+    public void setPredictorModel(String model_path) {
 
 	// Initialize the prediction resource
-	dnn_pred = new DNNPredictor("/home/slemaguer/work/maintained_tools/src/dnn/output_model"); // FIXME: hardcoded
+	dnn_pred = new DNNPredictor(model_path); // FIXME: hardcoded
     }
 
 
@@ -60,7 +63,7 @@ public class DNNDurationPrediction extends MaryModule
             throw new MaryException("Phone sequence is missing", null);
         }
         if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
-            throw new MaryException("Phone sequence is missing", null);
+            throw new MaryException("Feature sequence is missing", null);
         }
 
 	assert (utt.getSequence(SupportedSequenceType.PHONE).size() ==
@@ -101,7 +104,7 @@ public class DNNDurationPrediction extends MaryModule
 		ph_seq.set(i, tmp);
 
 		// Move to the next one !
-		start += dur[i][0]/1000;
+		start += dur[i][0] / 1000;
 	    }
 
 	    return utt;
