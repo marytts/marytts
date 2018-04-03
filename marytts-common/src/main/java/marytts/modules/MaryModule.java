@@ -116,7 +116,9 @@ public abstract class MaryModule {
 	applyDefaultConfiguration();
         state = MODULE_RUNNING;
 
-	logger.debug("\n" + MaryConfigurationFactory.dump());
+	logger.debug("Configuration for module \"\"" +
+		     this.getClass().toGenericString() + "\"\n" +
+		     MaryConfigurationFactory.dump());
 
         logger.info("Module " + this.getClass().toGenericString() + " started.");
     }

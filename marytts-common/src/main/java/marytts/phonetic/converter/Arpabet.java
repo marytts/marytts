@@ -85,6 +85,5 @@ public class Arpabet extends Alphabet
 	this.addIpaCorrespondance("R", "ɹ");
 	this.addIpaCorrespondance("WH", "ʍ");
 	this.addIpaCorrespondance("Y", "j");
-
     }
 }

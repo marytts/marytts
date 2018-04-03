@@ -112,13 +112,13 @@ public class Phone extends Phoneme {
         m_duration = duration;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see marytts.data.item.phonology.Segment#toString()
-     */
-    @Override
-    public String toString() {
-        return getLabel() + " : " + getDuration();
-    }
+    // /*
+    //  * (non-Javadoc)
+    //  *
+    //  * @see marytts.data.item.phonology.Segment#toString()
+    //  */
+    // @Override
+    // public String toString() {
+    //     return getLabel() + " : " + getDuration();
+    // }
 }
