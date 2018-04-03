@@ -22,7 +22,8 @@ CLOSED: [2017-11-06 Mon 16:20]
 CLOSED: [2017-11-06 Mon 16:23]
 ** DONE Add a Check method in the MaryModule interface (force to check we have all the sequence needed)
 CLOSED: [2017-11-06 Mon 18:00]
-** TODO See for the duration prediction using DNN (in native java)
+** DONE See for the duration prediction using DNN (in native java)
+CLOSED: [2018-04-03 Tue 08:23]
 ** TODO Reinstore the model problem with HMMDurationModeller (or something like that)
 ** TODO See for the AcousticModeller module
 * COMMENT some extra configuration
