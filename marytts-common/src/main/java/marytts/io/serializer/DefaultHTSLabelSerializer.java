@@ -3,9 +3,13 @@ package marytts.io.serializer;
 /* Utils part */
 import java.util.Map;
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 /* Mary data part */
 import marytts.data.Sequence;
+import marytts.data.item.Item;
+import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Phone;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
@@ -69,9 +73,22 @@ public class DefaultHTSLabelSerializer implements Serializer {
         }
         Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
 										   SupportedSequenceType.FEATURES);
+	Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
+
 	try {
 	    String output = "";
-	    for (FeatureMap map : seq_features) {
+	    for (int i=0; i<seq_features.size(); i++) {
+		FeatureMap map = seq_features.get(i);
+		ArrayList<Phoneme> phs = (ArrayList<Phoneme>) rel_feat_ph.getRelatedItems(i);
+		if (phs.size() <= 0) {
+		    continue;
+		}
+		if (phs.get(0) instanceof Phone)  {
+		    Phone ph = (Phone) phs.get(0);
+		    long start = (long) (ph.getStart() * 10000);
+		    long end = (long) ((ph.getStart() + ph.getDuration()) * 10000);
+		    output += String.format("%d\t%d\t", start, end);
+		}
 		output += format(map);
 		output += "\n";
 	    }
@@ -148,7 +165,6 @@ public class DefaultHTSLabelSerializer implements Serializer {
     protected final String getValue(FeatureMap feature_map, String feature_name) {
 
         if (! feature_map.containsKey(feature_name)) {
-            //FIXME log: System.out.println("feature \"" + feature_name + "\" is not defined");
             return getUndefSymbol();
         }
         if (feature_map.get(feature_name) == Feature.UNDEF_FEATURE) {
