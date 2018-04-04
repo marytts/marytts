@@ -19,12 +19,15 @@ public class SupportedSequenceType {
     public static final String SEGMENT = "SEGMENT";
     public static final String FEATURES = "FEATURES";
     public static final String NORMALISED_FEATURES = "NORMALISED_FEATURES";
+    public static final String F0 = "F0";
+    public static final String MGC = "MGC";
     public static final String AUDIO = "AUDIO";
 
 
     // Initialize default available sequences
     public static final String[] SET_VALUES = new String[] {
-        PARAGRAPH, SENTENCE, PHRASE, WORD, SYLLABLE, PHONE, NSS, SEGMENT, FEATURES, AUDIO
+        PARAGRAPH, SENTENCE, PHRASE, WORD, SYLLABLE, PHONE, NSS, SEGMENT, FEATURES,
+	NORMALISED_FEATURES, F0, MGC, AUDIO
     };
     public static final Set<String> TYPE_SET = new HashSet<>(Arrays.asList(SET_VALUES));
 
