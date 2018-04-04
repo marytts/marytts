@@ -31,8 +31,9 @@ import marytts.MaryException;
  */
 public class TriphoneNormaliser extends FeatureNormaliser
 {
-    private ArrayList<String> dict;
-    private Alphabet ipa2arpa;
+    protected ArrayList<String> dict;
+    protected Alphabet ipa2arpa;
+    protected String[] feature_names = {"prev_phone", "phone", "next_phone"};  // FIXME: hardcode
 
     public TriphoneNormaliser() throws Exception {
 
@@ -47,38 +48,42 @@ public class TriphoneNormaliser extends FeatureNormaliser
 	}
 
 	ipa2arpa = AlphabetFactory.getAlphabet("arpabet");
+
+	// FIXME: hard coded
+
     }
 
-
-    private float encodePhoneme(String ph) throws Exception {
+    private int encodePhoneme(String ph) throws Exception {
 	String arpa = "pau";
 	if (! ph.equals("_"))
 	    arpa = ipa2arpa.getLabelFromIPA(ph);
-	return dict.indexOf(arpa);
+	return dict.indexOf(arpa.toLowerCase());
     }
-
 
     public Tensor<Float> normalise(Sequence<FeatureMap> list_feature_map) throws MaryException {
 
 	try {
-	    // Get sizes
-	    int feat_size = 3;
-	    float[][] normalised_vector = new float[list_feature_map.size()][feat_size];
 
-	    // FIXME: hard coded
-	    String[] feature_names = {"phone", "prev_phone", "next_phone"};
+	    // Get sizes
+	    int feat_size = feature_names.length * dict.size();
+	    float[][] normalised_vector = new float[list_feature_map.size()][feat_size];
 
 	    // Adapt everything
 	    for (int i=0; i<list_feature_map.size(); i++) {
 		FeatureMap feature_map = list_feature_map.get(i);
 
+		int j=0;
 		for (String feature_name: feature_names) {
 		    Feature cur = feature_map.get(feature_name);
-		    if (cur == Feature.UNDEF_FEATURE) {
-			normalised_vector[i][0] = 0f;
-		    } else {
-			normalised_vector[i][0] = encodePhoneme(cur.getStringValue());
+
+		    if (cur != Feature.UNDEF_FEATURE) {
+			int idx = encodePhoneme(cur.getStringValue());
+			if (idx == -1)
+			    throw new MaryException(String.format("%s leads to -1 (means not present in the dictionnary)", ipa2arpa.getLabelFromIPA(cur.getStringValue())));
+			normalised_vector[i][j*dict.size()+idx] = 1;
 		    }
+
+		    j++;
 		}
 
 	    }
