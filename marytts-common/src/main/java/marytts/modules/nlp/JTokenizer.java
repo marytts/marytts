@@ -158,9 +158,9 @@ public class JTokenizer extends MaryModule {
                 }
 
 
-                if (((tok_string.charAt(0) == '\'') && (tok_string.length() == 1)) ||
-		    ((tok_string.charAt(0) == '\'') && (tok_string.length() > 1) && (tok_string.charAt(1) != '\''))) //  ||
-		    // ((tok_string.length() > 1) && (tok_string.charAt(1) == '\'')))
+                if ((tok_string.charAt(0) == '\'') && (words.size() > 0) &&
+		    ((tok_string.length() == 1) ||
+		     ((tok_string.length() > 1) && (tok_string.charAt(1) != '\''))))
 		{
 		    Word prev = words.get(words.size() - 1);
 		    prev.setText(prev.getText() + tok_string);
