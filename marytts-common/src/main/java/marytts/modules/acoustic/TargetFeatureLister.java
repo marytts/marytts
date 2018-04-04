@@ -114,29 +114,6 @@ public class TargetFeatureLister extends MaryModule {
 	return utt;
     }
 
-    // /**
-    //  * Return directly the targets, and set in each target its feature vector
-    //  *
-    //  * @param the_feature_computer
-    //  *            the feature computer used
-    //  * @param utt
-    //  *            the utterance used to compute the features
-    //  * @param items
-    //  *            the items whose features are going to be computed
-    //  * @return a list of map of features corresponding of the given items
-    //  * @throws Exception
-    //  *             [TODO]
-    //  */
-    // public List<FeatureMap> getListTargetFeatures(FeatureComputer the_feature_computer, Utterance utt,
-    //         ArrayList<Item> items) throws Exception {
-    //     List<FeatureMap> target_features = new ArrayList<FeatureMap>();
-    //     for (Item it : items) {
-    //         target_features.add(feature_computer.process(utt, it));
-    //     }
-
-    //     return target_features;
-    // }
-
     public void setFeatureConfiguration(HashMap<String, Object> configuration) throws MaryConfigurationException {
 	for(String k: configuration.keySet()) {
 	    if (k.equals("level_processors"))

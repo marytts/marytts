@@ -470,11 +470,13 @@ public class Relation {
         SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
 
         // Copy the unmodified part
-        for (int i = 0; i < new_item_idx; i++)
-            for (int j = 0; j < val[i].length; j++)
+        for (int i = 0; i < new_item_idx; i++) {
+            for (int j = 0; j < val[i].length; j++) {
                 if (val[i][j] > 0) {
                     new_matrix.setQuick(i, j, 1);
                 }
+	    }
+	}
 
         // If the user wants to insert an item and duplicate relation
         if (expand_relation) {
@@ -491,7 +493,7 @@ public class Relation {
             // Translate the impacted part of the matrix
             for (int i = new_item_idx; i < val.length; i++) {
                 for (int j = 0; j < val[i].length; j++) {
-                    if (val[new_item_idx][j] > 0) {
+                    if (val[i][j] > 0) {
                         new_matrix.setQuick(i + 1, j, 1);
                     }
                 }
@@ -562,11 +564,13 @@ public class Relation {
         SparseDoubleMatrix2D new_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size());
 
         // Copy the unmodified part
-        for (int i = 0; i < val.length; i++)
-            for (int j = 0; j < new_item_idx; j++)
+        for (int i = 0; i < val.length; i++) {
+            for (int j = 0; j < new_item_idx; j++) {
                 if (val[i][j] > 0) {
                     new_matrix.setQuick(i, j, 1);
                 }
+	    }
+	}
 
         // If the user wants to insert an item and duplicate relation
         if (expand_relation) {
