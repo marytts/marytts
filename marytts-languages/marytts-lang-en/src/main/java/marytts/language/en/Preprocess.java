@@ -299,7 +299,6 @@ public class Preprocess extends MaryModule {
             if (token_text.matches("(?i)" + ordinalPattern.pattern())) {
                 String matched = token_text.split("(?i)st|nd|rd|th")[0];
                 expanded_text = expandOrdinal(Double.parseDouble(matched));
-		System.out.println("ordinal: " + orig_text + " ==> " + expanded_text);
             }
             // single a or A character
             else if (token_text.matches("[aA]")) {
@@ -313,33 +312,27 @@ public class Preprocess extends MaryModule {
                         || next_token.getText().length() == 1) {
                     expanded_text = "_a";
                 }
-		System.out.println("single a/A: " + orig_text + " ==> " + expanded_text);
             }
             // date
             else if (token_text.matches(datePattern.pattern())) {
                 expanded_text = expandDate(token_text);
-		System.out.println("date: " + orig_text + " ==> " + expanded_text);
             }
             // number followed by s
             else if (token_text.matches(numberSPattern.pattern())) {
                 expanded_text = expandNumberS(token_text);
-		System.out.println("nb followed by s: " + orig_text + " ==> " + expanded_text);
             }
             // year with bc or ad
             else if (token_text.matches("(?i)" + yearPattern.pattern())) {
                 expanded_text = expandYearBCAD(token_text);
-		System.out.println("year (bc/ad): " + orig_text + " ==> " + expanded_text);
             }
             // year as just 4 digits &rarr; this should always be checked BEFORE
             // real number
             else if (token_text.matches("\\d{4}") && isYear == true) {
                 expanded_text = expandYear(Double.parseDouble(token_text));
-		System.out.println("year (4dig): " + orig_text + " ==> " + expanded_text);
             }
             // wordAndNumber &rarr; must come AFTER year
             else if (token_text.matches(numberWordPattern.pattern())) {
                 expanded_text = expandWordNumber(token_text);
-		System.out.println("wordnumber: " + orig_text + " ==> " + expanded_text);
             }
             // real number & currency
             else if (token_text.matches(realNumPattern.pattern())) {
@@ -349,7 +342,6 @@ public class Preprocess extends MaryModule {
                 } else {
                     expanded_text = expandRealNumber(token_text);
                 }
-		System.out.println("real nb/cur: " + orig_text + " ==> " + expanded_text);
             }
             // contractions
             else if (token_text.matches(contractPattern.pattern())) {
@@ -372,13 +364,11 @@ public class Preprocess extends MaryModule {
                 //     // splitContraction = true;
                 //     // expanded_text = splitContraction(token_text);
                 //     // }
-		//     System.out.println("contract: " + orig_text + " ==> " + expanded_text);
                 // }
             }
             // acronym
             else if (token_text.matches(acronymPattern.pattern())) {
                 expanded_text = expandAcronym(token_text);
-		System.out.println("acro: " + orig_text + " ==> " + expanded_text);
             }
             // abbreviation
             else if ((token_text.matches(abbrevPattern.pattern())
@@ -395,7 +385,6 @@ public class Preprocess extends MaryModule {
                 }
 
                 expanded_text = expandAbbreviation(token_text, nextTokenIsCapital);
-		System.out.println("abbr: " + orig_text + " ==> " + expanded_text);
             }
             // time
             else if (token_text.matches("(?i)" + timePattern.pattern())) {
@@ -410,17 +399,14 @@ public class Preprocess extends MaryModule {
                     next_token_is_time = true;
                 }
                 expanded_text = expandTime(token_text, next_token_is_time);
-		System.out.println("time: " + orig_text + " ==> " + expanded_text);
             }
             // duration
             else if (token_text.matches(durationPattern.pattern())) {
                 expanded_text = expandDuration(token_text);
-		System.out.println("duration: " + orig_text + " ==> " + expanded_text);
             }
             // hashtags
             else if (token_text.matches(hashtagPattern.pattern())) {
                 expanded_text = expandHashtag(token_text);
-		System.out.println("hashtag: " + orig_text + " ==> " + expanded_text);
 
             }
             // URLs
@@ -431,7 +417,6 @@ public class Preprocess extends MaryModule {
                 webEmailTemp = token_text;
                 isURL = true;
                 expanded_text = expandURL(urlMatcher.group(2));
-		System.out.println("url: " + orig_text + " ==> " + expanded_text);
             }
             // dot . for web and email addresses
             else if (token_text.equals(".") && isURL) {
@@ -441,18 +426,15 @@ public class Preprocess extends MaryModule {
                 if (!webEmailTemp.contains(".")) {
                     isURL = false;
                 }
-		System.out.println("dot/url: " + orig_text + " ==> " + expanded_text);
             }
             // symbols
             else if (token_text.matches(symbolsPattern.pattern())) {
                 expanded_text = symbols.get(token_text);
-		System.out.println("symbol: " + orig_text + " ==> " + expanded_text);
 
             }
             // number ranges &rarr; before checking for dashes
             else if (token_text.matches(rangePattern.pattern())) {
                 expanded_text = expandRange(token_text);
-		System.out.println("number: " + orig_text + " ==> " + expanded_text);
             }
             // dashes and underscores
             else if (token_text.contains("-") || token_text.contains("_")) {
@@ -470,7 +452,6 @@ public class Preprocess extends MaryModule {
                     i++;
                 }
                 expanded_text = Arrays.toString(new_tokens).replaceAll("[,\\]\\[]", "");
-		System.out.println("dashes/underscore: " + orig_text + " ==> " + expanded_text);
             }
             // words containing only consonants
             else if (token_text.matches("(?i)" + consonantPattern.pattern())) {
@@ -478,14 +459,12 @@ public class Preprocess extends MaryModule {
                 if (checkLexicon(token_text).length == 0) {
                     expanded_text = expandConsonants(token_text);
                 }
-		System.out.println("consonant: " + orig_text + " ==> " + expanded_text);
             }
             // a final attempt to split by punctuation
             else if (punctuationPattern.matcher(token_text).find() && token_text.length() > 1) {
                 puncSplit = true;
                 String[] puncTokens = token_text.split("((?<=\\p{Punct})|(?=\\p{Punct}))");
                 expanded_text = Arrays.toString(puncTokens).replaceAll("[,\\]\\[]", "");
-		System.out.println("punct: " + orig_text + " ==> " + expanded_text);
 
             }
             // Double quotes
