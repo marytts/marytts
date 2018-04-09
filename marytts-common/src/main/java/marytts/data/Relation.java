@@ -417,27 +417,30 @@ public class Relation {
      *            the index of the source item to remove
      */
     public void removeSourceItem(int source_idx) {
-        double[][] val = getRelations().toArray();
+	SparseDoubleMatrix2D in_matrix = getRelations();
+
         assert(getSource().size() > source_idx);
-        assert(val.length > source_idx);
+        assert(in_matrix.rows() > source_idx);
 
-        // Reset the current column just to be sure
-        for (int j = 0; j < val[source_idx].length; j++) {
-            getRelations().setQuick(source_idx, j, 0);
-        }
+        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size()-1, getTarget().size());
 
-        // Translate the impacted part of the matrix
-        for (int i = (source_idx + 1); i < val.length; i++) {
-            for (int j = 0; j < val[i].length; j++) {
-                if (val[i][j] > 0) {
-                    // Reset current cell value
-                    getRelations().setQuick(i, j, 0);
+	// Copy what is before
+	for (int i=0; i<source_idx; i++) {
+	    for (int j=0; j<in_matrix.columns(); j++) {
+		if (in_matrix.getQuick(i, j) > 0)
+		    gen_matrix.setQuick(i, j, 1.0);
+	    }
+	}
 
-                    // Update the previous "source" index relation
-                    getRelations().setQuick(i - 1, j, 1);
-                }
-            }
-        }
+	// Copy by shifting what is after !
+	for (int i=source_idx+1; i<in_matrix.rows(); i++) {
+	    for (int j=0; j<in_matrix.columns(); j++) {
+		if (in_matrix.getQuick(i, j) > 0)
+		    gen_matrix.setQuick(i-1, j, 1.0);
+	    }
+	}
+
+	this.setRelations(gen_matrix);
     }
 
     /**
@@ -512,26 +515,30 @@ public class Relation {
      *            the index of the target item to remove
      */
     public void removeTargetItem(int target_idx) {
-        double[][] val = getRelations().toArray();
-        assert(val.length > 0) && (val[0].length > target_idx) && (getTarget().size() > target_idx);
+	SparseDoubleMatrix2D in_matrix = getRelations();
 
-        // Reset the current row just to be sure
-        for (int i = 0; i < val.length; i++) {
-            getRelations().setQuick(i, target_idx, 0);
-        }
+        assert(getTarget().size() > target_idx);
+        assert(in_matrix.columns() > target_idx);
 
-        // Translate the impacted part of the matrix
-        for (int i = 0; i < val.length; i++) {
-            for (int j = target_idx + 1; j < val[i].length; j++) {
-                if (val[i][j] > 0) {
-                    // Reset current cell value
-                    getRelations().setQuick(i, j, 0);
+        SparseDoubleMatrix2D gen_matrix = new SparseDoubleMatrix2D(getSource().size(), getTarget().size()-1);
 
-                    // Update the previous "source" index relation
-                    getRelations().setQuick(i - 1, j, 1);
-                }
-            }
-        }
+	// Copy what is before
+	for (int i=0; i<in_matrix.rows(); i++) {
+	    for (int j=0; j<target_idx; j++) {
+		if (in_matrix.getQuick(i, j) > 0)
+		    gen_matrix.setQuick(i, j, 1.0);
+	    }
+	}
+
+	// Copy by shifting what is after !
+	for (int i=0; i<in_matrix.rows(); i++) {
+	    for (int j=target_idx+1; j<in_matrix.columns(); j++) {
+		if (in_matrix.getQuick(i, j) > 0)
+		    gen_matrix.setQuick(i, j-1, 1.0);
+	    }
+	}
+
+	this.setRelations(gen_matrix);
     }
 
     /**
