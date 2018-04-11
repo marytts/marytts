@@ -133,18 +133,6 @@ public class Sequence<E extends Item> extends ArrayList<E> {
      ** Override ArrayList standard methods to support back-references
      **********************************************************************/
     /**
-     * Appends the specified element to the end of the sequence
-     *
-     * @param e
-     *            element to be appended to this sequence
-     * @return true (as specified by Collection.add(E))
-     */
-    @Override
-    public boolean add(E e) {
-        return add(e, false);
-    }
-
-    /**
      * Inserts the specified element at the specified position in this sequence.
      * Shifts the element currently at that position (if any) and any subsequent
      * elements to the right (adds one to their indices).
@@ -165,13 +153,19 @@ public class Sequence<E extends Item> extends ArrayList<E> {
      *
      * @param e
      *            element to be appended to this sequence
-     * @param expand_relation
-     *            true leads to expand the relations, false is not touching the
-     *            relations
      * @return true (as specified by Collection.add(E))
      */
-    public boolean add(E e, boolean expand_relation) {
-        add(size() - 1, e, expand_relation);
+    public boolean add(E e) {
+        super.add(e);
+        e.setSequenceReference(this);
+
+        for (Relation rel : m_target_relation_references) {
+            rel.addTargetItem(this.size()-1, false);
+        }
+
+        for (Relation rel : m_source_relation_references) {
+            rel.addSourceItem(this.size()-1, false);
+        }
 
         return true;
     }
@@ -191,15 +185,13 @@ public class Sequence<E extends Item> extends ArrayList<E> {
      *            element to be inserted to this sequence
      */
     public void add(int index, E e, boolean expand_relation) {
-        super.add(index,e);
+        super.add(index, e);
         e.setSequenceReference(this);
 
-        // Remove the items from the target relations
         for (Relation rel : m_target_relation_references) {
             rel.addTargetItem(index, expand_relation);
         }
 
-        // Remove the items from the source relations
         for (Relation rel : m_source_relation_references) {
             rel.addSourceItem(index, expand_relation);
         }

@@ -73,25 +73,16 @@ public class RelationTest {
         Assert.assertFalse(seq1.isRelatedWith(seq3));
 
         rel.addRelation(1, 0);
-        System.out.println(rel);
-        rel.addRelation(1, 1);
-        System.out.println(rel);
-        rel.addRelation(0, 1);
-        System.out.println(rel);
-        seq1.remove(1);
-        System.out.println(rel);
-        seq1.remove(0);
-        System.out.println(rel);
+	rel.addRelation(1, 1);
+	rel.addRelation(0, 1);
+	seq1.remove(1);
+	seq1.remove(0);
 
         seq1.add(w2);
         rel.addRelation(0, 1);
-        System.out.println(rel);
 
-        seq1.add(w2, true);
-        System.out.println(rel);
-
-        seq2.add(w2, true);
-        System.out.println(rel);
+        seq1.add(w2);
+        seq2.add(w2);
 
         // Assert.assertFalse(true);
     }
