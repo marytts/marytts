@@ -30,9 +30,7 @@ public class GBJPhonemiserIT extends MaryModuleTestCase {
     @BeforeSuite(alwaysRun = true)
     public void setup() throws Exception {
         super.setup(true); // need mary startup
-	for (MaryModule mod :ModuleRegistry.listRegisteredModules())
-	    System.out.println(mod.getClass().toString());
-        module = ModuleRegistry.getModule(GBJPhonemiser.class);
+        module = ModuleRegistry.getDefaultModule(GBJPhonemiser.class.getName());
 	Assert.assertNotNull(module);
 	MaryConfigurationFactory.getConfiguration("en_GB").applyConfiguration(module);
     }

@@ -40,7 +40,7 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
     @BeforeSuite(alwaysRun = true)
     public void setup() throws Exception {
         setup(true); // need mary startup
-        module = ModuleRegistry.getModule(OpenNLPPosTagger.class);
+        module = ModuleRegistry.getDefaultModule(OpenNLPPosTagger.class.getName());
 	Assert.assertNotNull(module);
     }
 
