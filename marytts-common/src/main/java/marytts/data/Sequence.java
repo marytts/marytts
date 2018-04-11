@@ -191,7 +191,7 @@ public class Sequence<E extends Item> extends ArrayList<E> {
      *            element to be inserted to this sequence
      */
     public void add(int index, E e, boolean expand_relation) {
-        super.add(e);
+        super.add(index,e);
         e.setSequenceReference(this);
 
         // Remove the items from the target relations
@@ -203,7 +203,6 @@ public class Sequence<E extends Item> extends ArrayList<E> {
         for (Relation rel : m_source_relation_references) {
             rel.addSourceItem(index, expand_relation);
         }
-
     }
 
     /**
