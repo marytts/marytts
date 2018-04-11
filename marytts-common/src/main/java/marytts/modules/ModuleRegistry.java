@@ -32,6 +32,9 @@ import java.util.HashMap;
 import marytts.modules.MaryModule;
 
 import marytts.MaryException;
+
+import marytts.config.MaryConfigurationFactory;
+import marytts.config.MaryConfiguration;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
@@ -56,8 +59,8 @@ import java.lang.reflect.Constructor;
  *
  */
 public class ModuleRegistry {
-    private static List<MaryModule> all_modules;
-    private static Map<String, List<MaryModule>> module_by_categories;
+    private static Map<String, List<MaryModule>> modules_by_conf;
+    private static Map<String, Map<String, List<MaryModule>>> modules_by_cat_and_conf;
     private static Logger logger;
 
     private ModuleRegistry() {
@@ -67,8 +70,8 @@ public class ModuleRegistry {
      * Create a new, empty module repository.
      */
     static {
-        all_modules = new ArrayList<MaryModule>();
-	module_by_categories =  new HashMap<String, List<MaryModule>>();
+        modules_by_conf = new HashMap<String, List<MaryModule>>();
+	modules_by_cat_and_conf =  new HashMap<String, Map<String, List<MaryModule>>>();
         logger = LogManager.getLogger(ModuleRegistry.class);
     }
 
@@ -76,50 +79,60 @@ public class ModuleRegistry {
     // /////////////////////// instantiation //////////////////////////
     // ////////////////////////////////////////////////////////////////
 
-    public static MaryModule instantiateModule(String moduleInitInfo) throws
+    public static MaryModule instantiateModule(String conf, String module_class_name) throws
         MaryException {
-        logger.info("Now initiating mary module '" + moduleInitInfo + "'");
+        logger.info("Now initiating mary module '" + module_class_name + "' associated with configuration '" + conf + "'");
 
 	try {
-	    Class<?> clazz = Class.forName(moduleInitInfo);
+	    // Instantiate class
+	    Class<?> clazz = Class.forName(module_class_name);
 	    Constructor<?> ctor = clazz.getConstructor();
 	    MaryModule m = (MaryModule) ctor.newInstance(new Object[] {});
+
+	    // Apply the configuration
+	    MaryConfiguration oconf = MaryConfigurationFactory.getConfiguration(conf);
+	    m.setDefaultConfiguration(oconf);
+
 	    return m;
 	} catch (Exception ex) {
-	    throw new MaryException("cannot instantiate module \"" + moduleInitInfo + "\"", ex);
+	    throw new MaryException("cannot instantiate module \"" + module_class_name + "\"", ex);
 	}
+    }
+
+
+    public static MaryModule instantiateModule(String module_class_name) throws
+        MaryException {
+	return instantiateModule(MaryConfigurationFactory.DEFAULT_KEY, module_class_name);
     }
 
     // ////////////////////////////////////////////////////////////////
     // /////////////////////// registration ///////////////////////////
     // ////////////////////////////////////////////////////////////////
 
-    /**
-     * Register a MaryModule as an appropriate module to process the given
-     * combination of UtteranceType for the input data, locale of the input data,
-     * and voice requested for processing. Note that it is possible to register
-     * more than one module for a given combination of input type, locale and
-     * voice; in that case, all of them will be remembered, and will be returned
-     * as a List by get().
-     *
-     * @param module
-     *            the module to add to the registry, under its input type and
-     *            the given locale and voice.
-     * @param locale
-     *            the locale (language or language-COUNTRY) of the input data;
-     *            can be null to signal that the module is locale-independent.
-     * @throws IllegalStateException
-     *             if called after registration is complete.
-     */
     @SuppressWarnings("unchecked")
-    public static void registerModule(MaryModule module) throws IllegalStateException {
-        all_modules.add(module);
+    public static void registerModule(String configuration, MaryModule module) throws IllegalStateException {
+	if (!modules_by_conf.containsKey(configuration)) {
+	    modules_by_conf.put(configuration, new ArrayList<MaryModule>());
+	}
+        modules_by_conf.get(configuration).add(module);
+
 	String cat = module.getCategory();
-	if (!module_by_categories.containsKey(cat)) {
-	    module_by_categories.put(cat, new ArrayList<MaryModule>());
+	if (!modules_by_cat_and_conf.containsKey(cat)) {
+	    modules_by_cat_and_conf.put(cat, new HashMap<String, List<MaryModule>>());
 	}
 
-	module_by_categories.get(cat).add(module);
+	Map<String, List<MaryModule>> cat_submap = modules_by_cat_and_conf.get(cat);
+	if (! cat_submap.containsKey(configuration)) {
+	    cat_submap.put(configuration, new ArrayList<MaryModule>());
+	}
+
+	modules_by_cat_and_conf.get(cat).get(configuration).add(module);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static void registerModule(MaryModule module) throws IllegalStateException {
+	registerModule(MaryConfigurationFactory.DEFAULT_KEY, module);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -132,8 +145,8 @@ public class ModuleRegistry {
      *
      * @return Collections.unmodifiableList(all_modules)
      */
-    public static List<MaryModule> listRegisteredModules() {
-        return Collections.unmodifiableList(all_modules);
+    public static Map<String, List<MaryModule>> listRegisteredModules() {
+        return Collections.unmodifiableMap(modules_by_conf);
     }
 
     /**
@@ -144,8 +157,8 @@ public class ModuleRegistry {
      *             if called while registration is not yet complete.
      * @return Collections.unmodifiableList(all_modules)
      */
-    public static Map<String, List<MaryModule>> listModulesByCategories() {
-        return Collections.unmodifiableMap(module_by_categories);
+    public static Map<String, Map<String, List<MaryModule>>> listModulesByCategories() {
+        return Collections.unmodifiableMap(modules_by_cat_and_conf);
     }
 
     /**
@@ -157,10 +170,10 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
-    public static MaryModule getModule(String class_name) throws ClassNotFoundException {
+    public static MaryModule getDefaultModule(String class_name) throws ClassNotFoundException {
 	Class<?> cls = Class.forName(class_name);
 
-	return getModule(cls);
+	return getModule(MaryConfigurationFactory.DEFAULT_KEY, cls);
     }
     /**
      * Find an active module by its class.
@@ -171,8 +184,8 @@ public class ModuleRegistry {
      * @throws IllegalStateException
      *             if called while registration is not yet complete.
      */
-    public static MaryModule getModule(Class<?> moduleClass) {
-        for (Iterator<MaryModule> it = all_modules.iterator(); it.hasNext();) {
+    public static MaryModule getModule(String configuration, Class<?> moduleClass) {
+        for (Iterator<MaryModule> it = modules_by_conf.get(configuration).iterator(); it.hasNext();) {
             MaryModule m = it.next();
             if (moduleClass == m.getClass()) {
                 return m;

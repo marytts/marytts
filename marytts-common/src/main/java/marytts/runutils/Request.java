@@ -48,6 +48,7 @@ import java.util.TimerTask;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.config.MaryConfiguration;
+import marytts.config.MaryConfigurationFactory;
 import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
 import marytts.modules.MaryModule;
@@ -216,7 +217,8 @@ public class Request {
 	    logger.debug("trying to load the following class " + module_class_name);
 
 	    MaryModule cur_module = null;
-	    cur_module = ModuleRegistry.getModule(Class.forName(module_class_name));
+	    cur_module = ModuleRegistry.getModule(MaryConfigurationFactory.DEFAULT_KEY,
+						  Class.forName(module_class_name));
 	    if (cur_module == null) {
 		throw new MaryException("Cannot load module \"" + module_class_name +
 					"\" as it is not existing");

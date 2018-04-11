@@ -27,14 +27,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -112,20 +109,23 @@ public class Mary {
 
 	// Start the modules
         List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
-        for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
-            // Only start the modules here if in server mode:
-            if (m.getState() == MaryModule.MODULE_OFFLINE) {
-                long before = System.currentTimeMillis();
-                try {
-                    m.startup();
-		    m.checkStartup();
-                } catch (Throwable t) {
-                    throw new Exception("Problem starting module " + m.getClass().getName(), t);
-                }
-                long after = System.currentTimeMillis();
-                startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
-            }
-        }
+	Map<String, List<MaryModule>> modules_by_conf = ModuleRegistry.listRegisteredModules();
+	for (String conf: modules_by_conf.keySet()) {
+	    for (MaryModule m: modules_by_conf.get(conf)) {
+		// Only start the modules here if in server mode:
+		if (m.getState() == MaryModule.MODULE_OFFLINE) {
+		    long before = System.currentTimeMillis();
+		    try {
+			m.startup();
+			m.checkStartup();
+		    } catch (Throwable t) {
+			throw new Exception("Problem starting module " + m.getClass().getName(), t);
+		    }
+		    long after = System.currentTimeMillis();
+		    startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
+		}
+	    }
+	}
 
         if (startupTimes.size() > 0) {
             Collections.sort(startupTimes, new Comparator<Pair<MaryModule, Long>>() {
@@ -189,11 +189,15 @@ public class Mary {
         }
         currentState = STATE_SHUTTING_DOWN;
         logger.info("Shutting down modules...");
-        // Shut down modules:
-        for (MaryModule m : ModuleRegistry.listRegisteredModules()) {
-            if (m.getState() == MaryModule.MODULE_RUNNING) {
-                m.shutdown();
-            }
+
+
+	Map<String, List<MaryModule>> modules_by_conf = ModuleRegistry.listRegisteredModules();
+	for (String conf: modules_by_conf.keySet()) {
+	    for (MaryModule m: modules_by_conf.get(conf)) {
+		if (m.getState() == MaryModule.MODULE_RUNNING) {
+		    m.shutdown();
+		}
+	    }
         }
 
         logger.info("Shutdown complete.");

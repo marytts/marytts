@@ -26,7 +26,7 @@ public class PreprocessorIT extends MaryModuleTestCase {
     @BeforeSuite(alwaysRun = true)
     public void setup() throws Exception {
         setup(true); // need mary startup
-        module = ModuleRegistry.getModule(Preprocess.class);
+        module = ModuleRegistry.getDefaultModule(Preprocess.class.getName());
 	Assert.assertNotNull(module);
     }
 

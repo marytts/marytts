@@ -91,6 +91,15 @@ public abstract class MaryModule {
     }
 
     /**
+     *  Get the default configuration of the module.
+     *
+     *  @return the default configuration object
+     */
+    public void setDefaultConfiguration(MaryConfiguration default_configuration) {
+	this.default_configuration = default_configuration;
+    }
+
+    /**
      *  Apply the default configuration (could be seen as a kind of reset of parameters)
      *
      *  @throws MaryConfigurationException if anything is going wrong

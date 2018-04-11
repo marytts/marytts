@@ -27,7 +27,7 @@ public class JPhonemiserIT extends MaryModuleTestCase {
     @BeforeSuite(alwaysRun = true)
     public void setup() throws Exception {
         super.setup(true); // need mary startup
-        module = ModuleRegistry.getModule(JPhonemiser.class);
+        module = ModuleRegistry.getDefaultModule(JPhonemiser.class.getName());
 	Assert.assertNotNull(module);
     }
 
