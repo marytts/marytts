@@ -26,4 +26,9 @@ public class PreprocessIT extends MaryModuleTestCase {
     public void testParensAndNumber() throws Exception {
         assert processAndCompare("parens-and-number.tokenised", "parens-and-number.words", Locale.US);
     }
+
+    @Test
+    public void testBy() throws Exception {
+        assert processAndCompare("by.tokenised","by.words", Locale.US);
+    }
 }
