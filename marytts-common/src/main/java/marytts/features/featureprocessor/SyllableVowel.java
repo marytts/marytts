@@ -30,6 +30,9 @@ public class SyllableVowel implements FeatureProcessor {
 	    ArrayList<Phoneme> phonemes = (ArrayList<Phoneme>)rel.getRelatedItems(idx);
 	    String vowel = "";
 	    for (Phoneme ph: phonemes) {
+            if (IPA.ipa_cat_map.get(ph.getLabel().charAt(0)) == null)
+                throw new MaryException("the following characters is not ipa == " +
+                        ph.getLabel().charAt(0) + " ==");
 		if (IPA.ipa_cat_map.get(ph.getLabel().charAt(0)).contains("vowel")) {
 		    vowel = ph.getLabel();
 		    break;
