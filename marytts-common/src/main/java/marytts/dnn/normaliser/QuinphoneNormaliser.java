@@ -1,17 +1,14 @@
 package marytts.dnn.normaliser;
 
-import marytts.dnn.FeatureNormaliser;
-
+// Numeric
 import org.tensorflow.Tensor;
 
+// Collections
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-import marytts.data.Sequence;
+import java.util.Set;
 
-
-import marytts.phonetic.converter.Alphabet;
-import marytts.phonetic.AlphabetFactory;
 
 // File
 import java.io.IOException;
@@ -19,9 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+// Mary part
+import marytts.phonetic.IPA;
+import marytts.data.Sequence;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
-
+import marytts.dnn.FeatureNormaliser;
 import marytts.MaryException;
 
 /**
@@ -31,43 +31,56 @@ import marytts.MaryException;
  */
 public class QuinphoneNormaliser extends FeatureNormaliser
 {
-    protected ArrayList<String> dict;
-    protected Alphabet ipa2arpa;
     protected String[] feature_names = {"prev_prev_phone", "prev_phone", "phone", "next_phone", "next_next_phone"};  // FIXME: hardcode
+    protected ArrayList<String> feat_code = new ArrayList<String>();
 
     public QuinphoneNormaliser() throws Exception {
+	feat_code.add("consonant");
+	feat_code.add("plosive");
+	feat_code.add("nasal");
+	feat_code.add("trill");
+	feat_code.add("tap");
+	feat_code.add("flap");
+	feat_code.add("fricative");
+	feat_code.add("lateral");
+	feat_code.add("approximant");
+	feat_code.add("voiced");
+	feat_code.add("vowel");
+	feat_code.add("front");
+	feat_code.add("central");
+	feat_code.add("back");
+	feat_code.add("close");
+	feat_code.add("close-mid");
+	feat_code.add("open-mid");
+	feat_code.add("mid");
+	feat_code.add("rounded");
+    }
 
-	// FIXME: initalize info to encode the phonem sequence ()
-	dict = new ArrayList<String>();
-	try (Stream<String> stream = Files.lines(Paths.get("/home/slemaguer/work/maintained_tools/src/dnn/dict"))) {
+    public boolean validateCode(String ipa_label, String code) throws MaryException {
 
-	    stream.forEach(dict::add);
-
-	} catch (IOException e) {
-	    throw e;
+	Set<Character> ipa = IPA.cat_ipa_map.get(code);
+	if (ipa == null) {
+	    throw new MaryException(code + " is unknown!");
 	}
 
-	ipa2arpa = AlphabetFactory.getAlphabet("arpabet");
+	boolean found = false;
+	int i = 0;
+	while ((!found) && (i<ipa_label.length())) {
+	    if (ipa.contains(ipa_label.charAt(i)))
+		found = true;
 
-	// FIXME: hard coded
+	    i++;
+	}
 
+	return found;
     }
-
-
-    private int encodePhoneme(String ph) throws Exception {
-	String arpa = "pau";
-	if (! ph.equals("_"))
-	    arpa = ipa2arpa.getLabelFromIPA(ph);
-	return dict.indexOf(arpa.toLowerCase());
-    }
-
 
     public Tensor<Float> normalise(Sequence<FeatureMap> list_feature_map) throws MaryException {
 
 	try {
 
 	    // Get sizes
-	    int feat_size = feature_names.length * dict.size();
+	    int feat_size = feature_names.length * feat_code.size();
 	    float[][] normalised_vector = new float[list_feature_map.size()][feat_size];
 
 	    // Adapt everything
@@ -79,16 +92,21 @@ public class QuinphoneNormaliser extends FeatureNormaliser
 		    Feature cur = feature_map.get(feature_name);
 
 		    if (cur != Feature.UNDEF_FEATURE) {
-			int idx = encodePhoneme(cur.getStringValue());
-			if (idx == -1)
-			    throw new MaryException(String.format("%s leads to -1 (means not present in the dictionnary)", ipa2arpa.getLabelFromIPA(cur.getStringValue())));
-			normalised_vector[i][j*dict.size()+idx] = 1;
+			int idx = 0;
+			for (String code: feat_code) {
+
+			    // Check if IPA validate the code
+			    if (validateCode(cur.getStringValue(), code))
+				normalised_vector[i][j*feat_code.size()+idx] = 1;
+
+			    idx++;
+			}
 		    }
 
 		    j++;
 		}
-
 	    }
+
 	    return Tensor.create(normalised_vector, Float.class);
 
 	} catch (Exception ex) {
@@ -98,4 +116,4 @@ public class QuinphoneNormaliser extends FeatureNormaliser
 }
 
 
-/* FeatureNormaliser.java ends here */
+/* QuinphoneNormaliser.java ends here */
