@@ -10,8 +10,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.MaryModule;
 
 // DNN part
-import marytts.dnn.DNNPredictor;
-import marytts.dnn.normaliser.TriphoneNormaliser;
+import marytts.dnn.normaliser.QuinphoneNormaliser;
 import org.tensorflow.Tensor;
 
 
@@ -37,7 +36,7 @@ public class FeatureNormalisation extends MaryModule
 
     public FeatureNormalisation() throws Exception
     {
-	super("duration");
+	super("normalisation");
 	this.output_sequence_type = SupportedSequenceType.NORMALISED_FEATURES;
     }
 
@@ -76,7 +75,7 @@ public class FeatureNormalisation extends MaryModule
 	Sequence<FeatureChunk> encoded_vectors = new Sequence<FeatureChunk>();
 	try {
 	    // FIXME: hard coded
-	    TriphoneNormaliser tn = new TriphoneNormaliser();
+	    QuinphoneNormaliser tn = new QuinphoneNormaliser();
 
 	    // Encode (FIXME: assume)
 	    Tensor<Float> encoded_input =
