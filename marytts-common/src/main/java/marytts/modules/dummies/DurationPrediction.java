@@ -25,7 +25,7 @@ import marytts.data.SupportedSequenceType;
 public class DurationPrediction extends MaryModule
 {
 
-    private static final double DEFAULT_DUR=1.0;
+    private static final double DEFAULT_DUR = 10.0;
     public DurationPrediction() throws Exception
     {
 	super("duration");

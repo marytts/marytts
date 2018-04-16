@@ -37,7 +37,14 @@ public class DefaultHTSLabelSerializer implements Serializer {
 
     /** The default undefined value constant */
     private static final String DEFAULT_UNDEF = "xx";
+
+    /** The HTK step offset (ms => HTK unit) */
+    private static final int HTK_STEP = 10000;
+
+    /** The object undefined symbol */
     protected String undef_symbol;
+
+    /** Ipa to arpabet conversion */
     protected Alphabet ipa2arp;
 
     /**
@@ -49,6 +56,11 @@ public class DefaultHTSLabelSerializer implements Serializer {
 	ipa2arp = AlphabetFactory.getAlphabet("arpabet");
     }
 
+    /**
+     *  Get the object undefined symbol value
+     *
+     *  @return the undefined symbol
+     */
     public String getUndefSymbol() {
         return undef_symbol;
     }
@@ -85,8 +97,8 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		}
 		if (phs.get(0) instanceof Phone)  {
 		    Phone ph = (Phone) phs.get(0);
-		    long start = (long) (ph.getStart() * 10000);
-		    long end = (long) ((ph.getStart() + ph.getDuration()) * 10000);
+		    long start = (long) (ph.getStart() * HTK_STEP);
+		    long end = (long) ((ph.getStart() + ph.getDuration()) * HTK_STEP);
 		    output += String.format("%d\t%d\t", start, end);
 		}
 		output += format(map);
