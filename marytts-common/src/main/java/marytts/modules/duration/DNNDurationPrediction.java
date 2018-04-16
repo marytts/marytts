@@ -11,7 +11,7 @@ import marytts.modules.MaryModule;
 
 // DNN part
 import marytts.dnn.DNNPredictor;
-import marytts.dnn.normaliser.TriphoneNormaliser;
+import marytts.dnn.normaliser.QuinphoneNormaliser;
 import org.tensorflow.Tensor;
 
 
@@ -44,6 +44,7 @@ public class DNNDurationPrediction extends MaryModule
 
 	// Initialize the prediction resource
 	dnn_pred = new DNNPredictor(model_path); // FIXME: hardcoded
+	System.out.println("model_path = " + model_path);
     }
 
 
@@ -85,9 +86,11 @@ public class DNNDurationPrediction extends MaryModule
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
 	try {
+	    configuration.applyConfiguration(this);
+
 	    double start = 0.0;
 	    Sequence<Phoneme> ph_seq = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
-	    TriphoneNormaliser tn = new TriphoneNormaliser();
+	    QuinphoneNormaliser tn = new QuinphoneNormaliser();
 
 	    // Encode (FIXME: assume)
 	    Tensor<Float> encoded_input =
@@ -100,11 +103,11 @@ public class DNNDurationPrediction extends MaryModule
 
 	    for (int i=0; i<ph_seq.size(); i++) {
 		// Replace phoneme by phone
-		Phone tmp = new Phone(ph_seq.get(i), start, dur[i][0]/1000);
+		Phone tmp = new Phone(ph_seq.get(i), start, dur[i][0]);
 		ph_seq.set(i, tmp);
 
 		// Move to the next one !
-		start += dur[i][0] / 1000;
+		start += dur[i][0];
 	    }
 
 	    return utt;
