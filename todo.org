@@ -26,4 +26,5 @@ CLOSED: [2017-11-06 Mon 18:00]
 CLOSED: [2018-04-03 Tue 08:23]
 ** TODO Reinstore the model problem with HMMDurationModeller (or something like that)
 ** TODO See for the AcousticModeller module
+** TODO See for the user dict to be used before anything else
 * COMMENT some extra configuration
