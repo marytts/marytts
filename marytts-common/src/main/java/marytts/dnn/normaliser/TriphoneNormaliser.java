@@ -29,7 +29,7 @@ import marytts.MaryException;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
  */
-public class TriphoneNormaliser extends FeatureNormaliser
+public class TriphoneNormaliser implements FeatureNormaliser
 {
     protected ArrayList<String> dict;
     protected Alphabet ipa2arpa;
@@ -58,6 +58,17 @@ public class TriphoneNormaliser extends FeatureNormaliser
 	if (! ph.equals("_"))
 	    arpa = ipa2arpa.getLabelFromIPA(ph);
 	return dict.indexOf(arpa.toLowerCase());
+    }
+
+
+    public ArrayList<String> getHeader() {
+	ArrayList<String> header = new ArrayList<String>();
+	for (String name: feature_names) {
+	    for (String code: dict) {
+		header.add(name + "_" + code);
+	    }
+	}
+	return header;
     }
 
     public Tensor<Float> normalise(Sequence<FeatureMap> list_feature_map) throws MaryException {
