@@ -29,7 +29,7 @@ import marytts.MaryException;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
  */
-public class QuinphoneNormaliser extends FeatureNormaliser
+public class QuinphoneNormaliser implements FeatureNormaliser
 {
     protected String[] feature_names = {"prev_prev_phone", "prev_phone", "phone", "next_phone", "next_next_phone"};  // FIXME: hardcode
     protected ArrayList<String> feat_code = new ArrayList<String>();
@@ -54,6 +54,16 @@ public class QuinphoneNormaliser extends FeatureNormaliser
 	feat_code.add("open-mid");
 	feat_code.add("mid");
 	feat_code.add("rounded");
+    }
+
+    public ArrayList<String> getHeader() {
+	ArrayList<String> header = new ArrayList<String>();
+	for (String name: feature_names) {
+	    for (String code: feat_code) {
+		header.add(name + "_" + code);
+	    }
+	}
+	return header;
     }
 
     public boolean validateCode(String ipa_label, String code) throws MaryException {

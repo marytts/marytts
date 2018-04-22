@@ -81,8 +81,7 @@ public class FeatureNormalisation extends MaryModule
 	    Tensor<Float> encoded_input =
 		tn.normalise((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES));
 
-
-	    encoded_vectors.add(new FeatureChunk(encoded_input));
+	    encoded_vectors.add(new FeatureChunk(encoded_input, tn));
 	    utt.addSequence(this.output_sequence_type, encoded_vectors);
 
 	    return utt;

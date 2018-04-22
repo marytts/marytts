@@ -4,6 +4,7 @@ import marytts.data.item.Item;
 
 import org.tensorflow.Tensor;
 
+import marytts.dnn.FeatureNormaliser;
 
 /**
  *
@@ -12,7 +13,9 @@ import org.tensorflow.Tensor;
  */
 public class FeatureChunk extends Item {
 
-    Tensor<Float> data;
+    private Tensor<Float> data;
+    private FeatureNormaliser normaliser;
+
     /**
      * Constructor
      *
@@ -20,6 +23,13 @@ public class FeatureChunk extends Item {
     public FeatureChunk(Tensor<Float> data) {
         super();
 	setData(data);
+	setNormaliser(null);
+    }
+
+    public FeatureChunk(Tensor<Float> data, FeatureNormaliser normaliser) {
+        super();
+	setData(data);
+	setNormaliser(normaliser);
     }
 
     public Tensor<Float> getData() {
@@ -28,5 +38,15 @@ public class FeatureChunk extends Item {
 
     public void setData(Tensor<Float> data) {
 	this.data = data;
+    }
+
+
+
+    public FeatureNormaliser getNormaliser() {
+	return normaliser;
+    }
+
+    public void setNormaliser(FeatureNormaliser normaliser) {
+	this.normaliser = normaliser;
     }
 }
