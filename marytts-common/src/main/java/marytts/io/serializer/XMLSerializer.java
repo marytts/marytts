@@ -1046,7 +1046,16 @@ public class XMLSerializer implements Serializer {
         }
 
         // Create the phone and add the phone to the utterance
-        Phoneme ph = new Phoneme(elt.getAttribute("p"));
+	Phoneme ph;
+	if (elt.hasAttribute("start")) {
+	    float start = Float.parseFloat(elt.getAttribute("start"));
+	    float dur = Float.parseFloat(elt.getAttribute("end")) - start;
+	    ph = new Phone(elt.getAttribute("p"), start, dur);
+	} else {
+	    ph = new Phoneme(elt.getAttribute("p"));
+	}
+
+
         Sequence<Phoneme> seq_phone = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
         if (seq_phone == null) {
             seq_phone = new Sequence<Phoneme>();
