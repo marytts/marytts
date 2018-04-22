@@ -142,7 +142,7 @@ public class Preprocess extends MaryModule {
         numberWordPattern = Pattern.compile("([a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)\\w*");
         datePattern = Pattern.compile("(\\d{2})[\\/\\.](\\d{2})[\\/\\.]\\d{4}");
         contractPattern = Pattern.compile("[a-zA-Z]+('[a-zA-Z]+)");
-        symbolsPattern = Pattern.compile("[@%#\\/\\+=&><-]");
+        symbolsPattern = Pattern.compile("^[@%#\\/\\+=&><-]$");
         rangePattern = Pattern.compile("([0-9]+)-([0-9]+)");
         consonantPattern = Pattern.compile("[b-df-hj-np-tv-xz]+", Pattern.CASE_INSENSITIVE);
         // punctuationPattern = Pattern.compile("\\p{Punct}");
