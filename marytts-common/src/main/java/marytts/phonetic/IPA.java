@@ -25,6 +25,10 @@ public class IPA
 	tmp_map.put('.', tmp);
 
 	tmp = new HashSet<String>();
+	tmp.add("silence");
+	tmp_map.put('_', tmp);
+
+	tmp = new HashSet<String>();
 	tmp.add("front");
 	tmp.add("near-open");
 	tmp.add("voiced");
@@ -1270,6 +1274,10 @@ public class IPA
 	HashSet<Character> tmp2 = new HashSet<Character>();
 	tmp2.add('.');
 	tmp2_map.put("syllable_break", tmp2);
+
+	tmp2 = new HashSet<Character>();
+	tmp2.add('_');
+	tmp2_map.put("silence", tmp2);
 
 	tmp2 = new HashSet<Character>();
 	tmp2.add('a');
