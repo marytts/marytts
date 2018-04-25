@@ -31,14 +31,22 @@ public class AudioItem extends Item {
         setAudio(filename);
     }
 
+    public AudioItem(byte[] bytes)  throws UnsupportedAudioFileException, IOException {
+	setAudio(bytes);
+    }
+
     public AudioItem(AudioInputStream ais) {
         setAudio(ais);
     }
 
-    public void setAudio(String filename) throws UnsupportedAudioFileException, IOException {
 
-        AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(Files.readAllBytes(new File(
-                                      filename).toPath())));
+    public void setAudio(String filename) throws UnsupportedAudioFileException, IOException {
+	setAudio(Files.readAllBytes(new File(filename).toPath()));
+    }
+
+    public void setAudio(byte[] bytes) throws UnsupportedAudioFileException, IOException {
+
+        AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
         setAudio(stream);
     }
 
