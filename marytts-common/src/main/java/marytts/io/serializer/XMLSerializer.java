@@ -1049,7 +1049,19 @@ public class XMLSerializer implements Serializer {
 	Phoneme ph;
 	if (elt.hasAttribute("start")) {
 	    float start = Float.parseFloat(elt.getAttribute("start"));
-	    float dur = Float.parseFloat(elt.getAttribute("end")) - start;
+	    float dur = -1.0f;
+	    if (elt.hasAttribute("d")) {
+		dur = Float.parseFloat(elt.getAttribute("d"));
+	    }
+
+	    if (dur < 0) {
+		if (elt.hasAttribute("end")) {
+		    dur = Float.parseFloat(elt.getAttribute("end")) - start;
+		} else {
+		    throw new MaryIOException("no duration information (d/end attribute)");
+		}
+	    }
+
 	    ph = new Phone(elt.getAttribute("p"), start, dur);
 	} else {
 	    ph = new Phoneme(elt.getAttribute("p"));
