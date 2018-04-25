@@ -44,7 +44,6 @@ public class DNNDurationPrediction extends MaryModule
 
 	// Initialize the prediction resource
 	dnn_pred = new DNNPredictor(model_path); // FIXME: hardcoded
-	System.out.println("model_path = " + model_path);
     }
 
 
