@@ -1,6 +1,8 @@
 package marytts.modules.duration;
 
 import marytts.MaryException;
+import marytts.dnn.FeatureNormaliser;
+import marytts.io.MaryIOException;
 
 // Configuration
 import marytts.config.MaryConfiguration;
@@ -11,7 +13,7 @@ import marytts.modules.MaryModule;
 
 // DNN part
 import marytts.dnn.DNNPredictor;
-import marytts.dnn.normaliser.QuinphoneNormaliser;
+import marytts.dnn.normaliser.*;
 import org.tensorflow.Tensor;
 
 
@@ -35,9 +37,49 @@ public class DNNDurationPrediction extends MaryModule
 {
     private DNNPredictor dnn_pred;
 
+    private FeatureNormaliser normaliser;
+
+    private String dict_filename;
+
+
+
     public DNNDurationPrediction() throws Exception
     {
 	super("duration");
+	dict_filename = null;
+    }
+
+
+    public String getDictFilename() {
+	return dict_filename;
+    }
+
+    public FeatureNormaliser getNormaliser() {
+	return normaliser;
+    }
+
+
+    public void setDictFilename(String dict_filename) {
+	this.dict_filename = dict_filename;
+    }
+
+
+    public void setNormaliser(String normaliser) throws MaryIOException {
+	try {
+	    if (normaliser.equals("QuinphoneNormaliser")) {
+		this.normaliser = new QuinphoneNormaliser();
+	    } else if (normaliser.equals("QuinphoneWithDictNormaliser")) {
+		if (getDictFilename() != null) {
+		    this.normaliser = new QuinphoneWithDictNormaliser(getDictFilename());
+		} else {
+		    throw new MaryIOException("QuinphoneWithDictNormaliser needs a dict filename");
+		}
+	    } else {
+		throw new MaryIOException("Unknown normaliser: " + normaliser);
+	    }
+	} catch (Exception ex) {
+	    throw new MaryIOException("Cannot set normaliser", ex);
+	}
     }
 
     public void setPredictorModel(String model_path) {
@@ -87,27 +129,35 @@ public class DNNDurationPrediction extends MaryModule
 	try {
 	    configuration.applyConfiguration(this);
 
-	    double start = 0.0;
+	    double start = 15.0;
 	    Sequence<Phoneme> ph_seq = (Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE);
-	    QuinphoneNormaliser tn = new QuinphoneNormaliser();
 
 	    // Encode (FIXME: assume)
 	    Tensor<Float> encoded_input =
-		tn.normalise((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES));
+		normaliser.normalise((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES));
 
 	    // Predict
 	    Tensor<Float> dur_t = dnn_pred.predict(encoded_input);
-	    float[][] dur = new float[ph_seq.size()][1];
-	    dur_t.copyTo(dur);
+	    float[][] dur_a = new float[ph_seq.size()][1];
+	    dur_t.copyTo(dur_a);
 
 	    for (int i=0; i<ph_seq.size(); i++) {
+		double dur = dur_a[i][0];
+
 		// Replace phoneme by phone
-		Phone tmp = new Phone(ph_seq.get(i), start, dur[i][0]);
+		Phone tmp = new Phone(ph_seq.get(i), start, dur);
 		ph_seq.set(i, tmp);
 
 		// Move to the next one !
-		start += dur[i][0];
+		start += dur;
 	    }
+
+
+	    Phone tmp = new Phone("_", 0, 15.0);
+	    ph_seq.add(0, tmp);
+
+	    tmp = new Phone("_", start, start+15.0);
+	    ph_seq.add(tmp);
 
 	    return utt;
 	} catch (Exception ex) {
