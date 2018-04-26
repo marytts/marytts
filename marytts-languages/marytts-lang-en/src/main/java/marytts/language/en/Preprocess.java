@@ -146,9 +146,9 @@ public class Preprocess extends MaryModule {
         rangePattern = Pattern.compile("([0-9]+)-([0-9]+)");
         consonantPattern = Pattern.compile("[b-df-hj-np-tv-xz]+", Pattern.CASE_INSENSITIVE);
         // punctuationPattern = Pattern.compile("\\p{Punct}");
-        numberSPattern = Pattern.compile("([0-9]+)([sS])");
-        myPunctPattern = Pattern.compile(",\\.:;?'\"");
-	punctuationPattern = Pattern.compile(",\\.:;?\"");
+        numberSPattern = Pattern.compile("^([0-9]+)([sS.])");
+        myPunctPattern = Pattern.compile("^[,\\.:;?'\"]+$");
+	punctuationPattern = Pattern.compile("^[,\\.:;?\"]+$");
         hashtagPattern = Pattern.compile("(#)(\\w+)");
         URLPattern = Pattern.compile(
                          "(https?:\\/\\/)?((www\\.)?([-a-zA-Z0-9@:%._\\\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\+.~#?&\\/=]*)))");
