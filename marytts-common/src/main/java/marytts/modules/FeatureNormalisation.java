@@ -10,9 +10,12 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.MaryModule;
 
 // DNN part
-import marytts.dnn.normaliser.QuinphoneNormaliser;
+import marytts.dnn.FeatureNormaliser;
+import marytts.dnn.normaliser.*;
 import org.tensorflow.Tensor;
 
+// IO
+import marytts.io.MaryIOException;
 
 // Data
 import marytts.features.FeatureMap;
@@ -34,13 +37,49 @@ public class FeatureNormalisation extends MaryModule
 
     protected String output_sequence_type;
 
+    private FeatureNormaliser normaliser;
+
+    private String dict_filename;
+
     public FeatureNormalisation() throws Exception
     {
 	super("normalisation");
 	this.output_sequence_type = SupportedSequenceType.NORMALISED_FEATURES;
+	this.normaliser = null;
     }
 
 
+
+    public String getDictFilename() {
+	return dict_filename;
+    }
+
+    public FeatureNormaliser getNormaliser() {
+	return normaliser;
+    }
+
+
+    public void setDictFilename(String dict_filename) {
+	this.dict_filename = dict_filename;
+    }
+
+    public void setNormaliser(String normaliser) throws MaryIOException {
+	try {
+	    if (normaliser.equals("QuinphoneNormaliser")) {
+		this.normaliser = new QuinphoneNormaliser();
+	    } else if (normaliser.equals("QuinphoneWithDictNormaliser")) {
+		if (getDictFilename() != null) {
+		    this.normaliser = new QuinphoneWithDictNormaliser(getDictFilename());
+		} else {
+		    throw new MaryIOException("QuinphoneWithDictNormaliser needs a dict filename");
+		}
+	    } else {
+		throw new MaryIOException("Unknown normaliser: " + normaliser);
+	    }
+	} catch (Exception ex) {
+	    throw new MaryIOException("Cannot set normaliser", ex);
+	}
+    }
 
     public void checkStartup() throws MaryConfigurationException {
     }
@@ -71,17 +110,14 @@ public class FeatureNormalisation extends MaryModule
      *             [TODO]
      */
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
-
 	Sequence<FeatureChunk> encoded_vectors = new Sequence<FeatureChunk>();
 	try {
-	    // FIXME: hard coded
-	    QuinphoneNormaliser tn = new QuinphoneNormaliser();
+	    configuration.applyConfiguration(this);
 
-	    // Encode (FIXME: assume)
-	    Tensor<Float> encoded_input =
-		tn.normalise((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES));
+	    Sequence<FeatureMap> seq_feat = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
+	    Tensor<Float> encoded_input = getNormaliser().normalise(seq_feat);
 
-	    encoded_vectors.add(new FeatureChunk(encoded_input, tn));
+	    encoded_vectors.add(new FeatureChunk(encoded_input, normaliser));
 	    utt.addSequence(this.output_sequence_type, encoded_vectors);
 
 	    return utt;
