@@ -256,6 +256,7 @@ public class Preprocess extends MaryModule {
 
             // to accommodate the first token being a url
             if (URLFirst) {
+		System.out.println("t = " + t.toString());
                 t = tokens.get(idx_token - 1);
                 URLFirst = false;
             }
@@ -415,17 +416,24 @@ public class Preprocess extends MaryModule {
                 Matcher urlMatcher = URLPattern.matcher(token_text);
                 urlMatcher.find();
                 webEmailTemp = token_text;
-                isURL = true;
+                // isURL = true;
                 expanded_text = expandURL(urlMatcher.group(2));
-            }
-            // dot . for web and email addresses
-            else if (token_text.equals(".") && isURL) {
-                expanded_text = "dot";
-                webEmailTemp = webEmailTemp.replaceFirst("\\.", "dot");
+		String[] elts = expanded_text.split(" ");
+		System.out.println(elts[0]);
+		for (int i=0; i<elts.length; i++) {
 
-                if (!webEmailTemp.contains(".")) {
-                    isURL = false;
-                }
+		    if (elts[i].equals(".")) {
+			elts[i] = "dot";
+		    } else if (elts[i].equals("@")) {
+			elts[i] = "at";
+		    } else if (elts[i].equals("/")) {
+			elts[i] = "slash";
+		    } else if (elts[i].equals(".")) {
+			elts[i] = "colon";
+		    }
+		}
+
+		expanded_text = String.join(" ", elts);
             }
             // symbols
             else if (token_text.matches(symbolsPattern.pattern())) {
