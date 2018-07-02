@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Set;
 
-
 // File
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 // Mary part
-import marytts.phonetic.IPA;
 import marytts.data.Sequence;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
@@ -25,31 +23,49 @@ import marytts.dnn.FeatureNormaliser;
 import marytts.MaryException;
 
 /**
+ *  A quinphone normaliser based on a dictionary of labels.
  *
+ *  This implies that all the possible labels should be in the dictionary!
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ *  @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
  */
-public class QuinphoneWithDictNormaliser implements FeatureNormaliser
+public class QuinphoneWithDictNormaliser extends QuinphoneNormaliser
 {
-    protected String[] feature_names = {"prev_prev_phone", "prev_phone", "phone", "next_phone", "next_next_phone"};  // FIXME: hardcode
-    protected ArrayList<String> feat_code = new ArrayList<String>();
+    /**
+     *  Default constructor is deactivated !
+     *
+     */
+    public QuinphoneWithDictNormaliser() {
+        throw new UnsupportedOperationException();
+    }
 
-    public QuinphoneWithDictNormaliser(String dict_filename) throws Exception {
+    /**
+     *  Proper constructor which needs a dictionary file name. The dictionary is loaded as the code.
+     *
+     *  @param dict_filename the filename of the dictionary
+     *  @throws IOException if the dictionary can not be open
+     */
+    public QuinphoneWithDictNormaliser(String dict_filename) throws IOException {
 	try (Stream<String> stream = Files.lines(Paths.get(dict_filename))) {
 	    stream.forEach(feat_code::add);
 	}
     }
 
-    public ArrayList<String> getHeader() {
-	ArrayList<String> header = new ArrayList<String>();
-	for (String name: feature_names) {
-	    for (String code: feat_code) {
-		header.add(name + "_" + code);
-	    }
-	}
-	return header;
-    }
 
+    /**
+     *  The normalising method.
+     *
+     *  This consists of generating a binary matrix with each vector * corresponding to a frame. The
+     *  vector is a hot vector of size nb_features*nb_code.
+     *
+     *  For a specific context (feature), a cell of this vector at 1.0f indicates that the label
+     *  associated corresponds to the label of the dictionary of the same index.
+     *
+     *  @param list_feature_map the feature maps
+     *  @return the binary matrix
+     *  @throw MaryException if anything is going wrong
+     */
+    @Override
     public Tensor<Float> normalise(Sequence<FeatureMap> list_feature_map) throws MaryException {
 
 	try {
@@ -71,7 +87,7 @@ public class QuinphoneWithDictNormaliser implements FeatureNormaliser
 			if (idx >= 0)
 			    normalised_vector[i][j*feat_code.size()+idx] = 1.0f;
 			else
-			    throw new MaryException(cur.getStringValue() + " is not in the given dictionnary");
+			    throw new MaryException(cur.getStringValue() + " is not in the given dictionary");
 		    }
 
 		    j++;
