@@ -10,6 +10,9 @@ import marytts.data.item.acoustic.AudioItem;
 
 
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 /**
  *
  *
@@ -42,7 +45,9 @@ public class AudioSerializer implements Serializer {
 
             AudioItem audio_item = (AudioItem) seq_au.get(0);
 
-            return "{ \"audio\": \"" + audio_item.getAudioStringEncoded() + "\"}";
+	    JSONObject ob = new JSONObject();
+	    ob.put("audio", audio_item.getAudioStringEncoded());
+	    return ob;
         } catch (Exception ex) {
             throw new MaryIOException("Cannot serialize utterance", ex);
         }
