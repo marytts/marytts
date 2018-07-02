@@ -65,7 +65,7 @@ public class TextGridSerializer implements Serializer {
 		tiers.add(loadSequence(utt, seq_name, seq_ph));
 	    }
 
-	    TextGrid tgt = new TextGrid(null, 0, getEnd(seq_ph), tiers);
+	    TextGrid tgt = new TextGrid(null, 0, getEnd(seq_ph)/1000, tiers);
 
 	    // Serialize
 	    org.m2ci.msp.jtgt.io.TextGridSerializer tgt_ser = new org.m2ci.msp.jtgt.io.TextGridSerializer();
@@ -111,7 +111,7 @@ public class TextGridSerializer implements Serializer {
 	    end += ((Phone) seq_ph.get(rel_indexes[rel_indexes.length-1])).getDuration();
 	    String text = cur_seq.get(i).toString();
 
-	    Annotation annotation = new IntervalAnnotation(start_an, end, text);
+	    Annotation annotation = new IntervalAnnotation(start_an/1000, end/1000, text);
 
 	    annotations.add(annotation);
 
@@ -119,7 +119,7 @@ public class TextGridSerializer implements Serializer {
 	}
 
 
-        return new IntervalTier(seq_name, start, end, annotations);
+        return new IntervalTier(seq_name, start/1000, end/1000, annotations);
     }
 
     protected IntervalTier loadReferenceTier(Sequence<Phoneme> seq_ph) {
@@ -133,13 +133,13 @@ public class TextGridSerializer implements Serializer {
 	    end = start_an + ((Phone) ph).getDuration();
 	    String text = ph.toString();
 
-	    Annotation annotation = new IntervalAnnotation(start_an, end, text);
+	    Annotation annotation = new IntervalAnnotation(start_an/1000, end/1000, text);
 
 	    annotations.add(annotation);
 	}
 
 
-        return new IntervalTier(ref_sequence, start, end, annotations);
+        return new IntervalTier(ref_sequence, start/1000, end/1000, annotations);
     }
 
     /**
