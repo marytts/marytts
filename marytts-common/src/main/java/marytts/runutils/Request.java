@@ -151,6 +151,7 @@ public class Request {
      *  @throws Exception if anything is going wrong
      */
     public void setLoggerLevel(String level) throws Exception {
+	level = level.toUpperCase();
 	Level current_level;
 	if (level.equals("ERROR"))
 	    current_level = Level.ERROR;
@@ -162,7 +163,6 @@ public class Request {
 	    current_level = Level.DEBUG;
 	else
 	    throw new Exception("\"" + level + "\" is an unknown level");
-
 
 	// Logging configuration
 	baos_logger = new ByteArrayOutputStream();
