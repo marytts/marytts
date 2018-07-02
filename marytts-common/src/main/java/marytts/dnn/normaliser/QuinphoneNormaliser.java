@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Set;
 
-
 // File
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,16 +24,24 @@ import marytts.dnn.FeatureNormaliser;
 import marytts.MaryException;
 
 /**
- *
+ *  Default quinphone normaliser based on IPA information extracted from the IPA class
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
  */
 public class QuinphoneNormaliser implements FeatureNormaliser
 {
-    protected String[] feature_names = {"prev_prev_phone", "prev_phone", "phone", "next_phone", "next_next_phone"};  // FIXME: hardcode
+    /** The names of the features used in the feature maps */
+    protected String[] feature_names = {"prev_prev_phone", "prev_phone", "phone", "next_phone", "next_next_phone"};  // FIXME: hardcoded
+
+    /** The code of the characteristic features used */
     protected ArrayList<String> feat_code = new ArrayList<String>();
 
-    public QuinphoneNormaliser() throws Exception {
+    /**
+     *  Default constructor
+     *
+     *  it just adds the default code into the code list.
+     */
+    public QuinphoneNormaliser() {
 	feat_code.add("consonant");
 	feat_code.add("plosive");
 	feat_code.add("nasal");
@@ -56,6 +63,7 @@ public class QuinphoneNormaliser implements FeatureNormaliser
 	feat_code.add("rounded");
     }
 
+    @Override
     public ArrayList<String> getHeader() {
 	ArrayList<String> header = new ArrayList<String>();
 	for (String name: feature_names) {
@@ -66,7 +74,15 @@ public class QuinphoneNormaliser implements FeatureNormaliser
 	return header;
     }
 
-    public boolean validateCode(String ipa_label, String code) throws MaryException {
+    /**
+     *  Method to check if an ipa label is validating the property given by the code
+     *
+     *  @param ipa_label the ipa label to check
+     *  @param code the property code
+     *  @return true if the label has the property identified by the code, false else
+     *  @throws MaryException if the given label is not a valid ipa label.
+     */
+    protected boolean validateCode(String ipa_label, String code) throws MaryException {
 
 	Set<Character> ipa = IPA.cat_ipa_map.get(code);
 	if (ipa == null) {
@@ -85,6 +101,21 @@ public class QuinphoneNormaliser implements FeatureNormaliser
 	return found;
     }
 
+
+    /**
+     *  The normalising method.
+
+     *  This consists of generating a binary matrix with each vector corresponding to a frame. The
+     *  vector is a hot vector of size nb_features*nb_code.
+     *
+     *  For a specific context (feature), a cell at 1.0f indicates that the corresponding phone
+     *  label validate the code identified by the index of this cell.
+     *
+     *  @param list_feature_map the feature maps
+     *  @return the binary matrix
+     *  @throw MaryException if anything is going wrong
+     */
+    @Override
     public Tensor<Float> normalise(Sequence<FeatureMap> list_feature_map) throws MaryException {
 
 	try {
