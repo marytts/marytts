@@ -55,8 +55,11 @@ import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
 
+// Logging
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * The main program for the mary TtS system. It can run as a socket server or as
@@ -140,6 +143,26 @@ public class Mary {
         }
     }
 
+    private static void overrideLogLevel() throws Exception {
+	String level = System.getProperty("log4j.level");
+	// Get the level
+	Level current_level;
+	if (level.equals("ERROR"))
+	    current_level = Level.ERROR;
+	else if (level.equals("WARN"))
+	    current_level = Level.WARN;
+	else if (level.equals("INFO"))
+	    current_level = Level.INFO;
+	else if (level.equals("DEBUG"))
+	    current_level = Level.DEBUG;
+	else
+	    throw new Exception("\"" + level + "\" is an unknown level");
+
+	// Set the level
+	Configurator.setRootLevel(current_level);
+	System.out.println("new level = " + level);
+    }
+
     /**
      * Start the MARY system and all modules. This method must be called once
      * before any calls to
@@ -155,6 +178,10 @@ public class Mary {
         if (currentState != STATE_OFF) {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
+
+	if (System.getProperty("log4j.level") != null) {
+	    overrideLogLevel();
+	}
         currentState = STATE_STARTING;
         logger.info("Mary starting up...");
         logger.info("Running on a Java " + System.getProperty("java.version") +
