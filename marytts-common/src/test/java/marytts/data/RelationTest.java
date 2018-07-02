@@ -87,6 +87,31 @@ public class RelationTest {
         // Assert.assertFalse(true);
     }
 
+    @Test
+    public void testInnerInsertion() {
+        Word w1 = new Word("Hello");
+        Word w2 = new Word("You");
+	Word mark = new Word("_");
+
+        Sequence<Word> seq1 = new Sequence<Word>();
+        seq1.add(w1);
+        seq1.add(w2);
+
+        Sequence<Word> seq2 = new Sequence<Word>();
+        seq2.add(w1);
+        seq2.add(w2);
+
+        Relation rel = new Relation(seq1, seq2);
+
+        rel.addRelation(0, 0);
+	rel.addRelation(1, 1);
+
+
+        seq1.add(0, mark);
+        seq1.add(1, mark);
+	// Assert.assertFalse(true);
+    }
+
     @Test(expectedExceptions = AssertionError.class)
     public void testRemoveOutBoundaries1() {
         Word w1 = new Word("Hello");
