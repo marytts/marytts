@@ -2,9 +2,6 @@
     "marytts.modules.nlp.JPhonemiser": {
 	"pos_punct_regex": "\\$,|\\$.|\\$\\("
     },
-    "marytts.modules.duration.DNNDurationPrediction": {
-	"predictor_model": "/home/slemaguer/work/maintained_tools/src/dnn/output_model"
-    },
     "marytts.modules.acoustic.TargetFeatureLister": {
 	"feature_configuration": {
 	    "feature_processors" : [
