@@ -155,6 +155,3 @@ public class QuinphoneNormaliser implements FeatureNormaliser
 	}
     }
 }
-
-
-/* QuinphoneNormaliser.java ends here */
