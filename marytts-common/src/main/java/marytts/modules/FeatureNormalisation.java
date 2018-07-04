@@ -2,6 +2,9 @@ package marytts.modules;
 
 import marytts.MaryException;
 
+// Reflection
+import java.lang.reflect.Constructor;
+
 // Configuration
 import marytts.config.MaryConfiguration;
 import marytts.exceptions.MaryConfigurationException;
@@ -16,6 +19,7 @@ import org.tensorflow.Tensor;
 
 // IO
 import marytts.io.MaryIOException;
+import java.io.InputStream;
 
 // Data
 import marytts.features.FeatureMap;
@@ -28,59 +32,109 @@ import marytts.data.SupportedSequenceType;
 import java.util.ArrayList;
 
 /**
+ *  Feature normalisation module used to generate binary input vectors for the DNN prediction module
+ *  laster called.
  *
- *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
+ *  @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class FeatureNormalisation extends MaryModule
 {
-
+    /** The name of the output sequence type */
     protected String output_sequence_type;
 
+    /** The normaliser used */
     private FeatureNormaliser normaliser;
 
-    private String dict_filename;
+    /** The normaliser input path */
+    private String normaliser_input_path;
 
-    public FeatureNormalisation() throws Exception
+    /** The normaliser input stream loaded from the resource */
+    private InputStream normaliser_input_stream;
+
+    /**
+     *  Default Constructor.
+     *
+     */
+    public FeatureNormalisation()
     {
 	super("normalisation");
 	this.output_sequence_type = SupportedSequenceType.NORMALISED_FEATURES;
 	this.normaliser = null;
+        this.normaliser_input_path = null;
+        this.normaliser_input_stream = null;
     }
 
-
-
-    public String getDictFilename() {
-	return dict_filename;
+    /**
+     *  Method to get the normaliser input path (file or resource)
+     *
+     *  @return the normaliser input path
+     */
+    public String getInputNormaliserPath() {
+	return normaliser_input_path;
     }
 
+    /**
+     *  Method to get the normaliser
+     *
+     *  @return the normaliser
+     */
     public FeatureNormaliser getNormaliser() {
 	return normaliser;
     }
 
-
-    public void setDictFilename(String dict_filename) {
-	this.dict_filename = dict_filename;
+    /**
+     *  Method to set the input normaliser filename
+     *
+     *  @param input_filename the input filename
+     */
+    public void setInputNormaliserFilename(String input_filename) {
+	this.normaliser_input_path = input_filename;
     }
 
-    public void setNormaliser(String normaliser) throws MaryIOException {
+    /**
+     *  Method to set the input normaliser resource path
+     *
+     *  @param input_resource_path the input resource path of the normaliser
+     */
+    public void setInputNormaliserResourcePath(String input_resource_path) {
+	this.normaliser_input_path = input_resource_path;
+        normaliser_input_stream =  FeatureNormalisation.class.getResourceAsStream(input_resource_path);
+    }
+
+    /**
+     *  Method to set the normaliser based on its name
+     *
+     *  @param normaliser_name the normaliser name
+     *  @throws MaryIOException if the normaliser can't be set for any reason
+     */
+    public void setNormaliser(String normaliser_name) throws MaryIOException {
 	try {
-	    if (normaliser.equals("QuinphoneNormaliser")) {
-		this.normaliser = new QuinphoneNormaliser();
-	    } else if (normaliser.equals("QuinphoneWithDictNormaliser")) {
-		if (getDictFilename() != null) {
-		    this.normaliser = new QuinphoneWithDictNormaliser(getDictFilename());
-		} else {
-		    throw new MaryIOException("QuinphoneWithDictNormaliser needs a dict filename");
-		}
-	    } else {
-		throw new MaryIOException("Unknown normaliser: " + normaliser);
-	    }
+
+            Class<?> clazz = Class.forName(normaliser_name);
+            Constructor<?> ctor;
+            if (normaliser_input_path == null) {
+                ctor = clazz.getConstructor();
+                this.normaliser = (FeatureNormaliser) ctor.newInstance(new Object[] {});
+
+            } else if (normaliser_input_stream == null) {
+                ctor = clazz.getConstructor(new Class[]{String.class});
+                this.normaliser = (FeatureNormaliser) ctor.newInstance(new Object[] {this.normaliser_input_path});
+            } else {
+                ctor = clazz.getConstructor(new Class[]{InputStream.class});
+                this.normaliser = (FeatureNormaliser) ctor.newInstance(new Object[] {this.normaliser_input_stream});
+            }
+
 	} catch (Exception ex) {
-	    throw new MaryIOException("Cannot set normaliser", ex);
+	    throw new MaryIOException("Cannot set normaliser \"" + normaliser_name + "\"", ex);
 	}
     }
 
+    /**
+     *  The startup checking method.
+     *
+     *  @throws MaryConfigurationException never done here!
+     */
+    @Override
     public void checkStartup() throws MaryConfigurationException {
     }
 
@@ -109,6 +163,7 @@ public class FeatureNormalisation extends MaryModule
      * @throws Exception
      *             [TODO]
      */
+    @Override
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 	Sequence<FeatureChunk> encoded_vectors = new Sequence<FeatureChunk>();
 	try {
@@ -127,6 +182,11 @@ public class FeatureNormalisation extends MaryModule
     }
 
 
+    /**
+     *  Method to set the description of the object
+     *
+     */
+    @Override
     public void setDescription() {
 	this.description = "Dummy duration prediction which sets each phone at 1s.";
     }
