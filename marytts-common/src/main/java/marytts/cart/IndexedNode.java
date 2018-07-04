@@ -10,4 +10,3 @@ public interface IndexedNode {
     public int getIndex(Object value);
 }
 
-/* IndexedNode.java ends here */

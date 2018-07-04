@@ -172,4 +172,3 @@ public class DNNDurationPrediction extends MaryModule
 }
 
 
-/* DurationPrediction.java ends here */

@@ -90,4 +90,3 @@ public class JSONFeatureSerializer implements Serializer {
     }
 }
 
-/* JSONFeatureSerializer.java ends here */

@@ -52,4 +52,3 @@ public class OpenNLPPosTagger extends marytts.modules.nlp.OpenNLPPosTagger
 }
 
 
-/* OpenNLPPosTagger.java ends here */

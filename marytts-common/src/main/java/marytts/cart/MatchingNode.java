@@ -29,4 +29,3 @@ public class MatchingNode implements IndexedNode {
     }
 }
 
-/* MatchingNode.java ends here */

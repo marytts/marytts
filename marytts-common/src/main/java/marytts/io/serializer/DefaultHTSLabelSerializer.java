@@ -316,4 +316,3 @@ public class DefaultHTSLabelSerializer implements Serializer {
     }
 }
 
-/* DefaultHTSLabelSerializer.java ends here */

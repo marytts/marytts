@@ -120,4 +120,3 @@ public class TSVSerializer implements Serializer {
     }
 }
 
-/* HTSLabelSerializer.java ends here */

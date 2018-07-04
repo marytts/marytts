@@ -89,4 +89,3 @@ public class BinaryChunkSerializer implements Serializer {
     }
 }
 
-/* HTSLabelSerializer.java ends here */

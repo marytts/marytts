@@ -68,4 +68,3 @@ public class MaryConfigurationFactory
 }
 
 
-/* MaryConfigurationFactory.java ends here */

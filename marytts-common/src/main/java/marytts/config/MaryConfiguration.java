@@ -176,4 +176,3 @@ public class MaryConfiguration {
 }
 
 
-/* MaryConfiguration.java ends here */

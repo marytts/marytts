@@ -80,4 +80,3 @@ public class DurationPrediction extends MaryModule
 }
 
 
-/* DurationPrediction.java ends here */

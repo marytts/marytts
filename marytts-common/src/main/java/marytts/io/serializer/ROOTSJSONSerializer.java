@@ -355,4 +355,3 @@ public class ROOTSJSONSerializer implements Serializer {
     }
 }
 
-/* ROOTSJSONSerializer.java ends here */

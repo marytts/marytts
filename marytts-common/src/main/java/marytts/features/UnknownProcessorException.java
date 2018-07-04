@@ -23,4 +23,3 @@ public class UnknownProcessorException extends MaryException {
     }
 }
 
-/* UnknownProcessorException.java ends here */

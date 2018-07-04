@@ -191,6 +191,3 @@ public class FeatureNormalisation extends MaryModule
 	this.description = "Dummy duration prediction which sets each phone at 1s.";
     }
 }
-
-
-/* DurationPrediction.java ends here */

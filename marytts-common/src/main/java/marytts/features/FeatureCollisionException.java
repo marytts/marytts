@@ -20,4 +20,3 @@ public class FeatureCollisionException extends Exception {
     }
 }
 
-/* FeatureCollisionException.java ends here */
