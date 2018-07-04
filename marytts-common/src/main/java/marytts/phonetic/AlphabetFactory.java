@@ -16,7 +16,7 @@ import java.lang.reflect.Constructor;
 /**
  * The alphabet factory to produce the alphabet/ipa conversion objects
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class AlphabetFactory
 {

@@ -13,11 +13,16 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Set;
 
-// File
+
+// File / Streams
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 // Mary part
 import marytts.data.Sequence;
@@ -27,21 +32,57 @@ import marytts.dnn.FeatureNormaliser;
 import marytts.MaryException;
 
 /**
- *  Default quinphone normaliser based on IPA information extracted from the IPA class
+ *  Normaliser based on an HTK Question file.
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ *  Some constraint are supposed to be encoded in the file
+ *    - the question name is formated as &lt;feature name&gt;==&lt;something&gt;
+ *    - values should be only alphanumerical values
+ *    - separator should not contains any alphanumerical information except if it is validating the following regexp /[A-Z]:
+ *
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class HTKQuestionNormaliser implements FeatureNormaliser
 {
+    /** Separator between feature id and anything else from the question filename */
     protected final String FEAT_QS_SEP = "==";
+
+    /** Separator for identifying the value position in the debug header */
     protected final String POS_SEP = "#";
+
+    /** Discrete question/answers map */
     protected HashMap<String, ArrayList<String>> qs_map;
+
+    /** Continuous question set */
     protected Set<String> cqs_set;
+
+    /** Vector of questions */
     protected ArrayList<String> list_questions;
 
-
+    /**
+     *  File constructor
+     *
+     *  @param qs_filename the filename
+     *  @throws IOException if there is a problem with the loading of the file
+     *  @throws MaryException if there is a problem with the parsing
+     */
     public HTKQuestionNormaliser(String qs_filename) throws IOException, MaryException {
-        parseQuestionFile(qs_filename);
+        List<String> lines = Files.readAllLines(Paths.get(qs_filename), StandardCharsets.UTF_8);
+        parseQuestionLines(lines);
+    }
+
+
+    /**
+     *  Stream constructor
+     *
+     *  @param qs_stream the input stream
+     *  @throws IOException if there is a problem with the loading of the stream
+     *  @throws MaryException if there is a problem with the parsing
+     */
+    public HTKQuestionNormaliser(InputStream qs_stream) throws IOException, MaryException {
+        List<String> lines =
+            new BufferedReader(new InputStreamReader(qs_stream,
+                                                     StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+        parseQuestionLines(lines);
     }
 
     @Override
@@ -60,9 +101,14 @@ public class HTKQuestionNormaliser implements FeatureNormaliser
 	return header;
     }
 
-    protected void parseQuestionFile(String filename) throws IOException, MaryException {
+    /**
+     *  Parsing question lines and fill the content of the normaliser
+     *
+     *  @param lines the lines to parse
+     *  @throws MaryException if there is a problem with the parsing
+     */
+    protected void parseQuestionLines(List<String> lines) throws MaryException {
 
-        List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         for (String line : lines) {
             if (line.startsWith("QS")) {
                 parseQS(line);
@@ -74,6 +120,12 @@ public class HTKQuestionNormaliser implements FeatureNormaliser
 	}
     }
 
+    /**
+     *  Parsing continuous question line
+     *
+     *  @param line the line to parse
+     *  @throws MaryException if there is a problem with the parsing
+     */
     protected void parseCQS(String line) throws MaryException {
         String pattern = "QS[ \t]*\"([^\"]*)\"[ \t]*.*";
 
@@ -90,6 +142,17 @@ public class HTKQuestionNormaliser implements FeatureNormaliser
         }
     }
 
+    /**
+     *  Parsing discrete question line
+     *
+     *  The format of the question is QS "&lt;name&gt;" {&lt;val&gt;[,&lt;val&gt;]*} with the following constraints
+     *    - the question name is formated as &lt;feature name&gt;==&lt;something&gt;
+     *    - values should be only alphanumerical values
+     *    - static eparator should not contains any alphanumerical information except if it is validating the following regexp /[A-Z]:
+     *
+     *  @param line the line to parse
+     *  @throws MaryException if there is a problem with the parsing
+     */
     protected void parseQS(String line) throws MaryException {
         String pattern = "QS[ \t]*\"([^\"]*)\"[ \t]*\\{(.*)\\}";
 
@@ -132,11 +195,10 @@ public class HTKQuestionNormaliser implements FeatureNormaliser
      *  The normalising method.
      *
      *  This consists of generating a binary matrix with each vector corresponding to a frame. The
-     *  vector is a hot vector of size nb_features*nb_code.
+     *  vector is a mix of discrete hot vector concatenated with continous values. Each part depends
+     *  on the type and the answers if associated to the discrete question.
      *
-     *  For a specific context (feature), a cell at 1.0f indicates that the corresponding phone
-     *  label validate the code identified by the index of this cell.
-     *
+     *  For discrete value, as
      *  @param list_feature_map the feature maps
      *  @return the binary matrix
      *  @throw MaryException if anything is going wrong
