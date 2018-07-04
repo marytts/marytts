@@ -1,4 +1,4 @@
-package marytts.modules.duration;
+package marytts.modules.dnn;
 
 import marytts.MaryException;
 import marytts.dnn.FeatureNormaliser;

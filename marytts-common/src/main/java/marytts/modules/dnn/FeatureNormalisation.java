@@ -1,4 +1,4 @@
-package marytts.modules;
+package marytts.modules.dnn;
 
 import marytts.MaryException;
 
