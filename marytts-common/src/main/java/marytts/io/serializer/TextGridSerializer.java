@@ -156,4 +156,3 @@ public class TextGridSerializer implements Serializer {
     }
 }
 
-/* TextgridSerializer.java ends here */

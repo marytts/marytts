@@ -23,4 +23,3 @@ public abstract class Voice {
 }
 
 
-/* Voice.java ends here */

@@ -36,4 +36,3 @@ public class UtteranceSerializer implements Serializer {
     }
 }
 
-/* HTSLabelSerializer.java ends here */

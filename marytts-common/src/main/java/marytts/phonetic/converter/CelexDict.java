@@ -17,4 +17,3 @@ public class CelexDict extends Alphabet
 }
 
 
-/* CelexDict.java ends here */

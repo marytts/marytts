@@ -133,4 +133,3 @@ public class HTSLabelSerializer implements Serializer {
     }
 }
 
-/* HTSLabelSerializer.java ends here */
