@@ -26,7 +26,7 @@ import marytts.MaryException;
 /**
  *  Default quinphone normaliser based on IPA information extracted from the IPA class
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class QuinphoneNormaliser implements FeatureNormaliser
 {

@@ -26,7 +26,7 @@ import marytts.exceptions.MaryConfigurationException;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class OpenNLPPosTagger extends marytts.modules.nlp.OpenNLPPosTagger
 {

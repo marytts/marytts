@@ -9,7 +9,7 @@ import marytts.MaryException;
 /**
  *
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public abstract class Alphabet
 {

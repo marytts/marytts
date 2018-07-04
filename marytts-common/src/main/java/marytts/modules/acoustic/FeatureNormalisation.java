@@ -29,7 +29,7 @@ import marytts.features.FeatureMap;
 /**
  * Generate a binary normalised vector corresponding to the feature map
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class FeatureNormalisation
 {

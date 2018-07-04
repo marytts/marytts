@@ -27,7 +27,7 @@ import marytts.MaryException;
  *
  *  This implies that all the possible labels should be in the dictionary!
  *
- *  @author <a href="mailto:slemaguer@coli.uni-saarland.de"></a>
+ *  @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class QuinphoneWithDictNormaliser extends QuinphoneNormaliser
 {
