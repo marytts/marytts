@@ -114,7 +114,7 @@ Another milestone release with several improvements and fixes.
 * [#154](https://github.com/marytts/marytts/issues/154): trailing whitespace in config files could prevent correct parsing.
 
 
-[v5.1.1] (2015-01-23)
+[v5.1.1] (2014-10-05)
 -------------------
 
 A milestone release that stabilizes changes in build and hosting infrastructure and fixes several issues.
@@ -157,7 +157,7 @@ A milestone release that stabilizes changes in build and hosting infrastructure 
 * [#185](https://github.com/marytts/marytts/issues/185): EnviromentTest no longer fails with Java 8
 
 
-[v5.1] (2014-12-19)
+[v5.1] (2014-07-16)
 -------------------
 
 Following significant restructuring introduced in v5.0, this is a milestone release to stabilize numerous new features and fixes over the past two years.
@@ -203,7 +203,7 @@ departures and other responsibilities have resulted in less activity than we wou
 Fortunately, we do finally have several new projects for MaryTTS, and several exciting features waiting the wings, ready to be rebased on a stable version (this one), including major overhauls of the voicebuilding toolchain and the new language support, and a new web-based installer.
 Expect these to land in the near future.
 
-[v5.0] (2014-03-13)
+[v5.0] (2012-06-14)
 -------------------
 
 MARY TTS 5.0 is the first release from the thoroughly restructured code base.
@@ -268,7 +268,7 @@ Aspects of this include:
 * a Continuous Integration service, kindly provided by [BuildHive](https://buildhive.cloudbees.com/job/marytts/job/marytts/), automatically checks whether the code, and even the latest GitHub pull requests, build OK including all tests passing.
 
 
-[v4.3.1] (2014-03-13)
+[v4.3.1] (2011-11-30)
 -------------------
 
 This is a minor release, whose main purpose it is to enable Italian TTS (see below).
@@ -293,7 +293,7 @@ Bill also provided two male US English voices built from Arctic data sets, cmu-r
 According to him, specifically the rms voice is quite intelligible at high speed (with the speedup done in a post-processing step currently).
 
 
-[v4.3.0] (2014-08-21)
+[v4.3.0] (2010-12-20)
 -------------------
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
@@ -330,7 +330,7 @@ Thanks Nickolay!
 
 * This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.3
 
-[v4.2.0] (2014-08-21)
+[v4.2.0] (2010-12-08)
 -------------------
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
@@ -354,7 +354,7 @@ For details on the new MaryXML `<vocalization>` tag and usage examples, see [Voc
 
 * This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.2
 
-[v4.1.1] (2014-08-21)
+[v4.1.1] (2010-09-09)
 -------------------
 
 This is a bugfix release.
@@ -374,7 +374,7 @@ This is a bugfix release.
 For more background information, please also refer to the [Release notes of MARY 4.1.0](releasenotes-4.1.0.html).
 
 
-[v4.1.0] (2014-08-21)
+[v4.1.0] (2010-09-01)
 -------------------
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.0 voices.
@@ -411,7 +411,7 @@ This is a feature release, adding new features while maintaining compatibility w
 
 For more background information, please also refer to the [Release notes of MARY 4.0.0](releasenotes-4.0.0.html).
 
-[v4.0.0] (2014-08-21)
+[v4.0.0] (2009-12-18)
 -------------------
 
 ### What's new
@@ -504,7 +504,7 @@ If you think you have identified a bug, proceed as follows:
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
 
-[v4.0-beta] (2014-08-21)
+[v4.0-beta] (2009-09-24)
 -------------------
 
 ### What's new
@@ -573,7 +573,7 @@ If you think you have identified a bug, proceed as follows:
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
 
-[v3.6.0] (2014-08-22)
+[v3.6.0] (2008-05-21)
 -------------------
 
 This is a minor feature release, providing one important new feature and several bugfixes over previous MARY 3.5.0.
@@ -592,7 +592,7 @@ Bugfixes:
 * the full list of bugs fixed can be found on http://mary.opendfki.de/query?milestone=3.6
 
 
-[v3.5.0] (2014-08-22)
+[v3.5.0] (2007-12-07)
 -------------------
 
 This release provides substantial new features while maintaining the API compatible to previous versions.
@@ -613,7 +613,7 @@ This release provides substantial new features while maintaining the API compati
   under Linux, the MARY server can now generate audio in OGG Vorbis format.
 
 
-[v3.1.0] (2014-08-22)
+[v3.1.0] (2007-08-17)
 -------------------
 
 Ten months after the last stable release, a major milestone release is finally here:
@@ -642,7 +642,7 @@ The German voices have been created from the BITS corpora - for details, see:
 http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
 
 
-[v3.1-beta2] (2014-08-22)
+[v3.1-beta2] (2007-07-15)
 -------------------
 
 ### Highlights:
@@ -662,7 +662,7 @@ http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
 * diphone voices are basically broken. Don't install this version if you want to use diphone voices.
 * only very limited testing on various platforms. Please report any errors you may find!
 
-[v3.1-beta1] (2014-08-22)
+[v3.1-beta1] (2006-12-13)
 -------------------
 
 First beta release of the new unit selection code.
@@ -671,7 +671,7 @@ Try the new slt-arctic, bdl-arctic and jmk-arctic voices!
 For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.
 
 
-[v3.0.3] (2014-08-22)
+[v3.0.3] (2006-10-27)
 -------------------
 
 Third bugfix release.
@@ -687,7 +687,7 @@ An update is recommended only if you encountered one of these bugs.
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?milestone=3.0.3)
 
 
-[v3.0.2] (2014-08-22)
+[v3.0.2] (2006-07-04)
 -------------------
 
 Second bugfix release.
@@ -702,7 +702,7 @@ An update is recommended if you encountered one of these bugs.
 
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.2&amp;order=priority)
 
-[v3.0.1] (2014-08-22)
+[v3.0.1] (2006-03-07)
 -------------------
 
 First bugfix release.
@@ -717,7 +717,7 @@ An update is recommended.
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.1&amp;order=priority)
 
 
-[v3.0.0] (2014-08-22)
+[v3.0.0] (2006-02-14)
 -------------------
 
 This is the first open-source release.
