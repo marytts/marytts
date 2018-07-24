@@ -1,4 +1,4 @@
-package marytts.modules.dnn;
+package marytts.dnn.modules;
 
 import marytts.MaryException;
 import marytts.dnn.FeatureNormaliser;
@@ -170,5 +170,3 @@ public class DNNDurationPrediction extends MaryModule
 	this.description = "Dummy duration prediction which sets each phone at 1s.";
     }
 }
-
-

@@ -21,5 +21,3 @@ public abstract class Voice {
         this.name = name;
     }
 }
-
-

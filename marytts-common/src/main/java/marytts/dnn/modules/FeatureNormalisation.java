@@ -1,4 +1,4 @@
-package marytts.modules.dnn;
+package marytts.dnn.modules;
 
 import marytts.MaryException;
 
@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 // Data
 import marytts.features.FeatureMap;
-import marytts.features.FeatureChunk;
+import marytts.dnn.features.FeatureChunk;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
