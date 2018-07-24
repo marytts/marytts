@@ -1,18 +1,13 @@
 package marytts.dnn.io;
 
-import marytts.io.serializer.Serializer;
+import java.nio.ByteBuffer;
 
-import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
 import marytts.dnn.features.FeatureChunk;
-
 import marytts.io.MaryIOException;
-import java.nio.ByteBuffer;
-
-// FIXME: for now we use the static feature computer....
-import marytts.features.FeatureComputer;
+import marytts.io.serializer.Serializer;
 
 /**
  * Feature serializer to generate TSV format output. There is not import from it
@@ -73,7 +68,6 @@ public class BinaryChunkSerializer implements Serializer {
 	dst.flip();
 
 	return dst; // Double check !
-
     }
 
     /**

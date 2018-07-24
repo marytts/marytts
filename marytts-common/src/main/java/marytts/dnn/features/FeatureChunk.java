@@ -1,9 +1,8 @@
 package marytts.dnn.features;
 
-import marytts.data.item.Item;
-
 import org.tensorflow.Tensor;
 
+import marytts.data.item.Item;
 import marytts.dnn.FeatureNormaliser;
 
 /**

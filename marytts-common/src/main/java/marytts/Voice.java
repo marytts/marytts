@@ -8,7 +8,6 @@ package marytts;
  */
 public abstract class Voice {
     private String name;
-
     public Voice(String name) {
         setName(name);
     }
