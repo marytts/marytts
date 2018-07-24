@@ -10,7 +10,7 @@ import marytts.data.item.Item;
  */
 public class DoubleMatrixItem extends Item {
 
-    /** F0 Values */
+    /** Values */
     private DoubleMatrix2D m_values;
 
     /**
@@ -30,18 +30,18 @@ public class DoubleMatrixItem extends Item {
     }
 
     /**
-     *  Set the F0 values
+     *  Set the values
      *
-     *  @param values the new F0 values
+     *  @param values the new values
      */
     public void setValues(DoubleMatrix2D values) {
         m_values = values;
     }
 
     /**
-     *  Get the F0 values
+     *  Get the values
      *
-     *  @return the F0 values
+     *  @return the values
      */
     public DoubleMatrix2D getValues() {
         return m_values;
