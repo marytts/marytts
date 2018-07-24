@@ -1,4 +1,4 @@
-package marytts.features;
+package marytts.dnn.features;
 
 import marytts.data.item.Item;
 

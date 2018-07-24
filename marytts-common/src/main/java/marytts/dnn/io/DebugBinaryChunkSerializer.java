@@ -1,10 +1,13 @@
-package marytts.io.serializer;
+package marytts.dnn.io;
+
+
+import marytts.io.serializer.Serializer;
 
 import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
-import marytts.features.FeatureChunk;
+import marytts.dnn.features.FeatureChunk;
 
 
 import marytts.io.MaryIOException;
