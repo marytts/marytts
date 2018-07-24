@@ -1,20 +1,12 @@
 package marytts.dnn.io;
 
 
-import marytts.io.serializer.Serializer;
-
-import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
 import marytts.dnn.features.FeatureChunk;
-
-
 import marytts.io.MaryIOException;
-import java.nio.ByteBuffer;
-
-// FIXME: for now we use the static feature computer....
-import marytts.features.FeatureComputer;
+import marytts.io.serializer.Serializer;
 
 /**
  * Feature serializer to generate TSV format output. There is not import from it
@@ -68,12 +60,10 @@ public class DebugBinaryChunkSerializer implements Serializer {
 	tsv += "\n";
 
 	for (FeatureChunk fc: cur_seq) {
-	    long[] shape = fc.getData().shape();
-	    float[][] vector = new float[(int) shape[0]][(int) shape[1]];
-	    fc.getData().copyTo(vector);
-	    for (int i=0; i<shape[0]; i++) {
-		for (int j=0; j<shape[1]; j++)
-		    tsv += vector[i][j] + "\t";
+	    double[][] ar = fc.getValues().toArray();
+	    for (int i=0; i<ar.length; i++) {
+		for (int j=0; j<ar[i].length; j++)
+		    tsv += ar[i][j] + "\t";
 
 		tsv += "\n";
 	    }

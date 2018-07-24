@@ -55,13 +55,15 @@ public class BinaryChunkSerializer implements Serializer {
 	// Compute size
 	int size = 0;
 	for (FeatureChunk chunk: (Sequence<FeatureChunk>) utt.getSequence(selected_sequence)) {
-	    size += chunk.getData().numBytes();
+	    size += chunk.getValues().size() * Double.BYTES;
 	}
 
 	// Copy data information
 	ByteBuffer dst = ByteBuffer.allocate(size);
 	for (FeatureChunk chunk: (Sequence<FeatureChunk>) utt.getSequence(selected_sequence)) {
-	    chunk.getData().writeTo(dst);
+            double[][] ar = chunk.getValues().toArray();
+            for (int i=0; i<ar.length; i++)
+            dst.asDoubleBuffer().put(ar[i]);
 	}
 
 	// Flip buffer to be able to validate header
