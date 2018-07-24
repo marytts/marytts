@@ -1,6 +1,8 @@
 package marytts.dnn;
 
-import org.tensorflow.*;
+import org.tensorflow.SavedModelBundle;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
 
 /**
  *  A default DNN predictor class

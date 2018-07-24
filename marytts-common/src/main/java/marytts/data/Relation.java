@@ -3,13 +3,11 @@ package marytts.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.data.utils.IntegerPair;
-import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.list.IntArrayList;
-import cern.colt.list.DoubleArrayList;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
-
 import marytts.data.item.Item;
+import marytts.data.utils.IntegerPair;
 
 /**
  * This class is designing the concept of Relation. A relation is just a binary
