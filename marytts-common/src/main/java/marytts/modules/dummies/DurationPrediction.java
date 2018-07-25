@@ -1,21 +1,17 @@
 package marytts.modules.dummies;
 
 import marytts.MaryException;
-
 // Configuration
 import marytts.config.MaryConfiguration;
-import marytts.exceptions.MaryConfigurationException;
-
-// Module
-import marytts.modules.MaryModule;
-
-
 // Data
-import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
-import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
+import marytts.data.Utterance;
+import marytts.data.item.phonology.Phone;
+import marytts.data.item.phonology.Phoneme;
+import marytts.exceptions.MaryConfigurationException;
+// Module
+import marytts.modules.MaryModule;
 
 /**
  *
@@ -24,14 +20,12 @@ import marytts.data.SupportedSequenceType;
  */
 public class DurationPrediction extends MaryModule
 {
-
     private static final double DEFAULT_DUR = 10.0;
+
     public DurationPrediction() throws Exception
     {
 	super("duration");
     }
-
-
 
     public void checkStartup() throws MaryConfigurationException {
     }
@@ -73,10 +67,7 @@ public class DurationPrediction extends MaryModule
 	return utt;
     }
 
-
     public void setDescription() {
 	this.description = "Dummy duration prediction which sets each phone at 1s.";
     }
 }
-
-
