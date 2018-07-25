@@ -1,6 +1,6 @@
 package marytts.data.item.global;
 
-import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import marytts.data.item.Item;
 
 /**
@@ -11,7 +11,7 @@ import marytts.data.item.Item;
 public class DoubleVectorItem extends Item {
 
     /** Values */
-    private DoubleMatrix1D m_values;
+    private DenseDoubleMatrix1D m_values;
 
     /**
      *  Default constructor
@@ -24,7 +24,7 @@ public class DoubleVectorItem extends Item {
     /**
      *  Copy constructor
      */
-    public DoubleVectorItem(DoubleMatrix1D values) {
+    public DoubleVectorItem(DenseDoubleMatrix1D values) {
         super();
         setValues(values);
     }
@@ -34,7 +34,7 @@ public class DoubleVectorItem extends Item {
      *
      *  @param values the new values
      */
-    public void setValues(DoubleMatrix1D values) {
+    public void setValues(DenseDoubleMatrix1D values) {
         m_values = values;
     }
 
@@ -43,7 +43,7 @@ public class DoubleVectorItem extends Item {
      *
      *  @return the values
      */
-    public DoubleMatrix1D getValues() {
+    public DenseDoubleMatrix1D getValues() {
         return m_values;
     }
 

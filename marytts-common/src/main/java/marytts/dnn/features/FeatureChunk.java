@@ -4,7 +4,6 @@ import java.nio.FloatBuffer;
 
 import org.tensorflow.Tensor;
 
-import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 import marytts.data.item.global.DoubleMatrixItem;
 import marytts.dnn.FeatureNormaliser;
@@ -22,12 +21,12 @@ public class FeatureChunk extends DoubleMatrixItem {
      * Constructor
      *
      */
-    public FeatureChunk(DoubleMatrix2D data) {
+    public FeatureChunk(DenseDoubleMatrix2D data) {
         super(data);
 	setNormaliser(null);
     }
 
-    public FeatureChunk(DoubleMatrix2D data, FeatureNormaliser normaliser) {
+    public FeatureChunk(DenseDoubleMatrix2D data, FeatureNormaliser normaliser) {
         super(data);
 	setNormaliser(normaliser);
     }
