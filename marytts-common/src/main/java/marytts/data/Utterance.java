@@ -1,24 +1,16 @@
 package marytts.data;
 
-import java.util.Hashtable;
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.sound.sampled.AudioInputStream;
-
-
+import marytts.MaryException;
 import marytts.data.item.Item;
-import marytts.data.item.linguistic.Paragraph;
-import marytts.data.item.linguistic.Word;
-import marytts.data.item.linguistic.Sentence;
-import marytts.data.item.prosody.Phrase;
 
 /**
  * The Utterance is the entry point to the data used in MaryTTS. It is a
@@ -28,9 +20,6 @@ import marytts.data.item.prosody.Phrase;
  *         Maguer</a>
  */
 public class Utterance {
-    /** Not used for now ! */
-    private ArrayList<AudioInputStream> m_list_streams;
-
     /** FIXME: temp feature names, nowhere else to put for now */
     private ArrayList<String> m_feature_names;
 
@@ -231,6 +220,52 @@ public class Utterance {
         return true;
     }
 
+
+
+    /******************************************************************************************************************************************
+     ** Helpers
+     ******************************************************************************************************************************************/
+    /**
+     *
+     */
+    public void mergeInto(Utterance alternate, Relation linking_rel) throws MaryException{
+        String src_label="", tgt_label="";
+        for (String seq_label: listAvailableSequences()) {
+            if (linking_rel.getSource() == this.getSequence(seq_label)) {
+                src_label = seq_label;
+                break;
+            }
+        }
+
+        // Add needed sequence
+        for (String seq_label: alternate.listAvailableSequences()) {
+            // We don't care about the same sequences!
+            if (hasSequence(seq_label)) {
+                logger.debug(seq_label + " already available in current utterance");
+            } else {
+                logger.debug("adding " + seq_label + " to the current utterance");
+                this.addSequence(seq_label, alternate.getSequence(seq_label));
+            }
+
+            if (alternate.getSequence(seq_label) == linking_rel.getTarget())
+                tgt_label = seq_label;
+        }
+
+        // Add the relations
+        for (ImmutablePair<String, String> id_pair: alternate.listAvailableRelations()) {
+            Relation rel = alternate.getRelation(id_pair.getLeft(), id_pair.getRight());
+            this.setRelation(id_pair.getLeft(), id_pair.getRight(), rel);
+        }
+
+        // Finalize the linking
+        if (src_label.equals(""))
+            throw new MaryException("Source sequence for the linking is not found, linking relation is invalid");
+
+        if (tgt_label.equals(""))
+            throw new MaryException("Target sequence for the linking is not found, linking relation is invalid");
+
+        this.setRelation(src_label, tgt_label, linking_rel);
+    }
 
 
     /******************************************************************************************************************************************
