@@ -1,5 +1,6 @@
 apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/testLogic.gradle"
+apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
     compile libs.commonsIo
