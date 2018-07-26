@@ -1,9 +1,24 @@
+apply from: "$rootDir/buildLogic.gradle"
+apply from: "$rootDir/testLogic.gradle"
+apply from: "$rootDir/publishLogic.gradle"
+
 dependencies {
+    compile project(':marytts-runtime')
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-fr', version: '0.1.0'
     testCompile libs.testng
     testCompile libs.xmlunit
+    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
+    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
 }
 
 test {
     useTestNG()
+}
+
+task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
+
+rootProject.distributions.main.contents {
+    from generateComponentXmlDescriptor, {
+        into 'installed'
+    }
 }

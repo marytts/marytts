@@ -1,26 +1,9 @@
-evaluationDependsOn(':marytts-runtime')
-
-configure(subprojects.findAll { it.name in childProjects }) {
-    apply from: "$rootDir/buildLogic.gradle"
-    apply from: "$rootDir/testLogic.gradle"
-    apply from: "$rootDir/publishLogic.gradle"
-
-    dependencies {
-        compile project(':marytts-runtime')
-        testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
-        integrationTestCompile project(':marytts-runtime').sourceSets.test.output
-    }
-
-    task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
-
-    rootProject.distributions.main.contents {
-        from generateComponentXmlDescriptor, {
-            into 'installed'
-        }
-    }
-}
-
-import groovy.xml.*
+import groovy.xml.StreamingMarkupBuilder
+import groovy.xml.XmlUtil
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.TaskAction
 
 class GenerateComponentXmlDescriptor extends DefaultTask {
 
@@ -54,7 +37,7 @@ class GenerateComponentXmlDescriptor extends DefaultTask {
         [locales, getXmlFiles()].transpose().each { locale, xmlFile ->
             def xmlStr = new StreamingMarkupBuilder().bind {
                 'marytts-install'(xmlns: 'http://mary.dfki.de/installer') {
-                language(locale: "$locale", name: locale.toLanguageTag(), version: project.version) {
+                    language(locale: "$locale", name: locale.toLanguageTag(), version: project.version) {
                         delegate.description("${locale.getDisplayName(Locale.US)} language component")
                         license(href: 'http://www.gnu.org/licenses/lgpl-3.0-standalone.html')
                         'package'(filename: "marytts-lang-$locale-${project.version}.zip", md5sum: 'dummy', size: 0)

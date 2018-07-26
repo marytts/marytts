@@ -1,3 +1,7 @@
+apply from: "$rootDir/buildLogic.gradle"
+apply from: "$rootDir/testLogic.gradle"
+apply from: "$rootDir/publishLogic.gradle"
+
 repositories {
     ivy {
         url 'http://opennlp.sourceforge.net'
@@ -12,12 +16,23 @@ configurations {
 }
 
 dependencies {
+    compile project(':marytts-runtime')
     opennlp group: 'org.apache.opennlp', name: 'de-pos-maxent', version: '1.5', ext: 'bin'
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.0'
+    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
+    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
 }
 
 processResources {
     from configurations.opennlp, {
         into "marytts/language/de/tagger"
+    }
+}
+
+task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
+
+rootProject.distributions.main.contents {
+    from generateComponentXmlDescriptor, {
+        into 'installed'
     }
 }
