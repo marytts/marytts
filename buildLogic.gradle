@@ -29,6 +29,7 @@ task integrationTest(type: Test) {
     group 'Verification'
     description 'Runs the integration tests.'
     check.dependsOn it
+    mustRunAfter test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
