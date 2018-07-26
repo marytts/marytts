@@ -1,0 +1,7 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+    runtime project(':gradle-marytts-component-plugin')
+}
