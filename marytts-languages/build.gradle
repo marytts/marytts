@@ -2,6 +2,7 @@ evaluationDependsOn(':marytts-runtime')
 
 configure(subprojects.findAll { it.name in childProjects }) {
     apply from: "$rootDir/buildLogic.gradle"
+    apply from: "$rootDir/testLogic.gradle"
 
     dependencies {
         compile project(':marytts-runtime')
