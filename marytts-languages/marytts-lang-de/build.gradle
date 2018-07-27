@@ -1,6 +1,14 @@
 apply plugin: 'de.dfki.mary.component'
 apply from: "$rootDir/publishLogic.gradle"
 
+marytts {
+    component {
+        name = 'German'
+        packageName = 'marytts.language.de'
+        config from: 'component.yaml'
+    }
+}
+
 repositories {
     ivy {
         url 'http://opennlp.sourceforge.net'
