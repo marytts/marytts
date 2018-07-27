@@ -1,5 +1,4 @@
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
 apply from: "$rootDir/publishLogic.gradle"
 
 repositories {
