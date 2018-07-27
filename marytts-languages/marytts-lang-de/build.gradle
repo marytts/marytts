@@ -5,6 +5,7 @@ marytts {
     component {
         name = 'German'
         packageName = 'marytts.language.de'
+        configBaseClass = 'LanguageConfig'
         config from: 'component.yaml'
     }
 }
