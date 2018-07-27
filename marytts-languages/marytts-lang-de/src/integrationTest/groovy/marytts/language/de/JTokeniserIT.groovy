@@ -55,7 +55,7 @@ class JTokeniserIT extends MaryModuleTestCase {
     }
 
     @Test(dataProvider = 'basenames')
-    void testSimpleSentence(basename) {
+    void testCase(basename) {
         processAndCompare basename, Locale.GERMAN
     }
 
