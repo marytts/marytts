@@ -1,18 +1,22 @@
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
+apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/publishLogic.gradle"
+
+marytts {
+    component {
+        name = 'French'
+        packageName = 'marytts.language.fr'
+        configBaseClass = 'LanguageConfig'
+        config from: 'component.yaml'
+    }
+}
 
 dependencies {
     compile project(':marytts-runtime')
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-fr', version: '0.1.0'
-    testCompile libs.testng
     testCompile libs.xmlunit
     testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
-}
-
-test {
-    useTestNG()
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)

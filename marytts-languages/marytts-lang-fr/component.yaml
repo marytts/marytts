@@ -1,0 +1,23 @@
+# Franch language config
+locale: fr
+
+# The Modules
+modules.classes:
+- marytts.language.fr.Phonemiser
+- marytts.language.fr.Preprocess
+- marytts.modules.MinimalisticPosTagger(fr,fr.)
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(fr)
+
+# Module settings
+# Phonemiser settings
+fr:
+  allophoneset: jar:/marytts/language/fr/lexicon/allophones.fr.xml
+  lexicon: jar:/marytts/language/fr/lexicon/fr_lexicon.fst
+  lettertosound: jar:/marytts/language/fr/lexicon/fr.lts
+
+  # Minimalistic POS tagger settings
+  partsofspeech:
+    fst: jar:/marytts/language/fr/tagger/fr_pos.fst
+    punctuation: ',.?!;'
