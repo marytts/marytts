@@ -1,6 +1,15 @@
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
+apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/publishLogic.gradle"
+
+marytts {
+    component {
+        name = 'English'
+        packageName = 'marytts.language.en'
+        configBaseClass = 'LanguageConfig'
+        config from: 'component.yaml'
+    }
+}
 
 repositories {
     ivy {
@@ -19,7 +28,6 @@ dependencies {
     compile project(':marytts-runtime')
     opennlp group: 'org.apache.opennlp', name: 'en-pos-maxent', version: '1.5', ext: 'bin'
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0'
-    testCompile libs.testng
     testCompile libs.xmlunit
     testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
@@ -29,10 +37,6 @@ processResources {
     from configurations.opennlp, {
         into "marytts/language/en/tagger"
     }
-}
-
-test {
-    useTestNG()
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor) {
