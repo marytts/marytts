@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.w3c.dom.Document;
 
 class NumberEPT extends NumberEP {
 	int matchT(String s, int t) {
