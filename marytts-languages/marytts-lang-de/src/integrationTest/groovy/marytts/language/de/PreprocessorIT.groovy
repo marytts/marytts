@@ -39,7 +39,7 @@ class PreprocessorIT extends MaryModuleTestCase {
     }
 
     @Test(dataProvider = 'basenames')
-    void testCase(basename) {
+    void testCase(String basename) {
         processAndCompare basename, Locale.GERMAN
     }
 }

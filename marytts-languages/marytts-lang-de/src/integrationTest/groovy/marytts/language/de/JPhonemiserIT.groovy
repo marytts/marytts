@@ -1,10 +1,11 @@
 package marytts.language.de
 
 import marytts.modules.ModuleRegistry
+import marytts.tests.modules.MaryModuleTestCase
 import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 
-class JPhonemiserIT extends marytts.tests.modules.MaryModuleTestCase {
+class JPhonemiserIT extends MaryModuleTestCase {
 
     JPhonemiserIT() {
         super(true) // need mary startup
@@ -22,7 +23,7 @@ class JPhonemiserIT extends marytts.tests.modules.MaryModuleTestCase {
     }
 
     @Test(dataProvider = 'tags')
-    void testIsPosPunctuation(tag, expected) {
+    void testIsPosPunctuation(String tag, boolean expected) {
         def actual = module.isPosPunctuation(tag)
         assert actual == expected
     }
