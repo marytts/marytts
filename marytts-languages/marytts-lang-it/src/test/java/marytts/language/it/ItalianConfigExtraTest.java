@@ -33,12 +33,6 @@ import org.testng.annotations.Test;
 public class ItalianConfigExtraTest {
 
     @Test
-    public void isNotMainConfig() throws MaryConfigurationException {
-        MaryConfig m = new ItalianConfig();
-        Assert.assertFalse(m.isMainConfig());
-    }
-
-    @Test
     public void canGet() {
         MaryConfig m = MaryConfig.getLanguageConfig(Locale.ITALIAN);
         Assert.assertNotNull(m);
