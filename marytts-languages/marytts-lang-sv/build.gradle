@@ -4,8 +4,12 @@ apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
     compile project(':marytts-runtime')
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
+    testCompile libs.testng
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+}
+
+test {
+    useTestNG()
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
