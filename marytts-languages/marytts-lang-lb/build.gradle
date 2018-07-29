@@ -2,23 +2,28 @@ plugins {
     id 'groovy'
 }
 
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
 apply from: "$rootDir/publishLogic.gradle"
+apply from: "$rootDir/dependencies.gradle"
+
+marytts {
+    component {
+        name = 'Luxembourgish'
+        packageName = 'marytts.language.lb'
+        configBaseClass = 'LanguageConfig'
+        config from: 'component.yaml'
+    }
+}
 
 dependencies {
     compile project(':marytts-runtime')
     compile project(':marytts-languages:marytts-lang-fr')
-    compile libs.groovy
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
-    testCompile libs.testng
     testCompile libs.xmlunit
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
 }
 
 test {
-    useTestNG()
     systemProperty 'lb.userdict', "$rootDir/src/main/dist/user-dictionaries/userdict-lb.txt"
 }
 
