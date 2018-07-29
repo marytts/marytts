@@ -5,8 +5,12 @@ apply from: "$rootDir/publishLogic.gradle"
 dependencies {
     compile project(':marytts-runtime')
     runtime group: 'de.dfki.mary', name: 'marytts-lexicon-tr', version: '0.1.0'
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
+    testCompile libs.testng
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+}
+
+test {
+    useTestNG()
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
