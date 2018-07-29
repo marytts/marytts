@@ -1,0 +1,28 @@
+# Russian language config
+locale: ru
+
+# The Modules
+modules.classes:
+- marytts.language.ru.Tokenizer
+- marytts.modules.DummyTokens2Words
+- marytts.modules.JPhonemiser(ru.)
+- marytts.modules.ProsodyGeneric
+- marytts.modules.MinimalisticPosTagger(ru,ru)
+- marytts.modules.CARTDurationModeller(ru,ru.duration.,marytts.features.FeatureProcessorManager(ru))
+- marytts.modules.CARTF0Modeller(ru,ru.f0.,marytts.features.FeatureProcessorManager(ru))
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(ru)
+
+# Module settings
+ru:
+  # Phonemiser settings
+  allophoneset: jar:/marytts/language/ru/lexicon/allophones.ru.xml
+  userdict: MARY_BASE/user-dictionaries/userdict-ru.txt
+  lexicon: jar:/marytts/language/ru/lexicon/ru_lexicon.fst
+  lettertosound: jar:/marytts/language/ru/lexicon/ru.lts
+
+  # POS tagger settings
+  partsofspeech:
+    fst: jar:/marytts/language/ru/tagger/ru_pos.fst
+    punctuation: ',.?!;'
