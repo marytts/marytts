@@ -1,0 +1,20 @@
+# Telugu language config
+locale: te
+
+# The Modules
+modules.classes:
+- marytts.language.te.JTokeniser
+- marytts.modules.DummyTokens2Words
+- marytts.language.te.JPhonemiser(te.)
+- marytts.modules.ProsodyGeneric
+- marytts.modules.MinimalisticPosTagger(te,te)
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(te)
+
+# Module settings
+te:
+  allophoneset: jar:/marytts/language/te/lexicon/allophones.te.xml
+  userdict: MARY_BASE/user-dictionaries/userdict-te.txt
+  utf8toit3map: jar:/marytts/language/te/lexicon/UTF8toIT3.te.list
+  partsofspeech.fst: jar:/marytts/language/te/tagger/te_pos.fst

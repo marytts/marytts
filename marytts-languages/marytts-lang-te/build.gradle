@@ -1,15 +1,18 @@
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
 apply from: "$rootDir/publishLogic.gradle"
+
+marytts {
+    component {
+        name = 'Telugu'
+        packageName = 'marytts.language.te'
+        configBaseClass = 'LanguageConfig'
+        config from: 'component.yaml'
+    }
+}
 
 dependencies {
     compile project(':marytts-runtime')
-    testCompile libs.testng
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
-}
-
-test {
-    useTestNG()
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
