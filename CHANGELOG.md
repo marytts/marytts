@@ -307,7 +307,7 @@ See [all changes since v4.3.0]
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
 
-This release marks the final results of work on MARY TTS in the [PAVOQUE project](../pavoque/), in which we experimented with different technologies for adding expressivity to unit selection synthesis.
+This release marks the final results of work on MARY TTS in the [PAVOQUE project](http://mary.dfki.de/pavoque/index.html), in which we experimented with different technologies for adding expressivity to unit selection synthesis.
 The release makes available those project results that may be of interest to a wider audience.
 
 ### New features for expressive unit selection synthesis
@@ -337,7 +337,7 @@ Thanks Nickolay!
 
 ### Bugfixes
 
-* This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.3
+* This release also includes a number of bugfixes, see https://mary.opendfki.de/trac/query?milestone=4.3&group=status&order=priority
 
 See [all changes since v4.2.0]
 
@@ -346,7 +346,7 @@ See [all changes since v4.2.0]
 
 This is a feature release, adding new features while maintaining compatibility with existing 4.x voices.
 
-This release marks the final results of work on MARY TTS in the [SEMAINE project](http://www.semaine-project.eu/), where our main focus for TTS has been on building expressive British English voices with listener vocalization capabilities.
+This release marks the final results of work on MARY TTS in the [SEMAINE project](https://semaine-db.eu/), where our main focus for TTS has been on building expressive British English voices with listener vocalization capabilities.
 
 ### New features for synthesis of expressive vocalizations
 
@@ -363,7 +363,7 @@ For details on the new MaryXML `<vocalization>` tag and usage examples, see [Voc
 
 ### Bugfixes
 
-* This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.2
+* This release also includes a number of bugfixes, see https://mary.opendfki.de/trac/query?milestone=4.2&group=status&order=priority
 
 See [all changes since v4.1.1]
 
@@ -376,7 +376,7 @@ This is a bugfix release.
 
 * Fixed a critical bug for Windows users who got an "OutOfMemoryError" when trying to start the server with unit selection voices
     * [#314 Memory mapping causes OutOfMemoryError if -Xmx is set too high](http://mary.opendfki.de/ticket/314)
-* Other small bug fixes -- see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.1.1
+* Other small bug fixes -- see https://mary.opendfki.de/trac/query?milestone=4.1.1&group=status&order=priority
 
 ### New voices
 
@@ -384,7 +384,7 @@ This is a bugfix release.
 
 ### More info
 
-For more background information, please also refer to the [Release notes of MARY 4.1.0](releasenotes-4.1.0.html).
+For more background information, please also refer to the [Release notes of MARY 4.1.0](http://mary.dfki.de/download/releasenotes-4.1.0.html).
 
 See [all changes since v4.1.0]
 
@@ -419,11 +419,11 @@ This is a feature release, adding new features while maintaining compatibility w
     * [#287 Abbreviations in German trigger major boundary insertion](http://mary.opendfki.de/ticket/287)
     * [#304 English support for apostrophies is broken](http://mary.opendfki.de/ticket/304)
 * Multiple bugs were also fixed under the surface.
-  For a full list, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.1
-
+  For a full list, see https://mary.opendfki.de/trac/query?milestone=4.x&group=status&order=priority
+  
 ### More info
 
-For more background information, please also refer to the [Release notes of MARY 4.0.0](releasenotes-4.0.0.html).
+For more background information, please also refer to the [Release notes of MARY 4.0.0](http://mary.dfki.de/download/releasenotes-4.0.0.html).
 
 See [all changes since v4.0.0]
 
@@ -454,12 +454,12 @@ There is detailed documentation for
 
 * [creating initial support for a new language](http://mary.opendfki.de/wiki/NewLanguageSupport);
 * [recording and building a unit selection voice](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial); and
-* [creating an HMM-based voice](http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0) from the same recordings.
+* [creating an HMM-based voice](https://mary.opendfki.de/trac/wiki/HMMVoiceCreation) from the same recordings.
 
 ### Changes since MARY 4.0 beta
 
 * New British English expressive voices.
-  We are releasing the voices of four expressive characters built for the [SEMAINE project](http://www.semaine-project.eu/).
+  We are releasing the voices of four expressive characters built for the [SEMAINE project](https://semaine-db.eu/).
 * Improved Installer.
   You can now install downloaded components without requiring an internet connection at install time.
   The Installer handles updates of language and voice components correctly.
@@ -474,7 +474,7 @@ There is detailed documentation for
   The handling of external programs needed, in particular, for the creation of HMM-based voices was simplified.
   We provide a script now that you can use to find or, if necessary, download and compile third-party software required for training HMM-based voices.
 
-More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0) and in the [list of tickets associated with the 4.0 beta release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0+beta).
+More details on individual issues addressed can be seen in the [list of tickets associated with this release](https://mary.opendfki.de/trac/query?milestone=4.0&group=status&order=priority) and in the [list of tickets associated with the 4.0 beta release](https://mary.opendfki.de/trac/query?milestone=4.0+beta&group=status&order=priority).
 
 ### Tested environments
 
@@ -509,7 +509,7 @@ Nevertheless it is likely that new bugs will appear in new circumstances.
 
 If you think you have identified a bug, proceed as follows:
 
-1. Check in the [list of known bugs](http://mary.opendfki.de/query?group=status&amp;milestone=4.0) whether the bug has been reported already;
+1. Check in the [list of known bugs](https://mary.opendfki.de/trac/query?milestone=4.0&group=status&order=priority) whether the bug has been reported already;
 2. If you cannot find it, prepare your request to the mailing list.
    Try to find out exactly:
     * what to do to reproduce the error;
@@ -543,9 +543,9 @@ MARY now comes with a toolkit for people who want to add support for new languag
 
 * [creating initial support for a new language](http://mary.opendfki.de/wiki/NewLanguageSupport);
 * [recording and building a unit selection voice](http://mary.opendfki.de/wiki/VoiceImportToolsTutorial); and
-* [creating an HMM-based voice](http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0) from the same recordings.
+* [creating an HMM-based voice](https://mary.opendfki.de/trac/wiki/HMMVoiceCreation) from the same recordings.
 
-More details on individual issues addressed can be seen in the [list of tickets associated with this release](http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.0+beta).
+More details on individual issues addressed can be seen in the [list of tickets associated with this release](https://mary.opendfki.de/trac/query?milestone=4.0+beta&group=status&order=priority).
 
 ### Tested environments
 
@@ -579,7 +579,7 @@ You are likely to find problems, and we would appreciate if you tell us about it
 
 If you think you have identified a bug, proceed as follows:
 
-1. Check in the [list of known bugs](http://mary.opendfki.de/query?group=status&amp;milestone=4.0) whether the bug has been reported already;
+1. Check in the [list of known bugs](https://mary.opendfki.de/trac/query?milestone=4.0&group=status&order=priority) whether the bug has been reported already;
 2. If you cannot find it, create a [new ticket](http://mary.opendfki.de/newticket) containing the following information:
     * operating system and java version used;
     * what to do to reproduce the error;
@@ -656,10 +656,12 @@ Should you come across additional bugs, please post them to the mary-users maili
 
 The unit selection code released here has performed better-than-average in this year's Blizzard Challenge (http://www.festvox.org/blizzard/), showing that the system can be considered state-of-the-art.
 For details, see:
-http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007a
+http://festvox.org/blizzard/bc2007/blizzard_2007/full_papers/blz3_007.pdf
 
 The German voices have been created from the BITS corpora - for details, see:
-http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
+http://www.dfki.de/dfkibib/publications/docs/schroeder_hunecke2007.pdf
+
+See also the [full list of bugs fixed](https://mary.opendfki.de/trac/query?group=status&milestone=3.1.0)
 
 See [all changes since v3.1.beta2]
 
@@ -676,7 +678,7 @@ See [all changes since v3.1.beta2]
 
 * a well-documented and easy-to-use voice creation toolkit;
 * smaller voices by using suitable speech coding for the databases.
-* For more details, see the development page: http://mary.opendfki.de/milestone/3.1.0
+* For more details, see the development page: https://mary.opendfki.de/trac/query?group=status&milestone=3.1.0
 
 ### Known issues with this release:
 
@@ -691,7 +693,7 @@ See [all changes since v3.1-beta1]
 First beta release of the new unit selection code.
 Try the new slt-arctic, bdl-arctic and jmk-arctic voices!
 
-For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.
+For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](https://mary.opendfki.de/trac/query?milestone=3.1.0&group=status&order=priority) on the development portal.
 
 See [all changes since v3.0.3]
 
@@ -708,7 +710,7 @@ Most relevant changes:
 
 An update is recommended only if you encountered one of these bugs.
 
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?milestone=3.0.3)
+See also the [full list of bugs fixed](https://mary.opendfki.de/trac/query?group=status&milestone=3.0.3)
 
 See [all changes since v3.0.2]
 
@@ -725,7 +727,7 @@ A number of bugs have been fixed, including:
 
 An update is recommended if you encountered one of these bugs.
 
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.2&amp;order=priority)
+See also the [full list of bugs fixed](https://mary.opendfki.de/trac/query?group=status&milestone=3.0.2)
 
 See [all changes since v3.0.1]
 
@@ -741,7 +743,7 @@ Most relevant:
 
 An update is recommended.
 
-See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.1&amp;order=priority)
+See also the [full list of bugs fixed](https://mary.opendfki.de/trac/query?group=status&milestone=3.0.1)
 
 See [all changes since v3.0.0]
 
