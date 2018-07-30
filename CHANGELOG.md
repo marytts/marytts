@@ -578,14 +578,12 @@ People interested in adding support for a language can get in touch, e.g. via th
 
 This is a minor feature release, providing one important new feature and several bugfixes over previous MARY 3.5.0.
 
-New feature:
-------------
+### New feature:
 
 * New tool for creating your own HMM-based voices for MARY (see tutorial at http://mary.opendfki.de/wiki/HMMVoiceCreation)
   Feedback and questions about building voices in MARY are welcome via the mary-users mailing list (http://www.dfki.de/mailman/listinfo/mary-users).
 
-Bugfixes:
----------
+### Bugfixes:
 
 * Important for many will be that the "self-healing" capabilities of the MARY installation are now working again:
   if you install an English system but a German voice, the system detects a misconfiguration and offers to download and install the missing components, and will start up normally after that.
