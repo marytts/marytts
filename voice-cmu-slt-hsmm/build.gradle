@@ -1,6 +1,15 @@
-apply from: "$rootDir/buildLogic.gradle"
-apply from: "$rootDir/testLogic.gradle"
+apply plugin: 'de.dfki.mary.component'
+apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/publishLogic.gradle"
+
+marytts {
+    component {
+        name = 'CmuSltHsmm'
+        packageName = 'marytts.voice.CmuSltHsmm'
+        configBaseClass = 'VoiceConfig'
+        config from: 'component.yaml'
+    }
+}
 
 dependencies {
     compile project(':marytts-languages:marytts-lang-en')

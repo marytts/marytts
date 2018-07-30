@@ -1,0 +1,99 @@
+# voice config
+name: cmu-slt-hsmm
+locale: en_US
+
+hmm.voices:
+- cmu-slt-hsmm
+
+voice:
+  cmu-slt-hsmm:
+
+    # voice specifications
+    gender: female
+    locale: en_US
+    domain: general
+    samplingRate: 48000
+    framePeriod: 240
+
+    # HMM Voice-specific parameters
+    # parameters used during models training
+    # MGC: stage=gamma=0 alpha=0.42 16KHz linear gain; alpha=0.55 48Khz log gain (default)
+    # LSP: gamma>0
+    #          LSP: gamma=1 alpha=0.0  linear gain/log gain
+    #      Mel-LSP: gamma=1 alpha=0.42 log gain
+    #      MGC-LSP: gamma=3 alpha=0.42 log gain
+    alpha: 0.55
+    gamma: 0
+    logGain: true
+
+    # Parameter beta for postfiltering
+    beta: 0.1
+
+    # HMM Voice-specific files
+    # Information about trees
+    Ftd: jar:/marytts/voice/CmuSltHsmm/tree-dur.inf
+    Ftf: jar:/marytts/voice/CmuSltHsmm/tree-lf0.inf
+    Ftm: jar:/marytts/voice/CmuSltHsmm/tree-mgc.inf
+    Fts: jar:/marytts/voice/CmuSltHsmm/tree-str.inf
+
+    # Information about means and variances PDFs
+    Fmd: jar:/marytts/voice/CmuSltHsmm/dur.pdf
+    Fmf: jar:/marytts/voice/CmuSltHsmm/lf0.pdf
+    Fmm: jar:/marytts/voice/CmuSltHsmm/mgc.pdf
+    Fms: jar:/marytts/voice/CmuSltHsmm/str.pdf
+
+    # Information about Global Mean and Variance PDFs
+    useGV: true
+
+    # Variable for allowing context-dependent GV (without sil)
+    useContextDependentGV: true
+
+    # GV method: gradient or derivative (default gradient)
+    gvMethod: gradient
+
+    # Max number of GV iterations
+    maxMgcGvIter: 100
+    maxLf0GvIter: 100
+    maxStrGvIter: 100
+
+    # GV weights for each parameter: between 0.0-2.0
+    gvweightMgc: 1.0
+    gvweightLf0: 1.0
+    gvweightStr: 1.0
+
+    # Mean and variance files for GV
+    Fgvf: jar:/marytts/voice/CmuSltHsmm/gv-lf0.pdf
+    Fgvm: jar:/marytts/voice/CmuSltHsmm/gv-mgc.pdf
+    Fgvs: jar:/marytts/voice/CmuSltHsmm/gv-str.pdf
+
+    # A context features file example for start-up testing.
+    FeaFile: jar:/marytts/voice/CmuSltHsmm/cmu_us_arctic_slt_b0487.pfeats
+
+    # Tricky phones file in case there were problematic phones during training, empty otherwise.
+    trickyPhonesFile: jar:/marytts/voice/CmuSltHsmm/trickyPhones.txt
+
+    # Information about Mixed Excitation
+    useMixExc: true
+
+    # Filters for mixed excitation
+    # File format: one column with all the taps, where the number of taps per filter = numTaps/numFilters
+    Fif: jar:/marytts/voice/CmuSltHsmm/mix_excitation_filters.txt
+    # Number of filters in bandpass bank
+    in: 5
+
+    # Information about acousticModels (if true allows prosody modification specified in MARYXML input)
+    useAcousticModels: true
+
+    # acoustic models to use (HMM models or carts from other voices can be specified)
+    #(uncoment to allow prosody modification specified in MARYXML input)
+    acousticModels: duration F0
+
+    duration:
+      model: hmm
+      # voice.cmu-slt-hsmm.duration.data not used for hmm models
+      attribute: d
+
+    F0:
+      model: hmm
+      # voice.cmu-slt-hsmm.F0.data not used for hmm models
+      attribute: f0
