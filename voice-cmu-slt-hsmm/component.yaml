@@ -1,16 +1,16 @@
 # voice config
-name: cmu-slt-hsmm
-locale: en_US
+name: &name cmu-slt-hsmm
+locale: &locale en_US
 
 hmm.voices:
-- cmu-slt-hsmm
+- *name
 
 voice:
-  cmu-slt-hsmm:
+  *name:
 
     # voice specifications
     gender: female
-    locale: en_US
+    locale: *locale
     domain: general
     samplingRate: 48000
     framePeriod: 240
