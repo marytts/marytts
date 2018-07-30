@@ -4,5 +4,9 @@ apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
     compile project(':marytts-languages:marytts-lang-en')
-    testCompile libs.junit
+    testCompile libs.testng
+}
+
+test {
+    useTestNG()
 }
