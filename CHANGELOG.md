@@ -4,6 +4,8 @@ MaryTTS
 [Unreleased]
 ------------
 
+See [all changes since v5.2]
+
 [v5.2] (2016-09-15)
 -------------------
 This is expected to be the last milestone release in the 5.x generation of MaryTTS.
@@ -86,6 +88,7 @@ This is expected to be the last milestone release in the 5.x generation of MaryT
 * [#198](https://github.com/marytts/marytts/issues/198): fix for closing fileOutputStream after audio save
 * [#185](https://github.com/marytts/marytts/issues/185): fix for EnvironmentTest failure on Java 8
 
+See [all changes since v5.1.2]
 
 [v5.1.2] (2015-01-23)
 -------------------
@@ -113,6 +116,7 @@ Another milestone release with several improvements and fixes.
 * [#218](https://github.com/marytts/marytts/issues/218): a voice would not be built correctly following the **groupId** change in v.5.1.1.
 * [#154](https://github.com/marytts/marytts/issues/154): trailing whitespace in config files could prevent correct parsing.
 
+See [all changes since v5.1.1]
 
 [v5.1.1] (2014-10-05)
 -------------------
@@ -156,6 +160,7 @@ A milestone release that stabilizes changes in build and hosting infrastructure 
 * [#202](https://github.com/marytts/marytts/issues/202): WikipediaMarkupCleanerTest failed if workspace contains space
 * [#185](https://github.com/marytts/marytts/issues/185): EnviromentTest no longer fails with Java 8
 
+See [all changes since v5.1]
 
 [v5.1] (2014-07-16)
 -------------------
@@ -202,6 +207,8 @@ departures and other responsibilities have resulted in less activity than we wou
 
 Fortunately, we do finally have several new projects for MaryTTS, and several exciting features waiting the wings, ready to be rebased on a stable version (this one), including major overhauls of the voicebuilding toolchain and the new language support, and a new web-based installer.
 Expect these to land in the near future.
+
+See [all changes since v5.0]
 
 [v5.0] (2012-06-14)
 -------------------
@@ -267,6 +274,7 @@ Aspects of this include:
 * the code base was moved to github, allowing us to work as a distributed team, to develop features in whichever constellations arise, and to merge them into a stable master repository when ready;
 * a Continuous Integration service, kindly provided by [BuildHive](https://buildhive.cloudbees.com/job/marytts/job/marytts/), automatically checks whether the code, and even the latest GitHub pull requests, build OK including all tests passing.
 
+See [all changes since v4.3.1]
 
 [v4.3.1] (2011-11-30)
 -------------------
@@ -292,6 +300,7 @@ Critically, however, this has improved the responsiveness of MARY TTS sufficient
 Bill also provided two male US English voices built from Arctic data sets, cmu-rms-hsmm and cmu-bdl-hsmm.
 According to him, specifically the rms voice is quite intelligible at high speed (with the speedup done in a post-processing step currently).
 
+See [all changes since v4.3.0]
 
 [v4.3.0] (2010-12-20)
 -------------------
@@ -330,6 +339,8 @@ Thanks Nickolay!
 
 * This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.3
 
+See [all changes since v4.2.0]
+
 [v4.2.0] (2010-12-08)
 -------------------
 
@@ -354,6 +365,8 @@ For details on the new MaryXML `<vocalization>` tag and usage examples, see [Voc
 
 * This release also includes a number of bugfixes, see http://mary.opendfki.de/query?status=closed&amp;group=resolution&amp;milestone=4.2
 
+See [all changes since v4.1.1]
+
 [v4.1.1] (2010-09-09)
 -------------------
 
@@ -373,6 +386,7 @@ This is a bugfix release.
 
 For more background information, please also refer to the [Release notes of MARY 4.1.0](releasenotes-4.1.0.html).
 
+See [all changes since v4.1.0]
 
 [v4.1.0] (2010-09-01)
 -------------------
@@ -410,6 +424,8 @@ This is a feature release, adding new features while maintaining compatibility w
 ### More info
 
 For more background information, please also refer to the [Release notes of MARY 4.0.0](releasenotes-4.0.0.html).
+
+See [all changes since v4.0.0]
 
 [v4.0.0] (2009-12-18)
 -------------------
@@ -504,6 +520,8 @@ If you think you have identified a bug, proceed as follows:
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
 
+See [all changes since v4.0-beta]
+
 [v4.0-beta] (2009-09-24)
 -------------------
 
@@ -573,6 +591,8 @@ If you think you have identified a bug, proceed as follows:
 
 People interested in adding support for a language can get in touch, e.g. via the [MARY developers mailing list](http://www.dfki.de/mailman/listinfo/mary-dev).
 
+See [all changes since v3.6.0]
+
 [v3.6.0] (2008-05-21)
 -------------------
 
@@ -589,6 +609,7 @@ This is a minor feature release, providing one important new feature and several
   if you install an English system but a German voice, the system detects a misconfiguration and offers to download and install the missing components, and will start up normally after that.
 * the full list of bugs fixed can be found on http://mary.opendfki.de/query?milestone=3.6
 
+See [all changes since v3.5.0]
 
 [v3.5.0] (2007-12-07)
 -------------------
@@ -610,6 +631,7 @@ This release provides substantial new features while maintaining the API compati
 * OGG Vorbis support:
   under Linux, the MARY server can now generate audio in OGG Vorbis format.
 
+See [all changes since v3.1.0]
 
 [v3.1.0] (2007-08-17)
 -------------------
@@ -639,6 +661,7 @@ http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007a
 The German voices have been created from the BITS corpora - for details, see:
 http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
 
+See [all changes since v3.1.beta2]
 
 [v3.1-beta2] (2007-07-15)
 -------------------
@@ -660,6 +683,8 @@ http://www.dfki.de/~schroed/publications.html#schroeder_hunecke2007
 * diphone voices are basically broken. Don't install this version if you want to use diphone voices.
 * only very limited testing on various platforms. Please report any errors you may find!
 
+See [all changes since v3.1-beta1]
+
 [v3.1-beta1] (2006-12-13)
 -------------------
 
@@ -668,6 +693,7 @@ Try the new slt-arctic, bdl-arctic and jmk-arctic voices!
 
 For some details of what has been done and what still needs to be done for the stable release, see the [full list of issues](http://mary.opendfki.de/milestone/3.1.0) on the development portal.
 
+See [all changes since v3.0.3]
 
 [v3.0.3] (2006-10-27)
 -------------------
@@ -684,6 +710,7 @@ An update is recommended only if you encountered one of these bugs.
 
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?milestone=3.0.3)
 
+See [all changes since v3.0.2]
 
 [v3.0.2] (2006-07-04)
 -------------------
@@ -700,6 +727,8 @@ An update is recommended if you encountered one of these bugs.
 
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.2&amp;order=priority)
 
+See [all changes since v3.0.1]
+
 [v3.0.1] (2006-03-07)
 -------------------
 
@@ -714,6 +743,8 @@ An update is recommended.
 
 See also the [full list of bugs fixed](http://mary.opendfki.de/query?status=closed&amp;milestone=3.0.1&amp;order=priority)
 
+See [all changes since v3.0.0]
+
 
 [v3.0.0] (2006-02-14)
 -------------------
@@ -722,28 +753,47 @@ This is the first open-source release.
 We have put in a lot of effort to test and debug it, but of course the system may have some teething problems.
 Please help us improve the system by submitting [bug reports](http://mary.opendfki.de/newticket) on the [OpenMary development page](http://mary.opendfki.de/).
 
-
-
-[Unreleased]: https://github.com/marytts/marytts/compare/v5.2...HEAD
-[v5.2]: https://github.com/marytts/marytts/compare/v5.1.2...v5.2
-[v5.1.2]: https://github.com/marytts/marytts/compare/v5.1.1...v5.1.2
-[v5.1.1]: https://github.com/marytts/marytts/compare/v5.1...v5.1.1
-[v5.1]: https://github.com/marytts/marytts/compare/v5.0...v5.1
-[v5.0]: https://github.com/marytts/marytts/compare/v4.3.1...v5.0
-[v4.3.1]: https://github.com/marytts/marytts/compare/v4.3.0...v4.3.1
-[v4.3.0]: https://github.com/marytts/marytts/compare/v4.2.0...v4.3.0
-[v4.2.0]: https://github.com/marytts/marytts/compare/v4.1.1...v4.2.0
-[v4.1.1]: https://github.com/marytts/marytts/compare/v4.1.0...v4.1.1
-[v4.1.0]: https://github.com/marytts/marytts/compare/v4.0.0...v4.1.0
-[v4.0.0]: https://github.com/marytts/marytts/compare/v4.0beta...v4.0.0
-[v4.0-beta]: https://github.com/marytts/marytts/compare/v3.6.0...v4.0beta
-[v3.6.0]: https://github.com/marytts/marytts/compare/v3.5.0...v3.6.0
-[v3.5.0]: https://github.com/marytts/marytts/compare/v3.1.0...v3.5.0
-[v3.1.0]: https://github.com/marytts/marytts/compare/v3.1beta2...v3.1.0
-[v3.1-beta2]: https://github.com/marytts/marytts/compare/v3.1beta1...v3.1beta2
-[v3.1-beta1]: https://github.com/marytts/marytts/compare/v3.0.3...v3.1beta1
-[v3.0.3]: https://github.com/marytts/marytts/compare/v3.0.2...v3.0.3
-[v3.0.2]: https://github.com/marytts/marytts/compare/v3.0.1...v3.0.2
-[v3.0.1]: https://github.com/marytts/marytts/compare/v3.0.0...v3.0.1
+[Unreleased]: https://github.com/marytts/marytts/tree/master
+[all changes since v5.2]: https://github.com/marytts/marytts/compare/v5.2...HEAD
+[v5.2]: https://github.com/marytts/marytts/releases/tag/v5.2
+[all changes since v5.1.2]: https://github.com/marytts/marytts/compare/v5.1.2...v5.2
+[v5.1.2]: https://github.com/marytts/marytts/releases/tag/v5.1.2
+[all changes since v5.1.1]: https://github.com/marytts/marytts/compare/v5.1.1...v5.1.2
+[v5.1.1]: https://github.com/marytts/marytts/releases/tag/v5.1.1
+[all changes since v5.1]: https://github.com/marytts/marytts/compare/v5.1...v5.1.1
+[v5.1]: https://github.com/marytts/marytts/releases/tag/v5.1
+[all changes since v5.0]: https://github.com/marytts/marytts/compare/v5.0...v5.1
+[v5.0]: https://github.com/marytts/marytts/releases/tag/v5.0
+[all changes since v4.3.1]: https://github.com/marytts/marytts/compare/v4.3.1...v5.0
+[v4.3.1]: https://github.com/marytts/marytts/releases/tag/v4.3.1
+[all changes since v4.3.0]: https://github.com/marytts/marytts/compare/v4.3.0...v4.3.1
+[v4.3.0]: https://github.com/marytts/marytts/releases/tag/v4.3.0
+[all changes since v4.2.0]: https://github.com/marytts/marytts/compare/v4.2.0...v4.3.0
+[v4.2.0]: https://github.com/marytts/marytts/releases/tag/v4.2.0
+[all changes since v4.1.1]: https://github.com/marytts/marytts/compare/v4.1.1...v4.2.0
+[v4.1.1]: https://github.com/marytts/marytts/releases/tag/v4.1.1
+[all changes since v4.1.0]: https://github.com/marytts/marytts/compare/v4.1.0...v4.1.1
+[v4.1.0]: https://github.com/marytts/marytts/releases/tag/v4.1.0
+[all changes since v4.0.0]: https://github.com/marytts/marytts/compare/v4.0.0...v4.1.0
+[v4.0.0]: https://github.com/marytts/marytts/releases/tag/v4.0.0
+[all changes since v4.0-beta]: https://github.com/marytts/marytts/compare/v4.0beta...v4.0.0
+[v4.0-beta]: https://github.com/marytts/marytts/releases/tag/v4.0beta
+[all changes since v3.6.0]: https://github.com/marytts/marytts/compare/v3.6.0...v4.0beta
+[v3.6.0]: https://github.com/marytts/marytts/releases/tag/v3.6.0
+[all changes since v3.5.0]: https://github.com/marytts/marytts/compare/v3.5.0...v3.6.0
+[v3.5.0]: https://github.com/marytts/marytts/releases/tag/v3.5.0
+[all changes since v3.1.0]: https://github.com/marytts/marytts/compare/v3.1.0...v3.5.0
+[v3.1.0]: https://github.com/marytts/marytts/releases/tag/v3.1.0
+[all changes since v3.1.beta2]: https://github.com/marytts/marytts/compare/v3.1beta2...v3.1.0
+[v3.1-beta2]: https://github.com/marytts/marytts/releases/tag/v3.1beta2
+[all changes since v3.1-beta1]: https://github.com/marytts/marytts/compare/v3.1beta1...v3.1beta2
+[v3.1-beta1]: https://github.com/marytts/marytts/releases/tag/v3.1beta1
+[all changes since v3.0.3]: https://github.com/marytts/marytts/compare/v3.0.3...v3.1beta1
+[v3.0.3]: https://github.com/marytts/marytts/releases/tag/v3.0.3
+[all changes since v3.0.2]: https://github.com/marytts/marytts/compare/v3.0.2...v3.0.3
+[v3.0.2]: https://github.com/marytts/marytts/releases/tag/v3.0.2
+[all changes since v3.0.1]: https://github.com/marytts/marytts/compare/v3.0.1...v3.0.2
+[v3.0.1]: https://github.com/marytts/marytts/releases/tag/v3.0.1
+[all changes since v3.0.0]: https://github.com/marytts/marytts/compare/v3.0.0...v3.0.1
 [v3.0.0]: https://github.com/marytts/marytts/releases/tag/v3.0.0
 [MaryTTS]: https://github.com/marytts/marytts
