@@ -1,4 +1,6 @@
-apply plugin: 'de.dfki.mary.component'
+plugins {
+    id 'de.dfki.mary.component' version '0.1'
+}
 apply from: "$rootDir/publishLogic.gradle"
 
 marytts {

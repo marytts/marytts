@@ -1,8 +1,6 @@
 plugins {
-    id 'groovy'
+    id 'de.dfki.mary.component' version '0.1'
 }
-
-apply plugin: 'de.dfki.mary.component'
 apply from: "$rootDir/publishLogic.gradle"
 apply from: "$rootDir/dependencies.gradle"
 
