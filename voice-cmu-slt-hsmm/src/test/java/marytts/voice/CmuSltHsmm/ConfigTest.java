@@ -33,13 +33,13 @@ public class ConfigTest {
 
     @Test
     public void isVoiceConfig() throws MaryConfigurationException {
-        MaryConfig m = new Config();
+        MaryConfig m = new CmuSltHsmmConfig();
         Assert.assertTrue(m.isVoiceConfig());
     }
 
     @Test
     public void hasRightName() throws MaryConfigurationException {
-        VoiceConfig m = new Config();
+        VoiceConfig m = new CmuSltHsmmConfig();
         Assert.assertEquals(voiceName, m.getName());
     }
 

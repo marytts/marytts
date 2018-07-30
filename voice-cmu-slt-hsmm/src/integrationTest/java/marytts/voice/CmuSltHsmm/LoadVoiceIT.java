@@ -29,7 +29,7 @@ public class LoadVoiceIT {
 
     @Test
     public void canLoadVoice() throws Exception {
-        Config config = new Config();
+        CmuSltHsmmConfig config = new CmuSltHsmmConfig();
         Voice voice = new HMMVoice(config.getName(), null);
         Assert.assertNotNull(voice);
     }
@@ -37,7 +37,7 @@ public class LoadVoiceIT {
     @Test
     public void canSetVoice() throws Exception {
         MaryInterface mary = new LocalMaryInterface();
-        String voiceName = new Config().getName();
+        String voiceName = new CmuSltHsmmConfig().getName();
         mary.setVoice(voiceName);
         Assert.assertEquals(voiceName, mary.getVoice());
     }
@@ -45,7 +45,7 @@ public class LoadVoiceIT {
     @Test
     public void canProcessTextToSpeech() throws Exception {
         MaryInterface mary = new LocalMaryInterface();
-        mary.setVoice(new Config().getName());
+        mary.setVoice(new CmuSltHsmmConfig().getName());
         AudioInputStream audio = mary.generateAudio("Hello world");
         Assert.assertNotNull(audio);
     }
