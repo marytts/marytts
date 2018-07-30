@@ -1,8 +1,27 @@
-dependencies {
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-it', version: '0.1.0'
-    testCompile libs.testng
+plugins {
+    id 'de.dfki.mary.component' version '0.1'
+}
+apply from: "$rootDir/publishLogic.gradle"
+
+marytts {
+    component {
+        name = 'Italian'
+        packageName = 'marytts.language.it'
+        configBaseClass = 'LanguageConfig'
+        config from: 'component.yaml'
+    }
 }
 
-test {
-    useTestNG()
+dependencies {
+    compile project(':marytts-runtime')
+    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-it', version: '0.1.0'
+    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+}
+
+task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)
+
+rootProject.distributions.main.contents {
+    from generateComponentXmlDescriptor, {
+        into 'installed'
+    }
 }

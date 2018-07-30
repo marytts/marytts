@@ -16,50 +16,51 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package marytts.voice.CmuSltHsmm;
+package marytts.language.en;
 
+import java.util.Locale;
+
+import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
-import marytts.config.VoiceConfig;
 import marytts.exceptions.MaryConfigurationException;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * @author marc
  */
-public class ConfigTest {
-
-    private static final String voiceName = "cmu-slt-hsmm";
+public class EnglishConfigExtraTest {
 
     @Test
-    public void isVoiceConfig() throws MaryConfigurationException {
-        MaryConfig m = new CmuSltHsmmConfig();
-        Assert.assertTrue(m.isVoiceConfig());
+    public void haveLanguageConfig() {
+        Assert.assertTrue(MaryConfig.countLanguageConfigs() > 0);
     }
 
     @Test
-    public void hasRightName() throws MaryConfigurationException {
-        VoiceConfig m = new CmuSltHsmmConfig();
-        Assert.assertEquals(voiceName, m.getName());
+    public void haveLanguageConfig2() {
+        Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
+        Assert.assertNotNull(lcs);
+        Assert.assertTrue(lcs.iterator().hasNext());
     }
 
     @Test
-    public void canGetByName() throws MaryConfigurationException {
-        VoiceConfig m = MaryConfig.getVoiceConfig(voiceName);
+    public void canGet() {
+        MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
         Assert.assertNotNull(m);
-        Assert.assertEquals(voiceName, m.getName());
+        Assert.assertTrue(((LanguageConfig) m).getLocales().contains(Locale.US));
     }
 
     @Test
-    public void hasVoiceConfigs() throws MaryConfigurationException {
-        Assert.assertTrue(MaryConfig.countVoiceConfigs() > 0);
+    public void hasEnglishLocale() throws MaryConfigurationException {
+        LanguageConfig e = new EnglishConfig();
+        Assert.assertTrue(e.getLocales().contains(Locale.US));
     }
 
     @Test
-    public void hasVoiceConfigs2() throws MaryConfigurationException {
-        Iterable<VoiceConfig> vcs = MaryConfig.getVoiceConfigs();
-        Assert.assertNotNull(vcs);
-        Assert.assertTrue(vcs.iterator().hasNext());
+    public void hasAllophoneSet() throws MaryConfigurationException {
+        LanguageConfig e = new EnglishConfig();
+        Assert.assertNotNull(e.getAllophoneSet(Locale.US));
+        Assert.assertNotNull(e.getAllophoneSet(Locale.UK));
     }
-
 }

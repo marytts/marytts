@@ -1,0 +1,22 @@
+# Luxembourgish language config
+locale: lb
+
+# The Modules
+modules.classes:
+- marytts.language.lb.LuxembourgishPreprocess
+- marytts.language.lb.EvenMoreMinimalisticPosTagger(lb)
+- marytts.language.lb.LuxembourgishPhonemiser
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(lb)
+
+# Module settings
+lb:
+  # Phonemiser settings
+  allophoneset: jar:/marytts/language/lb/lexicon/allophones.lb.xml
+  lexicon: jar:/marytts/language/lb/lexicon/lb_lexicon.fst
+  lettertosound: jar:/marytts/language/lb/lexicon/lb.lts
+  userdict: MARY_BASE/user-dictionaries/userdict-lb.txt
+
+  # POS tagger settings
+  pos.punct.regex: \\$,|\\$\\.

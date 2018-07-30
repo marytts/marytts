@@ -2,12 +2,11 @@ plugins {
     id 'de.dfki.mary.component' version '0.1'
 }
 apply from: "$rootDir/publishLogic.gradle"
-apply from: "$rootDir/dependencies.gradle"
 
 marytts {
     component {
-        name = 'Luxembourgish'
-        packageName = 'marytts.language.lb'
+        name = 'Telugu'
+        packageName = 'marytts.language.te'
         configBaseClass = 'LanguageConfig'
         config from: 'component.yaml'
     }
@@ -15,14 +14,7 @@ marytts {
 
 dependencies {
     compile project(':marytts-runtime')
-    compile project(':marytts-languages:marytts-lang-fr')
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
-    testCompile libs.xmlunit
     integrationTestCompile project(':marytts-runtime').sourceSets.test.output
-}
-
-test {
-    systemProperty 'lb.userdict', "$rootDir/src/main/dist/user-dictionaries/userdict-lb.txt"
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)

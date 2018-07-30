@@ -1,0 +1,22 @@
+# Turkish language config
+locale: tr
+
+# The Modules
+modules.classes:
+- marytts.modules.MinimalisticPosTagger(tr,tr.)
+- marytts.modules.CARTDurationModeller(tr,tr.duration.,marytts.features.FeatureProcessorManager(tr))
+- marytts.modules.CARTF0Modeller(tr,tr.f0.,marytts.features.FeatureProcessorManager(tr))
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(tr)
+
+# Module settings
+tr:
+  allophoneset: jar:/marytts/language/tr/lexicon/allophones.tr.xml
+  lexicon: jar:/marytts/language/tr/lexicon/tr_lexicon.fst
+  lettertosound: jar:/marytts/language/tr/lexicon/tr.lts
+
+  # POS tagger settings
+  partsofspeech:
+    fst: jar:/marytts/language/tr/tagger/tr_pos.fst
+    punctuation: ',.?!;'

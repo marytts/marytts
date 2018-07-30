@@ -1,6 +1,5 @@
-package marytts.language.lb
+package marytts.language.it
 
-import marytts.modules.JTokeniser
 import marytts.modules.ModuleRegistry
 import marytts.tests.modules.MaryModuleTestCase
 import org.testng.annotations.DataProvider
@@ -8,12 +7,9 @@ import org.testng.annotations.Test
 
 class JTokeniserIT extends MaryModuleTestCase {
 
-    Locale locale
-
-    JTokeniserIT() throws Exception {
-        super(true)
+    JTokeniserIT() {
+        super(true) // need mary startup
         module = ModuleRegistry.getModule(JTokeniser.class)
-        locale = Locale.forLanguageTag('lb')
     }
 
     String inputEnding() {
@@ -37,6 +33,6 @@ class JTokeniserIT extends MaryModuleTestCase {
 
     @Test(dataProvider = 'basenames')
     void testCase(String basename) {
-        processAndCompare basename, locale
+        processAndCompare basename, Locale.ITALIAN
     }
 }

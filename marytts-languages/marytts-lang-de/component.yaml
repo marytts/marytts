@@ -1,0 +1,51 @@
+locale: de
+
+# The Modules
+modules.classes:
+- marytts.language.de.JTokeniser
+- marytts.language.de.Preprocess
+- marytts.modules.OpenNLPPosTagger(de,de.pos)
+- marytts.language.de.JPhonemiser
+- marytts.language.de.Prosody
+- marytts.language.de.Postlex
+- marytts.modules.SimplePhoneme2AP(de)
+
+ignore.modules.classes:
+- marytts.language.de.InformationStructure
+
+featuremanager.classes:
+- marytts.language.de.features.FeatureProcessorManager
+
+# Module settings
+de:
+  allophoneset: jar:/marytts/language/de/lexicon/allophones.de.xml
+  pos:
+    model: jar:/marytts/language/de/tagger/de-pos-maxent-1.5.bin
+    punct.regex: \\$,|\\$.|\\$\\(
+
+  phonemiser:
+    # Whether to try and pronounce English words according to the English lexicon in German text:
+    useenglish: false
+    # Write all unknown words into a file
+    logunknown: true
+    logunknown.filename: MARY_BASE/log/de_unknown.txt
+    logenglish.filename: MARY_BASE/log/de_english-words.txt
+
+  userdict: MARY_BASE/user-dictionaries/userdict-de.txt
+  lexicon: jar:/marytts/language/de/lexicon/de_lexicon.fst
+  lettertosound: jar:/marytts/language/de/lexicon/de.lts
+
+  prosody:
+    # Whether to apply paragraph declination intonation:
+    paragraphdeclination: true
+    # rules for prediction of ToBI tones
+    tobipredparams: jar:/marytts/language/de/prosody/tobipredparams_german.xml
+    # rules for accent priorities of pos
+    accentPriorities: jar:/marytts/language/de/prosody/POSAccentPriorities.properties
+    # copy the word accents to the first accented syllable
+    syllableaccents: false
+
+  # An FST containing word frequencies, in bins from 1 (rare) to 9 (frequent)
+  wordFrequency:
+    fst: jar:/marytts/language/de/lexicon/wordFrequencies-de.fst
+    encoding: ISO-8859-1

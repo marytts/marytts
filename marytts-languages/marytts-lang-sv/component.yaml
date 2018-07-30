@@ -1,0 +1,23 @@
+# Swedish language config
+locale: sv
+
+# The Modules
+modules.classes:
+- marytts.modules.JPhonemiser(sv.)
+- marytts.modules.MinimalisticPosTagger(sv,sv.)
+
+featuremanager.classes:
+- marytts.features.FeatureProcessorManager(sv)
+
+# Module settings
+sv:
+  # Phonemiser settings
+  allophoneset: jar:/marytts/language/sv/lexicon/allophones.sv.xml
+  lexicon: jar:/marytts/language/sv/lexicon/sv_lexicon.fst
+  lettertosound: jar:/marytts/language/sv/lexicon/sv.lts
+  userdict: MARY_BASE/user-dictionaries/userdict-sv.txt
+
+  # POS tagger settings
+  partsofspeech:
+    fst: jar:/marytts/language/sv/tagger/sv_pos.fst
+    punctuation: ',.?!;'
