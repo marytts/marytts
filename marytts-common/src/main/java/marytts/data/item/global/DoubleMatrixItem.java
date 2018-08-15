@@ -21,6 +21,15 @@ public class DoubleMatrixItem extends Item {
         setValues(null);
     }
 
+
+    /**
+     *  Copy constructor
+     */
+    public DoubleMatrixItem(double[][] values) {
+        super();
+        setValues(new DenseDoubleMatrix2D(values));
+    }
+
     /**
      *  Copy constructor
      */
@@ -45,6 +54,15 @@ public class DoubleMatrixItem extends Item {
      */
     public DenseDoubleMatrix2D getValues() {
         return m_values;
+    }
+
+    /**
+     *  Get the values
+     *
+     *  @return the values
+     */
+    public double[][] getArrayValues() {
+        return m_values.toArray();
     }
 
     @Override
