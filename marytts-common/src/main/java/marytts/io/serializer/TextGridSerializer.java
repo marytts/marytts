@@ -1,23 +1,25 @@
 package marytts.io.serializer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.m2ci.msp.jtgt.Annotation;
+import org.m2ci.msp.jtgt.TextGrid;
+import org.m2ci.msp.jtgt.Tier;
+import org.m2ci.msp.jtgt.annotation.IntervalAnnotation;
+import org.m2ci.msp.jtgt.tier.IntervalTier;
+
+import marytts.data.Relation;
+import marytts.data.Sequence;
+import marytts.data.SupportedSequenceType;
+import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.item.phonology.Phone;
-import marytts.data.Sequence;
-import marytts.data.Relation;
-import marytts.data.Utterance;
-import marytts.io.MaryIOException;
-import marytts.data.SupportedSequenceType;
-import org.m2ci.msp.jtgt.tier.IntervalTier;
 import marytts.data.item.phonology.Phoneme;
-
-
-import org.m2ci.msp.jtgt.*;
-import org.m2ci.msp.jtgt.tier.*;
-import org.m2ci.msp.jtgt.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
+import marytts.io.MaryIOException;
 
 /**
  * TextGrid serializer
@@ -27,12 +29,18 @@ import java.util.Arrays;
  */
 public class TextGridSerializer implements Serializer {
     protected String ref_sequence;
+
+    private Set<String> ignored_sequences;
+    protected Logger logger;
+
     /**
      * Constructor
      *
      */
     public TextGridSerializer() {
 	ref_sequence = SupportedSequenceType.PHONE;
+        setIgnoredSequences(new ArrayList<String>());
+        logger = LogManager.getLogger(this);
     }
 
     /**
@@ -51,7 +59,6 @@ public class TextGridSerializer implements Serializer {
 	    // Only interval tiers for now
 	    ArrayList<Tier> tiers = new ArrayList<Tier>();
 
-
 	    // Load reference sequence
 	    Sequence<Phoneme> seq_ph = (Sequence<Phoneme>) utt.getSequence(ref_sequence);
 
@@ -62,7 +69,12 @@ public class TextGridSerializer implements Serializer {
 		if (seq_name.equals(ref_sequence))
 		    continue;
 
-		tiers.add(loadSequence(utt, seq_name, seq_ph));
+                if (! isSequenceIgnored(seq_name)) {
+                    logger.info(seq_name + " exported into the textgrid");
+                    tiers.add(loadSequence(utt, seq_name, seq_ph));
+                } else {
+                    logger.info(seq_name + " is ignored as part of the ignored sequences");
+                }
 	    }
 
 	    TextGrid tgt = new TextGrid(null, 0, getEnd(seq_ph)/1000, tiers);
@@ -142,6 +154,21 @@ public class TextGridSerializer implements Serializer {
         return new IntervalTier(ref_sequence, start/1000, end/1000, annotations);
     }
 
+
+    public Set<String> getIgnoredSequences() {
+        return ignored_sequences;
+    }
+
+    public void setIgnoredSequences(ArrayList<String> ignored_sequences) {
+        this.ignored_sequences = new HashSet<String>(ignored_sequences);
+    }
+
+    public boolean isSequenceIgnored(String seq_name) {
+        return getIgnoredSequences().contains(seq_name);
+    }
+
+
+
     /**
      * Unsupported operation ! We can't import from a TSV formatted input.
      *
@@ -155,4 +182,3 @@ public class TextGridSerializer implements Serializer {
         throw new UnsupportedOperationException();
     }
 }
-
