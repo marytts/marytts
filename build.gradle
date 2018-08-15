@@ -8,7 +8,7 @@ allprojects {
     apply plugin: 'eclipse-wtp'
 
     group 'de.dfki.mary'
-    version '6.0.1-SNAPSHOT'
+    version '6.0.1-ALPHA2'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -98,7 +98,7 @@ subprojects {
         }
         repositories {
             maven {
-                url version.endsWith('-SNAPSHOT') ? 'https://oss.jfrog.org/artifactory/oss-snapshot-local' : 'https://api.bintray.com/maven/marytts/marytts/marytts'
+                url version.endsWith('-SNAPSHOT') ? 'https://oss.jfrog.org/artifactory/oss-snapshot-local' : 'https://oss.jfrog.org/artifactory/oss-release-local'
                 credentials {
                     username = findProperty('bintrayUser')
                     password = findProperty('bintrayApiKey')
