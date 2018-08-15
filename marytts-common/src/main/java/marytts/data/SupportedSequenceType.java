@@ -1,8 +1,8 @@
 package marytts.data;
 
-import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Supported sequence label manager
@@ -47,7 +47,7 @@ public class SupportedSequenceType {
      *  @return a set containing the available types
      */
     public static synchronized Set<String> listAvailableTypes() {
-        return new HashSet(TYPE_SET);
+        return new HashSet<String>(TYPE_SET);
     }
 
     /**
