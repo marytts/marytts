@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -116,7 +117,9 @@ public class OpenNLPPosTagger extends InternalModule {
 			}
 			List<String> partsOfSpeech = null;
 			synchronized (this) {
-				partsOfSpeech = tagger.tag(tokens);
+				// Tagger expects an array, not a list!  TODO: consider
+				String[] res = tagger.tag(tokens.toArray(new String[tokens.size()]));
+				partsOfSpeech = Arrays.asList(res);
 			}
 			tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
 			Iterator<String> posIt = partsOfSpeech.iterator();
