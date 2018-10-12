@@ -53,4 +53,9 @@ public class Phrase extends Item {
     public void setBoundary(Boundary boundary) {
         m_boundary = boundary;
     }
+
+    @Override
+    public String toString() {
+        return "Phrase";
+    }
 }

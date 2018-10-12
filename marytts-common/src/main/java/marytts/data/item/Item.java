@@ -66,4 +66,6 @@ public abstract class Item {
     public Sequence<? extends Item> getSequence() {
         return m_sequence_reference;
     }
+
+    public abstract String toString();
 }
