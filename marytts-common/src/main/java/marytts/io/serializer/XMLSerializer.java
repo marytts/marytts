@@ -30,6 +30,8 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
 
+import marytts.MaryException;
+
 import marytts.todisappear.MaryEntityResolver;
 
 import marytts.data.utils.IntegerPair;
@@ -164,6 +166,8 @@ public class XMLSerializer implements Serializer {
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new MaryIOException("Parsing exception (utterance not created so no rendering)", ex);
+        } catch (MaryException ex) {
+            throw new MaryIOException("Data structure problem", ex);
         }
     }
 
@@ -178,7 +182,7 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the paragraph in the XML document
      */
-    public Element exportParagraph(Utterance utt, int par_index, Document doc) {
+    public Element exportParagraph(Utterance utt, int par_index, Document doc) throws MaryException {
         // FIXME: to remove
         Element par_element = doc.createElementNS(NAMESPACE, "p");
 
@@ -214,27 +218,26 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the sentence in the XML document
      */
-    public Element exportSentence(Utterance utt, int sent_index, Document doc) {
-        Sentence sentence = ((Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE)).get(
-                                sent_index);
-
+    public Element exportSentence(Utterance utt, int sent_index, Document doc) throws MaryException {
+        Sentence sentence = ((Sequence<Sentence>) utt.getSequence(SupportedSequenceType.SENTENCE)).get(sent_index);
         Element sent_element = doc.createElementNS(NAMESPACE, "s");
 
         // Export node value
         Node text = doc.createTextNode(sentence.getText());
         sent_element.appendChild(text);
 
-        Relation rel_sent_phrase = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                   SupportedSequenceType.PHRASE);
-        if (rel_sent_phrase != null) {
+        try {
+            Relation rel_sent_phrase = utt.getRelation(SupportedSequenceType.SENTENCE,
+                                                       SupportedSequenceType.PHRASE);
             int[] phrases = rel_sent_phrase.getRelatedIndexes(sent_index);
             for (int i = 0; i < phrases.length; i++) {
                 sent_element.appendChild(exportPhrase(utt, phrases[i], doc));
             }
-        } else {
+
+        } catch(MaryException ex) {
             // FIXME: Export subelements
             Relation rel_sent_word = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                     SupportedSequenceType.WORD);
+                                                     SupportedSequenceType.WORD);
             if (rel_sent_word != null) {
                 int[] words = rel_sent_word.getRelatedIndexes(sent_index);
                 for (int i = 0; i < words.length; i++) {
@@ -257,7 +260,7 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the phrase in the XML document
      */
-    public Element exportPhrase(Utterance utt, int phrase_index, Document doc) {
+    public Element exportPhrase(Utterance utt, int phrase_index, Document doc) throws MaryException {
         Element phrase_element = doc.createElementNS(NAMESPACE, "phrase");
 
         logger.debug("Serializing phrase");
@@ -287,7 +290,7 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the word in the XML document
      */
-    public Element exportWord(Utterance utt, int w_index, Document doc) {
+    public Element exportWord(Utterance utt, int w_index, Document doc) throws MaryException {
         Word word = ((Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD)).get(w_index);
         Element word_element = doc.createElementNS(NAMESPACE, "t");
 
@@ -313,8 +316,12 @@ public class XMLSerializer implements Serializer {
             word_element.setAttribute("g2p_method", word.getG2PMethod());
         }
 
-        Relation rel_word_syllable = utt.getRelation(SupportedSequenceType.WORD,
-                                     SupportedSequenceType.SYLLABLE);
+        Relation rel_word_syllable = null;
+        try {
+            rel_word_syllable = utt.getRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE);
+        } catch (MaryException ex) {
+        }
+
         if (rel_word_syllable != null) {
             int[] syls = rel_word_syllable.getRelatedIndexes(w_index);
             for (int i = 0; i < syls.length; i++) {
@@ -336,7 +343,7 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the syllable in the XML document
      */
-    public Element exportSyllable(Utterance utt, int syl_index, Document doc) {
+    public Element exportSyllable(Utterance utt, int syl_index, Document doc) throws MaryException {
         Syllable syl = ((Sequence<Syllable>) utt.getSequence(SupportedSequenceType.SYLLABLE)).get(
                            syl_index);
         Element syllable_element = doc.createElementNS(NAMESPACE, "syllable");
@@ -375,7 +382,7 @@ public class XMLSerializer implements Serializer {
      *            the XML document which is going to contain the created element
      * @return the element corresponding to the phone in the XML document
      */
-    public Element exportPhone(Utterance utt, int ph_index, Document doc) {
+    public Element exportPhone(Utterance utt, int ph_index, Document doc)  throws MaryException {
         Phoneme ph = ((Sequence<Phoneme>) utt.getSequence(SupportedSequenceType.PHONE)).get(ph_index);
         Element phone_element = doc.createElementNS(NAMESPACE, "ph");
 

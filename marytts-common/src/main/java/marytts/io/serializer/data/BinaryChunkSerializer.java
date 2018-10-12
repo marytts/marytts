@@ -1,15 +1,16 @@
-package marytts.io.serializer;
+package marytts.io.serializer.data;
 
-import java.nio.ByteOrder;
-import java.nio.ByteBuffer;
-
-import marytts.io.serializer.Serializer;
+/* Data */
 import marytts.data.Sequence;
 import marytts.data.item.global.DoubleMatrixItem;
-
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
+
+/* I/O */
+import marytts.io.serializer.Serializer;
 import marytts.io.MaryIOException;
+import java.nio.ByteOrder;
+import java.nio.ByteBuffer;
 
 /**
  * Serializer to generate a binary (bytebuffer) representation of a given sequence

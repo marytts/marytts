@@ -1,22 +1,28 @@
-package marytts.io.serializer;
+package marytts.io.serializer.label;
 
-import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
-import marytts.data.Sequence;
-import marytts.data.Relation;
-import marytts.features.FeatureMap;
-import marytts.features.Feature;
-import marytts.data.Utterance;
-import marytts.io.MaryIOException;
-import marytts.data.SupportedSequenceType;
-
-// FIXME: for now we use the static feature computer....
-import marytts.features.FeatureComputer;
-
+/* Utils */
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+/* Data */
+import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.Phone;
+import marytts.data.SupportedSequenceType;
+import marytts.data.Sequence;
+import marytts.data.Relation;
+import marytts.data.Utterance;
+
+/* Features */
+import marytts.features.FeatureMap;
+import marytts.features.Feature;
+import marytts.features.FeatureComputer; // FIXME: for now we use the static feature computer....
+
+/* I/O */
 import java.io.File;
+import marytts.io.MaryIOException;
+import marytts.io.serializer.Serializer;
+
 
 /**
  * Serializer to generate easily an HTS label file. The format is different from
@@ -24,8 +30,7 @@ import java.io.File;
  * -phone+ as it is mandatory for HTS. Then, each feature i is surrounded by
  * +Si-1E_feat+SiE_.
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
- *         Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class HTSLabelSerializer implements Serializer {
     /** Constant to define the undefined value */
@@ -132,4 +137,3 @@ public class HTSLabelSerializer implements Serializer {
         return cur_lab;
     }
 }
-

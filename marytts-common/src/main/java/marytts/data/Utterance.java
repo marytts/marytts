@@ -16,8 +16,7 @@ import marytts.data.item.Item;
  * The Utterance is the entry point to the data used in MaryTTS. It is a
  * container to access to all the information computed during the process.
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
- *         Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class Utterance {
     /** FIXME: temp feature names, nowhere else to put for now */
@@ -48,18 +47,16 @@ public class Utterance {
      *            the locale used for this utterance
      */
     public Utterance() {
-
         m_sequences = new Hashtable<String, Sequence<? extends Item>>();
         m_available_relation_set = new
         HashSet<ImmutablePair<String, String>>();
         m_relation_graph = new RelationGraph();
 	m_feature_names = new ArrayList<String>();
-
     }
 
-    /******************************************************************************************************************************************
+    /***************************************************************************************************************
      ** Sequence methods
-     ******************************************************************************************************************************************/
+     ***************************************************************************************************************/
 
     /**
      * Adding a sequence of a specified type. If the type is already existing,
@@ -110,9 +107,9 @@ public class Utterance {
         return m_sequences.keySet();
     }
 
-    /******************************************************************************************************************************************
+    /**************************************************************************************************************
      ** Relation methods
-     ******************************************************************************************************************************************/
+     **************************************************************************************************************/
     /**
      * Get the relation based on the source type and the target type
      *
@@ -121,15 +118,24 @@ public class Utterance {
      * @param target
      *            the type of the target sequence
      * @return the found relation between the source sequence of type source and
-     *         the target sequence of type target, or null if there is no
-     *         relation
+     *         the target sequence of type target
+     * @throws MaryException if there is no exception
      */
-    public Relation getRelation(String source, String target) {
-        return m_relation_graph.getRelation(getSequence(source), getSequence(target));
+    public Relation getRelation(String source, String target) throws MaryException {
+        return getRelation(getSequence(source), getSequence(target));
     }
 
-    public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) {
-        return m_relation_graph.getRelation(source, target);
+    public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) throws MaryException {
+
+        Relation rel =  m_relation_graph.getRelation(source, target);
+
+        if (rel == null) {
+            throw new MaryException(String.format("Cannot find relation between \"%s\" and \"%s\"",
+                                                  source, target
+                                                  ));
+        }
+
+        return rel;
     }
 
     /**
@@ -156,9 +162,9 @@ public class Utterance {
         return m_available_relation_set;
     }
 
-    /******************************************************************************************************************************************
+    /**********************************************************************************************************
      ** Object overriding
-     ******************************************************************************************************************************************/
+     **********************************************************************************************************/
     /**
      * Method to determine if an object is equal to the current utterance.
      *
@@ -222,9 +228,9 @@ public class Utterance {
 
 
 
-    /******************************************************************************************************************************************
+    /***************************************************************************************************************
      ** Helpers
-     ******************************************************************************************************************************************/
+     ***************************************************************************************************************/
     /**
      *
      */
@@ -268,9 +274,9 @@ public class Utterance {
     }
 
 
-    /******************************************************************************************************************************************
+    /***************************************************************************************************************
      ** Temporary
-     ******************************************************************************************************************************************/
+     ***************************************************************************************************************/
     public ArrayList<String> getFeatureNames() {
 	return m_feature_names;
     }

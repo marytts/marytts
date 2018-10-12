@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /* MaryTTS data part */
+import marytts.MaryException;
 import marytts.data.item.Item;
 import marytts.data.Sequence;
 import marytts.data.Relation;
@@ -198,7 +199,7 @@ public class ROOTSJSONSerializer implements Serializer {
      * @param sb
      *            the string builder
      */
-    protected Object exportRelations(Utterance utt) {
+    protected Object exportRelations(Utterance utt) throws MaryException {
         SparseDoubleMatrix2D cur_rel_mat;
 
 	JSONArray relations = new JSONArray();
@@ -354,4 +355,3 @@ public class ROOTSJSONSerializer implements Serializer {
 	return result.toString();
     }
 }
-

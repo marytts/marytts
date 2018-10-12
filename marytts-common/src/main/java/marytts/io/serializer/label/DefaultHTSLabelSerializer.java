@@ -1,4 +1,4 @@
-package marytts.io.serializer;
+package marytts.io.serializer.label;
 
 /* Utils part */
 import java.util.Map;
@@ -17,6 +17,7 @@ import marytts.data.Utterance;
 import marytts.data.SupportedSequenceType;
 
 /* IO Part */
+import marytts.io.serializer.Serializer;
 import marytts.io.MaryIOException;
 import java.io.File;
 
@@ -24,6 +25,7 @@ import java.io.File;
 import marytts.phonetic.converter.Alphabet;
 import marytts.phonetic.AlphabetFactory;
 
+/* */
 import marytts.MaryException;
 
 /**
@@ -83,11 +85,12 @@ public class DefaultHTSLabelSerializer implements Serializer {
             throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
                                       null);
         }
-        Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
-										   SupportedSequenceType.FEATURES);
-	Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
 
 	try {
+            Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
+                                                                                       SupportedSequenceType.FEATURES);
+            Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
+
 	    String output = "";
 	    for (int i=0; i<seq_features.size(); i++) {
 		FeatureMap map = seq_features.get(i);
@@ -315,4 +318,3 @@ public class DefaultHTSLabelSerializer implements Serializer {
         return cur_lab;
     }
 }
-

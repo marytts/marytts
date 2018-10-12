@@ -95,8 +95,7 @@ public class TextGridSerializer implements Serializer {
 
     protected IntervalTier loadSequence(Utterance utt, String seq_name, Sequence<Phoneme> seq_ph) throws Exception {
 	Sequence<Item> cur_seq = (Sequence<Item>) utt.getSequence(seq_name);
-	Relation rel_cur_ref = utt.getRelation(cur_seq, seq_ph);
-
+	Relation rel_cur_ref = utt.getRelation(seq_name, ref_sequence);
 
         ArrayList<Annotation> annotations = new ArrayList<Annotation>();
 	double start = 0;
