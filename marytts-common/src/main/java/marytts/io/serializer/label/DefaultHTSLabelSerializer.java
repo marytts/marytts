@@ -115,15 +115,16 @@ public class DefaultHTSLabelSerializer implements Serializer {
     }
 
     /**
-     * Generate an utterance from the HTS labels. <b>Not supported for now</b>
+     * Generate an utterance from the HTS labels. It is producing a sequence of phone and a sequence
+     * of string items identified as LABELS in the utterance
      *
-     * @param content
-     *            the HTS labels
+     * @param content the HTS labels
      * @return the utterance generated
      * @throws MaryIOException
      *             when something is going wrong
      */
     public Utterance load(String content) throws MaryIOException {
+
         throw new UnsupportedOperationException();
     }
 

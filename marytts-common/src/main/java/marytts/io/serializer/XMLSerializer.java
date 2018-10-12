@@ -188,7 +188,7 @@ public class XMLSerializer implements Serializer {
 
         // Export node value
         Paragraph paragraph = ((Sequence<Paragraph>) utt.getSequence(SupportedSequenceType.PARAGRAPH)).get(
-                                  par_index);
+                                                                                                           par_index);
         Node text = doc.createTextNode(paragraph.getText());
         par_element.appendChild(text);
 
@@ -266,7 +266,7 @@ public class XMLSerializer implements Serializer {
         logger.debug("Serializing phrase");
 
         Relation rel_phrase_word = utt.getRelation(SupportedSequenceType.PHRASE,
-                                   SupportedSequenceType.WORD);
+                                                   SupportedSequenceType.WORD);
         if (rel_phrase_word != null) {
             int[] words = rel_phrase_word.getRelatedIndexes(phrase_index);
             for (int i = 0; i < words.length; i++) {
@@ -345,7 +345,7 @@ public class XMLSerializer implements Serializer {
      */
     public Element exportSyllable(Utterance utt, int syl_index, Document doc) throws MaryException {
         Syllable syl = ((Sequence<Syllable>) utt.getSequence(SupportedSequenceType.SYLLABLE)).get(
-                           syl_index);
+                                                                                                  syl_index);
         Element syllable_element = doc.createElementNS(NAMESPACE, "syllable");
 
         logger.debug("Serializing syllable");
@@ -361,7 +361,7 @@ public class XMLSerializer implements Serializer {
         syllable_element.setAttribute("stress", Integer.toString(syl.getStressLevel()));
 
         Relation rel_syllable_phone = utt.getRelation(SupportedSequenceType.SYLLABLE,
-                                      SupportedSequenceType.PHONE);
+                                                      SupportedSequenceType.PHONE);
         if (rel_syllable_phone != null) {
             int[] indexes = rel_syllable_phone.getRelatedIndexes(syl_index);
             for (int i = 0; i < indexes.length; i++) {
@@ -420,7 +420,7 @@ public class XMLSerializer implements Serializer {
     public Element exportFeatures(Utterance utt, int feat_index, Document doc) {
         Element features_element = doc.createElementNS(NAMESPACE, "features");
         FeatureMap features = ((Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES)).get(
-                                  feat_index);
+                                                                                                           feat_index);
 
         for (Map.Entry<String, Feature> entry : features.getMap().entrySet()) {
             if ((entry.getValue() != null) && (!entry.getValue().getStringValue().equals(""))) {
@@ -455,7 +455,7 @@ public class XMLSerializer implements Serializer {
      *             if something wrong happened
      */
     public Utterance unpackDocument(String doc_str)
-    throws ParserConfigurationException, SAXException, IOException, MaryIOException {
+        throws ParserConfigurationException, SAXException, IOException, MaryIOException {
         // 1. generate the doc from the string
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setExpandEntityReferences(true);
@@ -596,7 +596,7 @@ public class XMLSerializer implements Serializer {
         // Create/modify the sequence by adding the paragraph
         Paragraph par = new Paragraph(text);
         Sequence<Paragraph> seq_par = (Sequence<Paragraph>) utt.getSequence(
-                                          SupportedSequenceType.PARAGRAPH);
+                                                                            SupportedSequenceType.PARAGRAPH);
         if (seq_par == null) {
             seq_par = new Sequence<Paragraph>();
         }
@@ -610,15 +610,15 @@ public class XMLSerializer implements Serializer {
         }
 
         if (!alignments
-                .containsKey(new SequenceTypePair(SupportedSequenceType.PARAGRAPH,
-                             SupportedSequenceType.SENTENCE))) {
+            .containsKey(new SequenceTypePair(SupportedSequenceType.PARAGRAPH,
+                                              SupportedSequenceType.SENTENCE))) {
             alignments.put(new SequenceTypePair(SupportedSequenceType.PARAGRAPH,
                                                 SupportedSequenceType.SENTENCE),
                            new ArrayList<IntegerPair>());
         }
 
         ArrayList<IntegerPair> alignment_paragraph_sentence = alignments
-                .get(new SequenceTypePair(SupportedSequenceType.PARAGRAPH, SupportedSequenceType.SENTENCE));
+            .get(new SequenceTypePair(SupportedSequenceType.PARAGRAPH, SupportedSequenceType.SENTENCE));
         int id_par = seq_par.size() - 1;
 
         // Deal with Relation sentences part
@@ -686,7 +686,7 @@ public class XMLSerializer implements Serializer {
                             generateWord((Element) word_node, utt, alignments);
                         } else {
                             throw new MaryIOException(
-                                "Unknown node element type during unpacking the mtu: " + node.getNodeType());
+                                                      "Unknown node element type during unpacking the mtu: " + node.getNodeType());
                         }
                     }
 
@@ -735,13 +735,13 @@ public class XMLSerializer implements Serializer {
         int size_phrase = utt.getSequence(SupportedSequenceType.PHRASE).size();
         if (size_phrase > 0) {
             if (!alignments
-                    .containsKey(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE))) {
+                .containsKey(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE),
                                new ArrayList<IntegerPair>());
             }
 
             ArrayList<IntegerPair> alignment_sentence_phrase = alignments
-                    .get(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE));
+                .get(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.PHRASE));
 
             for (int i = phrase_offset; i < size_phrase; i++) {
                 alignment_sentence_phrase.add(new IntegerPair(id_sent, i));
@@ -752,13 +752,13 @@ public class XMLSerializer implements Serializer {
         int size_word = utt.getSequence(SupportedSequenceType.WORD).size();
         if (size_word > 0) {
             if (!alignments
-                    .containsKey(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD))) {
+                .containsKey(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD),
                                new ArrayList<IntegerPair>());
             }
 
             ArrayList<IntegerPair> alignment_sentence_word = alignments
-                    .get(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD));
+                .get(new SequenceTypePair(SupportedSequenceType.SENTENCE, SupportedSequenceType.WORD));
 
             for (int i = word_offset; i < size_word; i++) {
                 alignment_sentence_word.add(new IntegerPair(id_sent, i));
@@ -814,7 +814,7 @@ public class XMLSerializer implements Serializer {
                             generateWord((Element) word_node, utt, alignments);
                         } else {
                             throw new MaryIOException(
-                                "Unknown node element type during unpacking the mtu: " + node.getNodeType());
+                                                      "Unknown node element type during unpacking the mtu: " + node.getNodeType());
                         }
                     }
 
@@ -842,13 +842,13 @@ public class XMLSerializer implements Serializer {
 
         // Phrase/Word alignment
         if (!alignments.containsKey(new SequenceTypePair(SupportedSequenceType.PHRASE,
-                                    SupportedSequenceType.WORD))) {
+                                                         SupportedSequenceType.WORD))) {
             alignments.put(new SequenceTypePair(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD),
                            new ArrayList<IntegerPair>());
         }
 
         ArrayList<IntegerPair> alignment_phrase_word = alignments
-                .get(new SequenceTypePair(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD));
+            .get(new SequenceTypePair(SupportedSequenceType.PHRASE, SupportedSequenceType.WORD));
 
         int size_word = utt.getSequence(SupportedSequenceType.WORD).size();
         int id_phrase = seq_phrase.size() - 1;
@@ -873,7 +873,7 @@ public class XMLSerializer implements Serializer {
      */
     public void generateWord(Element elt, Utterance utt,
                              Hashtable<SequenceTypePair, ArrayList<IntegerPair>> alignments)
-    throws MaryIOException {
+        throws MaryIOException {
         assert elt.getTagName().equals("t");
         ArrayList<Syllable> syllable_list = new ArrayList<Syllable>();
 
@@ -927,15 +927,15 @@ public class XMLSerializer implements Serializer {
 
         // Word/Syllable alignment
         if ((utt.getSequence(SupportedSequenceType.SYLLABLE) != null)
-                && (utt.getSequence(SupportedSequenceType.SYLLABLE).size() > 0)) {
+            && (utt.getSequence(SupportedSequenceType.SYLLABLE).size() > 0)) {
             if (!alignments
-                    .containsKey(new SequenceTypePair(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE))) {
+                .containsKey(new SequenceTypePair(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE),
                                new ArrayList<IntegerPair>());
             }
 
             ArrayList<IntegerPair> alignment_word_syllable = alignments
-                    .get(new SequenceTypePair(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE));
+                .get(new SequenceTypePair(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE));
 
             int size_syllable = utt.getSequence(SupportedSequenceType.SYLLABLE).size();
             int id_word = seq_word.size() - 1;
@@ -1006,7 +1006,7 @@ public class XMLSerializer implements Serializer {
 
         // Create the phrase and add the phrase to the
         Sequence<Syllable> seq_syllable = (Sequence<Syllable>) utt.getSequence(
-                                              SupportedSequenceType.SYLLABLE);
+                                                                               SupportedSequenceType.SYLLABLE);
         if (seq_syllable == null) {
             seq_syllable = new Sequence<Syllable>();
         }
@@ -1015,15 +1015,15 @@ public class XMLSerializer implements Serializer {
 
         // Syllable/Phone alignment
         if ((utt.getSequence(SupportedSequenceType.PHONE) != null)
-                && (utt.getSequence(SupportedSequenceType.PHONE).size() > 0)) {
+            && (utt.getSequence(SupportedSequenceType.PHONE).size() > 0)) {
             if (!alignments
-                    .containsKey(new SequenceTypePair(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE))) {
+                .containsKey(new SequenceTypePair(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE),
                                new ArrayList<IntegerPair>());
             }
 
             ArrayList<IntegerPair> alignment_syllable_phone = alignments
-                    .get(new SequenceTypePair(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE));
+                .get(new SequenceTypePair(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE));
 
             int size_phone = utt.getSequence(SupportedSequenceType.PHONE).size();
             int id_syllable = seq_syllable.size() - 1;
@@ -1105,7 +1105,7 @@ public class XMLSerializer implements Serializer {
 
         // Syllable/Phone alignment
         if ((utt.getSequence(SupportedSequenceType.FEATURES) != null)
-                && (utt.getSequence(SupportedSequenceType.FEATURES).size() > 0)) {
+            && (utt.getSequence(SupportedSequenceType.FEATURES).size() > 0)) {
 
             if (!alignments.containsKey(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES))) {
                 alignments.put(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES),
@@ -1113,7 +1113,7 @@ public class XMLSerializer implements Serializer {
             }
 
             ArrayList<IntegerPair> alignment_phone_features = alignments
-                    .get(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES));
+                .get(new SequenceTypePair(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES));
 
             int size_features = utt.getSequence(SupportedSequenceType.FEATURES).size();
             int id_phone = seq_phone.size() - 1;
