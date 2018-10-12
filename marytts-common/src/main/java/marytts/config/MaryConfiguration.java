@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.ArrayList;
 
 /* Reflection */
 import java.lang.reflect.Method;
@@ -26,6 +27,9 @@ import org.apache.logging.log4j.core.Appender;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class MaryConfiguration {
+    /** String to indicate that the following value is refering to a stored configuration */
+    public static final String REF_HEADER = "REF:";
+
     /** The logger */
     protected Logger logger;
 
@@ -111,13 +115,16 @@ public class MaryConfiguration {
 	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
     }
 
+    public void applyConfiguration(Object obj) throws MaryConfigurationException {
+        applyConfiguration(obj, new HashSet<String>());
+    }
     /**
      *  Apply the configuration to a given object
      *
      *  @param obj the given object
      *  @throws MaryConfiguration if the configuration failed
      */
-    public synchronized void applyConfiguration(Object obj) throws MaryConfigurationException {
+    protected synchronized void applyConfiguration(Object obj, HashSet<String> ref_visited) throws MaryConfigurationException {
         try {
             String class_name = obj.getClass().getName();
             Set<String> properties = m_class_property_map.get(class_name);
@@ -141,15 +148,24 @@ public class MaryConfiguration {
 
 	    // Other parts
             for (String property : properties) {
-		Object val = null;
-                try {
-		    val = m_configuration_value_map.get(new StringPair(class_name, property));
-                    Method m = obj.getClass().getMethod("set" + property, val.getClass());
-                    m.invoke(obj, val);
-                } catch (NoSuchMethodException ex) {
-		    logger.warn("Object of class \"" + obj.getClass().toString() +
-				"\" doesn't have a setter for property \"" + property.toLowerCase() +
-				"\" with expected argument of class \"" + val.getClass().toString() + "\"");
+		Object val = m_configuration_value_map.get(new StringPair(class_name, property));
+                if ((val instanceof String) && (((String) val).startsWith(REF_HEADER))) {
+                    String ref_id = ((String) val).substring(REF_HEADER.length());
+                    if (ref_visited.contains(ref_id)) {
+                        throw new MaryConfigurationException("Circular reference to \"" + ref_id + "\" in the current configuration");
+                    }
+
+                    MaryConfigurationFactory.getConfiguration(ref_id);
+                } else {
+
+                    try {
+                        Method m = obj.getClass().getMethod("set" + property, val.getClass());
+                        m.invoke(obj, val);
+                    } catch (NoSuchMethodException ex) {
+                        logger.warn("Object of class \"" + obj.getClass().toString() +
+                                    "\" doesn't have a setter for property \"" + property.toLowerCase() +
+                                    "\" with expected argument of class \"" + val.getClass().toString() + "\"");
+                    }
                 }
             }
 
@@ -174,5 +190,3 @@ public class MaryConfiguration {
 	return configuration_str;
     }
 }
-
-
