@@ -1,7 +1,5 @@
 package marytts.io.serializer;
 
-import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
@@ -89,4 +87,3 @@ public class JSONFeatureSerializer implements Serializer {
         throw new UnsupportedOperationException();
     }
 }
-

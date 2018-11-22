@@ -7,7 +7,6 @@ import java.util.Map;
 
 /* Data */
 import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Sequence;
 import marytts.data.Relation;

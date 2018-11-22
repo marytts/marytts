@@ -17,8 +17,7 @@ import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
 import marytts.data.item.Item;
-import marytts.data.item.phonology.Phone;
-import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.acoustic.Segment;
 import marytts.io.MaryIOException;
 
 /**
@@ -38,7 +37,7 @@ public class TextGridSerializer implements Serializer {
      *
      */
     public TextGridSerializer() {
-	ref_sequence = SupportedSequenceType.PHONE;
+	ref_sequence = SupportedSequenceType.SEGMENT;
         setIgnoredSequences(new ArrayList<String>());
         logger = LogManager.getLogger(this);
     }
@@ -60,9 +59,9 @@ public class TextGridSerializer implements Serializer {
 	    ArrayList<Tier> tiers = new ArrayList<Tier>();
 
 	    // Load reference sequence
-	    Sequence<Phoneme> seq_ph = (Sequence<Phoneme>) utt.getSequence(ref_sequence);
+	    Sequence<Segment> ref_seq = (Sequence<Segment>) utt.getSequence(ref_sequence);
 
-	    tiers.add(loadReferenceTier(seq_ph));
+	    tiers.add(loadReferenceTier(ref_seq));
 
 	    for (String seq_name: utt.listAvailableSequences()) {
 		// We ignore the reference sequence as it as already been done
@@ -71,13 +70,13 @@ public class TextGridSerializer implements Serializer {
 
                 if (! isSequenceIgnored(seq_name)) {
                     logger.info(seq_name + " exported into the textgrid");
-                    tiers.add(loadSequence(utt, seq_name, seq_ph));
+                    tiers.add(loadSequence(utt, seq_name, ref_seq));
                 } else {
                     logger.info(seq_name + " is ignored as part of the ignored sequences");
                 }
 	    }
 
-	    TextGrid tgt = new TextGrid(null, 0, getEnd(seq_ph)/1000, tiers);
+	    TextGrid tgt = new TextGrid(null, 0, getEnd(ref_seq)/1000, tiers);
 
 	    // Serialize
 	    org.m2ci.msp.jtgt.io.TextGridSerializer tgt_ser = new org.m2ci.msp.jtgt.io.TextGridSerializer();
@@ -87,13 +86,13 @@ public class TextGridSerializer implements Serializer {
 	}
     }
 
-    protected double getEnd(Sequence<Phoneme> seq_ph) {
-	Phone ph = (Phone) seq_ph.get(seq_ph.size() - 1);
-	return ph.getStart() + ph.getDuration();
+    protected double getEnd(Sequence<Segment> ref_seq) {
+	Segment seg = (Segment) ref_seq.get(ref_seq.size() - 1);
+	return seg.getStart() + seg.getDuration();
     }
 
 
-    protected IntervalTier loadSequence(Utterance utt, String seq_name, Sequence<Phoneme> seq_ph) throws Exception {
+    protected IntervalTier loadSequence(Utterance utt, String seq_name, Sequence<Segment> ref_seq) throws Exception {
 	Sequence<Item> cur_seq = (Sequence<Item>) utt.getSequence(seq_name);
 	Relation rel_cur_ref = utt.getRelation(seq_name, ref_sequence);
 
@@ -117,13 +116,15 @@ public class TextGridSerializer implements Serializer {
 		throw new Exception("The item " + i + " of the sequence " + seq_name + " is totally overlapping with the previous one ");
 
 
-	    double start_an = ((Phone) seq_ph.get(rel_indexes[start_i])).getStart();
-	    end = ((Phone) seq_ph.get(rel_indexes[rel_indexes.length-1])).getStart();
-	    end += ((Phone) seq_ph.get(rel_indexes[rel_indexes.length-1])).getDuration();
+            // Annotation starts at the first element start
+	    double start_an = ref_seq.get(rel_indexes[start_i]).getStart();
+
+            // Annotation ends at the last element end
+	    end = ref_seq.get(rel_indexes[rel_indexes.length-1]).getStart();
+	    end += ref_seq.get(rel_indexes[rel_indexes.length-1]).getDuration();
 	    String text = cur_seq.get(i).toString();
 
 	    Annotation annotation = new IntervalAnnotation(start_an/1000, end/1000, text);
-
 	    annotations.add(annotation);
 
 	    last_ref_index = rel_indexes[rel_indexes.length-1];
@@ -133,16 +134,15 @@ public class TextGridSerializer implements Serializer {
         return new IntervalTier(seq_name, start/1000, end/1000, annotations);
     }
 
-    protected IntervalTier loadReferenceTier(Sequence<Phoneme> seq_ph) {
+    protected IntervalTier loadReferenceTier(Sequence<Segment> ref_seq) {
 	double start = 0;
 	double end = 0;
 
         ArrayList<Annotation> annotations = new ArrayList<Annotation>();
-	for (Phoneme ph: seq_ph) {
-
-	    double start_an = ((Phone) ph).getStart();
-	    end = start_an + ((Phone) ph).getDuration();
-	    String text = ph.toString();
+	for (Segment seg: ref_seq) {
+	    double start_an = seg.getStart();
+	    end = start_an + seg.getDuration();
+	    String text = seg.toString();
 
 	    Annotation annotation = new IntervalAnnotation(start_an/1000, end/1000, text);
 

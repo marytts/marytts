@@ -7,10 +7,13 @@ import marytts.data.item.Item;
  *
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
-public class Phoneme extends Segment {
+public class Phoneme extends Item {
 
     /** Stress information of the phonem */
     private String m_stress;
+
+    /** The label of the phoneme. */
+    private String m_label;
 
     /**
      * Instantiates a new phoneme.
@@ -19,7 +22,7 @@ public class Phoneme extends Segment {
      *            the label
      */
     public Phoneme(String label) {
-        super(label);
+        setLabel(label);
         setStress(null);
     }
 
@@ -30,7 +33,7 @@ public class Phoneme extends Segment {
      *            the phoneme to copy
      */
     public Phoneme(Phoneme phoneme) {
-        super(phoneme.getLabel());
+        setLabel(phoneme.getLabel());
         setStress(phoneme.getStress());
     }
 
@@ -51,5 +54,39 @@ public class Phoneme extends Segment {
      */
     public void setStress(String stress) {
         m_stress = stress;
+    }
+
+
+
+    /**
+     * Gets the label of the segment.
+     *
+     * @return the label of the segment
+     */
+    public String getLabel() {
+        return m_label;
+    }
+
+    /**
+     * Sets the label of the segment.
+     *
+     * @param label
+     *            the new label of the segment
+     */
+    protected void setLabel(String label) {
+        m_label = label;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        if ((getStress() == null) || (getStress().isEmpty()))
+            return getLabel();
+        else
+            return String.format("%s (%s)", getLabel(), getStress());
     }
 }

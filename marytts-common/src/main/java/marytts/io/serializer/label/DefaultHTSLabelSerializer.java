@@ -15,7 +15,7 @@ import marytts.data.utils.IntegerPair;
 import marytts.data.item.Item;
 import marytts.data.item.global.StringItem;
 import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
+import marytts.data.item.acoustic.Segment;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
@@ -94,6 +94,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
             Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
             Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
 
+            Sequence<Segment> seq_seg = null;
+            Relation rel_ph_seg = null;
+            if (utt.hasSequence(SupportedSequenceType.SEGMENT)) {
+                seq_seg = (Sequence<Segment>) utt.getSequence(SupportedSequenceType.SEGMENT);
+                rel_ph_seg = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.SEGMENT);
+            }
+
 	    String output = "";
 	    for (int i=0; i<seq_features.size(); i++) {
 		FeatureMap map = seq_features.get(i);
@@ -101,12 +108,17 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		if (phs.size() <= 0) {
 		    continue;
 		}
-		if (phs.get(0) instanceof Phone)  {
-		    Phone ph = (Phone) phs.get(0);
-		    long start = (long) (ph.getStart() * HTK_STEP);
-		    long end = (long) ((ph.getStart() + ph.getDuration()) * HTK_STEP);
+
+		if (seq_seg != null)  {
+                    ArrayList<Segment> segments = (ArrayList<Segment>) rel_ph_seg.getRelatedItems(i);
+                    double dur = 0;
+                    for (Segment s: segments)
+                        dur += s.getDuration();
+		    long start = (long) (segments.get(i).getStart() * HTK_STEP);
+		    long end = start + (long) (dur * HTK_STEP);
 		    output += String.format("%d\t%d\t", start, end);
 		}
+
 		output += format(map);
 		output += "\n";
 	    }
@@ -128,77 +140,99 @@ public class DefaultHTSLabelSerializer implements Serializer {
      */
     public Utterance load(String content) throws MaryIOException {
         Sequence<Phoneme> seq_ph = new Sequence<Phoneme>();
+        Sequence<Segment> seq_seg = new Sequence<Segment>();
         Sequence<StringItem> seq_labels = new Sequence<StringItem>();
+
         try {
-        String[] lines = content.split("\n");
-        for (String l: lines) {
+            double start = 0;
+            String[] lines = content.split("\n");
+            for (String l: lines) {
+                Segment cur_seg = null;
 
-            // Ignore empty lines
-            if (l.length() == 0)
-                continue;
+                // Ignore empty lines
+                if (l.length() == 0)
+                    continue;
 
-            // Get elements
-            String[] elts = l.split("[ \t]");
-            if ((elts.length != 1) && (elts.length != 3))
-                throw new MaryIOException(String.format("\"%s\" doesn't respect the HTK label standard format",
-                                                        l));
+                // Get elements
+                String[] elts = l.split("[ \t]");
+                if ((elts.length != 1) && (elts.length != 3))
+                    throw new MaryIOException(String.format("\"%s\" doesn't respect the HTK label standard format",
+                                                            l));
 
-            if (elts.length == 3) { // Label with duration
-                // Fill label sequence
-                String label = elts[2];
-                seq_labels.add(new StringItem(label));
+                if (elts.length == 3) { // Label with duration
+                    // Fill label sequence
+                    String label = elts[2];
+                    seq_labels.add(new StringItem(label));
 
-                // Extract timestamps
-                double start = Long.parseLong(elts[0]) / 10000.0;
-                double end = Long.parseLong(elts[1]) / 10000.0;
+                    // Extract timestamps
+                    start = Long.parseLong(elts[0]) / 10000.0;
+                    double end = Long.parseLong(elts[1]) / 10000.0;
 
-                // Adapt label
-                Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
-                if (m.find()) {
-                    label = m.group(1).toUpperCase();
+                    // Adapt label
+                    Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
+                    if (m.find()) {
+                        label = m.group(1).toUpperCase();
+                    } else {
+                        throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
+                    }
+                    label = ipa2arp.getCorrespondingIPA(label);
+
+                    // Generate phone and fill sequence
+                    Phoneme ph = new Phoneme(label);
+                    seq_ph.add(ph);
+
+                    //
+                    cur_seg = new Segment(start, end-start);
                 } else {
-                    throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
+                    // Fill label sequence
+                    String label = elts[0];
+                    seq_labels.add(new StringItem(label));
+
+                    // Adapt label
+                    Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
+                    if (m.find()) {
+                        label = m.group(1).toUpperCase();
+                    } else {
+                        throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
+                    }
+                    label = ipa2arp.getCorrespondingIPA(label);
+
+                    // Generate phone and fill sequence
+                    Phoneme ph = new Phoneme(label);
+                    seq_ph.add(ph);
+
+                    // Add dummy segment
+                    cur_seg = new Segment(start, Segment.DEFAULT_DURATION);
+                    start += Segment.DEFAULT_DURATION;
                 }
-                label = ipa2arp.getCorrespondingIPA(label);
 
-                // Generate phone and fill sequence
-                Phone ph = new Phone(label, start, end-start);
-                seq_ph.add(ph);
-            } else {
-                // Fill label sequence
-                String label = elts[0];
-                seq_labels.add(new StringItem(label));
-
-                // Adapt label
-                Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
-                if (m.find()) {
-                    label = m.group(1).toUpperCase();
-                } else {
-                    throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
-                }
-                label = ipa2arp.getCorrespondingIPA(label);
-
-                // Generate phone and fill sequence
-                Phoneme ph = new Phoneme(label);
-                seq_ph.add(ph);
+                seq_seg.add(cur_seg);
             }
-        }
 
 
-        // Generate utterance
-        Utterance utt = new Utterance();
+            // Generate utterance
+            Utterance utt = new Utterance();
 
-        // Add the sequence
-        utt.addSequence(SupportedSequenceType.PHONE, seq_ph);
-        utt.addSequence(SupportedSequenceType.LABEL, seq_labels);
+            // Add the sequence
+            utt.addSequence(SupportedSequenceType.SEGMENT, seq_seg);
+            utt.addSequence(SupportedSequenceType.PHONE, seq_ph);
+            utt.addSequence(SupportedSequenceType.LABEL, seq_labels);
 
-        // Add the relation
-        ArrayList<IntegerPair> relation_pairs = new ArrayList<IntegerPair>();
-        for (int i=0; i<seq_ph.size(); i++)
-            relation_pairs.add(new IntegerPair(i, i));
-        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.LABEL,
-                        new Relation(seq_ph, seq_labels, relation_pairs));
-        return utt;
+            // Add relation segment -> phone
+            ArrayList<IntegerPair> relation_pairs = new ArrayList<IntegerPair>();
+            for (int i=0; i<seq_seg.size(); i++)
+                relation_pairs.add(new IntegerPair(i, i));
+            utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.PHONE,
+                            new Relation(seq_seg, seq_ph, relation_pairs));
+
+            // Add the relation segment -> feature
+            relation_pairs = new ArrayList<IntegerPair>();
+            for (int i=0; i<seq_seg.size(); i++)
+                relation_pairs.add(new IntegerPair(i, i));
+            utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.LABEL,
+                            new Relation(seq_seg, seq_labels, relation_pairs));
+
+            return utt;
 
         } catch (MaryException ex) {
             throw new MaryIOException("couldn't deserialize labels", ex);

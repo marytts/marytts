@@ -35,8 +35,8 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
-import marytts.data.item.phonology.Phone;
 import marytts.data.item.phonology.Syllable;
+import marytts.data.item.acoustic.Segment;
 import marytts.io.serializer.TextGridSerializer;
 
 
@@ -50,12 +50,12 @@ public class TextGridSerializerTest {
 
         // Generate dummy utterance
         Sequence<Word> seq_word = new Sequence<Word>();
-        Word w = new Word("hello");
+        Word w = new Word("w0");
         w.setAlternativeLocale("en_US");
         seq_word.add(w);
-        w = new Word("test");
+        w = new Word("w1");
         seq_word.add(w);
-        w = new Word("!");
+        w = new Word("w2");
         seq_word.add(w);
 
         Sequence<Syllable> seq_syl = new Sequence<Syllable>();
@@ -68,14 +68,23 @@ public class TextGridSerializerTest {
         syl = new Syllable();
         seq_syl.add(syl);
 
-        Sequence<Phone> seq_phone = new Sequence<Phone>();
-        Phone ph = new Phone("a", 0, 1);
+        Sequence<Phoneme> seq_phone = new Sequence<Phoneme>();
+        Sequence<Segment> seq_segment = new Sequence<Segment>();
+        Segment seg = new Segment(0, 1);
+        seq_segment.add(seg);
+        Phoneme ph = new Phoneme("a");
         seq_phone.add(ph);
-        ph = new Phone("b", 1, 1);
+        seg = new Segment(1, 1);
+        seq_segment.add(seg);
+        ph = new Phoneme("b");
         seq_phone.add(ph);
-        ph = new Phone("c", 2, 1);
+        seg = new Segment(2, 1);
+        seq_segment.add(seg);
+        ph = new Phoneme("c");
         seq_phone.add(ph);
-        ph = new Phone("d", 3, 1);
+        seg = new Segment(3, 1);
+        seq_segment.add(seg);
+        ph = new Phoneme("d");
         seq_phone.add(ph);
 
 
@@ -93,12 +102,16 @@ public class TextGridSerializerTest {
         alignment_syl_phone.add(new IntegerPair(2, 2));
         alignment_syl_phone.add(new IntegerPair(2, 3));
 
-
+        ArrayList<IntegerPair> alignment_phone_seg = new ArrayList<IntegerPair>();
+        for (int i = 0; i < seq_phone.size(); i++) {
+            alignment_phone_seg.add(new IntegerPair(i, i));
+        }
 
         Utterance utt = new Utterance();
         utt.addSequence("WORD", seq_word);
         utt.addSequence("SYLLABLE", seq_syl);
         utt.addSequence("PHONE", seq_phone);
+        utt.addSequence("SEGMENT", seq_segment);
 
         Relation rel = new Relation(seq_word, seq_phone, alignment_word_phone);
         utt.setRelation("WORD", "PHONE", rel);
@@ -106,9 +119,13 @@ public class TextGridSerializerTest {
         rel = new Relation(seq_syl, seq_phone, alignment_syl_phone);
         utt.setRelation("SYLLABLE", "PHONE", rel);
 
+        rel = new Relation(seq_phone, seq_segment, alignment_phone_seg);
+        utt.setRelation("PHONE", "SEGMENT", rel);
+
         return utt;
     }
 
+    /** TODO */
     @Test
     public void testExport() throws Exception {
         TextGridSerializer ser = new TextGridSerializer();
