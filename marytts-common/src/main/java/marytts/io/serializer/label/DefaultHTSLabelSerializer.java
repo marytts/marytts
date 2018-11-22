@@ -1,5 +1,9 @@
 package marytts.io.serializer.label;
 
+/* Regexp */
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /* Utils part */
 import java.util.Map;
 import java.util.Hashtable;
@@ -7,7 +11,9 @@ import java.util.ArrayList;
 
 /* Mary data part */
 import marytts.data.Sequence;
+import marytts.data.utils.IntegerPair;
 import marytts.data.item.Item;
+import marytts.data.item.global.StringItem;
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Phone;
 import marytts.data.Relation;
@@ -32,8 +38,7 @@ import marytts.MaryException;
  * This serializer is aimed to generate HTS compatible labels as Festival would
  * do.
  *
- * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
- *         Maguer</a>
+ * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class DefaultHTSLabelSerializer implements Serializer {
 
@@ -81,14 +86,12 @@ public class DefaultHTSLabelSerializer implements Serializer {
      *             when something is going wrong
      */
     public Object export(Utterance utt) throws MaryIOException {
-        if (!utt.hasSequence(SupportedSequenceType.FEATURES)) {
-            throw new MaryIOException("Current utterance doesn't have any features. Check the module sequence",
-                                      null);
+        if (!utt.hasSequence(SupportedSequenceType.FEATURES) && !utt.hasSequence(SupportedSequenceType.LABEL)) {
+            throw new MaryIOException("Current utterance doesn't have any features or labels. Check the module sequence");
         }
 
 	try {
-            Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(
-                                                                                       SupportedSequenceType.FEATURES);
+            Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
             Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
 
 	    String output = "";
@@ -124,8 +127,82 @@ public class DefaultHTSLabelSerializer implements Serializer {
      *             when something is going wrong
      */
     public Utterance load(String content) throws MaryIOException {
+        Sequence<Phoneme> seq_ph = new Sequence<Phoneme>();
+        Sequence<StringItem> seq_labels = new Sequence<StringItem>();
+        try {
+        String[] lines = content.split("\n");
+        for (String l: lines) {
 
-        throw new UnsupportedOperationException();
+            // Ignore empty lines
+            if (l.length() == 0)
+                continue;
+
+            // Get elements
+            String[] elts = l.split("[ \t]");
+            if ((elts.length != 1) && (elts.length != 3))
+                throw new MaryIOException(String.format("\"%s\" doesn't respect the HTK label standard format",
+                                                        l));
+
+            if (elts.length == 3) { // Label with duration
+                // Fill label sequence
+                String label = elts[2];
+                seq_labels.add(new StringItem(label));
+
+                // Extract timestamps
+                double start = Long.parseLong(elts[0]) / 10000.0;
+                double end = Long.parseLong(elts[1]) / 10000.0;
+
+                // Adapt label
+                Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
+                if (m.find()) {
+                    label = m.group(1).toUpperCase();
+                } else {
+                    throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
+                }
+                label = ipa2arp.getCorrespondingIPA(label);
+
+                // Generate phone and fill sequence
+                Phone ph = new Phone(label, start, end-start);
+                seq_ph.add(ph);
+            } else {
+                // Fill label sequence
+                String label = elts[0];
+                seq_labels.add(new StringItem(label));
+
+                // Adapt label
+                Matcher m = Pattern.compile("-([a-zA-Z0-9]+)\\+").matcher(label);
+                if (m.find()) {
+                    label = m.group(1).toUpperCase();
+                } else {
+                    throw new MaryIOException(String.format("\"%s\" doesn't follow the HTK label format convention, couldn't find the monophone label"));
+                }
+                label = ipa2arp.getCorrespondingIPA(label);
+
+                // Generate phone and fill sequence
+                Phoneme ph = new Phoneme(label);
+                seq_ph.add(ph);
+            }
+        }
+
+
+        // Generate utterance
+        Utterance utt = new Utterance();
+
+        // Add the sequence
+        utt.addSequence(SupportedSequenceType.PHONE, seq_ph);
+        utt.addSequence(SupportedSequenceType.LABEL, seq_labels);
+
+        // Add the relation
+        ArrayList<IntegerPair> relation_pairs = new ArrayList<IntegerPair>();
+        for (int i=0; i<seq_ph.size(); i++)
+            relation_pairs.add(new IntegerPair(i, i));
+        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.LABEL,
+                        new Relation(seq_ph, seq_labels, relation_pairs));
+        return utt;
+
+        } catch (MaryException ex) {
+            throw new MaryIOException("couldn't deserialize labels", ex);
+        }
     }
 
 
@@ -144,6 +221,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
 
 	if ((ph == null) || (ph.isEmpty()))
 	    return getUndefSymbol();
+
 	if (ph.equals(getUndefSymbol()))
 	    return getUndefSymbol();
 
