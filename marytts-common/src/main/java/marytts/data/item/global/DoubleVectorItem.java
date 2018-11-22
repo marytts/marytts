@@ -24,7 +24,9 @@ public class DoubleVectorItem extends Item {
 
 
     /**
-     *  Copy constructor
+     *  Constructor from a list of double object values
+     *
+     *  @param values the values of the vector
      */
     public DoubleVectorItem(List<Double> values) {
         super();
@@ -36,7 +38,9 @@ public class DoubleVectorItem extends Item {
     }
 
     /**
-     *  Copy constructor
+     *  Double object array constructor
+     *
+     *  @param values the values of the vector
      */
     public DoubleVectorItem(Double[] values) {
         super();
@@ -48,13 +52,34 @@ public class DoubleVectorItem extends Item {
     }
 
     /**
-     *  Copy constructor
+     *  Double native vector constructor
+     *
+     *  @param values the values of the vector
      */
     public DoubleVectorItem(double[] values) {
         super();
         setValues(new DenseDoubleMatrix1D(values));
     }
 
+    /**
+     *  Double native matrix to vector constructor (matrix should have a dimension of Nx1)
+     *
+     *  @param values the matrix
+     *  @throws IllegalArgumentException if the matrix dimension is incorrect
+     */
+    public DoubleVectorItem(double[][] values) {
+        super();
+        if (values[0].length > 1) {
+            throw new IllegalArgumentException(String.format("the source array should have dimension \"N x 1\" and not \"N x %d\"", values[0].length));
+        }
+
+        double[] v_values = new double[values.length];
+        for (int i=0; i<values.length; i++) {
+            v_values[i] = values[i][0];
+
+        }
+        setValues(new DenseDoubleMatrix1D(v_values));
+    }
     /**
      *  Copy constructor
      */
