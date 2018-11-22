@@ -19,10 +19,8 @@
  */
 package marytts.io;
 
+// List
 import java.util.ArrayList;
-
-import org.testng.Assert;
-import org.testng.annotations.*;
 
 import java.io.IOException;
 
@@ -37,6 +35,10 @@ import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
 import marytts.io.serializer.ROOTSJSONSerializer;
+
+/* Assert/test */
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 
 
