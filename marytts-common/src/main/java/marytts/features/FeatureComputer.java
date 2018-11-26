@@ -121,7 +121,9 @@ public class FeatureComputer {
     }
 
 
-    public void addFeatureProcessor(String feature_name, String feature_class_name) throws MaryConfigurationException {
+    public void addFeatureProcessor(String feature_name, String feature_class_name)
+        throws MaryConfigurationException
+    {
 	try {
 	    m_feature_factory.addFeatureProcessor(feature_name, feature_class_name);
 	} catch (Exception ex) {
@@ -188,6 +190,7 @@ public class FeatureComputer {
      */
     protected Feature compute(Utterance utt, Item item, String level, String context,
                               String feature) throws MaryException {
+
         LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
         ArrayList<? extends Item> level_items = level_processor.get(utt, item);
         if (level_items.size() == 0) {
@@ -195,15 +198,15 @@ public class FeatureComputer {
         }
 
         ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
-        Item context_item = context_processor.get(level_items.get(0));
+        Item context_item = context_processor.get(utt, level_items.get(0));
         if (context_item == null) {
             return Feature.UNDEF_FEATURE;
         }
 
         FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
         if (feature_processor == null) {
-            throw new MaryException(feature + " is not part of the factory for items : (level=" + level + ", context=" + context + ", feature=" +
-                                feature + ")");
+            throw new MaryException(feature + " is not part of the factory for items : (level=" +
+                                    level + ", context=" + context + ", feature=" + feature + ")");
         }
 
         return feature_processor.generate(utt, context_item);
@@ -224,8 +227,7 @@ public class FeatureComputer {
         FeatureMap feature_map = new FeatureMap();
         for (String feature_name : m_features.keySet()) {
             String[] infos = m_features.get(feature_name);
-            Feature feature = compute(utt, item, infos[LEVEL_INDEX], infos[CONTEXT_INDEX],
-                                      infos[FEATURE_INDEX]);
+            Feature feature = compute(utt, item, infos[LEVEL_INDEX], infos[CONTEXT_INDEX], infos[FEATURE_INDEX]);
 
             // Update
             if (feature != null) {

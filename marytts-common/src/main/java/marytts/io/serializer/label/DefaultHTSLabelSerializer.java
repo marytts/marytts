@@ -91,33 +91,24 @@ public class DefaultHTSLabelSerializer implements Serializer {
         }
 
 	try {
+            Sequence<Segment> seq_seg = (Sequence<Segment>) utt.getSequence(SupportedSequenceType.SEGMENT);
             Sequence<FeatureMap> seq_features = (Sequence<FeatureMap>) utt.getSequence(SupportedSequenceType.FEATURES);
-            Relation rel_feat_ph = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.PHONE);
-
-            Sequence<Segment> seq_seg = null;
-            Relation rel_ph_seg = null;
-            if (utt.hasSequence(SupportedSequenceType.SEGMENT)) {
-                seq_seg = (Sequence<Segment>) utt.getSequence(SupportedSequenceType.SEGMENT);
-                rel_ph_seg = utt.getRelation(SupportedSequenceType.PHONE, SupportedSequenceType.SEGMENT);
-            }
+            Relation rel_feat_seg = utt.getRelation(SupportedSequenceType.FEATURES, SupportedSequenceType.SEGMENT);
 
 	    String output = "";
 	    for (int i=0; i<seq_features.size(); i++) {
 		FeatureMap map = seq_features.get(i);
-		ArrayList<Phoneme> phs = (ArrayList<Phoneme>) rel_feat_ph.getRelatedItems(i);
-		if (phs.size() <= 0) {
+		ArrayList<Segment> segments = (ArrayList<Segment>) rel_feat_seg.getRelatedItems(i);
+		if (segments.size() <= 0) {
 		    continue;
 		}
 
-		if (seq_seg != null)  {
-                    ArrayList<Segment> segments = (ArrayList<Segment>) rel_ph_seg.getRelatedItems(i);
-                    double dur = 0;
-                    for (Segment s: segments)
-                        dur += s.getDuration();
-		    long start = (long) (segments.get(i).getStart() * HTK_STEP);
-		    long end = start + (long) (dur * HTK_STEP);
-		    output += String.format("%d\t%d\t", start, end);
-		}
+                double dur = 0;
+                for (Segment s: segments)
+                    dur += s.getDuration();
+                long start = (long) (segments.get(0).getStart() * HTK_STEP);
+                long end = start + (long) (dur * HTK_STEP);
+                output += String.format("%d\t%d\t", start, end);
 
 		output += format(map);
 		output += "\n";
@@ -259,7 +250,8 @@ public class DefaultHTSLabelSerializer implements Serializer {
 	if (ph.equals(getUndefSymbol()))
 	    return getUndefSymbol();
 
-	if (ph.equals("sil") || ph.equals("_"))
+	if (ph.equals("sil") || ph.equals("_") || ph.equals("pau") ||
+            ph.equals("start") || ph.equals("end"))
 	    return "pau";
 
         return ipa2arp.getLabelFromIPA(ph).toLowerCase();

@@ -19,6 +19,7 @@ public class NextNext implements ContextProcessor {
     /**
      * Return the 2nd next item of the given item in the sequence
      *
+     * @param utt the utterance
      * @param item
      *            the given item
      * @return the 2nd next item of the given item or null if there is no such
@@ -27,7 +28,7 @@ public class NextNext implements ContextProcessor {
      *             (actually NotInSequenceMaryException) if the given item is not in
      *             a sequence
      */
-    public Item get(Item item) throws MaryException {
+    public Item get(Utterance utt, Item item) throws MaryException {
         Sequence<? extends Item> seq = item.getSequence();
 
         // FIXME: Should be replace by a "notinsequence" exception

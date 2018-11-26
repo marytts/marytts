@@ -16,6 +16,7 @@ public class Previous implements ContextProcessor {
     /**
      * Return the previous item of the given item in the sequence
      *
+     * @param utt the utterance
      * @param item
      *            the given item
      * @return the previous item of the given item or null if there is no such
@@ -24,7 +25,7 @@ public class Previous implements ContextProcessor {
      *             (actually NotInSequenceException) if the given item is not in
      *             a sequence
      */
-    public Item get(Item item) throws MaryException {
+    public Item get(Utterance utt, Item item) throws MaryException {
         Sequence<? extends Item> seq = item.getSequence();
 
         // FIXME: Should be replace by a "notinsequence" exception

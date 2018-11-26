@@ -38,10 +38,16 @@
 		"marytts.features.contextprocessor.Previous",
 		"marytts.features.contextprocessor.Current",
 		"marytts.features.contextprocessor.Next",
-		"marytts.features.contextprocessor.NextNext"
+		"marytts.features.contextprocessor.NextNext",
+		"marytts.features.contextprocessor.SegmentPrevious",
+		"marytts.features.contextprocessor.SegmentPreviousPrevious",
+		"marytts.features.contextprocessor.SegmentNext",
+		"marytts.features.contextprocessor.SegmentNextNext",
 	    ],
 	    "level_processors": [
 		"marytts.features.levelprocessor.Current",
+		"marytts.features.levelprocessor.PhoneNSS",
+		"marytts.features.levelprocessor.Phone",
 		"marytts.features.levelprocessor.Syllable",
 		"marytts.features.levelprocessor.Word",
 		"marytts.features.levelprocessor.Phrase",
@@ -49,13 +55,13 @@
 		"marytts.features.levelprocessor.Paragraph"
 	    ],
 	    "features": [
-		["phone", "Current", "Current", "StringFeature"],
-		["prev_prev_phone", "Current", "PreviousPrevious", "StringFeature"],
-		["prev_phone", "Current", "Previous", "StringFeature"],
-		["next_phone", "Current", "Next", "StringFeature"],
-		["next_next_phone", "Current", "NextNext", "StringFeature"],
-		["ph_from_syl_start", "Current", "Current", "NbFromSyllableStart"],
-		["ph_from_syl_end", "Current", "Current", "NbToSyllableEnd"],
+		["phone", "PhoneNSS", "Current", "StringFeature"],
+		["prev_prev_phone", "PhoneNSS", "SegmentPreviousPrevious", "StringFeature"],
+		["prev_phone", "PhoneNSS", "SegmentPrevious", "StringFeature"],
+		["next_phone", "PhoneNSS", "SegmentNext", "StringFeature"],
+		["next_next_phone", "PhoneNSS", "SegmentNextNext", "StringFeature"],
+		["ph_from_syl_start", "Phone", "Current", "NbFromSyllableStart"],
+		["ph_from_syl_end", "Phone", "Current", "NbToSyllableEnd"],
 		["prev_syl_num_phones", "Syllable", "Previous", "NbPhonesRelated"],
 		["prev_syl_accent", "Syllable", "Previous", "IsAccented"],
 		["prev_syl_stress", "Syllable", "Previous", "StressLevel"],
@@ -96,8 +102,7 @@
 		["sentence_num_words", "Sentence", "Current", "NbWordsRelated"],
 		["sentence_num_phrases", "Sentence", "Current", "NbPhrasesRelated"],
 		["sentence_from_paragraph_end", "Sentence", "Current", "NbToParagraphEnd"],
-		["paragraph_num_sentences", "Paragraph", "Current", "NbSentencesRelated"],
-		["indirectspeech", "Current", "Current", "InDirectSpeech"]
+		["paragraph_num_sentences", "Paragraph", "Current", "NbSentencesRelated"]
 	    ]
 	}
     }

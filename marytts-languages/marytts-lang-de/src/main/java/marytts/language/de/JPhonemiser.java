@@ -22,34 +22,19 @@ package marytts.language.de;
 
 
 // IO
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import org.apache.commons.io.FileUtils;
 
 // Collections
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-
-// Parsing
-import java.util.StringTokenizer;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import com.google.common.base.Splitter;
-
-// Locale
-import java.util.Locale;
 
 // Configuration
 import marytts.config.MaryConfiguration;
@@ -62,11 +47,7 @@ import marytts.fst.FSTLookup;
 import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.PhonemiseDenglish;
 import marytts.language.de.phonemiser.Result;
-import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.modules.nlp.phonemiser.TrainedLTS;
-import marytts.modules.MaryModule;
 import marytts.modules.synthesis.PAConverter;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 // Data
@@ -75,13 +56,11 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
+import marytts.data.item.acoustic.Segment;
 import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
-import marytts.data.item.phonology.Accent;
-
-// Logging
-import org.apache.logging.log4j.core.Appender;
+import marytts.data.item.phonology.NSS;
 
 
 /**
@@ -228,30 +207,35 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     }
 
     @Override
-
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+
+        // Prepare new sequences
         Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_syllable = new ArrayList<IntegerPair>();
-
         Sequence<Phoneme> phones = new Sequence<Phoneme>();
-        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+        Sequence<NSS> nss_seq = new Sequence<NSS>();
+        Sequence<Segment> segments = new Sequence<Segment>();
 
-        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                  SupportedSequenceType.WORD)
-                                  .getReverse();
-        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+        // Prepare alignment
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_phone_seg = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_nss_seg = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_word_seg = new ArrayList<IntegerPair>();
+
+        // FIXME: add pause de facto
+        nss_seq.add(new NSS("start"));
+        segments.add(new Segment(0));
+        alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
 
         for (int i_word = 0; i_word < words.size(); i_word++) {
+            // Get word
             Word w = words.get(i_word);
 
-            String text;
-
+            // Get the wanted text
+            String text = w.getText();
             if (w.soundsLike() != null) {
                 text = w.soundsLike();
-            } else {
-                text = w.getText();
             }
 
             // Get POS
@@ -265,7 +249,6 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
             // Ok adapt phonemes now
             ArrayList<String> phonetisation_string = new ArrayList<String>();
             if (maybePronounceable(text, pos)) {
-
                 // If text consists of several parts (e.g., because that was
                 // inserted into the sounds_like attribute), each part
                 // is transcribed separately.
@@ -298,28 +281,51 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                         g2p_method = helper.toString();
                     }
 
-                    phonetisation_string.add(phon);
                 }
 
                 if (phonetisation_string.size() > 0) {
-
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
-                                       alignment_syllable_phone, i_word, alignment_word_syllable);
+                    createSubStructure(w, phonetisation_string,
+                                       syllables, phones, segments,
+                                       alignment_syllable_phone, alignment_phone_seg,
+                                       alignment_word_seg, i_word);
 
                     // Adapt G2P method
                     w.setG2PMethod(g2p_method);
                 }
+            } else {
+                nss_seq.add(new NSS("pau"));
+                double new_start = segments.get(segments.size()-1).getStart() +
+                    segments.get(segments.size()-1).getDuration();
+                segments.add(new Segment(new_start));
+                alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
             }
         }
 
-        // Relation word/syllable
-        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_word_syllable = new Relation(words, syllables, alignment_word_syllable);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SYLLABLE, rel_word_syllable);
+        nss_seq.add(new NSS("start"));
+        double new_start = segments.get(segments.size()-1).getStart() +
+            segments.get(segments.size()-1).getDuration();
+        segments.add(new Segment(new_start));
+        alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
 
+        // Word => segment
+        utt.addSequence(SupportedSequenceType.SEGMENT, segments);
+        Relation tmp_rel = new Relation(words, segments, alignment_nss_seg);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SEGMENT, tmp_rel);
+
+        // NSS => segment
+        utt.addSequence(SupportedSequenceType.NSS, nss_seq);
+        tmp_rel = new Relation(nss_seq, segments, alignment_nss_seg);
+        utt.setRelation(SupportedSequenceType.NSS, SupportedSequenceType.SEGMENT, tmp_rel);
+
+        // Phone => segment
         utt.addSequence(SupportedSequenceType.PHONE, phones);
-        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
-        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+        tmp_rel = new Relation(phones, segments, alignment_phone_seg);
+        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.SEGMENT, tmp_rel);
+
+        // Syllable => phone
+        utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
+        tmp_rel = new Relation(syllables, phones, alignment_syllable_phone);
+        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, tmp_rel);
 
         return utt;
     }

@@ -77,9 +77,9 @@ public class TargetFeatureLister extends MaryModule {
      *  @throws MaryException which indicates what is missing if something is missing
      */
     public void checkInput(Utterance utt) throws MaryException {
-        if (!utt.hasSequence(SupportedSequenceType.PHONE)) {
-            throw new MaryException("Phone sequence is missing", null);
-        }
+        // if (!utt.hasSequence(SupportedSequenceType.PHONE)) {
+        //     throw new MaryException("Phone sequence is missing", null);
+        // }
     }
 
     /**
@@ -96,8 +96,7 @@ public class TargetFeatureLister extends MaryModule {
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 	utt.setFeatureNames(feature_computer.listFeatures());
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
-        Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.PHONE);
-        Set<String> keys = null;
+        Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.SEGMENT);
         int i = 0;
         List<IntegerPair> list_pairs = new ArrayList<IntegerPair>();
         for (Item it : items) {
@@ -107,10 +106,10 @@ public class TargetFeatureLister extends MaryModule {
             i++;
         }
 
-        Relation rel_phone_features = new Relation(items, target_features, list_pairs);
+        Relation rel_seg_features = new Relation(items, target_features, list_pairs);
 
         utt.addSequence(SupportedSequenceType.FEATURES, target_features);
-	utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.FEATURES, rel_phone_features);
+	utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.FEATURES, rel_seg_features);
 	return utt;
     }
 

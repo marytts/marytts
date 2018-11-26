@@ -10,8 +10,6 @@ import marytts.data.item.Item;
  *         Maguer</a>
  */
 public class Segment extends Item {
-    /** Constant to indicate that the segment is starting stricktly when the previous one ends */
-    public static final double NO_START = -1.0;
 
     /** Constant for the default duration */
     public static final double DEFAULT_DURATION = 1.0;
@@ -27,9 +25,9 @@ public class Segment extends Item {
      * Instantiates a new segment initialized with default values.
      *
      */
-    public Segment() {
+    public Segment(double start) {
         super();
-        setStart(NO_START);
+        setStart(start);
         setDuration(DEFAULT_DURATION);
     }
 
@@ -84,6 +82,7 @@ public class Segment extends Item {
     protected void setDuration(double duration) {
         m_duration = duration;
     }
+
 
     /**
      *  Equality test method.

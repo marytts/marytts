@@ -21,7 +21,6 @@ package marytts.modules.nlp;
 
 // IO
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 
 // Parsing
 import java.util.StringTokenizer;
@@ -42,7 +40,6 @@ import com.google.common.base.Splitter;
 
 // Locale
 import java.util.Locale;
-import org.apache.commons.lang3.LocaleUtils;
 
 // Configuration
 import marytts.config.MaryConfiguration;
@@ -54,7 +51,6 @@ import marytts.fst.FSTLookup;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
 import marytts.modules.nlp.phonemiser.TrainedLTS;
 import marytts.modules.MaryModule;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 // Data
@@ -64,15 +60,14 @@ import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 import marytts.data.utils.IntegerPair;
 import marytts.data.item.linguistic.Word;
+import marytts.data.item.acoustic.Segment;
 import marytts.data.item.phonology.Phoneme;
+import marytts.data.item.phonology.NSS;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.phonology.Accent;
 
 import marytts.phonetic.AlphabetFactory;
 import marytts.phonetic.converter.Alphabet;
-
-// Logging
-import org.apache.logging.log4j.core.Appender;
 
 /**
  * The phonemiser module -- java implementation.
@@ -158,29 +153,32 @@ public abstract class JPhonemiser extends MaryModule {
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
 
         Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);
+
+        // Prepare new sequences
         Sequence<Syllable> syllables = new Sequence<Syllable>();
-        ArrayList<IntegerPair> alignment_word_phone = new ArrayList<IntegerPair>();
-
         Sequence<Phoneme> phones = new Sequence<Phoneme>();
-        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+        Sequence<NSS> nss_seq = new Sequence<NSS>();
+        Sequence<Segment> segments = new Sequence<Segment>();
 
-        Relation rel_words_sent = utt.getRelation(SupportedSequenceType.SENTENCE,
-                                  SupportedSequenceType.WORD)
-                                  .getReverse();
-        HashSet<IntegerPair> alignment_word_phrase = new HashSet<IntegerPair>();
+        // Prepare alignment
+        ArrayList<IntegerPair> alignment_syllable_phone = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_phone_seg = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_nss_seg = new ArrayList<IntegerPair>();
+        ArrayList<IntegerPair> alignment_word_seg = new ArrayList<IntegerPair>();
 
         // FIXME: add pause de facto
-        phones.add(new Phoneme("_"));
+        nss_seq.add(new NSS("start"));
+        segments.add(new Segment(0));
+        alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
 
         for (int i_word = 0; i_word < words.size(); i_word++) {
+            // Get word
             Word w = words.get(i_word);
 
-            String text;
-
+            // Get the wanted text
+            String text = w.getText();
             if (w.soundsLike() != null) {
                 text = w.soundsLike();
-            } else {
-                text = w.getText();
             }
 
             // Get POS
@@ -214,37 +212,57 @@ public abstract class JPhonemiser extends MaryModule {
                 }
 
                 if (phonetisation_string.size() > 0) {
-                    createSubStructure(w, phonetisation_string, allophoneSet, syllables, phones,
-                                       alignment_syllable_phone, i_word, alignment_word_phone);
+                    createSubStructure(w, phonetisation_string,
+                                       syllables, phones, segments,
+                                       alignment_syllable_phone, alignment_phone_seg,
+                                       alignment_word_seg, i_word);
 
                     // Adapt G2P method
                     w.setG2PMethod(g2p_method);
                 }
             } else {
-                alignment_word_phone.add(new IntegerPair(i_word, phones.size()));
-                phones.add(new Phoneme("_"));
+                nss_seq.add(new NSS("pau"));
+                double new_start = segments.get(segments.size()-1).getStart() +
+                    segments.get(segments.size()-1).getDuration();
+                segments.add(new Segment(new_start));
+                alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
+                alignment_word_seg.add(new IntegerPair(i_word, segments.size()-1));
             }
         }
 
-        phones.add(new Phoneme("_"));
+        nss_seq.add(new NSS("end"));
+        double new_start = segments.get(segments.size()-1).getStart() +
+            segments.get(segments.size()-1).getDuration();
+        segments.add(new Segment(new_start));
+        alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
 
-        // Relation word/syllable
+        // Word => segment
+        utt.addSequence(SupportedSequenceType.SEGMENT, segments);
+        Relation tmp_rel = new Relation(words, segments, alignment_word_seg);
+        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SEGMENT, tmp_rel);
+
+        // NSS => segment
+        utt.addSequence(SupportedSequenceType.NSS, nss_seq);
+        tmp_rel = new Relation(nss_seq, segments, alignment_nss_seg);
+        utt.setRelation(SupportedSequenceType.NSS, SupportedSequenceType.SEGMENT, tmp_rel);
+
+        // Phone => segment
         utt.addSequence(SupportedSequenceType.PHONE, phones);
-        Relation rel_word_phone = new Relation(words, phones, alignment_word_phone);
-        utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.PHONE, rel_word_phone);
+        tmp_rel = new Relation(phones, segments, alignment_phone_seg);
+        utt.setRelation(SupportedSequenceType.PHONE, SupportedSequenceType.SEGMENT, tmp_rel);
 
+        // Syllable => phone
         utt.addSequence(SupportedSequenceType.SYLLABLE, syllables);
-        Relation rel_syllable_phone = new Relation(syllables, phones, alignment_syllable_phone);
-        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, rel_syllable_phone);
+        tmp_rel = new Relation(syllables, phones, alignment_syllable_phone);
+        utt.setRelation(SupportedSequenceType.SYLLABLE, SupportedSequenceType.PHONE, tmp_rel);
 
         return utt;
     }
 
     protected void createSubStructure(Word w, ArrayList<String> phonetisation_string,
-                                      AllophoneSet allophoneSet,
-                                      Sequence<Syllable> syllables, Sequence<Phoneme> phones,
-                                      ArrayList<IntegerPair> alignment_syllable_phone,
-                                      int word_index, ArrayList<IntegerPair> alignment_word_phone) throws MaryException {
+                                      Sequence<Syllable> syllables, Sequence<Phoneme> phones, Sequence<Segment> segments,
+                                      ArrayList<IntegerPair> alignment_syllable_phone, ArrayList<IntegerPair> alignment_phone_seg,
+                                      ArrayList<IntegerPair> alignment_word_seg, int word_index) throws MaryException {
 
         int stress = 0;
         int phone_offset = phones.size();
@@ -264,18 +282,12 @@ public abstract class JPhonemiser extends MaryModule {
 
                 // Syllable separator
                 if (token.equals(SYL_SEP)) {
-                    // Create the syllable
-                    syllables.add(new Syllable(tone, stress, accent)); // FIXME:
-                    // ho to
-                    // get
-                    // the
-                    // tone
-                    // ?
+                    // Create the syllable (FIXME: and the tone?)
+                    syllables.add(new Syllable(tone, stress, accent));
 
                     // Update the phone/syllable relation
                     for (; phone_offset < phones.size(); phone_offset++) {
                         alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
-                        alignment_word_phone.add(new IntegerPair(word_index, phone_offset));
                     }
 
                     // Reinit for the next part
@@ -293,6 +305,11 @@ public abstract class JPhonemiser extends MaryModule {
                     stress = 2;
                 } else {
                     phones.add(generatePhonemeFromLabel(token));
+                    double new_start = segments.get(segments.size()-1).getStart() +
+                        segments.get(segments.size()-1).getDuration();
+                    segments.add(new Segment(new_start));
+                    alignment_phone_seg.add(new IntegerPair(phones.size()-1, segments.size()-1));
+                    alignment_word_seg.add(new IntegerPair(word_index, segments.size()-1));
                 }
             }
 
@@ -302,7 +319,6 @@ public abstract class JPhonemiser extends MaryModule {
             // Update the phone/syllable relation
             for (; phone_offset < phones.size(); phone_offset++) {
                 alignment_syllable_phone.add(new IntegerPair(syllables.size() - 1, phone_offset));
-                alignment_word_phone.add(new IntegerPair(word_index, phone_offset));
             }
         }
     }
