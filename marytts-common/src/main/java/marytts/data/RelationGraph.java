@@ -3,10 +3,11 @@ package marytts.data;
 import marytts.data.item.Item;
 import java.util.List;
 import java.util.Hashtable;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import org.jgrapht.*;
-import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.generate.*;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.*;
@@ -31,12 +32,12 @@ public class RelationGraph {
      * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
      *         Maguer</a>
      */
-    public static class RelationEdge<V> extends DefaultEdge {
+    public static class RelationEdge extends DefaultEdge {
         /** The source node */
-        private V m_source;
+        private Sequence<? extends Item> m_source;
 
         /** The target node */
-        private V m_target;
+        private Sequence<? extends Item> m_target;
 
         /** The relation as the value of the edge */
         private Relation m_relation;
@@ -51,7 +52,7 @@ public class RelationGraph {
          * @param relation
          *            the relation as the value of the edge
          */
-        public RelationEdge(V source, V target, Relation relation) {
+        public RelationEdge(Sequence<? extends Item> source, Sequence<? extends Item> target, Relation relation) {
             this.m_source = source;
             this.m_target = target;
             this.m_relation = relation;
@@ -62,7 +63,7 @@ public class RelationGraph {
          *
          * @return the source node
          */
-        public V getSource() {
+        public Sequence<? extends Item> getSource() {
             return m_source;
         }
 
@@ -71,7 +72,7 @@ public class RelationGraph {
          *
          * @return the target node
          */
-        public V getTarget() {
+        public Sequence<? extends Item> getTarget() {
             return m_target;
         }
 
@@ -115,7 +116,7 @@ public class RelationGraph {
      * Constructor of the relation graph. At te beginning it is empty.
      */
     public RelationGraph() {
-        m_actual_graph = new SimpleGraph<>(RelationEdge.class);
+        m_actual_graph = new SimpleGraph<Sequence<? extends Item>, RelationEdge>(RelationEdge.class);
         m_relations = new
         Hashtable<ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>, Relation>();
         m_computed_relations = new
@@ -143,13 +144,18 @@ public class RelationGraph {
     }
 
     /**
-     * Method to remove a relation
+     * Method to remove a relation.
+     *
+     * The side effect is that if relation was computed using the one to remove, it is still going
+     * to remains in the list of computed relations!
      *
      * @param rel
      *            the relation to remove
      */
     public void removeRelation(Relation rel) {
-        throw new UnsupportedOperationException();
+        m_relations.remove(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(rel.getSource(), rel.getTarget()));
+        m_computed_relations.remove(new ImmutablePair<Sequence<? extends Item>, Sequence<? extends Item>>(rel.getSource(), rel.getTarget()));
+        m_actual_graph.removeEdge(new RelationEdge(rel.getSource(), rel.getTarget(), rel));
     }
 
     /**
@@ -165,6 +171,21 @@ public class RelationGraph {
         if (rel != null) {
             removeRelation(rel);
         }
+    }
+
+    public void removeSequence(Sequence<? extends Item> seq) {
+
+        //
+        Set<RelationEdge> set_rel =m_actual_graph.incomingEdgesOf(seq);
+        for (RelationEdge rel: set_rel)
+            this.removeRelation(rel.getRelation());
+
+        set_rel = m_actual_graph.outgoingEdgesOf(seq);
+        for (RelationEdge rel: set_rel)
+            this.removeRelation(rel.getRelation());
+
+        // Get rid of the sequence from the graph
+        m_actual_graph.removeVertex(seq);
     }
 
     /**
@@ -214,8 +235,7 @@ public class RelationGraph {
 
         // Try to build the relation
         synchronized (m_actual_graph) {
-            List<RelationEdge> list_edges = (new DijkstraShortestPath(m_actual_graph, source, target))
-                                            .getPathEdgeList();
+            List<RelationEdge> list_edges = (new DijkstraShortestPath(m_actual_graph)).getPath(source, target).getEdgeList();
 
             // No path found (FIXME: solve the problem of undef )
             if (list_edges.isEmpty()) {
