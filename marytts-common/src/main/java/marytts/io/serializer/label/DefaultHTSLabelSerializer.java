@@ -417,8 +417,8 @@ public class DefaultHTSLabelSerializer implements Serializer {
 
         // Utterance format
         format = "/J:%s+%s-%s";
-        cur_lab += String.format(format, getValue(feature_map, "sentence_num_syls"),
-                                 getValue(feature_map, "sentence_num_words"), getValue(feature_map, "sentence_num_phrases"));
+        cur_lab += String.format(format, getValue(feature_map, "utterance_num_syls"),
+                                 getValue(feature_map, "utterance_num_words"), getValue(feature_map, "utterance_num_phrases"));
 
         return cur_lab;
     }
