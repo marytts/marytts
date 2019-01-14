@@ -1,4 +1,4 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.syllable;
 
 import marytts.MaryException;
 
@@ -10,6 +10,8 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 
+import marytts.data.item.phonology.Phoneme;
+
 import marytts.features.Feature;
 import marytts.features.FeatureProcessor;
 
@@ -19,10 +21,10 @@ import marytts.features.FeatureProcessor;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class NbWordsRelated implements FeatureProcessor {
+public class NbSyllablesRelated implements FeatureProcessor {
     protected Hashtable<Item, Feature> cache;
 
-    public NbWordsRelated() {
+    public NbSyllablesRelated() {
         cache = new Hashtable<Item, Feature>();
     }
 
@@ -32,12 +34,12 @@ public class NbWordsRelated implements FeatureProcessor {
         }
 
         Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
-        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.WORD));
+        Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.SYLLABLE));
         int item_idx = seq_item.indexOf(item);
 
         // Find the related word indexes
-        int[] wrd_indexes = rel.getRelatedIndexes(item_idx);
-        Feature tmp = new Feature(wrd_indexes.length);
+        int[] syl_indexes = rel.getRelatedIndexes(item_idx);
+        Feature tmp = new Feature(syl_indexes.length);
 
         // Save in the cache
         cache.put(item, tmp);

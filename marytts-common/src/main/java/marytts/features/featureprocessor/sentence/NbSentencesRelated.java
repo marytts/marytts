@@ -1,6 +1,8 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.sentence;
 
 import marytts.MaryException;
+
+import java.util.Hashtable;
 
 import marytts.data.Utterance;
 import marytts.data.item.Item;
@@ -19,30 +21,33 @@ import marytts.features.FeatureProcessor;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class NbFromSentenceStart implements FeatureProcessor {
+public class NbSentencesRelated implements FeatureProcessor {
+
+    protected Hashtable<Item, Feature> cache;
+
+    public NbSentencesRelated() {
+        cache = new Hashtable<Item, Feature>();
+    }
 
     public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Sentence) {
             throw new MaryException("The item is not a sentence");
         }
 
+        if (cache.containsKey(item)) {
+            return cache.get(item);
+        }
+
         Sequence<Item> seq_item = (Sequence<Item>) item.getSequence();
         Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.SENTENCE));
         int item_idx = seq_item.indexOf(item);
 
-        // Find the related sentase
+        // Find the related word indexes
         int[] sent_indexes = rel.getRelatedIndexes(item_idx);
-        if (sent_indexes.length <= 0) {
-            return Feature.UNDEF_FEATURE;
-        }
+        Feature tmp = new Feature(sent_indexes.length);
 
-        // Finding the itemlables related to the related sentase
-        int[] item_indexes = rel.getSourceRelatedIndexes(sent_indexes[0]);
-        if (item_indexes.length <= 0) {
-            return Feature.UNDEF_FEATURE;
-        }
-
-        int nb = item_idx - item_indexes[0] + 1;
-        return new Feature(nb);
+        // Save in the cache
+        cache.put(item, tmp);
+        return tmp;
     }
 }

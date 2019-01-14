@@ -63,7 +63,7 @@ public class TargetFeatureLister extends MaryModule {
     }
 
     protected void setDescription() {
-	this.description = "The front end feature prediction module";
+        this.description = "The front end feature prediction module";
     }
 
     public void checkStartup() throws MaryConfigurationException {
@@ -94,7 +94,7 @@ public class TargetFeatureLister extends MaryModule {
      *             [TODO]
      */
     public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
-	utt.setFeatureNames(feature_computer.listFeatures());
+        utt.setFeatureNames(feature_computer.listFeatures());
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.SEGMENT);
         int i = 0;
@@ -109,71 +109,71 @@ public class TargetFeatureLister extends MaryModule {
         Relation rel_seg_features = new Relation(items, target_features, list_pairs);
 
         utt.addSequence(SupportedSequenceType.FEATURES, target_features);
-	utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.FEATURES, rel_seg_features);
-	return utt;
+        utt.setRelation(SupportedSequenceType.SEGMENT, SupportedSequenceType.FEATURES, rel_seg_features);
+        return utt;
     }
 
     public void setFeatureConfiguration(HashMap<String, Object> configuration) throws MaryConfigurationException {
-	for(String k: configuration.keySet()) {
-	    if (k.equals("level_processors"))
-		setLevelProcessors((ArrayList<String>) configuration.get(k));
-	    else if (k.equals("context_processors"))
-		setContextProcessors((ArrayList<String>) configuration.get(k));
-	    else if (k.equals("feature_processors"))
-		setFeatureProcessors((ArrayList<String>) configuration.get(k));
-	    else if (k.equals("features"))
-		continue;
-	    else
-		throw new MaryConfigurationException(k + " is an unknown part to configure");
-	}
+        for(String k: configuration.keySet()) {
+            if (k.equals("level_processors"))
+                setLevelProcessors((ArrayList<String>) configuration.get(k));
+            else if (k.equals("context_processors"))
+                setContextProcessors((ArrayList<String>) configuration.get(k));
+            else if (k.equals("feature_processors"))
+                setFeatureProcessors((ArrayList<String>) configuration.get(k));
+            else if (k.equals("features"))
+                continue;
+            else
+                throw new MaryConfigurationException(k + " is an unknown part to configure");
+        }
 
-	// Feature is the last and should be the last !
-	setFeatures((ArrayList<ArrayList<String>>) configuration.get("features"));
+        // Feature is the last and should be the last !
+        setFeatures((ArrayList<ArrayList<String>>) configuration.get("features"));
     }
 
     protected void setFeatureProcessors(ArrayList<String> features) throws MaryConfigurationException {
-	for (String feature: features) {
-	    int d_index  = feature.lastIndexOf(".");
-	    if (d_index < 0)
-		throw new MaryConfigurationException("Feature class name \"" + feature + "\" is malformed");
+        for (String feature: features) {
+            int d_index  = feature.lastIndexOf(".");
+            if (d_index < 0)
+                throw new MaryConfigurationException("Feature class name \"" + feature + "\" is malformed");
 
-	    // Check if class exists
-	    String class_name = feature.substring(d_index+1);
-	    feature_computer.addFeatureProcessor(class_name, feature);
-	}
+            // Check if class exists
+            String class_name = feature.substring(d_index+1);
+            feature_computer.addFeatureProcessor(class_name, feature);
+        }
     }
 
     protected void setLevelProcessors(ArrayList<String> levels) throws MaryConfigurationException {
-	for (String level: levels) {
-	    int d_index  = level.lastIndexOf(".");
-	    if (d_index < 0)
-		throw new MaryConfigurationException("Level class name \"" + level + "\" is malformed");
+        for (String level: levels) {
+            int d_index  = level.lastIndexOf(".");
+            if (d_index < 0)
+                throw new MaryConfigurationException("Level class name \"" + level + "\" is malformed");
 
-	    // Check if class exists
-	    String class_name = level.substring(d_index+1);
-	    feature_computer.addLevelProcessor(class_name, level);
-	}
+            // Check if class exists
+            String class_name = level.substring(d_index+1);
+            feature_computer.addLevelProcessor(class_name, level);
+        }
     }
 
     protected void setContextProcessors(ArrayList<String> contexts) throws MaryConfigurationException {
-	for (String context: contexts) {
-	    int d_index  = context.lastIndexOf(".");
-	    if (d_index < 0)
-		throw new MaryConfigurationException("Context class name \"" + context + "\" is malformed");
+        for (String context: contexts) {
+            int d_index  = context.lastIndexOf(".");
+            if (d_index < 0)
+                throw new MaryConfigurationException("Context class name \"" + context + "\" is malformed");
 
-	    // Check if class exists
-	    String class_name = context.substring(d_index+1);
-	    feature_computer.addContextProcessor(class_name, context);
-	}
+            // Check if class exists
+            String class_name = context.substring(d_index+1);
+            feature_computer.addContextProcessor(class_name, context);
+        }
     }
 
 
     public void setFeatures(ArrayList<ArrayList<String>> features) throws MaryConfigurationException {
-	try {
-	    for (ArrayList<String> feature: features)
-		feature_computer.addFeature(feature.get(0), feature.get(1), feature.get(2), feature.get(3));
-	} catch (Exception ex) {
-	    throw new MaryConfigurationException("Cannot add feature definition", ex);
-	}
+        try {
+            for (ArrayList<String> feature: features)
+                feature_computer.addFeature(feature.get(0), feature.get(1), feature.get(2), feature.get(3));
+        } catch (Exception ex) {
+            throw new MaryConfigurationException("Cannot add feature definition", ex);
+        }
     }
 }

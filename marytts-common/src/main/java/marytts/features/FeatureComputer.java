@@ -25,6 +25,9 @@ import marytts.data.item.Item;
  */
 public class FeatureComputer {
 
+    /** Constant to store the label for the utterance level */
+    private final static String UTTERANCE_LABEL = "utterance";
+
     /**
      * Constant for the level processor index in the "m_features" table value
      */
@@ -90,7 +93,7 @@ public class FeatureComputer {
      *            the feature processor factory
      */
     public FeatureComputer(LevelProcessorFactory level_factory, ContextProcessorFactory context_factory,
-                           FeatureProcessorFactory feature_factory) {
+            FeatureProcessorFactory feature_factory) {
         m_features = new Hashtable<String, String[]>();
         m_feature_names = new ArrayList<String>();
         m_context_factory = context_factory;
@@ -100,37 +103,37 @@ public class FeatureComputer {
 
 
     public void addContextProcessor(String context_name, String context_class_name) throws MaryConfigurationException {
-	try {
-	    m_context_factory.addContextProcessor(context_name, context_class_name);
-	} catch (Exception ex) {
-	    throw new MaryConfigurationException("Cannot add context \"" + context_name +
-						 "\" with class \"" + context_class_name + "\"",
-						 ex);
-	}
+        try {
+            m_context_factory.addContextProcessor(context_name, context_class_name);
+        } catch (Exception ex) {
+            throw new MaryConfigurationException("Cannot add context \"" + context_name +
+                    "\" with class \"" + context_class_name + "\"",
+                    ex);
+        }
     }
 
 
     public void addLevelProcessor(String level_name, String level_class_name) throws MaryConfigurationException {
-	try {
-	    m_level_factory.addLevelProcessor(level_name, level_class_name);
-	} catch (Exception ex) {
-	    throw new MaryConfigurationException("Cannot add level \"" + level_name +
-						 "\" with class \"" + level_class_name + "\"",
-						 ex);
-	}
+        try {
+            m_level_factory.addLevelProcessor(level_name, level_class_name);
+        } catch (Exception ex) {
+            throw new MaryConfigurationException("Cannot add level \"" + level_name +
+                    "\" with class \"" + level_class_name + "\"",
+                    ex);
+        }
     }
 
 
     public void addFeatureProcessor(String feature_name, String feature_class_name)
         throws MaryConfigurationException
     {
-	try {
-	    m_feature_factory.addFeatureProcessor(feature_name, feature_class_name);
-	} catch (Exception ex) {
-	    throw new MaryConfigurationException("Cannot add feature \"" + feature_name +
-						 "\" with class \"" + feature_class_name + "\"",
-						 ex);
-	}
+        try {
+            m_feature_factory.addFeatureProcessor(feature_name, feature_class_name);
+        } catch (Exception ex) {
+            throw new MaryConfigurationException("Cannot add feature \"" + feature_name +
+                    "\" with class \"" + feature_class_name + "\"",
+                    ex);
+        }
     }
 
     /**
@@ -149,18 +152,20 @@ public class FeatureComputer {
      *             if the feature, identified by its name, is already in the map
      */
     public void addFeature(String name, String level, String context,
-                           String feature) throws FeatureCollisionException, UnknownProcessorException {
+            String feature) throws FeatureCollisionException, UnknownProcessorException {
 
         if (m_features.containsKey(name)) {
             throw new FeatureCollisionException(name + " is already an added feature");
         }
 
-        if (! m_level_factory.canCreateLevelProcessor(level)) {
-            throw new UnknownProcessorException(name + ": cannot create level processor \"" + level + "\"");
-        }
+        if (! level.toLowerCase().equals(UTTERANCE_LABEL)) {
+            if (! m_level_factory.canCreateLevelProcessor(level)) {
+                throw new UnknownProcessorException(name + ": cannot create level processor \"" + level + "\"");
+            }
 
-        if (! m_context_factory.canCreateContextProcessor(context)) {
-            throw new UnknownProcessorException(name + ": cannot create context processor \"" + context + "\"");
+            if (! m_context_factory.canCreateContextProcessor(context)) {
+                throw new UnknownProcessorException(name + ": cannot create context processor \"" + context + "\"");
+            }
         }
 
         if (! m_feature_factory.canCreateFeatureProcessor(feature)) {
@@ -189,27 +194,41 @@ public class FeatureComputer {
      *             if any kind of errors happened
      */
     protected Feature compute(Utterance utt, Item item, String level, String context,
-                              String feature) throws MaryException {
+            String feature) throws MaryException {
 
-        LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
-        ArrayList<? extends Item> level_items = level_processor.get(utt, item);
-        if (level_items.size() == 0) {
-            return Feature.UNDEF_FEATURE;
+        // Utterance is a meta level
+        if (level.toLowerCase().equals(UTTERANCE_LABEL)) {
+
+            FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
+            if (feature_processor == null) {
+                throw new MaryException(feature + " is not part of the factory for items : (level=" +
+                                        level + ", context=" + context + ", feature=" + feature + ")");
+            }
+
+            return feature_processor.generate(utt, null);
+        } else {
+
+            // Normal level => go to normal process
+            LevelProcessor level_processor = m_level_factory.createLevelProcessor(level);
+            ArrayList<? extends Item> level_items = level_processor.get(utt, item);
+            if (level_items.size() == 0) {
+                return Feature.UNDEF_FEATURE;
+            }
+
+            ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
+            Item context_item = context_processor.get(utt, level_items.get(0));
+            if (context_item == null) {
+                return Feature.UNDEF_FEATURE;
+            }
+
+            FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
+            if (feature_processor == null) {
+                throw new MaryException(feature + " is not part of the factory for items : (level=" +
+                                        level + ", context=" + context + ", feature=" + feature + ")");
+            }
+
+            return feature_processor.generate(utt, context_item);
         }
-
-        ContextProcessor context_processor = m_context_factory.createContextProcessor(context);
-        Item context_item = context_processor.get(utt, level_items.get(0));
-        if (context_item == null) {
-            return Feature.UNDEF_FEATURE;
-        }
-
-        FeatureProcessor feature_processor = m_feature_factory.createFeatureProcessor(feature);
-        if (feature_processor == null) {
-            throw new MaryException(feature + " is not part of the factory for items : (level=" +
-                                    level + ", context=" + context + ", feature=" + feature + ")");
-        }
-
-        return feature_processor.generate(utt, context_item);
     }
 
     /**

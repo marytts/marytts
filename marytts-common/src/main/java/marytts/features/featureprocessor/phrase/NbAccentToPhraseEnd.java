@@ -1,4 +1,4 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.phrase;
 
 import marytts.MaryException;
 
@@ -8,7 +8,7 @@ import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.data.SupportedSequenceType;
 
-import marytts.data.item.prosody.Phrase;
+import marytts.data.item.phonology.Syllable;
 
 import marytts.features.Feature;
 import marytts.features.FeatureProcessor;
@@ -19,12 +19,12 @@ import marytts.features.FeatureProcessor;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class NbToPhraseEnd implements FeatureProcessor {
+public class NbAccentToPhraseEnd implements FeatureProcessor {
 
     public Feature generate(Utterance utt, Item item) throws MaryException {
-        if (!(item instanceof Phrase)) {
+        if (item instanceof Syllable) {
 
-            Sequence<? extends Item> seq_item = item.getSequence();
+            Sequence<Syllable> seq_item = (Sequence<Syllable>) item.getSequence();
             Relation rel = utt.getRelation(seq_item, utt.getSequence(SupportedSequenceType.PHRASE));
             int item_idx = seq_item.indexOf(item);
 
@@ -40,11 +40,17 @@ public class NbToPhraseEnd implements FeatureProcessor {
                 return Feature.UNDEF_FEATURE;
             }
 
-            int nb = item_indexes[item_indexes.length - 1] - item_idx + 1;
+            int nb = 0;
+            for (int i = item_idx + 1; i < item_indexes[item_indexes.length - 1]; i++) {
+                Syllable cur_item = seq_item.get(i);
+                if (cur_item.getAccent() != null) {
+                    nb++;
+                }
+            }
 
             return new Feature(nb);
         }
 
-        throw new MaryException("The item is not a phrase");
+        throw new MaryException("The item is not a syllable");
     }
 }

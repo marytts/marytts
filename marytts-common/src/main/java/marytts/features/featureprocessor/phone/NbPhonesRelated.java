@@ -1,4 +1,4 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.phone;
 
 import marytts.MaryException;
 

@@ -1,4 +1,4 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.syllable;
 
 import java.util.ArrayList;
 

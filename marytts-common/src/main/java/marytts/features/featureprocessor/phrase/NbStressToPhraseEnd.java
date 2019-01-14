@@ -1,4 +1,4 @@
-package marytts.features.featureprocessor;
+package marytts.features.featureprocessor.phrase;
 
 import marytts.MaryException;
 
@@ -19,7 +19,7 @@ import marytts.features.FeatureProcessor;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le
  *         Maguer</a>
  */
-public class NbStressFromPhraseStart implements FeatureProcessor {
+public class NbStressToPhraseEnd implements FeatureProcessor {
 
     public Feature generate(Utterance utt, Item item) throws MaryException {
         if (item instanceof Syllable) {
@@ -41,9 +41,9 @@ public class NbStressFromPhraseStart implements FeatureProcessor {
             }
 
             int nb = 0;
-            for (int i = item_indexes[0]; i < item_idx; i++) {
+            for (int i = item_idx+1; i < item_indexes[item_indexes.length - 1]; i++) {
                 Syllable cur_item = seq_item.get(i);
-                if (cur_item.getStressLevel() > 0) {
+                if (cur_item.getStressLevel() <= 0) {
                     nb++;
                 }
             }
