@@ -43,12 +43,12 @@ public class USJPhonemiser extends marytts.modules.nlp.JPhonemiser {
     public void startup() throws MaryException {
         super.startup();
 
-	// Apply the german configuration
+	// Apply the configuration
 	MaryConfigurationFactory.getConfiguration("en_US").applyConfiguration(this);
+
+        // Set some resources
 	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/allophones.en_US.xml"));
-
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.fst"));
-
 	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/en_US/lexicon/cmudict.lts"));
 
     }

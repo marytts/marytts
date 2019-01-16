@@ -44,12 +44,12 @@ public class GBJPhonemiser extends marytts.modules.nlp.JPhonemiser {
     public void startup() throws MaryException {
         super.startup();
 
-	// Apply the german configuration
+	// Apply the configuration
 	MaryConfigurationFactory.getConfiguration("en_GB").applyConfiguration(this);
+
+        // Set some resources
 	setAllophoneSet(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/allophones.en_GB.xml"));
 	setLexicon(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/en_GB_lexicon.fst"));
 	setLetterToSound(this.getClass().getResourceAsStream("/marytts/language/en_GB/lexicon/en_GB.lts"));
-
-
     }
 }

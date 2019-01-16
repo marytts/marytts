@@ -112,8 +112,10 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 		    }
 
 		    // Check if the setter method exists
-		    prop_name = adaptPropertyName(prop_name);
-		    assertSetter(class_name, prop_name, val.getClass());
+                    prop_name = adaptPropertyName(prop_name);
+                    if (! ((val instanceof String) && (((String) val).startsWith(MaryConfiguration.REF_HEADER)))) {
+                        assertSetter(class_name, prop_name, val.getClass());
+                    }
 
 		    mc.addConfigurationValueProperty(class_name, prop_name, val);
 		}

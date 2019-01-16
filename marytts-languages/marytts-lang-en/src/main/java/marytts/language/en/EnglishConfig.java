@@ -19,13 +19,13 @@
  */
 package marytts.language.en;
 
-import marytts.config.PropertiesMaryConfigLoader;
+import marytts.config.JSONMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
-public class EnglishConfig extends PropertiesMaryConfigLoader {
+public class EnglishConfig extends JSONMaryConfigLoader {
     public EnglishConfig() throws MaryConfigurationException {
         super();
-	loadConfiguration("en_US", EnglishConfig.class.getResourceAsStream("en_US.config"));
-	loadConfiguration("en_GB", EnglishConfig.class.getResourceAsStream("en_GB.config"));
+	loadConfiguration("en_US", EnglishConfig.class.getResourceAsStream("en_US.json"));
+	loadConfiguration("en_GB", EnglishConfig.class.getResourceAsStream("en_GB.json"));
     }
 }

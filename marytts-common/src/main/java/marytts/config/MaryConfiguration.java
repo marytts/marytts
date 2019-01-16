@@ -115,16 +115,13 @@ public class MaryConfiguration {
 	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
     }
 
-    public void applyConfiguration(Object obj) throws MaryConfigurationException {
-        applyConfiguration(obj, new HashSet<String>());
-    }
     /**
      *  Apply the configuration to a given object
      *
      *  @param obj the given object
      *  @throws MaryConfiguration if the configuration failed
      */
-    protected synchronized void applyConfiguration(Object obj, HashSet<String> ref_visited) throws MaryConfigurationException {
+    public void applyConfiguration(Object obj) throws MaryConfigurationException {
         try {
             String class_name = obj.getClass().getName();
             Set<String> properties = m_class_property_map.get(class_name);
@@ -148,30 +145,58 @@ public class MaryConfiguration {
 
 	    // Other parts
             for (String property : properties) {
-		Object val = m_configuration_value_map.get(new StringPair(class_name, property));
-                if ((val instanceof String) && (((String) val).startsWith(REF_HEADER))) {
-                    String ref_id = ((String) val).substring(REF_HEADER.length());
-                    if (ref_visited.contains(ref_id)) {
-                        throw new MaryConfigurationException("Circular reference to \"" + ref_id + "\" in the current configuration");
-                    }
+                setProperty(obj, property, new HashSet<String>());
+            }
+        } catch (Exception ex) {
+            if (obj == null) {
+                throw new MaryConfigurationException("The input object is null", ex);
+            } else {
+                throw new MaryConfigurationException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed", ex);
+            }
+        }
+    }
 
-                    MaryConfigurationFactory.getConfiguration(ref_id);
-                } else {
+    /**
+     *  Set the property value to a given object
+     *
+     *  @param obj the given object
+     *  @param property the property name
+     *  @param ref_visited the set which prevents circle in the references
+     *  @throw MaryConfigurationException if something goes wrong
+     */
+    protected void setProperty(Object obj, String property, HashSet<String> ref_visited) throws MaryConfigurationException {
 
-                    try {
-                        Method m = obj.getClass().getMethod("set" + property, val.getClass());
-                        m.invoke(obj, val);
-                    } catch (NoSuchMethodException ex) {
-                        logger.warn("Object of class \"" + obj.getClass().toString() +
-                                    "\" doesn't have a setter for property \"" + property.toLowerCase() +
-                                    "\" with expected argument of class \"" + val.getClass().toString() + "\"");
-                    }
+        try {
+            Object val = m_configuration_value_map.get(new StringPair(obj.getClass().getName(), property));
+
+            // Deal with reference
+            if ((val instanceof String) && (((String) val).startsWith(REF_HEADER))) {
+                String ref_id = ((String) val).substring(REF_HEADER.length());
+                if (ref_visited.contains(ref_id)) {
+                    throw new MaryConfigurationException("Circular reference to \"" + ref_id + "\" in the current configuration");
+                }
+
+                MaryConfiguration ref_conf = MaryConfigurationFactory.getConfiguration(ref_id);
+                ref_visited.add(ref_id);
+                ref_conf.setProperty(obj, property, ref_visited);
+            }
+            // Just set the values
+            else {
+                try {
+                    Method m = obj.getClass().getMethod("set" + property, val.getClass());
+                    m.invoke(obj, val);
+                } catch (NoSuchMethodException ex) {
+                    logger.warn("Object of class \"" + obj.getClass().toString() +
+                                "\" doesn't have a setter for property \"" + property.toLowerCase() +
+                                "\" with expected argument of class \"" + val.getClass().toString() + "\"");
                 }
             }
-
         } catch (Exception ex) {
-            throw new MaryConfigurationException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed",
-                                    ex);
+            if (obj == null) {
+                throw new MaryConfigurationException("The input object is null", ex);
+            } else {
+                throw new MaryConfigurationException("Setting the property \"" + property + "\" of the object of class \"\"" + obj.getClass().toString() + "\" failed", ex);
+            }
         }
     }
 
