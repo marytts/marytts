@@ -31,11 +31,10 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import marytts.exceptions.MaryConfigurationException;
-import marytts.util.io.PropertiesAccessor;
-import marytts.util.io.PropertiesTrimTrailingWhitespace;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * An abstract class to represent a MaryTTS configuration file loader.
@@ -43,6 +42,9 @@ import marytts.util.io.PropertiesTrimTrailingWhitespace;
  * @author marc
  */
 public abstract class MaryConfigLoader {
+
+    /** The logger of the config loader */
+    private Logger logger;
 
     /** The configuration service loader */
     protected static final ServiceLoader<MaryConfigLoader> configLoader = ServiceLoader.load(MaryConfigLoader.class);
@@ -55,15 +57,15 @@ public abstract class MaryConfigLoader {
      *  configuration is loaded
      */
     protected MaryConfigLoader() throws MaryConfigurationException {
+        logger = LogManager.getLogger(this.getClass());
     }
 
     /**
      * This method is here to force the loading to happen
      *
-     * @todo check if we can get rid of it.....
      */
     public void load() {
-	System.out.println("load " + this.getClass().toString() + "....");
+        logger.debug("Configuration " + this.getClass().toString() + " is loading");
     }
 
 
