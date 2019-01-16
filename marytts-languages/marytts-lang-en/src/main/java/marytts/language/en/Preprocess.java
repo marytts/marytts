@@ -18,7 +18,6 @@ import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.io.serializer.XMLSerializer;
 import marytts.modules.MaryModule;
-import marytts.util.MaryRuntimeUtils;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
 import marytts.data.SupportedSequenceType;

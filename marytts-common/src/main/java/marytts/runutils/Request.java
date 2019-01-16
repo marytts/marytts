@@ -53,7 +53,6 @@ import marytts.data.Utterance;
 import marytts.io.serializer.Serializer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 

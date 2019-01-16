@@ -46,11 +46,11 @@ import java.lang.reflect.Constructor;
 // Configuration
 import marytts.config.MaryConfigLoader;
 
+import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.io.FileUtils;
@@ -69,15 +69,24 @@ import org.apache.logging.log4j.core.config.Configurator;
  */
 
 public class Mary {
-    public static final int STATE_OFF = 0;
+
+    /** Constant to indicate that mary is starting */
     public static final int STATE_STARTING = 1;
+
+    /** Constant to indicate that mary is ready to use */
     public static final int STATE_RUNNING = 2;
+
+    /** Constant to indicate that mary is shutting down */
     public static final int STATE_SHUTTING_DOWN = 3;
 
+    /** Constant to indicate that mary is offline */
+    public static final int STATE_OFF = 0;
+
+    /** The logger of the Mary class */
     private static Logger logger =  LogManager.getLogger(Mary.class);
 
+    /** The current state of Mary (see constant and by default indicates that Mary is offline) */
     private static int currentState = STATE_OFF;
-    private static boolean jarsAdded = false;
 
     /**
      * Inform about system state.
@@ -92,26 +101,14 @@ public class Mary {
         return currentState;
     }
 
-
-    private synchronized static void startModules() throws ClassNotFoundException, InstantiationException,
-        Exception {
-
-	// Load configurations
-	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
-	    mc.load();
-	}
-
-	// Instantiate available modules
-	Reflections reflections = new Reflections("marytts");
-        for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
-	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
-		ModuleRegistry.registerModule(moduleClass.getName());
-	    }
-        }
-    }
-
-    private static void overrideLogLevel() throws Exception {
+    /**
+     *  Override log level using system property log4j.level
+     *
+     *  @throws MaryException if the level given is unknown
+     */
+    private static void overrideLogLevel() throws MaryException {
 	String level = System.getProperty("log4j.level");
+
 	// Get the level
 	Level current_level;
 	if (level.equals("ERROR"))
@@ -123,11 +120,10 @@ public class Mary {
 	else if (level.equals("DEBUG"))
 	    current_level = Level.DEBUG;
 	else
-	    throw new Exception("\"" + level + "\" is an unknown level");
+	    throw new MaryException("\"" + level + "\" is an unknown level");
 
 	// Set the level
 	Configurator.setRootLevel(current_level);
-	System.out.println("new level = " + level);
     }
 
     /**
@@ -146,9 +142,15 @@ public class Mary {
             throw new IllegalStateException("Cannot start system: it is not offline");
         }
 
+        // Start the clock
+        long before = System.currentTimeMillis();
+
+        // Adapt global logger level
 	if (System.getProperty("log4j.level") != null) {
 	    overrideLogLevel();
 	}
+
+        // Indicate that mary is starting
         currentState = STATE_STARTING;
         logger.info("Mary starting up...");
         logger.info("Running on a Java " + System.getProperty("java.version") +
@@ -157,18 +159,30 @@ public class Mary {
 		    " platform ("  + System.getProperty("os.arch") + ", " +
 		    System.getProperty("os.version") + ")");
 
+        // Prepare shutdown for later
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                shutdown();
-            }
-        });
+                public void run() {
+                    shutdown();
+                }
+            });
 
-	//
-        // Instantiate module classes and startup modules:
-        long before = System.currentTimeMillis();
-        startModules();
+	// Load configurations
+	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
+	    mc.load();
+	}
+
+	// Instantiate and register available modules
+	Reflections reflections = new Reflections("marytts");
+        for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
+	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
+		ModuleRegistry.registerModule(moduleClass.getName());
+	    }
+        }
+
+        // Stop the clock
         long after = System.currentTimeMillis();
 
+        // Indicate that mary is ready
         currentState = STATE_RUNNING;
         logger.info("Startup complete in " + (after - before) + " ms");
     }
@@ -183,15 +197,29 @@ public class Mary {
         if (currentState != STATE_RUNNING) {
             throw new IllegalStateException("MARY system is not running");
         }
+
+        // Indicate that Mary starts to shut down
         currentState = STATE_SHUTTING_DOWN;
         logger.info("Shutting down modules...");
 
+        // Clear the module registryu (shutting down the modules is part of it)
         long before = System.currentTimeMillis();
         ModuleRegistry.clear();
         long after = System.currentTimeMillis();
 
+        // Indicates that Mary is off
         currentState = STATE_OFF;
         logger.info("Shutdown complete in " + (after - before) + " ms");
     }
 
+    /**
+     *  Helper to assess if mary is started and if not force the starting
+     *
+     *  @throws Exception if anything is going wrong
+     */
+    public static synchronized void ensureMaryStarted() throws Exception {
+	if (Mary.getCurrentState() == Mary.STATE_OFF) {
+	    Mary.startup();
+	}
+    }
 }

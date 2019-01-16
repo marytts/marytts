@@ -36,7 +36,6 @@ import marytts.MaryException;
 import marytts.config.MaryConfigurationFactory;
 import marytts.config.MaryConfiguration;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 import org.apache.commons.collections.map.MultiKeyMap;

@@ -26,7 +26,6 @@ import java.util.StringTokenizer;
 
 import marytts.modules.nlp.phonemiser.Allophone;
 import marytts.modules.nlp.phonemiser.AllophoneSet;
-import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 
