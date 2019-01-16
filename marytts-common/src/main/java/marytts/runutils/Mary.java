@@ -105,41 +105,8 @@ public class Mary {
 	Reflections reflections = new Reflections("marytts");
         for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {
 	    if (! Modifier.isAbstract(moduleClass.getModifiers())) {
-		MaryModule m = ModuleRegistry.instantiateModule(moduleClass.getName());
-		ModuleRegistry.registerModule(m);
+		ModuleRegistry.registerModule(moduleClass.getName());
 	    }
-        }
-
-	// Start the modules
-        List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule, Long>>();
-	Map<String, List<MaryModule>> modules_by_conf = ModuleRegistry.listRegisteredModules();
-	for (String conf: modules_by_conf.keySet()) {
-	    for (MaryModule m: modules_by_conf.get(conf)) {
-		// Only start the modules here if in server mode:
-		if (m.getState() == MaryModule.MODULE_OFFLINE) {
-		    long before = System.currentTimeMillis();
-		    try {
-			m.startup();
-			m.checkStartup();
-		    } catch (Throwable t) {
-			throw new Exception("Problem starting module " + m.getClass().getName(), t);
-		    }
-		    long after = System.currentTimeMillis();
-		    startupTimes.add(new Pair<MaryModule, Long>(m, after - before));
-		}
-	    }
-	}
-
-        if (startupTimes.size() > 0) {
-            Collections.sort(startupTimes, new Comparator<Pair<MaryModule, Long>>() {
-                public int compare(Pair<MaryModule, Long> o1, Pair<MaryModule, Long> o2) {
-                    return -o1.getSecond().compareTo(o2.getSecond());
-                }
-            });
-            logger.debug("Startup times:");
-            for (Pair<MaryModule, Long> p : startupTimes) {
-                logger.debug(p.getFirst().getClass().getName() + ": " + p.getSecond() + " ms");
-            }
         }
     }
 
@@ -198,10 +165,12 @@ public class Mary {
 
 	//
         // Instantiate module classes and startup modules:
+        long before = System.currentTimeMillis();
         startModules();
+        long after = System.currentTimeMillis();
 
-        logger.info("Startup complete.");
         currentState = STATE_RUNNING;
+        logger.info("Startup complete in " + (after - before) + " ms");
     }
 
     /**
@@ -210,25 +179,19 @@ public class Mary {
      * @throws IllegalStateException
      *             if the MARY system is not running.
      */
-    public static void shutdown() {
+    public synchronized static void shutdown() {
         if (currentState != STATE_RUNNING) {
             throw new IllegalStateException("MARY system is not running");
         }
         currentState = STATE_SHUTTING_DOWN;
         logger.info("Shutting down modules...");
 
+        long before = System.currentTimeMillis();
+        ModuleRegistry.clear();
+        long after = System.currentTimeMillis();
 
-	Map<String, List<MaryModule>> modules_by_conf = ModuleRegistry.listRegisteredModules();
-	for (String conf: modules_by_conf.keySet()) {
-	    for (MaryModule m: modules_by_conf.get(conf)) {
-		if (m.getState() == MaryModule.MODULE_RUNNING) {
-		    m.shutdown();
-		}
-	    }
-        }
-
-        logger.info("Shutdown complete.");
         currentState = STATE_OFF;
+        logger.info("Shutdown complete in " + (after - before) + " ms");
     }
 
 }

@@ -49,20 +49,28 @@ import java.lang.Class;
 import java.lang.reflect.Constructor;
 
 /**
- * A hierarchical repository for Mary modules, allowing the flexible indexing by
- * an ordered hierarchy of datatype, locale and voice. A given lookup will
- * search for a combination of datatype, locale and voice first; if it does not
- * find a value, it will look for datatype, locale, and null; if it does notfind
- * that, it will look for datatype, null, and null.
+ *  The entry point containing the modules.
  *
- * @author marc
+ *  This class should be seen as a factory of modules which are classiied in 2 two ways
+ *  (simultaneously): by configuration, by category and configuration. The category is here to help
+ *  the user to restric the listing of modules when the registry is queried for this information
  *
  */
 public class ModuleRegistry {
+
+    /** The map which associates a list of modules to a configuration **/
     private static Map<String, List<MaryModule>> modules_by_conf;
+
+    /** The map which associates the category to a configuration map listing the modules */
     private static Map<String, Map<String, List<MaryModule>>> modules_by_cat_and_conf;
+
+    /** The logger of the registry */
     private static Logger logger;
 
+    /**
+     *  Default constructor which is private to approximate a singleton
+     *
+     */
     private ModuleRegistry() {
     }
 
@@ -79,7 +87,15 @@ public class ModuleRegistry {
     // /////////////////////// instantiation //////////////////////////
     // ////////////////////////////////////////////////////////////////
 
-    public static MaryModule instantiateModule(String conf, String module_class_name) throws
+    /**
+     *  Method which instanciate a given module based on a given configuration
+     *
+     *  @param conf the given configuration
+     *  @param module_class_name the class name given to find the module
+     *  @return the instanciated and initialised module
+     *  @throws MaryException if anything is going wrong
+     */
+    protected static MaryModule instantiateModule(String conf, String module_class_name) throws
         MaryException {
         logger.info("Now initiating mary module '" + module_class_name + "' associated with configuration '" + conf + "'");
 
@@ -99,23 +115,46 @@ public class ModuleRegistry {
 	}
     }
 
-
-    public static MaryModule instantiateModule(String module_class_name) throws
-        MaryException {
-	return instantiateModule(MaryConfigurationFactory.DEFAULT_KEY, module_class_name);
-    }
-
     // ////////////////////////////////////////////////////////////////
     // /////////////////////// registration ///////////////////////////
     // ////////////////////////////////////////////////////////////////
 
+    /**
+     *  Method to register a module to the registry given a specific configuration and the module class name
+     *
+     *  @param configuration the given configuration
+     *  @param module_class_name the class name of the module to (create and) register
+     *  @throws IllegalStateException
+     *  @throws MaryException if a dedicated problem to mary happens
+     */
     @SuppressWarnings("unchecked")
-    public static void registerModule(String configuration, MaryModule module) throws IllegalStateException {
+    public static synchronized void registerModule(String configuration, String module_class_name) throws IllegalStateException, MaryException {
+        // 1. instantiate the module
+        MaryModule module = instantiateModule(configuration, module_class_name);
+
+        // 2. startup the module
+        long before = System.currentTimeMillis();
+        try {
+            // Only start the modules here if in server mode:
+            if (module.getState() != MaryModule.MODULE_OFFLINE) {
+                throw new MaryException("The module is already started !");
+            }
+
+            module.startup();
+            module.checkStartup();
+        } catch (Throwable t) {
+            throw new MaryException("Problem starting module " + module.getClass().getName(), t);
+        }
+        long after = System.currentTimeMillis();
+        logger.debug("Starting module \"" + module.getClass().getName() + "\": " + (after - before) + " ms");
+
+        // 3. Add it the modules_by_conf map
 	if (!modules_by_conf.containsKey(configuration)) {
 	    modules_by_conf.put(configuration, new ArrayList<MaryModule>());
 	}
         modules_by_conf.get(configuration).add(module);
 
+        // 4. Add it the modules_by_cat_and_conf map
 	String cat = module.getCategory();
 	if (!modules_by_cat_and_conf.containsKey(cat)) {
 	    modules_by_cat_and_conf.put(cat, new HashMap<String, List<MaryModule>>());
@@ -129,10 +168,66 @@ public class ModuleRegistry {
 	modules_by_cat_and_conf.get(cat).get(configuration).add(module);
     }
 
-
+    /**
+     *  Method to register a module to the registry given the module class name on the default configuration
+     *
+     *  @param module_class_name the class name of the module to (create and) register
+     *  @throws IllegalStateException
+     *  @throws MaryException if a dedicated problem to mary happens
+     */
     @SuppressWarnings("unchecked")
-    public static void registerModule(MaryModule module) throws IllegalStateException {
-	registerModule(MaryConfigurationFactory.DEFAULT_KEY, module);
+    public static synchronized void registerModule(String module_class_name) throws IllegalStateException, MaryException {
+	registerModule(MaryConfigurationFactory.DEFAULT_KEY, module_class_name);
+    }
+
+    /**
+     *  Method to remove a given module from the registry after shutting it down
+     *
+     *  @param configuration the given configuration
+     *  @param module_class_name the class name of the module to (create and) register
+     *  @throws IllegalStateException
+     */
+    public static synchronized void deregisterModule(MaryModule module) throws IllegalStateException {
+
+        // Shutting down the module
+        long before = System.currentTimeMillis();
+        module.shutdown();
+        long after = System.currentTimeMillis();
+        logger.debug("Shutting down module \"" + module.getClass().getName() + "\": " + (after - before) + " ms");
+
+        // Remove from the hash by configuration
+	for (String conf: modules_by_conf.keySet()) {
+            modules_by_conf.get(conf).remove(module);
+        }
+
+        // Remove from the hash by category and configuration
+        Map<String, List<MaryModule>> local_modules_by_conf = modules_by_cat_and_conf.get(module.getCategory());
+        for (String conf: local_modules_by_conf.keySet()) {
+            List<MaryModule> list_modules = local_modules_by_conf.get(conf);
+            local_modules_by_conf.get(conf).remove(module);
+        }
+    }
+
+    /**
+     *  Method to clear the module registry from any kind of entries !
+     *
+     *  @throws IllegalStateException
+     */
+    public static synchronized void clear() throws IllegalStateException {
+	for (String conf: modules_by_conf.keySet()) {
+	    for (MaryModule m: modules_by_conf.get(conf)) {
+		if (m.getState() == MaryModule.MODULE_RUNNING) {
+                    long before = System.currentTimeMillis();
+		    m.shutdown();
+                    long after = System.currentTimeMillis();
+                    logger.debug("Shutting down module \"" + m.getClass().getName() + "\": " + (after - before) + " ms");
+		}
+	    }
+        }
+
+        // Clear maps
+        modules_by_conf.clear();
+        modules_by_cat_and_conf.clear();
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -175,6 +270,7 @@ public class ModuleRegistry {
 
 	return getModule(MaryConfigurationFactory.DEFAULT_KEY, cls);
     }
+
     /**
      * Find an active module by its class.
      *
