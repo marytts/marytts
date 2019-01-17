@@ -93,7 +93,7 @@ public class TargetFeatureLister extends MaryModule {
      * @throws Exception
      *             [TODO]
      */
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+    public Utterance process(Utterance utt) throws MaryException {
         utt.setFeatureNames(feature_computer.listFeatures());
         Sequence<FeatureMap> target_features = new Sequence<FeatureMap>();
         Sequence<Item> items = (Sequence<Item>) utt.getSequence(SupportedSequenceType.SEGMENT);

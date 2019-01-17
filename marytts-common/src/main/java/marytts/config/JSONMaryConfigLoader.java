@@ -93,6 +93,13 @@ public class JSONMaryConfigLoader extends MaryConfigLoader {
 	    for (Object class_ob: root_config.keySet()) {
 		String class_name = (String) class_ob;
 
+                // Actually, here we define the baseline configuration => not a class!
+                if (class_name.equals(MaryConfiguration.BASELINE_PROPERTY_ID)) {
+                    mc.setBaseline((String) root_config.get(class_ob));
+                    continue;
+                }
+
+                //
 		try {
 		    Class.forName(class_name, false, this.getClass().getClassLoader());
 		} catch (Exception ex) {

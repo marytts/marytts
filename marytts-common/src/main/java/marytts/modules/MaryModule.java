@@ -104,6 +104,15 @@ public abstract class MaryModule {
      *
      *  @throws MaryConfigurationException if anything is going wrong
      */
+    public void applyConfiguration(MaryConfiguration conf) throws MaryConfigurationException {
+        conf.applyConfiguration(this);
+    }
+
+    /**
+     *  Apply the default configuration (could be seen as a kind of reset of parameters)
+     *
+     *  @throws MaryConfigurationException if anything is going wrong
+     */
     public void applyDefaultConfiguration() throws MaryConfigurationException {
 	if (default_configuration != null) {
 	    default_configuration.applyConfiguration(this);
@@ -150,7 +159,7 @@ public abstract class MaryModule {
      *
      *  @param app the appender to add to the logger
      */
-    protected void addAppender(Appender app) {
+    public void addAppender(Appender app) {
 	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
     }
 
@@ -170,51 +179,7 @@ public abstract class MaryModule {
      *  @return the enriched utterance
      *  @throws MaryException if anything is going wrong
      */
-    public Utterance process(Utterance utt) throws MaryException {
-        return process(utt, new MaryConfiguration());
-    }
-
-
-    /**
-     *  Method to call the module with a given appender and the default configuration
-     *
-     *  @param utt the input utterance
-     *  @param app the given appender
-     *  @return the enriched utterance
-     *  @throws MaryException if anything is going wrong
-     */
-    public Utterance process(Utterance utt, Appender app) throws MaryException {
-	((org.apache.logging.log4j.core.Logger) this.logger).addAppender(app);
-        return process(utt, new MaryConfiguration());
-    }
-
-
-    /**
-     *  Method to call the module with a given appender and a given configuration
-     *
-     *  @param utt the input utterance
-     *  @param app the given appender
-     *  @param runtime_configuration the user configuration
-     *  @return the enriched utterance
-     *  @throws MaryException if anything is going wrong
-     */
-    public Utterance process(Utterance utt, MaryConfiguration runtime_configuration, Appender app) throws MaryException {
-	addAppender(app);
-        return process(utt, runtime_configuration);
-    }
-
-
-    /**
-     *  Method to call the module with a given configuration. This method should be implemented by
-     *  the subclass module. All the other ones are referring to this one at the end.
-     *
-     *  @param utt the input utterance
-     *  @param app the given appender
-     *  @param runtime_configuration the user configuration
-     *  @return the enriched utterance
-     *  @throws MaryException if anything is going wrong
-     */
-    public abstract Utterance process(Utterance utt, MaryConfiguration runtime_configuration) throws MaryException;
+    public abstract Utterance process(Utterance utt) throws MaryException;
 
 
     /*************************************************************************************************

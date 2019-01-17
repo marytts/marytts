@@ -130,7 +130,7 @@ public abstract class OpenNLPPosTagger extends MaryModule {
     }
 
     @SuppressWarnings("unchecked")
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+    public Utterance process(Utterance utt) throws MaryException {
 
         // Generate the list of word in the sentence
         List<String> tokens = new ArrayList<String>();

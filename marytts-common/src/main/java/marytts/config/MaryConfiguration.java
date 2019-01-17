@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+
+import java.util.HashSet;
 import java.util.ArrayList;
 
 /* Reflection */
@@ -30,8 +32,14 @@ public class MaryConfiguration {
     /** String to indicate that the following value is refering to a stored configuration */
     public static final String REF_HEADER = "REF:";
 
+    /** Key to indicate the baseline configuration to use (the default is activated by default) */
+    public static final String BASELINE_PROPERTY_ID = "baseline";
+
     /** The logger */
     protected Logger logger;
+
+    /** Baseline of the configuration */
+    private String baseline;
 
     /** Map to associate a class and a list of properties to define during the configuration stage */
     private HashMap<String, Set<String>> m_class_property_map;
@@ -48,13 +56,14 @@ public class MaryConfiguration {
     protected boolean m_is_strict;
 
     /**
-     * Default constructor. By default, the configuration is not strict
+     * Default constructor. By default, the configuration is not strict.
      *
      */
     public MaryConfiguration() {
         m_class_property_map = new HashMap<String, Set<String>>();
         m_configuration_value_map = new HashMap<StringPair, Object>();
         m_is_strict = false;
+        setBaseline(MaryConfigurationFactory.DEFAULT_KEY);
         logger = LogManager.getLogger(this);
     }
 
@@ -64,11 +73,58 @@ public class MaryConfiguration {
      * @param strict the strictness of the configuration (@see m_is_strict)
      */
     public MaryConfiguration(boolean is_strict) {
-        m_class_property_map = new HashMap<String, Set<String>>();
-        m_configuration_value_map = new HashMap<StringPair, Object>();
+        this();
         m_is_strict = is_strict;
-        logger = LogManager.getLogger(this);
     }
+
+
+    /**
+     * Default constructor. By default, the configuration is not strict.
+     *
+     */
+    public MaryConfiguration(String baseline) {
+        this();
+        setBaseline(baseline);
+    }
+
+    /**
+     * Constructor to define the strictness of the configuration
+     *
+     * @param strict the strictness of the configuration (@see m_is_strict)
+     */
+    public MaryConfiguration(String baseline, boolean is_strict) {
+        this(baseline);
+        m_is_strict = is_strict;
+    }
+
+    public String getBaseline() {
+        return baseline;
+    }
+
+    public void setBaseline(String baseline) {
+        this.baseline = baseline;
+    }
+
+    public Set<String> getReferences() {
+        Set<String> ids = new HashSet<String>();
+
+        for (String class_name: m_class_property_map.keySet()) {
+            for (String property: m_class_property_map.get(class_name)) {
+                StringPair key = new StringPair(class_name, property);
+
+                // Reference found!
+                Object val = m_configuration_value_map.get(key);
+                if ((val instanceof String) &&
+                    ((String) val).startsWith(REF_HEADER)) {
+                    String id = ((String) val).substring(REF_HEADER.length());
+                    ids.add(id);
+                }
+            }
+        }
+
+        return ids;
+    }
+
 
     /**
      *  Add the configuration for a given class
@@ -108,11 +164,96 @@ public class MaryConfiguration {
      *  Merging configuration from another MaryConfiguration object to the current one
      *  The current one has the priority if conflicts
      *
-     *  @param mc2 the other MaryConfiguration object
+     *  @param mc the other MaryConfiguration object
      */
-    public void merge(MaryConfiguration mc2) {
-	m_class_property_map.putAll(mc2.m_class_property_map);
-	m_configuration_value_map.putAll(mc2.m_configuration_value_map);
+    public void merge(MaryConfiguration mc) {
+	m_class_property_map.putAll(mc.m_class_property_map);
+	m_configuration_value_map.putAll(mc.m_configuration_value_map);
+    }
+
+    /**
+     *  Integrate all the information from a given configuration to the current one by keeping what
+     *  has already been filled
+     *
+     *  @param mc the given configuration
+     */
+    public void fill(MaryConfiguration mc) {
+        for (String class_name: mc.m_class_property_map.keySet()) {
+
+            // Fill the class if needed
+            if (!m_class_property_map.keySet().contains(class_name)) {
+                m_class_property_map.put(class_name, new HashSet<String>());
+            }
+
+            // fill the properties
+            for (String property: mc.m_class_property_map.get(class_name)) {
+                StringPair key = new StringPair(class_name, property);
+                if (! m_configuration_value_map.containsKey(key)) {
+                    m_class_property_map.get(class_name).add(property);
+                    m_configuration_value_map.put(key, mc.m_configuration_value_map.get(key));
+                }
+            }
+        }
+    }
+
+    /**
+     *  Resolving a reference for a specific configuration
+     *
+     *  @param id the id of the configuration object
+     *  @param mc the configuration object
+     *  @throws MaryConfigurationException if a reference is done to an unknown field fo the given
+     *  conference
+     */
+    public void resolve(String id, MaryConfiguration mc) throws MaryConfigurationException
+    {
+        for (String class_name: m_class_property_map.keySet()) {
+            for (String property: m_class_property_map.get(class_name)) {
+                StringPair key = new StringPair(class_name, property);
+
+                // Reference found!
+                Object val = m_configuration_value_map.get(key);
+                if ((val instanceof String) && ((String) val).equals(REF_HEADER  + id)) {
+
+                    // Sanity check
+                    if (! mc.m_configuration_value_map.containsKey(key)) {
+                        String msg = String.format("Configuration \"%s\" doesn't contain any value for the pair <%s, %s>",
+                                                   id, class_name, property);
+                        throw new MaryConfigurationException(msg);
+                    }
+
+                    m_configuration_value_map.put(key, mc.m_configuration_value_map.get(key));
+                }
+            }
+        }
+    }
+
+    public void resolve() throws MaryConfigurationException {
+
+        for (String class_name: m_class_property_map.keySet()) {
+            for (String property: m_class_property_map.get(class_name)) {
+                StringPair key = new StringPair(class_name, property);
+
+                // Reference found!
+                Object val = m_configuration_value_map.get(key);
+                if ((val instanceof String) && ((String) val).startsWith(REF_HEADER)) {
+
+                    // Get Id
+                    String id = ((String) val).substring(REF_HEADER.length());
+
+                    // Use Factory to get the configuration object
+                    MaryConfiguration mc = MaryConfigurationFactory.getConfiguration(id);
+
+                    // Sanity check
+                    if (! mc.m_configuration_value_map.containsKey(key)) {
+                        String msg = String.format("Configuration \"%s\" doesn't contain any value for the pair <%s, %s>",
+                                                   id, class_name, property);
+                        throw new MaryConfigurationException(msg);
+                    }
+
+                    m_configuration_value_map.put(key, mc.m_configuration_value_map.get(key));
+                }
+            }
+        }
     }
 
     /**
@@ -122,6 +263,7 @@ public class MaryConfiguration {
      *  @throws MaryConfiguration if the configuration failed
      */
     public void applyConfiguration(Object obj) throws MaryConfigurationException {
+
         try {
             String class_name = obj.getClass().getName();
             Set<String> properties = m_class_property_map.get(class_name);
@@ -151,7 +293,8 @@ public class MaryConfiguration {
             if (obj == null) {
                 throw new MaryConfigurationException("The input object is null", ex);
             } else {
-                throw new MaryConfigurationException("Configuration to object of class \"\"" + obj.getClass().toString() + "\" failed", ex);
+                throw new MaryConfigurationException("Configuration to object of class \"\"" +
+                                                     obj.getClass().toString() + "\" failed", ex);
             }
         }
     }
@@ -165,24 +308,18 @@ public class MaryConfiguration {
      *  @throw MaryConfigurationException if something goes wrong
      */
     protected void setProperty(Object obj, String property, HashSet<String> ref_visited) throws MaryConfigurationException {
-
         try {
             Object val = m_configuration_value_map.get(new StringPair(obj.getClass().getName(), property));
 
             // Deal with reference
             if ((val instanceof String) && (((String) val).startsWith(REF_HEADER))) {
-                String ref_id = ((String) val).substring(REF_HEADER.length());
-                if (ref_visited.contains(ref_id)) {
-                    throw new MaryConfigurationException("Circular reference to \"" + ref_id + "\" in the current configuration");
-                }
-
-                MaryConfiguration ref_conf = MaryConfigurationFactory.getConfiguration(ref_id);
-                ref_visited.add(ref_id);
-                ref_conf.setProperty(obj, property, ref_visited);
+                throw new MaryConfigurationException(String.format("the reference to \"%s\" is unsolved!", (String) val));
             }
             // Just set the values
             else {
                 try {
+
+                    logger.debug(String.format("Set property \"%s\" value to to \"%s\"", property, val.toString()));
                     Method m = obj.getClass().getMethod("set" + property, val.getClass());
                     m.invoke(obj, val);
                 } catch (NoSuchMethodException ex) {

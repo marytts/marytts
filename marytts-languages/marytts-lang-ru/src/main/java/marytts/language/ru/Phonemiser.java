@@ -121,7 +121,7 @@ public class Phonemiser extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+    public Utterance process(Utterance utt) throws MaryException {
 
 	try {
 	    Sequence<Word> words = (Sequence<Word>) utt.getSequence(SupportedSequenceType.WORD);

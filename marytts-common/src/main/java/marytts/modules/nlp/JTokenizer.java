@@ -123,7 +123,7 @@ public class JTokenizer extends MaryModule {
         }
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+    public Utterance process(Utterance utt) throws MaryException {
 
         // Sequence initialisation
         Sequence<Sentence> sentences = new Sequence<Sentence>();

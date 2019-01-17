@@ -135,8 +135,15 @@ public class Request {
 	this.module_sequence = new ArrayList<MaryModule>();
         this.input_data = input_data;
 
-	// Set the configuration
-	this.configuration = configuration;
+        // Resolve configuration
+        logger.debug("Configuration to be used");
+        logger.debug(configuration.toString());
+        configuration.resolve();
+        logger.debug("Resolve configuration to be used");
+        logger.debug(configuration.toString());
+
+        // Set the configuration
+        this.configuration = configuration;
 	this.configuration.applyConfiguration(this);
 
         timingInfo = new HashMap<MaryModule, Long>();
@@ -286,10 +293,15 @@ public class Request {
             // Process the module
             Utterance outData = null;
             try {
+                // Define appender
 		if (this.appender != null)
-		    outData = m.process(outputData, this.configuration, this.appender);
-		else
-		    outData = m.process(outputData, this.configuration);
+                    m.addAppender(this.appender);
+
+                // Apply configuration
+                m.applyConfiguration(this.configuration);
+
+                // Process
+                outData = m.process(outputData);
             } catch (Exception e) {
                 throw new MaryException("Module " + m.getClass().getName() + ": Problem processing the data.", e);
             }

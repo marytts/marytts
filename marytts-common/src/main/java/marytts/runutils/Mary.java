@@ -157,6 +157,10 @@ public class Mary {
 	}
         logger.debug("Configurations loaded: " + MaryConfigurationFactory.dump());
 
+        // Resolve the references of the loaded configurations
+        MaryConfigurationFactory.resolveReferences();
+        logger.debug("Configurations references resolved: " + MaryConfigurationFactory.dump());
+
 	// Instantiate and register available modules
 	Reflections reflections = new Reflections("marytts");
         for (Class<? extends MaryModule> moduleClass : reflections.getSubTypesOf(MaryModule.class)) {

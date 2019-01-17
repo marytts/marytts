@@ -55,8 +55,4 @@ public class JTokenizer extends marytts.modules.nlp.JTokenizer {
     public void checkInput(Utterance utt) throws MaryException {
         super.checkInput(utt);
     }
-
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
-        return super.process(utt);
-    }
 }

@@ -63,7 +63,7 @@ public class Preprocess extends MaryModule {
     public void checkInput(Utterance utt) throws MaryException {
     }
 
-    public Utterance process(Utterance utt, MaryConfiguration configuration) throws MaryException {
+    public Utterance process(Utterance utt) throws MaryException {
         return utt;
     }
 }
