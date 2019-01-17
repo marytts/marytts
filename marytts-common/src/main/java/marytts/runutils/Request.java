@@ -245,7 +245,7 @@ public class Request {
     public void process() throws MaryException {
 
 	// Assert that everything is ready to run
-        assert Mary.getCurrentState() == Mary.STATE_RUNNING;
+        assert Mary.getCurrentState() == MaryState.RUNNING;
 	assert input_serializer != null;
 	assert output_serializer != null;
 

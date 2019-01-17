@@ -17,34 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.language.en;
+package marytts.language.de;
 
-import java.util.Locale;
-
+import marytts.language.de.JPhonemiser;
 import marytts.modules.ModuleRegistry;
-import marytts.tests.modules.MaryModuleTestCase;
-import marytts.language.en.OpenNLPPosTagger;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 /**
+ * Some more coverage tests with actual language modules
+ *
  * @author marc
  *
  */
-public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
-    public OpenNLPPosTaggerIT() throws Exception {
-    }
+public class MaryIT extends marytts.MaryIT {
 
 
-    @BeforeSuite(alwaysRun = true)
-    public void setup() throws Exception {
-        setup(true); // need mary startup
-        module = ModuleRegistry.getDefaultModule(OpenNLPPosTagger.class.getName());
-	Assert.assertNotNull(module);
-    }
 
+    /*****************************************************************************
+     ** JPhonemiser test
+     *****************************************************************************/
     @Test
-    public void voidTest() {
+    public void testIsPosPunctuation() throws Exception{
+        JPhonemiser phonemiser = (JPhonemiser) ModuleRegistry.getDefaultModule(JPhonemiser.class.getName());
+	Assert.assertNotNull(phonemiser);
+
+        Assert.assertTrue(phonemiser.isPosPunctuation("$,"));
+        Assert.assertTrue(phonemiser.isPosPunctuation("$."));
+        Assert.assertTrue(phonemiser.isPosPunctuation("$("));
+        Assert.assertFalse(phonemiser.isPosPunctuation("NN"));
     }
 }

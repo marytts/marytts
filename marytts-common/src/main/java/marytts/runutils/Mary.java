@@ -45,7 +45,7 @@ import java.lang.reflect.Constructor;
 
 // Configuration
 import marytts.config.MaryConfigLoader;
-
+import marytts.config.MaryConfigurationFactory;
 import marytts.MaryException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
@@ -70,23 +70,11 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 public class Mary {
 
-    /** Constant to indicate that mary is starting */
-    public static final int STATE_STARTING = 1;
-
-    /** Constant to indicate that mary is ready to use */
-    public static final int STATE_RUNNING = 2;
-
-    /** Constant to indicate that mary is shutting down */
-    public static final int STATE_SHUTTING_DOWN = 3;
-
-    /** Constant to indicate that mary is offline */
-    public static final int STATE_OFF = 0;
-
     /** The logger of the Mary class */
     private static Logger logger =  LogManager.getLogger(Mary.class);
 
     /** The current state of Mary (see constant and by default indicates that Mary is offline) */
-    private static int currentState = STATE_OFF;
+    private static MaryState currentState = MaryState.OFF;
 
     /**
      * Inform about system state.
@@ -97,7 +85,7 @@ public class Mary {
      * @see #STATE_RUNNING
      * @see #STATE_SHUTTING_DOWN
      */
-    public synchronized static int getCurrentState() {
+    public synchronized static MaryState getCurrentState() {
         return currentState;
     }
 
@@ -138,8 +126,8 @@ public class Mary {
      *             Exception
      */
     public synchronized static void startup() throws Exception {
-        if (currentState != STATE_OFF) {
-            throw new IllegalStateException("Cannot start system: it is not offline");
+        if (currentState != MaryState.OFF) {
+            throw new IllegalStateException("Cannot start system: it is not offline, the system is " + currentState);
         }
 
         // Start the clock
@@ -151,25 +139,23 @@ public class Mary {
 	}
 
         // Indicate that mary is starting
-        currentState = STATE_STARTING;
+        currentState = MaryState.STARTING;
         logger.info("Mary starting up...");
-        logger.info("Running on a Java " + System.getProperty("java.version") +
-		    " implementation by "  + System.getProperty("java.vendor") +
-		    ", on a " + System.getProperty("os.name") +
-		    " platform ("  + System.getProperty("os.arch") + ", " +
-		    System.getProperty("os.version") + ")");
+        logger.info("Running on a Java " + System.getProperty("java.version") +  " implementation by "  + System.getProperty("java.vendor") +
+		    ", on a " + System.getProperty("os.name") +  " platform ("  + System.getProperty("os.arch") + ", " +  System.getProperty("os.version") + ")");
 
-        // Prepare shutdown for later
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    shutdown();
-                }
-            });
+        // // Prepare shutdown for later
+        // Runtime.getRuntime().addShutdownHook(new Thread() {
+        //         public void run() {
+        //             shutdown();
+        //         }
+        //     });
 
 	// Load configurations
 	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
 	    mc.load();
 	}
+        logger.debug("Configurations loaded: " + MaryConfigurationFactory.dump());
 
 	// Instantiate and register available modules
 	Reflections reflections = new Reflections("marytts");
@@ -183,7 +169,7 @@ public class Mary {
         long after = System.currentTimeMillis();
 
         // Indicate that mary is ready
-        currentState = STATE_RUNNING;
+        currentState = MaryState.RUNNING;
         logger.info("Startup complete in " + (after - before) + " ms");
     }
 
@@ -194,12 +180,12 @@ public class Mary {
      *             if the MARY system is not running.
      */
     public synchronized static void shutdown() {
-        if (currentState != STATE_RUNNING) {
+        if (currentState != MaryState.RUNNING) {
             throw new IllegalStateException("MARY system is not running");
         }
 
         // Indicate that Mary starts to shut down
-        currentState = STATE_SHUTTING_DOWN;
+        currentState = MaryState.SHUTTING_DOWN;
         logger.info("Shutting down modules...");
 
         // Clear the module registryu (shutting down the modules is part of it)
@@ -208,7 +194,7 @@ public class Mary {
         long after = System.currentTimeMillis();
 
         // Indicates that Mary is off
-        currentState = STATE_OFF;
+        currentState = MaryState.OFF;
         logger.info("Shutdown complete in " + (after - before) + " ms");
     }
 
@@ -218,7 +204,7 @@ public class Mary {
      *  @throws Exception if anything is going wrong
      */
     public static synchronized void ensureMaryStarted() throws Exception {
-	if (Mary.getCurrentState() == Mary.STATE_OFF) {
+	if (Mary.getCurrentState() == MaryState.OFF) {
 	    Mary.startup();
 	}
     }
