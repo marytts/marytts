@@ -144,13 +144,6 @@ public class Mary {
         logger.info("Running on a Java " + System.getProperty("java.version") +  " implementation by "  + System.getProperty("java.vendor") +
 		    ", on a " + System.getProperty("os.name") +  " platform ("  + System.getProperty("os.arch") + ", " +  System.getProperty("os.version") + ")");
 
-        // // Prepare shutdown for later
-        // Runtime.getRuntime().addShutdownHook(new Thread() {
-        //         public void run() {
-        //             shutdown();
-        //         }
-        //     });
-
 	// Load configurations
 	for (MaryConfigLoader mc: MaryConfigLoader.getConfigLoaders()) {
 	    mc.load();
