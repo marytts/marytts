@@ -222,6 +222,31 @@ public class MaryConfiguration {
                     }
 
                     m_configuration_value_map.put(key, mc.m_configuration_value_map.get(key));
+                } else if (val instanceof ArrayList) {
+
+                    // NOTE: Assumption is that the reference is containing the same kind of objects that the current value
+                    ArrayList<Object> new_val = new ArrayList<Object>();
+                    for (Object o: (ArrayList) val) {
+                        if ((o instanceof String) && ((String) o).equals(REF_HEADER  + id)) {
+                            Object other_o = mc.m_configuration_value_map.get(key);
+
+                            // Merge list
+                            if (other_o instanceof ArrayList) {
+                                for (Object tmp: (ArrayList) other_o)  {
+                                    new_val.add(tmp);
+                                }
+                            }
+                            // Add object
+                            else {
+                                new_val.add(other_o);
+                            }
+
+                        } else {
+                            new_val.add(o);
+                        }
+                    }
+
+                    m_configuration_value_map.put(key, new_val);
                 }
             }
         }
@@ -251,6 +276,34 @@ public class MaryConfiguration {
                     }
 
                     m_configuration_value_map.put(key, mc.m_configuration_value_map.get(key));
+                } else if (val instanceof ArrayList) {
+
+                    // NOTE: Assumption is that the reference is containing the same kind of objects that the current value
+                    ArrayList<Object> new_val = new ArrayList<Object>();
+                    for (Object o: (ArrayList) val) {
+                        if ((o instanceof String) && ((String) o).startsWith(REF_HEADER)) {
+                            // Get the reference configuration object for the current property
+                            String id = ((String) o).substring(REF_HEADER.length());
+                            MaryConfiguration mc = MaryConfigurationFactory.getConfiguration(id);
+                            Object other_o = mc.m_configuration_value_map.get(key);
+
+                            // Merge list
+                            if (other_o instanceof ArrayList) {
+                                for (Object tmp: (ArrayList) other_o)  {
+                                    new_val.add(tmp);
+                                }
+                            }
+                            // Add object
+                            else {
+                                new_val.add(other_o);
+                            }
+
+                        } else {
+                            new_val.add(o);
+                        }
+                    }
+
+                    m_configuration_value_map.put(key, new_val);
                 }
             }
         }
@@ -344,10 +397,25 @@ public class MaryConfiguration {
      */
     @Override
     public String toString() {
-	String configuration_str = "";
+        HashMap<String, HashMap<String, Object>> map_output = new HashMap<String, HashMap<String, Object>>();
+
+
 	for (StringPair key: m_configuration_value_map.keySet()) {
-	    configuration_str += "(" + key.getLeft() + "," + key.getRight() + ") => " + m_configuration_value_map.get(key) + ";\n";
-	}
+            if (! map_output.containsKey(key.getLeft())) {
+                map_output.put(key.getLeft(), new HashMap<String, Object>());
+            }
+
+            map_output.get(key.getLeft()).put(key.getRight(), m_configuration_value_map.get(key));
+        }
+	String configuration_str = "{\n";
+        for (String key_class: map_output.keySet()) {
+            configuration_str += String.format("\t\"%s\": {\n", key_class);
+            for (String key_prop: map_output.get(key_class).keySet()) {
+                configuration_str += String.format("\t\t\"%s\": %s\n", key_prop, map_output.get(key_class).get(key_prop));
+            }
+            configuration_str += "\t}\n";
+        }
+        configuration_str += "}\n";
 
 	return configuration_str;
     }

@@ -246,7 +246,8 @@ public class MaryConfigurationFactory
 
         // Sanity check that there is an actual conference
         if (! MaryConfigurationFactory.configuration_map.containsKey(key_conf)) {
-            String msg = String.format("Configuration \"%s\" doesn't have an equivalent configuration object", key_conf);
+            String msg = String.format("Configuration \"%s\" doesn't have an equivalent configuration object",
+                                       key_conf);
             throw new MaryConfigurationException(msg);
         }
 
