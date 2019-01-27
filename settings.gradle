@@ -1,7 +1,6 @@
 rootProject.name = 'marytts'
 
 // Core
-include ':marytts-utils'
 include ':marytts-common'
 
 // Languages

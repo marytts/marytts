@@ -1,7 +1,6 @@
 description 'NLP components for Russian'
 
 dependencies {
-    compile project(':marytts-utils')
     compile project(':marytts-common')
 
     testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
