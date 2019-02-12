@@ -19,14 +19,14 @@
  */
 package marytts.language.de;
 
-import marytts.config.PropertiesMaryConfigLoader;
+import marytts.config.JSONMaryConfigLoader;
 import marytts.exceptions.MaryConfigurationException;
 
 import java.io.InputStream;
 
-public class GermanConfigLoader extends PropertiesMaryConfigLoader {
+public class GermanConfigLoader extends JSONMaryConfigLoader {
     public GermanConfigLoader() throws MaryConfigurationException {
 	super();
-	loadConfiguration("de_DE", GermanConfigLoader.class.getResourceAsStream("de.config"));
+	loadConfiguration("de_DE", GermanConfigLoader.class.getResourceAsStream("de.json"));
     }
 }

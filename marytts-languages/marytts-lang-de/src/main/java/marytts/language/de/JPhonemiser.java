@@ -120,7 +120,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
     }
 
 
-    public void setUseEnglish(String use_english) {
+    public void setUseEnglish(Boolean use_english) {
 	//FIXME:
         // if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
         //     InputStream usLexStream = MaryProperties.getStream("en_US.lexicon");

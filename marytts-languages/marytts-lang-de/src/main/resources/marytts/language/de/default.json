@@ -1,0 +1,6 @@
+{
+    "marytts.language.de.JPhonemiser": {
+        "pos_punct_regex": "\\$,|\\$.|\\$\\(",
+        "use_english": false
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "marytts.runutils.Request": {
+        "module_sequence": [
+            "marytts.language.de.JTokenizer",
+            "marytts.language.de.Preprocess",
+            "marytts.language.de.OpenNLPPosTagger",
+            "marytts.modules.nlp.ProsodyGeneric",
+            "marytts.language.de.JPhonemiser"
+        ]
+    }
+}
