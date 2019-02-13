@@ -17,7 +17,6 @@ public class Arpabet extends Alphabet
     public Arpabet() {
 	super();
 
-
 	// consonants
 	this.addIpaCorrespondance("B", "b");
 	this.addIpaCorrespondance("D", "d");

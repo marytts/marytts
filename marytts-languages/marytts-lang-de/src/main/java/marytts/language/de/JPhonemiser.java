@@ -281,6 +281,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                         g2p_method = helper.toString();
                     }
 
+                    phonetisation_string.add(phon);
                 }
 
                 if (phonetisation_string.size() > 0) {
@@ -298,10 +299,11 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                     segments.get(segments.size()-1).getDuration();
                 segments.add(new Segment(new_start));
                 alignment_nss_seg.add(new IntegerPair(nss_seq.size()-1, segments.size()-1));
+                alignment_word_seg.add(new IntegerPair(i_word, segments.size()-1));
             }
         }
 
-        nss_seq.add(new NSS("start"));
+        nss_seq.add(new NSS("end"));
         double new_start = segments.get(segments.size()-1).getStart() +
             segments.get(segments.size()-1).getDuration();
         segments.add(new Segment(new_start));
@@ -309,7 +311,7 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
         // Word => segment
         utt.addSequence(SupportedSequenceType.SEGMENT, segments);
-        Relation tmp_rel = new Relation(words, segments, alignment_nss_seg);
+        Relation tmp_rel = new Relation(words, segments, alignment_word_seg);
         utt.setRelation(SupportedSequenceType.WORD, SupportedSequenceType.SEGMENT, tmp_rel);
 
         // NSS => segment
@@ -352,11 +354,13 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         // First, try a simple userdict and lexicon lookup:
         String result = userdictLookup(text, pos);
         if (result != null) {
+            logger.debug("userdict result = " + result);
             g2pMethod.append("userdict");
             return result;
         }
         result = lexiconLookup(text, pos);
         if (result != null) {
+            logger.debug("lexicon result = " + result);
             g2pMethod.append("lexicon");
             return result;
         }
@@ -436,12 +440,13 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
         String phones = ""; // added
         try {
             phones = lts.predictPronunciation(normalised); // added
+            logger.debug("Phones = " + phones);
             result = lts.syllabify(phones);
         } catch (IllegalArgumentException e) {
             logger.error(String.format("Problem with token <%s> [%s]: %s", normalised, phones, e.getMessage()));
         } catch (ClassCastException e) {
             logger.error(String.format("Problem with token <%s> : %s", normalised, e.getMessage())); // added
-        }
+       }
         if (result != null) {
             if (logUnknownFileName != null) {
                 String unknownText = text.trim();

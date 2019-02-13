@@ -31,6 +31,7 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("p", "p");
 	this.addIpaCorrespondance("t", "t");
 	this.addIpaCorrespondance("T", "θ");
+        this.addIpaCorrespondance("x", "x");
 	this.addIpaCorrespondance("v", "v");
 	this.addIpaCorrespondance("w", "w");
 	this.addIpaCorrespondance("z", "z");
@@ -39,13 +40,20 @@ public class Sampa extends Alphabet
 	// affricates
 	this.addIpaCorrespondance("dS", "tʃ");
 	this.addIpaCorrespondance("dZ", "dʒ");
-	this.addIpaCorrespondance("tS", "ts");
+	this.addIpaCorrespondance("pf", "pf");
+	this.addIpaCorrespondance("ts", "ts");
+	this.addIpaCorrespondance("tS", "tʃ");
+        this.addIpaCorrespondance("C", "ç");
 
 	// Long vowels
+        this.addIpaCorrespondance("a", "a");
 	this.addIpaCorrespondance("A", "ɑ");
 	this.addIpaCorrespondance("i", "i");
+        this.addIpaCorrespondance("e", "e");
+        this.addIpaCorrespondance("y", "y");
 	this.addIpaCorrespondance("u", "u");
 	this.addIpaCorrespondance("O", "ɔ");
+        this.addIpaCorrespondance("o", "o");
 	this.addIpaCorrespondance("AXR", "ɚ");
 
 	// Short vowels
@@ -68,14 +76,18 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("EM", "m̩");
 	this.addIpaCorrespondance("EN", "n̩");
 
-
 	// dipthongs
 	this.addIpaCorrespondance("EI", "eɪ");
+	this.addIpaCorrespondance("aI", "aɪ");
 	this.addIpaCorrespondance("AI", "aɪ");
 	this.addIpaCorrespondance("aU", "aʊ");
 	this.addIpaCorrespondance("OW", "oʊ");
 	this.addIpaCorrespondance("OI", "ɔɪ");
+	this.addIpaCorrespondance("OY", "ɔʏ");
 
+        this.addIpaCorrespondance("9", "œ");
+        this.addIpaCorrespondance("2", "ø");
+        this.addIpaCorrespondance("6", "ɐ");
 
 	// FIXME: Not sorted (yet)
 	this.addIpaCorrespondance("h", "h");
@@ -83,8 +95,26 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("NX", "ɾ̃");
 	this.addIpaCorrespondance("Q", "ʔ");
 	this.addIpaCorrespondance("r", "ɹ");
+        this.addIpaCorrespondance("R", "ʁ");
 	this.addIpaCorrespondance("WH", "ʍ");
 	this.addIpaCorrespondance("j", "j");
+        this.addIpaCorrespondance("?", "ʔ");
+        this.addIpaCorrespondance("Y", "ʏ");
 
+        // Nasale!
+        this.addIpaCorrespondance("a~", "ã");
+        this.addIpaCorrespondance("o~", "õ");
+        this.addIpaCorrespondance("e~", "ẽ");
+        this.addIpaCorrespondance("9~", "œ̃");
+
+        // Long modifier
+        this.addIpaCorrespondance("i:", "iː");
+        this.addIpaCorrespondance("y:", "yː");
+        this.addIpaCorrespondance("e:", "eː");
+        this.addIpaCorrespondance("E:", "ɛː");
+        this.addIpaCorrespondance("2:", "øː");
+        this.addIpaCorrespondance("u:", "uː");
+        this.addIpaCorrespondance("o:", "oː");
+        this.addIpaCorrespondance("a:", "aː");
     }
 }

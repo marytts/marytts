@@ -27,6 +27,17 @@ public class Phoneme extends Item {
     }
 
     /**
+     * Instantiates a new phoneme.
+     *
+     * @param label
+     *            the label
+     */
+    public Phoneme(String label, String stress) {
+        setLabel(label);
+        setStress(stress);
+    }
+
+    /**
      * Instantiates a new phoneme by copying a phoneme
      *
      * @param phoneme
