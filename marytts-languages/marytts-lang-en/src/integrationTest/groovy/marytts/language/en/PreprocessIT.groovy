@@ -23,4 +23,9 @@ class PreprocessIT extends MaryModuleTestCase {
     void testParensAndNumber() {
         processAndCompare 'parens-and-number', Locale.US
     }
+
+    @Test
+    void testStackoverflow() {
+        processAndCompare 'stackoverflow', Locale.US
+    }
 }
