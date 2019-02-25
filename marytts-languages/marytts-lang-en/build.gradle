@@ -2,8 +2,7 @@ description 'NLP components for English'
 
 dependencies {
     compile project(':marytts-common')
-    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
-    integrationTestCompile project(':marytts-common').sourceSets.integrationTest.output
-}
 
+    // Testing
+    testCompile project(":marytts-testkit")
+}

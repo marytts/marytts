@@ -2,6 +2,7 @@ rootProject.name = 'marytts'
 
 // Core
 include ':marytts-common'
+include ':marytts-testkit'
 
 // Languages
 include ':marytts-languages:marytts-lang-de'

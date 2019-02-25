@@ -1,0 +1,13 @@
+dependencies {
+    compile project(":marytts-common")
+
+    compile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+    compile group: 'org.testng', name: 'testng', version: '6.8.13'
+}
+
+
+processResources {
+    filesMatching '**/specification-version.txt', {
+        expand project.properties
+    }
+}

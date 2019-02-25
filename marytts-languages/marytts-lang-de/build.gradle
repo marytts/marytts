@@ -2,6 +2,7 @@ description 'NLP components for German'
 
 dependencies {
     compile project(':marytts-common')
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
-    integrationTestCompile project(':marytts-common').sourceSets.integrationTest.output
+
+    // Testing
+    testCompile project(":marytts-testkit")
 }

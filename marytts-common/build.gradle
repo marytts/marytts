@@ -33,8 +33,8 @@ dependencies {
     compile group: "org.reflections", name: "reflections", version: "0.9.11"
 
     // Testing
-    testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
     testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
+    testCompile project(":marytts-testkit")
 }
 
 
