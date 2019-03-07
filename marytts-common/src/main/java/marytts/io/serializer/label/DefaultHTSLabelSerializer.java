@@ -254,7 +254,11 @@ public class DefaultHTSLabelSerializer implements Serializer {
             ph.equals("start") || ph.equals("end"))
 	    return "pau";
 
-        return ipa2arp.getLabelFromIPA(ph).toLowerCase();
+        ph = ipa2arp.getLabelFromIPA(ph).toLowerCase();
+        ph = ph.replaceAll("~", "NASAL");
+        ph = ph.replaceAll(":", "LONG");
+
+        return ph;
     }
 
     /**
