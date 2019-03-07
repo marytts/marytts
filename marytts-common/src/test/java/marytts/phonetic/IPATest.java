@@ -35,9 +35,5 @@ public class IPATest
 	    }
 
 	}
-	// if (true)
-	//     throw new Exception("oups");
     }
 }
-
-

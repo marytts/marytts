@@ -19,6 +19,11 @@
  */
 package marytts.language.de;
 
+import java.util.Set;
+
+import marytts.phonetic.AlphabetFactory;
+import marytts.phonetic.converter.Alphabet;
+
 import marytts.language.de.JPhonemiser;
 import marytts.modules.ModuleRegistry;
 
@@ -33,13 +38,11 @@ import org.testng.annotations.*;
  */
 public class MaryIT extends marytts.MaryIT {
 
-
-
     /*****************************************************************************
      ** JPhonemiser test
      *****************************************************************************/
     @Test
-    public void testIsPosPunctuation() throws Exception{
+    public void testIsPosPunctuation() throws Exception {
         JPhonemiser phonemiser = (JPhonemiser) ModuleRegistry.getDefaultModule(JPhonemiser.class.getName());
 	Assert.assertNotNull(phonemiser);
 
@@ -47,5 +50,27 @@ public class MaryIT extends marytts.MaryIT {
         Assert.assertTrue(phonemiser.isPosPunctuation("$."));
         Assert.assertTrue(phonemiser.isPosPunctuation("$("));
         Assert.assertFalse(phonemiser.isPosPunctuation("NN"));
+    }
+
+
+    @Test
+    public void testArpabetConversion() throws Exception {
+
+        Alphabet sampa2ipa = AlphabetFactory.getAlphabet("sampa");
+        Alphabet ipa2arpabet = AlphabetFactory.getAlphabet("arpabet");
+
+        JPhonemiser phonemiser = (JPhonemiser) ModuleRegistry.getDefaultModule(JPhonemiser.class.getName());
+
+        Set<String> phonemes = phonemiser.getAllophoneSet().getAllophoneNames();
+        for (String ph: phonemes) {
+            // Ignor epause
+            if (ph.equals("_")) {
+                continue;
+            }
+            String ipa = sampa2ipa.getCorrespondingIPA(ph);
+            String arpabet = ipa2arpabet.getLabelFromIPA(ipa);
+            logger.debug(ipa);
+        }
+
     }
 }

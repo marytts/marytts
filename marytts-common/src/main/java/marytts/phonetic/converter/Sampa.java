@@ -31,9 +31,9 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("p", "p");
 	this.addIpaCorrespondance("t", "t");
 	this.addIpaCorrespondance("T", "θ");
-        this.addIpaCorrespondance("x", "x");
 	this.addIpaCorrespondance("v", "v");
 	this.addIpaCorrespondance("w", "w");
+        this.addIpaCorrespondance("x", "x");
 	this.addIpaCorrespondance("z", "z");
 	this.addIpaCorrespondance("Z", "ʒ");
 
