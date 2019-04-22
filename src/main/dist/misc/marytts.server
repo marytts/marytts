@@ -1,0 +1,25 @@
+# This is a systemd service file
+# Modify it according to your needs - see e.g.
+#   ExecStartPre, ExecStopPost # remove line or adjust interface (enp27s0)
+#   ExecStart # adjust path
+#   User/Group # adjust user/group
+# Save it in /etc/systemd/system/marytts.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable marytts.service # if you want to start it at boot
+# sudo systemctl start marytts.service # to start it
+[Unit]
+Description=Mary TTS
+
+[Service]
+ExecStartPre=/sbin/iptables -A INPUT -i enp27s0 -p tcp --destination-port 59125 -j DROP
+ExecStart=/home/mary/marytts/bin/marytts-server
+ExecStopPost=/sbin/iptables -D INPUT -i enp27s0 -p tcp --destination-port 59125 -j DROP
+PermissionsStartOnly=true
+Restart=always
+RestartSec=5
+TimeoutSec=10
+User=mary
+Group=mary
+
+[Install]
+WantedBy=multi-user.target
