@@ -7,7 +7,10 @@ branches:
 language: java
 jdk:
   - openjdk8
-  - oraclejdk8
+  - openjdk9
+  - openjdk10
+  - openjdk11
+  - openjdk12
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -4,6 +4,14 @@ MaryTTS
 [Unreleased]
 ------------
 
+### Improvements
+
+* Build with Gradle v5.4.1
+
+### Fixed Issues/Bugs
+
+* Add compability with Java 11 and 12
+
 See [all changes since v5.2]
 
 [v5.2] (2016-09-15)
