@@ -5,7 +5,7 @@ apply plugin: "groovy"
 dependencies {
     compile project(':marytts-common')
     compile project(':marytts-languages:marytts-lang-fr')
-    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.4'
     compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
     testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
     testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
