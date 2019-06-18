@@ -79,7 +79,7 @@ public class Segment extends Item {
      * @param duration
      *            the new duration of the segment
      */
-    protected void setDuration(double duration) {
+    public void setDuration(double duration) {
         m_duration = duration;
     }
 
