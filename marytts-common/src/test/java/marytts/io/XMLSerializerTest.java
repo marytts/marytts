@@ -34,8 +34,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.todisappear.DomUtils;
 
-import org.apache.log4j.BasicConfigurator;
-
 import marytts.data.Utterance;
 import marytts.io.serializer.XMLSerializer;
 

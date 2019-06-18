@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.io.IOException;
 
 
-import org.apache.log4j.BasicConfigurator;
-
 import marytts.data.utils.IntegerPair;
 import marytts.data.Utterance;
 import marytts.data.Sequence;
