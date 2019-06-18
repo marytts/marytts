@@ -99,6 +99,37 @@ public class Utterance {
     }
 
     /**
+     * Remove the sequence of the given type
+     *
+     * @param type the type of the sequence to remove
+     */
+    public void removeSequence(String type) {
+        if (! hasSequence(type))
+            return;
+
+        Sequence<? extends Item> cur_seq = getSequence(type);
+
+        // delete relation
+        Set<ImmutablePair<String, String>> set_rel_to_be_remove = new HashSet<ImmutablePair<String, String>>();
+        for (ImmutablePair<String, String> cur_rel: m_available_relation_set) {
+            if (cur_rel.getLeft().equals(type)) {
+                set_rel_to_be_remove.add(cur_rel);
+            } else if (cur_rel.getRight().equals(type)) {
+                set_rel_to_be_remove.add(cur_rel);
+            }
+        }
+
+        for (ImmutablePair<String, String> cur_rel: set_rel_to_be_remove) {
+            removeRelation(cur_rel.getLeft(), cur_rel.getRight());
+        }
+        m_relation_graph.removeSequence(cur_seq);
+
+        // Delete sequence
+        cur_seq.clear();
+        m_sequences.remove(type);
+    }
+
+    /**
      * Get all the available sequence types
      *
      * @return the available sequence types
@@ -125,17 +156,34 @@ public class Utterance {
         return getRelation(getSequence(source), getSequence(target));
     }
 
+    /**
+     * Get the relation between a given source and a given target sequence
+     *
+     * @param source the source sequence
+     * @param target the target sequence
+     * @return the relation
+     * @throws MaryException if the relation doesn't exist
+     */
     public Relation getRelation(Sequence<? extends Item> source, Sequence<? extends Item> target) throws MaryException {
 
         Relation rel =  m_relation_graph.getRelation(source, target);
 
         if (rel == null) {
-            throw new MaryException(String.format("Cannot find relation between \"%s\" and \"%s\"",
-                                                  source, target
-                                                  ));
+            throw new MaryException(String.format("Cannot find relation between \"%s\" and \"%s\"", source, target));
         }
 
         return rel;
+    }
+
+    /**
+     * Remove the relation between a given source and a given target sequence
+     *
+     * @param source the source sequence
+     * @param target the target sequence
+     */
+    public void removeRelation(String source, String target) {
+        m_relation_graph.removeRelation(getSequence(source), getSequence(target));
+        m_available_relation_set.remove(new ImmutablePair<String, String>(source, target));
     }
 
     /**
@@ -148,8 +196,7 @@ public class Utterance {
      */
     public void setRelation(String source, String target, Relation rel) {
         m_relation_graph.addRelation(rel);
-        m_available_relation_set.add(new ImmutablePair<String, String>(source,
-                                     target));
+        m_available_relation_set.add(new ImmutablePair<String, String>(source, target));
     }
 
     /**
