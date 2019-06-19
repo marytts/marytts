@@ -1,10 +1,12 @@
-package marytts.io.serializer;
+package marytts.io.serializer.data;
 
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
 import marytts.features.Feature;
 import marytts.data.Utterance;
+
+import marytts.io.serializer.Serializer;
 import marytts.io.MaryIOException;
 import marytts.data.SupportedSequenceType;
 

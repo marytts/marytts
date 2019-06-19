@@ -1,4 +1,4 @@
-package marytts.io.serializer;
+package marytts.io.serializer.data;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,6 +18,9 @@ import marytts.data.SupportedSequenceType;
 import marytts.data.Utterance;
 import marytts.data.item.Item;
 import marytts.data.item.acoustic.Segment;
+
+
+import marytts.io.serializer.Serializer;
 import marytts.io.MaryIOException;
 
 /**

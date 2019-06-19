@@ -1,5 +1,7 @@
-package marytts.io.serializer;
+package marytts.io.serializer.data;
 
+
+import marytts.io.serializer.Serializer;
 import marytts.data.Sequence;
 import marytts.data.Relation;
 import marytts.features.FeatureMap;
