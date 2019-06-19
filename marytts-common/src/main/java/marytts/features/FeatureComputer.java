@@ -1,16 +1,23 @@
 package marytts.features;
 
+// Java
 import java.util.Hashtable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
+// Exceptions
 import marytts.exceptions.MaryConfigurationException;
 import marytts.MaryException;
 
-import marytts.data.SupportedSequenceType;
+// Data
 import marytts.data.Utterance;
 import marytts.data.item.Item;
+
+// Feature import
+import marytts.features.context.*;
+import marytts.features.exception.FeatureCollisionException;
+import marytts.features.exception.UnknownProcessorException;
+import marytts.features.level.*;
+import marytts.features.feature.*;
 
 /**
  * The feature computer. To compute the feature, we assume the availability of 3
