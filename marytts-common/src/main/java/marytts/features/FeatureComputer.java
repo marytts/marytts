@@ -19,6 +19,10 @@ import marytts.features.exception.UnknownProcessorException;
 import marytts.features.level.*;
 import marytts.features.feature.*;
 
+// Logging
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * The feature computer. To compute the feature, we assume the availability of 3
  * processors: the level processor, the context processor and the feature
@@ -70,6 +74,11 @@ public class FeatureComputer {
 
 
     /**
+     * The logger instance.
+     */
+    protected Logger logger;
+
+    /**
      * The user customisation constructor. The user has to defined all the
      * needed factories.
      *
@@ -86,6 +95,7 @@ public class FeatureComputer {
         m_context_factory = new ContextProcessorFactory();
         m_feature_factory = new FeatureProcessorFactory();
         m_level_factory = new LevelProcessorFactory();
+        logger = LogManager.getLogger(this);
     }
 
     /**
@@ -158,8 +168,8 @@ public class FeatureComputer {
      * @throws FeatureCollisionException
      *             if the feature, identified by its name, is already in the map
      */
-    public void addFeature(String name, String level, String context,
-            String feature) throws FeatureCollisionException, UnknownProcessorException {
+    public void addFeature(String name, String level, String context, String feature)
+        throws FeatureCollisionException, UnknownProcessorException {
 
         if (m_features.containsKey(name)) {
             throw new FeatureCollisionException(name + " is already an added feature");
@@ -181,6 +191,7 @@ public class FeatureComputer {
 
         m_features.put(name, new String[] {level, context, feature});
         m_feature_names.add(name);
+        logger.debug("Add feature named \"%s\" considering the following information (%s, %s, %s)", name, level, context, feature);
     }
 
     /**
@@ -250,8 +261,11 @@ public class FeatureComputer {
      *             if anything is going wrong
      */
     public FeatureMap process(Utterance utt, Item item) throws MaryException {
+        logger.debug("Processing item \"%s\"", item);
         FeatureMap feature_map = new FeatureMap();
         for (String feature_name : m_features.keySet()) {
+            logger.debug("Process feature \"%s\"", feature_name);
+
             String[] infos = m_features.get(feature_name);
             Feature feature = compute(utt, item, infos[LEVEL_INDEX], infos[CONTEXT_INDEX], infos[FEATURE_INDEX]);
 
