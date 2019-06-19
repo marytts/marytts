@@ -39,23 +39,25 @@ public class SegmentPrevious implements ContextProcessor {
             throw new MaryException("The item is not in a sequence");
         }
 
+        // Get the index of the current item
         int idx = seq.indexOf(item);
-        if (idx >= (seq.size() - 1)) {
-            return null;
-        }
 
         // Got back to the segment level
         Sequence<? extends Item> seq_seg = utt.getSequence(SupportedSequenceType.SEGMENT);
         Relation rel = utt.getRelation(seq, seq_seg);
-
         int[] ret_list = rel.getRelatedIndexes(idx);
-        if (ret_list.length == 0)
-            return null;
 
-        if ((ret_list[0] - 1) < 0)
+        // Double check that the index is valid
+        if (ret_list.length == 0) {
             return null;
+        }
+        if (ret_list[0]  <= 0) {
+            return null;
+        }
 
+        // Get the previous segment
         Item seg = seq_seg.get(ret_list[0]-1);
+
         ArrayList<? extends Item> final_items = (new PhoneNSS()).get(utt, seg);
 
         if (final_items.size() == 0)

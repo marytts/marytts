@@ -40,9 +40,6 @@ public class SegmentNextNext implements ContextProcessor {
         }
 
         int idx = seq.indexOf(item);
-        if (idx >= (seq.size() - 1)) {
-            return null;
-        }
 
         // Got back to the segment level
         Sequence<? extends Item> seq_seg = utt.getSequence(SupportedSequenceType.SEGMENT);

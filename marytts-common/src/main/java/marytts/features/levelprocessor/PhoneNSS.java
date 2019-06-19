@@ -19,19 +19,22 @@ import marytts.features.LevelProcessor;
  */
 public class PhoneNSS implements LevelProcessor {
     public ArrayList<? extends Item> get(Utterance utt, Item item) throws MaryException {
+
+        // if item is a phone => valid: just return the phone in a list!
         if (item instanceof marytts.data.item.phonology.Phoneme) {
             ArrayList<Item> list_items = new ArrayList<Item>();
             list_items.add(item);
             return list_items;
         }
 
-
+        // if item is a NSS => valid: just return the NSS in a list!
         if (item instanceof marytts.data.item.phonology.NSS) {
             ArrayList<Item> list_items = new ArrayList<Item>();
             list_items.add(item);
             return list_items;
         }
 
+        // Else try to find a phone or an NSS related thingy!
         Sequence<? extends Item> seq = item.getSequence();
         int item_idx = seq.indexOf(item);
 
@@ -45,7 +48,7 @@ public class PhoneNSS implements LevelProcessor {
             ret_list = relation.getRelatedItems(item_idx);
         }
 
-        // System.out.println(relation.getRelatedItems(item_idx));
+        // Return the list of available items, or an empty list
         return ret_list;
     }
 }
