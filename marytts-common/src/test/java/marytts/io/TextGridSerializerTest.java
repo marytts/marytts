@@ -21,10 +21,7 @@ package marytts.io;
 
 import java.util.ArrayList;
 
-import org.testng.Assert;
 import org.testng.annotations.*;
-
-import java.io.IOException;
 
 import marytts.data.utils.IntegerPair;
 import marytts.data.Utterance;
@@ -34,7 +31,7 @@ import marytts.data.item.linguistic.Word;
 import marytts.data.item.phonology.Phoneme;
 import marytts.data.item.phonology.Syllable;
 import marytts.data.item.acoustic.Segment;
-import marytts.io.serializer.TextGridSerializer;
+import marytts.io.serializer.data.TextGridSerializer;
 
 
 
