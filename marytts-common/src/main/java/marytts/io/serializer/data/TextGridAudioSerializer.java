@@ -1,7 +1,8 @@
-package marytts.io.serializer;
+package marytts.io.serializer.data;
 
 import java.util.ArrayList;
 
+import marytts.io.serializer.AudioSerializer;
 import marytts.io.MaryIOException;
 
 import marytts.data.Utterance;
