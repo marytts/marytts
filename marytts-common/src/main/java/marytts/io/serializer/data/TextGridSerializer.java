@@ -105,10 +105,10 @@ public class TextGridSerializer implements Serializer {
 	int last_ref_index = -1;
 	for (int i=0; i<cur_seq.size(); i++) {
 	    int[] rel_indexes = rel_cur_ref.getRelatedIndexes(i);
-
 	    if (rel_indexes.length <= 0) {
 		continue;
 	    }
+
 	    int start_i = 0;
 	    while ((start_i < rel_indexes.length) &&
 		   (rel_indexes[start_i] <= last_ref_index)) {
@@ -132,7 +132,6 @@ public class TextGridSerializer implements Serializer {
 
 	    last_ref_index = rel_indexes[rel_indexes.length-1];
 	}
-
 
         return new IntervalTier(seq_name, start/1000, end/1000, annotations);
     }

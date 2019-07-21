@@ -74,7 +74,8 @@ public class Arpabet extends Alphabet
         this.addIpaCorrespondance("s", "s");
         this.addIpaCorrespondance("z", "z");
         this.addIpaCorrespondance("r", "ɹ");
-        this.addIpaCorrespondance("rr", "ʁ"); // FIXME: added by force
+        this.addIpaCorrespondance("rr", "r"); // FIXME: added by force !
+        this.addIpaCorrespondance("rrr", "ʁ"); // FIXME: added by force!
         this.addIpaCorrespondance("l", "l");
         this.addIpaCorrespondance("el", "l̩");
         this.addIpaCorrespondance("sh", "ʃ");

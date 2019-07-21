@@ -38,7 +38,7 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("Z", "ʒ");
 
 	// affricates
-	this.addIpaCorrespondance("dS", "tʃ");
+	this.addIpaCorrespondance("dS", "dʃ");
 	this.addIpaCorrespondance("dZ", "dʒ");
 	this.addIpaCorrespondance("pf", "pf");
 	this.addIpaCorrespondance("ts", "ts");
@@ -54,22 +54,21 @@ public class Sampa extends Alphabet
 	this.addIpaCorrespondance("u", "u");
 	this.addIpaCorrespondance("O", "ɔ");
         this.addIpaCorrespondance("o", "o");
-	this.addIpaCorrespondance("AXR", "ɚ");
+	// FIXME: try to delete this.addIpaCorrespondance("AXR", "ɚ");
 
 	// Short vowels
 	this.addIpaCorrespondance("{", "æ");
 	this.addIpaCorrespondance("V", "ʌ");
-	this.addIpaCorrespondance("@", "ʌ"); // FIXME check
-	this.addIpaCorrespondance("@U", "ʌ"); // FIXME check
-	this.addIpaCorrespondance("AX", "ə");
+	this.addIpaCorrespondance("@", "ə");
+	this.addIpaCorrespondance("@U", "əʊ");
 	this.addIpaCorrespondance("E", "ɛ");
-	this.addIpaCorrespondance("r=", "ɚ"); // FIXME: what is this one
+
 	this.addIpaCorrespondance("I", "ɪ");
-	this.addIpaCorrespondance("IX", "ɨ");
+	this.addIpaCorrespondance("1", "ɨ");
 	this.addIpaCorrespondance("U", "ʊ");
-	this.addIpaCorrespondance("UX", "ʉ");
+        this.addIpaCorrespondance("}", "ʉ");
 	this.addIpaCorrespondance("D", "ð");
-	this.addIpaCorrespondance("DX", "ɾ");
+	this.addIpaCorrespondance("4", "ɾ");
 
 	// Stressed
 	this.addIpaCorrespondance("EL", "l̩");
@@ -92,11 +91,13 @@ public class Sampa extends Alphabet
 	// FIXME: Not sorted (yet)
 	this.addIpaCorrespondance("h", "h");
 	this.addIpaCorrespondance("N", "ŋ");
-	this.addIpaCorrespondance("NX", "ɾ̃");
+	this.addIpaCorrespondance("4~", "ɾ̃");
 	this.addIpaCorrespondance("Q", "ʔ");
-	this.addIpaCorrespondance("r", "ɹ");
+	this.addIpaCorrespondance("r", "r");
+        this.addIpaCorrespondance("r=", "ɚ"); // NOTE: needed by british english!
+	this.addIpaCorrespondance("r\\", "ɹ");
         this.addIpaCorrespondance("R", "ʁ");
-	this.addIpaCorrespondance("WH", "ʍ");
+	this.addIpaCorrespondance("W", "ʍ");
 	this.addIpaCorrespondance("j", "j");
         this.addIpaCorrespondance("?", "ʔ");
         this.addIpaCorrespondance("Y", "ʏ");
