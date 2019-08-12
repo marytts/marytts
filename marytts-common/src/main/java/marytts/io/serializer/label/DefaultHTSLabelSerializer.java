@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 /* Utils part */
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
@@ -31,7 +33,7 @@ import java.io.File;
 import marytts.phonetic.converter.Alphabet;
 import marytts.phonetic.AlphabetFactory;
 
-/* */
+/* Exception */
 import marytts.MaryException;
 
 /**
@@ -41,6 +43,9 @@ import marytts.MaryException;
  * @author <a href="mailto:slemaguer@coli.uni-saarland.de">Sébastien Le Maguer</a>
  */
 public class DefaultHTSLabelSerializer implements Serializer {
+
+    /** NSS set (FIXME: should exist a cleaner solution) */
+    protected Set<String> set_nss;
 
     /** The default undefined value constant */
     private static final String DEFAULT_UNDEF = "xx";
@@ -61,6 +66,15 @@ public class DefaultHTSLabelSerializer implements Serializer {
     public DefaultHTSLabelSerializer() throws MaryException {
         setUndefSymbol(DEFAULT_UNDEF);
 	ipa2arp = AlphabetFactory.getAlphabet("arpabet");
+
+        /** FIXME: clean that */
+        set_nss = new HashSet<String>();
+        set_nss.add("sil");
+        set_nss.add("_");
+        set_nss.add("pau");
+        set_nss.add("sp");
+        set_nss.add("start");
+        set_nss.add("end");
     }
 
     /**
@@ -250,8 +264,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
 	if (ph.equals(getUndefSymbol()))
 	    return getUndefSymbol();
 
-	if (ph.equals("sil") || ph.equals("_") || ph.equals("pau") ||
-            ph.equals("start") || ph.equals("end"))
+        if (set_nss.contains(ph))
 	    return "pau";
 
         ph = ipa2arp.getLabelFromIPA(ph).toLowerCase();
