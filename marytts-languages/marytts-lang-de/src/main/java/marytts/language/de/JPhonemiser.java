@@ -148,7 +148,6 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
 
                 for (String nextUnknown : unknownWords) {
                     int nextFreq = unknown2Frequency.get(nextUnknown);
-                    // logUnknown.println(nextFreq+" "+nextUnknown);
                     if (freq2Unknown.containsKey(nextFreq)) {
                         List<String> unknowns = freq2Unknown.get(nextFreq);
                         unknowns.add(nextUnknown);
@@ -163,7 +162,6 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                     List<String> unknowns = freq2Unknown.get(nextFreq);
                     for (int i = 0; i < unknowns.size(); i++) {
                         String unknownWord = (String) unknowns.get(i);
-                        logUnknown.println(nextFreq + " " + unknownWord);
                     }
 
                 }
@@ -193,7 +191,6 @@ public class JPhonemiser extends marytts.modules.nlp.JPhonemiser {
                 for (int nextFreq : freq2English.keySet()) {
                     List<String> englishWords = freq2English.get(nextFreq);
                     for (int i = 0; i < englishWords.size(); i++) {
-                        logEnglish.println(nextFreq + " " + englishWords.get(i));
                     }
                 }
                 // close file
