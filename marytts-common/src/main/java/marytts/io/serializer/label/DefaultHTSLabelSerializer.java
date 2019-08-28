@@ -59,6 +59,9 @@ public class DefaultHTSLabelSerializer implements Serializer {
     /** Ipa to arpabet conversion */
     protected Alphabet ipa2arp;
 
+    /** Is duration should be exported? */
+    protected boolean export_duration;
+
     /**
      * Constructor
      *
@@ -75,6 +78,7 @@ public class DefaultHTSLabelSerializer implements Serializer {
         set_nss.add("sp");
         set_nss.add("start");
         set_nss.add("end");
+        setDisableDuration(false);
     }
 
     /**
@@ -89,6 +93,13 @@ public class DefaultHTSLabelSerializer implements Serializer {
     public void setUndefSymbol(String undef_symbol) {
         this.undef_symbol = undef_symbol;
     }
+
+    public void setDisableDuration(Boolean disable) {
+        this.export_duration = !disable;
+    }
+
+
+    /******************************************************************************************************/
 
     /**
      * Generate the HTS Labels from the given utterance
@@ -117,12 +128,14 @@ public class DefaultHTSLabelSerializer implements Serializer {
 		    continue;
 		}
 
-                double dur = 0;
-                for (Segment s: segments)
-                    dur += s.getDuration();
-                long start = (long) (segments.get(0).getStart() * HTK_STEP);
-                long end = start + (long) (dur * HTK_STEP);
-                output += String.format("%d\t%d\t", start, end);
+                if (export_duration) {
+                    double dur = 0;
+                    for (Segment s: segments)
+                        dur += s.getDuration();
+                    long start = (long) (segments.get(0).getStart() * HTK_STEP);
+                    long end = start + (long) (dur * HTK_STEP);
+                    output += String.format("%d\t%d\t", start, end);
+                }
 
 		output += format(map);
 		output += "\n";
