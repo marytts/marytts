@@ -1,11 +1,7 @@
 dependencies {
-    // ICU
-    compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
+    // Core is needed
+    compile project(':marytts-core')
 
-    // Apache commons
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
-    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
-    compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
     // DFKI
     compile group: 'de.dfki.mary', name: 'emotionml-checker-java', version: '1.1'
     compile group: 'de.dfki.lt.jtok', name: 'jtok-core', version: '2.1.18'
@@ -19,18 +15,8 @@ dependencies {
     // Logging
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
 
-    // Maths/graph
-    compile group: 'com.twmacinta', name: 'fast-md5', version: '2.7.1'
-    compile group: 'colt', name: 'colt', version: '1.2.0'
-    compile group: "org.jgrapht", name: "jgrapht-core", version: "1.3.0"
-
     // Formatting / IO
     compile group: 'org.m2ci.msp', name:'jtgt', version: '0.6.1'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.2'
-    compile group: 'com.googlecode.json-simple', name:'json-simple', version:'1.1.1'
-
-    // Reflections
-    compile group: "org.reflections", name: "reflections", version: "0.9.11"
 
     // Testing
     testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'

@@ -43,8 +43,7 @@ public class MaryEntityResolver implements EntityResolver {
             return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/Sable.v0_2.dtd"));
         } else if (systemId.contains("sable-latin.ent")) {
             // SABLE ENT sable-latin.ent
-            return new InputSource(
-                       MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/sable-latin.ent"));
+            return new InputSource(MaryEntityResolver.class.getResourceAsStream("/marytts/dtd/sable-latin.ent"));
         } else {
             return null;
         }
