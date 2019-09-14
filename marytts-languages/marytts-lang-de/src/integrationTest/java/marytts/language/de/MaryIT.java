@@ -71,6 +71,19 @@ public class MaryIT extends marytts.MaryIT {
             String arpabet = ipa2arpabet.getLabelFromIPA(ipa);
             logger.debug(ipa);
         }
+    }
 
+    @Test
+    public void testPhonetisation() throws Exception {
+        String text = "das Dunkel war ein kurzes und leiser werdendes Verschwinden";
+
+        Alphabet sampa2ipa = AlphabetFactory.getAlphabet("sampa");
+        Alphabet ipa2arpabet = AlphabetFactory.getAlphabet("arpabet");
+
+	StringBuilder sb = new StringBuilder();
+        JPhonemiser phonemiser = (JPhonemiser) ModuleRegistry.getDefaultModule(JPhonemiser.class.getName());
+        String ph = phonemiser.phonemise("Dunkel", "NN", sb);
+
+        assert ph.equals("' d U N - k @ l");
     }
 }
