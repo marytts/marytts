@@ -1,9 +1,8 @@
 description 'NLP components for French'
 
 dependencies {
-    compile project(':marytts-common')
-    compile group: 'com.ibm.icu', name: 'icu4j', version: '54.1.1'
-    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
-    testCompile group: 'org.testng', name: 'testng', version: '6.8.13'
-}
+    compile project(':marytts-helpers')
 
+    // Testing
+    testCompile project(":marytts-testkit")
+}

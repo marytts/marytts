@@ -1,0 +1,16 @@
+dependencies {
+    // Core is needed
+    compile project(':marytts-core')
+    compile project(':marytts-helpers')
+
+    // Testing
+    testCompile group: 'xmlunit', name: 'xmlunit', version: '1.6'
+    testCompile project(":marytts-testkit")
+}
+
+
+processResources {
+    filesMatching '**/specification-version.txt', {
+        expand project.properties
+    }
+}

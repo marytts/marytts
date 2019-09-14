@@ -1,7 +1,7 @@
 description 'NLP components for English'
 
 dependencies {
-    compile project(':marytts-common')
+    compile project(':marytts-helpers')
 
     // Testing
     testCompile project(":marytts-testkit")

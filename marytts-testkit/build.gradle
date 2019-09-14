@@ -1,6 +1,10 @@
 dependencies {
-    compile project(":marytts-common")
+    // Needed mary packages
+    compile project(":marytts-core")
+    compile project(":marytts-helpers")
+    compile project(":marytts-runtime")
 
+    // Needed test packages
     compile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
     compile group: 'org.testng', name: 'testng', version: '6.8.13'
 }
