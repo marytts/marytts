@@ -155,6 +155,7 @@ public class Sequence<E extends Item> extends ArrayList<E> {
      *            element to be appended to this sequence
      * @return true (as specified by Collection.add(E))
      */
+    @Override
     public boolean add(E e) {
         super.add(e);
         e.setSequenceReference(this);
