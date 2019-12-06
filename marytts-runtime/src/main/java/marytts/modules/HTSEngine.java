@@ -198,7 +198,7 @@ public class HTSEngine extends InternalModule {
 	 * @return output
 	 */
 	public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries,
-			List<Element> tokensAndBoundaries) throws Exception {
+			List<Element> tokensAndBoundaries, String outputParams) throws Exception {
 
 		Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
 		assert v instanceof HMMVoice;
@@ -224,9 +224,11 @@ public class HTSEngine extends InternalModule {
 		HTSVocoder par2speech = new HTSVocoder();
 
 		/* Synthesize speech waveform, generate speech out of sequence of parameters */
-		AudioInputStream ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
+		AudioInputStream ais = null;
+		if (!"noAudio".equals(outputParams))
+			ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
 
-		MaryData output = new MaryData(outputType(), d.getLocale());
+		MaryData output = new MaryData(getOutputType(), d.getLocale());
 		if (d.getAudioFileFormat() != null) {
 			output.setAudioFileFormat(d.getAudioFileFormat());
 			if (d.getAudio() != null) {
