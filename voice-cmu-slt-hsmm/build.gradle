@@ -14,8 +14,8 @@ marytts {
 }
 
 dependencies {
-    compile project(':marytts-languages:marytts-lang-en')
-    testCompile libs.testng
+    implementation project(':marytts-languages:marytts-lang-en')
+    testImplementation libs.testng
 }
 
 test {

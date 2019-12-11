@@ -8,11 +8,11 @@ sourceSets {
 }
 
 configurations {
-    integrationTestCompile {
-        extendsFrom testCompile
+    integrationTestImplementation {
+        extendsFrom testImplementation
     }
-    integrationTestRuntime {
-        extendsFrom testRuntime
+    integrationTestRuntimeOnly {
+        extendsFrom testRuntimeOnly
     }
 }
 

@@ -15,4 +15,3 @@ include 'marytts-runtime'
 include 'marytts-transcription'
 include 'marytts-signalproc'
 include 'voice-cmu-slt-hsmm'
-enableFeaturePreview('STABLE_PUBLISHING')

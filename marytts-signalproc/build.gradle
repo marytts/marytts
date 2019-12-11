@@ -3,9 +3,9 @@ apply from: "$rootDir/testLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
-    compile project(':marytts-common')
-    compile libs.jama
-    compile libs.jampack
-    compile libs.swingLayout
-    testCompile libs.junit
+    implementation project(':marytts-common')
+    implementation libs.jama
+    implementation libs.jampack
+    implementation libs.swingLayout
+    testImplementation libs.junit
 }

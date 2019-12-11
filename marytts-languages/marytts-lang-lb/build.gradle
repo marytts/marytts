@@ -14,11 +14,11 @@ marytts {
 }
 
 dependencies {
-    compile project(':marytts-runtime')
-    compile project(':marytts-languages:marytts-lang-fr')
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
-    testCompile libs.xmlunit
-    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    implementation project(':marytts-runtime')
+    implementation project(':marytts-languages:marytts-lang-fr')
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
+    testImplementation libs.xmlunit
+    integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
 test {

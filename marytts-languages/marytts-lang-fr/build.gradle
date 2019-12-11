@@ -14,11 +14,11 @@ marytts {
 }
 
 dependencies {
-    compile project(':marytts-runtime')
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-fr', version: '0.1.0'
-    testCompile libs.xmlunit
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
-    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    implementation project(':marytts-runtime')
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-fr', version: '0.1.0'
+    testImplementation libs.xmlunit
+    testImplementation project(path: ':marytts-runtime', configuration: 'testImplementation')
+    integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)

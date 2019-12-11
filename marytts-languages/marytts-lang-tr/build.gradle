@@ -13,9 +13,9 @@ marytts {
 }
 
 dependencies {
-    compile project(':marytts-runtime')
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-tr', version: '0.1.0'
-    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    implementation project(':marytts-runtime')
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-tr', version: '0.1.0'
+    integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
 task generateComponentXmlDescriptor(type: GenerateComponentXmlDescriptor)

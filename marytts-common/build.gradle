@@ -3,10 +3,10 @@ apply from: "$rootDir/testLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
-    compile libs.commonsIo
-    compile libs.commonsLang
-    compile libs.log4j
-    testCompile libs.testng
+    implementation libs.commonsIo
+    implementation libs.commonsLang
+    implementation libs.log4j
+    testImplementation libs.testng
 }
 
 processResources {
