@@ -15,7 +15,7 @@ marytts {
 repositories {
     ivy {
         url 'http://opennlp.sourceforge.net'
-        layout 'pattern', {
+        patternLayout {
             artifact 'models-[revision]/[module].[ext]'
         }
     }
