@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -369,6 +371,29 @@ public class MaryProperties {
 			return Integer.decode(value).intValue();
 		} catch (NumberFormatException e) {
 			throw new NoSuchPropertyException("Integer property `" + property + "' in configuration files has wrong value `"
+					+ value + "'");
+		}
+	}
+
+	/**
+	 * Get an InetAddress property from the underlying properties, throwing an exception if it is not defined. If the property contains
+	 * a hostname instead of an IP address it will be resolved, throwing an exception on failure.
+	 * 
+	 * @param property
+	 *            the property requested
+	 * @return the InetAddress property value
+	 * @throws NoSuchPropertyException
+	 *             if the property is not defined.
+	 */
+	public static InetAddress needInetAddress(String property) throws NoSuchPropertyException {
+		String value = getProperty(property);
+		if (value == null) {
+			throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+		}
+		try {
+			return InetAddress.getByName(value);
+		} catch (UnknownHostException e) {
+			throw new NoSuchPropertyException("InetAddress property `" + property + "' in configuration files has wrong value `"
 					+ value + "'");
 		}
 	}

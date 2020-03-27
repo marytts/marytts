@@ -157,7 +157,7 @@ public class MaryServer implements Runnable {
 	public void run() {
 		logger.info("Starting server.");
 		try {
-			server = new ServerSocket(MaryProperties.needInteger("socket.port"));
+			server = new ServerSocket(MaryProperties.needInteger("socket.port"), 0, MaryProperties.needInetAddress("socket.addr"));
 
 			while (true) {
 				logger.info("Waiting for client to connect on port " + server.getLocalPort());
