@@ -11,6 +11,7 @@ mainClassName = 'marytts.server.Mary'
 run {
     dependsOn installDist
     systemProperties << ['mary.base': installDist.destinationDir]
+    systemProperties << System.getProperties() // Propagate properties to marytts-server
     doFirst {
         classpath += fileTree(installDist.destinationDir).include('lib/voice-*.jar', 'lib/marytts-lang-*.jar')
     }
