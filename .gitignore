@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+bin/
 
 # Eclipse
 .settings/
