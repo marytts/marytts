@@ -22,6 +22,13 @@ The code comes under the Lesser General Public License LGPL version 3 -- see LIC
 Run `./gradlew run`  (or `gradlew.bat run` on Windows) to start a MaryTTS server.
 Then access it at http://localhost:59125 using your web browser.
 
+If you want to start a MaryTTS on a different address and port, you can use the following options:
+
+```sh
+./gradlew run -Dsocket.port=5920 -Dsocket.addr=0.0.0.0
+```
+where 520 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
+
 
 ## Downloading and installing voices
 

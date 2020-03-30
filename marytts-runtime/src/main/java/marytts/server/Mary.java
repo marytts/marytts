@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -496,10 +497,11 @@ public class Mary {
 			System.err.print("a command-line application...");
 
 		// first thing we do, let's test if the port is available:
+		InetAddress localAddr = MaryProperties.needInetAddress("socket.addr");
 		int localPort = MaryProperties.needInteger("socket.port");
 		if (!server.equals("commandline")) {
 			try {
-				ServerSocket serverSocket = new ServerSocket(localPort);
+				ServerSocket serverSocket = new ServerSocket(localPort, 0, localAddr);
 				serverSocket.close();
 			} catch (IOException e) {
 				System.err.println("\nPort " + localPort + " already in use!");
@@ -508,7 +510,7 @@ public class Mary {
 		}
 
 		startup();
-		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s on port " + localPort);
+		System.err.println(" started in " + (System.currentTimeMillis() - startTime) / 1000. + " s on " + localAddr.getHostAddress() + ":" + localPort);
 
 		Runnable main = null;
 

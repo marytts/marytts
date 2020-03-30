@@ -21,6 +21,7 @@ package marytts.server.http;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import marytts.server.MaryProperties;
@@ -162,6 +163,7 @@ public class MaryHttpServer extends Thread {
 	public void run() {
 		logger.info("Starting server.");
 
+		InetAddress localAddr = MaryProperties.needInetAddress("socket.addr");
 		int localPort = MaryProperties.needInteger("socket.port");
 
 		HttpParams params = new BasicHttpParams();
@@ -215,7 +217,7 @@ public class MaryHttpServer extends Thread {
 
 		try {
 			ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
-			ioReactor.listen(new InetSocketAddress(localPort));
+			ioReactor.listen(new InetSocketAddress(localAddr, localPort));
 			isReady = true;
 			ioReactor.execute(ioEventDispatch);
 		} catch (InterruptedIOException ex) {

@@ -117,11 +117,11 @@ import org.apache.log4j.Logger;
  * amounts.
  * <p>
  * Example: The line
- * 
+ *
  * <pre>
  *   MARY IN=TEXT OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
  * </pre>
- * 
+ *
  * will process normal ASCII text, and send back a WAV audio file synthesised with the voice "kevin16".</li>
  *
  * <li>The server reads and parses this input line. If its format is correct, a line containing a single integer is sent back to
@@ -157,13 +157,13 @@ public class MaryServer implements Runnable {
 	public void run() {
 		logger.info("Starting server.");
 		try {
-			server = new ServerSocket(MaryProperties.needInteger("socket.port"));
+			server = new ServerSocket(MaryProperties.needInteger("socket.port"), 0, MaryProperties.needInetAddress("socket.addr"));
 
 			while (true) {
 				logger.info("Waiting for client to connect on port " + server.getLocalPort());
 				Socket client = server.accept();
-				logger.info("Connection from " + client.getInetAddress().getHostName() + " ("
-						+ client.getInetAddress().getHostAddress() + ").");
+				logger.info("Connection from " + client.getInetAddress().getHostName() +
+                                            " (" + client.getInetAddress().getHostAddress() + ").");
 				clients.execute(new ClientHandler(client));
 			}
 		} catch (Exception e) {
@@ -393,7 +393,7 @@ public class MaryServer implements Runnable {
 
 		/**
 		 * Verifies and parses the protocol parameter
-		 * 
+		 *
 		 * @param token
 		 *            the string to read the parameter from
 		 * @param expectedParameterName
