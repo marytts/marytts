@@ -89,7 +89,7 @@ import marytts.htsengine.HMMData.FeatureType;
 import marytts.util.MaryUtils;
 import marytts.util.io.PropertiesAccessor;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Configuration files and global variables for HTS engine.

@@ -57,8 +57,8 @@ import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 import marytts.util.io.FileUtils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -203,7 +203,7 @@ public class Request {
 
 	/**
 	 * Set the input data directly, in case it is already in the form of a MaryData object.
-	 * 
+	 *
 	 * @param inputData
 	 *            inputData
 	 */
@@ -228,7 +228,7 @@ public class Request {
 
 	/**
 	 * Read the input data from a Reader.
-	 * 
+	 *
 	 * @param inputReader
 	 *            inputReader
 	 * @throws Exception
@@ -262,7 +262,7 @@ public class Request {
 
 	/**
 	 * Process the input data to produce the output data.
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 * @see #getOutputData for direct access to the resulting output data
@@ -364,7 +364,7 @@ public class Request {
 
 	/**
 	 * Convert the given data into the requested output type, either by looking it up in the cache or by actually processing it.
-	 * 
+	 *
 	 * @param oneInputData
 	 *            the input data to convert
 	 * @param oneOutputType
@@ -384,7 +384,7 @@ public class Request {
 	 */
 	private MaryData processOrLookupOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams)
 			throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)
+		if (logger.getLevel().equals(Level.DEBUG)
 				&& (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
 			logger.debug("Now converting the following input data from " + oneInputData.getType() + " to " + oneOutputType + ":");
 			ByteArrayOutputStream dummy = new ByteArrayOutputStream();
@@ -553,7 +553,7 @@ public class Request {
 			if (m.outputType() == oneOutputType || m.outputType() == MaryDataType.AUDIO) {
 				currentData.setOutputParams(outputParams);
 			}
-			if (logger.getEffectiveLevel().equals(Level.DEBUG)
+			if (logger.getLevel().equals(Level.DEBUG)
 					&& (currentData.getType().isTextType() || currentData.getType().isXMLType())) {
 				logger.debug("Handing the following data to the next module:");
 				ByteArrayOutputStream dummy = new ByteArrayOutputStream();
@@ -602,7 +602,7 @@ public class Request {
 	/**
 	 * Split the entire rawmaryxml document into individual paragraph elements. Any text not enclosed by a paragraph in the input
 	 * will be enclosed by a new paragraph element, which is then included in the return.
-	 * 
+	 *
 	 * @param rawmaryxml
 	 *            the maryxml document to split into paragraph chunks; this input document will be modified!
 	 * @return a nodelist containing the paragraph elements in the modified rawmaryxml document.
@@ -614,7 +614,7 @@ public class Request {
 			throw new NullPointerException("Received null data");
 		if (rawmaryxml.getType() != MaryDataType.get("RAWMARYXML"))
 			throw new IllegalArgumentException("Expected data of type RAWMARYXML, got " + rawmaryxml.getType());
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		if (logger.getLevel().equals(Level.DEBUG)) {
 			logger.debug("Now splitting the following RAWMARYXML data into chunks:");
 			ByteArrayOutputStream dummy = new ByteArrayOutputStream();
 			try {
@@ -691,18 +691,18 @@ public class Request {
 		 * // Second, for each paragraph, create a separate MaryData. tw = ((DocumentTraversal)doc).createTreeWalker(root,
 		 * NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.PARAGRAPH), false); Element paragraph = null; while ((paragraph =
 		 * (Element) tw.nextNode()) != null) { MaryData md = extractParagraphAsMaryData(rawmaryxml, paragraph); result.add(md);
-		 * 
-		 * if (logger.getEffectiveLevel().equals(Level.DEBUG)) { logger.debug("Created chunk:"); ByteArrayOutputStream dummy = new
+		 *
+		 * if (logger.getLevel().equals(Level.DEBUG)) { logger.debug("Created chunk:"); ByteArrayOutputStream dummy = new
 		 * ByteArrayOutputStream(); try { md.writeTo(dummy); } catch (Exception ex) { logger.debug(ex); } // side effect:
 		 * writeTo() writes to log if debug }
-		 * 
+		 *
 		 * } return result;
 		 */
 	}
 
 	/**
 	 * Move all the boundary elements outside of paragraphs into paragraphs.
-	 * 
+	 *
 	 * @param rawmaryxml
 	 *            rawmaryxml
 	 */
@@ -746,7 +746,7 @@ public class Request {
 	/**
 	 * For a given maryxml document, extract one paragraph element as a separate document, including any parent nodes around the
 	 * paragraph element.
-	 * 
+	 *
 	 * @param maryxml
 	 *            maryxml
 	 * @param paragraph
@@ -797,7 +797,7 @@ public class Request {
 	/**
 	 * For a given instance of MaryData, determine the locale -- either from the data type, or, if it is not specified there, from
 	 * the XML document root element's attribute "xml:lang".
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 */
@@ -823,7 +823,7 @@ public class Request {
 
 	/**
 	 * Direct access to the output data.
-	 * 
+	 *
 	 * @return outputdata
 	 */
 	public MaryData getOutputData() {
@@ -832,7 +832,7 @@ public class Request {
 
 	/**
 	 * Write the output data to the specified OutputStream.
-	 * 
+	 *
 	 * @param outputStream
 	 *            outputStream
 	 * @throws Exception

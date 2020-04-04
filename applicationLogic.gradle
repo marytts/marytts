@@ -10,8 +10,27 @@ mainClassName = 'marytts.server.Mary'
 
 run {
     dependsOn installDist
+
+    // Define "mary.base"
     systemProperties << ['mary.base': installDist.destinationDir]
-    systemProperties << System.getProperties() // Propagate properties to marytts-server
+
+    // Forward server variables
+    if ("socket.addr" in System.properties) {
+        systemProperties << ['socket.addr': System.properties["socket.addr"]]
+    }
+    if ("socket.port" in System.properties) {
+        systemProperties << ['socket.addr': System.properties["socket.port"]]
+    }
+
+    // Forward logger variables
+    if (logger.isEnabled(LogLevel.INFO)) {
+        systemProperties << ['log4j.logger.marytts': 'INFO,stderr']
+    }
+    if (logger.isEnabled(LogLevel.DEBUG)) {
+        systemProperties << ['log4j.logger.marytts': 'DEBUG,stderr']
+    }
+
+
     doFirst {
         classpath += fileTree(installDist.destinationDir).include('lib/voice-*.jar', 'lib/marytts-lang-*.jar')
     }

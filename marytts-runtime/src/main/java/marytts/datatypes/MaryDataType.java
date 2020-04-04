@@ -37,7 +37,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A representation of the data types available as input/output of (partial) processing. List the data types available as

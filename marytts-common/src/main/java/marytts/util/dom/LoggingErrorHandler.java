@@ -24,7 +24,7 @@ import javax.xml.transform.TransformerException;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 

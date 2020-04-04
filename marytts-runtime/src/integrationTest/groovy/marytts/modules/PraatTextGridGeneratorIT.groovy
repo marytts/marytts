@@ -2,12 +2,12 @@ package marytts.modules
 
 import org.junit.*
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Log4j2
 
 import marytts.LocalMaryInterface
 import marytts.datatypes.MaryDataType
 
-@Log4j
+@Log4j2
 class PraatTextGridGeneratorIT {
 
 	def mary

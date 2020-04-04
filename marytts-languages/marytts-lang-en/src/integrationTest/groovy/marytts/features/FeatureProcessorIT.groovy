@@ -1,6 +1,6 @@
 package marytts.features
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Log4j2
 import marytts.datatypes.MaryData
 import marytts.datatypes.MaryDataType
 import marytts.datatypes.MaryXML
@@ -13,7 +13,7 @@ import org.testng.annotations.Test
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 
-@Log4j
+@Log4j2
 class FeatureProcessorIT {
 
     MaryData acoustparams

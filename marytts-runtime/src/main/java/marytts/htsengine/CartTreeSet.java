@@ -74,7 +74,7 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData.PdfFileFormat;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Set of CART trees used in HMM synthesis.

@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Destroy a given process if timeout occurs. This is used to monitor whether an external module gets stuck.

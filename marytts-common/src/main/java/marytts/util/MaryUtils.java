@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,8 +35,9 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A collection of useful static little utility methods.
@@ -52,7 +52,7 @@ public class MaryUtils {
 
 	/**
 	 * Create a map from an Object array which contains paired entries (key, value, key, value, ....).
-	 * 
+	 *
 	 * @param a
 	 *            a
 	 * @return m
@@ -75,7 +75,7 @@ public class MaryUtils {
 
 	/**
 	 * Join a collection of strings into a single String object, in the order indicated by the collection's iterator.
-	 * 
+	 *
 	 * @param strings
 	 *            a collection containing exclusively String objects
 	 * @return a single String object
@@ -94,7 +94,7 @@ public class MaryUtils {
 	/**
 	 * Check if bytes contains a subsequence identical with pattern, and return the index position. Assumes that pattern.length
 	 * ^&lt; bytes.length.
-	 * 
+	 *
 	 * @param bytes
 	 *            bytes
 	 * @param pattern
@@ -159,7 +159,7 @@ public class MaryUtils {
 
 	/**
 	 * Get the extension of a file.
-	 * 
+	 *
 	 * @param f
 	 *            f
 	 * @return ext
@@ -207,7 +207,7 @@ public class MaryUtils {
 	/**
 	 * Tell whether the string contains a positive or negative percentage delta, i.e., a percentage number with an obligatory + or
 	 * - sign.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return s.substring
@@ -222,7 +222,7 @@ public class MaryUtils {
 	/**
 	 * For a string containing a percentage delta as judged by <code>isPercentageDelta()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric part of the percentage, rounded to an integer, or 0 if the string is not a valid percentage delta.
@@ -237,7 +237,7 @@ public class MaryUtils {
 	/**
 	 * Tell whether the string contains a positive or negative semitones delta, i.e., a semitones number with an obligatory + or -
 	 * sign, such as "+3.2st" or "-13.2st".
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return s.substring(s.length() - 2).equals("st") and isNumberDelta(s.substring(0, s.length() - 2))
@@ -253,7 +253,7 @@ public class MaryUtils {
 	/**
 	 * For a string containing a semitones delta as judged by <code>isSemitonesDelta()</code>, return the numerical value, as a
 	 * double.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric part of the semitones delta, or 0 if the string is not a valid semitones delta.
@@ -274,7 +274,7 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains a positive or negative number delta, i.e., a number with an obligatory + or - sign.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return (s.charAt(0) == '+' or s.charAt(0) == '-') and isUnsignedNumber(s.substring(1))
@@ -290,7 +290,7 @@ public class MaryUtils {
 	/**
 	 * For a string containing a number delta as judged by <code>isNumberDelta()</code>, return the numerical value, rounded to an
 	 * integer.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number delta.
@@ -311,7 +311,7 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains an unsigned semitones expression, such as "12st" or "5.4st".
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return s.substring(s.length() - 2).equals("st") and isUnsignedNumber(s.substring(0, s.length() - 2))
@@ -326,7 +326,7 @@ public class MaryUtils {
 	/**
 	 * For a string containing an unsigned semitones expression as judged by <code>isUnsignedSemitones()</code>, return the
 	 * numerical value as a double.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric part of the semitones expression, or 0 if the string is not a valid unsigned semitones expression.
@@ -347,7 +347,7 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains an unsigned number.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return false if s.length &lt;1, true otherwise
@@ -371,7 +371,7 @@ public class MaryUtils {
 	/**
 	 * For a string containing an unsigned number as judged by <code>isUnsignedNumber()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid unsigned number.
@@ -391,7 +391,7 @@ public class MaryUtils {
 
 	/**
 	 * Tell whether the string contains a number.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return false if s.length &lt;1, true otherwise
@@ -411,7 +411,7 @@ public class MaryUtils {
 
 	/**
 	 * For a string containing a number as judged by <code>isNumber()</code>, return the numerical value, rounded to an integer.
-	 * 
+	 *
 	 * @param string
 	 *            string
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number.
@@ -447,7 +447,7 @@ public class MaryUtils {
 
 	/**
 	 * Convert a locale into a string that is conform with XML's xml:lang attribute. Basically it is language-COUNTRY, e.g. en-US.
-	 * 
+	 *
 	 * @param locale
 	 *            a locale, must not be null
 	 * @return language of locale
@@ -467,7 +467,7 @@ public class MaryUtils {
 	 * Test for lax Locale equality. More precisely, returns true if (a) both are equal; (b) general only specifies language, and
 	 * specific has the same language; (c) general specifies language and country, and specific has the same language and country.
 	 * Else returns false.
-	 * 
+	 *
 	 * @param general
 	 *            general
 	 * @param specific
@@ -493,7 +493,7 @@ public class MaryUtils {
 
 	/**
 	 * Determine the amount of available memory. "Available" memory is calculated as <code>(max - total) + free</code>.
-	 * 
+	 *
 	 * @return the number of bytes of memory available according to the above algorithm.
 	 */
 	public static long availableMemory() {
@@ -504,7 +504,7 @@ public class MaryUtils {
 	/**
 	 * Create a temporary file that will be deleted after a specified number of seconds. The file will be deleted regardless of
 	 * whether it is still used or not, so be sure to specify a sufficiently large value.
-	 * 
+	 *
 	 * @param lifetimeInSeconds
 	 *            the number of seconds after which the file will be deleted -- e.g., 3600 means that the file will be deleted one
 	 *            hour after creation.
@@ -524,7 +524,7 @@ public class MaryUtils {
 
 	/**
 	 * Normalise the Unicode text by mapping "exotic" punctuation characters to "standard" ones.
-	 * 
+	 *
 	 * @param unicodeText
 	 *            a string that may include "exotic" punctuation characters
 	 * @return the string in which exotic characters have been replaced with their closest relative that can be handled by the
@@ -564,7 +564,7 @@ public class MaryUtils {
 	/**
 	 * Normalise the Unicode text by mapping "exotic" letter characters to "standard" ones. Standard is locale-dependent. For
 	 * GERMAN: ascii plus german umlauts and ß. For other locales: ascii.
-	 * 
+	 *
 	 * @param unicodeText
 	 *            a string that may include "exotic" letter characters
 	 * @param targetLocale
@@ -713,7 +713,7 @@ public class MaryUtils {
 	/**
 	 * Apply the toString() method recursively to this throwable and all its causes. The idea is to get cause information as in
 	 * printStackTrace() without the stack trace.
-	 * 
+	 *
 	 * @param t
 	 *            the throwable to print.
 	 * @return buf converted to string
@@ -822,18 +822,18 @@ public class MaryUtils {
 
 	/**
 	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
-	 * 
+	 *
 	 * @param nameSuffix
 	 *            the suffix to use for the logger name.
 	 * @return Logger.getLogger(LOGPREFIX + "." + nameSuffix)
 	 */
 	public static Logger getLogger(String nameSuffix) {
-		return Logger.getLogger(LOGPREFIX + "." + nameSuffix);
+		return LogManager.getLogger(LOGPREFIX + "." + nameSuffix);
 	}
 
 	/**
 	 * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
-	 * 
+	 *
 	 * @param clazz
 	 *            the class to use for the logger name.
 	 * @return getLogger(clazz.getSimpleName())
@@ -845,23 +845,23 @@ public class MaryUtils {
 	/**
 	 * Returns true if it appears that log4j have been previously configured. This code checks to see if there are any appenders
 	 * defined for log4j which is the definitive way to tell if log4j is already initialized
-	 * 
+	 *
 	 * @return true if appenders.hasMoreElements, false otherwise
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean isLog4jConfigured() {
 		System.setProperty("log4j.defaultInitOverride", "true");
-		Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
-		if (appenders.hasMoreElements()) {
-			return true;
-		}
-		return false;
+                Logger logger = LogManager.getLogger();
+                Map<String, Appender> appenderMap =
+                    ((org.apache.logging.log4j.core.Logger) logger).getAppenders();
+
+                return !appenderMap.isEmpty();
 	}
 
 	/**
 	 * From the given throwable or its cause, or cause's cause, etc., get the first one that has a non-empty message, and return
 	 * that message.
-	 * 
+	 *
 	 * @param t
 	 *            t
 	 * @return the first non-empty message string, or null.

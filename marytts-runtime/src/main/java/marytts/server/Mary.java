@@ -65,12 +65,14 @@ import marytts.util.Pair;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * The main program for the mary TtS system. It can run as a socket server or as a stand-alone program.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -87,7 +89,7 @@ public class Mary {
 
 	/**
 	 * Inform about system state.
-	 * 
+	 *
 	 * @return an integer representing the current system state.
 	 * @see #STATE_OFF
 	 * @see #STATE_STARTING
@@ -100,7 +102,7 @@ public class Mary {
 
 	/**
 	 * Add jars to classpath. Normally this is called from startup().
-	 * 
+	 *
 	 * @throws Exception
 	 *             Exception
 	 */
@@ -195,7 +197,7 @@ public class Mary {
 	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
 	 * are possible. The method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar. Use
 	 * <code>startup(false)</code> if you do not want to automatically extend the classpath in this way.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the system is not offline.
 	 * @throws Exception
@@ -209,7 +211,7 @@ public class Mary {
 	 * Start the MARY system and all modules. This method must be called once before any calls to
 	 * {@link #process(String input, String inputTypeName, String outputTypeName, String localeString, String audioTypeName, String voiceName, String style, String effects, String outputTypeParams, OutputStream output)}
 	 * are possible.
-	 * 
+	 *
 	 * @param addJarsToClasspath
 	 *            if true, the method will dynamically extend the classpath to all jar files in MARY_BASE/java/*.jar; if false,
 	 *            the classpath will remain unchanged.
@@ -300,67 +302,29 @@ public class Mary {
 
 	/**
 	 * Log4j initialisation, called from {@link #startup(boolean)}.
-	 * 
+	 *
 	 * @throws NoSuchPropertyException
 	 *             NoSuchPropertyException
 	 * @throws IOException
 	 *             IOException
 	 */
 	private static void configureLogging() throws MaryConfigurationException, IOException {
-		if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
-			// Configure logging:
-			/*
-			 * logger = MaryUtils.getLogger("main");
-			 * Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level"))); PatternLayout layout =
-			 * new PatternLayout("%d [%t] %-5p %-10c %m\n"); File logFile = null; if
-			 * (MaryProperties.needAutoBoolean("log.tofile")) { String filename = MaryProperties.getFilename("log.filename",
-			 * "mary.log"); logFile = new File(filename); File parentFile = logFile.getParentFile(); // prevent a
-			 * NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
-			 * if (parentFile == null) { parentFile = new File(logFile.getAbsolutePath()).getParentFile(); } if
-			 * (!(logFile.exists()&&logFile.canWrite() // exists and writable || parentFile.exists() && parentFile.canWrite())) {
-			 * // parent exists and writable // cannot write to file
-			 * System.err.print("\nCannot write to log file '"+filename+"' -- "); File fallbackLogFile = new
-			 * File(System.getProperty("user.home")+"/mary.log"); if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() //
-			 * exists and writable || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable //
-			 * fallback log file is OK System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead."); logFile
-			 * = fallbackLogFile; } else { // cannot write to fallback log either
-			 * System.err.println("will log to standard output instead."); logFile = null; } } if (logFile != null &&
-			 * logFile.exists()) logFile.delete(); } if (logFile != null) { BasicConfigurator.configure(new FileAppender(layout,
-			 * logFile.getAbsolutePath())); } else { BasicConfigurator.configure(new WriterAppender(layout, System.err)); }
-			 */
-			Properties logprops = new Properties();
-			InputStream propIS = new BufferedInputStream(MaryProperties.needStream("log.config"));
-			logprops.load(propIS);
-			propIS.close();
-			// Now replace MARY_BASE with the install location of MARY in every property:
-			for (Object key : logprops.keySet()) {
-				String val = (String) logprops.get(key);
-				if (val.contains("MARY_BASE")) {
-					String maryBase = MaryProperties.maryBase();
-					if (maryBase.contains("\\")) {
-						maryBase = maryBase.replaceAll("\\\\", "/");
-					}
-					val = val.replaceAll("MARY_BASE", maryBase);
-					logprops.put(key, val);
-				}
-			}
-			// And allow MaryProperties (and thus System properties) to overwrite the single entry
-			// log4j.logger.marytts:
-			String loggerMaryttsKey = "log4j.logger.marytts";
-			String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
-			if (loggerMaryttsValue != null) {
-				logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
-			}
-			PropertyConfigurator.configure(logprops);
-		}
-
 		logger = MaryUtils.getLogger("main");
-
+                String strLevel = System.getProperty("log4j.logger.marytts");
+                if (strLevel != null) {
+                    strLevel = strLevel.split(",")[0];
+                    if (strLevel.equals("DEBUG")) {
+                        Configurator.setRootLevel(Level.DEBUG);
+                    }
+                    if (strLevel.equals("INFO")) {
+                        Configurator.setRootLevel(Level.INFO);
+                    }
+                }
 	}
 
 	/**
 	 * Orderly shut down the MARY system.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the MARY system is not running.
 	 */
@@ -390,7 +354,7 @@ public class Mary {
 	/**
 	 * Process input into output using the MARY system. For inputType TEXT and output type AUDIO, this does text-to-speech
 	 * conversion; for other settings, intermediate processing results can be generated or provided as input.
-	 * 
+	 *
 	 * @param input
 	 *            input
 	 * @param inputTypeName
@@ -457,22 +421,22 @@ public class Mary {
 	 * The starting point of the standalone Mary program. If server mode is requested by property settings, starts the
 	 * <code>MaryServer</code>; otherwise, a <code>Request</code> is created reading from the file given as first argument and
 	 * writing to System.out.
-	 * 
+	 *
 	 * <p>
 	 * Usage:
 	 * <p>
 	 * As a socket server:
-	 * 
+	 *
 	 * <pre>
 	 * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
 	 * </pre>
 	 * <p>
 	 * As a stand-alone program:
-	 * 
+	 *
 	 * <pre>
 	 * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
 	 * </pre>
-	 * 
+	 *
 	 * @param args
 	 *            args
 	 * @throws Exception

@@ -41,7 +41,7 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.io.StreamLogger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 /**

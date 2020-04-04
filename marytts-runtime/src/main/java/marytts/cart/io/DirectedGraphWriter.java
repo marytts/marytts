@@ -45,7 +45,7 @@ import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * IO functions for directed graphs in Mary format

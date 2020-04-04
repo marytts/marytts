@@ -30,7 +30,7 @@ import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

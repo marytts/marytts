@@ -37,7 +37,7 @@ import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.string.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -24,8 +24,8 @@ import java.util.StringTokenizer;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.twmacinta.util.MD5;

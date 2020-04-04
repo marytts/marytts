@@ -33,7 +33,7 @@ import marytts.modules.InternalModule;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -72,7 +72,7 @@ public class Preprocess extends InternalModule {
 			String type = sayas.getAttribute("type");
 			ExpansionPattern ep = ExpansionPattern.getPattern(type);
 			if (ep != null) {
-				if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+				if (logger.getLevel().equals(Level.DEBUG)) {
 					logger.debug("Expanding say-as element of type " + type + ", containing text `"
 							+ MaryDomUtils.getPlainTextBelow(sayas) + "'");
 				}

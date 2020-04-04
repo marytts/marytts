@@ -38,7 +38,7 @@ import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SharedOutputBuffer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author marc

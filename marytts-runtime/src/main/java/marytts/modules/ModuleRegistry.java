@@ -36,7 +36,7 @@ import marytts.util.MaryUtils;
 import marytts.server.MaryProperties;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A hierarchical repository for Mary modules, allowing the flexible indexing by an ordered hierarchy of datatype, locale and

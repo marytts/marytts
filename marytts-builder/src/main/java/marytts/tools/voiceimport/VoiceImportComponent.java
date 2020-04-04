@@ -24,8 +24,8 @@ import java.util.SortedMap;
 import marytts.util.MaryUtils;
 import marytts.util.io.BasenameList;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A component in the process of importing a voice into MARY format.

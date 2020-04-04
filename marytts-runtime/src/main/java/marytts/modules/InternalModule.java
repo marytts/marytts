@@ -31,7 +31,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A stub implementation of the MaryModule interface as a basis for internal modules.

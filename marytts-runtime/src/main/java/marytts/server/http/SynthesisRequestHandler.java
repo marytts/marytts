@@ -46,7 +46,7 @@ import marytts.util.http.Address;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides functionality to process synthesis http requests
