@@ -52,8 +52,8 @@ import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides support for the Viterbi Algorithm.
@@ -349,7 +349,7 @@ public class Viterbi {
 				}
 			}
 		}
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		if (logger.getLevel().equals(Level.DEBUG)) {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			int prevIndex = -1; // index number of the previous unit

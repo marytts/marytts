@@ -29,11 +29,11 @@ import java.util.regex.PatternSyntaxException;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Read from a stream and log.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -48,7 +48,7 @@ public class StreamLogger extends Thread {
 	 * specified in <code>ignorePattern</code>. If <code>logCategory</code> is <code>null</code>, "unnamed" will be used. If
 	 * <code>ignorePattern</code> is <code>null</code>, no filtering will be performed. The thread will silently die when it
 	 * reaches end-of-file from the input stream.
-	 * 
+	 *
 	 * @param is
 	 *            is
 	 * @param logCategory

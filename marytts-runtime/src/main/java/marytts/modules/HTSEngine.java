@@ -99,7 +99,7 @@ import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -601,108 +601,5 @@ public class HTSEngine extends InternalModule {
 
 		return um;
 	} /* method processTargetList */
-
-	/**
-	 * Stand alone testing using a TARGETFEATURES file as input.
-	 *
-	 * @param args
-	 *            args
-	 * @throws IOException
-	 *             IOException
-	 * @throws InterruptedException
-	 *             InterruptedException
-	 * @throws Exception
-	 *             Exception
-	 */
-	public static void main(String[] args) throws IOException, InterruptedException, Exception {
-
-		int j;
-		/* configure log info */
-		org.apache.log4j.BasicConfigurator.configure();
-
-		/*
-		 * The input for creating a sound file is a TARGETFEATURES file in MARY format, there is an example indicated in the
-		 * configuration file as well. For synthesising other text generate first a TARGETFEATURES file with the MARY system save
-		 * it in a file and use it as feaFile.
-		 */
-		HTSEngine hmm_tts = new HTSEngine();
-
-		/*
-		 * htsData contains: Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. After initHMMData
-		 * it contains: ModelSet: Contains the .pdf's (means and variances) for dur, lf0, Mgc, str and mag these are all the HMMs
-		 * trained for a particular voice TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag these are all the
-		 * trees trained for a particular voice.
-		 */
-		HMMData htsData = new HMMData();
-
-		/* stand alone with cmu-slt-hsmm voice */
-		String MaryBase = "/project/mary/marcela/marytts/";
-		String voiceDir = MaryBase + "voice-cmu-slt-hsmm/src/main/resources/";
-		String voiceName = "cmu-slt-hsmm"; /* voice name */
-		String voiceConfig = "marytts/voice/CmuSltHsmm/voice.config"; /* voice configuration file name. */
-		String durFile = MaryBase + "tmp/tmp.lab"; /* to save realised durations in .lab format */
-		String parFile = MaryBase + "tmp/tmp"; /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
-		String outWavFile = MaryBase + "tmp/tmp.wav"; /* to save generated audio file */
-
-		// The settings for using GV and MixExc can be changed in this way:
-		htsData.initHMMData(voiceName, voiceDir, voiceConfig);
-
-		htsData.setUseGV(true);
-		htsData.setUseMixExc(true);
-
-		// Important: the stand alone works without the acoustic modeler, so it should be de-activated
-		htsData.setUseAcousticModels(false);
-
-		/**
-		 * The utterance model, um, is a Vector (or linked list) of Model objects. It will contain the list of models for current
-		 * label file.
-		 */
-		HTSUttModel um;
-		HTSParameterGeneration pdf2par = new HTSParameterGeneration();
-		HTSVocoder par2speech = new HTSVocoder();
-		AudioInputStream ais;
-
-		/** Example of context features file */
-		String feaFile = voiceDir + "marytts/voice/CmuSltHsmm/cmu_us_arctic_slt_b0487.pfeats";
-
-		try {
-			/*
-			 * Process Mary context features file and creates UttModel um, a linked list of all the models in the utterance. For
-			 * each model, it searches in each tree, dur, cmp, etc, the pdf index that corresponds to a triphone context feature
-			 * and with that index retrieves from the ModelSet the mean and variance for each state of the HMM.
-			 */
-			um = hmm_tts.processUttFromFile(feaFile, htsData);
-
-			/* save realised durations in a lab file */
-			FileWriter outputStream = new FileWriter(durFile);
-			outputStream.write(hmm_tts.getRealisedDurations());
-			outputStream.close();
-
-			/* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
-			/* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
-			boolean debug = true; /* so it save the generated parameters in parFile */
-			pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
-
-			/* Synthesize speech waveform, generate speech out of sequence of parameters */
-			ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
-
-			System.out.println("Saving to file: " + outWavFile);
-			System.out.println("Realised durations saved to file: " + durFile);
-			File fileOut = new File(outWavFile);
-
-			if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE, ais)) {
-				AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
-			}
-
-			System.out.println("Calling audioplayer:");
-			AudioPlayer player = new AudioPlayer(fileOut);
-			player.start();
-			player.join();
-			System.out.println("Audioplayer finished...");
-
-		} catch (Exception e) {
-			System.err.println("Exception: " + e.getMessage());
-		}
-	} /* main method */
 
 } /* class HTSEngine */

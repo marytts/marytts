@@ -44,10 +44,10 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.BasicConfigurator;
+import org.apache.logging.log4j.ConsoleAppender;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.PatternLayout;
 
 /**
  * The LexiconCreator is the base class for creating the files needed to run the phonemiser component for a new language. From a

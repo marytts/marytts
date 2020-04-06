@@ -23,7 +23,7 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 public class LoggingReader extends FilterReader {
 	protected Logger logger;

@@ -1,6 +1,6 @@
 package marytts.language.lb
 
-import groovy.util.logging.Log4j;
+import groovy.util.logging.Log4j2;
 import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
@@ -10,7 +10,7 @@ import marytts.util.dom.DomUtils
 /**
  * @author ingmar
  */
-@Log4j
+@Log4j2
 class LuxembourgishPhonemiser extends JPhonemiser {
 
     def french

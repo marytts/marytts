@@ -85,7 +85,7 @@ import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.MaryUtils;
 import marytts.util.io.LEDataInputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Parameter generation out of trained HMMs.

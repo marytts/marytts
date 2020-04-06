@@ -29,7 +29,7 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Phonetic Alphabet converter. Converts individual phonetic symbols between different phonetic alphabets.

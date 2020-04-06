@@ -33,15 +33,16 @@ import marytts.server.Mary;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.w3c.dom.Document;
 
 /**
  * @author Marc Schr&ouml;der
- * 
- * 
+ *
+ *
  */
 public class MaryModuleTestCase {
 
@@ -49,12 +50,11 @@ public class MaryModuleTestCase {
 
 	public MaryModuleTestCase(boolean needMaryStarted) throws Exception {
 		if (!MaryUtils.isLog4jConfigured()) {
-			BasicConfigurator.configure();
 		}
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+                Configurator.setRootLevel(Level.DEBUG);
 		if (System.getProperty("mary.base") == null) {
 			System.setProperty("mary.base", ".");
-			Logger.getRootLogger().warn(
+                        LogManager.getRootLogger().warn(
 					"System property 'mary.base' is not defined -- trying " + new File(".").getAbsolutePath()
 							+ " -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
 		}

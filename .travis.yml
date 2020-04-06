@@ -1,8 +1,9 @@
-sudo: false
-
 branches:
   only:
     - master
+os:
+  - linux
+  # - osx
 
 language: java
 jdk:

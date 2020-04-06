@@ -50,8 +50,8 @@ import marytts.util.io.FileUtils;
 import marytts.util.io.ReaderSplitter;
 import marytts.util.string.StringUtils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -284,7 +284,7 @@ public class MaryData {
 		if (type.isXMLType()) {
 			if (writer == null)
 				writer = new MaryNormalisedWriter();
-			if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+			if (logger.getLevel().equals(Level.DEBUG)) {
 				ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
 				writer.output(xmlDocument, debugOut);
 				logger.debug(debugOut.toString());
@@ -306,7 +306,7 @@ public class MaryData {
 	 * IOException("Cannot write out utterance-based data type!");
 	 * 
 	 * if (type.isXMLType()) { if (writer == null) writer = new MaryNormalisedWriter(); if
-	 * (logger.getEffectiveLevel().equals(Level.DEBUG)) { ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
+	 * (logger.getLevel().equals(Level.DEBUG)) { ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
 	 * writer.output(xmlDocument, debugOut); logger.debug(debugOut.toString()); }
 	 * 
 	 * //writer.output(xmlDocument, new BufferedOutputStream(os));

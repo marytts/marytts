@@ -1,6 +1,6 @@
 package marytts.language.lb
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Log4j2
 import groovy.xml.XmlUtil
 
 import marytts.datatypes.MaryData
@@ -8,7 +8,7 @@ import marytts.datatypes.MaryDataType
 import marytts.modules.MinimalisticPosTagger
 import marytts.util.dom.DomUtils
 
-@Log4j
+@Log4j2
 class EvenMoreMinimalisticPosTagger extends MinimalisticPosTagger {
 
     public EvenMoreMinimalisticPosTagger(String locale) {

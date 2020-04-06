@@ -79,7 +79,7 @@ import marytts.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.features.FeatureDefinition;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Set of Global Mean and (diagonal) Variance for log f0, mel-cepstrum, bandpass voicing strengths and Fourier magnitudes (

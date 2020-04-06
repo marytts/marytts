@@ -31,7 +31,6 @@ import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -45,7 +44,7 @@ public class MaryDataTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		BasicConfigurator.configure();
+            // FIXME: configuration
 	}
 
 	@Test

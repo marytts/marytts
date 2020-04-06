@@ -54,7 +54,7 @@ import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 
 /**
  * A collection of public static utility methods, doing file operations.

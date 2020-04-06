@@ -58,7 +58,7 @@ import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Listen for clients on socket port <code>MaryProperties.socketPort()</code>. For each new client, create a new RequestHandler

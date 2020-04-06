@@ -25,10 +25,11 @@ Then access it at http://localhost:59125 using your web browser.
 If you want to start a MaryTTS on a different address and port, you can use the following options:
 
 ```sh
-./gradlew run -Dsocket.port=5920 -Dsocket.addr=0.0.0.0
+./gradlew run -Dsocket.port=5920 -Dsocket.addr=0.0.0.0 --info
 ```
-where 520 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
+where 5920 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
 
+By using the option `--info`, you set the logger of `gradle` *AND* MaryTTS at the level INFO. By using `--debug`, you set the level to DEBUG.
 
 ## Downloading and installing voices
 
@@ -114,6 +115,15 @@ Examples are proposed :
 - python 3: https://github.com/marytts/marytts-txt2wav/tree/python
 - shell: https://github.com/marytts/marytts-txt2wav/tree/sh
 
+## Extra documentation
+
+### Server as service (Linux specific)
+
+An example of how to define marytts server as service is proposed [here](./src/main/dist/misc/marytts.server).
+
+### User dictionnaries
+
+You can extend the dictionnaries by adding a user dictionnary. The documentation of how to do it is [here](./src/main/dist/user-dictionaries/README.md).
 
 ## Contributing
 

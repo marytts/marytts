@@ -42,7 +42,7 @@ import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.AudioReader;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A link to the synthesis part of festival.

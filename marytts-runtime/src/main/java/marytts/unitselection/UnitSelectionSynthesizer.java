@@ -54,8 +54,8 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.dom.NameNodeFilter;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
@@ -175,7 +175,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 		UnitDatabase database = v.getDatabase();
 		logger.debug("Selecting units with a " + unitSel.getClass().getName() + " from a " + database.getClass().getName());
 		List<SelectedUnit> selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice);
-		// if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		// if (logger.getLevel().equals(Level.DEBUG)) {
 		// StringWriter sw = new StringWriter();
 		// PrintWriter pw = new PrintWriter(sw);
 		// for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
@@ -266,7 +266,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
 						+ " ms has no maryxml element.");
 			}
 		}
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		if (logger.getLevel().equals(Level.DEBUG)) {
 			try {
 				MaryNormalisedWriter writer = new MaryNormalisedWriter();
 				ByteArrayOutputStream debugOut = new ByteArrayOutputStream();

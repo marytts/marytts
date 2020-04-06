@@ -39,8 +39,8 @@ import marytts.util.MaryUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 /**
@@ -146,7 +146,7 @@ public class VocalizationSelector {
 		System.arraycopy(vIntonationCosts, 0, suitableF0Candidates, 0, noOfSuitableF0Units);
 
 		Target targetUnit = createTarget(domElement);
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		if (logger.getLevel().equals(Level.DEBUG)) {
 			debugLogCandidates(targetUnit, suitableCandidates, suitableF0Candidates);
 		}
 

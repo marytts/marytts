@@ -32,7 +32,7 @@ import marytts.util.MaryUtils;
 import marytts.util.data.Datagram;
 import marytts.util.dom.DomUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 /**

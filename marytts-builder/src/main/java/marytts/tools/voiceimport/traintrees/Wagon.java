@@ -42,7 +42,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A class providing the functionality to interface with an external wagon process.

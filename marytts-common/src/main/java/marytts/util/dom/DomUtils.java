@@ -41,7 +41,7 @@ import javax.xml.transform.TransformerException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;

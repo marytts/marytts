@@ -40,8 +40,8 @@ import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,7 +142,7 @@ public class MultiWordEP extends ExpansionPattern {
 			expanded.addAll(dictionaryExpandMultiWord(match, multiword));
 			logger.debug("Have found multiword in dictionary: `" + multiword + "'");
 		}
-		if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+		if (logger.getLevel().equals(Level.DEBUG)) {
 			StringBuilder logBuf = new StringBuilder();
 			for (Iterator<Element> it = expanded.iterator(); it.hasNext();) {
 				Element elt = (Element) it.next();

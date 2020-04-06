@@ -34,9 +34,9 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.Syllabifier;
 import marytts.tools.newlanguage.LexiconCreator;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.BasicConfigurator;
+import org.apache.logging.log4j.ConsoleAppender;
+import org.apache.logging.log4j.PatternLayout;
 
 /**
  * This class does a one-time, offline conversion from the CMUDict in Festival format (cmudict-0.4.scm and cmudict_extensions.scm)

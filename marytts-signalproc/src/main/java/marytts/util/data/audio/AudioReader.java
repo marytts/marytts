@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * An convenience class copying audio data from an input stream (e.g., a MARY module) to an AudioDestination object. Used by

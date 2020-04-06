@@ -21,7 +21,7 @@ package marytts.modules.synthesis;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A helper class for the synthesis module, splitting synthesis input data into sections to be spoken by the same voice.

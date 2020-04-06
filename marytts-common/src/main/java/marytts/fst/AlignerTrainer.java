@@ -30,7 +30,7 @@ import java.util.Set;
 
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This trains an alignment model between Strings. Applications are for example letter-to-sound rule training (see LTSTrainer) or

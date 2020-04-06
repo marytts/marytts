@@ -5,7 +5,7 @@ apply from: "$rootDir/publishLogic.gradle"
 dependencies {
     compile libs.commonsIo
     compile libs.commonsLang
-    compile libs.log4j
+    compile libs.log4j_core
     testCompile libs.testng
 }
 

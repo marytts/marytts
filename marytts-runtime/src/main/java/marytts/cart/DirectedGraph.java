@@ -28,7 +28,7 @@ import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A directed graph is a layered structure of nodes, in which there are mother-daughter relationships between the node. There is a

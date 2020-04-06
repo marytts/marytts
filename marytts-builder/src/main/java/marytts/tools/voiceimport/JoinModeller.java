@@ -418,7 +418,7 @@ public class JoinModeller extends VoiceImportComponent {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		try {
 			/* configure log info */
-			org.apache.log4j.BasicConfigurator.configure();
+			org.apache.logging.log4j.BasicConfigurator.configure();
 
 			/* These trees are for halphone features */
 			String joinPdfFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files_old/joinModeller.pdf";

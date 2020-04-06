@@ -89,13 +89,13 @@ import marytts.util.math.MathUtils;
 
 import marytts.htsengine.HMMData;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Synthesis of speech out of speech parameters. Mixed excitation MLSA vocoder.
- * 
+ *
  * Java port and extension of HTS engine API version 1.04 Extension: mixed excitation
- * 
+ *
  * @author Marcela Charfuelan
  */
 public class HTSVocoder {
@@ -145,7 +145,7 @@ public class HTSVocoder {
 	/**
 	 * The initialisation of VocoderSetup should be done when there is already information about the number of feature vectors to
 	 * be processed, size of the mcep vector file, etc.
-	 * 
+	 *
 	 * @param mcep_order
 	 *            mcep_order
 	 * @param mcep_vsize
@@ -194,7 +194,7 @@ public class HTSVocoder {
 	 * HTS_MLSA_Vocoder: Synthesis of speech out of mel-cepstral coefficients. This procedure uses the parameters generated in
 	 * pdf2par stored in: PStream mceppst: Mel-cepstral coefficients PStream strpst : Filter bank stregths for mixed excitation
 	 * PStream magpst : Fourier magnitudes PStream lf0pst : Log F0
-	 * 
+	 *
 	 * @param pdf2par
 	 *            pdf2par
 	 * @param htsData
@@ -212,24 +212,24 @@ public class HTSVocoder {
 
 		/*
 		 * double [] audio_double = null;
-		 * 
+		 *
 		 * audio_double = htsMLSAVocoder(pdf2par.getlf0Pst(), pdf2par.getMcepPst(), pdf2par.getStrPst(), pdf2par.getMagPst(),
 		 * pdf2par.getVoicedArray(), htsData);
-		 * 
+		 *
 		 * long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8); logger.debug("length in samples=" +
 		 * lengthInSamples );
-		 * 
+		 *
 		 * // Normalise the signal before return, this will normalise between 1 and -1 double MaxSample =
 		 * MathUtils.getAbsMax(audio_double); for (int i=0; i<audio_double.length; i++) audio_double[i] = ( audio_double[i] /
 		 * MaxSample ); //audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
-		 * 
+		 *
 		 * return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
 		 */
 	} // method htsMLSAVocoder()
 
 	/**
 	 * get the audio format produced by the hts vocoder
-	 * 
+	 *
 	 * @param htsData
 	 *            htsData
 	 * @return audioformat
@@ -544,7 +544,7 @@ public class HTSVocoder {
 
 	/**
 	 * Compute the audio size, in samples, that this vocoder is going to produce for the given data.
-	 * 
+	 *
 	 * @param mcepPst
 	 *            mcepPst
 	 * @param htsData
@@ -564,7 +564,7 @@ public class HTSVocoder {
 
 	/**
 	 * mlsafir: sub functions for MLSA filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -601,7 +601,7 @@ public class HTSVocoder {
 
 	/**
 	 * mlsdaf1: sub functions for MLSA filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -638,7 +638,7 @@ public class HTSVocoder {
 
 	/**
 	 * mlsdaf2: sub functions for MLSA filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -680,7 +680,7 @@ public class HTSVocoder {
 
 	/**
 	 * mlsadf: HTS Mel Log Spectrum Approximation filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -706,7 +706,7 @@ public class HTSVocoder {
 
 	/**
 	 * uniform_rand: generate uniformly distributed random numbers 1 or -1
-	 * 
+	 *
 	 * @return rand.nextboolean
 	 */
 	public double uniformRand() {
@@ -715,7 +715,7 @@ public class HTSVocoder {
 
 	/**
 	 * mc2b: transform mel-cepstrum to MLSA digital filter coefficients
-	 * 
+	 *
 	 * @param mc
 	 *            mc
 	 * @param b
@@ -734,7 +734,7 @@ public class HTSVocoder {
 
 	/**
 	 * b2mc: transform MLSA digital filter coefficients to mel-cepstrum
-	 * 
+	 *
 	 * @param b
 	 *            b
 	 * @param mc
@@ -755,7 +755,7 @@ public class HTSVocoder {
 
 	/**
 	 * freqt: frequency transformation
-	 * 
+	 *
 	 * @param c1
 	 *            c1
 	 * @param m1
@@ -791,7 +791,7 @@ public class HTSVocoder {
 
 	/**
 	 * c2ir: The minimum phase impulse response is evaluated from the minimum phase cepstrum
-	 * 
+	 *
 	 * @param c
 	 *            c
 	 * @param nc
@@ -814,7 +814,7 @@ public class HTSVocoder {
 
 	/**
 	 * b2en: functions for postfiltering
-	 * 
+	 *
 	 * @param b
 	 *            b
 	 * @param m
@@ -845,7 +845,7 @@ public class HTSVocoder {
 
 	/**
 	 * ignorm: inverse gain normalization
-	 * 
+	 *
 	 * @param c1
 	 *            c1
 	 * @param c2
@@ -870,7 +870,7 @@ public class HTSVocoder {
 
 	/**
 	 * ignorm: gain normalization
-	 * 
+	 *
 	 * @param c1
 	 *            c1
 	 * @param c2
@@ -896,7 +896,7 @@ public class HTSVocoder {
 
 	/**
 	 * lsp2lpc: transform LSP to LPC. lsp[1..m] &rarr; a=lpc[0..m] a[0]=1.0
-	 * 
+	 *
 	 * @param lsp
 	 *            lsp
 	 * @param a
@@ -997,7 +997,7 @@ public class HTSVocoder {
 
 	/**
 	 * gc2gc: generalized cepstral transformation
-	 * 
+	 *
 	 * @param c1
 	 *            c1
 	 * @param m1
@@ -1035,7 +1035,7 @@ public class HTSVocoder {
 
 	/**
 	 * mgc2mgc: frequency and generalized cepstral transformation
-	 * 
+	 *
 	 * @param c1
 	 *            c1
 	 * @param m1
@@ -1072,7 +1072,7 @@ public class HTSVocoder {
 
 	/**
 	 * lsp2mgc: transform LSP to MGC. lsp=C[0..m] mgc=C[0..m]
-	 * 
+	 *
 	 * @param lsp
 	 *            lsp
 	 * @param mgc
@@ -1099,7 +1099,7 @@ public class HTSVocoder {
 
 	/**
 	 * mglsadff: sub functions for MGLSA filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -1123,7 +1123,7 @@ public class HTSVocoder {
 
 	/**
 	 * mglsadf: sub functions for MGLSA filter
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param b
@@ -1156,7 +1156,7 @@ public class HTSVocoder {
 
 	/**
 	 * posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData
-	 * 
+	 *
 	 * @param mgc
 	 *            mgc
 	 * @param m
@@ -1188,7 +1188,7 @@ public class HTSVocoder {
 
 	/**
 	 * Generate one pitch period from Fourier magnitudes
-	 * 
+	 *
 	 * @param mag
 	 *            mag
 	 * @param f0
@@ -1257,7 +1257,7 @@ public class HTSVocoder {
 
 	/**
 	 * Stand alone testing reading parameters from files in SPTK format
-	 * 
+	 *
 	 * @param args
 	 *            args
 	 * @throws IOException
@@ -1269,7 +1269,7 @@ public class HTSVocoder {
 	 */
 	public static void main1(String[] args) throws IOException, InterruptedException, Exception {
 		/* configure log info */
-		// org.apache.log4j.BasicConfigurator.configure();
+		// org.apache.logging.log4j.BasicConfigurator.configure();
 
 		HMMData htsData = new HMMData();
 		HTSPStream lf0Pst, mcepPst, strPst, magPst;
@@ -1421,9 +1421,9 @@ public class HTSVocoder {
 	 * <p>
 	 * The type of spectrum parameters is set through the parameters gamma and alpha
 	 * </p>
-	 * 
+	 *
 	 * @param args
-	 * 
+	 *
 	 *            <p>
 	 *            example iput parameters:
 	 *            <p>
@@ -1730,70 +1730,6 @@ public class HTSVocoder {
 			player.join();
 			System.out.println("audioplayer finished...");
 		}
-
-	}
-
-	public static void main(String[] args) throws IOException, InterruptedException, Exception {
-		/* configure log info */
-		org.apache.log4j.BasicConfigurator.configure();
-
-		// copy synthesis: requires a hmm voice
-		// main1(args);
-
-		// copy synthesis: requires parameters, see description
-		// example of parameters:
-		/*
-		 * 0 0.45 0 16000 80 /project/mary/marcela/HMM-voices/roger/hts/data/mgc/roger_5739.mgc 75
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/lf0/roger_5739.lf0 3
-		 * /project/mary/marcela/HMM-voices/roger/vocoder_out.wav
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/str/roger_5739.str 15
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/filters/mix_excitation_filters.txt 5 48
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/mag/roger_5739.mag 30
-		 * 
-		 * example input parameters without mixed excitation: 0 0.45 0 16000 80
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/mgc/roger_5739.mgc 75
-		 * /project/mary/marcela/HMM-voices/roger/hts/data/lf0/roger_5739.lf0 3
-		 * /project/mary/marcela/HMM-voices/roger/vocoder_out1.wav
-		 */
-
-		/*
-		 * String topic = "pru013"; String path = "/project/mary/marcela/HMM-voices/prudence/hts/data/"; // with mixed excitation
-		 * String args1[] = {"0", "0.45", "0", "16000", "80", path + "mgc/" + topic + ".mgc", "75", path + "lf0/" + topic +
-		 * ".lf0", "3", path + "vocoder/" + topic + ".wav", path + "str/" + topic + ".str", "15", path +
-		 * "filters/mix_excitation_filters.txt", "5", "48", path + "mag/" + topic + ".mag", "30", "true"};
-		 * 
-		 * // without mixed excitation String args2[] = {"0", "0.45", "0", "16000", "80", path + "mgc/" + topic + ".mgc", "75",
-		 * path + "lf0/" + topic + ".lf0", "3", path + "/" + topic + ".wav", "true"};
-		 * 
-		 * HTSVocoder vocoder = new HTSVocoder(); vocoder.htsMLSAVocoderCommand(args2);
-		 */
-
-		/*
-		 * String path = "/project/mary/marcela/HMM-voices/BITS/bits1/hts/data/"; String args3[] = {"0", "0.42", "0.05", "0.3",
-		 * "16000", "80", path + "mgc/US10010046_0.mgc", "75", path + "lf0-100-270/US10010046_0.lf0", "3", path +
-		 * "vocoder_out-100-270.wav", path + "str-100-270/US10010046_0.str", "15", path + "filters/mix_excitation_filters.txt",
-		 * "5", "true"}; HTSVocoder vocoder = new HTSVocoder(); vocoder.htsMLSAVocoderCommand(args3);
-		 */
-		/*
-		 * String path = "/project/mary/marcela/quality_parameters/necadbs/hts/data/"; String args3[] = {"0", "0.42", "0.05",
-		 * "0.15", "16000", "80", path + "mgc/modal0001.mgc", "75", path + "lf0/modal0001.lf0", "3", path +
-		 * "vocoder_out-modal-soft.wav", path + "str/soft0001.str", "15", path + "filters/mix_excitation_filters.txt", "5",
-		 * "true"}; HTSVocoder vocoder = new HTSVocoder(); vocoder.htsMLSAVocoderCommand(args3);
-		 */
-
-		/*
-		 * String path = "/project/mary/marcela/HMM-voices/arctic_slt/hts/data/"; String fileName = "modal0002"; //String fileName
-		 * = "de_0001"; String args4[] = {"0", "0.42", "0.05", "0.25", "16000", "80", path + "mgc/" + fileName + ".mgc", "75",
-		 * path + "lf0/" + fileName + ".lf0", "3", path + "vocoder/" + fileName + "_vocoder_soft.wav", path + "str/" + fileName +
-		 * ".str", "15", path + "filters/mix_excitation_filters.txt", "5", path + "mag/" + fileName + ".mag", "30", "true",
-		 * "soft"}; HTSVocoder vocoder = new HTSVocoder(); vocoder.htsMLSAVocoderCommand(args4);
-		 */
-
-		/* Use this for running HTSVocoder for a list, see vocoderList for the parameters */
-
-		/*
-		 * HTSVocoder vocoder = new HTSVocoder(); vocoder.vocoderList(args);
-		 */
 
 	}
 

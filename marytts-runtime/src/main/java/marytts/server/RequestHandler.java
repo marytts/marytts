@@ -41,15 +41,22 @@ import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;
 
 import org.apache.http.HttpResponse;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
-import org.apache.log4j.WriterAppender;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.xml.sax.SAXParseException;
 
 /**
  * A lightweight process handling one Request in a thread of its own. This is to be used when running as a socket server.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -65,7 +72,7 @@ public class RequestHandler extends Thread {
 	 * Constructor to be used for Socket processing (running as a standalone socket server). <code>inputReader</code> is a Reader
 	 * reading from from <code>dataSocket.inputStream()</code>. Passing this on is necessary because the mary server does a
 	 * buffered read on that input stream, and without passing that buffered reader on, data gets lost.
-	 * 
+	 *
 	 * @param request
 	 *            request
 	 * @param infoSocket
@@ -90,10 +97,17 @@ public class RequestHandler extends Thread {
 		this.inputReader = new LoggingReader(inputReader, logger);
 		clientLogger = MaryUtils.getLogger(this.getName() + " client");
 		try {
-			clientLogger.addAppender(new WriterAppender(new SimpleLayout(), new PrintWriter(infoSocket.getOutputStream(), true)));
-			clientLogger.setLevel(Level.WARN);
-			// What goes to clientLogger does not go to the normal logfile:
-			clientLogger.setAdditivity(false);
+
+                    // Add appender
+                    final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+                    final Configuration config = ctx.getConfiguration();
+                    final PatternLayout layout = PatternLayout.createDefaultLayout(config);
+                    final Appender appender = WriterAppender.createAppender(layout, null,
+                                                                            new PrintWriter(infoSocket.getOutputStream()),
+                                                                            clientLogger.getName(), false, true);
+                    appender.start();
+                    config.addAppender(appender);
+                    config.getLoggerConfig(clientLogger.getName()).addAppender(appender, Level.DEBUG, null);
 		} catch (IOException e) {
 			logger.warn("Cannot write warnings to client", e);
 		}
@@ -123,7 +137,7 @@ public class RequestHandler extends Thread {
 	 * Note that while different request handlers run as different threads, they all use the same module objects. How a given
 	 * module deals with several requests simultaneously is its own problem, the simplest solution being a synchronized
 	 * <code>process()</code> method.
-	 * 
+	 *
 	 * @see Request
 	 * @see marytts.modules.MaryModule
 	 * @see marytts.modules.ExternalModule
@@ -169,8 +183,14 @@ public class RequestHandler extends Thread {
 		// the data on dataSocket. Otherwise there may be deadlock.
 		try {
 			if (clientLogger != null) {
-				clientLogger.removeAllAppenders();
-				clientLogger = null;
+                            // Remove appender
+                            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+                            final Configuration config = ctx.getConfiguration();
+                            config.getLoggerConfig(clientLogger.getName()).removeAppender(clientLogger.getName());
+                            ctx.updateLoggers();
+
+                            // Free reference to the logger
+                            clientLogger = null;
 			}
 			infoSocket.close();
 		} catch (IOException e) {

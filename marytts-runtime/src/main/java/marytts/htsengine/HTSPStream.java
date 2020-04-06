@@ -66,7 +66,7 @@ package marytts.htsengine;
 import marytts.util.MaryUtils;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Data type and procedures used in parameter generation. Contains means and variances of a particular model, mcep pdfs for a

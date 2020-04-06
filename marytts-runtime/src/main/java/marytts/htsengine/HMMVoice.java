@@ -73,7 +73,7 @@ import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 public class HMMVoice extends Voice {
 

@@ -50,7 +50,7 @@ import marytts.util.data.DatagramDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Concatenates Units and returns an audio stream
