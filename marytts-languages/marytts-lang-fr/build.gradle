@@ -17,7 +17,6 @@ dependencies {
     implementation project(':marytts-runtime')
     runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-fr', version: '0.1.0'
     testImplementation libs.xmlunit
-    testImplementation project(path: ':marytts-runtime', configuration: 'testCompile')
     integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 

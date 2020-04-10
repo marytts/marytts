@@ -7,21 +7,21 @@ apply from: "$rootDir/testLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
 dependencies {
-    compile project(':marytts-common')
-    compile project(':marytts-signalproc')
-    compile libs.commonsCollection
-    compile libs.emotionmlCheckerJava
-    compile libs.fastMd5
-    compile libs.guava
-    compile libs.hsqldb
-    compile libs.httpCore
-    compile libs.httpNio
-    compile libs.icu4j
-    compile libs.jtokCore
-    compile libs.opennlpTools
-    compile libs.trove4j
-    testCompile project(path: ':marytts-signalproc', configuration: 'testCompile')
-    testCompile libs.festAssert
-    integrationTestCompile libs.groovy
-    integrationTestRuntime project(':voice-cmu-slt-hsmm')
+    api project(':marytts-common')
+    api project(':marytts-signalproc')
+    api libs.commonsCollection
+    implementation libs.emotionmlCheckerJava
+    implementation libs.fastMd5
+    api libs.guava
+    implementation libs.hsqldb
+    implementation libs.httpCore
+    implementation libs.httpNio
+    api libs.icu4j
+    implementation libs.jtokCore
+    implementation libs.opennlpTools
+    implementation libs.trove4j
+    testImplementation libs.junit
+    testImplementation libs.festAssert
+    integrationTestImplementation libs.groovy
+    integrationTestRuntimeOnly project(':voice-cmu-slt-hsmm')
 }
