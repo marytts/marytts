@@ -6,11 +6,13 @@ MaryTTS
 
 ### Improvements
 
-* Build with Gradle v5.4.1
+* Build with Gradle v6.3
 
 ### Fixed Issues/Bugs
 
 * Add compability with Java 11 and 12
+* Lock down Java compatibility to 1.8
+* Reduce non-API dependency leakage (particularly `groovy-all`)
 
 See [all changes since v5.2]
 

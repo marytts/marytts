@@ -1,19 +1,13 @@
 sourceSets {
     integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-        }
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
 }
 
 configurations {
-    integrationTestCompile {
-        extendsFrom testCompile
-    }
-    integrationTestRuntime {
-        extendsFrom testRuntime
-    }
+    integrationTestImplementation.extendsFrom implementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 tasks.withType(JavaCompile) {
@@ -23,11 +17,12 @@ tasks.withType(JavaCompile) {
 task integrationTest(type: Test) {
     group 'Verification'
     description 'Runs the integration tests.'
-    check.dependsOn it
-    mustRunAfter test
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
 }
+
+check.dependsOn integrationTest
 
 tasks.withType(Test) {
     useJUnit()

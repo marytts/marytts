@@ -1,9 +1,9 @@
 apply plugin: 'application'
 
 dependencies {
-    runtime project(':marytts-runtime')
-    runtime project(':marytts-languages').subprojects
-    runtime project(':voice-cmu-slt-hsmm')
+    runtimeOnly project(':marytts-runtime')
+    runtimeOnly project(':marytts-languages').subprojects
+    runtimeOnly project(':voice-cmu-slt-hsmm')
 }
 
 mainClassName = 'marytts.server.Mary'
@@ -57,8 +57,8 @@ distributions {
 }
 
 distTar {
-    compression Compression.BZIP2
-    extension 'tar.bz2'
+    compression = Compression.BZIP2
+    archiveExtension = 'tar.bz2'
 }
 
 startScripts {

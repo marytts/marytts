@@ -1,7 +1,9 @@
 plugins {
-    id 'de.dfki.mary.component' version '0.1'
+    id 'de.dfki.mary.component'
 }
 apply from: "$rootDir/publishLogic.gradle"
+
+sourceCompatibility = 1.8
 
 marytts {
     component {
@@ -13,10 +15,21 @@ marytts {
 }
 
 repositories {
-    ivy {
-        url 'http://opennlp.sourceforge.net'
-        layout 'pattern', {
-            artifact 'models-[revision]/[module].[ext]'
+    exclusiveContent {
+        forRepository {
+            ivy {
+                url 'http://opennlp.sourceforge.net'
+                allowInsecureProtocol = true
+                patternLayout {
+                    artifact 'models-[revision]/[module].[ext]'
+                }
+                metadataSources {
+                    artifact()
+                }
+            }
+        }
+        filter {
+            includeModule 'org.apache.opennlp', 'de-pos-maxent'
         }
     }
 }
@@ -26,11 +39,10 @@ configurations {
 }
 
 dependencies {
-    compile project(':marytts-runtime')
+    implementation project(':marytts-runtime')
     opennlp group: 'org.apache.opennlp', name: 'de-pos-maxent', version: '1.5', ext: 'bin'
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.0'
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
-    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.0'
+    integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
 processResources {
