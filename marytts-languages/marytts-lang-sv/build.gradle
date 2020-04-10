@@ -1,5 +1,5 @@
 plugins {
-    id 'de.dfki.mary.component' version '0.1'
+    id 'de.dfki.mary.component' version '0.2'
 }
 apply from: "$rootDir/publishLogic.gradle"
 
