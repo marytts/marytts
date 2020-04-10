@@ -14,10 +14,20 @@ marytts {
 }
 
 repositories {
-    ivy {
-        url 'http://opennlp.sourceforge.net'
-        patternLayout {
-            artifact 'models-[revision]/[module].[ext]'
+    exclusiveContent {
+        forRepository {
+            ivy {
+                url 'http://opennlp.sourceforge.net'
+                patternLayout {
+                    artifact 'models-[revision]/[module].[ext]'
+                }
+                metadataSources {
+                    artifact()
+                }
+            }
+        }
+        filter {
+            includeModule 'org.apache.opennlp', 'en-pos-maxent'
         }
     }
 }
