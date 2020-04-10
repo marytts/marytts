@@ -37,12 +37,12 @@ configurations {
 }
 
 dependencies {
-    compile project(':marytts-runtime')
+    implementation project(':marytts-runtime')
     opennlp group: 'org.apache.opennlp', name: 'en-pos-maxent', version: '1.5', ext: 'bin'
-    runtime group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0'
-    testCompile libs.xmlunit
-    testCompile project(path: ':marytts-runtime', configuration: 'testCompile')
-    integrationTestCompile project(':marytts-runtime').sourceSets.test.output
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-en_US-cmudict', version: '0.1.0'
+    testImplementation libs.xmlunit
+    testImplementation project(path: ':marytts-runtime', configuration: 'testCompile')
+    integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
 processResources {
