@@ -18,6 +18,7 @@ repositories {
         forRepository {
             ivy {
                 url 'http://opennlp.sourceforge.net'
+                allowInsecureProtocol = true
                 patternLayout {
                     artifact 'models-[revision]/[module].[ext]'
                 }

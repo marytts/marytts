@@ -57,8 +57,8 @@ distributions {
 }
 
 distTar {
-    compression Compression.BZIP2
-    extension 'tar.bz2'
+    compression = Compression.BZIP2
+    archiveExtension = 'tar.bz2'
 }
 
 startScripts {
