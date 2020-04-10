@@ -4,6 +4,8 @@ plugins {
 apply from: "$rootDir/publishLogic.gradle"
 apply from: "$rootDir/dependencies.gradle"
 
+sourceCompatibility = 1.8
+
 marytts {
     component {
         name = 'Luxembourgish'
