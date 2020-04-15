@@ -22,12 +22,7 @@ package marytts.modules;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -116,7 +111,7 @@ public class OpenNLPPosTagger extends InternalModule {
 			}
 			List<String> partsOfSpeech = null;
 			synchronized (this) {
-				partsOfSpeech = tagger.tag(tokens);
+				partsOfSpeech = Arrays.asList(tagger.tag(tokens.toArray(new String[0])));
 			}
 			tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
 			Iterator<String> posIt = partsOfSpeech.iterator();
