@@ -1,3 +1,0 @@
-[submodule "buildSrc/gradle-marytts-component-plugin"]
-	path = buildSrc/gradle-marytts-component-plugin
-	url = https://github.com/marytts/gradle-marytts-component-plugin.git
