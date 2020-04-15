@@ -3,8 +3,6 @@ plugins {
 }
 apply from: "$rootDir/publishLogic.gradle"
 
-sourceCompatibility = 1.8
-
 marytts {
     component {
         name = 'Italian'
