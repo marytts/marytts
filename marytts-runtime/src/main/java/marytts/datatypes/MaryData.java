@@ -39,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import com.google.common.base.MoreObjects;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
@@ -508,7 +509,7 @@ public class MaryData {
 	}
 
 	public String toString() {
-		return Objects.toStringHelper(this).add("type", getType()).add("locale", getLocale())
+		return MoreObjects.toStringHelper(this).add("type", getType()).add("locale", getLocale())
 				.add("output parameters", getOutputParams()).add("data", getData())
 				.add("document", DomUtils.serializeToString(getDocument())).add("validating", getValidating())
 				.add("plain text", getPlainText()).add("audio", getAudio()).add("audio file format", getAudioFileFormat())
