@@ -12,3 +12,4 @@ allprojects {
 }
 
 apply from: 'applicationLogic.gradle'
+apply from: 'publishLogic.gradle'
