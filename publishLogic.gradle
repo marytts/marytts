@@ -9,6 +9,68 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            pom {
+                name = 'MaryTTS'
+                description = 'An open-source, multilingual Text-to-Speech Synthesis platform written in Java'
+                url = 'http://mary.dfki.de'
+                inceptionYear = '2000'
+                organization {
+                    name = 'DFKI GmbH'
+                    url = 'https://dfki.de/'
+                }
+                licenses {
+                    license {
+                        name = 'GNU Lesser General Public License v3.0'
+                        url = 'https://www.gnu.org/licenses/lgpl-3.0-standalone.html'
+                    }
+                }
+                developers {
+                    // in alphabetical order
+                    // TODO switch to chronological order
+                    // TODO move selected inactive developers to contributors
+                    developer {
+                        name = 'Aitor Martínez Egurcegui'
+                        url = 'https://github.com/aitorme'
+                    }
+                    developer {
+                        name = 'Tristan Hamilton'
+                        url = 'https://github.com/munzey'
+                    }
+                    developer {
+                        name = 'Sébastien Le Maguer'
+                        url = 'https://github.com/seblemaguer'
+                    }
+                    // TODO complete this list referring to POM
+                }
+                contributors {
+                    // in alphabetical order
+                    // TODO add GitHub contributors referring to merged PRs
+                    contributor {
+                        name = 'Stefanie Becker'
+                    }
+                    contributor {
+                        name = 'Harald Berthelsen'
+                        url = 'https://github.com/HaraldBerthelsen'
+                    }
+                    // TODO complete this list referring to POM
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/marytts/marytts.git'
+                    developerConnection = 'scm:git:git@github.com/marytts/marytts.git'
+                    url = 'https://github.com/marytts/marytts'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/marytts/marytts/issues'
+                }
+                ciManagement {
+                    system = 'Travis CI'
+                    url = 'https://travis-ci.com/github/marytts/marytts'
+                }
+                distributionManagement {
+                    downloadUrl = 'https://bintray.com/marytts/marytts/marytts'
+                }
+            }
         }
     }
     repositories {
