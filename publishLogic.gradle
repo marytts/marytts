@@ -15,14 +15,21 @@ publishing {
     }
     repositories {
         maven {
+            name 'Project'
             url "$rootProject.buildDir/repo"
         }
-//        maven {
-//            url version.endsWith('-SNAPSHOT') ? 'https://oss.jfrog.org/artifactory/oss-snapshot-local' : 'https://api.bintray.com/maven/marytts/marytts/marytts'
-//            credentials {
-//                username = findProperty('bintrayUser')
-//                password = findProperty('bintrayApiKey')
-//            }
-//        }
+        maven {
+            if (version.endsWith('-SNAPSHOT')) {
+                name 'OJO'
+                url 'https://oss.jfrog.org/artifactory/oss-snapshot-local'
+            } else {
+                name 'Bintray'
+                url 'https://api.bintray.com/maven/marytts/marytts/marytts'
+            }
+            credentials {
+                username = findProperty('bintrayUser')
+                password = findProperty('bintrayApiKey')
+            }
+        }
     }
 }
