@@ -46,9 +46,9 @@ import marytts.util.math.MathUtils;
 
 /**
  * A reader class for the harmonics plus noise timeline file.
- * 
+ *
  * @author Oytun T&uuml;rk
- * 
+ *
  */
 public class HnmTimelineReader extends TimelineReader {
 	public HntmAnalyzerParams analysisParams;
@@ -109,7 +109,7 @@ public class HnmTimelineReader extends TimelineReader {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param bb
 	 *            bb
 	 * @return d
@@ -203,16 +203,16 @@ public class HnmTimelineReader extends TimelineReader {
 	}
 
 	/**
-	 * Dump audio from HNM timeline to a series big-endian raw audio files in chunks of Datagrams (<tt>clusterSize</tt>). Run this
+	 * Dump audio from HNM timeline to a series big-endian raw audio files in chunks of Datagrams (<var>clusterSize</var>). Run this
 	 * with
-	 * 
+	 *
 	 * <pre>
 	 * -ea - Xmx2gb
 	 * </pre>
-	 * 
+	 *
 	 * @param args
 	 *            <ol>
-	 *            <li>path to <tt>timeline_hnm.mry</tt> file</li>
+	 *            <li>path to <var>timeline_hnm.mry</var> file</li>
 	 *            <li>path to dump output files</li>
 	 *            </ol>
 	 * @throws UnsupportedAudioFileException
