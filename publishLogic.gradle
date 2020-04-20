@@ -25,34 +25,104 @@ publishing {
                     }
                 }
                 developers {
-                    // in alphabetical order
-                    // TODO switch to chronological order
-                    // TODO move selected inactive developers to contributors
                     developer {
-                        name = 'Aitor Martínez Egurcegui'
-                        url = 'https://github.com/aitorme'
+	                name: 'Sébastien Le Maguer'
+	                url: 'https://github.com/seblemaguer'
                     }
                     developer {
-                        name = 'Tristan Hamilton'
-                        url = 'https://github.com/munzey'
+	                name: 'Ingmar Steiner'
+	                url: 'https://github.com/psibre'
                     }
                     developer {
-                        name = 'Sébastien Le Maguer'
-                        url = 'https://github.com/seblemaguer'
+	                name: 'Marc Schröder'
+	                url: 'https://github.com/marc1s'
                     }
-                    // TODO complete this list referring to POM
                 }
                 contributors {
-                    // in alphabetical order
-                    // TODO add GitHub contributors referring to merged PRs
                     contributor {
-                        name = 'Stefanie Becker'
+                        name: 'Timo Baumann'
+                        url:  'https://github.com/timobaumann'
                     }
                     contributor {
-                        name = 'Harald Berthelsen'
-                        url = 'https://github.com/HaraldBerthelsen'
+	                name: 'Stefanie Becker'
                     }
-                    // TODO complete this list referring to POM
+                    contributor {
+	                name: 'Harald Berthelsen'
+	                url: 'https://github.com/HaraldBerthelsen'
+                    }
+                    contributor {
+	                name: 'Marcela Charfuelan'
+	                url: 'https://github.com/marcelach1'
+                    }
+                    contributor {
+                        name: 'Aitor Martínez Egurcegui'
+	                url: 'https://github.com/aitorme'
+                    }
+                    contributor {
+	                name: 'Paulo Faria'
+                    }
+                    contributor {
+                        name: 'Peter Gilles'
+                        url: 'https://github.com/PeterGilles'
+                    }
+                    contributor {
+	                name: 'Tristan Hamilton'
+	                url: 'https://github.com/munzey'
+                    }
+                    contributor {
+	                name: 'Anna Hunecke'
+                    }
+                    contributor {
+	                name: 'Sacha Krstulović'
+                    }
+                    contributor {
+	                name: 'Giulio Paci'
+	                url: 'https://github.com/giuliopaci'
+                    }
+                    contributor {
+	                name: 'Sathish Chandra Pammi'
+	                url: 'https://github.com/sathishpc'
+                    }
+                    contributor {
+	                name: 'Jonathan Poitz'
+	                url: 'https://github.com/jonathanPoitz'
+                    }
+                    contributor {
+	                name: 'Benjamin Roth'
+                    }
+                    contributor {
+	                name: 'Ali Shah'
+	                url: 'https://github.com/alishah-ahmed'
+                    }
+                    contributor {
+	                name: 'Atta Ur Rehman Shah'
+	                url: 'https://github.com/attacomsian'
+                    }
+                    contributor {
+	                name: 'Nickolay Shmyrev'
+	                url: 'https://github.com/nshmyrev'
+                    }
+                    contributor {
+	                name: 'Jochen Steigner'
+                    }
+                    contributor {
+	                name: 'Maureen Tanuadji'
+	                url: 'https://github.com/mochanz'
+                    }
+                    contributor {
+	                name: 'Fabio Tesser'
+	                url: 'https://github.com/ftesser'
+                    }
+                    contributor {
+	                name: 'Oytun Türk'
+                    }
+                    contributor {
+	                name: 'Mat Wilson'
+                    }
+                    contributor {
+	                name: 'Sotaya Yakubu'
+	                url: 'https://github.com/Rootex'
+                    }
                 }
                 scm {
                     connection = 'scm:git:https://github.com/marytts/marytts.git'
