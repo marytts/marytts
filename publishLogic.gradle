@@ -26,102 +26,102 @@ publishing {
                 }
                 developers {
                     developer {
-	                name: 'Sébastien Le Maguer'
-	                url: 'https://github.com/seblemaguer'
+                        name = 'Sébastien Le Maguer'
+                        url = 'https://github.com/seblemaguer'
                     }
                     developer {
-	                name: 'Ingmar Steiner'
-	                url: 'https://github.com/psibre'
+                        name = 'Ingmar Steiner'
+                        url = 'https://github.com/psibre'
                     }
                     developer {
-	                name: 'Marc Schröder'
-	                url: 'https://github.com/marc1s'
+                        name = 'Marc Schröder'
+                        url = 'https://github.com/marc1s'
                     }
                 }
                 contributors {
                     contributor {
-                        name: 'Timo Baumann'
-                        url:  'https://github.com/timobaumann'
+                        name = 'Timo Baumann'
+                        url = 'https://github.com/timobaumann'
                     }
                     contributor {
-	                name: 'Stefanie Becker'
+                        name = 'Stefanie Becker'
                     }
                     contributor {
-	                name: 'Harald Berthelsen'
-	                url: 'https://github.com/HaraldBerthelsen'
+                        name = 'Harald Berthelsen'
+                        url = 'https://github.com/HaraldBerthelsen'
                     }
                     contributor {
-	                name: 'Marcela Charfuelan'
-	                url: 'https://github.com/marcelach1'
+                        name = 'Marcela Charfuelan'
+                        url = 'https://github.com/marcelach1'
                     }
                     contributor {
-                        name: 'Aitor Martínez Egurcegui'
-	                url: 'https://github.com/aitorme'
+                        name = 'Aitor Martínez Egurcegui'
+                        url = 'https://github.com/aitorme'
                     }
                     contributor {
-	                name: 'Paulo Faria'
+                        name = 'Paulo Faria'
                     }
                     contributor {
-                        name: 'Peter Gilles'
-                        url: 'https://github.com/PeterGilles'
+                        name = 'Peter Gilles'
+                        url = 'https://github.com/PeterGilles'
                     }
                     contributor {
-	                name: 'Tristan Hamilton'
-	                url: 'https://github.com/munzey'
+                        name = 'Tristan Hamilton'
+                        url = 'https://github.com/munzey'
                     }
                     contributor {
-	                name: 'Anna Hunecke'
+                        name = 'Anna Hunecke'
                     }
                     contributor {
-	                name: 'Sacha Krstulović'
+                        name = 'Sacha Krstulović'
                     }
                     contributor {
-	                name: 'Giulio Paci'
-	                url: 'https://github.com/giuliopaci'
+                        name = 'Giulio Paci'
+                        url = 'https://github.com/giuliopaci'
                     }
                     contributor {
-	                name: 'Sathish Chandra Pammi'
-	                url: 'https://github.com/sathishpc'
+                        name = 'Sathish Chandra Pammi'
+                        url = 'https://github.com/sathishpc'
                     }
                     contributor {
-	                name: 'Jonathan Poitz'
-	                url: 'https://github.com/jonathanPoitz'
+                        name = 'Jonathan Poitz'
+                        url = 'https://github.com/jonathanPoitz'
                     }
                     contributor {
-	                name: 'Benjamin Roth'
+                        name = 'Benjamin Roth'
                     }
                     contributor {
-	                name: 'Ali Shah'
-	                url: 'https://github.com/alishah-ahmed'
+                        name = 'Ali Shah'
+                        url = 'https://github.com/alishah-ahmed'
                     }
                     contributor {
-	                name: 'Atta Ur Rehman Shah'
-	                url: 'https://github.com/attacomsian'
+                        name = 'Atta Ur Rehman Shah'
+                        url = 'https://github.com/attacomsian'
                     }
                     contributor {
-	                name: 'Nickolay Shmyrev'
-	                url: 'https://github.com/nshmyrev'
+                        name = 'Nickolay Shmyrev'
+                        url = 'https://github.com/nshmyrev'
                     }
                     contributor {
-	                name: 'Jochen Steigner'
+                        name = 'Jochen Steigner'
                     }
                     contributor {
-	                name: 'Maureen Tanuadji'
-	                url: 'https://github.com/mochanz'
+                        name = 'Maureen Tanuadji'
+                        url = 'https://github.com/mochanz'
                     }
                     contributor {
-	                name: 'Fabio Tesser'
-	                url: 'https://github.com/ftesser'
+                        name = 'Fabio Tesser'
+                        url = 'https://github.com/ftesser'
                     }
                     contributor {
-	                name: 'Oytun Türk'
+                        name = 'Oytun Türk'
                     }
                     contributor {
-	                name: 'Mat Wilson'
+                        name = 'Mat Wilson'
                     }
                     contributor {
-	                name: 'Sotaya Yakubu'
-	                url: 'https://github.com/Rootex'
+                        name = 'Sotaya Yakubu'
+                        url = 'https://github.com/Rootex'
                     }
                 }
                 scm {
