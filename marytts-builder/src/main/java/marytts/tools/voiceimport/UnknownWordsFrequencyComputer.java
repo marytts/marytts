@@ -146,10 +146,10 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent {
 		// First, test if there is a corresponding .rawmaryxml file in textdir:
 		File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + basename + db.getProp(db.MARYXMLEXT));
 		if (rawmaryxmlFile.exists()) {
-			text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
+			text = FileUtils.readFileToString(rawmaryxmlFile, "UTF-8");
 		} else {
 			text = getMaryXMLHeaderWithInitialBoundary(locale)
-					+ FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8")
+					+ FileUtils.readFileToString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8")
 					+ "</maryxml>";
 		}
 		File pfeatFile = new File(unitfeatureDir, basename + featsExt);

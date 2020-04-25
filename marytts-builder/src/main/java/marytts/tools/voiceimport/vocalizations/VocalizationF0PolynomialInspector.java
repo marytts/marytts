@@ -181,7 +181,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 		System.out.println("Total Cost : " + costMeasure / (double) bnlVocalizations.getLength());
 
 		// String fileName = "/home/sathish/phd/voices/en-GB-listener/vocal-polynomials/SpiVocalizationF0PolyFeatureFile.txt";
-		int kValue = (new Integer(getProp(KCLUSTERS))).intValue();
+		int kValue = (Integer.valueOf(getProp(KCLUSTERS)));
 		KMeansClusterer kmc = new KMeansClusterer();
 		kmc.loadF0Polynomials(outPutFile);
 		kmc.trainer(kValue);
@@ -213,7 +213,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 		/*
 		 * String targetDescription = getProp(ONEWORD).trim(); String textFileName =
 		 * db.getProp(db.TEXTDIR)+File.separator+baseName+db.getProp(db.TEXTEXT); String audioDescriprion =
-		 * FileUtils.getFileAsString(new File(textFileName), "UTF-8");
+		 * FileUtils.readFileToString(new File(textFileName), "UTF-8");
 		 * 
 		 * if ( !"".equals(targetDescription) && !targetDescription.equals(audioDescriprion.trim())) { return; }
 		 */
@@ -253,8 +253,8 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 		PitchFileHeader params = new PitchFileHeader();
 		// params.minimumF0 = 50;
 		// params.maximumF0 = 250;
-		// params.minimumF0 = (new Double(getProp(F0MIN))).doubleValue();
-		// params.maximumF0 = (new Double(getProp(F0MAX))).doubleValue();
+		// params.minimumF0 = (Double.valueOf(getProp(F0MIN)));
+		// params.maximumF0 = (Double.valueOf(getProp(F0MAX)));
 		String character = getCharacterName(baseName);
 		params.minimumF0 = (minF0Values.get(character)).doubleValue();
 		params.maximumF0 = (maxF0Values.get(character)).doubleValue();
@@ -334,7 +334,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent {
 			double[] f0AndInterpolate = combineF0andInterpolate(f0Array, interpol);
 
 			// double[] coeffs = Polynomial.fitPolynomial(sylF0, polynomOrder);
-			int polynomialOrder = (new Integer(getProp(POLYORDER))).intValue();
+			int polynomialOrder = (Integer.valueOf(getProp(POLYORDER)));
 			double[] coeffs = Polynomial.fitPolynomial(f0AndInterpolate, polynomialOrder);
 
 			if (coeffs != null) {

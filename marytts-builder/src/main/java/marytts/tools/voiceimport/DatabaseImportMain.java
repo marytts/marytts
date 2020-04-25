@@ -468,7 +468,7 @@ public class DatabaseImportMain extends JFrame {
 				String className = nextComps[j];
 				// System.out.println(className);
 				// create a new instance of this class and store in compsList
-				compsList.add((VoiceImportComponent) Class.forName(className).newInstance());
+				compsList.add((VoiceImportComponent) Class.forName(className).getDeclaredConstructor().newInstance());
 				// remove "de.dfki...." from class name and store in groups2comps
 				nextComps[j] = className.substring(className.lastIndexOf('.') + 1);
 			}

@@ -235,7 +235,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent {
 					} else if ("NRI".equals(singleAnnotation.get(fName))) {
 						continiousFeatures[countFloatFeatures++] = Float.NaN;
 					} else {
-						continiousFeatures[countFloatFeatures++] = (new Float(singleAnnotation.get(fName))).floatValue();
+						continiousFeatures[countFloatFeatures++] = (Float.valueOf(singleAnnotation.get(fName)));
 					}
 				}
 			}

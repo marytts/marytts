@@ -1353,7 +1353,7 @@ public class DBHandler {
 			while (rs.next()) {
 				wordBytes = rs.getBytes(1);
 				word = new String(wordBytes, "UTF8");
-				wordList.put(word, new Integer(rs.getInt(2)));
+				wordList.put(word, Integer.valueOf(rs.getInt(2)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

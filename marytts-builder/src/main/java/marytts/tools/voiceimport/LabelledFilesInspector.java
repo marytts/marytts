@@ -240,7 +240,7 @@ public class LabelledFilesInspector extends VoiceImportComponent {
 			samplingRate = (int) audioFormat.getSampleRate();
 			audioSignal = new AudioDoubleDataSource(ais).getAllData();
 
-			String file = FileUtils.getFileAsString(labFile, "ASCII");
+			String file = FileUtils.readFileToString(labFile, "ASCII");
 			String[] lines = file.split("\n");
 			labels.setListData(lines);
 

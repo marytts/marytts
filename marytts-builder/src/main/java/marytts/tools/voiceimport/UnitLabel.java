@@ -122,7 +122,7 @@ public class UnitLabel {
 			labelUnit = null;
 			if (line != null) {
 				List labelUnitData = getLabelUnitData(line);
-				sCost = (new Double((String) labelUnitData.get(3))).doubleValue();
+				sCost = (Double.valueOf((String) labelUnitData.get(3)));
 				labelUnit = (String) labelUnitData.get(2);
 				unitIndex = Integer.parseInt((String) labelUnitData.get(1));
 				endTimeStamp = Double.parseDouble((String) labelUnitData.get(0));
@@ -139,8 +139,8 @@ public class UnitLabel {
 		for (int i = 0; itr.hasNext(); i++) {
 			String element = itr.next();
 			String[] wrds = element.split("\\s+");
-			ulab[i] = new UnitLabel(wrds[0], (new Double(wrds[1])).doubleValue(), (new Double(wrds[2])).doubleValue(),
-					(new Integer(wrds[3])).intValue(), (new Double(wrds[4])).doubleValue());
+			ulab[i] = new UnitLabel(wrds[0], (Double.valueOf(wrds[1])).doubleValue(), (Double.valueOf(wrds[2])),
+					(Integer.valueOf(wrds[3])), (Double.valueOf(wrds[4])));
 		}
 		return ulab;
 	}

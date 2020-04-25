@@ -300,7 +300,7 @@ public class QualityControl extends VoiceImportComponent {
 					problemCost = problemCost + cost;
 					priorityProblems.put(basename, problemCost);
 				} else {
-					Integer problemCost = new Integer(cost);
+					Integer problemCost = Integer.valueOf(cost);
 					// problemCost = 0;
 					priorityProblems.put(basename, problemCost);
 				}
@@ -407,18 +407,18 @@ public class QualityControl extends VoiceImportComponent {
 					double fricEnergy = getFricativeEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
 					if (fricativeHash.containsKey(featureUnit)) {
 						ArrayList arrList = (ArrayList) fricativeHash.get(featureUnit);
-						arrList.add(new Double(fricEnergy));
+						arrList.add(Double.valueOf(fricEnergy));
 						fricativeHash.put(featureUnit, arrList);
 					} else {
 						ArrayList arrList = new ArrayList();
-						arrList.add(new Double(fricEnergy));
+						arrList.add(Double.valueOf(fricEnergy));
 						fricativeHash.put(featureUnit, arrList);
 					}
 				}
 				double phoneDuration = endTimeStamp - startTimeStamp;
 				if (labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")) {
 					double silEnergy = getSilenceEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
-					silenceEnergyList.add(new Double(silEnergy));
+					silenceEnergyList.add(Double.valueOf(silEnergy));
 				}
 			}
 

@@ -340,7 +340,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent {
 		String hmmFeatureListFile = voiceDir + getProp(featureListFile);
 
 		// check first if questions directory exists
-		String dirNameQuestions = marytts.util.string.StringUtils.getFolderName(voiceDir + getProp(questionsFile));
+		String dirNameQuestions = marytts.util.string.FilenameUtils.getFullPath(voiceDir + getProp(questionsFile));
 		File dirQuestions = new File(dirNameQuestions);
 		if (!dirQuestions.exists())
 			dirQuestions.mkdir();

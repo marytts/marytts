@@ -92,7 +92,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer {
 		} else {
 			System.out.println("Loading features from file " + getProp(FEATURELIST));
 			try {
-				featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+				featureList = FileUtils.readFileToString(featureFile, "UTF-8");
 				featureList = featureList.replaceAll("\\s+", " ");
 				// Make sure specific halfphone features are included:
 				for (String f : HALFPHONE_FEATURES) {

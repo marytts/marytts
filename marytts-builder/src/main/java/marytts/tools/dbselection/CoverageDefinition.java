@@ -253,9 +253,9 @@ public class CoverageDefinition {
 						phonesToIgnore.add(0); // The non-existing phone "0"
 						// phoneFeatIndex = featDef.getFeatureIndex("phone");
 						// phonesToIgnore.add(
-						// new Integer(featDef.getFeatureValueAsByte(phoneFeatIndex,value)));
+						// Integer.valueOf(featDef.getFeatureValueAsByte(phoneFeatIndex,value)));
 						while (tok.hasMoreTokens()) {
-							phonesToIgnore.add(new Integer(featDef.getFeatureValueAsByte(phoneFeatIndex, tok.nextToken())));
+							phonesToIgnore.add(Integer.valueOf(featDef.getFeatureValueAsByte(phoneFeatIndex, tok.nextToken())));
 
 						}
 
@@ -475,7 +475,7 @@ public class CoverageDefinition {
 
 		// compute all possible combinations
 		for (int k = 0; k < possiblePhoneArray.length; k++) {
-			if (phonesToIgnore.contains(new Integer(k)))
+			if (phonesToIgnore.contains(Integer.valueOf(k)))
 				continue;
 			// find out the index of the current phone
 			byte nextIndex = (byte) k;
@@ -697,7 +697,7 @@ public class CoverageDefinition {
 			out.println("The following phones are missing: ");
 			for (int k = 1; k < possiblePhoneArray.length; k++) {
 				String nextPhone = possiblePhoneArray[k];
-				if (phonesToIgnore.contains(new Integer(k)))
+				if (phonesToIgnore.contains(Integer.valueOf(k)))
 					continue;
 				if (!possiblePhoneTypes.contains(nextPhone)) {
 					out.print(nextPhone + " ");
@@ -936,13 +936,13 @@ public class CoverageDefinition {
 		}
 		// update phone coverage statistics
 		double phoneCoverage = (double) phonesInCover.size() / (double) numPhoneValuesMinusIgnored;
-		phoneCoverageInTime.add(new Double(phoneCoverage));
+		phoneCoverageInTime.add(Double.valueOf(phoneCoverage));
 		// update diphone and overall coverage statistics
 		if (simpleDiphones) {
 			double diphoneCoverage = (double) simpleDiphonesInCover.size() / (double) numPossibleSimpleDiphones;
 			double overallCoverage = (double) numSimpleFeatVectsInCover / (double) numSimpleLeaves;
-			diphoneCoverageInTime.add(new Double(diphoneCoverage));
-			overallCoverageInTime.add(new Double(overallCoverage));
+			diphoneCoverageInTime.add(Double.valueOf(diphoneCoverage));
+			overallCoverageInTime.add(Double.valueOf(overallCoverage));
 		}
 		// compute statistics of sentence length
 		numSentencesInCover++;
@@ -1092,7 +1092,7 @@ public class CoverageDefinition {
 		double wantedWeightDecrease = cover.getWantedWeightDecrease();
 		out.writeByte(numChildren);
 		for (byte i = 0; i < numChildren; i++) {
-			if (phonesToIgnore.contains(new Integer(i)))
+			if (phonesToIgnore.contains(Integer.valueOf(i)))
 				continue;
 			CoverNode phoneNode = cover.getChild(i);
 			frequencyWeight = phoneNode.getFrequencyWeight();
@@ -1168,7 +1168,7 @@ public class CoverageDefinition {
 		double wantedWeight = 0.0;
 		CoverNode cover = new CoverNode(numChildren, wantedWeightDecrease, wantedWeight);
 		for (byte i = 0; i < numChildren; i++) {
-			if (phonesToIgnore.contains(new Integer(i)))
+			if (phonesToIgnore.contains(Integer.valueOf(i)))
 				continue;
 			byte nextNumChildren = in.readByte();
 

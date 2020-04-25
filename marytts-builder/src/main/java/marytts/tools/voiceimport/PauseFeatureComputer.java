@@ -139,14 +139,14 @@ public class PauseFeatureComputer extends VoiceImportComponent {
 		// First, test if there is a corresponding .rawmaryxml file in textdir:
 		File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + basename + db.getProp(db.MARYXMLEXT));
 		if (rawmaryxmlFile.exists()) {
-			text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
+			text = FileUtils.readFileToString(rawmaryxmlFile, "UTF-8");
 		} else {
 			text = getMaryXMLHeaderWithInitialBoundary(locale)
-					+ FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8")
+					+ FileUtils.readFileToString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8")
 					+ "</maryxml>";
 		}
 		File intonisedxmlFile = new File(getProp(INTONISED) + basename + xmlExt);
-		text = FileUtils.getFileAsString(intonisedxmlFile, "UTF-8");
+		text = FileUtils.readFileToString(intonisedxmlFile, "UTF-8");
 
 		OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(pausefeatureDir, basename + featsExt)));
 		MaryClient maryClient = getMaryClient();

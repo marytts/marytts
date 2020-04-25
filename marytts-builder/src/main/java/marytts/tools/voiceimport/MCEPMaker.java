@@ -91,7 +91,7 @@ public class MCEPMaker extends VoiceImportComponent {
 	private Float[] shiftToClosestPeak(Float[] pmIn, short[] w, int sampleRate) {
 
 		final int HORIZON = 32; // <= number of samples to seek before and after the pitchmark
-		Float[] pmOut = new Float[pmIn.length];
+		Float[] pmOut = Float.valueOf[pmIn.length];
 
 		/* Browse the pitchmarks */
 		int pm = 0;
@@ -108,7 +108,7 @@ public class MCEPMaker extends VoiceImportComponent {
 					throw new RuntimeException("Some pitchmarks are located above the location of the last waveform sample !");
 				}
 				// Else, if it was the last pitchmark, clip it:
-				pmOut[pi] = new Float((double) (pmwmax) / (double) (sampleRate));
+				pmOut[pi] = Float.valueOf((double) (pmwmax) / (double) (sampleRate));
 			}
 			// Else, if the pitchmark is in the waveform:
 			else {
@@ -127,7 +127,7 @@ public class MCEPMaker extends VoiceImportComponent {
 						max = i;
 				}
 				/* Translate the pitchmark */
-				pmOut[pi] = new Float((double) (max) / (double) (sampleRate));
+				pmOut[pi] = Float.valueOf((double) (max) / (double) (sampleRate));
 			}
 		}
 
@@ -147,7 +147,7 @@ public class MCEPMaker extends VoiceImportComponent {
 	private Float[] shiftToPreviousZero(Float[] pmIn, short[] w, int sampleRate) {
 
 		final int HORIZON = 32; // <= number of samples to seek before the pitchmark
-		Float[] pmOut = new Float[pmIn.length];
+		Float[] pmOut = Float.valueOf[pmIn.length];
 
 		/* Browse the pitchmarks */
 		int pm = 0;
@@ -171,7 +171,7 @@ public class MCEPMaker extends VoiceImportComponent {
 			}
 			/* If a zero crossing was found, translate the pitchmark */
 			else {
-				pmOut[pi] = new Float((double) ((-w[zero]) < w[zero + 1] ? zero : (zero + 1)) / (double) (sampleRate));
+				pmOut[pi] = Float.valueOf((double) ((-w[zero]) < w[zero + 1] ? zero : (zero + 1)) / (double) (sampleRate));
 			}
 		}
 
@@ -206,7 +206,7 @@ public class MCEPMaker extends VoiceImportComponent {
 			ESTTrackReader pmFileIn = new ESTTrackReader(fName);
 			/* Wrap the primitive floats so that we can use vectors thereafter */
 			float[] pmInPrimitive = pmFileIn.getTimes();
-			Float[] pmIn = new Float[pmInPrimitive.length];
+			Float[] pmIn = Float.valueOf[pmInPrimitive.length];
 			for (int i = 0; i < pmInPrimitive.length; i++) {
 				pmIn[i] = (Float) Array.get(pmInPrimitive, i);
 			}

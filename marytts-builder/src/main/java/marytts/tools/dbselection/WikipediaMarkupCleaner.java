@@ -951,9 +951,9 @@ public class WikipediaMarkupCleaner {
 						// if key is not in the map then give it value one
 						// otherwise increment its value by 1
 						if (count == null)
-							wordList.put(oneWord, new Integer(1));
+							wordList.put(oneWord, Integer.valueOf(1));
 						else
-							wordList.put(oneWord, new Integer(count.intValue() + 1));
+							wordList.put(oneWord, Integer.valueOf(count.intValue() + 1));
 					}
 					start = -1;
 				}
@@ -964,9 +964,9 @@ public class WikipediaMarkupCleaner {
 					// if key is not in the map then give it value one
 					// otherwise increment its value by 1
 					if (count == null)
-						wordList.put(oneWord, new Integer(1));
+						wordList.put(oneWord, Integer.valueOf(1));
 					else
-						wordList.put(oneWord, new Integer(count.intValue() + 1));
+						wordList.put(oneWord, Integer.valueOf(count.intValue() + 1));
 				}
 				/*
 				 * // remove punctuation if( w.endsWith(",") || w.endsWith(";") || w.endsWith(".") || w.endsWith(":") ||
@@ -976,7 +976,7 @@ public class WikipediaMarkupCleaner {
 				 * if( w.length()>1 && StringUtils.isAlpha(w) && StringUtils.isNotBlank(w) && StringUtils.isNotEmpty(w) &&
 				 * StringUtils.isAsciiPrintable(w)) { //System.out.print(w + " "); i = (Integer) wordList.get(w); // if key is not
 				 * in the map then give it value one // otherwise increment its value by 1 if(i==null) wordList.put(w, new
-				 * Integer(1)); else wordList.put(w, new Integer( i.intValue() + 1)); } // if word is > 1 and isAlpha
+				 * Integer(1)); else wordList.put(w, Integer.valueOf( i.intValue() + 1)); } // if word is > 1 and isAlpha
 				 */
 				// System.out.println("\n");
 			}
@@ -1007,9 +1007,9 @@ public class WikipediaMarkupCleaner {
 				// if key is not in the map then give it value freq
 				// otherwise increment its value by freq
 				if (i == null)
-					wlOld.put(w, new Integer(freq));
+					wlOld.put(w, Integer.valueOf(freq));
 				else
-					wlOld.put(w, new Integer(i.intValue() + freq));
+					wlOld.put(w, Integer.valueOf(i.intValue() + freq));
 			}
 			wikiToDB.insertWordList(wlOld);
 			System.out.println("Final size of wordList after combining old and new lists: wordList=[" + wlOld.size() + "]");

@@ -101,29 +101,29 @@ public class SortTestResults {
 			// sort according to simpleDiphone coverage
 			double cov = nextResult.getSimpleDiphoneCoverage();
 			sdCovArray[index] = cov;
-			Double coverage = new Double(cov);
+			Double coverage = Double.valueOf(cov);
 			sort(simpleDiphone2Results, nextResult, coverage);
 
 			// sort according to simpleProsody coverage
 			cov = nextResult.getSimpleProsodyCoverage();
 			soCovArray[index] = cov;
-			coverage = new Double(cov);
+			coverage = Double.valueOf(cov);
 			sort(simpleProsody2Results, nextResult, coverage);
 
 			// sort according to clusteredDiphone coverage
 			cov = nextResult.getClusteredDiphoneCoverage();
 			cdCovArray[index] = cov;
-			coverage = new Double(cov);
+			coverage = Double.valueOf(cov);
 			sort(clusteredDiphone2Results, nextResult, coverage);
 
 			// sort according to clusteredProsody coverage
 			cov = nextResult.getClusteredProsodyCoverage();
 			coCovArray[index] = cov;
-			coverage = new Double(cov);
+			coverage = Double.valueOf(cov);
 			sort(clusteredProsody2Results, nextResult, coverage);
 
 			// sort according to number of sentences
-			Integer numSents = new Integer(nextResult.getNumSentences());
+			Integer numSents = Integer.valueOf(nextResult.getNumSentences());
 			sort(numSentences2Results, nextResult, numSents);
 
 			index++;

@@ -135,13 +135,13 @@ public class VoiceQualityTimelineMaker extends AbstractTimelineMaker {
 			frameDuration = (int) (sampleRate * frameSkip);
 
 			// add data frames with values for each VQ parameter (as floats):
-			datagrams = new FloatArrayDatagram[numFrames];
+			datagrams = Float.valueOfArrayDatagram[numFrames];
 			for (int f = 0; f < numFrames; f++) {
 				float[] frameData = new float[numParams];
 				for (int p = 0; p < numParams; p++) {
 					frameData[p] = (float) vq.vq[p][f];
 				}
-				FloatArrayDatagram datagram = new FloatArrayDatagram(frameDuration, frameData);
+				FloatArrayDatagram datagram = Float.valueOfArrayDatagram(frameDuration, frameData);
 				datagrams[f] = datagram;
 			}
 		}

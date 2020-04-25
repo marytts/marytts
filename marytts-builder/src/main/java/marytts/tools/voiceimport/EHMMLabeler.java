@@ -599,7 +599,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 		transLabelOut.flush();
 		transLabelOut.close();
 
-		String data = FileUtils.getFileAsString(alignFile, "UTF-8");
+		String data = FileUtils.readFileToString(alignFile, "UTF-8");
 		PrintWriter pw = new PrintWriter(new FileWriter(alignFile));
 		// Check for minimum number of short pauses should be in Text
 		if (countShortSil > 10) { // delete word boundaries
@@ -629,7 +629,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new File(getProp(ALLOPHONESDIR) + "/" + basename + xmlExt));
-		XPath xpath = XPathFactory.newInstance().newXPath();
+		XPath xpath = XPathFactory.getDeclaredConstructor().newInstance().newXPath();
 		NodeList tokens = (NodeList) xpath.evaluate("//t | //ph | //boundary", doc, XPathConstants.NODESET);
 
 		StringBuilder alignBuff = new StringBuilder();

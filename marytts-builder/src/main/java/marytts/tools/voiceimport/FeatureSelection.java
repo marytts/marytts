@@ -74,7 +74,7 @@ public class FeatureSelection extends VoiceImportComponent {
 		if (featureFile.exists()) {
 			System.out.println("Loading features from file " + getProp(FEATUREFILE));
 			try {
-				features = FileUtils.getFileAsString(featureFile, "UTF-8");
+				features = FileUtils.readFileToString(featureFile, "UTF-8");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

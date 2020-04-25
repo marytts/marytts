@@ -1062,7 +1062,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent {
 		if (!maryxmlFile.exists()) {
 			// need to create it
 			String text = FileUtils
-					.getFileAsString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8");
+					.readFileToString(new File(db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT)), "UTF-8");
 			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(maryxmlFile), "UTF-8"));
 			pw.println(PhoneUnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(db.getProp(db.LOCALE)));
 			pw.println(text);

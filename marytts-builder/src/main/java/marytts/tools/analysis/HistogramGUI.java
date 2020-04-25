@@ -87,7 +87,7 @@ public class HistogramGUI extends Thread {
 			arl.add(xval);
 		}
 
-		sdata = (Double[]) arl.toArray(new Double[arl.size()]);
+		sdata = (Double[]) arl.toArray(Double.valueOf([arl.size()]);
 		double[] xdata = new double[sdata.length];
 		for (int i = 0; i < sdata.length; i++) {
 			xdata[i] = sdata[i].doubleValue();

@@ -168,7 +168,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent {
 					int iright = uright.index;
 					// System.out.println("right unit "+k+" (index "+iright+")");
 					double cost = joinFeatures.cost(ileft, iright);
-					Double dCost = new Double(cost);
+					Double dCost = Double.valueOf(cost);
 					// make sure we don't overwrite any existing entry:
 					if (!sortedCosts.containsKey(dCost)) {
 						sortedCosts.put(dCost, uright);

@@ -129,7 +129,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent {
 		} else {
 			System.out.println("Loading features from file " + getProp(FEATURELIST));
 			try {
-				featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+				featureList = FileUtils.readFileToString(featureFile, "UTF-8");
 				featureList = featureList.replaceAll("\\s+", " ");
 				// Exclude specific halfphone features if present:
 				for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
@@ -172,7 +172,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent {
 
 	public void computeFeaturesFor(String basename) throws IOException {
 		File allophoneFile = new File(getProp(ALLOPHONES) + basename + xmlExt);
-		String text = FileUtils.getFileAsString(allophoneFile, "UTF-8");
+		String text = FileUtils.readFileToString(allophoneFile, "UTF-8");
 
 		OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(unitfeatureDir, basename + featsExt)));
 		MaryHttpClient maryClient = getMaryClient();

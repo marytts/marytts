@@ -275,8 +275,8 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent {
 		for (int i = 0; itr.hasNext(); i++) {
 			String element = itr.next();
 			String[] wrds = element.split("\\s+");
-			ulab[i] = new UnitLabel(wrds[0], (new Double(wrds[1])).doubleValue(), (new Double(wrds[2])).doubleValue(),
-					(new Integer(wrds[3])).intValue());
+			ulab[i] = new UnitLabel(wrds[0], (Double.valueOf(wrds[1])).doubleValue(), (Double.valueOf(wrds[2])),
+					(Integer.valueOf(wrds[3])));
 		}
 		return ulab;
 	}

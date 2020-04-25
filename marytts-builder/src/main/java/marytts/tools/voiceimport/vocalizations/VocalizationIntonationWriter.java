@@ -179,8 +179,8 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 	protected void writeUnitFeaturesTo(DataOutput out) throws IOException {
 
 		int numUnits = listenerUnits.getNumberOfUnits();
-		float windowSize = new Float(getProp(WINDOWSIZE)).floatValue();
-		float skipSize = new Float(getProp(SKIPSIZE)).floatValue();
+		float windowSize = Float.valueOf(getProp(WINDOWSIZE));
+		float skipSize = Float.valueOf(getProp(SKIPSIZE));
 
 		out.writeFloat(windowSize);
 		out.writeFloat(skipSize);
@@ -292,7 +292,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
 
 		f0Array = cutStartEndUnvoicedSegments(f0Array);
 		double[] f0AndInterpolate = interpolateF0Array(f0Array);
-		int polynomialOrder = (new Integer(getProp(POLYORDER))).intValue();
+		int polynomialOrder = (Integer.valueOf(getProp(POLYORDER)));
 		double[] coeffs = Polynomial.fitPolynomial(f0AndInterpolate, polynomialOrder);
 		return coeffs;
 	}

@@ -575,7 +575,7 @@ public class FeatureMakerMaryServer {
 				if (sentence != null) {
 					if (usefulSentence) {
 						// store sentence in sentence map
-						// index2sentences.put(new Integer(sentenceIndex),sentence.toString());
+						// index2sentences.put(Integer.valueOf(sentenceIndex),sentence.toString());
 						// check if the sentence is not .
 						if (!sentence.toString().contentEquals(".")) {
 							sentenceList.add(sentence.toString());

@@ -749,7 +749,7 @@ public class HTKLabeler extends VoiceImportComponent {
 
 		PrintWriter macroFile = new PrintWriter(new FileOutputStream(new File(hmmDir + "hmm0" + File.separator + "macros")));
 		macroFile.println("~o\n" + "<VecSize> 13\n" + "<" + Train_FEAT + ">");
-		macroFile.println(FileUtils.getFileAsString(new File(hmmDir + "hmm-dummy" + File.separator + "vFloors"), "ASCII"));
+		macroFile.println(FileUtils.readFileToString(new File(hmmDir + "hmm-dummy" + File.separator + "vFloors"), "ASCII"));
 		macroFile.flush();
 		macroFile.close();
 
@@ -1374,7 +1374,7 @@ public class HTKLabeler extends VoiceImportComponent {
 			throw new MaryConfigurationException(errorReader.readLine());
 		}
 
-		String fileDict = FileUtils.getFileAsString(new File(phoneDict), "ASCII");
+		String fileDict = FileUtils.readFileToString(new File(phoneDict), "ASCII");
 		PrintWriter augPhoneDict = new PrintWriter(new FileWriter(phoneAugDict));
 		augPhoneDict.println("!ENTER sil");
 		augPhoneDict.print(fileDict);
@@ -1382,7 +1382,7 @@ public class HTKLabeler extends VoiceImportComponent {
 		augPhoneDict.flush();
 		augPhoneDict.close();
 
-		String fileList = FileUtils.getFileAsString(new File(phoneList), "ASCII");
+		String fileList = FileUtils.readFileToString(new File(phoneList), "ASCII");
 		PrintWriter augPhoneList = new PrintWriter(new FileWriter(phoneAugList));
 		augPhoneList.println("!ENTER");
 		augPhoneList.print(fileList);
@@ -1478,7 +1478,7 @@ public class HTKLabeler extends VoiceImportComponent {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new File(getProp(PROMPTALLOPHONESDIR) + "/" + basename + xmlExt));
-		XPath xpath = XPathFactory.newInstance().newXPath();
+		XPath xpath = XPathFactory.getDeclaredConstructor().newInstance().newXPath();
 		NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
 
 		alignBuff.append(collectTranscription(tokens));

@@ -124,7 +124,7 @@ public class DurationTreeTrainer extends VoiceImportComponent {
 			}
 			double mean = MathUtils.mean(dur);
 			double stddev = MathUtils.standardDeviation(dur, mean);
-			FloatLeafNode floatLeaf = new FloatLeafNode(new float[] { (float) stddev, (float) mean });
+			FloatLeafNode floatLeaf = Float.valueOfLeafNode(new float[] { (float) stddev, (float) mean });
 			Node mother = fvLeaf.getMother();
 			assert mother != null;
 			if (mother.isDecisionNode()) {
