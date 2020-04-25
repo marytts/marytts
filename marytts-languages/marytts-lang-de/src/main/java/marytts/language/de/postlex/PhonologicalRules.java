@@ -27,7 +27,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * The rules for the postlexical phonological processes module.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -88,17 +88,17 @@ public class PhonologicalRules {
 			{ "\\{", "E", "E", "E" },
 	// {"r", "R", "R", "R"}
 	};
-	private static final List rules = initialiseRules();
+	private static final List<PhonologicalRules> rules = initialiseRules();
 
-	private static List initialiseRules() {
-		List r = new ArrayList();
+	private static List<PhonologicalRules> initialiseRules() {
+		List<PhonologicalRules> r = new ArrayList<PhonologicalRules>();
 		for (int i = 0; i < _rules.length; i++) {
-			r.add(new PhonologicalRules(_rules[i]));
+                       r.add(new PhonologicalRules(_rules[i]));
 		}
 		return r;
 	}
 
-	public static List getRules() {
+	public static List<PhonologicalRules> getRules() {
 		return rules;
 	}
 

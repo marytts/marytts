@@ -38,14 +38,14 @@ public class FeatureProcessorManager extends marytts.features.FeatureProcessorMa
 	 * Builds a new manager. This manager uses the english phoneset of FreeTTS and a PoS conversion file if the english PoS tagger
 	 * is used. All feature processors loaded are language specific.
 	 */
-	public FeatureProcessorManager() {
-		super();
+	public FeatureProcessorManager() throws MaryConfigurationException {
+                super(Locale.GERMAN);
 		setupAdditionalFeatureProcessors();
 	}
 
 	/**
 	 * Constructor called from a Voice in Locale DE that has its own acoustic models
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 * @throws MaryConfigurationException
@@ -56,6 +56,28 @@ public class FeatureProcessorManager extends marytts.features.FeatureProcessorMa
 		setupAdditionalFeatureProcessors();
 		registerAcousticModels(voice);
 	}
+
+	protected void setupHardcodedPhoneFeatureValues() {
+		// Set up default values for phone features:
+		phonefeatures2values = new HashMap<String, String[]>();
+		// cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
+		phonefeatures2values.put("cplace", new String[] { "0", "l", "a", "p", "b", "d", "v", "g" });
+		// ctype: 0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
+		phonefeatures2values.put("ctype", new String[] { "0", "s", "f", "a", "n", "l", "r" });
+		// cvox: 0=n/a +=on -=off
+		phonefeatures2values.put("cvox", new String[] { "0", "+", "-" });
+		// vc: 0=n/a +=vowel -=consonant
+		phonefeatures2values.put("vc", new String[] { "0", "+", "-" });
+		// vfront: 0-n/a 1-front 2-mid 3-back
+		phonefeatures2values.put("vfront", new String[] { "0", "1", "2", "3" });
+		// vheight: 0-n/a 1-high 2-mid 3-low
+		phonefeatures2values.put("vheight", new String[] { "0", "1", "2", "3" });
+		// vlng: 0-n/a s-short l-long d-dipthong a-schwa
+		phonefeatures2values.put("vlng", new String[] { "0", "s", "l", "d", "a" });
+		// vrnd: 0=n/a +=on -=off
+		phonefeatures2values.put("vrnd", new String[] { "0", "+", "-" });
+	}
+
 
 	/**
 	 * specific stuff, moved here so that it can be called by more than one constructor without unnecessary code duplication
@@ -187,20 +209,20 @@ public class FeatureProcessorManager extends marytts.features.FeatureProcessorMa
 			/*
 			 * processors_en.put("seg_coda_fric", new LanguageFeatureProcessors.SegCodaFric(phoneSet));
 			 * processors_en.put("seg_onset_fric", new LanguageFeatureProcessors.SegOnsetFric(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_stop", new LanguageFeatureProcessors.SegCodaStop(phoneSet));
 			 * processors_en.put("seg_onset_stop", new LanguageFeatureProcessors.SegOnsetStop(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_nasal", new LanguageFeatureProcessors.SegCodaNasal(phoneSet));
 			 * processors_en.put("seg_onset_nasal", new LanguageFeatureProcessors.SegOnsetNasal(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("seg_coda_glide", new LanguageFeatureProcessors.SegCodaGlide(phoneSet));
 			 * processors_en.put("seg_onset_glide", new LanguageFeatureProcessors.SegOnsetGlide(phoneSet));
-			 * 
+			 *
 			 * processors_en.put("syl_codasize", new LanguageFeatureProcessors.SylCodaSize(phoneSet));
 			 * processors_en.put("syl_onsetsize", new LanguageFeatureProcessors.SylOnsetSize(phoneSet));
 			 * processors_en.put("accented", new GenericFeatureProcessors.Accented());
-			 * 
+			 *
 			 * processors_en.put("token_pos_guess", new LanguageFeatureProcessors.TokenPosGuess());
 			 */
 		} catch (Exception e) {
