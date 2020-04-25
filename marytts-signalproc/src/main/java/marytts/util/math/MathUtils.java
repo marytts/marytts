@@ -27,10 +27,10 @@ import marytts.util.string.StringUtils;
 
 /**
  * @author Marc Schr&ouml;der, Oytun Tuerk
- * 
- * 
+ *
+ *
  *         An uninstantiable class, containing static utility methods in the Math domain.
- * 
+ *
  */
 public class MathUtils {
 	public static final double TINY_PROBABILITY = 1e-50;
@@ -84,7 +84,7 @@ public class MathUtils {
 
 	/**
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return the index number of the maximum element
@@ -105,7 +105,7 @@ public class MathUtils {
 
 	/**
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return the index number of the maximum element
@@ -126,7 +126,7 @@ public class MathUtils {
 
 	/**
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return the index number of the minimum element
@@ -147,7 +147,7 @@ public class MathUtils {
 
 	/**
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return the index number of the minimum element
@@ -168,7 +168,7 @@ public class MathUtils {
 
 	/**
 	 * Build the sum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return sum
@@ -231,7 +231,7 @@ public class MathUtils {
 
 	/**
 	 * Find the maximum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return max
@@ -258,7 +258,7 @@ public class MathUtils {
 
 	/**
 	 * Find the maximum of the absolute values of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return absMax of data, 0, data.length
@@ -269,7 +269,7 @@ public class MathUtils {
 
 	/**
 	 * Find the maximum of the absolute values of all elements in the given subarray, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @param off
@@ -292,7 +292,7 @@ public class MathUtils {
 
 	/**
 	 * Find the minimum of all elements in the array, ignoring elements that are NaN.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @return min
@@ -323,7 +323,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @param startIndex
@@ -357,7 +357,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @param inds
@@ -380,7 +380,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @param startIndex
@@ -418,7 +418,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
-	 * 
+	 *
 	 * @param data
 	 *            data
 	 * @param inds
@@ -441,7 +441,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the mean of all elements in the array. this function can deal with NaNs
-	 * 
+	 *
 	 * @param data
 	 *            double[]
 	 * @param opt
@@ -489,7 +489,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the standard deviation of the given data, this function can deal with NaNs
-	 * 
+	 *
 	 * @param data
 	 *            double[]
 	 * @param opt
@@ -506,7 +506,7 @@ public class MathUtils {
 
 	/**
 	 * Compute the variance in the array. This function can deal with NaNs
-	 * 
+	 *
 	 * @param data
 	 *            double[]
 	 * @param opt
@@ -594,7 +594,7 @@ public class MathUtils {
 
 	/**
 	 * Returns the variance of rows or columns of matrix x
-	 * 
+	 *
 	 * @param x
 	 *            the matrix consisting of row vectors
 	 * @param meanVector
@@ -724,7 +724,7 @@ public class MathUtils {
 	public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows, int[] indicesOfX) {
 		int numObservations;
 		int dimension;
-		int i, j, p;
+		int i;
 		double[][] cov = null;
 		double[][] tmpMatrix = null;
 		double[][] zeroMean = null;
@@ -774,7 +774,7 @@ public class MathUtils {
 
 	/***
 	 * Sample correlation coefficient Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @param y
@@ -1046,7 +1046,7 @@ public class MathUtils {
 
 	/**
 	 * Returns the multiplicative inverse (element-wise 1/x) of an array
-	 * 
+	 *
 	 * @param a
 	 *            array to invert
 	 * @return a new array of the same size as <b>a</b>, in which each element is equal to the multiplicative inverse of the
@@ -1221,13 +1221,13 @@ public class MathUtils {
 		/*
 		 * double modul = MathUtils.magnitudeComplex(x); // modulus double phase = Math.atan2(x.imag, x.real); // use atan2: theta
 		 * ranges from [-pi,pi]
-		 * 
+		 *
 		 * if (x.imag<0.0) // lower half plane (Im<0), needs shifting { phase += MathUtils.TWOPI; // shift by adding 2pi to lower
 		 * half plane
-		 * 
+		 *
 		 * // fix the discontinuity between phase = 0 and phase = 2pi if (x.real>0.0 && x.imag<0.0 && Math.abs(x.imag)<1e-10)
 		 * phase = 0.0; }
-		 * 
+		 *
 		 * return phase;
 		 */
 
@@ -1519,10 +1519,10 @@ public class MathUtils {
 				/**
 				 * Marc Schröder, 3 July 2009: The following implementation used up about 93% of total processing time. Replacing
 				 * it with a less elegant but more efficient implementation:
-				 * 
+				 *
 				 * ComplexNumber tmpSum; for (i=0; i<rowSizex; i++) { for (j=0; j<colSizey; j++) { tmpSum = new ComplexNumber(0.0,
 				 * 0.0); for (m=0; m<x[i].length; m++) tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
-				 * 
+				 *
 				 * z[i][j] = new ComplexNumber(tmpSum); } }
 				 */
 
@@ -1606,7 +1606,7 @@ public class MathUtils {
 
 	/**
 	 * Convert energy from linear scale to db SPL scale (comparing energies to the minimum audible energy, one Pascal squared).
-	 * 
+	 *
 	 * @param energy
 	 *            in time or frequency domain, on a linear energy scale
 	 * @return energy on a db scale, or NaN if energy is less than or equal to 0.
@@ -1624,7 +1624,7 @@ public class MathUtils {
 
 	/**
 	 * Convert energy from linear scale to db scale.
-	 * 
+	 *
 	 * @param energy
 	 *            in time or frequency domain, on a linear energy scale
 	 * @return energy on a db scale, or NaN if energy is less than or equal to 0.
@@ -1725,7 +1725,7 @@ public class MathUtils {
 
 	/**
 	 * Convert energy from db scale to linear scale.
-	 * 
+	 *
 	 * @param dbEnergy
 	 *            in time or frequency domain, on a db energy scale
 	 * @return energy on a linear scale.
@@ -1794,7 +1794,7 @@ public class MathUtils {
 	/**
 	 * Build the sum of the squared difference of all elements with the same index numbers in the arrays. Any NaN values in either
 	 * a or b are ignored in computing the error.
-	 * 
+	 *
 	 * @param a
 	 *            a
 	 * @param b
@@ -1931,7 +1931,7 @@ public class MathUtils {
 	/**
 	 * Convert a pair of arrays from cartesian (x, y) coordinates to polar (r, phi) coordinates. Phi will be in radians, i.e. a
 	 * full circle is two pi.
-	 * 
+	 *
 	 * @param x
 	 *            as input, the x coordinate; as output, the r coordinate;
 	 * @param y
@@ -1952,7 +1952,7 @@ public class MathUtils {
 	/**
 	 * Convert a pair of arrays from polar (r, phi) coordinates to cartesian (x, y) coordinates. Phi is in radians, i.e. a whole
 	 * circle is two pi.
-	 * 
+	 *
 	 * @param r
 	 *            as input, the r coordinate; as output, the x coordinate;
 	 * @param phi
@@ -1972,7 +1972,7 @@ public class MathUtils {
 
 	/**
 	 * For a given angle in radians, return the equivalent angle in the range [-PI, PI].
-	 * 
+	 *
 	 * @param angle
 	 *            angle
 	 * @return (angle + PI) % (-TWOPI) + PI
@@ -1983,10 +1983,10 @@ public class MathUtils {
 
 	/**
 	 * For each of an array of angles (in radians), return the equivalent angle in the range [-PI, PI].
-	 * 
+	 *
 	 * @param angle
 	 *            angle
-	 * 
+	 *
 	 */
 	public static void angleToDefaultAngle(double[] angle) {
 		for (int i = 0; i < angle.length; i++) {
@@ -1996,7 +1996,7 @@ public class MathUtils {
 
 	/**
 	 * This is the Java source code for a Levinson Recursion. from http://www.nauticom.net/www/jdtaft/JavaLevinson.htm
-	 * 
+	 *
 	 * @param r
 	 *            contains the autocorrelation lags as input [r(0)...r(m)].
 	 * @param m
@@ -3250,7 +3250,6 @@ public class MathUtils {
 	// It simply sorts the data in x and then finds the smallest value that is larger than
 	// the [percentSmallerThan/100.0*(x.length-1)]th entry
 	public static double getSortedValue(double[] x, double percentSmallerThan) {
-		int retInd = -1;
 
 		Vector<Double> v = new Vector<Double>();
 		for (int i = 0; i < x.length; i++)
@@ -3274,7 +3273,7 @@ public class MathUtils {
 	public static int[][] factorialDesign(int[] totalItemsInNodes) {
 		int totalPaths = 1;
 
-		int i, j;
+		int i;
 		for (i = 0; i < totalItemsInNodes.length; i++) {
 			if (totalItemsInNodes[i] > 0)
 				totalPaths *= totalItemsInNodes[i];
@@ -3535,7 +3534,7 @@ public class MathUtils {
 		if (x == null)
 			return null;
 		else if (sortedIndices == null)
-			return ArrayUtils.copy(x);
+                    return x.clone();
 		else {
 			assert x.length == sortedIndices.length;
 			double[] y = new double[x.length];
@@ -3550,7 +3549,7 @@ public class MathUtils {
 		if (x == null)
 			return null;
 		else if (sortedIndices == null)
-			return ArrayUtils.copy(x);
+                    return x.clone();
 		else {
 			assert x.length == sortedIndices.length;
 			float[] y = new float[x.length];
@@ -3563,7 +3562,7 @@ public class MathUtils {
 
 	/***
 	 * Calculates x_i = (x_i - mean(x)) / std(x) This function can deal with NaNs
-	 * 
+	 *
 	 * @param x
 	 *            x
 	 * @return x
@@ -3704,7 +3703,7 @@ public class MathUtils {
 	/**
 	 * Adjust values in x so that all values smaller than minVal are set to minVal, and all values greater than maxVal are set to
 	 * maxVal
-	 * 
+	 *
 	 * @param x
 	 *            array of doubles to adjust; if x is null, nothing happens
 	 * @param minVal
@@ -4128,7 +4127,6 @@ public class MathUtils {
 		ComplexNumber big = new ComplexNumber(0.0, 0.0);
 		ComplexNumber dum = new ComplexNumber(0.0, 0.0);
 		ComplexNumber sum = new ComplexNumber(0.0, 0.0);
-		ComplexNumber temp = new ComplexNumber(0.0, 0.0);
 		ComplexNumber[] vv;
 		imax = 0;
 
@@ -4330,7 +4328,7 @@ public class MathUtils {
 
 	/**
 	 * Add val x to list of int X
-	 * 
+	 *
 	 * @param X
 	 *            X
 	 * @param x
@@ -4347,7 +4345,7 @@ public class MathUtils {
 
 	/**
 	 * Remove val x from list of int X
-	 * 
+	 *
 	 * @param X
 	 *            X
 	 * @param x
@@ -4428,7 +4426,7 @@ public class MathUtils {
 
 	/**
 	 * Check whether x contains Infinity
-	 * 
+	 *
 	 * @param x
 	 *            the array to check
 	 * @return true if at least one value in x is Infinity, false otherwise
@@ -4489,7 +4487,7 @@ public class MathUtils {
 
 	/**
 	 * Trim the given value so that it is in the closed interval [min, max].
-	 * 
+	 *
 	 * @param untrimmedValue
 	 *            untrimmedValue
 	 * @param min
@@ -4504,7 +4502,7 @@ public class MathUtils {
 
 	/**
 	 * To interpolate Zero values with respect to NonZero values
-	 * 
+	 *
 	 * @param contour
 	 *            contour
 	 * @return contour
@@ -4539,7 +4537,7 @@ public class MathUtils {
 
 	/**
 	 * To find next NonZero index in a given array
-	 * 
+	 *
 	 * @param contour
 	 *            contour
 	 * @param current
@@ -4557,7 +4555,7 @@ public class MathUtils {
 
 	/**
 	 * array resize to target size using linear interpolation
-	 * 
+	 *
 	 * @param source
 	 *            source
 	 * @param targetSize
@@ -4594,7 +4592,7 @@ public class MathUtils {
 
 	/**
 	 * Get first-order discrete difference along adjacent values in an array
-	 * 
+	 *
 	 * @param a
 	 *            a
 	 * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null

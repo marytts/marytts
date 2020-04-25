@@ -30,12 +30,12 @@ import java.util.StringTokenizer;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	/**
 	 * Read Double data from a Text file. Read one double per line.
-	 * 
+	 *
 	 * @param file
 	 *            file
 	 * @throws FileNotFoundException
@@ -47,7 +47,7 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 
 	/**
 	 * Initialise this double data source with the reader from which a text representation of doubles (one per line) can be read.
-	 * 
+	 *
 	 * @param reader
 	 *            reader
 	 */
@@ -60,7 +60,7 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 	 * method getting the data. Subclasses may want to override this method. If an exception occurs reading from the underlying
 	 * reader, or converting data to double, the method will print a stack trace to standard error, but otherwise will silently
 	 * stop and behave as if all data was read.
-	 * 
+	 *
 	 * @param target
 	 *            the double array to write into
 	 * @param targetPos
@@ -78,7 +78,7 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource {
 			StringTokenizer s;
 			double value;
 
-			List lines = new ArrayList();
+			List<String> lines = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
 			}

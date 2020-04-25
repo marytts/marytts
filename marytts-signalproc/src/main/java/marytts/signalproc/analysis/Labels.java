@@ -25,18 +25,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 
 import marytts.exceptions.InvalidDataException;
 import marytts.util.dom.DomUtils;
-import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 /**
  * A collection of EST formatted labels with ascii text file input/output functionality
- * 
+ *
  * @author Oytun Türk, reworked by Marc Schröder
  */
 public class Labels extends AlignmentData {
@@ -84,7 +84,7 @@ public class Labels extends AlignmentData {
 	}
 
 	private void initFromStream(InputStream in) throws IOException {
-		String allText = FileUtils.getStreamAsString(in, "ASCII");
+		String allText = IOUtils.toString(in, "ASCII");
 		String[] lines = allText.split("\n");
 		initFromLines(lines, 3);
 	}
@@ -119,7 +119,6 @@ public class Labels extends AlignmentData {
 				// also convert these to double values if they are
 				// numeric
 				if (labelInfos.length > restStartMin) {
-					int numericCount = 0;
 					l.rest = new String[labelInfos.length - restStartMin];
 					l.valuesRest = new double[labelInfos.length - restStartMin];
 					for (int j = 0; j < l.rest.length; j++) {
@@ -136,7 +135,7 @@ public class Labels extends AlignmentData {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param acoustparams
 	 * @throws InvalidDataException
 	 *             if any phone or boundary in acoustparams has no duration.
@@ -144,7 +143,6 @@ public class Labels extends AlignmentData {
 	private void initFromAcoustparams(Document acoustparams) {
 		ArrayList<Label> labels = new ArrayList<Label>();
 		String PHONE = "ph";
-		String A_PHONE_DURATION = "d";
 		String A_PHONE_SYMBOL = "p";
 		String A_PHONE_END = "end";
 		String BOUNDARY = "boundary";
@@ -204,7 +202,7 @@ public class Labels extends AlignmentData {
 
 	/**
 	 * For the given time, return the index of the label at that time, if any.
-	 * 
+	 *
 	 * @param time
 	 *            time in seconds
 	 * @return the index of the label at that time, or -1 if there isn't any

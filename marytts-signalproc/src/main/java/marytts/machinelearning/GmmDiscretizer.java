@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ *
  * This discretizes values according to a gaussian mixture model (gmm). The result of discretization is the mean of the class that
  * contributed most probability to a point.
- * 
+ *
  * @author benjaminroth
  *
  */
@@ -37,7 +37,7 @@ public class GmmDiscretizer implements Discretizer {
 
 	/**
 	 * This trains a gaussian mixture model having the specified number of components.
-	 * 
+	 *
 	 * @param values
 	 *            the data the model is trained with
 	 * @param nrClasses
@@ -50,7 +50,7 @@ public class GmmDiscretizer implements Discretizer {
 
 		List<Integer> retained = new ArrayList<Integer>(values);
 
-		Integer zero = new Integer(0);
+		Integer zero = Integer.valueOf(0);
 		if (extraZero && retained.contains(zero)) {
 			// remove all zeroes
 			int i = 0;
@@ -88,7 +88,7 @@ public class GmmDiscretizer implements Discretizer {
 
 	/**
 	 * This constructs a {@link Discretizer} using the specified mixture model.
-	 * 
+	 *
 	 * @param model
 	 *            GMM to be used
 	 * @param extraZeroClass
@@ -111,11 +111,11 @@ public class GmmDiscretizer implements Discretizer {
 
 	/**
 	 * This discretizes a value by returning the mean of that gaussian component that has maximum probability for it.
-	 * 
+	 *
 	 * @param value
 	 *            the value to be discretized
 	 * @return the discretization the value is mapped to
-	 * 
+	 *
 	 */
 	public int discretize(int value) {
 
@@ -142,7 +142,7 @@ public class GmmDiscretizer implements Discretizer {
 
 	/**
 	 * Returns all poosible discretizations values can be mapped to.
-	 * 
+	 *
 	 * @return all poosible discretizations values can be mapped to.
 	 */
 	public int[] getPossibleValues() {

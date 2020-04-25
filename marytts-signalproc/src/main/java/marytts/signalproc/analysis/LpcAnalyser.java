@@ -28,8 +28,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.Defaults;
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.Window;
 import marytts.util.data.DoubleDataSource;
@@ -42,11 +40,11 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  *         A class for linear prediction analysis
- * 
+ *
  */
 public class LpcAnalyser extends FrameBasedAnalyser {
 	public static int lpOrder = 0;
@@ -85,7 +83,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 	/**
 	 * Apply this FrameBasedAnalyser to the given data.
-	 * 
+	 *
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
 	 *            {@link #getFrameLengthSamples()}.
@@ -102,7 +100,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 	/**
 	 * Calculate LPC parameters for a given input signal.
-	 * 
+	 *
 	 * @param x
 	 *            input signal
 	 * @param p
@@ -374,62 +372,6 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		return lpCoeffs;
 	}
 
-	public static void main(String[] args) throws Exception {
-		int windowSize = Defaults.getWindowSize();
-		int windowType = Defaults.getWindowType();
-		int fftSize = Defaults.getFFTSize();
-		int frameShift = Defaults.getFrameShift();
-		int p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
-		int pre = p;
-		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
-		int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-		AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-		double[] signalData = signal.getAllData();
-		int position = 6000;
-		Window w = Window.get(windowType, windowSize);
-		double[] sliceToAnalyse = w.apply(signalData, position);
-		LpCoeffs lpc = calcLPC(sliceToAnalyse, p);
-		double g_db = 2 * MathUtils.db(lpc.getGain()); // *2 because g is signal, not energy
-		double[] signalPowerSpectrum = FFT.computeLogPowerSpectrum(sliceToAnalyse);
-		double[] a = lpc.getOneMinusA();
-		double[] fftA = new double[fftSize];
-		System.arraycopy(a, 0, fftA, 0, a.length);
-		double[] lpcPowerSpectrum = FFT.computeLogPowerSpectrum(fftA);
-
-		double offset = 0; // 2*MathUtils.db(2./Nfft);
-		for (int i = 0; i < lpcPowerSpectrum.length; i++) {
-			lpcPowerSpectrum[i] = -lpcPowerSpectrum[i] + offset + g_db;
-		}
-		for (int i = 0; i < signalPowerSpectrum.length; i++) {
-			signalPowerSpectrum[i] += offset;
-		}
-		double[] lsp = LsfAnalyser.lpc2lsf(a, 1);
-		System.out.println("Line spectral frequencies:");
-		for (int i = 0; i < lsp.length; i++) {
-			System.out.println(i + ": " + lsp[i] + " = " + lsp[i] / (2 * Math.PI) * samplingRate);
-		}
-
-		double deltaF = (double) samplingRate / fftSize;
-		FunctionGraph signalSpectrumGraph = new FunctionGraph(0, deltaF, signalPowerSpectrum);
-		signalSpectrumGraph.showInJFrame("signal spectrum", true, true);
-		FunctionGraph lpcSpectrumGraph = new FunctionGraph(0, deltaF, lpcPowerSpectrum);
-		lpcSpectrumGraph.showInJFrame("lpc spectrum", true, true);
-
-		FIRFilter whiteningFilter = new FIRFilter(a);
-		double[] testSlice = new double[fftSize + p];
-		System.arraycopy(signalData, position - p, testSlice, 0, testSlice.length);
-		double[] residuum = whiteningFilter.apply(testSlice);
-		double[] usableSignal = ArrayUtils.subarray(testSlice, p, fftSize);
-		double[] usableResiduum = ArrayUtils.subarray(residuum, p, fftSize);
-		FunctionGraph signalGraph = new SignalGraph(usableSignal, samplingRate);
-		signalGraph.showInJFrame("signal", true, true);
-		FunctionGraph residuumGraph = new SignalGraph(usableResiduum, samplingRate);
-		residuumGraph.showInJFrame("residual", true, true);
-		double predictionGain = MathUtils.db(MathUtils.sum(MathUtils.multiply(usableSignal, usableSignal))
-				/ MathUtils.sum(MathUtils.multiply(usableResiduum, usableResiduum)));
-		System.out.println("Prediction gain: " + predictionGain + " dB");
-	}
-
 	public static class LpCoeffs {
 		protected double[] oneMinusA = null;
 		protected double gain = 1.0;
@@ -440,7 +382,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Create a set of LPC coefficients
-		 * 
+		 *
 		 * @param oneMinusA
 		 *            the coefficients, a = [1, -a_1, -a_2, ... -a_p], where p = prediction order
 		 * @param gain
@@ -466,7 +408,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Return a clone of the internal representation of the LPC coefficients.
-		 * 
+		 *
 		 * @return clone of oneMinusA
 		 */
 		public double[] getOneMinusA() {
@@ -508,7 +450,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Get the gain, i.e. the square root of the total energy of the prediction error.
-		 * 
+		 *
 		 * @return the gain
 		 */
 		public double getGain() {
@@ -547,7 +489,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert these LPC coefficients into Line spectral frequencies.
-		 * 
+		 *
 		 * @return the LSFs.
 		 */
 		public double[] getLSF() {
@@ -566,7 +508,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert these LPC coefficients into LPC-Cesptrum coefficients.
-		 * 
+		 *
 		 * @param cepstrumOrder
 		 *            The cepstrum order (i.e., the index of the last cepstrum coefficient).
 		 * @return the LPCCs. c[0] is set to log(gain).
@@ -579,7 +521,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert some LPC-Cepstrum coefficients into these LPC coefficients.
-		 * 
+		 *
 		 * @param someLpcc
 		 *            some Lpcc
 		 * @param LPCOrder
@@ -597,7 +539,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert these LPC coefficients into reflection coefficients.
-		 * 
+		 *
 		 * @return the reflection coefficients.
 		 */
 		public double[] getLPRefc() {
@@ -608,7 +550,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Convert some reflection coefficients into these LPC coefficients.
-		 * 
+		 *
 		 * @param someLprefc
 		 *            some Lprefc
 		 */
@@ -622,7 +564,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 		/**
 		 * Check for the stability of the LPC filter.
-		 * 
+		 *
 		 * @return true if the filter is stable, false otherwise.
 		 */
 		public boolean isStable() {

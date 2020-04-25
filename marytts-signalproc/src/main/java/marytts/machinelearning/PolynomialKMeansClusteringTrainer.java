@@ -22,20 +22,17 @@ package marytts.machinelearning;
 import java.awt.Color;
 import java.util.Arrays;
 
-import javax.swing.JFrame;
-
-import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
 /**
  * K-Means clustering training algorithm
- * 
+ *
  * Reference: J. MacQueen, 1967, "Some methods for classification and analysis of multivariate observations", Proc. Fifth Berkeley
  * Symp. on Math. Statist. and Prob., Vol. 1 (Univ. of Calif. Press, 1967), pp. 281-297.
- * 
+ *
  * This version is adapted to work with a distance function between polynomials.
- * 
+ *
  * @author Oytun T&uuml;rk, Marc Schröder
  */
 public class PolynomialKMeansClusteringTrainer {
@@ -45,7 +42,7 @@ public class PolynomialKMeansClusteringTrainer {
 	 * each other + slight random shifts) (b) Hard clustering of samples according to new cluster means (c) Update of cluster
 	 * means using assigned samples (d) Re-iteration of (b) and (c) until convergence, i.e. when overall cluster occupancy does
 	 * not change much
-	 * 
+	 *
 	 * @param polynomials
 	 *            the observations to cluster
 	 * @param kmeansParams
@@ -242,54 +239,6 @@ public class PolynomialKMeansClusteringTrainer {
 
 		return clusters;
 		// System.out.println("K-Means clustering completed...");
-	}
-
-	public static void main(String[] args) {
-		// Test clustering with random polynomials, and visualise result
-		int order = 3;
-		int numPolynomials = 1000;
-		int numClusters = 50;
-
-		// Initialise with random data:
-		Polynomial[] ps = new Polynomial[numPolynomials];
-		for (int i = 0; i < numPolynomials; i++) {
-			double[] coeffs = new double[order + 1];
-			for (int c = 0; c < coeffs.length; c++) {
-				coeffs[c] = Math.random();
-			}
-			ps[i] = new Polynomial(coeffs);
-		}
-		KMeansClusteringTrainerParams params = new KMeansClusteringTrainerParams();
-		params.numClusters = numClusters;
-
-		// Train:
-		PolynomialCluster[] clusters = PolynomialKMeansClusteringTrainer.train(ps, params);
-
-		// Visualise:
-		FunctionGraph clusterGraph = new FunctionGraph(0, 1, new double[1]);
-		clusterGraph.setYMinMax(0, 5);
-		clusterGraph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
-		JFrame jf = clusterGraph.showInJFrame("", false, true);
-		for (int i = 0; i < clusters.length; i++) {
-			double[] meanValues = clusters[i].getMeanPolynomial().generatePolynomialValues(100, 0, 1);
-			clusterGraph.updateData(0, 1. / meanValues.length, meanValues);
-
-			Polynomial[] members = clusters[i].getClusterMembers();
-			for (int m = 0; m < members.length; m++) {
-				double[] pred = members[m].generatePolynomialValues(meanValues.length, 0, 1);
-				clusterGraph.addDataSeries(pred, Color.GRAY, FunctionGraph.DRAW_LINE, -1);
-				jf.repaint();
-			}
-
-			jf.setTitle("Cluster " + (i + 1) + " of " + clusters.length + ": " + members.length + " members");
-			jf.repaint();
-
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException ie) {
-			}
-		}
-		System.exit(0);
 	}
 
 }

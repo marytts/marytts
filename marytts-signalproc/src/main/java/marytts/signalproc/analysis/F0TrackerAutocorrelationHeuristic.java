@@ -28,7 +28,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.LowPassFilter;
@@ -41,7 +40,7 @@ import marytts.util.string.StringUtils;
 
 /**
  * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing and halving/doubling prevention
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class F0TrackerAutocorrelationHeuristic {
@@ -194,7 +193,7 @@ public class F0TrackerAutocorrelationHeuristic {
 
 	/**
 	 * Analyse the f0 contour of the given audio signal.
-	 * 
+	 *
 	 * @param signal
 	 *            signal
 	 */
@@ -374,7 +373,7 @@ public class F0TrackerAutocorrelationHeuristic {
 
 	/**
 	 * The frame shift time, in seconds.
-	 * 
+	 *
 	 * @return params.skipSizeInSeconds
 	 */
 	public double getSkipSizeInSeconds() {
@@ -383,7 +382,7 @@ public class F0TrackerAutocorrelationHeuristic {
 
 	/**
 	 * The size of the analysis window, in seconds.
-	 * 
+	 *
 	 * @return params.windowSizeInSeconds
 	 */
 	public double getWindowSizeInSeconds() {
@@ -393,12 +392,4 @@ public class F0TrackerAutocorrelationHeuristic {
 	public double[] getF0Contour() {
 		return f0s;
 	}
-
-	public static void main(String[] args) throws Exception {
-		F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(new PitchFileHeader());
-		tracker.pitchAnalyzeWavFile(args[0]);
-		FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.skipSizeInSeconds, tracker.f0s);
-		f0Graph.showInJFrame("F0 curve for " + args[0], false, true);
-	}
-
 }

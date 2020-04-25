@@ -61,7 +61,6 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.display.DisplayUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
@@ -74,12 +73,12 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * A class that supports voice conversion through weighted codebook mapping or joint-GMMs and FDPSOLA based prosody and vocal
  * tract modifications
- * 
+ *
  * Reference: Moulines, E. and W. Verhelst, 1995, “Time-Domain and Frequency-Domain Techniques for Prosodic Modification of
  * Speech” in Kleijn and Paliwal (eds.), Speech Coding And Synthesis, pp. 519-555, Elsevier Science B.V., Netherlands.
- * 
+ *
  * @author Oytun T&uuml;rk
- * 
+ *
  */
 public class FdpsolaAdapter {
 	protected DoubleDataSource input;
@@ -582,12 +581,12 @@ public class FdpsolaAdapter {
 
 	/*
 	 * Voice conversion version of FD-PSOLA algorithm. The original FD-PSOLA is described in:
-	 * 
+	 *
 	 * Moulines, E. and W. Verhelst, 1995, “Time-Domain and Frequency-Domain Techniques for Prosodic Modification of Speech” in
 	 * Kleijn and Paliwal (eds.), Speech Coding And Synthesis, pp. 519-555, Elsevier Science B.V., Netherlands.
-	 * 
+	 *
 	 * and the spectral conversion using codebook mapping in:
-	 * 
+	 *
 	 * Arslan, L. M., 1999, “Speaker Transformation Algorithm using Segmental Codebooks”, Speech Communication, 28, pp. 211-226.
 	 */
 	public double[] processFrame(double[] frmIn, boolean isVoiced, double currentF0, double targetF0, double tscale,
@@ -803,13 +802,6 @@ public class FdpsolaAdapter {
 
 				inputDft = FFTMixedRadix.fftComplex(inputDft);
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpComp = new ComplexArray(inputDft);
-					tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq);
-					DisplayUtils.plot(tmpSpec, "1.Input DFT");
-				}
-				//
 
 				inputExpTerm = LpcAnalyser.calcExpTerm(frmSize, baseParams.lsfParams.dimension);
 				outputExpTerm = LpcAnalyser.calcExpTerm(newFrmSize, baseParams.lsfParams.dimension);
@@ -856,27 +848,6 @@ public class FdpsolaAdapter {
 							newFrmSize, outputExpTerm);
 				}
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpSpec = new double[maxFreq];
-					System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
-					tmpSpec = MathUtils.amp2db(tmpSpec);
-					DisplayUtils.plot(tmpSpec, "2.Input Vocal Tract");
-					FileUtils.writeToTextFile(inputVocalTractSpectrum, "d:/hmmTest_inputVT.txt");
-				}
-				//
-
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime
-						&& baseParams.isSourceVocalTractSpectrumFromModel && baseParams.isVocalTractTransformation) {
-					tmpSpec = new double[maxFreq];
-					System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
-					tmpSpec = MathUtils.amp2db(tmpSpec);
-					DisplayUtils.plot(tmpSpec, "3.Source Vocal Tract Estimate");
-					FileUtils.writeToTextFile(sourceVocalTractSpectrumEstimate, "d:/hmmTest_estimateVT.txt");
-				}
-				//
-
 				inputResidual = new ComplexArray(frmSize);
 
 				// Filter out vocal tract to obtain the input residual spectrum (note that this is the real residual spectrum)
@@ -885,13 +856,6 @@ public class FdpsolaAdapter {
 					inputResidual.imag[k] = inputDft.imag[k] / inputVocalTractSpectrum[k];
 				}
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpComp = new ComplexArray(inputResidual);
-					tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq - 1);
-					DisplayUtils.plot(tmpSpec, "4.Input Residual");
-				}
-				//
 
 				int newMaxFreq = newFrmSize / 2 + 1;
 				if (baseParams.isVocalTractTransformation) {
@@ -960,15 +924,6 @@ public class FdpsolaAdapter {
 						targetVocalTractSpectrumEstimate[k] *= sqrtInputGain;
 				}
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime && baseParams.isVocalTractTransformation) {
-					tmpSpec = new double[newMaxFreq];
-					System.arraycopy(targetVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
-					tmpSpec = MathUtils.amp2db(tmpSpec);
-					DisplayUtils.plot(tmpSpec, "5.Target Vocal Tract Estimate");
-				}
-				//
-
 				outputVocalTractSpectrum = new double[newMaxFreq];
 				interpolatedInputVocalTractSpectrum = MathUtils.interpolate(inputVocalTractSpectrum, newMaxFreq);
 
@@ -985,9 +940,6 @@ public class FdpsolaAdapter {
 					for (k = 0; k < newMaxFreq; k++)
 						outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
 				}
-
-				// MaryUtils.plot(MathUtils.amp2db(inputVocalTractSpectrum));
-				// MaryUtils.plot(MathUtils.amp2db(interpolatedInputVocalTractSpectrum));
 
 				// Estimate transformation filter
 				if (baseParams.isVocalTractTransformation) {
@@ -1008,13 +960,6 @@ public class FdpsolaAdapter {
 						if (baseParams.smoothingState == SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT) {
 							smoothingFile.writeSingle(transformationFilter);
 
-							// For checking
-							if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-								tmpSpec = new double[newMaxFreq];
-								System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
-								tmpSpec = MathUtils.amp2db(tmpSpec);
-								DisplayUtils.plot(tmpSpec, "6.Transformation filter");
-							}
 						} else if (baseParams.smoothingState == SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT) {
 							if (baseParams.isSourceVocalTractSpectrumFromModel) {
 								for (k = 0; k < newMaxFreq; k++)
@@ -1026,29 +971,6 @@ public class FdpsolaAdapter {
 											* interpolatedInputVocalTractSpectrum[k];
 							}
 
-							// For checking
-							if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-								tmpSpec = new double[newMaxFreq];
-								System.arraycopy(smoothedVocalTract[smoothedInd], 0, tmpSpec, 0, tmpSpec.length);
-								tmpSpec = MathUtils.amp2db(tmpSpec);
-								DisplayUtils.plot(tmpSpec, "6.Smoothed transformation filter");
-							}
-						} else {
-							// For checking
-							if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-								tmpSpec = new double[newMaxFreq];
-								System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
-								tmpSpec = MathUtils.amp2db(tmpSpec);
-								DisplayUtils.plot(tmpSpec, "6.Transformation filter");
-							}
-						}
-					} else {
-						// For checking
-						if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-							tmpSpec = new double[newMaxFreq];
-							System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
-							tmpSpec = MathUtils.amp2db(tmpSpec);
-							DisplayUtils.plot(tmpSpec, "6.Transformation filter");
 						}
 					}
 				}
@@ -1115,13 +1037,6 @@ public class FdpsolaAdapter {
 						* outputResidual.imag[newMaxFreq - 1]);
 				outputResidual.imag[newMaxFreq - 1] = 0.0;
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpComp = new ComplexArray(outputResidual);
-					tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq - 1);
-					DisplayUtils.plot(tmpSpec, "7.Output Residual");
-				}
-				//
 
 				// Filter the output residual with the estimated target vocal tract spectrum
 				outputDft = new ComplexArray(newFrmSize);
@@ -1137,14 +1052,6 @@ public class FdpsolaAdapter {
 				}
 				//
 
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpSpec = new double[newMaxFreq];
-					System.arraycopy(outputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
-					tmpSpec = MathUtils.amp2db(tmpSpec);
-					DisplayUtils.plot(tmpSpec, "8.Output Vocal Tract");
-				}
-				//
 
 				for (k = 1; k <= newMaxFreq; k++) {
 					outputDft.real[k - 1] = outputResidual.real[k - 1] * outputVocalTractSpectrum[k - 1];
@@ -1155,15 +1062,6 @@ public class FdpsolaAdapter {
 					outputDft.real[k - 1] = outputDft.real[2 * newMaxFreq - 1 - k];
 					outputDft.imag[k - 1] = -outputDft.imag[2 * newMaxFreq - 1 - k];
 				}
-
-				// For checking
-				if (bShowSpectralPlots && psFrm.getCurrentTime() >= desiredFrameTime) {
-					tmpComp = new ComplexArray(outputDft);
-					tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq);
-					DisplayUtils.plot(tmpSpec, "9.Output DFT");
-					bShowSpectralPlots = false;
-				}
-				//
 
 				// Convert back to time domain
 				outputDft = FFTMixedRadix.ifft(outputDft);

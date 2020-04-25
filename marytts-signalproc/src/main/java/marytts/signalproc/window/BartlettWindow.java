@@ -19,15 +19,13 @@
  */
 package marytts.signalproc.window;
 
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.LogSpectrum;
 import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  *         Implements a Bartlett window
- * 
+ *
  */
 public class BartlettWindow extends Window {
 	public BartlettWindow(int length) {
@@ -50,26 +48,5 @@ public class BartlettWindow extends Window {
 
 	public String toString() {
 		return "Bartlett window";
-	}
-
-	public static void main(String[] args) {
-		int samplingRate = Integer.getInteger("samplingrate", 1).intValue();
-		int windowLengthMs = Integer.getInteger("windowlength.ms", 0).intValue();
-		int windowLength = Integer.getInteger("windowlength.samples", 512).intValue();
-		// If both are given, use window length in milliseconds:
-		if (windowLengthMs != 0)
-			windowLength = windowLengthMs * samplingRate / 1000;
-		int fftSize = Math.max(4096, MathUtils.closestPowerOfTwoAbove(windowLength));
-		Window w = new BartlettWindow(windowLength);
-		FunctionGraph timeGraph = new FunctionGraph(0, 1. / samplingRate, w.window);
-		timeGraph.showInJFrame(w.toString() + " in time domain", true, false);
-		double[] fftSignal = new double[fftSize];
-		// fftSignal should integrate to one, so normalise amplitudes:
-		double sum = MathUtils.sum(w.window);
-		for (int i = 0; i < w.window.length; i++) {
-			fftSignal[i] = w.window[i] / sum;
-		}
-		LogSpectrum freqGraph = new LogSpectrum(fftSignal, samplingRate);
-		freqGraph.showInJFrame(w.toString() + " log frequency response", true, false);
 	}
 }

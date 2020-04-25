@@ -29,7 +29,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.window.Window;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.display.DisplayUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -39,10 +38,10 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * Initial pitch, voicing, maximum frequency of voicing, and refined pitch estimation as described in:
- * 
+ *
  * Y. Stylianou (1996) “A pitch and maximum voiced frequency estimation technique adapted to harmonic models of speech,” IEEE
  * Nordic Signal Processing Symposium, Helsinki, Finland, Sept. 1996.
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class HnmPitchVoicingAnalyzer {
@@ -230,7 +229,7 @@ public class HnmPitchVoicingAnalyzer {
 			/*
 			 * isVoiced = false; if (mappedF0s[i]>10.0f) { voicingErrors[i] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate,
 			 * mappedF0s[i], params.vuvSearchMinHarmonicMultiplier, params.vuvSearchMaxHarmonicMultiplier);
-			 * 
+			 *
 			 * if (voicingErrors[i]<-1.0) isVoiced = true; }
 			 */
 
@@ -597,7 +596,7 @@ public class HnmPitchVoicingAnalyzer {
 				}
 				/*
 				 * else { vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
-				 * 
+				 *
 				 * if (vals3[i]<(HntmAnalyzer.HARMONIC_DEVIATION_PERCENT/100.0)) voiceds[i]=1.0; }
 				 */
 			}
@@ -617,7 +616,7 @@ public class HnmPitchVoicingAnalyzer {
 				}
 				/*
 				 * else { vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
-				 * 
+				 *
 				 * if (vals3[i]<(HntmAnalyzer.HARMONIC_DEVIATION_PERCENT/100.0)) voiceds[i]=1.0; }
 				 */
 			}
@@ -812,42 +811,5 @@ public class HnmPitchVoicingAnalyzer {
 		}
 
 		return refinedF0InHz;
-	}
-
-	public static void main(String[] args) throws UnsupportedAudioFileException, IOException {
-		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
-		int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-		AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-		double[] x = signal.getAllData();
-
-		HnmPitchVoicingAnalyzerParams params = new HnmPitchVoicingAnalyzerParams();
-
-		params.mvfAnalysisWindowSizeInSeconds = 0.040f;
-		params.mvfAnalysisSkipSizeInSeconds = 0.010f;
-		int windowType = Window.BLACKMAN;
-		float f0MinInHz = 60.0f;
-		float f0MaxInHz = 500.0f;
-
-		// Pitch refinement parameters
-		float leftNeighInHz = 20.0f;
-		float rightNeighInHz = 20.0f;
-		float searchStepInHz = 0.01f;
-		//
-
-		params.fftSize = getDefaultFFTSize(samplingRate);
-
-		float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, f0MinInHz, f0MaxInHz, windowType,
-				params);
-		float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, initialF0s, params, false);
-		float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(params.fftSize, samplingRate, leftNeighInHz, rightNeighInHz,
-				searchStepInHz, initialF0s, maxFrequencyOfVoicings);
-
-		for (int i = 0; i < f0s.length; i++)
-			System.out.println(String.valueOf(i * params.mvfAnalysisSkipSizeInSeconds + 0.5f
-					* params.mvfAnalysisWindowSizeInSeconds)
-					+ " sec. InitialF0=" + String.valueOf(initialF0s[i]) + " RefinedF0=" + String.valueOf(f0s[i]));
-
-		DisplayUtils.plot(initialF0s);
-		DisplayUtils.plot(f0s);
 	}
 }

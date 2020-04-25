@@ -43,7 +43,6 @@ import marytts.util.io.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackReader;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.display.DisplayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
