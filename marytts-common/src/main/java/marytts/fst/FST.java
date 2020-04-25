@@ -31,7 +31,7 @@ import java.util.ArrayList;
 /**
  * An implementation of a finite state transducer. This class does nothing but load and represent the FST. It is used by other
  * classes doing something reasonable with it.
- * 
+ *
  * @author Andreas Eisele
  */
 public class FST {
@@ -44,7 +44,7 @@ public class FST {
 	short[] offsets;
 	byte[] bytes;
 	int[] mapping;
-	ArrayList strings = new ArrayList();
+	ArrayList<String> strings = new ArrayList<String>();
 
 	public FST(String fileName) throws IOException {
 		FileInputStream fis = new FileInputStream(fileName);
@@ -57,7 +57,7 @@ public class FST {
 
 	/**
 	 * Load the fst from the given input stream. Assumes header.
-	 * 
+	 *
 	 * @param inStream
 	 *            in stream
 	 * @throws IOException
@@ -69,7 +69,7 @@ public class FST {
 
 	/**
 	 * Initialise the finite state transducer. Loads from headerless legacy file format.
-	 * 
+	 *
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param encoding
@@ -85,7 +85,7 @@ public class FST {
 
 	/**
 	 * Initialise the finite state transducer. This constructor will assume that the file uses the system default encoding.
-	 * 
+	 *
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param verbose
@@ -99,14 +99,14 @@ public class FST {
 
 	/**
 	 * Initialise the finite state transducer.
-	 * 
+	 *
 	 * @param fileName
 	 *            the name of the file from which to load the FST.
 	 * @param encoding
 	 *            the name of the encoding used in the file (e.g., UTF-8 or ISO-8859-1).
-	 * 
+	 *
 	 *            This constructor is to be used for old FST-files where the encoding was not yet specified in the header.
-	 * 
+	 *
 	 * @param verbose
 	 *            whether to write a report to stderr after loading.
 	 * @throws IOException
@@ -125,7 +125,7 @@ public class FST {
 
 	/**
 	 * Load the fst from the given input stream. Assumes headerless legacy file format.
-	 * 
+	 *
 	 * @param inStream
 	 *            inStream
 	 * @param encoding
@@ -235,7 +235,6 @@ public class FST {
 	private void createMapping(int[] mapping, byte[] bytes, String encoding) throws UnsupportedEncodingException {
 		mapping[0] = 0;
 		int last0 = -1;
-		String s;
 		int len;
 		for (int i = 0; i < bytes.length; i++) {
 			if (bytes[i] == 0) {

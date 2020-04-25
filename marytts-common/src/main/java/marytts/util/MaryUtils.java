@@ -68,7 +68,7 @@ public class MaryUtils {
 	public static Character[] StringToCharacterArray(String s) {
 		Character[] cArray = new Character[s.length()];
 		for (int i = 0; i < s.length(); i++) {
-			cArray[i] = new Character(s.charAt(i));
+			cArray[i] = s.charAt(i);
 		}
 		return cArray;
 	}
@@ -357,9 +357,8 @@ public class MaryUtils {
 		if (s.length() < 1)
 			return false;
 		if (s.charAt(0) != '+' && s.charAt(0) != '-') {
-			double value = 0;
 			try {
-				value = Double.parseDouble(s);
+                            Double.parseDouble(s);
 			} catch (NumberFormatException e) {
 				return false;
 			}
@@ -400,9 +399,8 @@ public class MaryUtils {
 		String s = string.trim();
 		if (s.length() < 1)
 			return false;
-		double value = 0;
 		try {
-			value = Double.parseDouble(s);
+			Double.parseDouble(s);
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -848,7 +846,6 @@ public class MaryUtils {
 	 *
 	 * @return true if appenders.hasMoreElements, false otherwise
 	 */
-	@SuppressWarnings("unchecked")
 	public static boolean isLog4jConfigured() {
 		System.setProperty("log4j.defaultInitOverride", "true");
                 Logger logger = LogManager.getLogger();

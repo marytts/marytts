@@ -405,7 +405,6 @@ public class PrintfFormat {
 	 * @return the substring from the start position to the beginning of the control string.
 	 */
 	private String nonControl(String s, int start) {
-		String ret = "";
 		cPos = s.indexOf("%", start);
 		if (cPos == -1)
 			cPos = s.length();
@@ -421,7 +420,7 @@ public class PrintfFormat {
 	 * @return The formatted String.
 	 */
 	public String sprintf(Object[] o) {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		int i = 0;
@@ -485,7 +484,7 @@ public class PrintfFormat {
 	 * @return the formatted String.
 	 */
 	public String sprintf() {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -510,7 +509,7 @@ public class PrintfFormat {
 	 *                if the conversion character is f, e, E, g, G, s, or S.
 	 */
 	public String sprintf(int x) throws IllegalArgumentException {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -537,7 +536,7 @@ public class PrintfFormat {
 	 *                if the conversion character is f, e, E, g, G, s, or S.
 	 */
 	public String sprintf(long x) throws IllegalArgumentException {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -564,7 +563,7 @@ public class PrintfFormat {
 	 *                if the conversion character is c, C, s, S, d, d, x, X, or o.
 	 */
 	public String sprintf(double x) throws IllegalArgumentException {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -591,7 +590,7 @@ public class PrintfFormat {
 	 *                if the conversion character is neither s nor S.
 	 */
 	public String sprintf(String x) throws IllegalArgumentException {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -619,7 +618,7 @@ public class PrintfFormat {
 	 *                if the conversion character is inappropriate for formatting an unwrapped value.
 	 */
 	public String sprintf(Object x) throws IllegalArgumentException {
-		Enumeration e = vFmt.elements();
+		Enumeration<ConversionSpecification> e = vFmt.elements();
 		ConversionSpecification cs = null;
 		char c = 0;
 		StringBuilder sb = new StringBuilder();
@@ -1014,7 +1013,7 @@ public class PrintfFormat {
 		 */
 		private char[] fFormatDigits(double x) {
 			// int defaultDigits=6;
-			String sx, sxOut;
+			String sx;
 			int i, j, k;
 			int n1In, n2In;
 			int expon = 0;
@@ -1218,7 +1217,6 @@ public class PrintfFormat {
 		 * @return the converted double value.
 		 */
 		private String fFormatString(double x) {
-			boolean noDigits = false;
 			char[] ca6, ca7;
 			if (Double.isInfinite(x)) {
 				if (x == Double.POSITIVE_INFINITY) {
@@ -1230,7 +1228,6 @@ public class PrintfFormat {
 						ca6 = "Inf".toCharArray();
 				} else
 					ca6 = "-Inf".toCharArray();
-				noDigits = true;
 			} else if (Double.isNaN(x)) {
 				if (leadingSign)
 					ca6 = "+NaN".toCharArray();
@@ -1238,7 +1235,6 @@ public class PrintfFormat {
 					ca6 = " NaN".toCharArray();
 				else
 					ca6 = "NaN".toCharArray();
-				noDigits = true;
 			} else
 				ca6 = fFormatDigits(x);
 			ca7 = applyFloatPadding(ca6, false);
@@ -1265,9 +1261,9 @@ public class PrintfFormat {
 		private char[] eFormatDigits(double x, char eChar) {
 			char[] ca1, ca2, ca3;
 			// int defaultDigits=6;
-			String sx, sxOut;
+			String sx;
 			int i, j, k, p;
-			int n1In, n2In;
+			// int n1In, n2In;
 			int expon = 0;
 			int ePos, rPos, eSize;
 			boolean minusSign = false;
@@ -1287,19 +1283,19 @@ public class PrintfFormat {
 			if (ePos == -1)
 				ePos = sx.indexOf('e');
 			rPos = sx.indexOf('.');
-			if (rPos != -1)
-				n1In = rPos;
-			else if (ePos != -1)
-				n1In = ePos;
-			else
-				n1In = sx.length();
-			if (rPos != -1) {
-				if (ePos != -1)
-					n2In = ePos - rPos - 1;
-				else
-					n2In = sx.length() - rPos - 1;
-			} else
-				n2In = 0;
+			// if (rPos != -1)
+			// 	n1In = rPos;
+			// else if (ePos != -1)
+			// 	n1In = ePos;
+			// else
+			// 	n1In = sx.length();
+			// if (rPos != -1) {
+			// 	if (ePos != -1)
+			// 		n2In = ePos - rPos - 1;
+			// 	else
+			// 		n2In = sx.length() - rPos - 1;
+			// } else
+			// 	n2In = 0;
 			if (ePos != -1) {
 				int ie = ePos + 1;
 				expon = 0;
@@ -1655,7 +1651,6 @@ public class PrintfFormat {
 		 * @return the converted double value.
 		 */
 		private String eFormatString(double x, char eChar) {
-			boolean noDigits = false;
 			char[] ca4, ca5;
 			if (Double.isInfinite(x)) {
 				if (x == Double.POSITIVE_INFINITY) {
@@ -1667,7 +1662,6 @@ public class PrintfFormat {
 						ca4 = "Inf".toCharArray();
 				} else
 					ca4 = "-Inf".toCharArray();
-				noDigits = true;
 			} else if (Double.isNaN(x)) {
 				if (leadingSign)
 					ca4 = "+NaN".toCharArray();
@@ -1675,7 +1669,6 @@ public class PrintfFormat {
 					ca4 = " NaN".toCharArray();
 				else
 					ca4 = "NaN".toCharArray();
-				noDigits = true;
 			} else
 				ca4 = eFormatDigits(x, eChar);
 			ca5 = applyFloatPadding(ca4, false);
@@ -1783,7 +1776,6 @@ public class PrintfFormat {
 			int savePrecision = precision;
 			int i;
 			char[] ca4, ca5;
-			boolean noDigits = false;
 			if (Double.isInfinite(x)) {
 				if (x == Double.POSITIVE_INFINITY) {
 					if (leadingSign)
@@ -1794,7 +1786,6 @@ public class PrintfFormat {
 						ca4 = "Inf".toCharArray();
 				} else
 					ca4 = "-Inf".toCharArray();
-				noDigits = true;
 			} else if (Double.isNaN(x)) {
 				if (leadingSign)
 					ca4 = "+NaN".toCharArray();
@@ -1802,7 +1793,6 @@ public class PrintfFormat {
 					ca4 = " NaN".toCharArray();
 				else
 					ca4 = "NaN".toCharArray();
-				noDigits = true;
 			} else {
 				if (!precisionSet)
 					precision = defaultDigits;
@@ -2987,7 +2977,7 @@ public class PrintfFormat {
 	}
 
 	/** Vector of control strings and format literals. */
-	private Vector vFmt = new Vector();
+	private Vector<ConversionSpecification> vFmt = new Vector<ConversionSpecification>();
 	/** Character position. Used by the constructor. */
 	private int cPos = 0;
 	/** Character position. Used by the constructor. */
