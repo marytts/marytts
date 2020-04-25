@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
 
 /**
  * An expansion pattern implementation for specialChar patterns.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -48,9 +48,9 @@ public class SpecialCharEP extends ExpansionPattern {
 	 * known type, the first type (<code>knownTypes[0]</code>) is expected to be the most general one, of which the others are
 	 * specialisations.
 	 */
-	private final List knownTypes = Arrays.asList(_knownTypes);
+	private final List<String> knownTypes = Arrays.asList(_knownTypes);
 
-	public List knownTypes() {
+	public List<String> knownTypes() {
 		return knownTypes;
 	}
 
@@ -77,11 +77,11 @@ public class SpecialCharEP extends ExpansionPattern {
 
 	/**
 	 * Only needed to fill specialCharNames
-	 * 
+	 *
 	 * @return m
 	 */
-	private Map createSpecialCharNames() {
-		HashMap m = new HashMap();
+         private Map<String, SCEntry> createSpecialCharNames() {
+		HashMap<String, SCEntry> m = new HashMap<String, SCEntry>();
 
 		m.put("$", new SCEntry("dollaro", false, true));
 		m.put("@", new SCEntry("chiocciola", true, true));
@@ -91,7 +91,7 @@ public class SpecialCharEP extends ExpansionPattern {
 		/*
 		 * m.put(",", new SCEntry("Komma", false, false)); m.put("\\", new SCEntry("Backslash['bEk-slES]", true, true));
 		 * m.put("!", new SCEntry("Ausrufezeichen", false, false)); m.put("#", new SCEntry("Numerical[nu:-'mE-rI_k@l]", true,
-		 * true)); m.put("$", new SCEntry("Dollar", false, true)); m.put(new Character((char)167).toString(), new
+		 * true)); m.put("$", new SCEntry("Dollar", false, true)); m.put(Character.valueOf((char)167).toString(), new
 		 * SCEntry("Paragraph", true, true)); m.put("%", new SCEntry("Prozent", false, true)); m.put(new
 		 * Character((char)8364).toString(), new SCEntry("Euro", false, true)); m.put("&", new SCEntry("und", true, true));
 		 * m.put("'", new SCEntry("Hochkomma", true, false)); m.put("*", new SCEntry("Stern", true, true)); m.put("+", new
@@ -111,7 +111,7 @@ public class SpecialCharEP extends ExpansionPattern {
 		return m;
 	};
 
-	private final Map specialCharNames = createSpecialCharNames();
+	private final Map<String, SCEntry> specialCharNames = createSpecialCharNames();
 	protected final String sMatchingChars = createMatchingChars();
 	// protected final String sMatchingChars =
 	// "[\\,\\\\\\!\\#\\$\\%\\&\\'\\*\\+\\-\\/\\=\\?\\^\\_\\`\\{\\|\\}\\~\\(\\)\\[\\]\\@\\:\\;\\\"\\<\\>\\.]";
@@ -122,13 +122,13 @@ public class SpecialCharEP extends ExpansionPattern {
 
 	/**
 	 * Only needed to fill sMatchingChars from specialCharNames
-	 * 
+	 *
 	 * @return sb.toString
 	 */
 	private String createMatchingChars() {
 		StringBuilder sb = new StringBuilder("[");
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			sb.append("\\" + (String) it.next());
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			sb.append("\\" + it.next());
 		}
 		sb.append("]");
 		return sb.toString();
@@ -137,21 +137,22 @@ public class SpecialCharEP extends ExpansionPattern {
 	/** Only needed to fill sMatchingCharsSimpleString from _specialCharNames[] */
 	private String createMatchingCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			sb.append((String) it.next());
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			Iterator<String> it2 = it;
+            sb.append(it2.next());
 		}
 		return sb.toString();
 	}
 
 	/**
 	 * Only needed to fill sSplitAtChars from _specialCharNames[]
-	 * 
+	 *
 	 * @return sb.toString
 	 */
 	private String createSplitAtChars() {
 		StringBuilder sb = new StringBuilder("[");
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			String sc = (String) it.next();
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			String sc = it.next();
 			if (((SCEntry) specialCharNames.get(sc)).splitAt) {
 				sb.append("\\" + sc);
 			}
@@ -162,13 +163,13 @@ public class SpecialCharEP extends ExpansionPattern {
 
 	/**
 	 * Only needed to fill sSplitAtCharsSimpleString from _specialCharNames[]
-	 * 
+	 *
 	 * @return sb.toString
 	 */
 	private String createSplitAtCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			String sc = (String) it.next();
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			String sc = it.next();
 			if (((SCEntry) specialCharNames.get(sc)).splitAt) {
 				sb.append(sc);
 			}
@@ -187,7 +188,7 @@ public class SpecialCharEP extends ExpansionPattern {
 	/**
 	 * A regular expression matching the characters at which a token should be split into parts before any preprocessing patterns
 	 * are applied.
-	 * 
+	 *
 	 * @return reSplitAtChars
 	 */
 	protected Pattern getRESplitAtChars() {
@@ -197,7 +198,7 @@ public class SpecialCharEP extends ExpansionPattern {
 	/**
 	 * A string containing the characters at which a token should be split into parts before any preprocessing patterns are
 	 * applied.
-	 * 
+	 *
 	 * @return sSplitAtCharsSimpleString
 	 */
 	protected String splitAtChars() {
@@ -228,14 +229,14 @@ public class SpecialCharEP extends ExpansionPattern {
 		return -1;
 	}
 
-	protected List expand(List tokens, String s, int type) {
+	protected List<Element> expand(List<Element> tokens, String s, int type) {
 		if (tokens == null)
 			throw new NullPointerException("Received null argument");
 		if (tokens.isEmpty())
 			throw new IllegalArgumentException("Received empty list");
 		Document doc = ((Element) tokens.get(0)).getOwnerDocument();
 		// we expect type to be one of the return values of match():
-		List expanded = null;
+		List<Element> expanded = null;
 		switch (type) {
 		case 0:
 			expanded = expandSpecialChar(doc, s);
@@ -248,7 +249,7 @@ public class SpecialCharEP extends ExpansionPattern {
 
 	/**
 	 * Tell whether String <code>s</code> is a specialChar.
-	 * 
+	 *
 	 * @param s
 	 *            the string
 	 * @return reMatchingChars.matcher(s).matches()
@@ -264,8 +265,8 @@ public class SpecialCharEP extends ExpansionPattern {
 		return entry.pronounce;
 	}
 
-	protected List expandSpecialChar(Document doc, String s) {
-		ArrayList exp = new ArrayList();
+	protected List<Element> expandSpecialChar(Document doc, String s) {
+		ArrayList<Element> exp = new ArrayList<Element>();
 		if (doPronounce(s)) {
 			String specialCharName = expandSpecialChar(s);
 			exp.addAll(makeNewTokens(doc, specialCharName, true, s));
