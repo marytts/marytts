@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -37,16 +37,16 @@ import java.util.Map;
 
 /**
  * This class connects weighting function names with the actual instances of the weighting functions.
- * 
+ *
  * @author sacha
- * 
+ *
  */
 public class WeightFunctionManager {
 
-	public static Map weightFuncMap;
+    public static Map<String, WeightFunc> weightFuncMap;
 
 	static {
-		weightFuncMap = new HashMap();
+		weightFuncMap = new HashMap<String, WeightFunc>();
 		weightFuncMap.put("linear", new WeightingFunction.linear());
 		weightFuncMap.put("step", new WeightingFunction.step());
 	}
@@ -59,16 +59,16 @@ public class WeightFunctionManager {
 
 	/**
 	 * Accessor for the hash map mapping names to interface instances.
-	 * 
+	 *
 	 * @return a hash map.
 	 */
-	public static Map getWeightFunc() {
+	public static Map<String, WeightFunc> getWeightFunc() {
 		return weightFuncMap;
 	}
 
 	/**
 	 * Returns the weighting function from its name.
-	 * 
+	 *
 	 * @param funcName
 	 *            The name of the weighting function.
 	 * @return an interface to a weighting function.

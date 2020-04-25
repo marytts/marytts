@@ -135,7 +135,7 @@ public class AcousticModeller extends InternalModule {
 
 	public MaryData process(MaryData d) throws SynthesisException {
 		Document doc = d.getDocument();
-		MaryData output = new MaryData(outputType(), d.getLocale());
+		MaryData output = new MaryData(getOutputType(), d.getLocale());
 
 		// cascaded voice identification:
 		Element voiceElement = (Element) doc.getElementsByTagName(MaryXML.VOICE).item(0);

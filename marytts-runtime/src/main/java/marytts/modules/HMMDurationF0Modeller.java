@@ -217,7 +217,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 		// Split input with the pattern
 		Matcher m = p.matcher(rateAttribute);
 		if (m.find()) {
-			double percentage = new Integer(rateAttribute.substring(1, rateAttribute.length() - 1)).doubleValue();
+			double percentage = Integer.valueOf(rateAttribute.substring(1, rateAttribute.length() - 1)).doubleValue();
 			if (rateAttribute.startsWith("+")) {
 				setSpeechRateSpecifications(nl, percentage, -1.0);
 			} else {
@@ -243,7 +243,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 			if (!e.hasAttribute("d")) {
 				continue;
 			}
-			double durAttribute = new Double(e.getAttribute("d")).doubleValue();
+			double durAttribute = Double.valueOf(e.getAttribute("d"));
 			double newDurAttribute = durAttribute + (incriment * percentage * durAttribute / 100);
 			e.setAttribute("d", newDurAttribute + "");
 			// System.out.println(durAttribute+" = " +newDurAttribute);
@@ -258,11 +258,11 @@ public class HMMDurationF0Modeller extends InternalModule {
 		for (int i = 0; (nd = (Element) nit.nextNode()) != null; i++) {
 			if ("boundary".equals(nd.getNodeName())) {
 				if (nd.hasAttribute("duration")) {
-					duration += new Double(nd.getAttribute("duration")).doubleValue();
+					duration += Double.valueOf(nd.getAttribute("duration"));
 				}
 			} else {
 				if (nd.hasAttribute("d")) {
-					duration += new Double(nd.getAttribute("d")).doubleValue();
+					duration += Double.valueOf(nd.getAttribute("d"));
 				}
 			}
 			double endTime = 0.001 * duration;
@@ -331,9 +331,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 		Element firstElement = (Element) nl.item(0);
 		Element lastElement = (Element) nl.item(nl.getLength() - 1);
 
-		double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
-		double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
-		double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
+		double fEnd = (Double.valueOf(firstElement.getAttribute("end")));
+		double fDuration = 0.001 * (Double.valueOf(firstElement.getAttribute("d")));
+		double lEnd = (Double.valueOf(lastElement.getAttribute("end")));
 		double fStart = fEnd - fDuration; // 'prosody' tag starting point
 		double duration = lEnd - fStart; // duaration of 'prosody' modification request
 
@@ -348,8 +348,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 				continue;
 			}
 
-			double phoneEndTime = (new Double(e.getAttribute("end"))).doubleValue();
-			double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
+			double phoneEndTime = (Double.valueOf(e.getAttribute("end")));
+			double phoneDuration = 0.001 * (Double.valueOf(e.getAttribute("d")));
 
 			Pattern p = Pattern.compile("(\\d+,\\d+)");
 
@@ -358,8 +358,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 			String setF0String = "";
 			while (m.find()) {
 				String[] f0Values = (m.group().trim()).split(",");
-				Integer percent = new Integer(f0Values[0]);
-				Integer f0Value = new Integer(f0Values[1]);
+				Integer percent = Integer.valueOf(f0Values[0]);
+				Integer f0Value = Integer.valueOf(f0Values[1]);
 				double partPhone = phoneDuration * (percent.doubleValue() / 100.0);
 
 				int placeIndex = (int) Math.floor(((((phoneEndTime - phoneDuration) - fStart) + partPhone) * 100)
@@ -427,27 +427,27 @@ public class HMMDurationF0Modeller extends InternalModule {
 			String percent = it.next();
 			String f0Value = f0Specifications.get(percent);
 
-			int percentDuration = (new Integer(percent.substring(0, percent.length() - 1))).intValue();
+			int percentDuration = (Integer.valueOf(percent.substring(0, percent.length() - 1)));
 
 			// System.out.println( percent + " " + f0Value );
 
 			if (f0Value.startsWith("+")) {
 				if (f0Value.endsWith("%")) {
-					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
+					double f0Mod = (Double.valueOf(f0Value.substring(1, f0Value.length() - 1)));
 					modifiedF0Values[percentDuration] = polyValues[percentDuration]
 							+ (polyValues[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
-					int f0Mod = (new Integer(f0Value.substring(1, f0Value.length() - 2))).intValue();
+					int f0Mod = (Integer.valueOf(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = polyValues[percentDuration] + f0Mod;
 				}
 			} else if (f0Value.startsWith("-")) {
 				if (f0Value.endsWith("%")) {
-					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
+					double f0Mod = (Double.valueOf(f0Value.substring(1, f0Value.length() - 1)));
 					modifiedF0Values[percentDuration] = polyValues[percentDuration]
 							- (polyValues[percentDuration] * (f0Mod / 100.0));
 
 				} else if (f0Value.endsWith("Hz")) {
-					int f0Mod = (new Integer(f0Value.substring(1, f0Value.length() - 2))).intValue();
+					int f0Mod = (Integer.valueOf(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = polyValues[percentDuration] - f0Mod;
 				}
 			}
@@ -471,7 +471,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 	private double[] setPitchSpecifications(double[] polyValues, String pitchAttribute) {
 
 		boolean positivePitch = pitchAttribute.startsWith("+");
-		double modificationPitch = (new Integer(pitchAttribute.substring(1, pitchAttribute.length() - 1))).doubleValue();
+		double modificationPitch = (Integer.valueOf(pitchAttribute.substring(1, pitchAttribute.length() - 1))).doubleValue();
 
 		if (pitchAttribute.startsWith("+")) {
 			if (pitchAttribute.endsWith("%")) {
@@ -589,9 +589,9 @@ public class HMMDurationF0Modeller extends InternalModule {
 		double[] contour = new double[100]; // Assume contour has 100 frames
 		Arrays.fill(contour, 0.0);
 
-		double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
-		double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
-		double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
+		double fEnd = (Double.valueOf(firstElement.getAttribute("end")));
+		double fDuration = 0.001 * (Double.valueOf(firstElement.getAttribute("d")));
+		double lEnd = (Double.valueOf(lastElement.getAttribute("end")));
 		double fStart = fEnd - fDuration; // 'prosody' tag starting point
 		double duration = lEnd - fStart; // duaration of 'prosody' modification request
 
@@ -605,8 +605,8 @@ public class HMMDurationF0Modeller extends InternalModule {
 				continue;
 			}
 
-			double phoneEndTime = (new Double(e.getAttribute("end"))).doubleValue();
-			double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
+			double phoneEndTime = (Double.valueOf(e.getAttribute("end")));
+			double phoneDuration = 0.001 * (Double.valueOf(e.getAttribute("d")));
 			// double localStartTime = endTime - phoneDuration;
 
 			f0Map = getPhoneF0Data(e.getAttribute("f0"));
@@ -644,7 +644,7 @@ public class HMMDurationF0Modeller extends InternalModule {
 		Matcher m = p.matcher(attribute);
 		while (m.find()) {
 			String[] f0Values = (m.group().trim()).split(",");
-			f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
+			f0Map.put(Integer.valueOf(f0Values[0]), Integer.valueOf(f0Values[1]));
 		}
 
 		// attribute.split(regex)

@@ -91,7 +91,7 @@ public class VocalizationSelector {
 						+ ".vocalization.intonation.featureDefinitionFile");
 				String intonationFile = MaryProperties.getFilename("voice." + voice.getName() + ".vocalization.intonationfile");
 				usePrecondition = MaryProperties.getBoolean("voice." + voice.getName() + ".vocalization.usePrecondition", false);
-				contourCostWeight = (new Double(MaryProperties.getProperty("voice." + voice.getName()
+				contourCostWeight = (Double.valueOf(MaryProperties.getProperty("voice." + voice.getName()
 						+ ".vocalization.contourCostWeight", "0.5"))).doubleValue();
 				if (contourCostWeight < 0 || contourCostWeight > 1.0) {
 					throw new MaryConfigurationException("contourCostWeight should be between 0 and 1");

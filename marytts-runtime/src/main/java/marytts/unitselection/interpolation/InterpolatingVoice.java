@@ -30,7 +30,7 @@ import marytts.modules.synthesis.Voice;
 
 /**
  * @author marc
- * 
+ *
  */
 public class InterpolatingVoice extends Voice {
 
@@ -44,9 +44,8 @@ public class InterpolatingVoice extends Voice {
 			return false;
 		if (!parts[2].endsWith("%"))
 			return false;
-		int percent;
 		try {
-			percent = Integer.parseInt(parts[2].substring(0, parts[2].length() - 1));
+			Integer.parseInt(parts[2].substring(0, parts[2].length() - 1));
 		} catch (NumberFormatException nfe) {
 			return false;
 		}
@@ -60,7 +59,7 @@ public class InterpolatingVoice extends Voice {
 	protected Voice firstVoice = null;
 
 	public InterpolatingVoice(InterpolatingSynthesizer is, String name) throws MaryConfigurationException {
-		super(name, null, null, is, null);
+		super(name, is);
 		if (isInterpolatingVoiceName(name)) {
 			String[] parts = name.split("\\s+");
 			firstVoice = Voice.getVoice(parts[0]);
@@ -72,7 +71,7 @@ public class InterpolatingVoice extends Voice {
 	 * "normal" voice. It is a specification of how to interpolate two voices. The syntax is: &lt;br&frasl;&gt;
 	 * <code>voice1 with XY% voice2</code>&lt;br&frasl;&gt; &lt;br&frasl;&gt; where voice1 and voice2 must be existing voices, and
 	 * XY is an integer between 0 and 100.
-	 * 
+	 *
 	 * @return true if name matches the specification, false otherwise
 	 */
 	/*
@@ -82,37 +81,4 @@ public class InterpolatingVoice extends Voice {
 	 * false; } if (Voice.getVoice(parts[0]) == null) return false; if (Voice.getVoice(parts[3]) == null) return false; return
 	 * true; }
 	 */
-
-	// Forward most of the public methods which are meaningful in a unit selection context to firstVoice:
-
-	public AllophoneSet getAllophoneSet() {
-		if (firstVoice == null)
-			return null;
-		return firstVoice.getAllophoneSet();
-	}
-
-	public Allophone getAllophone(String phoneSymbol) {
-		if (firstVoice == null)
-			return null;
-		return firstVoice.getAllophone(phoneSymbol);
-	}
-
-	public Locale getLocale() {
-		if (firstVoice == null)
-			return null;
-		return firstVoice.getLocale();
-	}
-
-	public AudioFormat dbAudioFormat() {
-		if (firstVoice == null)
-			return null;
-		return firstVoice.dbAudioFormat();
-	}
-
-	public Gender gender() {
-		if (firstVoice == null)
-			return null;
-		return firstVoice.gender();
-	}
-
 }

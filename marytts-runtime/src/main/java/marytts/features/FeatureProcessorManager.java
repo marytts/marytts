@@ -54,7 +54,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Constructor called from a Voice that has its own acoustic models
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 * @throws MaryConfigurationException
@@ -67,7 +67,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Create any additional feature processors for acoustic models.
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 */
@@ -201,7 +201,7 @@ public class FeatureProcessorManager {
 	 * Get the locale for this feature processor manager. Locale-specific subclasses must override this method to return the
 	 * respective locale. This base class returns null to indicate that the feature processor manager can be used as a fallback
 	 * for any locale.
-	 * 
+	 *
 	 * @return locale
 	 */
 	public Locale getLocale() {
@@ -212,7 +212,7 @@ public class FeatureProcessorManager {
 	 * Provide a space-separated list of the feature names for all the feature processors known to this feature processor manager.
 	 * The list is unsorted except that byte-valued feature processors come first, followed by short-valued feature processors,
 	 * followed by continuous feature processors.
-	 * 
+	 *
 	 * @return sb to string
 	 */
 	public String listFeatureProcessorNames() {
@@ -281,7 +281,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Set up phone feature processors based on phoneset.
-	 * 
+	 *
 	 * @param phoneset
 	 *            the AllophoneSet used for the current locale.
 	 * @param phoneValues

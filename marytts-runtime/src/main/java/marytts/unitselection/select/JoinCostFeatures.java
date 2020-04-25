@@ -340,8 +340,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 * @return Object[] { fw, wfun }
 	 * */
 	public static Object[] readJoinCostWeightsStream(InputStream weightStream) throws IOException, FileNotFoundException {
-		Vector v = new Vector(16, 16);
-		Vector vf = new Vector(16, 16);
+		Vector<Float> v = new Vector<Float>(16, 16);
+		Vector<String> vf = new Vector<String>(16, 16);
 		/* Open the file */
 		BufferedReader in = new BufferedReader(new InputStreamReader(weightStream, "UTF-8"));
 		/* Loop through the lines */
@@ -359,7 +359,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 			fields = line.split("\\s", 2); // Separate the weight value from the function name
 			float aWeight = Float.parseFloat(fields[0]);
 			sumOfWeights += aWeight;
-			v.add(new Float(aWeight)); // Push the weight
+			v.add(Float.valueOf(aWeight)); // Push the weight
 			vf.add(fields[1]); // Push the function
 			// System.out.println( "NBFEA=" + numberOfFeatures );
 		}

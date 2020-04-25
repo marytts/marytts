@@ -117,7 +117,7 @@ public class ModuleRegistry {
 	public static void registerModule(MaryModule module, Locale locale, Voice voice) throws IllegalStateException {
 		if (registrationComplete)
 			throw new IllegalStateException("cannot register modules after registration is complete");
-		MaryDataType type = module.inputType();
+		MaryDataType type = module.getInputType();
 		Object o = mkm.get(type, locale, voice);
 		List<MaryModule> l;
 		if (o != null) {
@@ -133,7 +133,7 @@ public class ModuleRegistry {
 		allModules.add(module);
 
 		MaryDataType.registerDataType(type);
-		MaryDataType.registerDataType(module.outputType());
+		MaryDataType.registerDataType(module.getOutputType());
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class ModuleRegistry {
 			List<MaryModule> v = new ArrayList<MaryModule>();
 			for (Iterator<MaryModule> it = preferredModules.iterator(); it.hasNext();) {
 				MaryModule m = (MaryModule) it.next();
-				if (m.inputType().equals(wanted_input_type)) {
+				if (m.getInputType().equals(wanted_input_type)) {
 					v.add(m);
 				}
 			}
@@ -339,7 +339,7 @@ public class ModuleRegistry {
 		}
 		for (Iterator<MaryModule> it = candidates.iterator(); it.hasNext();) {
 			MaryModule candidate = it.next();
-			MaryDataType outputType = candidate.outputType();
+			MaryDataType outputType = candidate.getOutputType();
 			// Ignore candidates that would bring us to a data type that we
 			// have already seen (i.e., that would lead to a loop):
 			if (!seenTypes.contains(outputType)) {
@@ -404,8 +404,8 @@ public class ModuleRegistry {
 		for (List<MaryModule> list : listOfLists) {
 			if (list != null) {
 				for (MaryModule m : list) {
-					if (!results.containsKey(m.outputType()))
-						results.put(m.outputType(), m);
+					if (!results.containsKey(m.getOutputType()))
+						results.put(m.getOutputType(), m);
 				}
 			}
 		}

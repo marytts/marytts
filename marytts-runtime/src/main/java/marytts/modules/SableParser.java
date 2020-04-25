@@ -91,7 +91,7 @@ public class SableParser extends InternalModule {
 		Document maryxmlDocument = docBuilder.newDocument();
 		DOMResult domResult = new DOMResult(maryxmlDocument);
 		transformer.transform(domSource, domResult);
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(maryxmlDocument);
 		return result;
 	}

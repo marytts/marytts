@@ -65,6 +65,7 @@ import marytts.util.Pair;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -479,9 +480,9 @@ public class Mary {
 		Runnable main = null;
 
 		if (server.equals("socket")) { // socket server mode
-			main = (Runnable) Class.forName("marytts.server.MaryServer").newInstance();
+			main = (Runnable) Class.forName("marytts.server.MaryServer").getDeclaredConstructor().newInstance();
 		} else if (server.equals("http")) { // http server mode
-			main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").newInstance();
+			main = (Runnable) Class.forName("marytts.server.http.MaryHttpServer").getDeclaredConstructor().newInstance();
 		} else { // command-line mode
 			main = new Runnable() {
 				public void run() {
@@ -491,7 +492,7 @@ public class Mary {
 							inputStream = System.in;
 						else
 							inputStream = new FileInputStream(args[0]);
-						String input = FileUtils.getStreamAsString(inputStream, "UTF-8");
+						String input = IOUtils.toString(inputStream, "UTF-8");
 						process(input, MaryProperties.getProperty("input.type", "TEXT"),
 								MaryProperties.getProperty("output.type", "AUDIO"),
 								MaryProperties.getProperty("locale", "en_US"), MaryProperties.getProperty("audio.type", "WAVE"),

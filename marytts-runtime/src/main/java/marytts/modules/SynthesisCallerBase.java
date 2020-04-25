@@ -108,7 +108,7 @@ public abstract class SynthesisCallerBase extends InternalModule {
 			logger.info("No default voice associated with data. Assuming global default " + defaultVoice.getName());
 		}
 
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setAudioFileFormat(d.getAudioFileFormat());
 		AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
 		if (d.getAudio() != null) {

@@ -51,7 +51,7 @@ import org.apache.logging.log4j.Logger;
  * 		Document doc = d.getDocument();
  * 		mtuPostlex(doc);
  * 		phonologicalRules(doc);
- * 		MaryData result = new MaryData(outputType());
+ * 		MaryData result = new MaryData(getOutputType());
  * 		result.setDocument(doc);
  * 		return result;
  * 	}
