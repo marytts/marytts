@@ -19,7 +19,6 @@
  */
 package marytts.util.math;
 
-import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -39,15 +38,6 @@ public class FFTTest {
 	protected double[] x2;
 	protected double[] y;
 
-	protected FunctionGraph showGraph(double[] array, String title) {
-		FunctionGraph graph = new FunctionGraph(400, 200, 0, 1. / ONE, array);
-		graph.showInJFrame(title, 500, 300, true, false);
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-		return graph;
-	}
 
 	@Before
 	public void setUp() {
@@ -105,7 +95,7 @@ public class FFTTest {
 		/*
 		 * showGraph(resultingSignal, "resultingSignal"); showGraph(y, "y"); showGraph(ir, "impulse response"); showGraph(signal,
 		 * "signal");
-		 * 
+		 *
 		 * try {Thread.sleep(100000);}catch(Exception e) {}
 		 */
 
