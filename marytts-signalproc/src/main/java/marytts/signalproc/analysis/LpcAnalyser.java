@@ -28,7 +28,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.Defaults;
-import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.Window;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -281,7 +280,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		if (lpAnaResults != null) {
 			lpCoeffs = new double[lpAnaResults.length][];
 			for (int i = 0; i < lpAnaResults.length; i++)
-				lpCoeffs[i] = ArrayUtils.copy(((LpCoeffs) lpAnaResults[i]).getA());
+                            lpCoeffs[i] = ((LpCoeffs) lpAnaResults[i]).getA().clone();
 		}
 
 		return lpCoeffs;
@@ -311,7 +310,7 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		if (lpAnaResults != null) {
 			lpCoeffs = new double[lpAnaResults.length][];
 			for (int i = 0; i < lpAnaResults.length; i++)
-				lpCoeffs[i] = ArrayUtils.copy(((LpCoeffs) lpAnaResults[i]).getA());
+                            lpCoeffs[i] = ((LpCoeffs) lpAnaResults[i]).getA().clone();
 		}
 
 		return lpCoeffs;
@@ -334,8 +333,6 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 
 	public static LpCoeffs[] signal2lpCoeffsWithGain(double[] x, int windowType, double windowSizeInSeconds,
 			double frameShiftInSeconds, int samplingRateInHz, int lpcOrder, float preCoef) {
-		int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRateInHz);
-		int ss = SignalProcUtils.time2sample(frameShiftInSeconds, samplingRateInHz);
 
 		int numfrm = SignalProcUtils.getTotalFrames(SignalProcUtils.sample2time(x.length, samplingRateInHz), windowSizeInSeconds,
 				frameShiftInSeconds);
@@ -352,7 +349,6 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		LpCoeffs[] lpCoeffs = null;
 
 		if (numfrm > 0) {
-			Window w = SignalProcUtils.getWindow(windowType, ws);
 			double[] frm = new double[ws];
 			lpCoeffs = new LpCoeffs[numfrm];
 
@@ -398,12 +394,12 @@ public class LpcAnalyser extends FrameBasedAnalyser {
 		}
 
 		public LpCoeffs(LpCoeffs existing) {
-			oneMinusA = ArrayUtils.copy(existing.oneMinusA);
+                        oneMinusA = existing.oneMinusA.clone();
 			gain = existing.gain;
 
-			lsf = ArrayUtils.copy(existing.lsf);
-			lpcc = ArrayUtils.copy(existing.lpcc);
-			lprefc = ArrayUtils.copy(existing.lprefc);
+			lsf = existing.lsf.clone();
+			lpcc = existing.lpcc.clone();
+			lprefc = existing.lprefc.clone();
 		}
 
 		/**

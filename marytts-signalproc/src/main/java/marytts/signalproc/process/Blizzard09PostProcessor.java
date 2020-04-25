@@ -173,7 +173,7 @@ public class Blizzard09PostProcessor {
 			}
 		}
 
-		double[] y = ArrayUtils.copy(x);
+		double[] y = x.clone();
 
 		// Step 1
 		if (SHARPEN_FORMANTS)
@@ -364,13 +364,13 @@ public class Blizzard09PostProcessor {
 						Arrays.fill(frm, 0.0);
 						if (j * ss + startIndex < x.length) {
 							System.arraycopy(x, j * ss + startIndex, frm, 0, Math.min(ws, x.length - (j * ss + startIndex)));
-							double[] frmOrig = ArrayUtils.copy(frm);
+							double[] frmOrig = frm.clone();
 							double origEn = SignalProcUtils.energy(frmOrig);
 
 							wfrm.apply(frm, 0);
 							LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, 0.0f);
 							double[] lsfs = LsfAnalyser.lpc2lsfInHz(lpcs.getOneMinusA(), samplingRateInHz);
-							double[] lsfsMod = ArrayUtils.copy(lsfs);
+							double[] lsfsMod = lsfs.clone();
 
 							if (isVowels[i]) {
 								double[] dists = new double[lsfs.length - 1];

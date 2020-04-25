@@ -13,7 +13,7 @@ import javax.sound.sampled.AudioSystem;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream {
 	protected boolean doneAppending = false;
@@ -22,19 +22,19 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	 * Create a sequence audio input stream to which more AudioInputStreams can be appended after creation. When the currently
 	 * available audio input streams have been read, calls to read() will block until new audio data is appended or
 	 * doneAppending() is called. After doneAppending() is called, read() will return -1 when running out of data.
-	 * 
+	 *
 	 * @param audioFormat
 	 *            audioformat
 	 * @param audioInputStreams
 	 *            audioinputstreams
 	 */
-	public AppendableSequenceAudioInputStream(AudioFormat audioFormat, Collection audioInputStreams) {
+	public AppendableSequenceAudioInputStream(AudioFormat audioFormat, Collection<AudioInputStream> audioInputStreams) {
 		super(audioFormat, audioInputStreams);
 	}
 
 	/**
 	 * Append the new audio input stream to the end of the list of audio input streams.
-	 * 
+	 *
 	 * @param ais
 	 *            ais
 	 * @throws IllegalArgumentException
@@ -114,7 +114,7 @@ public class AppendableSequenceAudioInputStream extends SequenceAudioInputStream
 	 * Return the frame length of this appendable sequence audio input stream. As long as <code>doneAppending()</code> has not
 	 * been called, returns <code>AudioSystem.NOT_SPECIFIED</code>; after that, the frame length is the sum of the frame lengths
 	 * of individual frame lengths.
-	 * 
+	 *
 	 * @return total
 	 */
 	public long getFrameLength() {

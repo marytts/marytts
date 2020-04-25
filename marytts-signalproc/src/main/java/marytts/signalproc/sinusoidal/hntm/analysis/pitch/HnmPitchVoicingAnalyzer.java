@@ -219,7 +219,7 @@ public class HnmPitchVoicingAnalyzer {
 			// Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
 			double[] YAbs = MathUtils.abs(Y, 0, maxFreq - 1);
 			double[] YAbsDB = MathUtils.amp2db(YAbs);
-			allDBSpectra[i] = ArrayUtils.copy(YAbsDB);
+			allDBSpectra[i] = YAbsDB.clone();
 			//
 
 			// MaryUtils.plot(YAbsDB);
@@ -333,7 +333,7 @@ public class HnmPitchVoicingAnalyzer {
 		}
 
 		if (numSegments > 0) {
-			float[] tmpMaxFrequencyOfVoicings = ArrayUtils.copy(maxFrequencyOfVoicings);
+			float[] tmpMaxFrequencyOfVoicings = maxFrequencyOfVoicings.clone();
 			Arrays.fill(maxFrequencyOfVoicings, 0.0f);
 			int[][] segmentInds = new int[numSegments][2];
 

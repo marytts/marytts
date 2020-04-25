@@ -23,11 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import marytts.util.io.FileUtils;
+import org.apache.commons.io.FileUtils;
+
 
 /**
  * A wrapper class to read fields in Festival UTT files
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class FestivalUtt extends AlignmentData {
@@ -49,7 +50,7 @@ public class FestivalUtt extends AlignmentData {
 
 		labels = new Labels[keys.length];
 
-		if (FileUtils.exists(festivalUttFile)) {
+		if (new File(festivalUttFile).exists()) {
 			read(festivalUttFile);
 		}
 	}
@@ -57,7 +58,7 @@ public class FestivalUtt extends AlignmentData {
 	public void read(String festivalUttFile) {
 		String allText = null;
 		try {
-			allText = FileUtils.getFileAsString(new File(festivalUttFile), "ASCII");
+			allText = FileUtils.readFileToString(new File(festivalUttFile), "ASCII");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,7 +70,6 @@ public class FestivalUtt extends AlignmentData {
 			int i, j;
 			int[] boundInds = new int[keys.length];
 			Arrays.fill(boundInds, -1);
-			int boundCount = 0;
 			for (i = 0; i < keys.length; i++) {
 				for (j = 0; j < lines.length; j++) {
 					if (lines[j].compareTo(keys[i]) == 0) {
@@ -87,7 +87,6 @@ public class FestivalUtt extends AlignmentData {
 					// Shift all valuesRest by one, and put the f0 into valuesRest[0]
 					if (keys[i].compareTo("==Target==") == 0) {
 						for (j = 0; j < labels[i].items.length; j++) {
-							int numTotalValuesRest = 0;
 							if (labels[i].items[j].valuesRest != null) {
 								double[] tmpValues = new double[labels[i].items[j].valuesRest.length];
 								System.arraycopy(labels[i].items[j].valuesRest, 0, tmpValues, 0,
@@ -120,11 +119,5 @@ public class FestivalUtt extends AlignmentData {
 		FestivalUtt f = new FestivalUtt(festivalUttFile);
 
 		return f;
-	}
-
-	public static void main(String[] args) {
-		FestivalUtt f = new FestivalUtt("d:/a.utt");
-
-		System.out.println("Test completed...");
 	}
 }

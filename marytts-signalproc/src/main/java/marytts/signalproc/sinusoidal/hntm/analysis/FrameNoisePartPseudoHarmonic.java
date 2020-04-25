@@ -47,7 +47,7 @@ public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
 	public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing) {
 		this();
 
-		ceps = ArrayUtils.copy(existing.ceps);
+		ceps = existing.ceps.clone();
 	}
 
 	public FrameNoisePartPseudoHarmonic(DataInputStream dis, int cepsLen) {

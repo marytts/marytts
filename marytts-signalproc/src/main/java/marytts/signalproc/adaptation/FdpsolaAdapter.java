@@ -842,7 +842,7 @@ public class FdpsolaAdapter {
 								interpolatedInputLpcs = LsfAnalyser.lsfInBark2lpc(((JointGMMMatch) match).outputFeatures, fs);
 						}
 					} else if (mapper instanceof TargetLsfCopyMapper)
-						interpolatedInputLpcs = ArrayUtils.copy(inputLpcs);
+						interpolatedInputLpcs = inputLpcs.clone();
 
 					sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(interpolatedInputLpcs, 1.0f,
 							newFrmSize, outputExpTerm);

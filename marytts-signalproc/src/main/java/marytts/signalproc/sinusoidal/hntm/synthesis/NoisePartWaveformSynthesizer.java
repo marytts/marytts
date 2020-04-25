@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -30,14 +30,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -60,21 +60,22 @@ package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.math.ArrayUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
  * Synthesizes noise part waveform from non-overlapping chunks of data. This model is the most natural one since it involves no
  * noise models.
- * 
+ *
  * @author oytun.turk
- * 
+ *
  */
 public class NoisePartWaveformSynthesizer {
 	// TO DO: This should use overlap add since the noise waveform will not be a continuous waveform in TTS
@@ -170,7 +171,7 @@ public class NoisePartWaveformSynthesizer {
 				}
 			} else {
 				if (currentLeftContext != null && currentLeftContext.n != null) {
-					leftContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform) currentLeftContext.n).waveform2Doubles());
+                                    leftContextWaveform = ((FrameNoisePartWaveform) currentLeftContext.n).waveform2Doubles().clone();
 				} else {
 					leftContextWaveform = new double[frameWaveform.length];
 					Arrays.fill(leftContextWaveform, 0.0);
@@ -191,15 +192,15 @@ public class NoisePartWaveformSynthesizer {
 				}
 			} else {
 				if (currentRightContext != null && currentRightContext.n != null) {
-					rightContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform) currentRightContext.n).waveform2Doubles());
+                                    rightContextWaveform = ((FrameNoisePartWaveform) currentRightContext.n).waveform2Doubles().clone();
 				} else {
 					rightContextWaveform = new double[frameWaveform.length];
 					Arrays.fill(rightContextWaveform, 0.0);
 				}
 			}
 
-			frameWaveform = ArrayUtils.combine(leftContextWaveform, frameWaveform);
-			frameWaveform = ArrayUtils.combine(frameWaveform, rightContextWaveform);
+			frameWaveform = ArrayUtils.addAll(leftContextWaveform, frameWaveform);
+			frameWaveform = ArrayUtils.addAll(frameWaveform, rightContextWaveform);
 
 			if (frameWaveform != null) {
 				Window w = new HammingWindow(frameWaveform.length);

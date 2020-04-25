@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -40,7 +40,7 @@ import marytts.util.math.ArrayUtils;
 
 /**
  * @author oytun.turk
- * 
+ *
  */
 public class HntmSpeechSignal {
 	public HntmSpeechFrame[] frames;
@@ -161,7 +161,7 @@ public class HntmSpeechSignal {
 			lpcsAll = new float[frames.length][];
 			for (int i = 0; i < frames.length; i++) {
 				if (frames[i].n instanceof FrameNoisePartLpc)
-					lpcsAll[i] = ArrayUtils.copy(((FrameNoisePartLpc) frames[i].n).lpCoeffs);
+                                    lpcsAll[i] = ((FrameNoisePartLpc) frames[i].n).lpCoeffs.clone();
 			}
 		}
 
