@@ -101,7 +101,11 @@ public class PreprocessTest {
 	private Object[][] expansionDocDataDate() {
 		// @formatter:off
 		return new Object[][] { { "06/29/1993", "June twenty-ninth nineteen ninety-three" },
-								{ "06/22/1992", "June twenty-second nineteen ninety-two" } };
+                                        { "06/22/1992", "June twenty-second nineteen ninety-two" },
+                                        { "24/04/2020", "April twenty-fourth twenty twenty"},
+                                        { "04/24/2020", "April twenty-fourth twenty twenty"},
+                                        { "04.24.2020", "April twenty-fourth twenty twenty"},
+                                        { "4/24/2020", "April twenty-fourth twenty twenty"}};
 		// @formatter:on
 	}
 
@@ -170,7 +174,7 @@ public class PreprocessTest {
 
 	@Test(dataProvider = "dateExpandData")
 	public void testExpandDate(String token, String word) throws ParseException {
-		String actual = module.expandDate(token);
+                String actual = module.expandDate(token);
 		Assert.assertEquals(actual, word);
 	}
 
