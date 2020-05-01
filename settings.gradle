@@ -3,7 +3,6 @@ pluginManagement {
         id 'de.dfki.mary.component' version '0.2'
     }
 }
-include 'marytts-builder'
 include 'marytts-client'
 include 'marytts-common'
 include 'marytts-languages:marytts-lang-de'
