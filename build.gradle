@@ -13,3 +13,12 @@ allprojects {
 
 apply from: 'applicationLogic.gradle'
 apply from: 'publishLogic.gradle'
+
+components.java {
+    withVariantsFromConfiguration(configurations.sourcesElements) {
+        skip()
+    }
+    withVariantsFromConfiguration(configurations.javadocElements) {
+        skip()
+    }
+}
