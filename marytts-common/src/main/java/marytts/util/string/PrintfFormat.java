@@ -1,27 +1,27 @@
 //
 // (c) 2000 Sun Microsystems, Inc.
 // ALL RIGHTS RESERVED
-// 
-// License Grant-
-// 
-// 
-// Permission to use, copy, modify, and distribute this Software and its 
-// documentation for NON-COMMERCIAL or COMMERCIAL purposes and without fee is 
-// hereby granted.  
-// 
-// This Software is provided "AS IS".  All express warranties, including any 
-// implied warranty of merchantability, satisfactory quality, fitness for a 
-// particular purpose, or non-infringement, are disclaimed, except to the extent 
-// that such disclaimers are held to be legally invalid.
-// 
-// You acknowledge that Software is not designed, licensed or intended for use in 
-// the design, construction, operation or maintenance of any nuclear facility 
-// ("High Risk Activities").  Sun disclaims any express or implied warranty of 
-// fitness for such uses.  
 //
-// Please refer to the file http://www.sun.com/policies/trademarks/ for further 
-// important trademark information and to 
-// http://java.sun.com/nav/business/index.html for further important licensing 
+// License Grant-
+//
+//
+// Permission to use, copy, modify, and distribute this Software and its
+// documentation for NON-COMMERCIAL or COMMERCIAL purposes and without fee is
+// hereby granted.
+//
+// This Software is provided "AS IS".  All express warranties, including any
+// implied warranty of merchantability, satisfactory quality, fitness for a
+// particular purpose, or non-infringement, are disclaimed, except to the extent
+// that such disclaimers are held to be legally invalid.
+//
+// You acknowledge that Software is not designed, licensed or intended for use in
+// the design, construction, operation or maintenance of any nuclear facility
+// ("High Risk Activities").  Sun disclaims any express or implied warranty of
+// fitness for such uses.
+//
+// Please refer to the file http://www.sun.com/policies/trademarks/ for further
+// important trademark information and to
+// http://java.sun.com/nav/business/index.html for further important licensing
 // information for the Java Technology.
 //
 
@@ -50,7 +50,7 @@ import java.util.Vector;
  * % ['-+ #0]* [0..9]* { . [0..9]* }+
  *                { [hlL] }+ [idfgGoxXeEcs]
  * </pre>
- * 
+ *
  * There are variants of this basic form that are discussed below.
  * <p>
  * The format is composed of zero or more directives defined as follows:
@@ -79,9 +79,9 @@ import java.util.Vector;
  * The following table lists escape sequences and associated actions on display devices capable of the action.
  * <table>
  * <tr>
- * <th align=left>Sequence</th>
- * <th align=left>Name</th>
- * <th align=left>Description</th>
+ * <th>Sequence</th>
+ * <th>Name</th>
+ * <th>Description</th>
  * </tr>
  * <tr>
  * <td>\\</td>
@@ -319,7 +319,7 @@ public class PrintfFormat {
 	 * Constructs an array of control specifications possibly preceded, separated, or followed by ordinary strings. Control
 	 * strings begin with unpaired percent signs. A pair of successive percent signs designates a single percent sign in the
 	 * format.
-	 * 
+	 *
 	 * @param fmtArg
 	 *            Control string.
 	 * @exception IllegalArgumentException
@@ -333,7 +333,7 @@ public class PrintfFormat {
 	 * Constructs an array of control specifications possibly preceded, separated, or followed by ordinary strings. Control
 	 * strings begin with unpaired percent signs. A pair of successive percent signs designates a single percent sign in the
 	 * format.
-	 * 
+	 *
 	 * @param locale
 	 *            locale
 	 * @param fmtArg
@@ -397,7 +397,7 @@ public class PrintfFormat {
 	/**
 	 * Return a substring starting at <code>start</code> and ending at either the end of the String <code>s</code>, the next
 	 * unpaired percent sign, or at the end of the String if the last character is a percent sign.
-	 * 
+	 *
 	 * @param s
 	 *            Control string.
 	 * @param start
@@ -415,7 +415,7 @@ public class PrintfFormat {
 	/**
 	 * Format an array of objects. Byte, Short, Integer, Long, Float, Double, and Character arguments are treated as wrappers for
 	 * primitive types.
-	 * 
+	 *
 	 * @param o
 	 *            The array of objects to format.
 	 * @return The formatted String.
@@ -481,7 +481,7 @@ public class PrintfFormat {
 
 	/**
 	 * Format nothing. Just use the control string.
-	 * 
+	 *
 	 * @return the formatted String.
 	 */
 	public String sprintf() {
@@ -502,7 +502,7 @@ public class PrintfFormat {
 
 	/**
 	 * Format an int.
-	 * 
+	 *
 	 * @param x
 	 *            The int to format.
 	 * @return The formatted String.
@@ -529,7 +529,7 @@ public class PrintfFormat {
 
 	/**
 	 * Format an long.
-	 * 
+	 *
 	 * @param x
 	 *            The long to format.
 	 * @return The formatted String.
@@ -556,7 +556,7 @@ public class PrintfFormat {
 
 	/**
 	 * Format a double.
-	 * 
+	 *
 	 * @param x
 	 *            The double to format.
 	 * @return The formatted String.
@@ -583,7 +583,7 @@ public class PrintfFormat {
 
 	/**
 	 * Format a String.
-	 * 
+	 *
 	 * @param x
 	 *            The String to format.
 	 * @return The formatted String.
@@ -611,7 +611,7 @@ public class PrintfFormat {
 	/**
 	 * Format an Object. Convert wrapper types to their primitive equivalents and call the appropriate internal formatting method.
 	 * Convert Strings using an internal formatting method for Strings. Otherwise use the default formatter (use toString).
-	 * 
+	 *
 	 * @param x
 	 *            the Object to format.
 	 * @return the formatted String.
@@ -688,7 +688,7 @@ public class PrintfFormat {
 		/**
 		 * Constructor for a conversion specification. The argument must begin with a % and end with the conversion character for
 		 * the conversion specification.
-		 * 
+		 *
 		 * @param fmtArg
 		 *            String specifying the conversion specification.
 		 * @exception IllegalArgumentException
@@ -727,7 +727,7 @@ public class PrintfFormat {
 
 		/**
 		 * Set the String for this instance.
-		 * 
+		 *
 		 * @param s
 		 *            the String to store.
 		 */
@@ -794,7 +794,7 @@ public class PrintfFormat {
 
 		/**
 		 * Check whether the specifier has a variable field width that is going to be set by an argument.
-		 * 
+		 *
 		 * @return <code>true</code> if the conversion uses an * field width; otherwise <code>false</code>.
 		 */
 		boolean isVariableFieldWidth() {
@@ -803,7 +803,7 @@ public class PrintfFormat {
 
 		/**
 		 * Set the field width with an argument. A negative field width is taken as a - flag followed by a positive field width.
-		 * 
+		 *
 		 * @param fw
 		 *            the field width.
 		 */
@@ -816,7 +816,7 @@ public class PrintfFormat {
 
 		/**
 		 * Check whether the specifier has a variable precision that is going to be set by an argument.
-		 * 
+		 *
 		 * @return <code>true</code> if the conversion uses an * precision; otherwise <code>false</code>.
 		 */
 		boolean isVariablePrecision() {
@@ -825,7 +825,7 @@ public class PrintfFormat {
 
 		/**
 		 * Set the precision with an argument. A negative precision will be changed to zero.
-		 * 
+		 *
 		 * @param pr
 		 *            the precision.
 		 */
@@ -836,7 +836,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format an int argument using this conversion specification.
-		 * 
+		 *
 		 * @param s
 		 *            the int to format.
 		 * @return the formatted String.
@@ -885,7 +885,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format a long argument using this conversion specification.
-		 * 
+		 *
 		 * @param s
 		 *            the long to format.
 		 * @return the formatted String.
@@ -934,7 +934,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format a double argument using this conversion specification.
-		 * 
+		 *
 		 * @param s
 		 *            the double to format.
 		 * @return the formatted String.
@@ -964,7 +964,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format a String argument using this conversion specification.
-		 * 
+		 *
 		 * @param s
 		 *            the String to format.
 		 * @return the formatted String.
@@ -983,7 +983,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format an Object argument using this conversion specification.
-		 * 
+		 *
 		 * @param s
 		 *            the Object to format.
 		 * @return the formatted String.
@@ -1212,7 +1212,7 @@ public class PrintfFormat {
 		/**
 		 * An intermediate routine on the way to creating an f format String. The method decides whether the input double value is
 		 * an infinity, not-a-number, or a finite double and formats each type of input appropriately.
-		 * 
+		 *
 		 * @param x
 		 *            the double value to be formatted.
 		 * @return the converted double value.
@@ -1566,7 +1566,7 @@ public class PrintfFormat {
 		/**
 		 * Check to see if the digits that are going to be truncated because of the precision should force a round in the
 		 * preceding digits.
-		 * 
+		 *
 		 * @param ca1
 		 *            the array of digits
 		 * @param icarry
@@ -1596,7 +1596,7 @@ public class PrintfFormat {
 		/**
 		 * Start the symbolic carry process. The process is not quite finished because the symbolic carry may change the length of
 		 * the string and change the exponent (in e format).
-		 * 
+		 *
 		 * @param cLast
 		 *            index of the last digit changed by the round
 		 * @param cFirst
@@ -1647,7 +1647,7 @@ public class PrintfFormat {
 		/**
 		 * An intermediate routine on the way to creating an e format String. The method decides whether the input double value is
 		 * an infinity, not-a-number, or a finite double and formats each type of input appropriately.
-		 * 
+		 *
 		 * @param x
 		 *            the double value to be formatted.
 		 * @param eChar
@@ -1684,7 +1684,7 @@ public class PrintfFormat {
 
 		/**
 		 * Apply zero or blank, left or right padding.
-		 * 
+		 *
 		 * @param ca4
 		 *            array of characters before padding is finished
 		 * @param noDigits
@@ -1736,7 +1736,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format method for the f conversion character.
-		 * 
+		 *
 		 * @param x
 		 *            the double to format.
 		 * @return the formatted String.
@@ -1747,7 +1747,7 @@ public class PrintfFormat {
 
 		/**
 		 * Format method for the e or E conversion character.
-		 * 
+		 *
 		 * @param x
 		 *            the double to format.
 		 * @return the formatted String.
@@ -1773,7 +1773,7 @@ public class PrintfFormat {
 		 *
 		 * The precision, if set, is the minimum number of digits to appear after the radix character. Padding is with trailing
 		 * 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the double to format.
 		 * @return the formatted String.
@@ -1889,7 +1889,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the short to format.
 		 * @return the formatted String.
@@ -1911,7 +1911,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the long to format.
 		 * @return the formatted String.
@@ -1933,7 +1933,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the int to format.
 		 * @return the formatted String.
@@ -1944,7 +1944,7 @@ public class PrintfFormat {
 
 		/**
 		 * Utility method for formatting using the d conversion character.
-		 * 
+		 *
 		 * @param sx
 		 *            the String to format, the result of converting a short, int, or long to a String.
 		 * @return the formatted String.
@@ -2035,7 +2035,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the short to format.
 		 * @return the formatted String.
@@ -2104,7 +2104,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the long to format.
 		 * @return the formatted String.
@@ -2202,7 +2202,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the int to format.
 		 * @return the formatted String.
@@ -2268,7 +2268,7 @@ public class PrintfFormat {
 
 		/**
 		 * Utility method for formatting using the x conversion character.
-		 * 
+		 *
 		 * @param sx
 		 *            the String to format, the result of converting a short, int, or long to a String.
 		 * @return the formatted String.
@@ -2343,7 +2343,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the short to format.
 		 * @return the formatted String.
@@ -2387,7 +2387,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the long to format.
 		 * @return the formatted String.
@@ -2479,7 +2479,7 @@ public class PrintfFormat {
 		 * is with blanks by default.
 		 *
 		 * The precision, if set, is the minimum number of digits to appear. Padding is with leading 0s.
-		 * 
+		 *
 		 * @param x
 		 *            the int to format.
 		 * @return the formatted String.
@@ -2532,7 +2532,7 @@ public class PrintfFormat {
 
 		/**
 		 * Utility method for formatting using the o conversion character.
-		 * 
+		 *
 		 * @param sx
 		 *            the String to format, the result of converting a short, int, or long to a String.
 		 * @return the formatted String.
@@ -2589,7 +2589,7 @@ public class PrintfFormat {
 		 * default width is 1.
 		 *
 		 * The precision, if set, is ignored.
-		 * 
+		 *
 		 * @param x
 		 *            the char to format.
 		 * @return the formatted String.
@@ -2624,7 +2624,7 @@ public class PrintfFormat {
 		 *
 		 * The precision, if set, specifies the maximum number of characters to be printed from the string. A null digit string is
 		 * treated as a 0. The default is not to set a maximum number of characters to be printed.
-		 * 
+		 *
 		 * @param x
 		 *            the String to format.
 		 * @return the formatted String.
@@ -2675,7 +2675,7 @@ public class PrintfFormat {
 
 		/**
 		 * Check for a conversion character. If it is there, store it.
-		 * 
+		 *
 		 * @param x
 		 *            the String to format.
 		 * @return <code>true</code> if the conversion character is there, and <code>false</code> otherwise.

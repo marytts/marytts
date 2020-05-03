@@ -54,26 +54,35 @@ import org.apache.logging.log4j.Logger;
  * Listen for clients as an Http server at port <code>MaryProperties.socketPort()</code>.
  * <p>
  * There are two types of clients that can be handled:
+ * </p>
  * <p>
- * (1) Non-web browser clients (2) Web browser clients
+* (1) Non-web browser clients (2) Web browser clients
+ * </p>
  * <p>
- * Note that non-web browser clients can mimic web browser clients by setting WEB_BROWSER_CLIENT parameter to "true" in the Http
+* Note that non-web browser clients can mimic web browser clients by setting WEB_BROWSER_CLIENT parameter to "true" in the Http
  * request string
+ * </p>
  * <p>
- * Clients can request the following (See below for more details):
+* Clients can request the following (See below for more details):
+ * </p>
  * <p>
- * (1) A file such as Mary icon or an audio file (2) Information like available voices, example texts, available audio formats,
+* (1) A file such as Mary icon or an audio file (2) Information like available voices, example texts, available audio formats,
  * etc (3) Synthesis of an appropriate input with appropriate additional parameters
+ * </p>
  * <p>
- * For all clients, the responses are always sent in an HttpResponse. The entity in the response body can represent:
+* For all clients, the responses are always sent in an HttpResponse. The entity in the response body can represent:
+ * </p>
  * <p>
- * (1) An html page (applies only to web browser clients) (2) Some binary data (such as bytes of Mary icon for file requests, or
+* (1) An html page (applies only to web browser clients) (2) Some binary data (such as bytes of Mary icon for file requests, or
  * bytes of audio data for synthesis requests) (3) Some piece of text
+ * </p>
  * <p>
- * A valid Mary Http request string is a collection of individual key-value pairs combined in Http request style:
+* A valid Mary Http request string is a collection of individual key-value pairs combined in Http request style:
  * <code>address?pair1&amp;pair2&amp;pair3...</code> etc.
+ * </p>
  * <p>
  * The <code>address</code> identifies the kind of thing that the client is asking for:
+ * </p>
  * <ul>
  * <li><code>version</code> requests the version of the MARY server;</li>
  * <li><code>datatypes</code> requests the list of available data types;</li>
@@ -92,58 +101,73 @@ import org.apache.logging.log4j.Logger;
  * <li><code>features?locale=de</code> requests the list of available features that can be computed for the given locale;</li>
  * <li><code>features?voice=hmm-slt</code> requests the list of available features that can be computed for the given voice;</li>
  * <li><code>vocalizations?voice=dfki-poppy</code> requests the list of vocalization names that are available with the given
- * voice;
- * <li><code>styles?voice=dfki-pavoque-styles</code> requests the list of style names that are available with the given voice;
+ * voice;</li>
+ * <li><code>styles?voice=dfki-pavoque-styles</code> requests the list of style names that are available with the given voice;</li>
  * <li><code>process</code> requests the synthesis of some text (see below).</li>
  * </ul>
  * <p>
  * In Each pair has the following structure:
+ * </p>
  * <p>
  * <code>KEY=VALUE</code>
+ * </p>
  * <p>
  * where the following keys are used for passing additional information from server to client and/or vice versa:
+ * </p>
  * <p>
  * INPUT_TYPE (input data type)
+ * </p>
  * <p>
  * OUTPUT_TYPE (output data type)
+ * </p>
  * <p>
  * AUDIO (audio format. It may include streaming/non-streaming information as well. Example values for non-streaming formats:
  * AU_FILE, MP3_FILE, WAVE_FILE Example values for streaming formats: AU_STREAM, MP3_STREAM)
+ * </p>
  * <p>
- * STYLE (Style descriptor)
+* STYLE (Style descriptor)
+ * </p>
  * <p>
- * INPUT_TEXT (Input text to be synthesised)
+* INPUT_TEXT (Input text to be synthesised)
+ * </p>
  * <p>
- * OUTPUT_TEXT (Output text - if the output type is not audio)
+* OUTPUT_TEXT (Output text - if the output type is not audio)
+ * </p>
  * <p>
- * SYNTHESIS_OUTPUT (A key to ask for synthesis, or to represent synthesis result. Example values: SYNTHESIS_OUTPUT=? instantiates
+* SYNTHESIS_OUTPUT (A key to ask for synthesis, or to represent synthesis result. Example values: SYNTHESIS_OUTPUT=? instantiates
  * a synthesis request In response, the server can set SYNTHESIS_OUTPUT to DONE, PENDING, or FAILED depending on the validity and
  * type of te request PENDING is a special case used for handling double requests due to EMBED or OBJECT tags in web browser
  * client html pages
- * 
+ *
+ * </p>
  * <p>
- * Additionally, web browser clients should use the following key-value pair to tell the server about their type:
+* Additionally, web browser clients should use the following key-value pair to tell the server about their type:
+ * </p>
  * <p>
- * WEB_BROWSER_CLIENT=true (All other values will be interpreted as non-web browser client)
+* WEB_BROWSER_CLIENT=true (All other values will be interpreted as non-web browser client)
+ * </p>
  * <p>
- * An easy way to test the http server is as follows:
+* An easy way to test the http server is as follows:
+ * </p>
  * <p>
- * (1) Run mary server in "http" mode by setting server=http in marybase.config
+* (1) Run mary server in "http" mode by setting server=http in marybase.config
+ * </p>
  * <p>
- * (2) Copy and paste the following to a web browser´s address bar:
+* (2) Copy and paste the following to a web browser´s address bar:
+ * </p>
  * <p>
- * <a href=
- * "http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&LOCALE=en_US&VOICE=hsmm-slt"
- * >marytts server intro </a>
+* <a href="http://localhost:59125/process?INPUT_TYPE=TEXT&amp;OUTPUT_TYPE=AUDIO&amp;INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&amp;AUDIO=AU&amp;LOCALE=en_US&amp;VOICE=hsmm-slt">marytts server intro </a>
+ * </p>
  * <p>
- * Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), the web browser
+* Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), the web browser
  * supports AUDIO type (if not try other formats such as WAVE, MP3, OGG or install a plug-in to play the target format), and the
  * VOICE is installed (hmm-slt), the synthesis result should be sent to the web browser for playback or saving (depending on web
  * browser settings).
+ * </p>
  * <p>
- * 
+ *
  * check {@link InfoRequestHandler}, {@link FileRequestHandler}, {@link SynthesisRequestHandler} .
- * 
+ *
  * @author Oytun T&uuml;rk, Marc Schr&ouml;der
  */
 
