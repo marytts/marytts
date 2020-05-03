@@ -7,6 +7,7 @@ MaryTTS
 ### Improvements
 
 * Build with Gradle v6.3
+* Improve publishing
 
 ### Fixed Issues/Bugs
 
