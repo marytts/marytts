@@ -59,8 +59,8 @@ public class JoinModelCost implements JoinCostFunction {
 
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
-	 * 
-	 * @see #load(String a, InputStream b, String c, float d)
+	 *
+	 * @see #load(String joinFileName, InputStream joinPdfStream, InputStream joinTreeStream, String trickyPhonesFile)
 	 */
 	public JoinModelCost() {
 	}
@@ -68,7 +68,7 @@ public class JoinModelCost implements JoinCostFunction {
 	/**
 	 * Initialise this join cost function by reading the appropriate settings from the MaryProperties using the given
 	 * configPrefix.
-	 * 
+	 *
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
 	 * @throws MaryConfigurationException
@@ -87,15 +87,10 @@ public class JoinModelCost implements JoinCostFunction {
 		}
 	}
 
-	@Override
-	@Deprecated
-	public void load(String a, InputStream b, String c, float d) {
-		throw new RuntimeException("Do not use load() -- use init()");
-	}
 
 	/**
 	 * Load weights and values from the given file
-	 * 
+	 *
 	 * @param joinFileName
 	 *            the file from which to read join cost features
 	 * @param joinPdfStream
@@ -136,7 +131,7 @@ public class JoinModelCost implements JoinCostFunction {
 
 	/**
 	 * Set the feature definition to use for interpreting target feature vectors.
-	 * 
+	 *
 	 * @param def
 	 *            the feature definition to use.
 	 */
@@ -151,7 +146,7 @@ public class JoinModelCost implements JoinCostFunction {
 	/**
 	 * A combined cost computation, as a weighted sum of the signal-based cost (computed from the units) and the phonetics-based
 	 * cost (computed from the targets).
-	 * 
+	 *
 	 * @param t1
 	 *            The left target.
 	 * @param u1
@@ -160,7 +155,7 @@ public class JoinModelCost implements JoinCostFunction {
 	 *            The right target.
 	 * @param u2
 	 *            The right unit.
-	 * 
+	 *
 	 * @return the cost of joining the left unit with the right unit, as a non-negative value.
 	 */
 	public double cost(Target t1, Unit u1, Target t2, Unit u2) {

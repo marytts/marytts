@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -46,12 +46,12 @@ import java.util.Vector;
 /**
  * The BasenameList class produces and stores an alphabetically-sorted array of basenames issued from the .wav files present in a
  * given directory.
- * 
+ *
  * @author sacha
- * 
+ *
  */
 public class BasenameList {
-	private Vector bList = null;
+	private Vector<String> bList = null;
 	private String fromDir = null;
 	private String fromExt = null;
 	private boolean hasChanged;
@@ -67,13 +67,13 @@ public class BasenameList {
 	public BasenameList() {
 		fromDir = null;
 		fromExt = null;
-		bList = new Vector(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
+		bList = new Vector<String>(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
 		hasChanged = false;
 	}
 
 	/**
 	 * Default constructor from an existing vector and fields.
-	 * 
+	 *
 	 * @param setFromDir
 	 *            setFromDir
 	 * @param setFromExt
@@ -81,7 +81,7 @@ public class BasenameList {
 	 * @param setVec
 	 *            setVec
 	 */
-	public BasenameList(String setFromDir, String setFromExt, Vector setVec) {
+	public BasenameList(String setFromDir, String setFromExt, Vector<String> setVec) {
 		fromDir = setFromDir;
 		fromExt = setFromExt;
 		bList = setVec;
@@ -90,14 +90,14 @@ public class BasenameList {
 
 	/**
 	 * Constructor from an array of strings.
-	 * 
+	 *
 	 * @param str
 	 *            str
 	 */
 	public BasenameList(String[] str) {
 		fromDir = null;
 		fromExt = null;
-		bList = new Vector(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
+		bList = new Vector<String>(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
 		add(str);
 		hasChanged = false;
 	}
@@ -105,12 +105,12 @@ public class BasenameList {
 	/**
 	 * This constructor lists the . extension files from directory dir, and initializes an an array with their list of
 	 * alphabetically sorted basenames.
-	 * 
+	 *
 	 * @param dirName
 	 *            The name of the directory to list the files from.
 	 * @param extension
 	 *            The extension of the files to list.
-	 * 
+	 *
 	 */
 	public BasenameList(String dirName, final String extension) {
 		fromDir = dirName;
@@ -135,7 +135,7 @@ public class BasenameList {
 		Arrays.sort(selectedFiles);
 
 		/* Extract the basenames and store them in a vector of strings */
-		bList = new Vector(selectedFiles.length, DEFAULT_INCREMENT);
+		bList = new Vector<String>(selectedFiles.length, DEFAULT_INCREMENT);
 		String str = null;
 		int subtractFromFilename = extension.length();
 		for (int i = 0; i < selectedFiles.length; i++) {
@@ -147,7 +147,7 @@ public class BasenameList {
 
 	/**
 	 * This constructor loads the basename list from a random access file.
-	 * 
+	 *
 	 * @param fileName
 	 *            The file to read from.
 	 * @throws IOException
@@ -164,7 +164,7 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a file, identified by its name.
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 * @throws IOException
@@ -176,7 +176,7 @@ public class BasenameList {
 
 	/**
 	 * Write the basenameList to a File.
-	 * 
+	 *
 	 * @param file
 	 *            file
 	 * @throws IOException
@@ -192,11 +192,12 @@ public class BasenameList {
 			str = (String) (bList.elementAt(i));
 			pw.println(str);
 		}
+                pw.close();
 	}
 
 	/**
 	 * Read the basenameList from a file
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 * @throws IOException
@@ -207,7 +208,7 @@ public class BasenameList {
 		BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
 		/* Make the vector */
 		if (bList == null)
-			bList = new Vector(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
+			bList = new Vector<String>(DEFAULT_INCREMENT, DEFAULT_INCREMENT);
 		/* Check if the first line contains the origin information (directory+ext) */
 		String line = bfr.readLine();
 		if (line.indexOf("FROM: ") != -1) {
@@ -223,6 +224,7 @@ public class BasenameList {
 			if (!(line.matches("^\\s*$")))
 				add(line);
 		}
+                bfr.close();
 	}
 
 	/*****************/
@@ -231,7 +233,7 @@ public class BasenameList {
 
 	/**
 	 * Adds a basename to the list.
-	 * 
+	 *
 	 * @param str
 	 *            str
 	 */
@@ -243,7 +245,7 @@ public class BasenameList {
 
 	/**
 	 * Adds an array of basenames to the list.
-	 * 
+	 *
 	 * @param str
 	 *            str
 	 */
@@ -255,7 +257,7 @@ public class BasenameList {
 
 	/**
 	 * Removes a basename from the list, if it was present.
-	 * 
+	 *
 	 * @param str
 	 *            The basename to remove.
 	 * @return true if the list was containing the basename.
@@ -267,7 +269,7 @@ public class BasenameList {
 
 	/**
 	 * Removes a list from another list.
-	 * 
+	 *
 	 * @param bnl
 	 *            The basename list to remove.
 	 * @return true if the list was containing any element of the list to remove.
@@ -283,16 +285,18 @@ public class BasenameList {
 
 	/**
 	 * Duplicates the list (i.e., emits an autonomous copy of it).
-	 * 
+	 *
 	 * @return BasenameList (fromdir, fromext, (vector) (bList.clone)
 	 */
+
+        @SuppressWarnings("unchecked")
 	public BasenameList duplicate() {
-		return (new BasenameList(this.fromDir, this.fromExt, (Vector) (this.bList.clone())));
+		return (new BasenameList(this.fromDir, this.fromExt, (Vector<String>) (this.bList.clone())));
 	}
 
 	/**
 	 * Returns an autonomous sublist between fromIndex, inclusive, and toIndex, exclusive.
-	 * 
+	 *
 	 * @param fromIndex
 	 *            fromIndex
 	 * @param toIndex
@@ -300,7 +304,7 @@ public class BasenameList {
 	 * @return basenameList(this.fromDir, this.fromExt, subVec)
 	 */
 	public BasenameList subList(int fromIndex, int toIndex) {
-		Vector subVec = new Vector(toIndex - fromIndex, DEFAULT_INCREMENT);
+		Vector<String> subVec = new Vector<String>(toIndex - fromIndex, DEFAULT_INCREMENT);
 		for (int i = fromIndex; i < toIndex; i++)
 			subVec.add(this.getName(i));
 		return (new BasenameList(this.fromDir, this.fromExt, subVec));
@@ -308,7 +312,7 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the list of basenames, returned as an array of strings
-	 * 
+	 *
 	 * @return string ret
 	 */
 	public String[] getListAsArray() {
@@ -319,16 +323,16 @@ public class BasenameList {
 
 	/**
 	 * Another accessor for the list of basenames, returned as a vector of strings
-	 * 
+	 *
 	 * @return bList
 	 */
-	public Vector getListAsVector() {
+	public Vector<String> getListAsVector() {
 		return (bList);
 	}
 
 	/**
 	 * An accessor for the list's length
-	 * 
+	 *
 	 * @return bList.size
 	 */
 	public int getLength() {
@@ -337,7 +341,7 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the original directory. Returns null if the original directory is undefined.
-	 * 
+	 *
 	 * @return fromDir
 	 */
 	public String getDir() {
@@ -346,7 +350,7 @@ public class BasenameList {
 
 	/**
 	 * An accessor for the original extension. Returns null if the original extension is undefined.
-	 * 
+	 *
 	 * @return fromExt
 	 */
 	public String getExt() {
@@ -355,7 +359,7 @@ public class BasenameList {
 
 	/**
 	 * Return a copy of the basename at index i.
-	 * 
+	 *
 	 * @param i
 	 *            The index of the basename to consider.
 	 * @return The corresponding basename.
@@ -366,7 +370,7 @@ public class BasenameList {
 
 	/**
 	 * Check if the given basename is part of the list.
-	 * 
+	 *
 	 * @param str
 	 *            The basename to check for.
 	 * @return true if yes, false if no.
@@ -377,7 +381,7 @@ public class BasenameList {
 
 	/**
 	 * Check if the list contains another given one.
-	 * 
+	 *
 	 * @param bnl
 	 *            The list of basenames to check for.
 	 * @return true if yes, false if no.
@@ -395,7 +399,7 @@ public class BasenameList {
 
 	/**
 	 * Check if two lists are equal.
-	 * 
+	 *
 	 * @param bnl
 	 *            The list of basenames to check for.
 	 * @return true if yes, false if no.
@@ -412,7 +416,7 @@ public class BasenameList {
 
 	/**
 	 * Ensure that the list is alphabetically sorted.
-	 * 
+	 *
 	 */
 	public void sort() {
 		String[] str = getListAsArray();
@@ -424,7 +428,7 @@ public class BasenameList {
 
 	/**
 	 * Clear the list.
-	 * 
+	 *
 	 */
 	public void clear() {
 		fromDir = null;

@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -31,6 +31,8 @@ package marytts.signalproc.sinusoidal.hntm.modification;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
@@ -46,18 +48,17 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignalWithContext;
 import marytts.signalproc.sinusoidal.hntm.analysis.TransientSegment;
 import marytts.signalproc.sinusoidal.hntm.synthesis.NoisePartWaveformSynthesizer;
 import marytts.signalproc.window.Window;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
  * Prosody modification for HNM as described in:
- * 
+ *
  * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, for Speech and Speaker
  * Modification", Ph.D. thesis, Ecole Nationale Supérieure des Télécommunications. (Chapter 3, A Harmonic plus Noise Model, HNM)
- * 
+ *
  * @author oytun.turk
- * 
+ *
  */
 public class HntmProsodyModifier {
 
@@ -192,8 +193,8 @@ public class HntmProsodyModifier {
 				if (numTransientSegments > 0) {
 					float[] tempScales = new float[4 * numTransientSegments];
 					float[] tempScalesTimes = new float[4 * numTransientSegments];
-					float[] tempScales2 = ArrayUtils.copy(tScalesMod);
-					float[] tempScalesTimes2 = ArrayUtils.copy(allScalesTimes);
+					float[] tempScales2 = tScalesMod.clone();
+					float[] tempScalesTimes2 = allScalesTimes.clone();
 
 					int ind = 0;
 					for (i = 0; i < numTransientSegments; i++) {
@@ -235,8 +236,8 @@ public class HntmProsodyModifier {
 						}
 					}
 
-					tScalesMod = ArrayUtils.combine(tempScales, tempScales2);
-					allScalesTimes = ArrayUtils.combine(tempScalesTimes, tempScalesTimes2);
+					tScalesMod = ArrayUtils.addAll(tempScales, tempScales2);
+					allScalesTimes = ArrayUtils.addAll(tempScalesTimes, tempScalesTimes2);
 					sortedIndices = MathUtils.quickSort(allScalesTimes);
 					tScalesMod = MathUtils.sortAs(tScalesMod, sortedIndices);
 
@@ -260,12 +261,12 @@ public class HntmProsodyModifier {
 
 			/*
 			 * if (output==null) output = new HntmSpeechSignalWithContext();
-			 * 
+			 *
 			 * output.hntmSignal = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz,
 			 * hntmSignal.originalDurationInSeconds); for (i=0; i<hntmSignal.frames.length; i++) { output.hntmSignal.frames[i] =
 			 * new HntmSpeechFrame(hntmSignal.frames[i]); output.hntmSignal.frames[i].tAnalysisInSeconds =
 			 * SignalProcUtils.timeScaledTime(hntmSignal.frames[i].tAnalysisInSeconds, tScalesMod, tScalesTimesMod); }
-			 * 
+			 *
 			 * output.hntmSignal.originalDurationInSeconds = SignalProcUtils.timeScaledTime(hntmSignal.originalDurationInSeconds,
 			 * tScalesMod, tScalesTimesMod);
 			 */

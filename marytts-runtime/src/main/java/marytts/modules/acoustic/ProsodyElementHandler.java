@@ -47,9 +47,9 @@ import org.w3c.dom.traversal.TreeWalker;
 /**
  * This module will apply prosody modifications to the already predicted values (dur and f0) in the acoustparams This class also
  * support SSML recommendations of 'prosody' element
- * 
+ *
  * @author Sathish Pammi
- * 
+ *
  */
 public class ProsodyElementHandler {
 
@@ -65,10 +65,10 @@ public class ProsodyElementHandler {
 
 	/**
 	 * A method to modify prosody modifications
-	 * 
+	 *
 	 * @param doc
 	 *            - MARY XML Document
-	 * 
+	 *
 	 */
 	public void process(Document doc) {
 
@@ -129,7 +129,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To apply 'rate' specifications to NodeList (with only 'ph' elements)
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements
 	 * @param rateAttribute
@@ -150,7 +150,7 @@ public class ProsodyElementHandler {
 
 		// if the value is non-negative percentage (as described in W3C SSML)
 		if (!(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) && rateAttribute.endsWith("%")) {
-			double absolutePercentage = new Double(rateAttribute.substring(0, rateAttribute.length() - 1)).doubleValue();
+			double absolutePercentage = Double.parseDouble(rateAttribute.substring(0, rateAttribute.length() - 1));
 			if (absolutePercentage == 100) { // no change
 				return;
 			} else {
@@ -170,7 +170,7 @@ public class ProsodyElementHandler {
 		// Split input with the pattern
 		Matcher m = p.matcher(rateAttribute);
 		if (m.find()) {
-			double percentage = new Double(rateAttribute.substring(1, rateAttribute.length() - 1)).doubleValue();
+			double percentage = Double.parseDouble(rateAttribute.substring(1, rateAttribute.length() - 1));
 			if (rateAttribute.startsWith("+")) {
 				modifySpeechRate(nl, percentage, true);
 			} else {
@@ -181,7 +181,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * apply given pitch specifications to the base contour
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param baseF0Contour
@@ -212,34 +212,34 @@ public class ProsodyElementHandler {
 
 		if (pitchAttribute.startsWith("+")) {
 			if (pitchAttribute.endsWith("%")) { // type example: +20%
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 1))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 1)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = baseF0Contour[i] + (baseF0Contour[i] * (modificationPitch / 100.0));
 				}
 			} else if (pitchAttribute.endsWith("Hz")) { // type example: +55Hz
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 2))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 2)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = baseF0Contour[i] + modificationPitch;
 				}
 			} else if (pitchAttribute.endsWith("st")) { // type example: +12st
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 2))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 2)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = Math.exp(modificationPitch * Math.log(2) / 12) * baseF0Contour[i];
 				}
 			}
 		} else if (pitchAttribute.startsWith("-")) {
 			if (pitchAttribute.endsWith("%")) { // type example: -20%
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 1))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 1)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = baseF0Contour[i] - (baseF0Contour[i] * (modificationPitch / 100.0));
 				}
 			} else if (pitchAttribute.endsWith("Hz")) { // type example: -88Hz
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 2))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 2)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = baseF0Contour[i] - modificationPitch;
 				}
 			} else if (pitchAttribute.endsWith("st")) { // type example: -3st
-				double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length() - 2))).doubleValue();
+				double modificationPitch = (Double.parseDouble(pitchAttribute.substring(1, pitchAttribute.length() - 2)));
 				for (int i = 0; i < baseF0Contour.length; i++) {
 					baseF0Contour[i] = Math.exp(-1 * modificationPitch * Math.log(2) / 12) * baseF0Contour[i];
 				}
@@ -251,7 +251,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * Apply given contour specifications to base f0 contour
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param baseF0Contour
@@ -294,7 +294,7 @@ public class ProsodyElementHandler {
 				f0Value = "+" + f0Value;
 			}
 
-			int percentDuration = Math.round((new Float(percent.substring(0, percent.length() - 1))).floatValue());
+			int percentDuration = (int) Math.round((Double.parseDouble(percent.substring(0, percent.length() - 1))));
 			if (percentDuration > 100) {
 				throw new RuntimeException("Given percentage of duration ( " + percentDuration + "%" + " ) is illegal.. ");
 			}
@@ -303,32 +303,32 @@ public class ProsodyElementHandler {
 
 			if (f0Value.startsWith("+")) {
 				if (f0Value.endsWith("%")) {
-					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
+					double f0Mod = (Double.parseDouble(f0Value.substring(1, f0Value.length() - 1)));
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration]
 							+ (baseF0Contour[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
-					float f0Mod = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
+					float f0Mod = (Float.parseFloat(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] + f0Mod;
 				} else if (f0Value.endsWith("st")) {
-					float semiTone = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
+					float semiTone = (Float.parseFloat(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = Math.exp(semiTone * Math.log(2) / 12) * baseF0Contour[percentDuration];
 				}
 			} else if (f0Value.startsWith("-")) {
 				if (f0Value.endsWith("%")) {
-					double f0Mod = (new Double(f0Value.substring(1, f0Value.length() - 1))).doubleValue();
+					double f0Mod = (Float.parseFloat(f0Value.substring(1, f0Value.length() - 1)));
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration]
 							- (baseF0Contour[percentDuration] * (f0Mod / 100.0));
 				} else if (f0Value.endsWith("Hz")) {
-					float f0Mod = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
+					float f0Mod = (Float.parseFloat(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] - f0Mod;
 				} else if (f0Value.endsWith("st")) {
-					float semiTone = (new Float(f0Value.substring(1, f0Value.length() - 2))).floatValue();
+					float semiTone = (Float.parseFloat(f0Value.substring(1, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = Math.exp(-1 * semiTone * Math.log(2) / 12)
 							* baseF0Contour[percentDuration];
 				}
 			} else {
 				if (f0Value.endsWith("Hz")) {
-					float f0Mod = (new Float(f0Value.substring(0, f0Value.length() - 2))).floatValue();
+					float f0Mod = (Float.parseFloat(f0Value.substring(0, f0Value.length() - 2)));
 					modifiedF0Values[percentDuration] = f0Mod;
 				}
 			}
@@ -339,7 +339,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To set duration specifications according to 'rate' requirements
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
 	 *            should contain 'd', 'end' attributes
@@ -359,7 +359,7 @@ public class ProsodyElementHandler {
 				continue;
 			}
 
-			double durAttribute = new Double(e.getAttribute("d")).doubleValue();
+			double durAttribute = Double.parseDouble(e.getAttribute("d"));
 			double newDurAttribute;
 
 			if (increaseSpeechRate) {
@@ -378,14 +378,14 @@ public class ProsodyElementHandler {
 		NodeIterator nit = MaryDomUtils.createNodeIterator(rootElement, MaryXML.PHONE, MaryXML.BOUNDARY);
 		Element nd;
 		double duration = 0.0;
-		for (int i = 0; (nd = (Element) nit.nextNode()) != null; i++) {
+                while ((nd = (Element) nit.nextNode()) != null) {
 			if ("boundary".equals(nd.getNodeName())) {
 				if (nd.hasAttribute("duration")) {
-					duration += new Double(nd.getAttribute("duration")).doubleValue();
+					duration += Double.parseDouble(nd.getAttribute("duration"));
 				}
 			} else {
 				if (nd.hasAttribute("d")) {
-					duration += new Double(nd.getAttribute("d")).doubleValue();
+					duration += Double.parseDouble(nd.getAttribute("d"));
 				}
 			}
 			double endTime = 0.001 * duration;
@@ -406,7 +406,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To get a continuous pitch contour from nodelist of "ph" elements
-	 * 
+	 *
 	 * @param nl
 	 *            - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only All these 'ph' elements
 	 *            should contain 'd', 'end' attributes
@@ -446,9 +446,9 @@ public class ProsodyElementHandler {
 		double[] contour = new double[arraysize];
 		Arrays.fill(contour, 0.0);
 
-		double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
-		double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
-		double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
+		double fEnd = (Double.parseDouble(firstElement.getAttribute("end")));
+		double fDuration = 0.001 * (Double.parseDouble(firstElement.getAttribute("d")));
+		double lEnd = (Double.parseDouble(lastElement.getAttribute("end")));
 		double fStart = fEnd - fDuration; // 'prosody' tag starting point
 		double duration = lEnd - fStart; // duaration of 'prosody' modification request
 
@@ -460,8 +460,8 @@ public class ProsodyElementHandler {
 				continue;
 			}
 
-			double phoneEndTime = (new Double(e.getAttribute("end"))).doubleValue();
-			double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
+			double phoneEndTime = (Double.parseDouble(e.getAttribute("end")));
+			double phoneDuration = 0.001 * (Double.parseDouble(e.getAttribute("d")));
 			// double localStartTime = endTime - phoneDuration;
 
 			int[] f0Targets = StringUtils.parseIntPairs(e.getAttribute("f0"));
@@ -486,7 +486,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To set new modified contour into XML
-	 * 
+	 *
 	 * @param nl
 	 *            nl
 	 * @param contour
@@ -497,13 +497,11 @@ public class ProsodyElementHandler {
 		Element firstElement = (Element) nl.item(0);
 		Element lastElement = (Element) nl.item(nl.getLength() - 1);
 
-		double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
-		double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
-		double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
+		double fEnd = (Double.parseDouble(firstElement.getAttribute("end")));
+		double fDuration = 0.001 * (Double.parseDouble(firstElement.getAttribute("d")));
+		double lEnd = (Double.parseDouble(lastElement.getAttribute("end")));
 		double fStart = fEnd - fDuration; // 'prosody' tag starting point
 		double duration = lEnd - fStart; // duaration of 'prosody' modification request
-
-		Map<Integer, Integer> f0Map;
 
 		for (int i = 0; i < nl.getLength(); i++) {
 
@@ -514,8 +512,8 @@ public class ProsodyElementHandler {
 				continue;
 			}
 
-			double phoneEndTime = (new Double(e.getAttribute("end"))).doubleValue();
-			double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
+			double phoneEndTime = (Double.parseDouble(e.getAttribute("end")));
+			double phoneDuration = 0.001 * (Double.parseDouble(e.getAttribute("d")));
 
 			Pattern p = Pattern.compile("(\\d+,\\d+)");
 
@@ -524,9 +522,9 @@ public class ProsodyElementHandler {
 			String setF0String = "";
 			while (m.find()) {
 				String[] f0Values = (m.group().trim()).split(",");
-				Integer percent = new Integer(f0Values[0]);
-				Integer f0Value = new Integer(f0Values[1]);
-				double partPhone = phoneDuration * (percent.doubleValue() / 100.0);
+                                Integer percent = Integer.parseInt(f0Values[0]);
+				// Integer f0Value = Integer.parseInt(f0Values[1]);
+				double partPhone = phoneDuration * (percent / 100.0);
 
 				int placeIndex = (int) Math.floor(((((phoneEndTime - phoneDuration) - fStart) + partPhone) * F0CONTOUR_LENGTH)
 						/ (double) duration);
@@ -543,7 +541,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * To get prosody contour specifications by parsing 'contour' attribute values
-	 * 
+	 *
 	 * @param attribute
 	 *            - 'contour' attribute, it should not be null Expected format: '(0%, +10%)(50%,+30%)(95%,-10%)'
 	 * @return HashMap that contains prosody contour specifications it returns empty map if given attribute is not in expected
@@ -571,7 +569,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * mapping a fixed value to a relative value
-	 * 
+	 *
 	 * @param pitchAttribute
 	 *            pitchAttribute
 	 * @param baseF0Contour
@@ -581,7 +579,7 @@ public class ProsodyElementHandler {
 	private String fixedValue2RelativeValue(String pitchAttribute, double[] baseF0Contour) {
 
 		pitchAttribute = pitchAttribute.substring(0, pitchAttribute.length() - 2);
-		double fixedValue = (new Float(pitchAttribute)).doubleValue();
+		double fixedValue = (Double.parseDouble(pitchAttribute));
 		double meanValue = MathUtils.mean(baseF0Contour);
 		double relative = (100.0 * fixedValue) / meanValue;
 		if (relative > 100) {
@@ -593,7 +591,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * mapping a positive 'rate' integer to a relative value
-	 * 
+	 *
 	 * @param rateAttribute
 	 *            rateAttribute
 	 * @return "+" + df.format((relativePercentage - 100)) + "%" if relativePercentage > 100, "-" + df.format((100 -
@@ -601,7 +599,7 @@ public class ProsodyElementHandler {
 	 */
 	private String positiveInteger2RelativeValues(String rateAttribute) {
 
-		double positiveNumber = (new Float(rateAttribute)).doubleValue();
+		double positiveNumber = (Double.parseDouble(rateAttribute));
 		double relativePercentage = (positiveNumber * 100.0);
 
 		if (relativePercentage > 100) {
@@ -613,7 +611,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * a look-up table for mapping rate labels to relative values
-	 * 
+	 *
 	 * @param rateAttribute
 	 *            rateAttribute
 	 * @return "-50%" if rateAttribute equals "x-slow", "-33.3%" if rateAttribute equals "slow", "+0%" if rateAttribute equals
@@ -638,7 +636,7 @@ public class ProsodyElementHandler {
 
 	/**
 	 * a look-up for pitch labels to relative changes
-	 * 
+	 *
 	 * @param pitchAttribute
 	 *            pitchAttribute
 	 * @return "-50%" if pitchAttribute equals "x-low", "-25%" if pitchAttribute equals "low", "+0%" if pitchAttribute equals

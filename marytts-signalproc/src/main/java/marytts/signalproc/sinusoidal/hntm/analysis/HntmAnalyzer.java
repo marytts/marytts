@@ -431,7 +431,7 @@ public class HntmAnalyzer {
 							 * fftSize); MaryUtils.plot(MathUtils.linear2db(linearAmps)); //
 							 */
 
-							output.hnmSignal.frames[i].h.complexAmps = ArrayUtils.copy(harmonics);
+							output.hnmSignal.frames[i].h.complexAmps = harmonics.clone();
 
 							if (i == 10) {
 								// The following is only for visualization
@@ -576,7 +576,7 @@ public class HntmAnalyzer {
 		if (analysisParams.preemphasisCoefNoise > 0.0)
 			xPreemphasized = SignalProcUtils.applyPreemphasis(xDiff, analysisParams.preemphasisCoefNoise);
 		else
-			xPreemphasized = ArrayUtils.copy(xDiff);
+			xPreemphasized = xDiff.clone();
 
 		// // TO DO
 		// Step1. Initial pitch estimation: Current version just reads from a file
@@ -709,7 +709,7 @@ public class HntmAnalyzer {
 									0.5f * hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
 
 						if (analysisParams.hpfBeforeNoiseAnalysis && y != null)
-							frmNoise = ArrayUtils.copy(y); // Use fdfo only for computing energy ratio between noise and speech
+							frmNoise = y.clone(); // Use fdfo only for computing energy ratio between noise and speech
 															// (if we get this working, we can remove filtering from above and
 															// include only gain ratio computation)
 
@@ -810,7 +810,7 @@ public class HntmAnalyzer {
 								waveformNoiseEndInd = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds,
 										hnmSignal.samplingRateInHz);
 
-							frameWaveforms[i] = ArrayUtils.copy(frmNoise);
+							frameWaveforms[i] = frmNoise.clone();
 
 							if (!analysisParams.overlapNoiseWaveformModel)
 								frameWaveforms[i] = ArrayUtils.subarray(frameWaveforms[i], 0, waveformNoiseEndInd

@@ -71,7 +71,7 @@ public class SimplePhoneme2AP extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		String phoneString = d.getPlainText();
-		MaryData result = new MaryData(outputType(), d.getLocale(), true);
+		MaryData result = new MaryData(getOutputType(), d.getLocale(), true);
 		Document doc = result.getDocument();
 		Element root = doc.getDocumentElement();
 		root.setAttribute("xml:lang", MaryUtils.locale2xmllang(d.getLocale()));

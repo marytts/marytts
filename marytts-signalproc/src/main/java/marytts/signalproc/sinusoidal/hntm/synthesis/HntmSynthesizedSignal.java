@@ -19,12 +19,13 @@
  */
 package marytts.signalproc.sinusoidal.hntm.synthesis;
 
-import marytts.util.math.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
+
 import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
- * 
+ *
  */
 public class HntmSynthesizedSignal {
 	public double[] harmonicPart;
@@ -40,15 +41,15 @@ public class HntmSynthesizedSignal {
 	}
 
 	public void concatToHarmonicPart(double[] newData) {
-		harmonicPart = ArrayUtils.combine(harmonicPart, newData);
+		harmonicPart = ArrayUtils.addAll(harmonicPart, newData);
 	}
 
 	public void concatToNoisePart(double[] newData) {
-		noisePart = ArrayUtils.combine(noisePart, newData);
+		noisePart = ArrayUtils.addAll(noisePart, newData);
 	}
 
 	public void concatToTransientPart(double[] newData) {
-		transientPart = ArrayUtils.combine(transientPart, newData);
+		transientPart = ArrayUtils.addAll(transientPart, newData);
 	}
 
 	public void concat(HntmSynthesizedSignal newSignal) {

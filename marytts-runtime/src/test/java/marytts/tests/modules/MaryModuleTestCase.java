@@ -93,10 +93,10 @@ public class MaryModuleTestCase {
 			String in = loadResourceIntoString(basename + "." + inputEnding());
 			input = createMaryDataFromText(in, locale);
 		} else {
-			input = new MaryData(module.inputType(), locale);
+			input = new MaryData(module.getInputType(), locale);
 			input.readFrom(this.getClass().getResourceAsStream(basename + "." + inputEnding()), null);
 		}
-		MaryData targetOut = new MaryData(module.outputType(), input.getLocale());
+		MaryData targetOut = new MaryData(module.getOutputType(), input.getLocale());
 		targetOut.readFrom(this.getClass().getResourceAsStream(basename + "." + outputEnding()), null);
 		MaryData processedOut = module.process(input);
 		try {

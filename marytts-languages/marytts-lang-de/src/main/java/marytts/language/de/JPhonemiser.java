@@ -254,7 +254,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				}
 			}
 		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}
@@ -372,7 +372,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 					textFreq++;
 					unknown2Frequency.put(unknownText, textFreq);
 				} else {
-					unknown2Frequency.put(unknownText, new Integer(1));
+					unknown2Frequency.put(unknownText, Integer.valueOf(1));
 				}
 			}
 			g2pMethod.append("rules");

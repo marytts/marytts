@@ -69,7 +69,7 @@ public class Synthesis extends InternalModule {
 	private void startupSynthesizers() throws ClassNotFoundException, InstantiationException, Exception {
 		waveformSynthesizers = new ArrayList<WaveformSynthesizer>();
 		for (String synthClassName : MaryProperties.synthesizerClasses()) {
-			WaveformSynthesizer ws = (WaveformSynthesizer) Class.forName(synthClassName).newInstance();
+			WaveformSynthesizer ws = (WaveformSynthesizer) Class.forName(synthClassName).getDeclaredConstructor().newInstance();
 			ws.startup();
 			waveformSynthesizers.add(ws);
 		}
@@ -120,7 +120,7 @@ public class Synthesis extends InternalModule {
 			logger.info("No default voice associated with data. Assuming global default " + defaultVoice.getName());
 		}
 
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		// Also remember XML document in "AUDIO" output data, to keep track of phone durations:
 		result.setDocument(doc);
 		result.setAudioFileFormat(d.getAudioFileFormat());

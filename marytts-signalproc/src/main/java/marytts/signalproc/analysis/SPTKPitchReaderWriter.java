@@ -32,9 +32,9 @@ import marytts.util.io.LEDataOutputStream;
 
 /**
  * File I/O for binary SPTK pitch contour files
- * 
+ *
  * @author Sathish Pammi
- * 
+ *
  */
 public class SPTKPitchReaderWriter {
 
@@ -45,7 +45,7 @@ public class SPTKPitchReaderWriter {
 	/**
 	 * read a SPTK lf0 file with following default values windowSizeInSeconds = 0.005f; skipSizeInSeconds = 0.005f; fs = 16000; //
 	 * in Hz
-	 * 
+	 *
 	 * @param lf0SPTKFile
 	 *            lf0SPTKFile
 	 */
@@ -57,7 +57,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * read a SPTK lf0 file with external settings
-	 * 
+	 *
 	 * @param lf0SPTKFile
 	 *            lf0SPTKFile
 	 * @param windowSizeInSeconds
@@ -84,7 +84,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * create a SPTK Pitch reader writer with external contour
-	 * 
+	 *
 	 * @param contour
 	 *            contour
 	 * @param header
@@ -97,7 +97,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * get f0 values in Hz (0.0 for unvoiced)
-	 * 
+	 *
 	 * @return self.contour
 	 */
 	public double[] getF0Contour() {
@@ -106,7 +106,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * get pitch file header
-	 * 
+	 *
 	 * @return self.header
 	 */
 	public PitchFileHeader getPitchFileHeader() {
@@ -114,7 +114,7 @@ public class SPTKPitchReaderWriter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param lf0SPTKFile
 	 *            lf0SPTKFile
 	 * @return totalFrame
@@ -142,7 +142,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * convert a SPTK file into contour[]
-	 * 
+	 *
 	 * @param lf0SPTKFile
 	 *            lf0SPTKFile
 	 * @return null if !FileUtils.exists(lf0SPTKFile), f0Data otherwise
@@ -165,7 +165,7 @@ public class SPTKPitchReaderWriter {
 			if (f0Value < 0) {
 				f0Data[i] = 0.0f;
 			} else {
-				f0Data[i] = new Double(Math.exp(f0Value));
+				f0Data[i] = Double.valueOf(Math.exp(f0Value));
 			}
 		}
 		return f0Data;
@@ -173,7 +173,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * write contour into a lf0 file in SPTK format
-	 * 
+	 *
 	 * @param sptkFileName
 	 *            sptk File Name
 	 * @throws IOException
@@ -195,7 +195,7 @@ public class SPTKPitchReaderWriter {
 
 	/**
 	 * write contour into a lf0 file in MARY PTC format
-	 * 
+	 *
 	 * @param ptcFileName
 	 *            ptc file name
 	 * @throws IOException

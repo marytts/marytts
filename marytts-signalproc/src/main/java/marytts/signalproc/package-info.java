@@ -5,8 +5,6 @@
  *   <li>adaptation: speaker adaptation using various voice conversion
  * techniques</li>
  *   <li>analysis: feature estimation and analysis</li>
- *   <li>demo: demonstrator with a gui</li>
- *   <li>display: visualization utilities</li>
  *   <li>effects: audio effects for speech and text-to-speech synthesis
  * output</li>
  *   <li>filter: filter design and filtering utilities</li>
@@ -17,4 +15,3 @@
  * </ul>
  */
 package marytts.signalproc;
-

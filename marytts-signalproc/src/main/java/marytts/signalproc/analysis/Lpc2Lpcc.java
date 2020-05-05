@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -37,9 +37,9 @@ import marytts.util.data.ESTTrackReader;
 import marytts.util.data.ESTTrackWriter;
 
 /**
- * 
+ *
  * Internally does the conversion between LPCs and LPCCs.
- * 
+ *
  */
 public class Lpc2Lpcc {
 	private static float[][] convertData(float[][] lpc, int cepstrumOrder) {
@@ -72,14 +72,14 @@ public class Lpc2Lpcc {
 
 	/**
 	 * A method to convert between two files, from LPCs to LPCCs in EST format.
-	 * 
+	 *
 	 * @param cepstrumOrder
 	 *            The requested cepstrum order.
 	 * @param inFileName
 	 *            The name of the input file.
 	 * @param outFileName
 	 *            The name of the output file.
-	 * 
+	 *
 	 * @throws IOException
 	 *             IOException
 	 */
@@ -93,16 +93,4 @@ public class Lpc2Lpcc {
 		etw.doWriteAndClose(outFileName, etr.isBinary(), etr.isBigEndian());
 
 	}
-
-	/**
-	 * @param args
-	 *            args
-	 * @throws IOException
-	 *             IOException
-	 */
-	public static void main(String[] args) throws IOException {
-		// Usage: ESTlpcToESTlpcc cepstrumOrder inFileName outFileName
-		convert(args[1], args[2], new Integer(args[0]).intValue());
-	}
-
 }

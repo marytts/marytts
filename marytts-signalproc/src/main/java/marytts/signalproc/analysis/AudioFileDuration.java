@@ -26,18 +26,17 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.string.PrintfFormat;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  *         Prints durations of audio files that are specified as fullpath arguments in String[] args
- * 
+ *
  */
 public class AudioFileDuration {
 
 	public static void main(String[] args) throws Exception {
-		PrintfFormat format = new PrintfFormat("%.4f");
+		String format = "%.4f";
 		for (int file = 0; file < args.length; file++) {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[file]));
 			if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
@@ -46,7 +45,7 @@ public class AudioFileDuration {
 			float samplingRate = ais.getFormat().getSampleRate();
 			double[] signal = new AudioDoubleDataSource(ais).getAllData();
 			float duration = signal.length / samplingRate;
-			System.out.println(args[file] + ": " + format.sprintf(duration) + " s");
+			System.out.println(args[file] + ": " + String.format(format, duration) + " s");
 		}
 	}
 }

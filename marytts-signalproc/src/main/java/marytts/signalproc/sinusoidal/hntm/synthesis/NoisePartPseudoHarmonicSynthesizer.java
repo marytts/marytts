@@ -1,14 +1,14 @@
 /**
  * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -38,6 +38,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.apache.commons.io.FilenameUtils;
+
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
@@ -54,12 +56,12 @@ import marytts.util.string.StringUtils;
 
 /**
  * A pseudo-harmonic representation based synthesizer for the noise part.
- * 
+ *
  * Reference: Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, for Speech and
  * Speaker Modification", Ph.D. thesis, Ecole Nationale Supérieure des Télécommunications.
- * 
+ *
  * @author oytun.turk
- * 
+ *
  */
 public class NoisePartPseudoHarmonicSynthesizer {
 
@@ -346,7 +348,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
 
 						DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(noiseTracks[k]),
 								inputAudio.getFormat());
-						String outFileName = StringUtils.getFolderName(referenceFile) + "noiseTrack" + String.valueOf(k + 1)
+						String outFileName = FilenameUtils.getFullPath(referenceFile) + "noiseTrack" + String.valueOf(k + 1)
 								+ ".wav";
 						try {
 							AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));

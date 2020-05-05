@@ -146,7 +146,7 @@ public class HntmAnalyzerNoisePartWaveformSynthesizer {
 				if (isNoised) {
 					if (frameWaveforms[i] != null) {
 						if (analysisParams.overlapNoiseWaveformModel) {
-							y = ArrayUtils.copy(frameWaveforms[i]);
+							y = frameWaveforms[i].clone();
 
 							if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
 								y = SignalProcUtils.interpolate(y, (0.5 * hnmSignal.samplingRateInHz)
@@ -157,7 +157,7 @@ public class HntmAnalyzerNoisePartWaveformSynthesizer {
 							int currentFrameInd = i;
 							int count = 0;
 							Arrays.fill(y, 0.0);
-							double[] temp = ArrayUtils.copy(frameWaveforms[currentFrameInd]);
+							double[] temp = frameWaveforms[currentFrameInd].clone();
 							if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
 								temp = SignalProcUtils
 										.interpolate(
@@ -172,7 +172,7 @@ public class HntmAnalyzerNoisePartWaveformSynthesizer {
 									if (currentFrameInd < 0 || hnmSignal.frames[currentFrameInd].n == null)
 										break;
 
-									temp = ArrayUtils.copy(frameWaveforms[currentFrameInd]);
+									temp = frameWaveforms[currentFrameInd].clone();
 									isTmpVoiced = false;
 									if (hnmSignal.frames[currentFrameInd].h != null
 											&& hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz > 0.0f)

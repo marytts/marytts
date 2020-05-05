@@ -296,7 +296,7 @@ public class SoPF0Modeller extends InternalModule {
 				}
 			}
 		}
-		MaryData output = new MaryData(outputType(), d.getLocale());
+		MaryData output = new MaryData(getOutputType(), d.getLocale());
 		output.setDocument(doc);
 		return output;
 	}

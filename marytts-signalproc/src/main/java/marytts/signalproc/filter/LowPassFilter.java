@@ -25,7 +25,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.window.BlackmanWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -37,7 +36,7 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class LowPassFilter extends FIRFilter {
 	public static double DEFAULT_TRANSITIONBANDWIDTH = 0.01;
@@ -45,7 +44,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new lowpass filter with the given normalized cutoff frequency and a default transition band width.
-	 * 
+	 *
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
@@ -57,7 +56,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new lowpass filter with the given normalized cutoff frequency and the given normalized transition band width.
-	 * 
+	 *
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
@@ -73,7 +72,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new lowpass filter with the given normalized cutoff frequency and the given length of the filter kernel.
-	 * 
+	 *
 	 * @param normalisedCutoffFrequencyIn
 	 *            the cutoff frequency of the lowpass filter, expressed as a fraction of the sampling rate. It must be in the
 	 *            range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 4000 Hz, the
@@ -109,7 +108,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * For a given sampling rate, return the width of the transition band for this filter, in Hertz.
-	 * 
+	 *
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
 	 * @return samplingRate
@@ -120,7 +119,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Compute the low-pass filter kernel, using a Blackman window.
-	 * 
+	 *
 	 * @param normalisedCutoffFrequencyIn
 	 *            normalizedCutoffFrequencyIn
 	 * @param kernelLength
@@ -149,7 +148,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
-	 * 
+	 *
 	 * @param normalisedTransitionBandwidth
 	 *            normalisedTransitionBandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
@@ -164,7 +163,7 @@ public class LowPassFilter extends FIRFilter {
 
 	/**
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
-	 * 
+	 *
 	 * @param kernelLength
 	 *            kernelLength
 	 * @return the corresponding normalized transition bandwidth.
@@ -175,45 +174,5 @@ public class LowPassFilter extends FIRFilter {
 
 	public String toString() {
 		return "Lowpass filter";
-	}
-
-	public static void main(String[] args) throws Exception {
-		int cutoffFreq = Integer.valueOf(args[0]).intValue();
-
-		AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[1]));
-		int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-		AudioDoubleDataSource source = new AudioDoubleDataSource(inputAudio);
-
-		double normalisedCutoffFrequency = (double) cutoffFreq / samplingRate;
-		LowPassFilter filter = new LowPassFilter(normalisedCutoffFrequency);
-		System.err.println("Created " + filter.toString() + " with cutoff frequency " + cutoffFreq
-				+ " Hz and transition band width " + ((int) filter.getTransitionBandWidth(samplingRate)) + " Hz");
-
-		// Display the filter kernel and log frequency response:
-		double[] fftSignal = new double[filter.transformedIR.length];
-		System.arraycopy(filter.transformedIR, 0, fftSignal, 0, filter.transformedIR.length);
-		// inverse transform:
-		FFT.realTransform(fftSignal, true);
-		double[] kernel = new double[filter.impulseResponseLength];
-		System.arraycopy(fftSignal, 0, kernel, 0, kernel.length);
-		FunctionGraph timeGraph = new FunctionGraph(0, 1, kernel);
-		timeGraph.showInJFrame(filter.toString() + " in time domain", true, false);
-
-		double[] powerSpectrum = FFT.computePowerSpectrum_FD(filter.transformedIR);
-		for (int i = 0; i < powerSpectrum.length; i++)
-			powerSpectrum[i] = MathUtils.db(powerSpectrum[i]);
-		FunctionGraph freqGraph = new FunctionGraph(0, (double) samplingRate / filter.transformedIR.length, powerSpectrum);
-		freqGraph.showInJFrame(filter.toString() + " log frequency response", true, false);
-
-		// Filter the test signal and display it:
-		DoubleDataSource filteredSignal = filter.apply(source);
-		// MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " at " +
-		// cutoffFreq + " Hz applied to " + args[1],
-		// MultiDisplay.DEFAULT_WIDTH, MultiDisplay.DEFAULT_HEIGHT);
-
-		DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(filteredSignal),
-				source.getAudioFormat());
-		String outFileName = args[1].substring(0, args[1].length() - 4) + "_lpf.wav";
-		AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
 	}
 }

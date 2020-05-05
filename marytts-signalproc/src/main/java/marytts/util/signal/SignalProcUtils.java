@@ -49,7 +49,6 @@ import marytts.signalproc.window.Window;
 import marytts.util.data.AlignLabelsUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
-import marytts.util.display.DisplayUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -229,7 +228,7 @@ public class SignalProcUtils {
 		if (numfrm > 0) {
 			averageSampleEnergies = new float[numfrm];
 			double[] frm = new double[ws];
-			int i, j;
+			int i;
 			for (i = 0; i < numfrm; i++) {
 				Arrays.fill(frm, 0.0);
 				System.arraycopy(x, i * ss, frm, 0, Math.min(ws, x.length - i * ss));
@@ -276,11 +275,10 @@ public class SignalProcUtils {
 
 	public static double[] normalizeAverageSampleEnergyContour(double[] x, float[] times, float[] currentContour,
 			float[] targetContour, int samplingRateInHz, float windowDurationInSeconds) {
-		float[] averageSampleEnergies = null;
 		double[] y = null;
 
 		if (x != null && times != null) {
-			y = ArrayUtils.copy(x);
+                        y = x.clone();
 			int n;
 			float t;
 			int ind;
@@ -411,7 +409,6 @@ public class SignalProcUtils {
 
 			int currentInd;
 			float currentTime;
-			float T0;
 			for (int i = 0; i < numfrm; i++) {
 				currentTime = i * ss + 0.5f * ws;
 				currentInd = MathUtils.findClosest(times, currentTime);
@@ -598,7 +595,6 @@ public class SignalProcUtils {
 	}
 
 	public static double[] autocorr(double[] x, int LPOrder) {
-		int N = x.length;
 		double[] R = new double[LPOrder + 1];
 
 		int n, m;
@@ -672,7 +668,7 @@ public class SignalProcUtils {
 	/**
 	 * Since there is no asinh in Math, here it is used its definition: asinh(x) = ln( x + sqrt(x^2+1) ) This function is used in
 	 * fft2barkmx()
-	 * 
+	 *
 	 * @param freqInHz
 	 *            frequency In Hz
 	 * @return 6 times log of f + square root of f times t + 1
@@ -732,7 +728,7 @@ public class SignalProcUtils {
 	 * required (else one per bark), and width is the constant width of each band in Bark (default 1). While wts has nfft columns,
 	 * the second half are all zero. Hence, Bark spectrum is fft2barkmx(nfft,sr)*abs(fft(xincols,nfft)); 2004-09-05
 	 * dpwe@ee.columbia.edu based on rastamat/audspec.m
-	 * 
+	 *
 	 * @param nfft
 	 *            FFT size
 	 * @param sr
@@ -1159,7 +1155,7 @@ public class SignalProcUtils {
 			for (k = 0; k < x.length; k++) {
 				/*
 				 * for (j=0; j<midVal; j++) { if (k-j>=0) v.add(x[k-j]); else v.add(leftOutOfBound); }
-				 * 
+				 *
 				 * for (j=midVal; j<N; j++) { if (k+j<x.length) v.add(x[k+j]); else v.add(rightOutOfBound); }
 				 */
 				// MS, 27.2.09: Ignore left/right out of bound; use window of size N, centered around current point
@@ -1182,7 +1178,7 @@ public class SignalProcUtils {
 			for (k = 0; k < x.length; k++) {
 				/*
 				 * for (j=0; j<=midVal; j++) { if (k-j>=0) v.add(x[k-j]); else v.add(leftOutOfBound); }
-				 * 
+				 *
 				 * for (j=midVal+1; j<N; j++) { if (k+j<x.length) v.add(x[k+j]); else v.add(rightOutOfBound); }
 				 */
 				// MS, 27.2.09: Ignore left/right out of bound; use window of size N, centered around current point
@@ -2148,26 +2144,15 @@ public class SignalProcUtils {
 
 		double[] y = null;
 
-		float totalRmsEnergy = 0.0f;
-		float passbandRmsEnergy = 0.0f;
-		int totalPassbandSamples = 0;
 
 		int i;
 
 		for (i = 0; i <= startFreqInd; i++) {
-			totalRmsEnergy += frameDft.real[i] * frameDft.real[i] + frameDft.imag[i] * frameDft.imag[i];
 			frameDft.real[i] = 0.0;
 			frameDft.imag[i] = 0.0;
 		}
 
-		for (i = startFreqInd + 1; i < endFreqInd; i++) {
-			totalRmsEnergy += frameDft.real[i] * frameDft.real[i] + frameDft.imag[i] * frameDft.imag[i];
-			passbandRmsEnergy += frameDft.real[i] * frameDft.real[i] + frameDft.imag[i] * frameDft.imag[i];
-			totalPassbandSamples++;
-		}
-
 		for (i = endFreqInd; i <= maxFreqInd; i++) {
-			totalRmsEnergy += frameDft.real[i] * frameDft.real[i] + frameDft.imag[i] * frameDft.imag[i];
 			frameDft.real[i] = 0.0;
 			frameDft.imag[i] = 0.0;
 		}
@@ -2187,92 +2172,6 @@ public class SignalProcUtils {
 			y[i] = frameDft.real[i];
 
 		return y;
-	}
-
-	public static void displayDFTSpectrumLinearNoWindowing(double[] frame) {
-		int fftSize = 2;
-		while (fftSize < frame.length)
-			fftSize *= 2;
-
-		displayDFTSpectrumLinearNoWindowing(frame, fftSize);
-	}
-
-	public static void displayDFTSpectrumLinearNoWindowing(double[] frame, int fftSize) {
-		displayDFTSpectrumLinear(frame, fftSize, Window.RECT);
-	}
-
-	public static void displayDFTSpectrumLinear(double[] frame) {
-		int fftSize = 2;
-		while (fftSize < frame.length)
-			fftSize *= 2;
-
-		displayDFTSpectrumLinear(frame, fftSize);
-	}
-
-	public static void displayDFTSpectrumLinear(double[] frame, int fftSize) {
-		displayDFTSpectrumLinear(frame, fftSize, Window.HAMMING);
-	}
-
-	public static void displayDFTSpectrumLinear(double[] frame, int fftSize, int windowType) {
-		Window win = Window.get(windowType, frame.length);
-		win.normalizeSquaredSum(1.0f);
-		double[] frameW = win.apply(frame, 0);
-
-		while (fftSize < frameW.length)
-			fftSize *= 2;
-
-		if (fftSize % 2 != 0)
-			fftSize++;
-
-		ComplexArray frameDft = new ComplexArray(fftSize);
-		System.arraycopy(frameW, 0, frameDft.real, 0, frame.length);
-
-		if (MathUtils.isPowerOfTwo(fftSize))
-			FFT.transform(frameDft.real, frameDft.imag, false);
-		else
-			frameDft = FFTMixedRadix.fftComplex(frameDft);
-
-		DisplayUtils.plot(MathUtils.magnitudeComplex(frameDft));
-	}
-
-	public static void displayDFTSpectrumInDBNoWindowing(double[] frame) {
-		int fftSize = 2;
-		while (fftSize < frame.length)
-			fftSize *= 2;
-
-		displayDFTSpectrumInDBNoWindowing(frame, fftSize);
-	}
-
-	public static void displayDFTSpectrumInDBNoWindowing(double[] frame, int fftSize) {
-		displayDFTSpectrumInDB(frame, fftSize, Window.RECT);
-	}
-
-	public static void displayDFTSpectrumInDB(double[] frame) {
-		int fftSize = 2;
-		while (fftSize < frame.length)
-			fftSize *= 2;
-
-		displayDFTSpectrumInDB(frame, fftSize);
-	}
-
-	public static void displayDFTSpectrumInDB(double[] frame, int fftSize) {
-		displayDFTSpectrumInDB(frame, fftSize, Window.HAMMING);
-	}
-
-	public static void displayDFTSpectrumInDB(double[] frame, int fftSize, int windowType) {
-		Window win = Window.get(windowType, frame.length);
-		if (windowType == Window.RECT)
-			win.normalizePeakValue(1.0f);
-
-		displayDFTSpectrumInDB(frame, fftSize, win.getCoeffs());
-	}
-
-	public static void displayDFTSpectrumInDB(double[] frame, int fftSize, double[] wgt) {
-		ComplexArray frameDft = getFrameDft(frame, fftSize, wgt);
-
-		int maxFreqInd = (int) Math.floor(0.5 * fftSize + 0.5);
-
-		DisplayUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)), 0, maxFreqInd);
 	}
 
 	public static double[] getFrameHalfMagnitudeSpectrum(double[] frame, int fftSize) {
@@ -2348,16 +2247,6 @@ public class SignalProcUtils {
 			frameDft = FFTMixedRadix.fftComplex(frameDft);
 
 		return frameDft;
-	}
-
-	public static void displayLPSpectrumLinear(double[] alpha, double lpGain, int fftSize) {
-		double[] lpSpec = LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize);
-		DisplayUtils.plot(lpSpec);
-	}
-
-	public static void displayLPSpectrumInDB(double[] alpha, double lpGain, int fftSize) {
-		double[] lpSpecInDB = MathUtils.amp2db(LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize));
-		DisplayUtils.plot(lpSpecInDB);
 	}
 
 	// Shifts an array by N points (to right if N is positive, to left if negative)
@@ -2439,7 +2328,7 @@ public class SignalProcUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param sDft
 	 *            sDtf
 	 * @param f0InHz
@@ -2504,7 +2393,7 @@ public class SignalProcUtils {
 			y = new double[mapInds.length][];
 
 			for (int i = 0; i < mapInds.length; i++)
-				y[i] = ArrayUtils.copy(x[mapInds[i]]);
+                            y[i] = x[mapInds[i]].clone();
 		}
 
 		return y;
@@ -2517,7 +2406,7 @@ public class SignalProcUtils {
 			y = new float[mapInds.length][];
 
 			for (int i = 0; i < mapInds.length; i++)
-				y[i] = ArrayUtils.copy(x[mapInds[i]]);
+                            y[i] = x[mapInds[i]].clone();
 		}
 
 		return y;
@@ -2645,7 +2534,7 @@ public class SignalProcUtils {
 
 		if (numfrmSource > 0) {
 			mappedInds = new int[numfrmSource];
-			double tSource, tTarget, tFrameInd, sourceDuration, sourceLocationInLabelPercent;
+                        double tSource, tTarget;
 			double sMapStart, tMapStart, sMapEnd, tMapEnd;
 			int sourceLabInd, targetLabInd;
 			int targetFrmInd;
@@ -2882,8 +2771,6 @@ public class SignalProcUtils {
 
 		// File input target and LPC analysis
 		inputAudio = AudioSystem.getAudioInputStream(new File(targetWavFile));
-		int fsTgt = (int) inputAudio.getFormat().getSampleRate();
-		int lpcOrderTgt = SignalProcUtils.getLPOrder(fsTgt);
 		signal = new AudioDoubleDataSource(inputAudio);
 		double[] t = signal.getAllData();
 		Labels targetLabels = new Labels(targetLabFile);
@@ -2920,22 +2807,22 @@ public class SignalProcUtils {
 	public static void main(String[] args) throws UnsupportedAudioFileException, IOException {
 		/*
 		 * LowPassFilter f = new LowPassFilter(0.25, 11);
-		 * 
+		 *
 		 * double[] b = f.getDenumeratorCoefficients();
-		 * 
+		 *
 		 * double[] a = new double[1]; a[0] = 1.0;
-		 * 
+		 *
 		 * double[] x; double[] y;
-		 * 
+		 *
 		 * int i; String str;
-		 * 
+		 *
 		 * x = new double[100]; for (i=0; i<x.length; i++) x[i] = i;
-		 * 
+		 *
 		 * str = ""; for (i=0; i<x.length; i++) str += String.valueOf(x[i]) + " "; System.out.println(str);
-		 * 
+		 *
 		 * y = filter(b, a, x); str = "filtered="; for (i=0; i<y.length; i++) str += String.valueOf(y[i]) + " ";
 		 * System.out.println(str);
-		 * 
+		 *
 		 * y = filtfilt(b, a, x); str = "filtfilted="; for (i=0; i<y.length; i++) str += String.valueOf(y[i]) + " ";
 		 * System.out.println(str);
 		 */

@@ -24,8 +24,6 @@ import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -35,9 +33,9 @@ import marytts.util.math.MathUtils;
 /**
  * A naive overlap-add time stretching algorithm without any phase correction; used only for demonstrating the artefacts that
  * arise from not correcting phase.
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class NaiveVocoder extends FrameOverlapAddSource {
 	public static final int DEFAULT_FRAMELENGTH = 2048;
@@ -71,13 +69,13 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 	/**
 	 * Based on the given rate change factor, compute the exact length change factor for a given signal length, based on the
 	 * current frame length and input/output frame shifts.
-	 * 
+	 *
 	 * From the illustrations in @see{FrameOverlapAddSource}, it can be seen that for a given frame length f and frame shift s,
 	 * the length of a signal can be described as <code>l(n) = f + n*s - delta</code>.
-	 * 
+	 *
 	 * f is fixed; s is si for input frameshift, so for output frameshift. For a given input length, one can compute n and rest
 	 * and thus compute the output length.
-	 * 
+	 *
 	 * @param inputLengthInSamples
 	 *            inputLengthInSamples
 	 * @return the output length
@@ -95,44 +93,4 @@ public class NaiveVocoder extends FrameOverlapAddSource {
 		// System.err.println("so="+so+", => lo="+lo);
 		return lo;
 	}
-
-	public static void main(String[] args) throws Exception {
-		for (int i = 1; i < args.length; i++) {
-			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
-			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-			double[] signal = new AudioDoubleDataSource(inputAudio).getAllData();
-			FunctionGraph signalGraph = new SignalGraph(signal, samplingRate);
-			signalGraph.showInJFrame("signal", true, true);
-			// SignalSpectrum signalSpectrum = new SignalSpectrum(signal, samplingRate);
-			// signalSpectrum.showInJFrame("signal", true, true);
-			double rateFactor = Double.parseDouble(args[0]);
-			NaiveVocoder pv = new NaiveVocoder(new BufferedDoubleDataSource(signal), samplingRate, rateFactor);
-			double[] result = pv.getAllData();
-			FunctionGraph resultGraph = new SignalGraph(result, samplingRate);
-			resultGraph.showInJFrame("result", true, true);
-			// Spectrogram resultSpectrogram = new Spectrogram(result, samplingRate);
-			// resultSpectrogram.showInJFrame("result", true, true);
-			// SignalSpectrum resultSpectrum = new SignalSpectrum(result, samplingRate);
-			// resultSpectrum.showInJFrame("result", true, true);
-			System.err.println("Signal has length " + signal.length + ", result " + result.length);
-			if (signal.length == result.length) {
-				double err = MathUtils.sumSquaredError(signal, result);
-				System.err.println("Sum squared error: " + err);
-				// double[] difference = MathUtils.substract(signal, result);
-				// FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
-				// diffGraph.showInJFrame("difference", true, true);
-			}
-			System.err.println("Expected result length: " + pv.computeOutputLength(signal.length) + ", found: " + result.length);
-			double meanSignalEnergy = MathUtils.mean(MathUtils.multiply(signal, signal));
-			double meanResultEnergy = MathUtils.mean(MathUtils.multiply(result, result));
-			System.err.println("Mean result energy: " + (meanResultEnergy / meanSignalEnergy * 100) + "% of mean signal energy");
-
-			// DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(pv),
-			// inputAudio.getFormat());
-			// String outFileName = args[i].substring(0, args[i].length()-4) + "_copy.wav";
-			// AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-		}
-
-	}
-
 }

@@ -26,6 +26,8 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.commons.io.FileUtils;
+
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -33,13 +35,10 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.data.text.LabelfileDoubleDataSource;
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
-import marytts.util.string.PrintfFormat;
-
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFrameMerger {
 	protected double[] otherFrame1;
@@ -49,7 +48,7 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 
 	/**
 	 * Create an lpcc-based interpolator.
-	 * 
+	 *
 	 * @param p
 	 *            the order of LPC analysis
 	 * @param r
@@ -65,7 +64,7 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 	/**
 	 * Set the frame of data to merge into the next call of applyInline(). This is the data towards which lpcc-based interpolation
 	 * will be done.
-	 * 
+	 *
 	 * @param frameToMerge
 	 *            frame to merge
 	 */
@@ -78,7 +77,7 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 	/**
 	 * Set the frame of data to merge into the next call of applyInline(). This method allows for an interpolation of two frames
 	 * to be merged into the data set; for example, in order to correct for time misalignment between signal and other frames.
-	 * 
+	 *
 	 * @param frame1
 	 *            frame 1
 	 * @param frame2
@@ -96,7 +95,7 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 	/**
 	 * Process the LPC coefficients in place. This implementation converts the LPC coefficients into line spectral frequencies,
 	 * and interpolates between these and the corresponding frame in the "other" signal.
-	 * 
+	 *
 	 * @param coeffs
 	 *            the LPC coefficients
 	 */
@@ -122,22 +121,22 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 			assert 0 <= relativeWeightOther1;
 			LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
 			double[] other2lpcc = other2Coeffs.getLPCC(24);
-			PrintfFormat f = new PrintfFormat("%      .1f ");
+			String f = "%      .1f ";
 			System.out.print("LPCC    ");
 			for (int i = 0; i < lpcc.length; i++) {
-				System.out.print(f.sprintf(lpcc[i]));
+				System.out.print(String.format(f, lpcc[i]));
 			}
 			System.out.println();
 
 			System.out.print("Other1  ");
 			for (int i = 0; i < lpcc.length; i++) {
-				System.out.print(f.sprintf(otherlpcc[i]));
+				System.out.print(String.format(f, otherlpcc[i]));
 			}
 			System.out.println();
 
 			System.out.print("Other2  ");
 			for (int i = 0; i < lpcc.length; i++) {
-				System.out.print(f.sprintf(other2lpcc[i]));
+				System.out.print(String.format(f, other2lpcc[i]));
 			}
 			System.out.println();
 
@@ -184,9 +183,9 @@ public class LPCCInterpolator extends LPCAnalysisResynthesis implements InlineFr
 			if (labelData1.length != labelData2.length) {
 				System.err.println("Warning: Number of labels is different!");
 				System.err.println(args[1] + ":");
-				System.err.println(FileUtils.getFileAsString(new File(args[1]), "ASCII"));
+				System.err.println(FileUtils.readFileToString(new File(args[1]), "ASCII"));
 				System.err.println(args[3] + ":");
-				System.err.println(FileUtils.getFileAsString(new File(args[3]), "ASCII"));
+				System.err.println(FileUtils.readFileToString(new File(args[3]), "ASCII"));
 			} // but continue
 			label1 = new BufferedDoubleDataSource(labelData1);
 			label2 = new BufferedDoubleDataSource(labelData2);

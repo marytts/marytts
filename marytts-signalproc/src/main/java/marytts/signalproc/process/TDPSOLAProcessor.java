@@ -195,7 +195,7 @@ public class TDPSOLAProcessor {
 		}
 
 		if (synthesisInstants != null)
-			synthesisInstants.repeatSkipCounts = ArrayUtils.copy(repeatSkipCounts);
+			synthesisInstants.repeatSkipCounts = repeatSkipCounts.clone();
 
 		return synthesisInstants;
 	}

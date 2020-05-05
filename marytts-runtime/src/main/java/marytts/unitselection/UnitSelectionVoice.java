@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -64,7 +64,7 @@ import marytts.unitselection.select.UnitSelector;
 
 /**
  * A Unit Selection Voice
- * 
+ *
  */
 public class UnitSelectionVoice extends Voice {
 
@@ -77,6 +77,7 @@ public class UnitSelectionVoice extends Voice {
 	protected CART[] f0Carts;
 	protected String exampleText;
 
+        @SuppressWarnings("unchecked")
 	public UnitSelectionVoice(String name, WaveformSynthesizer synthesizer) throws MaryConfigurationException {
 		super(name, synthesizer);
 
@@ -107,13 +108,13 @@ public class UnitSelectionVoice extends Voice {
 			String featureFileName = MaryProperties.needFilename(header + ".featureFile");
 			InputStream targetWeightStream = MaryProperties.getStream(header + ".targetCostWeights");
 			String targetCostClass = MaryProperties.needProperty(header + ".targetCostClass");
-			TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).newInstance();
+			TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).getDeclaredConstructor().newInstance();
 			targetFunction.load(featureFileName, targetWeightStream, featProcManager);
 
 			// build joinCostFunction
 			logger.debug("...loading join cost function...");
 			String joinCostClass = MaryProperties.needProperty(header + ".joinCostClass");
-			JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+			JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).getDeclaredConstructor().newInstance();
 			if (joinFunction instanceof JoinModelCost) {
 				((JoinModelCost) joinFunction).setFeatureDefinition(targetFunction.getFeatureDefinition());
 			}
@@ -125,7 +126,7 @@ public class UnitSelectionVoice extends Voice {
 			if (useSCost) {
 				logger.debug("...loading scost function...");
 				String sCostClass = MaryProperties.needProperty(header + ".sCostClass");
-				sCostFunction = (StatisticalCostFunction) Class.forName(sCostClass).newInstance();
+				sCostFunction = (StatisticalCostFunction) Class.forName(sCostClass).getDeclaredConstructor().newInstance();
 				sCostFunction.init(header);
 			}
 
@@ -133,7 +134,7 @@ public class UnitSelectionVoice extends Voice {
 			logger.debug("...loading units file...");
 			String unitReaderClass = MaryProperties.needProperty(header + ".unitReaderClass");
 			String unitsFile = MaryProperties.needFilename(header + ".unitsFile");
-			UnitFileReader unitReader = (UnitFileReader) Class.forName(unitReaderClass).newInstance();
+			UnitFileReader unitReader = (UnitFileReader) Class.forName(unitReaderClass).getDeclaredConstructor().newInstance();
 			unitReader.load(unitsFile);
 
 			logger.debug("...loading cart file...");
@@ -166,7 +167,7 @@ public class UnitSelectionVoice extends Voice {
 			// build and load database
 			logger.debug("...instantiating database...");
 			String databaseClass = MaryProperties.needProperty(header + ".databaseClass");
-			database = (UnitDatabase) Class.forName(databaseClass).newInstance();
+			database = (UnitDatabase) Class.forName(databaseClass).getDeclaredConstructor().newInstance();
 			if (useSCost) {
 				database.load(targetFunction, joinFunction, sCostFunction, unitReader, cart, timelineReader,
 						basenameTimelineReader, backtrace);
@@ -177,7 +178,7 @@ public class UnitSelectionVoice extends Voice {
 			// build Selector
 			logger.debug("...instantiating unit selector...");
 			String selectorClass = MaryProperties.needProperty(header + ".selectorClass");
-			unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
+			unitSelector = (UnitSelector) Class.forName(selectorClass).getDeclaredConstructor().newInstance();
 			float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header + ".viterbi.wTargetCosts", "0.33"));
 			int beamSize = MaryProperties.getInteger(header + ".viterbi.beamsize", 100);
 			if (!useSCost) {
@@ -191,7 +192,7 @@ public class UnitSelectionVoice extends Voice {
 			// build Concatenator
 			logger.debug("...instantiating unit concatenator...");
 			String concatenatorClass = MaryProperties.needProperty(header + ".concatenatorClass");
-			concatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
+			concatenator = (UnitConcatenator) Class.forName(concatenatorClass).getDeclaredConstructor().newInstance();
 			concatenator.load(database);
 
 			// TODO: this can be deleted at the same time as CARTF0Modeller
@@ -222,7 +223,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the database of this voice
-	 * 
+	 *
 	 * @return the database
 	 */
 	public UnitDatabase getDatabase() {
@@ -231,7 +232,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the unit selector of this voice
-	 * 
+	 *
 	 * @return the unit selector
 	 */
 	public UnitSelector getUnitSelector() {
@@ -240,7 +241,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the unit concatenator of this voice
-	 * 
+	 *
 	 * @return the unit selector
 	 */
 	public UnitConcatenator getConcatenator() {
@@ -249,7 +250,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Get the modification UnitConcatenator of this voice
-	 * 
+	 *
 	 * @return the modifying UnitConcatenator
 	 */
 	public UnitConcatenator getModificationConcatenator() {
@@ -284,7 +285,7 @@ public class UnitSelectionVoice extends Voice {
 
 	/**
 	 * Gets the domain of this voice
-	 * 
+	 *
 	 * @return the domain
 	 */
 	public String getDomain() {

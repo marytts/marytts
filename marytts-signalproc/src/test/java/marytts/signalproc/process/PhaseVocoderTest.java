@@ -21,10 +21,6 @@ package marytts.signalproc.process;
 
 import static org.junit.Assert.assertTrue;
 
-import java.awt.Color;
-
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
@@ -44,9 +40,6 @@ public class PhaseVocoderTest {
 		double[] result = pv.getAllData();
 		double err = MathUtils.sumSquaredError(signal, result);
 		if (err > 1.E-20) {
-			SignalGraph graph = new SignalGraph(signal, 16000);
-			graph.addDataSeries(result, Color.RED, FunctionGraph.DRAW_LINE, -1);
-			graph.showInJFrame("Test signal", true, true);
 			try {
 				Thread.sleep(100000);
 			} catch (Exception e) {

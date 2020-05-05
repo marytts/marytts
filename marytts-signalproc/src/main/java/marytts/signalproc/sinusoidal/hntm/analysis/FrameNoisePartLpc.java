@@ -164,7 +164,7 @@ public class FrameNoisePartLpc implements FrameNoisePart {
 	}
 
 	public void setLpCoeffs(float[] lpCoeffsIn, float gainIn) {
-		lpCoeffs = ArrayUtils.copy(lpCoeffsIn);
+		lpCoeffs = lpCoeffsIn.clone();
 		lpGain = gainIn;
 	}
 
