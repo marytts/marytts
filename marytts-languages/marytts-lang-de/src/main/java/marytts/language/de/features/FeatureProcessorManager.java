@@ -34,10 +34,13 @@ import marytts.util.MaryRuntimeUtils;
 
 public class FeatureProcessorManager extends marytts.features.FeatureProcessorManager {
 
-	/**
-	 * Builds a new manager. This manager uses the english phoneset of FreeTTS and a PoS conversion file if the english PoS tagger
-	 * is used. All feature processors loaded are language specific.
-	 */
+        /**
+         * Builds a new manager. This manager uses the english phoneset of FreeTTS and a PoS conversion file if the english PoS tagger
+         * is used. All feature processors loaded are language specific.
+         *
+         * @throws MaryConfigurationException
+         *             MaryConfigurationException
+         */
 	public FeatureProcessorManager() throws MaryConfigurationException {
                 super(Locale.GERMAN);
 		setupAdditionalFeatureProcessors();
