@@ -60,7 +60,7 @@ public class JoinModelCost implements JoinCostFunction {
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
 	 *
-	 * @see #load(String a, InputStream b, String c, float d)
+	 * @see #load(String joinFileName, InputStream joinPdfStream, InputStream joinTreeStream, String trickyPhonesFile)
 	 */
 	public JoinModelCost() {
 	}
