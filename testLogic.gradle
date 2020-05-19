@@ -10,10 +10,6 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 task integrationTest(type: Test) {
     group 'Verification'
     description 'Runs the integration tests.'
