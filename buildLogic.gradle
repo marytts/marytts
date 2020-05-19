@@ -9,3 +9,7 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
     options.deprecation = true
 }
+
+javadoc {
+    options.encoding = 'UTF-8'
+}
