@@ -10,6 +10,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.language.en.Preprocess;
 import marytts.util.dom.DomUtils;
+import marytts.util.dom.MaryDomUtils;
 
 import org.custommonkey.xmlunit.*;
 import org.testng.Assert;
@@ -247,4 +248,16 @@ public class PreprocessTest {
 		test = module.expandConsonants(test);
 		Assert.assertEquals(test, expected);
 	}
+
+    @Test
+    public void testStackOverflow() {
+        String test = "abcdefgiklmn.oprst/a/ddddddd.ddddddd";
+        String xml = "<maryxml><p>" + test + "</p></maryxml>";
+        try {
+            Document doc = MaryDomUtils.parseDocument(xml);
+            module.expand(doc);
+        } catch (Exception e) {
+            Assert.fail("Could not parse document", e);
+        }
+    }
 }

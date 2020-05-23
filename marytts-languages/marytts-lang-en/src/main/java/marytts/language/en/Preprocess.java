@@ -411,7 +411,7 @@ public class Preprocess extends InternalModule {
 					}
 				}
 				// if expanded url or punctuation go over each node, otherwise let TreeWalker catch up
-				if (!isURL && !puncSplit && !dashSplit) {
+				if ((!isURL || isURL && origText == "a") && !puncSplit && !dashSplit) {
 					tw.setCurrentNode((Node) t);
 				} else {
 					Node n = tw.previousNode();
