@@ -30,6 +30,11 @@ run {
         systemProperties << ['log4j.logger.marytts': 'DEBUG,stderr']
     }
 
+    // Override logger
+    if ("log4j.logger.marytts" in System.properties) {
+        systemProperties << ["log4j.logger.marytts": System.properties["log4j.logger.marytts"]]
+    }
+
 
     doFirst {
         classpath += fileTree(installDist.destinationDir).include('lib/voice-*.jar', 'lib/marytts-lang-*.jar')
