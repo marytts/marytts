@@ -19,7 +19,7 @@ run {
         systemProperties << ['socket.addr': System.properties["socket.addr"]]
     }
     if ("socket.port" in System.properties) {
-        systemProperties << ['socket.addr': System.properties["socket.port"]]
+        systemProperties << ['socket.port': System.properties["socket.port"]]
     }
 
     // Forward logger variables
