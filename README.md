@@ -31,6 +31,8 @@ where 5920 is the new port and 0.0.0.0 the new address. In case of the address b
 
 By using the option `--info`, you set the logger of `gradle` *AND* MaryTTS at the level INFO. By using `--debug`, you set the level to DEBUG.
 
+It is also possible to  the MaryTTS logger level to `INFO` or `DEBUG` by defining the system variable `log4j.logger.marytts`.
+
 ## Downloading and installing voices
 
 Run `./gradlew runInstallerGui` to start an installer GUI to download and install more voices.
