@@ -19,7 +19,7 @@ run {
         systemProperties << ['socket.addr': System.properties["socket.addr"]]
     }
     if ("socket.port" in System.properties) {
-        systemProperties << ['socket.addr': System.properties["socket.port"]]
+        systemProperties << ['socket.port': System.properties["socket.port"]]
     }
 
     // Forward logger variables
@@ -28,6 +28,11 @@ run {
     }
     if (logger.isEnabled(LogLevel.DEBUG)) {
         systemProperties << ['log4j.logger.marytts': 'DEBUG,stderr']
+    }
+
+    // Override logger
+    if ("log4j.logger.marytts" in System.properties) {
+        systemProperties << ["log4j.logger.marytts": System.properties["log4j.logger.marytts"]]
     }
 
 
