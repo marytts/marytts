@@ -50,19 +50,20 @@ public class MaryCache {
 	 * @return the MaryCache singleton object, or null if none could be created.
 	 */
 	public static MaryCache getCache() {
-		if (maryCache == null) {
-			try {
-				File targetFile = new File(MaryProperties.getFilename("cache.file", "maryCache"));
-				File directory = targetFile.getParentFile();
-				if (!directory.isDirectory()) {
-					directory.mkdirs();
-				}
-				maryCache = new MaryCache(targetFile, MaryProperties.getBoolean("cache.clearOnStart", false));
-			} catch (Exception e) {
-				MaryUtils.getLogger(MaryCache.class).warn("Cannot set up cache", e);
-			}
-		}
-		return maryCache;
+		return null;
+		//if (maryCache == null) {
+		//	try {
+		//		File targetFile = new File(MaryProperties.getFilename("cache.file", "maryCache"));
+		//		File directory = targetFile.getParentFile();
+		//		if (!directory.isDirectory()) {
+		//			directory.mkdirs();
+		//		}
+		//		maryCache = new MaryCache(targetFile, MaryProperties.getBoolean("cache.clearOnStart", false));
+		//	} catch (Exception e) {
+		//		MaryUtils.getLogger(MaryCache.class).warn("Cannot set up cache", e);
+		//	}
+		//}
+		//return maryCache;
 	}
 
 	/**
@@ -94,31 +95,31 @@ public class MaryCache {
 	 */
 	public MaryCache(File cacheFile, boolean clearCache) throws ClassNotFoundException, SQLException {
 		// Load the HSQL Database Engine JDBC driver
-		Class.forName("org.hsqldb.jdbcDriver");
-		connection = DriverManager.getConnection("jdbc:hsqldb:" + cacheFile.toURI().toString(), "sa", "");
-		boolean mustCreateTable = false;
-		if (clearCache) {
-			Statement st = connection.createStatement();
-			st.executeUpdate("DROP TABLE MARYCACHE IF EXISTS");
-			st.close();
-			mustCreateTable = true;
-		} else { // don't clear -- check if table exists
-			DatabaseMetaData dbInfo = connection.getMetaData();
-			ResultSet rs = dbInfo.getTables(null, null, "MARYCACHE", new String[] { "TABLE" });
-			if (rs.next()) {
-				// table exists
-			} else {
-				mustCreateTable = true;
-			}
-		}
-		if (mustCreateTable) {
-			String query = "CREATE CACHED TABLE MARYCACHE (id INTEGER IDENTITY, " + "inputtype VARCHAR(50), "
-					+ "outputtype VARCHAR(50), " + "locale VARCHAR(10), " + "voice VARCHAR(100), "
-					+ "outputparams VARCHAR(1000), " + "style VARCHAR(50), " + "effects VARCHAR(1000), "
-					+ "inputtext LONGVARCHAR, " + "outputtext LONGVARCHAR, " + "outputaudio LONGVARBINARY, "
-					+ "UNIQUE(inputtype, outputtype, locale, voice, outputparams, style, effects, inputtext)" + ")";
-			update(query);
-		}
+		//Class.forName("org.hsqldb.jdbcDriver");
+		//connection = DriverManager.getConnection("jdbc:hsqldb:" + cacheFile.toURI().toString(), "sa", "");
+		//boolean mustCreateTable = false;
+		//if (clearCache) {
+		//	Statement st = connection.createStatement();
+		//	st.executeUpdate("DROP TABLE MARYCACHE IF EXISTS");
+		//	st.close();
+		//	mustCreateTable = true;
+		//} else { // don't clear -- check if table exists
+		//	DatabaseMetaData dbInfo = connection.getMetaData();
+		//	ResultSet rs = dbInfo.getTables(null, null, "MARYCACHE", new String[] { "TABLE" });
+		//	if (rs.next()) {
+		//		// table exists
+		//	} else {
+		//		mustCreateTable = true;
+		//	}
+		//}
+		//if (mustCreateTable) {
+		//	String query = "CREATE CACHED TABLE MARYCACHE (id INTEGER IDENTITY, " + "inputtype VARCHAR(50), "
+		//			+ "outputtype VARCHAR(50), " + "locale VARCHAR(10), " + "voice VARCHAR(100), "
+		//			+ "outputparams VARCHAR(1000), " + "style VARCHAR(50), " + "effects VARCHAR(1000), "
+		//			+ "inputtext LONGVARCHAR, " + "outputtext LONGVARCHAR, " + "outputaudio LONGVARBINARY, "
+		//			+ "UNIQUE(inputtype, outputtype, locale, voice, outputparams, style, effects, inputtext)" + ")";
+		//	update(query);
+		//}
 	}
 
 	/**

@@ -8,6 +8,12 @@ dependencies {
 
 mainClassName = 'marytts.server.Mary'
 
+apply plugin: 'com.palantir.graal'
+graal {
+    mainClass 'marytts.server.Mary'
+    outputName 'marytts-server'
+}
+
 run {
     dependsOn installDist
 
