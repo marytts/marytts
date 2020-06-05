@@ -144,6 +144,7 @@ public class Preprocess extends InternalModule {
         contractions.put("'d", new String[]{"d"});
         contractions.put("'m", new String[]{"m"});
         contractions.put("'re", new String[]{"r"});
+        contractions.put("'t", new String[]{"t"});
 
         symbols = new HashMap<String, String>();
         symbols.put("@", "at");
