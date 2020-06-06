@@ -12,9 +12,6 @@ jdk:
   - openjdk8
   - oraclejdk8
 
-before_install:
-  - JAVA_HOME=$(jdk_switcher home openjdk8) mvn --projects . gradle:invoke -Dtasks=:help
-
 install:
   - mvn install -DskipTests=true -P!standard-with-extra-repos
 
