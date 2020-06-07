@@ -294,8 +294,6 @@ public class Preprocess extends InternalModule {
                 MaryDomUtils.setTokenText(t, expandAbbreviation(tokenText, nextTokenIsCapital));
                 // time
             } else if (timePattern.matcher(tokenText).matches()) {
-                Element testTimeNode = MaryDomUtils.getNextSiblingElement(t);
-                //boolean nextTokenIsTime = testTimeNode != null && amPmPattern.matcher(MaryDomUtils.tokenText(testTimeNode)).find();
                 MaryDomUtils.setTokenText(t, expandTime(tokenText));
                 // duration
             } else if (durationPattern.matcher(tokenText).matches()) {
@@ -453,7 +451,6 @@ public class Preprocess extends InternalModule {
                 abbrev = Arrays.toString(abbrevAr).replaceAll("[,\\]\\[]", "");
             } else {
                 abbrev = expandConsonants(yearMatcher.group(2));
-
             }
             return expandYear(Double.parseDouble(yearMatcher.group(1))) + " " + abbrev;
         }
@@ -599,7 +596,6 @@ public class Preprocess extends InternalModule {
      * @return theTime
      */
     protected String expandTime(String time) {
-        boolean isNextTokenTime = false;
         StringBuilder theTime = new StringBuilder();
         Matcher timeMatch = timePattern.matcher(time);
         if (timeMatch.find()) {
@@ -634,6 +630,7 @@ public class Preprocess extends InternalModule {
         throw new IllegalStateException("No match for find()");
     }
 
+    // (-)?(\d+)?(\.(\d+)(%)?)?
     protected String expandRealNumber(String number) {
         Matcher realNumMatch = realNumPattern.matcher(number);
         if (realNumMatch.find()) {
