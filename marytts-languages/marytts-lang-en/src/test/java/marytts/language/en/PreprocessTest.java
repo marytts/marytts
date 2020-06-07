@@ -1,4 +1,4 @@
-/**
+/*
  *Copyright (C) 2003 DFKI GmbH. All rights reserved.
  */
 package marytts.language.en;
@@ -6,21 +6,36 @@ package marytts.language.en;
 import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
-import marytts.language.en.Preprocess;
 import marytts.util.dom.DomUtils;
 
+import marytts.util.dom.NameNodeFilter;
 import org.custommonkey.xmlunit.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * @author Tristan Hamilton
@@ -38,83 +53,102 @@ public class PreprocessTest {
 		mary = new LocalMaryInterface();
 	}
 
+	@DataProvider(name = "NumRemoveCommasData")
+	private Object[][] numberRemoveCommasDocDataCardinal() {
+		// @formatter:off
+		return new Object[][] {
+				{ "1,002", "1002" },
+				{ "5,234.56", "5234.56"} };
+		// @formatter:on
+	}
+
+
 	@DataProvider(name = "NumExpandData")
 	private Object[][] numberExpansionDocDataCardinal() {
 		// @formatter:off
-		return new Object[][] { { "1", "one" },
-								{ "2", "two" },
-								{ "3", "three" },
-								{ "4", "four" },
-								{ "100", "one hundred" },
-								{ "42", "forty-two"} };
+		return new Object[][] {
+				{ "1", "one" },
+				{ "2", "two" },
+				{ "3", "three" },
+				{ "4", "four" },
+				{ "100", "one hundred" },
+				{ "1002", "one thousand two" },
+				{ "42", "forty-two"} };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "RealNumExpandData")
 	private Object[][] numberExpansionDocDataRealNumbers() {
 		// @formatter:off
-		return new Object[][] { { "1.8", "one point eight" },
-								{ "-2", "minus two" },
-								{ "03.45", "three point four five" },
-								{ "42.56%", "forty-two point five six per cent" } };
+		return new Object[][] {
+				{ "1.8", "one point eight" },
+				{ "-2", "minus two" },
+				{ "03.45", "three point four five" },
+				{ "42.56%", "forty-two point five six per cent" } };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "OrdinalExpandData")
 	private Object[][] numberExpansionDocDataOrdinal() {
 		// @formatter:off
-		return new Object[][] { { "2", "second" },
-								{ "3", "third" },
-								{ "4", "fourth" } };
+		return new Object[][] {
+				{ "2", "second" },
+				{ "3", "third" },
+				{ "4", "fourth" } };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "YearExpandData")
 	private Object[][] numberExpansionDocDataYear() {
 		// @formatter:off
-		return new Object[][] { { "1918", "nineteen eighteen" },
-								{ "1908", "nineteen oh-eight" },
-								{ "2000", "two thousand" },
-								{ "2015", "twenty fifteen" } };
+		return new Object[][] {
+				{ "1918", "nineteen eighteen" },
+				{ "1908", "nineteen oh-eight" },
+				{ "2000", "two thousand" },
+				{ "2015", "twenty fifteen" } };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "wordNumExpandData")
 	private Object[][] expansionDocDataNumWord() {
 		// @formatter:off
-		return new Object[][] { { "123abc", "one two three  abc" },
-								{ "1hello5", "one  hello five " } };
+		return new Object[][] {
+				{ "123abc", "one two three  abc" },
+				{ "1hello5", "one  hello five " } };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "timeExpandData")
 	private Object[][] expansionDocDataTime() {
 		// @formatter:off
-		return new Object[][] { { "09:00", "nine a m" },
-								{ "12:15", "twelve fifteen p m" },
-								{ "00:05am", "twelve oh five a m" },
-								{ "23:30", "eleven thirty p m" } };
+		return new Object[][] {
+				{ "09:00", "nine a m" },
+				{ "12:15", "twelve fifteen p m" },
+				{ "00:05am", "twelve oh five a m" },
+				{ "23:30", "eleven thirty p m" } };
 		// @formatter:on
 	}
 
 	@DataProvider(name = "dateExpandData")
 	private Object[][] expansionDocDataDate() {
 		// @formatter:off
-		return new Object[][] { { "06/29/1993", "June twenty-ninth nineteen ninety-three" },
-                                        { "06/22/1992", "June twenty-second nineteen ninety-two" },
-                                        { "24/04/2020", "April twenty-fourth twenty twenty"},
-                                        { "04/24/2020", "April twenty-fourth twenty twenty"},
-                                        { "04.24.2020", "April twenty-fourth twenty twenty"},
-                                        { "4/24/2020", "April twenty-fourth twenty twenty"}};
+		return new Object[][] {
+				{ "06/29/1993", "June twenty-ninth nineteen ninety-three" },
+				{ "06/22/1992", "June twenty-second nineteen ninety-two" },
+				{ "24/04/2020", "April twenty-fourth twenty twenty"},
+				{ "04/24/2020", "April twenty-fourth twenty twenty"},
+				{ "04.24.2020", "April twenty-fourth twenty twenty"},
+				{ "4/24/2020", "April twenty-fourth twenty twenty"}};
 		// @formatter:on
 	}
 
 	@DataProvider(name = "abbrevExpandData")
 	private Object[][] expansionDocDataAbbrev() {
 		// @formatter:off
-		return new Object[][] { { "dr.", "drive" },
-								{ "mrs", "missus" },
-								{ "Mr.", "mister" } };
+		return new Object[][] {
+				{ "dr.", "drive" },
+				{ "mrs", "missus" },
+				{ "Mr.", "mister" } };
 		// @formatter:on
 	}
 
@@ -131,6 +165,12 @@ public class PreprocessTest {
 		Diff diff = XMLUnit.compareXML(expectedDoc, doc);
 		// issue where LocalMaryInterface#generateXML and DomUtils#parseDocument dont build the document in same order
 		Assert.assertFalse(diff.identical());
+	}
+
+	@Test(dataProvider = "NumRemoveCommasData")
+	public void testRemoveCommas(String token, String word) {
+		String actual = module.removeCommas(token);
+		Assert.assertEquals(actual, word);
 	}
 
 	@Test(dataProvider = "NumExpandData")
