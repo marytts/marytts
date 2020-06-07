@@ -118,6 +118,18 @@ public class PreprocessTest {
 		// @formatter:on
 	}
 
+
+	@DataProvider(name = "MoneyExpandData")
+	private Object[][] expansionDocDataMoney() {
+		// @formatter:off
+		return new Object[][] {
+				{ "$12.52", "twelve dollars fifty-two cents" },
+				{ "$12.5", "twelve dollars fifty cents" },
+				{ "£5.20", "five pound sterling twenty pence" },
+				{ "€7.05", "seven euro five cents" } };
+		// @formatter:on
+	}
+
 	@DataProvider(name = "timeExpandData")
 	private Object[][] expansionDocDataTime() {
 		// @formatter:off
@@ -203,6 +215,15 @@ public class PreprocessTest {
 	@Test(dataProvider = "wordNumExpandData")
 	public void testExpandNumWord(String token, String word) {
 		String actual = module.expandWordNumber(token);
+		Assert.assertEquals(actual, word);
+	}
+
+	@Test(dataProvider = "MoneyExpandData")
+	public void testExpandMoney(String token, String word) {
+		String currency = token.substring(0, 1);
+		String money = token.substring(1);
+		String actual = module.expandMoney(money, currency);
+		boolean match = actual.equals(word);
 		Assert.assertEquals(actual, word);
 	}
 
