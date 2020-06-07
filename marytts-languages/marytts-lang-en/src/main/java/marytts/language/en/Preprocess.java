@@ -713,37 +713,36 @@ public class Preprocess extends InternalModule {
     }
 
     protected String expandMoney(String money, String currency) {
-        String origText = money;
         Matcher currencyMatch = moneyPattern.matcher(money);
         if (currencyMatch.find()) {
+            StringBuilder buf = new StringBuilder();
+            double whole = Double.parseDouble(currencyMatch.group(1));
+            String fraction = currencyMatch.group(2);
+            double fracValue = fraction != null ? Double.parseDouble(fraction) * 100 : 0;
             switch (currency) {
                 case "$":
-                    double amount = Double.parseDouble(currencyMatch.group(1));
-                    money = expandNumber(amount) + (amount > 1 ? " dollars" : " dollar");
-                    if (currencyMatch.group(2) != null) {
-                        int dotIndex = origText.indexOf('.');
-                        money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
+                    buf.append(expandNumber(whole)).append(whole > 1 ? " dollars" : " dollar");
+                    if (fraction != null) {
+                        buf.append(" ").append(expandNumber(fracValue)).append(" cents");
                     }
                     break;
                 case "£":
-                    money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " pound sterling";
-                    if (currencyMatch.group(2) != null) {
-                        int dotIndex = origText.indexOf('.');
-                        money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " pence";
+                    buf.append(expandNumber(whole)).append(" pound sterling");
+                    if (fraction != null) {
+                        buf.append(" ").append(expandNumber(fracValue)).append(" pence");
                     }
                     break;
                 case "€":
-                    money = expandNumber(Double.parseDouble(currencyMatch.group(1))) + " euro";
-                    if (currencyMatch.group(2) != null) {
-                        int dotIndex = origText.indexOf('.');
-                        money = money + " " + expandNumber(Double.parseDouble(origText.substring(dotIndex + 1))) + " cents";
+                    buf.append(expandNumber(whole)).append(" euro");
+                    if (fraction != null) {
+                        buf.append(" ").append(expandNumber(fracValue)).append(" cents");
                     }
                     break;
                 default:
-                    logger.warn(String.format("Could not expand amount [%s] for currency [%s]", origText, currency));
+                    logger.warn(String.format("Could not expand amount [%s] for currency [%s]", money, currency));
                     break;
             }
-            return money;
+            return buf.toString();
         }
         throw new IllegalStateException("No match for find()");
     }
