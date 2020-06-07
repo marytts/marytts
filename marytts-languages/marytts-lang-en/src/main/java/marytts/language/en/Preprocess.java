@@ -1,8 +1,6 @@
 package marytts.language.en;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,12 +33,6 @@ import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 /**
  * @author Tristan Hamilton
@@ -598,26 +590,13 @@ public class Preprocess extends InternalModule {
 
 	protected String expandDate(String date) throws ParseException {
 		// Fix date in case format not completely correct
-		String[] dateParts = date.split("[./]");
-		for (int i=0; i < dateParts.length-1; i++) {
-				if (dateParts[i].length() == 1) {
-						dateParts[i] = "0" + dateParts[i];
-				}
-		}
-		String processed_date = String.join("/", dateParts);
-		if (Integer.parseInt(processed_date.substring(0, 2)) > 12) {
-				// UK formatted date
-				Date humanDate = DateFormat.getPatternInstance("dd.MM.yyyy", ULocale.UK).parse(processed_date);
-				dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
-				dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
-				dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
-		} else {
-				// US formatted date
-				Date humanDate = DateFormat.getPatternInstance("MM.dd.yyyy", ULocale.US).parse(processed_date);
-				dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
-				dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
-				dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
-		}
+		date = date.replace('.', '/');
+		String[] dateParts = date.split("/");
+		ULocale locale = Integer.parseInt(dateParts[0]) > 12 ? ULocale.UK : ULocale.US;
+		Date humanDate = DateFormat.getPatternInstance("dd.MM.yyyy", locale).parse(date);
+		dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
+		dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
+		dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
 		return Arrays.toString(dateParts).replaceAll("[,\\]\\[]", "");
 	}
 

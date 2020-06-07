@@ -235,7 +235,7 @@ public class PreprocessTest {
 
 	@Test(dataProvider = "dateExpandData")
 	public void testExpandDate(String token, String word) throws ParseException {
-                String actual = module.expandDate(token);
+    String actual = module.expandDate(token);
 		Assert.assertEquals(actual, word);
 	}
 
