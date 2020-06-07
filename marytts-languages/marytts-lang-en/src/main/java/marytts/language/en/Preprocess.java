@@ -128,7 +128,7 @@ public class Preprocess extends InternalModule {
 	private static final Pattern numberSPattern = Pattern.compile("([0-9]+)([sS])");
 	private static final Pattern commasInNumberPattern = Pattern.compile("[\\d,.]+");
 	private static final Pattern fourDigitsPattern = Pattern.compile("\\d{4}");
-	private static final Pattern amPmPattern = Pattern.compile("a\\.m\\.|AM|PM|am|pm|p\\.m\\.");
+	//private static final Pattern amPmPattern = Pattern.compile("a\\.m\\.|AM|PM|am|pm|p\\.m\\.");
 
 	// HashMap initialization
 	static {
@@ -311,8 +311,8 @@ public class Preprocess extends InternalModule {
 				// time
 			} else if (timePattern.matcher(tokenText).matches()) {
 				Element testTimeNode = MaryDomUtils.getNextSiblingElement(t);
-				boolean nextTokenIsTime = testTimeNode != null && amPmPattern.matcher(MaryDomUtils.tokenText(testTimeNode)).matches();
-				MaryDomUtils.setTokenText(t, expandTime(tokenText, nextTokenIsTime));
+				//boolean nextTokenIsTime = testTimeNode != null && amPmPattern.matcher(MaryDomUtils.tokenText(testTimeNode)).find();
+				MaryDomUtils.setTokenText(t, expandTime(tokenText));
 				// duration
 			} else if (durationPattern.matcher(tokenText).matches()) {
 				MaryDomUtils.setTokenText(t, expandDuration(tokenText));
@@ -625,63 +625,38 @@ public class Preprocess extends InternalModule {
 	 *
 	 * @param time
 	 *            the token to be expanded
-	 * @param isNextTokenTime
-	 *            whether the following token contains am or pm
 	 * @return theTime
 	 */
-	protected String expandTime(String time, boolean isNextTokenTime) {
+	protected String expandTime(String time) {
+		boolean isNextTokenTime = false;
 		StringBuilder theTime = new StringBuilder();
 		Matcher timeMatch = timePattern.matcher(time);
 		if (timeMatch.find()) {
-			// hour
-			String hour;
-			boolean pastNoon = false;
-			if (timeMatch.group(2) != null || timeMatch.group(3) != null) {
-				hour = (timeMatch.group(2) != null) ? timeMatch.group(2) : timeMatch.group(3);
-				if (hour.equals("00")) {
-					hour = "12";
-				}
-				theTime.append(expandNumber(Double.parseDouble(hour)));
-			} else {
+			// expand hour value
+			String hour = timeMatch.group(1);
+			int hourValue = Integer.parseInt(hour);
+			boolean pastNoon = hourValue >= 12;
+			if (hourValue > 12) {
+				hourValue -= 12;
+			} else if (hourValue == 0){
+				hourValue = 12;
 				pastNoon = true;
-				hour = (timeMatch.group(4) != null) ? timeMatch.group(4) : timeMatch.group(5);
-				double pmHour = Double.parseDouble(hour) - 12;
-				if (pmHour == 0) {
-					hour = "12";
-					theTime.append(expandNumber(Double.parseDouble(hour)));
+			}
+			theTime.append(expandNumber(hourValue));
+			// expand minutes value
+			if (!timeMatch.group(6).equals("00")) {
+				if (timeMatch.group(6).matches("0\\d")) {
+					theTime.append(" oh ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
 				} else {
-					theTime.append(expandNumber(pmHour));
+					theTime.append(" ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
 				}
 			}
-			// minutes
-			if (timeMatch.group(7) != null && !isNextTokenTime) {
-				if (!timeMatch.group(6).equals("00")) {
-					if (timeMatch.group(6).matches("0\\d")) {
-						theTime.append(" oh ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					} else {
-						theTime.append(" ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					}
-				}
+			if (timeMatch.group(7) != null) {
 				for (char c : timeMatch.group(7).replaceAll("\\.", "").toCharArray()) {
 					theTime.append(" ").append(c);
 				}
-			} else if (!isNextTokenTime) {
-				if (!timeMatch.group(6).equals("00")) {
-					if (timeMatch.group(6).matches("0\\d")) {
-						theTime.append(" oh ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					} else {
-						theTime.append(" ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					}
-				}
-				theTime.append(!pastNoon ? " a m" : " p m");
 			} else {
-				if (!timeMatch.group(6).equals("00")) {
-					if (timeMatch.group(6).matches("0\\d")) {
-						theTime.append(" oh ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					} else {
-						theTime.append(" ").append(expandNumber(Double.parseDouble(timeMatch.group(6))));
-					}
-				}
+				theTime.append(!pastNoon ? " a m" : " p m");
 			}
 			return theTime.toString();
 		}

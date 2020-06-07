@@ -229,7 +229,7 @@ public class PreprocessTest {
 
 	@Test(dataProvider = "timeExpandData")
 	public void testExpandTime(String token, String word) {
-		String actual = module.expandTime(token, false);
+		String actual = module.expandTime(token);
 		Assert.assertEquals(actual, word);
 	}
 
