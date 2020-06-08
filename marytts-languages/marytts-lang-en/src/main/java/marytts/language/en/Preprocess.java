@@ -587,8 +587,12 @@ public class Preprocess extends InternalModule {
 		// Fix date in case format not completely correct
 		date = date.replace('.', '/');
 		String[] dateParts = date.split("/");
-		ULocale locale = Integer.parseInt(dateParts[0]) > 12 ? ULocale.UK : ULocale.US;
-		Date humanDate = DateFormat.getPatternInstance("dd.MM.yyyy", locale).parse(date);
+		Date humanDate;
+		if (Integer.parseInt(dateParts[0]) > 12) {
+			humanDate = DateFormat.getPatternInstance("dd.MM.yyyy", ULocale.UK).parse(date);
+		} else {
+			humanDate = DateFormat.getPatternInstance("MM.dd.yyyy", ULocale.US).parse(date);
+		}
 		dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
 		dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
 		dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
