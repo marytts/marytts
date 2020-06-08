@@ -271,10 +271,16 @@ public class PreprocessTest {
 
 	@Test
 	public void testExpandHashtag() {
-		String test = "#weDidIt";
-		String expected = "hashtag we Did It";
-		test = module.expandHashtag(test);
-		Assert.assertEquals(test, expected);
+		String[][] tests = new String[][] {
+			{"#delta50Gonzo", "hashtag delta fifty Gonzo"},
+			{"#weDidIt", "hashtag we Did It"},
+			{"#101dalmations", "hashtag one hundred one dalmations"},
+			{"#the100", "hashtag the one hundred"},
+			};
+		for (String[] test : tests) {
+			String result = module.expandHashtag(test[0]);
+			Assert.assertEquals(result, test[1]);
+		}
 	}
 
 	@Test
