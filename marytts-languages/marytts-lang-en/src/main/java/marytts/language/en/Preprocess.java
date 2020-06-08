@@ -468,41 +468,39 @@ public class Preprocess extends InternalModule {
         return Joiner.on(" ").join(Lists.charactersOf(consonants));
     }
 
+    // expand matches to (#)(\w+)
     protected String expandHashtag(String hashtag) {
         Matcher hashTagMatcher = hashtagPattern.matcher(hashtag);
         if (hashTagMatcher.find()) {
+            StringBuilder temp = new StringBuilder("hashtag ");
             String tag = hashTagMatcher.group(2);
-            String expandedTag;
             if (!tag.matches("[a-z]+") || !tag.matches("[A-Z]+")) {
-                StringBuilder temp = new StringBuilder();
-                for (char c : tag.toCharArray()) {
-                    if (Character.isDigit(c) && temp.toString().matches("^$|[0-9]+")) {
-                        temp.append(c);
-                    } else if (Character.isDigit(c) && temp.toString().matches(".+[0-9]")) {
-                        temp.append(c);
-                    } else if (Character.isDigit(c)) {
-                        temp.append(" ").append(c);
-                    } else if (!temp.toString().equals("") && Character.isUpperCase(c)) {
-                        if (Character.isUpperCase(temp.charAt(temp.length() - 1))) {
-                            temp.append(c);
-                        } else {
-                            temp.append(" ").append(c);
+                char lastChar = ' ';
+                for (int ii = 0; ii < tag.length(); ii++) {
+                    char cc = tag.charAt(ii);
+                    if (Character.isDigit(cc)) {
+                        if (lastChar != ' ') {
+                            temp.append(' ');
                         }
-                    } else if (Character.isAlphabetic(c) && temp.length() > 0) {
-                        if (Character.isDigit(temp.charAt(temp.length() - 1))) {
-                            temp.append(" ").append(c);
-                        } else {
-                            temp.append(c);
+                        int number = 0;
+                        while (ii < tag.length() && Character.isDigit(cc = tag.charAt(ii))) {
+                            number *= 10;
+                            number += Integer.parseInt(Character.toString(lastChar = cc));
+                            ii++;
                         }
+                        ii--;
+                        temp.append(expandNumber(number));
                     } else {
-                        temp.append(c);
+                        if (Character.isUpperCase(cc) || Character.isDigit(lastChar)) {
+                            temp.append(' ');
+                        }
+                        temp.append(lastChar = cc);
                     }
                 }
-                expandedTag = temp.toString();
             } else {
-                expandedTag = tag;
+                temp.append(tag);
             }
-            return symbols.get(hashTagMatcher.group(1)) + " " + expandedTag;
+            return temp.toString();
         }
         throw new IllegalStateException("No match for find()");
     }
@@ -630,7 +628,7 @@ public class Preprocess extends InternalModule {
         throw new IllegalStateException("No match for find()");
     }
 
-    // (-)?(\d+)?(\.(\d+)(%)?)?
+    // expand matches to (-)?(\d+)?(\.(\d+)(%)?)?
     protected String expandRealNumber(String number) {
         Matcher realNumMatch = realNumPattern.matcher(number);
         if (realNumMatch.find()) {
