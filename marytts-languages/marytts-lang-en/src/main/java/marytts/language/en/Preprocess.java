@@ -1,7 +1,5 @@
 package marytts.language.en;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.RuleBasedNumberFormat;
 import com.ibm.icu.util.ULocale;
@@ -70,32 +68,20 @@ import java.util.regex.Pattern;
  */
 public class Preprocess extends InternalModule {
 
-    // abbreviations map
-    private Map<Object, Object> abbrevMap;
-
     // symbols map
     private static final Map<String, String> symbols = new HashMap<>();
-
     // contractions map
     private static final Map<String, String[]> contractions = new HashMap<>();
-
-    // icu4j stuff
-    private final RuleBasedNumberFormat rbnf;
-    protected final String cardinalRule;
-    protected final String ordinalRule;
-    protected final String yearRule;
-    private final DateFormat df;
-
     // Regex matching patterns
-    private static final Pattern moneyPattern = Pattern.compile("(\\d+)(\\.\\d+)?");
+    private static final Pattern moneyPattern = Pattern.compile("([$£€])(-?([\\d,]+\\.?\\d+|\\.\\d+)+)");
     private static final Pattern timePattern = Pattern.compile("((0?[0-9])|(1[0-1])|(1[2-9])|(2[0-3])):([0-5][0-9])" +
             "(a\\.m\\.|am|pm|p\\.m\\.|a\\.m|p\\.m)?", Pattern.CASE_INSENSITIVE);
     private static final Pattern durationPattern = Pattern.compile("(\\d+):([0-5][0-9]):([0-5][0-9])(:([0-5][0-9]))?");
     private static final Pattern abbrevPattern = Pattern.compile("[a-zA-Z]{2,}\\.");
     private static final Pattern acronymPattern = Pattern.compile("([a-zA-Z]\\.[a-zA-Z](\\.)?)+([a-zA-Z](\\.)?)?");
-    private static final Pattern realNumPattern = Pattern.compile("(-)?(\\d+)?(\\.(\\d+)(%)?)?");
+    private static final Pattern realNumPattern = Pattern.compile("(-)?([\\d,]+)?(\\.(\\d+)(%)?)?");
     private static final Pattern numberWordPattern = Pattern.compile("([a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)\\w*");
-    private static final Pattern datePattern = Pattern.compile("(\\d{2})[/.](\\d{2})[/.]\\d{4}");
+    private static final Pattern datePattern = Pattern.compile("(\\d{1,2})[/.](\\d{1,2})[/.]\\d{4}");
     private static final Pattern yearPattern = Pattern.compile("(\\d+)(bc|ad|b\\.c\\.|b\\.c|a\\.d\\.|a\\.d)", Pattern.CASE_INSENSITIVE);
     private static final Pattern contractPattern = Pattern.compile("[a-zA-Z]+('[a-zA-Z]+)");
     private static final Pattern symbolsPattern = Pattern.compile("[@%#/+=&><-]");
@@ -107,12 +93,10 @@ public class Preprocess extends InternalModule {
     private static final Pattern punctuationPattern = Pattern.compile("\\p{Punct}");
     private static final Pattern myPunctPattern = Pattern.compile(",\\.:;?'\"");
     private static final Pattern hashtagPattern = Pattern.compile("(#)(\\w+)");
-    private static final Pattern ordinalPattern = Pattern.compile("\\d+(st|nd|rd|th)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ordinalPattern = Pattern.compile("[\\d,]+(st|nd|rd|th)", Pattern.CASE_INSENSITIVE);
     private static final Pattern currencySymbPattern = Pattern.compile("[$£€]");
-    private static final Pattern numberSPattern = Pattern.compile("([0-9]+)([sS])");
-    private static final Pattern commasInNumberPattern = Pattern.compile("[\\d,.]+");
+    private static final Pattern numberSPattern = Pattern.compile("(\\d+)([sS]+)");
     private static final Pattern fourDigitsPattern = Pattern.compile("\\d{4}");
-    //private static final Pattern amPmPattern = Pattern.compile("a\\.m\\.|AM|PM|am|pm|p\\.m\\.");
 
     // HashMap initialization
     static {
@@ -136,6 +120,15 @@ public class Preprocess extends InternalModule {
         symbols.put("&", "and");
     }
 
+    protected final String cardinalRule;
+    protected final String ordinalRule;
+    protected final String yearRule;
+    // icu4j stuff
+    private final RuleBasedNumberFormat rbnf;
+    private final DateFormat df;
+    // abbreviations map
+    private Map<Object, Object> abbrevMap;
+
     public Preprocess() {
         super("Preprocess", MaryDataType.TOKENS, MaryDataType.WORDS, Locale.ENGLISH);
         rbnf = new RuleBasedNumberFormat(ULocale.ENGLISH, RuleBasedNumberFormat.SPELLOUT);
@@ -150,6 +143,60 @@ public class Preprocess extends InternalModule {
         }
     }
 
+    /**
+     * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
+     * <p>
+     * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
+     *
+     * @param rbnf The RuleBasedNumberFormat from where we will try to extract the rule name.
+     * @return The rule name for "ordinal spell out".
+     */
+    protected static String getOrdinalRuleName(final RuleBasedNumberFormat rbnf) {
+        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
+        if (l.contains("%spellout-ordinal")) {
+            return "%spellout-ordinal";
+        } else if (l.contains("%spellout-ordinal-masculine")) {
+            return "%spellout-ordinal-masculine";
+        } else {
+            for (String string : l) {
+                if (string.startsWith("%spellout-ordinal")) {
+                    return string;
+                }
+            }
+        }
+        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
+                + " doesn't support ordinal spelling.");
+    }
+
+    /**
+     * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
+     * <p>
+     * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
+     *
+     * @param rbnf The RuleBasedNumberFormat from where we will try to extract the rule name.
+     * @return The rule name for "year spell out".
+     */
+    protected static String getYearRuleName(final RuleBasedNumberFormat rbnf) {
+        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
+        if (l.contains("%spellout-numbering-year")) {
+            return "%spellout-numbering-year";
+        } else {
+            for (String string : l) {
+                if (string.startsWith("%spellout-numbering-year")) {
+                    return string;
+                }
+            }
+        }
+        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
+                + " doesn't support year spelling.");
+    }
+
+    public static Map<Object, Object> loadAbbrevMap() throws IOException {
+        Properties abbMap = new Properties();
+        abbMap.load(Preprocess.class.getResourceAsStream("preprocess/abbrev.dat"));
+        return abbMap;
+    }
+
     public MaryData process(MaryData d) throws Exception {
         Document doc = d.getDocument();
         expand(doc);
@@ -161,32 +208,28 @@ public class Preprocess extends InternalModule {
     /***
      * processes a document in mary xml format, from Tokens to Words which can be phonemised.
      *
-     * @param doc
-     *            doc
-     * @throws ParseException
-     *             parse exception
-     * @throws IOException
-     *             IO Exception
-     * @throws MaryConfigurationException
-     *             mary configuration exception
+     * @param doc doc
+     * @return expended String (used by test code)
+     * @throws ParseException parse exception
+     * @throws IOException IO Exception
+     * @throws MaryConfigurationException mary configuration exception
      */
-    protected void expand(Document doc) throws ParseException, IOException, MaryConfigurationException {
+    protected String expand(Document doc) throws ParseException, IOException, MaryConfigurationException {
         String whichCurrency = "";
         boolean URLFirst = false;
         boolean isURL = false;
         boolean puncSplit = false;
         boolean dashSplit = false;
         String webEmailTemp = "";
+        String retVal = null;
         TreeWalker tw = ((DocumentTraversal) doc).createTreeWalker(doc, NodeFilter.SHOW_ELEMENT,
                 new NameNodeFilter(MaryXML.TOKEN), false);
         Element t;
         // loop through each node in dom tree
         while ((t = (Element) tw.nextNode()) != null) {
-
             /*
              * PRELIM FOR EACH NODE
              */
-
             // to accommodate the first token being a url
             if (URLFirst) {
                 t = (Element) tw.previousNode();
@@ -194,40 +237,26 @@ public class Preprocess extends InternalModule {
             }
             boolean isYear = true;
             boolean splitContraction = false;
-
             if (MaryDomUtils.hasAncestor(t, MaryXML.SAYAS) || t.hasAttribute("ph") || t.hasAttribute("sounds_like")) {
                 // if token already has any of these attributes then ignore
                 continue;
             }
-
             String tokenText = MaryDomUtils.tokenText(t);
-
-            // remove commas
-            if (commasInNumberPattern.matcher(tokenText).matches()) {
-                MaryDomUtils.setTokenText(t, tokenText = tokenText.replaceAll(",", ""));
-                // presume that a 4 digit number which had commas is not a year
-                if (fourDigitsPattern.matcher(tokenText).matches()) {
-                    isYear = false;
-                }
-            }
             // isYear extra check
             if (fourDigitsPattern.matcher(tokenText).matches() && !whichCurrency.equals("")) {
                 isYear = false;
             }
-
             // check if currency
             if (currencySymbPattern.matcher(tokenText).matches()) {
                 whichCurrency = tokenText;
             }
-
             /*
              * ACTUAL PROCESSING
              */
-
             // ordinal
             if (ordinalPattern.matcher(tokenText).matches()) {
                 String matched = tokenText.split("(?i)st|nd|rd|th")[0];
-                MaryDomUtils.setTokenText(t, expandOrdinal(Double.parseDouble(matched)));
+                MaryDomUtils.setTokenText(t, expandOrdinal(matched));
                 // single a or A character
             } else if (tokenText.matches("[aA]")) {
                 Element checkNextNode = MaryDomUtils.getNextSiblingElement(t);
@@ -250,11 +279,13 @@ public class Preprocess extends InternalModule {
                 // wordAndNumber &rarr; must come AFTER year
             } else if (numberWordPattern.matcher(tokenText).matches()) {
                 MaryDomUtils.setTokenText(t, expandWordNumber(tokenText));
-                // real number & currency
+                // Currency
+            } else if (moneyPattern.matcher(tokenText).matches()) {
+                MaryDomUtils.setTokenText(t, expandMoney(tokenText));
+                // real number
             } else if (realNumPattern.matcher(tokenText).matches()) {
-                if (!whichCurrency.equals("")) {
-                    MaryDomUtils.setTokenText(t, expandMoney(tokenText, whichCurrency));
-                    whichCurrency = "";
+                if (!"".equals(whichCurrency)) {
+                    MaryDomUtils.setTokenText(t, expandMoney(whichCurrency + tokenText));
                 } else {
                     MaryDomUtils.setTokenText(t, expandRealNumber(tokenText));
                 }
@@ -271,7 +302,6 @@ public class Preprocess extends InternalModule {
                     } else {
                         throw new IllegalStateException("No match for find()");
                     }
-
                     // FIXME: we do not want to have to phonological word => for now we do not split !
                     // // if not in lexicon and we have a contraction expansion then split into two tokens
                     // else
@@ -334,7 +364,7 @@ public class Preprocess extends InternalModule {
                     if (tok.matches("\\d+")) {
                         StringBuilder newTok = new StringBuilder();
                         for (char c : tok.toCharArray()) {
-                            newTok.append(expandNumber(Double.parseDouble(String.valueOf(c)))).append(" ");
+                            newTok.append(expandNumber(String.valueOf(c))).append(" ");
                         }
                         tokens[i] = newTok.toString();
                     }
@@ -356,6 +386,9 @@ public class Preprocess extends InternalModule {
                 // FIXME: skip quotes for now as we don't have any clever management of the POS for the prosodic feature
             } else if (punctuationPattern.matcher(tokenText).matches()) {
                 t.setAttribute("pos", ".");
+            }
+            if (retVal == null) {
+                retVal = MaryDomUtils.tokenText(t);
             }
             // if token isn't ignored but there is no handling rule don't add MTU
             if (!tokenText.equals(MaryDomUtils.tokenText(t))) {
@@ -392,11 +425,20 @@ public class Preprocess extends InternalModule {
                 }
             }
         }
+        return retVal;
+    }
+
+    protected String expandNumber(String number) {
+        return expandNumber(Double.parseDouble(removeCommas(number)));
     }
 
     protected String expandNumber(double number) {
         this.rbnf.setDefaultRuleSet(cardinalRule);
         return this.rbnf.format(number);
+    }
+
+    protected String expandOrdinal(String number) {
+        return expandOrdinal(Double.parseDouble(removeCommas(number)));
     }
 
     protected String expandOrdinal(double number) {
@@ -412,12 +454,12 @@ public class Preprocess extends InternalModule {
     protected String expandDuration(String duration) {
         Matcher durMatcher = durationPattern.matcher(duration);
         if (durMatcher.find()) {
-            String hrs = expandNumber(Double.parseDouble(durMatcher.group(1))) + " hours ";
-            String mins = expandNumber(Double.parseDouble(durMatcher.group(2))) + " minutes ";
-            String secs = expandNumber(Double.parseDouble(durMatcher.group(3))) + " seconds ";
+            String hrs = expandNumber(durMatcher.group(1)) + " hours ";
+            String mins = expandNumber(durMatcher.group(2)) + " minutes ";
+            String secs = expandNumber(durMatcher.group(3)) + " seconds ";
             String ms = "";
             if (durMatcher.group(4) != null) {
-                ms = "and " + expandNumber(Double.parseDouble(durMatcher.group(5))) + " milliseconds ";
+                ms = "and " + expandNumber(durMatcher.group(5)) + " milliseconds ";
             } else {
                 secs = "and " + secs;
             }
@@ -460,12 +502,18 @@ public class Preprocess extends InternalModule {
     /***
      * add a space between each char of a string
      *
-     * @param consonants
-     *            consonants
+     * @param consonants consonants
      * @return Joiner.on(" ").join(Lists.charactersOf ( consonants))
      */
     protected String expandConsonants(String consonants) {
-        return Joiner.on(" ").join(Lists.charactersOf(consonants));
+        StringBuilder buf = new StringBuilder();
+        for (int ii = 0; ii < consonants.length(); ii++) {
+            if (ii > 0) {
+                buf.append(' ');
+            }
+            buf.append(consonants.charAt(ii));
+        }
+        return buf.toString();
     }
 
     // expand matches to (#)(\w+)
@@ -508,8 +556,7 @@ public class Preprocess extends InternalModule {
     protected String expandRange(String range) {
         Matcher rangeMatcher = rangePattern.matcher(range);
         if (rangeMatcher.find()) {
-            return expandNumber(Double.parseDouble(rangeMatcher.group(1))) + " to "
-                    + expandNumber(Double.parseDouble(rangeMatcher.group(2)));
+            return expandNumber(rangeMatcher.group(1)) + " to " + expandNumber(rangeMatcher.group(2));
         }
         throw new IllegalStateException("No match for find()");
     }
@@ -524,7 +571,7 @@ public class Preprocess extends InternalModule {
     protected String expandNumberS(String numberS) {
         Matcher numberSMatcher = numberSPattern.matcher(numberS);
         if (numberSMatcher.find()) {
-            String number = expandNumber(Double.parseDouble(numberSMatcher.group(1)));
+            String number = expandNumber(numberSMatcher.group(1));
             if (number.endsWith("x")) {
                 number += "es";
             } else if (number.endsWith("y")) {
@@ -547,10 +594,8 @@ public class Preprocess extends InternalModule {
 
     /***
      *
-     * @param abbrev
-     *            the token to be expanded
-     * @param isCapital
-     *            whether the following token begins with a capital letter
+     * @param abbrev the token to be expanded
+     * @param isCapital whether the following token begins with a capital letter
      * @return abbrev
      */
     protected String expandAbbreviation(String abbrev, boolean isCapital) {
@@ -586,9 +631,9 @@ public class Preprocess extends InternalModule {
             humanDate = DateFormat.getPatternInstance("MM.dd.yyyy", ULocale.US).parse(date);
         }
         dateParts = df.format(humanDate).replaceAll(",", "").split("\\s");
-        dateParts[1] = expandOrdinal(Double.parseDouble(dateParts[1]));
+        dateParts[1] = expandOrdinal(dateParts[1]);
         dateParts[2] = expandYear(Double.parseDouble(dateParts[2]));
-        return Arrays.toString(dateParts).replaceAll("[,\\]\\[]", "");
+        return dateParts[0] + " " + dateParts[1] + " " + dateParts[2];
     }
 
     /***
@@ -634,6 +679,7 @@ public class Preprocess extends InternalModule {
 
     // expand matches to (-)?(\d+)?(\.(\d+)(%)?)?
     protected String expandRealNumber(String number) {
+        number = removeCommas(number);
         Matcher realNumMatch = realNumPattern.matcher(number);
         if (realNumMatch.find()) {
             StringBuilder newTok = new StringBuilder();
@@ -658,44 +704,52 @@ public class Preprocess extends InternalModule {
     }
 
     protected String expandWordNumber(String wordnumseq) {
+        StringBuilder buf = new StringBuilder();
         String[] groups = wordnumseq.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-        int i = 0;
-        for (String g : groups) {
-            if (g.matches("\\d+")) {
-                StringBuilder newTok = new StringBuilder();
-                for (char c : g.toCharArray()) {
-                    newTok.append(expandNumber(Double.parseDouble(String.valueOf(c)))).append(" ");
-                }
-                groups[i] = newTok.toString();
+        for (String group : groups) {
+            if (buf.length() > 0) {
+                buf.append(' ');
             }
-            i++;
+            if (group.matches("\\d+")) {
+                for (int ii = 0; ii < group.length(); ii++) {
+                    if (ii != 0) {
+                        buf.append(' ');
+                    }
+                    buf.append(expandNumber(Character.toString(group.charAt(ii))));
+                }
+            } else {
+                buf.append(group);
+            }
         }
-        return Arrays.toString(groups).replaceAll("[,\\]\\[]", "");
+        return buf.toString();
     }
 
-    protected String expandMoney(String money, String currency) {
+    protected String expandMoney(String money) {
+        money = removeCommas(money);
         Matcher currencyMatch = moneyPattern.matcher(money);
         if (currencyMatch.find()) {
+            String currency = currencyMatch.group(1);
+            String[] parts = currencyMatch.group(2).split("\\.");
             StringBuilder buf = new StringBuilder();
-            double whole = Double.parseDouble(currencyMatch.group(1));
-            String fraction = currencyMatch.group(2);
-            double fracValue = fraction != null ? Double.parseDouble(fraction) * 100 : 0;
+            double whole = Double.parseDouble(parts[0]);
+            boolean hasFraction = parts.length > 1;
+            double fracValue = hasFraction ? Double.parseDouble("." + parts[1]) * 100 : 0;
             switch (currency) {
                 case "$":
                     buf.append(expandNumber(whole)).append(whole > 1 ? " dollars" : " dollar");
-                    if (fraction != null) {
+                    if (hasFraction) {
                         buf.append(" ").append(expandNumber(fracValue)).append(" cents");
                     }
                     break;
                 case "£":
                     buf.append(expandNumber(whole)).append(" pound sterling");
-                    if (fraction != null) {
+                    if (hasFraction) {
                         buf.append(" ").append(expandNumber(fracValue)).append(" pence");
                     }
                     break;
                 case "€":
                     buf.append(expandNumber(whole)).append(" euro");
-                    if (fraction != null) {
+                    if (hasFraction) {
                         buf.append(" ").append(expandNumber(fracValue)).append(" cents");
                     }
                     break;
@@ -706,59 +760,5 @@ public class Preprocess extends InternalModule {
             return buf.toString();
         }
         throw new IllegalStateException("No match for find()");
-    }
-
-    /**
-     * Try to extract the rule name for "expand ordinal" from the given RuleBasedNumberFormat.
-     * <p>
-     * The rule name is locale sensitive, but usually starts with "%spellout-ordinal".
-     *
-     * @param rbnf The RuleBasedNumberFormat from where we will try to extract the rule name.
-     * @return The rule name for "ordinal spell out".
-     */
-    protected static String getOrdinalRuleName(final RuleBasedNumberFormat rbnf) {
-        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
-        if (l.contains("%spellout-ordinal")) {
-            return "%spellout-ordinal";
-        } else if (l.contains("%spellout-ordinal-masculine")) {
-            return "%spellout-ordinal-masculine";
-        } else {
-            for (String string : l) {
-                if (string.startsWith("%spellout-ordinal")) {
-                    return string;
-                }
-            }
-        }
-        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
-                + " doesn't support ordinal spelling.");
-    }
-
-    /**
-     * Try to extract the rule name for "expand year" from the given RuleBasedNumberFormat.
-     * <p>
-     * The rule name is locale sensitive, but usually starts with "%spellout-numbering-year".
-     *
-     * @param rbnf The RuleBasedNumberFormat from where we will try to extract the rule name.
-     * @return The rule name for "year spell out".
-     */
-    protected static String getYearRuleName(final RuleBasedNumberFormat rbnf) {
-        List<String> l = Arrays.asList(rbnf.getRuleSetNames());
-        if (l.contains("%spellout-numbering-year")) {
-            return "%spellout-numbering-year";
-        } else {
-            for (String string : l) {
-                if (string.startsWith("%spellout-numbering-year")) {
-                    return string;
-                }
-            }
-        }
-        throw new UnsupportedOperationException("The locale " + rbnf.getLocale(ULocale.ACTUAL_LOCALE)
-                + " doesn't support year spelling.");
-    }
-
-    public static Map<Object, Object> loadAbbrevMap() throws IOException {
-        Properties abbMap = new Properties();
-        abbMap.load(Preprocess.class.getResourceAsStream("preprocess/abbrev.dat"));
-        return abbMap;
     }
 }
