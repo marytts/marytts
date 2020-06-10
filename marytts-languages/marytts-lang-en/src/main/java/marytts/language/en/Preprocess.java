@@ -84,7 +84,6 @@ public class Preprocess extends InternalModule {
     private static final Pattern datePattern = Pattern.compile("(\\d{1,2})[/.](\\d{1,2})[/.]\\d{4}");
     private static final Pattern yearPattern = Pattern.compile("(\\d+)(bc|ad|b\\.c\\.|b\\.c|a\\.d\\.|a\\.d)", Pattern.CASE_INSENSITIVE);
     private static final Pattern contractPattern = Pattern.compile("[a-zA-Z]+('[a-zA-Z]+)");
-    private static final Pattern symbolsPattern = Pattern.compile("[@%#/+=&><-]");
     // TODO: URLPattern does not validate using http://xenon.stanford.edu/~xusch/regexp/
     private static final Pattern URLPattern = Pattern.compile("(https?://)?((www\\.)?([-a-zA-Z0-9@:%._\\\\+~#=]{2,256}\\." +
             "[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\+.~#?&/=]*)))");
@@ -118,6 +117,7 @@ public class Preprocess extends InternalModule {
         symbols.put(">", "greater than");
         symbols.put("<", "less than");
         symbols.put("&", "and");
+        symbols.put(":", "colon");
     }
 
     protected final String cardinalRule;
@@ -350,7 +350,7 @@ public class Preprocess extends InternalModule {
                     isURL = false;
                 }
                 // symbols
-            } else if (symbolsPattern.matcher(tokenText).matches()) {
+            } else if (symbols.containsKey(tokenText)) {
                 MaryDomUtils.setTokenText(t, symbols.get(tokenText));
                 // number ranges &rarr; before checking for dashes
             } else if (rangePattern.matcher(tokenText).matches()) {
@@ -468,7 +468,7 @@ public class Preprocess extends InternalModule {
         throw new IllegalStateException("No match for find()");
     }
 
-    protected String expandAcronym(String acronym) {
+    protected static String expandAcronym(String acronym) {
         return acronym.replaceAll("\\.", " ");
     }
 
@@ -479,7 +479,7 @@ public class Preprocess extends InternalModule {
      *            email
      * @return Arrays.toString(tokens).replaceAll(" [, \ \ ] \ \ [] ", " ")
      */
-    protected String expandURL(String email) {
+    protected static String expandURL(String email) {
         String[] tokens = email.split("((?<=[.@/])|(?=[.@/]))");
         return Arrays.toString(tokens).replaceAll("[,\\]\\[]", "");
     }
@@ -616,7 +616,7 @@ public class Preprocess extends InternalModule {
         return expAbb;
     }
 
-    protected String removeCommas(String numberText) {
+    protected static String removeCommas(String numberText) {
         return numberText.replaceAll(",", "");
     }
 

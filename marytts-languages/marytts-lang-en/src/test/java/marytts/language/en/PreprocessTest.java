@@ -117,7 +117,7 @@ public class PreprocessTest {
                 {"10s", "tens"},
                 {"20s", "twenties"},
                 // Sequence of Consonants
-                // { "bbc", "b b c" },	// prohibited by MaryRuntimeUtils.checkLexicon() in Preprocess.java
+                //{ "bbc", "b b c" },	// prohibited by MaryRuntimeUtils.checkLexicon() check in Preprocess.java
         };
     }
 
@@ -127,9 +127,6 @@ public class PreprocessTest {
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p><s><t>"
                 + token + "</t></s></p></maryxml>";
         String retVal = module.expand(DomUtils.parseDocument(words));
-        if (!retVal.equals(word)) {
-            int dum = 0;        // Debugger breakpoint for testing
-        }
         Assert.assertEquals(retVal, word);
     }
 
