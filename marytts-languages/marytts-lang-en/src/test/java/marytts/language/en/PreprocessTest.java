@@ -7,19 +7,12 @@ import marytts.LocalMaryInterface;
 import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.SynthesisException;
 import marytts.util.dom.DomUtils;
 
 import org.custommonkey.xmlunit.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.text.ParseException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * @author Tristan Hamilton
@@ -90,7 +83,7 @@ public class PreprocessTest {
 			{ "2000", "two thousand" },
 			{ "2015", "twenty fifteen" },
 			{"1920A.D", "nineteen twenty A D" },
-		// Word/number concatenations
+		  // Word/number concatenations
 			{ "123abc", "one two three abc" },
 			{ "1hello5", "one hello five" },
 			// Time
@@ -125,7 +118,7 @@ public class PreprocessTest {
 			{ "10s", "tens" },
 			{ "20s", "twenties" },
 			// Sequence of Consonants
-			// { "bbc", "b b c" },	// prohibited by MaryRuntimeUtils.checkLexicon() in Preprocess.java
+			//{ "bbc", "b b c" },	// prohibited by MaryRuntimeUtils.checkLexicon() check in Preprocess.java
 		};
 		// @formatter:on
 	}
@@ -136,9 +129,6 @@ public class PreprocessTest {
 				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.5\"><p><s><t>"
 				+ token + "</t></s></p></maryxml>";
 		String retVal = module.expand(DomUtils.parseDocument(words));
-		if (!retVal.equals(word)) {
-			int dum = 0;		// Debugger breakpoint for testing
-		}
 		Assert.assertEquals(retVal, word);
 	}
 
