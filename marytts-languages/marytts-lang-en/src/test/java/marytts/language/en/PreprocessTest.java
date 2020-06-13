@@ -40,82 +40,66 @@ public class PreprocessTest {
 
 	@DataProvider(name = "NumExpandData")
 	private Object[][] numberExpansionDocDataCardinal() {
-		// @formatter:off
 		return new Object[][] { { "1", "one" },
 								{ "2", "two" },
 								{ "3", "three" },
 								{ "4", "four" },
 								{ "100", "one hundred" },
 								{ "42", "forty-two"} };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "RealNumExpandData")
 	private Object[][] numberExpansionDocDataRealNumbers() {
-		// @formatter:off
 		return new Object[][] { { "1.8", "one point eight" },
 								{ "-2", "minus two" },
 								{ "03.45", "three point four five" },
 								{ "42.56%", "forty-two point five six per cent" } };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "OrdinalExpandData")
 	private Object[][] numberExpansionDocDataOrdinal() {
-		// @formatter:off
 		return new Object[][] { { "2", "second" },
 								{ "3", "third" },
 								{ "4", "fourth" } };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "YearExpandData")
 	private Object[][] numberExpansionDocDataYear() {
-		// @formatter:off
 		return new Object[][] { { "1918", "nineteen eighteen" },
 								{ "1908", "nineteen oh-eight" },
 								{ "2000", "two thousand" },
 								{ "2015", "twenty fifteen" } };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "wordNumExpandData")
 	private Object[][] expansionDocDataNumWord() {
-		// @formatter:off
 		return new Object[][] { { "123abc", "one two three  abc" },
 								{ "1hello5", "one  hello five " } };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "timeExpandData")
 	private Object[][] expansionDocDataTime() {
-		// @formatter:off
 		return new Object[][] { { "09:00", "nine a m" },
 								{ "12:15", "twelve fifteen p m" },
 								{ "00:05am", "twelve oh five a m" },
 								{ "23:30", "eleven thirty p m" } };
-		// @formatter:on
 	}
 
 	@DataProvider(name = "dateExpandData")
 	private Object[][] expansionDocDataDate() {
-		// @formatter:off
 		return new Object[][] { { "06/29/1993", "June twenty-ninth nineteen ninety-three" },
                                         { "06/22/1992", "June twenty-second nineteen ninety-two" },
                                         { "24/04/2020", "April twenty-fourth twenty twenty"},
                                         { "04/24/2020", "April twenty-fourth twenty twenty"},
                                         { "04.24.2020", "April twenty-fourth twenty twenty"},
                                         { "4/24/2020", "April twenty-fourth twenty twenty"}};
-		// @formatter:on
 	}
 
 	@DataProvider(name = "abbrevExpandData")
 	private Object[][] expansionDocDataAbbrev() {
-		// @formatter:off
 		return new Object[][] { { "dr.", "drive" },
 								{ "mrs", "missus" },
 								{ "Mr.", "mister" } };
-		// @formatter:on
 	}
 
 	@Test
