@@ -20,10 +20,7 @@
 
 package marytts.language.it;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -40,6 +37,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The preprocessing module.
@@ -114,7 +113,7 @@ public class Preprocess extends InternalModule {
 					assert !expanded.isEmpty();
 					// need to correct tw
 					Element lastToken = getLastToken(expanded);
-					assert lastToken != null;
+					requireNonNull(lastToken);
 					tw.setCurrentNode(lastToken);
 					logger.debug("set treewalker position:" + MaryDomUtils.getPlainTextBelow((Element) tw.getCurrentNode()));
 				} else { // not fully expanded

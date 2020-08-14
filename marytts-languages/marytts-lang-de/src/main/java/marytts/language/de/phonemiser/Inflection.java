@@ -20,13 +20,7 @@
 package marytts.language.de.phonemiser;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
@@ -41,6 +35,8 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Add inflection endings to expanded abbreviations and ordinals.
@@ -185,7 +181,7 @@ public class Inflection {
 				String endingClass = it.next();
 				String key = (detType == null ? endingClass : endingClass + detType);
 				String ending = (String) endingTable.get(key);
-				assert (ending != null);
+				requireNonNull(ending);
 				endings.add(ending);
 				logger.debug("...ending class " + endingClass + " with "
 						+ (detType == null ? "no" : (detType.equals("d") ? "definite" : "indefinite")) + " determiner: Ending `e"

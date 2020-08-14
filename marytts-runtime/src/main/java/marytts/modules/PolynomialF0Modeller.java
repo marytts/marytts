@@ -20,6 +20,7 @@
 package marytts.modules;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
@@ -48,6 +49,8 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Predict f0 contours using polynomial curves predicted from a directed graph per syllable.
@@ -158,7 +161,7 @@ public class PolynomialF0Modeller extends InternalModule {
 					if (allophoneSet == null) {
 						allophoneSet = MaryRuntimeUtils.determineAllophoneSet(s);
 					}
-					assert allophoneSet != null;
+					requireNonNull(allophoneSet);
 					Allophone allophone = allophoneSet.getAllophone(phone);
 					if (allophone.isVowel()) {
 						// found a vowel

@@ -20,6 +20,7 @@
 package marytts.language.en;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
@@ -28,6 +29,8 @@ import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.TreeWalker;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A pronunciation model that takes into account some English postlexical rules.
@@ -94,7 +97,7 @@ public class PronunciationModel extends marytts.modules.PronunciationModel {
 
 	private void prependSchwa(Element currentSegment) {
 		Element syllable = (Element) currentSegment.getParentNode();
-		assert syllable != null;
+		requireNonNull(syllable);
 		Element schwa = MaryXML.createElement(syllable.getOwnerDocument(), MaryXML.PHONE);
 		schwa.setAttribute("p", "@");
 		syllable.insertBefore(schwa, currentSegment);

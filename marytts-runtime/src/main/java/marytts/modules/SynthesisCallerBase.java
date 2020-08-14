@@ -22,6 +22,7 @@ package marytts.modules;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -36,6 +37,8 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 
 import org.xml.sax.SAXException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A base class for a synthesis caller. This can work as a normal MARY module, converting synthesis markup data into audio, or it
@@ -84,7 +87,7 @@ public abstract class SynthesisCallerBase extends InternalModule {
 	 */
 	public MaryData process(MaryData d) throws TransformerConfigurationException, TransformerException, FileNotFoundException,
 			IOException, ParserConfigurationException, SAXException, Exception {
-		assert d.getAudioFileFormat() != null;
+		requireNonNull(d.getAudioFileFormat());
 		assert getState() == MODULE_RUNNING;
 
 		// As the input may contain multipe voice sections,
@@ -104,7 +107,7 @@ public abstract class SynthesisCallerBase extends InternalModule {
 		Voice defaultVoice = d.getDefaultVoice();
 		if (defaultVoice == null) {
 			defaultVoice = Voice.getDefaultVoice(Locale.GERMAN);
-			assert defaultVoice != null;
+			requireNonNull(defaultVoice);
 			logger.info("No default voice associated with data. Assuming global default " + defaultVoice.getName());
 		}
 
