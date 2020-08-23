@@ -31,6 +31,7 @@ package marytts.unitselection.concat;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import javax.sound.sampled.AudioInputStream;
 
@@ -48,6 +49,8 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.Datagram;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A unit concatenator for harmonics plus noise based speech synthesis
@@ -121,7 +124,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
 		for (int i = 0; i < len; i++) {
 			SelectedUnit unit = units.get(i);
 			HnmUnitData unitData = (HnmUnitData) unit.getConcatenationData();
-			assert unitData != null : "Should not have null unitdata here";
+			requireNonNull(unitData,"Should not have null unitdata here");
 			Datagram[] frames = unitData.getFrames();
 			assert frames != null : "Cannot generate audio from null frames";
 			// Generate audio from frames

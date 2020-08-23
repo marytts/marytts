@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author Tristan Hamilton
  *
@@ -397,7 +399,7 @@ public class Preprocess extends InternalModule {
                 String[] newTokens = MaryDomUtils.tokenText(t).replaceAll("-", " ").split("\\s+");
                 MaryDomUtils.setTokenText(t, newTokens[0]);
                 for (int i = 1; i < newTokens.length; i++) {
-                    assert t != null;
+                    requireNonNull(t);
                     MaryDomUtils.appendToken(t, newTokens[i]);
                     t = MaryDomUtils.getNextSiblingElement(t);
                     // if tokens are an expanded contraction

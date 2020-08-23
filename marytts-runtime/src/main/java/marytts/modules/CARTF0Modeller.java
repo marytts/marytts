@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Locale;
+import java.util.Objects;
 
 import marytts.cart.CART;
 import marytts.cart.io.MaryCARTReader;
@@ -48,6 +49,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Predict phone durations using a CART.
@@ -224,24 +227,24 @@ public class CARTF0Modeller extends InternalModule {
 				}
 				// only predict F0 values if we have a vowel:
 				if (vowel != null) {
-					assert firstVoiced != null : "First voiced should not be null";
-					assert lastVoiced != null : "Last voiced should not be null";
+					requireNonNull(firstVoiced,"First voiced should not be null");
+					requireNonNull(lastVoiced,"Last voiced should not be null");
 					// Now predict the f0 values using the CARTs:ssh
 					String phone = vowel.getAttribute("p");
 					Target t = new Target(phone, vowel);
 					t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
 					float[] left = (float[]) currentLeftCart.interpret(t, 0);
-					assert left != null : "Null frequency";
+					requireNonNull(left,"Null frequency");
 					assert left.length == 2 : "Unexpected frequency length: " + left.length;
 					float leftF0InHz = left[1];
 					float leftStddevInHz = left[0];
 					float[] mid = (float[]) currentMidCart.interpret(t, 0);
-					assert mid != null : "Null frequency";
+					requireNonNull(mid,"Null frequency");
 					assert mid.length == 2 : "Unexpected frequency length: " + mid.length;
 					float midF0InHz = mid[1];
 					float midStddevInHz = mid[0];
 					float[] right = (float[]) currentRightCart.interpret(t, 0);
-					assert right != null : "Null frequency";
+					requireNonNull(right,"Null frequency");
 					assert right.length == 2 : "Unexpected frequency length: " + right.length;
 					float rightF0InHz = right[1];
 					float rightStddevInHz = right[0];

@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Vector;
 
 import marytts.exceptions.MaryConfigurationException;
@@ -50,6 +51,8 @@ import marytts.util.Pair;
 import marytts.util.data.Datagram;
 import marytts.util.data.MaryHeader;
 import marytts.util.io.StreamUtils;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The TimelineReader class provides an interface to read regularly or variably spaced datagrams from a Timeline data file in Mary
@@ -168,7 +171,7 @@ public class TimelineReader {
 	 */
 	protected void load(String fileName, boolean tryMemoryMapping) throws IOException, BufferUnderflowException,
 			MaryConfigurationException, NullPointerException {
-		assert fileName != null : "filename is null";
+		requireNonNull(fileName,"filename is null");
 
 		RandomAccessFile file = new RandomAccessFile(fileName, "r");
 		FileChannel fc = file.getChannel();

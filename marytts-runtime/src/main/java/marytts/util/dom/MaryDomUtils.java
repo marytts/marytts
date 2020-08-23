@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,6 +42,8 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.SAXException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A collection of utilities for MaryXML DOM manipulation or analysis. No object of class MaryDomUtils is created, all methods are
@@ -66,7 +69,7 @@ public class MaryDomUtils extends DomUtils {
 		if (!t.getNodeName().equals(MaryXML.TOKEN))
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Only t elements allowed, received " + t.getNodeName() + ".");
 		Element parent = (Element) t.getParentNode();
-		assert parent != null;
+		requireNonNull(parent);
 		Document doc = t.getOwnerDocument();
 		Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
 		mtu.setAttribute("orig", orig);
