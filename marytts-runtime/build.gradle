@@ -23,5 +23,4 @@ dependencies {
     testImplementation libs.junit
     testImplementation libs.festAssert
     integrationTestImplementation libs.groovy
-    integrationTestRuntimeOnly project(':voice-cmu-slt-hsmm')
 }

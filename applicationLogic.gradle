@@ -2,8 +2,6 @@ apply plugin: 'application'
 
 dependencies {
     runtimeOnly project(':marytts-runtime')
-    runtimeOnly project(':marytts-languages').subprojects
-    runtimeOnly project(':voice-cmu-slt-hsmm')
 }
 
 mainClassName = 'marytts.server.Mary'
