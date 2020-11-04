@@ -7,9 +7,7 @@ MaryTTS is a client-server system written in pure Java, so it runs on many platf
 
 **For a downloadable package ready for use, see [the releases page](https://github.com/marytts/marytts/releases).**
 
-**For documentation on using MaryTTS from various angles, see [the wiki](https://github.com/marytts/marytts/wiki).**
-
-Older documentation can also be found at http://mary.dfki.de and https://mary.opendfki.de.
+Older documentation can also be found at https://github.com/marytts/marytts-wiki, http://mary.dfki.de and https://mary.opendfki.de.
 
 This README is part of the the MaryTTS source code repository.
 It contains information about compiling and developing the MaryTTS sources.
