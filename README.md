@@ -121,9 +121,9 @@ Examples are proposed :
 
 An example of how to define marytts server as service is proposed [here](./src/main/dist/misc/marytts.server).
 
-### User dictionnaries
+### User dictionaries
 
-You can extend the dictionnaries by adding a user dictionnary. The documentation of how to do it is [here](./src/main/dist/user-dictionaries/README.md).
+You can extend the dictionaries by adding a user dictionary. The documentation of how to do it is [here](./src/main/dist/user-dictionaries/README.md).
 
 ## Contributing
 
