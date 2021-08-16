@@ -22,7 +22,7 @@ env:
     - JDK="adopt@1.12"
 
 before_install:
-  - travis_retry git clone --depth 1 $GRAVIS_REPO $GRAVIS
+  - git clone --depth 1 $GRAVIS_REPO $GRAVIS
   - source $GRAVIS/install-jdk
 
 before_cache:
