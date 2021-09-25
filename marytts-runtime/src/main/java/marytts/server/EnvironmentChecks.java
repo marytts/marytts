@@ -41,12 +41,6 @@ public class EnvironmentChecks {
 	 *             if any requirement is violated.
 	 */
 	public static void check() {
-		// Java version
-		String javaVersion = System.getProperty("java.version");
-		if (Float.parseFloat(javaVersion.substring(0, 3)) < 1.499) {
-			// 1.499 instead of 1.5 because of rounding error
-			throw new Error("Wrong java version: Required 1.5, found " + javaVersion);
-		}
 		// XML code
 		if (!(MaryXML.newDocument() instanceof DocumentTraversal)) {
 			throw new Error("XML handling code " + DocumentBuilderFactory.newInstance().getClass()
