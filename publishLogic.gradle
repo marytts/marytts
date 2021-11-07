@@ -134,8 +134,8 @@ publishing {
                     url = 'https://github.com/marytts/marytts/issues'
                 }
                 ciManagement {
-                    system = 'Travis CI'
-                    url = 'https://travis-ci.com/github/marytts/marytts'
+                    system = 'GitHub Actions'
+                    url = 'https://github.com/marytts/marytts/actions'
                 }
                 distributionManagement {
                     downloadUrl = 'https://bintray.com/marytts/marytts/marytts'
