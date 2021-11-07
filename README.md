@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/marytts/marytts.svg?branch=master)](https://travis-ci.com/marytts/marytts)
+[![CI](https://github.com/marytts/marytts/actions/workflows/main.yml/badge.svg)](https://github.com/marytts/marytts/actions/workflows/main.yml)
 
 # MaryTTS
 
