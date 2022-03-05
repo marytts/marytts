@@ -86,17 +86,14 @@ public class LuxembourgishPreprocess extends InternalModule {
     }
 
     private String expandCardinal(double number) {
-        rbnf.setDefaultRuleSet(cardinalRule);
-        return rbnf.format(number);
+        return rbnf.format(number, cardinalRule);
     }
 
     private String expandOrdinal(double number) {
-        rbnf.setDefaultRuleSet(ordinalRule);
-        return rbnf.format(number);
+        return rbnf.format(number, ordinalRule);
     }
 
     private String expandYear(double number) {
-        rbnf.setDefaultRuleSet(yearRule);
-        return rbnf.format(number);
+        return rbnf.format(number, yearRule);
     }
 }
