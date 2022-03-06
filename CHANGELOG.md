@@ -4,12 +4,13 @@ MaryTTS
 [Unreleased]
 ------------
 
-### Improvements
+### Changed
 
 * Build with Gradle v6.3
 * Improve publishing
+* Ported runtime Groovy classes to Java (specifically, in Luxembourgish language component)
 
-### Fixed Issues/Bugs
+### Fixed
 
 * Migrate CI/CD from Travis to GitHub Actions
 * Add compability with Java 11 and 12
