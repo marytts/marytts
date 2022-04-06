@@ -449,4 +449,12 @@ public class HMMModel extends Model {
 		throw new RuntimeException("This method should never be called");
 	}
 
+	/**
+	 * Allow one to override durationScale when it is otherwise invalid
+	 * @param durationScale
+	 * 					Rate modifier (0.1 -> 3.0)
+	 */
+	public void setDurationScale(Double durationScale) {
+		this.htsData.setDurationScale(durationScale);
+	}
 }
