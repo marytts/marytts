@@ -23,28 +23,22 @@ The easiest way to use MaryTTS in your own Java projects is to declare a depende
 
 - in the `pom.xml` for Maven:
 ```xml
-<repositories>
-  <repository>
-    <url>https://jcenter.bintray.com</url>
-  </repository>
-</repositories>
-
 <dependencies>
   <dependency>
     <groupId>de.dfki.mary</groupId>
     <artifactId>voice-cmu-slt-hsmm</artifactId>
-    <version>5.2</version>
+    <version>5.2.1</version>
   </dependency>
 </dependencies>
 ```
 - in the `build.gradle` for Gradle
 ```groovy
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 dependencies {
-  compile 'de.dfki.mary:marytts:5.2'
+  compile 'de.dfki.mary:marytts:5.2.1'
 }
 ```
 
