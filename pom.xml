@@ -127,12 +127,12 @@
 		</site>
 		<downloadUrl>https://github.com/marytts/marytts/releases</downloadUrl>
 		<repository>
-			<id>bintray</id>
-			<url>https://oss.jfrog.org/artifactory/oss-release-local</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 		<snapshotRepository>
-			<id>bintray</id>
-			<url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
