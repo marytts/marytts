@@ -535,14 +535,14 @@
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>enforce-java-7-or-higher</id>
+						<id>enforce-java-8-or-higher</id>
 						<goals>
 							<goal>enforce</goal>
 						</goals>
 						<configuration>
 							<rules>
 								<requireJavaVersion>
-									<version>1.7</version>
+									<version>1.8</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
