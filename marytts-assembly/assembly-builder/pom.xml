@@ -75,7 +75,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.fortasoft</groupId>
+				<groupId>org.thingsboard</groupId>
 				<artifactId>gradle-maven-plugin</artifactId>
 				<configuration>
 					<gradleVersion>2.11</gradleVersion>

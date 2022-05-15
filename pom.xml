@@ -502,9 +502,9 @@
 				</plugin>
 
 				<plugin>
-					<groupId>org.fortasoft</groupId>
+					<groupId>org.thingsboard</groupId>
 					<artifactId>gradle-maven-plugin</artifactId>
-					<version>1.0.7</version>
+					<version>1.0.9</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
