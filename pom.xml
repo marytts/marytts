@@ -175,10 +175,6 @@
 		<github.global.server>github</github.global.server>
 	</properties>
 
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
-
 	<modules>
 		<module>marytts-common</module>
 		<module>marytts-languages</module>
@@ -548,6 +544,19 @@
 								<requireJavaVersion>
 									<version>1.7</version>
 								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.2.3</version>
+								</requireMavenVersion>
 							</rules>
 						</configuration>
 					</execution>
