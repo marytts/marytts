@@ -128,7 +128,7 @@
 		<downloadUrl>https://github.com/marytts/marytts/releases</downloadUrl>
 		<repository>
 			<id>bintray</id>
-			<url>https://api.bintray.com/maven/marytts/marytts/marytts</url>
+			<url>https://oss.jfrog.org/artifactory/oss-release-local</url>
 		</repository>
 		<snapshotRepository>
 			<id>bintray</id>
