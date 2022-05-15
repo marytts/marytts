@@ -50,6 +50,12 @@
 		<dependency>
 			<groupId>de.dfki.lt.jtok</groupId>
 			<artifactId>jtok-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
