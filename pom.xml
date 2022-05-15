@@ -209,7 +209,7 @@
 			<dependency>
 				<groupId>de.dfki.mary</groupId>
 				<artifactId>emotionml-checker-java</artifactId>
-				<version>1.1</version>
+				<version>1.2.2</version>
 			</dependency>
 
 			<dependency>
