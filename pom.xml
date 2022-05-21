@@ -443,6 +443,11 @@
 				</plugin>
 
 				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.10.3</version>
+				</plugin>
+
+				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.7</version>
 				</plugin>
@@ -656,6 +661,18 @@
 					<execution>
 						<goals>
 							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
