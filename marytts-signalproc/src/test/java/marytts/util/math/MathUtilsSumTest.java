@@ -5,17 +5,17 @@ import org.junit.Test;
 
 public class MathUtilsSumTest {
     @Test
-    public void TestSum3Elements(){
+    public void TestSumThreeElements(){
         float[] a = new float[] {1, 0, 3};
         Assert.assertEquals((float)4.0, MathUtils.sum(a),0);
     }
     @Test
-    public void TestSum5Elements(){
+    public void TestSumFiveElements(){
         float[] v = new float[] {1, 0, 3, 5, 6};
         Assert.assertEquals((float)15.0, MathUtils.sum(v),0);
     }
     @Test
-    public void TestSum0Elements(){    
+    public void TestSumZeroElements(){    
         float[] f = new float[] {};
         Assert.assertEquals((float)0, MathUtils.sum(f),0);
     }
@@ -25,7 +25,7 @@ public class MathUtilsSumTest {
         Assert.assertEquals((float)-12, MathUtils.sum(b),0);
     }
     @Test
-    public void TestZArray(){
+    public void TestRandomArray(){
         float[] c = new float[] {(float) -3.4, 23,(float) 0.45, -5,(float) 0.33, 0};
         Assert.assertEquals((float)15.38, MathUtils.sum(c),0.001);   
     }
