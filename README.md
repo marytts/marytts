@@ -64,7 +64,7 @@ Add to your `pom.xml`:
 ```xml
 <repositories>
   <repository>
-    <url>https://jcenter.bintray.com</url>
+    <url>https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local</url>
   </repository>
 </repositories>
 
@@ -72,7 +72,17 @@ Add to your `pom.xml`:
   <dependency>
     <groupId>de.dfki.mary</groupId>
     <artifactId>voice-cmu-slt-hsmm</artifactId>
-    <version>5.2</version>
+    <version>5.2.1</version>
+    <exclusions>
+      <exclusion>
+        <groupId>com.twmacinta</groupId>
+        <artifactId>fast-md5</artifactId>
+      </exclusion>
+      <exclusion>
+         <groupId>gov.nist.math</groupId>
+         <artifactId>Jampack</artifactId>
+      </exclusion>
+    </exclusions>
   </dependency>
 </dependencies>
 ```
@@ -82,11 +92,25 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 ```groovy
 repositories {
-  jcenter()
+   mavenCentral()
+
+   exclusiveContent {
+      forRepository {
+         maven {
+            url 'https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local'
+         }
+      }
+      filter {
+         includeGroup 'de.dfki.lt.jtok'
+      }
+   }
 }
 
 dependencies {
-  compile group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2'
+   implementation group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2.1', {
+      exclude group: 'com.twmacinta', module: 'fast-md5'
+      exclude group: 'gov.nist.math', module: 'Jampack'
+   }
 }
 ```
 
