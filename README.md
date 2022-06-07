@@ -18,7 +18,7 @@ The code comes under the Lesser General Public License LGPL version 3 -- see LIC
 ## Running MaryTTS
 
 Run `./gradlew run`  (or `gradlew.bat run` on Windows) to start a MaryTTS server.
-Then access it at http://localhost:59125 using your web browser.
+Then access it at http://localhost:5920 using your web browser.
 
 If you want to start a MaryTTS on a different address and port, you can use the following options:
 
