@@ -47,6 +47,17 @@ public class MathUtilsSumTest {
         float[] c = new float[] {(float) -3.4, 23,(float) 0.45, -5,(float) 0.33, 0};
         Assert.assertEquals((float)15.38, MathUtils.sum(c),0.001);   
     }
-
+    @Test(expected = NullPointerException.class) 
+    public void testNullArray() throws Exception {
+        //Partion 8 : Null Array
+        float[] c = null;
+        MathUtils.sum(c);
+    }
+    @Test() 
+    public void testBigElements() throws Exception {
+        //Partion 9 : Big Elements
+        float[] c = new float[] {(float) 1000000000, (float) 1000000000,(float) 1000000000};
+        Assert.assertEquals((float) 3.0E9, MathUtils.sum(c),0.001);
+    }
 
 }
