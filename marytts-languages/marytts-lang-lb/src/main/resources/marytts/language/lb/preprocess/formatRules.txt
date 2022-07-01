@@ -1,4 +1,6 @@
 %spellout-numbering:
+-x: minus >>;
+x.x: << Komma >>;
 0: null;
 1: eent;
 2: zwee;
@@ -37,11 +39,58 @@
 2000000000: <%spellout-cardinal-feminine< Milliarden[ >>];
 1000000000000: eng Billioun[ >>];
 2000000000000: <%spellout-cardinal-feminine< Billiounen[ >>];
+
+%spellout-cardinal-masculine:
+-x: minus >>;
+x.x: << Komma >>;
+0: null;
+1: een;
+2: zwee;
+3: =%spellout-numbering=;
+
+%spellout-cardinal-neuter:
+-x: minus >>;
+x.x: << Komma >>;
+0: null;
+1: een;
+2: zwee;
+3: =%spellout-numbering=;
+
+
 %spellout-cardinal-feminine:
+-x: minus >>;
+x.x: << Komma >>;
 0: null;
 1: eng;
 2: zwou;
 3: =%spellout-numbering=;
+
+%spellout-ordinal-n:
+0: nullten;
+1: éischten;
+2: zweeten;
+3: drëtten;
+4: véierten;
+5: fënneften;
+6: sechsten;
+7: siwenten;
+8: aachten;
+9: =%spellout-numbering=ten;
+20: =%spellout-numbering=sten;
+
+%spellout-ordinal-r:
+0: nullter;
+1: éischter;
+2: zweeter;
+3: drëtter;
+4: véierter;
+5: fënnefter;
+6: sechster;
+7: siwenter;
+8: aachter;
+9: =%spellout-numbering=ter;
+20: =%spellout-numbering=ster;
+
 %spellout-ordinal:
 0: nullt;
 1: éischt;
@@ -51,10 +100,16 @@
 5: fënneft;
 6: sechst;
 7: siwent;
-8: aachtel;
+8: aacht;
 9: =%spellout-numbering=t;
 20: =%spellout-numbering=st;
+
 %spellout-numbering-year:
-0: =%spellout-numbering=;
-1100/100: <%spellout-numbering< honnert [>>];
+-x: minus >>;
+x.x: =0.0=;
+0: null;
+1: een;
+2: zwee;
+3: =%spellout-numbering=;
+1100/100: <%spellout-numbering<honnert[>>];
 10000: =%spellout-numbering=;
