@@ -48,15 +48,15 @@ import javax.sound.sampled.AudioSystem;
 
 public class SequenceAudioInputStream extends AudioInputStream {
 
-	protected List m_audioInputStreamList;
+	protected List<AudioInputStream> m_audioInputStreamList;
 	protected int m_nCurrentStream;
 
-	public SequenceAudioInputStream(AudioFormat audioFormat, Collection audioInputStreams) {
+	public SequenceAudioInputStream(AudioFormat audioFormat, Collection<AudioInputStream> audioInputStreams) {
 		super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
-		m_audioInputStreamList = new ArrayList(audioInputStreams);
+		m_audioInputStreamList = new ArrayList<AudioInputStream>(audioInputStreams);
 		m_nCurrentStream = 0;
 		// correct frameLength if possible:
-		Iterator streamIterator = m_audioInputStreamList.iterator();
+		Iterator<AudioInputStream> streamIterator = m_audioInputStreamList.iterator();
 		frameLength = 0;
 		while (streamIterator.hasNext()) {
 			AudioInputStream stream = (AudioInputStream) streamIterator.next();
@@ -143,7 +143,11 @@ public class SequenceAudioInputStream extends AudioInputStream {
 	}
 
 	public void close() throws IOException {
-		// TODO: should we close all streams in the list?
+
+            Iterator<AudioInputStream> streamIterator;
+            for (streamIterator = m_audioInputStreamList.iterator(); streamIterator.hasNext();) {
+                streamIterator.next().close();
+            }
 	}
 
 	public void mark(int nReadLimit) {

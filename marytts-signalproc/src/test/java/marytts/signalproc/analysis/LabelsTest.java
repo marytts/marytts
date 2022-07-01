@@ -4,8 +4,8 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import marytts.util.data.text.XwavesLabelfileReader;
-import marytts.util.io.FileUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -34,7 +34,7 @@ public class LabelsTest {
 
 	@Test
 	public void lineArrayConstructor() throws Exception {
-		String[] lines = FileUtils.getStreamAsString(getClass().getResourceAsStream("pop001.lab"), "ASCII").split("\n");
+		String[] lines = IOUtils.toString(getClass().getResourceAsStream("pop001.lab"), "ASCII").split("\n");
 		Labels l = new Labels(lines);
 		assertEquals(10, l.items.length);
 	}

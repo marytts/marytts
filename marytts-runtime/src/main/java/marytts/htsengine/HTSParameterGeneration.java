@@ -504,7 +504,7 @@ public class HTSParameterGeneration {
 			int numF0s = 0;
 			while (xml.find()) {
 				String[] f0Values = (xml.group().trim()).split(",");
-				f0Map.put(new Integer(f0Values[0]), new Double(f0Values[1]));
+				f0Map.put(Integer.valueOf(f0Values[0]), Double.valueOf(f0Values[1]));
 				numF0s++;
 			}
 			Set<Map.Entry<Integer, Double>> s = f0Map.entrySet();

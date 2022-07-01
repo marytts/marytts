@@ -41,7 +41,6 @@ import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.modules.phonemiser.Allophone;
 import marytts.server.MaryProperties;
-import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
@@ -61,7 +60,6 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	protected PrecompiledJoinCostReader precompiledCosts;
 
-	protected JoinCostReporter jcr;
 
 	/****************/
 	/* DATA FIELDS */
@@ -81,7 +79,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Empty constructor; when using this, call load() separately to initialise this class.
-	 * 
+	 *
 	 * @see #load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
 	 */
 	public JoinCostFeatures() {
@@ -89,7 +87,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Constructor which read a Mary Join Cost file.
-	 * 
+	 *
 	 * @param fileName
 	 *            fileName
 	 * @throws IOException
@@ -104,7 +102,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * Initialise this join cost function by reading the appropriate settings from the MaryProperties using the given
 	 * configPrefix.
-	 * 
+	 *
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
 	 * @throws MaryConfigurationException
@@ -124,7 +122,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Load weights and values from the given file
-	 * 
+	 *
 	 * @param joinFileName
 	 *            the file from which to read default weights and join cost features
 	 * @param weightStream
@@ -145,7 +143,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Load weights and values from the given file
-	 * 
+	 *
 	 * @param joinFileName
 	 *            the file from which to read default weights and join cost features
 	 * @param weightStream
@@ -226,19 +224,11 @@ public class JoinCostFeatures implements JoinCostFunction {
 			throw ioe;
 
 		}
-		if (MaryProperties.getBoolean("debug.show.cost.graph")) {
-			debugShowCostGraph = true;
-			cumulWeightedSignalCosts = new double[featureWeight.length];
-			jcr = new JoinCostReporter(cumulWeightedSignalCosts);
-			jcr.showInJFrame("Average signal join costs", false, false);
-			jcr.start();
-		}
-
 	}
 
 	/**
 	 * Load weights and values from the given file
-	 * 
+	 *
 	 * @param joinFileName
 	 *            the file from which to read default weights and join cost features
 	 * @param weightStream
@@ -321,19 +311,11 @@ public class JoinCostFeatures implements JoinCostFunction {
 			throw ioe;
 
 		}
-		if (MaryProperties.getBoolean("debug.show.cost.graph")) {
-			debugShowCostGraph = true;
-			cumulWeightedSignalCosts = new double[featureWeight.length];
-			jcr = new JoinCostReporter(cumulWeightedSignalCosts);
-			jcr.showInJFrame("Average signal join costs", false, false);
-			jcr.start();
-		}
-
 	}
 
 	/**
 	 * Read the join cost weight specifications from the given file. The weights will be normalized such that they sum to one.
-	 * 
+	 *
 	 * @param fileName
 	 *            the text file containing the join weights
 	 * @throws IOException
@@ -348,7 +330,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Read the join cost weight specifications from the given file. The weights will be normalized such that they sum to one.
-	 * 
+	 *
 	 * @param weightStream
 	 *            the text file containing the join weights
 	 * @throws IOException
@@ -358,8 +340,8 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 * @return Object[] { fw, wfun }
 	 * */
 	public static Object[] readJoinCostWeightsStream(InputStream weightStream) throws IOException, FileNotFoundException {
-		Vector v = new Vector(16, 16);
-		Vector vf = new Vector(16, 16);
+		Vector<Float> v = new Vector<Float>(16, 16);
+		Vector<String> vf = new Vector<String>(16, 16);
 		/* Open the file */
 		BufferedReader in = new BufferedReader(new InputStreamReader(weightStream, "UTF-8"));
 		/* Loop through the lines */
@@ -377,7 +359,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 			fields = line.split("\\s", 2); // Separate the weight value from the function name
 			float aWeight = Float.parseFloat(fields[0]);
 			sumOfWeights += aWeight;
-			v.add(new Float(aWeight)); // Push the weight
+			v.add(Float.valueOf(aWeight)); // Push the weight
 			vf.add(fields[1]); // Push the function
 			// System.out.println( "NBFEA=" + numberOfFeatures );
 		}
@@ -403,7 +385,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of feature weights and weighting functions.
-	 * 
+	 *
 	 * @return (featureWeight.length)
 	 */
 	public int getNumberOfFeatures() {
@@ -412,7 +394,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Get the number of units.
-	 * 
+	 *
 	 * @return (leftJCF.length)
 	 */
 	public int getNumberOfUnits() {
@@ -421,10 +403,10 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Gets the array of left join cost features for a particular unit index.
-	 * 
+	 *
 	 * @param u
 	 *            The index of the considered unit.
-	 * 
+	 *
 	 * @return The array of left join cost features for the given unit.
 	 */
 	public float[] getLeftJCF(int u) {
@@ -440,10 +422,10 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Gets the array of right join cost features for a particular unit index.
-	 * 
+	 *
 	 * @param u
 	 *            The index of the considered unit.
-	 * 
+	 *
 	 * @return The array of right join cost features for the given unit.
 	 */
 	public float[] getRightJCF(int u) {
@@ -463,12 +445,12 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * Deliver the join cost between two units described by their index.
-	 * 
+	 *
 	 * @param u1
 	 *            the left unit
 	 * @param u2
 	 *            the right unit
-	 * 
+	 *
 	 * @return the cost of joining the right Join Cost features of the left unit with the left Join Cost Features of the right
 	 *         unit.
 	 */
@@ -489,9 +471,6 @@ public class JoinCostFeatures implements JoinCostFunction {
 		if (u2 > leftJCF.length) {
 			throw new RuntimeException("The right unit index [" + u2 + "] is out of range: this file contains ["
 					+ getNumberOfUnits() + "] units.");
-		}
-		if (debugShowCostGraph) {
-			jcr.tick();
 		}
 		/* Cumulate the join costs for each feature */
 		double res = 0.0;
@@ -520,7 +499,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	/**
 	 * A combined cost computation, as a weighted sum of the signal-based cost (computed from the units) and the phonetics-based
 	 * cost (computed from the targets).
-	 * 
+	 *
 	 * @param t1
 	 *            The left target.
 	 * @param u1
@@ -529,7 +508,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 	 *            The right target.
 	 * @param u2
 	 *            The right unit.
-	 * 
+	 *
 	 * @return the cost of joining the left unit with the right unit, as a non-negative value.
 	 */
 	public double cost(Target t1, Unit u1, Target t2, Unit u2) {
@@ -563,7 +542,7 @@ public class JoinCostFeatures implements JoinCostFunction {
 
 	/**
 	 * A phonetic join cost, computed solely from the target.
-	 * 
+	 *
 	 * @param t1
 	 *            the left target
 	 * @param t2
@@ -610,49 +589,4 @@ public class JoinCostFeatures implements JoinCostFunction {
 			cost = 1;
 		return cost;
 	}
-
-	public static class JoinCostReporter extends Histogram {
-		private double[] data;
-		private int lastN = 0;
-		private int nCostComputations = 0;
-
-		public JoinCostReporter(double[] data) {
-			super(0, 1, data);
-			this.data = data;
-		}
-
-		public void start() {
-			new Thread() {
-				public void run() {
-					while (isVisible()) {
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException ie) {
-						}
-						updateGraph();
-					}
-				}
-			}.start();
-		}
-
-		/**
-		 * Register one new cost computation
-		 */
-		public void tick() {
-			nCostComputations++;
-		}
-
-		protected void updateGraph() {
-			if (nCostComputations == lastN)
-				return;
-			lastN = nCostComputations;
-			double[] newCosts = new double[data.length];
-			for (int i = 0; i < newCosts.length; i++) {
-				newCosts[i] = data[i] / nCostComputations;
-			}
-			updateData(0, 1, newCosts);
-			repaint();
-		}
-	}
-
 }

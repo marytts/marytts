@@ -53,7 +53,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
 	public FrameNoisePartWaveform(FrameNoisePartWaveform existing) {
 		this();
 
-		waveform = ArrayUtils.copy(existing.waveform);
+		waveform = existing.waveform.clone();
 	}
 
 	public FrameNoisePartWaveform(DataInputStream dis, int waveLen) {
@@ -162,7 +162,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
 
 	public void setWaveform(short[] x) {
 		if (x != null)
-			waveform = ArrayUtils.copy(x);
+			waveform = x.clone();
 		else
 			waveform = null;
 	}

@@ -47,7 +47,7 @@ public class FrameHarmonicPart {
 		this();
 
 		if (existing != null) {
-			complexAmps = ArrayUtils.copy(existing.complexAmps);
+			complexAmps = existing.complexAmps.clone();
 		}
 	}
 

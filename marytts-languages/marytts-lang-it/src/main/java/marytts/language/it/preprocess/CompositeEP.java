@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  * An expansion pattern implementation for composite patterns. Words consisting of digits and letters and pseudo-composites with a
  * hyphen are split into their components. These will then need to be looked at by the other pattern expanders. CompositeEP
  * directly overrides process(), and does not care about the usual subclass methods isCandidate(), match(), and expand().
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -70,8 +70,8 @@ public class CompositeEP extends ExpansionPattern {
 	Pattern reLettersAndDigits = Pattern
 			.compile("(?:(?:[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+[0-9]+)|(?:[0-9]+[A-ZÀÁÈÉÌÍÒÓÙÚa-zàáèéìíòóùú]+))[A-ZÄÖÜa-zàáèéìíòóùú0-9]*");
 
-	public List knownTypes() {
-		return new ArrayList();
+	public List<String> knownTypes() {
+		return new ArrayList<String>();
 	}
 
 	private final Pattern reMatchingChars = Pattern.compile("");
@@ -92,19 +92,19 @@ public class CompositeEP extends ExpansionPattern {
 
 	/**
 	 * Process and expand a list of tokens.
-	 * 
+	 *
 	 * @param tokens
 	 *            the list of tokens to be expanded one after the other.
 	 * @return a list of expanded forms of all the tokens, i.e. the concatenation of the expanded form (or unexpanded form if no
 	 *         expansion is possible) of all the tokens.
 	 */
-	private List process(List tokens) {
-		List result = new ArrayList();
-		for (Iterator it = tokens.iterator(); it.hasNext();) {
+	private List<Element> process(List<Element> tokens) {
+		List<Element> result = new ArrayList<Element>();
+		for (Iterator<Element> it = tokens.iterator(); it.hasNext();) {
 			Element t = (Element) it.next();
 			if (!t.getTagName().equals(MaryXML.TOKEN))
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected t element");
-			List expanded = new ArrayList();
+			List<Element> expanded = new ArrayList<Element>();
 			process(t, expanded);
 			if (expanded.isEmpty()) // no expansion
 				result.add(t);
@@ -117,7 +117,7 @@ public class CompositeEP extends ExpansionPattern {
 	/**
 	 * Process this token. The CompositeEP works as a splitter of single tokens, iteratively expanding a token into its
 	 * components.
-	 * 
+	 *
 	 * @param t
 	 *            the element to expand. After processing, this Element will still exist and be a valid Element, but possibly with
 	 *            a different content, and possibly enclosed by an &lt;mtu&gt; element. In addition, &lt;t&gt; may have new
@@ -129,7 +129,7 @@ public class CompositeEP extends ExpansionPattern {
 	 *         expansion may be necessary. CompositeEP always returns false, in order to have other ExpansionPatterns look at the
 	 *         components as well.
 	 */
-	public boolean process(Element t, final List expanded) {
+	public boolean process(Element t, final List<Element> expanded) {
 		if (t == null || expanded == null)
 			throw new NullPointerException("Received null argument");
 		if (!t.getTagName().equals(MaryXML.TOKEN))
@@ -239,7 +239,7 @@ public class CompositeEP extends ExpansionPattern {
 		}
 		// iterative call:
 		if (expanded.size() > 0) {
-			List newExpanded = process(expanded);
+			List<Element> newExpanded = process(expanded);
 			expanded.clear();
 			expanded.addAll(newExpanded);
 		}
@@ -257,7 +257,7 @@ public class CompositeEP extends ExpansionPattern {
 		throw new RuntimeException("This method should not be called.");
 	}
 
-	protected List expand(List tokens, String text, int typeCode) {
+	protected List<Element> expand(List<Element> tokens, String text, int typeCode) {
 		throw new RuntimeException("This method should not be called.");
 	}
 

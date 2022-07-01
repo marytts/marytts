@@ -330,7 +330,7 @@ public class TimeEP extends ExpansionPattern {
 			iHour += 12;
 		}
 		// ... longing for C methods atoi() and itoa() ...
-		return (new Integer(iHour)).toString();
+		return (Integer.valueOf(iHour)).toString();
 	}
 
 	private String extractDigits(String s) {

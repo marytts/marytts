@@ -20,10 +20,7 @@
 
 package marytts.language.it;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -41,9 +38,11 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The preprocessing module.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -60,7 +59,7 @@ public class Preprocess extends InternalModule {
 		logger.info("Matching and expanding patterns...");
 		matchAndExpandPatterns(doc);
 		logger.info("Done.");
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}
@@ -101,7 +100,7 @@ public class Preprocess extends InternalModule {
 			while (!fullyExpanded && it.hasNext()) {
 				ExpansionPattern ep = (ExpansionPattern) it.next();
 				logger.debug("Now applying ep " + ep + " to token " + MaryDomUtils.getPlainTextBelow(t));
-				List expanded = new ArrayList();
+				List<Element> expanded = new ArrayList<Element>();
 				fullyExpanded = ep.process(t, expanded);
 				// Element replacements may have been caused by ep.process());
 				// Update t and tw accordingly: the next position to look at is
@@ -114,7 +113,7 @@ public class Preprocess extends InternalModule {
 					assert !expanded.isEmpty();
 					// need to correct tw
 					Element lastToken = getLastToken(expanded);
-					assert lastToken != null;
+					requireNonNull(lastToken);
 					tw.setCurrentNode(lastToken);
 					logger.debug("set treewalker position:" + MaryDomUtils.getPlainTextBelow((Element) tw.getCurrentNode()));
 				} else { // not fully expanded
@@ -138,7 +137,7 @@ public class Preprocess extends InternalModule {
 	 * Find the last token in the list of elements l. Starting from the last element in the list, if the element itself is a
 	 * token, return it; else, if it has a direct or indirect descendant which is a token, return that one; else, go backwards in
 	 * the list.
-	 * 
+	 *
 	 * @param l
 	 *            a list of elements
 	 * @return the last token, or null if no such token can be found
@@ -166,7 +165,7 @@ public class Preprocess extends InternalModule {
 	 * Find the first token in the list of elements l. Starting from the first element in the list, if the element itself is a
 	 * token, return it; else, if it has a direct or indirect descendant which is a token, return that one; else, go forward in
 	 * the list.
-	 * 
+	 *
 	 * @param l
 	 *            a list of elements
 	 * @return the first token, or null if no such token can be found

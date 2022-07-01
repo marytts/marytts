@@ -47,6 +47,6 @@ public class LsfMatch extends VocalTractMatch {
 	}
 
 	public void setLsfs(double[] lsfsIn) {
-		lsfs = ArrayUtils.copy(lsfsIn);
+		lsfs = lsfsIn.clone();
 	}
 }

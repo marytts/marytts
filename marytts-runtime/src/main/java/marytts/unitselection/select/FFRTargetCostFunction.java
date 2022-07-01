@@ -29,8 +29,6 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.server.MaryProperties;
-import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
@@ -53,7 +51,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Compute the goodness-of-fit of a given unit for a given target.
-	 * 
+	 *
 	 * @param target
 	 *            target
 	 * @param unit
@@ -141,7 +139,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Compute the goodness-of-fit between given unit and given target for a given feature
-	 * 
+	 *
 	 * @param target
 	 *            target unit
 	 * @param unit
@@ -227,7 +225,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Initialise the data needed to do a target cost computation.
-	 * 
+	 *
 	 * @param featureFileName
 	 *            name of a file containing the unit features
 	 * @param weightsStream
@@ -277,14 +275,6 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 		this.targetFeatureComputer = new TargetFeatureComputer(featProc, featureDefinition.getFeatureNames());
 
 		rememberWhichWeightsAreNonZero();
-
-		if (MaryProperties.getBoolean("debug.show.cost.graph")) {
-			debugShowCostGraph = true;
-			cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()];
-			TargetCostReporter tcr2 = new TargetCostReporter(cumulWeightedCosts);
-			tcr2.showInJFrame("Average weighted target costs", false, false);
-			tcr2.start();
-		}
 	}
 
 	protected void rememberWhichWeightsAreNonZero() {
@@ -297,7 +287,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Compute the features for a given target, and store them in the target.
-	 * 
+	 *
 	 * @param target
 	 *            the target for which to compute the features
 	 * @see Target#getFeatureVector()
@@ -309,7 +299,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Look up the features for a given unit.
-	 * 
+	 *
 	 * @param unit
 	 *            a unit in the database
 	 * @return the FeatureVector for target cost computation associated to this unit
@@ -320,7 +310,7 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	/**
 	 * Get the string representation of the feature value associated with the given unit
-	 * 
+	 *
 	 * @param unit
 	 *            the unit whose feature value is requested
 	 * @param featureName
@@ -345,42 +335,6 @@ public class FFRTargetCostFunction implements TargetCostFunction {
 
 	public FeatureDefinition getFeatureDefinition() {
 		return featureDefinition;
-	}
-
-	public class TargetCostReporter extends Histogram {
-		private double[] data;
-		private int lastN = 0;
-
-		public TargetCostReporter(double[] data) {
-			super(0, 1, data);
-			this.data = data;
-		}
-
-		public void start() {
-			new Thread() {
-				public void run() {
-					while (isVisible()) {
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException ie) {
-						}
-						updateGraph();
-					}
-				}
-			}.start();
-		}
-
-		protected void updateGraph() {
-			if (nCostComputations == lastN)
-				return;
-			lastN = nCostComputations;
-			double[] newCosts = new double[data.length];
-			for (int i = 0; i < newCosts.length; i++) {
-				newCosts[i] = data[i] / nCostComputations;
-			}
-			updateData(0, 1, newCosts);
-			repaint();
-		}
 	}
 
 	public FeatureVector[] getFeatureVectors() {

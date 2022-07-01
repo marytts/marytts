@@ -22,13 +22,14 @@ package marytts;
 import java.io.IOException;
 import java.io.InputStream;
 
-import marytts.util.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 
 /**
  * Provide Version information for the Mary server and client.
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class Version {
 	private static String specificationVersion;
@@ -38,7 +39,7 @@ public class Version {
 		InputStream specVersionStream = Version.class.getResourceAsStream("specification-version.txt");
 		if (specVersionStream != null) {
 			try {
-				specificationVersion = FileUtils.getStreamAsString(specVersionStream, "UTF-8").trim();
+				specificationVersion = IOUtils.toString(specVersionStream, "UTF-8").trim();
 			} catch (IOException e) {
 				specificationVersion = "undeterminable";
 			}
@@ -49,7 +50,7 @@ public class Version {
 		InputStream implVersionStream = Version.class.getResourceAsStream("implementation-version.txt");
 		if (implVersionStream != null) {
 			try {
-				implementationVersion = FileUtils.getStreamAsString(implVersionStream, "UTF-8").trim();
+				implementationVersion = IOUtils.toString(implVersionStream, "UTF-8").trim();
 			} catch (IOException e) {
 				implementationVersion = "undeterminable";
 			}
@@ -69,7 +70,7 @@ public class Version {
 
 	/**
 	 * Implementation version
-	 * 
+	 *
 	 * @return implementation version
 	 */
 	public static String implementationVersion() {

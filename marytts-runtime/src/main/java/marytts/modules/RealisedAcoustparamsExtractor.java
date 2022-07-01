@@ -38,7 +38,7 @@ public class RealisedAcoustparamsExtractor extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}

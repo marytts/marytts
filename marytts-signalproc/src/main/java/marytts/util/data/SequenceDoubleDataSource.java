@@ -25,20 +25,20 @@ import java.util.List;
 
 /**
  * Create one DoubleDataSource from a sequence of DoubleDataSources.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 public class SequenceDoubleDataSource extends BaseDoubleDataSource {
-	protected LinkedList sources;
+	protected LinkedList<DoubleDataSource> sources;
 
 	/**
-	 * 
+	 *
 	 * @param inputSources
 	 *            input Sources
 	 */
 	public SequenceDoubleDataSource(DoubleDataSource[] inputSources) {
 		super();
-		sources = new LinkedList();
+		sources = new LinkedList<DoubleDataSource>();
 		dataLength = 0;
 		for (int i = 0; i < inputSources.length; i++) {
 			if (dataLength != DoubleDataSource.NOT_SPECIFIED) {
@@ -57,11 +57,11 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param inputSources
 	 *            a list of DoubleDataSource objects.
 	 */
-	public SequenceDoubleDataSource(List inputSources) {
+	public SequenceDoubleDataSource(List<DoubleDataSource> inputSources) {
 		this((DoubleDataSource[]) inputSources.toArray(new DoubleDataSource[0]));
 	}
 
@@ -77,13 +77,13 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource {
 	/**
 	 * The number of doubles that can currently be read from this double data source without blocking. This number can change over
 	 * time.
-	 * 
+	 *
 	 * @return the number of doubles that can currently be read without blocking
 	 */
 	public int available() {
 		int available = 0;
-		for (Iterator it = sources.iterator(); it.hasNext();) {
-			available += ((DoubleDataSource) it.next()).available();
+		for (Iterator<DoubleDataSource> it = sources.iterator(); it.hasNext();) {
+			available += it.next().available();
 		}
 		return available;
 	}

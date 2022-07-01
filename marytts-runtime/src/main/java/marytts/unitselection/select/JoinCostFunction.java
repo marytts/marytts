@@ -27,14 +27,14 @@ import marytts.unitselection.data.Unit;
 
 /**
  * A join cost function for evaluating the goodness-of-fit of a given pair of left and right unit.
- * 
+ *
  * @author Marc Schr&ouml;der
  *
  */
 public interface JoinCostFunction {
 	/**
 	 * Compute the goodness-of-fit of joining two units, given the corresponding targets
-	 * 
+	 *
 	 * @param t1
 	 *            the left target
 	 * @param u1
@@ -50,32 +50,11 @@ public interface JoinCostFunction {
 	/**
 	 * Initialise this join cost function by reading the appropriate settings from the MaryProperties using the given
 	 * configPrefix.
-	 * 
+	 *
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
 	 * @throws MaryConfigurationException
 	 *             if there is a configuration problem
 	 */
 	public void init(String configPrefix) throws MaryConfigurationException;
-
-	/**
-	 * Load weights and values from the given file
-	 * 
-	 * @param joinFileName
-	 *            the file from which to read default weights and join cost features
-	 * @param weightStream
-	 *            an optional file from which to read weights, taking precedence over
-	 * @param precompiledCostFileName
-	 *            an optional file containing precompiled join costs
-	 * @param wSignal
-	 *            Relative weight of the signal-based join costs relative to the phonetic join costs computed from the target
-	 * @throws IOException
-	 *             IOException
-	 * @throws MaryConfigurationException
-	 *             MaryConfigurationException
-	 */
-	@Deprecated
-	public void load(String joinFileName, InputStream weightStream, String precompiledCostFileName, float wSignal)
-			throws IOException, MaryConfigurationException;
-
 }

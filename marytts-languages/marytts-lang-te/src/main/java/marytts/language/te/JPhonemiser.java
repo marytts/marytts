@@ -161,7 +161,7 @@ public class JPhonemiser extends InternalModule {
 				}
 			}
 		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}

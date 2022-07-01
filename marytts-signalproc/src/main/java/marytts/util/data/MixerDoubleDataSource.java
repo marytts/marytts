@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Create one DoubleDataSource from a parallel stream of DoubleDataSources. The length of the resulting stream is the length of
  * the longest stream.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 public class MixerDoubleDataSource extends BaseDoubleDataSource {
@@ -33,7 +33,7 @@ public class MixerDoubleDataSource extends BaseDoubleDataSource {
 	protected boolean hasMoreData = true;
 
 	/**
-	 * 
+	 *
 	 * @param inputSources
 	 *            input sources
 	 */
@@ -59,11 +59,11 @@ public class MixerDoubleDataSource extends BaseDoubleDataSource {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param inputSources
 	 *            a list of DoubleDataSource objects.
 	 */
-	public MixerDoubleDataSource(List inputSources) {
+	public MixerDoubleDataSource(List<DoubleDataSource[]> inputSources) {
 		this((DoubleDataSource[]) inputSources.toArray(new DoubleDataSource[0]));
 	}
 
@@ -88,7 +88,7 @@ public class MixerDoubleDataSource extends BaseDoubleDataSource {
 	/**
 	 * The number of doubles that can currently be read from this double data source without blocking. This number can change over
 	 * time.
-	 * 
+	 *
 	 * @return the number of doubles that can currently be read without blocking
 	 */
 	public int available() {

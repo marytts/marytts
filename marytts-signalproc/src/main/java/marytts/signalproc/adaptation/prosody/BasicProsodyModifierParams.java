@@ -183,7 +183,7 @@ public class BasicProsodyModifierParams implements Serializable {
 	}
 
 	public void setTScales(float[] x) {
-		tScales = ArrayUtils.copy(x);
+		tScales = x.clone();
 	}
 
 	public void setTScalesTimes(float x) {
@@ -192,7 +192,7 @@ public class BasicProsodyModifierParams implements Serializable {
 	}
 
 	public void setTScalesTimes(float[] x) {
-		tScalesTimes = ArrayUtils.copy(x);
+		tScalesTimes = x.clone();
 	}
 
 	public void setPScales(float x) {
@@ -201,7 +201,7 @@ public class BasicProsodyModifierParams implements Serializable {
 	}
 
 	public void setPScales(float[] x) {
-		pScales = ArrayUtils.copy(x);
+		pScales = x.clone();
 	}
 
 	public void setPScalesTimes(float x) {
@@ -210,7 +210,7 @@ public class BasicProsodyModifierParams implements Serializable {
 	}
 
 	public void setPScalesTimes(float[] x) {
-		pScalesTimes = ArrayUtils.copy(x);
+		pScalesTimes = x.clone();
 	}
 
 	public boolean willProsodyBeModified() {

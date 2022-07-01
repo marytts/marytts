@@ -63,7 +63,7 @@ public class TextToMaryXML extends InternalModule {
 
 	public MaryData process(MaryData d) throws Exception {
 		String plainText = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
-		MaryData result = new MaryData(outputType(), d.getLocale(), true);
+		MaryData result = new MaryData(getOutputType(), d.getLocale(), true);
 		Document doc = result.getDocument();
 		Element root = doc.getDocumentElement();
 		Locale l = determineLocale(plainText, d.getLocale());

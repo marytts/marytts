@@ -54,7 +54,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Constructor called from a Voice that has its own acoustic models
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 * @throws MaryConfigurationException
@@ -67,7 +67,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Create any additional feature processors for acoustic models.
-	 * 
+	 *
 	 * @param voice
 	 *            voice
 	 */
@@ -98,29 +98,7 @@ public class FeatureProcessorManager {
 		setupGenericFeatureProcessors();
 	}
 
-	@Deprecated
-	protected void setupHardcodedPhoneFeatureValues() {
-		// Set up default values for phone features:
-		phonefeatures2values = new HashMap<String, String[]>();
-		// cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
-		phonefeatures2values.put("cplace", new String[] { "0", "l", "a", "p", "b", "d", "v", "g" });
-		// ctype: 0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
-		phonefeatures2values.put("ctype", new String[] { "0", "s", "f", "a", "n", "l", "r" });
-		// cvox: 0=n/a +=on -=off
-		phonefeatures2values.put("cvox", new String[] { "0", "+", "-" });
-		// vc: 0=n/a +=vowel -=consonant
-		phonefeatures2values.put("vc", new String[] { "0", "+", "-" });
-		// vfront: 0-n/a 1-front 2-mid 3-back
-		phonefeatures2values.put("vfront", new String[] { "0", "1", "2", "3" });
-		// vheight: 0-n/a 1-high 2-mid 3-low
-		phonefeatures2values.put("vheight", new String[] { "0", "1", "2", "3" });
-		// vlng: 0-n/a s-short l-long d-dipthong a-schwa
-		phonefeatures2values.put("vlng", new String[] { "0", "s", "l", "d", "a" });
-		// vrnd: 0=n/a +=on -=off
-		phonefeatures2values.put("vrnd", new String[] { "0", "+", "-" });
-	}
-
-	protected void setupGenericFeatureProcessors() {
+        protected void setupGenericFeatureProcessors() {
 		processors = new TreeMap<String, MaryFeatureProcessor>();
 
 		MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
@@ -201,7 +179,7 @@ public class FeatureProcessorManager {
 	 * Get the locale for this feature processor manager. Locale-specific subclasses must override this method to return the
 	 * respective locale. This base class returns null to indicate that the feature processor manager can be used as a fallback
 	 * for any locale.
-	 * 
+	 *
 	 * @return locale
 	 */
 	public Locale getLocale() {
@@ -212,7 +190,7 @@ public class FeatureProcessorManager {
 	 * Provide a space-separated list of the feature names for all the feature processors known to this feature processor manager.
 	 * The list is unsorted except that byte-valued feature processors come first, followed by short-valued feature processors,
 	 * followed by continuous feature processors.
-	 * 
+	 *
 	 * @return sb to string
 	 */
 	public String listFeatureProcessorNames() {
@@ -281,7 +259,7 @@ public class FeatureProcessorManager {
 
 	/**
 	 * Set up phone feature processors based on phoneset.
-	 * 
+	 *
 	 * @param phoneset
 	 *            the AllophoneSet used for the current locale.
 	 * @param phoneValues

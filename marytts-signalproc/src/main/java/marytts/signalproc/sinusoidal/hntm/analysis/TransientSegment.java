@@ -52,7 +52,7 @@ public class TransientSegment {
 
 		if (existing != null) {
 			this.startTime = existing.startTime;
-			this.waveform = ArrayUtils.copy(existing.waveform);
+			this.waveform = existing.waveform.clone();
 		}
 	}
 

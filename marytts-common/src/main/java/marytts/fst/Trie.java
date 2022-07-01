@@ -26,16 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  * This class represents a trie, i.e. a symbol (or 'letter') tree. Each trie node has arcs, to each of which a symbol is attached.
  * The symbols guide the lookup of entries in the trie.
- * 
+ *
  * The main purpose of this particular trie implementation is not the direct use of the trie (e.g. lookup) but its conversion to a
  * finite-state machine that allows for an even more efficient storage and lookup.
- * 
+ *
  * We are very thankful to Andreas Eisele who had the idea of using tries and transducers for our purposes and who provided us
  * with c-code this particular implemention is based on.
- * 
+ *
  * @author benjaminroth
  *
  */
@@ -61,7 +61,7 @@ public class Trie<Symbol> {
 
 		/**
 		 * This constructs a TrieNode and specifies its predecessor.
-		 * 
+		 *
 		 * @param predecessor
 		 */
 		public TrieNode(TrieNode predecessor, Map<Symbol, Integer> label2idMap, List<Symbol> labels) {
@@ -70,9 +70,9 @@ public class Trie<Symbol> {
 		}
 
 		/**
-		 * 
+		 *
 		 * This adds an entry (word...) to the node and its daughters. The entry is entered from the specified index on.
-		 * 
+		 *
 		 * @param entry
 		 *            word to be entered.
 		 * @param index
@@ -133,13 +133,14 @@ public class Trie<Symbol> {
 		/*
 		 * equals compares everything important but _not_ id
 		 */
+                @SuppressWarnings("unchecked")
 		public boolean equals(Object other) {
 
 			TrieNode otherNode;
 
-			try {
-				otherNode = (TrieNode) other;
-			} catch (ClassCastException e) {
+                        if (other instanceof Trie.TrieNode) {
+				otherNode = (Trie<Symbol>.TrieNode) other;
+			} else {
 				return false;
 			}
 
@@ -183,7 +184,7 @@ public class Trie<Symbol> {
 
 		/**
 		 * this checks if equivalent states in the right language of this node are already identified.
-		 * 
+		 *
 		 * @return true iff so
 		 */
 		public boolean rightIdentified() {
@@ -257,9 +258,9 @@ public class Trie<Symbol> {
 	}
 
 	/**
-	 * 
+	 *
 	 * This adds an entry to the trie.
-	 * 
+	 *
 	 * @param entry
 	 *            entry
 	 */
@@ -271,7 +272,7 @@ public class Trie<Symbol> {
 	/**
 	 * This computes the minimization of the trie, i.e. equivalent nodes are identified. This is necessary to store a compact
 	 * version of this trie as a minimal transducer. The trie itself is not represented more compactly.
-	 * 
+	 *
 	 */
 	public void computeMinimization() {
 		// core idea: identify nodes with identical right language.

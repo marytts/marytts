@@ -21,9 +21,9 @@ package marytts.util.math;
 
 /**
  * A collection of static helper functions for dealing with arrays.
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class ArrayUtils {
 	/**
@@ -450,7 +450,7 @@ public class ArrayUtils {
 
 	/**
 	 * Returns the vector [x y]
-	 * 
+	 *
 	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
 	 * @param x
 	 *            x
@@ -485,7 +485,7 @@ public class ArrayUtils {
 
 	/**
 	 * Returns the vector [x y]
-	 * 
+	 *
 	 * @deprecated use {@link org.apache.commons.lang.ArrayUtils#addAll} instead
 	 * @param x
 	 *            x
@@ -538,6 +538,10 @@ public class ArrayUtils {
 			}
 		}
 		return isZero;
+	}
+
+	public static float[] clone(float[] x) {
+		return null;
 	}
 
 }

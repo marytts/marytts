@@ -23,8 +23,6 @@ import java.io.File;
 
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.MultiDisplay;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.FFT;
@@ -32,7 +30,7 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
- * 
+ *
  */
 public class BandPassFilter extends FIRFilter {
 	public static double DEFAULT_TRANSITIONBANDWIDTH = 0.01;
@@ -41,7 +39,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new bandpass filter with the given normalised cutoff frequencies and a default transition band width.
-	 * 
+	 *
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
@@ -57,7 +55,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new bandpass filter with the given normalised cutoff frequencies and a default transition band width.
-	 * 
+	 *
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
@@ -79,7 +77,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Create a new bandpass filter with the given normalised cutoff frequencies and a default transition band width.
-	 * 
+	 *
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            the cutoff frequency corresponding to the lower end of the band, expressed as a fraction of the sampling rate.
 	 *            It must be in the range ]0, 0.5[. For example, with a sampling rate of 16000 Hz and a desired cutoff frequency
@@ -120,7 +118,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * For a given sampling rate, return the width of the transition band for this filter, in Hertz.
-	 * 
+	 *
 	 * @param samplingRate
 	 *            the sampling rate, in Hertz.
 	 * @return samplingRate
@@ -131,7 +129,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Compute the bandpass filter kernel, as the spectral inversion of the corresponding band-reject filter.
-	 * 
+	 *
 	 * @param lowerNormalisedCutoffFrequencyIn
 	 *            lowerNormalisedCutoffFrequencyIn
 	 * @param upperNormalisedCutoffFrequencyIn
@@ -155,7 +153,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Convert from normalisedTransitionBandwidth to filter kernel length, using the approximate formula l = 4/bw.
-	 * 
+	 *
 	 * @param normalisedTransitionBandwidth
 	 *            normalized transition bandwidth
 	 * @return the corresponding filter kernel length (guaranteed to be an odd number).
@@ -170,7 +168,7 @@ public class BandPassFilter extends FIRFilter {
 
 	/**
 	 * Convert from filter kernel length to normalisedTransitionBandwidth, using the approximate formula l = 4/bw.
-	 * 
+	 *
 	 * @param kernelLength
 	 *            kernelLength
 	 * @return the corresponding normalised transition bandwidth.
@@ -181,40 +179,5 @@ public class BandPassFilter extends FIRFilter {
 
 	public String toString() {
 		return "Bandpass filter";
-	}
-
-	public static void main(String[] args) throws Exception {
-		int lowerCutoffFreq = Integer.valueOf(args[0]).intValue();
-		int upperCutoffFreq = Integer.valueOf(args[1]).intValue();
-		AudioDoubleDataSource source = new AudioDoubleDataSource(AudioSystem.getAudioInputStream(new File(args[2])));
-		int samplingRate = source.getSamplingRate();
-		double lowerNormalisedCutoffFrequency = (double) lowerCutoffFreq / samplingRate;
-		double upperNormalisedCutoffFrequency = (double) upperCutoffFreq / samplingRate;
-		BandPassFilter filter = new BandPassFilter(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency);
-		System.err.println("Created " + filter.toString() + " with reject band from " + lowerCutoffFreq + " Hz to "
-				+ upperCutoffFreq + " Hz and transition band width " + ((int) filter.getTransitionBandWidth(samplingRate))
-				+ " Hz");
-
-		// Display the filter kernel and log frequency response:
-		double[] fftSignal = new double[filter.transformedIR.length];
-		System.arraycopy(filter.transformedIR, 0, fftSignal, 0, filter.transformedIR.length);
-		// inverse transform:
-		FFT.realTransform(fftSignal, true);
-		double[] kernel = new double[filter.impulseResponseLength];
-		System.arraycopy(fftSignal, 0, kernel, 0, kernel.length);
-		FunctionGraph timeGraph = new FunctionGraph(0, 1, kernel);
-		timeGraph.showInJFrame(filter.toString() + " in time domain", true, false);
-
-		double[] powerSpectrum = FFT.computePowerSpectrum_FD(filter.transformedIR);
-		for (int i = 0; i < powerSpectrum.length; i++)
-			powerSpectrum[i] = MathUtils.db(powerSpectrum[i]);
-		FunctionGraph freqGraph = new FunctionGraph(0, (double) samplingRate / filter.transformedIR.length, powerSpectrum);
-		freqGraph.showInJFrame(filter.toString() + " log frequency response", true, false);
-
-		// Filter the test signal and display it:
-		DoubleDataSource filteredSignal = filter.apply(source);
-		MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " ("
-				+ lowerCutoffFreq + "->" + upperCutoffFreq + "Hz) applied to " + args[2], MultiDisplay.DEFAULT_WIDTH,
-				MultiDisplay.DEFAULT_HEIGHT);
 	}
 }

@@ -291,7 +291,7 @@ public class FeatureDefinition {
 					throw new RuntimeException("Feature definition file is having unexpected format...");
 				}
 				for (int j = 1; j < i; j++) {
-					float similarity = (new Float(lines[j])).floatValue();
+					float similarity = (Float.valueOf(lines[j]));
 					similarityMatrices[featureIndex][i - 1][j - 1] = similarity;
 					similarityMatrices[featureIndex][j - 1][i - 1] = similarity;
 				}

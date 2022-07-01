@@ -98,7 +98,7 @@ public class Lpcc2Lpc {
 	 */
 	public static void main(String[] args) throws IOException {
 		// Usage: ESTlpccToESTlpc lpcOrder inFileName outFileName
-		convert(args[1], args[2], new Integer(args[0]).intValue());
+		convert(args[1], args[2], Integer.valueOf(args[0]));
 	}
 
 }

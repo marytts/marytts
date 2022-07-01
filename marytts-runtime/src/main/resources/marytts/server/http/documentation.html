@@ -15,7 +15,7 @@ This is intended as a live documentation for developers who want to use the HTTP
 to build MARY clients.</p>
 
 <p>All examples below use relative URLs. That is, if this page is shown as
- <code>http://localhost:59125/</code>, you can refer to the relative URL 
+ <code>http://localhost:59125/</code>, you can refer to the relative URL
  <code>version</code> as the absolute URL <code>http://localhost:59125/version</code> etc.</p>
 
 <h2 id="info">Information requests</h2>
@@ -189,14 +189,14 @@ Ist das nicht eine schöne Blume!
 <h3>GET examples</h3>
 
 <p>Simple text to speech for the text <code>Hello world</code> using the default US english voice to produce WAVE output data:</p>
-<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&AUDIO=WAVE_FILE&LOCALE=en_US">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&AUDIO=WAVE_FILE&LOCALE=en_US</a></code></p>
+<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&AUDIO=WAVE_FILE&LOCALE=en_US">process?INPUT_TEXT=Hello+world&amp;INPUT_TYPE=TEXT&amp;OUTPUT_TYPE=AUDIO&amp;AUDIO=WAVE_FILE&amp;LOCALE=en_US</a></code></p>
 
 
 <p>Partial processing of data: convert <code>Hello world</code> into ACOUSTPARAMS format, the full XML format used inside MARY TTS:</p>
-<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=ACOUSTPARAMS&LOCALE=en_US">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=ACOUSTPARAMS&LOCALE=en_US</a></code></p>
+<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=ACOUSTPARAMS&LOCALE=en_US">process?INPUT_TEXT=Hello+world&amp;INPUT_TYPE=TEXT&amp;OUTPUT_TYPE=ACOUSTPARAMS&amp;LOCALE=en_US</a></code></p>
 
 <p>Computation of feature vectors for <code>Hello world</code> for the features <code>phone stressed accented</code> for every phone:</p>
-<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phone+stressed+accented">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phone+stressed+accented</a></code></p>
+<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phone+stressed+accented">process?INPUT_TEXT=Hello+world&amp;INPUT_TYPE=TEXT&amp;OUTPUT_TYPE=TARGETFEATURES&amp;LOCALE=en_US&amp;OUTPUT_TYPE_PARAMS=phone+stressed+accented</a></code></p>
 
 <p>Simple form containing only the required fields, as a GET request:</p>
 

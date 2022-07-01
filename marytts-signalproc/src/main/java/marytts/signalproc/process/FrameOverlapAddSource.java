@@ -26,8 +26,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BlockwiseDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -42,7 +40,7 @@ import marytts.util.math.MathUtils;
  * works as follows. 1. Assuming an input frameshift of 1/12th of the frame length, and a signal length equal to (frame
  * length+4*frameshift), we cover the input data as follows: (+=valid data points, -=zero, |=valid data point at start/end of
  * input)
- * 
+ *
  * <pre>
  *     ---|++++++++
  *      --|+++++++++
@@ -56,33 +54,33 @@ import marytts.util.math.MathUtils;
  *              +++++++++|--
  *               ++++++++|---
  * </pre>
- * 
+ *
  * With a synthesis frameshift of 1/4th of the frame length, implying that four frames need to be overlapped to reconstruct the
  * signal, this becomes:
- * 
+ *
  * <pre>
  *          ---|++++++++
  *             --|+++++++++
- *                -|++++++++++    
+ *                -|++++++++++
  *                   |+++++++++++ *** first usable
  *                      ++++++++++++
  *                         ++++++++++++
  *                            ++++++++++++
- *                               +++++++++++| 
- *                                  ++++++++++|- 
+ *                               +++++++++++|
+ *                                  ++++++++++|-
  *                                     +++++++++|--
  *                                        ++++++++|--- *** last usable: first 3 of this
  * </pre>
- * 
+ *
  * It can be seen that three times the input frameshift needs to be zero-padded before the signal, and discarded to reach proper
  * signal reconstruction.
- * 
+ *
  * Similarly, the last frame to be used is the one to which three times the input shift has been zero-padded; only the first
  * output frameshift samples of it can be used.
- * 
+ *
  * 2. Assuming an input frameshift of 1/24th of the frame length, and a signal length equal to (frame length+4*frameshift), we
  * cover the input data as follows: (+=valid data points, -=zero, |=valid data point at start/end of input)
- * 
+ *
  * <pre>
  * --------|+++++++++++++++
  *  -------|++++++++++++++++
@@ -106,10 +104,10 @@ import marytts.util.math.MathUtils;
  *                    ++++++++++++++++|-------
  *                     +++++++++++++++|--------
  * </pre>
- * 
+ *
  * With a synthesis frameshift of 1/8th of the frame length, implying that eight frames need to be overlapped to reconstruct the
  * signal, this becomes:
- * 
+ *
  * <pre>
  * -------|++++++++++++++++
  *    ------|+++++++++++++++++
@@ -117,30 +115,30 @@ import marytts.util.math.MathUtils;
  *          ----|+++++++++++++++++++
  *             ---|++++++++++++++++++++
  *                --|+++++++++++++++++++++
- *                   -|++++++++++++++++++++++    
+ *                   -|++++++++++++++++++++++
  *                      |+++++++++++++++++++++++ *** first usable
  *                         ++++++++++++++++++++++++
  *                            ++++++++++++++++++++++++
  *                               ++++++++++++++++++++++++
  *                                  +++++++++++++++++++++++|
- *                                     ++++++++++++++++++++++|- 
+ *                                     ++++++++++++++++++++++|-
  *                                        +++++++++++++++++++++|--
  *                                           ++++++++++++++++++++|---
- *                                              +++++++++++++++++++|---- 
+ *                                              +++++++++++++++++++|----
  *                                                 ++++++++++++++++++|-----
  *                                                    +++++++++++++++++|------
  *                                                       ++++++++++++++++|------- *** last usable: first 3 of this
  * </pre>
- * 
+ *
  * It can be seen that seven times the input frameshift needs to be zero-padded before the signal, and discarded to reach proper
  * signal reconstruction.
- * 
+ *
  * Similarly, the last frame to be used is the one to which seven times the input shift has been zero-padded; only the first
  * output frameshift samples of it can be used.
- * 
+ *
  * 3. Assuming an input frameshift of 1/3rd of the frame length, and a signal length equal to (frame length+4*frameshift), we
  * cover the input data as follows: (+=valid data points, -=zero, |=valid data point at start/end of input)
- * 
+ *
  * <pre>
  *  --------|+++
  *      ----|+++++++
@@ -152,10 +150,10 @@ import marytts.util.math.MathUtils;
  *                              +++++++|----
  *                                  +++|--------
  * </pre>
- * 
+ *
  * With a synthesis frameshift of 1/4th of the frame length, implying that four frames need to be overlapped to reconstruct the
  * signal, this becomes:
- * 
+ *
  * <pre>
  *    --------|+++
  *       ----|+++++++
@@ -167,16 +165,16 @@ import marytts.util.math.MathUtils;
  *                         +++++++|----
  *                            +++|-------- *** last usable: first 3 of this
  * </pre>
- * 
+ *
  * It can be seen that only two times the input frameshift needs to be zero-padded before the signal; nevertheless, the first
  * three frames need to be procesesed but discarded to reach proper signal reconstruction.
- * 
+ *
  * Similarly, the last frame to be used is the one to which two times the input shift has been zero-padded; only the first output
  * frameshift samples of it can be used.
- * 
+ *
  * 4. Assuming an input frameshift of 1/2rd of the frame length, and a signal length equal to (frame length+4*frameshift), we
  * cover the input data as follows: (+=valid data points, -=zero, |=valid data point at start/end of input)
- * 
+ *
  * <pre>
  *    ------|+++++
  *          |+++++++++++
@@ -186,10 +184,10 @@ import marytts.util.math.MathUtils;
  *                                  +++++++++++|
  *                                        +++++|------
  * </pre>
- * 
+ *
  * With a synthesis frameshift of 1/4th of the frame length, implying that four frames need to be overlapped to reconstruct the
  * signal, this becomes:
- * 
+ *
  * <pre>
  *       ------|+++++
  *          |+++++++++++
@@ -199,13 +197,13 @@ import marytts.util.math.MathUtils;
  *                      +++++++++++|
  *                         +++++|------ *** last usable: first 3 of this
  * </pre>
- * 
+ *
  * It can be seen that only two times the input frameshift needs to be zero-padded before the signal; nevertheless, the first
  * three frames need to be procesesed but discarded to reach proper signal reconstruction.
- * 
+ *
  * Similarly, the last frame to be used is the one to which two times the input shift has been zero-padded; only the first output
  * frameshift samples of it can be used.
- * 
+ *
  * Generalising: May ro be the output overlap ratio, ro = output frameshift / framelength, and ri be the input overlap ratio, ri =
  * input frameshift / framelength, then n = 1/(1-ro) is the number of frames to be overlapped so that the signal is reconstructed.
  * The amount of zeroes to be padded before and after the signal is (n-1)*input frameshift, or in the case of speeding up,
@@ -213,7 +211,7 @@ import marytts.util.math.MathUtils;
  * be described as l = framelength + n*frameshift, exactly output frameshift samples are to be used from the last frame. If the
  * signal is a bit shorter, i.e. l = framelength + n*frameshift - delta, then (output frameshift - delta) samples can be read from
  * the last frame.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
@@ -242,7 +240,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 
 	/**
 	 * To be called by constructor in order to set up this frame overlap add source.
-	 * 
+	 *
 	 * @param inputSource
 	 *            input source
 	 * @param windowType
@@ -313,7 +311,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 	/**
 	 * Get the next frame of input data. This method is called by prepareBlock() when preparing the output data to be read. This
 	 * implementation simply reads the data from the frameProvider.
-	 * 
+	 *
 	 * @return the next frame of frameProvider
 	 */
 	protected double[] getNextFrame() {
@@ -390,30 +388,5 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
 
 	public boolean hasMoreData() {
 		return frameProvider.hasMoreData();
-	}
-
-	public static void main(String[] args) throws Exception {
-		for (int i = 0; i < args.length; i++) {
-			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
-			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-			double[] signal = new AudioDoubleDataSource(inputAudio).getAllData();
-			FunctionGraph signalGraph = new SignalGraph(signal, samplingRate);
-			signalGraph.showInJFrame("signal", true, true);
-			FrameOverlapAddSource ola = new FrameOverlapAddSource(new BufferedDoubleDataSource(signal), 2048, samplingRate, null);
-			double[] result = ola.getAllData();
-			FunctionGraph resultGraph = new SignalGraph(result, samplingRate);
-			resultGraph.showInJFrame("result", true, true);
-			System.err.println("Signal has length " + signal.length + ", result " + result.length);
-			double err = MathUtils.sumSquaredError(signal, result);
-			System.err.println("Sum squared error: " + err);
-
-			double[] difference = MathUtils.subtract(signal, result);
-			FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
-			diffGraph.showInJFrame("difference", true, true);
-
-			DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(ola), inputAudio.getFormat());
-			String outFileName = args[i].substring(0, args[i].length() - 4) + "_copy.wav";
-			AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-		}
 	}
 }

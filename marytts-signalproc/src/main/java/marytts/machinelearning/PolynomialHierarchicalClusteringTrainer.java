@@ -25,14 +25,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import javax.swing.JFrame;
-
-import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.Polynomial;
 
 /**
  * Hierarchical clustering training algorithm
- * 
+ *
  * Reference: Stephen C. Johnson, 1967, "Hierarchical clustering schemes", Proc. Psychometrika, Vol. 32 No. 3, pp. 241-254.
  *
  * This version is adapted to work with a distance function between polynomials.
@@ -53,7 +50,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * Constructor of the Hierarchical trainer
-	 * 
+	 *
 	 * @param polynomials
 	 *            - array of polynomial coefficients ( minimum length of polynomials should be three )
 	 * @throws NullPointerException
@@ -84,7 +81,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * To find distance between two clusters
-	 * 
+	 *
 	 * @param xCluster
 	 *            a cluster that contains a set of polynomial coeffs.
 	 * @param yCluster
@@ -162,7 +159,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * To initialize each sample as a single cluster
-	 * 
+	 *
 	 */
 	private void initializeClustering() {
 		assert dataPointSet != null;
@@ -188,8 +185,6 @@ public class PolynomialHierarchicalClusteringTrainer {
 		assert distanceTableMap != null;
 
 		int observations = polynomials.length;
-		int polynomialOrder = polynomials[0].getOrder();
-		int[] clusterIndices = new int[observations];
 
 		// compute distace between two indices
 		double[][] dist = new double[observations][observations];
@@ -197,14 +192,14 @@ public class PolynomialHierarchicalClusteringTrainer {
 			dataPointSet.add("" + i);
 			for (int j = 0; j < observations; j++) {
 				dist[i][j] = Polynomial.polynomialPearsonProductMomentCorr(polynomials[i].coeffs, polynomials[j].coeffs);
-				distanceTableMap.put(i + "_" + j, (new Double(dist[i][j])));
+				distanceTableMap.put(i + "_" + j, (Double.valueOf(dist[i][j])));
 			}
 		}
 	}
 
 	/**
 	 * To get the type of measure used for cluster data
-	 * 
+	 *
 	 * @return true, if similarity metric used to cluster the data false, if dissimilarity metric used to cluster the data
 	 */
 	private boolean hasSimilarityMeasure() {
@@ -213,7 +208,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * To compute distance between to two clusters
-	 * 
+	 *
 	 * @param xCluster
 	 *            cluster one that contains a set of polynomial coeffs.
 	 * @param yCluster
@@ -236,7 +231,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * clustering with default linkage type It uses 'Average' linkage clustering approach as default
-	 * 
+	 *
 	 * @param tagetClusterSize
 	 *            target cluster size
 	 */
@@ -246,7 +241,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * Clustering with user-defined target cluster size
-	 * 
+	 *
 	 * @param tagetClusterSize
 	 *            target cluster size
 	 * @param linkageType
@@ -317,7 +312,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 	/**
 	 * Set the type of measure used to cluster the data
-	 * 
+	 *
 	 * @param isSimilarityMeasure
 	 *            whether the measure is a similarity measure (value true) or a dissimilarity measure (value false)
 	 */
@@ -335,12 +330,12 @@ public class PolynomialHierarchicalClusteringTrainer {
 	 * distance function. Training consists of four steps: 1. Convert object features to distance matrix. 2. Set each object as a
 	 * cluster (thus if we have 6 objects, we will have 6 clusters in the beginning) 3. Iterate until number of clusters is equal
 	 * to the given target number of clusters - Merge two closest clusters - Update distance matrix
-	 * 
+	 *
 	 * @param tagetClusterSize
 	 *            the target cluster size
 	 * @param linkageType
 	 *            the linkage type used for Hierarchical clustering ('Average', 'Complete', or 'Short')
-	 * 
+	 *
 	 * @return the trained clusters
 	 * @throws IllegalArgumentException
 	 *             if target cluster size is not less than initialized number of samples
@@ -360,7 +355,6 @@ public class PolynomialHierarchicalClusteringTrainer {
 		// Now fill the clusters with their means and members:
 		PolynomialCluster[] clusters = new PolynomialCluster[tagetClusterSize];
 
-		int noClusters = clusterList.size();
 
 		// if below condition fails, it is a BUG
 		assert clusterList.size() == tagetClusterSize : "After clustering, number of clusters and the target cluster size should be same, but now the number of clusters are "
@@ -373,7 +367,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 			Polynomial[] members = new Polynomial[dataPoints.size()];
 
 			for (int j = 0; j < dataPoints.size(); j++) {
-				members[j] = this.polynomials[(new Integer(dataPoints.get(j))).intValue()];
+				members[j] = this.polynomials[(Integer.valueOf(dataPoints.get(j))).intValue()];
 			}
 
 			Polynomial meanMembers = Polynomial.mean(members);
@@ -385,61 +379,8 @@ public class PolynomialHierarchicalClusteringTrainer {
 	}
 
 	/**
-	 * Main method
-	 * 
-	 * @param args
-	 *            args
-	 */
-	public static void main(String[] args) {
-		// Test clustering with random polynomials, and visualise result
-		int order = 3;
-		int numPolynomials = 100;
-		int numClusters = 5;
-
-		// Initialise with random data:
-		Polynomial[] ps = new Polynomial[numPolynomials];
-		for (int i = 0; i < numPolynomials; i++) {
-			double[] coeffs = new double[order + 1];
-			for (int c = 0; c < coeffs.length; c++) {
-				coeffs[c] = Math.random();
-			}
-			ps[i] = new Polynomial(coeffs);
-		}
-
-		PolynomialHierarchicalClusteringTrainer phCT = new PolynomialHierarchicalClusteringTrainer(ps);
-		// Train:
-		PolynomialCluster[] clusters = phCT.train(5, "Average");
-
-		// Visualise:
-		FunctionGraph clusterGraph = new FunctionGraph(0, 1, new double[1]);
-		clusterGraph.setYMinMax(0, 5);
-		clusterGraph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
-		JFrame jf = clusterGraph.showInJFrame("", false, true);
-		for (int i = 0; i < clusters.length; i++) {
-			double[] meanValues = clusters[i].getMeanPolynomial().generatePolynomialValues(100, 0, 1);
-			clusterGraph.updateData(0, 1. / meanValues.length, meanValues);
-
-			Polynomial[] members = clusters[i].getClusterMembers();
-			for (int m = 0; m < members.length; m++) {
-				double[] pred = members[m].generatePolynomialValues(meanValues.length, 0, 1);
-				clusterGraph.addDataSeries(pred, Color.GRAY, FunctionGraph.DRAW_LINE, -1);
-				jf.repaint();
-			}
-
-			jf.setTitle("Cluster " + (i + 1) + " of " + clusters.length + ": " + members.length + " members");
-			jf.repaint();
-
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException ie) {
-			}
-		}
-		// System.exit(0);
-	}
-
-	/**
 	 * A class that contains samples of a cluster
-	 * 
+	 *
 	 * @author sathish
 	 *
 	 */
@@ -450,7 +391,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 		/**
 		 * Cluster constructor
-		 * 
+		 *
 		 * @param dataSet
 		 *            a arraylist of samples
 		 * @throws NullPointerException
@@ -466,7 +407,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 		/**
 		 * To return all datapoints in this cluster
-		 * 
+		 *
 		 * @return ArrayList<String> of datapoints
 		 */
 		public ArrayList<String> getAllDataPoints() {
@@ -475,7 +416,7 @@ public class PolynomialHierarchicalClusteringTrainer {
 
 		/**
 		 * Given cluster will be merged into this cluster
-		 * 
+		 *
 		 * @param xCluster
 		 *            a cluster that contains a set of polynomial coeffs.
 		 * @throws NullPointerException

@@ -226,7 +226,7 @@ public class HTSEngine extends InternalModule {
 		/* Synthesize speech waveform, generate speech out of sequence of parameters */
 		AudioInputStream ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
 
-		MaryData output = new MaryData(outputType(), d.getLocale());
+		MaryData output = new MaryData(getOutputType(), d.getLocale());
 		if (d.getAudioFileFormat() != null) {
 			output.setAudioFileFormat(d.getAudioFileFormat());
 			if (d.getAudio() != null) {
