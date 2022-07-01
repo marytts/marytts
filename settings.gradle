@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id 'de.dfki.mary.component' version '0.2'
+        id 'de.dfki.mary.component' version '0.2.1'
     }
 }
 include 'marytts-common'

@@ -5,8 +5,6 @@ apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
-sourceCompatibility = 1.8
-
 marytts {
     component {
         name = 'German'
