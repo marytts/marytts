@@ -261,7 +261,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 			// it is not faster to pass directly a list of targets?
 			// --String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
 
-			MaryData d = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
+			MaryData d = new MaryData(targetFeatureLister.getOutputType(), voice.getLocale());
 			// --d.setPlainText(targetFeatureString);
 			d.setDefaultVoice(voice);
 

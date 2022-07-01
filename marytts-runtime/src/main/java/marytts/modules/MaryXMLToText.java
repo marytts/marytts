@@ -48,7 +48,7 @@ public class MaryXMLToText extends InternalModule {
 	public MaryData process(MaryData d) throws Exception {
 		Document doc = d.getDocument();
 
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setPlainText(MaryDomUtils.getPlainTextBelow(doc));
 		Element voiceElement = MaryDomUtils.getFirstElementByTagName(doc.getDocumentElement(), MaryXML.VOICE);
 		if (voiceElement != null) {

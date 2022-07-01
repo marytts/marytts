@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.util.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * @author marc
@@ -40,7 +40,7 @@ public class FeatureUtilsTest {
 
 	@Before
 	public void setUp() throws IOException {
-		targetfeatures = FileUtils.getStreamAsString(FeatureUtilsTest.class.getResourceAsStream("helloworld.targetfeatures"),
+		targetfeatures = IOUtils.toString(FeatureUtilsTest.class.getResourceAsStream("helloworld.targetfeatures"),
 				"UTF-8");
 	}
 

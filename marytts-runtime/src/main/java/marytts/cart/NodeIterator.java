@@ -86,6 +86,7 @@ public class NodeIterator<T extends Node> implements Iterator<T> {
 		return current != null;
 	}
 
+    @SuppressWarnings("unchecked")
 	public T next() {
 		T ret = (T) current;
 		// and already prepare the current one

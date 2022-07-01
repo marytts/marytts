@@ -55,7 +55,7 @@ import org.xml.sax.SAXException;
  * Example for a subclass:
  * <p>
  * Default case (external module reads from stdin and writes to stdout without requiring any particular triggers):
- * 
+ *
  * <pre>
  * public class Intonation extends ExternalModule {
  * 	public Intonation() {
@@ -64,31 +64,31 @@ import org.xml.sax.SAXException;
  * 	}
  * }
  * </pre>
- * 
+ *
  * Non-standard case (external module needs special trigger, data needs to be post-processed):
- * 
+ *
  * <pre>
  * public class Tokeniser extends ExternalModule {
  * 	public Tokeniser()
  *     {
  *         super(...);
  *     }
- * 
+ *
  * 	protected MaryData externalIO(MaryData d) throws TransformerConfigurationException, TransformerException,
  * 			FileNotFoundException, IOException, ParserConfigurationException, SAXException, Exception {
  * 		MaryData result;
  * 		// Write to and read from external module similarly to super class,
  * 		// but write e.g. an empty line after writing the data,
  * 		// to mark end of input.
- * 
+ *
  * 		// Modify the result tree
  * 		myModifications(result);
- * 
+ *
  * 		return result;
  * 	}
  * }
  * </pre>
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -103,7 +103,7 @@ public class ExternalModule implements MaryModule {
 	protected OutputStream to;
 	protected InputStream from;
 	protected StreamLogger errorLogger;
-	private LinkedList requestQueue;
+	private LinkedList<Object> requestQueue;
 	private boolean exitRequested = false;
 	protected ProcessingThread processingThread = null;
 	protected RestarterThread restarterThread = null;
@@ -120,7 +120,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Remember if a retry attempt is undertaken in <code>process()</code>.
-	 * 
+	 *
 	 * @see #process
 	 */
 	protected boolean retrying = false;
@@ -133,7 +133,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Get the process object representing the external module program.
-	 * 
+	 *
 	 * @return process
 	 */
 	protected Process getProcess() {
@@ -149,7 +149,7 @@ public class ExternalModule implements MaryModule {
 		this.outputType = outputType;
 		this.locale = locale;
 		this.timeLimit = MaryProperties.needInteger("modules.timeout");
-		this.requestQueue = new LinkedList();
+		this.requestQueue = new LinkedList<Object>();
 		this.state = MODULE_OFFLINE;
 	}
 
@@ -157,7 +157,7 @@ public class ExternalModule implements MaryModule {
 	 * Execute the command <code>cmd</code> as an external process. The process's input and output streams are accessible from
 	 * then on via the <code>from()</code> and <code>to()</code> methods; the process's error stream is logged by a separate
 	 * <code>StreamLogger</code> thread.
-	 * 
+	 *
 	 * @see #to()
 	 * @see #from()
 	 * @see marytts.util.io.StreamLogger
@@ -202,7 +202,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * The stream on which data is written to the external process.
-	 * 
+	 *
 	 * @return to
 	 */
 	protected OutputStream to() {
@@ -211,7 +211,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * The stream on which data is read from the external process.
-	 * 
+	 *
 	 * @return from
 	 */
 	protected InputStream from() {
@@ -220,7 +220,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * The command line to execute as an external process.
-	 * 
+	 *
 	 * @return cmd
 	 */
 	protected String cmd() {
@@ -229,7 +229,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Sets the command line to execute.
-	 * 
+	 *
 	 * @param cmd
 	 *            cmd
 	 */
@@ -280,7 +280,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Perform a power-on self test by processing some example input data.
-	 * 
+	 *
 	 * @throws Error
 	 *             if the module does not work properly.
 	 */
@@ -322,7 +322,7 @@ public class ExternalModule implements MaryModule {
 	/**
 	 * The actual external input and output. Write to the module and read from the module in the appropriate ways as determined by
 	 * input and output data types.
-	 * 
+	 *
 	 * @param d
 	 *            d
 	 * @throws TransformerConfigurationException
@@ -348,7 +348,7 @@ public class ExternalModule implements MaryModule {
 		d.writeTo(to());
 		// Read from external module
 		logger.info("Reading from module.");
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.readFrom(from(), outputType().endMarker());
 		logger.info("Read complete.");
 		return result;
@@ -364,7 +364,7 @@ public class ExternalModule implements MaryModule {
 	 * this particular input.
 	 * <p>
 	 * For the time being, external modules are thread-safe simply by this method being <code>synchronized</code>.
-	 * 
+	 *
 	 * @return A MaryData object of type <code>outputType()</code> encapsulating the processing result.
 	 */
 	public final MaryData process(MaryData d) throws TransformerConfigurationException, TransformerException,
@@ -470,7 +470,7 @@ public class ExternalModule implements MaryModule {
 
 	/**
 	 * Tell all helper threads to exit.
-	 * 
+	 *
 	 * @param b
 	 *            b
 	 */

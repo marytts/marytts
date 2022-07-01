@@ -41,11 +41,11 @@ public class DeLex {
 
 	private String modelPath = "DE-LEX.xml";
 
-	protected Hashtable modelTable;
+        protected Hashtable<String, String> modelTable;
 
 	public DeLex(String knowledgeBasePath) {
 
-		this.modelTable = new Hashtable(40);
+		this.modelTable = new Hashtable<String, String>(40);
 		this.modelPath = knowledgeBasePath + modelPath;
 		loadInputModel();
 
@@ -125,7 +125,7 @@ public class DeLex {
 
 	/**
 	 * Prints a textual representation of a DOM object into a text string..
-	 * 
+	 *
 	 * @param element
 	 *            DOM object to parse.
 	 * @return String representation of <i>document</i>.

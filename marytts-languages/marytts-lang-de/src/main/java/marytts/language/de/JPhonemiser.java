@@ -26,15 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -53,6 +45,8 @@ import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The phonemiser module -- java implementation.
@@ -254,7 +248,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 				}
 			}
 		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}
@@ -372,7 +366,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 					textFreq++;
 					unknown2Frequency.put(unknownText, textFreq);
 				} else {
-					unknown2Frequency.put(unknownText, new Integer(1));
+					unknown2Frequency.put(unknownText, Integer.valueOf(1));
 				}
 			}
 			g2pMethod.append("rules");
@@ -389,12 +383,12 @@ public class JPhonemiser extends marytts.modules.JPhonemiser {
 	 * @return the transcription, or null if none could be determined.
 	 */
 	public String phonemiseEn(String text) {
-		assert usEnglishLexicon != null;
+		requireNonNull(usEnglishLexicon);
 		// We get here only if there is an English lexicon
 		String normalisedEn = MaryUtils.normaliseUnicodeLetters(text, Locale.US);
 		normalisedEn = normalisedEn.toLowerCase();
 		String[] transcriptions = usEnglishLexicon.lookup(normalisedEn);
-		assert transcriptions != null; // if nothing is found, an array of length 0 is returned.
+		Objects.requireNonNull(transcriptions); // if nothing is found, an array of length 0 is returned.
 		if (transcriptions.length == 0) {
 			return null;
 		}

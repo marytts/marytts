@@ -106,7 +106,7 @@ public class EmotionmlParser extends InternalModule {
 		// We add the 'xml:lang' attribute manually:
 		maryxmlDocument.getDocumentElement().setAttribute("xml:lang", MaryUtils.locale2xmllang(d.getLocale()));
 
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(maryxmlDocument);
 		return result;
 	}

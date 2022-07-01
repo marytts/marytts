@@ -60,7 +60,7 @@ public class Preprocess extends InternalModule {
 		logger.info("Matching and expanding patterns...");
 		matchAndExpandPatterns(doc);
 		logger.info("Done.");
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}

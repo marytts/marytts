@@ -64,7 +64,7 @@ import com.google.common.base.Objects;
  * A representation of any type of mary data, be it input, intermediate or output data. The "technical" representation of the read
  * data is hidden from the caller, but can be accessed on request. Internally, the data is appropriately represented according to
  * this data's type, i.e. as a String containing plain text, an XML DOM tree, or an input stream containing audio data.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 public class MaryData {
@@ -116,15 +116,6 @@ public class MaryData {
 		this.doValidate = doValidate;
 	}
 
-	@Deprecated
-	public boolean getWarnClient() {
-		return doWarnClient;
-	}
-
-	@Deprecated
-	public void setWarnClient(boolean doWarnClient) {
-	}
-
 	public MaryDataType getType() {
 		return type;
 	}
@@ -135,7 +126,7 @@ public class MaryData {
 
 	/**
 	 * Read data from input stream <code>is</code>, in the appropriate way as determined by our <code>type</code>.
-	 * 
+	 *
 	 * @param is
 	 *            is
 	 * @throws ParserConfigurationException
@@ -156,7 +147,7 @@ public class MaryData {
 
 	/**
 	 * Read data from input stream <code>is</code>, in the appropriate way as determined by our <code>type</code>.
-	 * 
+	 *
 	 * @param is
 	 *            the InputStream from which to read.
 	 * @param endMarker
@@ -186,7 +177,7 @@ public class MaryData {
 	/**
 	 * Read data from reader <code>r</code> in the appropriate way as determined by our <code>type</code>. Only XML and Text data
 	 * can be read from a reader, audio data cannot.
-	 * 
+	 *
 	 * @param from
 	 *            from
 	 * @throws ParserConfigurationException
@@ -206,7 +197,7 @@ public class MaryData {
 	 * can be read from a reader, audio data cannot. "Helpers" needed to read the data, such as XML parser objects, are created
 	 * when they are needed. If doWarnClient is set to true, warning and error messages related to XML parsing are logged to the
 	 * log category connected to the client from which this request originated.
-	 * 
+	 *
 	 * @param from
 	 *            the Reader from which to read.
 	 * @param endMarker
@@ -236,7 +227,7 @@ public class MaryData {
 	/**
 	 * Set the content data of this MaryData object from the given String. For XML data ({@link MaryDataType#isXMLType()}), parse
 	 * the String representation of the data into a DOM tree.
-	 * 
+	 *
 	 * @param dataString
 	 *            string representation of the input data.
 	 * @throws ParserConfigurationException
@@ -266,7 +257,7 @@ public class MaryData {
 	/**
 	 * Write our internal representation to output stream <code>os</code>, in the appropriate way as determined by our
 	 * <code>type</code>.
-	 * 
+	 *
 	 * @param os
 	 *            os
 	 * @throws TransformerConfigurationException
@@ -305,26 +296,26 @@ public class MaryData {
 	 * public void writeTo(HttpResponse response) throws TransformerConfigurationException, FileNotFoundException,
 	 * TransformerException, IOException, Exception { if (type.isUtterances()) throw new
 	 * IOException("Cannot write out utterance-based data type!");
-	 * 
+	 *
 	 * if (type.isXMLType()) { if (writer == null) writer = new MaryNormalisedWriter(); if
 	 * (logger.getLevel().equals(Level.DEBUG)) { ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
 	 * writer.output(xmlDocument, debugOut); logger.debug(debugOut.toString()); }
-	 * 
+	 *
 	 * //writer.output(xmlDocument, new BufferedOutputStream(os));
-	 * 
+	 *
 	 * ByteArrayOutputStream os = new ByteArrayOutputStream(); writer.output(xmlDocument, new BufferedOutputStream(os));
 	 * NByteArrayEntity body = new NByteArrayEntity(os.toByteArray()); body.setContentType("text/html; charset=UTF-8");
 	 * response.setEntity(body); } else if (type.isTextType()) // caution: XML types are text types! { //writeTo(new
 	 * OutputStreamWriter(os, "UTF-8"));
-	 * 
+	 *
 	 * ByteArrayOutputStream os = new ByteArrayOutputStream(); writeTo(new OutputStreamWriter(os, "UTF-8")); NByteArrayEntity body
 	 * = new NByteArrayEntity(os.toByteArray()); body.setContentType("text/html; charset=UTF-8"); response.setEntity(body); } else
 	 * // audio { logger.debug("Writing audio output, frame length "+audio.getFrameLength()); //AudioSystem.write(audio,
 	 * audioFileFormat.getType(), os); //os.flush();
-	 * 
+	 *
 	 * ByteArrayOutputStream os = new ByteArrayOutputStream(); AudioSystem.write(audio, audioFileFormat.getType(), os);
 	 * os.flush();
-	 * 
+	 *
 	 * MaryHttpServerUtils.toHttpResponse(os.toByteArray(), response); } }
 	 */
 
@@ -332,7 +323,7 @@ public class MaryData {
 	 * Write our internal representation to writer <code>w</code>, in the appropriate way as determined by our <code>type</code>.
 	 * Only XML and Text data can be written to a writer, audio data cannot. "Helpers" needed to read the data, such as XML parser
 	 * objects, are created when they are needed.
-	 * 
+	 *
 	 * @param w
 	 *            w
 	 * @throws TransformerConfigurationException
@@ -392,7 +383,7 @@ public class MaryData {
 	/**
 	 * Set the audio data. This will discard any previously set audio data. If audio data is to be appended, consider
 	 * appendAudio().
-	 * 
+	 *
 	 * @param audio
 	 *            audio
 	 */
@@ -443,7 +434,7 @@ public class MaryData {
 	 * The audio file format is required only for data types serving as input to modules producing AUDIO data (e.g., MBROLA data),
 	 * as well as for the AUDIO data itself. It should be set by the calling code before passing the data to the module producing
 	 * AUDIO data.
-	 * 
+	 *
 	 * @param audioFileFormat
 	 *            audioFileFormat
 	 */
@@ -486,7 +477,7 @@ public class MaryData {
 	/**
 	 * For audio data, append more audio data to the one currently present. If no audio data is set yet, this call is equivalent
 	 * to setAudio().
-	 * 
+	 *
 	 * @param audioToAppend
 	 *            the new audio data to append
 	 */

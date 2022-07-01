@@ -3,3 +3,13 @@ apply plugin: 'java-library'
 apply from: "$rootDir/dependencies.gradle"
 
 sourceCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+}

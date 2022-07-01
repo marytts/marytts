@@ -34,7 +34,7 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * File I/O for binary pitch contour files
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class PitchReaderWriter {
@@ -164,7 +164,7 @@ public class PitchReaderWriter {
 		contour = null;
 		header.numfrm = 0;
 		if (newContour != null && newContour.length > 0) {
-			contour = ArrayUtils.copy(newContour);
+                        contour = newContour.clone();
 			header.numfrm = contour.length;
 		}
 	}

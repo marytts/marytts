@@ -27,11 +27,11 @@ import marytts.signalproc.window.Window;
 import marytts.util.data.DoubleDataSource;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  *         The base class for all frame-based signal analysis algorithms
- * 
+ *
  */
 public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 	/**
@@ -41,7 +41,7 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 
 	/**
 	 * Initialise a FrameBasedAnalyser.
-	 * 
+	 *
 	 * @param signal
 	 *            the signal source to read from
 	 * @param window
@@ -58,7 +58,7 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 
 	/**
 	 * The public method to call in order to trigger the analysis of the next frame.
-	 * 
+	 *
 	 * @return the analysis result, or null if no part of the signal is left to analyse.
 	 */
 	public FrameAnalysisResult<T> analyseNextFrame() {
@@ -72,9 +72,10 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 	/**
 	 * Analyse the entire signal as frames. Stop as soon as the first frame reaches or passes the end of the signal. Repeated
 	 * access to this method returns a stored version of the results.
-	 * 
+	 *
 	 * @return an array containing all frame analysis results.
 	 */
+        @SuppressWarnings("unckecked")
 	public FrameAnalysisResult<T>[] analyseAllFrames() {
 		if (analysisResults == null) {
 			ArrayList<FrameAnalysisResult<T>> results = new ArrayList<FrameAnalysisResult<T>>();
@@ -92,25 +93,26 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider {
 	 * Analyse the currently available input signal as frames. This method is intended for live signals such as microphone data.
 	 * Stop when the amount of data available from the input is less than one frame length. Repeated access to this method will
 	 * read new data if new data has become available in the meantime.
-	 * 
+	 *
 	 * @return an array containing the frame analysis results for the data that is currently available, or an empty array if no
 	 *         new data is available.
 	 */
+        @SuppressWarnings("unckecked")
 	public FrameAnalysisResult<T>[] analyseAvailableFrames() {
-		List results = new ArrayList<FrameAnalysisResult<T>>();
+		List<FrameAnalysisResult<T>> results = new ArrayList<FrameAnalysisResult<T>>();
 		FrameAnalysisResult<T> oneResult;
 		while (signal.available() >= frameLength) {
 			oneResult = analyseNextFrame();
 			assert oneResult != null;
 			results.add(oneResult);
 		}
-		FrameAnalysisResult<T>[] arr = new FrameAnalysisResult[results.size()];
+		FrameAnalysisResult[] arr = new FrameAnalysisResult[results.size()];
 		return (FrameAnalysisResult<T>[]) results.toArray(arr);
 	}
 
 	/**
 	 * Apply this FrameBasedAnalyser to the given data.
-	 * 
+	 *
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by similar to
 	 *            {@link #getFrameLengthSamples()} .

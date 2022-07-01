@@ -19,23 +19,13 @@
  */
 package marytts.signalproc.process;
 
-import java.io.File;
 import java.util.Arrays;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
-import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.math.MathUtils;
 
 /**
  * Cut frames out of a given signal, and provide them one by one, optionally applying a processor to the frame. This base
  * implementation provides frames of a fixed length with a fixed shift.
- * 
+ *
  * @author Marc Schr&ouml;der
  * @see PitchFrameProvider
  */
@@ -76,7 +66,7 @@ public class FrameProvider {
 
 	/**
 	 * Initialise a FrameProvider.
-	 * 
+	 *
 	 * @param signal
 	 *            the signal source to read from
 	 * @param processor
@@ -113,7 +103,7 @@ public class FrameProvider {
 
 	/**
 	 * Start position of current frame, in seconds
-	 * 
+	 *
 	 * @return the start time of the last frame returned by getNextFrame(), or a small negative number if no frame has been served
 	 *         yet.
 	 */
@@ -123,7 +113,7 @@ public class FrameProvider {
 
 	/**
 	 * Start position of current frame, in samples
-	 * 
+	 *
 	 * @return the start position of the last frame returned by getNextFrame(), or -1 if no frame has been served yet.
 	 */
 	public long getFrameStartSamples() {
@@ -136,7 +126,7 @@ public class FrameProvider {
 
 	/**
 	 * The amount of time by which one frame is shifted against the next.
-	 * 
+	 *
 	 * @return frameShift / samplingRate
 	 */
 	public double getFrameShiftTime() {
@@ -145,7 +135,7 @@ public class FrameProvider {
 
 	/**
 	 * The number of samples by which one frame is shifted against the next.
-	 * 
+	 *
 	 * @return frameShift
 	 */
 	public int getFrameShiftSamples() {
@@ -154,7 +144,7 @@ public class FrameProvider {
 
 	/**
 	 * The time length of a frame.
-	 * 
+	 *
 	 * @return getFrameLengthSamples / samplingRate
 	 */
 	public double getFrameLengthTime() {
@@ -163,7 +153,7 @@ public class FrameProvider {
 
 	/**
 	 * The number of samples in the current frame.
-	 * 
+	 *
 	 * @return frameLength
 	 */
 	public int getFrameLengthSamples() {
@@ -174,7 +164,7 @@ public class FrameProvider {
 	 * Whether or not this frame provider stops when the first frame touches the last input sample. When this returns true, the
 	 * last frame will be the first one including the last sample; when this returns false, the last frame will be the last that
 	 * still contains any data. Defaults to true.
-	 * 
+	 *
 	 * @return stopWhenTouchingEnd
 	 */
 	public boolean stopWhenTouchingEnd() {
@@ -183,7 +173,7 @@ public class FrameProvider {
 
 	/**
 	 * Whether or not this frameprovider can provide another frame.
-	 * 
+	 *
 	 * @return signal.hasMoreData() or different from stopWhenTouchingEnd and memoryFilled and posInMemory &lt; memory.length
 	 */
 	public boolean hasMoreData() {
@@ -192,7 +182,7 @@ public class FrameProvider {
 
 	/**
 	 * This tells how many valid samples have been read into the current frame (before applying the optional data processor!).
-	 * 
+	 *
 	 * @return validSamplesInFrame
 	 */
 	public int validSamplesInFrame() {
@@ -203,7 +193,7 @@ public class FrameProvider {
 	 * Fill the internal double array with the next frame of data. The last frame, if only partially filled with the rest of the
 	 * signal, is filled up with zeroes. If stopWhenTouchingEnd() returns true, this method will provide not more than a single
 	 * zero-padded frame at the end of the signal.
-	 * 
+	 *
 	 * @return the next frame on success, null on failure.
 	 */
 	public double[] getNextFrame() {
@@ -274,7 +264,7 @@ public class FrameProvider {
 	/**
 	 * Read data from input signal into current frame. This base implementation will attempt to fill the frame from the position
 	 * given in nPrefilled onwards.
-	 * 
+	 *
 	 * @param nPrefilled
 	 *            number of valid values at the beginning of frame. These should not be lost or overwritten.
 	 * @return the number of new values read into frame at position nPrefilled.
@@ -291,34 +281,4 @@ public class FrameProvider {
 		this.nextFrameStart = 0;
 		this.totalRead = 0;
 	}
-
-	public static void main(String[] args) throws Exception {
-		for (int i = 0; i < args.length; i++) {
-			AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
-			int samplingRate = (int) inputAudio.getFormat().getSampleRate();
-			double[] signal = new AudioDoubleDataSource(inputAudio).getAllData();
-			FrameProvider fp = new FrameProvider(new BufferedDoubleDataSource(signal), null, 2048, 512, samplingRate, false);
-			double[] result = new double[signal.length];
-			int resultPos = 0;
-			while (fp.hasMoreData()) {
-				double[] frame = fp.getNextFrame();
-				if (fp.validSamplesInFrame() >= fp.getFrameShiftSamples()) {
-					System.arraycopy(frame, 0, result, resultPos, fp.getFrameShiftSamples());
-					resultPos += fp.getFrameShiftSamples();
-				} else {
-					System.arraycopy(frame, 0, result, resultPos, fp.validSamplesInFrame());
-					resultPos += fp.validSamplesInFrame();
-				}
-			}
-			System.err.println("Signal has length " + signal.length + ", result " + resultPos);
-			double err = MathUtils.sumSquaredError(signal, result);
-			System.err.println("Sum squared error: " + err);
-			if (err > 0.000001) {
-				double[] difference = MathUtils.subtract(signal, result);
-				FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
-				diffGraph.showInJFrame("difference", true, true);
-			}
-		}
-	}
-
 }

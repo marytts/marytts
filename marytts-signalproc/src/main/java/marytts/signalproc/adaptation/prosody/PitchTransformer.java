@@ -19,14 +19,13 @@
  */
 package marytts.signalproc.adaptation.prosody;
 
-import marytts.util.display.DisplayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /* This class implements a number of basic pitch value transformation methods
  * The most common is the mean and standard deviation transformation in which
  * a given f0 contour is modified to match target mean and standard deviation values.
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class PitchTransformer {
@@ -292,11 +291,6 @@ public class PitchTransformer {
 				if (targetF0s[i] < 10.0)
 					targetF0s[i] = 0.0;
 			}
-		}
-
-		if (false && param.pitchTransformationMethod != ProsodyTransformerParams.NO_TRANSFORMATION) {
-			DisplayUtils.plotZoomed(f0s, "Input", 50.0);
-			DisplayUtils.plotZoomed(targetF0s, "Tranformed", 50.0);
 		}
 
 		return targetF0s;

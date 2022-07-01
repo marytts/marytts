@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/marytts/marytts.svg?branch=master)](https://travis-ci.com/marytts/marytts)
+[![CI](https://github.com/marytts/marytts/actions/workflows/main.yml/badge.svg)](https://github.com/marytts/marytts/actions/workflows/main.yml)
 
 # MaryTTS
 
@@ -7,9 +7,7 @@ MaryTTS is a client-server system written in pure Java, so it runs on many platf
 
 **For a downloadable package ready for use, see [the releases page](https://github.com/marytts/marytts/releases).**
 
-**For documentation on using MaryTTS from various angles, see [the wiki](https://github.com/marytts/marytts/wiki).**
-
-Older documentation can also be found at http://mary.dfki.de and https://mary.opendfki.de.
+Older documentation can also be found at https://github.com/marytts/marytts-wiki, http://mary.dfki.de and https://mary.opendfki.de.
 
 This README is part of the the MaryTTS source code repository.
 It contains information about compiling and developing the MaryTTS sources.
@@ -30,6 +28,8 @@ If you want to start a MaryTTS on a different address and port, you can use the 
 where 5920 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
 
 By using the option `--info`, you set the logger of `gradle` *AND* MaryTTS at the level INFO. By using `--debug`, you set the level to DEBUG.
+
+It is also possible to set the MaryTTS logger level to `INFO` or `DEBUG` by defining the system variable `log4j.logger.marytts`.
 
 ## Downloading and installing voices
 
@@ -64,7 +64,7 @@ Add to your `pom.xml`:
 ```xml
 <repositories>
   <repository>
-    <url>https://jcenter.bintray.com</url>
+    <url>https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local</url>
   </repository>
 </repositories>
 
@@ -72,7 +72,17 @@ Add to your `pom.xml`:
   <dependency>
     <groupId>de.dfki.mary</groupId>
     <artifactId>voice-cmu-slt-hsmm</artifactId>
-    <version>5.2</version>
+    <version>5.2.1</version>
+    <exclusions>
+      <exclusion>
+        <groupId>com.twmacinta</groupId>
+        <artifactId>fast-md5</artifactId>
+      </exclusion>
+      <exclusion>
+         <groupId>gov.nist.math</groupId>
+         <artifactId>Jampack</artifactId>
+      </exclusion>
+    </exclusions>
   </dependency>
 </dependencies>
 ```
@@ -82,11 +92,25 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 ```groovy
 repositories {
-  jcenter()
+   mavenCentral()
+
+   exclusiveContent {
+      forRepository {
+         maven {
+            url 'https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local'
+         }
+      }
+      filter {
+         includeGroup 'de.dfki.lt.jtok'
+      }
+   }
 }
 
 dependencies {
-  compile group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2'
+   implementation group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2.1', {
+      exclude group: 'com.twmacinta', module: 'fast-md5'
+      exclude group: 'gov.nist.math', module: 'Jampack'
+   }
 }
 ```
 
@@ -121,9 +145,9 @@ Examples are proposed :
 
 An example of how to define marytts server as service is proposed [here](./src/main/dist/misc/marytts.server).
 
-### User dictionnaries
+### User dictionaries
 
-You can extend the dictionnaries by adding a user dictionnary. The documentation of how to do it is [here](./src/main/dist/user-dictionaries/README.md).
+You can extend the dictionaries by adding a user dictionary. The documentation of how to do it is [here](./src/main/dist/user-dictionaries/README.md).
 
 ## Contributing
 

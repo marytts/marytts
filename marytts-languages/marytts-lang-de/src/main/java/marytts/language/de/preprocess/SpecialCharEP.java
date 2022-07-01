@@ -80,9 +80,9 @@ public class SpecialCharEP extends ExpansionPattern {
 		m.put("!", new SCEntry("Ausrufezeichen", false, false));
 		m.put("#", new SCEntry("Numerical[nu:-'mE-rI_k@l]", true, true));
 		m.put("$", new SCEntry("Dollar", false, true));
-		m.put(new Character((char) 167).toString(), new SCEntry("Paragraph", true, true));
+		m.put(Character.valueOf((char) 167).toString(), new SCEntry("Paragraph", true, true));
 		m.put("%", new SCEntry("Prozent", false, true));
-		m.put(new Character((char) 8364).toString(), new SCEntry("Euro", false, true));
+		m.put(Character.valueOf((char) 8364).toString(), new SCEntry("Euro", false, true));
 		m.put("&", new SCEntry("und", true, true));
 		m.put("'", new SCEntry("Hochkomma", true, false));
 		m.put("*", new SCEntry("Stern", true, true));

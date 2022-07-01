@@ -23,11 +23,11 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  *         A class that analyses the energy distribution, and computes a silence cutoff threshold, in the dB energy domain.
- * 
+ *
  */
 public class EnergyAnalyser_dB extends EnergyAnalyser {
 	public EnergyAnalyser_dB(DoubleDataSource signal, int framelength, int samplingRate) {
@@ -44,7 +44,7 @@ public class EnergyAnalyser_dB extends EnergyAnalyser {
 
 	/**
 	 * Apply this FrameBasedAnalyser to the given data.
-	 * 
+	 *
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by
 	 *            {@link #getFrameLengthSamples()}.
@@ -62,6 +62,6 @@ public class EnergyAnalyser_dB extends EnergyAnalyser {
 			// for energy 0, ignore
 		}
 		rememberFrameEnergy(totalEnergy);
-		return new Double(totalEnergy);
+		return Double.valueOf(totalEnergy);
 	}
 }

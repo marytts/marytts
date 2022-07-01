@@ -21,16 +21,15 @@ package marytts.signalproc.analysis;
 
 import javax.swing.JFrame;
 
-import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
  * Spectral Enveope Estimation Vocoder (SEEVOC) - a simple implementation
- * 
+ *
  * Reference: Paul, D., 1981, "The Spectral Envelope Estimation Vocoder", IEEE Trans. Acoust. Speech Signal Proc., ASSP-29, pp.
  * 786-794.
- * 
+ *
  * @author Oytun T&uuml;rk
  */
 public class SeevocAnalyser {
@@ -184,12 +183,5 @@ public class SeevocAnalyser {
 		System.arraycopy(peakInds, 0, s.indices, 0, numPeaks);
 
 		return s;
-	}
-
-	protected static JFrame showGraph(double[] array, String title) {
-		FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, array);
-		JFrame frame = graph.showInJFrame(title, 500, 300, true, false);
-
-		return frame;
 	}
 }

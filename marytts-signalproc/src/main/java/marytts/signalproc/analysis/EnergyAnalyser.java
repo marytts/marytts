@@ -40,12 +40,11 @@ import marytts.signalproc.window.RectWindow;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
-import marytts.util.string.PrintfFormat;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  *         A class that analyses the energy distribution, and computes a silence cutoff threshold, in the linear energy domain.
  *
  */
@@ -64,24 +63,24 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	/** maximum size of the double[] storing the frame energies */
 	protected int maxSize;
 
-	public EnergyAnalyser(DoubleDataSource signal, int framelength, int samplingRate) {
+	public EnergyAnalyser(final DoubleDataSource signal, final int framelength, final int samplingRate) {
 		super(signal, new RectWindow(framelength), framelength, samplingRate);
 		maxSize = DEFAULT_MAXSIZE;
 	}
 
-	public EnergyAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate) {
+	public EnergyAnalyser(final DoubleDataSource signal, final int framelength, final int frameShift, final int samplingRate) {
 		super(signal, new RectWindow(framelength), frameShift, samplingRate);
 		maxSize = DEFAULT_MAXSIZE;
 	}
 
-	public EnergyAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int maxSize) {
+	public EnergyAnalyser(final DoubleDataSource signal, final int framelength, final int frameShift, final int samplingRate, final int maxSize) {
 		super(signal, new RectWindow(framelength), frameShift, samplingRate);
 		this.maxSize = maxSize;
 	}
 
 	/**
 	 * Apply this FrameBasedAnalyser to the given data.
-	 * 
+	 *
 	 * @param frame
 	 *            the data to analyse, which must be of the length prescribed by this FrameBasedAnalyser, i.e. by works like
 	 *            {@link #getFrameLengthSamples()} .
@@ -89,7 +88,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * @throws IllegalArgumentException
 	 *             if frame does not have the prescribed length
 	 */
-	public Double analyse(double[] frame) {
+	public Double analyse(final double[] frame) {
 		if (frame.length != getFrameLengthSamples())
 			throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples() + ", got " + frame.length);
 		double totalEnergy = 0;
@@ -97,19 +96,19 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 			totalEnergy += frame[i] * frame[i];
 		}
 		rememberFrameEnergy(totalEnergy);
-		return new Double(totalEnergy);
+		return Double.valueOf(totalEnergy);
 	}
 
-	protected void rememberFrameEnergy(double energy) {
+	protected void rememberFrameEnergy(final double energy) {
 		if (offset + len == frameEnergies.length) { // need to make space
 			if (len < maxSize) { // need to increase the array size
 				assert offset == 0;
-				double[] dummy = new double[2 * frameEnergies.length];
+				final double[] dummy = new double[2 * frameEnergies.length];
 				System.arraycopy(frameEnergies, 0, dummy, 0, frameEnergies.length);
 				frameEnergies = dummy;
 			} else { // we have reached the maximum length
 				if (frameEnergies.length < 2 * maxSize) { // make sure we have a buffer twice maxSize
-					double[] dummy = new double[2 * maxSize];
+					final double[] dummy = new double[2 * maxSize];
 					System.arraycopy(frameEnergies, offset, dummy, 0, len);
 					frameEnergies = dummy;
 					offset = 0;
@@ -129,7 +128,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 	/**
 	 * Compute the overall mean energy in all frames.
-	 * 
+	 *
 	 * @return a double representing the mean energy (non-normalised, i.e. in units of square sample amplitudes).
 	 */
 	public double getMeanFrameEnergy() {
@@ -143,7 +142,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 	/**
 	 * Compute the overall maximum energy in all frames.
-	 * 
+	 *
 	 * @return a double representing the maximum energy (non-normalised, i.e. in units of square sample amplitudes).
 	 */
 	public double getMaxFrameEnergy() {
@@ -152,7 +151,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 		// otherwise, we have at least one valid value
 		double max = frameEnergies[offset];
 		for (int i = 0; i < len; i++) {
-			double val = frameEnergies[offset + i];
+			final double val = frameEnergies[offset + i];
 			if (val > max)
 				max = val;
 		}
@@ -161,7 +160,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 	/**
 	 * Compute the overall minimum energy in all frames.
-	 * 
+	 *
 	 * @return a double representing the minimum energy (non-normalised, i.e. in units of square sample amplitudes).
 	 */
 	public double getMinFrameEnergy() {
@@ -170,7 +169,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 		// otherwise, we have at least one valid value
 		double min = frameEnergies[offset];
 		for (int i = 0; i < len; i++) {
-			double val = frameEnergies[offset + i];
+			final double val = frameEnergies[offset + i];
 			if (val < min)
 				min = val;
 		}
@@ -180,7 +179,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	/**
 	 * Compute a histogram of energies found in the data. Bin sizes are automatically determined based on the min and max frame
 	 * energies, such that the interval between min and max energy is split into 100 bins.
-	 * 
+	 *
 	 * @return an array of doubles of length nbins, representing percentage distribution across bins.
 	 */
 	public double[] getEnergyHistogram() {
@@ -190,17 +189,17 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	/**
 	 * Compute a histogram of energies found in the data. Bin sizes are automatically determined based on the min and max frame
 	 * energies, such that the interval between min and max energy is split into nbins bins.
-	 * 
+	 *
 	 * @param nbins
 	 *            the number of bins to compute, e.g. 100
 	 * @return an array of doubles of length nbins, representing percentage distribution across bins.
 	 */
-	public double[] getEnergyHistogram(int nbins) {
-		double[] histogram = new double[nbins];
-		double min = getMinFrameEnergy();
-		double range = getMaxFrameEnergy() - min;
-		double binWidth = range / nbins;
-		double increment = 1. / len;
+	public double[] getEnergyHistogram(final int nbins) {
+		final double[] histogram = new double[nbins];
+		final double min = getMinFrameEnergy();
+		final double range = getMaxFrameEnergy() - min;
+		final double binWidth = range / nbins;
+		final double increment = 1. / len;
 		for (int i = 0; i < len; i++) {
 			int bin = (int) Math.floor((frameEnergies[offset + i] - min) / binWidth);
 			// special case maximum energy: it still belongs to the top bin
@@ -214,29 +213,29 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 	/**
 	 * Determine the energy level below which to find silence. This is based on the energy histogram.
-	 * 
+	 *
 	 * @return the energy below which is silence.
 	 */
 	public double getSilenceCutoff() {
-		double[] hist = getEnergyHistogram();
-		double[] lowerHalf = new double[hist.length / 2];
+		final double[] hist = getEnergyHistogram();
+		final double[] lowerHalf = new double[hist.length / 2];
 		// computation of the length of upperHalf accounts for the possibility that hist.length is odd
-		double[] upperHalf = new double[hist.length - lowerHalf.length];
+		final double[] upperHalf = new double[hist.length - lowerHalf.length];
 		System.arraycopy(hist, 0, lowerHalf, 0, lowerHalf.length);
 		System.arraycopy(hist, lowerHalf.length, upperHalf, 0, upperHalf.length);
-		int silencePeak = MathUtils.findGlobalPeakLocation(lowerHalf);
-		int speechPeak = lowerHalf.length + MathUtils.findGlobalPeakLocation(upperHalf);
-		int iCutoff = silencePeak + (speechPeak - silencePeak) / 2;
+		final int silencePeak = MathUtils.findGlobalPeakLocation(lowerHalf);
+		final int speechPeak = lowerHalf.length + MathUtils.findGlobalPeakLocation(upperHalf);
+		final int iCutoff = silencePeak + (speechPeak - silencePeak) / 2;
 		// Compute dB correlate of cutoff level
-		double minEnergy = getMinFrameEnergy();
-		double maxEnergy = getMaxFrameEnergy();
-		double cutoffEnergy = minEnergy + (maxEnergy - minEnergy) * iCutoff / hist.length;
+		final double minEnergy = getMinFrameEnergy();
+		final double maxEnergy = getMaxFrameEnergy();
+		final double cutoffEnergy = minEnergy + (maxEnergy - minEnergy) * iCutoff / hist.length;
 
 		return cutoffEnergy;
 	}
 
-	public double getSilenceCutoffFromSortedEnergies(FrameAnalysisResult[] far, double silenceThreshold) {
-		double[] energies = new double[far.length];
+	public double getSilenceCutoffFromSortedEnergies(final FrameAnalysisResult<Double>[] far, final double silenceThreshold) {
+		final double[] energies = new double[far.length];
 		double cutoffEnergy;
 
 		for (int i = 0; i < far.length; i++)
@@ -266,18 +265,18 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * <li><code>signalproc.minspeechduration</code> (default: 0.1 (seconds))
 	 * </ul>
 	 * Silence or speech stretches shorter than these values will be ignored.
-	 * 
+	 *
 	 * @return an array of double pairs, representing start and end times (in seconds) for each speech stretch.
 	 */
 	public double[][] getSpeechStretches() {
-		double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.1"));
-		double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.1"));
-		FrameAnalysisResult[] far = analyseAllFrames();
-		double silenceCutoff = getSilenceCutoff();
-		LinkedList stretches = new LinkedList();
+		final double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.1"));
+		final double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.1"));
+		final FrameAnalysisResult<Double>[] far = analyseAllFrames();
+		final double silenceCutoff = getSilenceCutoff();
+		final LinkedList<double[]> stretches = new LinkedList<double[]>();
 		boolean withinSpeech = false;
 		for (int i = 0; i < far.length; i++) {
-			double energy = ((Double) far[i].get()).doubleValue();
+			final double energy = ((Double) far[i].get()).doubleValue();
 			if (energy > silenceCutoff) { // it's a speech frame
 				if (!withinSpeech) { // previous was silence
 					boolean addStretch = false;
@@ -285,14 +284,14 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 					if (stretches.size() == 0) {
 						addStretch = true;
 					} else { // there is a preceding stretch
-						double silenceStart = ((double[]) stretches.getLast())[1];
-						double silenceEnd = i * getFrameLengthTime(); // current time
+						final double silenceStart = ((double[]) stretches.getLast())[1];
+						final double silenceEnd = i * getFrameLengthTime(); // current time
 						if (silenceEnd - silenceStart >= minSilenceDur) {
 							addStretch = true;
 						}
 					}
 					if (addStretch) {
-						double[] newStretch = new double[2];
+						final double[] newStretch = new double[2];
 						// Start of current frame is start of new stretch
 						newStretch[0] = i * getFrameLengthTime();
 						stretches.add(newStretch);
@@ -303,9 +302,9 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 			} else { // it's a silence frame
 				if (withinSpeech) { // previous was speech
 					assert stretches.size() > 0;
-					double[] latestStretch = (double[]) stretches.getLast();
-					double speechStart = latestStretch[0];
-					double speechEnd = (double) (i + 1) * getFrameLengthTime(); // end of current frame
+					final double[] latestStretch = (double[]) stretches.getLast();
+					final double speechStart = latestStretch[0];
+					final double speechEnd = (double) (i + 1) * getFrameLengthTime(); // end of current frame
 					if (speechEnd - speechStart >= minSpeechDur) { // long enough
 						// complete the segment:
 						latestStretch[1] = speechEnd;
@@ -321,40 +320,40 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	}
 
 	public double getSilenceCutoffFromKMeansClustering(double shiftFromMinimumEnergyCenter, int numClusters) {
-		int i, j;
+		int i;
 
-		FrameAnalysisResult[] far = analyseAllFrames();
+		final FrameAnalysisResult<Double>[] far = analyseAllFrames();
 
-		double[][] energies = new double[far.length][1];
+		final double[][] energies = new double[far.length][1];
 		for (i = 0; i < far.length; i++)
 			energies[i][0] = ((Double) far[i].get()).doubleValue();
 
-		KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
+		final KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
 		p.numClusters = numClusters;
 		p.maxIterations = 40;
-		KMeansClusteringTrainer t = new KMeansClusteringTrainer();
+		final KMeansClusteringTrainer t = new KMeansClusteringTrainer();
 		t.train(energies, p);
 
-		double[] meanEns = new double[p.numClusters];
+		final double[] meanEns = new double[p.numClusters];
 		for (i = 0; i < p.numClusters; i++) {
 			meanEns[i] = t.clusters[i].meanVector[0];
 			System.out.println(String.valueOf(meanEns[i]));
 		}
 
-		double minEnCenter = MathUtils.getMin(meanEns);
-		double maxEnCenter = MathUtils.getMax(meanEns);
+		final double minEnCenter = MathUtils.getMin(meanEns);
+		final double maxEnCenter = MathUtils.getMax(meanEns);
 
-		double energyTh = minEnCenter + shiftFromMinimumEnergyCenter * (maxEnCenter - minEnCenter);
+		final double energyTh = minEnCenter + shiftFromMinimumEnergyCenter * (maxEnCenter - minEnCenter);
 		// System.out.println(String.valueOf(energyTh));
 
 		return energyTh;
 	}
 
 	/**
-	 * 
+	 *
 	 * The latest version uses K-Means clustering to cluster energy values into 3 separate clusters. Then, the energy threshold is
 	 * selected using the lowest and highest energy cluster centers
-	 * 
+	 *
 	 * @param energyBufferLength
 	 *            energyBufferLength
 	 * @param speechStartLikelihood
@@ -367,28 +366,28 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 *            numClusters
 	 * @return stretches.toArray(new double[0][0])
 	 */
-	public double[][] getSpeechStretchesUsingEnergyHistory(int energyBufferLength, double speechStartLikelihood,
-			double speechEndLikelihood, double shiftFromMinimumEnergyCenter, int numClusters) {
+	public double[][] getSpeechStretchesUsingEnergyHistory(int energyBufferLength, final double speechStartLikelihood,
+			final double speechEndLikelihood, final double shiftFromMinimumEnergyCenter, final int numClusters) {
 		int i, j;
-		double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.3"));
-		double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.3"));
+		final double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.3"));
+		final double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.3"));
 
-		FrameAnalysisResult<Double>[] far = analyseAllFrames();
+		final FrameAnalysisResult<Double>[] far = analyseAllFrames();
 
-		double[][] energies = new double[far.length][1];
+		final double[][] energies = new double[far.length][1];
 		for (i = 0; i < far.length; i++)
 			energies[i][0] = far[i].get();
 
-		double[] isSpeechsAll = new double[far.length];
+		final double[] isSpeechsAll = new double[far.length];
 		Arrays.fill(isSpeechsAll, 0.0);
 
-		KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
+		final KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
 		p.numClusters = numClusters;
 		p.maxIterations = 40;
-		KMeansClusteringTrainer t = new KMeansClusteringTrainer();
+		final KMeansClusteringTrainer t = new KMeansClusteringTrainer();
 		t.train(energies, p);
 
-		double[] meanEns = new double[p.numClusters];
+		final double[] meanEns = new double[p.numClusters];
 		// TODO: stop mixing log and non-log code -- either use log energy by using EnergyAnalyser_dB, or linear energy by using
 		// EnergyAnalyser
 		boolean takeLog = true;
@@ -402,20 +401,20 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 			// System.out.println(String.valueOf(meanEns[i]));
 		}
 
-		double minEnCenter = MathUtils.getMin(meanEns);
-		double maxEnCenter = MathUtils.getMax(meanEns);
+		final double minEnCenter = MathUtils.getMin(meanEns);
+		final double maxEnCenter = MathUtils.getMax(meanEns);
 
-		double energyTh = minEnCenter + shiftFromMinimumEnergyCenter * (maxEnCenter - minEnCenter);
+		final double energyTh = minEnCenter + shiftFromMinimumEnergyCenter * (maxEnCenter - minEnCenter);
 		// System.out.println(String.valueOf(energyTh));
 
-		LinkedList stretches = new LinkedList();
+		final LinkedList<double[]> stretches = new LinkedList<double[]>();
 
 		if (energyBufferLength > far.length)
 			energyBufferLength = far.length;
 
-		double[] energyBuffer = new double[energyBufferLength];
+		final double[] energyBuffer = new double[energyBufferLength];
 
-		int[] isSpeechs = new int[energyBufferLength];
+		final int[] isSpeechs = new int[energyBufferLength];
 
 		Arrays.fill(isSpeechs, 0);
 
@@ -433,8 +432,6 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 		boolean isSpeechStarted = false;
 		int tmpSpeechStartIndex = -1;
-		int tmpSpeechEndIndex = -1;
-		int prevStartIndex = -1;
 
 		double speechStart = -1.0;
 		double speechEnd = -1.0;
@@ -467,16 +464,14 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 				tmpSpeechStartIndex = i - energyBufferLength;
 				speechStart = Math.max(0.0, tmpSpeechStartIndex * getFrameShiftTime() - 0.5 * getFrameLengthTime());
 
-				tmpSpeechEndIndex = -1;
 			} else if (isSpeechStarted && ratio <= speechEndLikelihood) {
 				isSpeechStarted = false;
-				tmpSpeechEndIndex = i;
 
 				// System.out.println(String.valueOf(tmpSpeechStartIndex*0.01) + " " + String.valueOf(tmpSpeechEndIndex*0.01));
 
 				speechEnd = Math.max(0.0, i * getFrameShiftTime() + 0.5 * getFrameLengthTime());
 
-				double[] newStretch = new double[2];
+				final double[] newStretch = new double[2];
 				newStretch[0] = speechStart;
 				newStretch[1] = speechEnd;
 				stretches.add(newStretch);
@@ -491,13 +486,11 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 			stretches.add(new double[] { speechStart, speechEnd });
 		}
 
-		double[][] speechStretches = (double[][]) stretches.toArray(new double[0][0]);
-		boolean[] bRemoveds = new boolean[speechStretches.length];
+		final double[][] speechStretches = (double[][]) stretches.toArray(new double[0][0]);
+		final boolean[] bRemoveds = new boolean[speechStretches.length];
 		Arrays.fill(bRemoveds, false);
 
 		// Check overlapping segments and short silence segments
-		double[] stretch1 = new double[2];
-		double[] stretch2 = new double[2];
 		for (i = speechStretches.length - 1; i > 0; i--) {
 			if (speechStretches[i][0] - speechStretches[i - 1][1] < minSilenceDur) {
 				speechStretches[i - 1][1] = speechStretches[i][1];
@@ -516,7 +509,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 		stretches.clear();
 		for (i = 0; i < bRemoveds.length; i++) {
 			if (!bRemoveds[i]) {
-				double[] newStretch = new double[2];
+				final double[] newStretch = new double[2];
 				newStretch[0] = speechStretches[i][0];
 				newStretch[1] = speechStretches[i][1];
 				stretches.add(newStretch);
@@ -531,7 +524,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 * in transcriber format so the segmentation can be easily inspected and corrected. The parameters in:
 	 * EnergyAnalyser.getSpeechStretchesUsingEnergyHistory(): signalproc.minsilenceduration signalproc.minspeechduration can be
 	 * tuned to get better segmentation.
-	 * 
+	 *
 	 * @param args
 	 *            : first argument is the directory where the wav files are, next arguments in the list are the files for
 	 *            segmenting.
@@ -539,9 +532,9 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 	 *             : IOException, UnsupportedAudioFile exception and IllegalArgumentException when the file is not mono, it just
 	 *             handles mono audio signals.
 	 */
-	public static void energySegmentation(String[] args) throws Exception {
+	public static void energySegmentation(final String[] args) throws Exception {
 		// First argument is the directory where the files are
-		String wavDirectory = args[0];
+		final String wavDirectory = args[0];
 		String fileNameNoExt;
 		String segmentationFileName;
 		float duration;
@@ -563,23 +556,23 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 				if (ais.getFormat().getChannels() > 1) {
 					throw new IllegalArgumentException("Can only deal with mono audio signals");
 				}
-				int samplingRate = (int) ais.getFormat().getSampleRate();
-				DoubleDataSource signal = new AudioDoubleDataSource(ais);
-				int framelength = (int) (0.01 /* seconds */* samplingRate);
-				EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
-				double[][] speechStretches1 = ea.getSpeechStretches();
-				int energyBufferLength = 30;
-				double speechStartLikelihood = 0.6;
-				double speechEndLikelihood = 0.2;
-				double shiftFromMinimumEnergyCenter = 0.1;
-				int numClusters = 5;
-				double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood,
+				final int samplingRate = (int) ais.getFormat().getSampleRate();
+				final DoubleDataSource signal = new AudioDoubleDataSource(ais);
+				final int framelength = (int) (0.01 /* seconds */* samplingRate);
+				final EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
+				final double[][] speechStretches1 = ea.getSpeechStretches();
+				final int energyBufferLength = 30;
+				final double speechStartLikelihood = 0.6;
+				final double speechEndLikelihood = 0.2;
+				final double shiftFromMinimumEnergyCenter = 0.1;
+				final int numClusters = 5;
+				final double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood,
 						speechEndLikelihood, shiftFromMinimumEnergyCenter, numClusters);
 
 				System.out.println("Speech stretches1 in " + args[file] + ":");
-				PrintfFormat format = new PrintfFormat("%.4f");
+				final String format = "%.4f";
 				for (i = 0; i < speechStretches1.length; i++) {
-					System.out.println(format.sprintf(speechStretches1[i][0]) + " " + format.sprintf(speechStretches1[i][1]));
+					System.out.println(String.format(format, speechStretches1[i][0]) + " " + String.format(format, speechStretches1[i][1]));
 				}
 
 				fileNameNoExt = args[file];
@@ -600,20 +593,20 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 				toList.println("</Speakers>");
 
 				toList.println("<Episode>");
-				toList.println("<Section type=\"report\" startTime=\"0\" endTime=\"" + format.sprintf(duration) + "\">");
-				toList.println("<Turn startTime=\"0\" endTime=\"" + format.sprintf(speechStretches2[0][0]) + "\">");
+				toList.println("<Section type=\"report\" startTime=\"0\" endTime=\"" + String.format(format, duration) + "\">");
+				toList.println("<Turn startTime=\"0\" endTime=\"" + String.format(format, speechStretches2[0][0]) + "\">");
 				toList.println("<Sync time=\"0\"/>");
 				toList.println("");
 				toList.println("</Turn>");
 
 				System.out.println("Speech stretches2 in " + args[file] + ":");
 				for (i = 0; i < speechStretches2.length; i++) {
-					System.out.println(format.sprintf(speechStretches2[i][0]) + " " + format.sprintf(speechStretches2[i][1]));
+					System.out.println(String.format(format, speechStretches2[i][0]) + " " + String.format(format, speechStretches2[i][1]));
 
-					toList.println("<Turn speaker=\"spk1\" startTime=\"" + format.sprintf(speechStretches2[i][0])
-							+ "0\" endTime=\"" + format.sprintf(speechStretches2[i][1]) + "\">");
+					toList.println("<Turn speaker=\"spk1\" startTime=\"" + String.format(format, speechStretches2[i][0])
+							+ "0\" endTime=\"" + String.format(format, speechStretches2[i][1]) + "\">");
 
-					toList.println("<Sync time=\"" + format.sprintf(speechStretches2[i][0]) + "\"/>");
+					toList.println("<Sync time=\"" + String.format(format, speechStretches2[i][0]) + "\"/>");
 					toList.println("");
 					toList.println("</Turn>");
 				}
@@ -632,7 +625,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		if (args.length > 0) {
 			for (int file = 0; file < args.length; file++) {
 				AudioInputStream ais = AudioSystem.getAudioInputStream(new File(args[file]));
@@ -642,50 +635,50 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
 				if (ais.getFormat().getChannels() > 1) {
 					throw new IllegalArgumentException("Can only deal with mono audio signals");
 				}
-				int samplingRate = (int) ais.getFormat().getSampleRate();
-				DoubleDataSource signal = new AudioDoubleDataSource(ais);
-				int framelength = (int) (0.01 /* seconds */* samplingRate);
-				EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
-				double[][] speechStretches1 = ea.getSpeechStretches();
-				int energyBufferLength = 30;
-				double speechStartLikelihood = 0.6;
-				double speechEndLikelihood = 0.2;
-				double shiftFromMinimumEnergyCenter = 0.1;
-				int numClusters = 3;
-				double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood,
+				final int samplingRate = (int) ais.getFormat().getSampleRate();
+				final DoubleDataSource signal = new AudioDoubleDataSource(ais);
+				final int framelength = (int) (0.01 /* seconds */* samplingRate);
+				final EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
+				final double[][] speechStretches1 = ea.getSpeechStretches();
+				final int energyBufferLength = 30;
+				final double speechStartLikelihood = 0.6;
+				final double speechEndLikelihood = 0.2;
+				final double shiftFromMinimumEnergyCenter = 0.1;
+				final int numClusters = 3;
+				final double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood,
 						speechEndLikelihood, shiftFromMinimumEnergyCenter, numClusters);
 
 				System.out.println("Speech stretches1 in " + args[file] + ":");
-				PrintfFormat format = new PrintfFormat("%.4f");
+				final String format = "%.4f";
 				for (int i = 0; i < speechStretches1.length; i++) {
-					System.out.println(format.sprintf(speechStretches1[i][0]) + " " + format.sprintf(speechStretches1[i][1]));
+					System.out.println(String.format(format, speechStretches1[i][0]) + " " + String.format(format, speechStretches1[i][1]));
 				}
 
 				System.out.println("Speech stretches2 in " + args[file] + ":");
 				for (int i = 0; i < speechStretches2.length; i++) {
-					System.out.println(format.sprintf(speechStretches2[i][0]) + " " + format.sprintf(speechStretches2[i][1]));
+					System.out.println(String.format(format, speechStretches2[i][0]) + " " + String.format(format, speechStretches2[i][1]));
 				}
 			}
 
 		} else {
-			AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
-			DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
+			final AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
+			final DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
 			AudioInputStream input = null;
 			try {
-				TargetDataLine mic = (TargetDataLine) AudioSystem.getLine(info);
+				final TargetDataLine mic = (TargetDataLine) AudioSystem.getLine(info);
 				mic.open(audioFormat);
 				mic.start();
 				input = new AudioInputStream(mic);
-			} catch (LineUnavailableException e) {
+			} catch (final LineUnavailableException e) {
 				e.printStackTrace();
 			}
-			DoubleDataSource signal = new AudioDoubleDataSource(input);
-			int framelength = (int) (0.01 /* seconds */* audioFormat.getSampleRate());
-			EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, (int) audioFormat.getSampleRate());
+			final DoubleDataSource signal = new AudioDoubleDataSource(input);
+			final int framelength = (int) (0.01 /* seconds */* audioFormat.getSampleRate());
+			final EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, (int) audioFormat.getSampleRate());
 			while (true) {
 				try {
 					Thread.sleep(100);
-				} catch (InterruptedException ie) {
+				} catch (final InterruptedException ie) {
 				}
 				System.out.println(ea.getSilenceCutoff());
 			}

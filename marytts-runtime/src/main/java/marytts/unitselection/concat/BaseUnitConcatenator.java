@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -51,6 +52,8 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 
 import org.apache.logging.log4j.Logger;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Concatenates Units and returns an audio stream
@@ -156,7 +159,7 @@ public class BaseUnitConcatenator implements UnitConcatenator {
 	protected void determineTargetPitchmarks(List<SelectedUnit> units) {
 		for (SelectedUnit unit : units) {
 			UnitData unitData = (UnitData) unit.getConcatenationData();
-			assert unitData != null : "Should not have null unitdata here";
+			requireNonNull(unitData,"Should not have null unitdata here");
 			Datagram[] datagrams = unitData.getFrames();
 			Datagram[] frames = null; // frames to realise
 			// The number and duration of the frames to realise

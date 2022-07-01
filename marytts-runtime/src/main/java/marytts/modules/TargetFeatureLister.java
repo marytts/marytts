@@ -77,7 +77,7 @@ public class TargetFeatureLister extends InternalModule {
 		}
 		// Second, construct targets
 		String out = listTargetFeatures(featureComputer, segmentsAndBoundaries);
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setPlainText(out);
 		return result;
 	}

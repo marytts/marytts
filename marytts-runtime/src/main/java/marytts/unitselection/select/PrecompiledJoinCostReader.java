@@ -1,17 +1,17 @@
 /**
  * Portions Copyright 2006 DFKI GmbH.
  * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Portions Copyright 1999-2001 Language Technologies Institute,
  * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
- * 
+ *
  * Permission is hereby granted, free of charge, to use and distribute
  * this software and its documentation without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish,
  * distribute, sublicense, and/or sell copies of this work, and to
  * permit persons to whom this work is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * 1. The code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  * 2. Any modifications must be clearly marked as such.
@@ -46,7 +46,7 @@ import marytts.util.data.MaryHeader;
 
 /**
  * Loads a precompiled join cost file and provides access to the join cost.
- * 
+ *
  */
 public class PrecompiledJoinCostReader implements JoinCostFunction {
 
@@ -56,11 +56,11 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	// values = maps containing
 	// - keys = Integers representing right unit index;
 	// - values = Floats representing the jost of joining them.
-	protected Map left;
+	protected Map<Integer, Map<Integer, Float>> left;
 
 	/**
 	 * Empty constructor; need to call load() separately.
-	 * 
+	 *
 	 * @see #load(String fileName, InputStream dummy, String dummy2, float dummy3)
 	 */
 	public PrecompiledJoinCostReader() {
@@ -68,7 +68,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 
 	/**
 	 * Create a precompiled join cost file reader from the given file
-	 * 
+	 *
 	 * @param fileName
 	 *            the file to read
 	 * @throws IOException
@@ -83,7 +83,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	/**
 	 * Initialise this join cost function by reading the appropriate settings from the MaryProperties using the given
 	 * configPrefix.
-	 * 
+	 *
 	 * @param configPrefix
 	 *            the prefix for the (voice-specific) config entries to use when looking up files to load.
 	 * @throws MaryConfigurationException
@@ -100,7 +100,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 
 	/**
 	 * Load the given precompiled join cost file
-	 * 
+	 *
 	 * @param fileName
 	 *            the file to read
 	 * @param dummy
@@ -114,7 +114,6 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	 * @throws MaryConfigurationException
 	 *             MaryConfigurationException
 	 */
-	@Override
 	public void load(String fileName, InputStream dummy, String dummy2, float dummy3) throws IOException,
 			MaryConfigurationException {
 		/* Open the file */
@@ -129,17 +128,17 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 			throw new MaryConfigurationException("File [" + fileName + "] has a negative number of units. Aborting.");
 		}
 
-		left = new HashMap();
+		left = new HashMap<Integer, Map<Integer, Float>>();
 		/* Read the start times and durations */
 		for (int i = 0; i < numberOfLeftUnits; i++) {
 			int leftIndex = dis.readInt();
 			int numberOfRightUnits = dis.readInt();
-			Map right = new HashMap();
-			left.put(new Integer(leftIndex), right);
+			Map<Integer, Float> right = new HashMap<Integer, Float>();
+			left.put(Integer.valueOf(leftIndex), right);
 			for (int j = 0; j < numberOfRightUnits; j++) {
 				int rightIndex = dis.readInt();
 				float cost = dis.readFloat();
-				right.put(new Integer(rightIndex), new Float(cost));
+				right.put(Integer.valueOf(rightIndex), Float.valueOf(cost));
 			}
 		}
 
@@ -148,7 +147,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	/**
 	 * Return the (precomputed) cost of joining the two given units; if there is no precomputed cost, return
 	 * Double.POSITIVE_INFINITY.
-	 * 
+	 *
 	 * @param t1
 	 *            t1
 	 * @param uleft
@@ -159,11 +158,11 @@ public class PrecompiledJoinCostReader implements JoinCostFunction {
 	 *            uright
 	 */
 	public double cost(Target t1, Unit uleft, Target t2, Unit uright) {
-		Integer leftIndex = new Integer(uleft.index);
-		Map rightUnitsMap = (Map) left.get(leftIndex);
+		Integer leftIndex = Integer.valueOf(uleft.index);
+		Map<Integer, Float> rightUnitsMap = (Map<Integer, Float>) left.get(leftIndex);
 		if (rightUnitsMap == null)
 			return Double.POSITIVE_INFINITY;
-		Integer rightIndex = new Integer(uright.index);
+		Integer rightIndex = Integer.valueOf(uright.index);
 		Float cost = (Float) rightUnitsMap.get(rightIndex);
 		if (cost == null)
 			return Double.POSITIVE_INFINITY;

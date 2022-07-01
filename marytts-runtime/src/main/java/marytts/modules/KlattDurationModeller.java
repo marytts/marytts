@@ -68,15 +68,10 @@ public class KlattDurationModeller extends InternalModule {
 	private KlattDurationModeller.KlattDurationParams klattDurationParams;
 	private Properties klattRuleParams;
 	/**
-	 * This map contains the topline-baseline frequency configurations for the currently used phrase and sub-phrase prosody
-	 * elements. As this is a WeakHashMap, entries will automatically be deleted when not in regular use anymore.
-	 */
-	private WeakHashMap topBaseConfMap;
-	/**
 	 * This map contains the prosodic settings, as ProsodicSettings objects, for the currently used prosody elements. As this is a
 	 * WeakHashMap, entries will automatically be deleted when not in regular use anymore.
 	 */
-	private WeakHashMap prosodyMap;
+    private WeakHashMap<Element, ProsodicSettings> prosodyMap;
 
 	public KlattDurationModeller(String localeString) throws IOException {
 		super("KlattDurationModeller", MaryDataType.ALLOPHONES, MaryDataType.DURATIONS, MaryUtils.string2locale(localeString));
@@ -108,7 +103,7 @@ public class KlattDurationModeller extends InternalModule {
 		// the key-value pairs are deleted from the WeakHashMap earlier or
 		// later; that means we do not need to keep track of the hashmaps per
 		// thread)
-		prosodyMap = new WeakHashMap();
+		prosodyMap = new WeakHashMap<Element, ProsodicSettings>();
 	}
 
 	public MaryData process(MaryData d) throws Exception {
@@ -121,7 +116,7 @@ public class KlattDurationModeller extends InternalModule {
 			Element sentence = (Element) sentences.item(i);
 			processSentence(sentence);
 		}
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 		return result;
 	}
@@ -198,7 +193,7 @@ public class KlattDurationModeller extends InternalModule {
 		NodeIterator it = ((DocumentTraversal) doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(
 				MaryXML.BOUNDARY), false);
 		Element boundary = null;
-		List bi1prosodyElements = null;
+		List<Element> bi1prosodyElements = null;
 		while ((boundary = (Element) it.nextNode()) != null) {
 			int minBI = 3;
 			Element prosody = (Element) MaryDomUtils.getAncestor(boundary, MaryXML.PROSODY);
@@ -221,7 +216,7 @@ public class KlattDurationModeller extends InternalModule {
 				if (minBI == 1) {
 					// Remember that the current prosody element wants bi 1 boundaries:
 					if (bi1prosodyElements == null)
-						bi1prosodyElements = new ArrayList();
+						bi1prosodyElements = new ArrayList<Element>();
 					bi1prosodyElements.add(prosody);
 				}
 			}
@@ -337,7 +332,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 0: Overall default speed.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule0(Element segment) {
@@ -346,7 +341,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 2: Clause-final lengthening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule2(Element segment) {
@@ -365,7 +360,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * Rule 2a: Additional final lengthening (J�rgen Trouvain). The final syllable before a boundary with breakindex >= 2, if it
 	 * is part of an accented word, gets additional lengthening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule2a(Element segment) {
@@ -384,7 +379,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 3: Non-phrase-final shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule3(Element segment) {
@@ -402,7 +397,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 4: Non-word-final shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule4(Element segment) {
@@ -418,7 +413,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 5: Polysyllabic shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule5(Element segment) {
@@ -434,7 +429,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 6: Non-initial consonant shortening.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule6(Element segment) {
@@ -450,7 +445,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 7: Unstressed shortening
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule7(Element segment) {
@@ -485,7 +480,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 8: Lengthening for emphasis
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule8(Element segment) {
@@ -504,7 +499,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Klatt Rule 10: Shortening in consonant clusters
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int klattRule10(Element segment) {
@@ -538,7 +533,7 @@ public class KlattDurationModeller extends InternalModule {
 	 * Klatt Rule 1: Pause duration. The pause duration depends on the break index, on the speech rate, and on the
 	 * "pause-duration" attribute. This rule assumes that every boundary it gets as input is to be realised, i.e.
 	 * not-to-be-realised boundaries are already deleted at this stage.
-	 * 
+	 *
 	 * @return A pause duration, in milliseconds.
 	 */
 	private int klattRule1(Element boundary) {
@@ -639,7 +634,7 @@ public class KlattDurationModeller extends InternalModule {
 	 * Accent prominence rule: The "accent-prominence" attribute influences nucleus duration for accented syllables (in addition
 	 * to Klatt rule 8), and affects voice quality for accented syllables. In addition, but not here, the "accent-prominence"
 	 * attribute causes a topline/baseline overshoot / undershoot.
-	 * 
+	 *
 	 * @return A percentage value as a factor for duration (100 corresponds to no change).
 	 */
 	private int accentProminenceRule(Element segment) {
@@ -794,7 +789,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the segment preceding this segment within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that segment, or <code>null</code> if there is no such segment.
 	 */
 	private static Element getPreviousSegment(Element segment) {
@@ -804,7 +799,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the segment following this segment within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that segment, or <code>null</code> if there is no such segment.
 	 */
 	private static Element getNextSegment(Element segment) {
@@ -814,7 +809,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the syllable preceding this syllable within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that syllable, or <code>null</code> if there is no such syllable.
 	 */
 	private static Element getPreviousSyllable(Element syllable) {
@@ -824,7 +819,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * Find the syllable following this syllable within the same <code>phrase</code>.
-	 * 
+	 *
 	 * @return that syllable, or <code>null</code> if there is no such syllable.
 	 */
 	private static Element getNextSyllable(Element syllable) {
@@ -1025,7 +1020,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a percentage delta as judged by <code>isPercentageDelta()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric part of the percentage, rounded to an integer, or 0 if the string is not a valid percentage delta.
 	 */
 	private int getPercentageDelta(String string) {
@@ -1049,7 +1044,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a semitones delta as judged by <code>isSemitonesDelta()</code>, return the numerical value, as a
 	 * double.
-	 * 
+	 *
 	 * @return the numeric part of the semitones delta, or 0 if the string is not a valid semitones delta.
 	 */
 	private double getSemitonesDelta(String string) {
@@ -1079,7 +1074,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing a number delta as judged by <code>isNumberDelta()</code>, return the numerical value, rounded to an
 	 * integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number delta.
 	 */
 	private int getNumberDelta(String string) {
@@ -1109,7 +1104,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing an unsigned semitones expression as judged by <code>isUnsignedSemitones()</code>, return the
 	 * numerical value as a double.
-	 * 
+	 *
 	 * @return the numeric part of the semitones expression, or 0 if the string is not a valid unsigned semitones expression.
 	 */
 	private double getUnsignedSemitones(String string) {
@@ -1148,7 +1143,7 @@ public class KlattDurationModeller extends InternalModule {
 	/**
 	 * For a string containing an unsigned number as judged by <code>isUnsignedNumber()</code>, return the numerical value,
 	 * rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid unsigned number.
 	 */
 	private int getUnsignedNumber(String string) {
@@ -1182,7 +1177,7 @@ public class KlattDurationModeller extends InternalModule {
 
 	/**
 	 * For a string containing a number as judged by <code>isNumber()</code>, return the numerical value, rounded to an integer.
-	 * 
+	 *
 	 * @return the numeric value, rounded to an integer, or 0 if the string is not a valid number.
 	 */
 	private int getNumber(String string) {

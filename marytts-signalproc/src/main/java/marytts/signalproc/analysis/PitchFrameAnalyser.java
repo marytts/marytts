@@ -28,11 +28,11 @@ import marytts.signalproc.window.DynamicWindow;
 import marytts.util.data.DoubleDataSource;
 
 /**
- * 
+ *
  * @author Marc Schr&ouml;der
- * 
+ *
  *         The base class for all frame-based signal analysis algorithms.
- * 
+ *
  */
 public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	protected DynamicWindow analysisWindow;
@@ -41,11 +41,11 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * Array containing the analysis results, filled by {@link #analyseAllFrames()}. Can be used for future reference to the
 	 * results.
 	 */
-	protected FrameAnalysisResult[] analysisResults;
+	protected FrameAnalysisResult<Double>[] analysisResults;
 
 	/**
 	 * Initialise a PitchFrameAnalyser.
-	 * 
+	 *
 	 * @param signal
 	 *            the signal source to read from
 	 * @param pitchmarks
@@ -61,7 +61,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 
 	/**
 	 * Create a new PitchFrameAnalyser with a configurable number of pitch periods per frame and pitch periods to shift by.
-	 * 
+	 *
 	 * @param signal
 	 *            audio signal
 	 * @param pitchmarks
@@ -82,7 +82,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 
 	/**
 	 * The public method to call in order to trigger the analysis of the next frame.
-	 * 
+	 *
 	 * @return the analysis result, or null if no part of the signal is left to analyse.
 	 */
 	public FrameAnalysisResult analyseNextFrame() {
@@ -97,17 +97,18 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	/**
 	 * Analyse the entire signal as frames. Stop as soon as the first frame reaches or passes the end of the signal. Repeated
 	 * access to this method returns a stored version of the results.
-	 * 
+	 *
 	 * @return an array containing all frame analysis results.
 	 */
-	public FrameAnalysisResult[] analyseAllFrames() {
+        @SuppressWarnings("unchecked")
+	public FrameAnalysisResult<Double>[] analyseAllFrames() {
 		if (analysisResults == null) {
-			ArrayList results = new ArrayList();
-			FrameAnalysisResult oneResult;
+			ArrayList<FrameAnalysisResult<Double>> results = new ArrayList<FrameAnalysisResult<Double>>();
+			FrameAnalysisResult<Double> oneResult;
 			while ((oneResult = analyseNextFrame()) != null) {
 				results.add(oneResult);
 			}
-			analysisResults = (FrameAnalysisResult[]) results.toArray(new FrameAnalysisResult[0]);
+			analysisResults = (FrameAnalysisResult<Double>[]) results.toArray(new FrameAnalysisResult[0]);
 		}
 		return analysisResults;
 	}
@@ -116,13 +117,14 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 * Analyse the currently available input signal as frames. This method is intended for live signals such as microphone data.
 	 * Stop when the amount of data available from the input is less than one frame length. Repeated access to this method will
 	 * read new data if new data has become available in the meantime.
-	 * 
+	 *
 	 * @return an array containing the frame analysis results for the data that is currently available, or an empty array if no
 	 *         new data is available.
 	 */
-	public FrameAnalysisResult[] analyseAvailableFrames() {
-		List results = new ArrayList();
-		FrameAnalysisResult oneResult;
+        @SuppressWarnings("unchecked")
+	public FrameAnalysisResult<Double>[] analyseAvailableFrames() {
+                ArrayList<FrameAnalysisResult<Double>> results = new ArrayList<FrameAnalysisResult<Double>>();
+                FrameAnalysisResult<Double> oneResult;
 		while (signal.available() >= frameLength) {
 			oneResult = analyseNextFrame();
 			assert oneResult != null;
@@ -133,7 +135,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 
 	/**
 	 * Apply this PitchFrameAnalyser to the given data.
-	 * 
+	 *
 	 * @param frame
 	 *            the data to analyse, which is expected to be the number of pitch periods requested from this PitchFrameAnalyser,
 	 *            {@link #getFramePeriods()}.
@@ -143,8 +145,8 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider {
 	 */
 	public abstract Object analyse(double[] frame);
 
-	protected FrameAnalysisResult constructAnalysisResult(Object analysisResult) {
-		return new FrameAnalysisResult(frame, getFrameStartTime(), analysisResult);
+	protected FrameAnalysisResult<Double> constructAnalysisResult(Object analysisResult) {
+              return new FrameAnalysisResult<Double>(frame, getFrameStartTime(), (Double)analysisResult);
 	}
 
 }

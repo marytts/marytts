@@ -241,7 +241,6 @@ public class Request {
 
 	public void setInputData(String inputText) throws Exception {
 		inputData = new MaryData(inputType, defaultLocale);
-		inputData.setWarnClient(true); // log warnings to client
 		// For RAWMARYXML, a validating parse is not possible
 		// because RAWMARYXML is not tokenised, so it does not yet
 		// fulfill the MaryXML Schema constraints.
@@ -545,12 +544,12 @@ public class Request {
 			// to the Request to each MaryData, and look up request-specific
 			// settings such as default voice and audio file format type
 			// from where it is required.)
-			if (m.outputType() == MaryDataType.get("AUDIO")) {
+			if (m.getOutputType() == MaryDataType.get("AUDIO")) {
 				currentData.setAudioFileFormat(audioFileFormat);
 				currentData.setAudio(new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null));
 			}
 			// TODO: The following hack makes sure that the Synthesis module gets outputParams. Make this more general and robust.
-			if (m.outputType() == oneOutputType || m.outputType() == MaryDataType.AUDIO) {
+			if (m.getOutputType() == oneOutputType || m.getOutputType() == MaryDataType.AUDIO) {
 				currentData.setOutputParams(outputParams);
 			}
 			if (logger.getLevel().equals(Level.DEBUG)
@@ -580,9 +579,9 @@ public class Request {
 			long delta = moduleStopTime - moduleStartTime;
 			Long soFar = timingInfo.get(m);
 			if (soFar != null)
-				timingInfo.put(m, new Long(soFar.longValue() + delta));
+				timingInfo.put(m, Long.valueOf(soFar.longValue() + delta));
 			else
-				timingInfo.put(m, new Long(delta));
+				timingInfo.put(m, Long.valueOf(delta));
 			if (MaryRuntimeUtils.veryLowMemoryCondition()) {
 				logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory()
 						+ " bytes left). Triggering garbage collection.");

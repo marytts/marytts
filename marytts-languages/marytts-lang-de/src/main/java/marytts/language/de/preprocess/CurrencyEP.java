@@ -53,8 +53,8 @@ public class CurrencyEP extends ExpansionPattern {
 		return knownTypes;
 	}
 
-	private final String[] _currencySymbolNames = { "DM", "Mark", new Character((char) 8364).toString(), "Euro", "$", "Dollar",
-			"FF", "Francs['frO~]", new Character((char) 165).toString(), "Yen['jEn]", new Character((char) 163).toString(),
+	private final String[] _currencySymbolNames = { "DM", "Mark", Character.valueOf((char) 8364).toString(), "Euro", "$", "Dollar",
+			"FF", "Francs['frO~]", Character.valueOf((char) 165).toString(), "Yen['jEn]", Character.valueOf((char) 163).toString(),
 			"Pfund", "sFr.", "Franken", "Kr.", "Kronen", "USD", "U S Dollar", "ATS", "Schilling", "BEF",
 			"belgische Francs['frO~]", "GBP", "britische Pfund",
 			// avoid "CAD", "kanadische Dollar", because of Computer aided design
@@ -64,9 +64,9 @@ public class CurrencyEP extends ExpansionPattern {
 			"PTE", "Escudo[Es-'ku:-do:]", "RUB", "Rubel", "ESP", "Peseten", "SEK", "schwedische Kronen", "CHF", "Franken", };
 	private final Map<String, String> currencySymbolNames = MaryUtils.arrayToMap(_currencySymbolNames);
 
-	private final String[] _currencySymbolNamesSingular = { "DM", "eine Mark", new Character((char) 8364).toString(), "ein Euro",
-			"$", "ein Dollar", "FF", "ein Francs['frO~]", new Character((char) 165).toString(), "ein Yen['jEn]",
-			new Character((char) 163).toString(), "ein Pfund", "sFr.", "ein Franken", "Kr.", "eine Krone", "USD",
+	private final String[] _currencySymbolNamesSingular = { "DM", "eine Mark", Character.valueOf((char) 8364).toString(), "ein Euro",
+			"$", "ein Dollar", "FF", "ein Francs['frO~]", Character.valueOf((char) 165).toString(), "ein Yen['jEn]",
+			Character.valueOf((char) 163).toString(), "ein Pfund", "sFr.", "ein Franken", "Kr.", "eine Krone", "USD",
 			"ein U S Dollar", "ATS", "ein Schilling", "BEF", "ein belgischer Francs['frO~]",
 			"GBP",
 			"ein britisches Pfund",

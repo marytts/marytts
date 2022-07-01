@@ -3,7 +3,7 @@ task assemble(type: Copy) {
     description 'Assembles the outputs of this project.'
 
     into "$rootProject.buildDir/marytts-$project.version"
-    [project(':marytts-runtime'), project(':marytts-client')].each { proj ->
+    [project(':marytts-runtime')].each { proj ->
         from proj.buildDir, {
             include "$proj.name-$version-jar-with-dependencies.jar"
         }

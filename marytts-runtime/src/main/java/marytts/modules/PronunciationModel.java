@@ -132,7 +132,7 @@ public class PronunciationModel extends InternalModule {
 			// TODO: change property name to german.pronunciation.featuremanager/features
 			String managerClass = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
 					+ ".pronunciation.targetfeaturelister.featuremanager");
-			FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
+			FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).getDeclaredConstructor().newInstance();
 			String features = MaryProperties.needProperty(MaryProperties.localePrefix(getLocale())
 					+ ".pronunciation.targetfeaturelister.features");
 			this.featureComputer = new TargetFeatureComputer(manager, features);
@@ -260,7 +260,7 @@ public class PronunciationModel extends InternalModule {
 		} // for each token in document
 
 		// return new MaryData with changed phonology
-		MaryData result = new MaryData(outputType(), d.getLocale());
+		MaryData result = new MaryData(getOutputType(), d.getLocale());
 		result.setDocument(doc);
 
 		logger.debug("Setting the changed xml document finished.");

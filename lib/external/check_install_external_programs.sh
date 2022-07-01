@@ -570,8 +570,7 @@ else
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  cp ../ehmm.tar.gz ."
-      echo "  tar -zxf ehmm.tar.gz"
+      echo "  cp -r ../ehmm ."
       echo "  cd ehmm"
       echo "  make"
       echo "  cp bin/* $root/bin"
@@ -582,8 +581,7 @@ else
         mkdir -p $root/bin
         mkdir -p $root/sw
         cd $root/sw
-        cp ../ehmm.tar.gz .
-        tar -zxf ehmm.tar.gz
+        cp -r ../ehmm .
         cd ehmm
         make
         cp bin/* $root/bin

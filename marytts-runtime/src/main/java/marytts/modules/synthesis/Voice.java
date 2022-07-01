@@ -363,7 +363,7 @@ public class Voice {
 		String featMgrClass = MaryProperties.getProperty(keyVoiceFeatMgr);
 		if (featMgrClass != null) {
 			try {
-				featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
+				featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).getDeclaredConstructor().newInstance();
 			} catch (Exception e) {
 				throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager " + featMgrClass
 						+ " from config file", e);
@@ -445,7 +445,7 @@ public class Voice {
 			Vector<MaryModule> v = new Vector<MaryModule>();
 			for (Iterator<MaryModule> it = preferredModules.iterator(); it.hasNext();) {
 				MaryModule m = (MaryModule) it.next();
-				if (m.inputType().equals(type)) {
+				if (m.getInputType().equals(type)) {
 					v.add(m);
 				}
 			}

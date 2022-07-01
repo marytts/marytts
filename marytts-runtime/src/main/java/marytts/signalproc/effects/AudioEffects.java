@@ -34,7 +34,7 @@ public class AudioEffects {
 		ArrayList<AudioEffect> effs = new ArrayList<AudioEffect>();
 		for (String className : MaryProperties.effectClasses()) {
 			try {
-				effs.add((AudioEffect) Class.forName(className).newInstance());
+				effs.add((AudioEffect) Class.forName(className).getDeclaredConstructor().newInstance());
 			} catch (Exception e) {
 				throw new Error("Cannot set up effect class '" + className + "'", e);
 			}

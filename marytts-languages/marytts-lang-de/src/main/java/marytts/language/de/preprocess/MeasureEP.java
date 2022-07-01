@@ -62,15 +62,15 @@ public class MeasureEP extends ExpansionPattern {
 			"Millimeter", "g", "Gramm", "kg", "Kilogramm", "mg", "Milligramm", "A", "Ampere[am-'pe:6]", "V", "Volt",
 			"K",
 			"Kelvin['kEl-vi:n]",
-			new Character((char) 176).toString() + "C",
+			Character.valueOf((char) 176).toString() + "C",
 			"Grad Celsius['tsEl-zi:-Us]",
-			new Character((char) 730).toString() + "C",
+			Character.valueOf((char) 730).toString() + "C",
 			"Grad Celsius['tsEl-zi:-Us]",
 			"\u2103",
 			"Grad Celsius['tsEl-zi:-Us]", // ℃
-			new Character((char) 176).toString() + "F",
+			Character.valueOf((char) 176).toString() + "F",
 			"Grad Fahrenheit",
-			new Character((char) 730).toString() + "F",
+			Character.valueOf((char) 730).toString() + "F",
 			"Grad Fahrenheit",
 			"\u2109",
 			"Grad Fahrenheit", // ℉
@@ -78,7 +78,7 @@ public class MeasureEP extends ExpansionPattern {
 			"J", "Joule['dZu:l]", "kJ", "Kilojoule['ki:-lo:-dZu:l]", "W", "Watt", "kW", "Kilowatt", "MW", "Megawatt", "GW",
 			"Gigawatt", "mW", "Milliwatt", "l", "Liter", "dl", "Deziliter", "cl", "Zentiliter", "ml", "Milliliter", "Bq",
 			"Becquerel[bE-k@-'rEl]", "EL", "Esslöffel", "TL", "Teelöffel", "qm", "Quadratmeter",
-			"m" + new Character((char) 178).toString(), "Quadratmeter", "m" + new Character((char) 179).toString(), "Kubikmeter",
+			"m" + Character.valueOf((char) 178).toString(), "Quadratmeter", "m" + Character.valueOf((char) 179).toString(), "Kubikmeter",
 			"ccm", "Kubikzentimeter", "m", "Meter", "%", "Prozent", };
 
 	private final Map<String, String> nuDeFeMeasureSymbolNames = MaryUtils.arrayToMap(_nuDeFeMeasureSymbolNames);

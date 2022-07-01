@@ -42,7 +42,7 @@ import org.w3c.dom.Element;
  * For preprocessing, serve as a base class for the different types of possible expansion patterns. For simplicity's sake, it is
  * implemented in a "greedy" way: As soon as an expansion pattern matches, it is applied, i.e. the matched tokens are expanded
  * according to the expansion rules in the pattern.
- * 
+ *
  * @author Marc Schr&ouml;der
  */
 
@@ -60,8 +60,8 @@ public abstract class ExpansionPattern {
 	// protected static AbbrevEP abbrev;
 	protected static SpecialCharEP specialChar;
 
-	private static List expansionPatterns;
-	private static Map patternTable;
+	private static List<ExpansionPattern> expansionPatterns;
+	private static Map<String, ExpansionPattern> patternTable;
 
 	/**
 	 * Initialize the various patterns. Notice that the order in which they are added to List expansionPatterns is most important:
@@ -70,14 +70,14 @@ public abstract class ExpansionPattern {
 	 * should come last in the list.
 	 */
 	static {
-		expansionPatterns = new ArrayList();
-		patternTable = new HashMap();
-		Iterator it;
+		expansionPatterns = new ArrayList<ExpansionPattern>();
+		patternTable = new HashMap<String, ExpansionPattern>();
+		Iterator<String> it;
 
 		/*
 		 * multiword = new MultiWordEP(); expansionPatterns.add(multiword); for (it = multiword.knownTypes().iterator();
 		 * it.hasNext();) patternTable.put(it.next(), multiword);
-		 * 
+		 *
 		 * net = new NetEP(); expansionPatterns.add(net); for (it = net.knownTypes().iterator(); it.hasNext();)
 		 * patternTable.put(it.next(), net);
 		 */
@@ -119,7 +119,7 @@ public abstract class ExpansionPattern {
 
 	}
 
-	public static List allPatterns() {
+	public static List<ExpansionPattern> allPatterns() {
 		return expansionPatterns;
 	}
 
@@ -130,7 +130,7 @@ public abstract class ExpansionPattern {
 	/**
 	 * A regular expression matching the characters at which a token should be split into parts before any preprocessing patterns
 	 * are applied.
-	 * 
+	 *
 	 * @return return specialChar.getRESplitAtChars
 	 * @see SpecialCharEP#getRESplitAtChars
 	 */
@@ -141,7 +141,7 @@ public abstract class ExpansionPattern {
 	/**
 	 * A string containing the characters at which a token should be split into parts before any preprocessing patterns are
 	 * applied.
-	 * 
+	 *
 	 * @return specialChar.splitAtChars
 	 * @see SpecialCharEP#splitAtChars
 	 */
@@ -156,7 +156,7 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Whether patterns of this type can be composed of several tokens.
-	 * 
+	 *
 	 * @return true
 	 */
 	protected boolean allowMultipleTokens() {
@@ -166,7 +166,7 @@ public abstract class ExpansionPattern {
 	/**
 	 * Inform whether this module performs a full expansion of the input, or whether other patterns should be applied after this
 	 * one.
-	 * 
+	 *
 	 * @return true
 	 */
 	protected boolean doesFullExpansion() {
@@ -177,15 +177,15 @@ public abstract class ExpansionPattern {
 	 * Returns the types known by this ExpansionPattern. These are possible values of the <code>type</code> attribute to the
 	 * <code>say-as</code> element, as defined in MaryXML.dtd. Each subclass needs to override this to return something
 	 * meaningful.
-	 * 
+	 *
 	 * @return known types
 	 */
-	public abstract List knownTypes();
+	public abstract List<String> knownTypes();
 
 	/**
 	 * Returns the regular expression object matching any of the chars occurring in the pattern. Each subclass needs to override
 	 * this to return something meaningful.
-	 * 
+	 *
 	 * @return reMatchingChars
 	 */
 	public abstract Pattern reMatchingChars();
@@ -193,7 +193,7 @@ public abstract class ExpansionPattern {
 	/**
 	 * Try to match this pattern starting at token <code>t</code>. If successful, replace the matched tokens with the replaced
 	 * form.
-	 * 
+	 *
 	 * @param t
 	 *            the element to expand. After processing, this Element will still exist and be a valid Element, but possibly with
 	 *            a different content, and possibly enclosed by an &lt;mtu&gt; element. In addition, &lt;t&gt; may have new
@@ -207,7 +207,7 @@ public abstract class ExpansionPattern {
 	 * @return true if this pattern is confident to have fully expanded this list of tokens, false if nothing could be done or
 	 *         more expansion may be necessary.
 	 */
-	public boolean process(Element t, final List expanded) {
+	public boolean process(Element t, final List<Element> expanded) {
 		if (t == null || expanded == null)
 			throw new NullPointerException("Received null argument");
 		if (!t.getTagName().equals(MaryXML.TOKEN))
@@ -216,7 +216,7 @@ public abstract class ExpansionPattern {
 			throw new IllegalArgumentException("Expected empty list, but list has " + expanded.size() + " elements.");
 		StringBuilder sb = new StringBuilder();
 		int matchedType = -1;
-		ArrayList candidates = new ArrayList();
+		ArrayList<Element> candidates = new ArrayList<Element>();
 		if (allowMultipleTokens()) {
 			Element n = t;
 			// Do a look-forward preselection in order to find possible
@@ -236,7 +236,7 @@ public abstract class ExpansionPattern {
 			// looking at more closely.
 			while (!candidates.isEmpty()) {
 				sb.setLength(0);
-				Iterator it = candidates.iterator();
+				Iterator<Element> it = candidates.iterator();
 				while (it.hasNext()) {
 					sb.append(MaryDomUtils.tokenText((Element) it.next()));
 				}
@@ -276,7 +276,7 @@ public abstract class ExpansionPattern {
 	 * Try to match and expand the entirety of tokens enclosed by the say-as tag <code>sayas</code>. The <code>type</code> of data
 	 * to expand is given. If the tokens can be matched according to <code>type</code>, they are expanded. Throws DOMException if
 	 * <code>sayas</code>'s tag name is not "say-as".
-	 * 
+	 *
 	 * @param sayas
 	 *            sayas
 	 * @param typeString
@@ -284,13 +284,14 @@ public abstract class ExpansionPattern {
 	 * @throws DOMException
 	 *             DOMException
 	 */
+        @SuppressWarnings("unchecked")
 	public void match(Element sayas, String typeString) throws DOMException {
 		if (!sayas.getTagName().equals(MaryXML.SAYAS))
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected " + MaryXML.SAYAS + " element, got "
 					+ sayas.getTagName());
-		List tokens = MaryDomUtils.getNodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
+		List<Element> tokens =  (List<Element>)(List<?>) MaryDomUtils.getNodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
 		StringBuilder sb = new StringBuilder();
-		for (Iterator it = tokens.iterator(); it.hasNext();) {
+		for (Iterator<Element> it = tokens.iterator(); it.hasNext();) {
 			sb.append(MaryDomUtils.tokenText((Element) it.next()));
 		}
 		int type = knownTypes().indexOf(typeString);
@@ -298,7 +299,7 @@ public abstract class ExpansionPattern {
 		if (expandType != -1) { // OK, we can expand this
 			// System.err.println("Say-as requested type \"" + knownTypes().get(type) + "\" for text \"" + sb.toString() +
 			// "\": can expand.");
-			List expanded = expand(tokens, sb.toString(), expandType);
+                        List<Element> expanded = expand(tokens, sb.toString(), expandType);
 			if (expanded.isEmpty())
 				logger.info("Failure expanding string \"" + sb + "\" as type \"" + knownTypes().get(expandType) + "\"");
 		} else { // cannot expand according to sayas wish
@@ -311,7 +312,7 @@ public abstract class ExpansionPattern {
 	 * particular expansion is requested via a <code>say-as</code> element. As a default, reply that a string can be expanded if
 	 * it would be matched by the pattern recognizer. Subclasses may wish to override this with less strict requirements. Returns
 	 * the type as which it can be expanded, or -1 if expansion is not possible.
-	 * 
+	 *
 	 * @param input
 	 *            input
 	 * @param typeCode
@@ -324,7 +325,7 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Subclasses do their matching in this class.
-	 * 
+	 *
 	 * @param input
 	 *            is the String to be matched,
 	 * @param typeCode
@@ -337,7 +338,7 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Subclasses do their expansion in this class.
-	 * 
+	 *
 	 * @param tokens
 	 *            is a list of token Elements to be replaced with their expanded form. The expanded forms are inserted into the
 	 *            DOM tree at the same positions as the tokens in List <code>tokens</code>. If there are more new tokens than old
@@ -348,7 +349,7 @@ public abstract class ExpansionPattern {
 	 *            is the index in <code>knownTypes</code> this string has matched with before.
 	 * @return the list of expanded (=new) tokens.
 	 */
-	protected abstract List expand(List tokens, String text, int typeCode);
+	protected abstract List<Element> expand(List<Element> tokens, String text, int typeCode);
 
 	/**
 	 * The default way to create new token DOM elements from whitespace-separated tokens in a string. String tokens have the form<br>
@@ -358,29 +359,29 @@ public abstract class ExpansionPattern {
 	 * All expansion patterns that do not require any special attribute settings should create their new tokens using this method.
 	 * <p>
 	 * Returns a list of token elements created from Document <code>doc</code>, but not yet attached in the tree.
-	 * 
+	 *
 	 * @param doc
 	 *            doc
 	 * @param newText
 	 *            newText
 	 * @return makeNewTokens(doc, newText, false, null)
 	 */
-	protected List makeNewTokens(Document doc, String newText) {
+	protected List<Element> makeNewTokens(Document doc, String newText) {
 		return makeNewTokens(doc, newText, false, null);
 	}
 
-	protected List makeNewTokens(Document doc, String newText, boolean createMtu, String origText) {
+	protected List<Element> makeNewTokens(Document doc, String newText, boolean createMtu, String origText) {
 		return makeNewTokens(doc, newText, createMtu, origText, false);
 	}
 
-	protected List makeNewTokens(Document doc, String newText, boolean createMtu, String origText, boolean forceAccents) {
+	protected List<Element> makeNewTokens(Document doc, String newText, boolean createMtu, String origText, boolean forceAccents) {
 		if (newText == null || newText.length() == 0) {
 			// unusable input
 			return null; // failure
 		}
 		Pattern rePron = Pattern.compile("\\[(.*)\\]"); // pronunciation in square brackets
 		StringTokenizer st = new StringTokenizer(newText);
-		ArrayList newTokens = new ArrayList();
+		ArrayList<Element> newTokens = new ArrayList<Element>();
 		while (st.hasMoreTokens()) {
 			// Create new token element:
 			String text = st.nextToken();
@@ -401,10 +402,10 @@ public abstract class ExpansionPattern {
 			Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
 			mtu.setAttribute("orig", origText);
 			mtu.setAttribute("accent", "last");
-			for (Iterator it = newTokens.iterator(); it.hasNext();) {
+			for (Iterator<Element> it = newTokens.iterator(); it.hasNext();) {
 				mtu.appendChild((Element) it.next());
 			}
-			List result = new ArrayList();
+			List<Element> result = new ArrayList<Element>();
 			result.add(mtu);
 			return result;
 		} else {
@@ -412,14 +413,14 @@ public abstract class ExpansionPattern {
 		}
 	}
 
-	protected void replaceTokens(List oldTokens, List newTokens) {
+	protected void replaceTokens(List<Element> oldTokens, List<Element> newTokens) {
 		if (oldTokens == null || oldTokens.isEmpty() || newTokens == null || newTokens.isEmpty()) {
 			// unusable input
 			throw new NullPointerException("Have received null or empty argument.");
 		}
 		Element oldT = null;
-		Iterator itOld = oldTokens.iterator();
-		Iterator itNew = newTokens.iterator();
+		Iterator<Element> itOld = oldTokens.iterator();
+		Iterator<Element> itNew = newTokens.iterator();
 		while (itNew.hasNext()) {
 			Element newT = (Element) itNew.next();
 			// Retrieve old token element:
@@ -465,7 +466,7 @@ public abstract class ExpansionPattern {
 	/**
 	 * Enclose token in a &lt;prosody rate="..."&gt; tag in order to slow the spelling down, and in a &lt;phonology&gt; tag in
 	 * order to enforce precise pronunciation.
-	 * 
+	 *
 	 * @param e
 	 *            e
 	 */
@@ -494,7 +495,7 @@ public abstract class ExpansionPattern {
 
 	/**
 	 * Enclose the elements' closest common ancestor.
-	 * 
+	 *
 	 * @param first
 	 *            first
 	 * @param last
