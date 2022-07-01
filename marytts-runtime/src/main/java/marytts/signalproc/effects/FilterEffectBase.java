@@ -38,10 +38,12 @@ public class FilterEffectBase extends BaseAudioEffect {
 
 	double cutOffFreqInHz1;
 	double cutOffFreqInHz2;
+	double transitionBandwidth;
 	int filterType;
 	int frameLength;
 	double normalizedCutOffFreq1;
 	double normalizedCutOffFreq2;
+	double normalisedTransitionBandwidth;
 	InlineDataProcessor filter;
 
 	public static int NULL_FILTER = 0;
@@ -53,6 +55,7 @@ public class FilterEffectBase extends BaseAudioEffect {
 	public static int DEFAULT_FILTER = BANDPASS_FILTER;
 	public static double DEFAULT_CUTOFF1 = 500.0;
 	public static double DEFAULT_CUTOFF2 = 2000.0;
+	public static double DEFAULT_TRANSITIONBANDWIDTH = 160;
 
 	// Unlike most of the other effect parameters the following are sampling rate dependent
 	double MIN_CUTOFF1;
@@ -69,14 +72,18 @@ public class FilterEffectBase extends BaseAudioEffect {
 	public FilterEffectBase(double cutOffHz, int samplingRate, int type) {
 		super(samplingRate);
 
-		setExampleParameters("type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + "fc1"
-				+ chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + "fc2" + chParamEquals
-				+ String.valueOf(DEFAULT_CUTOFF2));
+		setExampleParameters(
+			"type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + 
+			"fc1" + chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + 
+			"fc2" + chParamEquals + String.valueOf(DEFAULT_CUTOFF2) + chParamSeparator + " " + 
+			"tbw" + chParamEquals + String.valueOf(DEFAULT_TRANSITIONBANDWIDTH)
+		);
 
 		strHelpText = getHelpText();
 
 		cutOffFreqInHz1 = cutOffHz;
 		cutOffFreqInHz2 = -1.0;
+		transitionBandwidth = DEFAULT_TRANSITIONBANDWIDTH;
 		filterType = type;
 
 		MIN_CUTOFF1 = 20.0;
@@ -92,14 +99,18 @@ public class FilterEffectBase extends BaseAudioEffect {
 	public FilterEffectBase(double cutOffHz1, double cutOffHz2, int samplingRate, int type) {
 		super(samplingRate);
 
-		setExampleParameters("type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + "fc1"
-				+ chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + "fc2" + chParamEquals
-				+ String.valueOf(DEFAULT_CUTOFF2));
+		setExampleParameters(
+			"type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + 
+			"fc1" + chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + 
+			"fc2" + chParamEquals + String.valueOf(DEFAULT_CUTOFF2) + chParamSeparator + " " + 
+			"tbw" + chParamEquals + String.valueOf(DEFAULT_TRANSITIONBANDWIDTH)
+		);
 
 		strHelpText = getHelpText();
 
 		cutOffFreqInHz1 = cutOffHz1;
 		cutOffFreqInHz2 = cutOffHz2;
+		transitionBandwidth = DEFAULT_TRANSITIONBANDWIDTH;
 		filterType = type;
 
 		MIN_CUTOFF1 = 20.0;
@@ -116,14 +127,18 @@ public class FilterEffectBase extends BaseAudioEffect {
 	public FilterEffectBase(int samplingRate) {
 		super(samplingRate);
 
-		setExampleParameters("type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + "fc1"
-				+ chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + "fc2" + chParamEquals
-				+ String.valueOf(DEFAULT_CUTOFF2));
+		setExampleParameters(
+			"type" + chParamEquals + String.valueOf(BANDPASS_FILTER) + chParamSeparator + " " + 
+			"fc1" + chParamEquals + String.valueOf(DEFAULT_CUTOFF1) + chParamSeparator + " " + 
+			"fc2" + chParamEquals + String.valueOf(DEFAULT_CUTOFF2) + chParamSeparator + " " + 
+			"tbw" + chParamEquals + String.valueOf(DEFAULT_TRANSITIONBANDWIDTH)
+		);
 
 		strHelpText = getHelpText();
 
 		cutOffFreqInHz1 = -1.0;
 		cutOffFreqInHz2 = -1.0;
+		transitionBandwidth = DEFAULT_TRANSITIONBANDWIDTH;
 		filterType = NULL_FILTER;
 
 		MIN_CUTOFF1 = 20.0;
@@ -161,6 +176,11 @@ public class FilterEffectBase extends BaseAudioEffect {
 			cutOffFreqInHz1 = cutOffFreqInHz2;
 			cutOffFreqInHz2 = tmp;
 		}
+		
+		transitionBandwidth = expectDoubleParameter("tbw");
+		
+		if (transitionBandwidth == NULL_DOUBLE_PARAM)
+			transitionBandwidth = DEFAULT_TRANSITIONBANDWIDTH;
 
 		initialise();
 	}
@@ -169,6 +189,7 @@ public class FilterEffectBase extends BaseAudioEffect {
 		frameLength = 8 * SignalProcUtils.getDFTSize(fs);
 		normalizedCutOffFreq1 = cutOffFreqInHz1 / fs;
 		normalizedCutOffFreq2 = cutOffFreqInHz2 / fs;
+		normalisedTransitionBandwidth = transitionBandwidth / fs;
 		filter = null;
 
 		if (filterType == LOWPASS_FILTER && normalizedCutOffFreq1 > 0.0)
@@ -182,7 +203,7 @@ public class FilterEffectBase extends BaseAudioEffect {
 				normalizedCutOffFreq2 = tmp;
 			}
 
-			filter = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
+			filter = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, normalisedTransitionBandwidth);
 		} else if (filterType == BANDREJECT_FILTER && normalizedCutOffFreq1 > 0.0 && normalizedCutOffFreq2 > 0.0) {
 			if (normalizedCutOffFreq1 > normalizedCutOffFreq2) {
 				double tmp = normalizedCutOffFreq1;
@@ -190,7 +211,7 @@ public class FilterEffectBase extends BaseAudioEffect {
 				normalizedCutOffFreq2 = tmp;
 			}
 
-			filter = new BandRejectFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
+			filter = new BandRejectFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, normalisedTransitionBandwidth);
 		}
 	}
 
@@ -212,17 +233,28 @@ public class FilterEffectBase extends BaseAudioEffect {
 		strRange1 += String.valueOf(BANDREJECT_FILTER);
 
 		String strRange2 = "[0.0, fs/2.0] where fs is the sampling rate in Hz";
+		String strRange3 = "[fs*0.002, fs*0.2] where fs is the sampling rate in Hz";
 
 		String strHelp = "FIR filtering:" + strLineBreak + "Filters the input signal by an FIR filter." + strLineBreak
-				+ "Parameters:" + strLineBreak + "   <type>" + strLineBreak
+				+ strLineBreak
+				+ "Parameters:" + strLineBreak 
+				+ "   <type>" + strLineBreak
 				+ "   Definition : Type of filter (1:Lowpass, 2:Highpass, 3:Bandpass, 4:Bandreject)" + strLineBreak
-				+ "   Range      : {" + strRange1 + "}" + strLineBreak + "   <fc>"
-				+ "   Definition : Cutoff frequency in Hz for lowpass and highpass filters" + strLineBreak + "   Range      : "
-				+ strRange2 + strLineBreak + "   <fc1>"
+				+ "   Range      : {" + strRange1 + "}" + strLineBreak 
+				+ "   <fc>" + strLineBreak
+				+ "   Definition : Cutoff frequency in Hz for lowpass and highpass filters" + strLineBreak 
+				+ "   Range      : " + strRange2 + strLineBreak 
+				+ "   <fc1>" + strLineBreak
 				+ "   Definition : Lower frequency cutoff in Hz for bandpass and bandreject filters" + strLineBreak
-				+ "   Range      : " + strRange2 + strLineBreak + "   <fc2>"
+				+ "   Range      : " + strRange2 + strLineBreak 
+				+ "   <fc2>" + strLineBreak
 				+ "   Definition : Higher frequency cutoff in Hz for bandpass and bandreject filters" + strLineBreak
-				+ "   Range      : " + strRange2 + strLineBreak + "Example: (A band-pass filter)" + strLineBreak
+				+ "   Range      : " + strRange2 + strLineBreak
+				+ "   <tbw>" + strLineBreak
+				+ "   Definition : Transition bandwidth. Indicates the quality of the filter. The smaller the bandwidth, the more abrupt the cutoff, but also the larger the computational cost." + strLineBreak
+				+ "   Range      : " + strRange3 + strLineBreak
+				+ strLineBreak
+				+ "Example: (A band-pass filter)" + strLineBreak
 				+ getExampleParameters();
 
 		return strHelp;

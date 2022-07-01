@@ -23,9 +23,9 @@ Then access it at http://localhost:59125 using your web browser.
 If you want to start a MaryTTS on a different address and port, you can use the following options:
 
 ```sh
-./gradlew run -Dsocket.port=5920 -Dsocket.addr=0.0.0.0 --info
+./gradlew run -Dsocket.port=59125 -Dsocket.addr=0.0.0.0 --info
 ```
-where 5920 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
+where 59125 is the new port and 0.0.0.0 the new address. In case of the address being 0.0.0.0, all the interfaces will be listened.
 
 By using the option `--info`, you set the logger of `gradle` *AND* MaryTTS at the level INFO. By using `--debug`, you set the level to DEBUG.
 
