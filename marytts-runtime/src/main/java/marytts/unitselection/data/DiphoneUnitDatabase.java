@@ -19,11 +19,11 @@
  */
 package marytts.unitselection.data;
 
-import gnu.trove.TIntHashSet;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import gnu.trove.set.hash.TIntHashSet;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
