@@ -832,7 +832,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 				while (entries.hasMoreElements()) {
 					ZipEntry entry = entries.nextElement();
 					files.add(entry.getName()); // add to installed filelist; rely on uninstaller retaining shared files
-					File newFile = new File(maryBase + "/" + entry.getName());
+					File newFile = new File(maryBase, entry.getName());
+					if (!newFile.toPath().normalize().startsWith(maryBase)) {
+						throw new IOException("Bad zip entry");
+					}
 					if (entry.isDirectory()) {
 						System.err.println("Extracting directory: " + entry.getName());
 						newFile.mkdir();
