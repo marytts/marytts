@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id 'de.dfki.mary.component' version '0.3.0'
+        id 'de.dfki.mary.component' version '0.3.1'
     }
 }
 includeBuild 'gradle-marytts-component-plugin'
