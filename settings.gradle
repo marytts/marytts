@@ -3,7 +3,6 @@ pluginManagement {
         id 'de.dfki.mary.component' version '0.3.1'
     }
 }
-includeBuild 'gradle-marytts-component-plugin'
 include 'marytts-common'
 include 'marytts-languages:marytts-lang-de'
 include 'marytts-languages:marytts-lang-en'
