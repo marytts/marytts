@@ -1,7 +1,6 @@
 plugins {
     id 'de.dfki.mary.component'
 }
-apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
