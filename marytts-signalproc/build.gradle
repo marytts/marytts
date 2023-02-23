@@ -5,7 +5,6 @@ apply from: "$rootDir/publishLogic.gradle"
 dependencies {
     api project(':marytts-common')
     api libs.jama
-    implementation libs.jampack
     api libs.swing.layout
     testImplementation testLibs.junit
 }
