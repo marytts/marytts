@@ -42,7 +42,7 @@ configurations {
 dependencies {
     implementation project(':marytts-runtime')
     opennlp group: 'org.apache.opennlp', name: 'de-pos-maxent', version: '1.5', ext: 'bin'
-    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.0'
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-de', version: '0.1.1'
     integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 
