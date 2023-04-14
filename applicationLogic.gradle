@@ -59,7 +59,7 @@ task runInstallerGui(type: JavaExec) {
     description 'Runs the MaryTTS Installer GUI as a JVM application'
     dependsOn installDist
     classpath run.classpath
-    main 'marytts.tools.install.InstallerGUI'
+    mainClass = 'marytts.tools.install.InstallerGUI'
     systemProperties << ['mary.base': installDist.destinationDir]
 }
 
@@ -87,8 +87,16 @@ task installerGuiStartScripts(type: CreateStartScripts) {
     applicationName = 'marytts-component-installer'
     outputDir = startScripts.outputDir
     classpath = startScripts.classpath
-    mainClassName = 'marytts.tools.install.InstallerGUI'
+    mainClass = 'marytts.tools.install.InstallerGUI'
     startScripts.finalizedBy it
+}
+
+tasks.named('distTar').configure {
+    dependsOn installerGuiStartScripts
+}
+
+tasks.named('distZip').configure {
+    dependsOn installerGuiStartScripts
 }
 
 tasks.withType(CreateStartScripts) {
