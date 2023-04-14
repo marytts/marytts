@@ -6,6 +6,19 @@ apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/testLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                url 'https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local'
+            }
+        }
+        filter {
+            includeGroup 'de.dfki.lt.jtok'
+        }
+    }
+}
+
 dependencies {
     api project(':marytts-common')
     api project(':marytts-signalproc')

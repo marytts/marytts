@@ -1,5 +1,18 @@
 apply plugin: 'application'
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                url 'https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local'
+            }
+        }
+        filter {
+            includeGroup 'de.dfki.lt.jtok'
+        }
+    }
+}
+
 dependencies {
     runtimeOnly project(':marytts-runtime')
     runtimeOnly project(':marytts-languages').subprojects
