@@ -27,7 +27,7 @@ import java.io.InputStream;
  * Please note: I (Timothy Macinta) have put this code in the com.twmacinta.util package only because it came without a package. I
  * was not the the original author of the code, although I did optimize it (substantially) and fix some bugs.
  * 
- * @author Santeri Paavolainen <santtu@cs.hut.fi>
+ * @author Santeri Paavolainen &lt;santtu@cs.hut.fi&gt;
  * @author Timothy W Macinta (twm@alum.mit.edu) (added main() method)
  **/
 
