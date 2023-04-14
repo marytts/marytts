@@ -10,7 +10,7 @@ package Jampack;
 </pre>
    where S = diag(s1,...,sm) with
 <pre>
-*     s1 >= s2 >= ... >= sn >=0.
+*     s1 &ge; s2 &ge; ... &ge; sn &ge;0.
 </pre>
    If m&lt;n the decomposition has the form
 <pre>
@@ -45,7 +45,6 @@ public class Zsvd{
     if the maximum number of iterations is exceeded.
 
     @param     XX A Zmat
-    @return    The Zsvd of XX
     @exception JampackException
                Thrown if maximimum number of iterations is
                exceeded.<br>

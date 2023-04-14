@@ -4,9 +4,9 @@ package Jampack;
    Solve solves linear systems of the form
 <pre>
 *      A*X = B
-*      A<sup>H</sup>*X = B
+*      A^H *X = B
 *      X*A = B
-*      X*A<sup>H</sup> = B
+*      X*A^H = B
 </pre>
    where A is a nonsingular Zmat, B is a Zmat, and
    '^H' denotes the conjugate transpose.  Appropriate

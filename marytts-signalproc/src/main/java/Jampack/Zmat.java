@@ -339,7 +339,7 @@ public class Zmat{
 
 /**
    Returns the submatrix  (ii[], jj1:jj2).
-   @param i[]    Contains the row indices of the submatrix
+   @param ii[]    Contains the row indices of the submatrix
    @param jj1    The lower column index
    @param jj2    The upper column index
 */
@@ -358,7 +358,7 @@ public class Zmat{
 
 /**
    Overwrites the submatrix (ii[], jj1:jj2) with a Zmat.
-   @param i[]    Contains the row indices of the submatrix
+   @param ii[]    Contains the row indices of the submatrix
    @param jj1    The lower column index
    @param jj2    The upper column index
    @param A      The new value of the submatrix.

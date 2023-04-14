@@ -32,7 +32,7 @@ public class Parameters{
 
 /**
    Resets the default base index.
-   @param xb     The new base index
+   @param bx     The new base index
    @exception    JampackException
                  Thrown when the base indices are
                  not changable.

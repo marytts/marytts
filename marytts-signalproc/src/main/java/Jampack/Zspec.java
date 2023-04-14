@@ -7,7 +7,7 @@ package Jampack;
    such that
 
 <pre>
-*      D = U<sup>H</sup>AU.
+*      D = U^H AU.
 </pre>
 
    Zspec implements U as a Zmat and D as a Zdiagmat.  It returns
@@ -39,7 +39,6 @@ public class Zspec{
    matrix is not Hermitian.
 
    @param     AA A Zmat
-   @return   The spectral decomposition of A
    @exception JampackException
               Thown if AA is not Hermitian.<br>
               Passed from below.

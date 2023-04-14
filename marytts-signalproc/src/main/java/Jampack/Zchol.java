@@ -31,7 +31,6 @@ public class Zchol{
 
     @param     A The matrix whose Cholesky decomposition is
                  to be computed.
-    @return    The Cholesky decomposition of A
     @exception JampackException
                Thrown if A is not square or Hermitian.<br>
                Thrown if the doecomposition does not exist.

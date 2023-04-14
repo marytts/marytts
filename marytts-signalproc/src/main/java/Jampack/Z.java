@@ -49,8 +49,6 @@ public class Z{
 
 /**
  * Creates a Z and initializes it to zero.
-
-   @return a Z initialized to zero.
 */
    public Z(){
       re = 0.;
@@ -62,7 +60,6 @@ public class Z{
 
    @param     x a double
    @param     y a double
-   @return    x + iy
 */
 
    public Z(double x, double y){
@@ -74,7 +71,6 @@ public class Z{
  * Creates a Z and initializes its real part.
 
    @param     x a double
-   @return    x + i*0
 */
 
    public Z(double x){
@@ -86,7 +82,6 @@ public class Z{
  * Creates a Z and initializes it to another Z.
 
    @param     a a Z
-   @return    a
 */
 
    public Z(Z a){
@@ -320,7 +315,6 @@ public class Z{
  * Computes the principal value of the square root of a Z.
 
    @param     a a Z
-   @param     this = sqrt(a)
 */
 
 

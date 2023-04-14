@@ -26,7 +26,6 @@ public class Zhess{
     JampackException for nonsquare matrx.
 
     @param     A A Zmat
-    @return    The Hessenberg form of A
     @exception JampackException
                Thrown if A is not square.
 */

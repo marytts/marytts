@@ -38,7 +38,6 @@ public class Zludpp{
    Computes the partially pivoted LU decompostion.
 
    @param     A A Zmat
-   @return    The Zludpp of A
    @exception JampackException
               Passed from below.              
 */

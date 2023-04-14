@@ -5,7 +5,7 @@ package Jampack;
    of a square matrix.  Specifically given a diagonalizable
    matrix A, there is a matrix nonsingular matrix X such that
 <pre>
-*      D = X<sup>-1</sup> AX
+*      D = X^-1 AX
 </pre>
    is diagonal.  The columns of X are eigenvectors of A corresponding
    to the diagonal elements of D.  Eig implements X as a Zmat and

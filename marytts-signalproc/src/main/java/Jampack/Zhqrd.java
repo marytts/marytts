@@ -45,7 +45,6 @@ public class Zhqrd{
    Computes a Householder QR decomposition of a Zmat
 
    @param     A A Zmat
-   @return    The Zhqrd of A
    @exception JampackException
               Passed from below.
 */

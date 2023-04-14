@@ -93,7 +93,8 @@ public class Merge{
 <pre>
 *    A = | B00 B01 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -116,7 +117,8 @@ public class Merge{
 *    A = | B00 |
 *        | B10 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B10 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -139,7 +141,10 @@ public class Merge{
 *    A = | B00 B01|
 *        | B10 B11|
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
+   @param     B10 The Zmats to be merged
+   @param     B11 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -164,7 +169,9 @@ public class Merge{
 <pre>
 *    A = | B00 B01 B02 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
+   @param     B02 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -189,7 +196,12 @@ public class Merge{
 *    A = | B00 B01 B02 |
 *        | B10 B11 B12 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
+   @param     B02 The Zmats to be merged
+   @param     B10 The Zmats to be merged
+   @param     B11 The Zmats to be merged
+   @param     B12 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thown if there is a nonconformity.
@@ -220,7 +232,9 @@ public class Merge{
 *        | B10 |
 *        | B20 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B10 The Zmats to be merged
+   @param     B20 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -248,7 +262,12 @@ public class Merge{
 *        | B10 B11 |
 *        | B20 B21 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
+   @param     B10 The Zmats to be merged
+   @param     B11 The Zmats to be merged
+   @param     B20 The Zmats to be merged
+   @param     B21 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.
@@ -278,7 +297,15 @@ public class Merge{
 *        | B10 B11 B12 |
 *        | B20 B21 B22 |
 </pre>
-   @param     Bij The Zmats to be merged
+   @param     B00 The Zmats to be merged
+   @param     B01 The Zmats to be merged
+   @param     B02 The Zmats to be merged
+   @param     B10 The Zmats to be merged
+   @param     B11 The Zmats to be merged
+   @param     B12 The Zmats to be merged
+   @param     B20 The Zmats to be merged
+   @param     B21 The Zmats to be merged
+   @param     B22 The Zmats to be merged
    @return    The composite Zmat A
    @exception JampackException
               Thrown if there is a nonconformity.

@@ -341,7 +341,7 @@ public class Print{
    }
 
 /**
-   Prints a <tt>Zmat<tt> in default e format.
+   Prints a <tt>Zmat</tt> in default e format.
 */
    public static void o(Zmat A){
       o(A, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);

@@ -40,7 +40,6 @@ public class Zdiagmat{
    Constructs a Zdiagmat and initializes it to zero.
 
    @param    order The order of the new Zdiagmat
-   @return   A Zdiagmat initialized to zero.    
 */
 
    public Zdiagmat(int order){
@@ -58,7 +57,6 @@ public class Zdiagmat{
    @param     order The order of the new Zdiagmat
    @param     val   The value to which the diagonal
                     is to be initialized
-   @return    A Zdiagmat whose diagonal is val.
 */
 
    public Zdiagmat(int order, Z val){
@@ -78,8 +76,6 @@ public class Zdiagmat{
    Constructs a Zdiagmat and initializes it to a Z1.
 
    @param     val A Z1
-   @return    A Zdiagmat whose diagonal elements are
-              the elements of val.
 */
 
    public Zdiagmat(Z1 val){
@@ -100,8 +96,7 @@ public class Zdiagmat{
 
    @param     A The Zmat
    @param     k The diagonal.  For k=0 gives the princpal diagonal;
-                k>0, the kth superdiagonal; k<0, the kth subdiagonal.
-   @return    The Zdiagmat consisting of the selected diagonal of A
+                k&gt;0, the kth superdiagonal; k&lt;0, the kth subdiagonal.
    @exception JampackException
               Thrown for k to large or small.
 */
@@ -144,7 +139,6 @@ public class Zdiagmat{
    of a Zmat.
 
    @param     A A Zmat
-   @returns   A Zdiagmat whose diagonal is that of A
    @exception JampackException
               Passed from below.
 */
@@ -158,7 +152,6 @@ public class Zdiagmat{
    Constructs a Zdiagmat and initializes it to another Zdiagmat.
 
    @param     D A Zdiagmat
-   @returns   A Zdiagmat that is a copy of D.
 */
 
    public Zdiagmat(Zdiagmat D){
@@ -215,8 +208,6 @@ public class Zdiagmat{
 
    @param     ii  An integer
    @param     val A Z
-   @return    Resets the ii-th diagonal element of this Zdiagmat
-              to val.
 */
 
    public void put(int ii, Z val){
