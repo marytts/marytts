@@ -25,7 +25,7 @@ dependencies {
     api libs.commons.collections
     implementation libs.emotionml.checker
     api libs.guava
-    implementation libs.hsqldb
+    implementation group: 'org.hsqldb', name: 'hsqldb', version: libs.versions.hsqldb.get(), classifier: 'jdk8'
     implementation libs.httpcore
     implementation libs.httpcore.nio
     api libs.icu4j
