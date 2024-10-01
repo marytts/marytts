@@ -29,7 +29,10 @@ dependencies {
     implementation libs.httpcore
     implementation libs.httpcore.nio
     api libs.icu4j
-    implementation libs.jtok.core
+    implementation libs.jtok.core, {
+        exclude group: 'log4j', module: 'log4j'
+    }
+    implementation libs.slf4j.log4j12
     implementation libs.opennlp.tools
     implementation libs.trove4j
     testImplementation testLibs.junit
