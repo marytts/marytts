@@ -6,21 +6,68 @@ MaryTTS
 
 ### Changed
 
-* Build with Gradle v6.3
+* Build with Gradle v7.6.4
 * Improve publishing
 * Ported runtime Groovy classes to Java (specifically, in Luxembourgish language component)
 
 ### Fixed
 
 * Migrate CI/CD from Travis to GitHub Actions
-* Add compability with Java 11 and 12
+* Add compability with Java 11 and 17
 * Lock down Java compatibility to 1.8
 * Reduce non-API dependency leakage (particularly `groovy-all`)
+* Dependency resolution errors following JCenter shutdown
+* Javadoc errors in legacy, third-party code
+
+### Removed
+
+* Legacy Maven POMs
+
+### Security
+
+* Upgraded Commons IO to v2.17.0, fixing
+  * CVE-2021-29425
+  * CVE-2024-47554
+* Upgraded Guava to v33.3.1-jre, fixing
+  * CVE-2020-8908
+  * CVE-2023-2976
+* Upgraded HSQLDB to v2.7.3, fixing
+  * CVE-2022-41853
+* Upgraded Log4J to v2.24.1, fixing
+  * CVE-2019-17571
+  * CVE-2021-4104
+  * CVE-2022-23302
+  * CVE-2022-23305
+  * CVE-2022-23307
+* Upgraded SLF4J to v2.0.16, fixing
+  * CVE-2020-9488
+  * CVE-2021-44228
+  * CVE-2021-44832
+  * CVE-2021-45046
+  * CVE-2021-45105
+
+See [all changes since v5.2.1]
+
+[v5.2.1] (2022-05-25)
+---------------------
+
+This is a maintenance release to provide artifacts on Maven Central following the shutdown of JCenter, and also to mitigate the Log4Shell vulnerabilities.
+
+### Changes
+
+#### Artifact Hosting
+
+* Artifacts are now available on Maven Central, following the shutdown of JCenter/Bintray
+
+#### Security
+
+* Log4J dependencies have been updated to the latest versions, mitigating Log4Shell vulnerabilities
 
 See [all changes since v5.2]
 
 [v5.2] (2016-09-15)
 -------------------
+
 This is expected to be the last milestone release in the 5.x generation of MaryTTS.
 
 ### Improvements
@@ -769,7 +816,9 @@ We have put in a lot of effort to test and debug it, but of course the system ma
 Please help us improve the system by submitting [bug reports](http://mary.opendfki.de/newticket) on the [OpenMary development page](http://mary.opendfki.de/).
 
 [Unreleased]: https://github.com/marytts/marytts/tree/master
-[all changes since v5.2]: https://github.com/marytts/marytts/compare/v5.2...HEAD
+[all changes since v5.2.1]: https://github.com/marytts/marytts/compare/v5.2.1...HEAD
+[v5.2.1]: https://github.com/marytts/marytts/releases/tag/v5.2.1
+[all changes since v5.2]: https://github.com/marytts/marytts/compare/v5.2...v5.2.1
 [v5.2]: https://github.com/marytts/marytts/releases/tag/v5.2
 [all changes since v5.1.2]: https://github.com/marytts/marytts/compare/v5.1.2...v5.2
 [v5.1.2]: https://github.com/marytts/marytts/releases/tag/v5.1.2

@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id 'de.dfki.mary.component' version '0.2'
+        id 'de.dfki.mary.component' version '0.3.2'
     }
 }
 include 'marytts-common'
@@ -16,3 +16,68 @@ include 'marytts-languages:marytts-lang-tr'
 include 'marytts-runtime'
 include 'marytts-signalproc'
 include 'voice-cmu-slt-hsmm'
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            version('commons-collections', '3.2.2')
+            version('commons-io', '2.17.0')
+            version('commons-lang', '2.6')
+            version('emotionml-checker', '1.2.2')
+            version('guava', '33.3.1-jre')
+            version('hsqldb', '2.7.3')
+            version('httpcore', '4.1')
+            version('icu4j', '66.1')
+            version('jama', '1.0.3')
+            version('jtok', '1.9.3')
+            version('log4j', '2.24.1')
+            version('opennlp-tools', '1.9.2')
+            version('slf4j', '2.0.16')
+            version('swing-layout', '1.0.3')
+            version('trove4j', '2.0.2')
+            library('commons-collections', 'commons-collections', 'commons-collections')
+                    .versionRef('commons-collections')
+            library('commons-io', 'commons-io', 'commons-io')
+                    .versionRef('commons-io')
+            library('commons-lang', 'commons-lang', 'commons-lang')
+                    .versionRef('commons-lang')
+            library('emotionml-checker', 'de.dfki.mary', 'emotionml-checker-java')
+                    .versionRef('emotionml-checker')
+            library('guava', 'com.google.guava', 'guava')
+                    .versionRef('guava')
+            library('httpcore', 'org.apache.httpcomponents', 'httpcore')
+                    .versionRef('httpcore')
+            library('httpcore-nio', 'org.apache.httpcomponents', 'httpcore-nio')
+                    .versionRef('httpcore')
+            library('icu4j', 'com.ibm.icu', 'icu4j')
+                    .versionRef('icu4j')
+            library('jama', 'gov.nist.math', 'jama')
+                    .versionRef('jama')
+            library('jtok-core', 'de.dfki.lt.jtok', 'jtok-core')
+                    .versionRef('jtok')
+            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core')
+                    .versionRef('log4j')
+            library('opennlp-tools', 'org.apache.opennlp', 'opennlp-tools')
+                    .versionRef('opennlp-tools')
+            library('slf4j-log4j12', 'org.slf4j', 'slf4j-log4j12')
+                    .versionRef('slf4j')
+            library('swing-layout', 'org.swinglabs', 'swing-layout')
+                    .versionRef('swing-layout')
+            library('trove4j', 'net.sf.trove4j', 'trove4j')
+                    .versionRef('trove4j')
+        }
+        testLibs {
+            version('fest-assert', '1.4')
+            version('junit', '4.12')
+            version('testng', '7.5')
+            version('xmlunit', '1.6')
+            library('fest-assert', 'org.easytesting', 'fest-assert')
+                    .versionRef('fest-assert')
+            library('junit', 'junit', 'junit')
+                    .versionRef('junit')
+            library('testng', 'org.testng', 'testng')
+                    .versionRef('testng')
+            library('xmlunit', 'xmlunit', 'xmlunit')
+                    .versionRef('xmlunit')
+        }
+    }
+}
