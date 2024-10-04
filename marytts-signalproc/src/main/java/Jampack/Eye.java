@@ -8,7 +8,7 @@ package Jampack;
 public class Eye{
    
 /**
-   Generates an identity matrix of order <tt>n</tt>.
+   Generates an identity matrix of order <code>n</code>.
    @param n  The order of the matrx
 */
    public static Zmat o(int n){
@@ -16,7 +16,7 @@ public class Eye{
    }
 
 /**
-   Generates an <tt>mxn</tt> matrix whose diagonal elements are
+   Generates an <code>mxn</code> matrix whose diagonal elements are
    one and whose off diagonal elements are zero.
    @param m   The number of rows in the matrix
    @param n   The number of columns in the matrix

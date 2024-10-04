@@ -193,7 +193,7 @@ public class Zdiagmat{
    }
 
 /**
-   Gets the <tt>i</tt>th diagonal of a of a Zdiagmat
+   Gets the <code>i</code>th diagonal of a of a Zdiagmat
    (0-based).
 */
 
@@ -217,7 +217,7 @@ public class Zdiagmat{
    }
 
 /**
-   Writes the <tt>i</tt>th diagonal element  of a Zdiagmat
+   Writes the <code>i</code>th diagonal element  of a Zdiagmat
    (0-based).
 */
 

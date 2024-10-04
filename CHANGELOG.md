@@ -17,6 +17,7 @@ MaryTTS
 * Lock down Java compatibility to 1.8
 * Reduce non-API dependency leakage (particularly `groovy-all`)
 * Dependency resolution errors following JCenter shutdown
+* Javadoc errors in legacy, third-party code
 
 ### Removed
 

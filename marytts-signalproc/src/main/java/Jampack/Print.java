@@ -238,7 +238,7 @@ public class Print{
    }
 
 /**
-   Prints a 2-dimensional array of <tt>Z</tt> in default e format.
+   Prints a 2-dimensional array of <code>Z</code> in default e format.
 */
 
    public static void o(Z[][] A){
@@ -246,7 +246,7 @@ public class Print{
    }
 
 /**
-   Prints a 2-dimensional array of <tt>Z</tt> in w.d e format.
+   Prints a 2-dimensional array of <code>Z</code> in w.d e format.
 */
 
   public static void o(Z[][] A, int w, int d){
@@ -341,7 +341,7 @@ public class Print{
    }
 
 /**
-   Prints a <tt>Zmat</tt> in default e format.
+   Prints a <code>Zmat</code> in default e format.
 */
    public static void o(Zmat A){
       o(A, Parameters.OutputFieldWidth, Parameters.OutputFracPlaces);
