@@ -1,7 +1,6 @@
 plugins {
     id 'de.dfki.mary.component'
 }
-apply from: "$rootDir/dependencies.gradle"
 apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
@@ -19,8 +18,8 @@ marytts {
 dependencies {
     implementation project(':marytts-runtime')
     implementation project(':marytts-languages:marytts-lang-fr')
-    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.0'
-    testImplementation libs.xmlunit
+    runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.1'
+    testImplementation testLibs.xmlunit
     integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 

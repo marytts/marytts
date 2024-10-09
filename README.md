@@ -64,7 +64,7 @@ Add to your `pom.xml`:
 ```xml
 <repositories>
   <repository>
-    <url>https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local</url>
+    <url>https://raw.githubusercontent.com/DFKI-MLT/Maven-Repository/main</url>
   </repository>
 </repositories>
 
@@ -73,16 +73,6 @@ Add to your `pom.xml`:
     <groupId>de.dfki.mary</groupId>
     <artifactId>voice-cmu-slt-hsmm</artifactId>
     <version>5.2.1</version>
-    <exclusions>
-      <exclusion>
-        <groupId>com.twmacinta</groupId>
-        <artifactId>fast-md5</artifactId>
-      </exclusion>
-      <exclusion>
-         <groupId>gov.nist.math</groupId>
-         <artifactId>Jampack</artifactId>
-      </exclusion>
-    </exclusions>
   </dependency>
 </dependencies>
 ```
@@ -97,7 +87,7 @@ repositories {
    exclusiveContent {
       forRepository {
          maven {
-            url 'https://mlt.jfrog.io/artifactory/mlt-mvn-releases-local'
+            url 'https://raw.githubusercontent.com/DFKI-MLT/Maven-Repository/main'
          }
       }
       filter {
@@ -107,10 +97,7 @@ repositories {
 }
 
 dependencies {
-   implementation group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2.1', {
-      exclude group: 'com.twmacinta', module: 'fast-md5'
-      exclude group: 'gov.nist.math', module: 'Jampack'
-   }
+   implementation group: 'de.dfki.mary', name: 'voice-cmu-slt-hsmm', version: '5.2.1'
 }
 ```
 
