@@ -96,3 +96,18 @@ installDist {
         include 'download/*', 'installed/*', 'lib/**'
     }
 }
+
+def testStartScriptsTask = tasks.register('testStartScripts') {
+    dependsOn tasks.withType(CreateStartScripts)
+    doLast {
+        tasks.withType(CreateStartScripts).each { startScriptTask ->
+            def unixScript = startScriptTask.unixScript
+            def lastClasspathLine = unixScript.readLines().findAll { it.contains('-classpath') }.last()
+            assert lastClasspathLine =~ '\\\$APP_HOME/lib/*': "$unixScript does not contain expected classpath"
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn testStartScriptsTask
+}
