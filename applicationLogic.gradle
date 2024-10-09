@@ -107,7 +107,7 @@ tasks.withType(CreateStartScripts) {
         unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')
         windowsScript.text = windowsScript.text.replaceAll('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS="-Dmary.base=%APP_HOME%"')
         // hack classpath
-        unixScript.text = unixScript.text.replaceAll('-classpath "\\\\"\\$CLASSPATH\\\\""', '-classpath "\\\\"\\$APP_HOME/lib/*\\\\""')
+        unixScript.text = unixScript.text.replaceAll('-classpath "\\\$CLASSPATH"', '-classpath "\\\$APP_HOME/lib/*\"')
         windowsScript.text = windowsScript.text.replaceAll('-classpath "%CLASSPATH%"', '-classpath "%APP_HOME%\\\\lib\\\\*"')
     }
 }
@@ -116,4 +116,19 @@ installDist {
     preserve {
         include 'download/*', 'installed/*', 'lib/**'
     }
+}
+
+def testStartScriptsTask = tasks.register('testStartScripts') {
+    dependsOn tasks.withType(CreateStartScripts)
+    doLast {
+        tasks.withType(CreateStartScripts).each { startScriptTask ->
+            def unixScript = startScriptTask.unixScript
+            def lastClasspathLine = unixScript.readLines().findAll { it.contains('-classpath') }.last()
+            assert lastClasspathLine =~ '\\\$APP_HOME/lib/*': "$unixScript does not contain expected classpath"
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn testStartScriptsTask
 }
