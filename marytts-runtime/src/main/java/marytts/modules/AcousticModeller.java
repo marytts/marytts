@@ -33,11 +33,14 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
+import marytts.htsengine.HMMVoice;
+import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ProsodyElementHandler;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
+import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
@@ -133,7 +136,7 @@ public class AcousticModeller extends InternalModule {
 		super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
 	}
 
-	public MaryData process(MaryData d) throws SynthesisException {
+	public MaryData process(MaryData d, String defaultEffects) throws SynthesisException {
 		Document doc = d.getDocument();
 		MaryData output = new MaryData(getOutputType(), d.getLocale());
 
@@ -178,6 +181,13 @@ public class AcousticModeller extends InternalModule {
 		Model durationModel = voice.getDurationModel();
 		if (durationModel == null) {
 			throw new SynthesisException("No duration model available for voice " + voice);
+		}
+		// Force durationScale to apply early enough for Rate modifications to actually work
+		if (voice instanceof HMMVoice) {
+			EffectsApplier ea = new EffectsApplier();
+			ea.setHMMEffectParameters(voice, defaultEffects);
+			double durationScale = ((HMMVoice)voice).getHMMData().getDurationScale();
+			((HMMModel)durationModel).setDurationScale(durationScale);
 		}
 		List<Element> durationElements = elementLists.get(durationModel.getApplyTo());
 		if (durationElements == null) {
