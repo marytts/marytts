@@ -24,7 +24,7 @@ dependencyResolutionManagement {
             version('commons-lang', '2.6')
             version('emotionml-checker', '1.2.2')
             version('guava', '33.3.1-jre')
-            version('hsqldb', '2.7.3')
+            version('hsqldb', '2.7.4')
             version('httpcore', '4.1')
             version('icu4j', '66.1')
             version('jama', '1.0.3')
