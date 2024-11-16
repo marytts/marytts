@@ -26,7 +26,7 @@ dependencyResolutionManagement {
             version('guava', '33.3.1-jre')
             version('hsqldb', '2.7.4')
             version('httpcore', '4.1')
-            version('icu4j', '66.1')
+            version('icu4j', '76.1')
             version('jama', '1.0.3')
             version('jtok', '1.9.3')
             version('log4j', '2.24.1')
