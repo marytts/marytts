@@ -29,7 +29,7 @@ dependencyResolutionManagement {
             version('icu4j', '76.1')
             version('jama', '1.0.3')
             version('jtok', '1.9.3')
-            version('log4j', '2.24.2')
+            version('log4j', '2.24.3')
             version('opennlp-tools', '1.9.2')
             version('slf4j', '2.0.16')
             version('swing-layout', '1.0.3')
