@@ -69,7 +69,7 @@ dependencyResolutionManagement {
             version('fest-assert', '1.4')
             version('junit', '4.13.2')
             version('testng', '7.5.1')
-            version('xmlunit', '2.0.0')
+            version('xmlunit', '2.10.0')
             library('fest-assert', 'org.easytesting', 'fest-assert')
                     .versionRef('fest-assert')
             library('junit', 'junit', 'junit')
