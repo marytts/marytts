@@ -66,12 +66,12 @@ dependencyResolutionManagement {
                     .versionRef('trove4j')
         }
         testLibs {
-            version('fest-assert', '1.4')
+            version('assertj', '3.27.2')
             version('junit', '4.13.2')
             version('testng', '7.5.1')
             version('xmlunit', '2.10.0')
-            library('fest-assert', 'org.easytesting', 'fest-assert')
-                    .versionRef('fest-assert')
+            library('assertj', 'org.assertj', 'assertj-core')
+                    .versionRef('assertj')
             library('junit', 'junit', 'junit')
                     .versionRef('junit')
             library('testng', 'org.testng', 'testng')

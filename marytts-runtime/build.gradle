@@ -36,7 +36,7 @@ dependencies {
     implementation libs.opennlp.tools
     implementation libs.trove4j
     testImplementation testLibs.junit
-    testImplementation testLibs.fest.assert
+    testImplementation testLibs.assertj
     integrationTestImplementation localGroovy()
     integrationTestImplementation testLibs.junit
     integrationTestRuntimeOnly project(':voice-cmu-slt-hsmm')
