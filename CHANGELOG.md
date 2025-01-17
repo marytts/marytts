@@ -9,6 +9,7 @@ MaryTTS
 * Build with Gradle v7.6.4
 * Improve publishing
 * Ported runtime Groovy classes to Java (specifically, in Luxembourgish language component)
+* Upgraded dependencies
 
 ### Fixed
 
@@ -25,15 +26,15 @@ MaryTTS
 
 ### Security
 
-* Upgraded Commons IO to v2.17.0, fixing
+* Upgraded Commons IO to v2.18.0, fixing
   * CVE-2021-29425
   * CVE-2024-47554
-* Upgraded Guava to v33.3.1-jre, fixing
+* Upgraded Guava to v33.4.0-jre, fixing
   * CVE-2020-8908
   * CVE-2023-2976
-* Upgraded HSQLDB to v2.7.3, fixing
+* Upgraded HSQLDB to v2.7.4, fixing
   * CVE-2022-41853
-* Upgraded Log4J to v2.24.1, fixing
+* Upgraded Log4J to v2.24.3, fixing
   * CVE-2019-17571
   * CVE-2021-4104
   * CVE-2022-23302
