@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marytts-install xmlns="http://mary.dfki.de/installer">
+    <voice gender="male" locale="as" name="mor-katha"
+        type="unit selection" version="5.1.2">
+        <description>A male Indian Assamese voice</description>
+        <license href="http://mary.dfki.de/download/by-nd-3.0.html"/>
+        <package filename="marytts-lang-as-5.1.2.zip"
+            md5sum="3ad7638e38a43bbc09c83249f5d41f13" size="57560717">
+            <location href="https://drive.google.com/file/d/0B5dIwzIYFl21TVZvVjBxYjc2R1U/view?usp=sharing"/>
+        </package>
+        <depends language="as" version="5.1.2"/>
+    </voice>
+</marytts-install>
