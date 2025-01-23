@@ -143,6 +143,7 @@ public class AbbrevEP extends ExpansionPattern {
 		ArrayList<Element> abbr = new ArrayList<Element>(abbrTokens);
 		ArrayList<Element> match = new ArrayList<Element>(abbr);
 		boolean tryLowerCase = false;
+		boolean dotAppended = false;
 		if (MaryDomUtils.isFirstOfItsKindIn((Element) abbr.get(0), MaryXML.SENTENCE)
 				&& REPattern.initialCapitalLetter.matcher(MaryDomUtils.tokenText((Element) abbr.get(0))).find()) {
 			// At sentence start, maybe need to lowercase first char
@@ -152,6 +153,7 @@ public class AbbrevEP extends ExpansionPattern {
 		StringBuilder sb = new StringBuilder();
 		while (!match.isEmpty()) {
 			sb.setLength(0);
+			dotAppended = false;
 			Iterator<Element> it = match.iterator();
 			while (it.hasNext()) {
 				sb.append(MaryDomUtils.tokenText((Element) it.next()));
@@ -168,6 +170,7 @@ public class AbbrevEP extends ExpansionPattern {
 			}
 			// Try to append a dot:
 			sb.append(".");
+			dotAppended = true;
 			logger.debug("Looking up abbreviation in dictionary: `" + sb.toString() + "'");
 			if (abbrevDict.containsKey(sb.toString())) {
 				break; // OK, found a match
@@ -175,7 +178,7 @@ public class AbbrevEP extends ExpansionPattern {
 			match.remove(match.size() - 1); // remove last in list
 		}
 		if (!match.isEmpty()) { // found an abbrevDict entry
-			exp.addAll(dictionaryExpandAbbrev(match, sb.toString()));
+			exp.addAll(dictionaryExpandAbbrev(match, sb.toString(), dotAppended));
 			abbr.removeAll(match);
 			logger.debug("Have found abbreviation in dictionary: `" + sb.toString() + "'");
 		} else { // no abbrevDict entry - expand one token by rule
@@ -235,12 +238,14 @@ public class AbbrevEP extends ExpansionPattern {
 	 *            abbrev
 	 * @return exp
 	 */
-	private List<Element> dictionaryExpandAbbrev(List<Element> match, String abbrev) {
+	private List<Element> dictionaryExpandAbbrev(List<Element> match, String abbrev, boolean dotAppended) {
 		Document doc = ((Element) match.get(0)).getOwnerDocument();
 		ArrayList<Element> exp = new ArrayList<Element>();
 		String[] value = (String[]) abbrevDict.get(abbrev);
 		String flex = value[0]; // inflection info
 		String graph = value[1]; // expanded form, possibly with pronunciation
+		if (dotAppended)
+			abbrev = abbrev.substring(0, abbrev.length() - 1);
 		// For Sentence-initial abbreviation, make sure the expanded
 		// form starts with a capital letter.
 		if (MaryDomUtils.isFirstOfItsKindIn((Element) match.get(0), "div")
