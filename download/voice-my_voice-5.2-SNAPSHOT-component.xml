@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><marytts-install xmlns="http://mary.dfki.de/installer">
+  <voice gender="female" locale="lg" name="luganda voice" type="marytts.unitselection.UnitSelectionVoice" version="5.2-SNAPSHOT">
+    <description>A female Ganda general voice</description>
+    <license href="http://mary.dfki.de/download/arctic-license.html"/>
+    <package filename="voice-my_voice-5.2-SNAPSHOT.zip" md5sum="dbff15fed9ff6a3c6761b3db31e010f0" size="61067378">
+      <location folder="true" href="https://www.dropbox.com/s/6izkwhnh2cpg46r/voice-my_voice-5.2-SNAPSHOT.zip?dl=0"/>
+    </package>
+    <depends language="lg" version="5.2-SNAPSHOT"/>
+  </voice>
+</marytts-install>
+
+
+
+
+
