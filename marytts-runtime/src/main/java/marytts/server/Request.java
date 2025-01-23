@@ -45,6 +45,7 @@ import javax.xml.transform.TransformerException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.modules.AcousticModeller;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
@@ -562,7 +563,11 @@ public class Request {
 			logger.info("Next module: " + m.name());
 			MaryData outData = null;
 			try {
-				outData = m.process(currentData);
+				if (m instanceof AcousticModeller) {
+					outData = ((AcousticModeller)m).process(currentData, defaultEffects);
+				} else {
+					outData = m.process(currentData);
+				}
 			} catch (Exception e) {
 				throw new Exception("Module " + m.name() + ": Problem processing the data.", e);
 			}
