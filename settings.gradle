@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id 'de.dfki.mary.component' version '0.3.2'
+        id 'de.dfki.mary.component' version '0.3.3'
     }
 }
 include 'marytts-common'
@@ -28,7 +28,7 @@ dependencyResolutionManagement {
             version('httpcore', '4.1')
             version('icu4j', '76.1')
             version('jama', '1.0.3')
-            version('jtok', '1.9.3')
+            version('jtok', '1.9.4')
             version('log4j', '2.24.3')
             version('opennlp-tools', '1.9.2')
             version('slf4j', '2.0.16')
