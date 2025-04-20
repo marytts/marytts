@@ -129,6 +129,10 @@ def testStartScriptsTask = tasks.register('testStartScripts') {
     }
 }
 
+tasks.named('installDist') {
+    dependsOn tasks.named('installerGuiStartScripts')
+}
+
 tasks.named('check') {
     dependsOn testStartScriptsTask
 }
