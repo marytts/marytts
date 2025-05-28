@@ -3,8 +3,8 @@ plugins {
 }
 
 allprojects {
-    group 'de.dfki.mary'
-    version '5.3-SNAPSHOT'
+    group = 'de.dfki.mary'
+    version = '5.3-SNAPSHOT'
 
     repositories {
         mavenCentral()

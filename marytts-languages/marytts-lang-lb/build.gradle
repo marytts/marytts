@@ -4,7 +4,9 @@ plugins {
 apply from: "$rootDir/buildLogic.gradle"
 apply from: "$rootDir/publishLogic.gradle"
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = 1.8
+}
 
 marytts {
     component {
@@ -19,7 +21,7 @@ dependencies {
     implementation project(':marytts-runtime')
     implementation project(':marytts-languages:marytts-lang-fr')
     runtimeOnly group: 'de.dfki.mary', name: 'marytts-lexicon-lb', version: '0.1.1'
-    testImplementation testLibs.xmlunit
+    testImplementation libs.xmlunit
     integrationTestImplementation project(':marytts-runtime').sourceSets.test.output
 }
 

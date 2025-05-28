@@ -145,16 +145,16 @@ publishing {
     }
     repositories {
         maven {
-            name 'Project'
-            url "$rootProject.buildDir/repo"
+            name = 'Project'
+            url = "$rootProject.buildDir/repo"
         }
         maven {
             if (version.endsWith('-SNAPSHOT')) {
-                name 'OJO'
-                url 'https://oss.jfrog.org/artifactory/oss-snapshot-local'
+                name = 'OJO'
+                url = 'https://oss.jfrog.org/artifactory/oss-snapshot-local'
             } else {
-                name 'Bintray'
-                url 'https://api.bintray.com/maven/marytts/marytts/marytts'
+                name = 'Bintray'
+                url = 'https://api.bintray.com/maven/marytts/marytts/marytts'
             }
             credentials {
                 username = findProperty('bintrayUser')

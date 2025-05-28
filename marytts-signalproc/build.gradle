@@ -6,5 +6,5 @@ dependencies {
     api project(':marytts-common')
     api libs.jama
     api libs.swing.layout
-    testImplementation testLibs.junit
+    testImplementation libs.junit
 }

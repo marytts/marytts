@@ -1,63 +1,47 @@
 apply plugin: 'application'
 
-repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                url 'https://raw.githubusercontent.com/DFKI-MLT/Maven-Repository/main'
-            }
-        }
-        filter {
-            includeGroup 'de.dfki.lt.jtok'
-        }
-    }
-}
-
 dependencies {
     runtimeOnly project(':marytts-runtime')
     runtimeOnly project(':marytts-languages').subprojects
     runtimeOnly project(':voice-cmu-slt-hsmm')
 }
 
-mainClassName = 'marytts.server.Mary'
+application {
+    mainClass = 'marytts.server.Mary'
+}
 
 run {
-    dependsOn installDist
+    dependsOn tasks.named('installDist')
 
     // Define "mary.base"
     systemProperties << ['mary.base': installDist.destinationDir]
 
     // Forward server variables
-    if ("socket.addr" in System.properties) {
-        systemProperties << ['socket.addr': System.properties["socket.addr"]]
-    }
-    if ("socket.port" in System.properties) {
-        systemProperties << ['socket.port': System.properties["socket.port"]]
-    }
+    if (System.properties['socket.addr'])
+        systemProperties << ['socket.addr': System.properties['socket.addr']]
+
+    if (System.properties['socket.port'])
+        systemProperties << ['socket.port': System.properties['socket.port']]
 
     // Forward logger variables
-    if (logger.isEnabled(LogLevel.INFO)) {
+    if (logger.isEnabled(LogLevel.INFO))
         systemProperties << ['log4j.logger.marytts': 'INFO,stderr']
-    }
-    if (logger.isEnabled(LogLevel.DEBUG)) {
+    if (logger.isEnabled(LogLevel.DEBUG))
         systemProperties << ['log4j.logger.marytts': 'DEBUG,stderr']
-    }
 
     // Override logger
-    if ("log4j.logger.marytts" in System.properties) {
-        systemProperties << ["log4j.logger.marytts": System.properties["log4j.logger.marytts"]]
-    }
-
+    if (System.properties['log4j.logger.marytts'])
+        systemProperties << ['log4j.logger.marytts': System.properties['log4j.logger.marytts']]
 
     doFirst {
         classpath += fileTree(installDist.destinationDir).include('lib/voice-*.jar', 'lib/marytts-lang-*.jar')
     }
 }
 
-task runInstallerGui(type: JavaExec) {
-    group 'Application'
-    description 'Runs the MaryTTS Installer GUI as a JVM application'
-    dependsOn installDist
+tasks.register('runInstallerGui', JavaExec) {
+    group = 'Application'
+    description = 'Runs the MaryTTS Installer GUI as a JVM application'
+    dependsOn tasks.named('installDist')
     classpath run.classpath
     mainClass = 'marytts.tools.install.InstallerGUI'
     systemProperties << ['mary.base': installDist.destinationDir]
@@ -79,29 +63,29 @@ distTar {
     archiveExtension = 'tar.bz2'
 }
 
-startScripts {
-    applicationName = 'marytts-server'
-}
-
-task installerGuiStartScripts(type: CreateStartScripts) {
+def installerGuiStartScriptsTask = tasks.register('installerGuiStartScripts', CreateStartScripts) {
     applicationName = 'marytts-component-installer'
     outputDir = startScripts.outputDir
     classpath = startScripts.classpath
     mainClass = 'marytts.tools.install.InstallerGUI'
-    startScripts.finalizedBy it
+}
+
+startScripts {
+    dependsOn installerGuiStartScriptsTask
+    applicationName = 'marytts-server'
 }
 
 tasks.named('distTar').configure {
-    dependsOn installerGuiStartScripts
+    dependsOn installerGuiStartScriptsTask
 }
 
 tasks.named('distZip').configure {
-    dependsOn installerGuiStartScripts
+    dependsOn installerGuiStartScriptsTask
 }
 
-tasks.withType(CreateStartScripts) {
-    group 'Distribution'
-    description startScripts.description
+tasks.withType(CreateStartScripts).configureEach {
+    group = 'Distribution'
+    description = startScripts.description
     doLast {
         // hack mary.base property into DEFAULT_JVM_OPTS
         unixScript.text = unixScript.text.replaceAll('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="-Dmary.base=\\$APP_HOME"')

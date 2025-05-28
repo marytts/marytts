@@ -6,12 +6,24 @@ dependencies {
     api libs.commons.io
     api libs.commons.lang
     api libs.log4j.core
-    testImplementation testLibs.testng
+    testImplementation libs.testng
+}
+
+def generateSpecificationVersionFileTask = tasks.register('generateSpecificationVersionFile') {
+    def version = objects.property(String)
+            .convention(version)
+    def specificationVersionFile = objects.fileProperty()
+            .convention(layout.buildDirectory.file('specification-version.txt'))
+    inputs.property 'version', version
+    outputs.file specificationVersionFile
+    doLast {
+        specificationVersionFile.get().asFile.text = version.get()
+    }
 }
 
 processResources {
-    filesMatching '**/specification-version.txt', {
-        expand project.properties
+    from generateSpecificationVersionFileTask, {
+        into 'marytts'
     }
 }
 
